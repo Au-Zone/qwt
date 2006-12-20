@@ -1,0 +1,90 @@
+A) Unix Qt3/Qt4
+================
+
+A1) Library
+
+    Builds need qmake, that is official part of Qt.
+
+    qmake qwt.pro 
+    make
+    make install
+
+A2) Designer Plugin
+
+    cd designer
+    qmake qwtplugin.pro
+    make
+    make install
+
+A3) Qwt Text Engines
+
+    Qwt/Qt4 supports the MathML render engine from the Qt solutions package,
+    that is only available with a commercial Qt license.
+
+    You need a release of qtmmlwidget >= 2.1.
+    Copy the files qtmmlwidget.[cpp|h] to textengines/mathml.
+
+    cd textengines
+    qmake textengines.pro
+    make
+    make install
+
+A4) Examples
+
+    cd examples
+    qmake examples.pro 
+    make
+
+    If you like to run the examples, don't forget to install the 
+    Qwt library/plugins or set the LD_LIBRARY_PATH to the lib directory 
+    of your local build.
+
+B) Win32/MSVC Qt3/Qt4
+=====================
+
+    Please read the qmake documentation how to convert 
+    your *.pro files into your development environment.
+
+    F.e MSVC with nmake:
+    qmake qwt.pro
+    nmake
+
+    cd designer
+    qmake qwtplugin.pro
+    nmake
+    nmake install
+
+    cd textengines
+    qmake textengines.pro
+    make
+
+    cd examples
+    qmake examples.pro
+    nmake
+
+    There is a msvc-qmake.bat batch file for Visual Studio users to
+    generate makefiles or project files (.dsp for MSVC-6.0 or vcproj for 
+    MSVC.NET) for Qwt, all examples and the designer plugin.
+
+    To generate makefiles, type: msvc-qmake
+    To generate project files, type: msvc-qmake vc
+
+C) Win32/MinGW Qt4
+==================
+
+    If you use the MinGW compiler from the MSYS shell do:
+
+    export MINGW_IN_SHELL=1;
+    qmake;
+    make
+
+    cd designer
+    qmake qwtplugin.pro
+    make
+    make install
+
+    cd examples
+    qmake 
+    make -i
+
+Good luck !
