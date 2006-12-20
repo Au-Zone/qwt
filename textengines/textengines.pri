@@ -15,7 +15,7 @@ CONFIG    += thread
 
 MOC_DIR         = moc
 OBJECTS_DIR     = obj
-DESTDIR         = ../lib
+DESTDIR         = ../../lib
 INCLUDEPATH    += ../../src
 DEPENDPATH     += ../../src
 

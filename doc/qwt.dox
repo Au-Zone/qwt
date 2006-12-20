@@ -60,9 +60,9 @@ to control or display values, arrays, or ranges of type double.
   <a href="http://samotyjak.pwsz.elblag.pl/rpmy/RPMS">Fedora</a>. Please
   report links that are not listed here.
 
-  For anonymous CVS try:
+  For getting a development snapshot from the SVN repository: 
   \code
-cvs -d:pserver:anonymous@qwt.cvs.sourceforge.net:/cvsroot/qwt co qwt
+svn co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt
   \endcode
 
   \section installonmainpage Installation
