@@ -1,8 +1,8 @@
-#! /bin/sh 
+#! /bin/sh -x
 # 
 # Generates a Qwt package from sourceforge cvs
 #
-# Usage: cvs2package.sh [-cvs cvsuser] packagename
+# Usage: svn2package.sh [packagename] 
 #
 
 ##########################
@@ -10,7 +10,7 @@
 ##########################
 
 function usage() {
-    echo "Usage: cvs2package.sh [-cvs cvsuser] [packagename]"
+    echo "Usage: $0 [packagename]"
     exit 1
 }
 
@@ -29,18 +29,17 @@ function checkoutQwt() {
         fi
     fi
 
-    cvs -q -z3 \
-        -d$1@qwt.cvs.sourceforge.net:/cvsroot/qwt co qwt > /dev/null
+    svn -q co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt
     if [ $? -ne 0 ]
     then
-        echo "Can't access sourceforge CVS"
+        echo "Can't access sourceforge SVN"
         exit $?
     fi
 
-    if [ $2 != qwt ]
+    if [ "$1" != "qwt" ]
     then
-        rm -rf $2
-        mv qwt $2
+        rm -rf $1
+        mv qwt $1
     fi
 }
 
@@ -56,22 +55,26 @@ function cleanQwt {
         exit $?
     fi
 
-    find . -name CVS -print | xargs rm -rf
-    find . -name .cvsignore -exec rm -f {} \;
-    rm -rf makefiles admin examples/compass 
+    find . -name .svn -print | xargs rm -rf
+    rm -rf admin 
 
-    PROFILES="qwt.pro examples/examples.pri"
+    PROFILES="qwt.pro examples/examples.pri designer/designer.pro textengines/textengines.pri"
     for PROFILE in $PROFILES
     do
         sed -e 's/= debug/= release/' $PROFILE > $PROFILE.sed
         mv $PROFILE.sed $PROFILE
     done
 
+    # sed -e 's/PROJECT_NUMBER/PROJECT_NUMBER = $VERSION/' doc/Doxyfile > doc/Doxyfile.sed
+    # mv doc/Doxyfile.sed doc/Doxyfile
+    
+
     HEADERS=`find . -type f -name '*.h' -print`
     SOURCES=`find . -type f -name '*.cpp' -print`
     PROFILES=`find . -type f -name '*.pro' -print`
+    PRIFILES=`find . -type f -name '*.pri' -print`
 
-    for EXPANDFILE in $HEADERS $SOURCES $PROFILES
+    for EXPANDFILE in $HEADERS $SOURCES $PROFILES $PRIFILES
     do
         expand -4 $EXPANDFILE > $EXPANDFILE.expand
         mv $EXPANDFILE.expand $EXPANDFILE
@@ -96,8 +99,9 @@ function createDocs {
 
     # We need LateX for the qwtdoc.pdf
 
-    sed -e '/GENERATE_LATEX/d' Doxyfile > Doxyfile.doc
+    sed -e '/GENERATE_LATEX/d' -e '/PROJECT_NUMBER/d' Doxyfile > Doxyfile.doc
     echo 'GENERATE_LATEX = YES' >> Doxyfile.doc
+    echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
 
     doxygen Doxyfile.doc > /dev/null
     if [ $? -ne 0 ]
@@ -107,16 +111,17 @@ function createDocs {
 
     rm -rf Doxyfile.doc Doxygen.log doc/images 
 
-    mkdir doc/pdf
-    cd doc/latex
+    cd latex
     make > /dev/null 2>&1
     if [ $? -ne 0 ]
     then 
         exit $?
     fi
 
+    mkdir pdf
     mv refman.pdf ../pdf/qwtdoc.pdf
     cd ..
+
     rm -rf latex postscript
     
     cd $ODIR
@@ -154,8 +159,9 @@ function prepare4Win {
     HEADERS=`find . -type f -name '*.h' -print`
     SOURCES=`find . -type f -name '*.cpp' -print`
     PROFILES=`find . -type f -name '*.pro' -print`
+    PRIFILES=`find . -type f -name '*.pri' -print`
 
-    for FILE in $BATCHES $HEADERS $SOURCES $PROFILES
+    for FILE in $BATCHES $HEADERS $SOURCES $PROFILES $PRIFILES
     do
         posix2dos $FILE
     done
@@ -175,8 +181,7 @@ function prepare4Unix {
         exit $?
     fi
 
-    rm -rf msvc-qmake.bat examples/examples.dsw
-    rm -rf qwt.sln qwt.dsw
+    rm -rf msvc-qmake.bat 
 
     cd -
 }
@@ -186,13 +191,10 @@ function prepare4Unix {
 ##########################
 
 QWTDIR=qwt
-CVSUSER=:pserver:anonymous
 VERSION=unknown
 
 while [ $# -gt 0 ] ; do
     case "$1" in
-        -cvs)
-            CVSUSER=$2; shift 2;;
         -h|--help)
             usage; exit 1 ;;
         *) 
@@ -208,7 +210,7 @@ cleanQwt $TMPDIR
 echo done
 
 echo -n "generate documentation ... "
-createDocs $TMPDIR
+createDocs $TMPDIR/doc
 mv $TMPDIR/doc/pdf/qwtdoc.pdf $QWTDIR.pdf
 rmdir $TMPDIR/doc/pdf
 echo done

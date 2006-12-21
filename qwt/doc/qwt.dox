@@ -55,7 +55,7 @@ to control or display values, arrays, or ranges of type double.
   Qwt doesn´t distribute binary packages, but you find some
   for the following Linux distributions: 
   <a href="http://packages.qa.debian.org/libq/libqwt.html">Debian</a>,
-  <a href="http://packman.links2linux.de/?action=618">S.u.S.E</a>,
+  <a href="http://packman.links2linux.de/package/qwt">S.u.S.E</a>,
   <a href="http://packages.gentoo.org/packages/?category=x11-libs;name=qwt">Gentoo</a>. 
   <a href="http://samotyjak.pwsz.elblag.pl/rpmy/RPMS">Fedora</a>. Please
   report links that are not listed here.
@@ -96,17 +96,12 @@ svn co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt
 
 /*!
   \page qwtlicense Qwt License, Version 1.0
-  \include "COPYING"
+  \include "../COPYING"
 */
 
 /*!
   \page qwtinstall INSTALL
-  \include "INSTALL"
-*/
-
-/*!
-  \page qwtspec qwt.spec
-  \include "qwt.spec"
+  \include "../INSTALL"
 */
 
 /*!
