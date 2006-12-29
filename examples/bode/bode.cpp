@@ -162,7 +162,9 @@ MainWin::MainWin(QWidget *parent):
 #endif
 
     addToolBar(toolBar);
+#ifndef QT_NO_STATUSBAR
     (void)statusBar();
+#endif
 
     enableZoomMode(false);
     showInfo();
@@ -228,9 +230,15 @@ void MainWin::print()
 void MainWin::exportPDF()
 {
 #if QT_VERSION >= 0x040100
+
+#ifndef QT_NO_FILEDIALOG
     const QString fileName = QFileDialog::getSaveFileName(
         this, "Export File Name", QString(),
         "PDF Documents (*.pdf)");
+#else
+    const QString fileName = "bode.pdf";
+#endif
+
     if ( !fileName.isEmpty() )
     {
         QPrinter printer;
@@ -247,8 +255,13 @@ void MainWin::exportPDF()
 void MainWin::exportSVG()
 {
 #if QT_VERSION < 0x040000
+
+#ifndef QT_NO_FILEDIALOG
     const QString fileName = QFileDialog::getSaveFileName(
         "bode.svg", "SVG Documents (*.svg)", this);
+#else
+    const QString fileName = "bode.svg";
+#endif
     if ( !fileName.isEmpty() )
     {
         // enable workaround for Qt3 misalignments
@@ -290,10 +303,12 @@ void MainWin::showInfo(QString text)
             text = "Zoom: Press mouse button and drag";
     }
 
+#ifndef QT_NO_STATUSBAR
 #if QT_VERSION >= 0x040000
     statusBar()->showMessage(text);
 #else
     statusBar()->message(text);
+#endif
 #endif
 }
 

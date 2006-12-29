@@ -81,7 +81,9 @@ protected:
     virtual void paintEvent(QPaintEvent *);
 
 private:
+#ifndef QT_NO_CURSOR
     void showCursor(bool);
+#endif
 
     class PrivateData;
     PrivateData *d_data;

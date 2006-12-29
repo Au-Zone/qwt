@@ -1,4 +1,4 @@
-#! /bin/sh -x
+#! /bin/sh
 # 
 # Generates a Qwt package from sourceforge cvs
 #
@@ -150,10 +150,10 @@ function prepare4Win {
         exit $?
     fi
 
-    rm -rf qwt.spec qwt.spec.in doc/man examples/linux
+    rm -rf doc/man examples/linux
 
     # win files, but not uptodate
-    rm -rf qwt.sln qwt.dsw examples/examples.dsw
+    # rm -rf qwt.sln qwt.dsw examples/examples.dsw
 
     BATCHES=`find . -type f -name '*.bat' -print`
     HEADERS=`find . -type f -name '*.h' -print`

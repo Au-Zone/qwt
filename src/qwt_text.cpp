@@ -29,7 +29,7 @@ public:
     QwtTextEngineDict();
     ~QwtTextEngineDict();
 
-	void setTextEngine(QwtText::TextFormat, QwtTextEngine *);
+    void setTextEngine(QwtText::TextFormat, QwtTextEngine *);
     const QwtTextEngine *textEngine(QwtText::TextFormat) const;
     const QwtTextEngine *textEngine(const QString &, 
         QwtText::TextFormat) const;
@@ -97,26 +97,26 @@ const QwtTextEngine *QwtTextEngineDict::textEngine(const QString& text,
 }
 
 void QwtTextEngineDict::setTextEngine(QwtText::TextFormat format, 
-	QwtTextEngine *engine)
+    QwtTextEngine *engine)
 {
     if ( format == QwtText::AutoText )
-		return;
+        return;
 
     if ( format == QwtText::PlainText && engine == NULL )
-		return;
+        return;
 
     EngineMap::const_iterator it = d_map.find(format);
     if ( it != d_map.end() )
-	{
-		const QwtTextEngine *e = this->engine(it);
-		if ( e )
-			delete e;
+    {
+        const QwtTextEngine *e = this->engine(it);
+        if ( e )
+            delete e;
 
-		d_map.remove(format);
-	}
+        d_map.remove(format);
+    }
 
     if ( engine != NULL )
-    	d_map.insert(format, engine);
+        d_map.insert(format, engine);
 }
 
 const QwtTextEngine *QwtTextEngineDict::textEngine(
@@ -666,7 +666,7 @@ const QwtTextEngine *QwtText::textEngine(const QString &text,
    \warning Using QwtText::AutoText does nothing.
 */
 void QwtText::setTextEngine(QwtText::TextFormat format, 
-	QwtTextEngine *engine)
+    QwtTextEngine *engine)
 {
     if ( engineDict == NULL )
         engineDict = new QwtTextEngineDict();

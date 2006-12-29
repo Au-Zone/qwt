@@ -58,9 +58,13 @@ QwtPlotCanvas::QwtPlotCanvas(QwtPlot *plot):
 
 #if QT_VERSION < 0x040000
     setWFlags(Qt::WNoAutoErase);
+#ifndef QT_NO_CURSOR
     setCursor(Qt::crossCursor);
+#endif
 #else
+#ifndef QT_NO_CURSOR
     setCursor(Qt::CrossCursor);
+#endif
 #endif // >= 0x040000
 
     setPaintAttribute(PaintCached, true);
