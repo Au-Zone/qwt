@@ -26,7 +26,7 @@ public:
         abortKeyState(Qt::NoButton),
 #ifndef QT_NO_CURSOR
         cursor(NULL),
-        restoreCursor(NULL)
+        restoreCursor(NULL),
 #endif
         isEnabled(false)
     {
