@@ -20,23 +20,26 @@ class QwtPanner::PrivateData
 {
 public:
     PrivateData():
-        isEnabled(false),
         button(Qt::LeftButton),
         buttonState(Qt::NoButton),
         abortKey(Qt::Key_Escape),
         abortKeyState(Qt::NoButton),
+#ifndef QT_NO_CURSOR
         cursor(NULL),
         restoreCursor(NULL)
+#endif
+        isEnabled(false)
     {
     }
 
     ~PrivateData()
     {
+#ifndef QT_NO_CURSOR
         delete cursor;
         delete restoreCursor;
+#endif
     }
         
-    bool isEnabled;
     int button;
     int buttonState;
     int abortKey;
@@ -46,8 +49,11 @@ public:
     QPoint pos;
 
     QPixmap pixmap;
+#ifndef QT_NO_CURSOR
     QCursor *cursor;
     QCursor *restoreCursor;
+#endif
+    bool isEnabled;
 };
 
 /*!
@@ -124,15 +130,18 @@ void QwtPanner::getAbortKey(int &key, int &state) const
 
    \sa setCursor()
 */
+#ifndef QT_NO_CURSOR
 void QwtPanner::setCursor(const QCursor &cursor)
 {
     d_data->cursor = new QCursor(cursor);
 }
+#endif
 
 /*!
    \return Cursor that is active while panning
    \sa setCursor()
 */
+#ifndef QT_NO_CURSOR
 const QCursor QwtPanner::cursor() const
 {
     if ( d_data->cursor )
@@ -143,6 +152,7 @@ const QCursor QwtPanner::cursor() const
 
     return QCursor();
 }
+#endif
 
 /*! 
   \brief En/disable the panner
@@ -298,7 +308,9 @@ void QwtPanner::widgetMousePressEvent(QMouseEvent *me)
         return;
     }
 
+#ifndef QT_NO_CURSOR
     showCursor(true);
+#endif
 
     d_data->initialPos = d_data->pos = me->pos();
 
@@ -343,7 +355,9 @@ void QwtPanner::widgetMouseReleaseEvent(QMouseEvent *me)
     if ( isVisible() )
     {
         hide();
+#ifndef QT_NO_CURSOR
         showCursor(false);
+#endif
 
         d_data->pixmap = QPixmap();
         d_data->pos = me->pos();
@@ -377,7 +391,9 @@ void QwtPanner::widgetKeyPressEvent(QKeyEvent *ke)
         if ( matched )
         {
             hide();
+#ifndef QT_NO_CURSOR
             showCursor(false);
+#endif
             d_data->pixmap = QPixmap();
         }
     }
@@ -393,6 +409,7 @@ void QwtPanner::widgetKeyReleaseEvent(QKeyEvent *)
 {
 }
 
+#ifndef QT_NO_CURSOR
 void QwtPanner::showCursor(bool on)
 {
     QWidget *w = parentWidget();
@@ -424,3 +441,4 @@ void QwtPanner::showCursor(bool on)
             w->unsetCursor();
     }
 }
+#endif
