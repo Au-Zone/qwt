@@ -96,12 +96,12 @@ svn co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt
 
 /*!
   \page qwtlicense Qwt License, Version 1.0
-  \include "../COPYING"
+  \include "COPYING"
 */
 
 /*!
   \page qwtinstall INSTALL
-  \include "../INSTALL"
+  \include "INSTALL"
 */
 
 /*!
