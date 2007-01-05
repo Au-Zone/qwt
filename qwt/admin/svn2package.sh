@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh 
 # 
 # Generates a Qwt package from sourceforge cvs
 #
@@ -103,13 +103,15 @@ function createDocs {
     echo 'GENERATE_LATEX = YES' >> Doxyfile.doc
     echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
 
+    cp ../INSTALL ../COPYING ./
+
     doxygen Doxyfile.doc > /dev/null
     if [ $? -ne 0 ]
     then
         exit $?
     fi
 
-    rm -rf Doxyfile.doc Doxygen.log doc/images 
+    rm -rf Doxyfile.doc Doxygen.log doc/images INSTALL COPYING
 
     cd latex
     make > /dev/null 2>&1
@@ -118,8 +120,9 @@ function createDocs {
         exit $?
     fi
 
+    cd ..
     mkdir pdf
-    mv refman.pdf ../pdf/qwtdoc.pdf
+    mv latex/refman.pdf pdf/qwtdoc.pdf
     cd ..
 
     rm -rf latex postscript
@@ -224,9 +227,7 @@ cd /tmp
 rm -rf $QWTDIR
 cp -a $TMPDIR $QWTDIR
 prepare4Unix $QWTDIR
-sed "s/@VERSION@/$VERSION/g;s/@TARBALL@/tgz/g" $QWTDIR/qwt.spec.in >$QWTDIR/qwt.spec
 tar cfz $QWTDIR.tgz $QWTDIR
-sed "s/@VERSION@/$VERSION/g;s/@TARBALL@/tar.bz2/g" $QWTDIR/qwt.spec.in >$QWTDIR/qwt.spec
 tar cfj $QWTDIR.tar.bz2 $QWTDIR
 
 rm -rf $QWTDIR
