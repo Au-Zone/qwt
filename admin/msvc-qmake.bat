@@ -7,7 +7,14 @@ REM To make Makefiles, type: msvc-qmake
 REM To make project files type: msvc-qmake vc
 
 REM For the Qwt library:
-qmake -t %1lib% qwt.pro
+cd src
+qmake -t %1lib% src.pro
+cd ..
+
+REM For the designer plugin:
+cd designer
+qmake -t %1lib designer.pro
+cd ..
 
 REM For the examples:
 cd examples
@@ -25,6 +32,8 @@ cd ..\dials
 qmake -t %1app dials.pro
 cd ..\event_filter
 qmake -t %1app event_filter.pro
+cd ..\histogram
+qmake -t %1app histogram.pro
 cd ..\radio
 qmake -t %1app radio.pro
 cd ..\realtime_plot
@@ -33,11 +42,10 @@ cd ..\simple_plot
 qmake -t %1app simple_plot.pro
 cd ..\sliders
 qmake -t %1app sliders.pro
+cd ..\spectrogram
+qmake -t %1app spectrogram.pro
+cd ..\sysinfo
+qmake -t %1app sysinfo.pro
 cd ..\..
-
-REM For the designer plugin:
-cd designer
-qmake -t %1lib qwtplugin.pro
-cd ..
 
 REM EOF
