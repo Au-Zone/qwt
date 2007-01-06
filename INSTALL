@@ -5,14 +5,15 @@ A1) Library
 
     Builds need qmake, that is official part of Qt.
 
-    qmake qwt.pro 
+    cd src
+    qmake src.pro 
     make
     make install
 
 A2) Designer Plugin
 
     cd designer
-    qmake qwtplugin.pro
+    qmake designer.pro
     make
     make install
 
@@ -46,13 +47,16 @@ B) Win32/MSVC Qt3/Qt4
     your *.pro files into your development environment.
 
     F.e MSVC with nmake:
-    qmake qwt.pro
+    cd src
+    qmake src.pro
     nmake
 
     cd designer
-    qmake qwtplugin.pro
+    qmake designer.pro
     nmake
     nmake install
+
+    If you have access to the commercial Qt solutions package (see A3):
 
     cd textengines
     qmake textengines.pro
@@ -62,12 +66,12 @@ B) Win32/MSVC Qt3/Qt4
     qmake examples.pro
     nmake
 
-    There is a msvc-qmake.bat batch file for Visual Studio users to
+    There is a admin/msvc-qmake.bat batch file for Visual Studio users to
     generate makefiles or project files (.dsp for MSVC-6.0 or vcproj for 
     MSVC.NET) for Qwt, all examples and the designer plugin.
 
-    To generate makefiles, type: msvc-qmake
-    To generate project files, type: msvc-qmake vc
+    To generate makefiles, type: "admin\msvc-qmake"
+    To generate project files, type: "admin\msvc-qmake vc"
 
 C) Win32/MinGW Qt4
 ==================
@@ -75,11 +79,21 @@ C) Win32/MinGW Qt4
     If you use the MinGW compiler from the MSYS shell do:
 
     export MINGW_IN_SHELL=1;
-    qmake;
+
+    cd src
+    qmake src.pro
     make
+    make install
 
     cd designer
-    qmake qwtplugin.pro
+    qmake designer.pro
+    make
+    make install
+
+    If you have access to the commercial Qt solutions package (see A3):
+
+    cd textengines
+    qmake textengines.pro
     make
     make install
 
