@@ -18,25 +18,27 @@
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowCursorInterface>
 #include <QExtensionManager>
-#if 1
 #include <QErrorMessage>
+
+#include "qwt_designer_plugin.h"
+
+#ifndef NO_QWT_PLOT
+#include "qwt_designer_plotdialog.h"
+#include "qwt_plot.h"
+#include "qwt_scale_widget.h"
 #endif
 
-#include "qwt_designer_plotdialog.h"
-#include "qwt_designer_plugin.h"
+#ifndef NO_QWT_WIDGETS
 #include "qwt_counter.h"
-#include "qwt_plot.h"
 #include "qwt_wheel.h"
 #include "qwt_thermo.h"
 #include "qwt_knob.h"
-#if 0
-#include "qwt_scale_widget.h"
-#endif
-#include "qwt_scale_engine.h"
 #include "qwt_slider.h"
-#include "qwt_text_label.h"
 #include "qwt_analog_clock.h"
 #include "qwt_compass.h"
+#endif
+
+#include "qwt_text_label.h"
 
 using namespace QwtDesignerPlugin;
 
@@ -112,6 +114,8 @@ void CustomWidgetInterface::initialize(
     d_isInitialized = true;
 }
 
+#ifndef NO_QWT_PLOT
+
 PlotInterface::PlotInterface(QObject *parent): 
     CustomWidgetInterface(parent)
 {
@@ -135,6 +139,10 @@ QWidget *PlotInterface::createWidget(QWidget *parent)
 {
     return new QwtPlot(parent);
 }
+
+#endif
+
+#ifndef NO_QWT_WIDGETS
 
 AnalogClockInterface::AnalogClockInterface(QObject *parent): 
     CustomWidgetInterface(parent)
@@ -163,6 +171,10 @@ QWidget *AnalogClockInterface::createWidget(QWidget *parent)
     return new QwtAnalogClock(parent);
 }
 
+#endif
+
+#ifndef NO_QWT_WIDGETS
+
 CompassInterface::CompassInterface(QObject *parent): 
     CustomWidgetInterface(parent)
 {
@@ -190,6 +202,10 @@ QWidget *CompassInterface::createWidget(QWidget *parent)
     return new QwtCompass(parent);
 }
 
+#endif
+
+#ifndef NO_QWT_WIDGETS
+
 CounterInterface::CounterInterface(QObject *parent): 
     CustomWidgetInterface(parent)
 {
@@ -205,6 +221,10 @@ QWidget *CounterInterface::createWidget(QWidget *parent)
 {
     return new QwtCounter(parent);
 }
+
+#endif
+
+#ifndef NO_QWT_WIDGETS
 
 DialInterface::DialInterface(QObject *parent): 
     CustomWidgetInterface(parent)
@@ -233,6 +253,10 @@ QWidget *DialInterface::createWidget(QWidget *parent)
     return new QwtDial(parent);
 }
 
+#endif
+
+#ifndef NO_QWT_WIDGETS
+
 KnobInterface::KnobInterface(QObject *parent): 
     CustomWidgetInterface(parent)
 {
@@ -257,7 +281,10 @@ QWidget *KnobInterface::createWidget(QWidget *parent)
     return new QwtKnob(parent);
 }
 
-#if 0
+#endif
+
+#ifndef NO_QWT_PLOT
+
 ScaleWidgetInterface::ScaleWidgetInterface(QObject *parent): 
     CustomWidgetInterface(parent)
 {
@@ -271,9 +298,12 @@ ScaleWidgetInterface::ScaleWidgetInterface(QObject *parent):
 
 QWidget *ScaleWidgetInterface::createWidget(QWidget *parent)
 {
-    return = new QwtScaleWidget(parent);
+    return new QwtScaleWidget(QwtScaleDraw::LeftScale, parent);
 }
+
 #endif
+
+#ifndef NO_QWT_WIDGETS
 
 SliderInterface::SliderInterface(QObject *parent): 
     CustomWidgetInterface(parent)
@@ -305,6 +335,8 @@ QWidget *SliderInterface::createWidget(QWidget *parent)
     return slider;
 }
 
+#endif
+
 TextLabelInterface::TextLabelInterface(QObject *parent): 
     CustomWidgetInterface(parent)
 {
@@ -334,6 +366,8 @@ QWidget *TextLabelInterface::createWidget(QWidget *parent)
     return new QwtTextLabel(parent);
 }
 
+#ifndef NO_QWT_WIDGETS
+
 ThermoInterface::ThermoInterface(QObject *parent): 
     CustomWidgetInterface(parent)
 {
@@ -349,6 +383,10 @@ QWidget *ThermoInterface::createWidget(QWidget *parent)
 {
     return new QwtThermo(parent);
 }
+
+#endif
+
+#ifndef NO_QWT_WIDGETS
 
 WheelInterface::WheelInterface(QObject *parent): 
     CustomWidgetInterface(parent)
@@ -366,23 +404,29 @@ QWidget *WheelInterface::createWidget(QWidget *parent)
     return new QwtWheel(parent);
 }
 
+#endif
+
 CustomWidgetCollectionInterface::CustomWidgetCollectionInterface(   
         QObject *parent): 
     QObject(parent)
 {
+#ifndef NO_QWT_PLOT
     d_plugins.append(new PlotInterface(this));
+    d_plugins.append(new ScaleWidgetInterface(this));
+#endif
+
+#ifndef NO_QWT_WIDGETS
     d_plugins.append(new AnalogClockInterface(this));
     d_plugins.append(new CompassInterface(this));
     d_plugins.append(new CounterInterface(this));
     d_plugins.append(new DialInterface(this));
     d_plugins.append(new KnobInterface(this));
-#if 0
-    d_plugins.append(new ScaleWidgetInterface(this));
-#endif
     d_plugins.append(new SliderInterface(this));
-    d_plugins.append(new TextLabelInterface(this));
     d_plugins.append(new ThermoInterface(this));
     d_plugins.append(new WheelInterface(this));
+#endif
+
+    d_plugins.append(new TextLabelInterface(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> 
@@ -401,10 +445,14 @@ QObject *TaskMenuFactory::createExtension(
 {
     if (iid == Q_TYPEID(QDesignerTaskMenuExtension))
     {
+#ifndef NO_QWT_PLOT
         if (QwtPlot *plot = qobject_cast<QwtPlot*>(object))
             return new TaskMenuExtension(plot, parent);
+#endif
+#ifndef NO_QWT_WIDGETS
         if (QwtDial *dial = qobject_cast<QwtDial*>(object))
             return new TaskMenuExtension(dial, parent);
+#endif
     }
 
     return QExtensionFactory::createExtension(object, iid, parent);
@@ -438,6 +486,7 @@ void TaskMenuExtension::editProperties()
     if ( v.type() != QVariant::String )
         return;
 
+#ifndef NO_QWT_PLOT
     QString properties = v.toString();
 
     if ( qobject_cast<QwtPlot*>(d_widget) )
@@ -448,6 +497,7 @@ void TaskMenuExtension::editProperties()
         (void)dialog.exec();
         return;
     }
+#endif
 
     static QErrorMessage *errorMessage = NULL;
     if ( errorMessage == NULL )

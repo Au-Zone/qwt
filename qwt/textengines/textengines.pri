@@ -7,11 +7,16 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ##############################################
 
+include( ../qwtconfig.pri )
+
 TEMPLATE  = lib
-CONFIG    += qt lib
-CONFIG    += warn_on
-CONFIG    += release
-CONFIG    += thread
+
+contains(CONFIG, QwtDll ) {
+    CONFIG += dll
+}
+else {
+    CONFIG += staticlib
+}
 
 MOC_DIR         = moc
 OBJECTS_DIR     = obj
@@ -19,7 +24,9 @@ DESTDIR         = ../../lib
 INCLUDEPATH    += ../../src
 DEPENDPATH     += ../../src
 
-win32::DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+win32:dll {
+	DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+}
 
 unix:LIBS      += -L../../lib -lqwt
 win32-msvc:LIBS  += ../../lib/qwt5.lib
@@ -27,10 +34,9 @@ win32-msvc.net:LIBS  += ../../lib/qwt5.lib
 win32-msvc2005:LIBS += ../../lib/qwt5.lib
 win32-g++:LIBS   += -L../../lib -lqwt5
 
-unix {
-    INSTALLBASE    = /usr/local/qwt
-    target.path    = $$INSTALLBASE/lib
-    headers.path   = $$INSTALLBASE/include
-    headers.files  = $$HEADERS
-    INSTALLS       = target headers 
-}
+target.path    = $$INSTALLBASE/lib
+headers.path   = $$INSTALLBASE/include
+doc.path       = $$INSTALLBASE/doc
+
+headers.files  = $$HEADERS
+INSTALLS       = target headers

@@ -58,16 +58,12 @@ function cleanQwt {
     find . -name .svn -print | xargs rm -rf
     rm -rf admin 
 
-    PROFILES="qwt.pro examples/examples.pri designer/designer.pro textengines/textengines.pri"
+    PROFILES="qwtconfig.pri"
     for PROFILE in $PROFILES
     do
         sed -e 's/= debug/= release/' $PROFILE > $PROFILE.sed
         mv $PROFILE.sed $PROFILE
     done
-
-    # sed -e 's/PROJECT_NUMBER/PROJECT_NUMBER = $VERSION/' doc/Doxyfile > doc/Doxyfile.sed
-    # mv doc/Doxyfile.sed doc/Doxyfile
-    
 
     HEADERS=`find . -type f -name '*.h' -print`
     SOURCES=`find . -type f -name '*.cpp' -print`
