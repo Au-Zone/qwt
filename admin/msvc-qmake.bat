@@ -12,6 +12,11 @@ qmake -t %1lib% src.pro
 cd ..
 
 REM For the designer plugin:
+cd textengines\mathml
+qmake -t %1lib mathml.pro
+cd ..\..
+
+REM For the designer plugin:
 cd designer
 qmake -t %1lib designer.pro
 cd ..

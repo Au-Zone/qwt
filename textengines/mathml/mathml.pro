@@ -10,33 +10,40 @@
 VVERSION = $$[QT_VERSION]
 isEmpty(VVERSION) { 
 
-# Qt3
+	# Qt3
 
-message(qwtmathml is not supported for Qt3 !)
+	message(qwtmathml is not supported for Qt3 !)
+	TEMPLATE  = subdirs
 
 } else {
 
-# Qt4
+	# Qt4
 
-include( ../textengines.pri )
+	include( ../textengines.pri )
 
-TARGET    = qwtmathml
-VERSION   = 1.0.0
-QT       += xml
+	exists( qtmmlwidget.cpp ) {
 
-HEADERS = \
-	qwt_mathml_text_engine.h
+		TARGET    = qwtmathml
+		VERSION   = 1.0.0
+		QT       += xml
 
-SOURCES = \
-	qwt_mathml_text_engine.cpp
+		HEADERS = \
+			qwt_mathml_text_engine.h
 
-# The files below can be found in the MathML tarball of the Qt Solution package
-# http://www.trolltech.com/products/qt/addon/solutions/catalog/4/Widgets/qtmmlwidget
-# that is available for owners of a commercial Qt license.
-#
-# Copy them here, or modify the pro file to your installation.
+		SOURCES = \
+			qwt_mathml_text_engine.cpp
 
-HEADERS += qtmmlwidget.h
-SOURCES += qtmmlwidget.cpp
+		# The files below can be found in the MathML tarball of the Qt Solution 
+    	# package http://www.trolltech.com/products/qt/addon/solutions/catalog/4/Widgets/qtmmlwidget
+		# that is available for owners of a commercial Qt license.
+		#
+		# Copy them here, or modify the pro file to your installation.
+	
+		HEADERS += qtmmlwidget.h
+		SOURCES += qtmmlwidget.cpp
+	}
 
+	else {
+		error( "qtmmlwidget.cpp is missing, see http://www.trolltech.com/products/qt/addon/solutions/catalog/4/Widgets/qtmmlwidget" )
+	}
 }

@@ -7,68 +7,98 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ##############################################
 
-# pro file for the Qwt designer plugin
+include ( ../qwtconfig.pri )
 
-TEMPLATE        = lib
-MOC_DIR         = moc
-OBJECTS_DIR     = obj 
-DESTDIR         = plugins/designer
-INCLUDEPATH    += ../src 
-DEPENDPATH     += ../src 
+contains(CONFIG, QwtDesigner) {
 
-win32::DEFINES += QWT_DLL
+	TEMPLATE        = lib
+	MOC_DIR         = moc
+	OBJECTS_DIR     = obj 
+	DESTDIR         = plugins/designer
+	INCLUDEPATH    += ../src 
+	DEPENDPATH     += ../src 
 
-unix:LIBS      += -L../lib -lqwt
-win32-msvc:LIBS  += ../lib/qwt5.lib
-win32-msvc.net:LIBS  += ../lib/qwt5.lib
-win32-msvc2005:LIBS += ../lib/qwt5.lib
-win32-g++:LIBS   += -L../lib -lqwt5
+	contains(CONFIG, dll) {
+		win32::DEFINES += QWT_DLL
+	}
 
-# isEmpty(QT_VERSION) does not work with Qt-4.1.0/MinGW
+	!contains(CONFIG, QwtPlot) {
+		DEFINES += NO_QWT_PLOT
+	}
 
-VVERSION = $$[QT_VERSION]
-isEmpty(VVERSION) {
-    # Qt 3 
-    TARGET    = qwtplugin
-    CONFIG   += qt warn_on thread release plugin
+	!contains(CONFIG, QwtWidgets) {
+		DEFINES += NO_QWT_WIDGETS
+	}
 
-    UI_DIR    = ui
+	unix:LIBS      += -L../lib -lqwt
+	win32-msvc:LIBS  += ../lib/qwt5.lib
+	win32-msvc.net:LIBS  += ../lib/qwt5.lib
+	win32-msvc2005:LIBS += ../lib/qwt5.lib
+	win32-g++:LIBS   += -L../lib -lqwt5
 
-    HEADERS  += qwtplugin.h
-    SOURCES  += qwtplugin.cpp
+	# isEmpty(QT_VERSION) does not work with Qt-4.1.0/MinGW
 
-    target.path = $(QTDIR)/plugins/designer
-    INSTALLS += target
+	VVERSION = $$[QT_VERSION]
+	isEmpty(VVERSION) {
+		# Qt 3 
+		TARGET    = qwtplugin
+		CONFIG   += qt plugin
 
-    IMAGES  += \
-        pixmaps/qwtplot.png \
-        pixmaps/qwtanalogclock.png \
-        pixmaps/qwtcounter.png \
-        pixmaps/qwtcompass.png \
-        pixmaps/qwtdial.png \
-        pixmaps/qwtknob.png \
-        pixmaps/qwtscale.png \
-        pixmaps/qwtslider.png \
-        pixmaps/qwtthermo.png \
-        pixmaps/qwtwheel.png \
-        pixmaps/qwtwidget.png 
+		UI_DIR    = ui
 
-} else {
+		HEADERS  += qwtplugin.h
+		SOURCES  += qwtplugin.cpp
 
-    # Qt 4
+		target.path = $(QTDIR)/plugins/designer
+		INSTALLS += target
 
-    TARGET    = qwt_designer_plugin
-    CONFIG    += designer warn_on thread plugin 
-    CONFIG    += release
+		IMAGES  += \
+			pixmaps/qwtplot.png \
+			pixmaps/qwtanalogclock.png \
+			pixmaps/qwtcounter.png \
+			pixmaps/qwtcompass.png \
+			pixmaps/qwtdial.png \
+			pixmaps/qwtknob.png \
+			pixmaps/qwtscale.png \
+			pixmaps/qwtslider.png \
+			pixmaps/qwtthermo.png \
+			pixmaps/qwtwheel.png \
+			pixmaps/qwtwidget.png 
 
-    RCC_DIR   = resources
+	} else {
 
-    HEADERS  += qwt_designer_plugin.h
-    HEADERS  += qwt_designer_plotdialog.h
-    SOURCES  += qwt_designer_plugin.cpp
-    SOURCES  += qwt_designer_plotdialog.cpp
-    RESOURCES += qwt_designer_plugin.qrc
+		# Qt 4
 
-    target.path = $$[QT_INSTALL_PLUGINS]/designer
-    INSTALLS += target
+		TARGET    = qwt_designer_plugin
+		CONFIG    += qt designer plugin 
+
+		RCC_DIR   = resources
+
+		HEADERS += \
+			qwt_designer_plugin.h
+
+		SOURCES += \
+			qwt_designer_plugin.cpp
+
+	    contains(CONFIG, QwtPlot) {
+
+			HEADERS += \
+				qwt_designer_plotdialog.h
+
+			SOURCES += \
+				qwt_designer_plotdialog.cpp
+		}
+
+		RESOURCES += \
+			qwt_designer_plugin.qrc
+
+		target.path = $$[QT_INSTALL_PLUGINS]/designer
+		INSTALLS += target
+	}
+
+	CONFIG    += warn_on
+	CONFIG    += release
+}
+else {
+	TEMPLATE        = subdirs # do nothing
 }
