@@ -218,7 +218,7 @@ bool QwtPlotItem::testItemAttribute(ItemAttribute attribute) const
 */
 void QwtPlotItem::setRenderHint(RenderHint hint, bool on)
 {
-    if ( (d_data->renderHints & hint) != on )
+    if ( ((d_data->renderHints & hint) != 0) != on )
     {
         if ( on )
             d_data->renderHints |= hint;

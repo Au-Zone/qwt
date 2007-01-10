@@ -142,13 +142,22 @@ const QwtPlot *QwtPlotPicker::plot() const
 */
 QwtDoubleRect QwtPlotPicker::scaleRect() const
 {
-    const QwtScaleDiv *xs = plot()->axisScaleDiv(xAxis());
-    const QwtScaleDiv *ys = plot()->axisScaleDiv(yAxis());
+    QwtDoubleRect rect;
 
-    const QwtDoubleRect rect( xs->lBound(), ys->lBound(), 
-        xs->range(), ys->range() );
+	if ( plot() )
+	{
+    	const QwtScaleDiv *xs = plot()->axisScaleDiv(xAxis());
+    	const QwtScaleDiv *ys = plot()->axisScaleDiv(yAxis());
 
-    return rect.normalized();
+    	if ( xs && ys )
+		{
+			rect = QwtDoubleRect( xs->lBound(), ys->lBound(), 
+        		xs->range(), ys->range() );
+			rect = rect.normalized();
+		}
+	}
+
+    return rect;
 }
 
 /*!

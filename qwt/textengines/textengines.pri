@@ -24,7 +24,7 @@ DESTDIR         = ../../lib
 INCLUDEPATH    += ../../src
 DEPENDPATH     += ../../src
 
-win32:dll {
+win32:QwtDll {
 	DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
 }
 
