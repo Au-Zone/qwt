@@ -671,7 +671,7 @@ void QwtText::setTextEngine(QwtText::TextFormat format,
     if ( engineDict == NULL )
         engineDict = new QwtTextEngineDict();
 
-    return engineDict->setTextEngine(format, engine);
+    engineDict->setTextEngine(format, engine);
 }
 
 /*!
