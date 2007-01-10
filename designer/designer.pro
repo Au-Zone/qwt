@@ -18,7 +18,7 @@ contains(CONFIG, QwtDesigner) {
 	INCLUDEPATH    += ../src 
 	DEPENDPATH     += ../src 
 
-	contains(CONFIG, dll) {
+	contains(CONFIG, QwtDll) {
 		win32::DEFINES += QWT_DLL
 	}
 

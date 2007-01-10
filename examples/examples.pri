@@ -18,7 +18,7 @@ DEPENDPATH  += ../../src
 
 unix:LIBS        += -L../../lib -lqwt
 
-win32:dll {
+win32:QwtDll {
 	DEFINES    += QT_DLL QWT_DLL
 }
 

@@ -27,7 +27,7 @@ else {
 	CONFIG += staticlib
 }
 
-win32:dll {
+win32:QwtDll {
 	DEFINES    += QT_DLL QWT_DLL QWT_MAKEDLL
 }
 
