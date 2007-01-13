@@ -76,6 +76,12 @@ function cleanQwt {
         mv $EXPANDFILE.expand $EXPANDFILE
     done
 
+    for SRCFILE in $SOURCES $PROFILES $PRIFILES
+    do
+    	sed -e '/#warning/d' $SRCFILE > $SRCFILE.sed
+        mv $SRCFILE.sed $SRCFILE
+    done 
+
     cd -
 }
 
