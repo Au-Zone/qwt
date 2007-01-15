@@ -29,7 +29,7 @@
   \verbatim
 #include <qwt_mathml_text_engine.h>
 
-QwtText::setTextEngine(QwtTextEngine::MathMLText, new QwtMathMLTextEngine());
+QwtText::setTextEngine(QwtTextEngine::MathML, new QwtMathMLTextEngine());
   \endverbatim
 
   \sa QwtTextEngine, QwtText::setTextEngine
