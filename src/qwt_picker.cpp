@@ -690,7 +690,27 @@ void QwtPicker::drawTracker(QPainter *painter) const
     {
         QwtText label = trackerText(d_data->labelPosition);
         if ( !label.isEmpty() )
+        {
+
+#if QT_VERSION >= 0x040000
+#if defined(Q_WS_MAC)
+            /* 
+                Antialiased fonts are broken on the Mac.
+                ( Latest release today: Qt <= 4.2.2. )
+             */
+            painter->save();
+            painter.setRenderHint(QPainter::TextAntialiasing, false);
+#endif
+#endif
+
             label.draw(painter, textRect);
+
+#if QT_VERSION >= 0x040000
+#if defined(Q_WS_MAC)
+            painter->restore();
+#endif
+#endif
+        }
     }
 }
 
