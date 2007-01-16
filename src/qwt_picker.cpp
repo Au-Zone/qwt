@@ -692,23 +692,29 @@ void QwtPicker::drawTracker(QPainter *painter) const
         if ( !label.isEmpty() )
         {
 
-#if QT_VERSION >= 0x040000
 #if defined(Q_WS_MAC)
-            /* 
-                Antialiased fonts are broken on the Mac.
-                ( Latest release today: Qt <= 4.2.2. )
-             */
+            // Antialiased fonts are broken on the Mac.
             painter->save();
-            painter.setRenderHint(QPainter::TextAntialiasing, false);
-#endif
-#endif
 
+#if QT_VERSION >= 0x040000
+            painter.setRenderHint(QPainter::TextAntialiasing, false);
+#else
+        	extern bool qt_has_xft;
+        	const bool XftEnabled = qt_has_xft;
+        	qt_has_xft = FALSE;
+
+        	QFont font = label.usedFont(painter->font());
+        	font.setStyleStrategy(QFont::PreferBitmap);
+			label.setFont(font);
+#endif
+#endif
             label.draw(painter, textRect);
 
-#if QT_VERSION >= 0x040000
 #if defined(Q_WS_MAC)
-            painter->restore();
+#if QT_VERSION < 0x040000
+        	qt_has_xft = XftEnabled;
 #endif
+            painter->restore();
 #endif
         }
     }
