@@ -130,7 +130,7 @@ void QwtMathMLTextEngine::draw(QPainter *painter, const QRect &rect,
 */
 bool QwtMathMLTextEngine::mightRender(const QString &text) const
 {
-    return text.startsWith("<math>");
+    return text.trimmed().startsWith("<math");
 }
 
 #endif // QT_VERSION < 0x040000
