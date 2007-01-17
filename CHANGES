@@ -1,4 +1,5 @@
 Release 5.0.0
+===================
 
 Platforms
 ---------
@@ -12,16 +13,17 @@ Key features
     collected in scale engines, where the application can
     implement it´s own (f.e log2, or date scales). Now it´s
     also possible to have individual and completely irregular scales
-3.  Redesign of the QwtText classes.
+3.  Redesign of the QwtText classes. The MathML renderer of
+    the Qt4 solutions package is embedded. 
+    work for all expressions/situations.
+4.  New classes for navigating: QwtPanner, QwtMaginfier
+5.  Spectrogram/Contour plots  and other classes for displaying
+    raster data added.
 
 Changes
 -------
-1.  QwtCounter is editable now.
-2.  The buttons on the legend can be toggled now. The buttons
-    are implementated using QLabel now to avoid unwanted 
-    effects of different styles. QwtPushButton has been removed.
-    (The implementation was not possible with Qt4)
-3.  ...
+5.0.0 is by far the release with the most changes in the history of Qwt
+- too many to make list.
 
 
 Release 4.2.0/0.4.2
