@@ -38,7 +38,7 @@ function checkoutQwt() {
 
     if [ "$1" != "qwt" ]
     then
-        rm -r $1
+        rm -rf $1
         mv qwt $1
     fi
 }
@@ -129,7 +129,7 @@ function createDocs {
     mkdir pdf
     mv latex/refman.pdf pdf/qwtdoc.pdf
 
-    rm -r latex postscript
+    rm -r latex 
     
     cd $ODIR
 }
@@ -227,18 +227,18 @@ echo -n "create packages in $DIR ... "
 
 cd /tmp
 
-rm -r $QWTDIR
+rm -rf $QWTDIR
 cp -a $TMPDIR $QWTDIR
 prepare4Unix $QWTDIR
 tar cfz $QWTDIR.tgz $QWTDIR
 tar cfj $QWTDIR.tar.bz2 $QWTDIR
 
-rm -r $QWTDIR
+rm -rf $QWTDIR
 cp -a $TMPDIR $QWTDIR
 prepare4Win $QWTDIR
 zip -r $QWTDIR.zip $QWTDIR > /dev/null
 
-rm -r $TMPDIR $QWTDIR
+rm -rf $TMPDIR $QWTDIR
 
 mv $QWTDIR.tgz $QWTDIR.tar.bz2 $QWTDIR.zip $DIR/
 echo done
