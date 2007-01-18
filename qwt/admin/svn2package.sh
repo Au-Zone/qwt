@@ -1,6 +1,6 @@
-#! /bin/sh 
+#! /bin/sh
 # 
-# Generates a Qwt package from sourceforge cvs
+# Generates a Qwt package from sourceforge svn
 #
 # Usage: svn2package.sh [packagename] 
 #
@@ -15,14 +15,14 @@ function usage() {
 }
 
 ##########################
-# checkout cvsuser dirname
+# checkout dirname
 ##########################
 
 function checkoutQwt() {
 
     if [ -x qwt ]
     then
-        rm -rf qwt
+        rm -r qwt
         if [ $? -ne 0 ]
         then
             exit $?
@@ -38,7 +38,7 @@ function checkoutQwt() {
 
     if [ "$1" != "qwt" ]
     then
-        rm -rf $1
+        rm -r $1
         mv qwt $1
     fi
 }
@@ -55,8 +55,9 @@ function cleanQwt {
         exit $?
     fi
 
-    find . -name .svn -print | xargs rm -rf
-    rm -rf admin 
+    find . -name .svn -print | xargs rm -r
+
+    rm admin/svn2package.sh
 
     PROFILES="qwtconfig.pri"
     for PROFILE in $PROFILES
@@ -101,8 +102,9 @@ function createDocs {
 
     # We need LateX for the qwtdoc.pdf
 
-    sed -e '/GENERATE_LATEX/d' -e '/PROJECT_NUMBER/d' Doxyfile > Doxyfile.doc
+    sed -e '/GENERATE_LATEX/d' -e '/GENERATE_MAN/d' -e '/PROJECT_NUMBER/d' Doxyfile > Doxyfile.doc
     echo 'GENERATE_LATEX = YES' >> Doxyfile.doc
+    echo 'GENERATE_MAN = YES' >> Doxyfile.doc
     echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
 
     cp ../INSTALL ../COPYING ./
@@ -113,7 +115,8 @@ function createDocs {
         exit $?
     fi
 
-    rm -rf Doxyfile.doc Doxygen.log doc/images INSTALL COPYING
+    rm Doxyfile.doc Doxygen.log INSTALL COPYING
+    rm -r images
 
     cd latex
     make > /dev/null 2>&1
@@ -125,9 +128,8 @@ function createDocs {
     cd ..
     mkdir pdf
     mv latex/refman.pdf pdf/qwtdoc.pdf
-    cd ..
 
-    rm -rf latex postscript
+    rm -r latex postscript
     
     cd $ODIR
 }
@@ -155,10 +157,9 @@ function prepare4Win {
         exit $?
     fi
 
-    rm -rf doc/man examples/linux
+    rm -r doc/man 
 
     # win files, but not uptodate
-    # rm -rf qwt.sln qwt.dsw examples/examples.dsw
 
     BATCHES=`find . -type f -name '*.bat' -print`
     HEADERS=`find . -type f -name '*.h' -print`
@@ -186,7 +187,7 @@ function prepare4Unix {
         exit $?
     fi
 
-    rm -rf msvc-qmake.bat 
+    rm -rf admin
 
     cd -
 }
@@ -226,18 +227,18 @@ echo -n "create packages in $DIR ... "
 
 cd /tmp
 
-rm -rf $QWTDIR
+rm -r $QWTDIR
 cp -a $TMPDIR $QWTDIR
 prepare4Unix $QWTDIR
 tar cfz $QWTDIR.tgz $QWTDIR
 tar cfj $QWTDIR.tar.bz2 $QWTDIR
 
-rm -rf $QWTDIR
+rm -r $QWTDIR
 cp -a $TMPDIR $QWTDIR
 prepare4Win $QWTDIR
 zip -r $QWTDIR.zip $QWTDIR > /dev/null
 
-rm -rf $TMPDIR $QWTDIR
+rm -r $TMPDIR $QWTDIR
 
 mv $QWTDIR.tgz $QWTDIR.tar.bz2 $QWTDIR.zip $DIR/
 echo done
