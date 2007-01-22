@@ -90,8 +90,6 @@ svn co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt
     Uwe Rathmann, Josef Wilgen ( <= Qwt 0.2 )
   \par Project admin:
     Uwe Rathmann \<rathmann@users.sourceforge.net\>
-  \par Developers:
-    Gerard Vermeulen, Micha Bieber, Roy Dennington
 */
 
 /*!
