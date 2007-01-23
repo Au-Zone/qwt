@@ -18,7 +18,7 @@
 #endif
 
 #define QWT_VERSION       0x050000
-#define QWT_VERSION_STR   "5.0.0cvs"
+#define QWT_VERSION_STR   "5.0.0"
 
 //
 // Create Qwt DLL if QWT_DLL is defined (Windows only)
