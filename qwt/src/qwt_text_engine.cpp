@@ -34,7 +34,10 @@ public:
 
 #else // QT_VERSION >= 0x040000
 
+#if QT_VERSION < 0x040200
 #define USE_LABEL 1
+#endif
+
 #ifdef USE_LABEL
 #include <qlabel.h>
 #else
