@@ -17,8 +17,10 @@
 #include <qmodules.h>
 #endif
 
-#define QWT_VERSION       0x050000
-#define QWT_VERSION_STR   "5.0.0"
+// QWT_VERSION is (major << 16) + (minor << 8) + patch.
+
+#define QWT_VERSION       0x050001
+#define QWT_VERSION_STR   "5.0.1"
 
 //
 // Create Qwt DLL if QWT_DLL is defined (Windows only)
