@@ -29,8 +29,13 @@
 #if defined(Q_WS_WIN)
 
 #if defined(_MSC_VER) /* MSVC Compiler */
+
 /* template-class specialization 'identifier' is already instantiated */
 #pragma warning(disable: 4660)
+
+/* nonstandard extension used : 'extern' before template explicit instantiation */
+#pragma warning(disable: 4231) 
+
 #endif
 
 #if defined(QWT_NODLL)
