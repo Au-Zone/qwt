@@ -144,18 +144,18 @@ QwtDoubleRect QwtPlotPicker::scaleRect() const
 {
     QwtDoubleRect rect;
 
-	if ( plot() )
-	{
-    	const QwtScaleDiv *xs = plot()->axisScaleDiv(xAxis());
-    	const QwtScaleDiv *ys = plot()->axisScaleDiv(yAxis());
+    if ( plot() )
+    {
+        const QwtScaleDiv *xs = plot()->axisScaleDiv(xAxis());
+        const QwtScaleDiv *ys = plot()->axisScaleDiv(yAxis());
 
-    	if ( xs && ys )
-		{
-			rect = QwtDoubleRect( xs->lBound(), ys->lBound(), 
-        		xs->range(), ys->range() );
-			rect = rect.normalized();
-		}
-	}
+        if ( xs && ys )
+        {
+            rect = QwtDoubleRect( xs->lBound(), ys->lBound(), 
+                xs->range(), ys->range() );
+            rect = rect.normalized();
+        }
+    }
 
     return rect;
 }
@@ -216,16 +216,20 @@ QwtText QwtPlotPicker::trackerText(const QPoint &pos) const
 */
 QwtText QwtPlotPicker::trackerText(const QwtDoublePoint &pos) const
 {
+    QString text;
+
     switch(rubberBand())
     {
         case HLineRubberBand:
-            return QString().sprintf("%.4f", pos.y());
+            text.sprintf("%.4f", pos.y());
+            break;
         case VLineRubberBand:
-            return QString().sprintf("%.4f", pos.x());
+            text.sprintf("%.4f", pos.x());
+            break;
         default:
-            return QString().sprintf("%.4f, %.4f", pos.x(), pos.y());
+            text.sprintf("%.4f, %.4f", pos.x(), pos.y());
     }
-    return QwtText(); // make some dumb compilers happy
+    return QwtText(text);
 }
 
 /*! 
