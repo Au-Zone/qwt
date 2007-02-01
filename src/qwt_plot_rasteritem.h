@@ -95,6 +95,9 @@ protected:
         ) const = 0;
 
 private:
+    QwtPlotRasterItem( const QwtPlotRasterItem & );
+    QwtPlotRasterItem &operator=( const QwtPlotRasterItem & );
+
     void init();
 
     class PrivateData;
