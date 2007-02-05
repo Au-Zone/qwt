@@ -77,7 +77,7 @@ void QwtTextLabel::init()
 }
 
 /*!
-   Change the label´s text, keeping all other QwtText attributes
+   Change the label's text, keeping all other QwtText attributes
    \param text New text
    \param textFormat Format of text
 
@@ -92,7 +92,7 @@ void QwtTextLabel::setText(const QString &text, QwtText::TextFormat textFormat)
 }
 
 /*!
-   Change the label´s text
+   Change the label's text
    \param text New text
 */
 void QwtTextLabel::setText(const QwtText &text)

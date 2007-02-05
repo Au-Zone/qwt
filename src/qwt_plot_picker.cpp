@@ -79,7 +79,7 @@ QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, QwtPlotCanvas *canvas):
 
   \param xAxis X axis of the picker
   \param yAxis Y axis of the picker
-  \param selectionFlags Or´d value of SelectionType, RectSelectionType and
+  \param selectionFlags Or'd value of SelectionType, RectSelectionType and
                         SelectionMode
   \param rubberBand Rubberband style
   \param trackerMode Tracker mode
@@ -207,7 +207,7 @@ QwtText QwtPlotPicker::trackerText(const QPoint &pos) const
 
   In case of HLineRubberBand the label is the value of the
   y position, in case of VLineRubberBand the value of the x position.
-  Otherwise the label contains x and y position separated by a ´, ´.
+  Otherwise the label contains x and y position separated by a ',' .
 
   The format for the double to string conversion is "%.4f".
 

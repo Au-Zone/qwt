@@ -76,7 +76,7 @@ QwtAbstractSlider::~QwtAbstractSlider()
 /*!
   En/Disable read only mode
 
-  In read only mode the slider can´t be controlled by mouse
+  In read only mode the slider can't be controlled by mouse
   or keyboard.
 
   \param readOnly Enables in case of true
@@ -89,7 +89,7 @@ void QwtAbstractSlider::setReadOnly(bool readOnly)
 }
 
 /*!
-  In read only mode the slider can´t be controlled by mouse
+  In read only mode the slider can't be controlled by mouse
   or keyboard.
 
   \return true if read only
