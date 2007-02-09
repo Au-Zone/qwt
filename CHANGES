@@ -1,3 +1,11 @@
+Release 5.0.1
+===================
+
+Changes
+-------
+1.  A couple of problems, when building Qwt fixed.
+2.  Displaying Rich Text with Qt 4.x fixed
+
 Release 5.0.0
 ===================
 
