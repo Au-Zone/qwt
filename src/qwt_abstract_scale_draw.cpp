@@ -367,7 +367,7 @@ QwtText QwtAbstractScaleDraw::label(double value) const
    The conversion between value and label is called very often
    in the layout and painting code. Unfortunately the
    calculation of the label sizes might be slow (really slow
-   for rich text in Qt4), so it´s necessary to cache the labels. 
+   for rich text in Qt4), so it's necessary to cache the labels. 
 
    \param font Font
    \param value Value

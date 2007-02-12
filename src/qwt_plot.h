@@ -98,7 +98,7 @@ public:
         \brief Position of the legend, relative to the canvas.
 
         ExternalLegend means that only the content of the legend 
-        will be handled by QwtPlot, but not it´s geometry. 
+        will be handled by QwtPlot, but not its geometry. 
         This might be interesting if an application wants to
         have a legend in an external window.
      */

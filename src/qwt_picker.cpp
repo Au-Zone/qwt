@@ -191,7 +191,7 @@ QwtPicker::QwtPicker(QWidget *parent):
 /*!
   Constructor
 
-  \param selectionFlags Or´d value of SelectionType, RectSelectionType and 
+  \param selectionFlags Or'd value of SelectionType, RectSelectionType and 
                         SelectionMode
   \param rubberBand Rubberband style
   \param trackerMode Tracker mode
@@ -331,7 +331,7 @@ const QWidget *QwtPicker::parentWidget() const
 /*!
   Set the selection flags
 
-  \param flags Or´d value of SelectionType, RectSelectionType and 
+  \param flags Or'd value of SelectionType, RectSelectionType and 
                SelectionMode. The default value is NoSelection.
 
   \sa selectionFlags(), SelectionType, RectSelectionType, SelectionMode
@@ -344,7 +344,7 @@ void QwtPicker::setSelectionFlags(int flags)
 }
 
 /*!
-  \return Selection flags, an Or´d value of SelectionType, RectSelectionType and
+  \return Selection flags, an Or'd value of SelectionType, RectSelectionType and
           SelectionMode.
   \sa setSelectionFlags(), SelectionType, RectSelectionType, SelectionMode
 */
@@ -554,7 +554,7 @@ QPen QwtPicker::rubberBandPen() const
 
    In case of HLineRubberBand the label is the value of the
    y position, in case of VLineRubberBand the value of the x position.
-   Otherwise the label contains x and y position separated by a ´, ´.
+   Otherwise the label contains x and y position separated by a ',' .
 
    The format for the string conversion is "%d".
 
@@ -1236,7 +1236,7 @@ void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
   \warning Even when enable is false, mouse tracking might be restored
            to true. When mouseTracking for the observed widget
            has been changed directly by QWidget::setMouseTracking
-           while mouse tracking has been set to true, this value can´t
+           while mouse tracking has been set to true, this value can't
            be restored.
 */
 

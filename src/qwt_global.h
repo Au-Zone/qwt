@@ -19,44 +19,28 @@
 
 // QWT_VERSION is (major << 16) + (minor << 8) + patch.
 
-#define QWT_VERSION       0x050001
-#define QWT_VERSION_STR   "5.0.1"
-
-//
-// Create Qwt DLL if QWT_DLL is defined (Windows only)
-//
+#define QWT_VERSION       0x050100
+#define QWT_VERSION_STR   "5.1.0-svn"
 
 #if defined(Q_WS_WIN)
 
 #if defined(_MSC_VER) /* MSVC Compiler */
 /* template-class specialization 'identifier' is already instantiated */
 #pragma warning(disable: 4660)
-#endif
-
-#if defined(QWT_NODLL)
-#undef QWT_MAKEDLL
-#undef QWT_DLL
-#undef QWT_TEMPLATEDLL
-#endif
+#endif // _MSC_VER
 
 #ifdef QWT_DLL
-#if defined(QWT_MAKEDLL)     /* create a Qwt DLL library */
-#undef QWT_DLL
+
+#if defined(QWT_MAKEDLL)     // create a Qwt DLL library 
 #define QWT_EXPORT  __declspec(dllexport)
 #define QWT_TEMPLATEDLL
-#endif
-#endif
-
-#if defined(QWT_DLL)     /* use a Qwt DLL library */
+#else                        // use a Qwt DLL library
 #define QWT_EXPORT  __declspec(dllimport)
-#define QWT_TEMPLATEDLL
 #endif
 
-#else // ! Q_WS_WIN
-#undef QWT_MAKEDLL       /* ignore these for other platforms */
-#undef QWT_DLL
-#undef QWT_TEMPLATEDLL
-#endif
+#endif // QWT_DLL
+
+#endif // Q_WS_WIN
 
 #ifndef QWT_EXPORT
 #define QWT_EXPORT
