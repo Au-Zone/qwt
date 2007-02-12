@@ -2,44 +2,44 @@
 # 
 # Generates a Qwt package from sourceforge svn
 #
-# Usage: svn2package.sh [packagename] 
-#
+# Usage: svn2package.sh [-b|--branch <svn-branch>] [packagename] 
+# 
 
 ##########################
 # usage
 ##########################
 
 function usage() {
-    echo "Usage: $0 [packagename]"
+    echo "Usage: $0 [-b|--branch <svn-branch>] [packagename]"
     exit 1
 }
 
-##########################
-# checkout dirname
-##########################
+################################
+# checkout 
+################################
 
 function checkoutQwt() {
 
-    if [ -x qwt ]
+    if [ -x $2 ]
     then
-        rm -r qwt
+        rm -r $2
         if [ $? -ne 0 ]
         then
             exit $?
         fi
     fi
 
-    svn -q co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt
+    svn -q co https://qwt.svn.sourceforge.net/svnroot/qwt/$1/$2
     if [ $? -ne 0 ]
     then
         echo "Can't access sourceforge SVN"
         exit $?
     fi
 
-    if [ "$1" != "qwt" ]
+    if [ "$3" != "$2" ]
     then
-        rm -rf $1
-        mv qwt $1
+        rm -rf $3
+        mv $2 $3
     fi
 }
 
@@ -196,22 +196,32 @@ function prepare4Unix {
 # main
 ##########################
 
-QWTDIR=qwt
-VERSION=unknown
+QWTDIR=
+SVNDIR=trunk
+BRANCH=qwt
+VERSION=
 
 while [ $# -gt 0 ] ; do
     case "$1" in
         -h|--help)
             usage; exit 1 ;;
+        -b|--branch)
+            shift; SVNDIR=branches; BRANCH=$1; shift;;
         *) 
             QWTDIR=qwt-$1 ; VERSION=$1; shift;;
     esac
 done
 
+if [ "$QWTDIR" == "" ] 
+then 
+	usage 
+	exit 2 
+fi
+
 TMPDIR=/tmp/$QWTDIR-tmp
 
 echo -n "checkout to $TMPDIR ... "
-checkoutQwt $CVSUSER $TMPDIR
+checkoutQwt $SVNDIR $BRANCH $TMPDIR
 cleanQwt $TMPDIR
 echo done
 

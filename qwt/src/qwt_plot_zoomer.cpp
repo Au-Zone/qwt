@@ -85,7 +85,7 @@ QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis,
 
   \param xAxis X axis of the zoomer
   \param yAxis Y axis of the zoomer
-  \param selectionFlags Or´d value of QwtPicker::RectSelectionType and
+  \param selectionFlags Or'd value of QwtPicker::RectSelectionType and
                         QwtPicker::SelectionMode. 
                         QwtPicker::RectSelection will be auto added.
   \param trackerMode Tracker mode
@@ -139,7 +139,7 @@ QwtPlotZoomer::~QwtPlotZoomer()
 
   \param depth Maximum for the stack depth
   \sa maxStackDepth()
-  \note depth doesn´t include the zoom base, so zoomStack().count() might be
+  \note depth doesn't include the zoom base, so zoomStack().count() might be
               maxStackDepth() + 1.
 */
 void QwtPlotZoomer::setMaxStackDepth(int depth)
@@ -397,7 +397,7 @@ void QwtPlotZoomer::setAxis(int xAxis, int yAxis)
    Qt::MidButton zooms out one position on the zoom stack,
    Qt::RightButton to the zoom base.
 
-   Changes the current position on the stack, but doesn´t pop
+   Changes the current position on the stack, but doesn't pop
    any rectangle.
 
    \note The mouse events can be changed, using
@@ -419,7 +419,7 @@ void QwtPlotZoomer::widgetMouseReleaseEvent(QMouseEvent *me)
    Qt::Key_Plus zooms out, Qt::Key_Minus zooms in one position on the 
    zoom stack, Qt::Key_Escape zooms out to the zoom base.
 
-   Changes the current position on the stack, but doesn´t pop
+   Changes the current position on the stack, but doesn't pop
    any rectangle.
 
    \note The keys codes can be changed, using
@@ -608,7 +608,7 @@ bool QwtPlotZoomer::end(bool ok)
 /*!
   Set the selection flags
   
-  \param flags Or´d value of QwtPicker::RectSelectionType and
+  \param flags Or'd value of QwtPicker::RectSelectionType and
                QwtPicker::SelectionMode. The default value is 
                QwtPicker::RectSelection & QwtPicker::ClickSelection.
 

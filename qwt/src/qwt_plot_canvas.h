@@ -63,7 +63,7 @@ public:
       \brief Focus indicator
 
       - NoFocusIndicator\n
-        Don´t paint a focus indicator
+        Don't paint a focus indicator
 
       - CanvasFocusIndicator\n
         The focus is related to the complete canvas.

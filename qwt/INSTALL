@@ -96,7 +96,7 @@ make
 E) Qtopia (!= Qtopia Core)
 
 I once compiled the Qwt library against Qtopia 4.2.0 successfully - but
-not more. It should be possible to build and install Qwt, but it´s
+not more. It should be possible to build and install Qwt, but it's
 not done yet.
 
 Good luck !

@@ -36,8 +36,9 @@ typedef QValueList<double> QwtValueList;
 
 #if defined(QWT_TEMPLATEDLL)
 
-#if defined Q_CC_MSVC  // Q_CC_MSVC_NET
-// Some definitions, needed to avoid a MSVC crash
+#if QT_VERSION < 0x040300
+// Some compilers have problems, 
+// without a qHash(double) implementation
 #include <qset.h>
 #include <qvector.h>
 inline uint qHash(double key) { return uint(key); }
@@ -46,7 +47,8 @@ inline uint qHash(double key) { return uint(key); }
 // MOC_SKIP_BEGIN
 template class QWT_EXPORT QList<double>;
 // MOC_SKIP_END
-#endif
+
+#endif // QWT_TEMPLATEDLL
 
 typedef QList<double> QwtValueList;
 

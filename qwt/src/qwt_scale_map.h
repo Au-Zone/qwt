@@ -40,6 +40,9 @@ public:
     virtual QwtScaleTransformation *copy() const;
 
 private:
+    QwtScaleTransformation();
+    QwtScaleTransformation &operator=( const QwtScaleTransformation);
+
     const Type d_type;
 };
 
