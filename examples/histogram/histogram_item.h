@@ -13,27 +13,24 @@
 #include <qglobal.h>
 #include <qcolor.h>
 
-#include "qwt_plot_item.h" 
+#include "qwt_plot_seriesitem.h" 
 
 class QwtIntervalData;
 class QString;
 
-class HistogramItem: public QwtPlotItem
+class HistogramItem: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
     explicit HistogramItem(const QString &title = QString::null);
     explicit HistogramItem(const QwtText &title);
     virtual ~HistogramItem();
 
-    void setData(const QwtIntervalData &data);
-    const QwtIntervalData &data() const;
-
     void setColor(const QColor &);
     QColor color() const;
 
-    virtual QwtDoubleRect boundingRect() const;
-
     virtual int rtti() const;
+
+	virtual QwtDoubleRect boundingRect() const;
 
     virtual void draw(QPainter *, const QwtScaleMap &xMap, 
         const QwtScaleMap &yMap, const QRect &) const;

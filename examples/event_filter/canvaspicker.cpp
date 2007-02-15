@@ -204,12 +204,15 @@ void CanvasPicker::moveBy(int dx, int dy)
     if ( !d_selectedCurve )
         return;
 
-    const int x = plot()->transform(d_selectedCurve->xAxis(),
-        d_selectedCurve->x(d_selectedPoint)) + dx;
-    const int y = plot()->transform(d_selectedCurve->yAxis(),
-        d_selectedCurve->y(d_selectedPoint)) + dy;
+    const QwtDoublePoint sample = 
+		d_selectedCurve->sample(d_selectedPoint);
 
-    move(QPoint(x, y));
+    const int x = plot()->transform(
+		d_selectedCurve->xAxis(), sample.x());
+    const int y = plot()->transform(
+		d_selectedCurve->yAxis(), sample.y());
+
+    move(QPoint(x + dx, y + dy));
 }
 
 // Move the selected point
@@ -225,13 +228,16 @@ void CanvasPicker::move(const QPoint &pos)
     {
         if ( i == d_selectedPoint )
         {
-            xData[i] = plot()->invTransform(d_selectedCurve->xAxis(), pos.x());;
-            yData[i] = plot()->invTransform(d_selectedCurve->yAxis(), pos.y());;
+            xData[i] = plot()->invTransform(
+				d_selectedCurve->xAxis(), pos.x());
+            yData[i] = plot()->invTransform(
+				d_selectedCurve->yAxis(), pos.y());
         }
         else
         {
-            xData[i] = d_selectedCurve->x(i);
-            yData[i] = d_selectedCurve->y(i);
+			const QwtDoublePoint sample = d_selectedCurve->sample(i);
+            xData[i] = sample.x();
+            yData[i] = sample.y();
         }
     }
     d_selectedCurve->setData(xData, yData);

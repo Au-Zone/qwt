@@ -13,10 +13,10 @@
 #include <qpen.h>
 #include <qstring.h>
 #include "qwt_global.h"
-#include "qwt_plot_item.h"
+#include "qwt_plot_seriesitem.h"
 #include "qwt_text.h"
 #include "qwt_polygon.h"
-#include "qwt_data.h"
+#include "qwt_series_data.h"
 
 class QPainter;
 class QwtScaleMap;
@@ -43,7 +43,7 @@ class QwtCurveFitter;
   must not delete the data while they are attached), but has been more
   efficient, and has been more convenient for dynamically changing data.
   Use of setData() in combination with a problem-specific subclass
-  of QwtData is always preferrable.</ul></dd>
+  of QwtSeriesData<QwtDoublePoint> is always preferrable.</ul></dd>
   <dt>C. Draw</dt>
   <dd>draw() maps the data into pixel coordinates and paints them.
   </dd></dl>
@@ -51,9 +51,9 @@ class QwtCurveFitter;
   \par Example:
   see examples/curvdemo
 
-  \sa QwtData, QwtSymbol, QwtScaleMap
+  \sa QwtPointSeriesData, QwtSymbol, QwtScaleMap
 */
-class QWT_EXPORT QwtPlotCurve: public QwtPlotItem
+class QWT_EXPORT QwtPlotCurve: public QwtPlotSeriesItem<QwtDoublePoint>
 {
 public:
     enum CurveType
@@ -98,9 +98,8 @@ public:
         ClipPolygons = 2
     };
 
-    explicit QwtPlotCurve();
+    explicit QwtPlotCurve(const QString &title = QString::null);
     explicit QwtPlotCurve(const QwtText &title);
-    explicit QwtPlotCurve(const QString &title);
 
     virtual ~QwtPlotCurve();
 
@@ -112,26 +111,16 @@ public:
     void setPaintAttribute(PaintAttribute, bool on = true);
     bool testPaintAttribute(PaintAttribute) const;
 
+#ifndef QWT_NO_COMPAT
     void setRawData(const double *x, const double *y, int size);
     void setData(const double *xData, const double *yData, int size);
     void setData(const QwtArray<double> &xData, const QwtArray<double> &yData);
-#if QT_VERSION < 0x040000
-    void setData(const QwtArray<QwtDoublePoint> &data);
-#else
-    void setData(const QPolygonF &data);
 #endif
-    void setData(const QwtData &data);
-    
+
+    void setData(const QwtArray<QwtDoublePoint> &data);
+    void setData(const QwtSeriesData<QwtDoublePoint> &data);
+
     int closestPoint(const QPoint &pos, double *dist = NULL) const;
-
-    QwtData &data();
-    const QwtData &data() const;
-
-    int dataSize() const;
-    inline double x(int i) const;
-    inline double y(int i) const;
-
-    virtual QwtDoubleRect boundingRect() const;
 
     //! boundingRect().left()
     inline double minXValue() const { return boundingRect().left(); }
@@ -207,40 +196,8 @@ protected:
         QwtPolygon &) const;
 
 private:
-    QwtData *d_xy;
-
     class PrivateData;
     PrivateData *d_data;
 };
-
-//! \return the the curve data
-inline QwtData &QwtPlotCurve::data()
-{
-    return *d_xy;
-}
-
-//! \return the the curve data
-inline const QwtData &QwtPlotCurve::data() const
-{
-    return *d_xy;
-}
-
-/*!
-    \param i index
-    \return x-value at position i
-*/
-inline double QwtPlotCurve::x(int i) const 
-{ 
-    return d_xy->x(i); 
-}
-
-/*!
-    \param i index
-    \return y-value at position i
-*/
-inline double QwtPlotCurve::y(int i) const 
-{ 
-    return d_xy->y(i); 
-}
 
 #endif

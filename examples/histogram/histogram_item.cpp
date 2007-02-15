@@ -1,7 +1,6 @@
 #include <qstring.h>
 #include <qpainter.h>
 #include <qwt_plot.h>
-#include <qwt_interval_data.h>
 #include <qwt_painter.h>
 #include <qwt_scale_map.h>
 #include "histogram_item.h"
@@ -10,26 +9,25 @@ class HistogramItem::PrivateData
 {
 public:
     int attributes;
-    QwtIntervalData data;
     QColor color;
     double reference;
 };
 
 HistogramItem::HistogramItem(const QwtText &title):
-    QwtPlotItem(title)
+    QwtPlotSeriesItem<QwtIntervalSample>(title)
 {
     init();
 }
 
 HistogramItem::HistogramItem(const QString &title):
-    QwtPlotItem(QwtText(title))
+    QwtPlotSeriesItem<QwtIntervalSample>(title)
 {
     init();
 }
 
 HistogramItem::~HistogramItem()
 {
-    delete d_data;
+	delete d_data;
 }
 
 void HistogramItem::init()
@@ -37,6 +35,8 @@ void HistogramItem::init()
     d_data = new PrivateData();
     d_data->reference = 0.0;
     d_data->attributes = HistogramItem::Auto;
+
+	d_series = new QwtIntervalSeriesData();
 
     setItemAttribute(QwtPlotItem::AutoScale, true);
     setItemAttribute(QwtPlotItem::Legend, true);
@@ -58,17 +58,6 @@ double HistogramItem::baseline() const
     return d_data->reference;
 }
 
-void HistogramItem::setData(const QwtIntervalData &data)
-{
-    d_data->data = data;
-    itemChanged();
-}
-
-const QwtIntervalData &HistogramItem::data() const
-{
-    return d_data->data;
-}
-
 void HistogramItem::setColor(const QColor &color)
 {
     if ( d_data->color != color )
@@ -85,7 +74,7 @@ QColor HistogramItem::color() const
 
 QwtDoubleRect HistogramItem::boundingRect() const
 {
-    QwtDoubleRect rect = d_data->data.boundingRect();
+    QwtDoubleRect rect = d_series->boundingRect();
     if ( !rect.isValid() ) 
         return rect;
 
@@ -137,35 +126,37 @@ bool HistogramItem::testHistogramAttribute(HistogramAttribute attribute) const
 void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap, const QRect &) const
 {
-    const QwtIntervalData &iData = d_data->data;
-
     painter->setPen(QPen(d_data->color));
 
     const int x0 = xMap.transform(baseline());
     const int y0 = yMap.transform(baseline());
 
-    for ( int i = 0; i < (int)iData.size(); i++ )
+    for ( int i = 0; i < (int)d_series->size(); i++ )
     {
+        QwtIntervalSample sample = d_series->sample(i);
+
         if ( d_data->attributes & HistogramItem::Xfy )
         {
-            const int x2 = xMap.transform(iData.value(i));
+            const int x2 = xMap.transform(sample.value);
             if ( x2 == x0 )
                 continue;
 
-            int y1 = yMap.transform( iData.interval(i).minValue());
-            int y2 = yMap.transform( iData.interval(i).maxValue());
+
+            int y1 = yMap.transform( sample.interval.minValue());
+            int y2 = yMap.transform( sample.interval.maxValue());
             if ( y1 > y2 )
                 qSwap(y1, y2);
 
-            if ( i < (int)iData.size() - 2 )
+            if ( i < (int)d_series->size() - 2 )
             {
-                const int yy1 = yMap.transform(iData.interval(i+1).minValue());
-                const int yy2 = yMap.transform(iData.interval(i+1).maxValue());
+            	sample = d_series->sample(i+1);
+
+                const int yy1 = yMap.transform(sample.interval.minValue());
+                const int yy2 = yMap.transform(sample.interval.maxValue());
 
                 if ( y2 == qwtMin(yy1, yy2) )
                 {
-                    const int xx2 = xMap.transform(
-                        iData.interval(i+1).minValue());
+                    const int xx2 = xMap.transform(sample.interval.minValue());
                     if ( xx2 != x0 && ( (xx2 < x0 && x2 < x0) ||
                                           (xx2 > x0 && x2 > x0) ) )
                     {
@@ -180,23 +171,25 @@ void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap,
         }
         else
         {
-            const int y2 = yMap.transform(iData.value(i));
+            const int y2 = yMap.transform(sample.value);
             if ( y2 == y0 )
                 continue;
 
-            int x1 = xMap.transform(iData.interval(i).minValue());
-            int x2 = xMap.transform(iData.interval(i).maxValue());
+            int x1 = xMap.transform(sample.interval.minValue());
+            int x2 = xMap.transform(sample.interval.maxValue());
             if ( x1 > x2 )
                 qSwap(x1, x2);
 
-            if ( i < (int)iData.size() - 2 )
+            if ( i < (int)d_series->size() - 2 )
             {
-                const int xx1 = xMap.transform(iData.interval(i+1).minValue());
-                const int xx2 = xMap.transform(iData.interval(i+1).maxValue());
+            	sample = d_series->sample(i+1);
+
+                const int xx1 = xMap.transform(sample.interval.minValue());
+                const int xx2 = xMap.transform(sample.interval.maxValue());
 
                 if ( x2 == qwtMin(xx1, xx2) )
                 {
-                    const int yy2 = yMap.transform(iData.value(i+1));
+                    const int yy2 = yMap.transform(sample.value);
                     if ( yy2 != y0 && ( (yy2 < y0 && y2 < y0) ||
                                     (yy2 > y0 && y2 > y0) ) )
                     {
