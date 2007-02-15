@@ -4,7 +4,7 @@
 #include <qwt_plot.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_marker.h>
-#include <qwt_interval_data.h>
+#include <qwt_series_data.h>
 #include "histogram_item.h"
 
 int main(int argc, char **argv)
@@ -27,22 +27,21 @@ int main(int argc, char **argv)
 
     const int numValues = 20;
 
-    QwtArray<QwtDoubleInterval> intervals(numValues);
-    QwtArray<double> values(numValues);
+    QwtArray<QwtIntervalSample> samples(numValues);
 
     double pos = 0.0;
-    for ( int i = 0; i < (int)intervals.size(); i++ )
+    for ( int i = 0; i < (int)samples.size(); i++ )
     {
         const int width = 5 + rand() % 15;
         const int value = rand() % 100;
 
-        intervals[i] = QwtDoubleInterval(pos, pos + double(width));
-        values[i] = value; 
+        samples[i].interval = QwtDoubleInterval(pos, pos + double(width));
+        samples[i].value = value; 
 
         pos += width;
     }
 
-    histogram->setData(QwtIntervalData(intervals, values));
+    histogram->setData(QwtIntervalSeriesData(samples));
     histogram->attach(&plot);
 
     plot.setAxisScale(QwtPlot::yLeft, 0.0, 100.0);

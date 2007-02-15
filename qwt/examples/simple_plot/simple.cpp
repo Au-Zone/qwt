@@ -3,17 +3,19 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 #include <qwt_legend.h>
-#include <qwt_data.h>
+#include <qwt_series_data.h>
 #include <qwt_text.h>
 #include <math.h>
 
 //-----------------------------------------------------------------
 //              simple.cpp
 //
-//      A simple example which shows how to use QwtPlot and QwtData
+//      A simple example which shows how to use QwtPlot connected 
+//      to a data class without any storage, calculating each values 
+//      on the fly.
 //-----------------------------------------------------------------
 
-class SimpleData: public QwtData
+class SimpleData: public QwtPointSeriesData
 {
     // The x values depend on its index and the y values
     // can be calculated from the corresponding x value. 
@@ -29,7 +31,7 @@ public:
     {
     }
 
-    virtual QwtData *copy() const
+    virtual QwtSeriesData<QwtDoublePoint> *copy() const
     {
         return new SimpleData(d_y, d_size);
     }
@@ -39,15 +41,12 @@ public:
         return d_size;
     }
 
-    virtual double x(size_t i) const
+    virtual QwtDoublePoint sample(size_t i) const
     {
-        return 0.1 * i;
+		const double x = 0.1 * i;
+        return QwtDoublePoint(x, d_y(x));
     }
 
-    virtual double y(size_t i) const
-    {
-        return d_y(x(i));
-    }
 private:
     size_t d_size;
     double(*d_y)(double);

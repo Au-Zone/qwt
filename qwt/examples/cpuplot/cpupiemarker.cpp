@@ -42,7 +42,7 @@ void CpuPieMarker::draw(QPainter *p,
         const QwtPlotCurve *curve = cpuPlot->cpuCurve(dataType[i]);
         if ( curve->dataSize() > 0 )
         {
-            const int value = (int)(5760 * curve->y(0) / 100.0);
+            const int value = (int)(5760 * curve->sample(0).y() / 100.0);
 
             p->save();
             p->setBrush(QBrush(curve->pen().color(), Qt::SolidPattern));
