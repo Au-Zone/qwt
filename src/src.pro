@@ -100,6 +100,7 @@ contains(CONFIG, QwtPlot) {
     	qwt_plot_dict.h \
     	qwt_plot_grid.h \
     	qwt_plot_item.h \
+    	qwt_plot_intervalcurve.h \
     	qwt_plot_layout.h \
     	qwt_plot_marker.h \
     	qwt_plot_printfilter.h \
@@ -126,6 +127,7 @@ contains(CONFIG, QwtPlot) {
     	qwt_plot_dict.cpp \
     	qwt_plot_grid.cpp \
     	qwt_plot_item.cpp \
+    	qwt_plot_intervalcurve.cpp \
     	qwt_plot_spectrogram.cpp \
     	qwt_plot_marker.cpp \
     	qwt_plot_layout.cpp \

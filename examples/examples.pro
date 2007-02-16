@@ -17,6 +17,7 @@ contains(CONFIG, QwtPlot) {
     	cpuplot \
     	curvdemo1   \
     	curvdemo2 \
+    	errorbars \
     	simple_plot \
     	realtime_plot \
     	spectrogram \

@@ -111,7 +111,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtSetSample>& data)
         if ( sample.value > maxY )
             maxY = sample.value;
 
-        for ( int = 0; i < (int)sample.set.size(); i++ )
+        for ( int i = 0; i < (int)sample.set.size(); i++ )
         {
             if ( sample.set[i] < minX )
                 minX = sample.set[i];

@@ -37,6 +37,7 @@ public:
         Rtti_PlotGrid,
         Rtti_PlotMarker,
         Rtti_PlotCurve,
+        Rtti_PlotIntervalCurve,
         Rtti_PlotHistogram,
         Rtti_PlotSpectrogram,
         Rtti_PlotSVG,
