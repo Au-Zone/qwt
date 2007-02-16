@@ -15,7 +15,7 @@
 //      on the fly.
 //-----------------------------------------------------------------
 
-class SimpleData: public QwtPointSeriesData
+class SimpleData: public QwtSeriesData<QwtDoublePoint>
 {
     // The x values depend on its index and the y values
     // can be calculated from the corresponding x value. 
@@ -46,6 +46,11 @@ public:
 		const double x = 0.1 * i;
         return QwtDoublePoint(x, d_y(x));
     }
+
+    virtual QwtDoubleRect boundingRect() const
+	{
+		return qwtBoundingRect(*this);
+	}
 
 private:
     size_t d_size;
