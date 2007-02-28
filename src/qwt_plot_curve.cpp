@@ -797,7 +797,7 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
         const int xi = xMap.transform(x(i));
         const int yi = yMap.transform(y(i));
 
-        if (d_data->attributes & Xfy)
+        if (d_data->curveType == Xfy)
             QwtPainter::drawLine(painter, x0, yi, xi, yi);
         else
             QwtPainter::drawLine(painter, xi, y0, xi, yi);
@@ -917,7 +917,7 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
 {
     QwtPolygon polyline(2 * (to - from) + 1);
 
-    bool inverted = d_data->attributes & Yfx;
+    bool inverted = d_data->curveType == Yfx;
     if ( d_data->attributes & Inverted )
         inverted = !inverted;
 
@@ -1098,7 +1098,7 @@ void QwtPlotCurve::closePolyline(
 
     pa.resize(sz + 2);
 
-    if ( d_data->attributes & QwtPlotCurve::Xfy )
+    if ( d_data->curveType == QwtPlotCurve::Xfy )
     {
         pa.setPoint(sz,
             xMap.transform(d_data->reference), pa.point(sz - 1).y());
