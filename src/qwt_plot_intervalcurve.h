@@ -17,12 +17,6 @@
 class QWT_EXPORT QwtPlotIntervalCurve: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
-    enum CurveType
-    {
-        Yfx,
-        Xfy
-    };
-
     enum CurveStyle
     {
         NoCurve,
@@ -31,13 +25,13 @@ public:
         UserTube = 100
     };
 
-	enum SymbolStyle
-	{
+    enum SymbolStyle
+    {
         NoSymbol,
-		Bar,
-	
-		UserSymbol
-	};
+        Bar,
+    
+        UserSymbol
+    };
 
     explicit QwtPlotIntervalCurve(const QString &title = QString::null);
     explicit QwtPlotIntervalCurve(const QwtText &title);
@@ -45,9 +39,6 @@ public:
     virtual ~QwtPlotIntervalCurve();
 
     virtual int rtti() const;
-
-    void setCurveType(CurveType);
-    CurveType curveType() const;
 
     void setData(const QwtArray<QwtIntervalSample> &data);
     void setData(const QwtSeriesData<QwtIntervalSample> &data);
@@ -86,8 +77,8 @@ protected:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
-	virtual void drawBar(QPainter *painter, int sampleId,
-    	const QPoint& from, const QPoint& to) const;
+    virtual void drawBar(QPainter *painter, int sampleId,
+        const QPoint& from, const QPoint& to) const;
 
 private:
     class PrivateData;

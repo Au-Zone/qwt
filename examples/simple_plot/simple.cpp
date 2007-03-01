@@ -15,45 +15,26 @@
 //      on the fly.
 //-----------------------------------------------------------------
 
-class SimpleData: public QwtSeriesData<QwtDoublePoint>
+class FunctionData: public QwtSyntheticPointData
 {
-    // The x values depend on its index and the y values
-    // can be calculated from the corresponding x value. 
-    // So we don´t need to store the values.
-    // Such an implementation is slower because every point 
-    // has to be recalculated for every replot, but it demonstrates how
-    // QwtData can be used.
-
 public:
-    SimpleData(double(*y)(double), size_t size):
-        d_size(size),
+    FunctionData(double(*y)(double)):
+        QwtSyntheticPointData(500),
         d_y(y)
     {
     }
 
     virtual QwtSeriesData<QwtDoublePoint> *copy() const
     {
-        return new SimpleData(d_y, d_size);
+        return new FunctionData(d_y);
     }
 
-    virtual size_t size() const
+    virtual double y(double x) const
     {
-        return d_size;
+        return d_y(x);
     }
-
-    virtual QwtDoublePoint sample(size_t i) const
-    {
-		const double x = 0.1 * i;
-        return QwtDoublePoint(x, d_y(x));
-    }
-
-    virtual QwtDoubleRect boundingRect() const
-	{
-		return qwtBoundingRect(*this);
-	}
 
 private:
-    size_t d_size;
     double(*d_y)(double);
 };
 
@@ -89,9 +70,8 @@ Plot::Plot()
     cCos->attach(this);
 
     // Create sin and cos data
-    const int nPoints = 100;
-    cSin->setData(SimpleData(::sin, nPoints));
-    cCos->setData(SimpleData(::cos, nPoints));
+    cSin->setData(FunctionData(::sin));
+    cCos->setData(FunctionData(::cos));
 
     // Insert markers
     

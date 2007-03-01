@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_plot_item.h"
+#include "qwt_scale_div.h"
 #include "qwt_series_data.h"
 #include <cassert>
 
@@ -19,10 +20,19 @@ template <typename T>
 class QwtPlotSeriesItem: public QwtPlotItem
 {
 public:
+    enum CurveType
+    {
+        Yfx,
+        Xfy
+    }; 
+
     explicit QwtPlotSeriesItem<T>(const QString &title = QString::null);
     explicit QwtPlotSeriesItem<T>(const QwtText &title);
 
     virtual ~QwtPlotSeriesItem<T>();
+
+    void setCurveType(CurveType);
+    CurveType curveType() const { return d_curveType; }
 
     void setData(const QwtSeriesData<T> &);
     
@@ -33,9 +43,12 @@ public:
     T sample(int i) const;
 
     virtual QwtDoubleRect boundingRect() const;
+    virtual void updateScaleDiv(const QwtScaleDiv &,
+        const QwtScaleDiv &);
 
 protected:
     QwtSeriesData<T> *d_series;
+    CurveType d_curveType;
 };
 
 template <typename T> 
@@ -49,7 +62,8 @@ template <typename T>
 QwtPlotSeriesItem<T>::QwtPlotSeriesItem(
         const QwtText &title):
     QwtPlotItem(title),
-    d_series(NULL)
+    d_series(NULL),
+    d_curveType(Yfx)
 {
 }
 
@@ -57,6 +71,32 @@ template <typename T>
 QwtPlotSeriesItem<T>::~QwtPlotSeriesItem<T>()
 {
     delete d_series;
+}
+
+/*!
+  Assign the curve type
+
+  <dt>QwtPlotCurve::Yfx
+  <dd>Draws y as a function of x (the default). The
+      baseline is interpreted as a horizontal line
+      with y = baseline().</dd>
+  <dt>QwtPlotCurve::Xfy
+  <dd>Draws x as a function of y. The baseline is
+      interpreted as a vertical line with x = baseline().</dd>
+
+  The baseline is used for aligning the sticks, or
+  filling the curve with a brush.
+
+  \sa curveType()
+*/
+template <typename T> 
+void QwtPlotSeriesItem<T>::setCurveType(CurveType curveType)
+{
+    if ( d_curveType != curveType )
+    {
+        d_curveType = curveType;
+        itemChanged();
+    }
 }
 
 //! \return the the curve data
@@ -123,5 +163,16 @@ QwtDoubleRect QwtPlotSeriesItem<T>::boundingRect() const
 
     return d_series->boundingRect();
 }
+
+template <typename T> 
+void QwtPlotSeriesItem<T>::updateScaleDiv(const QwtScaleDiv &xScaleDiv,
+        const QwtScaleDiv &yScaleDiv)
+{   
+    const QwtDoubleRect rect = QwtDoubleRect( 
+        xScaleDiv.lBound(), yScaleDiv.lBound(),
+        xScaleDiv.range(), yScaleDiv.range());
+
+    d_series->setRectOfInterest(rect);
+} 
 
 #endif

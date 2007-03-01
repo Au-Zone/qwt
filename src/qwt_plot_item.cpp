@@ -511,6 +511,10 @@ QRect QwtPlotItem::transform(const QwtScaleMap &xMap,
     if ( y2 < y1 )
         qSwap(y1, y2);
 
+#ifdef __GNUC__
+#warning 1 Pixel error
+#endif
+
     return QRect(x1, y1, x2 - x1 - 1, y2 - y1 - 1);
 }
 
