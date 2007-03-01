@@ -62,6 +62,8 @@ public:
 
     virtual QwtDoubleRect boundingRect() const = 0;
 
+    virtual void setRectOfInterest(const QwtDoubleRect &) {};
+
 private:
     /*!
       Assignment operator (virtualized)
@@ -191,6 +193,31 @@ private:
     const double *d_y;
     size_t d_size;
 };
+
+class QWT_EXPORT QwtSyntheticPointData: public QwtSeriesData<QwtDoublePoint>
+{
+public:
+    QwtSyntheticPointData(size_t size, 
+        const QwtDoubleInterval & = QwtDoubleInterval());
+
+    void setInterval(const QwtDoubleInterval& );
+    QwtDoubleInterval interval() const;
+
+    virtual QwtDoubleRect boundingRect() const;
+    virtual size_t size() const;
+    virtual QwtDoublePoint sample(size_t i) const;
+
+    virtual double y(double x) const = 0;
+    virtual double x(uint index) const;
+
+    virtual void setRectOfInterest(const QwtDoubleRect &);
+
+private:
+    size_t d_size;
+    QwtDoubleInterval d_interval;
+    QwtDoubleInterval d_intervalOfInterest;
+};
+
 
 QWT_EXPORT QwtDoubleRect qwtBoundingRect(
     const QwtSeriesData<QwtDoublePoint> &);

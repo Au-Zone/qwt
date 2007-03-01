@@ -340,3 +340,65 @@ QwtSeriesData<QwtDoublePoint> *QwtCPointerData::copy() const
 {
     return new QwtCPointerData(d_x, d_y, d_size);
 }
+
+QwtSyntheticPointData::QwtSyntheticPointData(
+        size_t size, const QwtDoubleInterval &interval):
+    d_size(size),
+    d_interval(interval)
+{
+}
+
+void QwtSyntheticPointData::setInterval(const QwtDoubleInterval &interval)
+{
+    d_interval = interval.normalized();
+}
+
+QwtDoubleInterval QwtSyntheticPointData::interval() const
+{
+    return d_interval;
+}
+
+void QwtSyntheticPointData::setRectOfInterest(const QwtDoubleRect &rect)
+{
+    d_intervalOfInterest = QwtDoubleInterval(
+        rect.left(), rect.right()).normalized();
+}
+
+QwtDoubleRect QwtSyntheticPointData::boundingRect() const
+{
+    const QwtDoubleInterval &interval = d_interval.isValid() ?
+        d_interval : d_intervalOfInterest;
+
+    if ( d_size == 0 || !interval.isValid() )
+        return QwtDoubleRect();
+
+    return qwtBoundingRect(*this);
+}
+
+size_t QwtSyntheticPointData::size() const
+{
+    return d_size;
+}
+
+QwtDoublePoint QwtSyntheticPointData::sample(size_t i) const
+{
+    if ( i >= d_size )
+        return QwtDoublePoint();
+
+    const double xValue = x(i);
+    const double yValue = y(xValue);
+
+    return QwtDoublePoint(xValue, yValue);
+}
+
+double QwtSyntheticPointData::x(uint index) const
+{
+    const QwtDoubleInterval &interval = d_interval.isValid() ?
+        d_interval : d_intervalOfInterest;
+
+    if ( !interval.isValid() || d_size == 0 || index >= d_size)
+        return 0.0;
+
+    const double dx = interval.width() / d_size;
+    return interval.minValue() + index * dx;
+}

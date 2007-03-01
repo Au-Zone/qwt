@@ -17,14 +17,12 @@ class QwtPlotIntervalCurve::PrivateData
 {
 public:
     PrivateData():
-        curveType(Yfx),
         curveStyle(Tube),
         symbolStyle(NoSymbol),
-		pen(Qt::black, 0)
+        pen(Qt::black, 0)
     {
     }
 
-    CurveType curveType;
     CurveStyle curveStyle;
     SymbolStyle symbolStyle;
 
@@ -78,34 +76,16 @@ int QwtPlotIntervalCurve::rtti() const
 }
 
 void QwtPlotIntervalCurve::setData(
-	const QwtArray<QwtIntervalSample> &data)
+    const QwtArray<QwtIntervalSample> &data)
 {
-	QwtPlotSeriesItem<QwtIntervalSample>::setData(
-		QwtIntervalSeriesData(data));
+    QwtPlotSeriesItem<QwtIntervalSample>::setData(
+        QwtIntervalSeriesData(data));
 }
 
 void QwtPlotIntervalCurve::setData(
-	const QwtSeriesData<QwtIntervalSample> &data)
+    const QwtSeriesData<QwtIntervalSample> &data)
 {
-	QwtPlotSeriesItem<QwtIntervalSample>::setData(data);
-}
-
-void QwtPlotIntervalCurve::setCurveType(CurveType curveType)
-{
-    if ( d_data->curveType != curveType )
-    {
-        d_data->curveType = curveType;
-        itemChanged();
-    }
-}
-
-/*!
-   Return the curve type
-   \sa setCurveType()
-*/
-QwtPlotIntervalCurve::CurveType QwtPlotIntervalCurve::curveType() const
-{
-    return d_data->curveType;
+    QwtPlotSeriesItem<QwtIntervalSample>::setData(data);
 }
 
 void QwtPlotIntervalCurve::setCurveStyle(CurveStyle style)
@@ -131,8 +111,8 @@ void QwtPlotIntervalCurve::setSymbolStyle(SymbolStyle style)
     if ( style != d_data->symbolStyle )
     {
         d_data->symbolStyle = style;
-    	itemChanged();
-	}
+        itemChanged();
+    }
 }
 
 const QwtPlotIntervalCurve::SymbolStyle &
@@ -201,12 +181,12 @@ void QwtPlotIntervalCurve::draw(QPainter *painter,
     if (to < 0)
         to = dataSize() - 1;
 
-	if ( from < 0 )
-		from = 0;
+    if ( from < 0 )
+        from = 0;
 
-	if ( from >= to )
-		return;
-		
+    if ( from >= to )
+        return;
+        
     switch(d_data->curveStyle)
     {
         case Tube:
@@ -217,140 +197,140 @@ void QwtPlotIntervalCurve::draw(QPainter *painter,
             break;
     }
 
-	if ( d_data->symbolStyle != NoSymbol )
-	{
-    	drawSymbols(painter, xMap, yMap, from, to);
-	}
+    if ( d_data->symbolStyle != NoSymbol )
+    {
+        drawSymbols(painter, xMap, yMap, from, to);
+    }
 }
 
 void QwtPlotIntervalCurve::drawTube(QPainter *painter, 
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
-	painter->save();
+    painter->save();
 
-	const size_t size = dataSize();
-	QwtPolygon minValues(size);
-	QwtPolygon maxValues(size);
+    const size_t size = dataSize();
+    QwtPolygon minValues(size);
+    QwtPolygon maxValues(size);
 
     for ( int i = from; i <= to; i++ )
-	{
-		const QwtIntervalSample intervalSample = sample(i);
-		QPoint &minValue = minValues[i];
-		QPoint &maxValue = maxValues[to - i];
+    {
+        const QwtIntervalSample intervalSample = sample(i);
+        QPoint &minValue = minValues[i];
+        QPoint &maxValue = maxValues[to - i];
 
-		if ( d_data->curveType == Yfx )
-		{
-			const int x = xMap.transform(intervalSample.value);
-			const int y1 = yMap.transform(intervalSample.interval.minValue());
-			const int y2 = yMap.transform(intervalSample.interval.maxValue());
+        if ( curveType() == Yfx )
+        {
+            const int x = xMap.transform(intervalSample.value);
+            const int y1 = yMap.transform(intervalSample.interval.minValue());
+            const int y2 = yMap.transform(intervalSample.interval.maxValue());
 
-			minValue.setX(x);
-			minValue.setY(y1);
-			maxValue.setX(x);
-			maxValue.setY(y2);
-		}
-		else
-		{
-			const int y = yMap.transform(intervalSample.value);
-			const int x1 = xMap.transform(intervalSample.interval.minValue());
-			const int x2 = xMap.transform(intervalSample.interval.maxValue());
+            minValue.setX(x);
+            minValue.setY(y1);
+            maxValue.setX(x);
+            maxValue.setY(y2);
+        }
+        else
+        {
+            const int y = yMap.transform(intervalSample.value);
+            const int x1 = xMap.transform(intervalSample.interval.minValue());
+            const int x2 = xMap.transform(intervalSample.interval.maxValue());
 
-			minValue.setX(x1);
-			minValue.setY(y);
-			maxValue.setX(x2);
-			maxValue.setY(y);
-		}
-	}
+            minValue.setX(x1);
+            minValue.setY(y);
+            maxValue.setX(x2);
+            maxValue.setY(y);
+        }
+    }
 
-	painter->setPen(d_data->pen);
-	painter->setBrush(Qt::NoBrush);
+    painter->setPen(d_data->pen);
+    painter->setBrush(Qt::NoBrush);
 
-	QwtPainter::drawPolyline(painter, minValues);
-	QwtPainter::drawPolyline(painter, maxValues);
+    QwtPainter::drawPolyline(painter, minValues);
+    QwtPainter::drawPolyline(painter, maxValues);
 
-	minValues += maxValues;
-	maxValues.clear();
+    minValues += maxValues;
+    maxValues.clear();
 
-	painter->setPen(Qt::NoPen);
-	painter->setBrush(d_data->brush);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(d_data->brush);
 
-	QwtPainter::drawPolygon(painter, minValues);
+    QwtPainter::drawPolygon(painter, minValues);
 
-	painter->restore();
+    painter->restore();
 }
 
 void QwtPlotIntervalCurve::drawSymbols(
-	QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
-	painter->save();
+    painter->save();
 
-	painter->setPen(d_data->pen);
+    painter->setPen(d_data->pen);
 
     for ( int i = from; i <= to; i++ )
-	{
-		const QwtIntervalSample intervalSample = sample(i);
+    {
+        const QwtIntervalSample intervalSample = sample(i);
 
-		QPoint p[2];
+        QPoint p[2];
 
-		if ( d_data->curveType == Yfx )
-		{
-			const int x = xMap.transform(intervalSample.value);
-			const int y1 = yMap.transform(intervalSample.interval.minValue());
-			const int y2 = yMap.transform(intervalSample.interval.maxValue());
+        if ( curveType() == Yfx )
+        {
+            const int x = xMap.transform(intervalSample.value);
+            const int y1 = yMap.transform(intervalSample.interval.minValue());
+            const int y2 = yMap.transform(intervalSample.interval.maxValue());
 
-			p[0].setX(x);
-			p[0].setY(y1);
-			p[1].setX(x);
-			p[1].setY(y2);
-		}
-		else
-		{
-			const int y = yMap.transform(intervalSample.value);
-			const int x1 = xMap.transform(intervalSample.interval.minValue());
-			const int x2 = xMap.transform(intervalSample.interval.maxValue());
+            p[0].setX(x);
+            p[0].setY(y1);
+            p[1].setX(x);
+            p[1].setY(y2);
+        }
+        else
+        {
+            const int y = yMap.transform(intervalSample.value);
+            const int x1 = xMap.transform(intervalSample.interval.minValue());
+            const int x2 = xMap.transform(intervalSample.interval.maxValue());
 
-			p[0].setX(x1);
-			p[0].setY(y);
-			p[1].setX(x2);
-			p[1].setY(y);
-		}
+            p[0].setX(x1);
+            p[0].setY(y);
+            p[1].setX(x2);
+            p[1].setY(y);
+        }
 
-		switch(d_data->symbolStyle)
-		{
-			case Bar:
-				drawBar(painter, i, p[0], p[1]);
-				break;
-			default:;
-		}
-	}
+        switch(d_data->symbolStyle)
+        {
+            case Bar:
+                drawBar(painter, i, p[0], p[1]);
+                break;
+            default:;
+        }
+    }
 
-	painter->restore();
+    painter->restore();
 }
 
 void QwtPlotIntervalCurve::drawBar(QPainter *painter, int,
-	const QPoint& from, const QPoint& to ) const
+    const QPoint& from, const QPoint& to ) const
 {
-	const int capWidth = 3;
+    const int capWidth = 3;
 
-	QwtPainter::drawLine(painter, from, to);
-	if ( d_data->curveType == Yfx )
-	{
-		const int x1 = from.x() - capWidth;
-		const int x2 = from.x() + capWidth;
+    QwtPainter::drawLine(painter, from, to);
+    if ( curveType() == Yfx )
+    {
+        const int x1 = from.x() - capWidth;
+        const int x2 = from.x() + capWidth;
 
-		QwtPainter::drawLine(painter, x1, from.y(), x2, from.y());
-		QwtPainter::drawLine(painter, x1, to.y(), x2, to.y());
-	}
-	else
-	{
-		const int y1 = from.y() - capWidth;
-		const int y2 = from.y() + capWidth;
+        QwtPainter::drawLine(painter, x1, from.y(), x2, from.y());
+        QwtPainter::drawLine(painter, x1, to.y(), x2, to.y());
+    }
+    else
+    {
+        const int y1 = from.y() - capWidth;
+        const int y2 = from.y() + capWidth;
 
-		QwtPainter::drawLine(painter, from.x(), y1, from.x(), y1);
-		QwtPainter::drawLine(painter, from.x(), y2, from.x(), y2);
-	}
+        QwtPainter::drawLine(painter, from.x(), y1, from.x(), y1);
+        QwtPainter::drawLine(painter, from.x(), y2, from.x(), y2);
+    }
 }
 
 void QwtPlotIntervalCurve::updateLegend(QwtLegend *) const

@@ -102,7 +102,6 @@ public:
     };
 
     PrivateData():
-        curveType(Yfx),
         style(QwtPlotCurve::Lines),
         reference(0.0),
         attributes(0),
@@ -117,7 +116,6 @@ public:
         delete curveFitter;
     }
 
-    QwtPlotCurve::CurveType curveType;
     QwtPlotCurve::CurveStyle style;
     double reference;
 
@@ -696,7 +694,7 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
         const int xi = xMap.transform(sample.x());
         const int yi = yMap.transform(sample.y());
 
-        if (d_data->attributes & Xfy)
+        if (curveType() == Xfy)
             QwtPainter::drawLine(painter, x0, yi, xi, yi);
         else
             QwtPainter::drawLine(painter, xi, y0, xi, yi);
@@ -822,7 +820,7 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
 {
     QwtPolygon polyline(2 * (to - from) + 1);
 
-    bool inverted = d_data->attributes & Yfx;
+    bool inverted = curveType() == Yfx;
     if ( d_data->attributes & Inverted )
         inverted = !inverted;
 
@@ -901,40 +899,6 @@ bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const
     return d_data->attributes & attribute;
 }
 
-/*!
-  Assign the curve type
-
-  <dt>QwtPlotCurve::Yfx
-  <dd>Draws y as a function of x (the default). The
-      baseline is interpreted as a horizontal line
-      with y = baseline().</dd>
-  <dt>QwtPlotCurve::Xfy
-  <dd>Draws x as a function of y. The baseline is
-      interpreted as a vertical line with x = baseline().</dd>
-
-  The baseline is used for aligning the sticks, or
-  filling the curve with a brush.
-
-  \sa curveType()
-*/
-void QwtPlotCurve::setCurveType(CurveType curveType)
-{
-    if ( d_data->curveType != curveType )
-    {
-        d_data->curveType = curveType;
-        itemChanged();
-    }
-}
-
-/*!
-   Return the curve type
-   \sa setCurveType()
-*/
-QwtPlotCurve::CurveType QwtPlotCurve::curveType() const
-{
-    return d_data->curveType;
-}
-
 void QwtPlotCurve::setCurveFitter(QwtCurveFitter *curveFitter)
 {
     delete d_data->curveFitter;
@@ -1004,7 +968,7 @@ void QwtPlotCurve::closePolyline(
 
     pa.resize(sz + 2);
 
-    if ( d_data->attributes & QwtPlotCurve::Xfy )
+    if ( curveType() == QwtPlotCurve::Xfy )
     {
         pa.setPoint(sz,
             xMap.transform(d_data->reference), pa.point(sz - 1).y());

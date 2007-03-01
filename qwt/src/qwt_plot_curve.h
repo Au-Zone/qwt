@@ -56,12 +56,6 @@ class QwtCurveFitter;
 class QWT_EXPORT QwtPlotCurve: public QwtPlotSeriesItem<QwtDoublePoint>
 {
 public:
-    enum CurveType
-    {
-        Yfx,
-        Xfy
-    };
-
     /*! 
         Curve styles. 
         \sa setStyle
@@ -104,9 +98,6 @@ public:
     virtual ~QwtPlotCurve();
 
     virtual int rtti() const;
-
-    void setCurveType(CurveType);
-    CurveType curveType() const;
 
     void setPaintAttribute(PaintAttribute, bool on = true);
     bool testPaintAttribute(PaintAttribute) const;
