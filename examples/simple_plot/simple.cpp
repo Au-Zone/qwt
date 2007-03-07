@@ -19,7 +19,7 @@ class FunctionData: public QwtSyntheticPointData
 {
 public:
     FunctionData(double(*y)(double)):
-        QwtSyntheticPointData(500),
+        QwtSyntheticPointData(100),
         d_y(y)
     {
     }
@@ -50,9 +50,12 @@ Plot::Plot()
     setTitle("A Simple QwtPlot Demonstration");
     insertLegend(new QwtLegend(), QwtPlot::RightLegend);
 
-    // Set axis titles
+    // Set axes 
     setAxisTitle(xBottom, "x -->");
+    setAxisScale(xBottom, 0.0, 10.0);
+
     setAxisTitle(yLeft, "y -->");
+    setAxisScale(yLeft, -1.0, 1.0);
     
     // Insert new curves
     QwtPlotCurve *cSin = new QwtPlotCurve("y = sin(x)");
