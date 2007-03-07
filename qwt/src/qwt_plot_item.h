@@ -35,6 +35,7 @@ public:
         Rtti_PlotItem = 0,
 
         Rtti_PlotGrid,
+        Rtti_PlotScale,
         Rtti_PlotMarker,
         Rtti_PlotCurve,
         Rtti_PlotIntervalCurve,
