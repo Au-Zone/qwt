@@ -249,8 +249,13 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
     QwtPainter::drawPolyline(painter, minValues);
     QwtPainter::drawPolyline(painter, maxValues);
 
+#if QT_VERSION < 0x040000
+    minValues.resize(minValues.size() + maxValues.size());
+    minValues.putPoints(minValues.size(), maxValues.size(), maxValues);
+#else
     minValues += maxValues;
     maxValues.clear();
+#endif
 
     painter->setPen(Qt::NoPen);
     painter->setBrush(d_data->brush);
