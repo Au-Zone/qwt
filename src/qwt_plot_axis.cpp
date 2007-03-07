@@ -427,7 +427,7 @@ void QwtPlot::setAxisScaleDiv(int axisId, const QwtScaleDiv &scaleDiv)
   that scaleDraw has to be created with new and will be deleted
   by the corresponding QwtScale member ( like a child object ).
 
-  \sa QwtScaleDraw, QwtScale
+  \sa QwtScaleDraw, QwtScaleWidget
   \warning The attributes of scaleDraw will be overwritten by those of the  
            previous QwtScaleDraw. 
 */
