@@ -587,8 +587,6 @@ void QwtPlot::drawItems(QPainter *painter, const QRect &rect,
         const QwtScaleMap map[axisCnt], 
         const QwtPlotPrintFilter &pfilter) const
 {
-    painter->save();
-
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
         it != itmList.end(); ++it )
@@ -602,6 +600,8 @@ void QwtPlot::drawItems(QPainter *painter, const QRect &rect,
                 continue;
             }
 
+            painter->save();
+
 #if QT_VERSION >= 0x040000
             painter->setRenderHint(QPainter::Antialiasing,
                 item->testRenderHint(QwtPlotItem::RenderAntialiased) );
@@ -610,10 +610,10 @@ void QwtPlot::drawItems(QPainter *painter, const QRect &rect,
             item->draw(painter, 
                 map[item->xAxis()], map[item->yAxis()],
                 rect);
+
+            painter->restore();
         }
     }
-
-    painter->restore();
 }
 
 /*!

@@ -18,6 +18,7 @@ class QwtPlotScaleItem::PrivateData
 public:
     PrivateData():
         position(0.0),
+        borderDistance(-1),
         scaleDivFromAxis(true),
         scaleDraw(new QwtScaleDraw())
     {
@@ -35,6 +36,7 @@ public:
 #endif
     QFont font;
     double position;
+    int borderDistance;
     bool scaleDivFromAxis;
     QwtScaleDraw *scaleDraw;
 };
@@ -254,7 +256,9 @@ QwtScaleDraw *QwtPlotScaleItem::scaleDraw()
    Change the position of the scale
  
    The position is interpreted as y value for horizontal axes
-   and as x avlue for ertical axes.
+   and as x value for vertical axes.
+
+   The border distance is set to -1.
 
    \sa position(), setAlignment()
 */
@@ -263,6 +267,7 @@ void QwtPlotScaleItem::setPosition(double pos)
     if ( d_data->position != pos )
     {
         d_data->position = pos;
+        d_data->borderDistance = -1;
         itemChanged();
     }
 }
@@ -274,6 +279,43 @@ void QwtPlotScaleItem::setPosition(double pos)
 double QwtPlotScaleItem::position() const
 {
     return d_data->position;
+}
+
+/*!
+   \brief Align the scale to the canvas
+
+   If distance is >= 0 the scale will be aligned to a 
+   border of the contents rect of the canvas. If 
+   alignment() is QwtScaleDraw::LeftScale, the scale will
+   be aligned to the right border, if it is QwtScaleDraw::TopScale
+   it will be aligned to the bottom (and vice versa),
+
+   If distance is < 0 the scale will be at the position().
+
+   \param distance Number of pixels between the canvas border and the 
+                   backbone of the scale.
+
+   \sa setPosition(), borderDistance()
+*/
+void QwtPlotScaleItem::setBorderDistance(int distance)
+{
+    if ( distance < 0 )
+        distance = -1;
+
+    if ( distance != d_data->borderDistance )
+    {
+        d_data->borderDistance = distance;
+        itemChanged();
+    }
+}
+
+/*!
+   \return Distance from a canvas border
+   \sa setBorderDistance(), setPosition()
+*/
+int QwtPlotScaleItem::borderDistance() const
+{
+    return d_data->borderDistance;
 }
 
 /*!
@@ -309,10 +351,33 @@ void QwtPlotScaleItem::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &canvasRect) const
 {
+    QPen pen = painter->pen();
+    pen.setStyle(Qt::SolidLine);
+    painter->setPen(pen);
+
+    int pw = painter->pen().width();
+    if ( pw == 0 )
+        pw = 1;
+
     QwtScaleDraw *sd = d_data->scaleDraw;
     if ( sd->orientation() == Qt::Horizontal )
     {
-        const int y = yMap.transform(d_data->position);
+        int y;
+        if ( d_data->borderDistance >= 0 )
+        {
+            if ( sd->alignment() == QwtScaleDraw::BottomScale )
+                y = canvasRect.top() + d_data->borderDistance;
+            else
+            {
+                y = canvasRect.bottom() - d_data->borderDistance - pw + 1;
+            }
+
+        }
+        else
+        {
+            y = yMap.transform(d_data->position);
+        }
+
         if ( y < canvasRect.top() || y > canvasRect.bottom() )
             return;
 
@@ -324,7 +389,20 @@ void QwtPlotScaleItem::draw(QPainter *painter,
     }
     else // == Qt::Verical
     {
-        const int x = xMap.transform(d_data->position);
+        int x;
+        if ( d_data->borderDistance >= 0 )
+        {
+            if ( sd->alignment() == QwtScaleDraw::RightScale )
+                x = canvasRect.left() + d_data->borderDistance;
+            else
+            {
+                x = canvasRect.right() - d_data->borderDistance - pw + 1;
+            }
+        }
+        else
+        {
+            x = xMap.transform(d_data->position);
+        }
         if ( x < canvasRect.left() || x > canvasRect.right() )
             return;
 
