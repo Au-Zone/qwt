@@ -32,6 +32,9 @@ class QPalette;
   necessary to remove ticks at the intersections, by overloading
   updateScaleDiv().
 
+  The scale might be at a specific position (f.e 0.0) or it might be
+  aligned to a canvas border.
+
   \par Example
   The following example shows how to replace the left axis, by a scale item
   at the x position 0.0.
@@ -79,6 +82,9 @@ public:
 
     void setPosition(double pos);
     double position() const;
+
+    void setBorderDistance(int numPixels);
+    int borderDistance() const;
 
     void setAlignment(QwtScaleDraw::Alignment);
 
