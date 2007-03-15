@@ -11,6 +11,7 @@
 #define QWT_PLOT_AXISMANAGER_H 1
 
 #include "qwt_global.h"
+#include "qwt_double_rect.h"
 #include <qobject.h>
 
 class QwtPlotCanvas;
@@ -19,8 +20,6 @@ class QResizeEvent;
 
 class QWT_EXPORT QwtPlotAxisManager: public QObject
 {
-    Q_OBJECT
-
 public:
     enum AspectRatioMode
     {
@@ -46,8 +45,11 @@ public:
 
     virtual bool eventFilter(QObject *, QEvent *);
 
+    virtual QwtDoubleRect rescale(const QSize &oldSize, 
+        const QwtDoubleRect &rect, const QSize &newSize) const;
+
 protected:
-    virtual void widgetResizeEvent(QResizeEvent *);
+    virtual void canvasResizeEvent(QResizeEvent *);
 
 private:
     class PrivateData;
