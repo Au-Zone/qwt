@@ -32,8 +32,8 @@ CONFIG           += debug     # release/debug
 
 debug {
 #linux-g++:QMAKE_CXXFLAGS += -fstack-protector
-linux-g++:QMAKE_CXXFLAGS += -fstack-protector-all
-linux-g++:QMAKE_CXXFLAGS += -Wstack-protector
+#linux-g++:QMAKE_CXXFLAGS += -fstack-protector-all
+#linux-g++:QMAKE_CXXFLAGS += -Wstack-protector
 }
 
 #linux-g++:QMAKE_CXXFLAGS += -fno-exceptions
