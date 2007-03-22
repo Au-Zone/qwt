@@ -9,6 +9,11 @@
 #include <qpicture.h>
 #include <qpainter.h>
 #include <qfiledialog.h>
+#if QT_VERSION >= 0x040300
+#ifdef QT_SVG_LIB
+#include <qsvggenerator.h>
+#endif
+#endif
 #if QT_VERSION >= 0x040000
 #include <qprintdialog.h>
 #include <qfileinfo.h>
@@ -125,18 +130,30 @@ MainWin::MainWin(QWidget *parent):
     btnPDF->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 #endif
 
-#if QT_VERSION < 0x040000
+#if QT_VERSION < 0x040000 
     QToolButton *btnSVG = new QToolButton(toolBar);
     btnSVG->setTextLabel("SVG");
     btnSVG->setPixmap(print_xpm);
     btnSVG->setUsesTextLabel(true);
+#elif QT_VERSION >= 0x040300
+#ifdef QT_SVG_LIB
+    QToolButton *btnSVG = new QToolButton(toolBar);
+    btnSVG->setText("SVG");
+    btnSVG->setIcon(QIcon(print_xpm));
+    btnSVG->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+#endif
 #endif
 
 #if QT_VERSION >= 0x040000
     toolBar->addWidget(btnZoom);
     toolBar->addWidget(btnPrint);
 #if QT_VERSION >= 0x040100
+#ifdef QT_SVG_LIB
     toolBar->addWidget(btnPDF);
+#endif
+#endif
+#if QT_VERSION >= 0x040300
+    toolBar->addWidget(btnSVG);
 #endif
 #endif
     toolBar->addSeparator();
@@ -176,8 +193,12 @@ MainWin::MainWin(QWidget *parent):
 #if QT_VERSION >= 0x040100
     connect(btnPDF, SIGNAL(clicked()), SLOT(exportPDF()));
 #endif
-#if QT_VERSION < 0x040000
+#if QT_VERSION < 0x040000 
     connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
+#elif QT_VERSION >= 0x040300
+#ifdef QT_SVG_LIB
+    connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
+#endif
 #endif
     connect(btnZoom, SIGNAL(toggled(bool)), SLOT(enableZoomMode(bool)));
 
@@ -254,13 +275,13 @@ void MainWin::exportPDF()
 
 void MainWin::exportSVG()
 {
+    QString fileName = "bode.svg";
+
 #if QT_VERSION < 0x040000
 
 #ifndef QT_NO_FILEDIALOG
-    const QString fileName = QFileDialog::getSaveFileName(
+    fileName = QFileDialog::getSaveFileName(
         "bode.svg", "SVG Documents (*.svg)", this);
-#else
-    const QString fileName = "bode.svg";
 #endif
     if ( !fileName.isEmpty() )
     {
@@ -275,6 +296,24 @@ void MainWin::exportSVG()
 
         picture.save(fileName, "svg");
     }
+
+#elif QT_VERSION >= 0x040300
+
+#ifdef QT_SVG_LIB
+#ifndef QT_NO_FILEDIALOG
+    fileName = QFileDialog::getSaveFileName(
+        this, "Export File Name", QString(),
+        "SVG Documents (*.svg)");
+#endif
+    if ( !fileName.isEmpty() )
+    {
+        QSvgGenerator generator;
+        generator.setFileName(fileName);
+        generator.setSize(QSize(800, 600));
+
+        d_plot->print(generator);
+    }
+#endif
 #endif
 }
 
