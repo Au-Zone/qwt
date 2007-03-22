@@ -328,7 +328,7 @@ QwtDoubleInterval QwtScaleEngine::buildInterval(double v) const
   The behaviour of the scale engine can be changed
   with the following attributes:
   <dl>
-  <dt>QwtAutoscale::IncludeReference
+  <dt>QwtScaleEngine::IncludeReference
   <dd>Build a scale which includes the reference value.
   <dt>QwtScaleEngine::Symmetric
   <dd>Build a scale which is symmetric to the reference value.
