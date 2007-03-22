@@ -25,3 +25,10 @@ C) Open Tasks (5.0)
 5) setAlignCanvasToScales(true) + 2 X-Axes layout bug
 6) Alignment of left axis, without title. Layout init of round scales too late.
 7) Printing with Qt4 in HighResolution cuts off tick labels
+
+---
+
+Changing QwtDynGridLayout + legend position
+Alignment of bounded spectrograms (1 pixel bug)
+
+
