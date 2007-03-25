@@ -112,7 +112,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_picker.h \
         qwt_plot_zoomer.h \
         qwt_plot_magnifier.h \
-        qwt_plot_axismanager.h \
+        qwt_plot_rescaler.h \
         qwt_raster_data.h \
         qwt_series_data.h \
         qwt_scale_widget.h 
@@ -141,7 +141,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_picker.cpp \
         qwt_plot_zoomer.cpp \
         qwt_plot_magnifier.cpp \
-        qwt_plot_axismanager.cpp \
+        qwt_plot_rescaler.cpp \
         qwt_raster_data.cpp \
         qwt_series_data.cpp \
         qwt_scale_widget.cpp 
