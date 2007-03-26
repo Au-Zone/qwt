@@ -18,13 +18,45 @@ class QwtPlotCanvas;
 class QwtPlot;
 class QResizeEvent;
 
+/*!
+    \brief QwtPlotRescaler adjusts the axes of a QwtPlot according
+           to fixed aspect ratios.
+*/
+
 class QWT_EXPORT QwtPlotRescaler: public QObject
 {
 public:
-    enum AxisResizeMode
+    /*!
+        \brief Rescale Policy
+
+        The rescale policy defines how to rescale the reference axis and
+        their depending axes.
+
+        - KeepReferenceInterval
+
+          The interval of the reference axis remains unchanged, when the
+          geometry of the canvas changes. All other axes 
+          will be adjusted according to their aspect ratio.
+
+        - ExtendReferenceInterval
+
+          The interval of the reference axis will be shrinked/expanded,
+          when the geometry of the canvas changes. All other axes
+          will be adjusted according to their aspect ratio.
+
+          The interval, that is represented by one pixel is fixed.
+
+        - DisplayMinimalIntervals
+
+          The intervals of the axes are calculated, so that all axes include
+          their minimal interval.
+    */
+
+    enum RescalePolicy
     {
-        KeepReferenceScale,
-        KeepRatio
+        KeepReferenceInterval,
+        ExtendReferenceInterval,
+        DisplayMinimalIntervals
     };
 
     enum ExpandingDirection
@@ -34,25 +66,28 @@ public:
         ExpandBoth
     };
 
-    explicit QwtPlotRescaler(QwtPlotCanvas *);
+    explicit QwtPlotRescaler(QwtPlotCanvas *, 
+        int referenceAxis = QwtPlot::xBottom, 
+        RescalePolicy = KeepReferenceInterval );
+
     virtual ~QwtPlotRescaler();
 
-    void manageAxis(int axis, bool on = true);
-    bool isAxisManaged(int axis) const;
-    
-    void setReferenceAxisResizeMode(AxisResizeMode);
-    AxisResizeMode referenceAxisResizeMode() const;
-
-    void setReferenceAxis(int axis);
-    int referenceAxis() const;
-
-    void setScaleRatio(double ratio);
-    void setScaleRatio(int axis, double ratio);
-    double scaleRatio(int axis) const;
+    void setRescalePolicy(RescalePolicy);
+    RescalePolicy rescalePolicy() const;
 
     void setExpandingDirection(ExpandingDirection);
     void setExpandingDirection(int axis, ExpandingDirection);
     ExpandingDirection expandingDirection(int axis) const;
+
+    void setReferenceAxis(int axis);
+    int referenceAxis() const;
+
+    void setAspectRatio(double ratio);
+    void setAspectRatio(int axis, double ratio);
+    double aspectRatio(int axis) const;
+
+    void setMinimalInterval(int axis, const QwtDoubleInterval&);
+    QwtDoubleInterval minimalInterval(int axis) const;
 
     QwtPlotCanvas *canvas();
     const QwtPlotCanvas *canvas() const;
@@ -83,6 +118,8 @@ protected:
         double width, ExpandingDirection) const;
 
 private:
+    double pixelDist(int axis, const QSize &) const;
+
     class AxisData;
     class PrivateData;
     PrivateData *d_data;
