@@ -32,13 +32,13 @@ public:
         The rescale policy defines how to rescale the reference axis and
         their depending axes.
 
-        - KeepReferenceInterval
+        - Fixed
 
           The interval of the reference axis remains unchanged, when the
           geometry of the canvas changes. All other axes 
           will be adjusted according to their aspect ratio.
 
-        - ExtendReferenceInterval
+        - Expanding
 
           The interval of the reference axis will be shrinked/expanded,
           when the geometry of the canvas changes. All other axes
@@ -46,7 +46,7 @@ public:
 
           The interval, that is represented by one pixel is fixed.
 
-        - DisplayMinimalIntervals
+        - Fitted
 
           The intervals of the axes are calculated, so that all axes include
           their minimal interval.
@@ -54,9 +54,9 @@ public:
 
     enum RescalePolicy
     {
-        KeepReferenceInterval,
-        ExtendReferenceInterval,
-        DisplayMinimalIntervals
+        Fixed,
+        Expanding,
+        Fitted
     };
 
     enum ExpandingDirection
@@ -68,7 +68,7 @@ public:
 
     explicit QwtPlotRescaler(QwtPlotCanvas *, 
         int referenceAxis = QwtPlot::xBottom, 
-        RescalePolicy = KeepReferenceInterval );
+        RescalePolicy = Expanding );
 
     virtual ~QwtPlotRescaler();
 
@@ -86,8 +86,8 @@ public:
     void setAspectRatio(int axis, double ratio);
     double aspectRatio(int axis) const;
 
-    void setMinimalInterval(int axis, const QwtDoubleInterval&);
-    QwtDoubleInterval minimalInterval(int axis) const;
+    void setIntervalHint(int axis, const QwtDoubleInterval&);
+    QwtDoubleInterval intervalHint(int axis) const;
 
     QwtPlotCanvas *canvas();
     const QwtPlotCanvas *canvas() const;
