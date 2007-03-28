@@ -223,6 +223,7 @@ public:
     virtual QSize minimumSizeHint() const;
 
     virtual void updateLayout();
+    void updateAxes();
 
     virtual bool event(QEvent *);
 
@@ -272,8 +273,6 @@ protected:
         const QwtPlotPrintFilter &) const;
 
     virtual void updateTabOrder();
-
-    void updateAxes();
 
     virtual void resizeEvent(QResizeEvent *e);
 
