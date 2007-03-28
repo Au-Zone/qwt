@@ -102,6 +102,7 @@ public:
 protected:
     virtual void canvasResizeEvent(QResizeEvent *);
 
+    virtual void rescale(const QSize &oldSize, const QSize &newSize) const;
     virtual QwtDoubleInterval expandScale( int axis, 
         const QSize &oldSize, const QSize &newSize) const;
  
