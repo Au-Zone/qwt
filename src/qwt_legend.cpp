@@ -115,8 +115,8 @@ public:
 
         if ( e->type() == QEvent::Resize )
         {
-            QApplication::sendEvent(contentsWidget, 
-                new QEvent(QEvent::LayoutRequest));
+            QEvent event(QEvent::LayoutRequest);
+            QApplication::sendEvent(contentsWidget, &event);
         }
         return ok;
     }
