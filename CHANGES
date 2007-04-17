@@ -4,6 +4,7 @@ Release 5.0.2
 Bug Fixes
 ---------
 1. QwtPlotCurve::Xfy curve type fixed
+2. Memory leak in QwtLegend fixed
 
 Changes
 -------
