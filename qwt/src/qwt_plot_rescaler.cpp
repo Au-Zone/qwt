@@ -37,14 +37,19 @@ public:
     PrivateData():
         referenceAxis(QwtPlot::xBottom),
         rescalePolicy(QwtPlotRescaler::Expanding),
+        ratioMM(0.0),
+        isEnabled(false),
         inReplot(0)
     {
     }
 
     int referenceAxis;
     RescalePolicy rescalePolicy;
+    double ratioMM;
     QwtPlotRescaler::AxisData axisData[QwtPlot::axisCnt];
-    int inReplot;
+    bool isEnabled;
+
+    mutable int inReplot;
 };
 
 QwtPlotRescaler::QwtPlotRescaler(QwtPlotCanvas *canvas,
@@ -55,12 +60,47 @@ QwtPlotRescaler::QwtPlotRescaler(QwtPlotCanvas *canvas,
     d_data->referenceAxis = referenceAxis;
     d_data->rescalePolicy = policy;
 
-    canvas->installEventFilter(this);
+    setEnabled(true);
 }
 
 QwtPlotRescaler::~QwtPlotRescaler()
 {
     delete d_data;
+}
+
+/*!
+  \brief En/disable the panner
+
+  When enabled is true an event filter is installed for
+  the observed widget, otherwise the event filter is removed.
+
+  \param on true or false
+  \sa isEnabled(), eventFilter()
+*/
+void QwtPlotRescaler::setEnabled(bool on)
+{
+    if ( d_data->isEnabled != on )
+    {
+        d_data->isEnabled = on;
+
+        QWidget *w = canvas();
+        if ( w )
+        {
+            if ( d_data->isEnabled )
+                w->installEventFilter(this);
+            else
+                w->removeEventFilter(this);
+        }
+    }
+}
+
+/*!
+  \return true when enabled, false otherwise
+  \sa setEnabled, eventFilter()
+*/
+bool QwtPlotRescaler::isEnabled() const
+{
+    return d_data->isEnabled;
 }
 
 void QwtPlotRescaler::setRescalePolicy(RescalePolicy policy)
@@ -127,6 +167,19 @@ double QwtPlotRescaler::aspectRatio(int axis) const
         return d_data->axisData[axis].aspectRatio;
 
     return 0.0;
+}
+
+void QwtPlotRescaler::setRatioMM(double ratio)
+{
+    if ( ratio < 0.0 )
+        ratio = 0.0;
+
+    d_data->ratioMM = ratio;
+}
+
+double QwtPlotRescaler::ratioMM() const
+{
+    return d_data->ratioMM;
 }
 
 void QwtPlotRescaler::setIntervalHint(int axis, 
@@ -279,7 +332,7 @@ QwtDoubleInterval QwtPlotRescaler::expandScale( int axis,
             }
             break;
         }
-        case Fitted:
+        case Fitting:
         {
             double dist = 0.0;
             for ( int ax = 0; ax < QwtPlot::axisCnt; ax++ )
@@ -323,7 +376,7 @@ QwtDoubleInterval QwtPlotRescaler::syncScale(int axis,
     dist /= aspectRatio(axis);
 
     QwtDoubleInterval intv;
-    if ( rescalePolicy() == Fitted )
+    if ( rescalePolicy() == Fitting )
         intv = intervalHint(axis);
     else
         intv = interval(axis);

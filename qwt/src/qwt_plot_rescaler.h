@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_double_rect.h"
+#include "qwt_double_interval.h"
 #include <qobject.h>
 
 class QwtPlotCanvas;
@@ -46,7 +47,7 @@ public:
 
           The interval, that is represented by one pixel is fixed.
 
-        - Fitted
+        - Fitting
 
           The intervals of the axes are calculated, so that all axes include
           their minimal interval.
@@ -56,7 +57,7 @@ public:
     {
         Fixed,
         Expanding,
-        Fitted
+        Fitting
     };
 
     enum ExpandingDirection
@@ -72,6 +73,9 @@ public:
 
     virtual ~QwtPlotRescaler();
 
+    void setEnabled(bool);
+    bool isEnabled() const;
+
     void setRescalePolicy(RescalePolicy);
     RescalePolicy rescalePolicy() const;
 
@@ -85,6 +89,9 @@ public:
     void setAspectRatio(double ratio);
     void setAspectRatio(int axis, double ratio);
     double aspectRatio(int axis) const;
+
+    void setRatioMM(double ratio);
+    double ratioMM() const;
 
     void setIntervalHint(int axis, const QwtDoubleInterval&);
     QwtDoubleInterval intervalHint(int axis) const;

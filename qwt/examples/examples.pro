@@ -20,6 +20,7 @@ contains(CONFIG, QwtPlot) {
     	errorbars \
     	simple_plot \
     	realtime_plot \
+    	navigation \
     	spectrogram \
     	histogram 
 
