@@ -1,44 +1,43 @@
 #ifndef _MAINWINDOW_H_
 #define _MAINWINDOW_H_ 1
 
+#include <qwidget.h>
 #include <qmainwindow.h>
-#if QT_VERSION < 0x040000
-#include <qtoolbutton.h>
-#else
-#include <qaction.h>
-#endif
 
-class QSpinBox;
-class QPushButton;
-class RandomPlot;
-class Counter;
+class QwtPlotRescaler;
 
 class MainWindow: public QMainWindow
 {
     Q_OBJECT
+
 public:
+    enum MouseMode
+    {
+        Tracking,
+        Zooming,
+        Panning
+    };
+
+    enum RescaleMode
+    {
+        KeepScales,
+        Fixed,
+        Expanding,
+        Fitting
+    };
+
     MainWindow();
 
 private slots:
-    void showRunning(bool);
-    void appendPoints(bool);
+    void setMouseMode(int);
+    void setRescaleMode(int);
+    void showRatio(double, double);
 
 private:
-    QToolBar *toolBar();
-    void initWhatsThis();
+    QWidget *createPanel(QWidget *);
+    QWidget *createPlot(QWidget *);
 
-private:
-    Counter *d_randomCount;
-    Counter *d_timerCount;
-#if QT_VERSION < 0x040000
-    QToolButton *d_startBtn;
-    QToolButton *d_clearBtn;
-#else
-    QAction *d_startAction;
-    QAction *d_clearAction;
-#endif
-
-    RandomPlot *d_plot;
+    QwtPlotRescaler *d_rescaler;
 };
 
 #endif
