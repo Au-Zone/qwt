@@ -421,7 +421,7 @@ void QwtPainter::drawSimpleRichText(QPainter *painter, const QRect &rect,
 
     painter->save();
 
-    painter->translate(scaledRect.x(), scaledRect.y());
+    painter->translate(scaledRect.x(), y);
     layout->draw(painter, context);
 
     painter->restore();
