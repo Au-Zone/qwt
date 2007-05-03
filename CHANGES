@@ -5,6 +5,9 @@ Bug Fixes
 ---------
 1. QwtPlotCurve::Xfy curve type fixed
 2. Memory leak in QwtLegend fixed
+3. Vertical alignment of rich texts fixed
+4. Workaround for a Qt4 bug added, that produces horrible performance
+   when painting curves with a pen width > 1.
 
 Changes
 -------

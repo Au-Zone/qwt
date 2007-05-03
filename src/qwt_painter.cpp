@@ -23,6 +23,7 @@
 #include <qtextdocument.h>
 #include <qabstracttextdocumentlayout.h>
 #include <qstyleoption.h>
+#include <qpaintengine.h>
 #endif
 
 #include "qwt_rect.h"
@@ -30,6 +31,10 @@
 #include "qwt_color_map.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
+#if 1
+#include <iostream>
+using namespace std;
+#endif
 
 QwtMetricsMap QwtPainter::d_metricsMap;
 
@@ -509,7 +514,36 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
     QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
     if ( deviceClipping )
         cpa = clip(cpa);
-    painter->drawPolyline(cpa);
+
+    bool doSplit = false;
+#if QT_VERSION >= 0x040000
+    if ( painter->paintEngine()->type() == QPaintEngine::Raster &&
+        painter->pen().width() >= 2 )
+    {
+        /*
+            The raster paint engine seems to use some algo with O(n*n).
+            ( Qt 4.3 is better than Qt 4.2, but remains unacceptable)
+            To work around this problem, we have to split the polygon into
+            smaller pieces.
+         */
+        doSplit = true;
+    }
+#endif
+
+    if ( doSplit )
+    {
+        const int numPoints = cpa.size();
+        const QPoint *points = cpa.data();
+
+        const int splitSize = 20;
+        for ( int i = 0; i < numPoints; i += splitSize )
+        {
+            const int n = qwtMin(splitSize + 1, cpa.size() - i);
+            painter->drawPolyline(points + i, n);
+        }
+    }
+    else
+        painter->drawPolyline(cpa);
 }
 
 /*!
