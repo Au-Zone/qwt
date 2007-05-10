@@ -23,6 +23,8 @@
 #include <qpointer.h>
 #endif
 
+#define USE_TRACKER_BACKROUND 1
+
 class QwtPicker::PrivateData
 {
 public:
@@ -37,6 +39,14 @@ public:
         PickerWidget(QwtPicker *, QWidget *, Type);
         virtual void updateMask();
 
+#if USE_TRACKER_BACKROUND
+        /*
+           Internal flag, that is needed for tracker texts with a
+           background. This flag has been introduced in Qwt 5.0.2 to avoid
+           incompatible API changes. In Qwt 5.1 will be a cleaner solution.
+         */
+        mutable bool d_hasTrackerBackground;
+#endif
     protected:
         virtual void paintEvent(QPaintEvent *);
 
@@ -164,12 +174,15 @@ void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
     if ( d_type == Text )
     {
         painter.setClipRegion(e->region());
-#if 0
-        painter.setPen(d_picker->trackerPen());
-        d_picker->drawTracker(&painter);
-#else
-        painter.fillRect(e->rect(), QBrush(d_picker->trackerPen().color()));
+#if USE_TRACKER_BACKROUND
+        if ( d_hasTrackerBackground )
+        {
+            painter.setPen(d_picker->trackerPen());
+            d_picker->drawTracker(&painter);
+        }
+        else
 #endif
+            painter.fillRect(e->rect(), QBrush(d_picker->trackerPen().color()));
     }
 }
 
@@ -691,6 +704,31 @@ void QwtPicker::drawTracker(QPainter *painter) const
         QwtText label = trackerText(d_data->labelPosition);
         if ( !label.isEmpty() )
         {
+#if USE_TRACKER_BACKROUND
+            if ( label.testPaintAttribute(QwtText::PaintBackground) )
+            {
+                if ( d_data->trackerWidget )
+                    d_data->trackerWidget->d_hasTrackerBackground = true;
+                
+                if ( painter->pen() != trackerPen() &&
+                    painter->pen().color() == Qt::color1 )
+                {
+                    /*
+                      Hack time: we know, that we are painting to get the
+                      region for the mask. The text is always inside the
+                      textRect and on a QBitmap everything is painted in
+                      Qt::color1. That's why we don't have to paint the text.
+                     */
+                    painter->fillRect(textRect, Qt::color1);
+                    return;
+                }
+            }
+            else
+            {
+                if ( d_data->trackerWidget )
+                    d_data->trackerWidget->d_hasTrackerBackground = false;
+            }
+#endif
 
 #if defined(Q_WS_MAC)
 #if QT_VERSION >= 0x040000
