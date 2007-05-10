@@ -31,10 +31,6 @@
 #include "qwt_color_map.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
-#if 1
-#include <iostream>
-using namespace std;
-#endif
 
 QwtMetricsMap QwtPainter::d_metricsMap;
 
