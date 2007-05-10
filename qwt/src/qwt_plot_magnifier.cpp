@@ -177,13 +177,13 @@ void QwtPlotMagnifier::getZoomOutKey(int &key, int &buttonState)
 
 void QwtPlotMagnifier::setAxisEnabled(int axis, bool on)
 {
-    if ( axis >= 0 && axis <= QwtPlot::axisCnt )
+    if ( axis >= 0 && axis < QwtPlot::axisCnt )
         d_data->isAxisEnabled[axis] = on;
 }
 
 bool QwtPlotMagnifier::isAxisEnabled(int axis) const
 {
-    if ( axis >= 0 && axis <= QwtPlot::axisCnt )
+    if ( axis >= 0 && axis < QwtPlot::axisCnt )
         return d_data->isAxisEnabled[axis];
 
     return true;
