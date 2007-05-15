@@ -22,7 +22,14 @@ win32:QwtDll {
 	DEFINES    += QT_DLL QWT_DLL
 }
 
-win32-msvc:LIBS  += ../../lib/qwt5.lib
-win32-msvc.net:LIBS  += ../../lib/qwt5.lib
-win32-msvc2005:LIBS += ../../lib/qwt5.lib
-win32-g++:LIBS   += -L../../lib -lqwt
+contains(CONFIG, QwtDll) {
+    win32-msvc:LIBS  += ../../lib/qwt5.lib
+    win32-msvc.net:LIBS  += ../../lib/qwt5.lib
+    win32-msvc2005:LIBS += ../../lib/qwt5.lib
+    win32-g++:LIBS   += -L../../lib -lqwt
+} else {
+    win32-msvc:LIBS  += ../../lib/qwt.lib
+    win32-msvc.net:LIBS  += ../../lib/qwt.lib
+    win32-msvc2005:LIBS += ../../lib/qwt.lib
+    win32-g++:LIBS   += -L../../lib -lqwt
+}
