@@ -511,8 +511,8 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
     if ( deviceClipping )
         cpa = clip(cpa);
 
-    bool doSplit = false;
 #if QT_VERSION >= 0x040000
+    bool doSplit = false;
     if ( painter->paintEngine()->type() == QPaintEngine::Raster &&
         painter->pen().width() >= 2 )
     {
@@ -524,7 +524,6 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
          */
         doSplit = true;
     }
-#endif
 
     if ( doSplit )
     {
@@ -539,6 +538,7 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
         }
     }
     else
+#endif
         painter->drawPolyline(cpa);
 }
 
