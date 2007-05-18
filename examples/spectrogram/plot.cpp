@@ -36,6 +36,30 @@ public:
     }
 };
 
+class MyZoomer: public QwtPlotZoomer
+{
+public:
+    MyZoomer(QwtPlotCanvas* canvas):
+        QwtPlotZoomer(canvas)
+    {
+        setTrackerMode(QwtPicker::AlwaysOn);
+    }
+
+protected:
+    virtual QwtText trackerText( const QwtDoublePoint& p ) const 
+    {
+        QwtText t( QwtPlotPicker::trackerText( p ));
+
+#if QT_VERSION >= 0x040300
+        QColor c(Qt::white);
+        c.setAlpha(180);
+        t.setBackgroundBrush( QBrush(c) );
+#endif
+        return t;
+    }
+};
+
+
 Plot::Plot(QWidget *parent):
     QwtPlot(parent)
 {
@@ -75,7 +99,7 @@ Plot::Plot(QWidget *parent):
     // RightButton: zoom out by 1
     // Ctrl+RighButton: zoom out to full size
 
-    QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
+    QwtPlotZoomer* zoomer = new MyZoomer(canvas());
 #if QT_VERSION < 0x040000
     zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
         Qt::RightButton, Qt::ControlButton);
