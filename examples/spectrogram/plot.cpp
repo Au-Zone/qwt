@@ -7,6 +7,29 @@
 #include <qwt_plot_layout.h>
 #include "plot.h"
 
+class MyZoomer: public QwtPlotZoomer
+{
+public:
+	MyZoomer(QwtPlotCanvas *canvas):
+		QwtPlotZoomer(canvas)
+	{
+		setTrackerMode(AlwaysOn);
+	}
+
+    virtual QwtText trackerText(const QwtDoublePoint &pos) const
+	{
+		QColor bg(Qt::white);
+#if QT_VERSION >= 0x040300
+		bg.setAlpha(200);
+#endif
+
+		QwtText text = QwtPlotZoomer::trackerText(pos);
+		//QwtText text("Text");
+    	text.setBackgroundBrush( QBrush( bg ));
+		return text;
+	}
+};
+
 class SpectrogramData: public QwtRasterData
 {
 public:
@@ -75,7 +98,7 @@ Plot::Plot(QWidget *parent):
     // RightButton: zoom out by 1
     // Ctrl+RighButton: zoom out to full size
 
-    QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
+    QwtPlotZoomer* zoomer = new MyZoomer(canvas());
 #if QT_VERSION < 0x040000
     zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
         Qt::RightButton, Qt::ControlButton);
