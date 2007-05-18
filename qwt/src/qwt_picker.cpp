@@ -23,7 +23,7 @@
 #include <qpointer.h>
 #endif
 
-#define USE_TRACKER_BACKROUND 1
+#define USE_TRACKER_BACKGROUND 0
 
 class QwtPicker::PrivateData
 {
@@ -39,7 +39,7 @@ public:
         PickerWidget(QwtPicker *, QWidget *, Type);
         virtual void updateMask();
 
-#if USE_TRACKER_BACKROUND
+#if USE_TRACKER_BACKGROUND
         /*
            Internal flag, that is needed for tracker texts with a
            background. This flag has been introduced in Qwt 5.0.2 to avoid
@@ -174,7 +174,7 @@ void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
     if ( d_type == Text )
     {
         painter.setClipRegion(e->region());
-#if USE_TRACKER_BACKROUND
+#if USE_TRACKER_BACKGROUND
         if ( d_hasTrackerBackground )
         {
             painter.setPen(d_picker->trackerPen());
@@ -704,7 +704,7 @@ void QwtPicker::drawTracker(QPainter *painter) const
         QwtText label = trackerText(d_data->labelPosition);
         if ( !label.isEmpty() )
         {
-#if USE_TRACKER_BACKROUND
+#if USE_TRACKER_BACKGROUND
             if ( label.testPaintAttribute(QwtText::PaintBackground) )
             {
                 if ( d_data->trackerWidget )
@@ -1352,6 +1352,7 @@ void QwtPicker::updateDisplay()
             rw->resize(w->size());
         }
         rw->updateMask();
+        rw->update(); // Needed, when the mask doesn't change
     }
     else
         delete rw;
@@ -1370,6 +1371,7 @@ void QwtPicker::updateDisplay()
             tw->resize(w->size());
         }
         tw->updateMask();
+        tw->update(); // Needed, when the mask doesn't change
     }
     else
         delete tw;
