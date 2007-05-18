@@ -23,7 +23,7 @@
 #include <qpointer.h>
 #endif
 
-#define USE_TRACKER_BACKGROUND 0
+#define USE_TRACKER_BACKGROUND 1
 
 class QwtPicker::PrivateData
 {
