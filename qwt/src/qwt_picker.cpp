@@ -23,7 +23,19 @@
 #include <qpointer.h>
 #endif
 
-#define USE_TRACKER_BACKGROUND 1
+#if QT_VERSION >= 0x040300
+/*
+  With Qt >= 4.3 drawing of the tracker can be implemented in a
+  easier and faster way, using the textRect as mask. As calculating
+  a QRegion from a QBitmask is expensive operation ( especially for
+  longer texts !) this implementation is much faster too.
+*/
+#define USE_TRACKER_RECT_MASK
+#endif
+
+#ifndef USE_TRACKER_RECT_MASK
+#define USE_TRACKER_BACKGROUND
+#endif
 
 class QwtPicker::PrivateData
 {
@@ -39,7 +51,7 @@ public:
         PickerWidget(QwtPicker *, QWidget *, Type);
         virtual void updateMask();
 
-#if USE_TRACKER_BACKGROUND
+#ifdef USE_TRACKER_BACKGROUND
         /*
            Internal flag, that is needed for tracker texts with a
            background. This flag has been introduced in Qwt 5.0.2 to avoid
@@ -113,30 +125,45 @@ QwtPicker::PrivateData::PickerWidget::PickerWidget(
 
 void QwtPicker::PrivateData::PickerWidget::updateMask()
 {
-    QBitmap bm(width(), height());
-    bm.fill(Qt::color0);
-
-    QPainter painter(&bm);
+    QRegion mask;
 
     if ( d_type == RubberBand )
     {
+        QBitmap bm(width(), height());
+        bm.fill(Qt::color0);
+
+        QPainter painter(&bm);
         QPen pen = d_picker->rubberBandPen();
         pen.setColor(Qt::color1);
         painter.setPen(pen);
 
         d_picker->drawRubberBand(&painter);
+
+        mask = QRegion(bm);
     }
     if ( d_type == Text )
     {
+#ifdef USE_TRACKER_RECT_MASK
+        QPixmap dummy;
+        QPainter painter(&dummy);
+        painter.setFont(font());
+        mask = d_picker->trackerRect(&painter);
+#else
+        QBitmap bm(width(), height());
+        bm.fill(Qt::color0);
+
+        QPainter painter(&bm);
+        painter.setFont(font());
+
         QPen pen = d_picker->trackerPen();
         pen.setColor(Qt::color1);
         painter.setPen(pen);
 
         d_picker->drawTracker(&painter);
+
+        mask = QRegion(bm);
+#endif
     }
-
-    painter.end();
-
 
 #if QT_VERSION < 0x040000
     QWidget *w = parentWidget();
@@ -147,8 +174,7 @@ void QwtPicker::PrivateData::PickerWidget::updateMask()
         w->setBackgroundMode(Qt::NoBackground);
 #endif
 
-    const QRegion r(bm);
-    setMask(r);
+    setMask(mask);
 
 #if QT_VERSION < 0x040000
     if ( bgMode != Qt::NoBackground )
@@ -157,7 +183,7 @@ void QwtPicker::PrivateData::PickerWidget::updateMask()
     w->setUpdatesEnabled(doUpdate);
 #endif
 
-    setShown(!r.isEmpty());
+    setShown(!mask.isEmpty());
 }
 
 void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
@@ -174,14 +200,21 @@ void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
     if ( d_type == Text )
     {
         painter.setClipRegion(e->region());
-#if USE_TRACKER_BACKGROUND
-        if ( d_hasTrackerBackground )
+
+        bool doDrawTracker = true;
+#ifndef USE_TRACKER_RECT_MASK
+#ifdef USE_TRACKER_BACKGROUND
+        doDrawTracker = d_hasTrackerBackground;
+#else
+        doDrawTracker = false;
+#endif
+#endif
+        if ( doDrawTracker )
         {
             painter.setPen(d_picker->trackerPen());
             d_picker->drawTracker(&painter);
         }
         else
-#endif
             painter.fillRect(e->rect(), QBrush(d_picker->trackerPen().color()));
     }
 }
@@ -704,7 +737,7 @@ void QwtPicker::drawTracker(QPainter *painter) const
         QwtText label = trackerText(d_data->labelPosition);
         if ( !label.isEmpty() )
         {
-#if USE_TRACKER_BACKGROUND
+#ifdef USE_TRACKER_BACKGROUND
             if ( label.testPaintAttribute(QwtText::PaintBackground) )
             {
                 if ( d_data->trackerWidget )
