@@ -14,7 +14,51 @@
 #include <qevent.h>
 #include <qframe.h>
 #include <qcursor.h>
+#if QT_VERSION < 0x040000
+#include <qobjectlist.h>
+#endif
+#include "qwt_picker.h"
+#include "qwt_array.h"
 #include "qwt_panner.h"
+
+static QwtArray<QwtPicker *> activePickers(QWidget *w)
+{
+    QwtArray<QwtPicker *> pickers;
+
+#if QT_VERSION >= 0x040000
+    QObjectList children = w->children();
+    for ( int i = 0; i < children.size(); i++ )
+    {
+        QObject *obj = children[i];
+        if ( obj->inherits("QwtPicker") )
+        {
+            QwtPicker *picker = (QwtPicker *)obj;
+            if ( picker->isEnabled() )
+                pickers += picker;
+        }
+    }
+#else
+    QObjectList *children = (QObjectList *)w->children();
+    if ( children )
+    {
+        for ( QObjectListIterator it(*children); it.current(); ++it )
+        {
+            QObject *obj = (QObject *)it.current();
+            if ( obj->inherits("QwtPicker") )
+            {
+                QwtPicker *picker = (QwtPicker *)obj;
+                if ( picker->isEnabled() )
+                {
+                    pickers.resize(pickers.size() + 1);
+                    pickers[pickers.size() - 1] = picker;
+                }
+            }
+        }
+    }
+#endif
+
+    return pickers;
+}
 
 class QwtPanner::PrivateData
 {
@@ -69,9 +113,6 @@ QwtPanner::QwtPanner(QWidget *parent):
 #if QT_VERSION >= 0x040000
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAttribute(Qt::WA_NoSystemBackground);
-#if 0
-    setAttribute(Qt::WA_PaintOnScreen);
-#endif
     setFocusPolicy(Qt::NoFocus);
 #else
     setBackgroundMode(Qt::NoBackground);
@@ -321,8 +362,18 @@ void QwtPanner::widgetMousePressEvent(QMouseEvent *me)
         cr = frame->contentsRect();
     }
     setGeometry(cr);
+
+    // We don't want to grab the picker !
+    QwtArray<QwtPicker *> pickers = activePickers(parentWidget());
+    for ( int i = 0; i < (int)pickers.size(); i++ )
+        pickers[i]->setEnabled(false);
+
     d_data->pixmap = QPixmap::grabWidget(parentWidget(),
         cr.x(), cr.y(), cr.width(), cr.height());
+
+    for ( int i = 0; i < (int)pickers.size(); i++ )
+        pickers[i]->setEnabled(true);
+
     show();
 }
 
