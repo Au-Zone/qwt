@@ -207,6 +207,13 @@ void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
         doDrawTracker = false;
 #endif
 #endif
+#if QT_VERSION < 0x040000
+    if ( !doDrawTracker && QPainter::redirect(this) )
+    {
+        // setMask + painter redirection doesn't work
+        doDrawTracker = true;
+    }
+#endif
         if ( doDrawTracker )
         {
             painter.setPen(d_picker->trackerPen());
