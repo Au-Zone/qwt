@@ -25,10 +25,11 @@
 
 #if QT_VERSION >= 0x040300
 /*
-  With Qt >= 4.3 drawing of the tracker can be implemented in a
-  easier and faster way, using the textRect as mask. As calculating
+  With Qt >= 4.3 drawing of the tracker can be implemented in an
+  easier, using the textRect as mask. Because calculating
   a QRegion from a QBitmask is expensive operation ( especially for
   longer texts !) this implementation is much faster too.
+  Also the result looks much better.
 */
 #define USE_TRACKER_RECT_MASK
 #endif
@@ -111,9 +112,6 @@ QwtPicker::PrivateData::PickerWidget::PickerWidget(
 #if QT_VERSION >= 0x040000
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAttribute(Qt::WA_NoSystemBackground);
-#if 0
-    setAttribute(Qt::WA_PaintOnScreen);
-#endif
     setFocusPolicy(Qt::NoFocus);
 #else
     setBackgroundMode(Qt::NoBackground);
@@ -144,8 +142,8 @@ void QwtPicker::PrivateData::PickerWidget::updateMask()
     if ( d_type == Text )
     {
 #ifdef USE_TRACKER_RECT_MASK
-        QPixmap dummy;
-        QPainter painter(&dummy);
+        QBitmap bm(width(), height());
+        QPainter painter(&bm);
         painter.setFont(font());
         mask = d_picker->trackerRect(&painter);
 #else
@@ -208,6 +206,13 @@ void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
 #else
         doDrawTracker = false;
 #endif
+#endif
+#if QT_VERSION < 0x040000
+    if ( !doDrawTracker && QPainter::redirect(this) )
+    {
+        // setMask + painter redirection doesn't work
+        doDrawTracker = true;
+    }
 #endif
         if ( doDrawTracker )
         {
