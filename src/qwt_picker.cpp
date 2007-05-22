@@ -29,7 +29,7 @@
   easier, using the textRect as mask. Because calculating
   a QRegion from a QBitmask is expensive operation ( especially for
   longer texts !) this implementation is much faster too.
-  Alo the result looks much better.
+  Also the result looks much better.
 */
 #define USE_TRACKER_RECT_MASK
 #endif
@@ -112,9 +112,6 @@ QwtPicker::PrivateData::PickerWidget::PickerWidget(
 #if QT_VERSION >= 0x040000
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAttribute(Qt::WA_NoSystemBackground);
-#if 0
-    setAttribute(Qt::WA_PaintOnScreen);
-#endif
     setFocusPolicy(Qt::NoFocus);
 #else
     setBackgroundMode(Qt::NoBackground);

@@ -308,15 +308,8 @@ QwtValueList QwtScaleEngine::strip(
 
 QwtDoubleInterval QwtScaleEngine::buildInterval(double v) const
 {
-#if 1
     const double delta = (v == 0.0) ? 0.5 : qwtAbs(0.5 * v);
     return QwtDoubleInterval(v - delta, v + delta);
-#else
-    if ( v == 0.0 )
-        return QwtDoubleInterval(-0.5, 0.5);
-
-    return QwtDoubleInterval(0.5 * v, 1.5 * v);
-#endif
 }
 
 /*!

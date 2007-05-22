@@ -40,7 +40,7 @@ public:
   A scale engine trys to find "reasonable" ranges and step sizes
   for scales. 
 
-  The layout of the scale can be varied with setOptions().
+  The layout of the scale can be varied with setAttribute().
 
   Qwt offers implementations for logarithmic (log10) 
   and linear scales. Contributions for other types of scale engines 

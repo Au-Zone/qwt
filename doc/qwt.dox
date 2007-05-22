@@ -37,7 +37,7 @@ to control or display values, arrays, or ranges of type double.
 
   Qwt 5.x might be usable in all environments where you find a
   <a href="http://www.trolltech.com/products/qt">Qt</a>.
-  It is compatible with Qt 3.x and Qt 4.x, but the documentation
+  It is compatible with Qt 3.3.x and Qt 4.x, but the documentation
   is generated for Qt 4.x.\n
 
   \section screenshotsonmainpage Screenshots
