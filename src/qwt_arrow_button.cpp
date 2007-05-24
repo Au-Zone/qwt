@@ -307,9 +307,13 @@ QSize QwtArrowButton::minimumSizeHint() const
     QStyleOption styleOption;
     styleOption.init(this);
 
-    sz = style()->sizeFromContents(QStyle::CT_PushButton, 
+    const QSize hsz = style()->sizeFromContents(QStyle::CT_PushButton, 
         &styleOption, sz, this);
-#else
+#if QT_VERSION < 0x040300
+    if ( hsz.width() != 80 ) // avoid a bug in the Cleanlooks style
+#endif
+        sz = hsz;
+
     sz = style().sizeFromContents(QStyle::CT_PushButton, this, sz);
 #endif
 
