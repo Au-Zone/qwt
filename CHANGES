@@ -11,6 +11,8 @@ Bug Fixes
 5. Background for the tracker text of QwtPickers fixed.
    Improved (faster + better rendered texts) implementation of
    painting tracker texts, using capabilities of Qt >= 4.3.
+6. QwtArrowButton/QwtCounter: workaround for layout bug ( Qt < 4.3 )
+   of the Cleanlook style added.
 
 Changes
 -------
