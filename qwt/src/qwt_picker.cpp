@@ -769,7 +769,7 @@ void QwtPicker::drawTracker(QPainter *painter) const
 #endif
 
 #if defined(Q_WS_MAC)
-#if QT_VERSION >= 0x040000
+#if QT_VERSION >= 0x040000 && QT_VERSION < 0x040300
             // Antialiased fonts are broken on the Mac.
             painter->save();
             painter->setRenderHint(QPainter::TextAntialiasing, false);
@@ -782,7 +782,7 @@ void QwtPicker::drawTracker(QPainter *painter) const
             label.draw(painter, textRect);
 
 #if defined(Q_WS_MAC)
-#if QT_VERSION >= 0x040000
+#if QT_VERSION >= 0x040000 && QT_VERSION < 0x040300
             painter->restore();
 #endif
 #endif
