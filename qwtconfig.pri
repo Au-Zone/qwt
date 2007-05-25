@@ -3,11 +3,11 @@
 ######################################################################
 
 unix {
-    INSTALLBASE    = /usr/local/qwt
+    INSTALLBASE    = /usr/local/qwt-5.0.2
 }
 
 win32 {
-    INSTALLBASE    = C:/Qwt
+    INSTALLBASE    = C:/Qwt-5.0.2
 }
 
 target.path    = $$INSTALLBASE/lib
@@ -82,4 +82,4 @@ CONFIG     += QwtDesigner
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-#CONFIG     += QwtExamples
+CONFIG     += QwtExamples
