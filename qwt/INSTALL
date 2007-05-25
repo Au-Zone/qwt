@@ -68,7 +68,9 @@ To generate project files, type: "admin\msvc-qmake vc"
 C) Win32/MinGW Qt4
 ==================
 
-If you use the MinGW compiler from the MSYS shell do:
+In the change log of the coming Qt 4.3.0, "Support for the MSYS environment"
+is announced. For earlier Qt releases ( don't be confused from error
+messages ) you need to do:
 
 export MINGW_IN_SHELL=1;
 
