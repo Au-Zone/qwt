@@ -233,7 +233,15 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
         painter->drawPixmap(contentsRect().topLeft(), *d_data->cache);
     }
     else
+    {
+        QwtPlot *plot = ((QwtPlot *)parent());
+        const bool doAutoReplot = plot->autoReplot();
+            plot->setAutoReplot(false);
+
         drawCanvas(painter);
+
+        plot->setAutoReplot(doAutoReplot);
+    }
 
     if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
         drawFocusIndicator(painter);
