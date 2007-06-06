@@ -314,6 +314,7 @@ QSize QwtArrowButton::minimumSizeHint() const
 #endif
         sz = hsz;
 
+#else
     sz = style().sizeFromContents(QStyle::CT_PushButton, this, sz);
 #endif
 
