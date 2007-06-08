@@ -445,7 +445,6 @@ void QwtPlot::updateLayout()
         {
             axisWidget(axisId)->setGeometry(d_data->layout->scaleRect(axisId));
 
-#if 0
             if ( axisId == xBottom || axisId == xTop )
             {
                 QRegion r(d_data->layout->scaleRect(axisId));
@@ -458,7 +457,6 @@ void QwtPlot::updateLayout()
 
                 axisWidget(axisId)->setMask(r);
             }
-#endif
             if (!axisWidget(axisId)->isVisible())
                 axisWidget(axisId)->show();
         }
@@ -589,7 +587,6 @@ void QwtPlot::drawItems(QPainter *painter, const QRect &rect,
         const QwtScaleMap map[axisCnt], 
         const QwtPlotPrintFilter &pfilter) const
 {
-
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
         it != itmList.end(); ++it )

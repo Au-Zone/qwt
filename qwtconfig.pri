@@ -82,4 +82,4 @@ CONFIG     += QwtDesigner
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-CONFIG     += QwtExamples
+#CONFIG     += QwtExamples
