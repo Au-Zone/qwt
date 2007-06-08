@@ -291,8 +291,11 @@ void QwtPlotMagnifier::widgetMousePressEvent(QMouseEvent *me)
 
 void QwtPlotMagnifier::widgetMouseReleaseEvent(QMouseEvent *)
 {
-    d_data->mousePressed = false;
-    canvas()->setMouseTracking(d_data->hasMouseTracking);
+    if ( d_data->mousePressed )
+    {
+        d_data->mousePressed = false;
+        canvas()->setMouseTracking(d_data->hasMouseTracking);
+    }
 }
 
 void QwtPlotMagnifier::widgetMouseMoveEvent(QMouseEvent *me)
