@@ -107,6 +107,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_rasteritem.h \
         qwt_plot_spectrogram.h \
         qwt_plot_scaleitem.h \
+        qwt_plot_seriesitem.h \
         qwt_plot_canvas.h \
         qwt_plot_panner.h \
         qwt_plot_picker.h \
