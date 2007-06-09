@@ -5,6 +5,8 @@
 #include <qmainwindow.h>
 
 class QwtPlotRescaler;
+class QLabel;
+class Plot;
 
 class MainWindow: public QMainWindow
 {
@@ -35,9 +37,13 @@ private slots:
 
 private:
     QWidget *createPanel(QWidget *);
-    QWidget *createPlot(QWidget *);
+    Plot *createPlot(QWidget *);
 
     QwtPlotRescaler *d_rescaler;
+    QLabel *d_navigationInfo;
+    QLabel *d_rescaleInfo;
+
+    Plot *d_plot;
 };
 
 #endif

@@ -3,13 +3,21 @@
 #include <qwt_plot_grid.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
+#include <qwt_double_interval.h>
 #include <qwt_painter.h>
 #include <qwt_plot_item.h>
 
-class EllipseItem: public QwtPlotItem
+class RectItem: public QwtPlotItem
 {
 public:
-    EllipseItem()
+    enum Type
+    {
+        Rect,
+        Ellipse
+    };
+
+    RectItem(Type type):
+        d_type(type)
     {
     }
 
@@ -53,28 +61,31 @@ public:
             const QRect rect = transform(xMap, yMap, d_rect);
             painter->setPen(d_pen);
             painter->setBrush(d_brush);
-            QwtPainter::drawEllipse(painter, rect);
+            if ( d_type == Ellipse )
+                QwtPainter::drawEllipse(painter, rect);
+            else
+                QwtPainter::drawRect(painter, rect);
         }
     }
 private:
     QPen d_pen;
     QBrush d_brush;
     QwtDoubleRect d_rect;
+    Type d_type;
 };
 
-Plot::Plot(QWidget *parent):
+Plot::Plot(QWidget *parent, const QwtDoubleInterval &interval):
     QwtPlot(parent)
 {
-    const int dim = 1000;
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis ++ )
-        setAxisScale(axis, 0.0, dim);
+        setAxisScale(axis, interval.minValue(), interval.maxValue());
 
     setCanvasBackground(QColor(Qt::darkBlue));
     plotLayout()->setAlignCanvasToScales(true);
 
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
-    grid->enableXMin(true);
+    //grid->enableXMin(true);
     grid->setMajPen(QPen(Qt::white, 0, Qt::DotLine));
     grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
     grid->attach(this);
@@ -83,22 +94,29 @@ Plot::Plot(QWidget *parent):
 
     for ( int i = 0; i < numEllipses; i++ )
     {
-        const int x = rand() % dim;
-        const int y = rand() % dim;
-        const int r = rand() % dim / 6;
+        const double x = interval.minValue() + 
+            rand() % qRound(interval.width());
+        const double y = interval.minValue() + 
+            rand() % qRound(interval.width());
+        const double r = interval.minValue() + 
+            rand() % qRound(interval.width() / 6);
 
         const QwtDoubleRect area(x - r, y - r , 2 * r, 2 * r);
 
-        EllipseItem *item = new EllipseItem();
+        RectItem *item = new RectItem(RectItem::Ellipse);
+        item->setRenderHint(QwtPlotItem::RenderAntialiased, true);
         item->setRect(area);
         item->setPen(QPen(Qt::yellow));
         item->attach(this);
     }
 
-#if 0
-    for ( int axis = 0; axis < QwtPlot::axisCnt; axis ++ )
-        enableAxis(axis, false);
-#endif
+
+    d_rectOfInterest = new RectItem(RectItem::Rect);
+    d_rectOfInterest->setPen(Qt::NoPen);
+    QColor c = Qt::gray;
+    c.setAlpha(100);
+    d_rectOfInterest->setBrush(QBrush(c));
+    d_rectOfInterest->attach(this);
 }
 
 void Plot::updateLayout()
@@ -118,4 +136,9 @@ void Plot::updateLayout()
     const double yRatio = (y2 - y1) / cr.height();
 
     emit resized(xRatio, yRatio);
+}
+
+void Plot::setRectOfInterest(const QwtDoubleRect &rect)
+{
+    d_rectOfInterest->setRect(rect);
 }
