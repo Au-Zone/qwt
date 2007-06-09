@@ -21,6 +21,7 @@ contains(CONFIG, QwtPlot) {
     	simple_plot \
     	realtime_plot \
     	navigation \
+    	plotmatrix \
     	spectrogram \
     	histogram 
 
