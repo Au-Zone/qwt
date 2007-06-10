@@ -6,14 +6,14 @@
 
 class PlotMatrix: public QFrame
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	PlotMatrix( int rows, int columns, QWidget * parent = NULL); 
-	virtual ~PlotMatrix();
+    PlotMatrix( int rows, int columns, QWidget * parent = NULL); 
+    virtual ~PlotMatrix();
 
-	int numRows() const;
-	int numColumns() const;
+    int numRows() const;
+    int numColumns() const;
 
     QwtPlot* plot(int row, int column);
     const QwtPlot* plot(int row, int column) const;
@@ -22,16 +22,16 @@ public:
     bool axisEnabled(int axisId) const;
 
     void setAxisScale(int axisId, int rowOrColumn,
-		double min, double max, double step = 0);
+        double min, double max, double step = 0);
 
 private slots:
-	void scaleDivChanged();
+    void scaleDivChanged();
 
 private:
-	void updateLayout();
-	void alignVAxes(int col, int axis);
+    void updateLayout();
+    void alignVAxes(int col, int axis);
 
-	class PrivateData;
+    class PrivateData;
     PrivateData *d_data;
 };
 
