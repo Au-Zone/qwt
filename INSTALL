@@ -68,18 +68,51 @@ To generate project files, type: "admin\msvc-qmake vc"
 C) Win32/MinGW Qt4
 ==================
 
-In the change log of the coming Qt 4.3.0, "Support for the MSYS environment"
-is announced. For earlier Qt releases ( don't be confused from error
-messages ) you need to do:
+C1) Windows Shell
+
+Start a Windows Shell, where Qt4 is initialized. ( F.e. with
+"Programs->Qt by Trolltech ...->Qt 4.x.x Command Prompt" ).
+
+qmake qwt.pro
+make
+
+If you didn't enable autobuilding of the examples in qwtconfig.pri
+you have to build the examples this way:
+
+cd examples
+qmake examples.pro
+make
+make install
+
+C2) MSYS Shell Qt >= 4.3.0
+
+Support for the MSYS Shell has been announced in Qt 4.3.0. Unfortunately
+it doesn't work and the workaround described in C3) is gone too. 
+So I'm afraid there is no clean solution to build Qwt with 4.3.0 
+from the MSYS Shell.
+
+For Qt 4.3.1 I expect, that this will be fixed and building from the MSYS Shell
+will work exactly like from the Windows Shell or on UNIX.
+
+C3) MSYS Shell Qt < 4.3.0
+
+For Qt < 4.3.0 you have to set the MINGW_IN_SHELL variable. 
+make will run into errors with the subdirs target, that can be 
+ignored (make -i).
 
 export MINGW_IN_SHELL=1;
 
 qmake 
 make -i
-make install
+make -i install
 
 If you didn't enable autobuilding of the examples in qwtconfig.pri
 you have to build the examples this way:
+
+cd examples
+qmake examples.pro
+make -i
+make -i install
 
 D) MacOSX
 
