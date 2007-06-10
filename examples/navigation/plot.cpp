@@ -104,7 +104,9 @@ Plot::Plot(QWidget *parent, const QwtDoubleInterval &interval):
         const QwtDoubleRect area(x - r, y - r , 2 * r, 2 * r);
 
         RectItem *item = new RectItem(RectItem::Ellipse);
+#if QT_VERSION >= 0x040000
         item->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+#endif
         item->setRect(area);
         item->setPen(QPen(Qt::yellow));
         item->attach(this);
@@ -114,8 +116,12 @@ Plot::Plot(QWidget *parent, const QwtDoubleInterval &interval):
     d_rectOfInterest = new RectItem(RectItem::Rect);
     d_rectOfInterest->setPen(Qt::NoPen);
     QColor c = Qt::gray;
+#if QT_VERSION < 0x040000
+    d_rectOfInterest->setBrush(QBrush(c, Qt::Dense5Pattern));
+#else
     c.setAlpha(100);
     d_rectOfInterest->setBrush(QBrush(c));
+#endif
     d_rectOfInterest->attach(this);
 }
 
