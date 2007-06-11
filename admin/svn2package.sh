@@ -57,6 +57,7 @@ function cleanQwt {
 
     find . -name .svn -print | xargs rm -r
 
+    rm TODO
     rm admin/svn2package.sh
 
     PROFILES="qwtconfig.pri"
