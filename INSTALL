@@ -86,13 +86,9 @@ make install
 
 C2) MSYS Shell Qt >= 4.3.0
 
-Support for the MSYS Shell has been announced in Qt 4.3.0. Unfortunately
-it doesn't work and the workaround described in C3) is gone too. 
-So I'm afraid there is no clean solution to build Qwt with 4.3.0 
-from the MSYS Shell.
-
-For Qt 4.3.1 I expect, that this will be fixed and building from the MSYS Shell
-will work exactly like from the Windows Shell or on UNIX.
+Support for the MSYS Shell has been improved in Qt 4.3.0. 
+Now building Qwt from the MSYS Shell works exactly like UNIX or in the 
+Windows Shell.
 
 C3) MSYS Shell Qt < 4.3.0
 
