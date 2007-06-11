@@ -13,6 +13,7 @@ Bug Fixes
    painting tracker texts, using capabilities of Qt >= 4.3.
 6. QwtArrowButton/QwtCounter: workaround for layout bug ( Qt < 4.3 )
    of the Cleanlook style added.
+7. A couple of minor fixes
 
 Changes
 -------
