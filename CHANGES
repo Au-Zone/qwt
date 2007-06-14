@@ -1,3 +1,14 @@
+Release 5.1
+===================
+
+Changes
+-------
+1. Template base classes introduced for curve and curve data
+   to be reusable in all plot items displaying series of samples.
+2. QwtPlotInterval introduced ( featuring error bars )
+3. QwtPlotRescaler introduced
+4. QwtPlotScaleItem introduced, displaying optional scales on the canvas
+
 Release 5.0.2
 ===================
 

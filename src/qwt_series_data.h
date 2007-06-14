@@ -17,7 +17,8 @@
 #include "qwt_double_rect.h"
 #include "qwt_double_interval.h"
 
-class QwtIntervalSample
+//! A sample of the types (x1-x2, y) or (x, y1-y2)
+class QWT_EXPORT QwtIntervalSample
 {
 public:
     QwtIntervalSample():
@@ -29,7 +30,8 @@ public:
     QwtDoubleInterval interval;
 };
 
-class QwtSetSample
+//! A sample of the types (x1...xn, y) or (x, y1..yn)
+class QWT_EXPORT QwtSetSample
 {
 public:
     QwtSetSample():
@@ -41,27 +43,61 @@ public:
     QwtArray<double> set;
 };
 
+/*!
+   Abstract interface for iterating over samples
+
+   Qwt offers several implementations of the QwtSeriesData API,
+   but in situations, where data of an application specific format
+   needs to be displayed, without having to copy it, it is recommended
+   to implement an individual data access.
+*/
 template <typename T> 
-class QwtSeriesData
+class QWT_EXPORT QwtSeriesData
 {
 public:
     virtual ~QwtSeriesData() {} 
 
-    //! \return Pointer to a copy (virtual copy constructor)
+    /*! 
+       Virtual copy constructor
+
+       When accessing a large amount of samples it is recommended
+       to copy only the interface (shallow copy) to them.
+
+       \return Pointer to a copy 
+    */
     virtual QwtSeriesData *copy() const = 0;
 
-    //! \return Size of the data set
+    //! \return number of samples
     virtual size_t size() const = 0;
 
     /*!
       Return a sample
       \param i Index
-      \return sample at position i
+      \return Sample at position i
      */
     virtual T sample(size_t i) const = 0;
 
+    /*!
+       Calculate the bounding rect of all samples
+
+       The bounding rect is necessary for autoscaling and can be used
+       for a couple of painting optimizations.
+
+       qwtBoundingRect(...) offers slow implementations iterating
+       over the samples. For large sets it is recommended to implement
+       something faster f.e. by caching the bounding rect.
+     */
     virtual QwtDoubleRect boundingRect() const = 0;
 
+    /*!
+       Set a the "rect of interest"
+
+       QwtPlotSeriesItem defines the current area of the plot canvas
+       as "rect of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
+       It can be used to implement different levels of details.
+
+       The default implementation does nothing.
+     */
     virtual void setRectOfInterest(const QwtDoubleRect &) {};
 
 private:
@@ -72,7 +108,7 @@ private:
 };
 
 template <typename T>
-class QwtArraySeriesData: public QwtSeriesData<T>
+class QWT_EXPORT QwtArraySeriesData: public QwtSeriesData<T>
 {
 public:
     QwtArraySeriesData();
@@ -194,6 +230,62 @@ private:
     size_t d_size;
 };
 
+/*!
+  \brief Synthetic point data
+
+  QwtSyntheticPointData provides a fixed number of points in an interval.
+  The points are calculated in equidistant steps in x-direction.
+
+  If the interval is invalid, the points are calculated for
+  the "rect of interest", what normally is the displayed area on the
+  plot canvas. In this mode you get different level of details, when
+  zooming in/out.
+
+  \par Example
+
+  The following example shows how to implement a sinus curve.
+
+  \verbatim
+#include <cmath>
+#include <qwt_series_data.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot.h>
+#include <qapplication.h>
+
+class SinusData: public QwtSyntheticPointData
+{
+public:
+    SinusData():
+        QwtSyntheticPointData(100)
+    {
+    }
+    virtual QwtSeriesData<QwtDoublePoint> *copy() const
+    {
+        return new SinusData();
+    }
+    virtual double y(double x) const
+    {
+        return std::sin(x);
+    }
+};
+
+int main(int argc, char **argv)
+{
+    QApplication a(argc, argv);
+
+    QwtPlot plot;
+    plot.setAxisScale(QwtPlot::xBottom, 0.0, 10.0);
+    plot.setAxisScale(QwtPlot::yLeft, -1.0, 1.0);
+
+    QwtPlotCurve *curve = new QwtPlotCurve("y = sin(x)");
+    curve->setData(SinusData());
+    curve->attach(&plot);
+
+    plot.show();
+    return a.exec();
+}
+   \endverbatim
+*/
 class QWT_EXPORT QwtSyntheticPointData: public QwtSeriesData<QwtDoublePoint>
 {
 public:

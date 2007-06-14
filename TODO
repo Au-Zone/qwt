@@ -1,7 +1,13 @@
 Qwt 5.x TODO list
 
-A) Planned (5.0)
+A) Planned (5.1)
    -------
+1) QwtPlotRescaler
+2) QwtPlotMatrix
+3) Histogramm
+4) Interval Curve
+5) Curve with z value displayed as colors
+6) Curve for Price Movement 
 
 B) Wish List ( >= 5.1 )
    -------

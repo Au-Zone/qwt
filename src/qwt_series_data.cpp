@@ -341,6 +341,9 @@ QwtSeriesData<QwtDoublePoint> *QwtCPointerData::copy() const
     return new QwtCPointerData(d_x, d_y, d_size);
 }
 
+/*! 
+   Constructor
+*/
 QwtSyntheticPointData::QwtSyntheticPointData(
         size_t size, const QwtDoubleInterval &interval):
     d_size(size),
@@ -358,6 +361,15 @@ QwtDoubleInterval QwtSyntheticPointData::interval() const
     return d_interval;
 }
 
+/*!
+   Set a the "rect of interest"
+
+   QwtPlotSeriesItem defines the current area of the plot canvas
+   as "rect of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
+
+   If interval().isValid() == false the x values are calculated
+   in the interval rect.left() -> rect.right(). 
+*/
 void QwtSyntheticPointData::setRectOfInterest(const QwtDoubleRect &rect)
 {
     d_intervalOfInterest = QwtDoubleInterval(
@@ -366,10 +378,7 @@ void QwtSyntheticPointData::setRectOfInterest(const QwtDoubleRect &rect)
 
 QwtDoubleRect QwtSyntheticPointData::boundingRect() const
 {
-    const QwtDoubleInterval &interval = d_interval.isValid() ?
-        d_interval : d_intervalOfInterest;
-
-    if ( d_size == 0 || !interval.isValid() )
+    if ( d_size == 0 || !d_interval.isValid() )
         return QwtDoubleRect();
 
     return qwtBoundingRect(*this);
