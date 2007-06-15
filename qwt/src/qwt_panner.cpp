@@ -50,7 +50,7 @@ static QwtArray<QwtPicker *> activePickers(QWidget *w)
                 if ( picker->isEnabled() )
                 {
                     pickers.resize(pickers.size() + 1);
-                    pickers[pickers.size() - 1] = picker;
+                    pickers[int(pickers.size()) - 1] = picker;
                 }
             }
         }
