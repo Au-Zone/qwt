@@ -4,10 +4,11 @@ A) Planned (5.1)
    -------
 1) QwtPlotRescaler
 2) QwtPlotMatrix
-3) Histogramm
+3) Histogram
 4) Interval Curve
 5) Curve with z value displayed as colors
 6) Curve for Price Movement 
+7) Thread suppurt for rendering spectrograms
 
 B) Wish List ( >= 5.1 )
    -------
