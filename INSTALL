@@ -29,6 +29,16 @@ qmake
 make
 make install
 
+If you have installed a shared library it's path has to be known to 
+the run-time linker of your operating system. On Linux systems read
+"man ldconfig" ( or google for it ). Another option is to use
+the LD_LIBRARY_PATH (on some systems LIBPATH is used instead, on MacOSX
+it is called DYLD_LIBRARY_PATH) environment variable.
+
+If you only want to check the Qwt examples without installing something,
+you can set the LD_LIBRARY_PATH to the lib directory 
+of your local build. 
+
 If you didn't enable autobuilding of the examples in qwtconfig.pri
 you have to build the examples this way:
 
@@ -36,10 +46,6 @@ cd examples
 qmake 
 make
 
-If you like to run the examples, don't forget to install the 
-Qwt library/plugins or set the LD_LIBRARY_PATH to the lib directory 
-of your local build. ( On some systems LIBPATH is used instead, on MacOSX
-it is called DYLD_LIBRARY_PATH. )
 
 B) Win32/MSVC Qt3/Qt4
 =====================
@@ -55,7 +61,7 @@ If you didn't enable autobuilding of the examples in qwtconfig.pri
 you have to build the examples this way:
 
 cd examples
-nmake examples.pro
+qmake examples.pro
 nmake
 
 admin/msvc-qmake.bat helps users of Visual Studio users to
@@ -87,8 +93,9 @@ make install
 C2) MSYS Shell Qt >= 4.3.0
 
 Support for the MSYS Shell has been improved in Qt 4.3.0. 
-Now building Qwt from the MSYS Shell works exactly like UNIX or in the 
-Windows Shell.
+Now building Qwt from the MSYS Shell works exactly like in UNIX or in the 
+Windows Shell - or at least it should:
+because of a bug in Qt 4.3.0 you always have to do a "qmake -r".
 
 C3) MSYS Shell Qt < 4.3.0
 
