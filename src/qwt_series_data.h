@@ -67,7 +67,7 @@ public:
     */
     virtual QwtSeriesData *copy() const = 0;
 
-    //! \return number of samples
+    //! \return Number of samples
     virtual size_t size() const = 0;
 
     /*!
@@ -107,6 +107,12 @@ private:
     QwtSeriesData<T> &operator=(const QwtSeriesData<T> &);
 };
 
+/*!
+  \brief Template class for data, that is organized as QwtArray
+
+  QwtArray uses implicit data sharing and can be
+  passed around as argument efficiently.
+*/
 template <typename T>
 class QWT_EXPORT QwtArraySeriesData: public QwtSeriesData<T>
 {
@@ -124,35 +130,58 @@ protected:
     QwtArray<T> d_samples;
 };
 
+//! Constructor
 template <typename T>
 QwtArraySeriesData<T>::QwtArraySeriesData()
 {
 }
 
+/*!
+   Constructor
+   \param samples Array of samples
+*/
 template <typename T>
 QwtArraySeriesData<T>::QwtArraySeriesData(const QwtArray<T> &samples):
     d_samples(samples)
 {
 }
     
+/*!
+  Assign an array of samples
+  \param samples Array of samples
+*/
 template <typename T>
 void QwtArraySeriesData<T>::setData(const QwtArray<T> &samples)
 {
     d_samples = samples;
 }
 
+//! \return Array of samples
+template <typename T>
+const QwtArray<T> QwtArraySeriesData<T>::data() const
+{
+   return d_samples;
+}
+
+//! \return Number of samples
 template <typename T>
 size_t QwtArraySeriesData<T>::size() const
 {
     return d_samples.size();
 }
 
+/*!
+  Return a sample
+  \param i Index
+  \return Sample at position i
+*/
 template <typename T>
 T QwtArraySeriesData<T>::sample(size_t i) const
 {
     return d_samples[i];
 }
 
+//! Interface for iterating over an array of points
 class QWT_EXPORT QwtPointSeriesData: public QwtArraySeriesData<QwtDoublePoint>
 {
 public:
@@ -163,6 +192,7 @@ public:
     virtual QwtDoubleRect boundingRect() const;
 };
 
+//! Interface for iterating over an array of intervals
 class QWT_EXPORT QwtIntervalSeriesData: public QwtArraySeriesData<QwtIntervalSample>
 {
 public:
@@ -173,6 +203,7 @@ public:
     virtual QwtDoubleRect boundingRect() const;
 };
 
+//! Interface for iterating over an array of samples
 class QWT_EXPORT QwtSetSeriesData: public QwtArraySeriesData<QwtSetSample>
 {
 public:
@@ -183,10 +214,9 @@ public:
     virtual QwtDoubleRect boundingRect() const;
 };
 
-/*!
-  \brief Data class containing two QwtArray<double> objects.
- */
-
+/*! 
+  Interface for iterating over two QwtArray<double> objects.
+*/
 class QWT_EXPORT QwtPointArrayData: public QwtSeriesData<QwtDoublePoint>
 {
 public:
@@ -292,21 +322,31 @@ public:
     QwtSyntheticPointData(size_t size, 
         const QwtDoubleInterval & = QwtDoubleInterval());
 
+    void setSize(size_t size);
+    size_t size() const;
+
     void setInterval(const QwtDoubleInterval& );
     QwtDoubleInterval interval() const;
 
     virtual QwtDoubleRect boundingRect() const;
-    virtual size_t size() const;
     virtual QwtDoublePoint sample(size_t i) const;
 
+    /*! 
+       Calculate a y value for a x value
+
+       \param x x value
+       \return Corresponding y value
+     */
     virtual double y(double x) const = 0;
     virtual double x(uint index) const;
 
     virtual void setRectOfInterest(const QwtDoubleRect &);
+    QwtDoubleRect rectOfInterest() const;
 
 private:
     size_t d_size;
     QwtDoubleInterval d_interval;
+    QwtDoubleRect d_rectOfInterest;
     QwtDoubleInterval d_intervalOfInterest;
 };
 

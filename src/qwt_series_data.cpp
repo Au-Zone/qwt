@@ -10,22 +10,30 @@
 #include "qwt_math.h"
 #include "qwt_series_data.h"
 
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint>& data)
+/*!
+  \brief Calculate the bounding rect of a series
+
+  Slow implementation, that iterates over the series.
+
+  \param series Series
+  \return Bounding rectangle
+*/
+QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint>& series)
 {
-    const size_t sz = data.size();
+    const size_t sz = series.size();
 
     if ( sz <= 0 )
         return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
 
     double minX, maxX, minY, maxY;
 
-    const QwtDoublePoint point0 = data.sample(0);
+    const QwtDoublePoint point0 = series.sample(0);
     minX = maxX = point0.x();
     minY = maxY = point0.y();
 
     for ( size_t i = 1; i < sz; i++ )
     {
-        const QwtDoublePoint point = data.sample(i);
+        const QwtDoublePoint point = series.sample(i);
 
         if ( point.x() < minX )
             minX = point.x();
@@ -40,17 +48,25 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint>& data)
     return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& data)
+/*!
+  \brief Calculate the bounding rect of a series
+
+  Slow implementation, that iterates over the series.
+
+  \param series Series
+  \return Bounding rectangle
+*/
+QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
 {
     double minX, maxX, minY, maxY;
     minX = maxX = minY = maxY = 0.0;
 
     bool isValid = false;
 
-    const size_t sz = data.size();
+    const size_t sz = series.size();
     for ( size_t i = 0; i < sz; i++ )
     {
-        const QwtIntervalSample sample = data.sample(i);
+        const QwtIntervalSample sample = series.sample(i);
 
         if ( !sample.interval.isValid() )
             continue;
@@ -82,17 +98,25 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& data)
     return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtSetSample>& data)
+/*!
+  \brief Calculate the bounding rect of a series
+
+  Slow implementation, that iterates over the series.
+
+  \param series Series
+  \return Bounding rectangle
+*/
+QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtSetSample>& series)
 {
     double minX, maxX, minY, maxY;
     minX = maxX = minY = maxY = 0.0;
 
     bool isValid = false;
 
-    const size_t sz = data.size();
+    const size_t sz = series.size();
     for ( size_t i = 0; i < sz; i++ )
     {
-        const QwtSetSample sample = data.sample(i);
+        const QwtSetSample sample = series.sample(i);
 
         if ( !sample.set.isEmpty() )
             continue;
@@ -125,22 +149,37 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtSetSample>& data)
     return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
+/*! 
+   Constructor
+   \param samples Samples
+*/
 QwtPointSeriesData::QwtPointSeriesData(
         const QwtArray<QwtDoublePoint> &samples):
     QwtArraySeriesData<QwtDoublePoint>(samples)
 {
 }   
 
+//! Copy operator
 QwtSeriesData<QwtDoublePoint> *QwtPointSeriesData::copy() const
 {
     return new QwtPointSeriesData(d_samples);
 }
 
+/*!
+  \brief Calculate the bounding rect
+
+  This implementation iterates over all points. 
+  \return Bounding rectangle
+*/
 QwtDoubleRect QwtPointSeriesData::boundingRect() const
 {
     return qwtBoundingRect(*this);
 }
 
+/*! 
+   Constructor
+   \param samples Samples
+*/
 QwtIntervalSeriesData::QwtIntervalSeriesData(
         const QwtArray<QwtIntervalSample> &samples):
     QwtArraySeriesData<QwtIntervalSample>(samples)
@@ -157,6 +196,10 @@ QwtDoubleRect QwtIntervalSeriesData::boundingRect() const
     return qwtBoundingRect(*this);
 }
 
+/*! 
+   Constructor
+   \param samples Samples
+*/
 QwtSetSeriesData::QwtSetSeriesData(
         const QwtArray<QwtSetSample> &samples):
     QwtArraySeriesData<QwtSetSample>(samples)
@@ -168,6 +211,12 @@ QwtSeriesData<QwtSetSample> *QwtSetSeriesData::copy() const
     return new QwtSetSeriesData(d_samples);
 }
 
+/*!
+  \brief Calculate the bounding rect
+
+  This implementation iterates over all points. 
+  \return Bounding rectangle
+*/
 QwtDoubleRect QwtSetSeriesData::boundingRect() const
 {
     return qwtBoundingRect(*this);
@@ -224,6 +273,12 @@ QwtPointArrayData& QwtPointArrayData::operator=(const QwtPointArrayData &data)
     return *this;
 }
 
+/*!
+  \brief Calculate the bounding rect
+
+  This implementation iterates over all points. 
+  \return Bounding rectangle
+*/
 QwtDoubleRect QwtPointArrayData::boundingRect() const
 {
     return qwtBoundingRect(*this);
@@ -299,6 +354,12 @@ QwtCPointerData& QwtCPointerData::operator=(const QwtCPointerData &data)
     return *this;
 }
 
+/*!
+  \brief Calculate the bounding rect
+
+  This implementation iterates over all points. 
+  \return Bounding rectangle
+*/
 QwtDoubleRect QwtCPointerData::boundingRect() const
 {
     return qwtBoundingRect(*this);
@@ -343,6 +404,11 @@ QwtSeriesData<QwtDoublePoint> *QwtCPointerData::copy() const
 
 /*! 
    Constructor
+
+   \param size Number of points
+   \param interval Bounding interval for the points
+
+   \sa setInterval(), setSize()
 */
 QwtSyntheticPointData::QwtSyntheticPointData(
         size_t size, const QwtDoubleInterval &interval):
@@ -351,11 +417,41 @@ QwtSyntheticPointData::QwtSyntheticPointData(
 {
 }
 
+/*!
+  Change the number of points
+   
+  \param size Number of points
+  \sa size(), setInterval()
+*/
+void QwtSyntheticPointData::setSize(size_t size)
+{
+   d_size = size;
+}
+
+/*!
+  \return Number of points
+  \sa setSize(), interval()
+*/
+size_t QwtSyntheticPointData::size() const
+{
+    return d_size;
+}
+
+/*!
+   Set the bounding interval
+
+   \param interval Interval
+   \sa interval(), setSize()
+*/
 void QwtSyntheticPointData::setInterval(const QwtDoubleInterval &interval)
 {
     d_interval = interval.normalized();
 }
 
+/*!
+   \return Bounding interval
+   \sa setInterval(), size()
+*/
 QwtDoubleInterval QwtSyntheticPointData::interval() const
 {
     return d_interval;
@@ -369,13 +465,31 @@ QwtDoubleInterval QwtSyntheticPointData::interval() const
 
    If interval().isValid() == false the x values are calculated
    in the interval rect.left() -> rect.right(). 
+
+   \sa rectOfInterest()
 */
 void QwtSyntheticPointData::setRectOfInterest(const QwtDoubleRect &rect)
 {
+    d_rectOfInterest = rect;
     d_intervalOfInterest = QwtDoubleInterval(
         rect.left(), rect.right()).normalized();
 }
 
+/*!
+   \return "rect of interest"
+   \sa setRectOfInterest()
+*/
+QwtDoubleRect QwtSyntheticPointData::rectOfInterest() const
+{
+   return d_rectOfInterest;
+}
+
+/*!
+  \brief Calculate the bounding rect
+
+  This implementation iterates over all points. 
+  \return Bounding rectangle
+*/
 QwtDoubleRect QwtSyntheticPointData::boundingRect() const
 {
     if ( d_size == 0 || !d_interval.isValid() )
@@ -384,22 +498,35 @@ QwtDoubleRect QwtSyntheticPointData::boundingRect() const
     return qwtBoundingRect(*this);
 }
 
-size_t QwtSyntheticPointData::size() const
-{
-    return d_size;
-}
+/*!
+   Calculate the point from an index
 
-QwtDoublePoint QwtSyntheticPointData::sample(size_t i) const
-{
-    if ( i >= d_size )
-        return QwtDoublePoint();
+   \param index Index
+   \return QwtDoublePoint(x(index), y(x(index)));
 
-    const double xValue = x(i);
+   \warning For invalid indices ( index < 0 || index >= size() ) 
+            (0, 0) is returned.
+*/
+QwtDoublePoint QwtSyntheticPointData::sample(size_t index) const
+{
+    if ( index >= d_size )
+        return QwtDoublePoint(0, 0);
+
+    const double xValue = x(index);
     const double yValue = y(xValue);
 
     return QwtDoublePoint(xValue, yValue);
 }
 
+/*!
+   Calculate a x-value from an index
+
+   x values are calculated by deviding an interval into 
+   equidistant steps. If !interval().isValid() the
+   interval is calculated from the "rect of interest".
+
+   \sa interval(), rectOfInterest(), y()
+*/
 double QwtSyntheticPointData::x(uint index) const
 {
     const QwtDoubleInterval &interval = d_interval.isValid() ?
