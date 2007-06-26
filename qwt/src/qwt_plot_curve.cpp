@@ -370,8 +370,6 @@ void QwtPlotCurve::draw(int from, int to) const
 
     QwtPlotCanvas *canvas = plot()->canvas();
 
-    bool directPaint = true;
-
 #if QT_VERSION >= 0x040000
     if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
         !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
@@ -409,43 +407,12 @@ void QwtPlotCurve::draw(int from, int to) const
         draw(&cachePainter, xMap, yMap, from, to);
     }
 
-    if ( directPaint )
-    {
-        QPainter painter(canvas);
+	QPainter painter(canvas);
 
-        painter.setClipping(true);
-        painter.setClipRect(canvas->contentsRect());
+	painter.setClipping(true);
+	painter.setClipRect(canvas->contentsRect());
 
-        draw(&painter, xMap, yMap, from, to);
-
-        return;
-    }
-
-#if QT_VERSION >= 0x040000
-    if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
-        canvas->paintCache() )
-    {
-        /*
-          The cache is up to date. We flush it via repaint to the
-          canvas. This works flicker free but is much ( > 10x )
-          slower than direct painting.
-         */
-
-        const bool noBG = canvas->testAttribute(Qt::WA_NoBackground);
-        if ( !noBG )
-            canvas->setAttribute(Qt::WA_NoBackground, true);
-
-        canvas->repaint(canvas->contentsRect());
-
-        if ( !noBG )
-            canvas->setAttribute(Qt::WA_NoBackground, false);
-
-        return;
-    }
-#endif
-
-    // Ok, we give up 
-    canvas->repaint(canvas->contentsRect());
+	draw(&painter, xMap, yMap, from, to);
 }
 
 /*!
