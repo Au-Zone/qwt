@@ -219,7 +219,7 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
         QPoint &minValue = minValues[i];
         QPoint &maxValue = maxValues[to - i];
 
-        if ( curveType() == Yfx )
+        if ( orientation() == Qt::Vertical )
         {
             const int x = xMap.transform(intervalSample.value);
             const int y1 = yMap.transform(intervalSample.interval.minValue());
@@ -279,7 +279,7 @@ void QwtPlotIntervalCurve::drawSymbols(
 
         QPoint p[2];
 
-        if ( curveType() == Yfx )
+        if ( orientation() == Qt::Vertical )
         {
             const int x = xMap.transform(intervalSample.value);
             const int y1 = yMap.transform(intervalSample.interval.minValue());
@@ -320,7 +320,7 @@ void QwtPlotIntervalCurve::drawBar(QPainter *painter, int,
     const int capWidth = 3;
 
     QwtPainter::drawLine(painter, from, to);
-    if ( curveType() == Yfx )
+    if ( orientation() == Qt::Vertical )
     {
         const int x1 = from.x() - capWidth;
         const int x2 = from.x() + capWidth;

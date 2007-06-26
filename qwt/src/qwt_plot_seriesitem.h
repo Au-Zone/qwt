@@ -20,19 +20,13 @@ template <typename T>
 class QwtPlotSeriesItem: public QwtPlotItem
 {
 public:
-    enum CurveType
-    {
-        Yfx,
-        Xfy
-    }; 
-
     explicit QwtPlotSeriesItem<T>(const QString &title = QString::null);
     explicit QwtPlotSeriesItem<T>(const QwtText &title);
 
     virtual ~QwtPlotSeriesItem<T>();
 
-    void setCurveType(CurveType);
-    CurveType curveType() const { return d_curveType; }
+    void setOrientation(Qt::Orientation);
+    Qt::Orientation orientation() const;
 
     void setData(const QwtSeriesData<T> &);
     
@@ -48,7 +42,7 @@ public:
 
 protected:
     QwtSeriesData<T> *d_series;
-    CurveType d_curveType;
+    Qt::Orientation d_orientation;
 };
 
 template <typename T> 
@@ -63,7 +57,7 @@ QwtPlotSeriesItem<T>::QwtPlotSeriesItem(
         const QwtText &title):
     QwtPlotItem(title),
     d_series(NULL),
-    d_curveType(Yfx)
+    d_orientation(Qt::Vertical)
 {
 }
 
@@ -90,13 +84,19 @@ QwtPlotSeriesItem<T>::~QwtPlotSeriesItem<T>()
   \sa curveType()
 */
 template <typename T> 
-void QwtPlotSeriesItem<T>::setCurveType(CurveType curveType)
+void QwtPlotSeriesItem<T>::setOrientation(Qt::Orientation orientation)
 {
-    if ( d_curveType != curveType )
+    if ( d_orientation != orientation )
     {
-        d_curveType = curveType;
+        d_orientation = orientation;
         itemChanged();
     }
+}
+
+template <typename T> 
+Qt::Orientation QwtPlotSeriesItem<T>::orientation() const 
+{ 
+    return d_orientation; 
 }
 
 //! \return the the curve data
