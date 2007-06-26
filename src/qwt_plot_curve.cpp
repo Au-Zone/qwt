@@ -385,7 +385,12 @@ void QwtPlotCurve::draw(int from, int to) const
 
         QwtPlotCurvePaintHelper helper(this, from, to);
         canvas->installEventFilter(&helper);
+
+        const bool noSystemBackground = 
+            canvas->testAttribute(Qt::WA_NoSystemBackground);
+        canvas->setAttribute(Qt::WA_NoSystemBackground, true);
         canvas->repaint();
+        canvas->setAttribute(Qt::WA_NoSystemBackground, noSystemBackground);
 
         return;
     }
