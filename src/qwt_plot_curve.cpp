@@ -27,6 +27,7 @@
 #if QT_VERSION >= 0x040000
 
 #include <qevent.h>
+#include <qpaintengine.h>
 
 class QwtPlotCurvePaintHelper: public QObject
 {
@@ -371,6 +372,20 @@ void QwtPlotCurve::draw(int from, int to) const
     QwtPlotCanvas *canvas = plot()->canvas();
 
 #if QT_VERSION >= 0x040000
+    if ( canvas->paintEngine()->type() == QPaintEngine::OpenGL )
+    {
+#ifdef __GNUC__
+#warning Lousy OpenGL performance
+#endif
+        /*
+            OpenGL alway repaint the complete widget.
+            So for this operation OpenGL is one of the slowest
+            environments.
+         */
+        canvas->repaint();
+        return;
+    }
+
     if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
         !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
     {
@@ -407,12 +422,12 @@ void QwtPlotCurve::draw(int from, int to) const
         draw(&cachePainter, xMap, yMap, from, to);
     }
 
-	QPainter painter(canvas);
+    QPainter painter(canvas);
 
-	painter.setClipping(true);
-	painter.setClipRect(canvas->contentsRect());
+    painter.setClipping(true);
+    painter.setClipRect(canvas->contentsRect());
 
-	draw(&painter, xMap, yMap, from, to);
+    draw(&painter, xMap, yMap, from, to);
 }
 
 /*!
