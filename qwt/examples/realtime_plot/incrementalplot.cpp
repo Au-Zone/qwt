@@ -3,6 +3,11 @@
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
 #include "incrementalplot.h"
+#if 1
+#include <qpaintengine.h>
+#include <iostream>
+using namespace std;
+#endif
 
 CurveData::CurveData():
     d_count(0)
@@ -92,13 +97,18 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
         canvas()->testPaintAttribute(QwtPlotCanvas::PaintCached);
 
 #if QT_VERSION >= 0x040000
-#ifdef Q_WS_X11
-    // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent 
-    // works on X11. This has an tremendous effect on the performance..
-    const bool directPaint = 
+    const bool oldDirectPaint = 
         canvas()->testAttribute(Qt::WA_PaintOutsidePaintEvent);
-    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
-#endif
+
+    const QPaintEngine *pe = canvas()->paintEngine();
+    bool directPaint = pe->hasFeature(QPaintEngine::PaintOutsidePaintEvent);
+    if ( pe->type() == QPaintEngine::X11 )
+    {
+    	// Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent 
+    	// works on X11. This has an tremendous effect on the performance..
+       	directPaint = true;
+    }
+    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, directPaint);
 #endif
 
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
@@ -106,9 +116,7 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, cacheMode);
 
 #if QT_VERSION >= 0x040000
-#ifdef Q_WS_X11
-    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, directPaint);
-#endif
+    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, oldDirectPaint);
 #endif
 }
 
