@@ -309,8 +309,7 @@ void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
 {
     if ( d_data->stateMachine != stateMachine )
     {
-        if ( isActive() )
-            end(false);
+        reset();
 
         delete d_data->stateMachine;
         d_data->stateMachine = stateMachine;
@@ -1045,11 +1044,7 @@ void QwtPicker::widgetKeyPressEvent(QKeyEvent *ke)
         dy = offset;
     else if ( keyMatch(KeyAbort, ke) )
     {
-        if ( d_data->stateMachine )
-            d_data->stateMachine->reset();
-
-        if (isActive())
-            end(false);
+        reset();
     }
     else
         transition(ke);
@@ -1206,6 +1201,18 @@ bool QwtPicker::end(bool ok)
         ok = false;
 
     return ok;
+}
+
+/*!
+   Reset the state machine and terminate (end(false)) the selection
+*/
+void QwtPicker::reset()
+{
+    if ( d_data->stateMachine )
+        d_data->stateMachine->reset();
+
+    if (isActive())
+        end(false);
 }
 
 /*!
