@@ -335,6 +335,8 @@ protected:
     virtual void move(const QPoint &);
     virtual bool end(bool ok = true);
 
+    virtual void reset();
+
     virtual void widgetMousePressEvent(QMouseEvent *);
     virtual void widgetMouseReleaseEvent(QMouseEvent *);
     virtual void widgetMouseDoubleClickEvent(QMouseEvent *); 
