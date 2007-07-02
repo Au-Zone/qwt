@@ -282,6 +282,11 @@ public:
     virtual void drawRubberBand(QPainter *) const;
     virtual void drawTracker(QPainter *) const;
 
+    virtual QwtText trackerText(const QPoint &pos) const;
+    QPoint trackerPosition() const;
+    QRect trackerRect(const QFont &) const;
+
+
 signals:
     /*!
       A signal emitting the selected points, 
@@ -346,12 +351,8 @@ protected:
     virtual void widgetKeyReleaseEvent(QKeyEvent *); 
     virtual void widgetLeaveEvent(QEvent *); 
 
-    QRect trackerRect(QPainter *painter) const;
-
     virtual void stretchSelection(const QSize &oldSize, 
         const QSize &newSize);
-
-    virtual QwtText trackerText(const QPoint &pos) const;
 
     virtual QwtPickerMachine *stateMachine(int) const;
 
@@ -367,6 +368,7 @@ private:
     void setStateMachine(QwtPickerMachine *);
     void setMouseTracking(bool);
 
+    class PickerWidget;
     class PrivateData;
     PrivateData *d_data;
 };
