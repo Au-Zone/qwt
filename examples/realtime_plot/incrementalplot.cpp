@@ -3,10 +3,8 @@
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
 #include "incrementalplot.h"
-#if 1
+#if QT_VERSION >= 0x040000
 #include <qpaintengine.h>
-#include <iostream>
-using namespace std;
 #endif
 
 CurveData::CurveData():
