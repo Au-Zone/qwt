@@ -108,7 +108,7 @@ void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
 
                 if ( isVisible() )
                 {
-                    const QRect cr = contentsRect();
+                    const QRect cr = rect();
                     *d_data->cache = QPixmap::grabWidget(this,
                         cr.x(), cr.y(), cr.width(), cr.height() );
                 }
@@ -203,7 +203,7 @@ void QwtPlotCanvas::hideEvent(QHideEvent *e)
 void QwtPlotCanvas::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.setClipRegion(event->region() & contentsRect());
+    painter.setClipRegion(event->region());
 
     drawContents( &painter );
 
@@ -215,9 +215,9 @@ void QwtPlotCanvas::paintEvent(QPaintEvent *event)
 void QwtPlotCanvas::drawContents(QPainter *painter)
 {
     if ( d_data->paintAttributes & PaintCached && d_data->cache 
-        && d_data->cache->size() == contentsRect().size() )
+        && d_data->cache->size() == rect().size() )
     {
-        painter->drawPixmap(contentsRect().topLeft(), *d_data->cache);
+        painter->drawPixmap(0, 0, *d_data->cache);
     }
     else
     {
@@ -237,7 +237,7 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
 /*!
   Draw the the canvas
 
-  Paints all plot items to the contentsRect(), using QwtPlot::drawCanvas
+  Paints all plot items using QwtPlot::drawCanvas
   and updates the paint cache.
 
   \sa QwtPlot::drawCanvas, setPaintAttributes(), testPaintAttributes()
@@ -245,7 +245,7 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
 
 void QwtPlotCanvas::drawCanvas(QPainter *painter)
 {
-    if ( !contentsRect().isValid() )
+    if ( !rect().isValid() )
         return;
 
     QBrush bgBrush;
@@ -259,7 +259,7 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
 
     if ( d_data->paintAttributes & PaintCached && d_data->cache )
     {
-        *d_data->cache = QPixmap(contentsRect().size());
+        *d_data->cache = QPixmap(size());
 
 #ifdef Q_WS_X11
 #if QT_VERSION >= 0x040000
@@ -283,14 +283,10 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
             d_data->cache->fill(this, d_data->cache->rect().topLeft());
 
         QPainter cachePainter(d_data->cache);
-        cachePainter.translate(-contentsRect().x(),
-            -contentsRect().y());
-
         ((QwtPlot *)parent())->drawCanvas(&cachePainter);
-
         cachePainter.end();
 
-        painter->drawPixmap(contentsRect(), *d_data->cache);
+        painter->drawPixmap(0, 0, *d_data->cache);
     }
     else
     {
@@ -302,7 +298,7 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
 
             painter->setPen(Qt::NoPen);
             painter->setBrush(bgBrush);
-            painter->drawRect(contentsRect());
+            painter->drawRect(rect());
 
             painter->restore();
         }
@@ -316,7 +312,7 @@ void QwtPlotCanvas::drawFocusIndicator(QPainter *painter)
 {
     const int margin = 1;
 
-    QRect focusRect = contentsRect();
+    QRect focusRect = rect();
     focusRect.setRect(focusRect.x() + margin, focusRect.y() + margin,
         focusRect.width() - 2 * margin, focusRect.height() - 2 * margin);
 
@@ -340,4 +336,31 @@ void QwtPlotCanvas::setSystemBackground(bool on)
     if ( testAttribute(Qt::WA_NoSystemBackground) == on )
         setAttribute(Qt::WA_NoSystemBackground, !on);
 #endif
+}
+
+void QwtPlotCanvas::replot()
+{
+    invalidatePaintCache();
+
+    /*
+      In case of cached or packed painting the canvas
+      is repainted completely and doesn't need to be erased.
+     */
+    const bool erase =
+        !testPaintAttribute(QwtPlotCanvas::PaintPacked)
+        && !testPaintAttribute(QwtPlotCanvas::PaintCached);
+
+#if QT_VERSION >= 0x040000
+    const bool noBackgroundMode = testAttribute(Qt::WA_NoBackground);
+    if ( !erase && !noBackgroundMode )
+        setAttribute(Qt::WA_NoBackground, true);
+
+    repaint(rect());
+
+    if ( !erase && !noBackgroundMode )
+        setAttribute(Qt::WA_NoBackground, false);
+#else
+    repaint(rect(), erase);
+#endif
+
 }
