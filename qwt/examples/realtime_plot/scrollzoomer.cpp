@@ -1,5 +1,4 @@
 #include <qevent.h>
-#include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
 #include <qwt_scale_engine.h>
 #include <qwt_scale_widget.h>
@@ -239,14 +238,8 @@ bool ScrollZoomer::eventFilter(QObject *o, QEvent *e)
         {
             case QEvent::Resize:
             {
-                const int fw = ((QwtPlotCanvas *)canvas())->frameWidth();
-
-                QRect rect;
-                rect.setSize(((QResizeEvent *)e)->size());
-                rect.setRect(rect.x() + fw, rect.y() + fw,
-                    rect.width() - 2 * fw, rect.height() - 2 * fw);
-
-                layoutScrollBars(rect);
+                const QSize size = ((QResizeEvent *)e)->size();
+                layoutScrollBars(QRect(0, 0, size.width(), size.height()));
                 break;
             }
             case QEvent::ChildRemoved:
