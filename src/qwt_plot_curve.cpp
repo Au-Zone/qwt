@@ -416,16 +416,13 @@ void QwtPlotCurve::draw(int from, int to) const
         canvas->paintCache() && !canvas->paintCache()->isNull() )
     {
         QPainter cachePainter((QPixmap *)canvas->paintCache());
-        cachePainter.translate(-canvas->contentsRect().x(),
-            -canvas->contentsRect().y());
-
         draw(&cachePainter, xMap, yMap, from, to);
     }
 
     QPainter painter(canvas);
 
     painter.setClipping(true);
-    painter.setClipRect(canvas->contentsRect());
+    painter.setClipRect(canvas->rect());
 
     draw(&painter, xMap, yMap, from, to);
 }
