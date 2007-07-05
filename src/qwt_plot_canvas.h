@@ -12,7 +12,7 @@
 #ifndef QWT_PLOT_CANVAS_H
 #define QWT_PLOT_CANVAS_H
 
-#include <qframe.h>
+#include <qwidget.h>
 #include <qpen.h>
 #include "qwt_global.h"
 
@@ -25,7 +25,7 @@ class QPixmap;
   \sa  QwtPlot 
 */
 
-class QWT_EXPORT QwtPlotCanvas : public QFrame
+class QWT_EXPORT QwtPlotCanvas : public QWidget
 {
     Q_OBJECT
     friend class QwtPlot;

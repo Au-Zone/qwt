@@ -48,7 +48,7 @@ public:
 //! Sets a cross cursor, enables QwtPlotCanvas::PaintCached
 
 QwtPlotCanvas::QwtPlotCanvas(QwtPlot *plot):
-    QFrame(plot)
+    QWidget(plot)
 {
     d_data = new PrivateData;
 
@@ -189,7 +189,7 @@ QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
 
 void QwtPlotCanvas::hideEvent(QHideEvent *e)
 {
-    QFrame::hideEvent(e);
+    QWidget::hideEvent(e);
 
     if ( d_data->paintAttributes & PaintPacked )
     {
@@ -202,23 +202,10 @@ void QwtPlotCanvas::hideEvent(QHideEvent *e)
 
 void QwtPlotCanvas::paintEvent(QPaintEvent *event)
 {
-#if QT_VERSION >= 0x040000
     QPainter painter(this);
-    
-    if ( !contentsRect().contains( event->rect() ) ) 
-    {
-        painter.save();
-        painter.setClipRegion( event->region() & frameRect() );
-        drawFrame( &painter );
-        painter.restore(); 
-    }
-
     painter.setClipRegion(event->region() & contentsRect());
 
     drawContents( &painter );
-#else // QT_VERSION < 0x040000
-    QFrame::paintEvent(event);
-#endif
 
     if ( d_data->paintAttributes & PaintPacked )
         setSystemBackground(false);
