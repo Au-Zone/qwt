@@ -91,8 +91,8 @@ void DataPlot::alignScales()
     // the canvas frame, but is also a good example demonstrating
     // why the spreaded API needs polishing.
 
-    canvas()->setFrameStyle(QFrame::Box | QFrame::Plain );
-    canvas()->setLineWidth(1);
+    canvasFrame()->setFrameStyle(QFrame::Box | QFrame::Plain );
+    canvasFrame()->setLineWidth(1);
 
     for ( int i = 0; i < QwtPlot::axisCnt; i++ )
     {
