@@ -252,11 +252,7 @@ bool QwtPlotRescaler::eventFilter(QObject *o, QEvent *e)
 
 void QwtPlotRescaler::canvasResizeEvent(QResizeEvent* e)
 {
-    const int fw = 2 * canvas()->frameWidth();
-    const QSize newSize = e->size() - QSize(fw, fw);
-    const QSize oldSize = e->oldSize() - QSize(fw, fw);
-
-    rescale(oldSize, newSize);
+    rescale(e->oldSize(), e->size());
 }
 
 void QwtPlotRescaler::rescale() const
@@ -279,7 +275,7 @@ void QwtPlotRescaler::rescale() const
     }
 #endif
 
-    const QSize size = canvas()->contentsRect().size();
+    const QSize size = canvas()->size();
     rescale(size, size);
 }
 

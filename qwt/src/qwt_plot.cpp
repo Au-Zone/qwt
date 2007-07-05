@@ -17,6 +17,7 @@
 #endif
 #include <qapplication.h>
 #include <qevent.h>
+#include <qframe.h>
 #include "qwt_plot.h"
 #include "qwt_plot_dict.h"
 #include "qwt_plot_layout.h"
@@ -34,10 +35,12 @@ class QwtPlot::PrivateData
 public:
 #if QT_VERSION < 0x040000
     QGuardedPtr<QwtTextLabel> lblTitle;
+    QGuardedPtr<QFrame> canvasFrame;
     QGuardedPtr<QwtPlotCanvas> canvas;
     QGuardedPtr<QwtLegend> legend;
 #else
     QPointer<QwtTextLabel> lblTitle;
+    QPointer<QFrame> canvasFrame;
     QPointer<QwtPlotCanvas> canvas;
     QPointer<QwtLegend> legend;
 #endif
@@ -124,10 +127,12 @@ void QwtPlot::initPlot(const QwtText &title)
 
     initAxesData();
 
+    d_data->canvasFrame = new QFrame(this);
+    d_data->canvasFrame->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+    d_data->canvasFrame->setLineWidth(2);
+    d_data->canvasFrame->setMidLineWidth(0);
+
     d_data->canvas = new QwtPlotCanvas(this);
-    d_data->canvas->setFrameStyle(QFrame::Panel|QFrame::Sunken);
-    d_data->canvas->setLineWidth(2);
-    d_data->canvas->setMidLineWidth(0);
 
     updateTabOrder();
 
@@ -282,6 +287,15 @@ const QwtLegend *QwtPlot::legend() const
     return d_data->legend;
 }   
 
+QFrame *QwtPlot::canvasFrame()
+{ 
+    return d_data->canvasFrame;
+}   
+
+const QFrame *QwtPlot::canvasFrame() const
+{ 
+    return d_data->canvasFrame;
+}   
 
 /*!
   \return the plot's canvas
@@ -476,7 +490,11 @@ void QwtPlot::updateLayout()
             d_data->legend->hide();
     }
 
-    d_data->canvas->setGeometry(d_data->layout->canvasRect());
+    d_data->canvasFrame->setGeometry(d_data->layout->canvasRect());
+
+    QRect cr = d_data->canvasFrame->contentsRect();
+    cr.translate(d_data->canvasFrame->pos());
+    d_data->canvas->setGeometry(cr);
 }
 
 /*! 
@@ -746,7 +764,7 @@ const QColor & QwtPlot::canvasBackground() const
 */
 void QwtPlot::setCanvasLineWidth(int w)
 {
-    canvas()->setLineWidth(w);
+    canvasFrame()->setLineWidth(w);
     updateLayout();
 }
  
@@ -757,7 +775,7 @@ void QwtPlot::setCanvasLineWidth(int w)
 */
 int QwtPlot::canvasLineWidth() const
 { 
-    return canvas()->lineWidth();
+    return canvasFrame()->lineWidth();
 }
 
 /*!

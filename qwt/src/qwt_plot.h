@@ -150,6 +150,9 @@ public:
 
     // Canvas
 
+    QFrame *canvasFrame();
+    const QFrame *canvasFrame() const;
+
     QwtPlotCanvas *canvas();
     const QwtPlotCanvas *canvas() const;
 
