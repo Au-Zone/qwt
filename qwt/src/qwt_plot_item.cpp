@@ -511,11 +511,7 @@ QRect QwtPlotItem::transform(const QwtScaleMap &xMap,
     if ( y2 < y1 )
         qSwap(y1, y2);
 
-#ifdef __GNUC__
-#warning 1 Pixel error
-#endif
-
-    return QRect(x1, y1, x2 - x1 - 1, y2 - y1 - 1);
+    return QRect(x1, y1, x2 - x1, y2 - y1);
 }
 
 /*!
@@ -531,9 +527,9 @@ QwtDoubleRect QwtPlotItem::invTransform(const QwtScaleMap &xMap,
     const QwtScaleMap &yMap, const QRect& rect) const
 {
     const double x1 = xMap.invTransform(rect.x());
-    const double x2 = xMap.invTransform(rect.x() + rect.width() + 1);
+    const double x2 = xMap.invTransform(rect.x() + rect.width());
     const double y1 = yMap.invTransform(rect.y());
-    const double y2 = yMap.invTransform(rect.y() + rect.height() + 1);
+    const double y2 = yMap.invTransform(rect.y() + rect.height());
 
     const QwtDoubleRect r(x1, y1, x2 - x1, y2 - y1);
 
