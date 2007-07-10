@@ -63,6 +63,14 @@ public:
     virtual ~QwtPlotItem();
 
     void attach(QwtPlot *plot);
+
+    /*!
+       \brief This method detaches a QwtPlotItem from any QwtPlot is has been
+              associated with.
+
+       detach() is equivalent to calling attach( NULL )
+       \sa attach( QwtPlot* plot )
+    */
     void detach() { attach(NULL); }
 
     QwtPlot *plot() const;

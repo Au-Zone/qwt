@@ -58,6 +58,7 @@ QwtPlotMarker::~QwtPlotMarker()
     delete d_data;
 }
 
+//! \return QwtPlotItem::Rtti_PlotMarker
 int QwtPlotMarker::rtti() const
 {
     return QwtPlotItem::Rtti_PlotMarker;
