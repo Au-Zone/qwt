@@ -59,7 +59,14 @@ QwtPlotItem::~QwtPlotItem()
 }
 
 /*! 
-  Attach the item to a plot
+  \brief Attach the item to a plot.
+
+  This method will attach a QwtPlotItem to the QwtPlot argument. It will first
+  detach the QwtPlotItem from any plot from a previous call to attach (if
+  necessary). If a NULL argument is passed, it will detach from any QwtPlot it
+  was attached to.
+
+  \sa QwtPlotItem::detach()
 */
 void QwtPlotItem::attach(QwtPlot *plot)
 {
@@ -94,6 +101,18 @@ void QwtPlotItem::attach(QwtPlot *plot)
     }
 }
 
+/*! 
+   Return rtti for the specific class represented. QwtPlotItem is simply
+   a virtual interface class, and base classes will implement this method
+   with specific rtti values so a user can differentiate them.
+
+   The rtti value is useful for environments, where the 
+   runtime type information is disabled and it is not possible
+   to do a dynamic_cast<...>.
+   
+   \return rtti value
+   \sa RttiValues
+*/
 int QwtPlotItem::rtti() const
 {
     return Rtti_PlotItem;
