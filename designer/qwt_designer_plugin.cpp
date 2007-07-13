@@ -288,11 +288,11 @@ QWidget *KnobInterface::createWidget(QWidget *parent)
 ScaleWidgetInterface::ScaleWidgetInterface(QObject *parent): 
     CustomWidgetInterface(parent)
 {
-    d_name = "QwtScale";
+    d_name = "QwtScaleWidget";
     d_include = "qwt_scale_widget.h";
     d_icon = QPixmap(":/pixmaps/qwtscale.png");
     d_domXml = 
-        "<widget class=\"QwtScale\" name=\"Scale\">\n"
+        "<widget class=\"QwtScaleWidget\" name=\"ScaleWidget\">\n"
         "</widget>\n";
 }
 
