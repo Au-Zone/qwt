@@ -887,7 +887,7 @@ void QwtScaleDraw::updateMap()
 {
     QwtScaleMap &sm = scaleMap();
     if ( orientation() == Qt::Vertical )
-        sm.setPaintInterval(d_data->pos.y() + d_data->len - 1, d_data->pos.y());
+        sm.setPaintInterval(d_data->pos.y() + d_data->len, d_data->pos.y());
     else
-        sm.setPaintInterval(d_data->pos.x(), d_data->pos.x() + d_data->len - 1);
+        sm.setPaintInterval(d_data->pos.x(), d_data->pos.x() + d_data->len);
 }
