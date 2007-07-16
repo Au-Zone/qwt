@@ -874,7 +874,8 @@ void QwtPlotLayout::alignScales(int options,
 
         if ( axis == QwtPlot::xTop || axis == QwtPlot::xBottom )
         {
-            const int leftOffset = backboneOffset[QwtPlot::yLeft] - startDist;
+            const int leftOffset = 
+                backboneOffset[QwtPlot::yLeft] - startDist;
 
             if ( scaleRect[QwtPlot::yLeft].isValid() )
             {
@@ -896,7 +897,8 @@ void QwtPlotLayout::alignScales(int options,
                 }
             }
 
-            const int rightOffset = backboneOffset[QwtPlot::yRight] - endDist;
+            const int rightOffset = 
+                backboneOffset[QwtPlot::yRight] - endDist + 1;
 
             if ( scaleRect[QwtPlot::yRight].isValid() )
             {
@@ -921,7 +923,7 @@ void QwtPlotLayout::alignScales(int options,
         else // QwtPlot::yLeft, QwtPlot::yRight
         {
             const int bottomOffset = 
-                backboneOffset[QwtPlot::xBottom] - endDist;
+                backboneOffset[QwtPlot::xBottom] - endDist + 1;
 
             if ( scaleRect[QwtPlot::xBottom].isValid() )
             {
@@ -978,14 +980,18 @@ void QwtPlotLayout::alignScales(int options,
           border distances. Now we have to realign the other scale.
          */
 
+        int fw = 0;
+        if ( !(options & IgnoreFrames) )
+            fw = d_data->layoutData.canvas.frameWidth;
+
         if ( scaleRect[QwtPlot::xBottom].isValid() && 
             scaleRect[QwtPlot::xTop].isValid() )
         {
             for ( int axis = QwtPlot::xBottom; axis <= QwtPlot::xTop; axis++ )
             {
-                scaleRect[axis].setLeft(canvasRect.left() + 1 
+                scaleRect[axis].setLeft(canvasRect.left() + fw 
                     - d_data->layoutData.scale[axis].start);
-                scaleRect[axis].setRight(canvasRect.right() - 1 
+                scaleRect[axis].setRight(canvasRect.right() - fw - 1 
                     + d_data->layoutData.scale[axis].end);
             }
         }
@@ -995,9 +1001,9 @@ void QwtPlotLayout::alignScales(int options,
         {
             for ( int axis = QwtPlot::yLeft; axis <= QwtPlot::yRight; axis++ )
             {
-                scaleRect[axis].setTop(canvasRect.top() + 1 
+                scaleRect[axis].setTop(canvasRect.top() + fw 
                     - d_data->layoutData.scale[axis].start);
-                scaleRect[axis].setBottom(canvasRect.bottom() - 1 
+                scaleRect[axis].setBottom(canvasRect.bottom() - fw - 1 
                     + d_data->layoutData.scale[axis].end);
             }
         }
