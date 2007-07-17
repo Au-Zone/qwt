@@ -237,14 +237,9 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( boundingRect().isValid() )
         area &= boundingRect();
 
-    QRect paintRect = transform(xMap, yMap, area);
-#if 1
-    paintRect.setRight(paintRect.right() + 1);
-    paintRect.setBottom(paintRect.bottom() + 1);
-#endif
+    const QRect paintRect = transform(xMap, yMap, area);
     if ( !paintRect.isValid() )
         return;
-
 
     QImage image;
 
