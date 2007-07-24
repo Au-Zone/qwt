@@ -70,11 +70,11 @@ QwtPlotSeriesItem<T>::~QwtPlotSeriesItem<T>()
 /*!
   Assign the curve type
 
-  <dt>QwtPlotCurve::Yfx
+  <dt>Qt::Horizontal
   <dd>Draws y as a function of x (the default). The
       baseline is interpreted as a horizontal line
       with y = baseline().</dd>
-  <dt>QwtPlotCurve::Xfy
+  <dt>Qt::Vertical
   <dd>Draws x as a function of y. The baseline is
       interpreted as a vertical line with x = baseline().</dd>
 
