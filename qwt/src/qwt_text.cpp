@@ -642,7 +642,15 @@ const QwtTextEngine *QwtText::textEngine(const QString &text,
     QwtText::TextFormat format)
 {
     if ( engineDict == NULL )
+    {
+        /*
+          Note: engineDict is allocated, the first time it is used, 
+                but never deleted, because there is no known last access time.
+                So don't be irritated, if it is reported as a memory leak
+                from your memory profiler.
+         */
         engineDict = new QwtTextEngineDict();
+    }
 
     return engineDict->textEngine(text, format);
 }
