@@ -43,6 +43,7 @@ HEADERS += \
     qwt_layout_metrics.h \
     qwt_math.h \
     qwt_paint_buffer.h \
+    qwt_paint_cache.h \
     qwt_painter.h \
     qwt_panner.h \
     qwt_picker.h \
@@ -70,6 +71,7 @@ SOURCES += \
     qwt_layout_metrics.cpp \
     qwt_math.cpp \
     qwt_paint_buffer.cpp \
+    qwt_paint_cache.cpp \
     qwt_panner.cpp \
     qwt_painter.cpp \
     qwt_picker.cpp \
@@ -153,6 +155,14 @@ contains(CONFIG, QwtSVGItem) {
     QT += svg
     HEADERS += qwt_plot_svgitem.h
     SOURCES += qwt_plot_svgitem.cpp 
+}
+
+contains(CONFIG, QwtGLCanvas) {
+
+    QT += opengl
+}
+else {
+    DEFINES += QWT_NO_GLCANVAS
 }
 
 contains(CONFIG, QwtWidgets) {
