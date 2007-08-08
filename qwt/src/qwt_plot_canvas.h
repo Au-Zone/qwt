@@ -17,7 +17,6 @@
 #include "qwt_global.h"
 
 class QwtPlot;
-class QPixmap;
 
 /*!
   \brief Canvas of a QwtPlot. 
@@ -90,8 +89,8 @@ public:
     void setPaintAttribute(PaintAttribute, bool on = true);
     bool testPaintAttribute(PaintAttribute) const;
 
-    QPixmap *paintCache();
-    const QPixmap *paintCache() const;
+    QPaintDevice *paintCache();
+    const QPaintDevice *paintCache() const;
     void invalidatePaintCache();
 
     void replot();
@@ -104,16 +103,9 @@ protected:
 
     virtual void paintEvent(QPaintEvent *);
 
-    virtual void drawContents(QPainter *);
-    virtual void drawFocusIndicator(QPainter *);
-
-    void drawCanvas(QPainter *painter = NULL);
-
 private:    
-    void setSystemBackground(bool);
-
-    class PrivateData;
-    PrivateData *d_data;
+    class CanvasPainter;
+    CanvasPainter *d_canvasPainter;
 };
 
 #endif
