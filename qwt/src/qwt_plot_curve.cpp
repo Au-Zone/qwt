@@ -413,10 +413,16 @@ void QwtPlotCurve::draw(int from, int to) const
     const QwtScaleMap yMap = plot()->canvasMap(yAxis());
 
     if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
-        canvas->paintCache() && !canvas->paintCache()->isNull() )
+        canvas->paintCache() )
     {
-        QPainter cachePainter((QPixmap *)canvas->paintCache());
-        draw(&cachePainter, xMap, yMap, from, to);
+        const QSize sz(
+            canvas->paintCache()->width(), canvas->paintCache()->height());
+
+        if ( sz.isValid() )
+        {
+            QPainter cachePainter((QPixmap *)canvas->paintCache());
+            draw(&cachePainter, xMap, yMap, from, to);
+        }
     }
 
     QPainter painter(canvas);
