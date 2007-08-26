@@ -226,6 +226,8 @@ public:
     virtual QSize minimumSizeHint() const;
 
     virtual void updateLayout();
+    virtual void drawCanvas(QPainter *);
+
     void updateAxes();
 
     virtual bool event(QEvent *);
@@ -270,7 +272,6 @@ protected slots:
 protected:
     static bool axisValid(int axisId);
 
-    virtual void drawCanvas(QPainter *);
     virtual void drawItems(QPainter *, const QRect &,
         const QwtScaleMap maps[axisCnt],
         const QwtPlotPrintFilter &) const;

@@ -62,7 +62,7 @@ QwtPlotSeriesItem<T>::QwtPlotSeriesItem(
 }
 
 template <typename T> 
-QwtPlotSeriesItem<T>::~QwtPlotSeriesItem<T>()
+QwtPlotSeriesItem<T>::~QwtPlotSeriesItem()
 {
     delete d_series;
 }
