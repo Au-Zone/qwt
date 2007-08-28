@@ -450,7 +450,10 @@ void QwtLegendItem::mouseReleaseEvent(QMouseEvent *e)
 void QwtLegendItem::keyPressEvent(QKeyEvent *e)
 {
     if ( e->key() != Qt::Key_Space || e->isAutoRepeat() )
+    {
+        e->ignore();
         return;
+    }
 
     switch(d_data->itemMode)
     {
@@ -471,7 +474,10 @@ void QwtLegendItem::keyPressEvent(QKeyEvent *e)
 void QwtLegendItem::keyReleaseEvent(QKeyEvent *e)
 {
     if ( e->key() != Qt::Key_Space || e->isAutoRepeat() )
+    {
+        e->ignore();
         return;
+    }
 
     if ( d_data->itemMode == QwtLegend::ClickableItem )
         setDown(false);
