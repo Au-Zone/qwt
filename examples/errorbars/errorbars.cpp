@@ -44,8 +44,7 @@ public:
 
     virtual QwtDoubleRect boundingRect() const
     {
-        const QwtDoubleRect r = qwtBoundingRect(*this);
-        return QwtDoubleRect(r.y(), r.x(), r.height(), r.width());
+        return qwtBoundingRect(*this);
     }
 
 private:
