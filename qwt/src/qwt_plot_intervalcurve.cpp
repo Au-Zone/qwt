@@ -174,6 +174,21 @@ void QwtPlotIntervalCurve::draw(QPainter *painter,
     draw(painter, xMap, yMap, 0, -1);
 }
 
+QwtDoubleRect QwtPlotIntervalCurve::boundingRect() const
+{
+    QwtDoubleRect br = 
+        QwtPlotSeriesItem<QwtIntervalSample>::boundingRect();
+    if ( br.isValid() )
+    {
+#ifdef __GNUC__
+#warning Do we need a orientation flag ?
+#endif
+        br = QwtDoubleRect(br.y(), br.x(), br.height(), br.width());
+    }
+
+    return br;
+}
+
 void QwtPlotIntervalCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const

@@ -63,6 +63,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
+    virtual QwtDoubleRect boundingRect() const;
     virtual void updateLegend(QwtLegend *) const;
 
 protected:
