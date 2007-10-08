@@ -54,11 +54,6 @@ void QwtPaintCache::setBuffer(QPaintDevice *buffer)
     d_buffer = buffer;
 }
 
-void QwtPaintCache::clear()
-{
-    setBuffer(NULL);
-}
-
 bool QwtPaintCache::isValid() const
 {
     return d_buffer && d_buffer->width() == d_widget->width() 
@@ -74,46 +69,32 @@ QwtPixmapPaintCache::~QwtPixmapPaintCache()
 {
 }
 
-void QwtPixmapPaintCache::init()
+void QwtPixmapPaintCache::setEnabled(bool on)
 {
-    if ( buffer() == NULL )
-        setBuffer(new QPixmap());
+    if ( on )
+    {
+        if ( buffer() == NULL )
+            setBuffer(initPixmap());
+    }
+    else
+        setBuffer(NULL);
+}
 
+void QwtPixmapPaintCache::sync(bool doFill)
+{
     QPixmap *pm = (QPixmap *)buffer();
     QWidget *w = widget();
 
-    if ( w->isVisible() )
+    if ( doFill )
     {
+
         const QRect cr = w->rect();
         *pm = QPixmap::grabWidget(w,
             cr.x(), cr.y(), cr.width(), cr.height() );
     }
-}
+    else
+        *pm = QPixmap(w->size());
 
-void QwtPixmapPaintCache::reset()
-{
-    QPixmap *pm = (QPixmap *)buffer();
-    QWidget *w = widget();
-
-    *pm = QPixmap(w->size());
-
-#ifdef Q_WS_X11
-#if QT_VERSION >= 0x040000
-    if ( pm->x11Info().screen() != w->x11Info().screen() )
-        pm->x11SetScreen(w->x11Info().screen());
-#else
-    if ( pm->x11Screen() != w->x11Screen() )
-        pm->x11SetScreen(w->x11Screen());
-#endif
-#endif
-}
-
-void QwtPixmapPaintCache::fill()
-{
-    QWidget *w = widget();
-    QPixmap *pm = (QPixmap *)buffer();
-
-    pm->fill(w, w->rect().topLeft() );
 }
 
 void QwtPixmapPaintCache::invalidate()
@@ -127,4 +108,21 @@ void QwtPixmapPaintCache::flush(QPainter *painter)
 {
     QPixmap *pm = (QPixmap *)buffer();
     painter->drawPixmap(0, 0, *pm);
+}
+
+QPixmap *QwtPixmapPaintCache::initPixmap() const
+{
+    const QWidget *w = widget();
+    QPixmap *pm = new QPixmap();
+#ifdef Q_WS_X11
+#if QT_VERSION >= 0x040000
+    if ( pm->x11Info().screen() != w->x11Info().screen() )
+        pm->x11SetScreen(w->x11Info().screen());
+#else
+    if ( pm->x11Screen() != w->x11Screen() )
+        pm->x11SetScreen(w->x11Screen());
+#endif
+#endif
+
+    return pm;
 }
