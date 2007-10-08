@@ -76,8 +76,6 @@ myPlot->replot();
 
 class QWT_EXPORT QwtPlot: public QFrame, public QwtPlotDict
 {
-    friend class QwtPlotCanvas;
-
     Q_OBJECT
     Q_PROPERTY( QString propertiesDocument 
         READ grabProperties WRITE applyProperties )
