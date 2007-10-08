@@ -22,6 +22,7 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
+#include "qwt_paint_cache.h"
 #include "qwt_plot_curve.h"
 
 #if QT_VERSION >= 0x040000
@@ -413,14 +414,14 @@ void QwtPlotCurve::draw(int from, int to) const
     const QwtScaleMap yMap = plot()->canvasMap(yAxis());
 
     if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
-        canvas->paintCache() )
+        canvas->paintCache()->isValid() )
     {
-        const QSize sz(
-            canvas->paintCache()->width(), canvas->paintCache()->height());
+        QPaintDevice *buffer = canvas->paintCache()->buffer();
 
+        const QSize sz(buffer->width(), buffer->height());
         if ( sz.isValid() )
         {
-            QPainter cachePainter((QPixmap *)canvas->paintCache());
+            QPainter cachePainter(buffer);
             draw(&cachePainter, xMap, yMap, from, to);
         }
     }
