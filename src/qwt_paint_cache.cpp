@@ -10,10 +10,13 @@
 
 #include <qpainter.h>
 #include <qwidget.h>
+#include <qpixmap.h>
 #if QT_VERSION >= 0x040000
 #ifdef Q_WS_X11
 #include <qx11info_x11.h>
 #endif
+#else
+#include <qpaintdevicemetrics.h>
 #endif
 #include "qwt_paint_cache.h"
 
@@ -56,8 +59,18 @@ void QwtPaintCache::setBuffer(QPaintDevice *buffer)
 
 bool QwtPaintCache::isValid() const
 {
-    return d_buffer && d_buffer->width() == d_widget->width() 
+    if ( d_buffer == NULL )
+        return false;
+
+#if QT_VERSION < 0x040000
+    const QPaintDeviceMetrics mb(d_buffer);
+    const QPaintDeviceMetrics mw(d_widget);
+    return mb.width() == mw.width() 
+        && mb.height() == mw.height();
+#else
+    return d_buffer->width() == d_widget->width() 
         && d_buffer->height() == d_widget->height();
+#endif
 }
 
 QwtPixmapPaintCache::QwtPixmapPaintCache(QWidget *widget):

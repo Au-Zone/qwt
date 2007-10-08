@@ -418,8 +418,10 @@ void QwtPlotCurve::draw(int from, int to) const
     {
         QPaintDevice *buffer = canvas->paintCache()->buffer();
 
+#if QT_VERSION >= 0x040000
         const QSize sz(buffer->width(), buffer->height());
         if ( sz.isValid() )
+#endif
         {
             QPainter cachePainter(buffer);
             draw(&cachePainter, xMap, yMap, from, to);

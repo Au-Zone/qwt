@@ -470,7 +470,12 @@ void QwtPlot::updateLayout()
     d_data->canvasFrame->setGeometry(d_data->layout->canvasRect());
 
     QRect cr = d_data->canvasFrame->contentsRect();
+#if QT_VERSION >= 0x040000
     cr.translate(d_data->canvasFrame->pos());
+#else
+    cr.moveBy( d_data->canvasFrame->pos().x(),
+        d_data->canvasFrame->pos().y() );
+#endif
     d_data->canvas->setGeometry(cr);
 }
 
@@ -567,7 +572,7 @@ void QwtPlot::drawCanvas(QPainter *painter)
         maps[axisId] = canvasMap(axisId);
 
     drawItems(painter, 
-        d_data->canvas->contentsRect(), maps, QwtPlotPrintFilter());
+        d_data->canvas->rect(), maps, QwtPlotPrintFilter());
 }
 
 /*! 
@@ -649,7 +654,7 @@ QwtScaleMap QwtPlot::canvasMap(int axisId) const
     {
         const int margin = plotLayout()->canvasMargin(axisId);
 
-        const QRect &canvasRect = d_data->canvas->contentsRect();
+        const QRect &canvasRect = d_data->canvas->rect();
         if ( axisId == yLeft || axisId == yRight )
         {
             map.setPaintInterval(canvasRect.bottom() - margin, 
