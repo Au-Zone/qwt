@@ -22,11 +22,6 @@ win32:QwtDll {
 	DEFINES    += QT_DLL QWT_DLL
 }
 
-contains(CONFIG, QwtGLCanvas) {
-
-    QT += opengl
-}
-
 contains(CONFIG, QwtDll) {
     win32-msvc:LIBS  += ../../lib/qwt5.lib
     win32-msvc.net:LIBS  += ../../lib/qwt5.lib

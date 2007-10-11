@@ -30,14 +30,6 @@ CONFIG           += thread
 
 CONFIG           += debug     # release/debug
 
-debug {
-#linux-g++:QMAKE_CXXFLAGS += -fstack-protector
-#linux-g++:QMAKE_CXXFLAGS += -fstack-protector-all
-#linux-g++:QMAKE_CXXFLAGS += -Wstack-protector
-}
-
-#linux-g++:QMAKE_CXXFLAGS += -fno-exceptions
-
 ######################################################################
 # Build the static/shared libraries.
 # If QwtDll is enabled, a shared library is built, otherwise
@@ -67,11 +59,6 @@ CONFIG     += QwtWidgets
 ######################################################################
 
 CONFIG     += QwtSVGItem
-
-######################################################################
-######################################################################
-
-CONFIG     += QwtGLCanvas
 
 ######################################################################
 # If you have a commercial license you can use the MathML renderer

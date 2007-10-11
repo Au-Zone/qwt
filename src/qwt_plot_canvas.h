@@ -12,23 +12,26 @@
 #ifndef QWT_PLOT_CANVAS_H
 #define QWT_PLOT_CANVAS_H
 
-#define QWT_GLCANVAS 0
-
-#if QWT_GLCANVAS
-#include <QGLWidget>
-#else
-#include <qwidget.h>
-#endif
-
+#include <qframe.h>
 #include <qpen.h>
 #include "qwt_global.h"
 
 class QwtPlot;
-class QwtPaintCache;
+class QPixmap;
 
-class QWT_EXPORT QwtPlotCanvasPainter
+/*!
+  \brief Canvas of a QwtPlot. 
+
+  \sa  QwtPlot 
+*/
+
+class QWT_EXPORT QwtPlotCanvas : public QFrame
 {
+    Q_OBJECT
+    friend class QwtPlot;
+
 public:
+
     /*!
       \brief Paint attributes
  
@@ -81,47 +84,34 @@ public:
         ItemFocusIndicator
     };
 
-    virtual ~QwtPlotCanvasPainter();
-
-    void setPaintAttribute(PaintAttribute, bool on);
-    bool testPaintAttribute(PaintAttribute) const;
-
     void setFocusIndicator(FocusIndicator);
     FocusIndicator focusIndicator() const;
 
-    QwtPaintCache *paintCache();
-    const QwtPaintCache *paintCache() const;
+    void setPaintAttribute(PaintAttribute, bool on = true);
+    bool testPaintAttribute(PaintAttribute) const;
 
-    void drawCanvas(QPainter *);
-    void drawContents(QPainter *);
-    void drawFocusIndicator(QPainter *);
-
-    void replot();
+    QPixmap *paintCache();
+    const QPixmap *paintCache() const;
+    void invalidatePaintCache();
 
 protected:
-    QwtPlotCanvasPainter(QWidget *canvas, QwtPaintCache *);
-
-    class PrivateData;
-    PrivateData *d_data;
-};
-
-class QWT_EXPORT QwtPlotCanvas: 
-#if QWT_GLCANVAS
-    public QGLWidget, 
-#else
-    public QWidget, 
-#endif
-    public QwtPlotCanvasPainter
-{
-    Q_OBJECT
-
-public:
     explicit QwtPlotCanvas(QwtPlot *);
     virtual ~QwtPlotCanvas();
 
-protected:
     virtual void hideEvent(QHideEvent *);
+
     virtual void paintEvent(QPaintEvent *);
+
+    virtual void drawContents(QPainter *);
+    virtual void drawFocusIndicator(QPainter *);
+
+    void drawCanvas(QPainter *painter = NULL);
+
+private:    
+    void setSystemBackground(bool);
+
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif

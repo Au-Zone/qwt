@@ -22,7 +22,6 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
-#include "qwt_paint_cache.h"
 #include "qwt_plot_curve.h"
 
 #if QT_VERSION >= 0x040000
@@ -414,24 +413,19 @@ void QwtPlotCurve::draw(int from, int to) const
     const QwtScaleMap yMap = plot()->canvasMap(yAxis());
 
     if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
-        canvas->paintCache()->isValid() )
+        canvas->paintCache() && !canvas->paintCache()->isNull() )
     {
-        QPaintDevice *buffer = canvas->paintCache()->buffer();
+        QPainter cachePainter((QPixmap *)canvas->paintCache());
+        cachePainter.translate(-canvas->contentsRect().x(),
+            -canvas->contentsRect().y());
 
-#if QT_VERSION >= 0x040000
-        const QSize sz(buffer->width(), buffer->height());
-        if ( sz.isValid() )
-#endif
-        {
-            QPainter cachePainter(buffer);
-            draw(&cachePainter, xMap, yMap, from, to);
-        }
+        draw(&cachePainter, xMap, yMap, from, to);
     }
 
     QPainter painter(canvas);
 
     painter.setClipping(true);
-    painter.setClipRect(canvas->rect());
+    painter.setClipRect(canvas->contentsRect());
 
     draw(&painter, xMap, yMap, from, to);
 }
@@ -463,7 +457,7 @@ void QwtPlotCurve::draw(QPainter *painter,
         painter->setPen(d_data->pen);
 
         /*
-          Qt 4.0.0 is slow when drawing lines, but it´s even 
+          Qt 4.0.0 is slow when drawing lines, but it's even 
           slower when the painter has a brush. So we don't
           set the brush before we really need it.
          */
