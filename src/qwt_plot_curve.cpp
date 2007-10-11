@@ -554,7 +554,7 @@ void QwtPlotCurve::draw(QPainter *painter,
         painter->setPen(d_data->pen);
 
         /*
-          Qt 4.0.0 is slow when drawing lines, but it´s even 
+          Qt 4.0.0 is slow when drawing lines, but it's even 
           slower when the painter has a brush. So we don't
           set the brush before we really need it.
          */
