@@ -148,7 +148,7 @@ void QwtPlotLayout::LayoutData::init(const QwtPlot *plot, const QRect &rect)
 
     // canvas 
 
-    canvas.frameWidth = plot->canvasFrame()->frameWidth();
+    canvas.frameWidth = plot->canvas()->frameWidth();
 }
 
 class QwtPlotLayout::PrivateData
@@ -497,7 +497,7 @@ QSize QwtPlotLayout::minimumSizeHint(const QwtPlot *plot) const
                 sd.tickOffset += scl->scaleDraw()->majTickLength();
         }
 
-        canvasBorder[axis] = plot->canvasFrame()->frameWidth() +
+        canvasBorder[axis] = plot->canvas()->frameWidth() +
             d_data->canvasMargin[axis] + 1;
             
     }
@@ -551,18 +551,17 @@ QSize QwtPlotLayout::minimumSizeHint(const QwtPlot *plot) const
         }
     }
 
-    const QFrame *canvasFrame = plot->canvasFrame();
     const QwtPlotCanvas *canvas = plot->canvas();
     const QSize minCanvasSize = canvas->minimumSize();
 
     int w = scaleData[QwtPlot::yLeft].w + scaleData[QwtPlot::yRight].w;
     int cw = qwtMax(scaleData[QwtPlot::xBottom].w, scaleData[QwtPlot::xTop].w)
-        + 2 * (canvasFrame->frameWidth() + 1);
+        + 2 * (canvas->frameWidth() + 1);
     w += qwtMax(cw, minCanvasSize.width());
 
     int h = scaleData[QwtPlot::xBottom].h + scaleData[QwtPlot::xTop].h;
     int ch = qwtMax(scaleData[QwtPlot::yLeft].h, scaleData[QwtPlot::yRight].h)
-        + 2 * (canvasFrame->frameWidth() + 1);
+        + 2 * (canvas->frameWidth() + 1);
     h += qwtMax(ch, minCanvasSize.height());
 
     const QwtTextLabel *title = plot->titleLabel();

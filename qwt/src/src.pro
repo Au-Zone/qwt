@@ -157,14 +157,6 @@ contains(CONFIG, QwtSVGItem) {
     SOURCES += qwt_plot_svgitem.cpp 
 }
 
-contains(CONFIG, QwtGLCanvas) {
-
-    QT += opengl
-}
-else {
-    DEFINES += QWT_NO_GLCANVAS
-}
-
 contains(CONFIG, QwtWidgets) {
 
     HEADERS += \
