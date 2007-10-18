@@ -94,6 +94,8 @@ public:
     const QPixmap *paintCache() const;
     void invalidatePaintCache();
 
+    void replot();
+
 protected:
     explicit QwtPlotCanvas(QwtPlot *);
     virtual ~QwtPlotCanvas();
