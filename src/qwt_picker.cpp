@@ -131,7 +131,7 @@ void QwtPicker::PickerWidget::updateMask()
         d_hasTextMask = true;
 #if QT_VERSION >= 0x040300
         if ( !parentWidget()->testAttribute(Qt::WA_PaintOnScreen) &&
-           !parentWidget()->paintEngine()->type() == QPaintEngine::OpenGL )
+           parentWidget()->paintEngine()->type() != QPaintEngine::OpenGL )
         {
             /*
               With Qt >= 4.3 drawing of the tracker can be implemented in an
