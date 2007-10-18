@@ -391,30 +391,7 @@ void QwtPlot::replot()
     QApplication::sendPostedEvents(this, QEvent::LayoutHint);
 #endif
 
-    QwtPlotCanvas &canvas = *d_data->canvas;
-
-    canvas.invalidatePaintCache();
-
-    /*
-      In case of cached or packed painting the canvas
-      is repainted completely and doesn't need to be erased.
-     */
-    const bool erase = 
-        !canvas.testPaintAttribute(QwtPlotCanvas::PaintPacked) 
-        && !canvas.testPaintAttribute(QwtPlotCanvas::PaintCached);
-
-#if QT_VERSION >= 0x040000
-    const bool noBackgroundMode = canvas.testAttribute(Qt::WA_NoBackground);
-    if ( !erase && !noBackgroundMode )
-        canvas.setAttribute(Qt::WA_NoBackground, true);
-
-    canvas.repaint(canvas.contentsRect());
-
-    if ( !erase && !noBackgroundMode )
-        canvas.setAttribute(Qt::WA_NoBackground, false);
-#else
-    canvas.repaint(canvas.contentsRect(), erase);
-#endif
+    d_data->canvas->replot();
 
     setAutoReplot(doAutoReplot);
 }

@@ -354,3 +354,33 @@ void QwtPlotCanvas::setSystemBackground(bool on)
         setAttribute(Qt::WA_NoSystemBackground, !on);
 #endif
 }
+
+/*!
+   Invalidate the paint cache and repaint the canvas
+   \sa invalidatePaintCache()
+*/
+void QwtPlotCanvas::replot()
+{
+    invalidatePaintCache();
+
+    /*
+      In case of cached or packed painting the canvas
+      is repainted completely and doesn't need to be erased.
+     */
+    const bool erase =
+        !testPaintAttribute(QwtPlotCanvas::PaintPacked)
+        && !testPaintAttribute(QwtPlotCanvas::PaintCached);
+
+#if QT_VERSION >= 0x040000
+    const bool noBackgroundMode = testAttribute(Qt::WA_NoBackground);
+    if ( !erase && !noBackgroundMode )
+        setAttribute(Qt::WA_NoBackground, true);
+
+    repaint(contentsRect());
+
+    if ( !erase && !noBackgroundMode )
+        setAttribute(Qt::WA_NoBackground, false);
+#else
+    repaint(canvas.contentsRect(), erase);
+#endif
+}
