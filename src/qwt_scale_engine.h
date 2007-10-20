@@ -50,7 +50,7 @@ public:
 class QWT_EXPORT QwtScaleEngine
 {
 public:
-    //! see QwtScaleEngine::setOption, testOption
+    //! see QwtScaleEngine::setAttribute, testAttribute
     enum Attribute
     {
         NoAttribute = 0,
