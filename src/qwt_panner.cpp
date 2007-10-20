@@ -430,11 +430,9 @@ void QwtPanner::widgetMousePressEvent(QMouseEvent *me)
 }
 
 /*!
-  Handle a mouse release event for the observed widget.
+  Handle a mouse move event for the observed widget.
 
-  \param me Mouse event
-  \sa eventFilter(), widgetMousePressEvent(),
-      widgetMouseMoveEvent(),
+  \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
 */
 void QwtPanner::widgetMouseMoveEvent(QMouseEvent *me)
 {
@@ -458,9 +456,11 @@ void QwtPanner::widgetMouseMoveEvent(QMouseEvent *me)
 }
 
 /*!
-  Handle a mouse move event for the observed widget.
+  Handle a mouse release event for the observed widget.
 
-  \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
+  \param me Mouse event
+  \sa eventFilter(), widgetMousePressEvent(),
+      widgetMouseMoveEvent(),
 */
 void QwtPanner::widgetMouseReleaseEvent(QMouseEvent *me)
 {
