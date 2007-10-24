@@ -235,6 +235,7 @@ double QwtPlotMagnifier::keyFactor() const
 
 /*!
    Assign the key, that is used for zooming in.
+   The default combination is Qt::Key_Plus + Qt::NoModifier.
 
    \param key
    \param modifiers
@@ -246,22 +247,32 @@ void QwtPlotMagnifier::setZoomInKey(int key, int modifiers)
     d_data->zoomInKeyModifiers = modifiers;
 }
 
+//! \sa setZoomInKey
 void QwtPlotMagnifier::getZoomInKey(int &key, int &modifiers)
 {
     key = d_data->zoomInKey;
     modifiers = d_data->zoomInKeyModifiers;
 }
 
-void QwtPlotMagnifier::setZoomOutKey(int key, int buttonState)
+/*!
+   Assign the key, that is used for zooming out.
+   The default combination is Qt::Key_Minus + Qt::NoModifier.
+
+   \param key
+   \param modifiers
+   \sa getZoomOutKey(), setZoomOutKey()
+*/
+void QwtPlotMagnifier::setZoomOutKey(int key, int modifiers)
 {
     d_data->zoomOutKey = key;
-    d_data->zoomOutKeyModifiers = buttonState;
+    d_data->zoomOutKeyModifiers = modifiers;
 }
 
-void QwtPlotMagnifier::getZoomOutKey(int &key, int &buttonState)
+//! \sa setZoomOutKey
+void QwtPlotMagnifier::getZoomOutKey(int &key, int &modifiers)
 {
     key = d_data->zoomOutKey;
-    buttonState = d_data->zoomOutKeyModifiers;
+    modifiers = d_data->zoomOutKeyModifiers;
 }
 
 /*!
