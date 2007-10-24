@@ -346,8 +346,8 @@ void ScrollZoomer::updateScrollBars()
 
         sb->setPalette(plot()->palette());
 
-        const QwtScaleEngine *se = plot()->axisScaleEngine(xAxis);
-        sb->setInverted(se->testAttribute(QwtScaleEngine::Inverted));
+        const QwtScaleDiv *sd = plot()->axisScaleDiv(xAxis);
+        sb->setInverted(sd->lBound() > sd->hBound() );
 
         sb->setBase(zoomBase().left(), zoomBase().right());
         sb->moveSlider(zoomRect().left(), zoomRect().right());
@@ -376,8 +376,8 @@ void ScrollZoomer::updateScrollBars()
 
         sb->setPalette(plot()->palette());
 
-        const QwtScaleEngine *se = plot()->axisScaleEngine(xAxis);
-        sb->setInverted(!(se->testAttribute(QwtScaleEngine::Inverted)));
+        const QwtScaleDiv *sd = plot()->axisScaleDiv(yAxis);
+        sb->setInverted(sd->lBound() > sd->hBound() );
 
         sb->setBase(zoomBase().top(), zoomBase().bottom());
         sb->moveSlider(zoomRect().top(), zoomRect().bottom());
