@@ -81,6 +81,16 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
        return;
 
     painter->save();
+#if 1
+    /*
+      PDF: In Qt4 ( <= 4.3.2 ) the scales are painted in gray instead of
+      black. See http://trolltech.com/developer/task-tracker/index_html?id=184671&method=entry
+      The dummy lines below work around the problem.
+     */
+    const QPen pen = painter->pen();
+    painter->setPen(QPen(Qt::black, 1));
+    painter->setPen(pen);
+#endif
 
     // All paint operations need to be scaled according to
     // the paint device metrics. 
