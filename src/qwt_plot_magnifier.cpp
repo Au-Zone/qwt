@@ -30,11 +30,11 @@ public:
         zoomInKey(Qt::Key_Plus),
         zoomOutKey(Qt::Key_Minus),
 #if QT_VERSION < 0x040000
-        zoomInKeyButtonState(Qt::NoButton),
-        zoomOutKeyButtonState(Qt::NoButton),
+        zoomInKeyModifiers(Qt::NoButton),
+        zoomOutKeyModifiers(Qt::NoButton),
 #else
-        zoomInKeyButtonState(Qt::NoModifier),
-        zoomOutKeyButtonState(Qt::NoModifier),
+        zoomInKeyModifiers(Qt::NoModifier),
+        zoomOutKeyModifiers(Qt::NoModifier),
 #endif
         mousePressed(false)
     {
@@ -54,8 +54,8 @@ public:
     double keyFactor;
     int zoomInKey;
     int zoomOutKey;
-    int zoomInKeyButtonState;
-    int zoomOutKeyButtonState;
+    int zoomInKeyModifiers;
+    int zoomOutKeyModifiers;
 
     bool isAxisEnabled[QwtPlot::axisCnt];
 
@@ -64,6 +64,10 @@ public:
     QPoint mousePos;
 };
 
+/*! 
+   Constructor
+   \param canvas Plot canvas to be magnified
+*/
 QwtPlotMagnifier::QwtPlotMagnifier(QwtPlotCanvas *canvas):
     QObject(canvas)
 {
@@ -71,11 +75,21 @@ QwtPlotMagnifier::QwtPlotMagnifier(QwtPlotCanvas *canvas):
     setEnabled(true);
 }
 
+//! Destructor
 QwtPlotMagnifier::~QwtPlotMagnifier()
 {
     delete d_data;
 }
 
+/*!
+  \brief En/disable the magnifier
+
+  When enabled is true an event filter is installed for
+  the observed widget, otherwise the event filter is removed.
+
+  \param on true or false
+  \sa isEnabled(), eventFilter()
+*/
 void QwtPlotMagnifier::setEnabled(bool on)
 {
     if ( d_data->isEnabled != on )
@@ -93,47 +107,100 @@ void QwtPlotMagnifier::setEnabled(bool on)
     }
 }
 
+/*!
+  \return true when enabled, false otherwise
+  \sa setEnabled, eventFilter()
+*/
 bool QwtPlotMagnifier::isEnabled() const
 {
     return d_data->isEnabled;
 }
 
+/*!
+   \brief Change the wheel factor
+
+   The wheel factor defines the ratio between the current range
+   on the plot axes and the zoomed range for each step of the wheel.
+   The default value is 0.9.
+   
+   \param factor Wheel factor
+   \sa wheelFactor(), setWheelButtonState(), 
+       setMouseFactor(), setKeyFactor()
+*/
 void QwtPlotMagnifier::setWheelFactor(double factor)
 {
     d_data->wheelFactor = factor;
 }
 
+/*!
+   \return Wheel factor
+   \sa setWheelFactor()
+*/
 double QwtPlotMagnifier::wheelFactor() const
 {
     return d_data->wheelFactor;
 }
 
+/*!
+   Assign a mandatory button state for zooming in/out using the wheel.
+   The default button state is Qt::NoButton.
+
+   \param buttonState Button state
+   \sa wheelButtonState
+*/
 void QwtPlotMagnifier::setWheelButtonState(int buttonState)
 {
     d_data->wheelButtonState = buttonState;
 }
 
+/*!
+   \return Wheel button state
+   \sa setWheelButtonState
+*/
 int QwtPlotMagnifier::wheelButtonState() const
 {
     return d_data->wheelButtonState;
 }
 
+/*! 
+   \brief Change the mouse factor
+
+   The mouse factor defines the ratio between the current range
+   on the plot axes and the zoomed range for each vertical mouse movement.
+   The default value is 0.95.
+   
+   \param factor Wheel factor
+   \sa mouseFactor(), setMouseButton(), setWheelFactor(), setKeyFactor()
+*/ 
 void QwtPlotMagnifier::setMouseFactor(double factor)
 {
     d_data->mouseFactor = factor;
 }
 
+/*!
+   \return Mouse factor
+   \sa setMouseFactor()
+*/
 double QwtPlotMagnifier::mouseFactor() const
 {
     return d_data->mouseFactor;
 }
 
+/*!
+   Assign the mouse button, that is used for zooming in/out.
+   The default value is Qt::RightButton.
+
+   \param button Button
+   \param buttonState Button state
+   \sa getMouseButton
+*/
 void QwtPlotMagnifier::setMouseButton(int button, int buttonState)
 {
     d_data->mouseButton = button;
     d_data->mouseButtonState = buttonState;
 }
 
+//! \sa setMouseButton
 void QwtPlotMagnifier::getMouseButton(
     int &button, int &buttonState) const
 {
@@ -141,46 +208,98 @@ void QwtPlotMagnifier::getMouseButton(
     buttonState = d_data->mouseButtonState;
 }
 
+/*!
+   \brief Change the key factor
+
+   The key factor defines the ratio between the current range
+   on the plot axes and the zoomed range for each key press of
+   the zoom in/out keys. The default value is 0.9.
+   
+   \param factor Key factor
+   \sa keyFactor(), setZoomInKey(), setZoomOutKey(),
+       setWheelFactor, setMouseFactor()
+*/
 void QwtPlotMagnifier::setKeyFactor(double factor)
 {
     d_data->keyFactor = factor;
 }
 
+/*!
+   \return Key factor
+   \sa setKeyFactor()
+*/
 double QwtPlotMagnifier::keyFactor() const
 {
     return d_data->keyFactor;
 }
 
-void QwtPlotMagnifier::setZoomInKey(int key, int buttonState)
+/*!
+   Assign the key, that is used for zooming in.
+   The default combination is Qt::Key_Plus + Qt::NoModifier.
+
+   \param key
+   \param modifiers
+   \sa getZoomInKey(), setZoomOutKey()
+*/
+void QwtPlotMagnifier::setZoomInKey(int key, int modifiers)
 {
     d_data->zoomInKey = key;
-    d_data->zoomInKeyButtonState = buttonState;
+    d_data->zoomInKeyModifiers = modifiers;
 }
 
-void QwtPlotMagnifier::getZoomInKey(int &key, int &buttonState)
+//! \sa setZoomInKey
+void QwtPlotMagnifier::getZoomInKey(int &key, int &modifiers)
 {
     key = d_data->zoomInKey;
-    buttonState = d_data->zoomInKeyButtonState;
+    modifiers = d_data->zoomInKeyModifiers;
 }
 
-void QwtPlotMagnifier::setZoomOutKey(int key, int buttonState)
+/*!
+   Assign the key, that is used for zooming out.
+   The default combination is Qt::Key_Minus + Qt::NoModifier.
+
+   \param key
+   \param modifiers
+   \sa getZoomOutKey(), setZoomOutKey()
+*/
+void QwtPlotMagnifier::setZoomOutKey(int key, int modifiers)
 {
     d_data->zoomOutKey = key;
-    d_data->zoomOutKeyButtonState = buttonState;
+    d_data->zoomOutKeyModifiers = modifiers;
 }
 
-void QwtPlotMagnifier::getZoomOutKey(int &key, int &buttonState)
+//! \sa setZoomOutKey
+void QwtPlotMagnifier::getZoomOutKey(int &key, int &modifiers)
 {
     key = d_data->zoomOutKey;
-    buttonState = d_data->zoomOutKeyButtonState;
+    modifiers = d_data->zoomOutKeyModifiers;
 }
 
+/*!
+   \brief En/Disable an axis
+
+   Axes that are enabled will be synchronized to the
+   result of panning. All other axes will remain unchanged.
+
+   \param axis Axis, see QwtPlot::Axis
+   \param on On/Off
+
+   \sa isAxisEnabled
+*/
 void QwtPlotMagnifier::setAxisEnabled(int axis, bool on)
 {
     if ( axis >= 0 && axis < QwtPlot::axisCnt )
         d_data->isAxisEnabled[axis] = on;
 }
 
+/*!
+   Test if an axis is enabled
+
+   \param axis Axis, see QwtPlot::Axis
+   \return True, if the axis is enabled
+
+   \sa setAxisEnabled
+*/
 bool QwtPlotMagnifier::isAxisEnabled(int axis) const
 {
     if ( axis >= 0 && axis < QwtPlot::axisCnt )
@@ -225,6 +344,15 @@ const QwtPlot *QwtPlotMagnifier::plot() const
     return ((QwtPlotMagnifier *)this)->plot();
 }
 
+/*!
+  \brief Event filter
+
+  When isEnabled() the mouse events of the observed widget are filtered.
+
+  \sa widgetMousePressEvent(), widgetMouseReleaseEvent(),
+      widgetMouseMoveEvent(), widgetWheelEvent(), widgetKeyPressEvent()
+      widgetKeyReleaseEvent()
+*/
 bool QwtPlotMagnifier::eventFilter(QObject *o, QEvent *e)
 {
     if ( o && o == parent() )
@@ -267,6 +395,12 @@ bool QwtPlotMagnifier::eventFilter(QObject *o, QEvent *e)
     return QObject::eventFilter(o, e);
 }
 
+/*!
+  Handle a mouse press event for the observed widget.
+
+  \param me Mouse event
+  \sa eventFilter(), widgetMouseReleaseEvent(), widgetMouseMoveEvent() 
+*/
 void QwtPlotMagnifier::widgetMousePressEvent(QMouseEvent *me)
 {
     if ( me->button() != d_data->mouseButton )
@@ -289,6 +423,10 @@ void QwtPlotMagnifier::widgetMousePressEvent(QMouseEvent *me)
     d_data->mousePressed = true;
 }
 
+/*!
+  Handle a mouse release event for the observed widget.
+  \sa eventFilter(), widgetMousePressEvent(), widgetMouseMoveEvent(),
+*/
 void QwtPlotMagnifier::widgetMouseReleaseEvent(QMouseEvent *)
 {
     if ( d_data->mousePressed )
@@ -298,6 +436,12 @@ void QwtPlotMagnifier::widgetMouseReleaseEvent(QMouseEvent *)
     }
 }
 
+/*!
+  Handle a mouse move event for the observed widget.
+    
+  \param me Mouse event
+  \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
+*/  
 void QwtPlotMagnifier::widgetMouseMoveEvent(QMouseEvent *me)
 {
     if ( !d_data->mousePressed )
@@ -316,6 +460,12 @@ void QwtPlotMagnifier::widgetMouseMoveEvent(QMouseEvent *me)
     d_data->mousePos = me->pos();
 }
 
+/*!
+  Handle a wheel event for the observed widget.
+
+  \param we Wheel event
+  \sa eventFilter()
+*/
 void QwtPlotMagnifier::widgetWheelEvent(QWheelEvent *we)
 {
 #if QT_VERSION < 0x040000
@@ -349,6 +499,12 @@ void QwtPlotMagnifier::widgetWheelEvent(QWheelEvent *we)
     }
 }
 
+/*!
+  Handle a key press event for the observed widget.
+
+  \param ke Key event
+  \sa eventFilter(), widgetKeyReleaseEvent()
+*/
 void QwtPlotMagnifier::widgetKeyPressEvent(QKeyEvent *ke)
 {
     const int key = ke->key();
@@ -359,17 +515,23 @@ void QwtPlotMagnifier::widgetKeyPressEvent(QKeyEvent *ke)
 #endif
 
     if ( key == d_data->zoomInKey && 
-        state == d_data->zoomInKeyButtonState )
+        state == d_data->zoomInKeyModifiers )
     {
         rescale(d_data->keyFactor);
     }
     else if ( key == d_data->zoomOutKey && 
-        state == d_data->zoomOutKeyButtonState )
+        state == d_data->zoomOutKeyModifiers )
     {
         rescale(1.0 / d_data->keyFactor);
     }
 }
 
+/*!
+  Handle a key release event for the observed widget.
+
+  \param ke Key event
+  \sa eventFilter(), widgetKeyReleaseEvent()
+*/
 void QwtPlotMagnifier::widgetKeyReleaseEvent(QKeyEvent *)
 {
 }
