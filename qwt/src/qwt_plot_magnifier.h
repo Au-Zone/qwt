@@ -22,6 +22,9 @@ class QKeyEvent;
 /*!
   \brief QwtPlotMagnifier provides zooming, by magnifying in steps.
 
+  Using QwtPlotMagnifier a plot can be zoomed in/out in steps using
+  keys, the mouse wheel or moving a mouse button in vertical direction.
+
   Together with QwtPlotZoomer and QwtPlotPanner it is possible to implement
   individual and powerful navigation of the plot canvas.
 
@@ -59,11 +62,11 @@ public:
     void setKeyFactor(double);
     double keyFactor() const;
 
-    void setZoomInKey(int key, int buttonState);
-    void getZoomInKey(int &key, int &buttonState);
+    void setZoomInKey(int key, int modifiers);
+    void getZoomInKey(int &key, int &modifiers);
 
-    void setZoomOutKey(int key, int buttonState);
-    void getZoomOutKey(int &key, int &buttonState);
+    void setZoomOutKey(int key, int modifiers);
+    void getZoomOutKey(int &key, int &modifiers);
 
     QwtPlotCanvas *canvas();
     const QwtPlotCanvas *canvas() const;
