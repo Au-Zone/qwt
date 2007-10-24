@@ -22,7 +22,7 @@ that is only available with a commercial Qt license.
 You need a release of qtmmlwidget >= 2.1.
 Copy the files qtmmlwidget.[cpp|h] to textengines/mathml.
 
-A) Unix (+ MacOSX) Qt3/Qt4
+A) Unix Qt3/Qt4
 ==========================
 
 qmake
@@ -121,6 +121,12 @@ D) MacOSX
 
 Well, the Mac is only another Unix system. So read the instructions in A).
 
+In the recent Qt4 releases the default target of qmake is to generate
+XCode project files instead of makefiles. So you might need to do the
+following:
+
+qmake -spec macx-g++
+...
 
 D) Qtopia Core
 
