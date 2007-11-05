@@ -148,12 +148,12 @@ MainWin::MainWin(QWidget *parent):
     toolBar->addWidget(btnZoom);
     toolBar->addWidget(btnPrint);
 #if QT_VERSION >= 0x040100
-#ifdef QT_SVG_LIB
     toolBar->addWidget(btnPDF);
 #endif
-#endif
 #if QT_VERSION >= 0x040300
+#ifdef QT_SVG_LIB
     toolBar->addWidget(btnSVG);
+#endif
 #endif
 #endif
     toolBar->addSeparator();
