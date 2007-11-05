@@ -226,6 +226,9 @@ void QwtAbstractScale::setAbstractScaleDraw(QwtAbstractScaleDraw *scaleDraw)
     if ( scaleDraw == NULL || scaleDraw == d_data->scaleDraw )
         return;
 
+    if ( d_data->scaleDraw != NULL )
+        scaleDraw->setScaleDiv(d_data->scaleDraw->scaleDiv());
+
     delete d_data->scaleDraw;
     d_data->scaleDraw = scaleDraw;
 } 
