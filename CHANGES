@@ -1,3 +1,29 @@
+Release 5.0.3
+===================
+
+Bug Fixes
+---------
+1. QwtAbstractScaleDraw::setAbstractScaleDraw
+   Reinitialization problem fixed
+2. QwtLegendItem
+   key event handlers fixed
+3. QwtPicker
+   solaris-cc compiler problem fixed
+4. Inaccurate mapping of scale to widget coordinates fixed
+5. QwtPlotCurve::draw
+   Updates for Qt 4.3 added
+6. QwtPlotLayout
+   AlignToCanvas layout calculation fixed
+7. QwtPlot::print
+   Workaround for a QPen initialization problem, 
+   when printing to Pdf, added
+8. QwtText
+   Layout of rich text documents fixed
+9. Designer
+   Handling of QwtScaleWidget fixed
+10. realtime example
+   Qt::WA_PaintOutsidePaintEvent added, ScrollZoomer fixed
+
 Release 5.0.2
 ===================
 
