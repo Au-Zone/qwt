@@ -3,11 +3,14 @@ Qwt 5.x TODO list
 A) Planned (5.1)
    -------
 1) QwtPlotRescaler
+2) Using gradients for knobs, ...
 3) Histogram
 4) Interval Curve
 5) Curve with z value displayed as colors
 6) Curve for Price Movement 
 7) Thread support for rendering spectrograms
+9) Navigation example
+10) QwtSymbol + QPainterPath
 
 B) Wish List ( >= 5.1 )
    -------
@@ -32,7 +35,3 @@ C) Open Tasks (5.0)
 7) Printing with Qt4 in HighResolution cuts off tick labels
 
 ---
-
-Changing QwtDynGridLayout + legend position
-Alignment of bounded spectrograms (1 pixel bug)
-

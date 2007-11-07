@@ -1102,7 +1102,7 @@ void QwtPlotCurve::updateLegend(QwtLegend *legend) const
     if ( !widget || !widget->inherits("QwtLegendItem") )
         return;
 
-    QwtLegendItem *legendItem = (QwtLegendItem *)widget;
+    QwtLegendCurveItem *legendItem = (QwtLegendCurveItem *)widget;
 
 #if QT_VERSION < 0x040000
     const bool doUpdate = legendItem->isUpdatesEnabled();

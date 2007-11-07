@@ -22,7 +22,7 @@ public:
         NoCurve,
         Tube,
 
-        UserTube = 100
+        UserCurve = 100
     };
 
     enum SymbolStyle
