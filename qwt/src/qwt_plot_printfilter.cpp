@@ -195,7 +195,7 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
 
             if ( w->inherits("QwtLegendItem") )
             {
-                QwtLegendItem *label = (QwtLegendItem *)w;
+                QwtLegendCurveItem *label = (QwtLegendCurveItem *)w;
 
                 QwtSymbol symbol = label->symbol();
                 QPen pen = symbol.pen();
@@ -421,7 +421,7 @@ void QwtPlotPrintFilter::reset(QwtPlot *plot) const
 
             if ( w->inherits("QwtLegendItem") )
             {
-                QwtLegendItem *label = (QwtLegendItem *)w;
+                QwtLegendCurveItem *label = (QwtLegendCurveItem *)w;
                 const QwtPlotItem *plotItem = plot->legend()->find(label);
 
                 QwtSymbol symbol = label->symbol();

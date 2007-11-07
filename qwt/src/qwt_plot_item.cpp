@@ -400,7 +400,7 @@ QwtDoubleRect QwtPlotItem::boundingRect() const
 */
 QWidget *QwtPlotItem::legendItem() const
 {
-    return new QwtLegendItem;
+    return new QwtLegendCurveItem;
 }
 
 /*!
