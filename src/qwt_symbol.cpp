@@ -48,6 +48,14 @@ QwtSymbol::~QwtSymbol()
 {
 }
 
+QwtSymbol *QwtSymbol::clone() const
+{
+    QwtSymbol *other = new QwtSymbol;
+    *other = *this;
+
+    return other;
+}
+
 /*!
   \brief Specify the symbol's size
 

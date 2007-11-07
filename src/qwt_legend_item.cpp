@@ -411,9 +411,15 @@ public:
     PrivateData():
         curvePen(Qt::NoPen)
     {
+        symbol = new QwtSymbol();
     }
 
-    QwtSymbol symbol;
+    ~PrivateData()
+    {
+        delete symbol;
+    }
+
+    QwtSymbol *symbol;
     QPen curvePen;
 };
 
@@ -439,7 +445,8 @@ QwtLegendCurveItem::QwtLegendCurveItem(const QwtSymbol &symbol,
 {
     d_data = new PrivateData;
 
-    d_data->symbol = symbol;
+    delete d_data->symbol;
+    d_data->symbol = symbol.clone();
     d_data->curvePen = curvePen;
 
     setText(text);
@@ -460,11 +467,9 @@ QwtLegendCurveItem::~QwtLegendCurveItem()
 */
 void QwtLegendCurveItem::setSymbol(const QwtSymbol &symbol) 
 {
-    if ( symbol != d_data->symbol )
-    {
-        d_data->symbol = symbol;
-        update();
-    }
+    delete d_data->symbol;
+    d_data->symbol = symbol.clone();
+    update();
 }
     
 /*!
@@ -473,7 +478,7 @@ void QwtLegendCurveItem::setSymbol(const QwtSymbol &symbol)
 */
 const QwtSymbol& QwtLegendCurveItem::symbol() const 
 { 
-    return d_data->symbol; 
+    return *d_data->symbol; 
 }
     
 /*! 
@@ -522,10 +527,10 @@ void QwtLegendCurveItem::drawIdentifier(
     }
 
     if ( (identifierMode() & ShowSymbol) 
-        && (d_data->symbol.style() != QwtSymbol::NoSymbol) )
+        && (d_data->symbol->style() != QwtSymbol::NoSymbol) )
     {
         QSize symbolSize = 
-            QwtPainter::metricsMap().screenToLayout(d_data->symbol.size());
+            QwtPainter::metricsMap().screenToLayout(d_data->symbol->size());
 
         // scale the symbol size down if it doesn't fit into rect.
 
@@ -549,9 +554,9 @@ void QwtLegendCurveItem::drawIdentifier(
         symbolRect.moveCenter(rect.center());
 
         painter->save();
-        painter->setBrush(d_data->symbol.brush());
-        painter->setPen(d_data->symbol.pen());
-        d_data->symbol.draw(painter, symbolRect);
+        painter->setBrush(d_data->symbol->brush());
+        painter->setPen(d_data->symbol->pen());
+        d_data->symbol->draw(painter, symbolRect);
         painter->restore();
     }
 }

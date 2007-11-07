@@ -108,19 +108,21 @@ public:
         attributes(0),
         paintAttributes(0)
     {
-        pen = QPen(Qt::black, 0);
+        symbol = new QwtSymbol();
+        pen = QPen(Qt::black);
         curveFitter = new QwtSplineCurveFitter;
     }
 
     ~PrivateData()
     {
+        delete symbol;
         delete curveFitter;
     }
 
     QwtPlotCurve::CurveStyle style;
     double reference;
 
-    QwtSymbol sym;
+    QwtSymbol *symbol;
     QwtCurveFitter *curveFitter;
 
     QPen pen;
@@ -265,7 +267,8 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 */
 void QwtPlotCurve::setSymbol(const QwtSymbol &s )
 {
-    d_data->sym = s;
+    delete d_data->symbol;
+    d_data->symbol = s.clone();
     itemChanged();
 }
 
@@ -275,7 +278,7 @@ void QwtPlotCurve::setSymbol(const QwtSymbol &s )
 */
 const QwtSymbol &QwtPlotCurve::symbol() const 
 { 
-    return d_data->sym; 
+    return *d_data->symbol; 
 }
 
 /*!
@@ -465,10 +468,10 @@ void QwtPlotCurve::draw(QPainter *painter,
         drawCurve(painter, d_data->style, xMap, yMap, from, to);
         painter->restore();
 
-        if (d_data->sym.style() != QwtSymbol::NoSymbol)
+        if (d_data->symbol->style() != QwtSymbol::NoSymbol)
         {
             painter->save();
-            drawSymbols(painter, d_data->sym, xMap, yMap, from, to);
+            drawSymbols(painter, *d_data->symbol, xMap, yMap, from, to);
             painter->restore();
         }
     }
