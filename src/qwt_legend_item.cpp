@@ -50,9 +50,8 @@ public:
     PrivateData():
         itemMode(QwtLegend::ReadOnlyItem),
         isDown(false),
-        identifierWidth(8),
         identifierMode(QwtLegendItem::ShowLine | QwtLegendItem::ShowText),
-        curvePen(Qt::NoPen),
+        identifierWidth(8),
         spacing(Margin)
     {
     }
@@ -60,11 +59,8 @@ public:
     QwtLegend::LegendItemMode itemMode;
     bool isDown;
 
-    int identifierWidth;
     int identifierMode;
-    QwtSymbol symbol;
-    QPen curvePen;
-
+    int identifierWidth;
     int spacing;
 };
 
@@ -75,33 +71,8 @@ QwtLegendItem::QwtLegendItem(QWidget *parent):
     QwtTextLabel(parent)
 {
     d_data = new PrivateData;
-    init(QwtText());
-}
-
-/*!
-  \param symbol Curve symbol
-  \param curvePen Curve pen
-  \param text Label text
-  \param parent Parent widget
-*/
-QwtLegendItem::QwtLegendItem(const QwtSymbol &symbol, 
-        const QPen &curvePen, const QwtText &text, 
-        QWidget *parent):
-    QwtTextLabel(parent)
-{
-    d_data = new PrivateData;
-
-    d_data->symbol = symbol;
-    d_data->curvePen = curvePen;
-
-    init(text);
-}
-
-void QwtLegendItem::init(const QwtText &text)
-{
     setMargin(Margin);
-    setIndent(margin() + d_data->identifierWidth + 2 * d_data->spacing);
-    setText(text);
+    setIndent(Margin + d_data->identifierWidth + 2 * d_data->spacing);
 }
 
 //! Destructor
@@ -241,108 +212,59 @@ int QwtLegendItem::spacing() const
     return d_data->spacing;
 }
 
-/*! 
-  Set curve symbol.
-  \param symbol Symbol
-
-  \sa symbol()
-*/
-void QwtLegendItem::setSymbol(const QwtSymbol &symbol) 
+void QwtLegendItem::setChecked(bool on)
 {
-    if ( symbol != d_data->symbol )
+    if ( d_data->itemMode == QwtLegend::CheckableItem )
     {
-        d_data->symbol = symbol;
-        update();
-    }
-}
-    
-/*!
-  \return The curve symbol.
-  \sa setSymbol()
-*/
-const QwtSymbol& QwtLegendItem::symbol() const 
-{ 
-    return d_data->symbol; 
-}
-    
+        const bool isBlocked = signalsBlocked();
+        blockSignals(true);
 
-/*! 
-  Set curve pen.
-  \param pen Curve pen
+        setDown(on);
 
-  \sa curvePen()
-*/
-void QwtLegendItem::setCurvePen(const QPen &pen) 
-{
-    if ( pen != d_data->curvePen )
-    {
-        d_data->curvePen = pen;
-        update();
+        blockSignals(isBlocked);
     }
 }
 
-/*!
-  \return The curve pen.
-  \sa setCurvePen()
-*/
-const QPen& QwtLegendItem::curvePen() const 
-{ 
-    return d_data->curvePen; 
+bool QwtLegendItem::isChecked() const
+{
+    return d_data->itemMode == QwtLegend::CheckableItem && isDown();
 }
 
-/*! 
-  Paint the identifier to a given rect.
-  \param painter Painter
-  \param rect Rect where to paint
-*/
-void QwtLegendItem::drawIdentifier(
-    QPainter *painter, const QRect &rect) const
+void QwtLegendItem::setDown(bool down)
 {
-    if ( rect.isEmpty() )
+    if ( down == d_data->isDown )
         return;
 
-    if ( (d_data->identifierMode & ShowLine ) && (d_data->curvePen.style() != Qt::NoPen) )
+    d_data->isDown = down;
+    update();
+
+    if ( d_data->itemMode == QwtLegend::ClickableItem )
     {
-        painter->save();
-        painter->setPen(d_data->curvePen);
-        QwtPainter::drawLine(painter, rect.left(), rect.center().y(), 
-            rect.right(), rect.center().y());
-        painter->restore();
+        if ( d_data->isDown )
+            emit pressed();
+        else
+        {
+            emit released();
+            emit clicked();
+        }
     }
 
-    if ( (d_data->identifierMode & ShowSymbol) 
-        && (d_data->symbol.style() != QwtSymbol::NoSymbol) )
-    {
-        QSize symbolSize = 
-            QwtPainter::metricsMap().screenToLayout(d_data->symbol.size());
+    if ( d_data->itemMode == QwtLegend::CheckableItem )
+        emit checked(d_data->isDown);
+}
 
-        // scale the symbol size down if it doesn't fit into rect.
+bool QwtLegendItem::isDown() const
+{
+    return d_data->isDown;
+}
 
-        if ( rect.width() < symbolSize.width() )
-        {
-            const double ratio = 
-                double(symbolSize.width()) / double(rect.width());
-            symbolSize.setWidth(rect.width());
-            symbolSize.setHeight(qRound(symbolSize.height() / ratio));
-        }
-        if ( rect.height() < symbolSize.height() )
-        {
-            const double ratio = 
-                double(symbolSize.width()) / double(rect.width());
-            symbolSize.setHeight(rect.height());
-            symbolSize.setWidth(qRound(symbolSize.width() / ratio));
-        }
+QSize QwtLegendItem::sizeHint() const
+{
+    QSize sz = QwtTextLabel::sizeHint();
+    if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
+        sz += buttonShift(this);
 
-        QRect symbolRect;
-        symbolRect.setSize(symbolSize);
-        symbolRect.moveCenter(rect.center());
-
-        painter->save();
-        painter->setBrush(d_data->symbol.brush());
-        painter->setPen(d_data->symbol.pen());
-        d_data->symbol.draw(painter, symbolRect);
-        painter->restore();
-    }
+    return sz;
 }
 
 /*!
@@ -483,62 +405,153 @@ void QwtLegendItem::keyReleaseEvent(QKeyEvent *e)
         setDown(false);
 }
 
-void QwtLegendItem::setChecked(bool on)
+class QwtLegendCurveItem::PrivateData
 {
-    if ( d_data->itemMode == QwtLegend::CheckableItem )
+public:
+    PrivateData():
+        curvePen(Qt::NoPen)
     {
-        const bool isBlocked = signalsBlocked();
-        blockSignals(true);
+    }
 
-        setDown(on);
+    QwtSymbol symbol;
+    QPen curvePen;
+};
 
-        blockSignals(isBlocked);
+/*!
+  \param parent Parent widget
+*/
+QwtLegendCurveItem::QwtLegendCurveItem(QWidget *parent):
+    QwtLegendItem(parent)
+{
+    d_data = new PrivateData;
+}
+
+/*!
+  \param symbol Curve symbol
+  \param curvePen Curve pen
+  \param text Label text
+  \param parent Parent widget
+*/
+QwtLegendCurveItem::QwtLegendCurveItem(const QwtSymbol &symbol, 
+        const QPen &curvePen, const QwtText &text, 
+        QWidget *parent):
+    QwtLegendItem(parent)
+{
+    d_data = new PrivateData;
+
+    d_data->symbol = symbol;
+    d_data->curvePen = curvePen;
+
+    setText(text);
+}
+
+//! Destructor
+QwtLegendCurveItem::~QwtLegendCurveItem()
+{
+    delete d_data;
+    d_data = NULL;
+}
+
+/*! 
+  Set curve symbol.
+  \param symbol Symbol
+
+  \sa symbol()
+*/
+void QwtLegendCurveItem::setSymbol(const QwtSymbol &symbol) 
+{
+    if ( symbol != d_data->symbol )
+    {
+        d_data->symbol = symbol;
+        update();
+    }
+}
+    
+/*!
+  \return The curve symbol.
+  \sa setSymbol()
+*/
+const QwtSymbol& QwtLegendCurveItem::symbol() const 
+{ 
+    return d_data->symbol; 
+}
+    
+/*! 
+  Set curve pen.
+  \param pen Curve pen
+
+  \sa curvePen()
+*/
+void QwtLegendCurveItem::setCurvePen(const QPen &pen) 
+{
+    if ( pen != d_data->curvePen )
+    {
+        d_data->curvePen = pen;
+        update();
     }
 }
 
-bool QwtLegendItem::isChecked() const
-{
-    return d_data->itemMode == QwtLegend::CheckableItem && isDown();
+/*!
+  \return The curve pen.
+  \sa setCurvePen()
+*/
+const QPen& QwtLegendCurveItem::curvePen() const 
+{ 
+    return d_data->curvePen; 
 }
 
-void QwtLegendItem::setDown(bool down)
+/*! 
+  Paint the identifier to a given rect.
+  \param painter Painter
+  \param rect Rect where to paint
+*/
+void QwtLegendCurveItem::drawIdentifier(
+    QPainter *painter, const QRect &rect) const
 {
-    if ( down == d_data->isDown )
+    if ( rect.isEmpty() )
         return;
 
-    d_data->isDown = down;
-    update();
-
-    if ( d_data->itemMode == QwtLegend::ClickableItem )
+    if ( (identifierMode() & ShowLine ) && 
+        (d_data->curvePen.style() != Qt::NoPen) )
     {
-        if ( d_data->isDown )
-            emit pressed();
-        else
-        {
-            emit released();
-            emit clicked();
-        }
+        painter->save();
+        painter->setPen(d_data->curvePen);
+        QwtPainter::drawLine(painter, rect.left(), rect.center().y(), 
+            rect.right(), rect.center().y());
+        painter->restore();
     }
 
-    if ( d_data->itemMode == QwtLegend::CheckableItem )
-        emit checked(d_data->isDown);
-}
+    if ( (identifierMode() & ShowSymbol) 
+        && (d_data->symbol.style() != QwtSymbol::NoSymbol) )
+    {
+        QSize symbolSize = 
+            QwtPainter::metricsMap().screenToLayout(d_data->symbol.size());
 
-bool QwtLegendItem::isDown() const
-{
-    return d_data->isDown;
-}
+        // scale the symbol size down if it doesn't fit into rect.
 
-QSize QwtLegendItem::sizeHint() const
-{
-    QSize sz = QwtTextLabel::sizeHint();
-    if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
-        sz += buttonShift(this);
+        if ( rect.width() < symbolSize.width() )
+        {
+            const double ratio = 
+                double(symbolSize.width()) / double(rect.width());
+            symbolSize.setWidth(rect.width());
+            symbolSize.setHeight(qRound(symbolSize.height() / ratio));
+        }
+        if ( rect.height() < symbolSize.height() )
+        {
+            const double ratio = 
+                double(symbolSize.width()) / double(rect.width());
+            symbolSize.setHeight(rect.height());
+            symbolSize.setWidth(qRound(symbolSize.width() / ratio));
+        }
 
-    return sz;
-}
+        QRect symbolRect;
+        symbolRect.setSize(symbolSize);
+        symbolRect.moveCenter(rect.center());
 
-void QwtLegendItem::drawText(QPainter *painter, const QRect &rect)
-{
-    QwtTextLabel::drawText(painter, rect);
+        painter->save();
+        painter->setBrush(d_data->symbol.brush());
+        painter->setPen(d_data->symbol.pen());
+        d_data->symbol.draw(painter, symbolRect);
+        painter->restore();
+    }
 }
