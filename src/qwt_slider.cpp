@@ -223,13 +223,44 @@ void QwtSlider::setOrientation(Qt::Orientation o)
 */
 void QwtSlider::setScalePosition(ScalePos s)
 {
+    if ( d_data->scalePos == s )
+        return;
+
     d_data->scalePos = s;
-    if ((s == BottomScale) || (s == TopScale))
-        setOrientation(Qt::Horizontal);
-    else if ((s == LeftScale) || (s == RightScale))
-        setOrientation(Qt::Vertical);
-    else
-        layoutSlider();
+
+    switch(d_data->scalePos)
+    {
+        case BottomScale:
+        {
+            setOrientation(Qt::Horizontal);
+            scaleDraw()->setAlignment(QwtScaleDraw::BottomScale);
+            break;
+        }
+        case TopScale:
+        {
+            setOrientation(Qt::Horizontal);
+            scaleDraw()->setAlignment(QwtScaleDraw::TopScale);
+            break;
+        }
+        case LeftScale:
+        {
+            setOrientation(Qt::Vertical);
+            scaleDraw()->setAlignment(QwtScaleDraw::LeftScale);
+            break;
+        }
+        case RightScale:
+        {
+            setOrientation(Qt::Vertical);
+            scaleDraw()->setAlignment(QwtScaleDraw::RightScale);
+            break;
+        }
+        default:
+        {
+            // nothing
+        }
+    }
+
+    layoutSlider();
 }
 
 //! Return the scale position.
