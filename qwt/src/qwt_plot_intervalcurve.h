@@ -14,6 +14,8 @@
 #include "qwt_plot_seriesitem.h"
 #include "qwt_series_data.h"
 
+class QwtBar;
+
 class QWT_EXPORT QwtPlotIntervalCurve: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
@@ -23,14 +25,6 @@ public:
         Tube,
 
         UserCurve = 100
-    };
-
-    enum SymbolStyle
-    {
-        NoSymbol,
-        Bar,
-    
-        UserSymbol
     };
 
     explicit QwtPlotIntervalCurve(const QString &title = QString::null);
@@ -52,8 +46,8 @@ public:
     void setCurveStyle(CurveStyle style);
     CurveStyle curveStyle() const;
 
-    void setSymbolStyle(SymbolStyle);
-    const SymbolStyle& symbolStyle() const;
+    void setBar(const QwtBar&);
+    const QwtBar& bar() const;
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -74,12 +68,9 @@ protected:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
-    virtual void drawSymbols(QPainter *p, 
+    virtual void drawBars(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
-
-    virtual void drawBar(QPainter *painter, int sampleId,
-        const QPoint& from, const QPoint& to) const;
 
 private:
     class PrivateData;

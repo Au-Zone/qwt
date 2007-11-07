@@ -1,9 +1,11 @@
 #include <qapplication.h>
 #include <qwt_plot.h>
 #include <qwt_plot_marker.h>
+#include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_intervalcurve.h>
 #include <qwt_legend.h>
+#include <qwt_bar.h>
 #include <qwt_series_data.h>
 #include <qwt_text.h>
 #include <math.h>
@@ -65,6 +67,14 @@ Plot::Plot()
     const int nPoints = 30;
 
     setTitle("A Plot with Error Bars");
+    setCanvasBackground(QColor(Qt::darkBlue));
+
+    // grid
+    QwtPlotGrid *grid = new QwtPlotGrid;
+    grid->enableXMin(true);
+    grid->setMajPen(QPen(Qt::white, 0, Qt::DotLine));
+    grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
+    grid->attach(this);
 
     // Insert new curves
     QwtPlotCurve *curve = new QwtPlotCurve("y = sin(x)");
@@ -79,12 +89,16 @@ Plot::Plot()
 #if QT_VERSION >= 0x040000
     errorCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
-    errorCurve->setPen(QPen(Qt::red, 2));
-    errorCurve->setBrush(QBrush(Qt::blue));
-    //errorCurve->setCurveStyle(Tube);
-    errorCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
-    errorCurve->setSymbolStyle(QwtPlotIntervalCurve::Bar);
-    //errorCurve->setSymbolStyle(QwtPlotIntervalCurve::NoSymbol);
+    errorCurve->setPen(QPen(Qt::darkGray));
+
+    errorCurve->setBrush(QBrush(Qt::lightGray));
+    errorCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+    //errorCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
+
+	QwtBar errorBar(QwtBar::ErrorBar);
+	errorBar.setWidth(3);
+	errorBar.setPen(QPen(Qt::red));
+    errorCurve->setBar(errorBar);
 
     QwtArray<QwtIntervalSample> errorSamples(nPoints);
     for ( int i = 0; i < nPoints; i++ )

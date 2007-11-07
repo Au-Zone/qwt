@@ -9,6 +9,7 @@
 
 #include <qpainter.h>
 #include "qwt_polygon.h"
+#include "qwt_bar.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
 #include "qwt_plot_intervalcurve.h"
@@ -18,13 +19,18 @@ class QwtPlotIntervalCurve::PrivateData
 public:
     PrivateData():
         curveStyle(Tube),
-        symbolStyle(NoSymbol),
         pen(Qt::black, 0)
     {
+		bar = new QwtBar();
     }
 
+    ~PrivateData()
+	{
+		delete bar;
+	}
+
     CurveStyle curveStyle;
-    SymbolStyle symbolStyle;
+    QwtBar *bar;
 
     QPen pen;
     QBrush brush;
@@ -106,19 +112,19 @@ QwtPlotIntervalCurve::CurveStyle QwtPlotIntervalCurve::curveStyle() const
     return d_data->curveStyle; 
 }
 
-void QwtPlotIntervalCurve::setSymbolStyle(SymbolStyle style)
+void QwtPlotIntervalCurve::setBar(const QwtBar &bar)
 {
-    if ( style != d_data->symbolStyle )
-    {
-        d_data->symbolStyle = style;
-        itemChanged();
-    }
+    if ( bar != *d_data->bar )
+	{
+		delete d_data->bar;
+		d_data->bar = bar.clone();
+    	itemChanged();
+	}
 }
 
-const QwtPlotIntervalCurve::SymbolStyle &
-QwtPlotIntervalCurve::symbolStyle() const 
+const QwtBar &QwtPlotIntervalCurve::bar() const 
 { 
-    return d_data->symbolStyle; 
+    return *d_data->bar; 
 }
 
 /*!
@@ -212,10 +218,8 @@ void QwtPlotIntervalCurve::draw(QPainter *painter,
             break;
     }
 
-    if ( d_data->symbolStyle != NoSymbol )
-    {
-        drawSymbols(painter, xMap, yMap, from, to);
-    }
+    if ( d_data->bar->style() != QwtBar::NoBar )
+        drawBars(painter, xMap, yMap, from, to);
 }
 
 void QwtPlotIntervalCurve::drawTube(QPainter *painter, 
@@ -280,13 +284,15 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
     painter->restore();
 }
 
-void QwtPlotIntervalCurve::drawSymbols(
+void QwtPlotIntervalCurve::drawBars(
     QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
+    const int barWidth = d_data->bar->width();
     painter->save();
 
-    painter->setPen(d_data->pen);
+    painter->setPen(d_data->bar->pen());
+    painter->setBrush(d_data->bar->brush());
 
     for ( int i = from; i <= to; i++ )
     {
@@ -317,40 +323,10 @@ void QwtPlotIntervalCurve::drawSymbols(
             p[1].setY(y);
         }
 
-        switch(d_data->symbolStyle)
-        {
-            case Bar:
-                drawBar(painter, i, p[0], p[1]);
-                break;
-            default:;
-        }
+        d_data->bar->draw(painter, orientation(), p[0], p[1], barWidth);
     }
 
     painter->restore();
-}
-
-void QwtPlotIntervalCurve::drawBar(QPainter *painter, int,
-    const QPoint& from, const QPoint& to ) const
-{
-    const int capWidth = 3;
-
-    QwtPainter::drawLine(painter, from, to);
-    if ( orientation() == Qt::Vertical )
-    {
-        const int x1 = from.x() - capWidth;
-        const int x2 = from.x() + capWidth;
-
-        QwtPainter::drawLine(painter, x1, from.y(), x2, from.y());
-        QwtPainter::drawLine(painter, x1, to.y(), x2, to.y());
-    }
-    else
-    {
-        const int y1 = from.y() - capWidth;
-        const int y2 = from.y() + capWidth;
-
-        QwtPainter::drawLine(painter, from.x(), y1, from.x(), y1);
-        QwtPainter::drawLine(painter, from.x(), y2, from.x(), y2);
-    }
 }
 
 void QwtPlotIntervalCurve::updateLegend(QwtLegend *) const
