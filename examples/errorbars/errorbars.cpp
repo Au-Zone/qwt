@@ -91,13 +91,18 @@ Plot::Plot()
 #endif
     errorCurve->setPen(QPen(Qt::darkGray));
 
-    errorCurve->setBrush(QBrush(Qt::lightGray));
+    QColor bg(Qt::lightGray);
+#if QT_VERSION >= 0x040000
+    bg.setAlpha(200);
+#endif
+
+    errorCurve->setBrush(QBrush(bg));
     errorCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
     //errorCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
 
-	QwtBar errorBar(QwtBar::ErrorBar);
-	errorBar.setWidth(3);
-	errorBar.setPen(QPen(Qt::red));
+    QwtBar errorBar(QwtBar::ErrorBar);
+    errorBar.setWidth(3);
+    errorBar.setPen(QPen(Qt::red));
     errorCurve->setBar(errorBar);
 
     QwtArray<QwtIntervalSample> errorSamples(nPoints);
@@ -111,6 +116,27 @@ Plot::Plot()
     }
     errorCurve->setData(errorSamples);
     errorCurve->attach(this);
+
+    // ----------------------------
+    QwtPlotIntervalCurve *errorCurve2 = new QwtPlotIntervalCurve("Error Curve");
+    errorCurve2->setOrientation(Qt::Horizontal);
+    errorCurve2->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
+
+#if 0
+    errorBar.setPen(QPen(Qt::green, 2));
+    errorCurve2->setBar(errorBar);
+
+    for ( int i = 0; i < nPoints; i++ )
+    {
+        QwtDoublePoint p = curve->sample(i);
+        errorSamples[i].value = p.y();
+        errorSamples[i].interval.setMinValue(p.x() - 0.03);
+        errorSamples[i].interval.setMaxValue(p.x() + 0.02);
+        errorSamples[i].interval = errorSamples[i].interval;
+    }
+    errorCurve2->setData(errorSamples);
+    errorCurve2->attach(this);
+#endif
 }
 
 int main(int argc, char **argv)
