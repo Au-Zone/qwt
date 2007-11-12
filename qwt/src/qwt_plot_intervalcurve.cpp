@@ -19,15 +19,16 @@ class QwtPlotIntervalCurve::PrivateData
 public:
     PrivateData():
         curveStyle(Tube),
-        pen(Qt::black, 0)
+        pen(Qt::black),
+        brush(Qt::white)
     {
-		bar = new QwtBar();
+        bar = new QwtBar();
     }
 
     ~PrivateData()
-	{
-		delete bar;
-	}
+    {
+        delete bar;
+    }
 
     CurveStyle curveStyle;
     QwtBar *bar;
@@ -115,11 +116,11 @@ QwtPlotIntervalCurve::CurveStyle QwtPlotIntervalCurve::curveStyle() const
 void QwtPlotIntervalCurve::setBar(const QwtBar &bar)
 {
     if ( bar != *d_data->bar )
-	{
-		delete d_data->bar;
-		d_data->bar = bar.clone();
-    	itemChanged();
-	}
+    {
+        delete d_data->bar;
+        d_data->bar = bar.clone();
+        itemChanged();
+    }
 }
 
 const QwtBar &QwtPlotIntervalCurve::bar() const 

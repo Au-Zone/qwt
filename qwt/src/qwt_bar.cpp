@@ -122,8 +122,8 @@ void QwtBar::draw(QPainter *painter, Qt::Orientation orientation,
                 const int y1 = from.y() - width;
                 const int y2 = from.y() + width;
 
-                QwtPainter::drawLine(painter, from.x(), y1, from.x(), y1);
-                QwtPainter::drawLine(painter, from.x(), y2, from.x(), y2);
+                QwtPainter::drawLine(painter, from.x(), y1, from.x(), y2);
+                QwtPainter::drawLine(painter, to.x(), y1, to.x(), y2);
             }
 
             break;
