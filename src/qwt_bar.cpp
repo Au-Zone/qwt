@@ -8,6 +8,7 @@
  *****************************************************************************/
 
 #include <qpainter.h>
+#include "qwt_math.h"
 #include "qwt_bar.h"
 #include "qwt_painter.h"
 
@@ -102,28 +103,41 @@ const QPen& QwtBar::pen() const
 }
 
 void QwtBar::draw(QPainter *painter, Qt::Orientation orientation, 
-    const QPoint& from, const QPoint& to, int width) const
+    const QRect& rect) const
 {
     switch(d_data->style)
     {
-        case QwtBar::ErrorBar:
+        case QwtBar::IntervalBar:
         {
-            QwtPainter::drawLine(painter, from, to);
+            const int pw = qwtMax(painter->pen().width(), 1);
+
             if ( orientation == Qt::Vertical )
             {
-                const int x1 = from.x() - width;
-                const int x2 = from.x() + width;
+                const int x = rect.center().x();
+                QwtPainter::drawLine(painter, x, rect.top(), 
+                    x, rect.bottom() );
 
-                QwtPainter::drawLine(painter, x1, from.y(), x2, from.y());
-                QwtPainter::drawLine(painter, x1, to.y(), x2, to.y());
+                if ( rect.width() > pw )
+                {
+                    QwtPainter::drawLine(painter, 
+                        rect.bottomLeft(), rect.bottomRight());
+                    QwtPainter::drawLine(painter, 
+                        rect.topLeft(), rect.topRight());
+                }
             }
             else
             {
-                const int y1 = from.y() - width;
-                const int y2 = from.y() + width;
+                const int y = rect.center().y();
+                QwtPainter::drawLine(painter, rect.left(), y, 
+                    rect.right(), y);
 
-                QwtPainter::drawLine(painter, from.x(), y1, from.x(), y2);
-                QwtPainter::drawLine(painter, to.x(), y1, to.x(), y2);
+                if ( rect.width() > pw )
+                {
+                    QwtPainter::drawLine(painter, 
+                        rect.bottomLeft(), rect.topLeft());
+                    QwtPainter::drawLine(painter, 
+                        rect.bottomRight(), rect.topRight());
+                }
             }
 
             break;

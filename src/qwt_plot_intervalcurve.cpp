@@ -289,9 +289,11 @@ void QwtPlotIntervalCurve::drawBars(
     QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
-    const int barWidth = d_data->bar->width();
     painter->save();
 
+#if QT_VERSION >= 0x040000
+    painter->setRenderHint(QPainter::Antialiasing, false);
+#endif
     painter->setPen(d_data->bar->pen());
     painter->setBrush(d_data->bar->brush());
 
@@ -299,7 +301,7 @@ void QwtPlotIntervalCurve::drawBars(
     {
         const QwtIntervalSample intervalSample = sample(i);
 
-        QPoint p[2];
+        QRect barRect;
 
         if ( orientation() == Qt::Vertical )
         {
@@ -307,10 +309,10 @@ void QwtPlotIntervalCurve::drawBars(
             const int y1 = yMap.transform(intervalSample.interval.minValue());
             const int y2 = yMap.transform(intervalSample.interval.maxValue());
 
-            p[0].setX(x);
-            p[0].setY(y1);
-            p[1].setX(x);
-            p[1].setY(y2);
+            barRect.setLeft(x - d_data->bar->width() / 2);
+            barRect.setWidth(d_data->bar->width());
+            barRect.setTop(y2);
+            barRect.setBottom(y1);
         }
         else
         {
@@ -318,13 +320,18 @@ void QwtPlotIntervalCurve::drawBars(
             const int x1 = xMap.transform(intervalSample.interval.minValue());
             const int x2 = xMap.transform(intervalSample.interval.maxValue());
 
-            p[0].setX(x1);
-            p[0].setY(y);
-            p[1].setX(x2);
-            p[1].setY(y);
+            barRect.setTop(y - d_data->bar->width() / 2);
+            barRect.setHeight(d_data->bar->width());
+            barRect.setLeft(x1);
+            barRect.setRight(x2);
         }
 
-        d_data->bar->draw(painter, orientation(), p[0], p[1], barWidth);
+#if QT_VERSION >= 0x040000
+        barRect = barRect.normalized();
+#else
+        barRect = barRect.normalize();
+#endif
+        d_data->bar->draw(painter, orientation(), barRect);
     }
 
     painter->restore();

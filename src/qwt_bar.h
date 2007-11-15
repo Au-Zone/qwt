@@ -29,7 +29,7 @@ public:
     { 
         NoBar = -1, 
 
-        ErrorBar, 
+        IntervalBar, 
         Box, 
 
         StyleCnt 
@@ -56,8 +56,7 @@ public:
     void setStyle(Style);
     Style style() const;
     
-    virtual void draw(QPainter *, Qt::Orientation, 
-        const QPoint& from, const QPoint& to, int width) const;
+    virtual void draw(QPainter *, Qt::Orientation, const QRect&) const;
 
 private:
     class PrivateData;
