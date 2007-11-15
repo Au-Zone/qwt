@@ -57,16 +57,23 @@ private:
     double(*d_y)(double);
 };
 
-class Plot : public QwtPlot
+class Plot: public QwtPlot
 {
 public:
     Plot();
+
+private:
+    void insertCurve(const QString &title, 
+        const QwtSeriesData<QwtDoublePoint> &, const QColor &);
+    void insertErrorBars(const QwtSeriesData<QwtDoublePoint> &, 
+        Qt::Orientation, const QColor &, bool showTube);
 };
 
 
 Plot::Plot()
 {
-    const int nPoints = 30;
+    const QwtDoubleInterval interval(-1.5, 1.5);
+    const int numPoints(30);
 
     setTitle("A Plot with Error Bars");
     setCanvasBackground(QColor(Qt::darkGray));
@@ -78,8 +85,27 @@ Plot::Plot()
     grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
     grid->attach(this);
 
-    // Insert new curves
-    QwtPlotCurve *curve = new QwtPlotCurve("y = sin(x)");
+    // sinus
+    const CurveData sinusData(::cosh, interval, numPoints);
+    insertCurve("y = sin(x)", sinusData, Qt::black );
+    insertErrorBars(sinusData, Qt::Vertical, Qt::red, true);
+
+    // cosinus
+    const CurveData tangensData(::sinh, interval, numPoints);
+    insertCurve("y = sinh(x)", tangensData, Qt::black );
+    insertErrorBars(tangensData, Qt::Horizontal, Qt::blue, true);
+
+    QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
+    zoomer->setRubberBandPen(QColor(Qt::black));
+    zoomer->setTrackerPen(QColor(Qt::black));
+
+    insertLegend(new QwtLegend(), QwtPlot::RightLegend);
+}
+
+void Plot::insertCurve(const QString& title, 
+    const QwtSeriesData<QwtDoublePoint>& data, const QColor &color)
+{
+    QwtPlotCurve *curve = new QwtPlotCurve(title);
 #if QT_VERSION >= 0x040000
     curve->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
@@ -87,70 +113,65 @@ Plot::Plot()
 
     QwtSymbol symbol;
     symbol.setStyle(QwtSymbol::XCross);
-    symbol.setSize(5);
-    symbol.setPen(QPen(Qt::black));
+    symbol.setSize(4);
+    symbol.setPen(QPen(color));
     curve->setSymbol(symbol);
 
-    curve->setData(CurveData(::sin, QwtDoubleInterval(0.0, 1.0), nPoints));
+    curve->setData(data);
     curve->attach(this);
+}
 
-    QwtPlotIntervalCurve *errorCurve = new QwtPlotIntervalCurve("Error Curve");
+void Plot::insertErrorBars(const QwtSeriesData<QwtDoublePoint>& data, 
+    Qt::Orientation orientation, const QColor &color, bool showTube)
+{
+    QwtPlotIntervalCurve *errorCurve = new QwtPlotIntervalCurve();
 #if QT_VERSION >= 0x040000
     errorCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
+    errorCurve->setOrientation(orientation);
     errorCurve->setPen(QPen(Qt::white));
 
-    QColor bg(Qt::white);
+    if ( showTube )
+    {
+        QColor bg(Qt::white);
 #if QT_VERSION >= 0x040000
-    bg.setAlpha(150);
+        bg.setAlpha(150);
 #endif
-    errorCurve->setBrush(QBrush(bg));
-
-    errorCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+        errorCurve->setBrush(QBrush(bg));
+        errorCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+    }
+    else
+    {
+        errorCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
+    }
 
     QwtBar errorBar(QwtBar::IntervalBar);
     errorBar.setWidth(7);
-    errorBar.setPen(QPen(Qt::red));
-#if 1
+    errorBar.setPen(QPen(color));
     errorCurve->setBar(errorBar);
-#endif
 
-    QwtArray<QwtIntervalSample> errorSamples(nPoints);
-    for ( int i = 0; i < nPoints; i++ )
+    QwtArray<QwtIntervalSample> errorSamples(data.size());
+    for ( uint i = 0; i < data.size(); i++ )
     {
-        QwtDoublePoint p = curve->sample(i);
-        errorSamples[i].value = p.x();
-        errorSamples[i].interval.setMinValue(0.9 * p.y());
-        errorSamples[i].interval.setMaxValue(1.1 * p.y());
-        errorSamples[i].interval = errorSamples[i].interval.normalized();
+        const QwtDoublePoint point = data.sample(i);
+
+        QwtIntervalSample &sample = errorSamples[i];
+        if ( orientation == Qt::Vertical )
+        {
+            sample.value = point.x();
+            sample.interval.setMinValue(0.9 * point.y());
+            sample.interval.setMaxValue(1.1 * point.y());
+        }
+        else
+        {
+            sample.value = point.y();
+            sample.interval.setMinValue(0.9 * point.x());
+            sample.interval.setMaxValue(1.1 * point.x());
+        }
+        sample.interval = sample.interval.normalized();
     }
     errorCurve->setData(errorSamples);
     errorCurve->attach(this);
-
-    // ----------------------------
-    QwtPlotIntervalCurve *errorCurve2 = new QwtPlotIntervalCurve("Error Curve");
-    errorCurve2->setOrientation(Qt::Horizontal);
-    errorCurve2->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
-
-    errorBar.setPen(QPen(Qt::darkCyan));
-    errorCurve2->setBar(errorBar);
-
-    QwtArray<QwtIntervalSample> errorSamples2(nPoints);
-    for ( int i = 0; i < nPoints; i++ )
-    {
-        QwtDoublePoint p = curve->sample(i);
-        errorSamples2[i].value = p.y();
-        errorSamples2[i].interval.setMinValue(p.x() - 0.03);
-        errorSamples2[i].interval.setMaxValue(p.x() + 0.02);
-        errorSamples2[i].interval = errorSamples2[i].interval.normalized();
-    }
-    errorCurve2->setData(errorSamples2);
-    errorCurve2->attach(this);
-    replot();
-
-    QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
-    zoomer->setRubberBandPen(QColor(Qt::green));
-    zoomer->setTrackerPen(QColor(Qt::white));
 }
 
 int main(int argc, char **argv)
