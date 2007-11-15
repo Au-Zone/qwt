@@ -187,10 +187,10 @@ QwtDoubleRect QwtPlotIntervalCurve::boundingRect() const
         QwtPlotSeriesItem<QwtIntervalSample>::boundingRect();
     if ( br.isValid() )
     {
-#ifdef __GNUC__
-#warning Do we need a orientation flag ?
-#endif
-        br = QwtDoubleRect(br.y(), br.x(), br.height(), br.width());
+        if ( orientation() == Qt::Vertical )
+            br.setRect(br.y(), br.x(), br.height(), br.width());
+        else
+            br.setRect(br.x(), br.y(), br.width(), br.height());
     }
 
     return br;
@@ -229,16 +229,15 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
 {
     painter->save();
 
-    const size_t size = dataSize();
-    QwtPolygon minValues(size);
-    QwtPolygon maxValues(size);
+    const size_t size = to - from + 1;
+    QwtPolygon points(2 * size);
 
-    for ( int i = from; i <= to; i++ )
+    for ( uint i = 0; i < size; i++ )
     {
-        const QwtIntervalSample intervalSample = sample(i);
-        QPoint &minValue = minValues[i];
-        QPoint &maxValue = maxValues[to - i];
+        QPoint &minValue = points[i];
+        QPoint &maxValue = points[2 * size - 1 - i];
 
+        const QwtIntervalSample intervalSample = sample(from + i);
         if ( orientation() == Qt::Vertical )
         {
             const int x = xMap.transform(intervalSample.value);
@@ -263,24 +262,40 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
         }
     }
 
-    painter->setPen(d_data->pen);
-    painter->setBrush(Qt::NoBrush);
+#if 1
+    if ( d_data->brush.style() != Qt::NoBrush )
+    {
+        painter->setPen(QPen(Qt::NoPen));
+        painter->setBrush(d_data->brush);
+        QwtPainter::drawPolygon(painter, points);
+    }
 
-    QwtPainter::drawPolyline(painter, minValues);
-    QwtPainter::drawPolyline(painter, maxValues);
+    if ( d_data->pen.style() != Qt::NoPen )
+    {
+        painter->setPen(d_data->pen);
+        painter->setBrush(Qt::NoBrush);
 
-#if QT_VERSION < 0x040000
-    minValues.resize(minValues.size() + maxValues.size());
-    minValues.putPoints(minValues.size(), maxValues.size(), maxValues);
+        QwtPolygon curve;
+#if QT_VERSION >= 0x040000
+        curve = points.mid(0, size);
+        QwtPainter::drawPolyline(painter, curve);
+        curve = points.mid(size, size);
+        QwtPainter::drawPolyline(painter, curve);
 #else
-    minValues += maxValues;
-    maxValues.clear();
+        curve.setRawData(points.data(), size);
+        QwtPainter::drawPolyline(painter, curve);
+        curve.resetRawData(points.data(), size);
+
+        curve.setRawData(points.data() + size, size);
+        QwtPainter::drawPolyline(painter, curve);
+        curve.resetRawData(points.data() + size, size);
 #endif
-
-    painter->setPen(Qt::NoPen);
+    }
+#else
+    painter->setPen(d_data->pen);
     painter->setBrush(d_data->brush);
-
-    QwtPainter::drawPolygon(painter, minValues);
+    QwtPainter::drawPolygon(painter, points);
+#endif
 
     painter->restore();
 }
