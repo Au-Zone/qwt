@@ -107,7 +107,7 @@ public:
 #if QT_VERSION >= 0x040000
     Qt::Orientations orientations;
 #else
-    Qt::Orientation orientations[2];
+    bool orientations[2];
 #endif
 };
 
