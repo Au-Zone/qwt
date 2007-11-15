@@ -381,6 +381,6 @@ void QwtPlotCanvas::replot()
     if ( !erase && !noBackgroundMode )
         setAttribute(Qt::WA_NoBackground, false);
 #else
-    repaint(canvas.contentsRect(), erase);
+    repaint(contentsRect(), erase);
 #endif
 }

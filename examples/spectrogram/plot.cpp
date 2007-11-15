@@ -10,24 +10,23 @@
 class MyZoomer: public QwtPlotZoomer
 {
 public:
-	MyZoomer(QwtPlotCanvas *canvas):
-		QwtPlotZoomer(canvas)
-	{
-		setTrackerMode(AlwaysOn);
-	}
+    MyZoomer(QwtPlotCanvas *canvas):
+        QwtPlotZoomer(canvas)
+    {
+        setTrackerMode(AlwaysOn);
+    }
 
     virtual QwtText trackerText(const QwtDoublePoint &pos) const
-	{
-		QColor bg(Qt::white);
+    {
+        QColor bg(Qt::white);
 #if QT_VERSION >= 0x040300
-		bg.setAlpha(200);
+        bg.setAlpha(200);
 #endif
 
-		QwtText text = QwtPlotZoomer::trackerText(pos);
-		//QwtText text("Text");
-    	text.setBackgroundBrush( QBrush( bg ));
-		return text;
-	}
+        QwtText text = QwtPlotZoomer::trackerText(pos);
+        text.setBackgroundBrush( QBrush( bg ));
+        return text;
+    }
 };
 
 class SpectrogramData: public QwtRasterData
