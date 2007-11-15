@@ -1,11 +1,13 @@
 #include <qapplication.h>
 #include <qwt_plot.h>
+#include <qwt_plot_zoomer.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_intervalcurve.h>
 #include <qwt_legend.h>
 #include <qwt_bar.h>
+#include <qwt_symbol.h>
 #include <qwt_series_data.h>
 #include <qwt_text.h>
 #include <math.h>
@@ -67,7 +69,7 @@ Plot::Plot()
     const int nPoints = 30;
 
     setTitle("A Plot with Error Bars");
-    setCanvasBackground(QColor(Qt::darkBlue));
+    setCanvasBackground(QColor(Qt::darkGray));
 
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
@@ -81,7 +83,14 @@ Plot::Plot()
 #if QT_VERSION >= 0x040000
     curve->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
-    curve->setPen(QPen(Qt::yellow));
+    curve->setStyle(QwtPlotCurve::NoCurve);
+
+    QwtSymbol symbol;
+    symbol.setStyle(QwtSymbol::XCross);
+    symbol.setSize(5);
+    symbol.setPen(QPen(Qt::black));
+    curve->setSymbol(symbol);
+
     curve->setData(CurveData(::sin, QwtDoubleInterval(0.0, 1.0), nPoints));
     curve->attach(this);
 
@@ -89,21 +98,22 @@ Plot::Plot()
 #if QT_VERSION >= 0x040000
     errorCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
-    errorCurve->setPen(QPen(Qt::darkGray));
+    errorCurve->setPen(QPen(Qt::white));
 
-    QColor bg(Qt::lightGray);
+    QColor bg(Qt::white);
 #if QT_VERSION >= 0x040000
-    bg.setAlpha(200);
+    bg.setAlpha(150);
 #endif
-
     errorCurve->setBrush(QBrush(bg));
-    errorCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
-    //errorCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
 
-    QwtBar errorBar(QwtBar::ErrorBar);
-    errorBar.setWidth(3);
+    errorCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+
+    QwtBar errorBar(QwtBar::IntervalBar);
+    errorBar.setWidth(7);
     errorBar.setPen(QPen(Qt::red));
+#if 1
     errorCurve->setBar(errorBar);
+#endif
 
     QwtArray<QwtIntervalSample> errorSamples(nPoints);
     for ( int i = 0; i < nPoints; i++ )
@@ -122,21 +132,25 @@ Plot::Plot()
     errorCurve2->setOrientation(Qt::Horizontal);
     errorCurve2->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
 
-#if 0
-    errorBar.setPen(QPen(Qt::green, 2));
+    errorBar.setPen(QPen(Qt::darkCyan));
     errorCurve2->setBar(errorBar);
 
+    QwtArray<QwtIntervalSample> errorSamples2(nPoints);
     for ( int i = 0; i < nPoints; i++ )
     {
         QwtDoublePoint p = curve->sample(i);
-        errorSamples[i].value = p.y();
-        errorSamples[i].interval.setMinValue(p.x() - 0.03);
-        errorSamples[i].interval.setMaxValue(p.x() + 0.02);
-        errorSamples[i].interval = errorSamples[i].interval;
+        errorSamples2[i].value = p.y();
+        errorSamples2[i].interval.setMinValue(p.x() - 0.03);
+        errorSamples2[i].interval.setMaxValue(p.x() + 0.02);
+        errorSamples2[i].interval = errorSamples2[i].interval.normalized();
     }
-    errorCurve2->setData(errorSamples);
+    errorCurve2->setData(errorSamples2);
     errorCurve2->attach(this);
-#endif
+    replot();
+
+    QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
+    zoomer->setRubberBandPen(QColor(Qt::green));
+    zoomer->setTrackerPen(QColor(Qt::white));
 }
 
 int main(int argc, char **argv)
