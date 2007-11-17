@@ -6,7 +6,7 @@
 #include <qwt_plot_curve.h>
 #include <qwt_plot_intervalcurve.h>
 #include <qwt_legend.h>
-#include <qwt_bar.h>
+#include <qwt_interval_symbol.h>
 #include <qwt_symbol.h>
 #include <qwt_series_data.h>
 #include <qwt_text.h>
@@ -145,10 +145,10 @@ void Plot::insertErrorBars(const QwtSeriesData<QwtDoublePoint>& data,
         errorCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
     }
 
-    QwtBar errorBar(QwtBar::IntervalBar);
+    QwtIntervalSymbol errorBar(QwtIntervalSymbol::Bar);
     errorBar.setWidth(7);
     errorBar.setPen(QPen(color));
-    errorCurve->setBar(errorBar);
+    errorCurve->setSymbol(errorBar);
 
     QwtArray<QwtIntervalSample> errorSamples(data.size());
     for ( uint i = 0; i < data.size(); i++ )

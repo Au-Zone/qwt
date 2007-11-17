@@ -30,7 +30,7 @@ public:
 
     virtual int rtti() const;
 
-	virtual QwtDoubleRect boundingRect() const;
+    virtual QwtDoubleRect boundingRect() const;
 
     virtual void draw(QPainter *, const QwtScaleMap &xMap, 
         const QwtScaleMap &yMap, const QRect &) const;

@@ -35,8 +35,9 @@ HEADERS += \
     qwt.h \
     qwt_abstract_scale_draw.h \
     qwt_array.h \
-    qwt_bar.h \
+    qwt_interval_symbol.h \
     qwt_color_map.h \
+    qwt_column_symbol.h \
     qwt_double_interval.h \
     qwt_double_rect.h \
     qwt_dyngrid_layout.h \
@@ -64,8 +65,9 @@ HEADERS += \
 
 SOURCES += \
     qwt_abstract_scale_draw.cpp \
-    qwt_bar.cpp \
+    qwt_interval_symbol.cpp \
     qwt_color_map.cpp \
+    qwt_column_symbol.cpp \
     qwt_double_interval.cpp \
     qwt_double_rect.cpp \
     qwt_dyngrid_layout.cpp \

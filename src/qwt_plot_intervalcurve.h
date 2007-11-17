@@ -14,7 +14,7 @@
 #include "qwt_plot_seriesitem.h"
 #include "qwt_series_data.h"
 
-class QwtBar;
+class QwtIntervalSymbol;
 
 class QWT_EXPORT QwtPlotIntervalCurve: public QwtPlotSeriesItem<QwtIntervalSample>
 {
@@ -46,8 +46,8 @@ public:
     void setCurveStyle(CurveStyle style);
     CurveStyle curveStyle() const;
 
-    void setBar(const QwtBar&);
-    const QwtBar& bar() const;
+    void setSymbol(const QwtIntervalSymbol&);
+    const QwtIntervalSymbol& symbol() const;
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -68,7 +68,7 @@ protected:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
-    virtual void drawBars(QPainter *p, 
+    virtual void drawSymbols(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
