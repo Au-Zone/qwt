@@ -102,8 +102,8 @@ const QPen& QwtIntervalSymbol::pen() const
     return d_data->pen;
 }
 
-void QwtIntervalSymbol::draw(QPainter *painter, Qt::Orientation orientation, 
-    const QRect& rect) const
+void QwtIntervalSymbol::draw(QPainter *painter, 
+        const QPoint& from, const QPoint& to) const
 {
     switch(d_data->style)
     {
@@ -111,40 +111,50 @@ void QwtIntervalSymbol::draw(QPainter *painter, Qt::Orientation orientation,
         {
             const int pw = qwtMax(painter->pen().width(), 1);
 
-            if ( orientation == Qt::Vertical )
+            QwtPainter::drawLine(painter, from, to);
+            if ( d_data->width > pw )
             {
-                const int x = rect.center().x();
-                QwtPainter::drawLine(painter, x, rect.top(), 
-                    x, rect.bottom() );
-
-                if ( rect.width() > pw )
+                if ( from.y() == to.y() )
                 {
-                    QwtPainter::drawLine(painter, 
-                        rect.bottomLeft(), rect.bottomRight());
-                    QwtPainter::drawLine(painter, 
-                        rect.topLeft(), rect.topRight());
+                    const int y = from.y() - d_data->width / 2;
+                    QwtPainter::drawLine(painter,
+                        from.x(), y, from.x(), y + d_data->width);
+                    QwtPainter::drawLine(painter,
+                        to.x(), y, to.x(), y + d_data->width);
+                }
+                else if ( from.x() == to.x() )
+                {
+                    const int x = from.x() - d_data->width / 2;
+                    QwtPainter::drawLine(painter,
+                        x, from.y(), x + d_data->width, from.y());
+                    QwtPainter::drawLine(painter,
+                        x, to.y(), x + d_data->width, to.y());
+                }
+                else    
+                {
+                    // todo
                 }
             }
-            else
-            {
-                const int y = rect.center().y();
-                QwtPainter::drawLine(painter, rect.left(), y, 
-                    rect.right(), y);
-
-                if ( rect.width() > pw )
-                {
-                    QwtPainter::drawLine(painter, 
-                        rect.bottomLeft(), rect.topLeft());
-                    QwtPainter::drawLine(painter, 
-                        rect.bottomRight(), rect.topRight());
-                }
-            }
-
             break;
         }
         case QwtIntervalSymbol::Box:
         {
-            QwtPainter::drawRect(painter, rect);
+            if ( from.y() == to.y() )
+            {
+                const int y = from.y() - d_data->width / 2;
+                QwtPainter::drawRect(painter,
+                    from.x(), y, to.x() - from.x(),  d_data->width);
+            }
+            else if ( from.x() == to.x() )
+            {
+                const int x = from.x() - d_data->width / 2;
+                QwtPainter::drawRect(painter,
+                    x, from.y(), d_data->width, to.y() - from.y() );
+            }
+            else
+            {
+                // todo
+            }
             break;
         }
         default:;
