@@ -16,6 +16,7 @@
 #include "qwt_plot_seriesitem.h" 
 
 class QwtIntervalData;
+class QwtColumnSymbol;
 class QString;
 
 class HistogramItem: public QwtPlotSeriesItem<QwtIntervalSample>
@@ -47,9 +48,8 @@ public:
     void setHistogramAttribute(HistogramAttribute, bool on = true);
     bool testHistogramAttribute(HistogramAttribute) const;
 
-protected:
-    virtual void drawBar(QPainter *,
-        Qt::Orientation o, const QRect &) const;
+    void setSymbol(const QwtColumnSymbol&);
+    const QwtColumnSymbol& symbol() const;
 
 private:
     void init();

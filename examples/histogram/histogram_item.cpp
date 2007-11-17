@@ -2,15 +2,30 @@
 #include <qpainter.h>
 #include <qwt_plot.h>
 #include <qwt_painter.h>
+#include <qwt_column_symbol.h>
 #include <qwt_scale_map.h>
 #include "histogram_item.h"
 
 class HistogramItem::PrivateData
 {
 public:
+    PrivateData():
+        attributes(HistogramItem::Auto),
+        reference(0.0)
+    {
+        symbol = new QwtColumnSymbol(QwtColumnSymbol::RaisedBox);
+    }
+
+    ~PrivateData()
+    {
+        delete symbol;
+    }
+
     int attributes;
-    QColor color;
     double reference;
+
+    QColor color;
+    QwtColumnSymbol *symbol;
 };
 
 HistogramItem::HistogramItem(const QwtText &title):
@@ -33,15 +48,23 @@ HistogramItem::~HistogramItem()
 void HistogramItem::init()
 {
     d_data = new PrivateData();
-    d_data->reference = 0.0;
-    d_data->attributes = HistogramItem::Auto;
-
     d_series = new QwtIntervalSeriesData();
 
     setItemAttribute(QwtPlotItem::AutoScale, true);
     setItemAttribute(QwtPlotItem::Legend, true);
 
     setZ(20.0);
+}
+
+void HistogramItem::setSymbol(const QwtColumnSymbol &symbol)
+{
+    delete d_data->symbol;
+    d_data->symbol = symbol.clone();
+}
+
+const QwtColumnSymbol &HistogramItem::symbol() const
+{
+    return *d_data->symbol;
 }
 
 void HistogramItem::setBaseline(double reference)
@@ -166,7 +189,7 @@ void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap,
                 }
             }
 
-            drawBar(painter, Qt::Horizontal,
+            d_data->symbol->draw(painter, Qt::Horizontal,
                 QRect(x0, y1, x2 - x0, y2 - y1));
         }
         else
@@ -198,79 +221,8 @@ void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap,
                     }
                 }
             }
-            drawBar(painter, Qt::Vertical,
+            d_data->symbol->draw(painter, Qt::Vertical,
                 QRect(x1, y0, x2 - x1, y2 - y0) );
         }
     }
-}
-
-void HistogramItem::drawBar(QPainter *painter,
-   Qt::Orientation, const QRect& rect) const
-{
-   painter->save();
-
-   const QColor color(painter->pen().color());
-#if QT_VERSION >= 0x040000
-   const QRect r = rect.normalized();
-#else
-   const QRect r = rect.normalize();
-#endif
-
-   const int factor = 125;
-   const QColor light(color.light(factor));
-   const QColor dark(color.dark(factor));
-
-   painter->setBrush(color);
-   painter->setPen(Qt::NoPen);
-   QwtPainter::drawRect(painter, r.x() + 1, r.y() + 1,
-      r.width() - 2, r.height() - 2);
-   painter->setBrush(Qt::NoBrush);
-
-   painter->setPen(QPen(light, 2));
-#if QT_VERSION >= 0x040000
-   QwtPainter::drawLine(painter,
-      r.left() + 1, r.top() + 2, r.right() + 1, r.top() + 2);
-#else
-   QwtPainter::drawLine(painter,
-      r.left(), r.top() + 2, r.right() + 1, r.top() + 2);
-#endif
-
-   painter->setPen(QPen(dark, 2));
-#if QT_VERSION >= 0x040000
-   QwtPainter::drawLine(painter, 
-      r.left() + 1, r.bottom(), r.right() + 1, r.bottom());
-#else
-   QwtPainter::drawLine(painter, 
-      r.left(), r.bottom(), r.right() + 1, r.bottom());
-#endif
-
-   painter->setPen(QPen(light, 1));
-
-#if QT_VERSION >= 0x040000
-   QwtPainter::drawLine(painter, 
-      r.left(), r.top() + 1, r.left(), r.bottom());
-   QwtPainter::drawLine(painter,
-      r.left() + 1, r.top() + 2, r.left() + 1, r.bottom() - 1);
-#else
-   QwtPainter::drawLine(painter, 
-      r.left(), r.top() + 1, r.left(), r.bottom() + 1);
-   QwtPainter::drawLine(painter,
-      r.left() + 1, r.top() + 2, r.left() + 1, r.bottom());
-#endif
-
-   painter->setPen(QPen(dark, 1));
-
-#if QT_VERSION >= 0x040000
-   QwtPainter::drawLine(painter, 
-      r.right() + 1, r.top() + 1, r.right() + 1, r.bottom());
-   QwtPainter::drawLine(painter, 
-      r.right(), r.top() + 2, r.right(), r.bottom() - 1);
-#else
-   QwtPainter::drawLine(painter, 
-      r.right() + 1, r.top() + 1, r.right() + 1, r.bottom() + 1);
-   QwtPainter::drawLine(painter, 
-      r.right(), r.top() + 2, r.right(), r.bottom());
-#endif
-
-   painter->restore();
 }

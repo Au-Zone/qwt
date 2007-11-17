@@ -8,7 +8,9 @@
  *****************************************************************************/
 
 #include <qpainter.h>
+#include <qpalette.h>
 #include "qwt_math.h"
+#include "qwt_text.h"
 #include "qwt_column_symbol.h"
 #include "qwt_painter.h"
 
@@ -22,8 +24,8 @@ public:
 
     QwtColumnSymbol::Style style;
 
-    QPen pen;
-    QBrush brush;
+    QPalette palette;
+    QwtText label;
 };
 
 QwtColumnSymbol::QwtColumnSymbol(Style style) 
@@ -49,8 +51,8 @@ QwtColumnSymbol *QwtColumnSymbol::clone() const
 bool QwtColumnSymbol::operator==(const QwtColumnSymbol &other) const
 {
     return d_data->style == other.d_data->style &&
-        d_data->pen == other.d_data->pen &&
-        d_data->brush == other.d_data->brush;
+        d_data->palette == other.d_data->palette &&
+        d_data->label == other.d_data->label;
 }
 
 //! != operator
@@ -69,35 +71,116 @@ QwtColumnSymbol::Style QwtColumnSymbol::style() const
     return d_data->style;
 }
 
-void QwtColumnSymbol::setBrush(const QBrush &brush)
+void QwtColumnSymbol::setPalette(const QPalette &palette)
 {
-    d_data->brush = brush;
+    d_data->palette = palette;
 }
 
-const QBrush& QwtColumnSymbol::brush() const
+const QPalette& QwtColumnSymbol::palette() const
 {
-    return d_data->brush;
+    return d_data->palette;
 }
 
-void QwtColumnSymbol::setPen(const QPen &pen)
+void QwtColumnSymbol::setLabel(const QwtText &label)
 {
-    d_data->pen = pen;
+    d_data->label = label;
 }
 
-const QPen& QwtColumnSymbol::pen() const
+const QwtText& QwtColumnSymbol::label() const
 {
-    return d_data->pen;
+    return d_data->label;
 }
 
-void QwtColumnSymbol::draw(QPainter *painter, Qt::Orientation orientation, 
-    const QRect& rect) const
+void QwtColumnSymbol::draw(QPainter *painter, 
+    Qt::Orientation orientation, const QRect &rect) const
 {
+#if QT_VERSION >= 0x040000
+    const QRect r = rect.normalized();
+#else
+    const QRect r = rect.normalize();
+#endif
+    painter->save();
+
     switch(d_data->style)
     {
         case QwtColumnSymbol::Box:
         {
+            drawBox(painter, orientation, r);
+            break;
+        }
+        case QwtColumnSymbol::RaisedBox:
+        {
+            drawRaisedBox(painter, orientation, r);
             break;
         }
         default:;
     }
+
+    painter->restore();
+}
+
+void QwtColumnSymbol::drawBox(QPainter *, 
+    Qt::Orientation, const QRect &) const
+{
+}
+
+void QwtColumnSymbol::drawRaisedBox(QPainter *painter, 
+    Qt::Orientation, const QRect &rect) const
+{
+    const QColor color(painter->pen().color());
+
+    const int factor = 125;
+    const QColor light(color.light(factor));
+    const QColor dark(color.dark(factor));
+
+    painter->setBrush(color);
+    painter->setPen(Qt::NoPen);
+    QwtPainter::drawRect(painter, rect.x() + 1, rect.y() + 1,
+        rect.width() - 2, rect.height() - 2);
+    painter->setBrush(Qt::NoBrush);
+
+    painter->setPen(QPen(light, 2));
+#if QT_VERSION >= 0x040000
+    QwtPainter::drawLine(painter,
+        rect.left() + 1, rect.top() + 2, rect.right() + 1, rect.top() + 2);
+#else
+    QwtPainter::drawLine(painter,
+        rect.left(), rect.top() + 2, rect.right() + 1, rect.top() + 2);
+#endif
+
+    painter->setPen(QPen(dark, 2));
+#if QT_VERSION >= 0x040000 
+    QwtPainter::drawLine(painter,
+        rect.left() + 1, rect.bottom(), rect.right() + 1, rect.bottom());
+#else
+    QwtPainter::drawLine(painter,
+        rect.left(), rect.bottom(), rect.right() + 1, rect.bottom());
+#endif
+    painter->setPen(QPen(light, 1));
+
+#if QT_VERSION >= 0x040000
+    QwtPainter::drawLine(painter,
+        rect.left(), rect.top() + 1, rect.left(), rect.bottom());
+    QwtPainter::drawLine(painter,
+        rect.left() + 1, rect.top() + 2, rect.left() + 1, rect.bottom() - 1);
+#else
+    QwtPainter::drawLine(painter,
+        rect.left(), rect.top() + 1, rect.left(), rect.bottom() + 1);
+    QwtPainter::drawLine(painter,
+        rect.left() + 1, rect.top() + 2, rect.left() + 1, rect.bottom());
+#endif
+
+    painter->setPen(QPen(dark, 1));
+
+#if QT_VERSION >= 0x040000
+    QwtPainter::drawLine(painter,
+        rect.right() + 1, rect.top() + 1, rect.right() + 1, rect.bottom());
+    QwtPainter::drawLine(painter,
+        rect.right(), rect.top() + 2, rect.right(), rect.bottom() - 1);
+#else
+    QwtPainter::drawLine(painter,
+        rect.right() + 1, rect.top() + 1, rect.right() + 1, rect.bottom() + 1);
+    QwtPainter::drawLine(painter,
+        rect.right(), rect.top() + 2, rect.right(), rect.bottom());
+#endif
 }

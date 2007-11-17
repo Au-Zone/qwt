@@ -15,7 +15,9 @@
 #include "qwt_global.h"
 
 class QPainter;
+class QPalette;
 class QRect;
+class QwtText;
 
 //! A drawing primitive for columns
 class QWT_EXPORT QwtColumnSymbol
@@ -30,6 +32,7 @@ public:
         NoSymbol = -1, 
 
         Box, 
+        RaisedBox, 
 
         StyleCnt 
     };
@@ -43,16 +46,20 @@ public:
 
     virtual QwtColumnSymbol *clone() const;
 
-    void setBrush(const QBrush& b);
-    const QBrush& brush() const;
-
-    void setPen(const QPen &);
-    const QPen& pen() const; 
+    void setPalette(const QPalette &);
+    const QPalette &palette() const;
 
     void setStyle(Style);
     Style style() const;
     
+    void setLabel(const QwtText&);
+    const QwtText &label() const;
+
     virtual void draw(QPainter *, Qt::Orientation, const QRect&) const;
+
+protected:
+    void drawBox(QPainter *, Qt::Orientation, const QRect&) const;
+    void drawRaisedBox(QPainter *, Qt::Orientation, const QRect&) const;
 
 private:
     class PrivateData;
