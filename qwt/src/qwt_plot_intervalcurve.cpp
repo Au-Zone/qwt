@@ -316,18 +316,13 @@ void QwtPlotIntervalCurve::drawSymbols(
     {
         const QwtIntervalSample intervalSample = sample(i);
 
-        QRect symbolRect;
-
         if ( orientation() == Qt::Vertical )
         {
             const int x = xMap.transform(intervalSample.value);
             const int y1 = yMap.transform(intervalSample.interval.minValue());
             const int y2 = yMap.transform(intervalSample.interval.maxValue());
 
-            symbolRect.setLeft(x - d_data->symbol->width() / 2);
-            symbolRect.setWidth(d_data->symbol->width());
-            symbolRect.setTop(y2);
-            symbolRect.setBottom(y1);
+			d_data->symbol->draw(painter, QPoint(x, y1), QPoint(x, y2));
         }
         else
         {
@@ -335,18 +330,8 @@ void QwtPlotIntervalCurve::drawSymbols(
             const int x1 = xMap.transform(intervalSample.interval.minValue());
             const int x2 = xMap.transform(intervalSample.interval.maxValue());
 
-            symbolRect.setTop(y - d_data->symbol->width() / 2);
-            symbolRect.setHeight(d_data->symbol->width());
-            symbolRect.setLeft(x1);
-            symbolRect.setRight(x2);
+			d_data->symbol->draw(painter, QPoint(x1, y), QPoint(x2, y));
         }
-
-#if QT_VERSION >= 0x040000
-        symbolRect = symbolRect.normalized();
-#else
-        symbolRect = symbolRect.normalize();
-#endif
-        d_data->symbol->draw(painter, orientation(), symbolRect);
     }
 
     painter->restore();

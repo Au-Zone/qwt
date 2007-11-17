@@ -56,7 +56,8 @@ public:
     void setStyle(Style);
     Style style() const;
     
-    virtual void draw(QPainter *, Qt::Orientation, const QRect&) const;
+    virtual void draw(QPainter *, 
+        const QPoint& from, const QPoint& to) const;
 
 private:
     class PrivateData;
