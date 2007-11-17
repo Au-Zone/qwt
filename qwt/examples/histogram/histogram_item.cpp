@@ -27,7 +27,7 @@ HistogramItem::HistogramItem(const QString &title):
 
 HistogramItem::~HistogramItem()
 {
-	delete d_data;
+    delete d_data;
 }
 
 void HistogramItem::init()
@@ -36,7 +36,7 @@ void HistogramItem::init()
     d_data->reference = 0.0;
     d_data->attributes = HistogramItem::Auto;
 
-	d_series = new QwtIntervalSeriesData();
+    d_series = new QwtIntervalSeriesData();
 
     setItemAttribute(QwtPlotItem::AutoScale, true);
     setItemAttribute(QwtPlotItem::Legend, true);
@@ -149,7 +149,7 @@ void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap,
 
             if ( i < (int)d_series->size() - 2 )
             {
-            	sample = d_series->sample(i+1);
+                sample = d_series->sample(i+1);
 
                 const int yy1 = yMap.transform(sample.interval.minValue());
                 const int yy2 = yMap.transform(sample.interval.maxValue());
@@ -182,7 +182,7 @@ void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap,
 
             if ( i < (int)d_series->size() - 2 )
             {
-            	sample = d_series->sample(i+1);
+                sample = d_series->sample(i+1);
 
                 const int xx1 = xMap.transform(sample.interval.minValue());
                 const int xx2 = xMap.transform(sample.interval.maxValue());

@@ -9,46 +9,46 @@
 
 #include <qpainter.h>
 #include "qwt_math.h"
-#include "qwt_bar.h"
+#include "qwt_interval_symbol.h"
 #include "qwt_painter.h"
 
-class QwtBar::PrivateData
+class QwtIntervalSymbol::PrivateData
 {
 public:
     PrivateData():
-        style(QwtBar::NoBar),
+        style(QwtIntervalSymbol::NoSymbol),
         width(5)
     {
     }
 
-    QwtBar::Style style;
+    QwtIntervalSymbol::Style style;
     int width;
 
     QPen pen;
     QBrush brush;
 };
 
-QwtBar::QwtBar(Style style) 
+QwtIntervalSymbol::QwtIntervalSymbol(Style style) 
 {
     d_data = new PrivateData();
     d_data->style = style;
 }
 
-QwtBar::~QwtBar()
+QwtIntervalSymbol::~QwtIntervalSymbol()
 {
     delete d_data;
 }
 
-QwtBar *QwtBar::clone() const
+QwtIntervalSymbol *QwtIntervalSymbol::clone() const
 {
-    QwtBar *other = new QwtBar;
+    QwtIntervalSymbol *other = new QwtIntervalSymbol;
     *other->d_data = *d_data;
 
     return other;
 }
 
 //! == operator
-bool QwtBar::operator==(const QwtBar &other) const
+bool QwtIntervalSymbol::operator==(const QwtIntervalSymbol &other) const
 {
     return d_data->style == other.d_data->style &&
         d_data->width == other.d_data->width &&
@@ -57,57 +57,57 @@ bool QwtBar::operator==(const QwtBar &other) const
 }
 
 //! != operator
-bool QwtBar::operator!=(const QwtBar &other) const
+bool QwtIntervalSymbol::operator!=(const QwtIntervalSymbol &other) const
 {
     return !(*this == other);
 }
 
-void QwtBar::setStyle(Style style)
+void QwtIntervalSymbol::setStyle(Style style)
 {
     d_data->style = style;
 }
 
-QwtBar::Style QwtBar::style() const
+QwtIntervalSymbol::Style QwtIntervalSymbol::style() const
 {
     return d_data->style;
 }
 
-void QwtBar::setWidth(int width)
+void QwtIntervalSymbol::setWidth(int width)
 {
     d_data->width = width;
 }
 
-int QwtBar::width() const
+int QwtIntervalSymbol::width() const
 {
     return d_data->width;
 }
 
-void QwtBar::setBrush(const QBrush &brush)
+void QwtIntervalSymbol::setBrush(const QBrush &brush)
 {
     d_data->brush = brush;
 }
 
-const QBrush& QwtBar::brush() const
+const QBrush& QwtIntervalSymbol::brush() const
 {
     return d_data->brush;
 }
 
-void QwtBar::setPen(const QPen &pen)
+void QwtIntervalSymbol::setPen(const QPen &pen)
 {
     d_data->pen = pen;
 }
 
-const QPen& QwtBar::pen() const
+const QPen& QwtIntervalSymbol::pen() const
 {
     return d_data->pen;
 }
 
-void QwtBar::draw(QPainter *painter, Qt::Orientation orientation, 
+void QwtIntervalSymbol::draw(QPainter *painter, Qt::Orientation orientation, 
     const QRect& rect) const
 {
     switch(d_data->style)
     {
-        case QwtBar::IntervalBar:
+        case QwtIntervalSymbol::Bar:
         {
             const int pw = qwtMax(painter->pen().width(), 1);
 
@@ -142,8 +142,9 @@ void QwtBar::draw(QPainter *painter, Qt::Orientation orientation,
 
             break;
         }
-        case QwtBar::Box:
+        case QwtIntervalSymbol::Box:
         {
+            QwtPainter::drawRect(painter, rect);
             break;
         }
         default:;

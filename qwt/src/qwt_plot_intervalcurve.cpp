@@ -9,7 +9,7 @@
 
 #include <qpainter.h>
 #include "qwt_polygon.h"
-#include "qwt_bar.h"
+#include "qwt_interval_symbol.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
 #include "qwt_plot_intervalcurve.h"
@@ -22,16 +22,16 @@ public:
         pen(Qt::black),
         brush(Qt::white)
     {
-        bar = new QwtBar();
+        symbol = new QwtIntervalSymbol();
     }
 
     ~PrivateData()
     {
-        delete bar;
+        delete symbol;
     }
 
     CurveStyle curveStyle;
-    QwtBar *bar;
+    QwtIntervalSymbol *symbol;
 
     QPen pen;
     QBrush brush;
@@ -113,19 +113,19 @@ QwtPlotIntervalCurve::CurveStyle QwtPlotIntervalCurve::curveStyle() const
     return d_data->curveStyle; 
 }
 
-void QwtPlotIntervalCurve::setBar(const QwtBar &bar)
+void QwtPlotIntervalCurve::setSymbol(const QwtIntervalSymbol &symbol)
 {
-    if ( bar != *d_data->bar )
+    if ( symbol != *d_data->symbol )
     {
-        delete d_data->bar;
-        d_data->bar = bar.clone();
+        delete d_data->symbol;
+        d_data->symbol = symbol.clone();
         itemChanged();
     }
 }
 
-const QwtBar &QwtPlotIntervalCurve::bar() const 
+const QwtIntervalSymbol &QwtPlotIntervalCurve::symbol() const 
 { 
-    return *d_data->bar; 
+    return *d_data->symbol; 
 }
 
 /*!
@@ -219,8 +219,8 @@ void QwtPlotIntervalCurve::draw(QPainter *painter,
             break;
     }
 
-    if ( d_data->bar->style() != QwtBar::NoBar )
-        drawBars(painter, xMap, yMap, from, to);
+    if ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol )
+        drawSymbols(painter, xMap, yMap, from, to);
 }
 
 void QwtPlotIntervalCurve::drawTube(QPainter *painter, 
@@ -300,7 +300,7 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
     painter->restore();
 }
 
-void QwtPlotIntervalCurve::drawBars(
+void QwtPlotIntervalCurve::drawSymbols(
     QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
@@ -309,14 +309,14 @@ void QwtPlotIntervalCurve::drawBars(
 #if QT_VERSION >= 0x040000
     painter->setRenderHint(QPainter::Antialiasing, false);
 #endif
-    painter->setPen(d_data->bar->pen());
-    painter->setBrush(d_data->bar->brush());
+    painter->setPen(d_data->symbol->pen());
+    painter->setBrush(d_data->symbol->brush());
 
     for ( int i = from; i <= to; i++ )
     {
         const QwtIntervalSample intervalSample = sample(i);
 
-        QRect barRect;
+        QRect symbolRect;
 
         if ( orientation() == Qt::Vertical )
         {
@@ -324,10 +324,10 @@ void QwtPlotIntervalCurve::drawBars(
             const int y1 = yMap.transform(intervalSample.interval.minValue());
             const int y2 = yMap.transform(intervalSample.interval.maxValue());
 
-            barRect.setLeft(x - d_data->bar->width() / 2);
-            barRect.setWidth(d_data->bar->width());
-            barRect.setTop(y2);
-            barRect.setBottom(y1);
+            symbolRect.setLeft(x - d_data->symbol->width() / 2);
+            symbolRect.setWidth(d_data->symbol->width());
+            symbolRect.setTop(y2);
+            symbolRect.setBottom(y1);
         }
         else
         {
@@ -335,18 +335,18 @@ void QwtPlotIntervalCurve::drawBars(
             const int x1 = xMap.transform(intervalSample.interval.minValue());
             const int x2 = xMap.transform(intervalSample.interval.maxValue());
 
-            barRect.setTop(y - d_data->bar->width() / 2);
-            barRect.setHeight(d_data->bar->width());
-            barRect.setLeft(x1);
-            barRect.setRight(x2);
+            symbolRect.setTop(y - d_data->symbol->width() / 2);
+            symbolRect.setHeight(d_data->symbol->width());
+            symbolRect.setLeft(x1);
+            symbolRect.setRight(x2);
         }
 
 #if QT_VERSION >= 0x040000
-        barRect = barRect.normalized();
+        symbolRect = symbolRect.normalized();
 #else
-        barRect = barRect.normalize();
+        symbolRect = symbolRect.normalize();
 #endif
-        d_data->bar->draw(painter, orientation(), barRect);
+        d_data->symbol->draw(painter, orientation(), symbolRect);
     }
 
     painter->restore();

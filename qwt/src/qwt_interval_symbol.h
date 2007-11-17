@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_INTERVAL_BAR_H
-#define QWT_INTERVAL_BAR_H
+#ifndef QWT_INTERVAL_SYMBOL_H
+#define QWT_INTERVAL_SYMBOL_H
 
 #include <qpen.h>
 #include <qsize.h>
@@ -18,7 +18,7 @@ class QPainter;
 class QRect;
 
 //! A drawing primitive for bars
-class QWT_EXPORT QwtBar
+class QWT_EXPORT QwtIntervalSymbol
 {
 public:
     /*!
@@ -27,22 +27,22 @@ public:
      */
     enum Style 
     { 
-        NoBar = -1, 
+        NoSymbol = -1, 
 
-        IntervalBar, 
+        Bar, 
         Box, 
 
         StyleCnt 
     };
    
 public:
-    QwtBar(Style = NoBar);
-    virtual ~QwtBar();
+    QwtIntervalSymbol(Style = NoSymbol);
+    virtual ~QwtIntervalSymbol();
     
-    bool operator!=(const QwtBar &) const;
-    virtual bool operator==(const QwtBar &) const;
+    bool operator!=(const QwtIntervalSymbol &) const;
+    virtual bool operator==(const QwtIntervalSymbol &) const;
 
-    virtual QwtBar *clone() const;
+    virtual QwtIntervalSymbol *clone() const;
 
     void setWidth(int);
     int width() const;
