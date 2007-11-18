@@ -3,9 +3,8 @@
 #include <qpen.h>
 #include <qwt_plot.h>
 #include <qwt_plot_grid.h>
-#include <qwt_plot_marker.h>
+#include <qwt_plot_histogram.h>
 #include <qwt_series_data.h>
-#include "histogram_item.h"
 
 int main(int argc, char **argv)
 {
@@ -22,7 +21,7 @@ int main(int argc, char **argv)
     grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
     grid->attach(&plot);
 
-    HistogramItem *histogram = new HistogramItem();
+    QwtPlotHistogram *histogram = new QwtPlotHistogram();
     histogram->setColor(Qt::darkCyan);
 
     const int numValues = 20;
