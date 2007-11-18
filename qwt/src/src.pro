@@ -103,6 +103,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_curve.h \
         qwt_plot_dict.h \
         qwt_plot_grid.h \
+        qwt_plot_histogram.h \
         qwt_plot_item.h \
         qwt_plot_intervalcurve.h \
         qwt_plot_layout.h \
@@ -133,6 +134,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_curve.cpp \
         qwt_plot_dict.cpp \
         qwt_plot_grid.cpp \
+        qwt_plot_histogram.cpp \
         qwt_plot_item.cpp \
         qwt_plot_intervalcurve.cpp \
         qwt_plot_spectrogram.cpp \

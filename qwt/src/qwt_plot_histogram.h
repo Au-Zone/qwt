@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef HISTOGRAM_ITEM_H
-#define HISTOGRAM_ITEM_H
+#ifndef QWT_PLOT_HISTOGRAM_H
+#define QWT_PLOT_HISTOGRAM_H
 
 #include <qglobal.h>
 #include <qcolor.h>
@@ -19,12 +19,12 @@ class QwtIntervalData;
 class QwtColumnSymbol;
 class QString;
 
-class HistogramItem: public QwtPlotSeriesItem<QwtIntervalSample>
+class QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
-    explicit HistogramItem(const QString &title = QString::null);
-    explicit HistogramItem(const QwtText &title);
-    virtual ~HistogramItem();
+    explicit QwtPlotHistogram(const QString &title = QString::null);
+    explicit QwtPlotHistogram(const QwtText &title);
+    virtual ~QwtPlotHistogram();
 
     void setColor(const QColor &);
     QColor color() const;
@@ -50,6 +50,10 @@ public:
 
     void setSymbol(const QwtColumnSymbol&);
     const QwtColumnSymbol& symbol() const;
+
+protected:
+    virtual const QwtColumnSymbol *adjustedSymbol(const QwtIntervalSample &,
+        const QwtColumnSymbol &) const;
 
 private:
     void init();

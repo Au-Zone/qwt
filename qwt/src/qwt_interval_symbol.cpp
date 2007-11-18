@@ -132,7 +132,9 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                 }
                 else    
                 {
-                    // todo
+#ifdef __GNUC__
+#warning TODO
+#endif
                 }
             }
             break;
@@ -153,7 +155,9 @@ void QwtIntervalSymbol::draw(QPainter *painter,
             }
             else
             {
-                // todo
+#ifdef __GNUC__
+#warning TODO
+#endif
             }
             break;
         }

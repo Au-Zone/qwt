@@ -11,6 +11,8 @@ A) Planned (5.1)
 7) Thread support for rendering spectrograms
 9) Navigation example
 10) QwtSymbol + QPainterPath
+11) QwtData + functors
+12) QwtPlotCurve + Level of details
 
 B) Wish List ( >= 5.1 )
    -------

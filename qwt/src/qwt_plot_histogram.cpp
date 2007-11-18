@@ -4,13 +4,13 @@
 #include <qwt_painter.h>
 #include <qwt_column_symbol.h>
 #include <qwt_scale_map.h>
-#include "histogram_item.h"
+#include <qwt_plot_histogram.h>
 
-class HistogramItem::PrivateData
+class QwtPlotHistogram::PrivateData
 {
 public:
     PrivateData():
-        attributes(HistogramItem::Auto),
+        attributes(QwtPlotHistogram::Auto),
         reference(0.0)
     {
         symbol = new QwtColumnSymbol(QwtColumnSymbol::RaisedBox);
@@ -28,24 +28,24 @@ public:
     QwtColumnSymbol *symbol;
 };
 
-HistogramItem::HistogramItem(const QwtText &title):
+QwtPlotHistogram::QwtPlotHistogram(const QwtText &title):
     QwtPlotSeriesItem<QwtIntervalSample>(title)
 {
     init();
 }
 
-HistogramItem::HistogramItem(const QString &title):
+QwtPlotHistogram::QwtPlotHistogram(const QString &title):
     QwtPlotSeriesItem<QwtIntervalSample>(title)
 {
     init();
 }
 
-HistogramItem::~HistogramItem()
+QwtPlotHistogram::~QwtPlotHistogram()
 {
     delete d_data;
 }
 
-void HistogramItem::init()
+void QwtPlotHistogram::init()
 {
     d_data = new PrivateData();
     d_series = new QwtIntervalSeriesData();
@@ -56,18 +56,18 @@ void HistogramItem::init()
     setZ(20.0);
 }
 
-void HistogramItem::setSymbol(const QwtColumnSymbol &symbol)
+void QwtPlotHistogram::setSymbol(const QwtColumnSymbol &symbol)
 {
     delete d_data->symbol;
     d_data->symbol = symbol.clone();
 }
 
-const QwtColumnSymbol &HistogramItem::symbol() const
+const QwtColumnSymbol &QwtPlotHistogram::symbol() const
 {
     return *d_data->symbol;
 }
 
-void HistogramItem::setBaseline(double reference)
+void QwtPlotHistogram::setBaseline(double reference)
 {
     if ( d_data->reference != reference )
     {
@@ -76,12 +76,12 @@ void HistogramItem::setBaseline(double reference)
     }
 }
 
-double HistogramItem::baseline() const
+double QwtPlotHistogram::baseline() const
 {
     return d_data->reference;
 }
 
-void HistogramItem::setColor(const QColor &color)
+void QwtPlotHistogram::setColor(const QColor &color)
 {
     if ( d_data->color != color )
     {
@@ -90,12 +90,12 @@ void HistogramItem::setColor(const QColor &color)
     }
 }
 
-QColor HistogramItem::color() const
+QColor QwtPlotHistogram::color() const
 {
     return d_data->color;
 }
 
-QwtDoubleRect HistogramItem::boundingRect() const
+QwtDoubleRect QwtPlotHistogram::boundingRect() const
 {
     QwtDoubleRect rect = d_series->boundingRect();
     if ( !rect.isValid() ) 
@@ -123,12 +123,12 @@ QwtDoubleRect HistogramItem::boundingRect() const
 }
 
 
-int HistogramItem::rtti() const
+int QwtPlotHistogram::rtti() const
 {
     return QwtPlotItem::Rtti_PlotHistogram;
 }
 
-void HistogramItem::setHistogramAttribute(HistogramAttribute attribute, bool on)
+void QwtPlotHistogram::setHistogramAttribute(HistogramAttribute attribute, bool on)
 {
     if ( bool(d_data->attributes & attribute) == on )
         return;
@@ -141,12 +141,12 @@ void HistogramItem::setHistogramAttribute(HistogramAttribute attribute, bool on)
     itemChanged();
 }
 
-bool HistogramItem::testHistogramAttribute(HistogramAttribute attribute) const
+bool QwtPlotHistogram::testHistogramAttribute(HistogramAttribute attribute) const
 {
     return d_data->attributes & attribute;
 }
 
-void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap, 
+void QwtPlotHistogram::draw(QPainter *painter, const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap, const QRect &) const
 {
     painter->setPen(QPen(d_data->color));
@@ -154,16 +154,20 @@ void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap,
     const int x0 = xMap.transform(baseline());
     const int y0 = yMap.transform(baseline());
 
+    const Qt::Orientation orientation = (d_data->attributes & Xfy) 
+        ? Qt::Horizontal : Qt::Vertical;
+
     for ( int i = 0; i < (int)d_series->size(); i++ )
     {
         QwtIntervalSample sample = d_series->sample(i);
 
-        if ( d_data->attributes & HistogramItem::Xfy )
+        QRect symbolRect;
+
+        if ( d_data->attributes & QwtPlotHistogram::Xfy )
         {
             const int x2 = xMap.transform(sample.value);
             if ( x2 == x0 )
                 continue;
-
 
             int y1 = yMap.transform( sample.interval.minValue());
             int y2 = yMap.transform( sample.interval.maxValue());
@@ -189,8 +193,7 @@ void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap,
                 }
             }
 
-            d_data->symbol->draw(painter, Qt::Horizontal,
-                QRect(x0, y1, x2 - x0, y2 - y1));
+            symbolRect.setRect(x0, y1, x2 - x0, y2 - y1);
         }
         else
         {
@@ -221,8 +224,21 @@ void HistogramItem::draw(QPainter *painter, const QwtScaleMap &xMap,
                     }
                 }
             }
-            d_data->symbol->draw(painter, Qt::Vertical,
-                QRect(x1, y0, x2 - x1, y2 - y0) );
+            symbolRect.setRect(x1, y0, x2 - x1, y2 - y0);
+        }
+
+        const QwtColumnSymbol *symbol = adjustedSymbol(sample, *d_data->symbol);
+        if ( symbol )
+        {
+            symbol->draw(painter, orientation, symbolRect );
+            if ( symbol != d_data->symbol )
+                delete symbol;
         }
     }
+}
+
+const QwtColumnSymbol *QwtPlotHistogram::adjustedSymbol(
+    const QwtIntervalSample &, const QwtColumnSymbol &defaultSymbol) const
+{
+    return &defaultSymbol;
 }
