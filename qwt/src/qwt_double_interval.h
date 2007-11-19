@@ -21,10 +21,22 @@
 class QWT_EXPORT QwtDoubleInterval
 {
 public:
-    inline QwtDoubleInterval();
-    inline QwtDoubleInterval(double minValue, double maxValue);
+    enum BorderMode
+    {
+        IncludeBorders = 0,
 
-    inline void setInterval(double minValue, double maxValue);
+        ExcludeMinimum = 1,
+        ExcludeMaximum = 2,
+
+        ExcludeBorders = ExcludeMinimum | ExcludeMaximum
+    };
+
+    inline QwtDoubleInterval();
+    inline QwtDoubleInterval(double minValue, double maxValue, 
+        int borderFlags = IncludeBorders);
+
+    inline void setInterval(double minValue, double maxValue, 
+        int borderFlags = IncludeBorders);
 
     QwtDoubleInterval normalized() const;
     QwtDoubleInterval inverted() const;
@@ -32,6 +44,12 @@ public:
 
     inline int operator==(const QwtDoubleInterval &) const;
     inline int operator!=(const QwtDoubleInterval &) const;
+
+    inline void setBorderFlags(int);
+    inline int borderFlags() const;
+
+    inline void setBorderMode(BorderMode, bool on = true);
+    inline bool testBorderMode() const;
 
     inline double minValue() const;
     inline double maxValue() const;
@@ -66,6 +84,7 @@ public:
 private:
     double d_minValue;
     double d_maxValue;
+    int d_borderFlags;
 };
 
 /*!
@@ -76,32 +95,51 @@ private:
 */
 inline QwtDoubleInterval::QwtDoubleInterval():
     d_minValue(0.0),
-    d_maxValue(-1.0)
+    d_maxValue(-1.0),
+    d_borderFlags(IncludeBorders)
 {
 }
 
 /*!
    Constructor
 
+   Build an interval with included min/max values
+
    \param minValue Minimum value
    \param maxValue Maximum value
+   \param borderFlags Include/Exclude borders
 */
-inline QwtDoubleInterval::QwtDoubleInterval(double minValue, double maxValue):
+inline QwtDoubleInterval::QwtDoubleInterval(
+        double minValue, double maxValue, int borderFlags):
     d_minValue(minValue),
-    d_maxValue(maxValue)
+    d_maxValue(maxValue),
+    d_borderFlags(borderFlags)
 {
 }
 
 /*!
-   Assign the limits of the interval
+   Assign the limits (included) of the interval
 
    \param minValue Minimum value
    \param maxValue Maximum value
+   \param borderFlags Include/Exclude borders
 */
-inline void QwtDoubleInterval::setInterval(double minValue, double maxValue)
+inline void QwtDoubleInterval::setInterval(
+    double minValue, double maxValue, int borderFlags)
 {
     d_minValue = minValue;
     d_maxValue = maxValue;
+    d_borderFlags = borderFlags;
+}
+
+inline void QwtDoubleInterval::setBorderFlags(int borderFlags)
+{
+    d_borderFlags = borderFlags;
+}
+
+inline int QwtDoubleInterval::borderFlags() const
+{
+    return d_borderFlags; 
 }
 
 /*!
@@ -172,7 +210,8 @@ inline QwtDoubleInterval QwtDoubleInterval::operator|(
 inline int QwtDoubleInterval::operator==(const QwtDoubleInterval &other) const
 {
     return (d_minValue == other.d_minValue) &&
-        (d_maxValue == other.d_maxValue);
+        (d_maxValue == other.d_maxValue) &&
+        (d_borderFlags == other.d_borderFlags);
 }
 
 //! Compare two intervals
@@ -190,16 +229,18 @@ inline QwtDoubleInterval QwtDoubleInterval::operator|(double value) const
     return extend(value);
 }
 
-//! \return true, if minValue() >= maxValue()
+//! \return true, if isValid() && (minValue() >= maxValue())
 inline bool QwtDoubleInterval::isNull() const
 {
-    return d_minValue >= d_maxValue;
+    return isValid() && d_minValue >= d_maxValue;
 }
 
-//! \return true, if minValue() <= maxValue()
 inline bool QwtDoubleInterval::isValid() const
 {
-    return d_minValue <= d_maxValue;
+    if ( d_borderFlags & ExcludeBorders == 0 )
+        return d_minValue <= d_maxValue;
+    else
+        return d_minValue < d_maxValue;
 }
 
 /*!
