@@ -22,38 +22,74 @@ class QString;
 class QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
+    enum CurveStyle
+    {
+        NoCurve,
+
+        Columns,
+        Lines,
+		Caps,
+
+        UserCurve = 100
+    };
+
     explicit QwtPlotHistogram(const QString &title = QString::null);
     explicit QwtPlotHistogram(const QwtText &title);
     virtual ~QwtPlotHistogram();
 
-    void setColor(const QColor &);
-    QColor color() const;
-
     virtual int rtti() const;
 
-    virtual QwtDoubleRect boundingRect() const;
+    void setPen(const QPen &);
+    const QPen &pen() const;
 
-    virtual void draw(QPainter *, const QwtScaleMap &xMap, 
-        const QwtScaleMap &yMap, const QRect &) const;
+    void setBrush(const QBrush &);
+    const QBrush &brush() const;
+
+    void setData(const QwtArray<QwtIntervalSample> &data);
+    void setData(const QwtSeriesData<QwtIntervalSample> &data);
 
     void setBaseline(double reference);
     double baseline() const;
 
-    enum HistogramAttribute
-    {
-        Auto = 0,
-        Xfy = 1
-    };
+    void setStyle(CurveStyle style);
+    CurveStyle style() const;
 
-    void setHistogramAttribute(HistogramAttribute, bool on = true);
-    bool testHistogramAttribute(HistogramAttribute) const;
+    void setSymbol(const QwtColumnSymbol &);
+    const QwtColumnSymbol &symbol() const;
 
-    void setSymbol(const QwtColumnSymbol&);
-    const QwtColumnSymbol& symbol() const;
+    virtual void draw(QPainter *, const QwtScaleMap &xMap, 
+        const QwtScaleMap &yMap, const QRect &) const;
+
+    virtual void draw(QPainter *p,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        int from, int to) const;
+
+    virtual QwtDoubleRect boundingRect() const;
+    virtual void updateLegend(QwtLegend *) const;
 
 protected:
     virtual const QwtColumnSymbol *adjustedSymbol(const QwtIntervalSample &,
         const QwtColumnSymbol &) const;
+
+    virtual void drawSymbols(QPainter *p, const QwtColumnSymbol &,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        int from, int to) const;
+
+    virtual void drawCurve(QPainter *p, int style,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        int from, int to) const;
+
+	void drawColumns(QPainter *,
+		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+		int from, int to) const;
+
+	void drawLines(QPainter *,
+		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+		int from, int to) const;
+
+	void drawCaps(QPainter *,
+		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+		int from, int to) const;
 
 private:
     void init();
