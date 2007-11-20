@@ -442,7 +442,7 @@ void QwtPlotCurve::draw(int from, int to) const
   \param to index of the last point to be painted. If to < 0 the 
          curve will be painted to its last point.
 
-  \sa drawCurve(), draSymbols(),
+  \sa drawCurve(), drawSymbols(),
 */
 void QwtPlotCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 

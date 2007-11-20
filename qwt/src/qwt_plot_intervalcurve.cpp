@@ -339,4 +339,7 @@ void QwtPlotIntervalCurve::drawSymbols(
 
 void QwtPlotIntervalCurve::updateLegend(QwtLegend *) const
 {
+#ifdef __GNUC__
+#warning TODO
+#endif
 }

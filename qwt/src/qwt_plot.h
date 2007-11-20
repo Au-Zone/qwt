@@ -255,7 +255,7 @@ signals:
     void legendChecked(QwtPlotItem *plotItem, bool on);
 
 public slots:
-    void clear();
+    virtual void clear();
 
     virtual void replot();
     void autoRefresh();

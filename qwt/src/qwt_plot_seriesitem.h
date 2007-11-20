@@ -161,7 +161,11 @@ QwtDoubleRect QwtPlotSeriesItem<T>::boundingRect() const
     if ( d_series == NULL )
         return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
 
-    return d_series->boundingRect();
+    QwtDoubleRect rect = d_series->boundingRect();
+    if ( orientation() == Qt::Vertical )
+        rect.setRect(rect.y(), rect.x(), rect.height(), rect.width());
+        
+    return rect;
 }
 
 template <typename T> 
