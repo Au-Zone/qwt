@@ -49,7 +49,7 @@ template <typename T>
 QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QString &title):
     QwtPlotItem(QwtText(title)),
     d_series(NULL),
-    d_orientation(Qt::Horizontal)
+    d_orientation(Qt::Vertical)
 {
 }
 
@@ -58,7 +58,7 @@ QwtPlotSeriesItem<T>::QwtPlotSeriesItem(
         const QwtText &title):
     QwtPlotItem(title),
     d_series(NULL),
-    d_orientation(Qt::Horizontal)
+    d_orientation(Qt::Vertical)
 {
 }
 
@@ -71,11 +71,11 @@ QwtPlotSeriesItem<T>::~QwtPlotSeriesItem()
 /*!
   Assign the curve type
 
-  <dt>Qt::Horizontal
+  <dt>Qt::Vertical
   <dd>Draws y as a function of x (the default). The
       baseline is interpreted as a horizontal line
       with y = baseline().</dd>
-  <dt>Qt::Vertical
+  <dt>Qt::Horizontal
   <dd>Draws x as a function of y. The baseline is
       interpreted as a vertical line with x = baseline().</dd>
 
@@ -162,11 +162,7 @@ QwtDoubleRect QwtPlotSeriesItem<T>::boundingRect() const
     if ( d_series == NULL )
         return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
 
-    QwtDoubleRect rect = d_series->boundingRect();
-    if ( orientation() == Qt::Vertical )
-        rect.setRect(rect.y(), rect.x(), rect.height(), rect.width());
-        
-    return rect;
+    return d_series->boundingRect();
 }
 
 template <typename T> 

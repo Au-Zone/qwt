@@ -961,16 +961,16 @@ void QwtPlotCurve::closePolyline(
     if ( orientation() == Qt::Vertical )
     {
         pa.setPoint(sz,
-            xMap.transform(d_data->reference), pa.point(sz - 1).y());
-        pa.setPoint(sz + 1,
-            xMap.transform(d_data->reference), pa.point(0).y());
+            pa.point(sz - 1).x(), yMap.transform(d_data->reference));
+        pa.setPoint(pa.size() - 1,
+            pa.point(0).x(), yMap.transform(d_data->reference));
     }
     else
     {
         pa.setPoint(sz,
-            pa.point(sz - 1).x(), yMap.transform(d_data->reference));
-        pa.setPoint(pa.size() - 1,
-            pa.point(0).x(), yMap.transform(d_data->reference));
+            xMap.transform(d_data->reference), pa.point(sz - 1).y());
+        pa.setPoint(sz + 1,
+            xMap.transform(d_data->reference), pa.point(0).y());
     }
 }
 
