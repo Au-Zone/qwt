@@ -13,6 +13,7 @@
 #include <qglobal.h>
 #include <qcolor.h>
 
+#include "qwt_polygon.h" 
 #include "qwt_plot_seriesitem.h" 
 
 class QwtIntervalData;
@@ -28,7 +29,7 @@ public:
 
         Columns,
         Lines,
-		Caps,
+        Caps,
 
         UserCurve = 100
     };
@@ -79,20 +80,21 @@ protected:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
-	void drawColumns(QPainter *,
-		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		int from, int to) const;
+    void drawColumns(QPainter *,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        int from, int to) const;
 
-	void drawLines(QPainter *,
-		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		int from, int to) const;
+    void drawLines(QPainter *,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        int from, int to) const;
 
-	void drawCaps(QPainter *,
-		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		int from, int to) const;
+    void drawCaps(QPainter *,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        int from, int to) const;
 
 private:
     void init();
+    void flushPolygon(QPainter *, int baseLine, QwtPolygon &) const;
 
     class PrivateData;
     PrivateData *d_data;
