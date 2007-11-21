@@ -958,7 +958,7 @@ void QwtPlotCurve::closePolyline(
 
     pa.resize(sz + 2);
 
-    if ( orientation() == Qt::Horizontal )
+    if ( orientation() == Qt::Vertical )
     {
         pa.setPoint(sz,
             xMap.transform(d_data->reference), pa.point(sz - 1).y());

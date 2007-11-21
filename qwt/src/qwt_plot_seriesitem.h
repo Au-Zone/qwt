@@ -48,7 +48,8 @@ protected:
 template <typename T> 
 QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QString &title):
     QwtPlotItem(QwtText(title)),
-    d_series(NULL)
+    d_series(NULL),
+    d_orientation(Qt::Horizontal)
 {
 }
 
@@ -57,7 +58,7 @@ QwtPlotSeriesItem<T>::QwtPlotSeriesItem(
         const QwtText &title):
     QwtPlotItem(title),
     d_series(NULL),
-    d_orientation(Qt::Vertical)
+    d_orientation(Qt::Horizontal)
 {
 }
 
