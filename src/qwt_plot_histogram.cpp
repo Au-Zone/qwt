@@ -6,29 +6,6 @@
 #include <qwt_scale_map.h>
 #include <qwt_plot_histogram.h>
 
-static void drawColumn(QPainter *painter, const QRect &rect)
-{
-    int pw = painter->pen().width(); 
-    if ( pw == 0 )
-        pw = 1;
-
-#if QT_VERSION < 0x040000
-    QRect r = rect.normalize();
-    r.setLeft(r.left() + pw / 2);
-    r.setTop(r.top() + pw / 2 + 1);
-    r.setRight(r.right() - pw / 2 + 2 - pw % 2);
-    r.setBottom(r.bottom() - pw / 2 + 1 - pw % 2 );
-#else
-    QRect r = rect.normalized();
-    r.setLeft(r.left() + pw / 2);
-    r.setRight(r.right() + pw / 2 + 1);
-    r.setTop(r.top() + pw / 2 + 1);
-    r.setBottom(r.bottom() + pw / 2);
-#endif
-    QwtPainter::drawRect(painter, r);
-}
-
-
 class QwtPlotHistogram::PrivateData
 {
 public:
@@ -36,7 +13,7 @@ public:
         reference(0.0),
         curveStyle(NoCurve)
     {
-        symbol = new QwtColumnSymbol(QwtColumnSymbol::RaisedBox);
+        symbol = new QwtColumnSymbol(QwtColumnSymbol::NoSymbol);
     }
 
     ~PrivateData()
@@ -210,125 +187,16 @@ void QwtPlotHistogram::draw(QPainter *painter,
     if (to < 0)
         to = dataSize() - 1;
 
-    painter->save();
-    drawCurve(painter, d_data->curveStyle, xMap, yMap, from, to);
-    painter->restore();
-
-    if ( d_data->symbol->style() != QwtColumnSymbol::NoSymbol)
+    switch (d_data->curveStyle)
     {
-        painter->save();
-        drawSymbols(painter, *d_data->symbol, xMap, yMap, from, to);
-        painter->restore();
-    }
-}
-
-
-void QwtPlotHistogram::drawSymbols(QPainter *painter, 
-    const QwtColumnSymbol &symbol, const QwtScaleMap &xMap, 
-    const QwtScaleMap &yMap, int from, int to) const
-{
-#if 1
-    const QColor color(Qt::darkCyan);
-#endif
-    painter->setPen(QPen(color));
-
-    const int v0 = (orientation() == Qt::Horizontal) ?
-        yMap.transform(baseline()) : xMap.transform(baseline());
-
-    for ( int i = from; i < to; i++ )
-    {
-        QwtIntervalSample sample = d_series->sample(i);
-
-        QRect symbolRect;
-
-        if ( orientation() == Qt::Horizontal )
-        {
-            const int x2 = xMap.transform(sample.value);
-            if ( x2 == v0 )
-                continue;
-
-            int y1 = yMap.transform( sample.interval.minValue());
-            int y2 = yMap.transform( sample.interval.maxValue());
-            if ( y1 > y2 )
-                qSwap(y1, y2);
-
-            if ( i < (int)d_series->size() - 2 )
-            {
-                sample = d_series->sample(i+1);
-
-                const int yy1 = yMap.transform(sample.interval.minValue());
-                const int yy2 = yMap.transform(sample.interval.maxValue());
-
-                if ( y2 == qwtMin(yy1, yy2) )
-                {
-                    const int xx2 = xMap.transform(sample.interval.minValue());
-                    if ( xx2 != v0 && ( (xx2 < v0 && x2 < v0) ||
-                                          (xx2 > v0 && x2 > v0) ) )
-                    {
-                       // One pixel distance between neighboured bars
-                       y2++;
-                    }
-                }
-            }
-
-            symbolRect.setRect(v0, y1, x2 - v0, y2 - y1);
-        }
-        else // Horizontal
-        {
-            const int y2 = yMap.transform(sample.value);
-            if ( y2 == v0 )
-                continue;
-
-            int x1 = xMap.transform(sample.interval.minValue());
-            int x2 = xMap.transform(sample.interval.maxValue());
-            if ( x1 > x2 )
-                qSwap(x1, x2);
-
-            if ( i < (int)d_series->size() - 2 )
-            {
-                sample = d_series->sample(i+1);
-
-                const int xx1 = xMap.transform(sample.interval.minValue());
-                const int xx2 = xMap.transform(sample.interval.maxValue());
-
-                if ( x2 == qwtMin(xx1, xx2) )
-                {
-                    const int yy2 = yMap.transform(sample.value);
-                    if ( yy2 != v0 && ( (yy2 < v0 && y2 < v0) ||
-                                    (yy2 > v0 && y2 > v0) ) )
-                    {
-                        // One pixel distance between neighboured bars
-                        x2--;
-                    }
-                }
-            }
-            symbolRect.setRect(x1, v0, x2 - x1, y2 - v0);
-        }
-
-        const QwtColumnSymbol *sym = adjustedSymbol(sample, symbol);
-        if ( sym )
-        {
-            sym->draw(painter, orientation(), symbolRect );
-            if ( sym != d_data->symbol )
-                delete sym;
-        }
-    }
-}
-
-void QwtPlotHistogram::drawCurve(QPainter *painter, int style,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
-{
-    switch (style)
-    {
-        case Columns:
-            drawColumns(painter, xMap, yMap, from, to);
+        case Outline:
+            drawOutline(painter, xMap, yMap, from, to);
             break;
         case Lines:
             drawLines(painter, xMap, yMap, from, to);
             break;
-        case Caps:
-            drawCaps(painter, xMap, yMap, from, to);
+        case Columns:
+            drawColumns(painter, xMap, yMap, from, to);
             break;
         case NoCurve:
         default:
@@ -336,55 +204,7 @@ void QwtPlotHistogram::drawCurve(QPainter *painter, int style,
     }
 }
 
-void QwtPlotHistogram::drawColumns(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
-{
-    QRect rect;
-
-    const int v0 = (orientation() == Qt::Horizontal) ?
-        xMap.transform(baseline()) : yMap.transform(baseline());
-
-    painter->setPen(d_data->pen);
-    painter->setBrush(d_data->brush);
-
-    for ( int i = from; i <= to; i++ )
-    {
-        const QwtIntervalSample sample = d_series->sample(i);
-        if ( sample.interval.isNull() )
-            continue;
-
-        const QwtDoubleInterval &iv = sample.interval;
-        int minOff = 0;
-        if ( iv.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
-            minOff = 1;
-
-        int maxOff = 0;
-        if ( iv.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
-            maxOff = 1;
-
-        if ( orientation() == Qt::Horizontal )
-        {
-            const int x = xMap.transform(sample.value);
-            const int y1 = yMap.transform( iv.minValue()) - minOff;
-            const int y2 = yMap.transform( iv.maxValue()) + maxOff;
-
-            rect.setRect(v0, y1, x - v0, y2 - y1);
-        }
-        else
-        {
-            const int x1 = xMap.transform( iv.minValue()) + minOff;
-            const int x2 = xMap.transform( iv.maxValue()) - maxOff;
-            const int y = yMap.transform(sample.value);
-
-            rect.setRect(x1, v0, x2 - x1, y - v0);
-        }
-
-        drawColumn(painter, rect);
-    }
-}
-
-void QwtPlotHistogram::drawLines(QPainter *painter,
+void QwtPlotHistogram::drawOutline(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     int from, int to) const
 {
@@ -441,16 +261,72 @@ void QwtPlotHistogram::drawLines(QPainter *painter,
     flushPolygon(painter, v0, points);
 }
 
-void QwtPlotHistogram::drawCaps(QPainter *,
-        const QwtScaleMap &, const QwtScaleMap &,
-        int , int ) const
+void QwtPlotHistogram::drawColumns(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    int from, int to) const
 {
+    painter->setPen(d_data->pen);
+    painter->setBrush(d_data->brush);
+
+    for ( int i = from; i <= to; i++ )
+    {
+        const QwtIntervalSample sample = d_series->sample(i);
+        if ( !sample.interval.isNull() )
+        { 
+            QwtColumnSymbol::Direction direction;
+            const QRect rect = columnRect(sample, xMap, yMap, direction);
+            if ( !rect.isNull() )
+                drawColumn(painter, rect, direction, sample);
+        }
+    }
 }
 
-const QwtColumnSymbol *QwtPlotHistogram::adjustedSymbol(
-    const QwtIntervalSample &, const QwtColumnSymbol &defaultSymbol) const
+void QwtPlotHistogram::drawLines(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    int from, int to) const
 {
-    return &defaultSymbol;
+    painter->setPen(d_data->pen);
+    painter->setBrush(Qt::NoBrush);
+
+    for ( int i = from; i <= to; i++ )
+    {
+        const QwtIntervalSample sample = d_series->sample(i);
+        if ( !sample.interval.isNull() )
+        { 
+            QwtColumnSymbol::Direction direction;
+            const QRect rect = columnRect(sample, xMap, yMap, direction);
+            if ( !rect.isNull() )
+            {
+                switch(direction)
+                {
+                    case QwtColumnSymbol::LeftToRight:
+                    {
+                        QwtPainter::drawLine(painter, 
+                            rect.topRight(), rect.bottomRight());
+                        break;
+                    }
+                    case QwtColumnSymbol::RightToLeft:
+                    {
+                        QwtPainter::drawLine(painter, 
+                            rect.topLeft(), rect.bottomLeft());
+                        break;
+                    }
+                    case QwtColumnSymbol::TopToBottom:
+                    {
+                        QwtPainter::drawLine(painter, 
+                            rect.bottomRight(), rect.bottomLeft());
+                        break;
+                    }
+                    case QwtColumnSymbol::BottomToTop:
+                    {
+                        QwtPainter::drawLine(painter, 
+                            rect.topRight(), rect.topLeft());
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void QwtPlotHistogram::updateLegend(QwtLegend *) const
@@ -499,4 +375,80 @@ void QwtPlotHistogram::flushPolygon(QPainter *painter,
         QwtPainter::drawPolyline(painter, points);
     }
     points.clear();
+}
+
+QRect QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    QwtColumnSymbol::Direction &direction) const
+{
+    const int v0 = (orientation() == Qt::Horizontal) ?
+        xMap.transform(baseline()) : yMap.transform(baseline());
+
+    const QwtDoubleInterval &iv = sample.interval;
+    if ( !iv.isValid() )
+    {
+        direction = QwtColumnSymbol::LeftToRight; // something
+        return QRect();
+    }
+
+    int minOff = 0;
+    if ( iv.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
+        minOff = 1;
+
+    int maxOff = 0;
+    if ( iv.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
+        maxOff = 1;
+
+    QRect rect;
+    if ( orientation() == Qt::Horizontal )
+    {
+        const int x = xMap.transform(sample.value);
+        const int y1 = yMap.transform( iv.minValue()) - minOff;
+        const int y2 = yMap.transform( iv.maxValue()) + maxOff;
+
+        rect.setRect(v0, y1, x - v0, y2 - y1);
+        direction = x < v0 ? QwtColumnSymbol::RightToLeft :
+            QwtColumnSymbol::LeftToRight;
+    }
+    else
+    {
+        const int x1 = xMap.transform( iv.minValue()) + minOff;
+        const int x2 = xMap.transform( iv.maxValue()) - maxOff;
+        const int y = yMap.transform(sample.value);
+
+        rect.setRect(x1, v0, x2 - x1, y - v0);
+        direction = y < v0 ? QwtColumnSymbol::BottomToTop :
+            QwtColumnSymbol::TopToBottom;
+    }
+
+    return rect;
+}
+
+void QwtPlotHistogram::drawColumn(QPainter *painter, 
+    const QRect &rect, QwtColumnSymbol::Direction direction,
+    const QwtIntervalSample &sample) const
+{
+    if ( d_data->symbol->style() != QwtColumnSymbol::NoSymbol)
+        d_data->symbol->draw(painter, direction, rect);
+    else
+    {
+        int pw = painter->pen().width();
+        if ( pw == 0 )
+            pw = 1;
+
+#if QT_VERSION < 0x040000
+        QRect r = rect.normalize();
+        r.setLeft(r.left() + pw / 2);
+        r.setTop(r.top() + pw / 2 + 1);
+        r.setRight(r.right() - pw / 2 + 2 - pw % 2);
+        r.setBottom(r.bottom() - pw / 2 + 1 - pw % 2 );
+#else
+        QRect r = rect.normalized();
+        r.setLeft(r.left() + pw / 2);
+        r.setRight(r.right() + pw / 2 + 1);
+        r.setTop(r.top() + pw / 2 + 1);
+        r.setBottom(r.bottom() + pw / 2);
+#endif
+        QwtPainter::drawRect(painter, r);
+    }
 }

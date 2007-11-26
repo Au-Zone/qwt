@@ -23,6 +23,14 @@ class QwtText;
 class QWT_EXPORT QwtColumnSymbol
 {
 public:
+    enum Direction
+    {
+        LeftToRight,
+        RightToLeft,
+        BottomToTop,
+        TopToBottom
+    };
+
     /*!
         Style
         \sa setStyle(), style()
@@ -32,7 +40,6 @@ public:
         NoSymbol = -1, 
 
         Box, 
-        RaisedBox, 
 
         StyleCnt 
     };
@@ -40,6 +47,12 @@ public:
 public:
     QwtColumnSymbol(Style = NoSymbol);
     virtual ~QwtColumnSymbol();
+    
+    void setFrameStyle(int style);
+    int frameStyle() const;
+
+    void setLineWidth(int width);
+    int lineWidth() const;
     
     bool operator!=(const QwtColumnSymbol &) const;
     virtual bool operator==(const QwtColumnSymbol &) const;
@@ -55,11 +68,10 @@ public:
     void setLabel(const QwtText&);
     const QwtText &label() const;
 
-    virtual void draw(QPainter *, Qt::Orientation, const QRect&) const;
+    virtual void draw(QPainter *, Direction, const QRect&) const;
 
 protected:
-    void drawBox(QPainter *, Qt::Orientation, const QRect&) const;
-    void drawRaisedBox(QPainter *, Qt::Orientation, const QRect&) const;
+    void drawBox(QPainter *, Direction, const QRect&) const;
 
 private:
     class PrivateData;
