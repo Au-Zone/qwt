@@ -15,9 +15,9 @@
 
 #include "qwt_polygon.h" 
 #include "qwt_plot_seriesitem.h" 
+#include "qwt_column_symbol.h" 
 
 class QwtIntervalData;
-class QwtColumnSymbol;
 class QString;
 
 class QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
@@ -27,9 +27,10 @@ public:
     {
         NoCurve,
 
+        Outline,
+
         Columns,
         Lines,
-        Caps,
 
         UserCurve = 100
     };
@@ -69,26 +70,22 @@ public:
     virtual void updateLegend(QwtLegend *) const;
 
 protected:
-    virtual const QwtColumnSymbol *adjustedSymbol(const QwtIntervalSample &,
-        const QwtColumnSymbol &) const;
+    virtual QRect columnRect(const QwtIntervalSample &,
+        const QwtScaleMap &, const QwtScaleMap &,
+        QwtColumnSymbol::Direction &) const;
 
-    virtual void drawSymbols(QPainter *p, const QwtColumnSymbol &,
-        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
-
-    virtual void drawCurve(QPainter *p, int style,
-        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+    virtual void drawColumn(QPainter *, const QRect &, 
+        QwtColumnSymbol::Direction, const QwtIntervalSample &) const;
 
     void drawColumns(QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
-    void drawLines(QPainter *,
+    void drawOutline(QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
-    void drawCaps(QPainter *,
+    void drawLines(QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 

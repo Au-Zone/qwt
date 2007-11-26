@@ -9,23 +9,33 @@
 
 #include <qpainter.h>
 #include <qpalette.h>
+#include <qframe.h>
 #include "qwt_math.h"
 #include "qwt_text.h"
 #include "qwt_column_symbol.h"
 #include "qwt_painter.h"
+#if QT_VERSION < 0x040000
+#include <qdrawutil.h>
+#endif
 
 class QwtColumnSymbol::PrivateData
 {
 public:
     PrivateData():
-        style(QwtColumnSymbol::NoSymbol)
+        style(QwtColumnSymbol::Box),
+        lineWidth(2),
+        frameStyle(QFrame::Box | QFrame::Raised)
     {
+        palette = QPalette(Qt::gray);
     }
 
     QwtColumnSymbol::Style style;
 
     QPalette palette;
     QwtText label;
+
+    int lineWidth;
+    int frameStyle;
 };
 
 QwtColumnSymbol::QwtColumnSymbol(Style style) 
@@ -52,7 +62,9 @@ bool QwtColumnSymbol::operator==(const QwtColumnSymbol &other) const
 {
     return d_data->style == other.d_data->style &&
         d_data->palette == other.d_data->palette &&
-        d_data->label == other.d_data->label;
+        d_data->label == other.d_data->label &&
+        d_data->lineWidth == other.d_data->lineWidth &&
+        d_data->frameStyle == other.d_data->frameStyle;
 }
 
 //! != operator
@@ -81,6 +93,27 @@ const QPalette& QwtColumnSymbol::palette() const
     return d_data->palette;
 }
 
+void QwtColumnSymbol::setFrameStyle(int style)
+{
+    d_data->frameStyle = style;
+}
+
+int QwtColumnSymbol::frameStyle() const
+{
+    return d_data->frameStyle;
+}
+
+void QwtColumnSymbol::setLineWidth(int width)
+{
+    d_data->lineWidth = width;
+}
+
+int QwtColumnSymbol::lineWidth() const
+{
+    return d_data->lineWidth;
+}
+
+
 void QwtColumnSymbol::setLabel(const QwtText &label)
 {
     d_data->label = label;
@@ -92,7 +125,7 @@ const QwtText& QwtColumnSymbol::label() const
 }
 
 void QwtColumnSymbol::draw(QPainter *painter, 
-    Qt::Orientation orientation, const QRect &rect) const
+    Direction direction, const QRect &rect) const
 {
 #if QT_VERSION >= 0x040000
     const QRect r = rect.normalized();
@@ -105,12 +138,7 @@ void QwtColumnSymbol::draw(QPainter *painter,
     {
         case QwtColumnSymbol::Box:
         {
-            drawBox(painter, orientation, r);
-            break;
-        }
-        case QwtColumnSymbol::RaisedBox:
-        {
-            drawRaisedBox(painter, orientation, r);
+            drawBox(painter, direction, r);
             break;
         }
         default:;
@@ -119,68 +147,85 @@ void QwtColumnSymbol::draw(QPainter *painter,
     painter->restore();
 }
 
-void QwtColumnSymbol::drawBox(QPainter *, 
-    Qt::Orientation, const QRect &) const
+void QwtColumnSymbol::drawBox(QPainter *painter, 
+    Direction, const QRect &rect) const
 {
-}
-
-void QwtColumnSymbol::drawRaisedBox(QPainter *painter, 
-    Qt::Orientation, const QRect &rect) const
-{
-    const QColor color(painter->pen().color());
-
-    const int factor = 125;
-    const QColor light(color.light(factor));
-    const QColor dark(color.dark(factor));
-
-    painter->setBrush(color);
-    painter->setPen(Qt::NoPen);
-    QwtPainter::drawRect(painter, rect.x() + 1, rect.y() + 1,
-        rect.width() - 2, rect.height() - 2);
-    painter->setBrush(Qt::NoBrush);
-
-    painter->setPen(QPen(light, 2));
-#if QT_VERSION >= 0x040000
-    QwtPainter::drawLine(painter,
-        rect.left() + 1, rect.top() + 2, rect.right() + 1, rect.top() + 2);
+#if QT_VERSION < 0x040000
+    QRect r = rect.normalize();
 #else
-    QwtPainter::drawLine(painter,
-        rect.left(), rect.top() + 2, rect.right() + 1, rect.top() + 2);
+    QRect r = rect.normalized();
+#endif
+    r = QwtPainter::metricsMap().layoutToDevice(r, painter);
+
+    r.setTop(r.top() + 1);
+    r.setRight(r.right() + 1);
+
+#if QT_VERSION < 0x040000
+    const int shadowMask = 0x00f0;
+    const int shapeMask = 0x000f;
+#else
+    const int shadowMask = QFrame::Shadow_Mask;
+    const int shapeMask = QFrame::Shape_Mask;
+#endif
+    int shadow = d_data->frameStyle & shadowMask;
+    if ( shadow == 0 )
+        shadow = QFrame::Plain;
+
+    int shape = d_data->frameStyle & shapeMask;
+    if ( shadow == QFrame::Plain )
+        shape = QFrame::Box;
+
+    const QBrush brush =
+#if QT_VERSION < 0x040000
+        d_data->palette.brush(QPalette::Active, QColorGroup::Background);
+#else
+        d_data->palette.brush(QPalette::Window);
 #endif
 
-    painter->setPen(QPen(dark, 2));
-#if QT_VERSION >= 0x040000 
-    QwtPainter::drawLine(painter,
-        rect.left() + 1, rect.bottom(), rect.right() + 1, rect.bottom());
+    switch(d_data->frameStyle & shapeMask )
+    {
+        case QFrame::Panel:
+        case QFrame::StyledPanel:
+        case QFrame::WinPanel:
+        {
+            qDrawShadePanel(painter, r, 
+#if QT_VERSION < 0x040000
+                d_data->palette.active(),
 #else
-    QwtPainter::drawLine(painter,
-        rect.left(), rect.bottom(), rect.right() + 1, rect.bottom());
+                d_data->palette, 
 #endif
-    painter->setPen(QPen(light, 1));
-
-#if QT_VERSION >= 0x040000
-    QwtPainter::drawLine(painter,
-        rect.left(), rect.top() + 1, rect.left(), rect.bottom());
-    QwtPainter::drawLine(painter,
-        rect.left() + 1, rect.top() + 2, rect.left() + 1, rect.bottom() - 1);
+                shadow == QFrame::Sunken, d_data->lineWidth, &brush
+            );
+            break;
+        }
+        case QFrame::Box:
+        default:
+        {
+            if ( shadow == QFrame::Plain )
+            {
+                qDrawPlainRect(painter, r, 
+#if QT_VERSION < 0x040000
+                    d_data->palette.color(
+                        QPalette::Active, QColorGroup::Foreground),
 #else
-    QwtPainter::drawLine(painter,
-        rect.left(), rect.top() + 1, rect.left(), rect.bottom() + 1);
-    QwtPainter::drawLine(painter,
-        rect.left() + 1, rect.top() + 2, rect.left() + 1, rect.bottom());
+                    d_data->palette.color(QPalette::Foreground),
 #endif
+                    d_data->lineWidth, &brush);
+            }
+            else
+            {
+                const int midLineWidth = 0;
 
-    painter->setPen(QPen(dark, 1));
-
-#if QT_VERSION >= 0x040000
-    QwtPainter::drawLine(painter,
-        rect.right() + 1, rect.top() + 1, rect.right() + 1, rect.bottom());
-    QwtPainter::drawLine(painter,
-        rect.right(), rect.top() + 2, rect.right(), rect.bottom() - 1);
+                qDrawShadeRect( painter, r, 
+#if QT_VERSION < 0x040000
+                    d_data->palette.active(),
 #else
-    QwtPainter::drawLine(painter,
-        rect.right() + 1, rect.top() + 1, rect.right() + 1, rect.bottom() + 1);
-    QwtPainter::drawLine(painter,
-        rect.right(), rect.top() + 2, rect.right(), rect.bottom());
+                    d_data->palette, 
 #endif
+                    shadow == QFrame::Sunken, 
+                    d_data->lineWidth, midLineWidth, &brush 
+                );
+            }
+        }
+    }
 }
