@@ -46,7 +46,7 @@ public:
                   the zoomer with its scales. This might be necessary, 
                   when the plot is in a state with pending scale changes.
 
-  \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::setZoomBase()
+  \sa QwtPlot::autoReplot(), QwtPlot::replot(), setZoomBase()
 */
 QwtPlotZoomer::QwtPlotZoomer(QwtPlotCanvas *canvas, bool doReplot):
     QwtPlotPicker(canvas)
@@ -69,7 +69,7 @@ QwtPlotZoomer::QwtPlotZoomer(QwtPlotCanvas *canvas, bool doReplot):
                   the zoomer with its scales. This might be necessary, 
                   when the plot is in a state with pending scale changes.
 
-  \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::setZoomBase()
+  \sa QwtPlot::autoReplot(), QwtPlot::replot(), setZoomBase()
 */
 
 QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis,
@@ -195,21 +195,20 @@ QwtDoubleRect QwtPlotZoomer::zoomBase() const
 /*!
   Reinitialized the zoom stack with scaleRect() as base.
 
-  \sa zoomBase(), scaleRect()
+  \param doReplot Call replot for the attached plot before initializing
+                  the zoomer with its scales. This might be necessary, 
+                  when the plot is in a state with pending scale changes.
 
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, you must call
-           QwtPlot::replot() before calling QwtPlotZoomer::setZoomBase().
-           This quirk will be removed in a future release.
-
-  \sa QwtPlot::autoReplot(), QwtPlot::replot().
+  \sa zoomBase(), scaleRect() QwtPlot::autoReplot(), QwtPlot::replot().
 */
-void QwtPlotZoomer::setZoomBase()
+void QwtPlotZoomer::setZoomBase(bool doReplot)
 {
-    const QwtPlot *plt = plot();
-    if ( !plt )
+    QwtPlot *plt = plot();
+    if ( plt == NULL )
         return;
+
+    if ( doReplot )
+        plt->replot();
 
     d_data->zoomStack.clear();
     d_data->zoomStack.push(scaleRect());
