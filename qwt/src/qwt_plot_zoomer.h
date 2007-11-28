@@ -59,7 +59,7 @@ public:
 
     virtual ~QwtPlotZoomer();
 
-    virtual void setZoomBase();
+    virtual void setZoomBase(bool doReplot = true);
     virtual void setZoomBase(const QwtDoubleRect &);
 
     QwtDoubleRect zoomBase() const;
