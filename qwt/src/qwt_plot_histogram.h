@@ -20,7 +20,7 @@
 class QwtIntervalData;
 class QString;
 
-class QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
+class QWT_EXPORT QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
     enum CurveStyle
