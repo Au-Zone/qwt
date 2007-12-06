@@ -26,6 +26,11 @@ public:
     {
     }
 
+    bool operator==(const QwtIntervalSample &other) const
+    {
+        return value == other.value && interval == other.interval;
+    }
+
     double value;
     QwtDoubleInterval interval;
 };
@@ -37,6 +42,11 @@ public:
     QwtSetSample():
         value(0.0)
     {
+    }
+
+    bool operator==(const QwtSetSample &other) const
+    {   
+        return value == other.value && set == other.set;
     }
 
     double value;
