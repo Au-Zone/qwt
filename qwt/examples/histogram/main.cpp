@@ -12,7 +12,7 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
 
     QwtPlot plot;
-    plot.setCanvasBackground(QColor(Qt::white));
+    plot.setCanvasBackground(QColor(Qt::gray));
     plot.setTitle("Histogram");
 
     QwtPlotGrid *grid = new QwtPlotGrid;
@@ -23,18 +23,23 @@ int main(int argc, char **argv)
     grid->attach(&plot);
 
     QwtPlotHistogram *histogram = new QwtPlotHistogram();
+    histogram->setStyle(QwtPlotHistogram::Columns);
+    histogram->setPen(QPen(Qt::black));
+    histogram->setBrush(QBrush(Qt::gray));
 #if 0
-	histogram->setBaseline(10.0);
-	histogram->setOrientation(Qt::Vertical);
+    //histogram->setBaseline(50.0);
+    histogram->setOrientation(Qt::Horizontal);
 #endif
 
-	QwtColumnSymbol symbol(QwtColumnSymbol::NoSymbol);
-	histogram->setSymbol(symbol);
-	histogram->setStyle(QwtPlotHistogram::Columns);
-	histogram->setPen(QPen(Qt::black));
-	histogram->setBrush(QBrush(Qt::gray));
-
 #if 1
+    QwtColumnSymbol symbol(QwtColumnSymbol::Box);
+    symbol.setFrameStyle(QFrame::Panel | QFrame::Raised);
+    symbol.setLineWidth(2);
+    symbol.setPalette(QPalette(Qt::magenta));
+    histogram->setSymbol(symbol);
+#endif
+
+#if 0
     const int numValues = 20;
 
     QwtArray<QwtIntervalSample> samples(numValues);
@@ -52,20 +57,20 @@ int main(int argc, char **argv)
     }
 #else
     QwtArray<QwtIntervalSample> samples(3);
-	samples[0].interval = QwtDoubleInterval(0, 20);
-	samples[0].value = 40;
-	samples[1].interval = QwtDoubleInterval(20, 50);
-	samples[1].interval.setBorderFlags(QwtDoubleInterval::ExcludeBorders);
-	samples[1].value = 80;
-	samples[2].interval = QwtDoubleInterval(50, 80);
-	samples[2].value = 30;
+    samples[0].interval = QwtDoubleInterval(0, 20);
+    samples[0].value = 40;
+    samples[1].interval = QwtDoubleInterval(20.01, 50);
+    samples[1].interval.setBorderFlags(QwtDoubleInterval::ExcludeBorders);
+    samples[1].value = 80;
+    samples[2].interval = QwtDoubleInterval(50, 80);
+    samples[2].value = 30;
 #endif
 
     histogram->setData(QwtIntervalSeriesData(samples));
     histogram->attach(&plot);
 
-    plot.setAxisScale(QwtPlot::yLeft, 0.0, 100.0);
 #if 0
+    plot.setAxisScale(QwtPlot::yLeft, 0.0, 100.0);
     plot.setAxisScale(QwtPlot::xBottom, 0.0, pos);
 #endif
     plot.replot();
