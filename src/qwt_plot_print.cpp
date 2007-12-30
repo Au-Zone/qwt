@@ -87,7 +87,7 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
       black. See http://trolltech.com/developer/task-tracker/index_html?id=184671&method=entry
       The dummy lines below work around the problem.
      */
-	const QPen pen = painter->pen();
+    const QPen pen = painter->pen();
     painter->setPen(QPen(Qt::black, 1));
     painter->setPen(pen);
 #endif
@@ -416,6 +416,12 @@ void QwtPlot::printScale(QPainter *painter,
         default:
             return;
     }
+#if 1
+#ifdef __GNUC__
+#warning Why do we need to subtract 1 pixel ?
+#endif
+    w--; // ???
+#endif
 
     scaleWidget->drawTitle(painter, align, rect);
 
