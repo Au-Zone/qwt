@@ -71,6 +71,7 @@ public:
 #ifndef QT_NO_CURSOR
         cursor(NULL),
         restoreCursor(NULL),
+        hasCursor(false),
 #endif
         isEnabled(false)
     {
@@ -102,6 +103,7 @@ public:
 #ifndef QT_NO_CURSOR
     QCursor *cursor;
     QCursor *restoreCursor;
+    bool hasCursor;
 #endif
     bool isEnabled;
 #if QT_VERSION >= 0x040000
@@ -432,7 +434,8 @@ void QwtPanner::widgetMousePressEvent(QMouseEvent *me)
 /*!
   Handle a mouse move event for the observed widget.
 
-  \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
+  \param me Mouse event
+  \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent()
 */
 void QwtPanner::widgetMouseMoveEvent(QMouseEvent *me)
 {
@@ -530,9 +533,14 @@ void QwtPanner::widgetKeyReleaseEvent(QKeyEvent *)
 #ifndef QT_NO_CURSOR
 void QwtPanner::showCursor(bool on)
 {
+    if ( on == d_data->hasCursor )
+        return;
+
     QWidget *w = parentWidget();
     if ( w == NULL || d_data->cursor == NULL )
         return;
+
+    d_data->hasCursor = on;
 
     if ( on )
     {
