@@ -416,6 +416,12 @@ void QwtPlot::printScale(QPainter *painter,
         default:
             return;
     }
+#if 1
+#ifdef __GNUC__
+#warning Why do we need to subtract 1 pixel ?
+#endif
+    w--; // ???
+#endif
 
     scaleWidget->drawTitle(painter, align, rect);
 
