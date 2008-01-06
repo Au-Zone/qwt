@@ -12,6 +12,7 @@
 #include <qpainter.h>
 #include <qpalette.h>
 #include <qmap.h>
+#include <qlocale.h>
 #include "qwt_math.h"
 #include "qwt_text.h"
 #include "qwt_painter.h"
@@ -358,7 +359,7 @@ int QwtAbstractScaleDraw::majTickLength() const
 */
 QwtText QwtAbstractScaleDraw::label(double value) const
 {
-    return QString::number(value);
+    return QLocale::system().toString(value);
 }
 
 /*!
