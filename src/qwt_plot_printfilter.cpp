@@ -193,7 +193,7 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
             cache.legendFonts.insert(w, w->font());
             w->setFont(font(w->font(), Legend));
 
-            if ( w->inherits("QwtLegendItem") )
+            if ( w->inherits("QwtLegendCurveItem") )
             {
                 QwtLegendCurveItem *label = (QwtLegendCurveItem *)w;
 
