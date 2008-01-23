@@ -276,6 +276,24 @@ QwtScaleDraw *QwtPlot::axisScaleDraw(int axisId)
 }
 
 /*!
+   Return the step size parameter, that has been set
+   in setAxisScale. This doesn't need to be the step size 
+   of the current scale.
+
+  \param axisId axis index
+  \return step size parameter value
+
+   \sa setAxisScale
+*/ 
+double QwtPlot::axisStepSize(int axisId) const
+{
+    if (!axisValid(axisId))
+        return 0;
+
+    return d_axisData[axisId]->stepSize;
+}
+
+/*!
   \return the title of a specified axis
   \param axisId axis index
 */
