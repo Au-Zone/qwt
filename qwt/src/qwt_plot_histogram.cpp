@@ -213,7 +213,11 @@ void QwtPlotHistogram::drawOutline(QPainter *painter,
 
     QwtIntervalSample previous;
 
+#if QT_VERSION < 0x040000
+    QValueList<QPoint> points;
+#else
     QwtPolygon points;
+#endif
     for ( int i = from; i <= to; i++ )
     {
         const QwtIntervalSample sample = d_series->sample(i);
@@ -338,8 +342,13 @@ void QwtPlotHistogram::updateLegend(QwtLegend *) const
 #endif
 }
 
+#if QT_VERSION < 0x040000
+void QwtPlotHistogram::flushPolygon(QPainter *painter, 
+    int baseLine, QValueList<QPoint> &points ) const
+#else
 void QwtPlotHistogram::flushPolygon(QPainter *painter, 
     int baseLine, QwtPolygon &points ) const
+#endif
 {
     if ( points.size() == 0 )
         return;
@@ -364,15 +373,24 @@ void QwtPlotHistogram::flushPolygon(QPainter *painter,
             points += QPoint(baseLine, points.last().y());
             points += QPoint(baseLine, points.first().y());
         }
+#if QT_VERSION < 0x040000
+        drawPolygon(painter, points);
+        points.pop_back();
+        points.pop_back();
+#else
         QwtPainter::drawPolygon(painter, points);
-
         points.resize(points.size() - 2);
+#endif
     }
     if ( d_data->pen.style() != Qt::NoPen )
     {
         painter->setBrush(Qt::NoBrush);
         painter->setPen(d_data->pen);
+#if QT_VERSION < 0x040000
+        drawPolygon(painter, points);
+#else
         QwtPainter::drawPolyline(painter, points);
+#endif
     }
     points.clear();
 }
@@ -426,7 +444,7 @@ QRect QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
 
 void QwtPlotHistogram::drawColumn(QPainter *painter, 
     const QRect &rect, QwtColumnSymbol::Direction direction,
-    const QwtIntervalSample &sample) const
+    const QwtIntervalSample &) const
 {
     if ( d_data->symbol->style() != QwtColumnSymbol::NoSymbol)
         d_data->symbol->draw(painter, direction, rect);
@@ -452,3 +470,19 @@ void QwtPlotHistogram::drawColumn(QPainter *painter,
         QwtPainter::drawRect(painter, r);
     }
 }
+
+#if QT_VERSION < 0x040000
+void QwtPlotHistogram::drawPolygon(
+    QPainter *painter, const QValueList<QPoint>& points) const
+{
+    int i = 0;
+
+    QwtPolygon polygon(points.size());
+    for ( QValueList<QPoint>::const_iterator it = points.begin();
+        it != points.end(); ++it )
+    {
+        polygon[i++] = *it;
+    }
+    QwtPainter::drawPolyline(painter, polygon);
+}
+#endif
