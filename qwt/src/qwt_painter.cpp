@@ -670,10 +670,6 @@ void QwtPainter::drawColorBar(QPainter *painter,
         const QwtScaleMap &scaleMap, Qt::Orientation orientation,
         const QRect &rect)
 {
-    painter->save();
-
-    QwtPainter::setClipRect(painter, rect);
-
 #if QT_VERSION < 0x040000
     QValueVector<QRgb> colorTable;
 #else
@@ -685,6 +681,15 @@ void QwtPainter::drawColorBar(QPainter *painter,
     QColor c;
 
     const QRect devRect = d_metricsMap.layoutToDevice(rect);
+
+    /*
+      We paint to a pixmap first to have something scalable for printing
+      ( f.e. in a Pdf document )
+     */
+      
+    QPixmap pixmap(devRect.size());
+    QPainter pmPainter(&pixmap);
+    pmPainter.translate(-devRect.x(), -devRect.y());
 
     if ( orientation == Qt::Horizontal )
     {
@@ -700,12 +705,8 @@ void QwtPainter::drawColorBar(QPainter *painter,
             else
                 c = colorTable[colorMap.colorIndex(interval, value)];
 
-            painter->setBrush(QBrush(c));
-
-            const QRect r(x, devRect.top(), 1, devRect.height());
-            QwtPainter::drawRect(painter, r);
-            painter->setPen(c);
-            painter->drawLine(x, devRect.top(), x, devRect.bottom() - 1);
+            pmPainter.setPen(c);
+            pmPainter.drawLine(x, devRect.top(), x, devRect.bottom());
         }
     }
     else // Vertical
@@ -722,9 +723,10 @@ void QwtPainter::drawColorBar(QPainter *painter,
             else
                 c = colorTable[colorMap.colorIndex(interval, value)];
 
-            painter->setPen(c);
-            painter->drawLine(devRect.left(), y, devRect.right() - 1, y);
+            pmPainter.setPen(c);
+            pmPainter.drawLine(devRect.left(), y, devRect.right(), y);
         }
     }
-    painter->restore();
+    pmPainter.end();
+    painter->drawPixmap(devRect, pixmap);
 }
