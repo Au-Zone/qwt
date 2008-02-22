@@ -366,7 +366,14 @@ void QwtPlot::printScale(QPainter *painter,
     {
         const QwtMetricsMap map = QwtPainter::metricsMap();
 
-        const QRect r = map.layoutToScreen(rect);
+        QRect r = map.layoutToScreen(rect);
+#if 1
+#ifdef __GNUC__
+#warning Why do we need to subtract 1 pixel ?
+#endif
+        r.setWidth(r.width() - 1);
+        r.setHeight(r.height() - 1);
+#endif
         scaleWidget->drawColorBar(painter, scaleWidget->colorBarRect(r));
 
         const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
