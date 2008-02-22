@@ -91,7 +91,12 @@ protected:
 
 private:
     void init();
+#if QT_VERSION < 0x040000
+    void flushPolygon(QPainter *, int baseLine, QValueList<QPoint> &) const;
+    void drawPolygon(QPainter *, const QValueList<QPoint>&) const;
+#else
     void flushPolygon(QPainter *, int baseLine, QwtPolygon &) const;
+#endif
 
     class PrivateData;
     PrivateData *d_data;
