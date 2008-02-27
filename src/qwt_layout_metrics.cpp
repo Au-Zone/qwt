@@ -178,10 +178,8 @@ QRect QwtMetricsMap::layoutToDevice(const QRect &rect,
 #endif
 
     mappedRect = QRect(
-        layoutToDeviceX(mappedRect.x()), 
-        layoutToDeviceY(mappedRect.y()),
-        layoutToDeviceX(mappedRect.width()), 
-        layoutToDeviceY(mappedRect.height())
+        layoutToDevice(mappedRect.topLeft()), 
+        layoutToDevice(mappedRect.bottomRight())
     );
 
 #ifndef QT_NO_TRANSFORMATIONS
@@ -210,10 +208,8 @@ QRect QwtMetricsMap::deviceToLayout(const QRect &rect,
 #endif
 
     mappedRect = QRect(
-        deviceToLayoutX(mappedRect.x()), 
-        deviceToLayoutY(mappedRect.y()),
-        deviceToLayoutX(mappedRect.width()), 
-        deviceToLayoutY(mappedRect.height())
+        deviceToLayout(mappedRect.topLeft()), 
+        deviceToLayout(mappedRect.bottomRight())
     );
 
 #ifndef QT_NO_TRANSFORMATIONS
