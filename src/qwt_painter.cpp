@@ -220,19 +220,14 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
         }
     }
 
-#if QT_VERSION >= 0x040000
-    if ( painter->pen().style() != Qt::NoPen && 
-        painter->pen().color().isValid() )
-    {
-        // Qt4 adds the pen to the rect, Qt3 not.
-        int pw = painter->pen().width();
-        if ( pw == 0 )
-            pw = 1;
+    // Qt adds the pen to the rect, even when there is no pen ???
+    int pw = painter->pen().width();
+    if ( pw == 0 )
+        pw = 1;
 
-        r.setWidth(r.width() - pw);
-        r.setHeight(r.height() - pw);
-    }
-#endif
+    r.setWidth(r.width() - pw);
+    r.setHeight(r.height() - pw);
+
     painter->drawRect(r);
 }
 
