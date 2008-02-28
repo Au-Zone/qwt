@@ -163,7 +163,14 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         }
     }
 
-    const QRect canvasRect = metricsMap.layoutToDevice(plotLayout()->canvasRect());
+    QRect canvasRect = plotLayout()->canvasRect();
+    canvasRect.setRect(
+        canvasRect.left() - 1, canvasRect.top() - 1,
+        canvasRect.width() + 2, canvasRect.height() + 2);
+    canvasRect = metricsMap.layoutToDevice(canvasRect);
+    canvasRect.setRect(
+        canvasRect.left() + 1, canvasRect.top() + 1,
+        canvasRect.width() - 2, canvasRect.height() - 2);
 
     // When using QwtPainter all sizes where computed in pixel
     // coordinates and scaled by QwtPainter later. This limits
@@ -390,7 +397,7 @@ void QwtPlot::printScale(QPainter *painter,
     {
         case yLeft:
         {
-            x = rect.right() - baseDist + 1;
+            x = rect.right() - baseDist;
             y = rect.y() + startDist;
             w = rect.height() - startDist - endDist;
             align = QwtScaleDraw::LeftScale;
@@ -407,7 +414,7 @@ void QwtPlot::printScale(QPainter *painter,
         case xTop:
         {
             x = rect.left() + startDist;
-            y = rect.bottom() - baseDist + 1;
+            y = rect.bottom() - baseDist;
             w = rect.width() - startDist - endDist;
             align = QwtScaleDraw::TopScale;
             break;
@@ -487,40 +494,19 @@ void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
 #endif
         painter->setBrush(bgBrush);
         
-        int x1 = 0;
-        int x2 = 0;
-        int y1 = 0;
-        int y2 = 0;
-
-#if QT_VERSION >= 0x040000
-        switch(painter->device()->paintEngine()->type())
-        {
-            case QPaintEngine::PostScript:
-                x2 = 1;
-                y2 = 1;
-                break;
-            default:;
-        }
-#endif
-
-        const QwtMetricsMap map = QwtPainter::metricsMap();
-        x1 = map.screenToLayoutX(x1);
-        x2 = map.screenToLayoutX(x2);
-        y1 = map.screenToLayoutY(y1);
-        y2 = map.screenToLayoutY(y2);
-
-        QwtPainter::drawRect(painter, 
-            canvasRect.x() + x1, canvasRect.y() + y1, 
-            canvasRect.width() - x2, canvasRect.height() - y2); 
+        QwtPainter::drawRect(painter, canvasRect);
     }
     else
     {
         // Paint the canvas borders instead.
+        const QRect boundingRect(
+            canvasRect.x() - 1, canvasRect.y() - 1,
+            canvasRect.width() + 2, canvasRect.height() + 2);
         painter->setPen(QPen(Qt::black));
         painter->setBrush(QBrush(Qt::NoBrush));
-        QwtPainter::drawRect(painter, canvasRect); 
-    }
 
+        QwtPainter::drawRect(painter, boundingRect); 
+    }
 
     painter->setClipping(true);
     QwtPainter::setClipRect(painter, canvasRect);
