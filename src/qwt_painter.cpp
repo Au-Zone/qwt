@@ -184,7 +184,7 @@ void QwtPainter::drawRect(QPainter *painter, int x, int y, int w, int h)
 */
 void QwtPainter::drawRect(QPainter *painter, const QRect &rect) 
 {
-    QRect r = d_metricsMap.layoutToDevice(rect, painter);
+    const QRect r = d_metricsMap.layoutToDevice(rect, painter);
 
     QRect clipRect;
 
@@ -219,14 +219,6 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
             return;
         }
     }
-
-    // Qt adds the pen to the rect, even when there is no pen ???
-    int pw = painter->pen().width();
-    if ( pw == 0 )
-        pw = 1;
-
-    r.setWidth(r.width() - pw);
-    r.setHeight(r.height() - pw);
 
     painter->drawRect(r);
 }

@@ -482,8 +482,6 @@ void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
 {
     if ( pfilter.options() & QwtPlotPrintFilter::PrintCanvasBackground )
     {
-        painter->setPen(Qt::NoPen);
-
         QBrush bgBrush;
 #if QT_VERSION >= 0x040000
             bgBrush = canvas()->palette().brush(backgroundRole());
@@ -492,16 +490,16 @@ void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
             QPalette::backgroundRoleFromMode( backgroundMode() ); 
         bgBrush = canvas()->colorGroup().brush( role );
 #endif
-        painter->setBrush(bgBrush);
-        
-        QwtPainter::drawRect(painter, canvasRect);
+        QRect r(canvasRect.x(), canvasRect.y(),
+            canvasRect.width() - 1, canvasRect.height() - 1);
+        QwtPainter::fillRect(painter, r, bgBrush);
     }
     else
     {
         // Paint the canvas borders instead.
         const QRect boundingRect(
             canvasRect.x() - 1, canvasRect.y() - 1,
-            canvasRect.width() + 2, canvasRect.height() + 2);
+            canvasRect.width() + 1, canvasRect.height() + 1);
         painter->setPen(QPen(Qt::black));
         painter->setBrush(QBrush(Qt::NoBrush));
 
