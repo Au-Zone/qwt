@@ -195,19 +195,17 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
             if ( axisId == xTop || axisId == xBottom )
             {
                 from = metricsMap.layoutToDeviceX(scaleRect.left() + sDist);
-                to = metricsMap.layoutToDeviceX(scaleRect.right() - eDist);
+                to = metricsMap.layoutToDeviceX(scaleRect.right() + 1 - eDist);
             }
             else
             {
-                from = metricsMap.layoutToDeviceY(scaleRect.bottom() - eDist);
+                from = metricsMap.layoutToDeviceY(scaleRect.bottom() + 1 - eDist );
                 to = metricsMap.layoutToDeviceY(scaleRect.top() + sDist);
             }
         }
         else
         {
             const int margin = plotLayout()->canvasMargin(axisId);
-
-            const QRect &canvasRect = plotLayout()->canvasRect();
             if ( axisId == yLeft || axisId == yRight )
             {
                 from = metricsMap.layoutToDeviceX(canvasRect.bottom() - margin);
@@ -221,7 +219,6 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         }
         map[axisId].setPaintXInterval(from, to);
     }
-
 
     // The canvas maps are already scaled. 
     QwtPainter::setMetricsMap(painter->device(), painter->device());
@@ -374,13 +371,9 @@ void QwtPlot::printScale(QPainter *painter,
         const QwtMetricsMap map = QwtPainter::metricsMap();
 
         QRect r = map.layoutToScreen(rect);
-#if 1
-#ifdef __GNUC__
-#warning Why do we need to subtract 1 pixel ?
-#endif
         r.setWidth(r.width() - 1);
         r.setHeight(r.height() - 1);
-#endif
+
         scaleWidget->drawColorBar(painter, scaleWidget->colorBarRect(r));
 
         const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
@@ -430,12 +423,6 @@ void QwtPlot::printScale(QPainter *painter,
         default:
             return;
     }
-#if 1
-#ifdef __GNUC__
-#warning Why do we need to subtract 1 pixel ?
-#endif
-    w--; // ???
-#endif
 
     scaleWidget->drawTitle(painter, align, rect);
 
@@ -490,7 +477,8 @@ void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
             QPalette::backgroundRoleFromMode( backgroundMode() ); 
         bgBrush = canvas()->colorGroup().brush( role );
 #endif
-        QRect r(canvasRect.x(), canvasRect.y(),
+
+        const QRect r(canvasRect.x(), canvasRect.y(),
             canvasRect.width() - 1, canvasRect.height() - 1);
         QwtPainter::fillRect(painter, r, bgBrush);
     }
@@ -500,6 +488,7 @@ void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
         const QRect boundingRect(
             canvasRect.x() - 1, canvasRect.y() - 1,
             canvasRect.width() + 1, canvasRect.height() + 1);
+
         painter->setPen(QPen(Qt::black));
         painter->setBrush(QBrush(Qt::NoBrush));
 
