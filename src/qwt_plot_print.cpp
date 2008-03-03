@@ -164,14 +164,23 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
     }
 
     QRect canvasRect = plotLayout()->canvasRect();
-    canvasRect.setRect(
-        canvasRect.left() - 1, canvasRect.top() - 1,
-        canvasRect.width() + 2, canvasRect.height() + 2);
-    canvasRect = metricsMap.layoutToDevice(canvasRect);
-    canvasRect.setRect(
-        canvasRect.left() + 1, canvasRect.top() + 1,
-        canvasRect.width() - 2, canvasRect.height() - 2);
 
+    if ( !(pfilter.options() & QwtPlotPrintFilter::PrintCanvasBackground) )
+    {
+        QRect boundingRect(
+            canvasRect.left() - 1, canvasRect.top() - 1,
+            canvasRect.width() + 2, canvasRect.height() + 2);
+        boundingRect = metricsMap.layoutToDevice(boundingRect);
+        boundingRect.setWidth(boundingRect.width() - 1);
+        boundingRect.setHeight(boundingRect.height() - 1);
+
+        painter->setPen(QPen(Qt::black));
+        painter->setBrush(QBrush(Qt::NoBrush));
+        painter->drawRect(boundingRect);
+    }
+
+    canvasRect = metricsMap.layoutToDevice(canvasRect);
+ 
     // When using QwtPainter all sizes where computed in pixel
     // coordinates and scaled by QwtPainter later. This limits
     // the precision to screen resolution. A much better solution
@@ -220,11 +229,10 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         map[axisId].setPaintXInterval(from, to);
     }
 
+
     // The canvas maps are already scaled. 
     QwtPainter::setMetricsMap(painter->device(), painter->device());
-
     printCanvas(painter, canvasRect, map, pfilter);
-
     QwtPainter::resetMetricsMap();
 
     ((QwtPlot *)this)->plotLayout()->invalidate();
@@ -481,18 +489,6 @@ void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
         const QRect r(canvasRect.x(), canvasRect.y(),
             canvasRect.width() - 1, canvasRect.height() - 1);
         QwtPainter::fillRect(painter, r, bgBrush);
-    }
-    else
-    {
-        // Paint the canvas borders instead.
-        const QRect boundingRect(
-            canvasRect.x() - 1, canvasRect.y() - 1,
-            canvasRect.width() + 1, canvasRect.height() + 1);
-
-        painter->setPen(QPen(Qt::black));
-        painter->setBrush(QBrush(Qt::NoBrush));
-
-        QwtPainter::drawRect(painter, boundingRect); 
     }
 
     painter->setClipping(true);
