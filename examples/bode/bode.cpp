@@ -123,13 +123,6 @@ MainWin::MainWin(QWidget *parent):
     btnPrint->setUsesTextLabel(true);
 #endif
 
-#if QT_VERSION >= 0x040100
-    QToolButton *btnPDF = new QToolButton(toolBar);
-    btnPDF->setText("PDF");
-    btnPDF->setIcon(QIcon(print_xpm));
-    btnPDF->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-#endif
-
 #if QT_VERSION < 0x040000 
     QToolButton *btnSVG = new QToolButton(toolBar);
     btnSVG->setTextLabel("SVG");
@@ -147,9 +140,6 @@ MainWin::MainWin(QWidget *parent):
 #if QT_VERSION >= 0x040000
     toolBar->addWidget(btnZoom);
     toolBar->addWidget(btnPrint);
-#if QT_VERSION >= 0x040100
-    toolBar->addWidget(btnPDF);
-#endif
 #if QT_VERSION >= 0x040300
 #ifdef QT_SVG_LIB
     toolBar->addWidget(btnSVG);
@@ -190,9 +180,6 @@ MainWin::MainWin(QWidget *parent):
         d_plot, SLOT(setDamp(double))); 
 
     connect(btnPrint, SIGNAL(clicked()), SLOT(print()));
-#if QT_VERSION >= 0x040100
-    connect(btnPDF, SIGNAL(clicked()), SLOT(exportPDF()));
-#endif
 #if QT_VERSION < 0x040000 
     connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
 #elif QT_VERSION >= 0x040300
@@ -210,14 +197,17 @@ MainWin::MainWin(QWidget *parent):
 
 void MainWin::print()
 {
-#if 1
+#if 0
     QPrinter printer;
 #else
     QPrinter printer(QPrinter::HighResolution);
 #if QT_VERSION < 0x040000
     printer.setOutputToFile(true);
-#endif
     printer.setOutputFileName("/tmp/bode.ps");
+    printer.setColorMode(QPrinter::Color);
+#else
+    printer.setOutputFileName("/tmp/bode.pdf");
+#endif
 #endif
 
     QString docName = d_plot->title().text();
@@ -246,31 +236,6 @@ void MainWin::print()
         }
         d_plot->print(printer, filter);
     }
-}
-
-void MainWin::exportPDF()
-{
-#if QT_VERSION >= 0x040100
-
-#ifndef QT_NO_FILEDIALOG
-    const QString fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", QString(),
-        "PDF Documents (*.pdf)");
-#else
-    const QString fileName = "bode.pdf";
-#endif
-
-    if ( !fileName.isEmpty() )
-    {
-        QPrinter printer;
-        printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setOrientation(QPrinter::Landscape);
-        printer.setOutputFileName(fileName);
-
-        printer.setCreator("Bode example");
-        d_plot->print(printer);
-    }
-#endif
 }
 
 void MainWin::exportSVG()

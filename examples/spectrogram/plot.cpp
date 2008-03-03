@@ -1,3 +1,7 @@
+#include <qprinter.h>
+#if QT_VERSION >= 0x040000
+#include <qprintdialog.h>
+#endif
 #include <qwt_color_map.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_scale_widget.h>
@@ -6,6 +10,28 @@
 #include <qwt_plot_panner.h>
 #include <qwt_plot_layout.h>
 #include "plot.h"
+
+class MyZoomer: public QwtPlotZoomer
+{
+public:
+    MyZoomer(QwtPlotCanvas *canvas):
+        QwtPlotZoomer(canvas)
+    {
+        setTrackerMode(AlwaysOn);
+    }
+
+    virtual QwtText trackerText(const QwtDoublePoint &pos) const
+    {
+        QColor bg(Qt::white);
+#if QT_VERSION >= 0x040300
+        bg.setAlpha(200);
+#endif
+
+        QwtText text = QwtPlotZoomer::trackerText(pos);
+        text.setBackgroundBrush( QBrush( bg ));
+        return text;
+    }
+};
 
 class SpectrogramData: public QwtRasterData
 {
@@ -36,30 +62,6 @@ public:
     }
 };
 
-class MyZoomer: public QwtPlotZoomer
-{
-public:
-    MyZoomer(QwtPlotCanvas* canvas):
-        QwtPlotZoomer(canvas)
-    {
-        setTrackerMode(QwtPicker::AlwaysOn);
-    }
-
-protected:
-    virtual QwtText trackerText( const QwtDoublePoint& p ) const 
-    {
-        QwtText t( QwtPlotPicker::trackerText( p ));
-
-#if QT_VERSION >= 0x040300
-        QColor c(Qt::white);
-        c.setAlpha(180);
-        t.setBackgroundBrush( QBrush(c) );
-#endif
-        return t;
-    }
-};
-
-
 Plot::Plot(QWidget *parent):
     QwtPlot(parent)
 {
@@ -80,13 +82,14 @@ Plot::Plot(QWidget *parent):
         contourLevels += level;
     d_spectrogram->setContourLevels(contourLevels);
 
+    // A color bar on the right axis
     QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
     rightAxis->setTitle("Intensity");
     rightAxis->setColorBarEnabled(true);
     rightAxis->setColorMap(d_spectrogram->data().range(),
         d_spectrogram->colorMap());
 
-    setAxisScale(QwtPlot::yRight, 
+    setAxisScale(QwtPlot::yRight,
         d_spectrogram->data().range().minValue(),
         d_spectrogram->data().range().maxValue() );
     enableAxis(QwtPlot::yRight);
@@ -138,3 +141,22 @@ void Plot::showSpectrogram(bool on)
     d_spectrogram->setDefaultContourPen(on ? QPen() : QPen(Qt::NoPen));
     replot();
 }
+
+void Plot::printPlot()
+{
+    QPrinter printer;
+    printer.setOrientation(QPrinter::Landscape);
+#if QT_VERSION < 0x040000
+    printer.setColorMode(QPrinter::Color);
+    printer.setOutputFileName("/tmp/spectrogram.ps");
+    if (printer.setup())
+#else
+    printer.setOutputFileName("/tmp/spectrogram.pdf");
+    QPrintDialog dialog(&printer);
+    if ( dialog.exec() )
+#endif
+    {
+        print(printer);
+    }
+}
+
