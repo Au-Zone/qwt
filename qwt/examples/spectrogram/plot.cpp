@@ -1,3 +1,7 @@
+#include <qprinter.h>
+#if QT_VERSION >= 0x040000
+#include <qprintdialog.h>
+#endif
 #include <qwt_color_map.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_scale_widget.h>
@@ -78,13 +82,14 @@ Plot::Plot(QWidget *parent):
         contourLevels += level;
     d_spectrogram->setContourLevels(contourLevels);
 
+    // A color bar on the right axis
     QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
     rightAxis->setTitle("Intensity");
     rightAxis->setColorBarEnabled(true);
     rightAxis->setColorMap(d_spectrogram->data().range(),
         d_spectrogram->colorMap());
 
-    setAxisScale(QwtPlot::yRight, 
+    setAxisScale(QwtPlot::yRight,
         d_spectrogram->data().range().minValue(),
         d_spectrogram->data().range().maxValue() );
     enableAxis(QwtPlot::yRight);
@@ -136,3 +141,22 @@ void Plot::showSpectrogram(bool on)
     d_spectrogram->setDefaultContourPen(on ? QPen() : QPen(Qt::NoPen));
     replot();
 }
+
+void Plot::printPlot()
+{
+    QPrinter printer;
+    printer.setOrientation(QPrinter::Landscape);
+#if QT_VERSION < 0x040000
+    printer.setColorMode(QPrinter::Color);
+    printer.setOutputFileName("/tmp/spectrogram.ps");
+    if (printer.setup())
+#else
+    printer.setOutputFileName("/tmp/spectrogram.pdf");
+    QPrintDialog dialog(&printer);
+    if ( dialog.exec() )
+#endif
+    {
+        print(printer);
+    }
+}
+
