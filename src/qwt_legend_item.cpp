@@ -375,6 +375,7 @@ void QwtLegendItem::drawItem(QPainter *painter, const QRect &rect) const
     painter->restore();
 }
 
+//! Paint event
 void QwtLegendItem::paintEvent(QPaintEvent *e)
 {
     const QRect cr = contentsRect();
@@ -417,72 +418,107 @@ void QwtLegendItem::paintEvent(QPaintEvent *e)
     painter.restore();
 }
 
+//! Handle mouse press events
 void QwtLegendItem::mousePressEvent(QMouseEvent *e)
 {
-    if ( e->button() != Qt::LeftButton )
-        return;
-
-    switch(d_data->itemMode)
+    if ( e->button() == Qt::LeftButton )
     {
-        case QwtLegend::ClickableItem:
+        switch(d_data->itemMode)
         {
-            setDown(true);
-            break;
+            case QwtLegend::ClickableItem:
+            {
+                setDown(true);
+                return;
+            }
+            case QwtLegend::CheckableItem:
+            {
+                setDown(!isDown());
+                return;
+            }
+            default:;
         }
-        case QwtLegend::CheckableItem:
-        {
-            setDown(!isDown());
-            break;
-        }
-        default:;
     }
+    return QwtTextLabel::mousePressEvent(e);
 }
 
+//! Handle mouse release events
 void QwtLegendItem::mouseReleaseEvent(QMouseEvent *e)
 {
-    if ( !e->button() == Qt::LeftButton )
-        return;
-
-    if ( d_data->itemMode == QwtLegend::ClickableItem )
-        setDown(false);
+    if ( e->button() == Qt::LeftButton )
+    {
+        switch(d_data->itemMode)
+        {
+            case QwtLegend::ClickableItem:
+            {
+                setDown(false);
+                return;
+            }
+            case QwtLegend::CheckableItem:
+            {
+                return; // do nothing, but accept
+            }
+            default:;
+        }
+    }
+    return QwtTextLabel::mouseReleaseEvent(e);
 }
 
+//! Handle key press events
 void QwtLegendItem::keyPressEvent(QKeyEvent *e)
 {
-    if ( e->key() != Qt::Key_Space || e->isAutoRepeat() )
+    if ( e->key() == Qt::Key_Space )
     {
-        e->ignore();
-        return;
+        switch(d_data->itemMode)
+        {
+            case QwtLegend::ClickableItem:
+            {
+                if ( !e->isAutoRepeat() )
+                    setDown(true);
+                return;
+            }
+            case QwtLegend::CheckableItem:
+            {
+                if ( !e->isAutoRepeat() )
+                    setDown(!isDown());
+                return;
+            }
+            default:;
+        }
     }
 
-    switch(d_data->itemMode)
-    {
-        case QwtLegend::ClickableItem:
-        {
-            setDown(true);
-            break;
-        }
-        case QwtLegend::CheckableItem:
-        {
-            setDown(!isDown());
-            break;
-        }
-        default:;
-    }
+    return QwtTextLabel::keyPressEvent(e);
 }
 
+//! Handle key release events
 void QwtLegendItem::keyReleaseEvent(QKeyEvent *e)
 {
-    if ( e->key() != Qt::Key_Space || e->isAutoRepeat() )
+    if ( e->key() == Qt::Key_Space )
     {
-        e->ignore();
-        return;
+        switch(d_data->itemMode)
+        {
+            case QwtLegend::ClickableItem:
+            {
+                if ( !e->isAutoRepeat() )
+                    setDown(false);
+                return;
+            }
+            case QwtLegend::CheckableItem:
+            {
+                return; // do nothing, but accept
+            }
+            default:;
+        }
     }
 
-    if ( d_data->itemMode == QwtLegend::ClickableItem )
-        setDown(false);
+    return QwtTextLabel::keyReleaseEvent(e);
 }
 
+/*!
+    Check/Uncheck a the item
+
+    \param on check/uncheck
+    \sa setItemMode()
+*/
 void QwtLegendItem::setChecked(bool on)
 {
     if ( d_data->itemMode == QwtLegend::CheckableItem )
@@ -496,11 +532,13 @@ void QwtLegendItem::setChecked(bool on)
     }
 }
 
+//! Return true, if the item is checked
 bool QwtLegendItem::isChecked() const
 {
     return d_data->itemMode == QwtLegend::CheckableItem && isDown();
 }
 
+//! Set the item being down
 void QwtLegendItem::setDown(bool down)
 {
     if ( down == d_data->isDown )
@@ -524,11 +562,13 @@ void QwtLegendItem::setDown(bool down)
         emit checked(d_data->isDown);
 }
 
+//! Return true, if the item is down
 bool QwtLegendItem::isDown() const
 {
     return d_data->isDown;
 }
 
+//! Return a size hint
 QSize QwtLegendItem::sizeHint() const
 {
     QSize sz = QwtTextLabel::sizeHint();

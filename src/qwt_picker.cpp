@@ -1288,6 +1288,13 @@ const QwtPolygon &QwtPicker::selection() const
 */
 void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
 {
+    if ( oldSize.isEmpty() )
+    {
+        // avoid division by zero. But scaling for small sizes also 
+        // doesn't make much sense, because of rounding losses. TODO ...
+        return;
+    }
+
     const double xRatio =
         double(newSize.width()) / double(oldSize.width());
     const double yRatio =
