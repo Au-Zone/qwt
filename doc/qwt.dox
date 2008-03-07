@@ -61,11 +61,11 @@ to control or display values, arrays, or ranges of type double.
   <a href="http://pdb.finkproject.org/pdb/package.php/qwt">Fink</a>. 
   <a href="http://packages.ubuntu.com/cgi-bin//search_packages.pl?version=all&subword=0&exact=1&arch=any&releases=all&case=insensitive&keywords=qwt&searchon=sourcenames">Ubuntu</a>. 
 
-  For getting a 5.1 development snapshot from the SVN repository: 
+  For getting a 5.2 development snapshot from the SVN repository: 
   \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt \endcode
 
-  For getting a snapshot with all bugfixes for the latest 5.0 release:
-  \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.0 \endcode
+  For getting a snapshot with all bugfixes for the latest 5.1 release:
+  \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.1 \endcode
 
   \section installonmainpage Installation
  
