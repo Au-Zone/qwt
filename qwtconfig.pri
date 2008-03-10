@@ -3,11 +3,11 @@
 ######################################################################
 
 unix {
-    INSTALLBASE    = /usr/local/qwt-5.0.2
+    INSTALLBASE    = /usr/local/qwt-5.1.0-svn
 }
 
 win32 {
-    INSTALLBASE    = C:/Qwt-5.0.2
+    INSTALLBASE    = C:/Qwt-5.1.0-svn
 }
 
 target.path    = $$INSTALLBASE/lib
