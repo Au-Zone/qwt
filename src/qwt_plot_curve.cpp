@@ -519,12 +519,12 @@ void QwtPlotCurve::draw(int from, int to) const
         draw(&cachePainter, xMap, yMap, from, to);
     }
 
-	QPainter painter(canvas);
+    QPainter painter(canvas);
 
-	painter.setClipping(true);
-	painter.setClipRect(canvas->contentsRect());
+    painter.setClipping(true);
+    painter.setClipRect(canvas->contentsRect());
 
-	draw(&painter, xMap, yMap, from, to);
+    draw(&painter, xMap, yMap, from, to);
 }
 
 /*!

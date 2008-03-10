@@ -10,7 +10,7 @@
 #ifndef QWT_MATH_H
 #define QWT_MATH_H
 
-#include <math.h>
+#include <cmath>
 #include <qpoint.h>
 #include "qwt_global.h"
 
@@ -155,8 +155,8 @@ T qwtLim(const T& x, const T& x1, const T& x2)
 inline QPoint qwtPolar2Pos(const QPoint &center,
     double radius, double angle)
 {
-    const double x = center.x() + radius * cos(angle);
-    const double y = center.y() - radius * sin(angle);
+    const double x = center.x() + radius * ::cos(angle);
+    const double y = center.y() - radius * ::sin(angle);
 
     return QPoint(qRound(x), qRound(y));
 }

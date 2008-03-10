@@ -7,12 +7,13 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include <cfloat>
 #include "qwt_double_range.h"
 #include "qwt_math.h"
 
 static double MinRelStep = 1.0e-10;
-static double DefaultRelStep = 1.0e-2;
-static double MinEps = 1.0e-10;
+static double DefaultRelStep = DBL_EPSILON;
+static double MinEps = DBL_EPSILON;
 
 /*!
   The range is initialized to [0.0, 100.0], the
