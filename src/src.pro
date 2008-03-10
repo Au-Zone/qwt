@@ -14,7 +14,7 @@ include( ../qwtconfig.pri )
 TARGET            = qwt
 TEMPLATE          = lib
 
-VERSION      = 5.0.2
+VERSION      = 5.1.0
 
 MOC_DIR           = moc
 OBJECTS_DIR       = obj
@@ -107,6 +107,7 @@ contains(CONFIG, QwtPlot) {
     	qwt_plot_printfilter.h \
     	qwt_plot_rasteritem.h \
     	qwt_plot_spectrogram.h \
+        qwt_plot_scaleitem.h \
     	qwt_plot_canvas.h \
     	qwt_plot_panner.h \
     	qwt_plot_picker.h \
@@ -130,6 +131,7 @@ contains(CONFIG, QwtPlot) {
     	qwt_plot_grid.cpp \
     	qwt_plot_item.cpp \
     	qwt_plot_spectrogram.cpp \
+    	qwt_plot_scaleitem.cpp \
     	qwt_plot_marker.cpp \
     	qwt_plot_layout.cpp \
     	qwt_plot_printfilter.cpp \
