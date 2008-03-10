@@ -72,8 +72,12 @@ public:
 
 #if QT_VERSION < 0x040000
     const QValueStack<QwtDoubleRect> &zoomStack() const;
+    void setZoomStack(const QValueStack<QwtDoubleRect> &,
+        int zoomRectIndex = -1);
 #else
     const QStack<QwtDoubleRect> &zoomStack() const;
+    void setZoomStack(const QStack<QwtDoubleRect> &,
+        int zoomRectIndex = -1);
 #endif
     uint zoomRectIndex() const;
 
