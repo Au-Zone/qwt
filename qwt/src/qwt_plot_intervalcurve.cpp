@@ -322,7 +322,7 @@ void QwtPlotIntervalCurve::drawSymbols(
             const int y1 = yMap.transform(intervalSample.interval.minValue());
             const int y2 = yMap.transform(intervalSample.interval.maxValue());
 
-			d_data->symbol->draw(painter, QPoint(x, y1), QPoint(x, y2));
+            d_data->symbol->draw(painter, QPoint(x, y1), QPoint(x, y2));
         }
         else
         {
@@ -330,7 +330,7 @@ void QwtPlotIntervalCurve::drawSymbols(
             const int x1 = xMap.transform(intervalSample.interval.minValue());
             const int x2 = xMap.transform(intervalSample.interval.maxValue());
 
-			d_data->symbol->draw(painter, QPoint(x1, y), QPoint(x2, y));
+            d_data->symbol->draw(painter, QPoint(x1, y), QPoint(x2, y));
         }
     }
 

@@ -177,6 +177,8 @@ int QwtPlotZoomer::maxStackDepth() const
 /*!
   Return the zoom stack. zoomStack()[0] is the zoom base,
   zoomStack()[1] the first zoomed rectangle.
+
+  \sa setZoomStack(), zoomRectIndex()
 */
 const QwtZoomStack &QwtPlotZoomer::zoomStack() const
 {
@@ -252,7 +254,7 @@ void QwtPlotZoomer::setZoomBase(const QwtDoubleRect &base)
 /*! 
   Rectangle at the current position on the zoom stack. 
 
-  \sa QwtPlotZoomer::zoomRectIndex(), QwtPlotZoomer::scaleRect().
+  \sa zoomRectIndex(), scaleRect().
 */
 QwtDoubleRect QwtPlotZoomer::zoomRect() const
 {
@@ -331,6 +333,41 @@ void QwtPlotZoomer::zoom(int offset)
     rescale();
 
     emit zoomed(zoomRect());
+}
+
+/*!
+  \brief Assign a zoom stack
+
+  In combination with other types of navigation it might be useful to
+  modify to manipulate the complete zoom stack.
+
+  \param zoomStack New zoom stack
+  \param zoomRectIndex Index of the current position of zoom stack.
+                       In case of -1 the current position is at the top
+                       of the stack.
+
+  \note The zoomed signal might be emitted.
+  \sa zoomStack(), zoomRectIndex()
+*/
+void QwtPlotZoomer::setZoomStack(
+    const QwtZoomStack &zoomStack, int zoomRectIndex)
+{
+    if ( zoomStack.isEmpty() || zoomStack.count() > d_data->maxStackDepth )
+        return;
+
+    if ( zoomRectIndex < 0 || zoomRectIndex > zoomStack.count() )
+        zoomRectIndex = zoomStack.count() - 1;
+
+    const bool doRescale = zoomStack[zoomRectIndex] != zoomRect();
+
+    d_data->zoomStack = zoomStack;
+    d_data->zoomRectIndex = uint(zoomRectIndex);
+
+    if ( doRescale )
+    {
+        rescale();
+        emit zoomed(zoomRect());
+    }
 }
 
 /*! 

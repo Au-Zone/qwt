@@ -7,11 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include <cfloat>
 #include "qwt_math.h"
 #include "qwt_scale_map.h"
 #include "qwt_scale_engine.h"
 
-static const double _eps = 1.0e-6;
+static const double _eps = DBL_EPSILON;
 
 /*!
   \brief Compare 2 values, relative to an interval
