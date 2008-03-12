@@ -15,44 +15,17 @@
 #include <qframe.h>
 #include "qwt_global.h"
 #include "qwt_scale_map.h"
+#include "qwt_circular_plot.h"
 
-class QwtRoundScaleDraw;
-class QwtScaleEngine;
 class QwtScaleDraw;
-class QwtScaleDiv;
 
-class QWT_EXPORT QwtPolarPlot: public QWidget
+class QWT_EXPORT QwtPolarPlot: public QwtCircularPlot
 {
     Q_OBJECT
 
-    Q_ENUMS(Shadow)
-
-    Q_PROPERTY(bool visibleBackground READ hasVisibleBackground WRITE showBackground)
-    Q_PROPERTY(Shadow frameShadow READ frameShadow WRITE setFrameShadow)
-    Q_PROPERTY(Shadow canvasFrameShadow 
-        READ canvasFrameShadow WRITE setCanvasFrameShadow)
-    Q_PROPERTY(double origin READ origin WRITE setOrigin)
-
 public:
-    /*!
-        \brief Frame shadow
-
-         Unfortunately it is not possible to use QFrame::Shadow
-         as a property of a widget that is not derived from QFrame.
-         The following enum is made for the designer only. It is safe
-         to use QFrame::Shadow instead.
-     */
-    enum Shadow
-    {
-        Plain = QFrame::Plain,
-        Raised = QFrame::Raised,
-        Sunken = QFrame::Sunken
-    };
-
     enum Axis 
     { 
-        OuterAxis,
-
         LeftAxis,
         RightAxis,
         BottomAxis,
@@ -68,18 +41,6 @@ public:
 
     virtual ~QwtPolarPlot();
 
-    void setFrameShadow(Shadow);
-    Shadow frameShadow() const;
-
-    void setCanvasFrameShadow(Shadow);
-    Shadow canvasFrameShadow() const;
-
-    bool hasVisibleBackground() const;
-    void showBackground(bool);
-
-    void setAutoReplot(bool tf = true); 
-    bool autoReplot() const;
-
     virtual QwtScaleMap canvasMap(int axisId) const;
 
     void enableAxis(Axis axisId, bool enable);
@@ -90,58 +51,30 @@ public:
     void setAxisMaxMajor(int axisId, int maxMajor);
     int axisMaxMinor(int axisId) const;
 
+    void setAxisScaleEngine(int axisId, QwtScaleEngine *);
     QwtScaleEngine *axisScaleEngine(int axisId);
     const QwtScaleEngine *axisScaleEngine(int axisId) const;
-    void setAxisScaleEngine(int axisId, QwtScaleEngine *);
 
     void setAxisScale(int axisId, double min, double max, double step = 0);
+
     void setAxisScaleDiv(int axisId, const QwtScaleDiv &);
-
-    void setAxisScaleDraw(int axisId, QwtScaleDraw *);
-    void setOuterAxisScaleDraw(QwtRoundScaleDraw *);
-
     const QwtScaleDiv *axisScaleDiv(int axisId) const;
     QwtScaleDiv *axisScaleDiv(int axisId);
 
+    void setAxisScaleDraw(int axisId, QwtScaleDraw *);
     const QwtScaleDraw *axisScaleDraw(int axisId) const;
     QwtScaleDraw *axisScaleDraw(int axisId);
 
-    const QwtRoundScaleDraw *outerAxisScaleDraw() const;
-    QwtRoundScaleDraw *outerAxisScaleDraw();
-
-    virtual void setOrigin(double);
-    double origin() const;
-
-    QRect boundingRect() const;
-    QRect contentsRect() const;
-    QRect canvasContentsRect() const;
-    QRect scaleContentsRect() const;
-
-    virtual QSize sizeHint() const;
-    virtual QSize minimumSizeHint() const;
-
-public slots:
-    virtual void replot();
-    void autoRefresh();
+    void setAxisAutoScale(int axisId);
+    bool axisAutoScale(int axisId) const;
 
 protected:
-    virtual void paintEvent(QPaintEvent *);
-    virtual void resizeEvent(QResizeEvent *);
-
-    virtual void updateMask();
-
-    virtual void drawFrame(QPainter *p);
     virtual void drawCanvas(QPainter *) const;
-    virtual void drawItems(QPainter *, const QRect &,
-        const QwtScaleMap maps[AxisCnt]) const;
 
 private:
     void initPlot();
-    void initAxesData();
 
     class AxisData;
-    AxisData *d_axisData[AxisCnt];
-
     class PrivateData;
     PrivateData *d_data;
 };

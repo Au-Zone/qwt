@@ -17,6 +17,8 @@ DEPENDPATH  += ../../src
 INCLUDEPATH += ../../../../src
 DEPENDPATH  += ../../../../src
 
+CONFIG           += debug
+
 LIBS        += -L../../lib -lpolarplot
 LIBS        += -L../../../../lib -lqwt
 

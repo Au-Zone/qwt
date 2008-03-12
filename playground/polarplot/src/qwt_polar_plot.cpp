@@ -34,12 +34,8 @@ public:
 class QwtPolarPlot::PrivateData
 {
 public:
-    bool visibleBackground;
-    Shadow frameShadow;
-    Shadow canvasFrameShadow;
-    double origin;
-
     bool autoReplot;
+	AxisData axisData[AxisCnt];
 };
 
 static inline bool axisValid(int axis)
@@ -49,14 +45,14 @@ static inline bool axisValid(int axis)
 }
 
 QwtPolarPlot::QwtPolarPlot( QWidget *parent):
-    QWidget(parent)
+    QwtCircularPlot(parent)
 {
     initPlot();
 }
 
 #if QT_VERSION < 0x040000
 QwtPolarPlot::QwtPolarPlot( QWidget *parent, const char *name):
-    QWidget(parent, name)
+    QwtCircularPlot(parent, name)
 {
     initPlot();
 }
@@ -65,59 +61,6 @@ QwtPolarPlot::QwtPolarPlot( QWidget *parent, const char *name):
 QwtPolarPlot::~QwtPolarPlot()
 {
     delete d_data;
-}
-
-void QwtPolarPlot::setAutoReplot(bool enable)
-{
-    d_data->autoReplot = enable;
-}
-
-bool QwtPolarPlot::autoReplot() const
-{
-    return d_data->autoReplot;
-}
-
-void QwtPolarPlot::setFrameShadow(Shadow shadow)
-{
-    if ( shadow != d_data->frameShadow )
-    {
-        d_data->frameShadow = shadow;
-        update();
-    }
-}
-
-QwtPolarPlot::Shadow QwtPolarPlot::frameShadow() const
-{
-    return d_data->frameShadow;
-}
-
-
-void QwtPolarPlot::setCanvasFrameShadow(Shadow shadow)
-{
-    if ( shadow != d_data->canvasFrameShadow )
-    {
-        d_data->canvasFrameShadow = shadow;
-        update();
-    }
-}
-
-QwtPolarPlot::Shadow QwtPolarPlot::canvasFrameShadow() const
-{
-    return d_data->canvasFrameShadow;
-}
-
-bool QwtPolarPlot::hasVisibleBackground() const
-{
-    return d_data->visibleBackground;
-}
-
-void QwtPolarPlot::showBackground(bool enable)
-{
-    if ( enable != d_data->visibleBackground )
-    {
-        d_data->visibleBackground = enable;
-        updateMask();
-    }
 }
 
 QwtScaleMap QwtPolarPlot::canvasMap(int axisId) const
@@ -131,38 +74,30 @@ QwtScaleMap QwtPolarPlot::canvasMap(int axisId) const
     const QwtScaleDiv *sd = axisScaleDiv(axisId);
     map.setScaleInterval(sd->lBound(), sd->hBound());
 
-    if ( axisId == OuterAxis )
-    {
-        map.setPaintInterval(0, 5760); // 16 * 360, see QPainter
-    }
-    else
-    {
-        const QRect r = canvasContentsRect();
-        switch(axisId)
-        {
-            case TopAxis:
-            {
-                map.setPaintInterval(r.center().y(), r.top());
-                break;
-            }
-            case BottomAxis:
-            {
-                map.setPaintInterval(r.center().y(), r.bottom());
-                break;
-            }
-            case LeftAxis:
-            {
-                map.setPaintInterval(r.center().x(), r.left());
-                break;
-            }
-            case RightAxis:
-            {
-                map.setPaintInterval(r.center().x(), r.right());
-                break;
-            }
-            default:;
-        }
-    }
+	const QRect r = canvasRect();
+	switch(axisId)
+	{
+		case TopAxis:
+		{
+			map.setPaintInterval(r.center().y(), r.top());
+			break;
+		}
+		case BottomAxis:
+		{
+			map.setPaintInterval(r.center().y(), r.bottom());
+			break;
+		}
+		case LeftAxis:
+		{
+			map.setPaintInterval(r.center().x(), r.left());
+			break;
+		}
+		case RightAxis:
+		{
+			map.setPaintInterval(r.center().x(), r.right());
+			break;
+		}
+	}
 
     return map;
 }
@@ -173,9 +108,9 @@ void QwtPolarPlot::enableAxis(Axis axisId, bool enable)
     if ( !axisValid(axisId) )
         return;
 
-    if ( d_axisData[axisId]->isEnabled != enable )
+    if ( d_data->axisData[axisId].isEnabled != enable )
     {
-        d_axisData[axisId]->isEnabled = enable;
+        d_data->axisData[axisId].isEnabled = enable;
         autoRefresh();
     }
 }
@@ -185,7 +120,7 @@ bool QwtPolarPlot::axisEnabled(Axis axisId) const
     if ( !axisValid(axisId) )
         return false;
 
-    return d_axisData[axisId]->isEnabled;
+    return d_data->axisData[axisId].isEnabled;
 }
 
 
@@ -199,7 +134,7 @@ void QwtPolarPlot::setAxisMaxMinor(int axisId, int maxMinor)
     if ( maxMinor > 100 )
         maxMinor = 100;
 
-    AxisData &d = *d_axisData[axisId];
+    AxisData &d = d_data->axisData[axisId];
 
     if ( maxMinor != d.maxMinor )
     {
@@ -214,7 +149,7 @@ int QwtPolarPlot::axisMaxMinor(int axisId) const
     if (!axisValid(axisId))
         return 0;
 
-    return d_axisData[axisId]->maxMinor;
+    return d_data->axisData[axisId].maxMinor;
 }
 
 int QwtPolarPlot::axisMaxMajor(int axisId) const
@@ -222,7 +157,7 @@ int QwtPolarPlot::axisMaxMajor(int axisId) const
     if (!axisValid(axisId))
         return 0;
 
-    return d_axisData[axisId]->maxMajor;
+    return d_data->axisData[axisId].maxMajor;
 }
 
 void QwtPolarPlot::setAxisMaxMajor(int axisId, int maxMajor)
@@ -235,7 +170,7 @@ void QwtPolarPlot::setAxisMaxMajor(int axisId, int maxMajor)
     if ( maxMajor > 1000 )
         maxMajor = 10000;
 
-    AxisData &d = *d_axisData[axisId];
+    AxisData &d = d_data->axisData[axisId];
     if ( maxMajor != d.maxMinor )
     {
         d.maxMajor = maxMajor;
@@ -250,7 +185,7 @@ QwtScaleEngine *QwtPolarPlot::axisScaleEngine(int axisId)
     if (!axisValid(axisId))
         return NULL;
 
-    return d_axisData[axisId]->scaleEngine;
+    return d_data->axisData[axisId].scaleEngine;
 }
 
 const QwtScaleEngine *QwtPolarPlot::axisScaleEngine(int axisId) const
@@ -258,7 +193,7 @@ const QwtScaleEngine *QwtPolarPlot::axisScaleEngine(int axisId) const
     if (!axisValid(axisId))
         return NULL;
 
-    return d_axisData[axisId]->scaleEngine;
+    return d_data->axisData[axisId].scaleEngine;
 }
 
 void QwtPolarPlot::setAxisScaleEngine(
@@ -267,7 +202,7 @@ void QwtPolarPlot::setAxisScaleEngine(
     if (!axisValid(axisId) || scaleEngine == NULL )
         return;
 
-    AxisData &d = *d_axisData[axisId];
+    AxisData &d = d_data->axisData[axisId];
 
     delete d.scaleEngine;
     d.scaleEngine = scaleEngine;
@@ -284,7 +219,7 @@ void QwtPolarPlot::setAxisScale(int axisId,
     if (!axisValid(axisId))
         return;
 
-    AxisData &d = *d_axisData[axisId];
+    AxisData &d = d_data->axisData[axisId];
 
     d.doAutoScale = false;
     d.scaleDiv.invalidate();
@@ -301,7 +236,7 @@ void QwtPolarPlot::setAxisScaleDiv(int axisId, const QwtScaleDiv &scaleDiv)
     if (!axisValid(axisId))
         return;
 
-    AxisData &d = *d_axisData[axisId];
+    AxisData &d = d_data->axisData[axisId];
 
     d.doAutoScale = false;
     d.scaleDiv = scaleDiv;
@@ -312,10 +247,10 @@ void QwtPolarPlot::setAxisScaleDiv(int axisId, const QwtScaleDiv &scaleDiv)
 
 void QwtPolarPlot::setAxisScaleDraw(int axisId, QwtScaleDraw *scaleDraw)
 {
-    if (!axisValid(axisId) || scaleDraw == NULL || axisId == OuterAxis)
+    if (!axisValid(axisId) || scaleDraw == NULL )
         return;
 
-    AxisData &d = *d_axisData[axisId];
+    AxisData &d = d_data->axisData[axisId];
 
     if ( scaleDraw != d.scaleDraw )
     {
@@ -324,29 +259,13 @@ void QwtPolarPlot::setAxisScaleDraw(int axisId, QwtScaleDraw *scaleDraw)
         autoRefresh();
     }
 }
-
-void QwtPolarPlot::setOuterAxisScaleDraw(QwtRoundScaleDraw *scaleDraw)
-{
-	if ( scaleDraw == NULL )
-		return;
-
-    AxisData &d = *d_axisData[OuterAxis];
-
-    if ( scaleDraw != d.scaleDraw )
-    {
-        delete d.scaleDraw;
-        d.scaleDraw = scaleDraw;
-        autoRefresh();
-    }
-}
-
 
 const QwtScaleDiv *QwtPolarPlot::axisScaleDiv(int axisId) const
 {
     if (!axisValid(axisId))
         return NULL;
 
-    return &d_axisData[axisId]->scaleDiv;
+    return &d_data->axisData[axisId].scaleDiv;
 }
 
 QwtScaleDiv *QwtPolarPlot::axisScaleDiv(int axisId)
@@ -354,105 +273,27 @@ QwtScaleDiv *QwtPolarPlot::axisScaleDiv(int axisId)
     if (!axisValid(axisId))
         return NULL;
 
-    return &d_axisData[axisId]->scaleDiv;
+    return &d_data->axisData[axisId].scaleDiv;
 }
 
 
 const QwtScaleDraw *QwtPolarPlot::axisScaleDraw(int axisId) const
 {
-    if (!axisValid(axisId) || axisId == OuterAxis)
+    if (!axisValid(axisId))
         return NULL;
 
-    return (QwtScaleDraw *)d_axisData[axisId]->scaleDraw;
+    return (QwtScaleDraw *)d_data->axisData[axisId].scaleDraw;
 }
 
 QwtScaleDraw *QwtPolarPlot::axisScaleDraw(int axisId)
 {
-    if (!axisValid(axisId) || axisId == OuterAxis)
+    if (!axisValid(axisId))
         return NULL;
 
-    return (QwtScaleDraw *)d_axisData[axisId]->scaleDraw;
-}
-
-
-const QwtRoundScaleDraw *QwtPolarPlot::outerAxisScaleDraw() const
-{
-    return (QwtRoundScaleDraw *)d_axisData[OuterAxis]->scaleDraw;
-}
-
-QwtRoundScaleDraw *QwtPolarPlot::outerAxisScaleDraw()
-{
-    return (QwtRoundScaleDraw *)d_axisData[OuterAxis]->scaleDraw;
-}
-
-
-void QwtPolarPlot::setOrigin(double origin)
-{
-    if ( d_data->origin != origin )
-    {
-        d_data->origin = origin;
-        autoRefresh();
-    }
-}
-
-double QwtPolarPlot::origin() const
-{
-    return d_data->origin;
-}
-
-
-QRect QwtPolarPlot::boundingRect() const
-{
-    return QRect();
-}
-
-QRect QwtPolarPlot::contentsRect() const
-{
-    return QRect();
-}
-
-QRect QwtPolarPlot::canvasContentsRect() const
-{
-    return QRect();
-}
-
-QRect QwtPolarPlot::scaleContentsRect() const
-{
-    return QRect();
-}
-
-QSize QwtPolarPlot::sizeHint() const
-{
-    return QSize();
-}
-
-QSize QwtPolarPlot::minimumSizeHint() const
-{
-    return QSize();
-}
-
-void QwtPolarPlot::paintEvent(QPaintEvent *)
-{
-}
-
-void QwtPolarPlot::resizeEvent(QResizeEvent *)
-{
-}
-
-void QwtPolarPlot::updateMask()
-{
-}
-
-void QwtPolarPlot::drawFrame(QPainter *)
-{
+    return (QwtScaleDraw *)d_data->axisData[axisId].scaleDraw;
 }
 
 void QwtPolarPlot::drawCanvas(QPainter *) const
-{
-}
-
-void QwtPolarPlot::drawItems(QPainter *, const QRect &,
-    const QwtScaleMap[AxisCnt]) const
 {
 }
 
@@ -461,23 +302,10 @@ void QwtPolarPlot::initPlot()
     d_data = new PrivateData;
 
     d_data->autoReplot = false;
-    d_data->visibleBackground = true;
-    d_data->frameShadow = Plain;
-    d_data->canvasFrameShadow = Sunken;
-    d_data->origin = 90.0;
     
-    initAxesData();
-    
-    setSizePolicy(QSizePolicy::MinimumExpanding,
-        QSizePolicy::MinimumExpanding);
-}
-
-void QwtPolarPlot::initAxesData()
-{
     for( int axisId = 0; axisId < AxisCnt; axisId++)
     {
-        d_axisData[axisId] = new AxisData;
-        AxisData &d = *d_axisData[axisId];
+        AxisData &d = d_data->axisData[axisId];
 
         d.doAutoScale = true;
 
@@ -492,33 +320,21 @@ void QwtPolarPlot::initAxesData()
 
         d.scaleDiv.invalidate();
 
-		if ( axisId == OuterAxis )
+		QwtScaleDraw *scaleDraw = new QwtScaleDraw();
+		switch(axisId)
 		{
-    		d.scaleDraw = new QwtRoundScaleDraw();
+			case RightAxis:
+			case LeftAxis:
+				scaleDraw->setAlignment(QwtScaleDraw::BottomScale);
+				break;
+			case TopAxis:
+			case BottomAxis:
+				scaleDraw->setAlignment(QwtScaleDraw::LeftScale);
+				break;
 		}
-		else
-		{
-    		QwtScaleDraw *scaleDraw = new QwtScaleDraw();
-			switch(axisId)
-			{
-				case RightAxis:
-				case LeftAxis:
-					scaleDraw->setAlignment(QwtScaleDraw::BottomScale);
-					break;
-				case TopAxis:
-				case BottomAxis:
-					scaleDraw->setAlignment(QwtScaleDraw::LeftScale);
-					break;
-			}
-			d.scaleDraw = scaleDraw;
-		}
+		d.scaleDraw = scaleDraw;
     }
-}
 
-void QwtPolarPlot::autoRefresh()
-{
-}
-
-void QwtPolarPlot::replot()
-{
+    setSizePolicy(QSizePolicy::MinimumExpanding,
+        QSizePolicy::MinimumExpanding);
 }

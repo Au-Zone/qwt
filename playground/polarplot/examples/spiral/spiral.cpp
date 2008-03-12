@@ -1,4 +1,5 @@
 #include <qapplication.h>
+#include <qpalette.h>
 #include <qwt_polar_plot.h>
 
 int main(int argc, char **argv)
@@ -6,6 +7,9 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
 
     QwtPolarPlot plot;
+    plot.setCanvasBackground(QColor(Qt::darkBlue));
+	//plot.showBackground(false);
+
 #if QT_VERSION < 0x040000
     a.setMainWidget(&plot);
 #endif
