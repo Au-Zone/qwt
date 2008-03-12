@@ -90,7 +90,6 @@ protected:
     virtual void resizeEvent(QResizeEvent *);
 
     virtual void updateMask();
-    virtual void drawCanvas(QPainter *) const = 0;
 
 	virtual void drawScale(QPainter *, const QRect &) const;
 	virtual void drawCanvas(QPainter *, const QRect &) const;

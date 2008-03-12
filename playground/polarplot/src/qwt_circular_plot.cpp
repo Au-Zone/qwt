@@ -432,6 +432,7 @@ void QwtCircularPlot::updateMask()
 
 void QwtCircularPlot::drawCanvas(QPainter *painter, const QRect &rect) const
 {
+	painter->save();
 	painter->setPen(Qt::NoPen);
 
 #if QT_VERSION < 0x040000
@@ -442,6 +443,7 @@ void QwtCircularPlot::drawCanvas(QPainter *painter, const QRect &rect) const
 
 	setAntialiasing(painter, true);
 	painter->drawEllipse(rect);
+	painter->restore();
 }
 
 void QwtCircularPlot::drawScale(QPainter *painter, const QRect &rect) const

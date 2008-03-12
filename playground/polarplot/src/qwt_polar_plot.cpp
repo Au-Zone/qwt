@@ -7,15 +7,27 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include <qpainter.h>
 #include "qwt_scale_engine.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
-#include "qwt_round_scale_draw.h"
 #include "qwt_polar_plot.h"
 
 class QwtPolarPlot::AxisData
 {
 public:
+	AxisData():
+		scaleEngine(NULL),
+		scaleDraw(NULL)
+	{
+	}
+
+	~AxisData()
+	{
+		delete scaleEngine;
+		delete scaleDraw;
+	}
+
     bool isEnabled;
     bool doAutoScale;
 
@@ -28,7 +40,7 @@ public:
 
     QwtScaleDiv scaleDiv;
     QwtScaleEngine *scaleEngine;
-    QwtAbstractScaleDraw *scaleDraw;
+    mutable QwtScaleDraw *scaleDraw;
 };
 
 class QwtPolarPlot::PrivateData
@@ -103,7 +115,7 @@ QwtScaleMap QwtPolarPlot::canvasMap(int axisId) const
 }
 
 
-void QwtPolarPlot::enableAxis(Axis axisId, bool enable)
+void QwtPolarPlot::enableAxis(int axisId, bool enable)
 {
     if ( !axisValid(axisId) )
         return;
@@ -115,7 +127,7 @@ void QwtPolarPlot::enableAxis(Axis axisId, bool enable)
     }
 }
 
-bool QwtPolarPlot::axisEnabled(Axis axisId) const
+bool QwtPolarPlot::axisEnabled(int axisId) const
 {
     if ( !axisValid(axisId) )
         return false;
@@ -293,8 +305,76 @@ QwtScaleDraw *QwtPolarPlot::axisScaleDraw(int axisId)
     return (QwtScaleDraw *)d_data->axisData[axisId].scaleDraw;
 }
 
-void QwtPolarPlot::drawCanvas(QPainter *) const
+void QwtPolarPlot::drawCanvas(QPainter *painter, const QRect &rect) const
 {
+	QwtCircularPlot::drawCanvas(painter, rect);
+
+	for ( int axisId = 0; axisId < AxisCnt; axisId++ )
+	{
+		if ( axisEnabled(axisId) )
+			drawAxis(painter, rect, axisId);
+	}
+}
+
+void QwtPolarPlot::drawAxis(QPainter *painter, 
+	const QRect& rect, int axisId) const
+{
+	if ( !axisValid(axisId) )
+		return;
+
+    QPen pen = painter->pen();
+    pen.setStyle(Qt::SolidLine);
+    painter->setPen(pen);
+
+    int pw = painter->pen().width();
+    if ( pw == 0 )
+        pw = 1;
+
+    QwtScaleDraw *sd = d_data->axisData[axisId].scaleDraw;
+
+	switch(axisId)
+	{
+		case LeftAxis:
+		{
+			sd->move(rect.x(), rect.center().y());
+			sd->setLength(rect.width() / 2);
+			break;
+		}
+		case RightAxis:
+		{
+			sd->move(rect.center().x(), rect.center().y());
+			sd->setLength(rect.width() / 2);
+			break;
+		}
+		case TopAxis:
+		{
+			sd->move(rect.center().x(), rect.y());
+			sd->setLength(rect.height() / 2);
+			break;
+		}
+		case BottomAxis:
+		{
+			sd->move(rect.center().x(), rect.center().y());
+			sd->setLength(rect.height() / 2);
+			break;
+		}
+	}
+
+    QwtScaleMap &map = (QwtScaleMap &)sd->map();
+    map = canvasMap(axisId);
+
+    painter->setFont(font());
+
+#if QT_VERSION < 0x040000
+    sd->draw(painter, d_data->colorGroup);
+#else
+#if 1
+	QPalette p = palette();
+	p.setColor(QPalette::Foreground, Qt::white);
+	p.setColor(QPalette::Text, Qt::white);
+#endif
+    sd->draw(painter, p);
+#endif
 }
 
 void QwtPolarPlot::initPlot()
@@ -308,6 +388,7 @@ void QwtPolarPlot::initPlot()
         AxisData &d = d_data->axisData[axisId];
 
         d.doAutoScale = true;
+        d.isEnabled = false;
 
         d.minValue = 0.0;
         d.maxValue = 1000.0;
@@ -335,6 +416,31 @@ void QwtPolarPlot::initPlot()
 		d.scaleDraw = scaleDraw;
     }
 
+	d_data->axisData[RightAxis].isEnabled = true;
     setSizePolicy(QSizePolicy::MinimumExpanding,
         QSizePolicy::MinimumExpanding);
+}
+
+void QwtPolarPlot::replot()
+{
+	for ( int axisId = 0; axisId < AxisCnt; axisId++ )
+	{
+		AxisData &d = d_data->axisData[axisId];
+		if ( !d.scaleDiv.isValid() )
+		{
+			d.scaleDiv = d.scaleEngine->divideScale(
+				d.minValue, d.maxValue,
+				d.maxMajor, d.maxMinor, d.stepSize);
+#if 1
+		    QwtValueList &majorTicks =
+				(QwtValueList &)d.scaleDiv.ticks(QwtScaleDiv::MajorTick);
+			majorTicks.removeLast();
+#endif
+		}
+
+		d.scaleDraw->setTransformation(d.scaleEngine->transformation());
+		d.scaleDraw->setScaleDiv(d.scaleDiv);
+	}
+
+	QwtCircularPlot::replot();
 }

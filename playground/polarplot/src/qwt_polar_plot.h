@@ -43,8 +43,8 @@ public:
 
     virtual QwtScaleMap canvasMap(int axisId) const;
 
-    void enableAxis(Axis axisId, bool enable);
-    bool axisEnabled(Axis axisId) const;
+    void enableAxis(int axisId, bool enable = true);
+    bool axisEnabled(int axisId) const;
 
     void setAxisMaxMinor(int axisId, int maxMinor);
     int axisMaxMajor(int axisId) const;
@@ -68,8 +68,12 @@ public:
     void setAxisAutoScale(int axisId);
     bool axisAutoScale(int axisId) const;
 
+public slots:
+    virtual void replot();
+
 protected:
-    virtual void drawCanvas(QPainter *) const;
+    virtual void drawCanvas(QPainter *, const QRect&) const;
+    virtual void drawAxis(QPainter *, const QRect&, int axisId) const;
 
 private:
     void initPlot();
