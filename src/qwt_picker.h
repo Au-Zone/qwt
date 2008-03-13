@@ -35,7 +35,7 @@ class QwtPickerMachine;
   optional rubberbands (rubberband selection) and position trackers. 
 
   QwtPicker is useful for widgets where the event handlers
-  can´t be overloaded, like for components of composite widgets.
+  can't be overloaded, like for components of composite widgets.
   It offers alternative handlers for mouse and key events.
 
   \par Example 
@@ -97,7 +97,7 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
 
 public:
     /*! 
-      This enum type describes the type of a selection. It can be or´d
+      This enum type describes the type of a selection. It can be or'd
       with QwtPicker::RectSelectionType and QwtPicker::SelectionMode
       and passed to QwtPicker::setSelectionFlags()
       - NoSelection\n
@@ -125,7 +125,7 @@ public:
     /*! 
       \brief Selection subtype for RectSelection
       This enum type describes the type of rectangle selections. 
-      It can be or´d with QwtPicker::RectSelectionType and 
+      It can be or'd with QwtPicker::RectSelectionType and 
       QwtPicker::SelectionMode and passed to QwtPicker::setSelectionFlags().
       - CornerToCorner\n
         The first and the second selected point are the corners
@@ -148,7 +148,7 @@ public:
     };
 
     /*! 
-      Values of this enum type or´d together with a SelectionType value
+      Values of this enum type or'd together with a SelectionType value
       identifies which state machine should be used for the selection.
 
       The default value is ClickSelection.
