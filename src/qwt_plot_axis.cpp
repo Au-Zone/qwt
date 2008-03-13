@@ -276,6 +276,24 @@ QwtScaleDraw *QwtPlot::axisScaleDraw(int axisId)
 }
 
 /*!
+   Return the step size parameter, that has been set
+   in setAxisScale. This doesn't need to be the step size 
+   of the current scale.
+
+  \param axisId axis index
+  \return step size parameter value
+
+   \sa setAxisScale
+*/ 
+double QwtPlot::axisStepSize(int axisId) const
+{
+    if (!axisValid(axisId))
+        return 0;
+
+    return d_axisData[axisId]->stepSize;
+}
+
+/*!
   \return the title of a specified axis
   \param axisId axis index
 */
@@ -427,7 +445,7 @@ void QwtPlot::setAxisScaleDiv(int axisId, const QwtScaleDiv &scaleDiv)
   that scaleDraw has to be created with new and will be deleted
   by the corresponding QwtScale member ( like a child object ).
 
-  \sa QwtScaleDraw, QwtScale
+  \sa QwtScaleDraw, QwtScaleWidget
   \warning The attributes of scaleDraw will be overwritten by those of the  
            previous QwtScaleDraw. 
 */

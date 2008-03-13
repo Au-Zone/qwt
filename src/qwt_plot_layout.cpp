@@ -984,26 +984,26 @@ void QwtPlotLayout::alignScales(int options,
         if ( !(options & IgnoreFrames) )
             fw = d_data->layoutData.canvas.frameWidth;
 
-        if ( scaleRect[QwtPlot::xBottom].isValid() && 
+        if ( scaleRect[QwtPlot::xBottom].isValid() &&
             scaleRect[QwtPlot::xTop].isValid() )
         {
             for ( int axis = QwtPlot::xBottom; axis <= QwtPlot::xTop; axis++ )
             {
-                scaleRect[axis].setLeft(canvasRect.left() + fw 
+                scaleRect[axis].setLeft(canvasRect.left() + fw
                     - d_data->layoutData.scale[axis].start);
-                scaleRect[axis].setRight(canvasRect.right() - fw - 1 
+                scaleRect[axis].setRight(canvasRect.right() - fw - 1
                     + d_data->layoutData.scale[axis].end);
             }
         }
 
-        if ( scaleRect[QwtPlot::yLeft].isValid() && 
+        if ( scaleRect[QwtPlot::yLeft].isValid() &&
             scaleRect[QwtPlot::yRight].isValid() )
         {
             for ( int axis = QwtPlot::yLeft; axis <= QwtPlot::yRight; axis++ )
             {
-                scaleRect[axis].setTop(canvasRect.top() + fw 
+                scaleRect[axis].setTop(canvasRect.top() + fw
                     - d_data->layoutData.scale[axis].start);
-                scaleRect[axis].setBottom(canvasRect.bottom() - fw - 1 
+                scaleRect[axis].setBottom(canvasRect.bottom() - fw - 1
                     + d_data->layoutData.scale[axis].end);
             }
         }

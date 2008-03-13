@@ -183,6 +183,8 @@ public:
     void setAxisScaleDiv(int axisId, const QwtScaleDiv &);
     void setAxisScaleDraw(int axisId, QwtScaleDraw *);
 
+    double axisStepSize(int axisId) const;
+
     const QwtScaleDiv *axisScaleDiv(int axisId) const;
     QwtScaleDiv *axisScaleDiv(int axisId);
 
@@ -254,7 +256,7 @@ signals:
     void legendChecked(QwtPlotItem *plotItem, bool on);
 
 public slots:
-    void clear();
+    virtual void clear();
 
     virtual void replot();
     void autoRefresh();

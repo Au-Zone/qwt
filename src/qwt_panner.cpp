@@ -75,6 +75,12 @@ public:
 #endif
         isEnabled(false)
     {
+#if QT_VERSION >= 0x040000
+        orientations = Qt::Vertical | Qt::Horizontal;
+#else
+        orientations[Qt::Vertical] = true;
+        orientations[Qt::Horizontal] = true;
+#endif
     }
 
     ~PrivateData()
@@ -100,6 +106,11 @@ public:
     bool hasCursor;
 #endif
     bool isEnabled;
+#if QT_VERSION >= 0x040000
+    Qt::Orientations orientations;
+#else
+    bool orientations[2];
+#endif
 };
 
 /*!
@@ -226,6 +237,47 @@ void QwtPanner::setEnabled(bool on)
             }
         }
     }
+}
+
+#if QT_VERSION >= 0x040000
+/*!
+   Set the orientations, where panning is enabled
+   The default value is in both directions: Qt::Horizontal | Qt::Vertical
+
+   /param o Orientation
+*/
+void QwtPanner::setOrientations(Qt::Orientations o)
+{
+    d_data->orientations = o;
+}
+
+//! Return the orientation, where paning is enabled
+Qt::Orientations QwtPanner::orientations() const
+{
+    return d_data->orientations;
+}
+
+#else
+void QwtPanner::enableOrientation(Qt::Orientation o, bool enable)
+{
+    if ( o == Qt::Vertical || o == Qt::Horizontal )
+        d_data->orientations[o] = enable;
+}
+#endif
+
+/*! 
+   Return true if a orientatio is enabled
+   \sa orientations(), setOrientations()
+*/
+bool QwtPanner::isOrientationEnabled(Qt::Orientation o) const
+{
+#if QT_VERSION >= 0x040000
+    return d_data->orientations & o;
+#else
+    if ( o == Qt::Vertical || o == Qt::Horizontal )
+        return d_data->orientations[o];
+    return false;
+#endif
 }
 
 /*!
@@ -387,9 +439,18 @@ void QwtPanner::widgetMousePressEvent(QMouseEvent *me)
 */
 void QwtPanner::widgetMouseMoveEvent(QMouseEvent *me)
 {
-    if ( isVisible() && rect().contains(me->pos()) )
+    if ( !isVisible() )
+        return;
+
+    QPoint pos = me->pos();
+    if ( !isOrientationEnabled(Qt::Horizontal) )
+        pos.setX(d_data->initialPos.x());
+    if ( !isOrientationEnabled(Qt::Vertical) )
+        pos.setY(d_data->initialPos.y());
+
+    if ( pos != d_data->pos && rect().contains(pos) )
     {
-        d_data->pos = me->pos();
+        d_data->pos = pos;
         update();
 
         emit moved(d_data->pos.x() - d_data->initialPos.x(), 
@@ -400,7 +461,9 @@ void QwtPanner::widgetMouseMoveEvent(QMouseEvent *me)
 /*!
   Handle a mouse release event for the observed widget.
 
-  \sa eventFilter(), widgetMousePressEvent(), widgetMouseMoveEvent()
+  \param me Mouse event
+  \sa eventFilter(), widgetMousePressEvent(),
+      widgetMouseMoveEvent(),
 */
 void QwtPanner::widgetMouseReleaseEvent(QMouseEvent *me)
 {
@@ -411,8 +474,14 @@ void QwtPanner::widgetMouseReleaseEvent(QMouseEvent *me)
         showCursor(false);
 #endif
 
+        QPoint pos = me->pos();
+        if ( !isOrientationEnabled(Qt::Horizontal) )
+            pos.setX(d_data->initialPos.x());
+        if ( !isOrientationEnabled(Qt::Vertical) )
+            pos.setY(d_data->initialPos.y());
+
         d_data->pixmap = QPixmap();
-        d_data->pos = me->pos();
+        d_data->pos = pos;
 
         if ( d_data->pos != d_data->initialPos )
         {

@@ -63,7 +63,7 @@ public:
 
     void attach(QwtPlot *plot);
 
-    /*! 
+    /*!
        \brief This method detaches a QwtPlotItem from any QwtPlot is has been
               associated with.
 

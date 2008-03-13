@@ -310,7 +310,7 @@ void QwtPlot::polish()
 
 /*!  
   Return sizeHint
-  \sa QwtPlot::minimumSizeHint()
+  \sa minimumSizeHint()
 */
 
 QSize QwtPlot::sizeHint() const
@@ -421,7 +421,7 @@ void QwtPlot::replot()
 
 /*!
   \brief Adjust plot content to its current size.
-  \sa QwtPlot::resizeEvent
+  \sa resizeEvent()
 */
 void QwtPlot::updateLayout()
 {
@@ -562,7 +562,7 @@ void QwtPlot::updateTabOrder()
   \warning drawCanvas calls drawItems what is also used
            for printing. Applications that like to add individual
            plot items better overload QwtPlot::drawItems
-  \sa QwtPlot::drawItems
+  \sa drawItems()
 */
 
 void QwtPlot::drawCanvas(QPainter *painter)
@@ -620,7 +620,7 @@ void QwtPlot::drawItems(QPainter *painter, const QRect &rect,
   \param axisId Axis
   \return Map for the axis on the canvas. With this map pixel coordinates can
           translated to plot coordinates and vice versa.
-  \sa QwtScaleMap, QwtPlot::transform, QwtPlot::invTransform
+  \sa QwtScaleMap, transform(), invTransform()
   
 */
 QwtScaleMap QwtPlot::canvasMap(int axisId) const
@@ -674,7 +674,7 @@ QwtScaleMap QwtPlot::canvasMap(int axisId) const
   around all components.
 
   \param margin new margin
-  \sa QwtPlotLayout::setMargin(), QwtPlot::margin(), QwtPlot::plotLayout()
+  \sa QwtPlotLayout::setMargin(), margin(), plotLayout()
 */
 void QwtPlot::setMargin(int margin)
 {
@@ -690,7 +690,7 @@ void QwtPlot::setMargin(int margin)
 
 /*!
     \return margin
-    \sa QwtPlot::setMargin(), QwtPlotLayout::margin(), QwtPlot::plotLayout()
+    \sa setMargin(), QwtPlotLayout::margin(), plotLayout()
 */
 int QwtPlot::margin() const
 {

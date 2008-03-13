@@ -24,7 +24,7 @@ class QWT_EXPORT QwtSymbol
 public:
     /*!
         Style
-        \sa QwtSymbol::setStyle, QwtSymbol::style
+        \sa setStyle(), style()
      */
     enum Style 
     { 
