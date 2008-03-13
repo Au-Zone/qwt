@@ -283,7 +283,9 @@ public:
     virtual void drawTracker(QPainter *) const;
 
     virtual QwtText trackerText(const QPoint &pos) const;
-    QRect trackerRect(QPainter *) const;
+    QPoint trackerPosition() const;
+    QRect trackerRect(const QFont &) const;
+
 
 signals:
     /*!
@@ -338,6 +340,8 @@ protected:
     virtual void move(const QPoint &);
     virtual bool end(bool ok = true);
 
+    virtual void reset();
+
     virtual void widgetMousePressEvent(QMouseEvent *);
     virtual void widgetMouseReleaseEvent(QMouseEvent *);
     virtual void widgetMouseDoubleClickEvent(QMouseEvent *); 
@@ -364,6 +368,7 @@ private:
     void setStateMachine(QwtPickerMachine *);
     void setMouseTracking(bool);
 
+    class PickerWidget;
     class PrivateData;
     PrivateData *d_data;
 };
