@@ -28,6 +28,7 @@
 #if QT_VERSION >= 0x040000
 
 #include <qevent.h>
+#include <qpaintengine.h>
 
 class QwtPlotCurvePaintHelper: public QObject
 {
@@ -109,12 +110,14 @@ public:
         attributes(0),
         paintAttributes(0)
     {
-        pen = QPen(Qt::black, 0);
+        symbol = new QwtSymbol();
+        pen = QPen(Qt::black);
         curveFitter = new QwtSplineCurveFitter;
     }
 
     ~PrivateData()
     {
+        delete symbol;
         delete curveFitter;
     }
 
@@ -122,7 +125,7 @@ public:
     QwtPlotCurve::CurveStyle style;
     double reference;
 
-    QwtSymbol sym;
+    QwtSymbol *symbol;
     QwtCurveFitter *curveFitter;
 
     QPen pen;
@@ -277,7 +280,8 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 */
 void QwtPlotCurve::setSymbol(const QwtSymbol &s )
 {
-    d_data->sym = s;
+    delete d_data->symbol;
+    d_data->symbol = s.clone();
     itemChanged();
 }
 
@@ -287,7 +291,7 @@ void QwtPlotCurve::setSymbol(const QwtSymbol &s )
 */
 const QwtSymbol &QwtPlotCurve::symbol() const 
 { 
-    return d_data->sym; 
+    return *d_data->symbol; 
 }
 
 /*!
@@ -483,6 +487,17 @@ void QwtPlotCurve::draw(int from, int to) const
     QwtPlotCanvas *canvas = plot()->canvas();
 
 #if QT_VERSION >= 0x040000
+    if ( canvas->paintEngine()->type() == QPaintEngine::OpenGL )
+    {
+        /*
+            OpenGL alway repaint the complete widget.
+            So for this operation OpenGL is one of the slowest
+            environments.
+         */
+        canvas->repaint();
+        return;
+    }
+
     if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
         !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
     {
@@ -536,7 +551,7 @@ void QwtPlotCurve::draw(int from, int to) const
   \param to index of the last point to be painted. If to < 0 the 
          curve will be painted to its last point.
 
-  \sa drawCurve(), draSymbols(),
+  \sa drawCurve(), drawSymbols(),
 */
 void QwtPlotCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -562,10 +577,10 @@ void QwtPlotCurve::draw(QPainter *painter,
         drawCurve(painter, d_data->style, xMap, yMap, from, to);
         painter->restore();
 
-        if (d_data->sym.style() != QwtSymbol::NoSymbol)
+        if (d_data->symbol->style() != QwtSymbol::NoSymbol)
         {
             painter->save();
-            drawSymbols(painter, d_data->sym, xMap, yMap, from, to);
+            drawSymbols(painter, *d_data->symbol, xMap, yMap, from, to);
             painter->restore();
         }
     }

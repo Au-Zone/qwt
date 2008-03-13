@@ -48,6 +48,14 @@ QwtSymbol::~QwtSymbol()
 {
 }
 
+QwtSymbol *QwtSymbol::clone() const
+{
+    QwtSymbol *other = new QwtSymbol;
+    *other = *this;
+
+    return other;
+}
+
 /*!
   \brief Specify the symbol's size
 
@@ -236,7 +244,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w = r.width();
             const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
-                2.0);  // 0.866025 = cos(30°)
+                2.0);  // 0.866025 = cos(30Â°)
             const int h4 = r.height() / 4;
             const int h2 = r.height() / 2;
             const int h34 = (r.height() * 3) / 4;
@@ -267,7 +275,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w2 = r.width() / 2;
             const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
-                2.0);  // 0.866025 = cos(30°)
+                2.0);  // 0.866025 = cos(30Â°)
             const int h4 = r.height() / 4;
             const int h34 = (r.height() * 3) / 4;
 

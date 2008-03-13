@@ -55,7 +55,9 @@ public:
     virtual ~QwtSymbol();
     
     bool operator!=(const QwtSymbol &) const;
-    bool operator==(const QwtSymbol &) const;
+    virtual bool operator==(const QwtSymbol &) const;
+
+    virtual QwtSymbol *clone() const;
 
     void setSize(const QSize &s);
     void setSize(int a, int b = -1);
