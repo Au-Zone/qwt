@@ -26,9 +26,7 @@ INCLUDEPATH += ../../../src
 DEPENDPATH  += ../../../src
 
 HEADERS += \
-    qwt_circular_plot.h \
-    qwt_polar_plot.h
+    qwt_radial_plot.h
 
 SOURCES += \
-    qwt_circular_plot.cpp \
-    qwt_polar_plot.cpp 
+    qwt_radial_plot.cpp 
