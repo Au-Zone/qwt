@@ -16,6 +16,9 @@
 #include "qwt_round_scale_draw.h"
 #include "qwt_round_scale_draw.h"
 #include "qwt_radial_plot.h"
+#if 1
+#include <QDebug>
+#endif
 
 class QwtRadialPlot::ScaleData
 {
@@ -478,7 +481,8 @@ void QwtRadialPlot::initPlot()
 		if ( isAngleScale(scaleId) )
 		{
 			scaleData.origin = 270.0;
-			scaleData.scaleDraw = new QwtRoundScaleDraw();
+			scaleData.scaleDraw = QwtRoundScaleDraw();
+			scaleData.isVisible = (scaleId == AngleScale1);
 
 			scaleData.minValue = 0.0;
 			scaleData.maxValue = 360.0;
@@ -488,6 +492,7 @@ void QwtRadialPlot::initPlot()
 		{
 			scaleData.origin = 0.0;
 			scaleData.scaleDraw = NULL;
+			scaleData.isVisible = false;
 
 			scaleData.minValue = 0.0;
 			scaleData.maxValue = 1000.0;
@@ -536,7 +541,9 @@ void QwtRadialPlot::drawCanvas(QPainter *painter, const QRect &rect) const
 	painter->setBrush(d_data->canvasBrush);
 
 	setAntialiasing(painter, true);
-	painter->drawEllipse(rect);
+
+	const QRect r(rect.x() - 1, rect.y() - 1, rect.width(), rect.height());
+	painter->drawEllipse(r);
 	painter->restore();
 }
 
@@ -563,7 +570,6 @@ void QwtRadialPlot::drawAngleScale(QPainter *painter,
 
     const QColor textColor = cg.color(QColorGroup::Text);
     cg.setColor(QColorGroup::Foreground, textColor);
-    painter->setPen(QPen(textColor, d_data->scaleDraw->penWidth()));
 
     scaleDraw->draw(painter, cg);
 #else
@@ -572,7 +578,6 @@ void QwtRadialPlot::drawAngleScale(QPainter *painter,
     const QColor textColor = pal.color(QPalette::Text);
     pal.setColor(QPalette::Foreground, textColor); //ticks, backbone
 
-    painter->setPen(QPen(textColor));
 	setAntialiasing(painter, true);
     scaleDraw->draw(painter, pal);
 #endif
