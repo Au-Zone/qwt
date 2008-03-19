@@ -26,7 +26,13 @@ INCLUDEPATH += ../../../src
 DEPENDPATH  += ../../../src
 
 HEADERS += \
-    qwt_radial_plot.h
+    qwt_radial_plot.h \
+	qwt_radial_plot_item.h \
+	qwt_radial_plot_grid.h \
+	qwt_radial_plot_dict.h
 
 SOURCES += \
-    qwt_radial_plot.cpp 
+    qwt_radial_plot.cpp \
+	qwt_radial_plot_item.cpp \
+	qwt_radial_plot_grid.cpp \
+	qwt_radial_plot_dict.cpp

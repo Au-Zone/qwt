@@ -16,12 +16,13 @@
 #include <qregion.h>
 #include "qwt_global.h"
 #include "qwt_scale_map.h"
+#include "qwt_radial_plot_dict.h"
 
 class QwtRoundScaleDraw;
 class QwtScaleEngine;
 class QwtScaleDiv;
 
-class QWT_EXPORT QwtRadialPlot: public QWidget
+class QWT_EXPORT QwtRadialPlot: public QWidget, public QwtRadialPlotDict
 {
     Q_OBJECT
 
@@ -29,20 +30,20 @@ class QWT_EXPORT QwtRadialPlot: public QWidget
         READ canvasBackground WRITE setCanvasBackground);
 
 public:
-	enum Scale
-	{
-		AngleScale1,
-		AngleScale2,
-		AngleScale3,
-		AngleScale4,
+    enum Scale
+    {
+        AngleScale1,
+        AngleScale2,
+        AngleScale3,
+        AngleScale4,
 
-		DistanceScale1,
-		DistanceScale2,
-		DistanceScale3,
-		DistanceScale4,
-	
-		ScaleCount
-	};
+        DistanceScale1,
+        DistanceScale2,
+        DistanceScale3,
+        DistanceScale4,
+    
+        ScaleCount
+    };
 
     explicit QwtRadialPlot( QWidget *parent = NULL);
 #if QT_VERSION < 0x040000
@@ -60,7 +61,7 @@ public:
     void setAutoReplot(bool tf = true); 
     bool autoReplot() const;
 
-	// angle scale only
+    // angle scale only
     void showAngleScale(int scaleId, bool enable = true);
     bool isAngleScaleVisible(int scaleId) const;
 
@@ -71,8 +72,8 @@ public:
     double origin(int scaleId) const;
 
     // all scales
-	void setAutoScale(int scaleId, bool enable);
-	bool autoScale(int scaleId) const;
+    void setAutoScale(int scaleId, bool enable);
+    bool autoScale(int scaleId) const;
 
     void setScaleMaxMinor(int scaleId, int maxMinor);
     int scaleMaxMinor(int scaleId) const;
@@ -90,7 +91,7 @@ public:
     const QwtScaleDiv *scaleDiv(int scaleId) const;
     QwtScaleDiv *scaleDiv(int scaleId);
 
-	QwtScaleMap scaleMap(int scaleId) const;
+    QwtScaleMap canvasMap(int scaleId) const;
 
     QRect boundingRect() const;
     QRect canvasRect() const;
@@ -99,6 +100,10 @@ public:
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
+    static bool isValidScale(int scaleId);
+    static bool isAngleScale(int scaleId);
+    static bool isDistanceScale(int scaleId);
+
 public slots:
     void setOrigin(int scaleId, double);
 
@@ -106,24 +111,23 @@ public slots:
     void autoRefresh();
 
 protected:
-	bool event(QEvent *);
+    bool event(QEvent *);
     virtual void paintEvent(QPaintEvent *);
     virtual void resizeEvent(QResizeEvent *);
 
     virtual void updateMask();
 
-	virtual void drawAngleScale(QPainter *, int scaleId, const QRect &) const;
-	virtual void drawCanvas(QPainter *, const QRect &) const;
+    virtual void drawAngleScale(QPainter *, int scaleId, const QRect &) const;
+    virtual void drawCanvas(QPainter *, const QRect &) const;
+    virtual void drawItems(QPainter *, const QRect &,
+        const QwtScaleMap map[ScaleCount]) const;
 
-	void updateScale(int scaleId);
+    void updateScale(int scaleId);
 
 private:
     void initPlot();
 
-	bool isValidScale(int scaleId) const;
-	bool isAngleScale(int scaleId) const;
-	bool isDistanceScale(int scaleId) const;
-	int scaleExtent() const;
+    int scaleExtent() const;
 
     class ScaleData;
     class PrivateData;
