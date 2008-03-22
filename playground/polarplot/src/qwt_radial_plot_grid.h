@@ -72,6 +72,12 @@ public:
     virtual void updateScaleDiv(const QwtScaleDiv&,
         const QwtScaleDiv&);
 
+protected:
+	void drawLines(QPainter *, const QRect &,
+    	const QwtScaleMap &, const QwtValueList &) const;
+	void drawCircles(QPainter *, const QRect &,
+    	const QwtScaleMap &, const QwtValueList &) const;
+
 private:
     class PrivateData;
     PrivateData *d_data;

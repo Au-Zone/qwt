@@ -633,6 +633,17 @@ void QwtRadialPlot::updateScale(int scaleId)
         d.scaleDraw->setTransformation(d.scaleEngine->transformation());
         d.scaleDraw->setScaleDiv(d.scaleDiv);
     }
+
+    const QwtRadialPlotItemList& itmList = itemList();
+
+    QwtRadialPlotItemIterator it;
+
+    for ( it = itmList.begin(); it != itmList.end(); ++it )
+    {
+        QwtRadialPlotItem *item = *it;
+        item->updateScaleDiv( *scaleDiv(item->distanceAxis()),
+            *scaleDiv(item->angleAxis()));
+    }
 }
 
 void QwtRadialPlot::polish()

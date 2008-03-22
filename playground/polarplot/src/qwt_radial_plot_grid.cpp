@@ -47,6 +47,9 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
 {
     d_data = new PrivateData;
     setZ(10.0);
+#if QT_VERSION >= 0x040000
+	setRenderHint(RenderAntialiased, true);
+#endif
 }
 
 //! dtor
@@ -206,24 +209,22 @@ void QwtRadialPlotGrid::draw(QPainter *painter,
     const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap,
     const QRect &canvasRect) const
 {
-qDebug() << "draw grid";
-#if 0
     //  draw minor gridlines
     painter->setPen(d_data->minPen);
     
     if (d_data->xEnabled && d_data->xMinEnabled)
     {
-        drawLines(painter, r, Qt::Vertical, mx, 
+        drawCircles(painter, canvasRect, distanceMap, 
             d_data->sdx.ticks(QwtScaleDiv::MinorTick));
-        drawLines(painter, r, Qt::Vertical, mx, 
+        drawCircles(painter, canvasRect, distanceMap, 
             d_data->sdx.ticks(QwtScaleDiv::MediumTick));
     }
 
     if (d_data->yEnabled && d_data->yMinEnabled)
     {
-        drawLines(painter, r, Qt::Horizontal, my, 
+        drawLines(painter, canvasRect, angleMap, 
             d_data->sdy.ticks(QwtScaleDiv::MinorTick));
-        drawLines(painter, r, Qt::Horizontal, my, 
+        drawLines(painter, canvasRect, angleMap, 
             d_data->sdy.ticks(QwtScaleDiv::MediumTick));
     }
 
@@ -232,16 +233,34 @@ qDebug() << "draw grid";
     
     if (d_data->xEnabled)
     {
-        drawLines(painter, r, Qt::Vertical, mx,
+        drawCircles(painter, canvasRect, distanceMap,
             d_data->sdx.ticks(QwtScaleDiv::MajorTick));
     }
 
     if (d_data->yEnabled)
     {
-        drawLines(painter, r, Qt::Horizontal, my,
+        drawLines(painter, canvasRect, angleMap,
             d_data->sdy.ticks(QwtScaleDiv::MajorTick));
     }
-#endif
+}
+
+void QwtRadialPlotGrid::drawLines(QPainter *painter, const QRect &canvasRect,
+    const QwtScaleMap &scaleMap, const QwtValueList &values) const
+{
+}
+
+void QwtRadialPlotGrid::drawCircles(QPainter *painter, const QRect &canvasRect,
+    const QwtScaleMap &scaleMap, const QwtValueList &values) const
+{
+	const QPoint center = canvasRect.center();
+
+	for ( int i = 0; i < values.size(); i++ )
+	{
+		const int radius = scaleMap.transform(values[i]);
+    	const QRect r(center.x() - radius, center.y() - radius, 
+			2 * radius, 2 * radius);
+		painter->drawEllipse(r);
+	}
 }
 
 /*!
