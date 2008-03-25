@@ -90,14 +90,6 @@ public:
     virtual void setVisible(bool);
     bool isVisible () const;
 
-    void setAxis(int distanceAxis, int angleAxis);
-
-    void setDistanceAxis(int axis);
-    int distanceAxis() const;
-
-    void setAngleAxis(int axis);
-    int angleAxis() const;
-
     virtual void itemChanged();
 
     /*!

@@ -48,7 +48,7 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
     d_data = new PrivateData;
     setZ(10.0);
 #if QT_VERSION >= 0x040000
-	setRenderHint(RenderAntialiased, true);
+    setRenderHint(RenderAntialiased, true);
 #endif
 }
 
@@ -209,22 +209,25 @@ void QwtRadialPlotGrid::draw(QPainter *painter,
     const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap,
     const QRect &canvasRect) const
 {
+    const QPoint center = canvasRect.center();
+    const int radius = qRound(qAbs(distanceMap.p2() - distanceMap.p1()));
+
     //  draw minor gridlines
     painter->setPen(d_data->minPen);
     
     if (d_data->xEnabled && d_data->xMinEnabled)
     {
-        drawCircles(painter, canvasRect, distanceMap, 
+        drawCircles(painter, center, distanceMap, 
             d_data->sdx.ticks(QwtScaleDiv::MinorTick));
-        drawCircles(painter, canvasRect, distanceMap, 
+        drawCircles(painter, center, distanceMap, 
             d_data->sdx.ticks(QwtScaleDiv::MediumTick));
     }
 
     if (d_data->yEnabled && d_data->yMinEnabled)
     {
-        drawLines(painter, canvasRect, angleMap, 
+        drawLines(painter, center, radius, angleMap, 
             d_data->sdy.ticks(QwtScaleDiv::MinorTick));
-        drawLines(painter, canvasRect, angleMap, 
+        drawLines(painter, center, radius, angleMap, 
             d_data->sdy.ticks(QwtScaleDiv::MediumTick));
     }
 
@@ -233,34 +236,39 @@ void QwtRadialPlotGrid::draw(QPainter *painter,
     
     if (d_data->xEnabled)
     {
-        drawCircles(painter, canvasRect, distanceMap,
+        drawCircles(painter, center, distanceMap,
             d_data->sdx.ticks(QwtScaleDiv::MajorTick));
     }
 
     if (d_data->yEnabled)
     {
-        drawLines(painter, canvasRect, angleMap,
+        drawLines(painter, center, radius, angleMap,
             d_data->sdy.ticks(QwtScaleDiv::MajorTick));
     }
 }
 
-void QwtRadialPlotGrid::drawLines(QPainter *painter, const QRect &canvasRect,
-    const QwtScaleMap &scaleMap, const QwtValueList &values) const
+void QwtRadialPlotGrid::drawLines(QPainter *painter, 
+    const QPoint &center, int radius,
+    const QwtScaleMap &angleMap, const QwtValueList &values) const
 {
+    for ( int i = 0; i < values.size(); i++ )
+    {
+        double angle = angleMap.xTransform(values[i]);
+        const QPoint pos = qwtPolar2Pos(center, radius, angle);
+        painter->drawLine(center, pos);
+    }
 }
 
-void QwtRadialPlotGrid::drawCircles(QPainter *painter, const QRect &canvasRect,
-    const QwtScaleMap &scaleMap, const QwtValueList &values) const
+void QwtRadialPlotGrid::drawCircles(QPainter *painter, const QPoint &center,
+    const QwtScaleMap &distanceMap, const QwtValueList &values) const
 {
-	const QPoint center = canvasRect.center();
-
-	for ( int i = 0; i < values.size(); i++ )
-	{
-		const int radius = scaleMap.transform(values[i]);
-    	const QRect r(center.x() - radius, center.y() - radius, 
-			2 * radius, 2 * radius);
-		painter->drawEllipse(r);
-	}
+    for ( int i = 0; i < values.size(); i++ )
+    {
+        const int radius = distanceMap.transform(values[i]) - center.x();
+        const QRect r(center.x() - radius, center.y() - radius, 
+            2 * radius, 2 * radius);
+        painter->drawEllipse(r);
+    }
 }
 
 /*!

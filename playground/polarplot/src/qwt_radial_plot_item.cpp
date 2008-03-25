@@ -20,9 +20,7 @@ public:
 #if QT_VERSION >= 0x040000
         renderHints(0),
 #endif
-        z(0.0),
-        distanceAxis(QwtRadialPlot::DistanceScale1),
-        angleAxis(QwtRadialPlot::AngleScale1)
+        z(0.0)
     {
     }
 
@@ -34,9 +32,6 @@ public:
     int renderHints;
 #endif
     double z;
-
-    int distanceAxis;
-    int angleAxis;
 
     QwtText title;
 };
@@ -296,73 +291,6 @@ void QwtRadialPlotItem::itemChanged()
 {
     if ( d_data->plot )
         d_data->plot->autoRefresh();
-}
-
-/*!  
-   Set X and Y axis
-
-   The item will painted according to the coordinates its Axes.
-
-   \param distanceAxis X Axis
-   \param angleAxis Y Axis
-
-   \sa setDistanceAxis(), setAngleAxis(), distanceAxis(), angleAxis()
-*/
-void QwtRadialPlotItem::setAxis(int distanceAxis, int angleAxis)
-{
-    if (QwtRadialPlot::isDistanceScale(distanceAxis))
-       d_data->distanceAxis = distanceAxis;
-
-    if (QwtRadialPlot::isAngleScale(angleAxis))
-       d_data->angleAxis = angleAxis;
-
-    itemChanged();    
-}
-
-/*!  
-   Set the X axis
-
-   The item will painted according to the coordinates its Axes.
-
-   \param axis Distance Axis
-   \sa setAxis(), setAngleAxis(), distanceAxis()
-*/
-void QwtRadialPlotItem::setDistanceAxis(int axis)
-{
-    if (QwtRadialPlot::isDistanceScale(axis))
-    {
-       d_data->distanceAxis = axis;
-       itemChanged();    
-    }
-}
-
-/*!  
-   Set the Y axis
-
-   The item will painted according to the coordinates its Axes.
-
-   \param axis Angle Axis
-   \sa setAxis(), setDistanceAxis(), angleAxis()
-*/
-void QwtRadialPlotItem::setAngleAxis(int axis)
-{
-    if (QwtRadialPlot::isAngleScale(axis))
-    {
-       d_data->angleAxis = axis;
-       itemChanged();   
-    }
-}
-
-//! Return distanceAxis
-int QwtRadialPlotItem::distanceAxis() const 
-{ 
-    return d_data->distanceAxis; 
-}
-
-//! Return angleAxis
-int QwtRadialPlotItem::angleAxis() const 
-{ 
-    return d_data->angleAxis; 
 }
 
 /*!

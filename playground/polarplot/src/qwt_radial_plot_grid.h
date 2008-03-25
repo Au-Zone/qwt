@@ -73,10 +73,10 @@ public:
         const QwtScaleDiv&);
 
 protected:
-	void drawLines(QPainter *, const QRect &,
-    	const QwtScaleMap &, const QwtValueList &) const;
-	void drawCircles(QPainter *, const QRect &,
-    	const QwtScaleMap &, const QwtValueList &) const;
+    void drawLines(QPainter *, const QPoint &center, int radius, 
+        const QwtScaleMap &, const QwtValueList &) const;
+    void drawCircles(QPainter *, const QPoint &,
+        const QwtScaleMap &, const QwtValueList &) const;
 
 private:
     class PrivateData;
