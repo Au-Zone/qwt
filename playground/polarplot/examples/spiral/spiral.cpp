@@ -7,6 +7,7 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
 
     QwtRadialPlot plot;
+	//plot.setOrigin(M_PI / 2.0);
 
     QwtRadialPlotGrid *grid = new QwtRadialPlotGrid();
     grid->attach(&plot);

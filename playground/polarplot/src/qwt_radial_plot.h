@@ -42,10 +42,20 @@ public:
 
     virtual ~QwtRadialPlot();
 
+    void setCanvasBackground(const QBrush&);
+    const QBrush &canvasBackground() const;
+
     void setAutoReplot(bool tf = true); 
     bool autoReplot() const;
 
     double origin() const;
+
+    void showAngleScale(bool on);
+    bool isAngleScaleVisible() const;
+
+    void setAngleScaleDraw(QwtRoundScaleDraw *);
+    const QwtRoundScaleDraw *angleScaleDraw() const;
+    QwtRoundScaleDraw *angleScaleDraw();
 
     void setAutoScale(int scaleId, bool enable);
     bool autoScale(int scaleId) const;
@@ -72,12 +82,8 @@ public:
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
-    QwtDoubleInterval zoomedArea(int scaleId) const;
-
 public slots:
     void setOrigin(double);
-    void zoom(const QwtDoubleInterval &distanceInterval,
-        const QwtDoubleInterval &angleInterval);
 
     virtual void replot();
     void autoRefresh();
@@ -89,8 +95,13 @@ protected:
     virtual void drawCanvas(QPainter *, const QRect &) const;
     virtual void drawItems(QPainter *, const QRect &,
         const QwtScaleMap map[ScaleCount]) const;
+    virtual void drawAngleScale(QPainter *, const QRect &) const;
 
     void updateScale(int scaleId);
+
+    QRect boundingRect() const;
+    QRect canvasRect() const;
+    int scaleExtent() const;
 
 private:
     void initPlot();

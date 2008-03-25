@@ -21,6 +21,19 @@
 #include <QDebug>
 #endif
 
+#if QT_VERSION >= 0x040000
+static void setAntialiasing(QPainter *painter, bool on)
+{
+    QPaintEngine *engine = painter->paintEngine();
+    if ( engine && engine->hasFeature(QPaintEngine::Antialiasing) )
+        painter->setRenderHint(QPainter::Antialiasing, on);
+}
+#else
+static void setAntialiasing(QPainter *, bool)
+{
+}
+#endif
+
 class QwtRadialPlot::ScaleData
 {
 public:
@@ -57,6 +70,9 @@ public:
     bool autoReplot;
     double origin;
 
+    bool isAngleScaleVisible;
+    QwtRoundScaleDraw *angleScaleDraw;
+
     ScaleData scaleData[ScaleCount];
 };
 
@@ -89,8 +105,23 @@ bool QwtRadialPlot::autoReplot() const
     return d_data->autoReplot;
 }
 
+void QwtRadialPlot::showAngleScale(bool enable)
+{
+    if ( d_data->isAngleScaleVisible != enable )
+    {
+        d_data->isAngleScaleVisible = enable;
+        update();
+    }
+}
+
+bool QwtRadialPlot::isAngleScaleVisible() const
+{
+    return d_data->isAngleScaleVisible;
+}
+
 void QwtRadialPlot::setOrigin(double origin)
 {
+	// 0.0 -> 2 * PI
     if ( d_data->origin != origin )
     {
         d_data->origin = origin;
@@ -101,6 +132,26 @@ void QwtRadialPlot::setOrigin(double origin)
 double QwtRadialPlot::origin() const
 {
     return d_data->origin;
+}
+
+void QwtRadialPlot::setAngleScaleDraw(QwtRoundScaleDraw *scaleDraw)
+{
+    if ( scaleDraw == NULL || scaleDraw == d_data->angleScaleDraw )
+        return;
+
+    delete d_data->angleScaleDraw;
+    d_data->angleScaleDraw = scaleDraw;
+    autoRefresh();
+}
+
+const QwtRoundScaleDraw *QwtRadialPlot::angleScaleDraw() const
+{
+    return d_data->angleScaleDraw;
+}
+
+QwtRoundScaleDraw *QwtRadialPlot::angleScaleDraw()
+{
+    return d_data->angleScaleDraw;
 }
 
 void QwtRadialPlot::setScaleMaxMinor(int scaleId, int maxMinor)
@@ -205,7 +256,6 @@ void QwtRadialPlot::setScale(int scaleId,
     scaleData.maxValue = max;
     scaleData.stepSize = stepSize;
     scaleData.doAutoScale = false;
-    scaleData.zoomedInterval.invalidate();
 
     autoRefresh();
 }
@@ -219,7 +269,6 @@ void QwtRadialPlot::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
 
     scaleData.scaleDiv = scaleDiv;
     scaleData.doAutoScale = false;
-    scaleData.zoomedInterval.invalidate();
 
     autoRefresh();
 }
@@ -251,18 +300,16 @@ QwtScaleMap QwtRadialPlot::canvasMap(int scaleId) const
     const QwtScaleDiv *sd = scaleDiv(scaleId);
     map.setScaleInterval(sd->lBound(), sd->hBound());
 
-    if ( scaleId  == AngleScale)
+    if ( scaleId == AngleScale)
     {
-        map.setPaintXInterval(0.0, M_2PI); 
-
-        const double start = map.xTransform(origin());
-        map.setPaintXInterval(start, start + M_2PI); 
+		const double o = d_data->origin;
+        map.setPaintXInterval(o, o + M_2PI); 
     }
     else
     {
-        const int w = qwtMin(contentsRect().width(), contentsRect().height());
-        map.setPaintInterval(contentsRect().center().x(), 
-            contentsRect().center().x() + w / 2);
+        const int w = qwtMin(canvasRect().width(), canvasRect().height());
+        map.setPaintInterval(canvasRect().center().x(), 
+            canvasRect().center().x() + w / 2);
     }
 
     return map;
@@ -270,14 +317,26 @@ QwtScaleMap QwtRadialPlot::canvasMap(int scaleId) const
 
 QSize QwtRadialPlot::sizeHint() const
 {
-    const int d = 6 * fontMetrics().height();
-    return QSize( d, d );
+    const int extent = scaleExtent();
+    if ( extent > 0 )
+    {
+        const int d = 6 * (extent + 1);
+        return QSize( d, d );
+    }
+
+    return QSize(400, 400); // something
 }
 
 QSize QwtRadialPlot::minimumSizeHint() const
 {
-    const int d = 3 * fontMetrics().height();
-    return QSize( d, d );
+    const int extent = scaleExtent();
+    if ( extent > 0 )
+    {
+        const int d = 3 * (extent + 1);
+        return QSize( d, d );
+    }
+
+    return QSize();
 }
 
 bool QwtRadialPlot::event(QEvent *e)
@@ -306,8 +365,16 @@ void QwtRadialPlot::paintEvent(QPaintEvent *e)
 #else
         QPainter painter(this);
 #endif
+        painter.save();
+        drawCanvas(&painter, canvasRect());
+        painter.restore();
 
-        drawCanvas(&painter, contentsRect());
+        if ( isAngleScaleVisible() )
+        {
+            painter.save();
+            drawAngleScale(&painter, boundingRect());
+            painter.restore();
+        }
     }
 }
 
@@ -320,9 +387,9 @@ void QwtRadialPlot::initPlot()
     d_data = new PrivateData;
 
     d_data->autoReplot = false;
-#if 1
-    d_data->origin = 270.0;
-#endif
+    d_data->isAngleScaleVisible = true;
+    d_data->angleScaleDraw = new QwtRoundScaleDraw();
+    d_data->origin = 0.0;
     
     for ( int scaleId = DistanceScale; scaleId <= AngleScale; scaleId++ )
     {
@@ -368,6 +435,41 @@ void QwtRadialPlot::replot()
 {
     for ( int scaleId = 0; scaleId < ScaleCount; scaleId++ )
         updateScale(scaleId);
+}
+
+void QwtRadialPlot::drawAngleScale(QPainter *painter, const QRect &rect) const
+{
+    QwtRoundScaleDraw *scaleDraw = d_data->angleScaleDraw;
+    if ( scaleDraw == NULL )
+        return;
+
+    const QPoint center = rect.center();
+    int radius = rect.width() / 2;
+    radius -= scaleDraw->extent(QPen(), font()) - 1;
+
+    painter->setFont(font());
+    scaleDraw->setRadius(radius);
+    scaleDraw->moveCenter(center);
+
+    const double o = d_data->origin / M_PI * 180.0; // degree
+    scaleDraw->setAngleRange(o + 90.0, o - 270.0);
+
+#if QT_VERSION < 0x040000
+    QColorGroup cg = colorGroup();
+
+    const QColor textColor = cg.color(QColorGroup::Text);
+    cg.setColor(QColorGroup::Foreground, textColor);
+
+    scaleDraw->draw(painter, cg);
+#else
+    QPalette pal = palette();
+
+    const QColor textColor = pal.color(QPalette::Text);
+    pal.setColor(QPalette::Foreground, textColor); //ticks, backbone
+
+    setAntialiasing(painter, true);
+    scaleDraw->draw(painter, pal);
+#endif
 }
 
 void QwtRadialPlot::drawCanvas(QPainter *painter, const QRect &rect) const
@@ -418,6 +520,13 @@ void QwtRadialPlot::updateScale(int scaleId)
             d.maxMajor, d.maxMinor, d.stepSize);
     }
 
+    QwtRoundScaleDraw *scaleDraw = d_data->angleScaleDraw;
+    if ( scaleDraw )
+    {
+        scaleDraw->setTransformation(d.scaleEngine->transformation());
+        scaleDraw->setScaleDiv(d.scaleDiv);
+    }
+
     const QwtRadialPlotItemList& itmList = itemList();
 
     QwtRadialPlotItemIterator it;
@@ -439,16 +548,33 @@ void QwtRadialPlot::polish()
 #endif
 }
 
-void QwtRadialPlot::zoom(const QwtDoubleInterval &,
-        const QwtDoubleInterval &)
+QRect QwtRadialPlot::boundingRect() const
 {
+    const int radius = qwtMin(width(), height()) / 2;
+
+    QRect r(0, 0, 2 * radius, 2 * radius);
+    r.moveCenter(rect().center());
+    return r;
 }
 
-QwtDoubleInterval QwtRadialPlot::zoomedArea(int scaleId) const
+QRect QwtRadialPlot::canvasRect() const
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
-        return QwtDoubleInterval();
+    int scaleDist = scaleExtent();
+#if 0
+    if ( scaleDist > 0 )
+        scaleDist++; // margin
+#endif
+    
+    const QRect rect = boundingRect();
+    return QRect(rect.x() + scaleDist, rect.y() + scaleDist,
+        rect.width() - 2 * scaleDist, rect.height() - 2 * scaleDist);
+}
 
-    return d_data->scaleData[scaleId].zoomedInterval;
+int QwtRadialPlot::scaleExtent() const
+{
+    if ( isAngleScaleVisible() && d_data->angleScaleDraw )
+        return d_data->angleScaleDraw->extent(QPen(), font());
+
+    return 0;
 }
 

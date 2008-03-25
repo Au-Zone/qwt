@@ -255,7 +255,19 @@ void QwtRadialPlotGrid::drawLines(QPainter *painter,
     {
         double angle = angleMap.xTransform(values[i]);
         const QPoint pos = qwtPolar2Pos(center, radius, angle);
+#if 0
         painter->drawLine(center, pos);
+#else
+		painter->save();
+		if ( values[i] == 90.0 )
+			painter->setPen(Qt::red);
+#if 0
+		if ( values[i] == 270.0 )
+			painter->setPen(Qt::blue);
+#endif
+        painter->drawLine(center, pos);
+		painter->restore();
+#endif
     }
 }
 
