@@ -185,6 +185,7 @@ void QwtPlotCurve::init()
     setZ(20.0);
 }
 
+//! \return QwtPlotItem::Rtti_PlotCurve
 int QwtPlotCurve::rtti() const
 {
     return QwtPlotItem::Rtti_PlotCurve;
