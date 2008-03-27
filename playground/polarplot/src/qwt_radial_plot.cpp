@@ -360,8 +360,15 @@ void QwtRadialPlot::autoRefresh()
 
 void QwtRadialPlot::replot()
 {
+    bool doAutoReplot = autoReplot();
+    setAutoReplot(false);
+
     for ( int scaleId = 0; scaleId < ScaleCount; scaleId++ )
         updateScale(scaleId);
+
+    setAutoReplot(doAutoReplot);
+
+	repaint();
 }
 
 void QwtRadialPlot::drawCanvas(QPainter *painter, const QRect &rect) const

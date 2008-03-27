@@ -10,7 +10,6 @@
 #include <cfloat>
 #include <cmath>
 #include <qpainter.h>
-#include <qpaintengine.h>
 #include <qpen.h>
 #include "qwt_painter.h"
 #include "qwt_text.h"
@@ -21,19 +20,6 @@
 #include "qwt_radial_plot_grid.h"
 #if 1
 #include <QDebug>
-#endif
-
-#if QT_VERSION >= 0x040000
-static void setAntialiasing(QPainter *painter, bool on)
-{
-    QPaintEngine *engine = painter->paintEngine();
-    if ( engine && engine->hasFeature(QPaintEngine::Antialiasing) )
-        painter->setRenderHint(QPainter::Antialiasing, on);
-}
-#else
-static void setAntialiasing(QPainter *, bool)
-{
-}
 #endif
 
 static inline bool isClose(double value1, double value2 )
@@ -183,7 +169,7 @@ bool QwtRadialPlotGrid::testDisplayFlag(DisplayFlag flag) const
     return (d_data->displayFlags & flag);
 }
 
-void QwtRadialPlotGrid::showGrid(QwtRadialPlot::Scale scaleId, bool show)
+void QwtRadialPlotGrid::showGrid(int scaleId, bool show)
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
 		return;
@@ -196,7 +182,7 @@ void QwtRadialPlotGrid::showGrid(QwtRadialPlot::Scale scaleId, bool show)
     }
 }
 
-bool QwtRadialPlotGrid::isGridVisible(QwtRadialPlot::Scale scaleId) const
+bool QwtRadialPlotGrid::isGridVisible(int scaleId) const
 { 
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
         return false;
@@ -204,7 +190,7 @@ bool QwtRadialPlotGrid::isGridVisible(QwtRadialPlot::Scale scaleId) const
     return d_data->gridData[scaleId].isVisible;
 }
 
-void QwtRadialPlotGrid::showMinorGrid(QwtRadialPlot::Scale scaleId, bool show)
+void QwtRadialPlotGrid::showMinorGrid(int scaleId, bool show)
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
 		return;
@@ -217,7 +203,7 @@ void QwtRadialPlotGrid::showMinorGrid(QwtRadialPlot::Scale scaleId, bool show)
     }
 }
 
-bool QwtRadialPlotGrid::isMinorGridVisible(QwtRadialPlot::Scale scaleId) const
+bool QwtRadialPlotGrid::isMinorGridVisible(int scaleId) const
 { 
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
         return false;
@@ -225,7 +211,7 @@ bool QwtRadialPlotGrid::isMinorGridVisible(QwtRadialPlot::Scale scaleId) const
     return d_data->gridData[scaleId].isMinorVisible;
 }
 
-void QwtRadialPlotGrid::showAxis(Axis axisId, bool show)
+void QwtRadialPlotGrid::showAxis(int axisId, bool show)
 {
     if ( axisId < 0 || axisId >= AxesCount )
 		return;
@@ -238,7 +224,7 @@ void QwtRadialPlotGrid::showAxis(Axis axisId, bool show)
 	}
 }
 
-bool QwtRadialPlotGrid::isAxisVisisble(Axis axisId) const
+bool QwtRadialPlotGrid::isAxisVisible(int axisId) const
 {
     if ( axisId < 0 || axisId >= AxesCount )
 		return false;
@@ -246,8 +232,7 @@ bool QwtRadialPlotGrid::isAxisVisisble(Axis axisId) const
 	return d_data->axisData[axisId].isVisible;
 }
 
-void QwtRadialPlotGrid::setScaleDiv(
-	QwtRadialPlot::Scale scaleId, const QwtScaleDiv &scaleDiv)
+void QwtRadialPlotGrid::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
 		return;
@@ -260,8 +245,7 @@ void QwtRadialPlotGrid::setScaleDiv(
     }
 }
 
-QwtScaleDiv QwtRadialPlotGrid::scaleDiv(
-	QwtRadialPlot::Scale scaleId) const 
+QwtScaleDiv QwtRadialPlotGrid::scaleDiv(int scaleId) const 
 { 
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
 		return QwtScaleDiv();
@@ -304,8 +288,7 @@ void QwtRadialPlotGrid::setMajorGridPen(const QPen &pen)
 		itemChanged();
 }
 
-void QwtRadialPlotGrid::setMajorGridPen(
-	QwtRadialPlot::Scale scaleId, const QPen &pen)
+void QwtRadialPlotGrid::setMajorGridPen(int scaleId, const QPen &pen)
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
         return;
@@ -318,8 +301,7 @@ void QwtRadialPlotGrid::setMajorGridPen(
 	}
 }
 
-QPen QwtRadialPlotGrid::majorGridPen(
-	QwtRadialPlot::Scale scaleId) const
+QPen QwtRadialPlotGrid::majorGridPen(int scaleId) const
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
         return QPen();
@@ -345,8 +327,7 @@ void QwtRadialPlotGrid::setMinorGridPen(const QPen &pen)
         itemChanged();
 }
 
-void QwtRadialPlotGrid::setMinorGridPen(
-    QwtRadialPlot::Scale scaleId, const QPen &pen)
+void QwtRadialPlotGrid::setMinorGridPen(int scaleId, const QPen &pen)
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
         return;
@@ -359,7 +340,7 @@ void QwtRadialPlotGrid::setMinorGridPen(
     }
 }
 
-QPen QwtRadialPlotGrid::minorGridPen(QwtRadialPlot::Scale scaleId) const
+QPen QwtRadialPlotGrid::minorGridPen(int scaleId) const
 { 
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
         return QPen();
@@ -567,14 +548,12 @@ void QwtRadialPlotGrid::drawAxis(QPainter *painter, int axisId) const
     QColorGroup cg;
     cg.setColor(QColorGroup::Foreground, axis.pen.color());
     cg.setColor(QColorGroup::Text, axis.pen.color());
+
     axis.scaleDraw->draw(painter, cg);
 #else
     QPalette pal;
     pal.setColor(QPalette::Foreground, axis.pen.color());
     pal.setColor(QPalette::Text, axis.pen.color());
-
-	if ( axisId == AngleAxis )
-   		setAntialiasing(painter, true);
 
     axis.scaleDraw->draw(painter, pal);
 #endif

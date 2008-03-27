@@ -53,27 +53,27 @@ public:
 	void setDisplayFlag(DisplayFlag, bool on = true);
 	bool testDisplayFlag(DisplayFlag) const;
 
-    void showGrid(QwtRadialPlot::Scale, bool show = true);
-    bool isGridVisible(QwtRadialPlot::Scale) const;
+    void showGrid(int scaleId, bool show = true);
+    bool isGridVisible(int scaleId) const;
 
-    void showMinorGrid(QwtRadialPlot::Scale, bool show = true);
-    bool isMinorGridVisible(QwtRadialPlot::Scale) const;
+    void showMinorGrid(int scaleId, bool show = true);
+    bool isMinorGridVisible(int scaleId) const;
 
-	void showAxis(Axis, bool show = true);
-	bool isAxisVisisble(Axis) const;
+	void showAxis(int axisId, bool show = true);
+	bool isAxisVisible(int axisId) const;
 
-    void setScaleDiv(QwtRadialPlot::Scale, const QwtScaleDiv &sx);
-    QwtScaleDiv scaleDiv(QwtRadialPlot::Scale) const;
+    void setScaleDiv(int scaleId, const QwtScaleDiv &sx);
+    QwtScaleDiv scaleDiv(int scaleId) const;
 
     void setPen(const QPen &p);
 
     void setMajorGridPen(const QPen &p);
-    void setMajorGridPen(QwtRadialPlot::Scale, const QPen &p);
-    QPen majorGridPen(QwtRadialPlot::Scale) const;
+    void setMajorGridPen(int scaleId, const QPen &p);
+    QPen majorGridPen(int scaleId) const;
 
     void setMinorGridPen(const QPen &p);
-    void setMinorGridPen(QwtRadialPlot::Scale, const QPen &p);
-    QPen minorGridPen(QwtRadialPlot::Scale) const;
+    void setMinorGridPen(int scaleId, const QPen &p);
+    QPen minorGridPen(int scaleId) const;
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
