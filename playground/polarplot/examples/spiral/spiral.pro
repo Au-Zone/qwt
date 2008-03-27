@@ -25,5 +25,11 @@ LIBS        += -L../../../../lib -lqwt
 TARGET       = spiral
 
 SOURCES = \
-	spiral.cpp
+	plot.cpp \
+	settingseditor.cpp \
+	main.cpp
+
+HEADERS = \
+	plot.h \
+	settingseditor.h
 
