@@ -24,24 +24,24 @@
 
 static inline bool isClose(double value1, double value2 )
 {
-	return qwtAbs(value1 - value2) < DBL_EPSILON;
+    return qwtAbs(value1 - value2) < DBL_EPSILON;
 }
 
 class QwtRadialPlotGrid::AxisData
 {
 public:
-	AxisData():
-		isVisible(false),
-		scaleDraw(NULL)
-	{
-	}
-	~AxisData()
-	{
-		delete scaleDraw;
-	}
+    AxisData():
+        isVisible(false),
+        scaleDraw(NULL)
+    {
+    }
+    ~AxisData()
+    {
+        delete scaleDraw;
+    }
 
-	bool isVisible;
-	mutable QwtAbstractScaleDraw *scaleDraw;
+    bool isVisible;
+    mutable QwtAbstractScaleDraw *scaleDraw;
     QPen pen;
     QFont font;
 };
@@ -49,14 +49,14 @@ public:
 class QwtRadialPlotGrid::GridData
 {
 public:
-	GridData():
-		isVisible(true),
-		isMinorVisible(false)
-	{
-	}
+    GridData():
+        isVisible(true),
+        isMinorVisible(false)
+    {
+    }
 
-	bool isVisible;
-	bool isMinorVisible;
+    bool isVisible;
+    bool isMinorVisible;
     QwtScaleDiv scaleDiv;
 
     QPen majorPen;
@@ -66,9 +66,9 @@ public:
 class QwtRadialPlotGrid::PrivateData
 {
 public:
-	GridData gridData[QwtRadialPlot::ScaleCount];
-	AxisData axisData[QwtRadialPlotGrid::AxesCount];
-	int displayFlags;
+    GridData gridData[QwtRadialPlot::ScaleCount];
+    AxisData axisData[QwtRadialPlotGrid::AxesCount];
+    int displayFlags;
 };
 
 QwtRadialPlotGrid::QwtRadialPlotGrid():
@@ -76,64 +76,64 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
 {
     d_data = new PrivateData;
 
-	for ( int axisId = 0; axisId < AxesCount; axisId++ )
-	{
-		AxisData &axis = d_data->axisData[axisId];
-		switch(axisId)
-		{
-			case AngleAxis:
-			{
-				axis.scaleDraw = new QwtRoundScaleDraw;
-				axis.scaleDraw->setTickLength(QwtScaleDiv::MinorTick, 2);
-				axis.scaleDraw->setTickLength(QwtScaleDiv::MediumTick, 2);
-				axis.scaleDraw->setTickLength(QwtScaleDiv::MajorTick, 4);
-				axis.isVisible = true;
-				break;
-			}
-			case LeftAxis:
-			{
-				QwtScaleDraw *scaleDraw = new QwtScaleDraw;
-				scaleDraw->setAlignment(QwtScaleDraw::BottomScale);
+    for ( int axisId = 0; axisId < AxesCount; axisId++ )
+    {
+        AxisData &axis = d_data->axisData[axisId];
+        switch(axisId)
+        {
+            case AngleAxis:
+            {
+                axis.scaleDraw = new QwtRoundScaleDraw;
+                axis.scaleDraw->setTickLength(QwtScaleDiv::MinorTick, 2);
+                axis.scaleDraw->setTickLength(QwtScaleDiv::MediumTick, 2);
+                axis.scaleDraw->setTickLength(QwtScaleDiv::MajorTick, 4);
+                axis.isVisible = true;
+                break;
+            }
+            case LeftAxis:
+            {
+                QwtScaleDraw *scaleDraw = new QwtScaleDraw;
+                scaleDraw->setAlignment(QwtScaleDraw::BottomScale);
 
-				axis.scaleDraw = scaleDraw;
-				axis.isVisible = false;
-				break;
-			}
-			case RightAxis:
-			{
-				QwtScaleDraw *scaleDraw = new QwtScaleDraw;
-				scaleDraw->setAlignment(QwtScaleDraw::BottomScale);
+                axis.scaleDraw = scaleDraw;
+                axis.isVisible = false;
+                break;
+            }
+            case RightAxis:
+            {
+                QwtScaleDraw *scaleDraw = new QwtScaleDraw;
+                scaleDraw->setAlignment(QwtScaleDraw::BottomScale);
 
-				axis.scaleDraw = scaleDraw;
-				axis.isVisible = true;
-				break;
-			}
-			case TopAxis:
-			{
-				QwtScaleDraw *scaleDraw = new QwtScaleDraw;
-				scaleDraw->setAlignment(QwtScaleDraw::LeftScale);
+                axis.scaleDraw = scaleDraw;
+                axis.isVisible = true;
+                break;
+            }
+            case TopAxis:
+            {
+                QwtScaleDraw *scaleDraw = new QwtScaleDraw;
+                scaleDraw->setAlignment(QwtScaleDraw::LeftScale);
 
-				axis.scaleDraw = scaleDraw;
-				axis.isVisible = false;
-				break;
-			}
-			case BottomAxis:
-			{
-				QwtScaleDraw *scaleDraw = new QwtScaleDraw;
-				scaleDraw->setAlignment(QwtScaleDraw::LeftScale);
+                axis.scaleDraw = scaleDraw;
+                axis.isVisible = false;
+                break;
+            }
+            case BottomAxis:
+            {
+                QwtScaleDraw *scaleDraw = new QwtScaleDraw;
+                scaleDraw->setAlignment(QwtScaleDraw::LeftScale);
 
-				axis.scaleDraw = scaleDraw;
-				axis.isVisible = true;
-				break;
-			}
-			default:;
-		}
-	}
-	d_data->displayFlags = 0;
-	d_data->displayFlags |= SmartOriginLabel;
-	d_data->displayFlags |= HideMaxDistanceValue;
-	d_data->displayFlags |= ClipAxisBackground;
-	d_data->displayFlags |= SmartScaleDraw;
+                axis.scaleDraw = scaleDraw;
+                axis.isVisible = true;
+                break;
+            }
+            default:;
+        }
+    }
+    d_data->displayFlags = 0;
+    d_data->displayFlags |= SmartOriginLabel;
+    d_data->displayFlags |= HideMaxDistanceValue;
+    d_data->displayFlags |= ClipAxisBackground;
+    d_data->displayFlags |= SmartScaleDraw;
 
     setZ(10.0);
 #if QT_VERSION >= 0x040000
@@ -155,13 +155,13 @@ void QwtRadialPlotGrid::setDisplayFlag(DisplayFlag flag, bool on)
 {
     if ( ((d_data->displayFlags & flag) != 0) != on )
     {
-    	if ( on )
-        	d_data->displayFlags |= flag;
-    	else
-        	d_data->displayFlags &= ~flag;
+        if ( on )
+            d_data->displayFlags |= flag;
+        else
+            d_data->displayFlags &= ~flag;
 
-		itemChanged();
-	}
+        itemChanged();
+    }
 }
 
 bool QwtRadialPlotGrid::testDisplayFlag(DisplayFlag flag) const
@@ -172,9 +172,9 @@ bool QwtRadialPlotGrid::testDisplayFlag(DisplayFlag flag) const
 void QwtRadialPlotGrid::showGrid(int scaleId, bool show)
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
-		return;
+        return;
 
-	GridData &grid = d_data->gridData[scaleId];
+    GridData &grid = d_data->gridData[scaleId];
     if ( grid.isVisible != show )
     {
         grid.isVisible = show;
@@ -193,9 +193,9 @@ bool QwtRadialPlotGrid::isGridVisible(int scaleId) const
 void QwtRadialPlotGrid::showMinorGrid(int scaleId, bool show)
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
-		return;
+        return;
 
-	GridData &grid = d_data->gridData[scaleId];
+    GridData &grid = d_data->gridData[scaleId];
     if ( grid.isMinorVisible != show )
     {
         grid.isMinorVisible = show;
@@ -214,30 +214,30 @@ bool QwtRadialPlotGrid::isMinorGridVisible(int scaleId) const
 void QwtRadialPlotGrid::showAxis(int axisId, bool show)
 {
     if ( axisId < 0 || axisId >= AxesCount )
-		return;
+        return;
 
-	AxisData &axisData = d_data->axisData[axisId];
-	if ( axisData.isVisible != show )
-	{
-		axisData.isVisible = show;
-		itemChanged();
-	}
+    AxisData &axisData = d_data->axisData[axisId];
+    if ( axisData.isVisible != show )
+    {
+        axisData.isVisible = show;
+        itemChanged();
+    }
 }
 
 bool QwtRadialPlotGrid::isAxisVisible(int axisId) const
 {
     if ( axisId < 0 || axisId >= AxesCount )
-		return false;
+        return false;
 
-	return d_data->axisData[axisId].isVisible;
+    return d_data->axisData[axisId].isVisible;
 }
 
 void QwtRadialPlotGrid::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
 {
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
-		return;
+        return;
 
-	GridData &grid = d_data->gridData[scaleId];
+    GridData &grid = d_data->gridData[scaleId];
     if ( grid.scaleDiv != scaleDiv )
     {
         grid.scaleDiv = scaleDiv;
@@ -248,44 +248,44 @@ void QwtRadialPlotGrid::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
 QwtScaleDiv QwtRadialPlotGrid::scaleDiv(int scaleId) const 
 { 
     if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
-		return QwtScaleDiv();
+        return QwtScaleDiv();
 
-	return d_data->gridData[scaleId].scaleDiv;
+    return d_data->gridData[scaleId].scaleDiv;
 }
 
 void QwtRadialPlotGrid::setPen(const QPen &pen)
 {
-	bool isChanged = false;
+    bool isChanged = false;
 
-	for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
-	{
-		GridData &grid = d_data->gridData[scaleId];
-    	if ( grid.majorPen != pen || grid.minorPen != pen )
-		{
-			grid.majorPen = pen;
-			grid.minorPen = pen;
-			isChanged = true;
-		}
-	}
-	if ( isChanged )
-		itemChanged();
+    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    {
+        GridData &grid = d_data->gridData[scaleId];
+        if ( grid.majorPen != pen || grid.minorPen != pen )
+        {
+            grid.majorPen = pen;
+            grid.minorPen = pen;
+            isChanged = true;
+        }
+    }
+    if ( isChanged )
+        itemChanged();
 }
 
 void QwtRadialPlotGrid::setMajorGridPen(const QPen &pen)
 {
-	bool isChanged = false;
+    bool isChanged = false;
 
-	for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
-	{
-		GridData &grid = d_data->gridData[scaleId];
-    	if ( grid.majorPen != pen )
-		{
-			grid.majorPen = pen;
-			isChanged = true;
-		}
-	}
-	if ( isChanged )
-		itemChanged();
+    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    {
+        GridData &grid = d_data->gridData[scaleId];
+        if ( grid.majorPen != pen )
+        {
+            grid.majorPen = pen;
+            isChanged = true;
+        }
+    }
+    if ( isChanged )
+        itemChanged();
 }
 
 void QwtRadialPlotGrid::setMajorGridPen(int scaleId, const QPen &pen)
@@ -294,11 +294,11 @@ void QwtRadialPlotGrid::setMajorGridPen(int scaleId, const QPen &pen)
         return;
 
     GridData &grid = d_data->gridData[scaleId];
-	if ( grid.majorPen != pen )
+    if ( grid.majorPen != pen )
     {
-    	grid.majorPen = pen;
-		itemChanged();
-	}
+        grid.majorPen = pen;
+        itemChanged();
+    }
 }
 
 QPen QwtRadialPlotGrid::majorGridPen(int scaleId) const
@@ -353,78 +353,78 @@ void QwtRadialPlotGrid::draw(QPainter *painter,
     const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap,
     const QRect &canvasRect) const
 {
-	updateScaleDraws(distanceMap, angleMap, canvasRect);
+    updateScaleDraws(distanceMap, angleMap, canvasRect);
 
-	painter->save();
+    painter->save();
 
     const QPoint center = canvasRect.center();
     const int radius = qRound(qAbs(distanceMap.p2() - distanceMap.p1()));
 
-	if ( testDisplayFlag(ClipAxisBackground) )
-	{
-		QRegion clipRegion(canvasRect);
-		for ( int axisId = 0; axisId < AxesCount; axisId++ )
-		{
-			const AxisData &axis = d_data->axisData[axisId];
-			if ( axisId != AngleAxis && axis.isVisible )
-			{
-				QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axis.scaleDraw;
-				if ( scaleDraw->hasComponent(QwtScaleDraw::Labels) )
-				{
-					const QwtValueList &ticks = 
-						scaleDraw->scaleDiv().ticks(QwtScaleDiv::MajorTick);
-					for ( int i = 0; i < ticks.size(); i++ )
-					{
-						QRect labelRect =
-							scaleDraw->boundingLabelRect(axis.font, ticks[i]);
+    if ( testDisplayFlag(ClipAxisBackground) )
+    {
+        QRegion clipRegion(canvasRect);
+        for ( int axisId = 0; axisId < AxesCount; axisId++ )
+        {
+            const AxisData &axis = d_data->axisData[axisId];
+            if ( axisId != AngleAxis && axis.isVisible )
+            {
+                QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axis.scaleDraw;
+                if ( scaleDraw->hasComponent(QwtScaleDraw::Labels) )
+                {
+                    const QwtValueList &ticks = 
+                        scaleDraw->scaleDiv().ticks(QwtScaleDiv::MajorTick);
+                    for ( int i = 0; i < ticks.size(); i++ )
+                    {
+                        QRect labelRect =
+                            scaleDraw->boundingLabelRect(axis.font, ticks[i]);
 
-						const int margin = 2;
-						labelRect.setRect(
-							labelRect.x() - margin,
-							labelRect.y() - margin,
-							labelRect.width() + 2 * margin,
-							labelRect.height() + 2 * margin
-						);
-							
-						if ( labelRect.isValid() )
-							clipRegion -= QRegion(labelRect);
-					}
-				}
-			}
-		}
-		painter->setClipRegion(clipRegion);
-	}
+                        const int margin = 2;
+                        labelRect.setRect(
+                            labelRect.x() - margin,
+                            labelRect.y() - margin,
+                            labelRect.width() + 2 * margin,
+                            labelRect.height() + 2 * margin
+                        );
+                            
+                        if ( labelRect.isValid() )
+                            clipRegion -= QRegion(labelRect);
+                    }
+                }
+            }
+        }
+        painter->setClipRegion(clipRegion);
+    }
 
     //  draw distance grid
     
-	const GridData &distanceGrid = 
-		d_data->gridData[QwtRadialPlot::DistanceScale];
+    const GridData &distanceGrid = 
+        d_data->gridData[QwtRadialPlot::DistanceScale];
 
     if (distanceGrid.isVisible && distanceGrid.isMinorVisible)
     {
-    	painter->setPen(distanceGrid.minorPen);
-		
+        painter->setPen(distanceGrid.minorPen);
+        
         drawCircles(painter, center, distanceMap, 
-			distanceGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick) );
+            distanceGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick) );
         drawCircles(painter, center, distanceMap, 
-			distanceGrid.scaleDiv.ticks(QwtScaleDiv::MediumTick) );
+            distanceGrid.scaleDiv.ticks(QwtScaleDiv::MediumTick) );
     }
     if (distanceGrid.isVisible)
-	{
-    	painter->setPen(distanceGrid.majorPen);
+    {
+        painter->setPen(distanceGrid.majorPen);
 
         drawCircles(painter, center, distanceMap, 
-			distanceGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick) );
-	}
+            distanceGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick) );
+    }
 
     // draw angle grid
 
-	const GridData &angleGrid = 
-		d_data->gridData[QwtRadialPlot::AngleScale];
+    const GridData &angleGrid = 
+        d_data->gridData[QwtRadialPlot::AngleScale];
 
     if (angleGrid.isVisible && angleGrid.isMinorVisible)
     {
-    	painter->setPen(angleGrid.minorPen);
+        painter->setPen(angleGrid.minorPen);
 
         drawLines(painter, center, radius, angleMap, 
             angleGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick));
@@ -438,18 +438,18 @@ void QwtRadialPlotGrid::draw(QPainter *painter,
         drawLines(painter, center, radius, angleMap,
             angleGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick));
     }
-	painter->restore();
+    painter->restore();
 
-	for ( int axisId = 0; axisId < AxesCount; axisId++ )
-	{
-		const AxisData &axis = d_data->axisData[axisId];
-		if ( axis.isVisible )
-		{
-			painter->save();
-			drawAxis(painter, axisId);
-			painter->restore();
-		}
-	}
+    for ( int axisId = 0; axisId < AxesCount; axisId++ )
+    {
+        const AxisData &axis = d_data->axisData[axisId];
+        if ( axis.isVisible )
+        {
+            painter->save();
+            drawAxis(painter, axisId);
+            painter->restore();
+        }
+    }
 }
 
 void QwtRadialPlotGrid::drawLines(QPainter *painter, 
@@ -459,43 +459,43 @@ void QwtRadialPlotGrid::drawLines(QPainter *painter,
     for ( int i = 0; i < values.size(); i++ )
     {
         double angle = angleMap.xTransform(values[i]);
-		angle = ::fmod(angle, 2 * M_PI);
+        angle = ::fmod(angle, 2 * M_PI);
 
-		bool skipLine = false;
+        bool skipLine = false;
         if ( testDisplayFlag(SmartScaleDraw) )
-		{
-			const QwtAbstractScaleDraw::ScaleComponent bone = 
-				QwtAbstractScaleDraw::Backbone;
-			if ( isClose(angle, 0.0) )
-			{
-				const AxisData &axis = d_data->axisData[RightAxis];
-				if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
-					skipLine = true;
-			}
-			else if ( isClose(angle, M_PI / 2) )
-			{
-				const AxisData &axis = d_data->axisData[TopAxis];
-				if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
-					skipLine = true;
-			}
-			else if ( isClose(angle, M_PI) )
-			{
-				const AxisData &axis = d_data->axisData[LeftAxis];
-				if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
-					skipLine = true;
-			}
-			else if ( isClose(angle, 3 * M_PI / 2.0) )
-			{
-				const AxisData &axis = d_data->axisData[BottomAxis];
-				if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
-					skipLine = true;
-			}
-		}
-		if ( !skipLine )
-		{
-        	const QPoint pos = qwtPolar2Pos(center, radius, angle);
-        	painter->drawLine(center, pos);
-		}
+        {
+            const QwtAbstractScaleDraw::ScaleComponent bone = 
+                QwtAbstractScaleDraw::Backbone;
+            if ( isClose(angle, 0.0) )
+            {
+                const AxisData &axis = d_data->axisData[RightAxis];
+                if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
+                    skipLine = true;
+            }
+            else if ( isClose(angle, M_PI / 2) )
+            {
+                const AxisData &axis = d_data->axisData[TopAxis];
+                if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
+                    skipLine = true;
+            }
+            else if ( isClose(angle, M_PI) )
+            {
+                const AxisData &axis = d_data->axisData[LeftAxis];
+                if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
+                    skipLine = true;
+            }
+            else if ( isClose(angle, 3 * M_PI / 2.0) )
+            {
+                const AxisData &axis = d_data->axisData[BottomAxis];
+                if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
+                    skipLine = true;
+            }
+        }
+        if ( !skipLine )
+        {
+            const QPoint pos = qwtPolar2Pos(center, radius, angle);
+            painter->drawLine(center, pos);
+        }
     }
 }
 
@@ -504,44 +504,44 @@ void QwtRadialPlotGrid::drawCircles(QPainter *painter, const QPoint &center,
 {
     for ( int i = 0; i < values.size(); i++ )
     {
-		const double val = values[i];
+        const double val = values[i];
 
-		const GridData &gridData = 
-			d_data->gridData[QwtRadialPlot::DistanceScale];
+        const GridData &gridData = 
+            d_data->gridData[QwtRadialPlot::DistanceScale];
 
-		bool skipLine = false;
+        bool skipLine = false;
         if ( testDisplayFlag(SmartScaleDraw) )
-		{
-			const AxisData &axis = d_data->axisData[AngleAxis];
-			if ( axis.isVisible &&
-				axis.scaleDraw->hasComponent(QwtAbstractScaleDraw::Backbone) )
-			{
-				if ( isClose(val, gridData.scaleDiv.hBound()) )
-					skipLine = true;
-			}
-		}
+        {
+            const AxisData &axis = d_data->axisData[AngleAxis];
+            if ( axis.isVisible &&
+                axis.scaleDraw->hasComponent(QwtAbstractScaleDraw::Backbone) )
+            {
+                if ( isClose(val, gridData.scaleDiv.hBound()) )
+                    skipLine = true;
+            }
+        }
 
-		if ( isClose(val, gridData.scaleDiv.lBound()) )
-			skipLine = true;
+        if ( isClose(val, gridData.scaleDiv.lBound()) )
+            skipLine = true;
 
-		if ( !skipLine )
-		{
-			const int radius = distanceMap.transform(val) - center.x();
-			const QRect r(center.x() - radius, center.y() - radius, 
-				2 * radius, 2 * radius);
-			painter->drawEllipse(r);
-		}
-	}
+        if ( !skipLine )
+        {
+            const int radius = distanceMap.transform(val) - center.x();
+            const QRect r(center.x() - radius, center.y() - radius, 
+                2 * radius, 2 * radius);
+            painter->drawEllipse(r);
+        }
+    }
 }
 
 void QwtRadialPlotGrid::drawAxis(QPainter *painter, int axisId) const
 {
-	if ( axisId < 0 || axisId >= AxesCount )
-		return;
+    if ( axisId < 0 || axisId >= AxesCount )
+        return;
 
-	AxisData &axis = d_data->axisData[axisId];
+    AxisData &axis = d_data->axisData[axisId];
 
-	painter->setPen(axis.pen);
+    painter->setPen(axis.pen);
     painter->setFont(axis.font);
 
 #if QT_VERSION < 0x040000
@@ -560,58 +560,58 @@ void QwtRadialPlotGrid::drawAxis(QPainter *painter, int axisId) const
 }
 
 void QwtRadialPlotGrid::updateScaleDraws(const QwtScaleMap &distanceMap, 
-	const QwtScaleMap &angleMap, const QRect &rect) const
+    const QwtScaleMap &angleMap, const QRect &rect) const
 {
     const QPoint center = rect.center();
     const int radius = rect.width() / 2;
 
-	for ( int axisId = 0; axisId < AxesCount; axisId++ )
-	{
-    	AxisData &axis = d_data->axisData[axisId];
+    for ( int axisId = 0; axisId < AxesCount; axisId++ )
+    {
+        AxisData &axis = d_data->axisData[axisId];
 
-		if ( axisId == AngleAxis )
-		{
-    		QwtRoundScaleDraw *scaleDraw = (QwtRoundScaleDraw *)axis.scaleDraw;
+        if ( axisId == AngleAxis )
+        {
+            QwtRoundScaleDraw *scaleDraw = (QwtRoundScaleDraw *)axis.scaleDraw;
 
-    		scaleDraw->setRadius(radius);
-    		scaleDraw->moveCenter(center);
+            scaleDraw->setRadius(radius);
+            scaleDraw->moveCenter(center);
 
-    		scaleDraw->setAngleRange(90.0, -270.0);
-    		scaleDraw->setTransformation(angleMap.transformation()->copy());
-		}
-		else
-		{
-			QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axis.scaleDraw;
-			switch(axisId)
-			{
-				case LeftAxis:
-				{
-					scaleDraw->move(center.x(), center.y());
-					scaleDraw->setLength(-radius);
-					break;
-				}
-				case RightAxis:
-				{
-					scaleDraw->move(center.x(), center.y());
-					scaleDraw->setLength(radius);
-					break;
-				}
-				case TopAxis:
-				{
-					scaleDraw->move(center.x(), rect.top());
-					scaleDraw->setLength(radius);
-					break;
-				}
-				case BottomAxis:
-				{
-					scaleDraw->move(center.x(), rect.bottom());
-					scaleDraw->setLength(-radius);
-					break;
-				}
-			}
-			scaleDraw->setTransformation(distanceMap.transformation()->copy());
-		}
-	}
+            scaleDraw->setAngleRange(90.0, -270.0);
+            scaleDraw->setTransformation(angleMap.transformation()->copy());
+        }
+        else
+        {
+            QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axis.scaleDraw;
+            switch(axisId)
+            {
+                case LeftAxis:
+                {
+                    scaleDraw->move(center.x(), center.y());
+                    scaleDraw->setLength(-radius);
+                    break;
+                }
+                case RightAxis:
+                {
+                    scaleDraw->move(center.x(), center.y());
+                    scaleDraw->setLength(radius);
+                    break;
+                }
+                case TopAxis:
+                {
+                    scaleDraw->move(center.x(), rect.top());
+                    scaleDraw->setLength(radius);
+                    break;
+                }
+                case BottomAxis:
+                {
+                    scaleDraw->move(center.x(), rect.bottom());
+                    scaleDraw->setLength(-radius);
+                    break;
+                }
+            }
+            scaleDraw->setTransformation(distanceMap.transformation()->copy());
+        }
+    }
 }
 
 void QwtRadialPlotGrid::updateScaleDiv(const QwtScaleDiv &distanceScaleDiv,
@@ -629,95 +629,95 @@ void QwtRadialPlotGrid::updateScaleDiv(const QwtScaleDiv &distanceScaleDiv,
         angleGrid.scaleDiv = angleScaleDiv;
     }
 
-	bool hasOrigin = false;
-	for ( int axisId = 0; axisId < AxesCount; axisId++ )
-	{
-	    AxisData &axis = d_data->axisData[axisId];
-		if ( axis.isVisible && axis.scaleDraw )
-		{
-			if ( axisId == AngleAxis )
-			{
-				axis.scaleDraw->setScaleDiv(angleScaleDiv);
-				if ( testDisplayFlag(SmartScaleDraw) )
-				{
-					axis.scaleDraw->enableComponent(
-						QwtAbstractScaleDraw::Ticks, !angleGrid.isVisible);
-				}
-			}
-			else
-			{
-				QwtScaleDiv sd = distanceScaleDiv;
+    bool hasOrigin = false;
+    for ( int axisId = 0; axisId < AxesCount; axisId++ )
+    {
+        AxisData &axis = d_data->axisData[axisId];
+        if ( axis.isVisible && axis.scaleDraw )
+        {
+            if ( axisId == AngleAxis )
+            {
+                axis.scaleDraw->setScaleDiv(angleScaleDiv);
+                if ( testDisplayFlag(SmartScaleDraw) )
+                {
+                    axis.scaleDraw->enableComponent(
+                        QwtAbstractScaleDraw::Ticks, !angleGrid.isVisible);
+                }
+            }
+            else
+            {
+                QwtScaleDiv sd = distanceScaleDiv;
 
-				QwtValueList &ticks = 
-						(QwtValueList &)sd.ticks(QwtScaleDiv::MajorTick);
+                QwtValueList &ticks = 
+                        (QwtValueList &)sd.ticks(QwtScaleDiv::MajorTick);
 
-				if ( testDisplayFlag(SmartOriginLabel) )
-				{
-					bool skipOrigin = hasOrigin;
-					if ( !skipOrigin )
-					{
-						if ( axisId == LeftAxis || axisId == RightAxis )
-						{
-							if ( d_data->axisData[BottomAxis].isVisible )
-								skipOrigin = true;
-						}
-						else
-						{
-							if ( d_data->axisData[LeftAxis].isVisible )
-								skipOrigin = true;
-						}
-					}
-					if ( ticks.size() > 0 && ticks.first() == sd.lBound() )
-					{
-						if ( skipOrigin )
-							ticks.removeFirst();
-						else
-							hasOrigin = true;
-					}
-				}
+                if ( testDisplayFlag(SmartOriginLabel) )
+                {
+                    bool skipOrigin = hasOrigin;
+                    if ( !skipOrigin )
+                    {
+                        if ( axisId == LeftAxis || axisId == RightAxis )
+                        {
+                            if ( d_data->axisData[BottomAxis].isVisible )
+                                skipOrigin = true;
+                        }
+                        else
+                        {
+                            if ( d_data->axisData[LeftAxis].isVisible )
+                                skipOrigin = true;
+                        }
+                    }
+                    if ( ticks.size() > 0 && ticks.first() == sd.lBound() )
+                    {
+                        if ( skipOrigin )
+                            ticks.removeFirst();
+                        else
+                            hasOrigin = true;
+                    }
+                }
 
-				if ( testDisplayFlag(HideMaxDistanceValue) )
-				{
-					if ( ticks.size() > 0 && ticks.last() == sd.hBound() )
-						ticks.removeLast();
-				}
+                if ( testDisplayFlag(HideMaxDistanceValue) )
+                {
+                    if ( ticks.size() > 0 && ticks.last() == sd.hBound() )
+                        ticks.removeLast();
+                }
 
-				axis.scaleDraw->setScaleDiv(sd);
+                axis.scaleDraw->setScaleDiv(sd);
 
                 if ( testDisplayFlag(SmartScaleDraw) )
-				{
+                {
                     axis.scaleDraw->enableComponent(
                         QwtAbstractScaleDraw::Ticks, !distanceGrid.isVisible);
-				}
+                }
 
-			}
-		}
-	}
+            }
+        }
+    }
 
 #if 1
-	itemChanged();
+    itemChanged();
 #endif
 }
 
 QRect QwtRadialPlotGrid::canvasLayoutHint(const QRect &rect) const
 {
     const AxisData &axis = d_data->axisData[AngleAxis];
-	if ( axis.isVisible )
-	{
-		const int extent = axis.scaleDraw->extent(axis.pen, axis.font);
-		if ( extent > 0 )
-		{
-		    int w = qwtMin(rect.width(), rect.height());
-			w -= 2 * extent;
-			if ( w < 0 )
-				w = 0;
-			
-			QRect r(0, 0, w, w);
-			r.moveCenter(rect.center());
-			return r;
-		}
-	}
-	
+    if ( axis.isVisible )
+    {
+        const int extent = axis.scaleDraw->extent(axis.pen, axis.font);
+        if ( extent > 0 )
+        {
+            int w = qwtMin(rect.width(), rect.height());
+            w -= 2 * extent;
+            if ( w < 0 )
+                w = 0;
+            
+            QRect r(0, 0, w, w);
+            r.moveCenter(rect.center());
+            return r;
+        }
+    }
+    
     return rect;
 }
 

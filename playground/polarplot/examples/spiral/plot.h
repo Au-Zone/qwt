@@ -3,6 +3,7 @@
 
 #include <qwt_radial_plot.h>
 #include <qwt_radial_plot_grid.h>
+#include <qwt_radial_plot_curve.h>
 
 class PlotSettings
 {
@@ -26,6 +27,7 @@ public slots:
 
 private:
     QwtRadialPlotGrid *d_grid;
+    QwtRadialPlotCurve *d_curve;
 };
 
 #endif

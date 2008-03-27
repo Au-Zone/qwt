@@ -91,7 +91,7 @@ bool QwtRadialPlot::autoReplot() const
 
 void QwtRadialPlot::setOrigin(double origin)
 {
-	// 0.0 -> 2 * PI
+    // 0.0 -> 2 * PI
     if ( d_data->origin != origin )
     {
         d_data->origin = origin;
@@ -252,14 +252,18 @@ QwtScaleMap QwtRadialPlot::canvasMap(int scaleId) const
 
     if ( scaleId == AngleScale)
     {
-		const double o = d_data->origin;
+        const double o = d_data->origin;
         map.setPaintXInterval(o, o + M_2PI); 
     }
     else
     {
         const int w = qwtMin(canvasRect().width(), canvasRect().height());
+#if 1
         map.setPaintInterval(canvasRect().center().x(), 
             canvasRect().center().x() + w / 2);
+#else
+        map.setPaintXInterval(0.0, w / 2.0);
+#endif
     }
 
     return map;
@@ -368,7 +372,7 @@ void QwtRadialPlot::replot()
 
     setAutoReplot(doAutoReplot);
 
-	repaint();
+    repaint();
 }
 
 void QwtRadialPlot::drawCanvas(QPainter *painter, const QRect &rect) const
@@ -459,11 +463,11 @@ QRect QwtRadialPlot::canvasRect() const
     {
         QwtRadialPlotItem *item = *it;
         if ( item && item->isVisible() )
-		{
-			const QRect hint = item->canvasLayoutHint(rect);
-			if ( hint.isValid() )
-				rect &= hint;
-		}
-	}
-	return rect;
+        {
+            const QRect hint = item->canvasLayoutHint(rect);
+            if ( hint.isValid() )
+                rect &= hint;
+        }
+    }
+    return rect;
 }

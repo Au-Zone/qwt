@@ -321,5 +321,5 @@ void QwtRadialPlotItem::updateScaleDiv(const QwtScaleDiv &,
 
 QRect QwtRadialPlotItem::canvasLayoutHint(const QRect &) const
 {
-	return QRect();
+    return QRect();
 }

@@ -25,33 +25,33 @@ class QwtScaleDraw;
 class QWT_EXPORT QwtRadialPlotGrid: public QwtRadialPlotItem
 {
 public:
-	enum Axis
-	{
-		AngleAxis,
+    enum Axis
+    {
+        AngleAxis,
 
-		LeftAxis,
-		RightAxis,
-		TopAxis,
-		BottomAxis,
+        LeftAxis,
+        RightAxis,
+        TopAxis,
+        BottomAxis,
 
-		AxesCount
-	};
+        AxesCount
+    };
 
-	enum DisplayFlag
-	{
+    enum DisplayFlag
+    {
         SmartOriginLabel = 1,
         HideMaxDistanceValue = 2,
-		ClipAxisBackground = 4,
-		SmartScaleDraw = 8,
-	};
+        ClipAxisBackground = 4,
+        SmartScaleDraw = 8,
+    };
 
     explicit QwtRadialPlotGrid();
     virtual ~QwtRadialPlotGrid();
 
     virtual int rtti() const;
 
-	void setDisplayFlag(DisplayFlag, bool on = true);
-	bool testDisplayFlag(DisplayFlag) const;
+    void setDisplayFlag(DisplayFlag, bool on = true);
+    bool testDisplayFlag(DisplayFlag) const;
 
     void showGrid(int scaleId, bool show = true);
     bool isGridVisible(int scaleId) const;
@@ -59,8 +59,8 @@ public:
     void showMinorGrid(int scaleId, bool show = true);
     bool isMinorGridVisible(int scaleId) const;
 
-	void showAxis(int axisId, bool show = true);
-	bool isAxisVisible(int axisId) const;
+    void showAxis(int axisId, bool show = true);
+    bool isAxisVisible(int axisId) const;
 
     void setScaleDiv(int scaleId, const QwtScaleDiv &sx);
     QwtScaleDiv scaleDiv(int scaleId) const;
@@ -90,11 +90,11 @@ protected:
     void drawCircles(QPainter *, const QPoint &,
         const QwtScaleMap &, const QwtValueList &) const;
 
-	void drawAxis(QPainter *, int axisId) const;
+    void drawAxis(QPainter *, int axisId) const;
 
 private:
-	void updateScaleDraws( const QwtScaleMap &, 
-		const QwtScaleMap &, const QRect &) const;
+    void updateScaleDraws( const QwtScaleMap &, 
+        const QwtScaleMap &, const QRect &) const;
 
 private:
     class GridData;
