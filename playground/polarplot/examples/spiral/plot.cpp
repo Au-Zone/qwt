@@ -1,6 +1,9 @@
 #include <qpen.h>
 #include <qwt_data.h>
 #include <qwt_symbol.h>
+#if 1
+#include <qwt_scale_engine.h>
+#endif
 #include <qwt_radial_plot_grid.h>
 #include <qwt_radial_plot_curve.h>
 #include "plot.h"
@@ -8,15 +11,17 @@
 class Data: public QwtData
 {
 public:
-    Data(const QwtDoubleInterval &interval, size_t size):
-        d_interval(interval),
+    Data(const QwtDoubleInterval &distanceInterval, 
+            const QwtDoubleInterval &angleInterval, size_t size):
+        d_distanceInterval(distanceInterval),
+        d_angleInterval(angleInterval),
         d_size(size)
     {
     }
 
     virtual QwtData *copy() const
     {
-        return new Data(d_interval, d_size);
+        return new Data(d_distanceInterval, d_angleInterval, d_size);
     }
 
     virtual size_t size() const
@@ -26,17 +31,18 @@ public:
 
     virtual double x(size_t i) const
     {
-        const double step = d_interval.width() / d_size;
-        return d_interval.minValue() + i * step;
+        const double step = d_distanceInterval.width() / d_size;
+        return d_distanceInterval.minValue() + i * step;
     }
 
     virtual double y(size_t i) const
     {
-        const double step = 4 * 360.0 / d_size;
-        return i * step;
+        const double step = 4 * d_angleInterval.width() / d_size;
+        return d_angleInterval.minValue() + i * step;
     }
 private:
-    QwtDoubleInterval d_interval;
+    QwtDoubleInterval d_distanceInterval;
+    QwtDoubleInterval d_angleInterval;
     size_t d_size;
 };
 
@@ -44,14 +50,18 @@ Plot::Plot(QWidget *parent):
     QwtRadialPlot(parent)
 {
     setAutoReplot(false);
-    const QwtDoubleInterval interval(0.0, 1000.0);
+
+    const QwtDoubleInterval distanceInterval(10.0, 10000.0);
+    const QwtDoubleInterval angleInterval(0.0, 360.0);
 
     // scales 
-    setScale(QwtRadialPlot::AngleScale, 0.0, 360.0, 45.0);
+    setScale(QwtRadialPlot::AngleScale, 
+        angleInterval.minValue(), angleInterval.maxValue(), 
+        angleInterval.width() / 12 );
+
     setScaleMaxMinor(QwtRadialPlot::AngleScale, 2);
     setScale(QwtRadialPlot::DistanceScale, 
-        interval.minValue(), interval.maxValue());
-    setScaleMaxMinor(QwtRadialPlot::DistanceScale, 2);
+        distanceInterval.minValue(), distanceInterval.maxValue());
 
     // grids, axes 
 
@@ -86,7 +96,7 @@ Plot::Plot(QWidget *parent):
     d_curve->setPen(QPen(Qt::blue));
     d_curve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
         QBrush(Qt::red), QPen(Qt::black), QSize(3, 3)) );
-    d_curve->setData(Data(interval, 200));
+    d_curve->setData(Data(distanceInterval, angleInterval, 200));
     d_curve->attach(this);
 }
 
