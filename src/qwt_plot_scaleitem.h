@@ -96,6 +96,8 @@ public:
         const QwtScaleDiv&);
 
 private:
+    void updateBorders();
+
     class PrivateData;
     PrivateData *d_data;
 };

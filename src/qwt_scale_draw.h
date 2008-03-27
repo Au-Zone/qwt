@@ -80,6 +80,8 @@ public:
     QRect labelRect(const QFont &, double val) const;
     QSize labelSize(const QFont &, double val) const;
 
+    QRect boundingLabelRect(const QFont &, double val) const;
+
 protected:
 
 #if QT_VERSION < 0x040000
