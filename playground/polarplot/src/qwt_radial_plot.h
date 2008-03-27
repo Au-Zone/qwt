@@ -50,13 +50,6 @@ public:
 
     double origin() const;
 
-    void showAngleScale(bool on);
-    bool isAngleScaleVisible() const;
-
-    void setAngleScaleDraw(QwtRoundScaleDraw *);
-    const QwtRoundScaleDraw *angleScaleDraw() const;
-    QwtRoundScaleDraw *angleScaleDraw();
-
     void setAutoScale(int scaleId, bool enable);
     bool autoScale(int scaleId) const;
 
@@ -95,13 +88,11 @@ protected:
     virtual void drawCanvas(QPainter *, const QRect &) const;
     virtual void drawItems(QPainter *, const QRect &,
         const QwtScaleMap map[ScaleCount]) const;
-    virtual void drawAngleScale(QPainter *, const QRect &) const;
 
     void updateScale(int scaleId);
 
     QRect boundingRect() const;
     QRect canvasRect() const;
-    int scaleExtent() const;
 
 private:
     void initPlot();

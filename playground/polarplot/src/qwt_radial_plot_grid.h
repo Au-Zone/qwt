@@ -12,58 +12,68 @@
 
 #include "qwt_global.h"
 #include "qwt_radial_plot_item.h"
+#include "qwt_radial_plot.h"
 #include "qwt_scale_div.h"
 
 class QPainter;
 class QPen;
 class QwtScaleMap;
 class QwtScaleDiv;
-
-/*!
-  \brief A class which draws a coordinate grid
-
-  The QwtRadialPlotGrid class can be used to draw a coordinate grid.
-  A coordinate grid consists of major and minor vertical
-  and horizontal gridlines. The locations of the gridlines
-  are determined by the X and Y scale divisions which can
-  be assigned with setXDiv and setYDiv()
-  The draw() member draws the grid within a bounding
-  rectangle.
-*/
+class QwtRoundScaleDraw;
+class QwtScaleDraw;
 
 class QWT_EXPORT QwtRadialPlotGrid: public QwtRadialPlotItem
 {
 public:
+	enum Axis
+	{
+		AngleAxis,
+
+		LeftAxis,
+		RightAxis,
+		TopAxis,
+		BottomAxis,
+
+		AxesCount
+	};
+
+	enum DisplayFlag
+	{
+        SmartOriginLabel = 1,
+        HideMaxDistanceValue = 2,
+		ClipAxisBackground = 4,
+		SmartScaleDraw = 8,
+	};
+
     explicit QwtRadialPlotGrid();
     virtual ~QwtRadialPlotGrid();
 
     virtual int rtti() const;
 
-    void enableX(bool tf);
-    bool xEnabled() const;
+	void setDisplayFlag(DisplayFlag, bool on = true);
+	bool testDisplayFlag(DisplayFlag) const;
 
-    void enableY(bool tf);
-    bool yEnabled() const;
+    void showGrid(QwtRadialPlot::Scale, bool show = true);
+    bool isGridVisible(QwtRadialPlot::Scale) const;
 
-    void enableXMin(bool tf);
-    bool xMinEnabled() const;
+    void showMinorGrid(QwtRadialPlot::Scale, bool show = true);
+    bool isMinorGridVisible(QwtRadialPlot::Scale) const;
 
-    void enableYMin(bool tf);
-    bool yMinEnabled() const;
+	void showAxis(Axis, bool show = true);
+	bool isAxisVisisble(Axis) const;
 
-    void setXDiv(const QwtScaleDiv &sx);
-    const QwtScaleDiv &xScaleDiv() const;
-
-    void setYDiv(const QwtScaleDiv &sy);
-    const QwtScaleDiv &yScaleDiv() const;
+    void setScaleDiv(QwtRadialPlot::Scale, const QwtScaleDiv &sx);
+    QwtScaleDiv scaleDiv(QwtRadialPlot::Scale) const;
 
     void setPen(const QPen &p);
 
-    void setMajPen(const QPen &p);
-    const QPen& majPen() const;
+    void setMajorGridPen(const QPen &p);
+    void setMajorGridPen(QwtRadialPlot::Scale, const QPen &p);
+    QPen majorGridPen(QwtRadialPlot::Scale) const;
 
-    void setMinPen(const QPen &p);
-    const QPen& minPen() const;
+    void setMinorGridPen(const QPen &p);
+    void setMinorGridPen(QwtRadialPlot::Scale, const QPen &p);
+    QPen minorGridPen(QwtRadialPlot::Scale) const;
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -72,13 +82,23 @@ public:
     virtual void updateScaleDiv(const QwtScaleDiv&,
         const QwtScaleDiv&);
 
+    virtual QRect canvasLayoutHint(const QRect &) const;
+
 protected:
     void drawLines(QPainter *, const QPoint &center, int radius, 
         const QwtScaleMap &, const QwtValueList &) const;
     void drawCircles(QPainter *, const QPoint &,
         const QwtScaleMap &, const QwtValueList &) const;
 
+	void drawAxis(QPainter *, int axisId) const;
+
 private:
+	void updateScaleDraws( const QwtScaleMap &, 
+		const QwtScaleMap &, const QRect &) const;
+
+private:
+    class GridData;
+    class AxisData;
     class PrivateData;
     PrivateData *d_data;
 };
