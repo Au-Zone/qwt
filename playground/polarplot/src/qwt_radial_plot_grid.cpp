@@ -633,7 +633,7 @@ void QwtRadialPlotGrid::updateScaleDiv(const QwtScaleDiv &distanceScaleDiv,
 	for ( int axisId = 0; axisId < AxesCount; axisId++ )
 	{
 	    AxisData &axis = d_data->axisData[axisId];
-		if ( axis.scaleDraw )
+		if ( axis.isVisible && axis.scaleDraw )
 		{
 			if ( axisId == AngleAxis )
 			{

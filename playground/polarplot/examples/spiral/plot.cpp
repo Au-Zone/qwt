@@ -16,20 +16,18 @@ Plot::Plot(QWidget *parent):
     // grids, axes 
 
     d_grid = new QwtRadialPlotGrid();
-    for ( int scaleId = QwtRadialPlot::DistanceScale;
-        scaleId < QwtRadialPlot::AngleScale; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
     {
-        QwtRadialPlot::Scale scale = (QwtRadialPlot::Scale)scaleId;
-        d_grid->showGrid(scale);
-        d_grid->showMinorGrid(scale);
+        d_grid->showGrid(scaleId);
+        d_grid->showMinorGrid(scaleId);
 
         QPen majorPen(Qt::black);
         majorPen.setStyle(Qt::SolidLine);
-        d_grid->setMajorGridPen(scale, majorPen);
+        d_grid->setMajorGridPen(scaleId, majorPen);
 
         QPen minorPen(Qt::black);
         minorPen.setStyle(Qt::DotLine);
-        d_grid->setMinorGridPen(scale, minorPen);
+        d_grid->setMinorGridPen(scaleId, minorPen);
     }
 
     d_grid->showAxis(QwtRadialPlotGrid::AngleAxis, true);
