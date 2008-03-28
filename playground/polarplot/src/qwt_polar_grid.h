@@ -66,7 +66,8 @@ public:
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
-        const QwtDoublePoint &pole, const QwtDoubleRect &rect) const;
+        const QwtDoublePoint &pole, double radius,
+        const QwtDoubleRect &rect) const;
 
     virtual void updateScaleDiv(const QwtScaleDiv&,
         const QwtScaleDiv&);
@@ -83,8 +84,8 @@ protected:
 
 private:
     void updateScaleDraws( 
-		const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
-		const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const;
+        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+        const QwtDoublePoint &pole, const double radius) const;
 
 private:
     class GridData;

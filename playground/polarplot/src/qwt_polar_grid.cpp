@@ -351,13 +351,12 @@ QPen QwtPolarGrid::minorGridPen(int scaleId) const
 
 void QwtPolarGrid::draw(QPainter *painter, 
     const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
-    const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const
+    const QwtDoublePoint &pole, double radius,
+    const QwtDoubleRect &canvasRect) const
 {
-    updateScaleDraws(radialMap, azimuthMap, pole, canvasRect);
+    updateScaleDraws(radialMap, azimuthMap, pole, radius);
 
     painter->save();
-
-    const int radius = qRound(qAbs(radialMap.p2() - radialMap.p1()));
 
     if ( testDisplayFlag(ClipAxisBackground) )
     {
@@ -396,9 +395,7 @@ void QwtPolarGrid::draw(QPainter *painter,
 
     //  draw radial grid
     
-    const GridData &radialGrid = 
-        d_data->gridData[QwtPolar::Radius];
-
+    const GridData &radialGrid = d_data->gridData[QwtPolar::Radius];
     if (radialGrid.isVisible && radialGrid.isMinorVisible)
     {
         painter->setPen(radialGrid.minorPen);
@@ -499,8 +496,8 @@ void QwtPolarGrid::drawRays(QPainter *painter,
 }
 
 void QwtPolarGrid::drawCircles(QPainter *painter, 
-	const QwtDoublePoint &pole, const QwtScaleMap &radialMap, 
-	const QwtValueList &values) const
+    const QwtDoublePoint &pole, const QwtScaleMap &radialMap, 
+    const QwtValueList &values) const
 {
     for ( int i = 0; i < values.size(); i++ )
     {
@@ -528,8 +525,8 @@ void QwtPolarGrid::drawCircles(QPainter *painter,
         {
             const int diameter = qRound(2 * radialMap.transform(val));
 
-			QRect r(0, 0, diameter, diameter);
-			r.moveCenter(pole.toPoint());
+            QRect r(0, 0, diameter, diameter);
+            r.moveCenter(pole.toPoint());
             painter->drawEllipse(r);
         }
     }
@@ -561,14 +558,11 @@ void QwtPolarGrid::drawAxis(QPainter *painter, int axisId) const
 }
 
 void QwtPolarGrid::updateScaleDraws(
-	const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
-	const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const
+    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+    const QwtDoublePoint &pole, double radius) const
 {
-    const double radius = canvasRect.width() / 2;
-
-	const QPoint p = pole.toPoint();
-	const int r = qRound(radius);
-	const QRect rect = canvasRect.toRect();
+    const QPoint p = pole.toPoint();
+    const int r = qRound(radius);
 
     for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
     {
@@ -603,13 +597,13 @@ void QwtPolarGrid::updateScaleDraws(
                 }
                 case QwtPolar::AxisTop:
                 {
-                    scaleDraw->move(p.x(), rect.top());
+                    scaleDraw->move(p.x(), p.y() - r);
                     scaleDraw->setLength(r);
                     break;
                 }
                 case QwtPolar::AxisBottom:
                 {
-                    scaleDraw->move(p.x(), rect.bottom());
+                    scaleDraw->move(p.x(), p.y() + r);
                     scaleDraw->setLength(-r);
                     break;
                 }
@@ -662,7 +656,7 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &radialScaleDiv,
                     if ( !skipOrigin )
                     {
                         if ( axisId == QwtPolar::AxisLeft 
-							|| axisId == QwtPolar::AxisRight )
+                            || axisId == QwtPolar::AxisRight )
                         {
                             if ( d_data->axisData[QwtPolar::AxisBottom].isVisible )
                                 skipOrigin = true;

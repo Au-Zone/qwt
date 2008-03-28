@@ -104,7 +104,8 @@ public:
     */
     virtual void draw(QPainter *painter, 
         const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
-        const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const = 0;
+        const QwtDoublePoint &pole, double radius,
+        const QwtDoubleRect &canvasRect) const = 0;
 
     virtual QwtDoubleInterval interval(int scaleId) const;
 

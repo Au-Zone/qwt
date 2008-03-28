@@ -54,7 +54,8 @@ public:
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
-        const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const;
+        const QwtDoublePoint &pole, double radius,
+        const QwtDoubleRect &canvasRect) const;
 
     virtual void draw(QPainter *p,
         const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
@@ -77,7 +78,7 @@ protected:
 
     void drawLines(QPainter *, 
         const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
-		const QwtDoublePoint &pole,
+        const QwtDoublePoint &pole,
         int from, int to) const;
 
 private:

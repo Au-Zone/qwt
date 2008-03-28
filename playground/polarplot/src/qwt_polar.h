@@ -16,31 +16,31 @@
 
 namespace QwtPolar
 {
-	enum Coordinate
-	{
-		Azimuth,
-		Radius
-	};
+    enum Coordinate
+    {
+        Azimuth,
+        Radius
+    };
 
-	enum Axis
-	{
-		AxisAzimuth,
+    enum Axis
+    {
+        AxisAzimuth,
 
-		AxisLeft,
-		AxisRight,
-		AxisTop,
-		AxisBottom,
+        AxisLeft,
+        AxisRight,
+        AxisTop,
+        AxisBottom,
 
-		AxesCount
-	};
+        AxesCount
+    };
 
-	enum Scale
-	{
-		ScaleAzimuth = Azimuth,
-		ScaleRadius = Radius,
+    enum Scale
+    {
+        ScaleAzimuth = Azimuth,
+        ScaleRadius = Radius,
 
-		ScaleCount 
-	};
+        ScaleCount 
+    };
 
 };
 

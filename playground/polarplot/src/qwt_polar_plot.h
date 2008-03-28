@@ -60,7 +60,10 @@ public:
     const QwtScaleDiv *scaleDiv(int scaleId) const;
     QwtScaleDiv *scaleDiv(int scaleId);
 
-    QwtScaleMap canvasMap(int scaleId) const;
+    QwtScaleMap scaleMap(int scaleId) const;
+
+    void unzoom();
+    QwtDoubleRect zoomRect() const;
 
     virtual void polish();
     virtual QSize sizeHint() const;
@@ -69,21 +72,22 @@ public:
 public slots:
     virtual void replot();
     void autoRefresh();
+    void setZoomRect(const QwtDoubleRect &);
 
 protected:
     virtual bool event(QEvent *);
     virtual void paintEvent(QPaintEvent *);
 
-    virtual void drawCanvas(QPainter *, const QRect &) const;
+    virtual void drawCanvas(QPainter *) const;
 
     virtual void drawItems(QPainter *painter, 
         const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
-        const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const;
+        const QwtDoublePoint &pole, double radius,
+        const QwtDoubleRect &canvasRect) const;
 
     void updateScale(int scaleId);
 
-    QRect boundingRect() const;
-    QRect canvasRect() const;
+    QwtDoubleRect polarRect() const;
 
 private:
     void initPlot();

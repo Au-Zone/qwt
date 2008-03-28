@@ -42,16 +42,15 @@ public:
 
     QwtScaleDiv scaleDiv;
     QwtScaleEngine *scaleEngine;
-    QwtDoubleInterval zoomedInterval;
 };
 
 class QwtPolarPlot::PrivateData
 {
 public:
-    QRegion::RegionType shape;
     QBrush canvasBrush;
 
     bool autoReplot;
+    QwtDoubleRect zoomRect;
 
     ScaleData scaleData[QwtPolar::ScaleCount];
 };
@@ -220,7 +219,27 @@ QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId)
     return &d_data->scaleData[scaleId].scaleDiv;
 }
 
-QwtScaleMap QwtPolarPlot::canvasMap(int scaleId) const
+void QwtPolarPlot::unzoom()
+{
+    setZoomRect(QwtDoubleRect());
+}
+
+void QwtPolarPlot::setZoomRect(const QwtDoubleRect &rect)
+{
+    const QwtDoubleRect zoomRect = rect.normalized();
+    if ( zoomRect != d_data->zoomRect )
+    {
+        d_data->zoomRect = zoomRect;
+        autoRefresh();
+    }
+}
+
+QwtDoubleRect QwtPolarPlot::zoomRect() const
+{
+    return d_data->zoomRect;
+}
+
+QwtScaleMap QwtPolarPlot::scaleMap(int scaleId) const
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return QwtScaleMap();
@@ -237,13 +256,8 @@ QwtScaleMap QwtPolarPlot::canvasMap(int scaleId) const
     }
     else
     {
-        const int w = qwtMin(canvasRect().width(), canvasRect().height());
-#if 0
-        map.setPaintInterval(canvasRect().center().x(), 
-            canvasRect().center().x() + w / 2);
-#else
+        const double w = polarRect().width(); 
         map.setPaintXInterval(0.0, w / 2.0);
-#endif
     }
 
     return map;
@@ -286,7 +300,7 @@ void QwtPolarPlot::paintEvent(QPaintEvent *e)
         QPainter painter(this);
 #endif
         painter.save();
-        drawCanvas(&painter, canvasRect());
+        drawCanvas(&painter);
         painter.restore();
     }
 }
@@ -352,18 +366,20 @@ void QwtPolarPlot::replot()
     repaint();
 }
 
-void QwtPolarPlot::drawCanvas(QPainter *painter, const QRect &rect) const
+void QwtPolarPlot::drawCanvas(QPainter *painter) const
 {
-	const QwtDoubleRect canvasRect(rect);
+    const QwtDoubleRect pr = polarRect();
 
     drawItems(painter, 
-		canvasMap(QwtPolar::Radius), canvasMap(QwtPolar::Azimuth),
-		canvasRect.center(), canvasRect);
+        scaleMap(QwtPolar::Radius), scaleMap(QwtPolar::Azimuth),
+        pr.center(), pr.width() / 2.0, 
+        QwtDoubleRect(contentsRect()));
 }
 
 void QwtPolarPlot::drawItems(QPainter *painter,
         const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
-        const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const
+        const QwtDoublePoint &pole, double radius,
+        const QwtDoubleRect &canvasRect) const
 {
     const QwtPolarItemList& itmList = itemList();
     for ( QwtPolarItemIterator it = itmList.begin();
@@ -379,8 +395,8 @@ void QwtPolarPlot::drawItems(QPainter *painter,
                 item->testRenderHint(QwtPolarItem::RenderAntialiased) );
 #endif
 
-            item->draw(painter, 
-				radialMap, azimuthMap, pole, canvasRect);
+            item->draw(painter, radialMap, azimuthMap, 
+                pole, radius, canvasRect);
 
             painter->restore();
         }
@@ -421,18 +437,12 @@ void QwtPolarPlot::polish()
 #endif
 }
 
-QRect QwtPolarPlot::boundingRect() const
+QwtDoubleRect QwtPolarPlot::polarRect() const
 {
     const int radius = qwtMin(width(), height()) / 2;
 
     QRect r(0, 0, 2 * radius, 2 * radius);
     r.moveCenter(rect().center());
-    return r;
-}
-
-QRect QwtPolarPlot::canvasRect() const
-{
-    QRect rect = boundingRect();
 
     const QwtPolarItemList& itmList = itemList();
     for ( QwtPolarItemIterator it = itmList.begin();
@@ -441,10 +451,10 @@ QRect QwtPolarPlot::canvasRect() const
         QwtPolarItem *item = *it;
         if ( item && item->isVisible() )
         {
-            const QRect hint = item->canvasLayoutHint(rect);
+            const QRect hint = item->canvasLayoutHint(r);
             if ( hint.isValid() )
-                rect &= hint;
+                r &= hint;
         }
     }
-    return rect;
+    return QwtDoubleRect(r);
 }

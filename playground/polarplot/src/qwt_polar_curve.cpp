@@ -143,7 +143,8 @@ void QwtPolarCurve::setData(const QwtData &data)
 
 void QwtPolarCurve::draw(QPainter *painter,
     const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
-    const QwtDoublePoint &pole, const QwtDoubleRect &) const
+    const QwtDoublePoint &pole, double /*radius*/,
+    const QwtDoubleRect &) const
 {
     draw(painter, radialMap, azimuthMap, pole, 0, -1);
 }
@@ -179,7 +180,7 @@ void QwtPolarCurve::draw(QPainter *painter,
 
 void QwtPolarCurve::drawCurve(QPainter *painter, int style, 
     const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
-	const QwtDoublePoint &pole, int from, int to) const
+    const QwtDoublePoint &pole, int from, int to) const
 {
     switch (style)
     {
@@ -204,9 +205,6 @@ void QwtPolarCurve::drawLines(QPainter *painter,
     for (int i = from; i <= to; i++)
     {
         double r = radialMap.xTransform(radius(i));
-#if 0
-        r -= pole.x();
-#endif
         const double a = azimuthMap.xTransform(azimuth(i));
         polyline.setPoint(i - from, qwtPolar2Pos(pole, r, a).toPoint() );
     }
@@ -215,7 +213,7 @@ void QwtPolarCurve::drawLines(QPainter *painter,
 
 void QwtPolarCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol, 
     const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
-	const QwtDoublePoint &pole, int from, int to) const
+    const QwtDoublePoint &pole, int from, int to) const
 {
     painter->setBrush(symbol.brush());
     painter->setPen(symbol.pen());
