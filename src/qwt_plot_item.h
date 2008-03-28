@@ -64,7 +64,7 @@ public:
     void attach(QwtPlot *plot);
 
     /*!
-       \brief This method detaches a QwtPlotItem from any QwtPlot is has been
+       \brief This method detaches a QwtPlotItem from any QwtPlot it has been
               associated with.
 
        detach() is equivalent to calling attach( NULL )
