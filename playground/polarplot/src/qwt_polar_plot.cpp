@@ -16,12 +16,9 @@
 #include "qwt_scale_div.h"
 #include "qwt_round_scale_draw.h"
 #include "qwt_round_scale_draw.h"
-#include "qwt_radial_plot.h"
-#if 1
-#include <QDebug>
-#endif
+#include "qwt_polar_plot.h"
 
-class QwtRadialPlot::ScaleData
+class QwtPolarPlot::ScaleData
 {
 public:
     ScaleData():
@@ -48,65 +45,49 @@ public:
     QwtDoubleInterval zoomedInterval;
 };
 
-class QwtRadialPlot::PrivateData
+class QwtPolarPlot::PrivateData
 {
 public:
     QRegion::RegionType shape;
     QBrush canvasBrush;
 
     bool autoReplot;
-    double origin;
 
-    ScaleData scaleData[ScaleCount];
+    ScaleData scaleData[QwtPolar::ScaleCount];
 };
 
-QwtRadialPlot::QwtRadialPlot( QWidget *parent):
+QwtPolarPlot::QwtPolarPlot( QWidget *parent):
     QWidget(parent)
 {
     initPlot();
 }
 
 #if QT_VERSION < 0x040000
-QwtRadialPlot::QwtRadialPlot( QWidget *parent, const char *name):
+QwtPolarPlot::QwtPolarPlot( QWidget *parent, const char *name):
     QWidget(parent, name)
 {
     initPlot();
 }
 #endif
 
-QwtRadialPlot::~QwtRadialPlot()
+QwtPolarPlot::~QwtPolarPlot()
 {
     delete d_data;
 }
 
-void QwtRadialPlot::setAutoReplot(bool enable)
+void QwtPolarPlot::setAutoReplot(bool enable)
 {
     d_data->autoReplot = enable;
 }
 
-bool QwtRadialPlot::autoReplot() const
+bool QwtPolarPlot::autoReplot() const
 {
     return d_data->autoReplot;
 }
 
-void QwtRadialPlot::setOrigin(double origin)
+void QwtPolarPlot::setScaleMaxMinor(int scaleId, int maxMinor)
 {
-    // 0.0 -> 2 * PI
-    if ( d_data->origin != origin )
-    {
-        d_data->origin = origin;
-        autoRefresh();
-    }
-}
-
-double QwtRadialPlot::origin() const
-{
-    return d_data->origin;
-}
-
-void QwtRadialPlot::setScaleMaxMinor(int scaleId, int maxMinor)
-{
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     if ( maxMinor < 0 )
@@ -124,17 +105,17 @@ void QwtRadialPlot::setScaleMaxMinor(int scaleId, int maxMinor)
     }
 }
 
-int QwtRadialPlot::scaleMaxMinor(int scaleId) const
+int QwtPolarPlot::scaleMaxMinor(int scaleId) const
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return 0;
 
     return d_data->scaleData[scaleId].maxMinor;
 }
 
-void QwtRadialPlot::setScaleMaxMajor(int scaleId, int maxMajor)
+void QwtPolarPlot::setScaleMaxMajor(int scaleId, int maxMajor)
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     if ( maxMajor < 1 )
@@ -151,33 +132,33 @@ void QwtRadialPlot::setScaleMaxMajor(int scaleId, int maxMajor)
     }
 }
 
-int QwtRadialPlot::scaleMaxMajor(int scaleId) const
+int QwtPolarPlot::scaleMaxMajor(int scaleId) const
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return 0;
 
     return d_data->scaleData[scaleId].maxMajor;
 }
 
-QwtScaleEngine *QwtRadialPlot::scaleEngine(int scaleId)
+QwtScaleEngine *QwtPolarPlot::scaleEngine(int scaleId)
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return NULL;
 
     return d_data->scaleData[scaleId].scaleEngine;
 }
 
-const QwtScaleEngine *QwtRadialPlot::scaleEngine(int scaleId) const
+const QwtScaleEngine *QwtPolarPlot::scaleEngine(int scaleId) const
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return NULL;
 
     return d_data->scaleData[scaleId].scaleEngine;
 }
 
-void QwtRadialPlot::setScaleEngine(int scaleId, QwtScaleEngine *scaleEngine)
+void QwtPolarPlot::setScaleEngine(int scaleId, QwtScaleEngine *scaleEngine)
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     ScaleData &scaleData = d_data->scaleData[scaleId];
@@ -192,10 +173,10 @@ void QwtRadialPlot::setScaleEngine(int scaleId, QwtScaleEngine *scaleEngine)
     autoRefresh();
 }
 
-void QwtRadialPlot::setScale(int scaleId, 
+void QwtPolarPlot::setScale(int scaleId, 
     double min, double max, double stepSize)
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     ScaleData &scaleData = d_data->scaleData[scaleId];
@@ -210,9 +191,9 @@ void QwtRadialPlot::setScale(int scaleId,
     autoRefresh();
 }
 
-void QwtRadialPlot::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
+void QwtPolarPlot::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     ScaleData &scaleData = d_data->scaleData[scaleId];
@@ -223,25 +204,25 @@ void QwtRadialPlot::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
     autoRefresh();
 }
 
-const QwtScaleDiv *QwtRadialPlot::scaleDiv(int scaleId) const
+const QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId) const
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return NULL;
 
     return &d_data->scaleData[scaleId].scaleDiv;
 }
 
-QwtScaleDiv *QwtRadialPlot::scaleDiv(int scaleId)
+QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId)
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return NULL;
 
     return &d_data->scaleData[scaleId].scaleDiv;
 }
 
-QwtScaleMap QwtRadialPlot::canvasMap(int scaleId) const
+QwtScaleMap QwtPolarPlot::canvasMap(int scaleId) const
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return QwtScaleMap();
 
     QwtScaleMap map;
@@ -250,15 +231,14 @@ QwtScaleMap QwtRadialPlot::canvasMap(int scaleId) const
     const QwtScaleDiv *sd = scaleDiv(scaleId);
     map.setScaleInterval(sd->lBound(), sd->hBound());
 
-    if ( scaleId == AngleScale)
+    if ( scaleId == QwtPolar::Azimuth)
     {
-        const double o = d_data->origin;
-        map.setPaintXInterval(o, o + M_2PI); 
+        map.setPaintXInterval(0.0, M_2PI); 
     }
     else
     {
         const int w = qwtMin(canvasRect().width(), canvasRect().height());
-#if 1
+#if 0
         map.setPaintInterval(canvasRect().center().x(), 
             canvasRect().center().x() + w / 2);
 #else
@@ -269,17 +249,17 @@ QwtScaleMap QwtRadialPlot::canvasMap(int scaleId) const
     return map;
 }
 
-QSize QwtRadialPlot::sizeHint() const
+QSize QwtPolarPlot::sizeHint() const
 {
     return QWidget::sizeHint();
 }
 
-QSize QwtRadialPlot::minimumSizeHint() const
+QSize QwtPolarPlot::minimumSizeHint() const
 {
     return QWidget::minimumSizeHint();
 }
 
-bool QwtRadialPlot::event(QEvent *e)
+bool QwtPolarPlot::event(QEvent *e)
 {
     bool ok = QWidget::event(e);
     switch(e->type())
@@ -294,7 +274,7 @@ bool QwtRadialPlot::event(QEvent *e)
     return ok;
 }
 
-void QwtRadialPlot::paintEvent(QPaintEvent *e)
+void QwtPolarPlot::paintEvent(QPaintEvent *e)
 {
     const QRect &ur = e->rect();
     if ( ur.isValid() )
@@ -311,7 +291,7 @@ void QwtRadialPlot::paintEvent(QPaintEvent *e)
     }
 }
 
-void QwtRadialPlot::initPlot()
+void QwtPolarPlot::initPlot()
 {
 #if QT_VERSION < 0x040000
     setWFlags(Qt::WNoAutoErase);
@@ -320,19 +300,16 @@ void QwtRadialPlot::initPlot()
     d_data = new PrivateData;
 
     d_data->autoReplot = false;
-    d_data->origin = 0.0;
     
-    for ( int scaleId = DistanceScale; scaleId <= AngleScale; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         ScaleData &scaleData = d_data->scaleData[scaleId];
         
-        if ( scaleId == AngleScale )
+        if ( scaleId == QwtPolar::Azimuth )
         {
-#if 1
             scaleData.minValue = 0.0;
             scaleData.maxValue = 360.0;
             scaleData.stepSize = 30.0;
-#endif
         }
         else
         {
@@ -356,18 +333,18 @@ void QwtRadialPlot::initPlot()
         QSizePolicy::MinimumExpanding);
 }
 
-void QwtRadialPlot::autoRefresh()
+void QwtPolarPlot::autoRefresh()
 {
     if (d_data->autoReplot)
         replot();
 }
 
-void QwtRadialPlot::replot()
+void QwtPolarPlot::replot()
 {
     bool doAutoReplot = autoReplot();
     setAutoReplot(false);
 
-    for ( int scaleId = 0; scaleId < ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
         updateScale(scaleId);
 
     setAutoReplot(doAutoReplot);
@@ -375,44 +352,44 @@ void QwtRadialPlot::replot()
     repaint();
 }
 
-void QwtRadialPlot::drawCanvas(QPainter *painter, const QRect &rect) const
+void QwtPolarPlot::drawCanvas(QPainter *painter, const QRect &rect) const
 {
-    QwtScaleMap maps[ScaleCount];
-    for ( int scaleId = 0; scaleId < ScaleCount; scaleId++ )
-        maps[scaleId] = canvasMap(scaleId);
+	const QwtDoubleRect canvasRect(rect);
 
-    drawItems(painter, rect, maps);
+    drawItems(painter, 
+		canvasMap(QwtPolar::Radius), canvasMap(QwtPolar::Azimuth),
+		canvasRect.center(), canvasRect);
 }
 
-void QwtRadialPlot::drawItems(QPainter *painter, const QRect &canvasRect,
-        const QwtScaleMap map[ScaleCount]) const
+void QwtPolarPlot::drawItems(QPainter *painter,
+        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const
 {
-    const QwtRadialPlotItemList& itmList = itemList();
-    for ( QwtRadialPlotItemIterator it = itmList.begin();
+    const QwtPolarItemList& itmList = itemList();
+    for ( QwtPolarItemIterator it = itmList.begin();
         it != itmList.end(); ++it )
     {
-        QwtRadialPlotItem *item = *it;
+        QwtPolarItem *item = *it;
         if ( item && item->isVisible() )
         {
             painter->save();
 
 #if QT_VERSION >= 0x040000
             painter->setRenderHint(QPainter::Antialiasing,
-                item->testRenderHint(QwtRadialPlotItem::RenderAntialiased) );
+                item->testRenderHint(QwtPolarItem::RenderAntialiased) );
 #endif
 
-            item->draw(painter,
-                map[DistanceScale], map[AngleScale],
-                canvasRect);
+            item->draw(painter, 
+				radialMap, azimuthMap, pole, canvasRect);
 
             painter->restore();
         }
     }
 }
 
-void QwtRadialPlot::updateScale(int scaleId)
+void QwtPolarPlot::updateScale(int scaleId)
 {
-    if ( scaleId < 0 || scaleId >= ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     ScaleData &d = d_data->scaleData[scaleId];
@@ -423,19 +400,19 @@ void QwtRadialPlot::updateScale(int scaleId)
             d.maxMajor, d.maxMinor, d.stepSize);
     }
 
-    const QwtRadialPlotItemList& itmList = itemList();
+    const QwtPolarItemList& itmList = itemList();
 
-    QwtRadialPlotItemIterator it;
+    QwtPolarItemIterator it;
 
     for ( it = itmList.begin(); it != itmList.end(); ++it )
     {
-        QwtRadialPlotItem *item = *it;
+        QwtPolarItem *item = *it;
         item->updateScaleDiv( 
-            *scaleDiv(DistanceScale), *scaleDiv(AngleScale));
+            *scaleDiv(QwtPolar::Radius), *scaleDiv(QwtPolar::Azimuth));
     }
 }
 
-void QwtRadialPlot::polish()
+void QwtPolarPlot::polish()
 {
     replot();
 
@@ -444,7 +421,7 @@ void QwtRadialPlot::polish()
 #endif
 }
 
-QRect QwtRadialPlot::boundingRect() const
+QRect QwtPolarPlot::boundingRect() const
 {
     const int radius = qwtMin(width(), height()) / 2;
 
@@ -453,15 +430,15 @@ QRect QwtRadialPlot::boundingRect() const
     return r;
 }
 
-QRect QwtRadialPlot::canvasRect() const
+QRect QwtPolarPlot::canvasRect() const
 {
     QRect rect = boundingRect();
 
-    const QwtRadialPlotItemList& itmList = itemList();
-    for ( QwtRadialPlotItemIterator it = itmList.begin();
+    const QwtPolarItemList& itmList = itemList();
+    for ( QwtPolarItemIterator it = itmList.begin();
         it != itmList.end(); ++it )
     {
-        QwtRadialPlotItem *item = *it;
+        QwtPolarItem *item = *it;
         if ( item && item->isVisible() )
         {
             const QRect hint = item->canvasLayoutHint(rect);

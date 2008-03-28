@@ -7,37 +7,38 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_RADIAL_PLOT_ITEM_H
-#define QWT_RADIAL_PLOT_ITEM_H
+#ifndef QWT_POLAR_ITEM_H
+#define QWT_POLAR_ITEM_H
 
 #include "qwt_global.h"
 #include "qwt_text.h"
+#include "qwt_double_interval.h"
 #include "qwt_double_rect.h"
 
 class QString;
 class QRect;
 class QPainter;
-class QwtRadialPlot;
+class QwtPolarPlot;
 class QwtScaleMap;
 class QwtScaleDiv;
 
 /*!
-  \brief Base class for items on the plot canvas
+  \brief Base class for items on a polar plot
 */
 
-class QWT_EXPORT QwtRadialPlotItem
+class QWT_EXPORT QwtPolarItem
 {
 public:
     enum RttiValues
     { 
-        Rtti_RadialPlotItem = 0,
+        Rtti_PolarItem = 0,
 
-        Rtti_RadialPlotGrid,
-        Rtti_RadialPlotScale,
-        Rtti_RadialPlotMarker,
-        Rtti_RadialPlotCurve,
+        Rtti_PolarGrid,
+        Rtti_PolarScale,
+        Rtti_PolarMarker,
+        Rtti_PolarCurve,
 
-        Rtti_RadialPlotUserItem = 1000
+        Rtti_PolarUserItem = 1000
     };
 
     enum ItemAttribute
@@ -52,21 +53,21 @@ public:
     };
 #endif
 
-    explicit QwtRadialPlotItem(const QwtText &title = QwtText());
-    virtual ~QwtRadialPlotItem();
+    explicit QwtPolarItem(const QwtText &title = QwtText());
+    virtual ~QwtPolarItem();
 
-    void attach(QwtRadialPlot *plot);
+    void attach(QwtPolarPlot *plot);
 
     /*!
-       \brief This method detaches a QwtRadialPlotItem from any QwtRadialPlot is has been
-              associated with.
+       \brief This method detaches a QwtPolarItem from any QwtPolarPlot it 
+              has been associated with.
 
        detach() is equivalent to calling attach( NULL )
-       \sa attach( QwtRadialPlot* plot )
+       \sa attach( QwtPolarPlot* plot )
     */
     void detach() { attach(NULL); }
 
-    QwtRadialPlot *plot() const;
+    QwtPolarPlot *plot() const;
     
     void setTitle(const QString &title);
     void setTitle(const QwtText &title);
@@ -96,15 +97,16 @@ public:
       \brief Draw the item
 
       \param painter Painter
-      \param distanceMap Maps distance values into pixel coordinates.
-      \param angleMap Maps angle values into pixel coordinates.
+      \param radialMap Maps distance values into painter coordinates.
+      \param azimuthMap Maps angle values into painter coordinates.
+      \param pole Position of the pole in painter coordinates
       \param canvasRect Contents rect of the canvas in painter coordinates
     */
     virtual void draw(QPainter *painter, 
-        const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap,
-        const QRect &canvasRect) const = 0;
+        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const = 0;
 
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QwtDoubleInterval interval(int scaleId) const;
 
     virtual void updateScaleDiv(const QwtScaleDiv&,
         const QwtScaleDiv&);
@@ -113,8 +115,8 @@ public:
 
 private:
     // Disabled copy constructor and operator=
-    QwtRadialPlotItem( const QwtRadialPlotItem & );
-    QwtRadialPlotItem &operator=( const QwtRadialPlotItem & );
+    QwtPolarItem( const QwtPolarItem & );
+    QwtPolarItem &operator=( const QwtPolarItem & );
 
     class PrivateData;
     PrivateData *d_data;

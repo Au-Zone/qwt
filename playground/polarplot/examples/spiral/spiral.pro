@@ -19,7 +19,7 @@ DEPENDPATH  += ../../../../src
 
 CONFIG           += debug
 
-LIBS        += -L../../lib -lpolarplot
+LIBS        += -L../../lib -lqwtpolar
 LIBS        += -L../../../../lib -lqwt
 
 TARGET       = spiral

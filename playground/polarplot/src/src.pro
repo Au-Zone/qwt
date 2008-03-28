@@ -7,7 +7,7 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ##############################################
 
-TARGET            = polarplot
+TARGET            = qwtpolar
 TEMPLATE          = lib
 
 VERSION      = 0.1.0
@@ -26,15 +26,16 @@ INCLUDEPATH += ../../../src
 DEPENDPATH  += ../../../src
 
 HEADERS += \
-	qwt_radial_plot_item.h \
-	qwt_radial_plot_grid.h \
-	qwt_radial_plot_curve.h \
-	qwt_radial_plot_dict.h \
-    qwt_radial_plot.h
+	qwt_polar.h \
+	qwt_polar_item.h \
+	qwt_polar_grid.h \
+	qwt_polar_curve.h \
+	qwt_polar_itemdict.h \
+    qwt_polar_plot.h
 
 SOURCES += \
-	qwt_radial_plot_item.cpp \
-	qwt_radial_plot_grid.cpp \
-	qwt_radial_plot_curve.cpp \
-	qwt_radial_plot_dict.cpp \
-    qwt_radial_plot.cpp
+	qwt_polar_item.cpp \
+	qwt_polar_grid.cpp \
+	qwt_polar_curve.cpp \
+	qwt_polar_itemdict.cpp \
+    qwt_polar_plot.cpp

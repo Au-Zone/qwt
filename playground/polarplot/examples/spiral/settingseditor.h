@@ -25,9 +25,9 @@ private slots:
 private:
     void updateEditor();
 
-    QCheckBox *d_majorGridBox[QwtRadialPlot::ScaleCount];
-    QCheckBox *d_minorGridBox[QwtRadialPlot::ScaleCount];
-    QCheckBox *d_axisBox[QwtRadialPlotGrid::AxesCount];
+    QCheckBox *d_majorGridBox[QwtPolar::ScaleCount];
+    QCheckBox *d_minorGridBox[QwtPolar::ScaleCount];
+    QCheckBox *d_axisBox[QwtPolar::AxesCount];
     QCheckBox *d_antialiasing;
 };
 

@@ -7,12 +7,13 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_RADIAL_PLOT_GRID_H
-#define QWT_RADIAL_PLOT_GRID_H
+#ifndef QWT_POLAR_GRID_H
+#define QWT_POLAR_GRID_H
 
 #include "qwt_global.h"
-#include "qwt_radial_plot_item.h"
-#include "qwt_radial_plot.h"
+#include "qwt_polar.h"
+#include "qwt_polar_item.h"
+#include "qwt_polar_plot.h"
 #include "qwt_scale_div.h"
 
 class QPainter;
@@ -22,31 +23,19 @@ class QwtScaleDiv;
 class QwtRoundScaleDraw;
 class QwtScaleDraw;
 
-class QWT_EXPORT QwtRadialPlotGrid: public QwtRadialPlotItem
+class QWT_EXPORT QwtPolarGrid: public QwtPolarItem
 {
 public:
-    enum Axis
-    {
-        AngleAxis,
-
-        LeftAxis,
-        RightAxis,
-        TopAxis,
-        BottomAxis,
-
-        AxesCount
-    };
-
     enum DisplayFlag
     {
         SmartOriginLabel = 1,
-        HideMaxDistanceValue = 2,
+        HideMaxRadiusLabel = 2,
         ClipAxisBackground = 4,
         SmartScaleDraw = 8,
     };
 
-    explicit QwtRadialPlotGrid();
-    virtual ~QwtRadialPlotGrid();
+    explicit QwtPolarGrid();
+    virtual ~QwtPolarGrid();
 
     virtual int rtti() const;
 
@@ -76,8 +65,8 @@ public:
     QPen minorGridPen(int scaleId) const;
 
     virtual void draw(QPainter *p, 
-        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &rect) const;
+        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtDoublePoint &pole, const QwtDoubleRect &rect) const;
 
     virtual void updateScaleDiv(const QwtScaleDiv&,
         const QwtScaleDiv&);
@@ -85,16 +74,17 @@ public:
     virtual QRect canvasLayoutHint(const QRect &) const;
 
 protected:
-    void drawLines(QPainter *, const QPoint &center, int radius, 
-        const QwtScaleMap &, const QwtValueList &) const;
-    void drawCircles(QPainter *, const QPoint &,
-        const QwtScaleMap &, const QwtValueList &) const;
+    void drawRays(QPainter *, const QwtDoublePoint &pole, double radius, 
+        const QwtScaleMap &azimuthMap, const QwtValueList &) const;
+    void drawCircles(QPainter *, const QwtDoublePoint &pole,
+        const QwtScaleMap &radialMap, const QwtValueList &) const;
 
     void drawAxis(QPainter *, int axisId) const;
 
 private:
-    void updateScaleDraws( const QwtScaleMap &, 
-        const QwtScaleMap &, const QRect &) const;
+    void updateScaleDraws( 
+		const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+		const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const;
 
 private:
     class GridData;

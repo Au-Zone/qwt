@@ -9,46 +9,37 @@
 
 // vim: expandtab
 
-#ifndef QWT_RADIAL_PLOT_H
-#define QWT_RADIAL_PLOT_H 1
+#ifndef QWT_POLAR_PLOT_H
+#define QWT_POLAR_PLOT_H 1
 
 #include <qwidget.h>
 #include "qwt_global.h"
+#include "qwt_polar.h"
 #include "qwt_double_interval.h"
 #include "qwt_scale_map.h"
-#include "qwt_radial_plot_dict.h"
+#include "qwt_polar_itemdict.h"
 
 class QwtRoundScaleDraw;
 class QwtScaleEngine;
 class QwtScaleDiv;
 
-class QWT_EXPORT QwtRadialPlot: public QWidget, public QwtRadialPlotDict
+class QWT_EXPORT QwtPolarPlot: public QWidget, public QwtPolarItemDict
 {
     Q_OBJECT
 
 public:
-    enum Scale
-    {
-        DistanceScale,
-        AngleScale,
-
-        ScaleCount
-    };
-
-    explicit QwtRadialPlot( QWidget *parent = NULL);
+    explicit QwtPolarPlot( QWidget *parent = NULL);
 #if QT_VERSION < 0x040000
-    explicit QwtRadialPlot( QWidget *parent, const char *name);
+    explicit QwtPolarPlot( QWidget *parent, const char *name);
 #endif
 
-    virtual ~QwtRadialPlot();
+    virtual ~QwtPolarPlot();
 
     void setCanvasBackground(const QBrush&);
     const QBrush &canvasBackground() const;
 
     void setAutoReplot(bool tf = true); 
     bool autoReplot() const;
-
-    double origin() const;
 
     void setAutoScale(int scaleId, bool enable);
     bool autoScale(int scaleId) const;
@@ -76,8 +67,6 @@ public:
     virtual QSize minimumSizeHint() const;
 
 public slots:
-    void setOrigin(double);
-
     virtual void replot();
     void autoRefresh();
 
@@ -86,8 +75,10 @@ protected:
     virtual void paintEvent(QPaintEvent *);
 
     virtual void drawCanvas(QPainter *, const QRect &) const;
-    virtual void drawItems(QPainter *, const QRect &,
-        const QwtScaleMap map[ScaleCount]) const;
+
+    virtual void drawItems(QPainter *painter, 
+        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const;
 
     void updateScale(int scaleId);
 

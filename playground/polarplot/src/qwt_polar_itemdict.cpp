@@ -9,20 +9,20 @@
 
 // vim: expandtab
 
-#include "qwt_radial_plot_dict.h"
+#include "qwt_polar_itemdict.h"
 
-class QwtRadialPlotDict::PrivateData
+class QwtPolarItemDict::PrivateData
 {
 public:
 
 #if QT_VERSION < 0x040000
-    class ItemList: public QValueList<QwtRadialPlotItem *>
+    class ItemList: public QValueList<QwtPolarItem *>
 #else
-    class ItemList: public QList<QwtRadialPlotItem *>
+    class ItemList: public QList<QwtPolarItem *>
 #endif
     {
     public:
-        void insertItem(QwtRadialPlotItem *item)
+        void insertItem(QwtPolarItem *item)
         {
             if ( item == NULL )
                 return;
@@ -36,9 +36,9 @@ public:
 #endif
 
 #if QT_VERSION < 0x040000
-            QValueListIterator<QwtRadialPlotItem *> it;
+            QValueListIterator<QwtPolarItem *> it;
 #else
-            QList<QwtRadialPlotItem *>::Iterator it;
+            QList<QwtPolarItem *>::Iterator it;
 #endif
             for ( it = begin(); it != end(); ++it )
             {
@@ -54,7 +54,7 @@ public:
             append(item);
         }
 
-        void removeItem(QwtRadialPlotItem *item)
+        void removeItem(QwtPolarItem *item)
         {
             if ( item == NULL )
                 return;
@@ -62,9 +62,9 @@ public:
             int i = 0;
 
 #if QT_VERSION < 0x040000
-            QValueListIterator<QwtRadialPlotItem *> it;
+            QValueListIterator<QwtPolarItem *> it;
 #else
-            QList<QwtRadialPlotItem *>::Iterator it;
+            QList<QwtPolarItem *>::Iterator it;
 #endif
             for ( it = begin(); it != end(); ++it )
             {
@@ -92,9 +92,9 @@ public:
    Auto deletion is enabled.
    \sa setAutoDelete, attachItem
 */
-QwtRadialPlotDict::QwtRadialPlotDict()
+QwtPolarItemDict::QwtPolarItemDict()
 {
-    d_data = new QwtRadialPlotDict::PrivateData;
+    d_data = new QwtPolarItemDict::PrivateData;
     d_data->autoDelete = true;
 }
 
@@ -104,9 +104,9 @@ QwtRadialPlotDict::QwtRadialPlotDict()
    If autoDelete is on, all attached items will be deleted
    \sa setAutoDelete, autoDelete, attachItem
 */
-QwtRadialPlotDict::~QwtRadialPlotDict()
+QwtPolarItemDict::~QwtPolarItemDict()
 {
-    detachItems(QwtRadialPlotItem::Rtti_RadialPlotItem, d_data->autoDelete);
+    detachItems(QwtPolarItem::Rtti_PolarItem, d_data->autoDelete);
     delete d_data;
 }
 
@@ -114,11 +114,11 @@ QwtRadialPlotDict::~QwtRadialPlotDict()
    En/Disable Auto deletion
 
    If Auto deletion is on all attached plot items will be deleted
-   in the destructor of QwtRadialPlotDict. The default value is on.
+   in the destructor of QwtPolarItemDict. The default value is on.
 
    \sa autoDelete, attachItem
 */
-void QwtRadialPlotDict::setAutoDelete(bool autoDelete)
+void QwtPolarItemDict::setAutoDelete(bool autoDelete)
 {
     d_data->autoDelete = autoDelete;
 }
@@ -127,7 +127,7 @@ void QwtRadialPlotDict::setAutoDelete(bool autoDelete)
    \return true if auto deletion is enabled
    \sa setAutoDelete, attachItem
 */
-bool QwtRadialPlotDict::autoDelete() const
+bool QwtPolarItemDict::autoDelete() const
 {
     return d_data->autoDelete;
 }
@@ -142,9 +142,9 @@ bool QwtRadialPlotDict::autoDelete() const
    \param item Plot item to attach/detach
    \ on If true attach, else detach the item
 
-   \sa setAutoDelete, ~QwtRadialPlotDict
+   \sa setAutoDelete, ~QwtPolarItemDict
 */
-void QwtRadialPlotDict::attachItem(QwtRadialPlotItem *item, bool on)
+void QwtPolarItemDict::attachItem(QwtPolarItem *item, bool on)
 {
     if ( on )
         d_data->itemList.insertItem(item);
@@ -155,21 +155,21 @@ void QwtRadialPlotDict::attachItem(QwtRadialPlotItem *item, bool on)
 /*!
    Detach items from the dictionary
 
-   \param rtti In case of QwtRadialPlotItem::Rtti_PlotItem detach all items 
+   \param rtti In case of QwtPolarItem::Rtti_PlotItem detach all items 
                otherwise only those items of the type rtti.
    \param autoDelete If true, delete all detached items
 */
-void QwtRadialPlotDict::detachItems(int rtti, bool autoDelete)
+void QwtPolarItemDict::detachItems(int rtti, bool autoDelete)
 {
     PrivateData::ItemList list = d_data->itemList;
-    QwtRadialPlotItemIterator it = list.begin();
+    QwtPolarItemIterator it = list.begin();
     while ( it != list.end() )
     {
-        QwtRadialPlotItem *item = *it;
+        QwtPolarItem *item = *it;
 
         ++it; // increment before removing item from the list
 
-        if ( rtti == QwtRadialPlotItem::Rtti_RadialPlotItem || item->rtti() == rtti )
+        if ( rtti == QwtPolarItem::Rtti_PolarItem || item->rtti() == rtti )
         {
             item->attach(NULL);
             if ( autoDelete )
@@ -178,14 +178,14 @@ void QwtRadialPlotDict::detachItems(int rtti, bool autoDelete)
     }
 }
 
-//! \brief A QwtRadialPlotItemList of all attached plot items.
+//! \brief A QwtPolarItemList of all attached plot items.
 ///
 /// Use caution when iterating these lists, as removing/detaching an item will
 /// invalidate the iterator. Instead you can place pointers to objects to be
 /// removed in a removal list, and traverse that list later.
 //! \return List of all attached plot items.
 
-const QwtRadialPlotItemList &QwtRadialPlotDict::itemList() const
+const QwtPolarItemList &QwtPolarItemDict::itemList() const
 {
     return d_data->itemList;
 }

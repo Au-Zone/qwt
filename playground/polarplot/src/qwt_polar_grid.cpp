@@ -17,7 +17,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
 #include "qwt_round_scale_draw.h"
-#include "qwt_radial_plot_grid.h"
+#include "qwt_polar_grid.h"
 #if 1
 #include <QDebug>
 #endif
@@ -27,7 +27,7 @@ static inline bool isClose(double value1, double value2 )
     return qwtAbs(value1 - value2) < DBL_EPSILON;
 }
 
-class QwtRadialPlotGrid::AxisData
+class QwtPolarGrid::AxisData
 {
 public:
     AxisData():
@@ -46,7 +46,7 @@ public:
     QFont font;
 };
 
-class QwtRadialPlotGrid::GridData
+class QwtPolarGrid::GridData
 {
 public:
     GridData():
@@ -63,25 +63,25 @@ public:
     QPen minorPen;
 };
 
-class QwtRadialPlotGrid::PrivateData
+class QwtPolarGrid::PrivateData
 {
 public:
-    GridData gridData[QwtRadialPlot::ScaleCount];
-    AxisData axisData[QwtRadialPlotGrid::AxesCount];
+    GridData gridData[QwtPolar::ScaleCount];
+    AxisData axisData[QwtPolar::AxesCount];
     int displayFlags;
 };
 
-QwtRadialPlotGrid::QwtRadialPlotGrid():
-    QwtRadialPlotItem(QwtText("Grid"))
+QwtPolarGrid::QwtPolarGrid():
+    QwtPolarItem(QwtText("Grid"))
 {
     d_data = new PrivateData;
 
-    for ( int axisId = 0; axisId < AxesCount; axisId++ )
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
     {
         AxisData &axis = d_data->axisData[axisId];
         switch(axisId)
         {
-            case AngleAxis:
+            case QwtPolar::AxisAzimuth:
             {
                 axis.scaleDraw = new QwtRoundScaleDraw;
                 axis.scaleDraw->setTickLength(QwtScaleDiv::MinorTick, 2);
@@ -90,7 +90,7 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
                 axis.isVisible = true;
                 break;
             }
-            case LeftAxis:
+            case QwtPolar::AxisLeft:
             {
                 QwtScaleDraw *scaleDraw = new QwtScaleDraw;
                 scaleDraw->setAlignment(QwtScaleDraw::BottomScale);
@@ -99,7 +99,7 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
                 axis.isVisible = false;
                 break;
             }
-            case RightAxis:
+            case QwtPolar::AxisRight:
             {
                 QwtScaleDraw *scaleDraw = new QwtScaleDraw;
                 scaleDraw->setAlignment(QwtScaleDraw::BottomScale);
@@ -108,7 +108,7 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
                 axis.isVisible = true;
                 break;
             }
-            case TopAxis:
+            case QwtPolar::AxisTop:
             {
                 QwtScaleDraw *scaleDraw = new QwtScaleDraw;
                 scaleDraw->setAlignment(QwtScaleDraw::LeftScale);
@@ -117,7 +117,7 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
                 axis.isVisible = false;
                 break;
             }
-            case BottomAxis:
+            case QwtPolar::AxisBottom:
             {
                 QwtScaleDraw *scaleDraw = new QwtScaleDraw;
                 scaleDraw->setAlignment(QwtScaleDraw::LeftScale);
@@ -131,7 +131,7 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
     }
     d_data->displayFlags = 0;
     d_data->displayFlags |= SmartOriginLabel;
-    d_data->displayFlags |= HideMaxDistanceValue;
+    d_data->displayFlags |= HideMaxRadiusLabel;
     d_data->displayFlags |= ClipAxisBackground;
     d_data->displayFlags |= SmartScaleDraw;
 
@@ -141,17 +141,17 @@ QwtRadialPlotGrid::QwtRadialPlotGrid():
 #endif
 }
 
-QwtRadialPlotGrid::~QwtRadialPlotGrid()
+QwtPolarGrid::~QwtPolarGrid()
 {
     delete d_data;
 }
 
-int QwtRadialPlotGrid::rtti() const
+int QwtPolarGrid::rtti() const
 {
-    return QwtRadialPlotItem::Rtti_RadialPlotGrid;
+    return QwtPolarItem::Rtti_PolarGrid;
 }
 
-void QwtRadialPlotGrid::setDisplayFlag(DisplayFlag flag, bool on)
+void QwtPolarGrid::setDisplayFlag(DisplayFlag flag, bool on)
 {
     if ( ((d_data->displayFlags & flag) != 0) != on )
     {
@@ -164,14 +164,14 @@ void QwtRadialPlotGrid::setDisplayFlag(DisplayFlag flag, bool on)
     }
 }
 
-bool QwtRadialPlotGrid::testDisplayFlag(DisplayFlag flag) const
+bool QwtPolarGrid::testDisplayFlag(DisplayFlag flag) const
 {
     return (d_data->displayFlags & flag);
 }
 
-void QwtRadialPlotGrid::showGrid(int scaleId, bool show)
+void QwtPolarGrid::showGrid(int scaleId, bool show)
 {
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     GridData &grid = d_data->gridData[scaleId];
@@ -182,17 +182,17 @@ void QwtRadialPlotGrid::showGrid(int scaleId, bool show)
     }
 }
 
-bool QwtRadialPlotGrid::isGridVisible(int scaleId) const
+bool QwtPolarGrid::isGridVisible(int scaleId) const
 { 
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return false;
 
     return d_data->gridData[scaleId].isVisible;
 }
 
-void QwtRadialPlotGrid::showMinorGrid(int scaleId, bool show)
+void QwtPolarGrid::showMinorGrid(int scaleId, bool show)
 {
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     GridData &grid = d_data->gridData[scaleId];
@@ -203,17 +203,17 @@ void QwtRadialPlotGrid::showMinorGrid(int scaleId, bool show)
     }
 }
 
-bool QwtRadialPlotGrid::isMinorGridVisible(int scaleId) const
+bool QwtPolarGrid::isMinorGridVisible(int scaleId) const
 { 
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return false;
 
     return d_data->gridData[scaleId].isMinorVisible;
 }
 
-void QwtRadialPlotGrid::showAxis(int axisId, bool show)
+void QwtPolarGrid::showAxis(int axisId, bool show)
 {
-    if ( axisId < 0 || axisId >= AxesCount )
+    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
         return;
 
     AxisData &axisData = d_data->axisData[axisId];
@@ -224,17 +224,17 @@ void QwtRadialPlotGrid::showAxis(int axisId, bool show)
     }
 }
 
-bool QwtRadialPlotGrid::isAxisVisible(int axisId) const
+bool QwtPolarGrid::isAxisVisible(int axisId) const
 {
-    if ( axisId < 0 || axisId >= AxesCount )
+    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
         return false;
 
     return d_data->axisData[axisId].isVisible;
 }
 
-void QwtRadialPlotGrid::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
+void QwtPolarGrid::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
 {
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     GridData &grid = d_data->gridData[scaleId];
@@ -245,19 +245,19 @@ void QwtRadialPlotGrid::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
     }
 }
 
-QwtScaleDiv QwtRadialPlotGrid::scaleDiv(int scaleId) const 
+QwtScaleDiv QwtPolarGrid::scaleDiv(int scaleId) const 
 { 
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return QwtScaleDiv();
 
     return d_data->gridData[scaleId].scaleDiv;
 }
 
-void QwtRadialPlotGrid::setPen(const QPen &pen)
+void QwtPolarGrid::setPen(const QPen &pen)
 {
     bool isChanged = false;
 
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         GridData &grid = d_data->gridData[scaleId];
         if ( grid.majorPen != pen || grid.minorPen != pen )
@@ -271,11 +271,11 @@ void QwtRadialPlotGrid::setPen(const QPen &pen)
         itemChanged();
 }
 
-void QwtRadialPlotGrid::setMajorGridPen(const QPen &pen)
+void QwtPolarGrid::setMajorGridPen(const QPen &pen)
 {
     bool isChanged = false;
 
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         GridData &grid = d_data->gridData[scaleId];
         if ( grid.majorPen != pen )
@@ -288,9 +288,9 @@ void QwtRadialPlotGrid::setMajorGridPen(const QPen &pen)
         itemChanged();
 }
 
-void QwtRadialPlotGrid::setMajorGridPen(int scaleId, const QPen &pen)
+void QwtPolarGrid::setMajorGridPen(int scaleId, const QPen &pen)
 {
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     GridData &grid = d_data->gridData[scaleId];
@@ -301,20 +301,20 @@ void QwtRadialPlotGrid::setMajorGridPen(int scaleId, const QPen &pen)
     }
 }
 
-QPen QwtRadialPlotGrid::majorGridPen(int scaleId) const
+QPen QwtPolarGrid::majorGridPen(int scaleId) const
 {
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return QPen();
     
     const GridData &grid = d_data->gridData[scaleId];
     return grid.majorPen;
 }   
 
-void QwtRadialPlotGrid::setMinorGridPen(const QPen &pen)
+void QwtPolarGrid::setMinorGridPen(const QPen &pen)
 {
     bool isChanged = false;
 
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         GridData &grid = d_data->gridData[scaleId];
         if ( grid.minorPen != pen )
@@ -327,9 +327,9 @@ void QwtRadialPlotGrid::setMinorGridPen(const QPen &pen)
         itemChanged();
 }
 
-void QwtRadialPlotGrid::setMinorGridPen(int scaleId, const QPen &pen)
+void QwtPolarGrid::setMinorGridPen(int scaleId, const QPen &pen)
 {
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return;
 
     GridData &grid = d_data->gridData[scaleId];
@@ -340,33 +340,32 @@ void QwtRadialPlotGrid::setMinorGridPen(int scaleId, const QPen &pen)
     }
 }
 
-QPen QwtRadialPlotGrid::minorGridPen(int scaleId) const
+QPen QwtPolarGrid::minorGridPen(int scaleId) const
 { 
-    if ( scaleId < 0 || scaleId >= QwtRadialPlot::ScaleCount )
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
         return QPen();
 
     const GridData &grid = d_data->gridData[scaleId];
     return grid.minorPen;
 }
 
-void QwtRadialPlotGrid::draw(QPainter *painter, 
-    const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap,
-    const QRect &canvasRect) const
+void QwtPolarGrid::draw(QPainter *painter, 
+    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+    const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const
 {
-    updateScaleDraws(distanceMap, angleMap, canvasRect);
+    updateScaleDraws(radialMap, azimuthMap, pole, canvasRect);
 
     painter->save();
 
-    const QPoint center = canvasRect.center();
-    const int radius = qRound(qAbs(distanceMap.p2() - distanceMap.p1()));
+    const int radius = qRound(qAbs(radialMap.p2() - radialMap.p1()));
 
     if ( testDisplayFlag(ClipAxisBackground) )
     {
-        QRegion clipRegion(canvasRect);
-        for ( int axisId = 0; axisId < AxesCount; axisId++ )
+        QRegion clipRegion(canvasRect.toRect());
+        for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
         {
             const AxisData &axis = d_data->axisData[axisId];
-            if ( axisId != AngleAxis && axis.isVisible )
+            if ( axisId != QwtPolar::AxisAzimuth && axis.isVisible )
             {
                 QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axis.scaleDraw;
                 if ( scaleDraw->hasComponent(QwtScaleDraw::Labels) )
@@ -395,52 +394,52 @@ void QwtRadialPlotGrid::draw(QPainter *painter,
         painter->setClipRegion(clipRegion);
     }
 
-    //  draw distance grid
+    //  draw radial grid
     
-    const GridData &distanceGrid = 
-        d_data->gridData[QwtRadialPlot::DistanceScale];
+    const GridData &radialGrid = 
+        d_data->gridData[QwtPolar::Radius];
 
-    if (distanceGrid.isVisible && distanceGrid.isMinorVisible)
+    if (radialGrid.isVisible && radialGrid.isMinorVisible)
     {
-        painter->setPen(distanceGrid.minorPen);
+        painter->setPen(radialGrid.minorPen);
         
-        drawCircles(painter, center, distanceMap, 
-            distanceGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick) );
-        drawCircles(painter, center, distanceMap, 
-            distanceGrid.scaleDiv.ticks(QwtScaleDiv::MediumTick) );
+        drawCircles(painter, pole, radialMap, 
+            radialGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick) );
+        drawCircles(painter, pole, radialMap, 
+            radialGrid.scaleDiv.ticks(QwtScaleDiv::MediumTick) );
     }
-    if (distanceGrid.isVisible)
+    if (radialGrid.isVisible)
     {
-        painter->setPen(distanceGrid.majorPen);
+        painter->setPen(radialGrid.majorPen);
 
-        drawCircles(painter, center, distanceMap, 
-            distanceGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick) );
+        drawCircles(painter, pole, radialMap, 
+            radialGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick) );
     }
 
-    // draw angle grid
+    // draw azimuth grid
 
-    const GridData &angleGrid = 
-        d_data->gridData[QwtRadialPlot::AngleScale];
+    const GridData &azimuthGrid = 
+        d_data->gridData[QwtPolar::Azimuth];
 
-    if (angleGrid.isVisible && angleGrid.isMinorVisible)
+    if (azimuthGrid.isVisible && azimuthGrid.isMinorVisible)
     {
-        painter->setPen(angleGrid.minorPen);
+        painter->setPen(azimuthGrid.minorPen);
 
-        drawLines(painter, center, radius, angleMap, 
-            angleGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick));
-        drawLines(painter, center, radius, angleMap, 
-            angleGrid.scaleDiv.ticks(QwtScaleDiv::MediumTick));
+        drawRays(painter, pole, radius, azimuthMap, 
+            azimuthGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick));
+        drawRays(painter, pole, radius, azimuthMap, 
+            azimuthGrid.scaleDiv.ticks(QwtScaleDiv::MediumTick));
     }
-    if (angleGrid.isVisible)
+    if (azimuthGrid.isVisible)
     {   
-        painter->setPen(angleGrid.majorPen);
+        painter->setPen(azimuthGrid.majorPen);
 
-        drawLines(painter, center, radius, angleMap,
-            angleGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick));
+        drawRays(painter, pole, radius, azimuthMap,
+            azimuthGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick));
     }
     painter->restore();
 
-    for ( int axisId = 0; axisId < AxesCount; axisId++ )
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
     {
         const AxisData &axis = d_data->axisData[axisId];
         if ( axis.isVisible )
@@ -452,67 +451,68 @@ void QwtRadialPlotGrid::draw(QPainter *painter,
     }
 }
 
-void QwtRadialPlotGrid::drawLines(QPainter *painter, 
-    const QPoint &center, int radius,
-    const QwtScaleMap &angleMap, const QwtValueList &values) const
+void QwtPolarGrid::drawRays(QPainter *painter, 
+    const QwtDoublePoint &pole, double radius,
+    const QwtScaleMap &azimuthMap, const QwtValueList &values) const
 {
     for ( int i = 0; i < values.size(); i++ )
     {
-        double angle = angleMap.xTransform(values[i]);
-        angle = ::fmod(angle, 2 * M_PI);
+        double azimuth = azimuthMap.xTransform(values[i]);
+        azimuth = ::fmod(azimuth, 2 * M_PI);
 
         bool skipLine = false;
         if ( testDisplayFlag(SmartScaleDraw) )
         {
             const QwtAbstractScaleDraw::ScaleComponent bone = 
                 QwtAbstractScaleDraw::Backbone;
-            if ( isClose(angle, 0.0) )
+            if ( isClose(azimuth, 0.0) )
             {
-                const AxisData &axis = d_data->axisData[RightAxis];
+                const AxisData &axis = d_data->axisData[QwtPolar::AxisRight];
                 if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
                     skipLine = true;
             }
-            else if ( isClose(angle, M_PI / 2) )
+            else if ( isClose(azimuth, M_PI / 2) )
             {
-                const AxisData &axis = d_data->axisData[TopAxis];
+                const AxisData &axis = d_data->axisData[QwtPolar::AxisTop];
                 if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
                     skipLine = true;
             }
-            else if ( isClose(angle, M_PI) )
+            else if ( isClose(azimuth, M_PI) )
             {
-                const AxisData &axis = d_data->axisData[LeftAxis];
+                const AxisData &axis = d_data->axisData[QwtPolar::AxisLeft];
                 if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
                     skipLine = true;
             }
-            else if ( isClose(angle, 3 * M_PI / 2.0) )
+            else if ( isClose(azimuth, 3 * M_PI / 2.0) )
             {
-                const AxisData &axis = d_data->axisData[BottomAxis];
+                const AxisData &axis = d_data->axisData[QwtPolar::AxisBottom];
                 if ( axis.isVisible && axis.scaleDraw->hasComponent(bone) )
                     skipLine = true;
             }
         }
         if ( !skipLine )
         {
-            const QPoint pos = qwtPolar2Pos(center, radius, angle);
-            painter->drawLine(center, pos);
+            const QwtDoublePoint pos = qwtPolar2Pos(pole, radius, azimuth);
+            painter->drawLine(pole, pos);
         }
     }
 }
 
-void QwtRadialPlotGrid::drawCircles(QPainter *painter, const QPoint &center,
-    const QwtScaleMap &distanceMap, const QwtValueList &values) const
+void QwtPolarGrid::drawCircles(QPainter *painter, 
+	const QwtDoublePoint &pole, const QwtScaleMap &radialMap, 
+	const QwtValueList &values) const
 {
     for ( int i = 0; i < values.size(); i++ )
     {
         const double val = values[i];
 
         const GridData &gridData = 
-            d_data->gridData[QwtRadialPlot::DistanceScale];
+            d_data->gridData[QwtPolar::Radius];
 
         bool skipLine = false;
         if ( testDisplayFlag(SmartScaleDraw) )
         {
-            const AxisData &axis = d_data->axisData[AngleAxis];
+            const AxisData &axis = d_data->axisData[QwtPolar::AxisAzimuth];
             if ( axis.isVisible &&
                 axis.scaleDraw->hasComponent(QwtAbstractScaleDraw::Backbone) )
             {
@@ -526,17 +526,18 @@ void QwtRadialPlotGrid::drawCircles(QPainter *painter, const QPoint &center,
 
         if ( !skipLine )
         {
-            const int radius = distanceMap.transform(val) - center.x();
-            const QRect r(center.x() - radius, center.y() - radius, 
-                2 * radius, 2 * radius);
+            const int diameter = qRound(2 * radialMap.transform(val));
+
+			QRect r(0, 0, diameter, diameter);
+			r.moveCenter(pole.toPoint());
             painter->drawEllipse(r);
         }
     }
 }
 
-void QwtRadialPlotGrid::drawAxis(QPainter *painter, int axisId) const
+void QwtPolarGrid::drawAxis(QPainter *painter, int axisId) const
 {
-    if ( axisId < 0 || axisId >= AxesCount )
+    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
         return;
 
     AxisData &axis = d_data->axisData[axisId];
@@ -559,94 +560,98 @@ void QwtRadialPlotGrid::drawAxis(QPainter *painter, int axisId) const
 #endif
 }
 
-void QwtRadialPlotGrid::updateScaleDraws(const QwtScaleMap &distanceMap, 
-    const QwtScaleMap &angleMap, const QRect &rect) const
+void QwtPolarGrid::updateScaleDraws(
+	const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+	const QwtDoublePoint &pole, const QwtDoubleRect &canvasRect) const
 {
-    const QPoint center = rect.center();
-    const int radius = rect.width() / 2;
+    const double radius = canvasRect.width() / 2;
 
-    for ( int axisId = 0; axisId < AxesCount; axisId++ )
+	const QPoint p = pole.toPoint();
+	const int r = qRound(radius);
+	const QRect rect = canvasRect.toRect();
+
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
     {
         AxisData &axis = d_data->axisData[axisId];
 
-        if ( axisId == AngleAxis )
+        if ( axisId == QwtPolar::AxisAzimuth )
         {
             QwtRoundScaleDraw *scaleDraw = (QwtRoundScaleDraw *)axis.scaleDraw;
 
-            scaleDraw->setRadius(radius);
-            scaleDraw->moveCenter(center);
+            scaleDraw->setRadius(r);
+            scaleDraw->moveCenter(p);
 
             scaleDraw->setAngleRange(90.0, -270.0);
-            scaleDraw->setTransformation(angleMap.transformation()->copy());
+            scaleDraw->setTransformation(azimuthMap.transformation()->copy());
         }
         else
         {
             QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axis.scaleDraw;
             switch(axisId)
             {
-                case LeftAxis:
+                case QwtPolar::AxisLeft:
                 {
-                    scaleDraw->move(center.x(), center.y());
-                    scaleDraw->setLength(-radius);
+                    scaleDraw->move(p.x(), p.y());
+                    scaleDraw->setLength(-r);
                     break;
                 }
-                case RightAxis:
+                case QwtPolar::AxisRight:
                 {
-                    scaleDraw->move(center.x(), center.y());
-                    scaleDraw->setLength(radius);
+                    scaleDraw->move(p.x(), p.y());
+                    scaleDraw->setLength(r);
                     break;
                 }
-                case TopAxis:
+                case QwtPolar::AxisTop:
                 {
-                    scaleDraw->move(center.x(), rect.top());
-                    scaleDraw->setLength(radius);
+                    scaleDraw->move(p.x(), rect.top());
+                    scaleDraw->setLength(r);
                     break;
                 }
-                case BottomAxis:
+                case QwtPolar::AxisBottom:
                 {
-                    scaleDraw->move(center.x(), rect.bottom());
-                    scaleDraw->setLength(-radius);
+                    scaleDraw->move(p.x(), rect.bottom());
+                    scaleDraw->setLength(-r);
                     break;
                 }
             }
-            scaleDraw->setTransformation(distanceMap.transformation()->copy());
+            scaleDraw->setTransformation(radialMap.transformation()->copy());
         }
     }
 }
 
-void QwtRadialPlotGrid::updateScaleDiv(const QwtScaleDiv &distanceScaleDiv,
-    const QwtScaleDiv &angleScaleDiv)
+void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &radialScaleDiv,
+    const QwtScaleDiv &azimuthScaleDiv)
 {
-    GridData &distanceGrid = d_data->gridData[QwtRadialPlot::DistanceScale];
-    if ( distanceGrid.scaleDiv != distanceScaleDiv )
+    GridData &radialGrid = d_data->gridData[QwtPolar::Radius];
+    if ( radialGrid.scaleDiv != radialScaleDiv )
     {
-        distanceGrid.scaleDiv = distanceScaleDiv;
+        radialGrid.scaleDiv = radialScaleDiv;
     }
 
-    GridData &angleGrid = d_data->gridData[QwtRadialPlot::AngleScale];
-    if ( angleGrid.scaleDiv != angleScaleDiv )
+    GridData &azimuthGrid = d_data->gridData[QwtPolar::Azimuth];
+    if ( azimuthGrid.scaleDiv != azimuthScaleDiv )
     {
-        angleGrid.scaleDiv = angleScaleDiv;
+        azimuthGrid.scaleDiv = azimuthScaleDiv;
     }
 
     bool hasOrigin = false;
-    for ( int axisId = 0; axisId < AxesCount; axisId++ )
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
     {
         AxisData &axis = d_data->axisData[axisId];
         if ( axis.isVisible && axis.scaleDraw )
         {
-            if ( axisId == AngleAxis )
+            if ( axisId == QwtPolar::AxisAzimuth )
             {
-                axis.scaleDraw->setScaleDiv(angleScaleDiv);
+                axis.scaleDraw->setScaleDiv(azimuthScaleDiv);
                 if ( testDisplayFlag(SmartScaleDraw) )
                 {
                     axis.scaleDraw->enableComponent(
-                        QwtAbstractScaleDraw::Ticks, !angleGrid.isVisible);
+                        QwtAbstractScaleDraw::Ticks, !azimuthGrid.isVisible);
                 }
             }
             else
             {
-                QwtScaleDiv sd = distanceScaleDiv;
+                QwtScaleDiv sd = radialScaleDiv;
 
                 QwtValueList &ticks = 
                         (QwtValueList &)sd.ticks(QwtScaleDiv::MajorTick);
@@ -656,14 +661,15 @@ void QwtRadialPlotGrid::updateScaleDiv(const QwtScaleDiv &distanceScaleDiv,
                     bool skipOrigin = hasOrigin;
                     if ( !skipOrigin )
                     {
-                        if ( axisId == LeftAxis || axisId == RightAxis )
+                        if ( axisId == QwtPolar::AxisLeft 
+							|| axisId == QwtPolar::AxisRight )
                         {
-                            if ( d_data->axisData[BottomAxis].isVisible )
+                            if ( d_data->axisData[QwtPolar::AxisBottom].isVisible )
                                 skipOrigin = true;
                         }
                         else
                         {
-                            if ( d_data->axisData[LeftAxis].isVisible )
+                            if ( d_data->axisData[QwtPolar::AxisLeft].isVisible )
                                 skipOrigin = true;
                         }
                     }
@@ -676,7 +682,7 @@ void QwtRadialPlotGrid::updateScaleDiv(const QwtScaleDiv &distanceScaleDiv,
                     }
                 }
 
-                if ( testDisplayFlag(HideMaxDistanceValue) )
+                if ( testDisplayFlag(HideMaxRadiusLabel) )
                 {
                     if ( ticks.size() > 0 && ticks.last() == sd.hBound() )
                         ticks.removeLast();
@@ -687,7 +693,7 @@ void QwtRadialPlotGrid::updateScaleDiv(const QwtScaleDiv &distanceScaleDiv,
                 if ( testDisplayFlag(SmartScaleDraw) )
                 {
                     axis.scaleDraw->enableComponent(
-                        QwtAbstractScaleDraw::Ticks, !distanceGrid.isVisible);
+                        QwtAbstractScaleDraw::Ticks, !radialGrid.isVisible);
                 }
 
             }
@@ -699,9 +705,9 @@ void QwtRadialPlotGrid::updateScaleDiv(const QwtScaleDiv &distanceScaleDiv,
 #endif
 }
 
-QRect QwtRadialPlotGrid::canvasLayoutHint(const QRect &rect) const
+QRect QwtPolarGrid::canvasLayoutHint(const QRect &rect) const
 {
-    const AxisData &axis = d_data->axisData[AngleAxis];
+    const AxisData &axis = d_data->axisData[QwtPolar::AxisAzimuth];
     if ( axis.isVisible )
     {
         const int extent = axis.scaleDraw->extent(axis.pen, axis.font);

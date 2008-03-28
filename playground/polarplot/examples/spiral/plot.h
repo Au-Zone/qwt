@@ -1,20 +1,21 @@
 #ifndef _PLOT_H_
 #define _PLOT_H_ 1
 
-#include <qwt_radial_plot.h>
-#include <qwt_radial_plot_grid.h>
-#include <qwt_radial_plot_curve.h>
+#include <qwt_polar_plot.h>
+
+class QwtPolarGrid;
+class QwtPolarCurve;
 
 class PlotSettings
 {
 public:
-    bool majorGrid[QwtRadialPlot::ScaleCount];
-    bool minorGrid[QwtRadialPlot::ScaleCount];
-    bool axis[QwtRadialPlotGrid::AxesCount];
+    bool majorGrid[QwtPolar::ScaleCount];
+    bool minorGrid[QwtPolar::ScaleCount];
+    bool axis[QwtPolar::AxesCount];
     bool antialiasing;
 };
 
-class Plot: public QwtRadialPlot
+class Plot: public QwtPolarPlot
 {
     Q_OBJECT
 
@@ -26,8 +27,8 @@ public slots:
     void applySettings(const PlotSettings &);
 
 private:
-    QwtRadialPlotGrid *d_grid;
-    QwtRadialPlotCurve *d_curve;
+    QwtPolarGrid *d_grid;
+    QwtPolarCurve *d_curve;
 };
 
 #endif

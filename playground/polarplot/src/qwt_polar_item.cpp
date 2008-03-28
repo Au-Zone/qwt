@@ -7,10 +7,10 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_radial_plot.h"
-#include "qwt_radial_plot_item.h"
+#include "qwt_polar_plot.h"
+#include "qwt_polar_item.h"
 
-class QwtRadialPlotItem::PrivateData
+class QwtPolarItem::PrivateData
 {
 public:
     PrivateData():
@@ -24,7 +24,7 @@ public:
     {
     }
 
-    mutable QwtRadialPlot *plot;
+    mutable QwtPolarPlot *plot;
 
     bool isVisible;
     int attributes;
@@ -37,14 +37,14 @@ public:
 };
 
 //! Constructor
-QwtRadialPlotItem::QwtRadialPlotItem(const QwtText &title)
+QwtPolarItem::QwtPolarItem(const QwtText &title)
 {
     d_data = new PrivateData;
     d_data->title = title;
 }
 
-//! Destroy the QwtRadialPlotItem
-QwtRadialPlotItem::~QwtRadialPlotItem()
+//! Destroy the QwtPolarItem
+QwtPolarItem::~QwtPolarItem()
 {
     attach(NULL);
     delete d_data;
@@ -53,14 +53,14 @@ QwtRadialPlotItem::~QwtRadialPlotItem()
 /*! 
   \brief Attach the item to a plot.
 
-  This method will attach a QwtRadialPlotItem to the QwtRadialPlot argument. It will first
-  detach the QwtRadialPlotItem from any plot from a previous call to attach (if
-  necessary). If a NULL argument is passed, it will detach from any QwtRadialPlot it
+  This method will attach a QwtPolarItem to the QwtPolarPlot argument. It will first
+  detach the QwtPolarItem from any plot from a previous call to attach (if
+  necessary). If a NULL argument is passed, it will detach from any QwtPolarPlot it
   was attached to.
 
-  \sa QwtRadialPlotItem::detach()
+  \sa QwtPolarItem::detach()
 */
-void QwtRadialPlotItem::attach(QwtRadialPlot *plot)
+void QwtPolarItem::attach(QwtPolarPlot *plot)
 {
     if ( plot == d_data->plot )
         return;
@@ -87,7 +87,7 @@ void QwtRadialPlotItem::attach(QwtRadialPlot *plot)
 }
 
 /*! 
-   Return rtti for the specific class represented. QwtRadialPlotItem is simply
+   Return rtti for the specific class represented. QwtPolarItem is simply
    a virtual interface class, and base classes will implement this method
    with specific rtti values so a user can differentiate them.
 
@@ -98,13 +98,13 @@ void QwtRadialPlotItem::attach(QwtRadialPlot *plot)
    \return rtti value
    \sa RttiValues
 */
-int QwtRadialPlotItem::rtti() const
+int QwtPolarItem::rtti() const
 {
-    return Rtti_RadialPlotItem;
+    return Rtti_PolarItem;
 }
 
 //! Return attached plot
-QwtRadialPlot *QwtRadialPlotItem::plot() const 
+QwtPolarPlot *QwtPolarItem::plot() const 
 { 
     return d_data->plot; 
 }
@@ -112,9 +112,9 @@ QwtRadialPlot *QwtRadialPlotItem::plot() const
 /*!
    Plot items are painted in increasing z-order.
 
-   \return setZ(), QwtRadialPlotDict::itemList()
+   \return setZ(), QwtPolarItemDict::itemList()
 */
-double QwtRadialPlotItem::z() const 
+double QwtPolarItem::z() const 
 { 
     return d_data->z; 
 }
@@ -125,9 +125,9 @@ double QwtRadialPlotItem::z() const
    Plot items are painted in increasing z-order.
 
    \param z Z-value
-   \sa z(), QwtRadialPlotDict::itemList()
+   \sa z(), QwtPolarItemDict::itemList()
 */
-void QwtRadialPlotItem::setZ(double z) 
+void QwtPolarItem::setZ(double z) 
 { 
     if ( d_data->z != z )
     {
@@ -148,7 +148,7 @@ void QwtRadialPlotItem::setZ(double z)
    \param title Title
    \sa title() 
 */  
-void QwtRadialPlotItem::setTitle(const QString &title)
+void QwtPolarItem::setTitle(const QString &title)
 {
     setTitle(QwtText(title));
 }
@@ -159,7 +159,7 @@ void QwtRadialPlotItem::setTitle(const QString &title)
    \param title Title
    \sa title() 
 */  
-void QwtRadialPlotItem::setTitle(const QwtText &title)
+void QwtPolarItem::setTitle(const QwtText &title)
 {
     if ( d_data->title != title )
     {
@@ -172,7 +172,7 @@ void QwtRadialPlotItem::setTitle(const QwtText &title)
    \return Title of the item
    \sa setTitle()
 */
-const QwtText &QwtRadialPlotItem::title() const
+const QwtText &QwtPolarItem::title() const
 {
     return d_data->title;
 }
@@ -185,7 +185,7 @@ const QwtText &QwtRadialPlotItem::title() const
 
    \sa testItemAttribute(), ItemAttribute
 */
-void QwtRadialPlotItem::setItemAttribute(ItemAttribute attribute, bool on)
+void QwtPolarItem::setItemAttribute(ItemAttribute attribute, bool on)
 {
     if ( bool(d_data->attributes & attribute) != on )
     {
@@ -205,7 +205,7 @@ void QwtRadialPlotItem::setItemAttribute(ItemAttribute attribute, bool on)
    \return true/false
    \sa setItemAttribute(), ItemAttribute
 */
-bool QwtRadialPlotItem::testItemAttribute(ItemAttribute attribute) const
+bool QwtPolarItem::testItemAttribute(ItemAttribute attribute) const
 {
     return d_data->attributes & attribute;
 }
@@ -220,7 +220,7 @@ bool QwtRadialPlotItem::testItemAttribute(ItemAttribute attribute) const
 
    \sa testRenderHint(), RenderHint
 */
-void QwtRadialPlotItem::setRenderHint(RenderHint hint, bool on)
+void QwtPolarItem::setRenderHint(RenderHint hint, bool on)
 {
     if ( ((d_data->renderHints & hint) != 0) != on )
     {
@@ -240,19 +240,19 @@ void QwtRadialPlotItem::setRenderHint(RenderHint hint, bool on)
    \return true/false
    \sa setRenderHint(), RenderHint
 */
-bool QwtRadialPlotItem::testRenderHint(RenderHint hint) const
+bool QwtPolarItem::testRenderHint(RenderHint hint) const
 {
     return (d_data->renderHints & hint);
 }
 
 #endif
 
-void QwtRadialPlotItem::show()
+void QwtPolarItem::show()
 {
     setVisible(true);
 }
 
-void QwtRadialPlotItem::hide()
+void QwtPolarItem::hide()
 {
     setVisible(false);
 }
@@ -263,7 +263,7 @@ void QwtRadialPlotItem::hide()
     \param on Show if true, otherwise hide
     \sa isVisible(), show(), hide()
 */
-void QwtRadialPlotItem::setVisible(bool on) 
+void QwtPolarItem::setVisible(bool on) 
 { 
     if ( on != d_data->isVisible )
     {
@@ -276,29 +276,26 @@ void QwtRadialPlotItem::setVisible(bool on)
     \return true if visible
     \sa setVisible(), show(), hide()
 */
-bool QwtRadialPlotItem::isVisible() const
+bool QwtPolarItem::isVisible() const
 { 
     return d_data->isVisible; 
 }
 
 /*! 
-   Update the legend and call QwtRadialPlot::autoRefresh for the 
+   Update the legend and call QwtPolarPlot::autoRefresh for the 
    parent plot.
 
    \sa updateLegend()
 */
-void QwtRadialPlotItem::itemChanged()
+void QwtPolarItem::itemChanged()
 {
     if ( d_data->plot )
         d_data->plot->autoRefresh();
 }
 
-/*!
-   \return An invalid bounding rect: QwtDoubleRect(1.0, 1.0, -2.0, -2.0)
-*/
-QwtDoubleRect QwtRadialPlotItem::boundingRect() const
+QwtDoubleInterval QwtPolarItem::interval(int /*scaleId*/) const
 {
-    return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
+    return QwtDoubleInterval(); // invalid
 }
 
 /*!
@@ -306,20 +303,20 @@ QwtDoubleRect QwtRadialPlotItem::boundingRect() const
 
    Update the item, when the axes of plot have changed.
    The default implementation does nothing, but items that depend
-   on the scale division (like QwtRadialPlotGrid()) have to reimplement
+   on the scale division (like QwtPolarGrid()) have to reimplement
    updateScaleDiv()
 
    \param xScaleDiv Scale division of the x-axis
    \param yScaleDiv Scale division of the y-axis
 
-   \sa QwtRadialPlot::updateAxes()
+   \sa QwtPolarPlot::updateAxes()
 */
-void QwtRadialPlotItem::updateScaleDiv(const QwtScaleDiv &,
+void QwtPolarItem::updateScaleDiv(const QwtScaleDiv &,
     const QwtScaleDiv &) 
 { 
 }
 
-QRect QwtRadialPlotItem::canvasLayoutHint(const QRect &) const
+QRect QwtPolarItem::canvasLayoutHint(const QRect &) const
 {
     return QRect();
 }

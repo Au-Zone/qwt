@@ -14,7 +14,7 @@
 #include "qwt_math.h"
 #include "qwt_polygon.h"
 #include "qwt_symbol.h"
-#include "qwt_radial_plot_curve.h"
+#include "qwt_polar_curve.h"
 #include <QDebug>
 
 static int verifyRange(int size, int &i1, int &i2)
@@ -31,11 +31,11 @@ static int verifyRange(int size, int &i1, int &i2)
     return (i2 - i1 + 1);
 }
 
-class QwtRadialPlotCurve::PrivateData
+class QwtPolarCurve::PrivateData
 {
 public:
     PrivateData():
-        style(QwtRadialPlotCurve::Lines)
+        style(QwtPolarCurve::Lines)
     {
         symbol = new QwtSymbol();
         pen = QPen(Qt::black);
@@ -46,38 +46,38 @@ public:
         delete symbol;
     }
 
-    QwtRadialPlotCurve::CurveStyle style;
+    QwtPolarCurve::CurveStyle style;
     QwtSymbol *symbol;
     QPen pen;
 };
 
-QwtRadialPlotCurve::QwtRadialPlotCurve():
-    QwtRadialPlotItem(QwtText())
+QwtPolarCurve::QwtPolarCurve():
+    QwtPolarItem(QwtText())
 {
     init();
 }
 
-QwtRadialPlotCurve::QwtRadialPlotCurve(const QwtText &title):
-    QwtRadialPlotItem(title)
+QwtPolarCurve::QwtPolarCurve(const QwtText &title):
+    QwtPolarItem(title)
 {
     init();
 }
 
-QwtRadialPlotCurve::QwtRadialPlotCurve(const QString &title):
-    QwtRadialPlotItem(QwtText(title))
+QwtPolarCurve::QwtPolarCurve(const QString &title):
+    QwtPolarItem(QwtText(title))
 {
     init();
 }
 
-QwtRadialPlotCurve::~QwtRadialPlotCurve()
+QwtPolarCurve::~QwtPolarCurve()
 {
     delete d_points;
     delete d_data;
 }
 
-void QwtRadialPlotCurve::init()
+void QwtPolarCurve::init()
 {
-    setItemAttribute(QwtRadialPlotItem::AutoScale);
+    setItemAttribute(QwtPolarItem::AutoScale);
 
     d_data = new PrivateData;
     d_points = new QwtPolygonFData(QwtArray<QwtDoublePoint>());
@@ -88,13 +88,13 @@ void QwtRadialPlotCurve::init()
 #endif
 }
 
-//! \return QwtRadialPlotCurve::Rtti_RadialPlotCurve
-int QwtRadialPlotCurve::rtti() const
+//! \return QwtPolarCurve::Rtti_PolarCurve
+int QwtPolarCurve::rtti() const
 {
-    return QwtRadialPlotItem::Rtti_RadialPlotCurve;
+    return QwtPolarItem::Rtti_PolarCurve;
 }
 
-void QwtRadialPlotCurve::setStyle(CurveStyle style)
+void QwtPolarCurve::setStyle(CurveStyle style)
 {
     if ( style != d_data->style )
     {
@@ -103,24 +103,24 @@ void QwtRadialPlotCurve::setStyle(CurveStyle style)
     }
 }
 
-QwtRadialPlotCurve::CurveStyle QwtRadialPlotCurve::style() const 
+QwtPolarCurve::CurveStyle QwtPolarCurve::style() const 
 { 
     return d_data->style; 
 }
 
-void QwtRadialPlotCurve::setSymbol(const QwtSymbol &s )
+void QwtPolarCurve::setSymbol(const QwtSymbol &s )
 {
     delete d_data->symbol;
     d_data->symbol = s.clone();
     itemChanged();
 }
 
-const QwtSymbol &QwtRadialPlotCurve::symbol() const 
+const QwtSymbol &QwtPolarCurve::symbol() const 
 { 
     return *d_data->symbol; 
 }
 
-void QwtRadialPlotCurve::setPen(const QPen &p)
+void QwtPolarCurve::setPen(const QPen &p)
 {
     if ( p != d_data->pen )
     {
@@ -129,29 +129,28 @@ void QwtRadialPlotCurve::setPen(const QPen &p)
     }
 }
 
-const QPen& QwtRadialPlotCurve::pen() const 
+const QPen& QwtPolarCurve::pen() const 
 { 
     return d_data->pen; 
 }
 
-void QwtRadialPlotCurve::setData(const QwtData &data)
+void QwtPolarCurve::setData(const QwtData &data)
 {
     delete d_points;
     d_points = data.copy();
     itemChanged();
 }
 
-void QwtRadialPlotCurve::draw(QPainter *painter,
-    const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap,
-    const QRect &canvasRect) const
+void QwtPolarCurve::draw(QPainter *painter,
+    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+    const QwtDoublePoint &pole, const QwtDoubleRect &) const
 {
-    draw(painter, canvasRect.center(), distanceMap, angleMap, 0, -1);
+    draw(painter, radialMap, azimuthMap, pole, 0, -1);
 }
 
-void QwtRadialPlotCurve::draw(QPainter *painter,
-    const QPoint &center,
-    const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap, 
-    int from, int to) const
+void QwtPolarCurve::draw(QPainter *painter,
+    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+    const QwtDoublePoint &pole, int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
         return;
@@ -165,28 +164,27 @@ void QwtRadialPlotCurve::draw(QPainter *painter,
         painter->setPen(d_data->pen);
 
         drawCurve(painter, d_data->style, 
-            center, distanceMap, angleMap, from, to);
+            radialMap, azimuthMap, pole, from, to);
         painter->restore();
 
         if (d_data->symbol->style() != QwtSymbol::NoSymbol)
         {
             painter->save();
             drawSymbols(painter, *d_data->symbol, 
-                center, distanceMap, angleMap, from, to);
+                radialMap, azimuthMap, pole, from, to);
             painter->restore();
         }
     }
 }
 
-void QwtRadialPlotCurve::drawCurve(QPainter *painter, 
-    int style, const QPoint &center,
-    const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap, 
-    int from, int to) const
+void QwtPolarCurve::drawCurve(QPainter *painter, int style, 
+    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+	const QwtDoublePoint &pole, int from, int to) const
 {
     switch (style)
     {
         case Lines:
-            drawLines(painter, center, distanceMap, angleMap, from, to);
+            drawLines(painter, radialMap, azimuthMap, pole, from, to);
             break;
         case NoCurve:
         default:
@@ -194,10 +192,9 @@ void QwtRadialPlotCurve::drawCurve(QPainter *painter,
     }
 }
 
-void QwtRadialPlotCurve::drawLines(QPainter *painter,
-    const QPoint &center,
-    const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap, 
-    int from, int to) const
+void QwtPolarCurve::drawLines(QPainter *painter,
+    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+    const QwtDoublePoint &pole, int from, int to) const
 {
     int size = to - from + 1;
     if ( size <= 0 )
@@ -206,21 +203,19 @@ void QwtRadialPlotCurve::drawLines(QPainter *painter,
     QwtPolygon polyline(size);
     for (int i = from; i <= to; i++)
     {
-        double radius = distanceMap.xTransform(distance(i));
-#if 1
-        radius -= center.x();
+        double r = radialMap.xTransform(radius(i));
+#if 0
+        r -= pole.x();
 #endif
-        const double a = angleMap.xTransform(angle(i));
-        polyline.setPoint(i - from, 
-            qwtPolar2Pos(center, radius, a) );
+        const double a = azimuthMap.xTransform(azimuth(i));
+        polyline.setPoint(i - from, qwtPolar2Pos(pole, r, a).toPoint() );
     }
     painter->drawPolyline(polyline);
 }
 
-void QwtRadialPlotCurve::drawSymbols(QPainter *painter, 
-    const QwtSymbol &symbol, const QPoint &center,
-    const QwtScaleMap &distanceMap, const QwtScaleMap &angleMap, 
-    int from, int to) const
+void QwtPolarCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol, 
+    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+	const QwtDoublePoint &pole, int from, int to) const
 {
     painter->setBrush(symbol.brush());
     painter->setPen(symbol.pen());
@@ -229,13 +224,13 @@ void QwtRadialPlotCurve::drawSymbols(QPainter *painter,
 
     for (int i = from; i <= to; i++)
     {
-        double radius = distanceMap.xTransform(distance(i));
-#if 1
-        radius -= center.x();
+        double r = radialMap.xTransform(radius(i));
+#if 0
+        r -= pole.x();
 #endif
-        const double a = angleMap.xTransform(angle(i));
+        const double a = azimuthMap.xTransform(azimuth(i));
 
-        const QPoint pos = qwtPolar2Pos(center, radius, a);
+        const QPoint pos = qwtPolar2Pos(pole, r, a).toPoint();
 
         rect.moveCenter(pos);
         symbol.draw(painter, rect);
@@ -243,7 +238,7 @@ void QwtRadialPlotCurve::drawSymbols(QPainter *painter,
 
 }
 
-int QwtRadialPlotCurve::dataSize() const
+int QwtPolarCurve::dataSize() const
 {
     return d_points->size();
 }

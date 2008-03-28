@@ -1,27 +1,24 @@
 #include <qpen.h>
 #include <qwt_data.h>
 #include <qwt_symbol.h>
-#if 1
-#include <qwt_scale_engine.h>
-#endif
-#include <qwt_radial_plot_grid.h>
-#include <qwt_radial_plot_curve.h>
+#include <qwt_polar_grid.h>
+#include <qwt_polar_curve.h>
 #include "plot.h"
 
 class Data: public QwtData
 {
 public:
-    Data(const QwtDoubleInterval &distanceInterval, 
-            const QwtDoubleInterval &angleInterval, size_t size):
-        d_distanceInterval(distanceInterval),
-        d_angleInterval(angleInterval),
+    Data(const QwtDoubleInterval &radialInterval, 
+            const QwtDoubleInterval &azimuthInterval, size_t size):
+        d_radialInterval(radialInterval),
+        d_azimuthInterval(azimuthInterval),
         d_size(size)
     {
     }
 
     virtual QwtData *copy() const
     {
-        return new Data(d_distanceInterval, d_angleInterval, d_size);
+        return new Data(d_radialInterval, d_azimuthInterval, d_size);
     }
 
     virtual size_t size() const
@@ -31,42 +28,42 @@ public:
 
     virtual double x(size_t i) const
     {
-        const double step = d_distanceInterval.width() / d_size;
-        return d_distanceInterval.minValue() + i * step;
+        const double step = d_radialInterval.width() / d_size;
+        return d_radialInterval.minValue() + i * step;
     }
 
     virtual double y(size_t i) const
     {
-        const double step = 4 * d_angleInterval.width() / d_size;
-        return d_angleInterval.minValue() + i * step;
+        const double step = 4 * d_azimuthInterval.width() / d_size;
+        return d_azimuthInterval.minValue() + i * step;
     }
 private:
-    QwtDoubleInterval d_distanceInterval;
-    QwtDoubleInterval d_angleInterval;
+    QwtDoubleInterval d_radialInterval;
+    QwtDoubleInterval d_azimuthInterval;
     size_t d_size;
 };
 
 Plot::Plot(QWidget *parent):
-    QwtRadialPlot(parent)
+    QwtPolarPlot(parent)
 {
     setAutoReplot(false);
 
-    const QwtDoubleInterval distanceInterval(10.0, 10000.0);
-    const QwtDoubleInterval angleInterval(0.0, 360.0);
+    const QwtDoubleInterval radialInterval(0.0, 10.0);
+    const QwtDoubleInterval azimuthInterval(0.0, 360.0);
 
     // scales 
-    setScale(QwtRadialPlot::AngleScale, 
-        angleInterval.minValue(), angleInterval.maxValue(), 
-        angleInterval.width() / 12 );
+    setScale(QwtPolar::Azimuth, 
+        azimuthInterval.minValue(), azimuthInterval.maxValue(), 
+        azimuthInterval.width() / 12 );
 
-    setScaleMaxMinor(QwtRadialPlot::AngleScale, 2);
-    setScale(QwtRadialPlot::DistanceScale, 
-        distanceInterval.minValue(), distanceInterval.maxValue());
+    setScaleMaxMinor(QwtPolar::Azimuth, 2);
+    setScale(QwtPolar::Radius, 
+        radialInterval.minValue(), radialInterval.maxValue());
 
     // grids, axes 
 
-    d_grid = new QwtRadialPlotGrid();
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    d_grid = new QwtPolarGrid();
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         d_grid->showGrid(scaleId);
         d_grid->showMinorGrid(scaleId);
@@ -80,58 +77,58 @@ Plot::Plot(QWidget *parent):
         d_grid->setMinorGridPen(scaleId, minorPen);
     }
 
-    d_grid->showAxis(QwtRadialPlotGrid::AngleAxis, true);
-    d_grid->showAxis(QwtRadialPlotGrid::LeftAxis, false);
-    d_grid->showAxis(QwtRadialPlotGrid::RightAxis, true);
-    d_grid->showAxis(QwtRadialPlotGrid::TopAxis, true);
-    d_grid->showAxis(QwtRadialPlotGrid::BottomAxis, false);
-    d_grid->showGrid(QwtRadialPlot::AngleScale, true);
-    d_grid->showGrid(QwtRadialPlot::DistanceScale, true);
+    d_grid->showAxis(QwtPolar::AxisAzimuth, true);
+    d_grid->showAxis(QwtPolar::AxisLeft, false);
+    d_grid->showAxis(QwtPolar::AxisRight, true);
+    d_grid->showAxis(QwtPolar::AxisTop, true);
+    d_grid->showAxis(QwtPolar::AxisBottom, false);
+    d_grid->showGrid(QwtPolar::Azimuth, true);
+    d_grid->showGrid(QwtPolar::Radius, true);
     d_grid->attach(this);
 
     // curves
 
-    d_curve = new QwtRadialPlotCurve();
-    d_curve->setStyle(QwtRadialPlotCurve::Lines);
+    d_curve = new QwtPolarCurve();
+    d_curve->setStyle(QwtPolarCurve::Lines);
     d_curve->setPen(QPen(Qt::blue));
     d_curve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
         QBrush(Qt::red), QPen(Qt::black), QSize(3, 3)) );
-    d_curve->setData(Data(distanceInterval, angleInterval, 200));
+    d_curve->setData(Data(radialInterval, azimuthInterval, 200));
     d_curve->attach(this);
 }
 
 PlotSettings Plot::settings() const
 {
     PlotSettings s;
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         s.majorGrid[scaleId] = d_grid->isGridVisible(scaleId);
         s.minorGrid[scaleId] = d_grid->isMinorGridVisible(scaleId);
     }
-    for ( int axisId = 0; axisId < QwtRadialPlotGrid::AxesCount; axisId++ )
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
         s.axis[axisId] = d_grid->isAxisVisible(axisId);
 
     s.antialiasing = d_grid->testRenderHint(
-        QwtRadialPlotItem::RenderAntialiased );
+        QwtPolarItem::RenderAntialiased );
 
     return s;
 }
 
 void Plot::applySettings(const PlotSettings& s)
 {
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         d_grid->showGrid(scaleId, s.majorGrid[scaleId]);
         d_grid->showMinorGrid(scaleId, s.minorGrid[scaleId]);
     }
 
-    for ( int axisId = 0; axisId < QwtRadialPlotGrid::AxesCount; axisId++ )
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
         d_grid->showAxis(axisId, s.axis[axisId]);
 
     d_grid->setRenderHint(
-        QwtRadialPlotItem::RenderAntialiased, s.antialiasing);
+        QwtPolarItem::RenderAntialiased, s.antialiasing);
     d_curve->setRenderHint(
-        QwtRadialPlotItem::RenderAntialiased, s.antialiasing);
+        QwtPolarItem::RenderAntialiased, s.antialiasing);
 
     replot();
 }

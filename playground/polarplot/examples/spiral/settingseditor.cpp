@@ -8,7 +8,7 @@ SettingsEditor::SettingsEditor(QWidget *parent):
 {
     QGroupBox *axesBox = new QGroupBox("Axes", this);
     QVBoxLayout* axesBoxLayout = new QVBoxLayout(axesBox);
-    for ( int axisId = 0; axisId < QwtRadialPlotGrid::AxesCount; axisId++ )
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
     {
         d_axisBox[axisId] = new QCheckBox(axesBox);
         axesBoxLayout->addWidget(d_axisBox[axisId]);
@@ -19,7 +19,7 @@ SettingsEditor::SettingsEditor(QWidget *parent):
     QGroupBox *gridBox = new QGroupBox("Grids", this);
     QVBoxLayout* gridBoxLayout = new QVBoxLayout(gridBox);
     
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         d_majorGridBox[scaleId] = new QCheckBox(gridBox);
         gridBoxLayout->addWidget(d_majorGridBox[scaleId]);
@@ -44,16 +44,16 @@ SettingsEditor::SettingsEditor(QWidget *parent):
     layout->addWidget(otherBox);
     layout->addStretch(10);
 
-    d_majorGridBox[QwtRadialPlot::AngleScale]->setText("Angle");
-    d_majorGridBox[QwtRadialPlot::DistanceScale]->setText("Distance");
-    d_minorGridBox[QwtRadialPlot::AngleScale]->setText("Angle Minor");
-    d_minorGridBox[QwtRadialPlot::DistanceScale]->setText("Distance Minor");
+    d_majorGridBox[QwtPolar::Azimuth]->setText("Azimuth");
+    d_majorGridBox[QwtPolar::Radius]->setText("Radius");
+    d_minorGridBox[QwtPolar::Azimuth]->setText("Azimuth Minor");
+    d_minorGridBox[QwtPolar::Radius]->setText("Radius Minor");
     
-    d_axisBox[QwtRadialPlotGrid::AngleAxis]->setText("Angle");
-    d_axisBox[QwtRadialPlotGrid::LeftAxis]->setText("Left");
-    d_axisBox[QwtRadialPlotGrid::RightAxis]->setText("Right");
-    d_axisBox[QwtRadialPlotGrid::TopAxis]->setText("Top");
-    d_axisBox[QwtRadialPlotGrid::BottomAxis]->setText("Bottom");
+    d_axisBox[QwtPolar::AxisAzimuth]->setText("Azimuth");
+    d_axisBox[QwtPolar::AxisLeft]->setText("Left");
+    d_axisBox[QwtPolar::AxisRight]->setText("Right");
+    d_axisBox[QwtPolar::AxisTop]->setText("Top");
+    d_axisBox[QwtPolar::AxisBottom]->setText("Bottom");
 
     d_antialiasing->setText("Antialiased Scales/Grids");
 }
@@ -61,13 +61,13 @@ SettingsEditor::SettingsEditor(QWidget *parent):
 void SettingsEditor::showSettings(const PlotSettings &settings)
 {
     blockSignals(true);
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         d_majorGridBox[scaleId]->setChecked(settings.majorGrid[scaleId]);
         d_minorGridBox[scaleId]->setChecked(settings.minorGrid[scaleId]);
     }
 
-    for ( int axisId = 0; axisId < QwtRadialPlotGrid::AxesCount; axisId++ )
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
         d_axisBox[axisId]->setChecked(settings.axis[axisId]);
 
     d_antialiasing->setChecked(settings.antialiasing);
@@ -79,13 +79,13 @@ void SettingsEditor::showSettings(const PlotSettings &settings)
 PlotSettings SettingsEditor::settings() const
 {
     PlotSettings settings;
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         settings.majorGrid[scaleId] = d_majorGridBox[scaleId]->isChecked();
         settings.minorGrid[scaleId] = d_minorGridBox[scaleId]->isChecked();
     }
     
-    for ( int axisId = 0; axisId < QwtRadialPlotGrid::AxesCount; axisId++ )
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
         settings.axis[axisId] = d_axisBox[axisId]->isChecked();
         
     settings.antialiasing = d_antialiasing->isChecked();
@@ -103,7 +103,7 @@ void SettingsEditor::edited()
 
 void SettingsEditor::updateEditor()
 {
-    for ( int scaleId = 0; scaleId < QwtRadialPlot::ScaleCount; scaleId++ )
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         d_minorGridBox[scaleId]->setEnabled(
             d_majorGridBox[scaleId]->isChecked());
