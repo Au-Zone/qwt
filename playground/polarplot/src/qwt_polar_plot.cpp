@@ -1,10 +1,9 @@
 /* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
- * Qwt Widget Library
- * Copyright (C) 1997   Josef Wilgen
- * Copyright (C) 2002   Uwe Rathmann
- *
+ * QwtPolar Widget Library
+ * Copyright (C) 2008   Uwe Rathmann
+ * 
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the Qwt License, Version 1.0
+ * modify it under the terms of the GPL License, Version 2.0
  *****************************************************************************/
 
 #include <qpainter.h>
@@ -15,7 +14,7 @@
 #include "qwt_scale_engine.h"
 #include "qwt_scale_div.h"
 #include "qwt_round_scale_draw.h"
-#include "qwt_round_scale_draw.h"
+#include "qwt_polar_rect.h"
 #include "qwt_polar_plot.h"
 
 class QwtPolarPlot::ScaleData
@@ -50,7 +49,7 @@ public:
     QBrush canvasBrush;
 
     bool autoReplot;
-    QwtDoubleRect zoomRect;
+    QwtPolarRect zoomRect;
 
     ScaleData scaleData[QwtPolar::ScaleCount];
 };
@@ -221,12 +220,12 @@ QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId)
 
 void QwtPolarPlot::unzoom()
 {
-    setZoomRect(QwtDoubleRect());
+    setZoomRect(QwtPolarRect());
 }
 
-void QwtPolarPlot::setZoomRect(const QwtDoubleRect &rect)
+void QwtPolarPlot::setZoomRect(const QwtPolarRect &rect)
 {
-    const QwtDoubleRect zoomRect = rect.normalized();
+    const QwtPolarRect zoomRect = rect.normalized();
     if ( zoomRect != d_data->zoomRect )
     {
         d_data->zoomRect = zoomRect;
@@ -234,7 +233,7 @@ void QwtPolarPlot::setZoomRect(const QwtDoubleRect &rect)
     }
 }
 
-QwtDoubleRect QwtPolarPlot::zoomRect() const
+QwtPolarRect QwtPolarPlot::zoomRect() const
 {
     return d_data->zoomRect;
 }
@@ -439,22 +438,31 @@ void QwtPolarPlot::polish()
 
 QwtDoubleRect QwtPolarPlot::polarRect() const
 {
-    const int radius = qwtMin(width(), height()) / 2;
+	const QRect cr = contentsRect();
 
-    QRect r(0, 0, 2 * radius, 2 * radius);
-    r.moveCenter(rect().center());
+	if ( d_data->zoomRect.isEmpty() )
+	{
+    	const int radius = qwtMin(cr.width(), cr.height()) / 2;
 
-    const QwtPolarItemList& itmList = itemList();
-    for ( QwtPolarItemIterator it = itmList.begin();
-        it != itmList.end(); ++it )
-    {
-        QwtPolarItem *item = *it;
-        if ( item && item->isVisible() )
-        {
-            const QRect hint = item->canvasLayoutHint(r);
-            if ( hint.isValid() )
-                r &= hint;
-        }
-    }
-    return QwtDoubleRect(r);
+    	QRect r(0, 0, 2 * radius, 2 * radius);
+    	r.moveCenter(cr.center());
+
+    	const QwtPolarItemList& itmList = itemList();
+    	for ( QwtPolarItemIterator it = itmList.begin();
+        	it != itmList.end(); ++it )
+    	{
+        	QwtPolarItem *item = *it;
+        	if ( item && item->isVisible() )
+        	{
+            	const QRect hint = item->canvasLayoutHint(r);
+            	if ( hint.isValid() )
+                	r &= hint;
+        	}
+    	}
+    	return QwtDoubleRect(r);
+	}
+	else
+	{
+		return QwtDoubleRect();
+	}
 }

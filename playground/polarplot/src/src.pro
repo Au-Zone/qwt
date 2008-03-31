@@ -1,10 +1,9 @@
 # -*- mode: sh -*- ###########################
-# Qwt Widget Library
-# Copyright (C) 1997   Josef Wilgen
-# Copyright (C) 2002   Uwe Rathmann
+# QwtPolar Widget Library
+# Copyright (C) 2008   Uwe Rathmann
 #
 # This library is free software; you can redistribute it and/or
-# modify it under the terms of the Qwt License, Version 1.0
+# modify it under the terms of the GPL License, Version 2.0
 ##############################################
 
 TARGET            = qwtpolar
@@ -27,6 +26,8 @@ DEPENDPATH  += ../../../src
 
 HEADERS += \
 	qwt_polar.h \
+	qwt_polar_point.h \
+	qwt_polar_rect.h \
 	qwt_polar_item.h \
 	qwt_polar_grid.h \
 	qwt_polar_curve.h \
@@ -34,6 +35,8 @@ HEADERS += \
     qwt_polar_plot.h
 
 SOURCES += \
+	qwt_polar_point.cpp \
+	qwt_polar_rect.cpp \
 	qwt_polar_item.cpp \
 	qwt_polar_grid.cpp \
 	qwt_polar_curve.cpp \

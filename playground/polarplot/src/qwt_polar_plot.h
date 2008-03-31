@@ -1,10 +1,9 @@
 /* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
- * Qwt Widget Library
- * Copyright (C) 1997   Josef Wilgen
- * Copyright (C) 2002   Uwe Rathmann
- *
+ * QwtPolar Widget Library
+ * Copyright (C) 2008   Uwe Rathmann
+ * 
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the Qwt License, Version 1.0
+ * modify it under the terms of the GPL License, Version 2.0
  *****************************************************************************/
 
 // vim: expandtab
@@ -22,6 +21,7 @@
 class QwtRoundScaleDraw;
 class QwtScaleEngine;
 class QwtScaleDiv;
+class QwtPolarRect;
 
 class QWT_EXPORT QwtPolarPlot: public QWidget, public QwtPolarItemDict
 {
@@ -62,8 +62,7 @@ public:
 
     QwtScaleMap scaleMap(int scaleId) const;
 
-    void unzoom();
-    QwtDoubleRect zoomRect() const;
+	QwtPolarRect zoomRect() const;
 
     virtual void polish();
     virtual QSize sizeHint() const;
@@ -72,7 +71,9 @@ public:
 public slots:
     virtual void replot();
     void autoRefresh();
-    void setZoomRect(const QwtDoubleRect &);
+
+    void setZoomRect(const QwtPolarRect&);
+    void unzoom();
 
 protected:
     virtual bool event(QEvent *);
