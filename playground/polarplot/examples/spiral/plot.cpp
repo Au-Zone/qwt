@@ -1,8 +1,11 @@
 #include <qpen.h>
 #include <qwt_data.h>
 #include <qwt_symbol.h>
+#include <qwt_polar_rect.h>
 #include <qwt_polar_grid.h>
 #include <qwt_polar_curve.h>
+#include <qwt_polar_panner.h>
+#include <qwt_polar_magnifier.h>
 #include "plot.h"
 
 class Data: public QwtData
@@ -37,6 +40,7 @@ public:
         const double step = 4 * d_azimuthInterval.width() / d_size;
         return d_azimuthInterval.minValue() + i * step;
     }
+
 private:
     QwtDoubleInterval d_radialInterval;
     QwtDoubleInterval d_azimuthInterval;
@@ -59,6 +63,20 @@ Plot::Plot(QWidget *parent):
     setScaleMaxMinor(QwtPolar::Azimuth, 2);
     setScale(QwtPolar::Radius, 
         radialInterval.minValue(), radialInterval.maxValue());
+
+#if 1
+	//setZoomRect(QwtPolarRect(1.0, M_PI / 3.0, 7.0, 4.0));
+#if 0
+	const QwtDoubleRect zr(-1.0, -1.0, 5.0, 4.0);
+	setZoomRect(zr);
+#endif
+
+	QwtPolarPanner *panner = new QwtPolarPanner(this);
+	panner->setScaleEnabled(QwtPolar::Radius, true);
+	panner->setScaleEnabled(QwtPolar::Azimuth, true);
+
+	(void) new QwtPolarMagnifier(this);
+#endif
 
     // grids, axes 
 

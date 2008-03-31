@@ -13,9 +13,10 @@
 
 #include <qwidget.h>
 #include "qwt_global.h"
-#include "qwt_polar.h"
 #include "qwt_double_interval.h"
 #include "qwt_scale_map.h"
+#include "qwt_polar.h"
+#include "qwt_polar_rect.h"
 #include "qwt_polar_itemdict.h"
 
 class QwtRoundScaleDraw;
@@ -63,6 +64,7 @@ public:
     QwtScaleMap scaleMap(int scaleId) const;
 
     QwtPolarRect zoomRect() const;
+    QwtPolarRect scaleRect() const;
 
     virtual void polish();
     virtual QSize sizeHint() const;

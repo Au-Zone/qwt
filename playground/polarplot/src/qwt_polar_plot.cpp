@@ -238,6 +238,12 @@ QwtPolarRect QwtPolarPlot::zoomRect() const
     return d_data->zoomRect;
 }
 
+QwtPolarRect QwtPolarPlot::scaleRect() const
+{
+    const double d = 2 * qwtAbs(scaleDiv(QwtPolar::Radius)->range());
+    return QwtPolarRect(0.0, 0.0, d, d);
+}
+
 QwtScaleMap QwtPolarPlot::scaleMap(int scaleId) const
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )

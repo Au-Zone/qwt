@@ -82,6 +82,16 @@ inline const QwtPolarPoint &QwtPolarRect::center() const
     return d_center;
 }
 
+inline double QwtPolarRect::radius() const
+{
+    return d_center.radius();
+}
+
+inline double QwtPolarRect::azimuth() const
+{
+    return d_center.azimuth();
+}
+
 inline QwtPolarPoint &QwtPolarRect::center()
 {
     return d_center;
