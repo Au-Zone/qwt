@@ -538,7 +538,7 @@ void QwtPlot::updateTabOrder()
 
   \warning drawCanvas calls drawItems what is also used
            for printing. Applications that like to add individual
-           plot items better overload QwtPlot::drawItems
+           plot items better overload drawItems()
   \sa drawItems()
 */
 

@@ -49,12 +49,16 @@ public:
     int operator==(const QwtScaleDiv &s) const;
     int operator!=(const QwtScaleDiv &s) const;
     
+    void setInterval(double lBound, double rBound);
+    void setInterval(const QwtDoubleInterval &);
+
     inline double lBound() const;
     inline double hBound() const;
     inline double range() const;
 
     bool contains(double v) const;
 
+    void setTicks(int type, const QwtValueList &);
     const QwtValueList &ticks(int type) const;
 
     void invalidate();
@@ -69,6 +73,17 @@ private:
 
     bool d_isValid;
 };
+
+/*!
+   Change the interval
+   \lBound left bound
+   \rBound right bound
+*/
+inline void QwtScaleDiv::setInterval(double lBound, double hBound)
+{
+    d_lBound = lBound;
+    d_hBound = hBound;
+}
 
 /*! 
   \return left bound
