@@ -62,7 +62,7 @@ public:
 
     QwtScaleMap scaleMap(int scaleId) const;
 
-	QwtPolarRect zoomRect() const;
+    QwtPolarRect zoomRect() const;
 
     virtual void polish();
     virtual QSize sizeHint() const;
@@ -88,7 +88,7 @@ protected:
 
     void updateScale(int scaleId);
 
-    QwtDoubleRect polarRect() const;
+    QwtDoubleRect plotRect() const;
 
 private:
     void initPlot();

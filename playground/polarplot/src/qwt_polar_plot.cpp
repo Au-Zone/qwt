@@ -255,7 +255,7 @@ QwtScaleMap QwtPolarPlot::scaleMap(int scaleId) const
     }
     else
     {
-        const double w = polarRect().width(); 
+        const double w = plotRect().width(); 
         map.setPaintXInterval(0.0, w / 2.0);
     }
 
@@ -367,7 +367,7 @@ void QwtPolarPlot::replot()
 
 void QwtPolarPlot::drawCanvas(QPainter *painter) const
 {
-    const QwtDoubleRect pr = polarRect();
+    const QwtDoubleRect pr = plotRect();
 
     drawItems(painter, 
         scaleMap(QwtPolar::Radius), scaleMap(QwtPolar::Azimuth),
@@ -436,33 +436,50 @@ void QwtPolarPlot::polish()
 #endif
 }
 
-QwtDoubleRect QwtPolarPlot::polarRect() const
+QwtDoubleRect QwtPolarPlot::plotRect() const
 {
-	const QRect cr = contentsRect();
+    QwtDoubleRect rect;
 
-	if ( d_data->zoomRect.isEmpty() )
-	{
-    	const int radius = qwtMin(cr.width(), cr.height()) / 2;
+    const QRect cr = contentsRect();
 
-    	QRect r(0, 0, 2 * radius, 2 * radius);
-    	r.moveCenter(cr.center());
+    if ( d_data->zoomRect.isEmpty() )
+    {
+        const int radius = qwtMin(cr.width(), cr.height()) / 2;
 
-    	const QwtPolarItemList& itmList = itemList();
-    	for ( QwtPolarItemIterator it = itmList.begin();
-        	it != itmList.end(); ++it )
-    	{
-        	QwtPolarItem *item = *it;
-        	if ( item && item->isVisible() )
-        	{
-            	const QRect hint = item->canvasLayoutHint(r);
-            	if ( hint.isValid() )
-                	r &= hint;
-        	}
-    	}
-    	return QwtDoubleRect(r);
-	}
-	else
-	{
-		return QwtDoubleRect();
-	}
+        QRect r(0, 0, 2 * radius, 2 * radius);
+        r.moveCenter(cr.center());
+
+        const QwtPolarItemList& itmList = itemList();
+        for ( QwtPolarItemIterator it = itmList.begin();
+            it != itmList.end(); ++it )
+        {
+            QwtPolarItem *item = *it;
+            if ( item && item->isVisible() )
+            {
+                const QRect hint = item->canvasLayoutHint(r);
+                if ( hint.isValid() )
+                    r &= hint;
+            }
+        }
+        rect = QwtDoubleRect(r);
+    }
+    else
+    {
+        const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
+
+        const QwtDoubleRect zr = d_data->zoomRect.toRect();
+
+        const double ratio = qwtMax( qwtAbs(cr.width() / zr.width()),
+            qwtAbs(cr.height() / zr.height()) );
+
+        const double d = 2 * qwtAbs(sd->range()) * ratio;
+
+        const double dx = zr.x() * ratio;
+        const double dy = zr.y() * ratio;
+
+        rect.setWidth(d);
+        rect.setHeight(d);
+        rect.moveCenter(QwtDoublePoint(cr.left() - dx, cr.bottom() + dy));
+    }
+    return rect;
 }

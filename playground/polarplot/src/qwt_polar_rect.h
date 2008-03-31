@@ -20,6 +20,7 @@ public:
     QwtPolarRect();
     QwtPolarRect(double radius, double azimuth, double width, double height);
     QwtPolarRect(const QwtPolarPoint&, const QwtDoubleSize &);
+    QwtPolarRect(const QwtDoubleRect&);
 
     void setRect(const QwtDoubleRect &);
     QwtDoubleRect toRect() const;

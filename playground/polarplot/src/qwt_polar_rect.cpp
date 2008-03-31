@@ -31,6 +31,13 @@ QwtPolarRect::QwtPolarRect(
 {
 }
 
+QwtPolarRect::QwtPolarRect(const QwtDoubleRect &rect):
+    d_center(rect.center()),
+    d_width(rect.width()),
+    d_height(rect.height())
+{
+}
+
 void QwtPolarRect::setRect(const QwtDoubleRect &rect)
 {
     d_center.setPoint(rect.center());
@@ -66,19 +73,19 @@ void QwtPolarRect::setRect(const QwtPolarPoint &center,
 bool QwtPolarRect::operator==(const QwtPolarRect &other) const
 {
     return d_center == other.d_center && 
-		d_width == other.d_width && d_height == other.d_height;
+        d_width == other.d_width && d_height == other.d_height;
 }
 
 bool QwtPolarRect::operator!=(const QwtPolarRect &other) const
 {
     return d_center != other.d_center ||
-		d_width != other.d_width || d_height != other.d_height;
+        d_width != other.d_width || d_height != other.d_height;
 }
 
 QwtPolarRect QwtPolarRect::normalized() const
 {
-	QwtPolarPoint center = d_center.normalized();
-	return QwtPolarRect(center.radius(), center.azimuth(),
-		d_width, d_height);
+    QwtPolarPoint center = d_center.normalized();
+    return QwtPolarRect(center.radius(), center.azimuth(),
+        d_width, d_height);
 }
 
