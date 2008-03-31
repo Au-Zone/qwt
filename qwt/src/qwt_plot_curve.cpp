@@ -172,6 +172,7 @@ void QwtPlotCurve::init()
     setZ(20.0);
 }
 
+//! \return QwtPlotItem::Rtti_PlotCurve
 int QwtPlotCurve::rtti() const
 {
     return QwtPlotItem::Rtti_PlotCurve;
@@ -189,7 +190,9 @@ int QwtPlotCurve::rtti() const
       notable impact on curves with many close points. 
       Only a couple of very basic filtering algos are implemented.</dd>
   <dt>ClipPolygons</dt>
-  <dd>Clip polygons before painting them.
+  <dd>Clip polygons before painting them. In situations, where points
+      are far outside the visible area this might be a great improvement
+      for the painting performance ( especially on Windows ).
   </dl>
 
   The default is, that no paint attributes are enabled.

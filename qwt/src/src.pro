@@ -44,6 +44,7 @@ HEADERS += \
     qwt_global.h \
     qwt_layout_metrics.h \
     qwt_math.h \
+    qwt_magnifier.h \
     qwt_paint_buffer.h \
     qwt_painter.h \
     qwt_panner.h \
@@ -73,6 +74,7 @@ SOURCES += \
     qwt_dyngrid_layout.cpp \
     qwt_layout_metrics.cpp \
     qwt_math.cpp \
+    qwt_magnifier.cpp \
     qwt_paint_buffer.cpp \
     qwt_panner.cpp \
     qwt_painter.cpp \
