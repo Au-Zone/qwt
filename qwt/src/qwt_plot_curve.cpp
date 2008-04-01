@@ -11,13 +11,13 @@
 #include <qpixmap.h>
 #include <qbitarray.h>
 #include "qwt_global.h"
+#include "qwt_math.h"
+#include "qwt_clipper.h"
+#include "qwt_painter.h"
 #include "qwt_legend.h"
 #include "qwt_legend_item.h"
-#include "qwt_rect.h"
 #include "qwt_scale_map.h"
 #include "qwt_double_rect.h"
-#include "qwt_math.h"
-#include "qwt_painter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_curve_fitter.h"
@@ -380,9 +380,6 @@ void QwtPlotCurve::draw(int from, int to) const
 #if QT_VERSION >= 0x040000
     if ( canvas->paintEngine()->type() == QPaintEngine::OpenGL )
     {
-#ifdef __GNUC__
-#warning Lousy OpenGL performance
-#endif
         /*
             OpenGL alway repaint the complete widget.
             So for this operation OpenGL is one of the slowest
@@ -652,10 +649,7 @@ void QwtPlotCurve::drawLines(QPainter *painter,
     }
 
     if ( d_data->paintAttributes & ClipPolygons )
-    {
-        QwtRect r = painter->window();
-        polyline = r.clip(polyline);
-    }
+        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
@@ -784,10 +778,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
     if ( doFill )
     {
         if ( d_data->paintAttributes & ClipPolygons )
-        {
-            const QwtRect r = painter->window();
-            polyline = r.clip(polyline);
-        }
+            polyline = QwtClipper::clipPolygon(painter->window(), polyline);
 
         fillCurve(painter, xMap, yMap, polyline);
     }
@@ -836,10 +827,7 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
     }
 
     if ( d_data->paintAttributes & ClipPolygons )
-    {
-        const QwtRect r = painter->window();
-        polyline = r.clip(polyline);
-    }
+        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 

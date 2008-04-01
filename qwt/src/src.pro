@@ -36,6 +36,7 @@ HEADERS += \
     qwt_abstract_scale_draw.h \
     qwt_array.h \
     qwt_interval_symbol.h \
+    qwt_clipper.h \
     qwt_color_map.h \
     qwt_column_symbol.h \
     qwt_double_interval.h \
@@ -51,7 +52,6 @@ HEADERS += \
     qwt_picker.h \
     qwt_picker_machine.h \
     qwt_polygon.h \
-    qwt_rect.h \
     qwt_round_scale_draw.h \
     qwt_scale_div.h \
     qwt_scale_draw.h \
@@ -67,6 +67,7 @@ HEADERS += \
 SOURCES += \
     qwt_abstract_scale_draw.cpp \
     qwt_interval_symbol.cpp \
+    qwt_clipper.cpp \
     qwt_color_map.cpp \
     qwt_column_symbol.cpp \
     qwt_double_interval.cpp \
@@ -79,7 +80,6 @@ SOURCES += \
     qwt_panner.cpp \
     qwt_painter.cpp \
     qwt_picker.cpp \
-    qwt_rect.cpp \
     qwt_round_scale_draw.cpp \
     qwt_scale_div.cpp \
     qwt_scale_draw.cpp \

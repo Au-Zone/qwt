@@ -20,7 +20,6 @@
 #include "qwt_plot.h"
 #include "qwt_plot_dict.h"
 #include "qwt_plot_layout.h"
-#include "qwt_rect.h"
 #include "qwt_scale_widget.h"
 #include "qwt_scale_engine.h"
 #include "qwt_text_label.h"

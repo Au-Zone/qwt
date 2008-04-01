@@ -10,7 +10,6 @@
 // vim: expandtab
 
 #include <qscrollbar.h>
-#include "qwt_rect.h"
 #include "qwt_text.h"
 #include "qwt_text_label.h"
 #include "qwt_plot_canvas.h"
