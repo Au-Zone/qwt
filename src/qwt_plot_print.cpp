@@ -21,7 +21,6 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_layout.h"
 #include "qwt_legend.h"
-#include "qwt_rect.h"
 #include "qwt_dyngrid_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_scale_engine.h"

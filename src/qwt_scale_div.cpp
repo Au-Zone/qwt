@@ -141,7 +141,7 @@ void QwtScaleDiv::invert()
 }
 
 /*!
-	Assign ticks
+    Assign ticks
 
    \param type MinorTick, MediumTick or MajorTick
    \param ticks Values of the tick positions

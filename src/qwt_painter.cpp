@@ -26,8 +26,8 @@
 #include <qpaintengine.h>
 #endif
 
-#include "qwt_rect.h"
 #include "qwt_math.h"
+#include "qwt_clipper.h"
 #include "qwt_color_map.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
@@ -94,8 +94,7 @@ const QRect &QwtPainter::deviceClipRect()
 //! Clip a point array
 QwtPolygon QwtPainter::clip(const QwtPolygon &pa)
 {
-    const QwtRect rect(deviceClipRect());
-    return rect.clip(pa);
+    return QwtClipper::clipPolygon(deviceClipRect(), pa);
 }
 
 #if QT_VERSION < 0x040000 

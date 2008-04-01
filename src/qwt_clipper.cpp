@@ -7,21 +7,9 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include <qrect.h>
 #include "qwt_math.h"
-#include "qwt_rect.h"
-
-//! Constructor
-
-QwtRect::QwtRect(): 
-    QRect() 
-{
-}
-
-//! Copy constructor
-QwtRect::QwtRect(const QRect &r): 
-    QRect(r) 
-{
-}
+#include "qwt_clipper.h"
 
 inline static void addPoint(QwtPolygon &pa, uint pos, const QPoint &point)
 {
@@ -31,9 +19,29 @@ inline static void addPoint(QwtPolygon &pa, uint pos, const QPoint &point)
     pa.setPoint(pos, point);
 }
 
-//! Sutherland-Hodgman polygon clipping
+class QwtPolygonClipper: public QRect
+{
+public:
+    QwtPolygonClipper(const QRect &r);
 
-QwtPolygon QwtRect::clip(const QwtPolygon &pa) const
+    QwtPolygon clipPolygon(const QwtPolygon &) const;
+
+private:
+    enum Edge { Left, Top, Right, Bottom, NEdges };
+
+    void clipEdge(Edge, const QwtPolygon &, QwtPolygon &) const;
+    bool insideEdge(const QPoint &, Edge edge) const;
+    QPoint intersectEdge(const QPoint &p1,
+        const QPoint &p2, Edge edge) const;
+};
+
+QwtPolygonClipper::QwtPolygonClipper(const QRect &r): 
+    QRect(r) 
+{
+}
+
+//! Sutherland-Hodgman polygon clipping
+QwtPolygon QwtPolygonClipper::clipPolygon(const QwtPolygon &pa) const
 {
     if ( contains( pa.boundingRect() ) )
         return pa;
@@ -54,7 +62,7 @@ QwtPolygon QwtRect::clip(const QwtPolygon &pa) const
     return cpa;
 }
 
-bool QwtRect::insideEdge(const QPoint &p, Edge edge) const
+bool QwtPolygonClipper::insideEdge(const QPoint &p, Edge edge) const
 {
     switch(edge) 
     {
@@ -73,7 +81,7 @@ bool QwtRect::insideEdge(const QPoint &p, Edge edge) const
     return false;
 }
 
-QPoint QwtRect::intersectEdge(const QPoint &p1, 
+QPoint QwtPolygonClipper::intersectEdge(const QPoint &p1, 
     const QPoint &p2, Edge edge ) const
 {
     int x=0, y=0;
@@ -111,7 +119,7 @@ QPoint QwtRect::intersectEdge(const QPoint &p1,
     return QPoint(x,y);
 }
 
-void QwtRect::clipEdge(Edge edge, 
+void QwtPolygonClipper::clipEdge(Edge edge, 
     const QwtPolygon &pa, QwtPolygon &cpa) const
 {
     if ( pa.count() == 0 )
@@ -149,3 +157,11 @@ void QwtRect::clipEdge(Edge edge,
     }
     cpa.resize(count);
 }
+
+QwtPolygon QwtClipper::clipPolygon(
+    const QRect &clipRect, const QwtPolygon &polygon)
+{
+    QwtPolygonClipper clipper(clipRect);
+    return clipper.clipPolygon(polygon);
+}
+
