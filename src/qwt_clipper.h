@@ -7,26 +7,22 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_RECT_H
-#define QWT_RECT_H
+#ifndef QWT_CLIPPER_H
+#define QWT_CLIPPER_H
 
-#include <qrect.h>
 #include "qwt_global.h"
 #include "qwt_polygon.h"
 
+class QRect;
+
 /*!
-  Some extensions for QRect
-  \deprecated Use QwtClipper instead.
+  \brief Some clipping algos
 */
 
-class QWT_EXPORT QwtRect : public QRect
+class QWT_EXPORT QwtClipper
 {
 public:
-    QwtRect();
-    QwtRect(const QRect &r);
-
-private:
-    QwtPolygon clip(const QwtPolygon &) const;
+    static QwtPolygon clipPolygon(const QRect &clipRect, const QwtPolygon &);
 };
 
 #endif
