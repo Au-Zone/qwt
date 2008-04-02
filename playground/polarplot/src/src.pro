@@ -21,6 +21,8 @@ CONFIG           += thread
 CONFIG           += debug
 CONFIG           += dll
 
+LIBS        += -L../../../lib -lqwt
+
 INCLUDEPATH += ../../../src
 DEPENDPATH  += ../../../src
 

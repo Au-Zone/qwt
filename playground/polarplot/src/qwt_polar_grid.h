@@ -31,6 +31,7 @@ public:
         HideMaxRadiusLabel = 2,
         ClipAxisBackground = 4,
         SmartScaleDraw = 8,
+        ClipGridLines = 16,
     };
 
     explicit QwtPolarGrid();

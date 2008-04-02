@@ -131,6 +131,9 @@ QwtPolarGrid::QwtPolarGrid():
     d_data->displayFlags |= HideMaxRadiusLabel;
     d_data->displayFlags |= ClipAxisBackground;
     d_data->displayFlags |= SmartScaleDraw;
+#if 1
+    d_data->displayFlags |= ClipGridLines;
+#endif
 
     setZ(10.0);
 #if QT_VERSION >= 0x040000
@@ -565,7 +568,8 @@ void QwtPolarGrid::drawRays(
             pa.setPoint(0, pole.toPoint());
             pa.setPoint(1, pos.toPoint());
 
-            pa = QwtClipper::clipPolygon(canvasRect.toRect(), pa);
+            if ( testDisplayFlag(ClipGridLines) )
+                pa = QwtClipper::clipPolygon(canvasRect.toRect(), pa);
 
             painter->drawPolyline(pa);
         }
@@ -609,31 +613,39 @@ void QwtPolarGrid::drawCircles(
 #if QT_VERSION < 0x040000
             painter->drawEllipse(outerRect.toRect());
 #else
-            /*
-                Qt4 is horrible slow, when painting primitives,
-                with coordinates far outside the visible area.
-                We need to clip.
-             */
-
-            const QwtArray<QwtDoubleInterval> angles = QwtClipper::clipCircle(
-                canvasRect, pole, radius);
-            for ( int i = 0; i < angles.size(); i++ )
+            if ( testDisplayFlag(ClipGridLines) )
             {
-                const QwtDoubleInterval intv = angles[i];
-                if ( intv.minValue() == 0 && intv.maxValue() == 2 * M_PI )
-                    painter->drawEllipse(outerRect.toRect());
-                else
+
+                /*
+                    Qt4 is horrible slow, when painting primitives,
+                    with coordinates far outside the visible area.
+                    We need to clip.
+                */
+
+                const QwtArray<QwtDoubleInterval> angles = 
+                    QwtClipper::clipCircle( canvasRect, pole, radius);
+                for ( int i = 0; i < angles.size(); i++ )
                 {
-                    const double from = intv.minValue() / M_PI * 180;
-                    const double to = intv.maxValue() / M_PI * 180;
-                    double span = to - from;
-                    if ( span < 0.0 )
-                        span += 360.0;
-                
-                    painter->drawArc(outerRect.toRect(), 
-                        qRound(from * 16), qRound(span * 16));
+                    const QwtDoubleInterval intv = angles[i];
+                    if ( intv.minValue() == 0 && intv.maxValue() == 2 * M_PI )
+                        painter->drawEllipse(outerRect.toRect());
+                    else
+                    {
+                        const double from = intv.minValue() / M_PI * 180;
+                        const double to = intv.maxValue() / M_PI * 180;
+                        double span = to - from;
+                        if ( span < 0.0 )
+                            span += 360.0;
+                    
+                        painter->drawArc(outerRect.toRect(), 
+                            qRound(from * 16), qRound(span * 16));
+                    }
+                    
                 }
-                
+            }
+            else
+            {
+                painter->drawEllipse(outerRect.toRect());
             }
 #endif
         }
