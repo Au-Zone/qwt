@@ -375,6 +375,9 @@ void QwtPolarPlot::drawCanvas(QPainter *painter) const
 {
     const QwtDoubleRect pr = plotRect();
 
+#if 1
+    painter->fillRect(contentsRect(), Qt::white);
+#endif
     drawItems(painter, 
         scaleMap(QwtPolar::Radius), scaleMap(QwtPolar::Azimuth),
         pr.center(), pr.width() / 2.0, 

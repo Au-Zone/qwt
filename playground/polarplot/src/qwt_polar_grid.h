@@ -74,10 +74,12 @@ public:
     virtual QRect canvasLayoutHint(const QRect &) const;
 
 protected:
-    void drawRays(QPainter *, const QwtDoublePoint &pole, double radius, 
+    void drawRays(QPainter *, const QwtDoubleRect &,
+        const QwtDoublePoint &pole, double radius, 
         const QwtScaleMap &azimuthMap, const QwtValueList &) const;
-    void drawCircles(QPainter *, const QwtDoublePoint &pole,
-        const QwtScaleMap &radialMap, const QwtValueList &) const;
+    void drawCircles(QPainter *, const QwtDoubleRect &,
+        const QwtDoublePoint &pole, const QwtScaleMap &radialMap, 
+        const QwtValueList &) const;
 
     void drawAxis(QPainter *, int axisId) const;
 

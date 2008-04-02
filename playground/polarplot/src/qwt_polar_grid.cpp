@@ -12,14 +12,12 @@
 #include <qpen.h>
 #include "qwt_painter.h"
 #include "qwt_text.h"
+#include "qwt_clipper.h"
 #include "qwt_scale_map.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
 #include "qwt_round_scale_draw.h"
 #include "qwt_polar_grid.h"
-#if 1
-#include <QDebug>
-#endif
 
 static inline bool isClose(double value1, double value2 )
 {
@@ -399,16 +397,16 @@ void QwtPolarGrid::draw(QPainter *painter,
     {
         painter->setPen(radialGrid.minorPen);
         
-        drawCircles(painter, pole, radialMap, 
+        drawCircles(painter, canvasRect, pole, radialMap, 
             radialGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick) );
-        drawCircles(painter, pole, radialMap, 
+        drawCircles(painter, canvasRect, pole, radialMap, 
             radialGrid.scaleDiv.ticks(QwtScaleDiv::MediumTick) );
     }
     if (radialGrid.isVisible)
     {
         painter->setPen(radialGrid.majorPen);
 
-        drawCircles(painter, pole, radialMap, 
+        drawCircles(painter, canvasRect, pole, radialMap, 
             radialGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick) );
     }
 
@@ -421,16 +419,16 @@ void QwtPolarGrid::draw(QPainter *painter,
     {
         painter->setPen(azimuthGrid.minorPen);
 
-        drawRays(painter, pole, radius, azimuthMap, 
+        drawRays(painter, canvasRect, pole, radius, azimuthMap, 
             azimuthGrid.scaleDiv.ticks(QwtScaleDiv::MinorTick));
-        drawRays(painter, pole, radius, azimuthMap, 
+        drawRays(painter, canvasRect, pole, radius, azimuthMap, 
             azimuthGrid.scaleDiv.ticks(QwtScaleDiv::MediumTick));
     }
     if (azimuthGrid.isVisible)
     {   
         painter->setPen(azimuthGrid.majorPen);
 
-        drawRays(painter, pole, radius, azimuthMap,
+        drawRays(painter, canvasRect, pole, radius, azimuthMap,
             azimuthGrid.scaleDiv.ticks(QwtScaleDiv::MajorTick));
     }
     painter->restore();
@@ -447,7 +445,8 @@ void QwtPolarGrid::draw(QPainter *painter,
     }
 }
 
-void QwtPolarGrid::drawRays(QPainter *painter, 
+void QwtPolarGrid::drawRays(
+    QPainter *painter, const QwtDoubleRect &canvasRect,
     const QwtDoublePoint &pole, double radius,
     const QwtScaleMap &azimuthMap, const QwtValueList &values) const
 {
@@ -489,12 +488,25 @@ void QwtPolarGrid::drawRays(QPainter *painter,
         if ( !skipLine )
         {
             const QwtDoublePoint pos = qwtPolar2Pos(pole, radius, azimuth);
-            painter->drawLine(pole, pos);
+
+            /*
+                Qt4 is horrible slow, when painting primitives,
+                with coordinates far outside the visible area.
+             */
+
+            QwtPolygon pa(2);
+            pa.setPoint(0, pole.toPoint());
+            pa.setPoint(1, pos.toPoint());
+
+            pa = QwtClipper::clipPolygon(canvasRect.toRect(), pa);
+
+            painter->drawPolyline(pa);
         }
     }
 }
 
-void QwtPolarGrid::drawCircles(QPainter *painter, 
+void QwtPolarGrid::drawCircles(
+    QPainter *painter, const QwtDoubleRect &canvasRect,
     const QwtDoublePoint &pole, const QwtScaleMap &radialMap, 
     const QwtValueList &values) const
 {
@@ -522,11 +534,41 @@ void QwtPolarGrid::drawCircles(QPainter *painter,
 
         if ( !skipLine )
         {
-            const int diameter = qRound(2 * radialMap.transform(val));
+            const double radius = radialMap.transform(val);
 
-            QRect r(0, 0, diameter, diameter);
-            r.moveCenter(pole.toPoint());
-            painter->drawEllipse(r);
+            QwtDoubleRect outerRect(0, 0, 2 * radius, 2 * radius);
+            outerRect.moveCenter(pole);
+
+#if QT_VERSION < 0x040000
+            painter->drawEllipse(outerRect.toRect());
+#else
+            /*
+                Qt4 is horrible slow, when painting primitives,
+                with coordinates far outside the visible area.
+                We need to clip.
+             */
+
+            const QwtArray<QwtDoubleInterval> angles = QwtClipper::clipCircle(
+                canvasRect, pole, radius);
+            for ( int i = 0; i < angles.size(); i++ )
+            {
+                const QwtDoubleInterval intv = angles[i];
+                if ( intv.minValue() == 0 && intv.maxValue() == 2 * M_PI )
+                    painter->drawEllipse(outerRect.toRect());
+                else
+                {
+                    const double from = intv.minValue() / M_PI * 180;
+                    const double to = intv.maxValue() / M_PI * 180;
+                    double span = to - from;
+                    if ( span < 0.0 )
+                        span += 360.0;
+                
+                    painter->drawArc(outerRect.toRect(), 
+                        qRound(from * 16), qRound(span * 16));
+                }
+                
+            }
+#endif
         }
     }
 }
