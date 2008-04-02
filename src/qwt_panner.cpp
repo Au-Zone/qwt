@@ -370,6 +370,12 @@ bool QwtPanner::eventFilter(QObject *o, QEvent *e)
             widgetKeyReleaseEvent((QKeyEvent *)e);
             break;
         }
+        case QEvent::Paint:
+        {
+            if ( isVisible() )
+                return true;
+            break;
+        }
         default:;
     }
 
