@@ -14,6 +14,7 @@ public:
     bool axis[QwtPolar::AxesCount];
     bool antialiasing;
     bool spiralData;
+    bool roseData;
 };
 
 class Plot: public QwtPolarPlot
@@ -29,7 +30,8 @@ public slots:
 
 private:
     QwtPolarGrid *d_grid;
-    QwtPolarCurve *d_curve;
+    QwtPolarCurve *d_spiralCurve;
+    QwtPolarCurve *d_roseCurve;
 };
 
 #endif

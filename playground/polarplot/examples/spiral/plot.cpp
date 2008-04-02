@@ -19,11 +19,6 @@ public:
     {
     }
 
-    virtual QwtData *copy() const
-    {
-        return new Data(d_radialInterval, d_azimuthInterval, d_size);
-    }
-
     virtual size_t size() const
     {
         return d_size;
@@ -31,26 +26,64 @@ public:
 
     virtual double x(size_t i) const
     {
-        const double step = d_radialInterval.width() / d_size;
-        return d_radialInterval.minValue() + i * step;
-    }
-
-    virtual double y(size_t i) const
-    {
         const double step = 4 * d_azimuthInterval.width() / d_size;
         return d_azimuthInterval.minValue() + i * step;
     }
 
-private:
+protected:
     QwtDoubleInterval d_radialInterval;
     QwtDoubleInterval d_azimuthInterval;
     size_t d_size;
 };
 
+class SpiralData: public Data
+{
+public:
+    SpiralData(const QwtDoubleInterval &radialInterval, 
+            const QwtDoubleInterval &azimuthInterval, size_t size):
+		Data(radialInterval, azimuthInterval, size)
+	{
+	}
+
+    virtual QwtData *copy() const
+    {
+        return new SpiralData(d_radialInterval, d_azimuthInterval, d_size);
+    }
+
+    virtual double y(size_t i) const
+    {
+        const double step = d_radialInterval.width() / d_size;
+        return d_radialInterval.minValue() + i * step;
+    }
+};
+
+class RoseData: public Data
+{
+public:
+    RoseData(const QwtDoubleInterval &radialInterval, 
+            const QwtDoubleInterval &azimuthInterval, size_t size):
+		Data(radialInterval, azimuthInterval, size)
+	{
+	}
+
+    virtual QwtData *copy() const
+    {
+        return new RoseData(d_radialInterval, d_azimuthInterval, d_size);
+    }
+
+    virtual double y(size_t i) const
+    {
+		const double a = x(i) / 360.0 * M_PI;
+        return d_radialInterval.maxValue() * ::sin(4 * a);
+    }
+};
+
+
 Plot::Plot(QWidget *parent):
     QwtPolarPlot(parent)
 {
     setAutoReplot(false);
+	setCanvasBackground(Qt::darkBlue);
 
     const QwtDoubleInterval radialInterval(0.0, 10.0);
     const QwtDoubleInterval azimuthInterval(0.0, 360.0);
@@ -64,36 +97,26 @@ Plot::Plot(QWidget *parent):
     setScale(QwtPolar::Radius, 
         radialInterval.minValue(), radialInterval.maxValue());
 
-#if 1
-	//setZoomRect(QwtPolarRect(1.0, M_PI / 3.0, 7.0, 4.0));
-#if 0
-	const QwtDoubleRect zr(-1.0, -1.0, 5.0, 4.0);
-	setZoomRect(zr);
-#endif
-
 	QwtPolarPanner *panner = new QwtPolarPanner(this);
 	panner->setScaleEnabled(QwtPolar::Radius, true);
 	panner->setScaleEnabled(QwtPolar::Azimuth, true);
 
 	(void) new QwtPolarMagnifier(this);
-#endif
 
     // grids, axes 
 
     d_grid = new QwtPolarGrid();
+	d_grid->setPen(QPen(Qt::white));
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
         d_grid->showGrid(scaleId);
         d_grid->showMinorGrid(scaleId);
 
-        QPen majorPen(Qt::black);
-        majorPen.setStyle(Qt::SolidLine);
-        d_grid->setMajorGridPen(scaleId, majorPen);
-
-        QPen minorPen(Qt::black);
+        QPen minorPen(Qt::gray);
         minorPen.setStyle(Qt::DotLine);
         d_grid->setMinorGridPen(scaleId, minorPen);
     }
+	d_grid->setAxisPen(QwtPolar::AxisAzimuth, QPen(Qt::black));
 
     d_grid->showAxis(QwtPolar::AxisAzimuth, true);
     d_grid->showAxis(QwtPolar::AxisLeft, false);
@@ -106,13 +129,21 @@ Plot::Plot(QWidget *parent):
 
     // curves
 
-    d_curve = new QwtPolarCurve();
-    d_curve->setStyle(QwtPolarCurve::Lines);
-    d_curve->setPen(QPen(Qt::blue));
-    d_curve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
-        QBrush(Qt::red), QPen(Qt::black), QSize(3, 3)) );
-    d_curve->setData(Data(radialInterval, azimuthInterval, 200));
-    d_curve->attach(this);
+    d_spiralCurve = new QwtPolarCurve();
+    d_spiralCurve->setStyle(QwtPolarCurve::Lines);
+    d_spiralCurve->setPen(QPen(Qt::yellow, 2));
+    d_spiralCurve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
+        QBrush(Qt::yellow), QPen(Qt::white), QSize(3, 3)) );
+    d_spiralCurve->setData(SpiralData(radialInterval, azimuthInterval, 200));
+    d_spiralCurve->attach(this);
+
+    d_roseCurve = new QwtPolarCurve();
+    d_roseCurve->setStyle(QwtPolarCurve::Lines);
+    d_roseCurve->setPen(QPen(Qt::red, 2));
+    d_roseCurve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
+        QBrush(Qt::cyan), QPen(Qt::white), QSize(3, 3)) );
+    d_roseCurve->setData(RoseData(radialInterval, azimuthInterval, 200));
+    d_roseCurve->attach(this);
 }
 
 PlotSettings Plot::settings() const
@@ -128,7 +159,8 @@ PlotSettings Plot::settings() const
 
     s.antialiasing = d_grid->testRenderHint(
         QwtPolarItem::RenderAntialiased );
-	s.spiralData = d_curve->isVisible();
+	s.spiralData = d_spiralCurve->isVisible();
+	s.roseData = d_roseCurve->isVisible();
 
     return s;
 }
@@ -146,9 +178,12 @@ void Plot::applySettings(const PlotSettings& s)
 
     d_grid->setRenderHint(
         QwtPolarItem::RenderAntialiased, s.antialiasing);
-    d_curve->setRenderHint(
+    d_spiralCurve->setRenderHint(
         QwtPolarItem::RenderAntialiased, s.antialiasing);
-	d_curve->setVisible(s.spiralData);
+	d_spiralCurve->setVisible(s.spiralData);
+    d_roseCurve->setRenderHint(
+        QwtPolarItem::RenderAntialiased, s.antialiasing);
+	d_roseCurve->setVisible(s.roseData);
 
     replot();
 }

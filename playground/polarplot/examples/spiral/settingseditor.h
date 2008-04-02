@@ -30,6 +30,7 @@ private:
     QCheckBox *d_axisBox[QwtPolar::AxesCount];
     QCheckBox *d_antialiasing;
     QCheckBox *d_spiralData;
+    QCheckBox *d_roseData;
 };
 
 #endif

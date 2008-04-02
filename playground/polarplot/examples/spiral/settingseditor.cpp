@@ -35,10 +35,13 @@ SettingsEditor::SettingsEditor(QWidget *parent):
     QVBoxLayout* otherBoxLayout = new QVBoxLayout(otherBox);
     d_antialiasing = new QCheckBox(otherBox);
     d_spiralData = new QCheckBox(otherBox);
+    d_roseData = new QCheckBox(otherBox);
     connect(d_antialiasing, SIGNAL(clicked()), this, SLOT(edited()) );
     connect(d_spiralData, SIGNAL(clicked()), this, SLOT(edited()) );
+    connect(d_roseData, SIGNAL(clicked()), this, SLOT(edited()) );
     otherBoxLayout->addWidget(d_antialiasing);
     otherBoxLayout->addWidget(d_spiralData);
+    otherBoxLayout->addWidget(d_roseData);
     otherBoxLayout->addStretch(10);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -60,6 +63,7 @@ SettingsEditor::SettingsEditor(QWidget *parent):
 
     d_antialiasing->setText("Antialiased Scales/Grids");
     d_spiralData->setText("Spiral Data");
+    d_roseData->setText("Rose Data");
 }
 
 void SettingsEditor::showSettings(const PlotSettings &settings)
@@ -76,6 +80,7 @@ void SettingsEditor::showSettings(const PlotSettings &settings)
 
     d_antialiasing->setChecked(settings.antialiasing);
     d_spiralData->setChecked(settings.spiralData);
+    d_roseData->setChecked(settings.roseData);
 
     blockSignals(false);
     updateEditor();
@@ -95,6 +100,8 @@ PlotSettings SettingsEditor::settings() const
         
     settings.antialiasing = d_antialiasing->isChecked();
     settings.spiralData = d_spiralData->isChecked();
+    settings.roseData = d_roseData->isChecked();
+    settings.roseData = d_roseData->isChecked();
 
     return settings;
 }
