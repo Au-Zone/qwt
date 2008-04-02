@@ -54,6 +54,7 @@ public:
     QwtScaleDiv scaleDiv(int scaleId) const;
 
     void setPen(const QPen &p);
+    void setFont(const QFont &);
 
     void setMajorGridPen(const QPen &p);
     void setMajorGridPen(int scaleId, const QPen &p);
@@ -63,8 +64,14 @@ public:
     void setMinorGridPen(int scaleId, const QPen &p);
     QPen minorGridPen(int scaleId) const;
 
+    void setAxisPen(int axisId, const QPen &p);
+    QPen axisPen(int axisId) const;
+
+    void setAxisFont(int axisId, const QFont &p);
+    QFont axisFont(int axisId) const;
+
     virtual void draw(QPainter *p, 
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole, double radius,
         const QwtDoubleRect &rect) const;
 
@@ -85,7 +92,7 @@ protected:
 
 private:
     void updateScaleDraws( 
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap, 
         const QwtDoublePoint &pole, const double radius) const;
 
 private:

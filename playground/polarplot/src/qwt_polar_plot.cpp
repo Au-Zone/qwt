@@ -16,9 +16,6 @@
 #include "qwt_round_scale_draw.h"
 #include "qwt_polar_rect.h"
 #include "qwt_polar_plot.h"
-#if 1
-#include <QDebug>
-#endif
 
 class QwtPolarPlot::ScaleData
 {
@@ -74,6 +71,20 @@ QwtPolarPlot::QwtPolarPlot( QWidget *parent, const char *name):
 QwtPolarPlot::~QwtPolarPlot()
 {
     delete d_data;
+}
+
+void QwtPolarPlot::setCanvasBackground(const QBrush &brush)
+{
+    if ( brush != d_data->canvasBrush )
+    {
+        d_data->canvasBrush = brush;
+        autoRefresh();
+    }
+}
+
+const QBrush &QwtPolarPlot::canvasBackground() const
+{
+    return d_data->canvasBrush;
 }
 
 void QwtPolarPlot::setAutoReplot(bool enable)
@@ -322,6 +333,7 @@ void QwtPolarPlot::initPlot()
     d_data = new PrivateData;
 
     d_data->autoReplot = false;
+    d_data->canvasBrush = QBrush(Qt::white);
     
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
@@ -378,17 +390,23 @@ void QwtPolarPlot::drawCanvas(QPainter *painter) const
 {
     const QwtDoubleRect pr = plotRect();
 
-#if 1
-    painter->fillRect(contentsRect(), Qt::white);
-#endif
+    if ( d_data->canvasBrush.style() != Qt::NoBrush )
+    {
+        painter->save();
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(d_data->canvasBrush);
+        painter->drawEllipse(pr);
+        painter->restore();
+    }
+
     drawItems(painter, 
-        scaleMap(QwtPolar::Radius), scaleMap(QwtPolar::Azimuth),
+        scaleMap(QwtPolar::Azimuth), scaleMap(QwtPolar::Radius),
         pr.center(), pr.width() / 2.0, 
         QwtDoubleRect(contentsRect()));
 }
 
 void QwtPolarPlot::drawItems(QPainter *painter,
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole, double radius,
         const QwtDoubleRect &canvasRect) const
 {
@@ -406,7 +424,7 @@ void QwtPolarPlot::drawItems(QPainter *painter,
                 item->testRenderHint(QwtPolarItem::RenderAntialiased) );
 #endif
 
-            item->draw(painter, radialMap, azimuthMap, 
+            item->draw(painter, azimuthMap, radialMap, 
                 pole, radius, canvasRect);
 
             painter->restore();
@@ -435,7 +453,7 @@ void QwtPolarPlot::updateScale(int scaleId)
     {
         QwtPolarItem *item = *it;
         item->updateScaleDiv( 
-            *scaleDiv(QwtPolar::Radius), *scaleDiv(QwtPolar::Azimuth));
+            *scaleDiv(QwtPolar::Azimuth), *scaleDiv(QwtPolar::Radius));
     }
 }
 

@@ -52,12 +52,12 @@ public:
     const QwtSymbol& symbol() const;
 
     virtual void draw(QPainter *p, 
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole, double radius,
         const QwtDoubleRect &canvasRect) const;
 
     virtual void draw(QPainter *p,
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole,
         int from, int to) const;
 
@@ -66,17 +66,17 @@ protected:
     void init();
 
     virtual void drawCurve(QPainter *, int style,
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole,
         int from, int to) const;
 
     virtual void drawSymbols(QPainter *, const QwtSymbol &,
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole,
         int from, int to) const;
 
     void drawLines(QPainter *, 
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole,
         int from, int to) const;
 
@@ -101,18 +101,18 @@ inline const QwtData &QwtPolarCurve::data() const
 
 /*!
     \param i index
-    \return radius at position i
+    \return azimuth at position i
 */
-inline double QwtPolarCurve::radius(int i) const 
+inline double QwtPolarCurve::azimuth(int i) const 
 { 
     return d_points->x(i); 
 }
 
 /*!
     \param i index
-    \return azimuth at position i
+    \return radius at position i
 */
-inline double QwtPolarCurve::azimuth(int i) const 
+inline double QwtPolarCurve::radius(int i) const 
 { 
     return d_points->y(i); 
 }

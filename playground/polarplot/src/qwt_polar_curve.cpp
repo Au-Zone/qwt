@@ -141,15 +141,15 @@ void QwtPolarCurve::setData(const QwtData &data)
 }
 
 void QwtPolarCurve::draw(QPainter *painter,
-    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+    const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
     const QwtDoublePoint &pole, double /*radius*/,
     const QwtDoubleRect &) const
 {
-    draw(painter, radialMap, azimuthMap, pole, 0, -1);
+    draw(painter, azimuthMap, radialMap, pole, 0, -1);
 }
 
 void QwtPolarCurve::draw(QPainter *painter,
-    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+    const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
     const QwtDoublePoint &pole, int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
@@ -164,27 +164,27 @@ void QwtPolarCurve::draw(QPainter *painter,
         painter->setPen(d_data->pen);
 
         drawCurve(painter, d_data->style, 
-            radialMap, azimuthMap, pole, from, to);
+            azimuthMap, radialMap, pole, from, to);
         painter->restore();
 
         if (d_data->symbol->style() != QwtSymbol::NoSymbol)
         {
             painter->save();
             drawSymbols(painter, *d_data->symbol, 
-                radialMap, azimuthMap, pole, from, to);
+                azimuthMap, radialMap, pole, from, to);
             painter->restore();
         }
     }
 }
 
 void QwtPolarCurve::drawCurve(QPainter *painter, int style, 
-    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+    const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
     const QwtDoublePoint &pole, int from, int to) const
 {
     switch (style)
     {
         case Lines:
-            drawLines(painter, radialMap, azimuthMap, pole, from, to);
+            drawLines(painter, azimuthMap, radialMap, pole, from, to);
             break;
         case NoCurve:
         default:
@@ -193,7 +193,7 @@ void QwtPolarCurve::drawCurve(QPainter *painter, int style,
 }
 
 void QwtPolarCurve::drawLines(QPainter *painter,
-    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+    const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
     const QwtDoublePoint &pole, int from, int to) const
 {
     int size = to - from + 1;
@@ -211,7 +211,7 @@ void QwtPolarCurve::drawLines(QPainter *painter,
 }
 
 void QwtPolarCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol, 
-    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+    const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
     const QwtDoublePoint &pole, int from, int to) const
 {
     painter->setBrush(symbol.brush());

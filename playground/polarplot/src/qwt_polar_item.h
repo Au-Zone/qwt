@@ -102,7 +102,7 @@ public:
       \param canvasRect Contents rect of the canvas in painter coordinates
     */
     virtual void draw(QPainter *painter, 
-        const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+        const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole, double radius,
         const QwtDoubleRect &canvasRect) const = 0;
 

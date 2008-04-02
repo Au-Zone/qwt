@@ -264,6 +264,31 @@ void QwtPolarGrid::setPen(const QPen &pen)
             isChanged = true;
         }
     }
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
+    {
+        AxisData &axis = d_data->axisData[axisId];
+        if ( axis.pen != pen )
+        {
+            axis.pen = pen;
+            isChanged = true;
+        }
+    }
+    if ( isChanged )
+        itemChanged();
+}
+
+void QwtPolarGrid::setFont(const QFont &font)
+{
+    bool isChanged = false;
+    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
+    {
+        AxisData &axis = d_data->axisData[axisId];
+        if ( axis.font != font )
+        {
+            axis.font = font;
+            isChanged = true;
+        }
+    }
     if ( isChanged )
         itemChanged();
 }
@@ -346,12 +371,54 @@ QPen QwtPolarGrid::minorGridPen(int scaleId) const
     return grid.minorPen;
 }
 
+void QwtPolarGrid::setAxisPen(int axisId, const QPen &pen)
+{
+    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
+        return;
+
+    AxisData &axisData = d_data->axisData[axisId];
+    if ( axisData.pen != pen )
+    {
+        axisData.pen = pen;
+        itemChanged();
+    }
+}
+
+QPen QwtPolarGrid::axisPen(int axisId) const
+{
+    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
+        return QPen();
+
+    return d_data->axisData[axisId].pen;
+}
+
+void QwtPolarGrid::setAxisFont(int axisId, const QFont &font)
+{
+    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
+        return;
+
+    AxisData &axisData = d_data->axisData[axisId];
+    if ( axisData.font != font )
+    {
+        axisData.font = font;
+        itemChanged();
+    }
+}
+
+QFont QwtPolarGrid::axisFont(int axisId) const
+{
+    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
+        return QFont();
+
+    return d_data->axisData[axisId].font;
+}
+
 void QwtPolarGrid::draw(QPainter *painter, 
-    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
+    const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
     const QwtDoublePoint &pole, double radius,
     const QwtDoubleRect &canvasRect) const
 {
-    updateScaleDraws(radialMap, azimuthMap, pole, radius);
+    updateScaleDraws(azimuthMap, radialMap, pole, radius);
 
     painter->save();
 
@@ -599,7 +666,7 @@ void QwtPolarGrid::drawAxis(QPainter *painter, int axisId) const
 }
 
 void QwtPolarGrid::updateScaleDraws(
-    const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap, 
+    const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap, 
     const QwtDoublePoint &pole, double radius) const
 {
     const QPoint p = pole.toPoint();
@@ -654,8 +721,8 @@ void QwtPolarGrid::updateScaleDraws(
     }
 }
 
-void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &radialScaleDiv,
-    const QwtScaleDiv &azimuthScaleDiv)
+void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
+    const QwtScaleDiv &radialScaleDiv)
 {
     GridData &radialGrid = d_data->gridData[QwtPolar::Radius];
     if ( radialGrid.scaleDiv != radialScaleDiv )
