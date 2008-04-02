@@ -11,6 +11,15 @@
 #include "qwt_math.h"
 #include "qwt_clipper.h"
 
+enum Edge 
+{ 
+    Left, 
+    Top, 
+    Right, 
+    Bottom, 
+    NEdges 
+};
+
 class QwtPolygonClipper: public QRect
 {
 public:
@@ -19,8 +28,6 @@ public:
     QwtPolygon clipPolygon(const QwtPolygon &) const;
 
 private:
-    enum Edge { Left, Top, Right, Bottom, NEdges };
-
     void clipEdge(Edge, const QwtPolygon &, QwtPolygon &) const;
     bool insideEdge(const QPoint &, Edge edge) const;
     QPoint intersectEdge(const QPoint &p1,
@@ -33,12 +40,9 @@ class QwtPolygonClipperF: public QwtDoubleRect
 {
 public:
     QwtPolygonClipperF(const QwtDoubleRect &r);
-
     QwtPolygonF clipPolygon(const QwtPolygonF &) const;
 
 private:
-    enum Edge { Left, Top, Right, Bottom, NEdges };
-
     void clipEdge(Edge, const QwtPolygonF &, QwtPolygonF &) const;
     bool insideEdge(const QwtDoublePoint &, Edge edge) const;
     QwtDoublePoint intersectEdge(const QwtDoublePoint &p1,
@@ -46,6 +50,21 @@ private:
 
     void addPoint(QwtPolygonF &, uint pos, const QwtDoublePoint &point) const;
 };
+
+#if QT_VERSION >= 0x040000
+class QwtCircleClipper: public QwtDoubleRect
+{
+public:
+    QwtCircleClipper(const QwtDoubleRect &r);
+    QwtArray<QwtDoubleInterval> clipCircle(
+        const QwtDoublePoint &, double radius) const;
+
+private:
+    QList<QwtDoublePoint> cuttingPoints(
+        Edge, const QwtDoublePoint &pos, double radius) const;
+    double toAngle(const QwtDoublePoint &, const QwtDoublePoint &) const;
+};
+#endif
 
 QwtPolygonClipper::QwtPolygonClipper(const QRect &r): 
     QRect(r) 
@@ -310,7 +329,115 @@ void QwtPolygonClipperF::clipEdge(Edge edge,
     cpa.resize(count);
 }
 
+#if QT_VERSION >= 0x040000
 
+QwtCircleClipper::QwtCircleClipper(const QwtDoubleRect &r):
+    QwtDoubleRect(r)
+{
+}
+
+QwtArray<QwtDoubleInterval> QwtCircleClipper::clipCircle(
+    const QwtDoublePoint &pos, double radius) const
+{
+    QList<QwtDoublePoint> points;
+    for ( int edge = 0; edge < NEdges; edge++ )
+        points += cuttingPoints((Edge)edge, pos, radius);
+
+    QwtArray<QwtDoubleInterval> intv;
+    if ( points.size() <= 0 )
+    {
+        QwtDoubleRect cRect(0, 0, 2 * radius, 2* radius);
+        cRect.moveCenter(pos);
+        if ( contains(cRect) )
+            intv += QwtDoubleInterval(0.0, 2 * M_PI);
+    }
+    else
+    {
+        QList<double> angles;
+        for ( int i = 0; i < points.size(); i++ )
+            angles += toAngle(pos, points[i]);
+        qSort(angles);
+
+        const int in = contains(qwtPolar2Pos(pos, radius, 
+            angles[0] + (angles[1] - angles[0]) / 2));
+        if ( in )
+        {
+            for ( int i = 0; i < angles.size() - 1; i += 2)
+                intv += QwtDoubleInterval(angles[i], angles[i+1]);
+        }
+        else
+        {
+            for ( int i = 1; i < angles.size() - 1; i += 2)
+                intv += QwtDoubleInterval(angles[i], angles[i+1]);
+            intv += QwtDoubleInterval(angles.last(), angles.first());
+        }
+    }
+
+    return intv;
+}
+
+double QwtCircleClipper::toAngle(
+    const QwtDoublePoint &from, const QwtDoublePoint &to) const
+{
+    if ( from.x() == to.x() )
+        return from.y() <= to.y() ? M_PI / 2.0 : 3 * M_PI / 2.0;
+
+    const double m = qwtAbs((to.y() - from.y()) / (to.x() - from.x()) );
+
+    double angle = ::atan(m);
+    if ( to.x() > from.x() )
+    {   
+        if ( to.y() > from.y() )
+            angle = 2 * M_PI - angle;
+    }
+    else
+    {
+        if ( to.y() > from.y() )
+            angle = M_PI + angle;
+        else
+            angle = M_PI - angle;
+    }
+
+    return angle;
+}
+
+QList<QwtDoublePoint> QwtCircleClipper::cuttingPoints(
+    Edge edge, const QwtDoublePoint &pos, double radius) const
+{
+    QList<QwtDoublePoint> points;
+
+    if ( edge == Left || edge == Right )
+    {
+        const double x = (edge == Left) ? left() : right();
+        if ( qwtAbs(pos.x() - x) < radius )
+        {
+            const double off = ::sqrt(qwtSqr(radius) - qwtSqr(pos.x() - x));
+            const double y1 = pos.y() + off;
+            if ( y1 >= top() && y1 <= bottom() )
+                points += QwtDoublePoint(x, y1);
+            const double y2 = pos.y() - off;
+            if ( y2 >= top() && y2 <= bottom() )
+                points += QwtDoublePoint(x, y2);
+        }
+    }
+    else
+    {
+        const double y = (edge == Top) ? top() : bottom();
+        if ( qwtAbs(pos.y() - y) < radius )
+        {
+            const double off = ::sqrt(qwtSqr(radius) - qwtSqr(pos.y() - y));
+            const double x1 = pos.x() + off;
+            if ( x1 >= left() && x1 <= right() )
+                points += QwtDoublePoint(x1, y);
+            const double x2 = pos.x() - off;
+            if ( x2 >= left() && x2 <= right() )
+                points += QwtDoublePoint(x2, y);
+        }
+    }
+    return points;
+}
+#endif
+    
 QwtPolygon QwtClipper::clipPolygon(
     const QRect &clipRect, const QwtPolygon &polygon)
 {
@@ -324,3 +451,13 @@ QwtPolygonF QwtClipper::clipPolygonF(
     QwtPolygonClipperF clipper(clipRect);
     return clipper.clipPolygon(polygon);
 }
+
+#if QT_VERSION >= 0x040000
+QwtArray<QwtDoubleInterval> QwtClipper::clipCircle(
+    const QwtDoubleRect &clipRect, 
+    const QwtDoublePoint &center, double radius)
+{
+    QwtCircleClipper clipper(clipRect);
+    return clipper.clipCircle(center, radius);
+}
+#endif
