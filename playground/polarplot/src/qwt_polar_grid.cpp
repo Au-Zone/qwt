@@ -740,25 +740,15 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &radialScaleDiv,
 #endif
 }
 
-QRect QwtPolarGrid::canvasLayoutHint(const QRect &rect) const
+int QwtPolarGrid::canvasMarginHint() const
 {
     const AxisData &axis = d_data->axisData[QwtPolar::AxisAzimuth];
     if ( axis.isVisible )
     {
         const int extent = axis.scaleDraw->extent(axis.pen, axis.font);
-        if ( extent > 0 )
-        {
-            int w = qwtMin(rect.width(), rect.height());
-            w -= 2 * extent;
-            if ( w < 0 )
-                w = 0;
-            
-            QRect r(0, 0, w, w);
-            r.moveCenter(rect.center());
-            return r;
-        }
+        return extent;
     }
     
-    return rect;
+    return 0;
 }
 

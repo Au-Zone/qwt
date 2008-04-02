@@ -111,7 +111,7 @@ public:
     virtual void updateScaleDiv(const QwtScaleDiv&,
         const QwtScaleDiv&);
 
-    virtual QRect canvasLayoutHint(const QRect &) const;
+    virtual int canvasMarginHint() const;
 
 private:
     // Disabled copy constructor and operator=

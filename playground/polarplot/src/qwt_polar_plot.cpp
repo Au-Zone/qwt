@@ -16,6 +16,9 @@
 #include "qwt_round_scale_draw.h"
 #include "qwt_polar_rect.h"
 #include "qwt_polar_plot.h"
+#if 1
+#include <QDebug>
+#endif
 
 class QwtPolarPlot::ScaleData
 {
@@ -447,45 +450,47 @@ void QwtPolarPlot::polish()
 
 QwtDoubleRect QwtPolarPlot::plotRect() const
 {
-    QwtDoubleRect rect;
+    int margin = 0;
+    const QwtPolarItemList& itmList = itemList();
+    for ( QwtPolarItemIterator it = itmList.begin();
+        it != itmList.end(); ++it )
+    {
+        QwtPolarItem *item = *it;
+        if ( item && item->isVisible() )
+        {
+            const int hint = item->canvasMarginHint();
+            if ( hint > margin )
+                margin = hint;
+        }
+    }
 
     const QRect cr = contentsRect();
 
+    QwtDoubleRect rect;
     if ( d_data->zoomRect.isEmpty() )
     {
-        const int radius = qwtMin(cr.width(), cr.height()) / 2;
+        int radius = qwtMin(cr.width(), cr.height()) / 2;
 
+        radius -= margin;
         QRect r(0, 0, 2 * radius, 2 * radius);
         r.moveCenter(cr.center());
 
-        const QwtPolarItemList& itmList = itemList();
-        for ( QwtPolarItemIterator it = itmList.begin();
-            it != itmList.end(); ++it )
-        {
-            QwtPolarItem *item = *it;
-            if ( item && item->isVisible() )
-            {
-                const QRect hint = item->canvasLayoutHint(r);
-                if ( hint.isValid() )
-                    r &= hint;
-            }
-        }
         rect = QwtDoubleRect(r);
     }
     else
     {
-        const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
-
         const QwtDoubleRect zr = d_data->zoomRect.toRect();
 
         const double ratio = qwtMax( qwtAbs(cr.width() / zr.width()),
             qwtAbs(cr.height() / zr.height()) );
 
+        const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
         const double d = 2 * qwtAbs(sd->range()) * ratio;
 
         const double dx = zr.x() * ratio;
         const double dy = zr.y() * ratio;
 
+        // margin ???
         rect.setWidth(d);
         rect.setHeight(d);
         rect.moveCenter(QwtDoublePoint(cr.left() - dx, cr.bottom() + dy));

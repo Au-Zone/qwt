@@ -315,7 +315,7 @@ void QwtPolarItem::updateScaleDiv(const QwtScaleDiv &,
 { 
 }
 
-QRect QwtPolarItem::canvasLayoutHint(const QRect &) const
+int QwtPolarItem::canvasMarginHint() const
 {
-    return QRect();
+    return 0;
 }
