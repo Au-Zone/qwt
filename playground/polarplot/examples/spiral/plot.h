@@ -13,6 +13,7 @@ public:
     bool minorGrid[QwtPolar::ScaleCount];
     bool axis[QwtPolar::AxesCount];
     bool antialiasing;
+    bool spiralData;
 };
 
 class Plot: public QwtPolarPlot

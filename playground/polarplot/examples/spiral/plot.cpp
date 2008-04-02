@@ -128,6 +128,7 @@ PlotSettings Plot::settings() const
 
     s.antialiasing = d_grid->testRenderHint(
         QwtPolarItem::RenderAntialiased );
+	s.spiralData = d_curve->isVisible();
 
     return s;
 }
@@ -147,6 +148,7 @@ void Plot::applySettings(const PlotSettings& s)
         QwtPolarItem::RenderAntialiased, s.antialiasing);
     d_curve->setRenderHint(
         QwtPolarItem::RenderAntialiased, s.antialiasing);
+	d_curve->setVisible(s.spiralData);
 
     replot();
 }

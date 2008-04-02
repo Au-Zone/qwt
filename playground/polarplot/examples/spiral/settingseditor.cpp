@@ -34,8 +34,11 @@ SettingsEditor::SettingsEditor(QWidget *parent):
     QGroupBox *otherBox = new QGroupBox("Other", this);
     QVBoxLayout* otherBoxLayout = new QVBoxLayout(otherBox);
     d_antialiasing = new QCheckBox(otherBox);
+    d_spiralData = new QCheckBox(otherBox);
     connect(d_antialiasing, SIGNAL(clicked()), this, SLOT(edited()) );
+    connect(d_spiralData, SIGNAL(clicked()), this, SLOT(edited()) );
     otherBoxLayout->addWidget(d_antialiasing);
+    otherBoxLayout->addWidget(d_spiralData);
     otherBoxLayout->addStretch(10);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -56,6 +59,7 @@ SettingsEditor::SettingsEditor(QWidget *parent):
     d_axisBox[QwtPolar::AxisBottom]->setText("Bottom");
 
     d_antialiasing->setText("Antialiased Scales/Grids");
+    d_spiralData->setText("Spiral Data");
 }
 
 void SettingsEditor::showSettings(const PlotSettings &settings)
@@ -71,6 +75,7 @@ void SettingsEditor::showSettings(const PlotSettings &settings)
         d_axisBox[axisId]->setChecked(settings.axis[axisId]);
 
     d_antialiasing->setChecked(settings.antialiasing);
+    d_spiralData->setChecked(settings.spiralData);
 
     blockSignals(false);
     updateEditor();
@@ -89,6 +94,7 @@ PlotSettings SettingsEditor::settings() const
         settings.axis[axisId] = d_axisBox[axisId]->isChecked();
         
     settings.antialiasing = d_antialiasing->isChecked();
+    settings.spiralData = d_spiralData->isChecked();
 
     return settings;
 }
