@@ -77,7 +77,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     if (x < vmin)
     {
         if ((d_periodic) && (vmin != vmax))
-           d_value = x + ceil( (vmin - x) / (vmax - vmin ) ) 
+           d_value = x + ::ceil( (vmin - x) / (vmax - vmin ) ) 
               * (vmax - vmin);
         else
            d_value = vmin;
@@ -85,7 +85,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     else if (x > vmax)
     {
         if ((d_periodic) && (vmin != vmax))
-           d_value = x - ceil( ( x - vmax) / (vmax - vmin )) 
+           d_value = x - ::ceil( ( x - vmax) / (vmax - vmin )) 
               * (vmax - vmin);
         else
            d_value = vmax;
@@ -100,18 +100,20 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     if (align)
     {
         if (d_step != 0.0)
+        {
            d_value = d_minValue +
-             qRound((d_value - d_minValue) / d_step) * d_step;
+             ::round((d_value - d_minValue) / d_step) * d_step;
+        }
         else
-           d_value = d_minValue;
+            d_value = d_minValue;
         
         // correct rounding error at the border
         if (fabs(d_value - d_maxValue) < MinEps * qwtAbs(d_step))
-           d_value = d_maxValue;
+            d_value = d_maxValue;
 
         // correct rounding error if value = 0
-        if (fabs(d_value) < MinEps * qwtAbs(d_step))
-           d_value = 0.0;
+        if (::fabs(d_value) < MinEps * qwtAbs(d_step))
+            d_value = 0.0;
     }
 
     if (!d_isValid || d_prevValue != d_value)
