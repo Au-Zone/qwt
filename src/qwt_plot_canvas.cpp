@@ -77,6 +77,26 @@ QwtPlotCanvas::~QwtPlotCanvas()
     delete d_data;
 }
 
+//! Return parent plot widget
+QwtPlot *QwtPlotCanvas::plot()
+{
+    QWidget *w = parentWidget();
+    if ( w && w->inherits("QwtPlot") )
+        return (QwtPlot *)w;
+
+    return NULL;
+}
+
+//! Return parent plot widget
+const QwtPlot *QwtPlotCanvas::plot() const
+{
+    const QWidget *w = parentWidget();
+    if ( w && w->inherits("QwtPlot") )
+        return (QwtPlot *)w;
+
+    return NULL;
+}
+
 /*!
   \brief Changing the paint attributes
 
