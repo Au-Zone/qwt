@@ -11,6 +11,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_polar_rect.h"
 #include "qwt_polar_plot.h"
+#include "qwt_polar_canvas.h"
 #include "qwt_polar_panner.h"
 
 class QwtPolarPanner::PrivateData
@@ -25,7 +26,7 @@ public:
     bool isScaleEnabled[QwtPolar::ScaleCount];
 };
 
-QwtPolarPanner::QwtPolarPanner(QwtPolarPlot *plot):
+QwtPolarPanner::QwtPolarPanner(QwtPolarCanvas *plot):
     QwtPanner(plot)
 {
     d_data = new PrivateData();
@@ -54,11 +55,25 @@ bool QwtPolarPanner::isScaleEnabled(int scaleId) const
     return true;
 }
 
+QwtPolarCanvas *QwtPolarPanner::canvas()
+{   
+    QWidget *w = parentWidget();
+    if ( w && w->inherits("QwtPolarCanvas") )
+        return (QwtPolarCanvas *)w;
+
+    return NULL;
+}
+
+const QwtPolarCanvas *QwtPolarPanner::canvas() const
+{   
+    return ((QwtPolarPanner *)this)->canvas();
+}
+
 QwtPolarPlot *QwtPolarPanner::plot()
 {
-    QWidget *w = parentWidget();
-    if ( w && w->inherits("QwtPolarPlot") )
-        return (QwtPolarPlot *)w;
+    QwtPolarCanvas *c = canvas();
+    if ( c )
+        return c->plot();
 
     return NULL;
 }

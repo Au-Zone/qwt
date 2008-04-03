@@ -6,15 +6,25 @@
  * modify it under the terms of the GPL License, Version 2.0
  *****************************************************************************/
 
+#include <qglobal.h>
+#if QT_VERSION < 0x040000
+#include <qguardedptr.h>
+#else
+#include <qpointer.h>
+#endif
 #include <qpainter.h>
 #include <qevent.h>
+#include <qlayout.h>
 #include <qpaintengine.h>
 #include "qwt_painter.h"
 #include "qwt_math.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_div.h"
+#include "qwt_text_label.h"
 #include "qwt_round_scale_draw.h"
 #include "qwt_polar_rect.h"
+#include "qwt_polar_canvas.h"
+#include "qwt_legend.h"
 #include "qwt_polar_plot.h"
 
 class QwtPolarPlot::ScaleData
@@ -52,25 +62,66 @@ public:
     QwtPolarRect zoomRect;
 
     ScaleData scaleData[QwtPolar::ScaleCount];
+#if QT_VERSION < 0x040000
+    QGuardedPtr<QwtTextLabel> titleLabel;
+    QGuardedPtr<QwtPolarCanvas> canvas;
+    QGuardedPtr<QwtLegend> legend;
+#else
+    QPointer<QwtTextLabel> titleLabel;
+    QPointer<QwtPolarCanvas> canvas;
+    QPointer<QwtLegend> legend;
+#endif
 };
 
 QwtPolarPlot::QwtPolarPlot( QWidget *parent):
-    QWidget(parent)
+    QFrame(parent)
 {
-    initPlot();
+    initPlot(QwtText());
 }
 
-#if QT_VERSION < 0x040000
-QwtPolarPlot::QwtPolarPlot( QWidget *parent, const char *name):
-    QWidget(parent, name)
+QwtPolarPlot::QwtPolarPlot(const QwtText &title, QWidget *parent):
+    QFrame(parent)
 {
-    initPlot();
+    initPlot(title);
 }
-#endif
+
 
 QwtPolarPlot::~QwtPolarPlot()
 {
     delete d_data;
+}
+
+void QwtPolarPlot::setTitle(const QString &title)
+{
+    if ( title != d_data->titleLabel->text().text() )
+    {
+        d_data->titleLabel->setText(title);
+        d_data->titleLabel->setVisible(!title.isEmpty());
+    }
+}
+
+void QwtPolarPlot::setTitle(const QwtText &title)
+{
+    if ( title != d_data->titleLabel->text() )
+    {
+        d_data->titleLabel->setText(title);
+        d_data->titleLabel->setVisible(!title.isEmpty());
+    }
+}
+
+QwtText QwtPolarPlot::title() const
+{
+    return d_data->titleLabel->text();
+}
+
+QwtTextLabel *QwtPolarPlot::titleLabel()
+{
+    return d_data->titleLabel;
+}
+
+const QwtTextLabel *QwtPolarPlot::titleLabel() const
+{
+    return d_data->titleLabel;
 }
 
 void QwtPolarPlot::setCanvasBackground(const QBrush &brush)
@@ -307,30 +358,28 @@ bool QwtPolarPlot::event(QEvent *e)
     return ok;
 }
 
-void QwtPolarPlot::paintEvent(QPaintEvent *e)
-{
-    const QRect &ur = e->rect();
-    if ( ur.isValid() )
-    {
-#if QT_VERSION < 0x040000
-        QwtPaintBuffer paintBuffer(this, ur);
-        QPainter &painter = *paintBuffer.painter();
-#else
-        QPainter painter(this);
-#endif
-        painter.save();
-        drawCanvas(&painter);
-        painter.restore();
-    }
-}
-
-void QwtPolarPlot::initPlot()
+void QwtPolarPlot::initPlot(const QwtText &title)
 {
 #if QT_VERSION < 0x040000
     setWFlags(Qt::WNoAutoErase);
 #endif
 
     d_data = new PrivateData;
+
+    QwtText text(title);
+    int flags = Qt::AlignCenter;
+#if QT_VERSION < 0x040000
+    flags |= Qt::WordBreak | Qt::ExpandTabs;
+#else
+    flags |= Qt::TextWordWrap;
+#endif
+    text.setRenderFlags(flags);
+
+    d_data->titleLabel = new QwtTextLabel(text, this);
+    d_data->titleLabel->setFont(QFont(fontInfo().family(), 14, QFont::Bold));
+    d_data->titleLabel->setVisible(!text.isEmpty());
+
+    d_data->canvas = new QwtPolarCanvas(this);
 
     d_data->autoReplot = false;
     d_data->canvasBrush = QBrush(Qt::white);
@@ -373,6 +422,17 @@ void QwtPolarPlot::autoRefresh()
         replot();
 }
 
+void QwtPolarPlot::updateLayout()
+{
+    delete layout();
+
+    QVBoxLayout *l = new QVBoxLayout(this);
+    l->setSpacing(0);
+    l->setMargin(0);
+    l->addWidget(d_data->titleLabel);
+    l->addWidget(d_data->canvas, 10);
+}
+
 void QwtPolarPlot::replot()
 {
     bool doAutoReplot = autoReplot();
@@ -381,12 +441,23 @@ void QwtPolarPlot::replot()
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
         updateScale(scaleId);
 
-    setAutoReplot(doAutoReplot);
+    d_data->canvas->repaint();
 
-    repaint();
+    setAutoReplot(doAutoReplot);
 }
 
-void QwtPolarPlot::drawCanvas(QPainter *painter) const
+QwtPolarCanvas *QwtPolarPlot::canvas()
+{
+    return d_data->canvas;
+}
+
+const QwtPolarCanvas *QwtPolarPlot::canvas() const
+{
+    return d_data->canvas;
+}
+
+void QwtPolarPlot::drawCanvas(QPainter *painter, 
+    const QwtDoubleRect &canvasRect) const
 {
     const QwtDoubleRect pr = plotRect();
 
@@ -401,8 +472,7 @@ void QwtPolarPlot::drawCanvas(QPainter *painter) const
 
     drawItems(painter, 
         scaleMap(QwtPolar::Azimuth), scaleMap(QwtPolar::Radius),
-        pr.center(), pr.width() / 2.0, 
-        QwtDoubleRect(contentsRect()));
+        pr.center(), pr.width() / 2.0, canvasRect);
 }
 
 void QwtPolarPlot::drawItems(QPainter *painter,
@@ -459,6 +529,7 @@ void QwtPolarPlot::updateScale(int scaleId)
 
 void QwtPolarPlot::polish()
 {
+    updateLayout();
     replot();
 
 #if QT_VERSION < 0x040000
@@ -482,7 +553,7 @@ QwtDoubleRect QwtPolarPlot::plotRect() const
         }
     }
 
-    const QRect cr = contentsRect();
+    const QRect cr = canvas()->contentsRect();
 
     QwtDoubleRect rect;
     if ( d_data->zoomRect.isEmpty() )
@@ -491,7 +562,8 @@ QwtDoubleRect QwtPolarPlot::plotRect() const
 
         radius -= margin;
         QRect r(0, 0, 2 * radius, 2 * radius);
-        r.moveCenter(cr.center());
+        r.moveCenter(
+            QPoint(cr.center().x(), cr.top() + margin + radius) );
 
         rect = QwtDoubleRect(r);
     }

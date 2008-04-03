@@ -11,7 +11,7 @@
 #ifndef QWT_POLAR_PLOT_H
 #define QWT_POLAR_PLOT_H 1
 
-#include <qwidget.h>
+#include <qframe.h>
 #include "qwt_global.h"
 #include "qwt_double_interval.h"
 #include "qwt_scale_map.h"
@@ -22,22 +22,37 @@
 class QwtRoundScaleDraw;
 class QwtScaleEngine;
 class QwtScaleDiv;
+class QwtTextLabel;
 class QwtPolarRect;
+class QwtPolarCanvas;
 
-class QWT_EXPORT QwtPolarPlot: public QWidget, public QwtPolarItemDict
+class QWT_EXPORT QwtPolarPlot: public QFrame, public QwtPolarItemDict
 {
     Q_OBJECT
 
 public:
+    enum LegendPosition
+    {
+        LeftLegend,
+        RightLegend,
+        BottomLegend,
+        TopLegend,
+
+        ExternalLegend
+    };
+
     explicit QwtPolarPlot( QWidget *parent = NULL);
-#if QT_VERSION < 0x040000
-    explicit QwtPolarPlot( QWidget *parent, const char *name);
-#endif
+    QwtPolarPlot(const QwtText &title, QWidget *parent = NULL);
 
     virtual ~QwtPolarPlot();
 
-    void setCanvasBackground(const QBrush&);
-    const QBrush &canvasBackground() const;
+    void setTitle(const QString &);
+    void setTitle(const QwtText &);
+
+    QwtText title() const;
+
+    QwtTextLabel *titleLabel();
+    const QwtTextLabel *titleLabel() const;
 
     void setAutoReplot(bool tf = true); 
     bool autoReplot() const;
@@ -70,6 +85,16 @@ public:
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
+    // Canvas
+
+    QwtPolarCanvas *canvas();
+    const QwtPolarCanvas *canvas() const;
+
+    void setCanvasBackground (const QBrush &c);
+    const QBrush& canvasBackground() const;
+
+    virtual void drawCanvas(QPainter *, const QwtDoubleRect &) const;
+
 public slots:
     virtual void replot();
     void autoRefresh();
@@ -79,9 +104,8 @@ public slots:
 
 protected:
     virtual bool event(QEvent *);
-    virtual void paintEvent(QPaintEvent *);
 
-    virtual void drawCanvas(QPainter *) const;
+    virtual void updateLayout();
 
     virtual void drawItems(QPainter *painter, 
         const QwtScaleMap &radialMap, const QwtScaleMap &azimuthMap,
@@ -93,7 +117,7 @@ protected:
     QwtDoubleRect plotRect() const;
 
 private:
-    void initPlot();
+    void initPlot(const QwtText &);
 
     class ScaleData;
     class PrivateData;

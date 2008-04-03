@@ -80,7 +80,7 @@ public:
 
 
 Plot::Plot(QWidget *parent):
-    QwtPolarPlot(parent)
+    QwtPolarPlot(QwtText("Polar Plot Demo"), parent)
 {
     setAutoReplot(false);
 	setCanvasBackground(Qt::darkBlue);
@@ -97,11 +97,11 @@ Plot::Plot(QWidget *parent):
     setScale(QwtPolar::Radius, 
         radialInterval.minValue(), radialInterval.maxValue());
 
-	QwtPolarPanner *panner = new QwtPolarPanner(this);
+	QwtPolarPanner *panner = new QwtPolarPanner(canvas());
 	panner->setScaleEnabled(QwtPolar::Radius, true);
 	panner->setScaleEnabled(QwtPolar::Azimuth, true);
 
-	(void) new QwtPolarMagnifier(this);
+	(void) new QwtPolarMagnifier(canvas());
 
     // grids, axes 
 

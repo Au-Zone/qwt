@@ -13,17 +13,21 @@
 #include "qwt_panner.h"
 
 class QwtPolarPlot;
+class QwtPolarCanvas;
 
 class QWT_EXPORT QwtPolarPanner: public QwtPanner
 {
     Q_OBJECT
 
 public:
-    explicit QwtPolarPanner(QwtPolarPlot *);
+    explicit QwtPolarPanner(QwtPolarCanvas *);
     virtual ~QwtPolarPanner();
 
     QwtPolarPlot *plot();
     const QwtPolarPlot *plot() const;
+
+    QwtPolarCanvas *canvas();
+    const QwtPolarCanvas *canvas() const;
 
     void setScaleEnabled(int scaleId, bool on = true);
     bool isScaleEnabled(int scaleId) const;

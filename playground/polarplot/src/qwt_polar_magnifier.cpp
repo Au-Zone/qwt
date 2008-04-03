@@ -10,10 +10,11 @@
 
 #include <math.h>
 #include "qwt_polar_plot.h"
+#include "qwt_polar_canvas.h"
 #include "qwt_scale_div.h"
 #include "qwt_polar_magnifier.h"
 
-QwtPolarMagnifier::QwtPolarMagnifier(QwtPolarPlot *plot):
+QwtPolarMagnifier::QwtPolarMagnifier(QwtPolarCanvas *plot):
     QwtMagnifier(plot)
 {
 }
@@ -23,16 +24,29 @@ QwtPolarMagnifier::~QwtPolarMagnifier()
 {
 }
 
-QwtPolarPlot *QwtPolarMagnifier::plot()
+QwtPolarCanvas *QwtPolarMagnifier::canvas()
 {
-    QObject *w = parent();
-    if ( w && w->inherits("QwtPolarPlot") )
-        return (QwtPolarPlot *)w;
+    QWidget *w = parentWidget();
+    if ( w && w->inherits("QwtPolarCanvas") )
+        return (QwtPolarCanvas *)w;
 
     return NULL;
 }
 
-//! Return Observed plot canvas
+const QwtPolarCanvas *QwtPolarMagnifier::canvas() const
+{
+    return ((QwtPolarMagnifier *)this)->canvas();
+}
+
+QwtPolarPlot *QwtPolarMagnifier::plot()
+{
+    QwtPolarCanvas *c = canvas();
+    if ( c )
+        return c->plot();
+
+    return NULL;
+}
+
 const QwtPolarPlot *QwtPolarMagnifier::plot() const
 {
     return ((QwtPolarMagnifier *)this)->plot();
