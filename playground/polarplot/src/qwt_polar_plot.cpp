@@ -431,6 +431,7 @@ void QwtPolarPlot::updateLayout()
     l->setMargin(0);
     l->addWidget(d_data->titleLabel);
     l->addWidget(d_data->canvas, 10);
+    l->activate();
 }
 
 void QwtPolarPlot::replot()
