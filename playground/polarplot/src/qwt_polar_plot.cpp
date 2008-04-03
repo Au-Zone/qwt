@@ -441,6 +441,7 @@ void QwtPolarPlot::replot()
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
         updateScale(scaleId);
 
+    d_data->canvas->invalidatePaintCache();
     d_data->canvas->repaint();
 
     setAutoReplot(doAutoReplot);
