@@ -115,6 +115,7 @@ protected:
     void updateScale(int scaleId);
 
     QwtDoubleRect plotRect() const;
+    int canvasMarginHint() const;
 
 private:
     void initPlot(const QwtText &);

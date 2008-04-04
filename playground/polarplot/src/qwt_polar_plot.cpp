@@ -290,7 +290,7 @@ void QwtPolarPlot::unzoom()
 
 void QwtPolarPlot::setZoomRect(const QwtPolarRect &rect)
 {
-    const QwtPolarRect zoomRect = rect.normalized();
+    QwtPolarRect zoomRect = rect.normalized();
     if ( zoomRect != d_data->zoomRect )
     {
         d_data->zoomRect = zoomRect;
@@ -380,6 +380,10 @@ void QwtPolarPlot::initPlot(const QwtText &title)
     d_data->titleLabel->setVisible(!text.isEmpty());
 
     d_data->canvas = new QwtPolarCanvas(this);
+#if 1
+    d_data->canvas->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    d_data->canvas->setLineWidth(2);
+#endif
 
     d_data->autoReplot = false;
     d_data->canvasBrush = QBrush(Qt::white);
@@ -539,12 +543,12 @@ void QwtPolarPlot::polish()
 #endif
 }
 
-QwtDoubleRect QwtPolarPlot::plotRect() const
+int QwtPolarPlot::canvasMarginHint() const
 {
     int margin = 0;
     const QwtPolarItemList& itmList = itemList();
     for ( QwtPolarItemIterator it = itmList.begin();
-        it != itmList.end(); ++it )
+        it != itmList.end(); ++it ) 
     {
         QwtPolarItem *item = *it;
         if ( item && item->isVisible() )
@@ -554,38 +558,27 @@ QwtDoubleRect QwtPolarPlot::plotRect() const
                 margin = hint;
         }
     }
+    return margin;
+}
 
+QwtDoubleRect QwtPolarPlot::plotRect() const
+{
+    QwtDoubleRect zr = d_data->zoomRect.toRect();
+    if ( zr.isEmpty() )
+        zr = scaleRect().toRect();
+    zr = zr.normalized();
+
+    const int margin = canvasMarginHint();
     const QRect cr = canvas()->contentsRect();
+    const int radius = qwtMin(cr.width(), cr.height()) / 2 - margin;
 
-    QwtDoubleRect rect;
-    if ( d_data->zoomRect.isEmpty() )
-    {
-        int radius = qwtMin(cr.width(), cr.height()) / 2;
+    const double ratio = 2 * radius / qwtMin(zr.width(), zr.height());
 
-        radius -= margin;
-        QRect r(0, 0, 2 * radius, 2 * radius);
-        r.moveCenter(
-            QPoint(cr.center().x(), cr.top() + margin + radius) );
+    const double px = cr.center().x() - radius - zr.x() * ratio;
+    const double py = cr.top() + margin + 2 * radius + zr.y() * ratio;
+    const double d = 2 * qwtAbs(scaleDiv(QwtPolar::Radius)->range()) * ratio;
 
-        rect = QwtDoubleRect(r);
-    }
-    else
-    {
-        const QwtDoubleRect zr = d_data->zoomRect.toRect();
-
-        const double ratio = qwtMax( qwtAbs(cr.width() / zr.width()),
-            qwtAbs(cr.height() / zr.height()) );
-
-        const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
-        const double d = 2 * qwtAbs(sd->range()) * ratio;
-
-        const double dx = zr.x() * ratio;
-        const double dy = zr.y() * ratio;
-
-        // margin ???
-        rect.setWidth(d);
-        rect.setHeight(d);
-        rect.moveCenter(QwtDoublePoint(cr.left() - dx, cr.bottom() + dy));
-    }
+    QwtDoubleRect rect(0.0, 0.0, d, d);
+    rect.moveCenter(QwtDoublePoint(px, py));
     return rect;
 }
