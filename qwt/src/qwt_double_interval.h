@@ -237,7 +237,7 @@ inline bool QwtDoubleInterval::isNull() const
 
 inline bool QwtDoubleInterval::isValid() const
 {
-    if ( d_borderFlags & ExcludeBorders == 0 )
+    if ( (d_borderFlags & ExcludeBorders) == 0 )
         return d_minValue <= d_maxValue;
     else
         return d_minValue < d_maxValue;
