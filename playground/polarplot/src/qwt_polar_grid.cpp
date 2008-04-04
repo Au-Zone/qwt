@@ -14,6 +14,7 @@
 #include "qwt_text.h"
 #include "qwt_clipper.h"
 #include "qwt_scale_map.h"
+#include "qwt_scale_engine.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
 #include "qwt_round_scale_draw.h"
@@ -66,6 +67,7 @@ public:
     GridData gridData[QwtPolar::ScaleCount];
     AxisData axisData[QwtPolar::AxesCount];
     int displayFlags;
+    bool axisAutoScaling;
 };
 
 QwtPolarGrid::QwtPolarGrid():
@@ -126,6 +128,9 @@ QwtPolarGrid::QwtPolarGrid():
             default:;
         }
     }
+
+    d_data->axisAutoScaling = false;
+
     d_data->displayFlags = 0;
     d_data->displayFlags |= SmartOriginLabel;
     d_data->displayFlags |= HideMaxRadiusLabel;
@@ -733,13 +738,33 @@ void QwtPolarGrid::updateScaleDraws(
     }
 }
 
+QwtDoubleInterval QwtPolarGrid::clipInterval(
+    const QwtDoubleInterval &interval, const QwtPolarRect &) const
+{
+    return interval;
+}
+
 void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
     const QwtScaleDiv &radialScaleDiv)
 {
     GridData &radialGrid = d_data->gridData[QwtPolar::Radius];
-    if ( radialGrid.scaleDiv != radialScaleDiv )
+
+    if ( plot() && !plot()->zoomRect().isEmpty() && d_data->axisAutoScaling )
     {
-        radialGrid.scaleDiv = radialScaleDiv;
+        QwtDoubleInterval interval(
+            radialScaleDiv.lBound(), radialScaleDiv.hBound());
+        interval = clipInterval(interval, plot()->zoomRect());
+
+        const QwtScaleEngine *se = plot()->scaleEngine(QwtPolar::Radius);
+        const QwtScaleDiv scaleDiv = se->divideScale(
+            interval.minValue(), interval.maxValue(), 5, 8);
+        if ( radialGrid.scaleDiv != scaleDiv )
+            radialGrid.scaleDiv = scaleDiv;
+    }
+    else
+    {
+        if ( radialGrid.scaleDiv != radialScaleDiv )
+            radialGrid.scaleDiv = radialScaleDiv;
     }
 
     GridData &azimuthGrid = d_data->gridData[QwtPolar::Azimuth];

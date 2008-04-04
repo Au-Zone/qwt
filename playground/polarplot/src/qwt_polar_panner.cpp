@@ -110,40 +110,25 @@ void QwtPolarPanner::movePlot(int dx, int dy)
     {
         const QwtScaleMap map = plot->scaleMap(QwtPolar::Radius);
 
-        const double x = map.xTransform(rect.toRect().x());
-        const double y = map.xTransform(rect.toRect().y());
+        QwtPolarPoint center = rect.center();
+        if ( map.s1() <= map.s2() )
+        {
+            center.setRadius(
+                map.xTransform(map.s1() + center.radius()) - map.p1());
+            center.setPoint(center.toPoint() - QwtDoublePoint(dx, -dy));
+            center.setRadius(
+                map.invTransform(map.p1() + center.radius()) - map.s1());
+        }
+        else
+        {
+            center.setRadius(
+                map.xTransform(map.s1() - center.radius()) - map.p1());
+            center.setPoint(center.toPoint() - QwtDoublePoint(dx, -dy));
+            center.setRadius(
+                map.s1() - map.invTransform(map.p1() + center.radius()));
+        }
         
-        const QwtDoubleRect zoomRect(
-            map.invTransform(x - dx), 
-            map.invTransform(y + dy), 
-            rect.width(), 
-            rect.height() );
-        plot->setZoomRect(zoomRect);
-    }
-    else if ( isScaleEnabled(QwtPolar::Radius) && 
-        !isScaleEnabled(QwtPolar::Azimuth) )
-    {
-        const QwtScaleMap map = plot->scaleMap(QwtPolar::Radius);
-
-        const double radius = map.xTransform(rect.radius());
-        const QwtPolarRect zoomRect(
-            map.invTransform(radius - dx), 
-            rect.azimuth(),
-            rect.width(), 
-            rect.height() );
-        plot->setZoomRect(zoomRect);
-    }
-    else if ( !isScaleEnabled(QwtPolar::Radius) && 
-        isScaleEnabled(QwtPolar::Azimuth) )
-    {
-        const QwtScaleMap map = plot->scaleMap(QwtPolar::Azimuth);
-
-        const double azimuth = map.xTransform(rect.azimuth());
-        const QwtPolarRect zoomRect(
-            rect.radius(),
-            map.invTransform(azimuth - dx), 
-            rect.width(), 
-            rect.height() );
+        const QwtPolarRect zoomRect(center, rect.size());
         plot->setZoomRect(zoomRect);
     }
 

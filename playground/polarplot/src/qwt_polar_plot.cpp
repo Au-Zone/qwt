@@ -26,6 +26,9 @@
 #include "qwt_polar_canvas.h"
 #include "qwt_legend.h"
 #include "qwt_polar_plot.h"
+#if 1
+#include <QDebug>
+#endif
 
 class QwtPolarPlot::ScaleData
 {
@@ -466,7 +469,6 @@ void QwtPolarPlot::drawCanvas(QPainter *painter,
     const QwtDoubleRect &canvasRect) const
 {
     const QwtDoubleRect pr = plotRect();
-
     if ( d_data->canvasBrush.style() != Qt::NoBrush )
     {
         painter->save();
@@ -486,6 +488,8 @@ void QwtPolarPlot::drawItems(QPainter *painter,
         const QwtDoublePoint &pole, double radius,
         const QwtDoubleRect &canvasRect) const
 {
+    const QwtDoubleRect pr = plotRect();
+
     const QwtPolarItemList& itmList = itemList();
     for ( QwtPolarItemIterator it = itmList.begin();
         it != itmList.end(); ++it )
@@ -494,6 +498,16 @@ void QwtPolarPlot::drawItems(QPainter *painter,
         if ( item && item->isVisible() )
         {
             painter->save();
+            
+            const int margin = item->canvasMarginHint();
+            const QwtDoubleRect clipRect(pr.x() - margin, pr.y() - margin,
+                pr.width() + 2 * margin, pr.height() + 2 * margin);
+
+            if ( !clipRect.contains(canvasRect) )
+            {
+                QRegion clipRegion(clipRect.toRect(), QRegion::Ellipse);
+                painter->setClipRegion(clipRegion);
+            }
 
 #if QT_VERSION >= 0x040000
             painter->setRenderHint(QPainter::Antialiasing,
@@ -574,9 +588,9 @@ QwtDoubleRect QwtPolarPlot::plotRect() const
 
     const double ratio = 2 * radius / qwtMin(zr.width(), zr.height());
 
-    const double px = cr.center().x() - radius - zr.x() * ratio;
-    const double py = cr.top() + margin + 2 * radius + zr.y() * ratio;
-    const double d = 2 * qwtAbs(scaleDiv(QwtPolar::Radius)->range()) * ratio;
+    double px = cr.center().x() - radius - zr.x() * ratio;
+    double py = cr.top() + margin + 2 * radius + zr.y() * ratio;
+    double d = 2 * qwtAbs(scaleDiv(QwtPolar::Radius)->range()) * ratio;
 
     QwtDoubleRect rect(0.0, 0.0, d, d);
     rect.moveCenter(QwtDoublePoint(px, py));

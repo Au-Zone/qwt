@@ -71,6 +71,8 @@ public:
     void setAxisFont(int axisId, const QFont &p);
     QFont axisFont(int axisId) const;
 
+    void setAxisAutoScaling(bool on);
+
     virtual void draw(QPainter *p, 
         const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole, double radius,
@@ -92,6 +94,9 @@ protected:
     void drawAxis(QPainter *, int axisId) const;
 
 private:
+    QwtDoubleInterval clipInterval(
+        const QwtDoubleInterval &, const QwtPolarRect &) const;
+
     void updateScaleDraws( 
         const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap, 
         const QwtDoublePoint &pole, const double radius) const;
