@@ -14,7 +14,6 @@
 #include "qwt_polygon.h"
 #include "qwt_symbol.h"
 #include "qwt_polar_curve.h"
-#include <QDebug>
 
 static int verifyRange(int size, int &i1, int &i2)
 {
@@ -221,10 +220,7 @@ void QwtPolarCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
 
     for (int i = from; i <= to; i++)
     {
-        double r = radialMap.xTransform(radius(i));
-#if 0
-        r -= pole.x();
-#endif
+        const double r = radialMap.xTransform(radius(i));
         const double a = azimuthMap.xTransform(azimuth(i));
 
         const QPoint pos = qwtPolar2Pos(pole, r, a).toPoint();
