@@ -17,6 +17,7 @@
 
 class QPainter;
 class QPen;
+class QwtPolarRect;
 class QwtScaleMap;
 class QwtScaleDiv;
 class QwtRoundScaleDraw;

@@ -62,14 +62,7 @@ void QwtPolarMagnifier::rescale(double factor)
     const bool autoReplot = plt->autoReplot();
     plt->setAutoReplot(false);
 
-    QwtPolarRect rect = plt->zoomRect();
-    if ( rect.isEmpty() )
-        rect = plt->scaleRect();
-
-    rect.setWidth(rect.width() * factor);
-    rect.setHeight(rect.height() * factor);
-
-    plt->setZoomRect(rect);
+    plt->zoom(plt->zoomPos(), plt->zoomFactor() * factor);
 
     plt->setAutoReplot(autoReplot);
     plt->replot();

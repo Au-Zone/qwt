@@ -9,7 +9,6 @@
 // vim: expandtab
 
 #include "qwt_scale_div.h"
-#include "qwt_polar_rect.h"
 #include "qwt_polar_plot.h"
 #include "qwt_polar_canvas.h"
 #include "qwt_polar_panner.h"
@@ -85,52 +84,34 @@ const QwtPolarPlot *QwtPolarPanner::plot() const
 
 void QwtPolarPanner::movePlot(int dx, int dy)
 {
-    if ( dx == 0 && dy == 0 )
-        return;
-
-    if ( !isScaleEnabled(QwtPolar::Radius) && 
-        !isScaleEnabled(QwtPolar::Azimuth) )
-    {
-        return;
-    }
-
     QwtPolarPlot *plot = QwtPolarPanner::plot();
-    if ( plot == NULL )
+    if ( plot == NULL || ( dx == 0 && dy == 0 ) )
         return;
+
+    const QwtScaleMap map = plot->scaleMap(QwtPolar::Radius);
+
+    QwtPolarPoint pos = plot->zoomPos();
+    if ( map.s1() <= map.s2() )
+    {
+        pos.setRadius(
+            map.xTransform(map.s1() + pos.radius()) - map.p1());
+        pos.setPoint(pos.toPoint() - QwtDoublePoint(dx, -dy));
+        pos.setRadius(
+            map.invTransform(map.p1() + pos.radius()) - map.s1());
+    }
+    else
+    {
+        pos.setRadius(
+            map.xTransform(map.s1() - pos.radius()) - map.p1());
+        pos.setPoint(pos.toPoint() - QwtDoublePoint(dx, -dy));
+        pos.setRadius(
+            map.s1() - map.invTransform(map.p1() + pos.radius()));
+    }
     
     const bool doAutoReplot = plot->autoReplot();
     plot->setAutoReplot(false);
 
-    QwtPolarRect rect = plot->zoomRect();
-    if ( rect.isEmpty() )
-        rect = plot->scaleRect();
-
-    if ( isScaleEnabled(QwtPolar::Radius) && 
-        isScaleEnabled(QwtPolar::Azimuth) )
-    {
-        const QwtScaleMap map = plot->scaleMap(QwtPolar::Radius);
-
-        QwtPolarPoint center = rect.center();
-        if ( map.s1() <= map.s2() )
-        {
-            center.setRadius(
-                map.xTransform(map.s1() + center.radius()) - map.p1());
-            center.setPoint(center.toPoint() - QwtDoublePoint(dx, -dy));
-            center.setRadius(
-                map.invTransform(map.p1() + center.radius()) - map.s1());
-        }
-        else
-        {
-            center.setRadius(
-                map.xTransform(map.s1() - center.radius()) - map.p1());
-            center.setPoint(center.toPoint() - QwtDoublePoint(dx, -dy));
-            center.setRadius(
-                map.s1() - map.invTransform(map.p1() + center.radius()));
-        }
-        
-        const QwtPolarRect zoomRect(center, rect.size());
-        plot->setZoomRect(zoomRect);
-    }
+    plot->zoom(pos, plot->zoomFactor());
 
     plot->setAutoReplot(doAutoReplot);
     plot->replot();

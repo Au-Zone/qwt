@@ -26,9 +26,6 @@
 #include "qwt_polar_canvas.h"
 #include "qwt_legend.h"
 #include "qwt_polar_plot.h"
-#if 1
-#include <QDebug>
-#endif
 
 class QwtPolarPlot::ScaleData
 {
@@ -62,7 +59,9 @@ public:
     QBrush canvasBrush;
 
     bool autoReplot;
-    QwtPolarRect zoomRect;
+
+    QwtPolarPoint zoomPos;
+    double zoomFactor;
 
     ScaleData scaleData[QwtPolar::ScaleCount];
 #if QT_VERSION < 0x040000
@@ -286,30 +285,31 @@ QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId)
     return &d_data->scaleData[scaleId].scaleDiv;
 }
 
-void QwtPolarPlot::unzoom()
+void QwtPolarPlot::zoom(const QwtPolarPoint &pos, double factor)
 {
-    setZoomRect(QwtPolarRect());
-}
-
-void QwtPolarPlot::setZoomRect(const QwtPolarRect &rect)
-{
-    QwtPolarRect zoomRect = rect.normalized();
-    if ( zoomRect != d_data->zoomRect )
+    factor = qwtAbs(factor);
+    if ( pos != d_data->zoomPos || factor != d_data->zoomFactor )
     {
-        d_data->zoomRect = zoomRect;
+        d_data->zoomPos = pos;
+        d_data->zoomFactor = factor;
         autoRefresh();
     }
 }
 
-QwtPolarRect QwtPolarPlot::zoomRect() const
+void QwtPolarPlot::unzoom()
 {
-    return d_data->zoomRect;
+    d_data->zoomFactor = 1.0;
+    d_data->zoomPos = QwtPolarPoint();
 }
 
-QwtPolarRect QwtPolarPlot::scaleRect() const
+QwtPolarPoint QwtPolarPlot::zoomPos() const
 {
-    const double d = 2 * qwtAbs(scaleDiv(QwtPolar::Radius)->range());
-    return QwtPolarRect(0.0, 0.0, d, d);
+    return d_data->zoomPos;
+}
+
+double QwtPolarPlot::zoomFactor() const
+{
+    return d_data->zoomFactor;
 }
 
 QwtScaleMap QwtPolarPlot::scaleMap(int scaleId) const
@@ -418,6 +418,7 @@ void QwtPolarPlot::initPlot(const QwtText &title)
 
         updateScale(scaleId);
     }
+    d_data->zoomFactor = 1.0;
 
     setSizePolicy(QSizePolicy::MinimumExpanding,
         QSizePolicy::MinimumExpanding);
@@ -577,22 +578,34 @@ int QwtPolarPlot::canvasMarginHint() const
 
 QwtDoubleRect QwtPolarPlot::plotRect() const
 {
-    QwtDoubleRect zr = d_data->zoomRect.toRect();
-    if ( zr.isEmpty() )
-        zr = scaleRect().toRect();
-    zr = zr.normalized();
+    const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
+    const QwtScaleEngine *se = scaleEngine(QwtPolar::Radius);
 
     const int margin = canvasMarginHint();
     const QRect cr = canvas()->contentsRect();
     const int radius = qwtMin(cr.width(), cr.height()) / 2 - margin;
 
-    const double ratio = 2 * radius / qwtMin(zr.width(), zr.height());
+    QwtScaleMap map;
+    map.setTransformation(se->transformation());
+    map.setPaintXInterval(0.0, radius / d_data->zoomFactor);
+    map.setScaleInterval(sd->lBound(), sd->hBound());
 
-    double px = cr.center().x() - radius - zr.x() * ratio;
-    double py = cr.top() + margin + 2 * radius + zr.y() * ratio;
-    double d = 2 * qwtAbs(scaleDiv(QwtPolar::Radius)->range()) * ratio;
+    double v = map.s1();
+    if ( map.s1() <= map.s2() )
+        v += d_data->zoomPos.radius();
+    else
+        v -= d_data->zoomPos.radius();
+    v = map.xTransform(v);
 
-    QwtDoubleRect rect(0.0, 0.0, d, d);
-    rect.moveCenter(QwtDoublePoint(px, py));
+    const QwtDoublePoint off =
+        QwtPolarPoint(v, d_data->zoomPos.azimuth()).toPoint();
+
+    QwtDoublePoint center(cr.center().x(), cr.top() + margin + radius);
+    center -= QwtDoublePoint(off.x(), -off.y());
+
+    QwtDoubleRect rect(0, 0, 2 * map.p2(), 2 * map.p2());
+    rect.moveCenter(center);
+
     return rect;
 }
+

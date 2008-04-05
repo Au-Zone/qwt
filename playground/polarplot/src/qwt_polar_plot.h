@@ -16,14 +16,13 @@
 #include "qwt_double_interval.h"
 #include "qwt_scale_map.h"
 #include "qwt_polar.h"
-#include "qwt_polar_rect.h"
+#include "qwt_polar_point.h"
 #include "qwt_polar_itemdict.h"
 
 class QwtRoundScaleDraw;
 class QwtScaleEngine;
 class QwtScaleDiv;
 class QwtTextLabel;
-class QwtPolarRect;
 class QwtPolarCanvas;
 
 class QWT_EXPORT QwtPolarPlot: public QFrame, public QwtPolarItemDict
@@ -78,8 +77,11 @@ public:
 
     QwtScaleMap scaleMap(int scaleId) const;
 
-    QwtPolarRect zoomRect() const;
-    QwtPolarRect scaleRect() const;
+    void zoom(const QwtPolarPoint&, double factor);
+    void unzoom();
+
+    QwtPolarPoint zoomPos() const;
+    double zoomFactor() const;
 
     virtual void polish();
     virtual QSize sizeHint() const;
@@ -99,8 +101,6 @@ public slots:
     virtual void replot();
     void autoRefresh();
 
-    void setZoomRect(const QwtPolarRect&);
-    void unzoom();
 
 protected:
     virtual bool event(QEvent *);

@@ -749,17 +749,12 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
 {
     GridData &radialGrid = d_data->gridData[QwtPolar::Radius];
 
-    if ( plot() && !plot()->zoomRect().isEmpty() && d_data->axisAutoScaling )
+    if ( plot() && d_data->axisAutoScaling )
     {
-        QwtDoubleInterval interval(
-            radialScaleDiv.lBound(), radialScaleDiv.hBound());
-        interval = clipInterval(interval, plot()->zoomRect());
-
-        const QwtScaleEngine *se = plot()->scaleEngine(QwtPolar::Radius);
-        const QwtScaleDiv scaleDiv = se->divideScale(
-            interval.minValue(), interval.maxValue(), 5, 8);
-        if ( radialGrid.scaleDiv != scaleDiv )
-            radialGrid.scaleDiv = scaleDiv;
+#if 1
+        if ( radialGrid.scaleDiv != radialScaleDiv )
+            radialGrid.scaleDiv = radialScaleDiv;
+#endif
     }
     else
     {
