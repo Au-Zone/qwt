@@ -1,6 +1,7 @@
 #include <qpen.h>
 #include <qwt_data.h>
 #include <qwt_symbol.h>
+#include <qwt_legend.h>
 #include <qwt_polar_rect.h>
 #include <qwt_polar_grid.h>
 #include <qwt_polar_curve.h>
@@ -92,7 +93,7 @@ Plot::Plot(QWidget *parent):
     setAutoReplot(false);
     setCanvasBackground(Qt::darkBlue);
 
-    const QwtDoubleInterval radialInterval(0.0, 10.0);
+    const QwtDoubleInterval radialInterval(0.001, 10.0);
     const QwtDoubleInterval azimuthInterval(0.0, 360.0);
     const int numPoints = 200;
 
@@ -146,7 +147,7 @@ Plot::Plot(QWidget *parent):
 
     // curves
 
-    d_spiralCurve = new QwtPolarCurve();
+    d_spiralCurve = new QwtPolarCurve("Spiral");
     d_spiralCurve->setStyle(QwtPolarCurve::Lines);
     d_spiralCurve->setPen(QPen(Qt::yellow, 2));
     d_spiralCurve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
@@ -154,13 +155,19 @@ Plot::Plot(QWidget *parent):
     d_spiralCurve->setData(SpiralData(radialInterval, azimuthInterval, numPoints));
     d_spiralCurve->attach(this);
 
-    d_roseCurve = new QwtPolarCurve();
+    d_roseCurve = new QwtPolarCurve("Rose");
     d_roseCurve->setStyle(QwtPolarCurve::Lines);
     d_roseCurve->setPen(QPen(Qt::red, 2));
     d_roseCurve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
         QBrush(Qt::cyan), QPen(Qt::white), QSize(3, 3)) );
     d_roseCurve->setData(RoseData(radialInterval, azimuthInterval, numPoints));
     d_roseCurve->attach(this);
+
+#if 1
+    QwtLegend *legend = new QwtLegend;
+    legend->setFrameStyle(QFrame::Box|QFrame::Sunken);
+#endif
+    insertLegend(legend,  QwtPolarPlot::BottomLegend);
 }
 
 PlotSettings Plot::settings() const
