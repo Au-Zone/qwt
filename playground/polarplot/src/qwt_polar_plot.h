@@ -97,10 +97,24 @@ public:
 
     virtual void drawCanvas(QPainter *, const QwtDoubleRect &) const;
 
+    // Legend
+
+    void insertLegend(QwtLegend *, LegendPosition = QwtPolarPlot::RightLegend);
+
+    QwtLegend *legend();
+    const QwtLegend *legend() const;
+
+signals:
+    void legendClicked(QwtPolarItem *plotItem);
+    void legendChecked(QwtPolarItem *plotItem, bool on);
+
 public slots:
     virtual void replot();
     void autoRefresh();
 
+protected slots:
+    virtual void legendItemClicked();
+    virtual void legendItemChecked(bool);
 
 protected:
     virtual bool event(QEvent *);

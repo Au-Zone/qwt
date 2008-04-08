@@ -13,6 +13,8 @@
 #include "qwt_math.h"
 #include "qwt_polygon.h"
 #include "qwt_symbol.h"
+#include "qwt_legend.h"
+#include "qwt_legend_item.h"
 #include "qwt_polar_curve.h"
 
 static int verifyRange(int size, int &i1, int &i2)
@@ -76,6 +78,7 @@ QwtPolarCurve::~QwtPolarCurve()
 void QwtPolarCurve::init()
 {
     setItemAttribute(QwtPolarItem::AutoScale);
+    setItemAttribute(QwtPolarItem::Legend);
 
     d_data = new PrivateData;
     d_points = new QwtPolygonFData(QwtArray<QwtDoublePoint>());
@@ -234,4 +237,73 @@ void QwtPolarCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
 int QwtPolarCurve::dataSize() const
 {
     return d_points->size();
+}
+
+void QwtPolarCurve::updateLegend(QwtLegend *legend) const
+{
+    if ( !legend )
+        return;
+        
+    QwtPolarItem::updateLegend(legend);
+    
+    QWidget *widget = legend->find(this);
+    if ( !widget || !widget->inherits("QwtLegendItem") )
+        return;
+        
+    QwtLegendItem *legendItem = (QwtLegendItem *)widget;
+    
+#if QT_VERSION < 0x040000
+    const bool doUpdate = legendItem->isUpdatesEnabled();
+#else
+    const bool doUpdate = legendItem->updatesEnabled();
+#endif
+    legendItem->setUpdatesEnabled(false);
+    
+    const int policy = legend->displayPolicy();
+    
+    if (policy == QwtLegend::FixedIdentifier)
+    {
+        int mode = legend->identifierMode();
+
+        if (mode & QwtLegendItem::ShowLine)
+            legendItem->setCurvePen(pen());
+
+        if (mode & QwtLegendItem::ShowSymbol)
+            legendItem->setSymbol(symbol());
+
+        if (mode & QwtLegendItem::ShowText)
+            legendItem->setText(title());
+        else
+            legendItem->setText(QwtText());
+
+        legendItem->setIdentifierMode(mode);
+    }
+    else if (policy == QwtLegend::AutoIdentifier)
+    {
+        int mode = 0;
+
+        if (QwtPolarCurve::NoCurve != style())
+        {
+            legendItem->setCurvePen(pen());
+            mode |= QwtLegendItem::ShowLine;
+        }
+        if (QwtSymbol::NoSymbol != symbol().style())
+        {
+            legendItem->setSymbol(symbol());
+            mode |= QwtLegendItem::ShowSymbol;
+        }
+        if ( !title().isEmpty() )
+        {
+            legendItem->setText(title());
+            mode |= QwtLegendItem::ShowText;
+        }
+        else
+        {
+            legendItem->setText(QwtText());
+        }
+        legendItem->setIdentifierMode(mode);
+    }
+
+    legendItem->setUpdatesEnabled(doUpdate);
+    legendItem->update();
 }

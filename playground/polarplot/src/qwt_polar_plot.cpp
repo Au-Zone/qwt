@@ -25,6 +25,7 @@
 #include "qwt_polar_rect.h"
 #include "qwt_polar_canvas.h"
 #include "qwt_legend.h"
+#include "qwt_dyngrid_layout.h"
 #include "qwt_polar_plot.h"
 
 class QwtPolarPlot::ScaleData
@@ -68,11 +69,14 @@ public:
     QGuardedPtr<QwtTextLabel> titleLabel;
     QGuardedPtr<QwtPolarCanvas> canvas;
     QGuardedPtr<QwtLegend> legend;
+    QGuardedPtr<QWidget> spacer;
 #else
     QPointer<QwtTextLabel> titleLabel;
     QPointer<QwtPolarCanvas> canvas;
     QPointer<QwtLegend> legend;
+    QPointer<QWidget> spacer;
 #endif
+    QwtPolarPlot::LegendPosition legendPosition;
 };
 
 QwtPolarPlot::QwtPolarPlot( QWidget *parent):
@@ -124,6 +128,92 @@ QwtTextLabel *QwtPolarPlot::titleLabel()
 const QwtTextLabel *QwtPolarPlot::titleLabel() const
 {
     return d_data->titleLabel;
+}
+
+void QwtPolarPlot::insertLegend(QwtLegend *legend,
+    QwtPolarPlot::LegendPosition pos)
+{
+    d_data->legendPosition = pos;
+    if ( legend != d_data->legend )
+    {
+        if ( d_data->legend && d_data->legend->parent() == this )
+            delete d_data->legend;
+
+        d_data->legend = legend;
+
+        if ( d_data->legend )
+        {
+            if ( pos != ExternalLegend )
+            {
+                if ( d_data->legend->parent() != this )
+                {
+#if QT_VERSION < 0x040000
+                    d_data->legend->reparent(this, QPoint(0, 0));
+#else
+                    d_data->legend->setParent(this);
+#endif
+                }
+            }
+
+            const QwtPolarItemList& itmList = itemList();
+            for ( QwtPolarItemIterator it = itmList.begin();
+                it != itmList.end(); ++it )
+            {
+                (*it)->updateLegend(d_data->legend);
+            }
+
+            QLayout *l = d_data->legend->contentsWidget()->layout();
+            if ( l && l->inherits("QwtDynGridLayout") )
+            {
+                QwtDynGridLayout *tl = (QwtDynGridLayout *)l;
+                switch(d_data->legendPosition)
+                {
+                    case LeftLegend:
+                    case RightLegend:
+                        tl->setMaxCols(1); // 1 column: align vertical
+                        break;
+                    case TopLegend:
+                    case BottomLegend:
+                        tl->setMaxCols(0); // unlimited
+                        break;
+                    case ExternalLegend:
+                        break;
+                }
+            }
+
+        }
+    }
+    updateLayout();
+}
+
+QwtLegend *QwtPolarPlot::legend()
+{
+    return d_data->legend;
+}
+
+const QwtLegend *QwtPolarPlot::legend() const
+{
+    return d_data->legend;
+}
+
+void QwtPolarPlot::legendItemClicked()
+{
+    if ( d_data->legend && sender()->isWidgetType() )
+    {
+        QwtPolarItem *plotItem = (QwtPolarItem*)d_data->legend->find((QWidget *)sender());
+        if ( plotItem )
+            emit legendClicked(plotItem);
+    }
+}
+
+void QwtPolarPlot::legendItemChecked(bool on)
+{
+    if ( d_data->legend && sender()->isWidgetType() )
+    {
+        QwtPolarItem *plotItem = (QwtPolarItem*)d_data->legend->find((QWidget *)sender());
+        if ( plotItem )
+            emit legendChecked(plotItem, on);
+    }
 }
 
 void QwtPolarPlot::setCanvasBackground(const QBrush &brush)
@@ -378,15 +468,13 @@ void QwtPolarPlot::initPlot(const QwtText &title)
 #endif
     text.setRenderFlags(flags);
 
+    d_data->spacer = new QWidget(this),
+
     d_data->titleLabel = new QwtTextLabel(text, this);
     d_data->titleLabel->setFont(QFont(fontInfo().family(), 14, QFont::Bold));
     d_data->titleLabel->setVisible(!text.isEmpty());
 
     d_data->canvas = new QwtPolarCanvas(this);
-#if 1
-    d_data->canvas->setFrameStyle(QFrame::Panel | QFrame::Raised);
-    d_data->canvas->setLineWidth(2);
-#endif
 
     d_data->autoReplot = false;
     d_data->canvasBrush = QBrush(Qt::white);
@@ -419,6 +507,7 @@ void QwtPolarPlot::initPlot(const QwtText &title)
         updateScale(scaleId);
     }
     d_data->zoomFactor = 1.0;
+    d_data->legendPosition = QwtPolarPlot::RightLegend;
 
     setSizePolicy(QSizePolicy::MinimumExpanding,
         QSizePolicy::MinimumExpanding);
@@ -434,12 +523,78 @@ void QwtPolarPlot::updateLayout()
 {
     delete layout();
 
-    QVBoxLayout *l = new QVBoxLayout(this);
-    l->setSpacing(0);
-    l->setMargin(0);
-    l->addWidget(d_data->titleLabel);
-    l->addWidget(d_data->canvas, 10);
-    l->activate();
+    QwtPolarPlot::LegendPosition pos = d_data->legendPosition;
+    if ( d_data->legend == NULL )
+        pos = QwtPolarPlot::ExternalLegend;
+    
+    switch(pos)
+    {
+        case QwtPolarPlot::LeftLegend:
+        {
+            QGridLayout *l = new QGridLayout(this);
+            l->setSpacing(0);
+            l->setMargin(0);
+            l->setRowStretch(1, 10);
+            l->setColumnStretch(1, 10);
+            l->addWidget(d_data->spacer, 0, 0);
+            l->addWidget(d_data->legend, 0, 1);
+            l->addWidget(d_data->titleLabel, 0, 1);
+            l->addWidget(d_data->canvas, 1, 1);
+            d_data->spacer->show();
+            break;
+        }
+        case QwtPolarPlot::RightLegend:
+        {
+            QGridLayout *l = new QGridLayout(this);
+            l->setSpacing(0);
+            l->setMargin(0);
+            l->setRowStretch(1, 10);
+            l->setColumnStretch(0, 10);
+            l->addWidget(d_data->titleLabel, 0, 0);
+            l->addWidget(d_data->canvas, 1, 0);
+            l->addWidget(d_data->spacer, 0, 1);
+            l->addWidget(d_data->legend, 1, 1);
+            d_data->spacer->show();
+            break;
+        }
+        case QwtPolarPlot::BottomLegend:
+        {
+            QVBoxLayout *l = new QVBoxLayout(this);
+            l->setSpacing(0);
+            l->setMargin(0);
+            l->addWidget(d_data->titleLabel);
+            l->addWidget(d_data->canvas, 10);
+            l->addWidget(d_data->legend);
+            d_data->spacer->hide();
+            break;
+        }
+        case QwtPolarPlot::TopLegend:
+        {
+            QVBoxLayout *l = new QVBoxLayout(this);
+            l->setSpacing(0);
+            l->setMargin(0);
+            l->addWidget(d_data->legend);
+            l->addWidget(d_data->titleLabel);
+            l->addWidget(d_data->canvas, 10);
+            d_data->spacer->hide();
+            break;
+        }
+        case QwtPolarPlot::ExternalLegend:
+        {
+            QVBoxLayout *l = new QVBoxLayout(this);
+            l->setSpacing(0);
+            l->setMargin(0);
+            l->addWidget(d_data->titleLabel);
+            l->addWidget(d_data->canvas, 10);
+            d_data->spacer->hide();
+            break;
+        }
+    }
+
+    if ( d_data->legend )
+        d_data->legend->setVisible(d_data->legend->itemCount() > 0);
+
+    layout()->activate();
 }
 
 void QwtPolarPlot::replot()

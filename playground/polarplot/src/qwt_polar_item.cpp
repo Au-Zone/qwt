@@ -7,6 +7,8 @@
  *****************************************************************************/
 
 #include "qwt_polar_plot.h"
+#include "qwt_legend.h"
+#include "qwt_legend_item.h"
 #include "qwt_polar_item.h"
 
 class QwtPolarItem::PrivateData
@@ -289,7 +291,12 @@ bool QwtPolarItem::isVisible() const
 void QwtPolarItem::itemChanged()
 {
     if ( d_data->plot )
+    {
+        if ( d_data->plot->legend() )
+            updateLegend(d_data->plot->legend());
+
         d_data->plot->autoRefresh();
+    }
 }
 
 QwtDoubleInterval QwtPolarItem::interval(int /*scaleId*/) const
@@ -313,6 +320,53 @@ QwtDoubleInterval QwtPolarItem::interval(int /*scaleId*/) const
 void QwtPolarItem::updateScaleDiv(const QwtScaleDiv &,
     const QwtScaleDiv &) 
 { 
+}
+
+void QwtPolarItem::updateLegend(QwtLegend *legend) const
+{
+    if ( !legend )
+        return;
+
+    QWidget *lgdItem = legend->find(this);
+    if ( testItemAttribute(QwtPolarItem::Legend) )
+    {
+        if ( lgdItem == NULL )
+        {
+            lgdItem = legendItem();
+            if ( lgdItem )
+            {
+                if ( lgdItem->inherits("QwtLegendItem") )
+                {
+                    QwtLegendItem *label = (QwtLegendItem *)lgdItem;
+                    label->setItemMode(legend->itemMode());
+
+                    if ( d_data->plot )
+                    {
+                        QObject::connect(label, SIGNAL(clicked()),
+                            d_data->plot, SLOT(legendItemClicked()));
+                        QObject::connect(label, SIGNAL(checked(bool)),
+                            d_data->plot, SLOT(legendItemChecked(bool)));
+                    }
+                }
+                legend->insert(this, lgdItem);
+            }
+        }
+        if ( lgdItem && lgdItem->inherits("QwtLegendItem") )
+        {
+            QwtLegendItem* label = (QwtLegendItem*)lgdItem;
+            if ( label )
+                label->setText(d_data->title);
+        }
+    }
+    else
+    {
+        delete lgdItem;
+    }
+}
+
+QWidget *QwtPolarItem::legendItem() const
+{
+    return new QwtLegendItem;
 }
 
 int QwtPolarItem::canvasMarginHint() const

@@ -61,6 +61,8 @@ public:
         const QwtDoublePoint &pole,
         int from, int to) const;
 
+    virtual void updateLegend(QwtLegend *) const;
+
 protected:
 
     void init();

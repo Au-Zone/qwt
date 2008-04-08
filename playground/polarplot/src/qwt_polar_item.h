@@ -11,6 +11,7 @@
 
 #include "qwt_global.h"
 #include "qwt_text.h"
+#include "qwt_legend_itemmanager.h"
 #include "qwt_double_interval.h"
 #include "qwt_double_rect.h"
 
@@ -25,7 +26,7 @@ class QwtScaleDiv;
   \brief Base class for items on a polar plot
 */
 
-class QWT_EXPORT QwtPolarItem
+class QWT_EXPORT QwtPolarItem: public QwtLegendItemManager
 {
 public:
     enum RttiValues
@@ -42,7 +43,8 @@ public:
 
     enum ItemAttribute
     {
-        AutoScale = 1
+        Legend = 1,
+        AutoScale = 2
     };
 
 #if QT_VERSION >= 0x040000
@@ -108,6 +110,9 @@ public:
 
     virtual QwtDoubleInterval interval(int scaleId) const;
 
+    virtual QWidget *legendItem() const;
+
+    virtual void updateLegend(QwtLegend *) const;
     virtual void updateScaleDiv(const QwtScaleDiv&,
         const QwtScaleDiv&);
 
