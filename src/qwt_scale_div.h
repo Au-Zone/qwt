@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_valuelist.h"
+#include "qwt_double_interval.h"
 
 class QwtDoubleInterval;
 
@@ -51,6 +52,7 @@ public:
     
     void setInterval(double lBound, double rBound);
     void setInterval(const QwtDoubleInterval &);
+    QwtDoubleInterval interval() const;
 
     inline double lBound() const;
     inline double hBound() const;
@@ -83,6 +85,14 @@ inline void QwtScaleDiv::setInterval(double lBound, double hBound)
 {
     d_lBound = lBound;
     d_hBound = hBound;
+}
+
+/*! 
+  \return lBound -> hBound
+*/
+inline QwtDoubleInterval QwtScaleDiv::interval() const
+{
+    return QwtDoubleInterval(d_lBound, d_hBound);
 }
 
 /*! 

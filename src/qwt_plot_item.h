@@ -11,6 +11,7 @@
 #define QWT_PLOT_ITEM_H
 
 #include "qwt_global.h"
+#include "qwt_legend_itemmanager.h"
 #include "qwt_text.h"
 #include "qwt_double_rect.h"
 
@@ -27,7 +28,7 @@ class QwtScaleDiv;
   \brief Base class for items on the plot canvas
 */
 
-class QWT_EXPORT QwtPlotItem
+class QWT_EXPORT QwtPlotItem: public QwtLegendItemManager
 {
 public:
     enum RttiValues

@@ -101,6 +101,7 @@ contains(CONFIG, QwtPlot) {
         qwt_interval_data.h \
         qwt_legend.h \
         qwt_legend_item.h \
+        qwt_legend_itemmanager.h \
         qwt_plot.h \
         qwt_plot_curve.h \
         qwt_plot_dict.h \
