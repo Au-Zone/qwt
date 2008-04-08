@@ -21,7 +21,7 @@
 #endif
 
 class QScrollBar;
-class QwtPlotItem;
+class QwtLegendItemManager;
 
 /*!
   \brief The legend widget
@@ -30,7 +30,7 @@ class QwtPlotItem;
   items might be any type of widget, but in general they will be
   a QwtLegendItem.
 
-  \sa QwtLegendItem, QwtPlot
+  \sa QwtLegendItem, QwtLegendItemManager QwtPlot
 */
 
 class QWT_EXPORT QwtLegend : public QFrame
@@ -88,11 +88,11 @@ public:
     QWidget *contentsWidget();
     const QWidget *contentsWidget() const;
 
-    void insert(const QwtPlotItem *, QWidget *);
-    void remove(const QwtPlotItem *);
+    void insert(const QwtLegendItemManager *, QWidget *);
+    void remove(const QwtLegendItemManager *);
 
-    QWidget *find(const QwtPlotItem *) const;
-    QwtPlotItem *find(const QWidget *) const;
+    QWidget *find(const QwtLegendItemManager *) const;
+    QwtLegendItemManager *find(const QWidget *) const;
 
 #if QT_VERSION < 0x040000
     virtual QValueList<QWidget *> legendItems() const;

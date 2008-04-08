@@ -754,7 +754,7 @@ void QwtPlot::legendItemClicked()
 {
     if ( d_data->legend && sender()->isWidgetType() )
     {
-        QwtPlotItem *plotItem = d_data->legend->find((QWidget *)sender());
+        QwtPlotItem *plotItem = (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
         if ( plotItem )
             emit legendClicked(plotItem);
     }
@@ -764,7 +764,7 @@ void QwtPlot::legendItemChecked(bool on)
 {
     if ( d_data->legend && sender()->isWidgetType() )
     {
-        QwtPlotItem *plotItem = d_data->legend->find((QWidget *)sender());
+        QwtPlotItem *plotItem = (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
         if ( plotItem )
             emit legendChecked(plotItem, on);
     }

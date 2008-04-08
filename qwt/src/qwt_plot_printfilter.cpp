@@ -422,7 +422,8 @@ void QwtPlotPrintFilter::reset(QwtPlot *plot) const
             if ( w->inherits("QwtLegendItem") )
             {
                 QwtLegendCurveItem *label = (QwtLegendCurveItem *)w;
-                const QwtPlotItem *plotItem = plot->legend()->find(label);
+                const QwtPlotItem *plotItem = 
+                    (const QwtPlotItem *)plot->legend()->find(label);
 
                 QwtSymbol symbol = label->symbol();
                 if ( cache.curveSymbolPenColors.contains(plotItem) )
