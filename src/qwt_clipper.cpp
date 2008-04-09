@@ -11,6 +11,36 @@
 #include "qwt_math.h"
 #include "qwt_clipper.h"
 
+static inline QwtDoubleRect boundingRect(const QwtPolygonF &polygon)
+{
+#if QT_VERSION < 0x040000
+    if (polygon.isEmpty())
+        return QwtDoubleRect(0, 0, 0, 0);
+
+    register const QwtDoublePoint *pd = polygon.data();
+
+    double minx, maxx, miny, maxy;
+    minx = maxx = pd->x();
+    miny = maxy = pd->y();
+    pd++;
+
+    for (uint i = 1; i < polygon.size(); i++, pd++) 
+    {
+        if (pd->x() < minx)
+            minx = pd->x();
+        else if (pd->x() > maxx)
+            maxx = pd->x();
+        if (pd->y() < miny)
+            miny = pd->y();
+        else if (pd->y() > maxy)
+            maxy = pd->y();
+    }
+    return QwtDoubleRect(minx, miny, maxx - minx, maxy - miny);
+#else
+    return polygon.boundingRect();
+#endif
+}
+
 enum Edge 
 { 
     Left, 
@@ -214,7 +244,7 @@ inline void QwtPolygonClipperF::addPoint(QwtPolygonF &pa, uint pos, const QwtDou
 //! Sutherland-Hodgman polygon clipping
 QwtPolygonF QwtPolygonClipperF::clipPolygon(const QwtPolygonF &pa) const
 {
-    if ( contains( pa.boundingRect() ) )
+    if ( contains( ::boundingRect(pa) ) )
         return pa;
 
     QwtPolygonF cpa(pa.size());
