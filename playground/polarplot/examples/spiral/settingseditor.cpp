@@ -8,40 +8,38 @@ SettingsEditor::SettingsEditor(QWidget *parent):
 {
     QGroupBox *axesBox = new QGroupBox("Axes", this);
     QVBoxLayout* axesBoxLayout = new QVBoxLayout(axesBox);
-    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
+
+    for ( int i = PlotSettings::AxisBegin; 
+        i <= PlotSettings::Logarithmic; i++ ) 
     {
-        d_axisBox[axisId] = new QCheckBox(axesBox);
-        axesBoxLayout->addWidget(d_axisBox[axisId]);
-        connect(d_axisBox[axisId], SIGNAL(clicked()), this, SLOT(edited()) );
+        d_checkBox[i] = new QCheckBox(axesBox);
+        axesBoxLayout->addWidget(d_checkBox[i]);
     }
-    axesBoxLayout->addStretch(10);
 
     QGroupBox *gridBox = new QGroupBox("Grids", this);
     QVBoxLayout* gridBoxLayout = new QVBoxLayout(gridBox);
     
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
-        d_majorGridBox[scaleId] = new QCheckBox(gridBox);
-        gridBoxLayout->addWidget(d_majorGridBox[scaleId]);
-        connect(d_majorGridBox[scaleId], SIGNAL(clicked()), this, SLOT(edited()) );
+        int idx = PlotSettings::MajorGridBegin + scaleId;
+        d_checkBox[idx] = new QCheckBox(gridBox);
+        gridBoxLayout->addWidget(d_checkBox[idx]);
 
-        d_minorGridBox[scaleId] = new QCheckBox(gridBox);
-        gridBoxLayout->addWidget(d_minorGridBox[scaleId]);
-        connect(d_minorGridBox[scaleId], SIGNAL(clicked()), this, SLOT(edited()) );
+        idx = PlotSettings::MinorGridBegin + scaleId;
+        d_checkBox[idx] = new QCheckBox(gridBox);
+        gridBoxLayout->addWidget(d_checkBox[idx]);
     }
     gridBoxLayout->addStretch(10);
 
     QGroupBox *otherBox = new QGroupBox("Other", this);
     QVBoxLayout* otherBoxLayout = new QVBoxLayout(otherBox);
-    d_antialiasing = new QCheckBox(otherBox);
-    d_spiralData = new QCheckBox(otherBox);
-    d_roseData = new QCheckBox(otherBox);
-    connect(d_antialiasing, SIGNAL(clicked()), this, SLOT(edited()) );
-    connect(d_spiralData, SIGNAL(clicked()), this, SLOT(edited()) );
-    connect(d_roseData, SIGNAL(clicked()), this, SLOT(edited()) );
-    otherBoxLayout->addWidget(d_antialiasing);
-    otherBoxLayout->addWidget(d_spiralData);
-    otherBoxLayout->addWidget(d_roseData);
+
+    for ( int i = PlotSettings::Antialiasing; 
+        i < PlotSettings::NumFlags; i++ )
+    {
+        d_checkBox[i] = new QCheckBox(otherBox);
+        otherBoxLayout->addWidget(d_checkBox[i]);
+    }
     otherBoxLayout->addStretch(10);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -50,37 +48,18 @@ SettingsEditor::SettingsEditor(QWidget *parent):
     layout->addWidget(otherBox);
     layout->addStretch(10);
 
-    d_majorGridBox[QwtPolar::Azimuth]->setText("Azimuth");
-    d_majorGridBox[QwtPolar::Radius]->setText("Radius");
-    d_minorGridBox[QwtPolar::Azimuth]->setText("Azimuth Minor");
-    d_minorGridBox[QwtPolar::Radius]->setText("Radius Minor");
-    
-    d_axisBox[QwtPolar::AxisAzimuth]->setText("Azimuth");
-    d_axisBox[QwtPolar::AxisLeft]->setText("Left");
-    d_axisBox[QwtPolar::AxisRight]->setText("Right");
-    d_axisBox[QwtPolar::AxisTop]->setText("Top");
-    d_axisBox[QwtPolar::AxisBottom]->setText("Bottom");
-
-    d_antialiasing->setText("Antialiased Scales/Grids");
-    d_spiralData->setText("Spiral Data");
-    d_roseData->setText("Rose Data");
+    for ( int i = 0; i < PlotSettings::NumFlags; i++ )
+    {
+        d_checkBox[i]->setText(label(i));
+        connect(d_checkBox[i], SIGNAL(clicked()), this, SLOT(edited()) );
+    }
 }
 
 void SettingsEditor::showSettings(const PlotSettings &settings)
 {
     blockSignals(true);
-    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
-    {
-        d_majorGridBox[scaleId]->setChecked(settings.majorGrid[scaleId]);
-        d_minorGridBox[scaleId]->setChecked(settings.minorGrid[scaleId]);
-    }
-
-    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
-        d_axisBox[axisId]->setChecked(settings.axis[axisId]);
-
-    d_antialiasing->setChecked(settings.antialiasing);
-    d_spiralData->setChecked(settings.spiralData);
-    d_roseData->setChecked(settings.roseData);
+    for ( int i = 0; i < PlotSettings::NumFlags; i++ )
+        d_checkBox[i]->setChecked(settings.flags[i]);
 
     blockSignals(false);
     updateEditor();
@@ -88,22 +67,10 @@ void SettingsEditor::showSettings(const PlotSettings &settings)
 
 PlotSettings SettingsEditor::settings() const
 {
-    PlotSettings settings;
-    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
-    {
-        settings.majorGrid[scaleId] = d_majorGridBox[scaleId]->isChecked();
-        settings.minorGrid[scaleId] = d_minorGridBox[scaleId]->isChecked();
-    }
-    
-    for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
-        settings.axis[axisId] = d_axisBox[axisId]->isChecked();
-        
-    settings.antialiasing = d_antialiasing->isChecked();
-    settings.spiralData = d_spiralData->isChecked();
-    settings.roseData = d_roseData->isChecked();
-    settings.roseData = d_roseData->isChecked();
-
-    return settings;
+    PlotSettings s;
+    for ( int i = 0; i < PlotSettings::NumFlags; i++ )
+        s.flags[i] = d_checkBox[i]->isChecked();
+    return s;
 }
 
 void SettingsEditor::edited()
@@ -118,7 +85,45 @@ void SettingsEditor::updateEditor()
 {
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
-        d_minorGridBox[scaleId]->setEnabled(
-            d_majorGridBox[scaleId]->isChecked());
+        d_checkBox[PlotSettings::MinorGridBegin+scaleId]->setEnabled(
+            d_checkBox[PlotSettings::MajorGridBegin+scaleId]->isChecked());
     }
+}
+
+QString SettingsEditor::label(int flag) const
+{
+    switch(flag)
+    {
+        case PlotSettings::MajorGridBegin + QwtPolar::ScaleAzimuth:
+            return "Azimuth";
+        case PlotSettings::MajorGridBegin + QwtPolar::ScaleRadius:
+            return "Radius";
+        case PlotSettings::MinorGridBegin + QwtPolar::ScaleAzimuth:
+            return "Azimuth Minor";
+        case PlotSettings::MinorGridBegin + QwtPolar::ScaleRadius:
+            return "Radius Minor";
+        case PlotSettings::AxisBegin + QwtPolar::AxisAzimuth:
+            return "Azimuth";
+        case PlotSettings::AxisBegin + QwtPolar::AxisLeft:
+            return "Left";
+        case PlotSettings::AxisBegin + QwtPolar::AxisRight:
+            return "Right";
+        case PlotSettings::AxisBegin + QwtPolar::AxisTop:
+            return "Top";
+        case PlotSettings::AxisBegin + QwtPolar::AxisBottom:
+            return "Bottom";
+        case PlotSettings::AutoScaling: 
+            return "Auto Scaling";
+        case PlotSettings::Inverted:
+            return "Inverted";
+        case PlotSettings::Logarithmic:
+            return "Logarithmic";
+        case PlotSettings::Antialiasing:
+            return "Antialiasing";
+        case PlotSettings::CurveBegin + PlotSettings::Spiral:
+            return "Spiral Curve";
+        case PlotSettings::CurveBegin + PlotSettings::Rose:
+            return "Rose Curve";
+    }
+    return QString();
 }

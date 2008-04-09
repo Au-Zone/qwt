@@ -10,6 +10,9 @@
 #include <qwt_scale_engine.h>
 #include "plot.h"
 
+const QwtDoubleInterval radialInterval(0.0, 10.0);
+const QwtDoubleInterval azimuthInterval(0.0, 360.0);
+
 class Data: public QwtData
 {
 public:
@@ -93,27 +96,14 @@ Plot::Plot(QWidget *parent):
     setAutoReplot(false);
     setCanvasBackground(Qt::darkBlue);
 
-    const QwtDoubleInterval radialInterval(0.001, 10.0);
-    const QwtDoubleInterval azimuthInterval(0.0, 360.0);
-    const int numPoints = 200;
-
     // scales 
     setScale(QwtPolar::Azimuth, 
         azimuthInterval.minValue(), azimuthInterval.maxValue(), 
         azimuthInterval.width() / 12 );
 
     setScaleMaxMinor(QwtPolar::Azimuth, 2);
-#if 1
     setScale(QwtPolar::Radius, 
         radialInterval.minValue(), radialInterval.maxValue());
-#else
-    setScale(QwtPolar::Radius, 
-        radialInterval.maxValue(), radialInterval.minValue());
-#endif
-#if 0
-    setScaleEngine(QwtPolar::Radius,
-        new QwtLog10ScaleEngine());
-#endif
 
     QwtPolarPanner *panner = new QwtPolarPanner(canvas());
     panner->setScaleEnabled(QwtPolar::Radius, true);
@@ -131,7 +121,9 @@ Plot::Plot(QWidget *parent):
         d_grid->showMinorGrid(scaleId);
 
         QPen minorPen(Qt::gray);
+#if 0
         minorPen.setStyle(Qt::DotLine);
+#endif
         d_grid->setMinorGridPen(scaleId, minorPen);
     }
     d_grid->setAxisPen(QwtPolar::AxisAzimuth, QPen(Qt::black));
@@ -147,26 +139,13 @@ Plot::Plot(QWidget *parent):
 
     // curves
 
-    d_spiralCurve = new QwtPolarCurve("Spiral");
-    d_spiralCurve->setStyle(QwtPolarCurve::Lines);
-    d_spiralCurve->setPen(QPen(Qt::yellow, 2));
-    d_spiralCurve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
-        QBrush(Qt::yellow), QPen(Qt::white), QSize(3, 3)) );
-    d_spiralCurve->setData(SpiralData(radialInterval, azimuthInterval, numPoints));
-    d_spiralCurve->attach(this);
+    for ( int curveId = 0; curveId < PlotSettings::NumCurves; curveId++ )
+    {
+        d_curve[curveId] = createCurve(curveId);
+        d_curve[curveId]->attach(this);
+    }
 
-    d_roseCurve = new QwtPolarCurve("Rose");
-    d_roseCurve->setStyle(QwtPolarCurve::Lines);
-    d_roseCurve->setPen(QPen(Qt::red, 2));
-    d_roseCurve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
-        QBrush(Qt::cyan), QPen(Qt::white), QSize(3, 3)) );
-    d_roseCurve->setData(RoseData(radialInterval, azimuthInterval, numPoints));
-    d_roseCurve->attach(this);
-
-#if 1
     QwtLegend *legend = new QwtLegend;
-    legend->setFrameStyle(QFrame::Box|QFrame::Sunken);
-#endif
     insertLegend(legend,  QwtPolarPlot::BottomLegend);
 }
 
@@ -175,17 +154,37 @@ PlotSettings Plot::settings() const
     PlotSettings s;
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
-        s.majorGrid[scaleId] = d_grid->isGridVisible(scaleId);
-        s.minorGrid[scaleId] = d_grid->isMinorGridVisible(scaleId);
+        s.flags[PlotSettings::MajorGridBegin + scaleId] =
+            d_grid->isGridVisible(scaleId);
+        s.flags[PlotSettings::MinorGridBegin + scaleId] =
+            d_grid->isMinorGridVisible(scaleId);
     }
     for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
-        s.axis[axisId] = d_grid->isAxisVisible(axisId);
+    {
+        s.flags[PlotSettings::AxisBegin + axisId] = 
+            d_grid->isAxisVisible(axisId);
+    }
 
-    s.antialiasing = d_grid->testRenderHint(
+    s.flags[PlotSettings::AutoScaling] = d_grid->hasAxisAutoScaling();
+
+    const QwtScaleTransformation *transform =
+        scaleEngine(QwtPolar::Radius)->transformation();
+    s.flags[PlotSettings::Logarithmic] = 
+        (transform->type() == QwtScaleTransformation::Log10);
+    delete transform;
+
+    const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
+    s.flags[PlotSettings::Inverted] = sd->lBound() > sd->hBound();
+
+    s.flags[PlotSettings::Antialiasing] = d_grid->testRenderHint(
         QwtPolarItem::RenderAntialiased );
-    s.spiralData = d_spiralCurve->isVisible();
-    s.roseData = d_roseCurve->isVisible();
 
+    for ( int curveId = 0; curveId < PlotSettings::NumCurves; curveId++ )
+    {
+        s.flags[PlotSettings::CurveBegin + curveId] =
+            d_curve[curveId]->isVisible();
+    }
+    
     return s;
 }
 
@@ -193,21 +192,89 @@ void Plot::applySettings(const PlotSettings& s)
 {
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
-        d_grid->showGrid(scaleId, s.majorGrid[scaleId]);
-        d_grid->showMinorGrid(scaleId, s.minorGrid[scaleId]);
+        d_grid->showGrid(scaleId, 
+            s.flags[PlotSettings::MajorGridBegin + scaleId]);
+        d_grid->showMinorGrid(scaleId, 
+            s.flags[PlotSettings::MinorGridBegin + scaleId]);
     }
 
     for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
-        d_grid->showAxis(axisId, s.axis[axisId]);
+    {
+        d_grid->showAxis(axisId, 
+            s.flags[PlotSettings::AxisBegin + axisId]);
+    }
 
-    d_grid->setRenderHint(
-        QwtPolarItem::RenderAntialiased, s.antialiasing);
-    d_spiralCurve->setRenderHint(
-        QwtPolarItem::RenderAntialiased, s.antialiasing);
-    d_spiralCurve->setVisible(s.spiralData);
-    d_roseCurve->setRenderHint(
-        QwtPolarItem::RenderAntialiased, s.antialiasing);
-    d_roseCurve->setVisible(s.roseData);
+    d_grid->setAxisAutoScaling(s.flags[PlotSettings::AutoScaling]);
+
+    const QwtDoubleInterval interval = 
+        scaleDiv(QwtPolar::Radius)->interval().normalized();
+    if ( s.flags[PlotSettings::Inverted] )
+    {
+        setScale(QwtPolar::Radius,
+            interval.maxValue(), interval.minValue());
+    }
+    else
+    {
+        setScale(QwtPolar::Radius,
+            interval.minValue(), interval.maxValue());
+    }
+
+    const QwtScaleTransformation *transform = 
+        scaleEngine(QwtPolar::Radius)->transformation();
+    if ( s.flags[PlotSettings::Logarithmic] )
+    {
+        if ( transform->type() != QwtScaleTransformation::Log10 )
+            setScaleEngine(QwtPolar::Radius, new QwtLog10ScaleEngine());
+    }
+    else
+    {
+        if ( transform->type() != QwtScaleTransformation::Linear )
+            setScaleEngine(QwtPolar::Radius, new QwtLinearScaleEngine());
+    }
+    delete transform;
+
+    d_grid->setRenderHint( QwtPolarItem::RenderAntialiased, 
+        s.flags[PlotSettings::Antialiasing] );
+
+    for ( int curveId = 0; curveId < PlotSettings::NumCurves; curveId++ )
+    {
+        d_curve[curveId]->setRenderHint(QwtPolarItem::RenderAntialiased,
+            s.flags[PlotSettings::Antialiasing] );
+        d_curve[curveId]->setVisible(
+            s.flags[PlotSettings::CurveBegin + curveId]);
+    }
 
     replot();
+}
+
+QwtPolarCurve *Plot::createCurve(int id) const
+{
+    const int numPoints = 200;
+
+    QwtPolarCurve *curve = new QwtPolarCurve();
+    curve->setStyle(QwtPolarCurve::Lines);
+    switch(id)
+    {
+        case PlotSettings::Spiral:
+        {
+            curve->setTitle("Spiral");
+            curve->setPen(QPen(Qt::yellow, 2));
+            curve->setSymbol( QwtSymbol(QwtSymbol::Rect, 
+                QBrush(Qt::yellow), QPen(Qt::white), QSize(3, 3)) );
+            curve->setData(
+                SpiralData(radialInterval, azimuthInterval, numPoints));
+            break;
+        }
+        case PlotSettings::Rose:
+        {
+            curve->setTitle("Rose");
+            curve->setPen(QPen(Qt::red, 2)); 
+            curve->setSymbol( QwtSymbol(QwtSymbol::Rect,
+                QBrush(Qt::cyan), QPen(Qt::white), QSize(3, 3)) );
+            curve->setData(
+                RoseData(radialInterval, azimuthInterval, numPoints));
+            break;
+        }
+    }
+    return curve;
 }

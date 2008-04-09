@@ -28,6 +28,14 @@
 #include "qwt_dyngrid_layout.h"
 #include "qwt_polar_plot.h"
 
+static inline double distance(
+    const QwtDoublePoint &p1, const QwtDoublePoint &p2)
+{
+    double dx = p2.x() - p1.x();
+    double dy = p2.y() - p1.y();
+    return ::sqrt(dx * dx + dy * dy);
+}
+
 class QwtPolarPlot::ScaleData
 {
 public:
@@ -692,10 +700,8 @@ void QwtPolarPlot::updateScale(int scaleId)
     }
 
     const QwtPolarItemList& itmList = itemList();
-
-    QwtPolarItemIterator it;
-
-    for ( it = itmList.begin(); it != itmList.end(); ++it )
+    for ( QwtPolarItemIterator it = itmList.begin(); 
+        it != itmList.end(); ++it )
     {
         QwtPolarItem *item = *it;
         item->updateScaleDiv( 
@@ -762,5 +768,105 @@ QwtDoubleRect QwtPolarPlot::plotRect() const
     rect.moveCenter(center);
 
     return rect;
+}
+
+QwtDoubleInterval QwtPolarPlot::visibleInterval() const
+{
+    const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
+
+    const QwtDoubleRect pRect = plotRect();
+    const QwtDoubleRect cRect = canvas()->contentsRect();
+    if ( cRect.contains(pRect.toRect()) || !cRect.intersects(pRect) )
+    {
+        return QwtDoubleInterval(sd->lBound(), sd->hBound());
+    }
+
+    const QwtDoublePoint pole = pRect.center();
+    const QwtDoubleRect scaleRect = pRect & cRect;
+    
+    const QwtScaleMap map = scaleMap(QwtPolar::Radius);
+
+    double dmin, dmax;
+    if ( scaleRect.contains(pole) )
+    {
+        dmin = 0.0;
+
+        QwtDoublePoint corners[4];
+        corners[0] = scaleRect.bottomRight();
+        corners[1] = scaleRect.topRight();
+        corners[2] = scaleRect.topLeft();
+        corners[3] = scaleRect.bottomLeft();
+
+        dmax = 0.0;
+        for ( int i = 0; i < 4; i++ )
+        {
+            const double dist = distance(pole, corners[i]);
+            if ( dist > dmax )
+                dmax = dist;
+        }
+    }
+    else
+    {
+        if ( pole.x() < scaleRect.left() )
+        {
+            if ( pole.y() < scaleRect.top() )
+            {
+                dmin = distance(pole, scaleRect.topLeft());
+                dmax = distance(pole, scaleRect.bottomRight());
+            }
+            else if ( pole.y() > scaleRect.bottom() )
+            {
+                dmin = distance(pole, scaleRect.bottomLeft());
+                dmax = distance(pole, scaleRect.topRight());
+            }
+            else
+            {
+                dmin = scaleRect.left() - pole.x();
+                dmax = qwtMax(distance(pole, scaleRect.bottomRight()),
+                    distance(pole, scaleRect.topRight()) );
+            }
+        } 
+        else if ( pole.x() > scaleRect.right() )
+        {
+            if ( pole.y() < scaleRect.top() )
+            {
+                dmin = distance(pole, scaleRect.topRight());
+                dmax = distance(pole, scaleRect.bottomLeft());
+            }
+            else if ( pole.y() > scaleRect.bottom() )
+            {
+                dmin = distance(pole, scaleRect.bottomRight());
+                dmax = distance(pole, scaleRect.topLeft());
+            }
+            else
+            {
+                dmin = pole.x() - scaleRect.right();
+                dmax = qwtMax(distance(pole, scaleRect.bottomLeft()),
+                    distance(pole, scaleRect.topLeft()) );
+            }
+        }
+        else if ( pole.y() < scaleRect.top() )
+        {
+            dmin = scaleRect.top() - pole.y();
+            dmax = qwtMax(distance(pole, scaleRect.bottomLeft()),
+                distance(pole, scaleRect.bottomRight()));
+        }
+        else if ( pole.y() > scaleRect.bottom() )
+        {
+            dmin = pole.y() - scaleRect.bottom();
+            dmax = qwtMax(distance(pole, scaleRect.topLeft()),
+                distance(pole, scaleRect.topRight()));
+        }
+    }
+
+    const double radius = pRect.width() / 2.0;
+    if ( dmax > radius )
+        dmax = radius;
+
+    QwtDoubleInterval interval;
+    interval.setMinValue(map.invTransform(dmin));
+    interval.setMaxValue(map.invTransform(dmax));
+    
+    return interval;
 }
 

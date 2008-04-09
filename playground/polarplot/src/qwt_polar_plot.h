@@ -104,6 +104,9 @@ public:
     QwtLegend *legend();
     const QwtLegend *legend() const;
 
+    QwtDoubleInterval visibleInterval() const;
+    QwtDoubleRect plotRect() const;
+
 signals:
     void legendClicked(QwtPolarItem *plotItem);
     void legendChecked(QwtPolarItem *plotItem, bool on);
@@ -128,7 +131,6 @@ protected:
 
     void updateScale(int scaleId);
 
-    QwtDoubleRect plotRect() const;
     int canvasMarginHint() const;
 
 private:

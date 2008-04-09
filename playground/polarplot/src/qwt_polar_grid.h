@@ -73,6 +73,7 @@ public:
     QFont axisFont(int axisId) const;
 
     void setAxisAutoScaling(bool on);
+    bool hasAxisAutoScaling();
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,

@@ -19,6 +19,7 @@
 #include "qwt_scale_draw.h"
 #include "qwt_round_scale_draw.h"
 #include "qwt_polar_grid.h"
+#include <QDebug>
 
 static inline bool isClose(double value1, double value2 )
 {
@@ -129,7 +130,7 @@ QwtPolarGrid::QwtPolarGrid():
         }
     }
 
-    d_data->axisAutoScaling = false;
+    d_data->axisAutoScaling = true;
 
     d_data->displayFlags = 0;
     d_data->displayFlags |= SmartOriginLabel;
@@ -377,6 +378,20 @@ QPen QwtPolarGrid::minorGridPen(int scaleId) const
 
     const GridData &grid = d_data->gridData[scaleId];
     return grid.minorPen;
+}
+
+void QwtPolarGrid::setAxisAutoScaling(bool on)
+{
+    if ( on != d_data->axisAutoScaling )
+    {
+        d_data->axisAutoScaling = on;
+        itemChanged();
+    }
+}
+
+bool QwtPolarGrid::hasAxisAutoScaling()
+{
+    return d_data->axisAutoScaling;
 }
 
 void QwtPolarGrid::setAxisPen(int axisId, const QPen &pen)
@@ -687,7 +702,15 @@ void QwtPolarGrid::updateScaleDraws(
     const QwtDoublePoint &pole, double radius) const
 {
     const QPoint p = pole.toPoint();
-    const int r = qRound(radius);
+
+    const QwtDoubleInterval interval = 
+        d_data->gridData[QwtPolar::ScaleRadius].scaleDiv.interval();
+    const QwtScaleMap map = plot()->scaleMap(QwtPolar::ScaleRadius);
+
+    const int x = map.transform(interval.minValue());
+    const int y = map.transform(interval.minValue());
+    const int l = map.transform(interval.maxValue()) - 
+        map.transform(interval.minValue());
 
     for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
     {
@@ -697,7 +720,7 @@ void QwtPolarGrid::updateScaleDraws(
         {
             QwtRoundScaleDraw *scaleDraw = (QwtRoundScaleDraw *)axis.scaleDraw;
 
-            scaleDraw->setRadius(r);
+            scaleDraw->setRadius(qRound(radius));
             scaleDraw->moveCenter(p);
 
             scaleDraw->setAngleRange(90.0, -270.0);
@@ -710,26 +733,26 @@ void QwtPolarGrid::updateScaleDraws(
             {
                 case QwtPolar::AxisLeft:
                 {
-                    scaleDraw->move(p.x(), p.y());
-                    scaleDraw->setLength(-r);
+                    scaleDraw->move(p.x() + x, p.y());
+                    scaleDraw->setLength(-l);
                     break;
                 }
                 case QwtPolar::AxisRight:
                 {
-                    scaleDraw->move(p.x(), p.y());
-                    scaleDraw->setLength(r);
+                    scaleDraw->move(p.x() + x, p.y());
+                    scaleDraw->setLength(l);
                     break;
                 }
                 case QwtPolar::AxisTop:
                 {
-                    scaleDraw->move(p.x(), p.y() - r);
-                    scaleDraw->setLength(r);
+                    scaleDraw->move(p.x(), p.y() + y - l);
+                    scaleDraw->setLength(l);
                     break;
                 }
                 case QwtPolar::AxisBottom:
                 {
-                    scaleDraw->move(p.x(), p.y() + r);
-                    scaleDraw->setLength(-r);
+                    scaleDraw->move(p.x(), p.y() + y + l);
+                    scaleDraw->setLength(-l);
                     break;
                 }
             }
@@ -749,12 +772,16 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
 {
     GridData &radialGrid = d_data->gridData[QwtPolar::Radius];
 
-    if ( plot() && d_data->axisAutoScaling )
+    const QwtPolarPlot *plt = plot();
+    if ( plt && d_data->axisAutoScaling )
     {
-#if 1
-        if ( radialGrid.scaleDiv != radialScaleDiv )
-            radialGrid.scaleDiv = radialScaleDiv;
-#endif
+        const QwtDoubleInterval interval = plt->visibleInterval();
+
+        const QwtScaleEngine *se = plt->scaleEngine(QwtPolar::Radius);
+        radialGrid.scaleDiv = se->divideScale(
+            interval.minValue(), interval.maxValue(),
+            plt->scaleMaxMajor(QwtPolar::Radius),
+            plt->scaleMaxMinor(QwtPolar::Radius), 0);
     }
     else
     {
@@ -776,7 +803,7 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
         {
             if ( axisId == QwtPolar::AxisAzimuth )
             {
-                axis.scaleDraw->setScaleDiv(azimuthScaleDiv);
+                axis.scaleDraw->setScaleDiv(azimuthGrid.scaleDiv);
                 if ( testDisplayFlag(SmartScaleDraw) )
                 {
                     axis.scaleDraw->enableComponent(
@@ -785,7 +812,7 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
             }
             else
             {
-                QwtScaleDiv sd = radialScaleDiv;
+                QwtScaleDiv sd = radialGrid.scaleDiv;
 
                 QwtValueList &ticks = 
                         (QwtValueList &)sd.ticks(QwtScaleDiv::MajorTick);

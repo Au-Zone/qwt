@@ -9,12 +9,32 @@ class QwtPolarCurve;
 class PlotSettings
 {
 public:
-    bool majorGrid[QwtPolar::ScaleCount];
-    bool minorGrid[QwtPolar::ScaleCount];
-    bool axis[QwtPolar::AxesCount];
-    bool antialiasing;
-    bool spiralData;
-    bool roseData;
+    enum Curve
+    {
+        Spiral,
+        Rose,
+
+        NumCurves
+    };
+
+    enum Flag
+    {
+        MajorGridBegin,
+        MinorGridBegin = MajorGridBegin + QwtPolar::ScaleCount,
+        AxisBegin = MinorGridBegin + QwtPolar::ScaleCount,
+
+        AutoScaling = AxisBegin + QwtPolar::AxesCount,
+        Inverted,
+        Logarithmic,
+
+        Antialiasing,
+
+        CurveBegin,
+
+        NumFlags = CurveBegin + NumCurves
+    };
+        
+    bool flags[NumFlags];
 };
 
 class Plot: public QwtPolarPlot
@@ -29,9 +49,10 @@ public slots:
     void applySettings(const PlotSettings &);
 
 private:
+    QwtPolarCurve *createCurve(int id) const;
+
     QwtPolarGrid *d_grid;
-    QwtPolarCurve *d_spiralCurve;
-    QwtPolarCurve *d_roseCurve;
+    QwtPolarCurve *d_curve[PlotSettings::NumCurves];
 };
 
 #endif
