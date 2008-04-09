@@ -19,7 +19,6 @@
 #include "qwt_scale_draw.h"
 #include "qwt_round_scale_draw.h"
 #include "qwt_polar_grid.h"
-#include <QDebug>
 
 static inline bool isClose(double value1, double value2 )
 {
@@ -458,7 +457,7 @@ void QwtPolarGrid::draw(QPainter *painter,
                 {
                     const QwtValueList &ticks = 
                         scaleDraw->scaleDiv().ticks(QwtScaleDiv::MajorTick);
-                    for ( int i = 0; i < ticks.size(); i++ )
+                    for ( int i = 0; i < int(ticks.size()); i++ )
                     {
                         QRect labelRect =
                             scaleDraw->boundingLabelRect(axis.font, ticks[i]);
@@ -540,7 +539,7 @@ void QwtPolarGrid::drawRays(
     const QwtDoublePoint &pole, double radius,
     const QwtScaleMap &azimuthMap, const QwtValueList &values) const
 {
-    for ( int i = 0; i < values.size(); i++ )
+    for ( int i = 0; i < int(values.size()); i++ )
     {
         double azimuth = azimuthMap.xTransform(values[i]);
         azimuth = ::fmod(azimuth, 2 * M_PI);
@@ -601,7 +600,7 @@ void QwtPolarGrid::drawCircles(
     const QwtDoublePoint &pole, const QwtScaleMap &radialMap, 
     const QwtValueList &values) const
 {
-    for ( int i = 0; i < values.size(); i++ )
+    for ( int i = 0; i < int(values.size()); i++ )
     {
         const double val = values[i];
 
@@ -837,7 +836,13 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
                     if ( ticks.size() > 0 && ticks.first() == sd.lBound() )
                     {
                         if ( skipOrigin )
+                        {
+#if QT_VERSION < 0x040000
+                            ticks.pop_front();
+#else
                             ticks.removeFirst();
+#endif
+                        }
                         else
                             hasOrigin = true;
                     }
@@ -846,7 +851,11 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
                 if ( testDisplayFlag(HideMaxRadiusLabel) )
                 {
                     if ( ticks.size() > 0 && ticks.last() == sd.hBound() )
+#if QT_VERSION < 0x040000
+                        ticks.pop_back();
+#else
                         ticks.removeLast();
+#endif
                 }
 
                 axis.scaleDraw->setScaleDiv(sd);

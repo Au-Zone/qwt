@@ -27,7 +27,9 @@ public:
         Inverted,
         Logarithmic,
 
+#if QT_VERSION >= 0x040000
         Antialiasing,
+#endif
 
         CurveBegin,
 

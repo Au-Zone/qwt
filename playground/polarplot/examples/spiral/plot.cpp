@@ -176,8 +176,10 @@ PlotSettings Plot::settings() const
     const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
     s.flags[PlotSettings::Inverted] = sd->lBound() > sd->hBound();
 
+#if QT_VERSION >= 0x040000
     s.flags[PlotSettings::Antialiasing] = d_grid->testRenderHint(
         QwtPolarItem::RenderAntialiased );
+#endif
 
     for ( int curveId = 0; curveId < PlotSettings::NumCurves; curveId++ )
     {
@@ -233,13 +235,17 @@ void Plot::applySettings(const PlotSettings& s)
     }
     delete transform;
 
+#if QT_VERSION >= 0x040000
     d_grid->setRenderHint( QwtPolarItem::RenderAntialiased, 
         s.flags[PlotSettings::Antialiasing] );
+#endif
 
     for ( int curveId = 0; curveId < PlotSettings::NumCurves; curveId++ )
     {
+#if QT_VERSION >= 0x040000
         d_curve[curveId]->setRenderHint(QwtPolarItem::RenderAntialiased,
             s.flags[PlotSettings::Antialiasing] );
+#endif
         d_curve[curveId]->setVisible(
             s.flags[PlotSettings::CurveBegin + curveId]);
     }

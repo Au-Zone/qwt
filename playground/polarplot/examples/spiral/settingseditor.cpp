@@ -34,7 +34,7 @@ SettingsEditor::SettingsEditor(QWidget *parent):
     QGroupBox *otherBox = new QGroupBox("Other", this);
     QVBoxLayout* otherBoxLayout = new QVBoxLayout(otherBox);
 
-    for ( int i = PlotSettings::Antialiasing; 
+    for ( int i = PlotSettings::AxisBegin + QwtPolar::AxesCount;
         i < PlotSettings::NumFlags; i++ )
     {
         d_checkBox[i] = new QCheckBox(otherBox);
@@ -118,8 +118,10 @@ QString SettingsEditor::label(int flag) const
             return "Inverted";
         case PlotSettings::Logarithmic:
             return "Logarithmic";
+#if QT_VERSION >= 0x040000
         case PlotSettings::Antialiasing:
             return "Antialiasing";
+#endif
         case PlotSettings::CurveBegin + PlotSettings::Spiral:
             return "Spiral Curve";
         case PlotSettings::CurveBegin + PlotSettings::Rose:

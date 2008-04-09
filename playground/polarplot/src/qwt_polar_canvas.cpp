@@ -8,6 +8,7 @@
 
 #include <qpainter.h>
 #include <qevent.h>
+#include <qpixmap.h>
 #if QT_VERSION >= 0x040000
 #ifdef Q_WS_X11
 #include <qx11info_x11.h>

@@ -11,11 +11,11 @@
 #include <qguardedptr.h>
 #else
 #include <qpointer.h>
+#include <qpaintengine.h>
 #endif
 #include <qpainter.h>
 #include <qevent.h>
 #include <qlayout.h>
-#include <qpaintengine.h>
 #include "qwt_painter.h"
 #include "qwt_math.h"
 #include "qwt_scale_engine.h"
@@ -110,7 +110,10 @@ void QwtPolarPlot::setTitle(const QString &title)
     if ( title != d_data->titleLabel->text().text() )
     {
         d_data->titleLabel->setText(title);
-        d_data->titleLabel->setVisible(!title.isEmpty());
+        if ( !title.isEmpty() )
+            d_data->titleLabel->show();
+        else
+            d_data->titleLabel->hide();
     }
 }
 
@@ -119,7 +122,10 @@ void QwtPolarPlot::setTitle(const QwtText &title)
     if ( title != d_data->titleLabel->text() )
     {
         d_data->titleLabel->setText(title);
-        d_data->titleLabel->setVisible(!title.isEmpty());
+        if ( !title.isEmpty() )
+            d_data->titleLabel->show();
+        else
+            d_data->titleLabel->hide();
     }
 }
 
@@ -480,7 +486,10 @@ void QwtPolarPlot::initPlot(const QwtText &title)
 
     d_data->titleLabel = new QwtTextLabel(text, this);
     d_data->titleLabel->setFont(QFont(fontInfo().family(), 14, QFont::Bold));
-    d_data->titleLabel->setVisible(!text.isEmpty());
+    if ( !text.isEmpty() )
+        d_data->titleLabel->show();
+    else
+        d_data->titleLabel->hide();
 
     d_data->canvas = new QwtPolarCanvas(this);
 
@@ -532,7 +541,7 @@ void QwtPolarPlot::updateLayout()
     delete layout();
 
     QwtPolarPlot::LegendPosition pos = d_data->legendPosition;
-    if ( d_data->legend == NULL )
+    if ( !d_data->legend )
         pos = QwtPolarPlot::ExternalLegend;
     
     switch(pos)
@@ -543,7 +552,11 @@ void QwtPolarPlot::updateLayout()
             l->setSpacing(0);
             l->setMargin(0);
             l->setRowStretch(1, 10);
+#if QT_VERSION < 0x040000
+            l->setColStretch(1, 10);
+#else
             l->setColumnStretch(1, 10);
+#endif
             l->addWidget(d_data->spacer, 0, 0);
             l->addWidget(d_data->legend, 0, 1);
             l->addWidget(d_data->titleLabel, 0, 1);
@@ -557,7 +570,11 @@ void QwtPolarPlot::updateLayout()
             l->setSpacing(0);
             l->setMargin(0);
             l->setRowStretch(1, 10);
+#if QT_VERSION < 0x040000
+            l->setColStretch(0, 10);
+#else
             l->setColumnStretch(0, 10);
+#endif
             l->addWidget(d_data->titleLabel, 0, 0);
             l->addWidget(d_data->canvas, 1, 0);
             l->addWidget(d_data->spacer, 0, 1);
@@ -600,7 +617,12 @@ void QwtPolarPlot::updateLayout()
     }
 
     if ( d_data->legend )
-        d_data->legend->setVisible(d_data->legend->itemCount() > 0);
+    {
+        if ( d_data->legend->itemCount() > 0 )
+            d_data->legend->show();
+        else
+            d_data->legend->hide();
+    }
 
     layout()->activate();
 }
@@ -638,7 +660,11 @@ void QwtPolarPlot::drawCanvas(QPainter *painter,
         painter->save();
         painter->setPen(Qt::NoPen);
         painter->setBrush(d_data->canvasBrush);
+#if QT_VERSION < 0x040000
+        painter->drawEllipse(pr.toRect());
+#else
         painter->drawEllipse(pr);
+#endif
         painter->restore();
     }
 
@@ -786,7 +812,8 @@ QwtDoubleInterval QwtPolarPlot::visibleInterval() const
     
     const QwtScaleMap map = scaleMap(QwtPolar::Radius);
 
-    double dmin, dmax;
+    double dmin = 0.0; 
+    double dmax = 0.0;
     if ( scaleRect.contains(pole) )
     {
         dmin = 0.0;
