@@ -22,7 +22,6 @@
 #include "qwt_scale_div.h"
 #include "qwt_text_label.h"
 #include "qwt_round_scale_draw.h"
-#include "qwt_polar_rect.h"
 #include "qwt_polar_canvas.h"
 #include "qwt_legend.h"
 #include "qwt_dyngrid_layout.h"

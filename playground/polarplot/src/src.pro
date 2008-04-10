@@ -29,7 +29,6 @@ DEPENDPATH  += ../../../src
 HEADERS += \
     qwt_polar.h \
     qwt_polar_point.h \
-    qwt_polar_rect.h \
     qwt_polar_item.h \
     qwt_polar_panner.h \
     qwt_polar_magnifier.h \
@@ -41,7 +40,6 @@ HEADERS += \
 
 SOURCES += \
     qwt_polar_point.cpp \
-    qwt_polar_rect.cpp \
     qwt_polar_item.cpp \
     qwt_polar_panner.cpp \
     qwt_polar_magnifier.cpp \

@@ -17,7 +17,6 @@
 
 class QPainter;
 class QPen;
-class QwtPolarRect;
 class QwtScaleMap;
 class QwtScaleDiv;
 class QwtRoundScaleDraw;
@@ -96,9 +95,6 @@ protected:
     void drawAxis(QPainter *, int axisId) const;
 
 private:
-    QwtDoubleInterval clipInterval(
-        const QwtDoubleInterval &, const QwtPolarRect &) const;
-
     void updateScaleDraws( 
         const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap, 
         const QwtDoublePoint &pole, const double radius) const;

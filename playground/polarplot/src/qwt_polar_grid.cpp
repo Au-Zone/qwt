@@ -760,12 +760,6 @@ void QwtPolarGrid::updateScaleDraws(
     }
 }
 
-QwtDoubleInterval QwtPolarGrid::clipInterval(
-    const QwtDoubleInterval &interval, const QwtPolarRect &) const
-{
-    return interval;
-}
-
 void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
     const QwtScaleDiv &radialScaleDiv)
 {
