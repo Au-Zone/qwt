@@ -2,7 +2,6 @@
 #include <qwt_data.h>
 #include <qwt_symbol.h>
 #include <qwt_legend.h>
-#include <qwt_polar_rect.h>
 #include <qwt_polar_grid.h>
 #include <qwt_polar_curve.h>
 #include <qwt_polar_panner.h>
