@@ -41,15 +41,17 @@ QwtPolarCanvas::QwtPolarCanvas(QwtPolarPlot *plot):
     d_data = new PrivateData;
 
 #if QT_VERSION >= 0x040100
-    setAutoFillBackground(true);
+    setAutoFillBackground(false);
 #endif
 
 #if QT_VERSION < 0x040000
+    setBackgroundMode(Qt::NoBackground);
 #ifndef QT_NO_CURSOR
     setWFlags(Qt::WNoAutoErase);
     setCursor(Qt::crossCursor);
 #endif
 #else
+    setAttribute(Qt::WA_NoSystemBackground, true);
 #ifndef QT_NO_CURSOR
     setCursor(Qt::CrossCursor);
 #endif
@@ -188,7 +190,7 @@ void QwtPolarCanvas::drawCanvas(QPainter *painter,
     if ( !canvasRect.isValid() )
         return;
 
-    if ( d_data->paintAttributes & PaintCached && d_data->cache )
+    if ( testPaintAttribute(PaintCached) && d_data->cache )
     {
         *d_data->cache = QPixmap(contentsRect().size());
 
@@ -203,6 +205,7 @@ void QwtPolarCanvas::drawCanvas(QPainter *painter,
 #endif
 
         d_data->cache->fill(this, d_data->cache->rect().topLeft());
+
         QPainter cachePainter(d_data->cache);
         cachePainter.translate(-contentsRect().x(),
             -contentsRect().y());

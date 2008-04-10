@@ -8,6 +8,8 @@ SettingsEditor::SettingsEditor(QWidget *parent):
 {
     QGroupBox *axesBox = new QGroupBox("Axes", this);
     QVBoxLayout* axesBoxLayout = new QVBoxLayout(axesBox);
+    axesBoxLayout->setMargin(20);
+
 
     for ( int i = PlotSettings::AxisBegin; 
         i <= PlotSettings::Logarithmic; i++ ) 
@@ -18,6 +20,7 @@ SettingsEditor::SettingsEditor(QWidget *parent):
 
     QGroupBox *gridBox = new QGroupBox("Grids", this);
     QVBoxLayout* gridBoxLayout = new QVBoxLayout(gridBox);
+    gridBoxLayout->setMargin(20);
     
     for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
     {
@@ -33,8 +36,9 @@ SettingsEditor::SettingsEditor(QWidget *parent):
 
     QGroupBox *otherBox = new QGroupBox("Other", this);
     QVBoxLayout* otherBoxLayout = new QVBoxLayout(otherBox);
+    otherBoxLayout->setMargin(20);
 
-    for ( int i = PlotSettings::AxisBegin + QwtPolar::AxesCount;
+    for ( int i = PlotSettings::Logarithmic + 1;
         i < PlotSettings::NumFlags; i++ )
     {
         d_checkBox[i] = new QCheckBox(otherBox);
