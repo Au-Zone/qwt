@@ -146,6 +146,9 @@ public:
     QwtDoubleRect(double left, double top, double width, double height);
     QwtDoubleRect(const QwtDoublePoint&, const QwtDoubleSize &);
 
+    QwtDoubleRect(const QRect &);
+    QRect toRect() const;
+
     bool isNull()    const;
     bool isEmpty()   const;
     bool isValid()   const;
@@ -204,6 +207,11 @@ public:
     QwtDoubleRect unite(const QwtDoubleRect &) const;
     QwtDoubleRect intersect(const QwtDoubleRect &) const;
     bool intersects(const QwtDoubleRect &) const;
+
+    QwtDoublePoint bottomRight() const;
+    QwtDoublePoint topRight() const;
+    QwtDoublePoint topLeft() const;
+    QwtDoublePoint bottomLeft() const;
 
 private:
     double d_left;
@@ -466,6 +474,27 @@ inline void QwtDoubleRect::moveTo(const QwtDoublePoint &p)
 {
     moveTo(p.x(), p.y());
 }
+
+inline QwtDoublePoint QwtDoubleRect::bottomRight() const
+{
+    return QwtDoublePoint(bottom(), right());
+}
+
+inline QwtDoublePoint QwtDoubleRect::topRight() const
+{
+    return QwtDoublePoint(top(), right());
+}
+
+inline QwtDoublePoint QwtDoubleRect::topLeft() const
+{
+    return QwtDoublePoint(top(), left());
+}
+
+inline QwtDoublePoint QwtDoubleRect::bottomLeft() const
+{
+    return QwtDoublePoint(bottom(), left());
+}
+
 
 #endif // QT_VERSION < 0x040000
 
