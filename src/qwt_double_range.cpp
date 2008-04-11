@@ -102,7 +102,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
         if (d_step != 0.0)
         {
            d_value = d_minValue +
-             ::round((d_value - d_minValue) / d_step) * d_step;
+             qwtRound((d_value - d_minValue) / d_step) * d_step;
         }
         else
             d_value = d_minValue;

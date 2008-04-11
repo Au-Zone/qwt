@@ -183,5 +183,10 @@ inline QwtDoublePoint qwtDegree2Pos(const QwtDoublePoint &pole,
     return qwtPolar2Pos(pole, radius, angle / 180.0 * M_PI);
 }
 
+//! Rounding of doubles, like qRound for integers
+inline double qwtRound(double value)
+{
+    return ::floor(value + 0.5); // MSVC has no ::round().
+}
 
 #endif
