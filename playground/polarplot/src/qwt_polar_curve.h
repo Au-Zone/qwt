@@ -16,9 +16,17 @@
 class QPainter;
 class QwtSymbol;
 
+/*!
+  A class which draws curves on a polar plot
+*/
+
 class QWT_EXPORT QwtPolarCurve: public QwtPolarItem
 {
 public:
+    /*!
+        Curve styles.
+        \sa setStyle
+    */
     enum CurveStyle
     {
         NoCurve,

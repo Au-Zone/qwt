@@ -93,7 +93,7 @@ Plot::Plot(QWidget *parent):
     QwtPolarPlot(QwtText("Polar Plot Demo"), parent)
 {
     setAutoReplot(false);
-    setCanvasBackground(Qt::darkBlue);
+    setPlotBackground(Qt::darkBlue);
 
     // scales 
     setScale(QwtPolar::Azimuth, 
@@ -104,10 +104,7 @@ Plot::Plot(QWidget *parent):
     setScale(QwtPolar::Radius, 
         radialInterval.minValue(), radialInterval.maxValue());
 
-    QwtPolarPanner *panner = new QwtPolarPanner(canvas());
-    panner->setScaleEnabled(QwtPolar::Radius, true);
-    panner->setScaleEnabled(QwtPolar::Azimuth, true);
-
+    (void) new QwtPolarPanner(canvas());
     (void) new QwtPolarMagnifier(canvas());
 
     // grids, axes 
@@ -164,7 +161,8 @@ PlotSettings Plot::settings() const
             d_grid->isAxisVisible(axisId);
     }
 
-    s.flags[PlotSettings::AutoScaling] = d_grid->hasAxisAutoScaling();
+    s.flags[PlotSettings::AutoScaling] = 
+		d_grid->testGridAttribute(QwtPolarGrid::AutoScaling);
 
     const QwtScaleTransformation *transform =
         scaleEngine(QwtPolar::Radius)->transformation();
@@ -205,7 +203,8 @@ void Plot::applySettings(const PlotSettings& s)
             s.flags[PlotSettings::AxisBegin + axisId]);
     }
 
-    d_grid->setAxisAutoScaling(s.flags[PlotSettings::AutoScaling]);
+    d_grid->setGridAttribute(QwtPolarGrid::AutoScaling,
+		s.flags[PlotSettings::AutoScaling]);
 
     const QwtDoubleInterval interval = 
         scaleDiv(QwtPolar::Radius)->interval().normalized();

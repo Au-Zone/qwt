@@ -13,6 +13,13 @@
 #include "qwt_global.h"
 #include "qwt_double_rect.h"
 
+/*!
+  \brief A point in polar coordinates
+
+  In polar coordinates a point is determined by an angle and a distance.
+  See http://en.wikipedia.org/wiki/Polar_coordinate_system
+*/
+
 class QWT_EXPORT QwtPolarPoint
 {
 public:
@@ -46,59 +53,77 @@ private:
     double d_azimuth;
 };
 
+/*!
+    Constructs a null point, with a radius and azimuth set to 0.0.
+    \sa QwtDoublePoint::isNull
+*/
 inline QwtPolarPoint::QwtPolarPoint():
     d_radius(0.0),
     d_azimuth(0.0)
 {
 }
 
+//! Constructs a point with coordinates specified by radius and azimuth.
 inline QwtPolarPoint::QwtPolarPoint(double radius, double azimuth):
     d_radius(radius),
     d_azimuth(azimuth)
 {
 }
 
+/*!
+    Copy constructor.
+
+    Constructs a point using the values of the point specified.
+*/
 inline QwtPolarPoint::QwtPolarPoint(const QwtPolarPoint &other):
     d_radius(other.d_radius),
     d_azimuth(other.d_azimuth)
 {
 }
 
+//! Returns true if radius() >= 0.0
 inline bool QwtPolarPoint::isValid() const
 { 
     return d_radius >= 0.0;
 }
 
+//! Returns true if radius() >= 0.0
 inline bool QwtPolarPoint::isNull() const
 { 
     return d_radius == 0.0;
 }
 
+//! Returns the radius.
 inline double QwtPolarPoint::radius() const
 { 
     return d_radius; 
 }
 
+//! Returns the azimuth.
 inline double QwtPolarPoint::azimuth() const
 {   
     return d_azimuth; 
 }
 
+//! Returns the radius.
 inline double &QwtPolarPoint::rRadius()
 {
     return d_radius;
 }
 
+//! Returns the azimuth.
 inline double &QwtPolarPoint::rAzimuth()
 {
     return d_azimuth;
 }
 
+//! Sets the radius to radius.
 inline void QwtPolarPoint::setRadius(double radius)
 { 
     d_radius = radius; 
 }
 
+//! Sets the atimuth to atimuth.
 inline void QwtPolarPoint::setAzimuth(double azimuth)
 { 
     d_azimuth = azimuth; 

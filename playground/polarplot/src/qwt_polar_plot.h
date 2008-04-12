@@ -25,6 +25,23 @@ class QwtScaleDiv;
 class QwtTextLabel;
 class QwtPolarCanvas;
 
+/*!
+  \brief A plotting widget, displaying a polar coordinate system
+
+  An unlimited number of plot items can be displayed on
+  its canvas. Plot items might be curves (QwtPolarCurve), markers
+  (QwtPolarMarker), the grid (QwtPolarGrid), or anything else derived
+  from QwtPolarItem.
+
+  The coordinate system is defined by a radial and a azimuth scale.
+  The scales at the axes can be explicitely set (QwtScaleDiv), or
+  are calculated from the plot items, using algorithms (QwtScaleEngine) which
+  can be configured separately for each axis.
+
+  In opposite to QwtPlot the scales might to be different from the
+  view, that is displayed on the canvas. The view can be changed by 
+  zooming - f.e. by using QwtPolarPanner or QwtPolarMaginfier.
+*/
 class QWT_EXPORT QwtPolarPlot: public QFrame, public QwtPolarItemDict
 {
     Q_OBJECT
@@ -84,16 +101,14 @@ public:
     double zoomFactor() const;
 
     virtual void polish();
-    virtual QSize sizeHint() const;
-    virtual QSize minimumSizeHint() const;
 
     // Canvas
 
     QwtPolarCanvas *canvas();
     const QwtPolarCanvas *canvas() const;
 
-    void setCanvasBackground (const QBrush &c);
-    const QBrush& canvasBackground() const;
+    void setPlotBackground (const QBrush &c);
+    const QBrush& plotBackground() const;
 
     virtual void drawCanvas(QPainter *, const QwtDoubleRect &) const;
 
@@ -131,7 +146,7 @@ protected:
 
     void updateScale(int scaleId);
 
-    int canvasMarginHint() const;
+    int plotMarginHint() const;
 
 private:
     void initPlot(const QwtText &);

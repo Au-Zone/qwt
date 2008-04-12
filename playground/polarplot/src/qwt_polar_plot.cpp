@@ -86,24 +86,37 @@ public:
     QwtPolarPlot::LegendPosition legendPosition;
 };
 
-QwtPolarPlot::QwtPolarPlot( QWidget *parent):
+/*!
+  Constructor
+  \param parent Parent widget
+ */
+QwtPolarPlot::QwtPolarPlot(QWidget *parent):
     QFrame(parent)
 {
     initPlot(QwtText());
 }
 
+/*!
+  Constructor 
+  \param title Title text
+  \param parent Parent widget
+ */
 QwtPolarPlot::QwtPolarPlot(const QwtText &title, QWidget *parent):
     QFrame(parent)
 {
     initPlot(title);
 }
 
-
+//! Destructor
 QwtPolarPlot::~QwtPolarPlot()
 {
     delete d_data;
 }
 
+/*!
+  Change the plot's title
+  \param title New title
+*/
 void QwtPolarPlot::setTitle(const QString &title)
 {
     if ( title != d_data->titleLabel->text().text() )
@@ -116,6 +129,10 @@ void QwtPolarPlot::setTitle(const QString &title)
     }
 }
 
+/*!
+  Change the plot's title
+  \param title New title
+*/
 void QwtPolarPlot::setTitle(const QwtText &title)
 {
     if ( title != d_data->titleLabel->text() )
@@ -128,21 +145,43 @@ void QwtPolarPlot::setTitle(const QwtText &title)
     }
 }
 
+//! \return the plot's title
 QwtText QwtPolarPlot::title() const
 {
     return d_data->titleLabel->text();
 }
 
+//! \return the plot's title
 QwtTextLabel *QwtPolarPlot::titleLabel()
 {
     return d_data->titleLabel;
 }
 
+//! \return the plot's titel label.
 const QwtTextLabel *QwtPolarPlot::titleLabel() const
 {
     return d_data->titleLabel;
 }
 
+/*!
+  \brief Insert a legend
+
+  If the position legend is \c QwtPlot::LeftLegend or \c QwtPlot::RightLegend
+  the legend will be organized in one column from top to down.
+  Otherwise the legend items will be placed in a table
+  with a best fit number of columns from left to right.
+
+  If pos != QwtPolarPlot::ExternalLegend the plot widget will become
+  parent of the legend. It will be deleted when the plot is deleted,
+  or another legend is set with insertLegend().
+
+  \param legend Legend
+  \param pos The legend's position. For top/left position the number
+             of colums will be limited to 1, otherwise it will be set to
+             unlimited.
+
+  \sa legend()
+*/
 void QwtPolarPlot::insertLegend(QwtLegend *legend,
     QwtPolarPlot::LegendPosition pos)
 {
@@ -199,16 +238,28 @@ void QwtPolarPlot::insertLegend(QwtLegend *legend,
     updateLayout();
 }
 
+/*!
+  \return the plot's legend
+  \sa insertLegend()
+*/
 QwtLegend *QwtPolarPlot::legend()
 {
     return d_data->legend;
 }
 
+/*!
+  \return the plot's legend
+  \sa insertLegend()
+*/
 const QwtLegend *QwtPolarPlot::legend() const
 {
     return d_data->legend;
 }
 
+/*!
+  Called internally when the legend has been clicked on.
+  Emits a legendClicked() signal.
+*/
 void QwtPolarPlot::legendItemClicked()
 {
     if ( d_data->legend && sender()->isWidgetType() )
@@ -219,6 +270,10 @@ void QwtPolarPlot::legendItemClicked()
     }
 }
 
+/*!
+  Called internally when the legend has been checked
+  Emits a legendClicked() signal.
+*/
 void QwtPolarPlot::legendItemChecked(bool on)
 {
     if ( d_data->legend && sender()->isWidgetType() )
@@ -229,7 +284,16 @@ void QwtPolarPlot::legendItemChecked(bool on)
     }
 }
 
-void QwtPolarPlot::setCanvasBackground(const QBrush &brush)
+/*!
+   \brief Set the background of the plot area
+
+   The plot area is the circle around the pole. It's radius
+   is defined by the radial scale. 
+   
+   \param brush Background Brush
+   \sa plotBackground(), plotArea()
+*/
+void QwtPolarPlot::setPlotBackground(const QBrush &brush)
 {
     if ( brush != d_data->canvasBrush )
     {
@@ -238,21 +302,48 @@ void QwtPolarPlot::setCanvasBackground(const QBrush &brush)
     }
 }
 
-const QBrush &QwtPolarPlot::canvasBackground() const
+/*!
+   \return plot background brush
+   \sa plotBackground(), plotArea()
+*/
+const QBrush &QwtPolarPlot::plotBackground() const
 {
     return d_data->canvasBrush;
 }
 
+/*!
+  \brief Set or reset the autoReplot option
+
+  If the autoReplot option is set, the plot will be
+  updated implicitly by manipulating member functions.
+  Since this may be time-consuming, it is recommended
+  to leave this option switched off and call replot()
+  explicitly if necessary.
+
+  The autoReplot option is set to false by default, which
+  means that the user has to call replot() in order to make
+  changes visible.
+  \param tf \c true or \c false. Defaults to \c true.
+  \sa replot()
+*/
 void QwtPolarPlot::setAutoReplot(bool enable)
 {
     d_data->autoReplot = enable;
 }
 
+//! \return true if the autoReplot option is set.
 bool QwtPolarPlot::autoReplot() const
 {
     return d_data->autoReplot;
 }
 
+/*!
+  Set the maximum number of major scale intervals for a specified scale
+
+  \param scaleId Scale index
+  \param maxMajor maximum number of major steps
+  \sa scaleMaxMajor()
+*/
 void QwtPolarPlot::setScaleMaxMinor(int scaleId, int maxMinor)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -273,6 +364,11 @@ void QwtPolarPlot::setScaleMaxMinor(int scaleId, int maxMinor)
     }
 }
 
+/*!
+  \return the maximum number of minor ticks for a specified axis
+  \param scaleId Scale index
+  \sa setScaleMaxMinor()
+*/  
 int QwtPolarPlot::scaleMaxMinor(int scaleId) const
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -281,6 +377,13 @@ int QwtPolarPlot::scaleMaxMinor(int scaleId) const
     return d_data->scaleData[scaleId].maxMinor;
 }
 
+/*!
+  Set the maximum number of major scale intervals for a specified scale
+
+  \param scaleId Scale index
+  \param maxMajor maximum number of major steps
+  \sa scaleMaxMajor()
+*/
 void QwtPolarPlot::setScaleMaxMajor(int scaleId, int maxMajor)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -300,6 +403,12 @@ void QwtPolarPlot::setScaleMaxMajor(int scaleId, int maxMajor)
     }
 }
 
+/*!
+  \return the maximum number of major ticks for a specified axis
+  \param scaleId Scale index
+
+  \sa setScaleMaxMajor()
+*/
 int QwtPolarPlot::scaleMaxMajor(int scaleId) const
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -308,22 +417,14 @@ int QwtPolarPlot::scaleMaxMajor(int scaleId) const
     return d_data->scaleData[scaleId].maxMajor;
 }
 
-QwtScaleEngine *QwtPolarPlot::scaleEngine(int scaleId)
-{
-    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
-        return NULL;
+/*!
+   Change the scale engine for an axis
+    
+  \param scaleId Svale index
+  \param scaleEngine Scale engine
 
-    return d_data->scaleData[scaleId].scaleEngine;
-}
-
-const QwtScaleEngine *QwtPolarPlot::scaleEngine(int scaleId) const
-{
-    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
-        return NULL;
-
-    return d_data->scaleData[scaleId].scaleEngine;
-}
-
+  \sa axisScaleEngine()
+*/
 void QwtPolarPlot::setScaleEngine(int scaleId, QwtScaleEngine *scaleEngine)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -341,6 +442,33 @@ void QwtPolarPlot::setScaleEngine(int scaleId, QwtScaleEngine *scaleEngine)
     autoRefresh();
 }
 
+//! \return Scale engine for a specific scale
+QwtScaleEngine *QwtPolarPlot::scaleEngine(int scaleId)
+{
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
+        return NULL;
+
+    return d_data->scaleData[scaleId].scaleEngine;
+}
+
+//! \return Scale engine for a specific scale
+const QwtScaleEngine *QwtPolarPlot::scaleEngine(int scaleId) const
+{
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
+        return NULL;
+
+    return d_data->scaleData[scaleId].scaleEngine;
+}
+
+/*!
+  \brief Disable autoscaling and specify a fixed scale for a selected scale.
+  \param scaleId Scale index
+  \param min
+  \param max minimum and maximum of the scale
+  \param stepSize Major step size. If <code>step == 0</code>, the step size is
+            calculated automatically using the maxMajor setting.
+  \sa setScaleMaxMajor(), setAutoScale()
+*/
 void QwtPolarPlot::setScale(int scaleId, 
     double min, double max, double stepSize)
 {
@@ -359,6 +487,12 @@ void QwtPolarPlot::setScale(int scaleId,
     autoRefresh();
 }
 
+/*!
+  \brief Disable autoscaling and specify a fixed scale for a selected scale.
+  \param scaleId Scale index
+  \param scaleDiv Scale division
+  \sa setScale(), setAutoScale()
+*/
 void QwtPolarPlot::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -372,6 +506,17 @@ void QwtPolarPlot::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
     autoRefresh();
 }
 
+/*!
+  \brief Return the scale division of a specified scale
+  
+  scaleDiv(scaleId)->lBound(), scaleDiv(scaleId)->hBound()
+  are the current limits of the scale.
+  
+  \param scaleId Scale index
+  \return Scale division 
+
+  \sa QwtScaleDiv, setScaleDiv(), setScale()
+*/
 const QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId) const
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -380,6 +525,17 @@ const QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId) const
     return &d_data->scaleData[scaleId].scaleDiv;
 }
 
+/*!
+  \brief Return the scale division of a specified scale
+  
+  scaleDiv(scaleId)->lBound(), scaleDiv(scaleId)->hBound()
+  are the current limits of the scale.
+  
+  \param scaleId Scale index
+  \return Scale division 
+
+  \sa QwtScaleDiv, setScaleDiv(), setScale()
+*/
 QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -388,33 +544,74 @@ QwtScaleDiv *QwtPolarPlot::scaleDiv(int scaleId)
     return &d_data->scaleData[scaleId].scaleDiv;
 }
 
-void QwtPolarPlot::zoom(const QwtPolarPoint &pos, double factor)
+/*!
+   \brief Translate and in/decrease the zoom factor
+
+   In zoom mode the zoom position is in the center of the 
+   canvas. The radius of the circle depends on the size of the plot canvas,
+   that is devided by the zoom factor. Thus a factor < 1.0 zoom in.
+
+   Setting an invalid zoom position disables zooming.
+
+   \param zoomPos Center of the translation
+   \param zoomFactor Zoom factor
+
+   \sa unzoom(), zoomPos(), zoomFactor()
+*/
+void QwtPolarPlot::zoom(const QwtPolarPoint &zoomPos, double zoomFactor)
 {
-    factor = qwtAbs(factor);
-    if ( pos != d_data->zoomPos || factor != d_data->zoomFactor )
+    zoomFactor = qwtAbs(zoomFactor);
+    if ( zoomPos != d_data->zoomPos || 
+		zoomFactor != d_data->zoomFactor )
     {
-        d_data->zoomPos = pos;
-        d_data->zoomFactor = factor;
+        d_data->zoomPos = zoomPos;
+        d_data->zoomFactor = zoomFactor;
         autoRefresh();
     }
 }
 
+/*!
+   Unzoom the plot
+   \sa zoom()
+*/
 void QwtPolarPlot::unzoom()
 {
     d_data->zoomFactor = 1.0;
     d_data->zoomPos = QwtPolarPoint();
 }
 
+/*!
+   \return Zoom position
+   \sa zoom(), zoomFactor()
+*/
 QwtPolarPoint QwtPolarPlot::zoomPos() const
 {
     return d_data->zoomPos;
 }
 
+/*!
+   \return Zoom factor
+   \sa zoom(), zoomPos()
+*/
 double QwtPolarPlot::zoomFactor() const
 {
     return d_data->zoomFactor;
 }
 
+/*!
+  Build a scale map
+
+  The azimuth map translates between the scale values and angles from
+  [0.0, 2 * PI[. The radial map translates scale values into the distance
+  from the pole.
+
+  \param scaleId Scale index
+  \return Map for the scale on the canvas. With this map pixel coordinates can
+          translated to plot coordinates and vice versa.
+
+  \sa QwtScaleMap, transform(), invTransform()
+
+*/
 QwtScaleMap QwtPolarPlot::scaleMap(int scaleId) const
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -439,16 +636,7 @@ QwtScaleMap QwtPolarPlot::scaleMap(int scaleId) const
     return map;
 }
 
-QSize QwtPolarPlot::sizeHint() const
-{
-    return QWidget::sizeHint();
-}
-
-QSize QwtPolarPlot::minimumSizeHint() const
-{
-    return QWidget::minimumSizeHint();
-}
-
+//!  Adds handling of polish requests
 bool QwtPolarPlot::event(QEvent *e)
 {
     bool ok = QWidget::event(e);
@@ -519,22 +707,25 @@ void QwtPolarPlot::initPlot(const QwtText &title)
         
         scaleData.scaleEngine = new QwtLinearScaleEngine;
         scaleData.scaleDiv.invalidate();
-
-        updateScale(scaleId);
     }
     d_data->zoomFactor = 1.0;
     d_data->legendPosition = QwtPolarPlot::RightLegend;
 
     setSizePolicy(QSizePolicy::MinimumExpanding,
         QSizePolicy::MinimumExpanding);
+
+    for ( int scaleId = 0; scaleId < QwtPolar::ScaleCount; scaleId++ )
+        updateScale(scaleId);
 }
 
+//! Replots the plot if QwtPlot::autoReplot() is \c true.
 void QwtPolarPlot::autoRefresh()
 {
     if (d_data->autoReplot)
         replot();
 }
 
+//! Rebuild the layout
 void QwtPolarPlot::updateLayout()
 {
     delete layout();
@@ -626,6 +817,16 @@ void QwtPolarPlot::updateLayout()
     layout()->activate();
 }
 
+/*!
+  \brief Redraw the plot
+  
+  If the autoReplot option is not set (which is the default)
+  or if any curves are attached to raw data, the plot has to
+  be refreshed explicitly in order to make changes visible.
+
+  \sa setAutoReplot()
+  \warning Calls canvas()->repaint, take care of infinite recursions
+*/  
 void QwtPolarPlot::replot()
 {
     bool doAutoReplot = autoReplot();
@@ -640,16 +841,23 @@ void QwtPolarPlot::replot()
     setAutoReplot(doAutoReplot);
 }
 
+//!  \return the plot's canvas
 QwtPolarCanvas *QwtPolarPlot::canvas()
 {
     return d_data->canvas;
 }
 
+//!  \return the plot's canvas
 const QwtPolarCanvas *QwtPolarPlot::canvas() const
 {
     return d_data->canvas;
 }
 
+/*!
+  Redraw the canvas.
+  \param painter Painter used for drawing
+  \param canvasRect Contents rect of the canvas
+*/
 void QwtPolarPlot::drawCanvas(QPainter *painter, 
     const QwtDoubleRect &canvasRect) const
 {
@@ -672,6 +880,16 @@ void QwtPolarPlot::drawCanvas(QPainter *painter,
         pr.center(), pr.width() / 2.0, canvasRect);
 }
 
+/*!
+  Redraw the canvas items.
+
+  \param painter Painter used for drawing
+  \param azimuthMap Maps azimuth values to values related to 0.0, M_2PI
+  \param radialMap Maps radius values into painter coordinates.
+  \param pole Position of the pole in painter coordinates
+  \param radius Radius of the complete plot area in painter coordinates
+  \param canvasRect Contents rect of the canvas in painter coordinates
+*/
 void QwtPolarPlot::drawItems(QPainter *painter,
         const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole, double radius,
@@ -688,7 +906,7 @@ void QwtPolarPlot::drawItems(QPainter *painter,
         {
             painter->save();
             
-            const int margin = item->canvasMarginHint();
+            const int margin = item->marginHint();
             const QwtDoubleRect clipRect(pr.x() - margin, pr.y() - margin,
                 pr.width() + 2 * margin, pr.height() + 2 * margin);
 
@@ -711,6 +929,7 @@ void QwtPolarPlot::drawItems(QPainter *painter,
     }
 }
 
+//! Rebuild the scale 
 void QwtPolarPlot::updateScale(int scaleId)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -724,16 +943,19 @@ void QwtPolarPlot::updateScale(int scaleId)
             d.maxMajor, d.maxMinor, d.stepSize);
     }
 
+    const QwtDoubleInterval interval = visibleInterval();
+
     const QwtPolarItemList& itmList = itemList();
     for ( QwtPolarItemIterator it = itmList.begin(); 
         it != itmList.end(); ++it )
     {
         QwtPolarItem *item = *it;
-        item->updateScaleDiv( 
-            *scaleDiv(QwtPolar::Azimuth), *scaleDiv(QwtPolar::Radius));
+        item->updateScaleDiv( *scaleDiv(QwtPolar::Azimuth), 
+            *scaleDiv(QwtPolar::Radius), interval);
     }
 }
 
+//! Polish
 void QwtPolarPlot::polish()
 {
     updateLayout();
@@ -744,7 +966,11 @@ void QwtPolarPlot::polish()
 #endif
 }
 
-int QwtPolarPlot::canvasMarginHint() const
+/*! 
+   \return Maximum of all item margin hints.
+   \sa QwtPolarItem::marhinHint()
+*/
+int QwtPolarPlot::plotMarginHint() const
 {
     int margin = 0;
     const QwtPolarItemList& itmList = itemList();
@@ -754,7 +980,7 @@ int QwtPolarPlot::canvasMarginHint() const
         QwtPolarItem *item = *it;
         if ( item && item->isVisible() )
         {
-            const int hint = item->canvasMarginHint();
+            const int hint = item->marginHint();
             if ( hint > margin )
                 margin = hint;
         }
@@ -762,12 +988,17 @@ int QwtPolarPlot::canvasMarginHint() const
     return margin;
 }
 
+/*!
+   Calculate the bounding rect of the plot area
+   The plot area depends on the size of the canvas
+   and the zoom parameters.
+*/
 QwtDoubleRect QwtPolarPlot::plotRect() const
 {
     const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
     const QwtScaleEngine *se = scaleEngine(QwtPolar::Radius);
 
-    const int margin = canvasMarginHint();
+    const int margin = plotMarginHint();
     const QRect cr = canvas()->contentsRect();
     const int radius = qwtMin(cr.width(), cr.height()) / 2 - margin;
 
@@ -795,6 +1026,10 @@ QwtDoubleRect QwtPolarPlot::plotRect() const
     return rect;
 }
 
+/*!
+   Calculate the bounding interval of the radial scale that is
+   visible on the canvas. 
+*/
 QwtDoubleInterval QwtPolarPlot::visibleInterval() const
 {
     const QwtScaleDiv *sd = scaleDiv(QwtPolar::Radius);
@@ -895,4 +1130,3 @@ QwtDoubleInterval QwtPolarPlot::visibleInterval() const
     
     return interval;
 }
-

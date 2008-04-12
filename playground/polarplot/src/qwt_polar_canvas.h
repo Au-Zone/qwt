@@ -18,11 +18,29 @@
 class QPainter;
 class QwtPolarPlot;
 
+/*!
+  Canvas of a QwtPolarPlot.       
+
+  \note In opposite to QwtPlot all axes are painted on the canvas.
+  \sa QwtPolarPlot
+*/
 class QWT_EXPORT QwtPolarCanvas: public QFrame
 {
     Q_OBJECT
 
 public:
+    /*!
+      \brief Paint attributes
+
+      - PaintCached\n
+        Paint double buffered and reuse the content of the pixmap buffer
+        for some spontaneous repaints that happen when a plot gets unhidden,
+        deiconified or changes the focus.
+
+      The default setting enables PaintCached
+      \sa setPaintAttribute(), testPaintAttribute(), paintCache()
+     */
+
     enum PaintAttribute
     {
         PaintCached = 1

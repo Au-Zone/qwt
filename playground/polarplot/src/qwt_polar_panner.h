@@ -15,6 +15,19 @@
 class QwtPolarPlot;
 class QwtPolarCanvas;
 
+/*!
+  \brief QwtPolarPanner provides panning of a polar plot canvas
+
+  QwtPolarPanner is a panner for a QwtPolarCanvas, that
+  adjusts the visible area after dropping
+  the canvas on its new position.
+
+  Together with QwtPolarMagnifier individual ways
+  of navigating on a QwtPolarPlot widget can be implemented easily.
+
+  \sa QwtPolarMagnifier
+*/
+
 class QWT_EXPORT QwtPolarPanner: public QwtPanner
 {
     Q_OBJECT
@@ -29,15 +42,8 @@ public:
     QwtPolarCanvas *canvas();
     const QwtPolarCanvas *canvas() const;
 
-    void setScaleEnabled(int scaleId, bool on = true);
-    bool isScaleEnabled(int scaleId) const;
-
 protected slots:
     virtual void movePlot(int dx, int dy);
-
-private:
-    class PrivateData;
-    PrivateData *d_data;
 };
 
 #endif

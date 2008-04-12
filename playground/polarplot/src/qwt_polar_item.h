@@ -25,7 +25,6 @@ class QwtScaleDiv;
 /*!
   \brief Base class for items on a polar plot
 */
-
 class QWT_EXPORT QwtPolarItem: public QwtLegendItemManager
 {
 public:
@@ -98,9 +97,10 @@ public:
       \brief Draw the item
 
       \param painter Painter
-      \param radialMap Maps distance values into painter coordinates.
-      \param azimuthMap Maps angle values into painter coordinates.
+      \param azimuthMap Maps azimuth values to values related to 0.0, M_2PI
+      \param radialMap Maps radius values into painter coordinates.
       \param pole Position of the pole in painter coordinates
+      \param radius Radius of the complete plot area in painter coordinates
       \param canvasRect Contents rect of the canvas in painter coordinates
     */
     virtual void draw(QPainter *painter, 
@@ -108,15 +108,15 @@ public:
         const QwtDoublePoint &pole, double radius,
         const QwtDoubleRect &canvasRect) const = 0;
 
-    virtual QwtDoubleInterval interval(int scaleId) const;
+    virtual QwtDoubleInterval boundingInterval(int scaleId) const;
 
     virtual QWidget *legendItem() const;
 
     virtual void updateLegend(QwtLegend *) const;
-    virtual void updateScaleDiv(const QwtScaleDiv&,
-        const QwtScaleDiv&);
+    virtual void updateScaleDiv(const QwtScaleDiv &,
+        const QwtScaleDiv &, const QwtDoubleInterval &);
 
-    virtual int canvasMarginHint() const;
+    virtual int marginHint() const;
 
 private:
     // Disabled copy constructor and operator=

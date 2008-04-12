@@ -29,9 +29,9 @@ typedef QList<QwtPolarItem *> QwtPolarItemList;
 #endif
 
 /*!
-  \brief A dictionary for plot items
+  \brief A dictionary for polar plot items
 
-  QwtPolarItemDict organizes plot items in increasing z-order.
+  QwtPolarItemDict organizes polar plot items in increasing z-order.
   If autoDelete() is enabled, all attached items will be deleted
   in the destructor of the dictionary.
 

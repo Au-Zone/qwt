@@ -15,6 +15,18 @@
 class QwtPolarPlot;
 class QwtPolarCanvas;
 
+/*!
+  \brief QwtPolarMagnifier provides zooming, by magnifying in steps.
+
+  Using QwtPlotMagnifier a plot can be zoomed in/out in steps using
+  keys, the mouse wheel or moving a mouse button in vertical direction.
+
+  Together with QwtPolarPanner it is possible to implement
+  an individual navigation of the plot canvas.
+
+  \sa QwtPolarPanner, QwtPolarPlot, QwtPolarCanvas
+*/
+
 class QWT_EXPORT QwtPolarMagnifier: public QwtMagnifier
 {
     Q_OBJECT

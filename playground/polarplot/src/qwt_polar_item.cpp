@@ -54,9 +54,10 @@ QwtPolarItem::~QwtPolarItem()
 /*! 
   \brief Attach the item to a plot.
 
-  This method will attach a QwtPolarItem to the QwtPolarPlot argument. It will first
-  detach the QwtPolarItem from any plot from a previous call to attach (if
-  necessary). If a NULL argument is passed, it will detach from any QwtPolarPlot it
+  This method will attach a QwtPolarItem to the QwtPolarPlot argument. 
+  It will first detach the QwtPolarItem from any plot from a previous 
+  call to attach (if necessary). 
+  If a NULL argument is passed, it will detach from any QwtPolarPlot it
   was attached to.
 
   \sa QwtPolarItem::detach()
@@ -248,11 +249,13 @@ bool QwtPolarItem::testRenderHint(RenderHint hint) const
 
 #endif
 
+//! Show the item
 void QwtPolarItem::show()
 {
     setVisible(true);
 }
 
+//! Hide the item
 void QwtPolarItem::hide()
 {
     setVisible(false);
@@ -299,7 +302,15 @@ void QwtPolarItem::itemChanged()
     }
 }
 
-QwtDoubleInterval QwtPolarItem::interval(int /*scaleId*/) const
+/*!
+   Interval, that is necessary to display the item
+
+   This interval can be useful for operations like clipping or autoscaling
+   For items ( like the grid ), where a bounding interval makes no
+   sense a invalid interval is returned.
+*/
+   
+QwtDoubleInterval QwtPolarItem::boundingInterval(int /*scaleId*/) const
 {
     return QwtDoubleInterval(); // invalid
 }
@@ -312,16 +323,30 @@ QwtDoubleInterval QwtPolarItem::interval(int /*scaleId*/) const
    on the scale division (like QwtPolarGrid()) have to reimplement
    updateScaleDiv()
 
-   \param xScaleDiv Scale division of the x-axis
-   \param yScaleDiv Scale division of the y-axis
+   \param azimuthScaleDiv Scale division of the azimuth-scale
+   \param radialScaleDiv Scale division of the radius-axis
+   \param interval The interval of the radius-axis, that is 
+                   visible on the canvas
 
    \sa QwtPolarPlot::updateAxes()
 */
 void QwtPolarItem::updateScaleDiv(const QwtScaleDiv &,
-    const QwtScaleDiv &) 
+    const QwtScaleDiv &, const QwtDoubleInterval &) 
 { 
 }
 
+/*!
+   \brief Update the widget that represents the item on the legend
+
+   updateLegend() is called from itemChanged() to adopt the widget
+   representing the item on the legend to its new configuration.
+
+   The default implementation is made for QwtPolarCurve and updates a
+   QwtLegendItem(), but an item could be represented by any type of widget,
+   by overloading legendItem() and updateLegend().
+
+   \sa legendItem(), itemChanged(), QwtLegend()
+*/
 void QwtPolarItem::updateLegend(QwtLegend *legend) const
 {
     if ( !legend )
@@ -364,12 +389,27 @@ void QwtPolarItem::updateLegend(QwtLegend *legend) const
     }
 }
 
+/*!
+   \brief Allocate the widget that represents the item on the legend
+
+   The default implementation is made for QwtPolarCurve and returns a
+   QwtLegendItem(), but an item could be represented by any type of widget,
+   by overloading legendItem() and updateLegend().
+
+   \return QwtLegendItem()
+   \sa updateLegend() QwtLegend()
+*/
 QWidget *QwtPolarItem::legendItem() const
 {
     return new QwtLegendItem;
 }
 
-int QwtPolarItem::canvasMarginHint() const
+/*!
+   Some items like to display something (f.e. the azimuth axis) outside
+   of the area of the interval of the radial scale. 
+   The default implementation returns 0 pixels
+*/
+int QwtPolarItem::marginHint() const
 {
     return 0;
 }

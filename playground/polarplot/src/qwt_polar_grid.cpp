@@ -67,9 +67,16 @@ public:
     GridData gridData[QwtPolar::ScaleCount];
     AxisData axisData[QwtPolar::AxesCount];
     int displayFlags;
-    bool axisAutoScaling;
+    int attributes;
 };
 
+/*! 
+   \brief Constructor
+
+   Enables major and disables minor grid lines. 
+   The azimuth and right radial axis are visible. all other axes
+   are hidden. Autoscaling is enabled.
+*/
 QwtPolarGrid::QwtPolarGrid():
     QwtPolarItem(QwtText("Grid"))
 {
@@ -129,16 +136,14 @@ QwtPolarGrid::QwtPolarGrid():
         }
     }
 
-    d_data->axisAutoScaling = true;
+    d_data->attributes = AutoScaling;
 
     d_data->displayFlags = 0;
     d_data->displayFlags |= SmartOriginLabel;
     d_data->displayFlags |= HideMaxRadiusLabel;
     d_data->displayFlags |= ClipAxisBackground;
     d_data->displayFlags |= SmartScaleDraw;
-#if 1
     d_data->displayFlags |= ClipGridLines;
-#endif
 
     setZ(10.0);
 #if QT_VERSION >= 0x040000
@@ -146,16 +151,19 @@ QwtPolarGrid::QwtPolarGrid():
 #endif
 }
 
+//! Destructor
 QwtPolarGrid::~QwtPolarGrid()
 {
     delete d_data;
 }
 
+//! \return QwtPlotItem::Rtti_PolarGrid
 int QwtPolarGrid::rtti() const
 {
     return QwtPolarItem::Rtti_PolarGrid;
 }
 
+//! Change the display flags
 void QwtPolarGrid::setDisplayFlag(DisplayFlag flag, bool on)
 {
     if ( ((d_data->displayFlags & flag) != 0) != on )
@@ -169,11 +177,68 @@ void QwtPolarGrid::setDisplayFlag(DisplayFlag flag, bool on)
     }
 }
 
+//! \return true, if flag is enabled
 bool QwtPolarGrid::testDisplayFlag(DisplayFlag flag) const
 {
     return (d_data->displayFlags & flag);
 }
 
+/*!
+  \brief Specify an attribute for the grid
+
+  The following attributes are defined:<dl>
+  <dt>AutoScaling</dt>
+  <dd>When autoscaling is enabled, the radial axes will be adjusted
+      to the interval, that is currently visible on the canvas plot.
+  </dd>
+
+  \param attribute Grid attribute
+  \param on On/Off
+
+  /sa testGridAttribute(), updateScaleDiv(), 
+      QwtPolarPlot::zoom(), QwtPolarPlot::scaleDiv()
+*/
+void QwtPolarGrid::setGridAttribute(GridAttribute attribute, bool on)
+{
+    if ( bool(d_data->attributes & attribute) == on )
+        return;
+
+    if ( on )
+        d_data->attributes |= attribute;
+    else
+        d_data->attributes &= ~attribute;
+
+    itemChanged();
+}
+
+/*!
+    \return true, if attribute is enabled 
+    \sa setGridAttribute()
+*/
+bool QwtPolarGrid::testGridAttribute(GridAttribute attribute) const
+{
+    return d_data->attributes & attribute;
+}
+
+void QwtPolarGrid::setAxisPen(int axisId, const QPen &pen)
+{
+    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
+        return;
+
+    AxisData &axisData = d_data->axisData[axisId];
+    if ( axisData.pen != pen )
+    {
+        axisData.pen = pen;
+        itemChanged();
+    }
+}
+
+/*!
+   Show/Hide grid lines for a scale
+
+   \param scaleId Scale id ( QwtPolar::Scale )
+   \param show true/false
+*/
 void QwtPolarGrid::showGrid(int scaleId, bool show)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -187,6 +252,10 @@ void QwtPolarGrid::showGrid(int scaleId, bool show)
     }
 }
 
+/*!
+  \return true if grid lines are enabled
+  \sa QwtPolar::Scale, showGrid()
+*/
 bool QwtPolarGrid::isGridVisible(int scaleId) const
 { 
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -195,6 +264,16 @@ bool QwtPolarGrid::isGridVisible(int scaleId) const
     return d_data->gridData[scaleId].isVisible;
 }
 
+/*!
+   Show/Hide minor grid lines for a scale
+
+   To display minor grid lines. showGrid() needs to be enabled too.
+
+   \param scaleId Scale id ( QwtPolar::Scale )
+   \param show true/false
+
+   \sa showGrid
+*/
 void QwtPolarGrid::showMinorGrid(int scaleId, bool show)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -208,6 +287,10 @@ void QwtPolarGrid::showMinorGrid(int scaleId, bool show)
     }
 }
 
+/*!
+  \return true if minor grid lines are enabled
+  \sa showMinorGrid()
+*/
 bool QwtPolarGrid::isMinorGridVisible(int scaleId) const
 { 
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -216,6 +299,14 @@ bool QwtPolarGrid::isMinorGridVisible(int scaleId) const
     return d_data->gridData[scaleId].isMinorVisible;
 }
 
+/*!
+  Show/Hide an axis
+
+  \param axisId Axis id (QwtPolar::Axis)
+  \param show true/false
+
+  \sa isAxisVisible()
+*/
 void QwtPolarGrid::showAxis(int axisId, bool show)
 {
     if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
@@ -229,6 +320,10 @@ void QwtPolarGrid::showAxis(int axisId, bool show)
     }
 }
 
+/*!
+  \return true if the axis is visible
+  \sa showAxis()
+*/
 bool QwtPolarGrid::isAxisVisible(int axisId) const
 {
     if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
@@ -237,27 +332,12 @@ bool QwtPolarGrid::isAxisVisible(int axisId) const
     return d_data->axisData[axisId].isVisible;
 }
 
-void QwtPolarGrid::setScaleDiv(int scaleId, const QwtScaleDiv &scaleDiv)
-{
-    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
-        return;
+/*!
+   Assign a pen for all axes and grid lines
 
-    GridData &grid = d_data->gridData[scaleId];
-    if ( grid.scaleDiv != scaleDiv )
-    {
-        grid.scaleDiv = scaleDiv;
-        itemChanged();
-    }
-}
-
-QwtScaleDiv QwtPolarGrid::scaleDiv(int scaleId) const 
-{ 
-    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
-        return QwtScaleDiv();
-
-    return d_data->gridData[scaleId].scaleDiv;
-}
-
+   \param pen Pen
+   \sa setMajorGridPen(), setMinorGridPen(), setAxisPen()
+*/
 void QwtPolarGrid::setPen(const QPen &pen)
 {
     bool isChanged = false;
@@ -285,6 +365,12 @@ void QwtPolarGrid::setPen(const QPen &pen)
         itemChanged();
 }
 
+/*!
+   Assign a font for all scale tick labels
+    
+   \param font Font
+   \sa setAxisFont()
+*/
 void QwtPolarGrid::setFont(const QFont &font)
 {
     bool isChanged = false;
@@ -301,6 +387,12 @@ void QwtPolarGrid::setFont(const QFont &font)
         itemChanged();
 }
 
+/*!
+   Assign a pen for the major grid lines
+
+   \param pen Pen
+   \sa setPen(), setMinorGridPen(), majorGridPen
+*/
 void QwtPolarGrid::setMajorGridPen(const QPen &pen)
 {
     bool isChanged = false;
@@ -318,6 +410,13 @@ void QwtPolarGrid::setMajorGridPen(const QPen &pen)
         itemChanged();
 }
 
+/*!
+   Assign a pen for the major grid lines of a specific scale
+
+   \param scaleId Scale id ( QwtPolar::Scale )
+   \param pen Pen
+   \sa setPen(), setMinorGridPen(), majorGridPen
+*/
 void QwtPolarGrid::setMajorGridPen(int scaleId, const QPen &pen)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -331,6 +430,7 @@ void QwtPolarGrid::setMajorGridPen(int scaleId, const QPen &pen)
     }
 }
 
+//! \return Pen for painting the major grid lines of a specific scale
 QPen QwtPolarGrid::majorGridPen(int scaleId) const
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -340,6 +440,12 @@ QPen QwtPolarGrid::majorGridPen(int scaleId) const
     return grid.majorPen;
 }   
 
+/*!
+   Assign a pen for the minor grid lines 
+
+   \param pen Pen
+   \sa setPen(), setMajorGridPen(), minorGridPen
+*/
 void QwtPolarGrid::setMinorGridPen(const QPen &pen)
 {
     bool isChanged = false;
@@ -357,6 +463,13 @@ void QwtPolarGrid::setMinorGridPen(const QPen &pen)
         itemChanged();
 }
 
+/*!
+   Assign a pen for the minor grid lines of a specific scale
+
+   \param scaleId Scale id ( QwtPolar::Scale )
+   \param pen Pen
+   \sa setPen(), setMajorGridPen(), minorGridPen
+*/
 void QwtPolarGrid::setMinorGridPen(int scaleId, const QPen &pen)
 {
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -370,6 +483,7 @@ void QwtPolarGrid::setMinorGridPen(int scaleId, const QPen &pen)
     }
 }
 
+//! \return Pen for painting the minor grid lines of a specific scale
 QPen QwtPolarGrid::minorGridPen(int scaleId) const
 { 
     if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
@@ -379,33 +493,7 @@ QPen QwtPolarGrid::minorGridPen(int scaleId) const
     return grid.minorPen;
 }
 
-void QwtPolarGrid::setAxisAutoScaling(bool on)
-{
-    if ( on != d_data->axisAutoScaling )
-    {
-        d_data->axisAutoScaling = on;
-        itemChanged();
-    }
-}
-
-bool QwtPolarGrid::hasAxisAutoScaling()
-{
-    return d_data->axisAutoScaling;
-}
-
-void QwtPolarGrid::setAxisPen(int axisId, const QPen &pen)
-{
-    if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
-        return;
-
-    AxisData &axisData = d_data->axisData[axisId];
-    if ( axisData.pen != pen )
-    {
-        axisData.pen = pen;
-        itemChanged();
-    }
-}
-
+//! \return Pen for painting a specific axis
 QPen QwtPolarGrid::axisPen(int axisId) const
 {
     if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
@@ -414,6 +502,12 @@ QPen QwtPolarGrid::axisPen(int axisId) const
     return d_data->axisData[axisId].pen;
 }
 
+/*!
+  Assign a font for the tick labels of a specific axis
+
+  \param axisId Axis id (QwtPolar::Axis)
+  \param font new Font
+*/
 void QwtPolarGrid::setAxisFont(int axisId, const QFont &font)
 {
     if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
@@ -427,6 +521,7 @@ void QwtPolarGrid::setAxisFont(int axisId, const QFont &font)
     }
 }
 
+//! \return Font for the tick labels of a specific axis
 QFont QwtPolarGrid::axisFont(int axisId) const
 {
     if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
@@ -435,6 +530,16 @@ QFont QwtPolarGrid::axisFont(int axisId) const
     return d_data->axisData[axisId].font;
 }
 
+/*!
+  Draw the grid and axes
+
+  \param painter Painter
+  \param azimuthMap Maps azimuth values to values related to 0.0, M_2PI
+  \param radialMap Maps radius values into painter coordinates.
+  \param pole Position of the pole in painter coordinates
+  \param radius Radius of the complete plot area in painter coordinates
+  \param canvasRect Contents rect of the canvas in painter coordinates
+*/
 void QwtPolarGrid::draw(QPainter *painter, 
     const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
     const QwtDoublePoint &pole, double radius,
@@ -534,6 +639,16 @@ void QwtPolarGrid::draw(QPainter *painter,
     }
 }
 
+/*!
+  Draw lines from the pole 
+
+  \param painter Painter
+  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param pole Position of the pole in painter coordinates
+  \param radius Length of the lines in painter coordinates
+  \param azimuthMap Maps azimuth values to values related to 0.0, M_2PI
+  \param values Azimuth values, indicating the direction of the lines
+*/
 void QwtPolarGrid::drawRays(
     QPainter *painter, const QwtDoubleRect &canvasRect,
     const QwtDoublePoint &pole, double radius,
@@ -595,6 +710,15 @@ void QwtPolarGrid::drawRays(
     }
 }
 
+/*!
+  Draw circles
+
+  \param painter Painter
+  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param pole Position of the pole in painter coordinates
+  \param radialMap Maps radius values into painter coordinates.
+  \param values Radial values, indicating the distances from the pole
+*/
 void QwtPolarGrid::drawCircles(
     QPainter *painter, const QwtDoubleRect &canvasRect,
     const QwtDoublePoint &pole, const QwtScaleMap &radialMap, 
@@ -671,6 +795,11 @@ void QwtPolarGrid::drawCircles(
     }
 }
 
+/*!
+  Paint an axis
+
+  \param axisId Axis id (QwtPolar::Axis)
+*/
 void QwtPolarGrid::drawAxis(QPainter *painter, int axisId) const
 {
     if ( axisId < 0 || axisId >= QwtPolar::AxesCount )
@@ -696,6 +825,16 @@ void QwtPolarGrid::drawAxis(QPainter *painter, int axisId) const
 #endif
 }
 
+/*!
+   Update the axis scale draw geometries
+
+   \param azimuthMap Maps azimuth values to values related to 0.0, M_2PI
+   \param radialMap Maps radius values into painter coordinates.
+   \param pole Position of the pole in painter coordinates
+   \param radius Radius of the complete plot area in painter coordinates
+
+   \sa updateScaleDiv()
+*/
 void QwtPolarGrid::updateScaleDraws(
     const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap, 
     const QwtDoublePoint &pole, double radius) const
@@ -760,16 +899,29 @@ void QwtPolarGrid::updateScaleDraws(
     }
 }
 
+/*!
+   \brief Update the item to changes of the axes scale division
+
+   If AutoScaling is enabled the radial scale is calculated
+   from the interval, otherwise the scales are adopted to 
+   the plot scales.
+
+   \param azimuthScaleDiv Scale division of the azimuth-scale
+   \param radialScaleDiv Scale division of the radius-axis
+   \param interval The interval of the radius-axis, that is
+                   visible on the canvas
+
+   \sa QwtPolarPlot::setGridAttributes()
+*/
+
 void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
-    const QwtScaleDiv &radialScaleDiv)
+    const QwtScaleDiv &radialScaleDiv, const QwtDoubleInterval &interval)
 {
     GridData &radialGrid = d_data->gridData[QwtPolar::Radius];
 
     const QwtPolarPlot *plt = plot();
-    if ( plt && d_data->axisAutoScaling )
+    if ( plt && testGridAttribute(AutoScaling) )
     {
-        const QwtDoubleInterval interval = plt->visibleInterval();
-
         const QwtScaleEngine *se = plt->scaleEngine(QwtPolar::Radius);
         radialGrid.scaleDiv = se->divideScale(
             interval.minValue(), interval.maxValue(),
@@ -863,13 +1015,13 @@ void QwtPolarGrid::updateScaleDiv(const QwtScaleDiv &azimuthScaleDiv,
             }
         }
     }
-
-#if 1
-    itemChanged();
-#endif
 }
 
-int QwtPolarGrid::canvasMarginHint() const
+/*! 
+   \return Number of pixels, that are necessary to paint the azimuth scale
+   \sa QwtRoundScaleDraw::extent()
+*/
+int QwtPolarGrid::marginHint() const
 {
     const AxisData &axis = d_data->axisData[QwtPolar::AxisAzimuth];
     if ( axis.isVisible )

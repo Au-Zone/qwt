@@ -6,6 +6,8 @@
 # modify it under the terms of the GPL License, Version 2.0
 ##############################################
 
+include( ../../../qwtconfig.pri )
+
 TARGET            = qwtpolar
 TEMPLATE          = lib
 
@@ -15,13 +17,14 @@ MOC_DIR           = moc
 OBJECTS_DIR       = obj
 DESTDIR           = ../lib
 
-CONFIG           += qt     # Also for Qtopia Core!
-CONFIG           += warn_on
-CONFIG           += thread
-CONFIG           += debug
-CONFIG           += dll
+contains(CONFIG, QwtDll ) {
+    CONFIG += dll
+}
+else {
+    CONFIG += staticlib
+}
 
-LIBS        += -L../../../lib -lqwt
+#LIBS        += -L../../../lib -lqwt
 
 INCLUDEPATH += ../../../src
 DEPENDPATH  += ../../../src

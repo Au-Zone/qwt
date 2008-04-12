@@ -14,8 +14,12 @@
 #include "qwt_scale_div.h"
 #include "qwt_polar_magnifier.h"
 
-QwtPolarMagnifier::QwtPolarMagnifier(QwtPolarCanvas *plot):
-    QwtMagnifier(plot)
+/*!
+   Constructor
+   \param canvas Plot canvas to be magnified
+*/
+QwtPolarMagnifier::QwtPolarMagnifier(QwtPolarCanvas *canvas):
+    QwtMagnifier(canvas)
 {
 }
 
@@ -24,6 +28,7 @@ QwtPolarMagnifier::~QwtPolarMagnifier()
 {
 }
 
+//! Return observed plot canvas
 QwtPolarCanvas *QwtPolarMagnifier::canvas()
 {
     QWidget *w = parentWidget();
@@ -33,11 +38,13 @@ QwtPolarCanvas *QwtPolarMagnifier::canvas()
     return NULL;
 }
 
+//! Return observed plot canvas
 const QwtPolarCanvas *QwtPolarMagnifier::canvas() const
 {
     return ((QwtPolarMagnifier *)this)->canvas();
 }
 
+//! Return observed plot
 QwtPolarPlot *QwtPolarMagnifier::plot()
 {
     QwtPolarCanvas *c = canvas();
@@ -47,13 +54,19 @@ QwtPolarPlot *QwtPolarMagnifier::plot()
     return NULL;
 }
 
+//! Return observed plot
 const QwtPolarPlot *QwtPolarMagnifier::plot() const
 {
     return ((QwtPolarMagnifier *)this)->plot();
 }
 
+/*! 
+   Zoom in/out the zoomed area
+   \param factor A value < 1.0 zooms in, a value > 1.0 zooms out.
+*/
 void QwtPolarMagnifier::rescale(double factor)
 {
+    factor = qwtAbs(factor);
     if ( factor == 1.0 || factor == 0.0 )
         return;
 

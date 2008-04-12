@@ -22,16 +22,30 @@ class QwtScaleDiv;
 class QwtRoundScaleDraw;
 class QwtScaleDraw;
 
+/*!
+  A item which draws scales and azimuth and radial 
+  grid lines on a polar plot
+*/
+
 class QWT_EXPORT QwtPolarGrid: public QwtPolarItem
 {
 public:
+    /*! 
+       Mysterious flags trying to avoid conflicts, when painting the
+       scales and grid lines. 
+     */
     enum DisplayFlag
     {
         SmartOriginLabel = 1,
         HideMaxRadiusLabel = 2,
         ClipAxisBackground = 4,
         SmartScaleDraw = 8,
-        ClipGridLines = 16,
+        ClipGridLines = 16
+    };
+
+    enum GridAttribute
+    {
+        AutoScaling = 1
     };
 
     explicit QwtPolarGrid();
@@ -42,6 +56,9 @@ public:
     void setDisplayFlag(DisplayFlag, bool on = true);
     bool testDisplayFlag(DisplayFlag) const;
 
+    void setGridAttribute(GridAttribute, bool on = true);
+    bool testGridAttribute(GridAttribute) const;
+
     void showGrid(int scaleId, bool show = true);
     bool isGridVisible(int scaleId) const;
 
@@ -50,9 +67,6 @@ public:
 
     void showAxis(int axisId, bool show = true);
     bool isAxisVisible(int axisId) const;
-
-    void setScaleDiv(int scaleId, const QwtScaleDiv &sx);
-    QwtScaleDiv scaleDiv(int scaleId) const;
 
     void setPen(const QPen &p);
     void setFont(const QFont &);
@@ -71,18 +85,15 @@ public:
     void setAxisFont(int axisId, const QFont &p);
     QFont axisFont(int axisId) const;
 
-    void setAxisAutoScaling(bool on);
-    bool hasAxisAutoScaling();
-
     virtual void draw(QPainter *p, 
         const QwtScaleMap &azimuthMap, const QwtScaleMap &radialMap,
         const QwtDoublePoint &pole, double radius,
         const QwtDoubleRect &rect) const;
 
-    virtual void updateScaleDiv(const QwtScaleDiv&,
-        const QwtScaleDiv&);
+    virtual void updateScaleDiv(const QwtScaleDiv &azimuthMap,
+        const QwtScaleDiv &radialMap, const QwtDoubleInterval &);
 
-    virtual int canvasMarginHint() const;
+    virtual int marginHint() const;
 
 protected:
     void drawRays(QPainter *, const QwtDoubleRect &,

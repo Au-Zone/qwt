@@ -35,6 +35,7 @@ public:
     QPixmap *cache;
 };
 
+//! Constructor
 QwtPolarCanvas::QwtPolarCanvas(QwtPolarPlot *plot):
     QFrame(plot)
 {
@@ -60,11 +61,13 @@ QwtPolarCanvas::QwtPolarCanvas(QwtPolarPlot *plot):
     setPaintAttribute(PaintCached, true);
 }
 
+//! Destructor
 QwtPolarCanvas::~QwtPolarCanvas()
 {
     delete d_data;
 }
 
+//! Return parent plot widget
 QwtPolarPlot *QwtPolarCanvas::plot()
 {
     QWidget *w = parentWidget();
@@ -74,6 +77,7 @@ QwtPolarPlot *QwtPolarCanvas::plot()
     return NULL;
 }
 
+//! Return parent plot widget
 const QwtPolarPlot *QwtPolarCanvas::plot() const
 {
     const QWidget *w = parentWidget();
@@ -83,6 +87,16 @@ const QwtPolarPlot *QwtPolarCanvas::plot() const
     return NULL;
 }
 
+/*!
+  \brief Changing the paint attributes
+
+  \param attribute Paint attribute
+  \param on On/Off
+    
+  The default setting enables PaintCached
+
+  \sa testPaintAttribute(), drawCanvas(), drawContents(), paintCache()
+*/  
 void QwtPolarCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
 {
     if ( bool(d_data->paintAttributes & attribute) == on )
@@ -119,6 +133,13 @@ void QwtPolarCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
     }
 }
 
+/*!
+  Test wether a paint attribute is enabled
+
+  \param attribute Paint attribute
+  \return true if the attribute is enabled
+  \sa setPaintAttribute()
+*/
 bool QwtPolarCanvas::testPaintAttribute(PaintAttribute attribute) const
 {
     return (d_data->paintAttributes & attribute) != 0;
@@ -143,6 +164,7 @@ void QwtPolarCanvas::invalidatePaintCache()
         *d_data->cache = QPixmap();
 }
 
+//! Paint event
 void QwtPolarCanvas::paintEvent(QPaintEvent *event)
 {
 #if QT_VERSION >= 0x040000
@@ -164,6 +186,7 @@ void QwtPolarCanvas::paintEvent(QPaintEvent *event)
 #endif
 }
 
+//! Redraw the canvas
 void QwtPolarCanvas::drawContents(QPainter *painter)
 {
     if ( d_data->paintAttributes & PaintCached && d_data->cache
@@ -184,6 +207,14 @@ void QwtPolarCanvas::drawContents(QPainter *painter)
     }
 }
 
+/*!
+  Draw the the canvas
+
+  Paints all plot items to the canvasRect, using QwtPolarPlot::drawCanvas
+  and updates the paint cache.
+
+  \sa QwtPolarPlot::drawCanvas, setPaintAttributes(), testPaintAttributes()
+*/
 void QwtPolarCanvas::drawCanvas(QPainter *painter, 
     const QwtDoubleRect& canvasRect)
 {
