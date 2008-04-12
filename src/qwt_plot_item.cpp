@@ -262,11 +262,13 @@ bool QwtPlotItem::testRenderHint(RenderHint hint) const
 
 #endif
 
+//! Show the item
 void QwtPlotItem::show()
 {
     setVisible(true);
 }
 
+//! Hide the item
 void QwtPlotItem::hide()
 {
     setVisible(false);

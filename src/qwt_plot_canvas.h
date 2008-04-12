@@ -20,11 +20,9 @@ class QwtPlot;
 class QPixmap;
 
 /*!
-  \brief Canvas of a QwtPlot. 
-
-  \sa  QwtPlot 
+  Canvas of a QwtPlot. 
+  \sa QwtPlot 
 */
-
 class QWT_EXPORT QwtPlotCanvas : public QFrame
 {
     Q_OBJECT
