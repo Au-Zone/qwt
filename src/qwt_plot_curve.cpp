@@ -133,7 +133,7 @@ public:
 };
 
 /*!
-  \brief Ctor
+  Constructor
   \param title title of the curve   
 */
 QwtPlotCurve::QwtPlotCurve(const QwtText &title):
@@ -143,7 +143,7 @@ QwtPlotCurve::QwtPlotCurve(const QwtText &title):
 }
 
 /*!
-  \brief Ctor
+  Constructor
   \param title title of the curve   
 */
 QwtPlotCurve::QwtPlotCurve(const QString &title):
@@ -152,7 +152,7 @@ QwtPlotCurve::QwtPlotCurve(const QString &title):
     init();
 }
 
-//! Dtor
+//! Destructor
 QwtPlotCurve::~QwtPlotCurve()
 {
     delete d_data;
@@ -256,7 +256,7 @@ void QwtPlotCurve::setStyle(CurveStyle style)
 
 /*!
     \brief Return the current style
-    \sa setStyle
+    \sa setStyle()
 */
 QwtPlotCurve::CurveStyle QwtPlotCurve::style() const 
 { 
@@ -265,19 +265,19 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 
 /*!
   \brief Assign a symbol
-  \param s symbol
+  \param symbol Symbol
   \sa symbol()
 */
-void QwtPlotCurve::setSymbol(const QwtSymbol &s )
+void QwtPlotCurve::setSymbol(const QwtSymbol &symbol )
 {
     delete d_data->symbol;
-    d_data->symbol = s.clone();
+    d_data->symbol = symbol.clone();
     itemChanged();
 }
 
 /*!
     \brief Return the current symbol
-    \sa setSymbol
+    \sa setSymbol()
 */
 const QwtSymbol &QwtPlotCurve::symbol() const 
 { 
@@ -286,14 +286,14 @@ const QwtSymbol &QwtPlotCurve::symbol() const
 
 /*!
   \brief Assign a pen
-  \param p New pen
+  \param pen New pen
   \sa pen(), brush()
 */
-void QwtPlotCurve::setPen(const QPen &p)
+void QwtPlotCurve::setPen(const QPen &pen)
 {
-    if ( p != d_data->pen )
+    if ( pen != d_data->pen )
     {
-        d_data->pen = p;
+        d_data->pen = pen;
         itemChanged();
     }
 }
@@ -402,7 +402,7 @@ void QwtPlotCurve::draw(int from, int to) const
         QwtPlotCurvePaintHelper helper(this, from, to);
         canvas->installEventFilter(&helper);
 
-        const bool noSystemBackground = 
+        const bool noSystemBackground =
             canvas->testAttribute(Qt::WA_NoSystemBackground);
         canvas->setAttribute(Qt::WA_NoSystemBackground, true);
         canvas->repaint();
@@ -872,7 +872,7 @@ void QwtPlotCurve::setCurveAttribute(CurveAttribute attribute, bool on)
 }
 
 /*!
-    Return the current curve attributes
+    \return true, if attribute is enabled
     \sa setCurveAttribute()
 */
 bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const 
@@ -1085,6 +1085,7 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
     return index;
 }
 
+//!  Update the widget that represents the curve on the legend
 void QwtPlotCurve::updateLegend(QwtLegend *legend) const
 {
     if ( !legend )
