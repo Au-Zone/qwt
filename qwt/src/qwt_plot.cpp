@@ -159,10 +159,7 @@ bool QwtPlot::event(QEvent *e)
     return ok;
 }
 
-/*!
-  \brief Replots the plot if QwtPlot::autoReplot() is \c true.
-*/
-
+//! Replots the plot if QwtPlot::autoReplot() is \c true.
 void QwtPlot::autoRefresh()
 {
     if (d_data->autoReplot)
@@ -171,6 +168,7 @@ void QwtPlot::autoRefresh()
 
 /*!
   \brief Set or reset the autoReplot option
+
   If the autoReplot option is set, the plot will be
   updated implicitly by manipulating member functions.
   Since this may be time-consuming, it is recommended
@@ -188,68 +186,57 @@ void QwtPlot::setAutoReplot(bool tf)
     d_data->autoReplot = tf;
 }
 
-/*!
-    \return true if the autoReplot option is set.
-*/
+//! \return true if the autoReplot option is set.
 bool QwtPlot::autoReplot() const
 {
     return d_data->autoReplot; 
 }
 
 /*!
-  \brief Change the plot's title
-  \param t new title
+  Change the plot's title
+  \param title New title
 */
-void QwtPlot::setTitle(const QString &t)
+void QwtPlot::setTitle(const QString &title)
 {
-    if ( t != d_data->lblTitle->text().text() )
+    if ( title != d_data->lblTitle->text().text() )
     {
-        d_data->lblTitle->setText(t);
+        d_data->lblTitle->setText(title);
         updateLayout();
     }
 }
 
 /*!
-  \brief Change the plot's title
-  \param t new title
+  Change the plot's title
+  \param title New title
 */
-void QwtPlot::setTitle(const QwtText &t)
+void QwtPlot::setTitle(const QwtText &title)
 {
-    if ( t != d_data->lblTitle->text() )
+    if ( title != d_data->lblTitle->text() )
     {
-        d_data->lblTitle->setText(t);
+        d_data->lblTitle->setText(title);
         updateLayout();
     }
 }
 
-/*!
-  \return the plot's title
-*/
-
+//! \return the plot's title
 QwtText QwtPlot::title() const
 {
     return d_data->lblTitle->text();
 }
 
-/*!
-  \return the plot's layout
-*/
+//! \return the plot's title
 QwtPlotLayout *QwtPlot::plotLayout()
 {
     return d_data->layout;
 }
 
-/*!
-  \return the plot's layout
-*/
+//! \return the plot's titel label.
 const QwtPlotLayout *QwtPlot::plotLayout() const
 {
     return d_data->layout;
 }
 
-/*!
-  \return the plot's titel label.
-*/
+//! \return the plot's titel label.
 QwtTextLabel *QwtPlot::titleLabel()
 {
     return d_data->lblTitle;
@@ -265,7 +252,7 @@ const QwtTextLabel *QwtPlot::titleLabel() const
 
 /*!
   \return the plot's legend
-  \sa printLegendItem()
+  \sa insertLegend()
 */
 QwtLegend *QwtPlot::legend()
 { 
@@ -274,7 +261,7 @@ QwtLegend *QwtPlot::legend()
 
 /*!
   \return the plot's legend
-  \sa printLegendItem()
+  \sa insertLegend()
 */
 const QwtLegend *QwtPlot::legend() const
 { 
@@ -298,6 +285,7 @@ const QwtPlotCanvas *QwtPlot::canvas() const
     return d_data->canvas;
 }
 
+//! Polish
 void QwtPlot::polish()
 {
     replot();
@@ -540,7 +528,6 @@ void QwtPlot::updateTabOrder()
            plot items better overload drawItems()
   \sa drawItems()
 */
-
 void QwtPlot::drawCanvas(QPainter *painter)
 {
     QwtScaleMap maps[axisCnt];
@@ -749,22 +736,27 @@ bool QwtPlot::axisValid(int axisId)
   Called internally when the legend has been clicked on.
   Emits a legendClicked() signal.
 */
-
 void QwtPlot::legendItemClicked()
 {
     if ( d_data->legend && sender()->isWidgetType() )
     {
-        QwtPlotItem *plotItem = (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
+        QwtPlotItem *plotItem = 
+            (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
         if ( plotItem )
             emit legendClicked(plotItem);
     }
 }
 
+/*!
+  Called internally when the legend has been checked
+  Emits a legendClicked() signal.
+*/
 void QwtPlot::legendItemChecked(bool on)
 {
     if ( d_data->legend && sender()->isWidgetType() )
     {
-        QwtPlotItem *plotItem = (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
+        QwtPlotItem *plotItem = 
+            (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
         if ( plotItem )
             emit legendChecked(plotItem, on);
     }
@@ -782,7 +774,7 @@ void QwtPlot::clear()
 
   If the position legend is \c QwtPlot::LeftLegend or \c QwtPlot::RightLegend
   the legend will be organized in one column from top to down. 
-  Otherwise the legend items will be placed be placed in a table 
+  Otherwise the legend items will be placed in a table 
   with a best fit number of columns from left to right.
 
   If pos != QwtPlot::ExternalLegend the plot widget will become 
@@ -801,7 +793,8 @@ void QwtPlot::clear()
                it will be reset to the default ratio.
                The default vertical/horizontal ratio is 0.33/0.5.
 
-  \sa QwtPlotLayout::legendPosition(), QwtPlotLayout::setLegendPosition()
+  \sa legend(), QwtPlotLayout::legendPosition(), 
+      QwtPlotLayout::setLegendPosition()
 */
 void QwtPlot::insertLegend(QwtLegend *legend, 
     QwtPlot::LegendPosition pos, double ratio)

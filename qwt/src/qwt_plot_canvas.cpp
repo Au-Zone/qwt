@@ -162,6 +162,7 @@ void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
 
   \param attribute Paint attribute
   \return true if the attribute is enabled
+  \sa setPaintAttribute()
 */
 bool QwtPlotCanvas::testPaintAttribute(PaintAttribute attribute) const
 {
@@ -220,6 +221,7 @@ void QwtPlotCanvas::hideEvent(QHideEvent *e)
     }
 }
 
+//! Paint event
 void QwtPlotCanvas::paintEvent(QPaintEvent *event)
 {
 #if QT_VERSION >= 0x040000
@@ -256,7 +258,7 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
     {
         QwtPlot *plot = ((QwtPlot *)parent());
         const bool doAutoReplot = plot->autoReplot();
-            plot->setAutoReplot(false);
+        plot->setAutoReplot(false);
 
         drawCanvas(painter);
 

@@ -113,8 +113,13 @@ const QwtPlot *QwtPlotMagnifier::plot() const
     return ((QwtPlotMagnifier *)this)->plot();
 }
 
+/*! 
+   Zoom in/out the axes scales
+   \param factor A value < 1.0 zooms in, a value > 1.0 zooms out.
+*/
 void QwtPlotMagnifier::rescale(double factor)
 {
+    factor = qwtAbs(factor);
     if ( factor == 1.0 || factor == 0.0 )
         return;
 
