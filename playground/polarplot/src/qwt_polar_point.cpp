@@ -84,5 +84,5 @@ QwtPolarPoint QwtPolarPoint::normalized() const
     const double radius = qwtMax(d_radius, 0.0);
     const double azimuth = ::fmod(d_azimuth, 2 * M_PI);
 
-    return QwtPolarPoint(radius, azimuth);
+    return QwtPolarPoint(azimuth, radius);
 }

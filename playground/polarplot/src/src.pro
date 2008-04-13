@@ -37,6 +37,7 @@ HEADERS += \
     qwt_polar_magnifier.h \
     qwt_polar_grid.h \
     qwt_polar_curve.h \
+    qwt_polar_marker.h \
     qwt_polar_itemdict.h \
     qwt_polar_canvas.h \
     qwt_polar_plot.h
@@ -48,6 +49,7 @@ SOURCES += \
     qwt_polar_magnifier.cpp \
     qwt_polar_grid.cpp \
     qwt_polar_curve.cpp \
+    qwt_polar_marker.cpp \
     qwt_polar_itemdict.cpp \
     qwt_polar_canvas.cpp \
     qwt_polar_plot.cpp

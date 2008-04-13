@@ -24,7 +24,7 @@ class QWT_EXPORT QwtPolarPoint
 {
 public:
     QwtPolarPoint();
-    QwtPolarPoint(double radius, double azimuth);
+    QwtPolarPoint(double azimuth, double radius);
     QwtPolarPoint(const QwtPolarPoint &);
     QwtPolarPoint(const QwtDoublePoint &);
 
@@ -49,8 +49,8 @@ public:
     QwtPolarPoint normalized() const;
 
 private:
-    double d_radius;
     double d_azimuth;
+    double d_radius;
 };
 
 /*!
@@ -58,15 +58,15 @@ private:
     \sa QwtDoublePoint::isNull
 */
 inline QwtPolarPoint::QwtPolarPoint():
-    d_radius(0.0),
-    d_azimuth(0.0)
+    d_azimuth(0.0),
+    d_radius(0.0)
 {
 }
 
 //! Constructs a point with coordinates specified by radius and azimuth.
-inline QwtPolarPoint::QwtPolarPoint(double radius, double azimuth):
-    d_radius(radius),
-    d_azimuth(azimuth)
+inline QwtPolarPoint::QwtPolarPoint(double azimuth, double radius):
+    d_azimuth(azimuth),
+    d_radius(radius)
 {
 }
 
@@ -76,8 +76,8 @@ inline QwtPolarPoint::QwtPolarPoint(double radius, double azimuth):
     Constructs a point using the values of the point specified.
 */
 inline QwtPolarPoint::QwtPolarPoint(const QwtPolarPoint &other):
-    d_radius(other.d_radius),
-    d_azimuth(other.d_azimuth)
+    d_azimuth(other.d_azimuth),
+    d_radius(other.d_radius)
 {
 }
 

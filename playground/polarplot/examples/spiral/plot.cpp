@@ -4,6 +4,7 @@
 #include <qwt_legend.h>
 #include <qwt_polar_grid.h>
 #include <qwt_polar_curve.h>
+#include <qwt_polar_marker.h>
 #include <qwt_polar_panner.h>
 #include <qwt_polar_magnifier.h>
 #include <qwt_scale_engine.h>
@@ -141,6 +142,24 @@ Plot::Plot(QWidget *parent):
         d_curve[curveId]->attach(this);
     }
 
+    // markers
+    QwtPolarMarker *marker = new QwtPolarMarker();
+    marker->setPosition(QwtPolarPoint(57.3, 4.72));
+    marker->setSymbol( QwtSymbol(QwtSymbol::Ellipse,
+        QBrush(Qt::white), QPen(Qt::green), QSize(9, 9)) );
+    marker->setLabelAlignment(Qt::AlignHCenter | Qt::AlignTop);
+
+    QwtText text("Marker");
+    text.setColor(Qt::black);
+    QColor bg(Qt::white);
+#if QT_VERSION >= 0x040300
+    bg.setAlpha(200);
+#endif
+    text.setBackgroundBrush( QBrush( bg ));
+
+    marker->setLabel(text);
+    marker->attach(this);
+
     QwtLegend *legend = new QwtLegend;
     insertLegend(legend,  QwtPolarPlot::BottomLegend);
 }
@@ -162,7 +181,7 @@ PlotSettings Plot::settings() const
     }
 
     s.flags[PlotSettings::AutoScaling] = 
-		d_grid->testGridAttribute(QwtPolarGrid::AutoScaling);
+        d_grid->testGridAttribute(QwtPolarGrid::AutoScaling);
 
     const QwtScaleTransformation *transform =
         scaleEngine(QwtPolar::Radius)->transformation();
@@ -204,7 +223,7 @@ void Plot::applySettings(const PlotSettings& s)
     }
 
     d_grid->setGridAttribute(QwtPolarGrid::AutoScaling,
-		s.flags[PlotSettings::AutoScaling]);
+        s.flags[PlotSettings::AutoScaling]);
 
     const QwtDoubleInterval interval = 
         scaleDiv(QwtPolar::Radius)->interval().normalized();

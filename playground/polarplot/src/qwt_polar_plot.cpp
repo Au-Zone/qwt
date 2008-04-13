@@ -1019,7 +1019,7 @@ QwtDoubleRect QwtPolarPlot::plotRect() const
     v = map.xTransform(v);
 
     const QwtDoublePoint off =
-        QwtPolarPoint(v, d_data->zoomPos.azimuth()).toPoint();
+        QwtPolarPoint(d_data->zoomPos.azimuth(), v).toPoint();
 
     QwtDoublePoint center(cr.center().x(), cr.top() + margin + radius);
     center -= QwtDoublePoint(off.x(), -off.y());
