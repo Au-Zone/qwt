@@ -35,6 +35,9 @@ public:
     explicit QwtPolarMagnifier(QwtPolarCanvas *);
     virtual ~QwtPolarMagnifier();
 
+    void setUnzoomKey(int key, int modifiers);
+    void getUnzoomKey(int &key, int &modifiers) const;
+
     QwtPolarPlot *plot();
     const QwtPolarPlot *plot() const;
 
@@ -43,6 +46,13 @@ public:
 
 protected:
     virtual void rescale(double factor);
+    void unzoom();
+
+    virtual void widgetKeyPressEvent(QKeyEvent *);
+
+private:
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif

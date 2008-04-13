@@ -562,7 +562,7 @@ void QwtPolarPlot::zoom(const QwtPolarPoint &zoomPos, double zoomFactor)
 {
     zoomFactor = qwtAbs(zoomFactor);
     if ( zoomPos != d_data->zoomPos || 
-		zoomFactor != d_data->zoomFactor )
+        zoomFactor != d_data->zoomFactor )
     {
         d_data->zoomPos = zoomPos;
         d_data->zoomFactor = zoomFactor;
@@ -576,8 +576,12 @@ void QwtPolarPlot::zoom(const QwtPolarPoint &zoomPos, double zoomFactor)
 */
 void QwtPolarPlot::unzoom()
 {
-    d_data->zoomFactor = 1.0;
-    d_data->zoomPos = QwtPolarPoint();
+    if ( d_data->zoomFactor != 1.0 || d_data->zoomPos.isValid() )
+    {
+        d_data->zoomFactor = 1.0;
+        d_data->zoomPos = QwtPolarPoint();
+        autoRefresh();
+    }
 }
 
 /*!

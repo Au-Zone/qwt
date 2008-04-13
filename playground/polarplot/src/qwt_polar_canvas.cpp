@@ -51,11 +51,13 @@ QwtPolarCanvas::QwtPolarCanvas(QwtPolarPlot *plot):
     setWFlags(Qt::WNoAutoErase);
     setCursor(Qt::crossCursor);
 #endif
+    setFocusPolicy(QWidget::WheelFocus);
 #else
     setAttribute(Qt::WA_NoSystemBackground, true);
 #ifndef QT_NO_CURSOR
     setCursor(Qt::CrossCursor);
 #endif
+    setFocusPolicy(Qt::WheelFocus);
 #endif // >= 0x040000
 
     setPaintAttribute(PaintCached, true);
@@ -245,7 +247,7 @@ void QwtPolarCanvas::drawCanvas(QPainter *painter,
 
         cachePainter.end();
 
-        painter->drawPixmap(canvasRect.toRect(), *d_data->cache);
+        painter->drawPixmap(canvasRect.topLeft().toPoint(), *d_data->cache);
     }
     else
         plot()->drawCanvas(painter, canvasRect);
