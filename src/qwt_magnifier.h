@@ -57,10 +57,10 @@ public:
     double keyFactor() const;
 
     void setZoomInKey(int key, int modifiers);
-    void getZoomInKey(int &key, int &modifiers);
+    void getZoomInKey(int &key, int &modifiers) const;
 
     void setZoomOutKey(int key, int modifiers);
-    void getZoomOutKey(int &key, int &modifiers);
+    void getZoomOutKey(int &key, int &modifiers) const;
 
     virtual bool eventFilter(QObject *, QEvent *);
 
