@@ -243,7 +243,7 @@ void QwtMagnifier::setZoomInKey(int key, int modifiers)
 }
 
 //! \sa setZoomInKey
-void QwtMagnifier::getZoomInKey(int &key, int &modifiers)
+void QwtMagnifier::getZoomInKey(int &key, int &modifiers) const
 {
     key = d_data->zoomInKey;
     modifiers = d_data->zoomInKeyModifiers;
@@ -264,7 +264,7 @@ void QwtMagnifier::setZoomOutKey(int key, int modifiers)
 }
 
 //! \sa setZoomOutKey
-void QwtMagnifier::getZoomOutKey(int &key, int &modifiers)
+void QwtMagnifier::getZoomOutKey(int &key, int &modifiers) const
 {
     key = d_data->zoomOutKey;
     modifiers = d_data->zoomOutKeyModifiers;
