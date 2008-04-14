@@ -8,6 +8,7 @@
 
 #include <qpainter.h>
 #include "qwt_global.h"
+#include "qwt_polar.h"
 #include "qwt_scale_map.h"
 #include "qwt_double_rect.h"
 #include "qwt_math.h"
@@ -88,12 +89,11 @@ QwtPolarCurve::~QwtPolarCurve()
 //! Initialize data members
 void QwtPolarCurve::init()
 {
-    setItemAttribute(QwtPolarItem::AutoScale);
-    setItemAttribute(QwtPolarItem::Legend);
-
     d_data = new PrivateData;
     d_points = new QwtPolygonFData(QwtArray<QwtDoublePoint>());
 
+    setItemAttribute(QwtPolarItem::AutoScale);
+    setItemAttribute(QwtPolarItem::Legend);
     setZ(20.0);
 #if QT_VERSION >= 0x040000
     setRenderHint(RenderAntialiased, true);
@@ -427,4 +427,24 @@ void QwtPolarCurve::updateLegend(QwtLegend *legend) const
 
     legendItem->setUpdatesEnabled(doUpdate);
     legendItem->update();
+}
+
+/*!
+   Interval, that is necessary to display the item
+   This interval can be useful for operations like clipping or autoscaling
+
+   \param scaleId Scale index
+   \return bounding interval
+
+   \sa QwtData::boundingRect()
+*/
+QwtDoubleInterval QwtPolarCurve::boundingInterval(int scaleId) const
+{
+    const QwtDoubleRect boundingRect = d_points->boundingRect();
+    if ( scaleId == QwtPolar::ScaleAzimuth )
+        return QwtDoubleInterval(boundingRect.left(), boundingRect.right());
+    else  if ( scaleId == QwtPolar::ScaleRadius )
+        return QwtDoubleInterval(boundingRect.top(), boundingRect.bottom());
+
+    return QwtDoubleInterval();
 }

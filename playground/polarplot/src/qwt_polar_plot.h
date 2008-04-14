@@ -36,9 +36,10 @@ class QwtPolarCanvas;
   The coordinate system is defined by a radial and a azimuth scale.
   The scales at the axes can be explicitely set (QwtScaleDiv), or
   are calculated from the plot items, using algorithms (QwtScaleEngine) which
-  can be configured separately for each axis.
+  can be configured separately for each axis. Autoscaling is supported 
+  for the radial scale.
 
-  In opposite to QwtPlot the scales might to be different from the
+  In opposite to QwtPlot the scales might be different from the
   view, that is displayed on the canvas. The view can be changed by 
   zooming - f.e. by using QwtPolarPanner or QwtPolarMaginfier.
 */
@@ -73,8 +74,8 @@ public:
     void setAutoReplot(bool tf = true); 
     bool autoReplot() const;
 
-    void setAutoScale(int scaleId, bool enable);
-    bool autoScale(int scaleId) const;
+    void setAutoScale(int scaleId);
+    bool hasAutoScale(int scaleId) const;
 
     void setScaleMaxMinor(int scaleId, int maxMinor);
     int scaleMaxMinor(int scaleId) const;

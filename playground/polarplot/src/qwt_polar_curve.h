@@ -70,6 +70,7 @@ public:
         int from, int to) const;
 
     virtual void updateLegend(QwtLegend *) const;
+    virtual QwtDoubleInterval boundingInterval(int scaleId) const;
 
 protected:
 

@@ -49,6 +49,8 @@ QwtPolarMarker::QwtPolarMarker():
     QwtPolarItem(QwtText("Marker"))
 {
     d_data = new PrivateData;
+
+    setItemAttribute(QwtPolarItem::AutoScale);
     setZ(30.0);
 }
 
@@ -226,6 +228,15 @@ Qt::Alignment QwtPolarMarker::labelAlignment() const
     return d_data->align; 
 }
 
+/*! 
+   Interval, that is necessary to display the item
+   This interval can be useful for operations like clipping or autoscaling
+
+   \param scaleId Scale index
+   \return bounding interval ( == position )
+
+   \sa position()
+*/
 QwtDoubleInterval QwtPolarMarker::boundingInterval(int scaleId) const
 {
     const double v = ( scaleId == QwtPolar::ScaleRadius ) 

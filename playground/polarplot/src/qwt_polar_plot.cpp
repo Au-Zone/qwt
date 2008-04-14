@@ -338,6 +338,47 @@ bool QwtPolarPlot::autoReplot() const
 }
 
 /*!
+  \brief Enable autoscaling
+
+  This member function is used to switch back to autoscaling mode
+  after a fixed scale has been set. Autoscaling calculates a useful
+  scale division from the bounding interval of all plot items with
+  the QwtPolarItem::AutoScale attribute.
+
+  Autoscaling is only supported for the radial scale and enabled as default.
+
+  \param scaleId Scale index
+
+  \sa hasAutoScale(), setScale(), setScaleDiv(), 
+      QwtPolarItem::boundingInterval()
+*/  
+void QwtPolarPlot::setAutoScale(int scaleId)
+{
+    if ( scaleId != QwtPolar::ScaleRadius )
+        return;
+
+    ScaleData &scaleData = d_data->scaleData[scaleId];
+    if (!scaleData.doAutoScale )
+    {
+        scaleData.doAutoScale = true;
+        autoRefresh();
+    }
+}
+
+/*!
+  \return \c true if autoscaling is enabled
+  \param scaleId Scale index
+  \sa setAutoScale()
+*/
+bool QwtPolarPlot::hasAutoScale(int scaleId) const
+{
+    if ( scaleId < 0 || scaleId >= QwtPolar::ScaleCount )
+        return false;
+
+    return d_data->scaleData[scaleId].doAutoScale;
+}
+
+/*!
   Set the maximum number of major scale intervals for a specified scale
 
   \param scaleId Scale index
@@ -940,11 +981,37 @@ void QwtPolarPlot::updateScale(int scaleId)
         return;
 
     ScaleData &d = d_data->scaleData[scaleId];
+
+    double minValue = d.minValue;
+    double maxValue = d.maxValue;
+    double stepSize = d.stepSize;
+
+    if ( scaleId == QwtPolar::ScaleRadius && d.doAutoScale )
+    {
+        QwtDoubleInterval interval;
+
+        const QwtPolarItemList& itmList = itemList();
+        for ( QwtPolarItemIterator it = itmList.begin(); 
+            it != itmList.end(); ++it )
+        {
+            const QwtPolarItem *item = *it;
+            if ( item->testItemAttribute(QwtPolarItem::AutoScale) )
+                interval |= item->boundingInterval(scaleId);
+        }
+
+        minValue = interval.minValue();
+        maxValue = interval.maxValue();
+
+        d.scaleEngine->autoScale(d.maxMajor,
+            minValue, maxValue, stepSize);
+        d.scaleDiv.invalidate();
+    }
+
     if ( !d.scaleDiv.isValid() )
     {
         d.scaleDiv = d.scaleEngine->divideScale(
-            d.minValue, d.maxValue,
-            d.maxMajor, d.maxMinor, d.stepSize);
+            minValue, maxValue,
+            d.maxMajor, d.maxMinor, stepSize);
     }
 
     const QwtDoubleInterval interval = visibleInterval();

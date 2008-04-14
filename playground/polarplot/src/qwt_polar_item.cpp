@@ -309,7 +309,6 @@ void QwtPolarItem::itemChanged()
    For items ( like the grid ), where a bounding interval makes no
    sense a invalid interval is returned.
 */
-   
 QwtDoubleInterval QwtPolarItem::boundingInterval(int /*scaleId*/) const
 {
     return QwtDoubleInterval(); // invalid
