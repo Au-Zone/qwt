@@ -845,10 +845,9 @@ void QwtPolarGrid::updateScaleDraws(
         d_data->gridData[QwtPolar::ScaleRadius].scaleDiv.interval();
     const QwtScaleMap map = plot()->scaleMap(QwtPolar::ScaleRadius);
 
-    const int x = map.transform(interval.minValue());
-    const int y = map.transform(interval.minValue());
-    const int l = map.transform(interval.maxValue()) - 
-        map.transform(interval.minValue());
+    const int min = map.transform(interval.minValue());
+    const int max = map.transform(interval.maxValue());
+    const int l = max - min;
 
     for ( int axisId = 0; axisId < QwtPolar::AxesCount; axisId++ )
     {
@@ -871,25 +870,25 @@ void QwtPolarGrid::updateScaleDraws(
             {
                 case QwtPolar::AxisLeft:
                 {
-                    scaleDraw->move(p.x() + x, p.y());
+                    scaleDraw->move(p.x() - min, p.y());
                     scaleDraw->setLength(-l);
                     break;
                 }
                 case QwtPolar::AxisRight:
                 {
-                    scaleDraw->move(p.x() + x, p.y());
+                    scaleDraw->move(p.x() + min, p.y());
                     scaleDraw->setLength(l);
                     break;
                 }
                 case QwtPolar::AxisTop:
                 {
-                    scaleDraw->move(p.x(), p.y() + y - l);
+                    scaleDraw->move(p.x(), p.y() - max);
                     scaleDraw->setLength(l);
                     break;
                 }
                 case QwtPolar::AxisBottom:
                 {
-                    scaleDraw->move(p.x(), p.y() + y + l);
+                    scaleDraw->move(p.x(), p.y() + max);
                     scaleDraw->setLength(-l);
                     break;
                 }
