@@ -123,7 +123,7 @@ int QwtPlotPrintFilter::options() const
 
 QColor QwtPlotPrintFilter::color(const QColor &c, Item item) const
 {
-    if ( !(options() & PrintCanvasBackground))
+    if ( !(options() & PrintBackground))
     {
         switch(item)
         {
