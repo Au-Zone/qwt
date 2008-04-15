@@ -572,7 +572,13 @@ void QwtText::draw(QPainter *painter, const QRect &rect) const
             painter->save();
             painter->setPen(d_data->backgroundPen);
             painter->setBrush(d_data->backgroundBrush);
+#if QT_VERSION < 0x040000
             QwtPainter::drawRect(painter, rect);
+#else
+            const QRect r(rect.x(), rect.y(), 
+                rect.width() - 1, rect.height() - 1);
+            QwtPainter::drawRect(painter, r);
+#endif
             painter->restore();
         }
     }
