@@ -84,7 +84,10 @@ function cleanQwt {
         mv $SRCFILE.sed $SRCFILE
     done 
 
-    cd -
+    sed -e "s/\$\$VERSION-svn/$VERSION/" qwtconfig.pri > qwtconfig.pri.sed
+    mv qwtconfig.pri.sed qwtconfig.pri
+
+    cd - > /dev/null
 }
 
 ##########################
@@ -173,7 +176,7 @@ function prepare4Win {
         posix2dos $FILE
     done
 
-    cd -
+    cd - > /dev/null
 }
 
 ##########################
@@ -190,7 +193,7 @@ function prepare4Unix {
 
     rm -rf admin
 
-    cd -
+    cd - > /dev/null
 }
 
 ##########################

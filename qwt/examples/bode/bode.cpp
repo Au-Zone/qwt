@@ -231,8 +231,10 @@ void MainWin::print()
         QwtPlotPrintFilter filter;
         if ( printer.colorMode() == QPrinter::GrayScale )
         {
-            filter.setOptions(QwtPlotPrintFilter::PrintAll 
-                & ~QwtPlotPrintFilter::PrintCanvasBackground);
+            int options = QwtPlotPrintFilter::PrintAll;
+            options &= ~QwtPlotPrintFilter::PrintBackground;
+            options |= QwtPlotPrintFilter::PrintFrameWithScales;
+            filter.setOptions(options);
         }
         d_plot->print(printer, filter);
     }

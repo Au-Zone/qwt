@@ -14,8 +14,6 @@ include( ../qwtconfig.pri )
 TARGET            = qwt
 TEMPLATE          = lib
 
-VERSION      = 5.2.0
-
 MOC_DIR           = moc
 OBJECTS_DIR       = obj
 DESTDIR           = ../lib
