@@ -63,8 +63,8 @@ to control or display values, arrays, or ranges of type double.
   For getting a 5.2 development snapshot from the SVN repository: 
   \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt \endcode
 
-  For getting a snapshot with all bugfixes for the latest 5.0 release:
-  \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.0 \endcode
+  For getting a snapshot with all bugfixes for the latest 5.1 release:
+  \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.1 \endcode
 
   \section installonmainpage Installation
  
@@ -81,10 +81,9 @@ to control or display values, arrays, or ranges of type double.
   If you prefer newsgroups use the mail to news gateway of <a href="http://dir.gmane.org/gmane.comp.graphics.qwt.general">Gmane</a>. 
 
   - Forum\n
-  <a href="http://www.qtcentre.org">Qt Centre</a> is great resource for Qt 
-  related questions. It offers several forums, that are read by the 
-  Qwt developers. In the <a href="http://www.qtcentre.org/forum/f-newbie-4.html">newbie</a> section you can ask questions, that might
-  be inappropriate for the level of a mailing list.
+  <a href="http://www.qtcentre.org">Qt Centre</a> is a great resource for Qt
+  related questions. It has a sub forum, that is dedicated to
+  Qwt related questions.
 
   - Individual support\n
   If you are looking for individual support, or need someone who implements 
@@ -92,6 +91,7 @@ to control or display values, arrays, or ranges of type double.
 
   \section relatedprojects Related Projects
 
+  <a href="http://qwtpolar.sourceforge.net">QwtPolar</a>, a polar plot widget.\n
   <a href="http://qwtplot3d.sourceforge.net">QwtPlot3D</a>, an OpenGL 3D plot widget.\n
   <a href="http://soft.proindependent.com/qtiplot.html">QtiPlot</a>, 
   data analysis and scientific plotting tool, using QwtPlot.
