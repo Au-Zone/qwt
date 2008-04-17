@@ -86,6 +86,8 @@ function cleanQwt {
 
     sed -e "s/\$\$VERSION-svn/$VERSION/" qwtconfig.pri > qwtconfig.pri.sed
     mv qwtconfig.pri.sed qwtconfig.pri
+    sed -e "s/\$\${QwtVersion}-svn/\$\${QwtVersion}/" qwt.prf > qwt.prf.sed
+    mv qwt.prf.sed qwt.prf
 
     cd - > /dev/null
 }
