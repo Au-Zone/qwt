@@ -281,10 +281,14 @@ protected:
         const QWidget *, const QRect &) const;
 
     virtual void printTitle(QPainter *, const QRect &) const;
+
     virtual void printScale(QPainter *, int axisId, int startDist, int endDist,
         int baseDist, const QRect &) const;
-    virtual void printCanvas(QPainter *, const QRect &,
+
+    virtual void printCanvas(QPainter *, 
+        const QRect &boundingRect, const QRect &canvasRect,
         const QwtScaleMap maps[axisCnt], const QwtPlotPrintFilter &) const;
+
     virtual void printLegend(QPainter *, const QRect &) const;
 
 private:

@@ -2,12 +2,14 @@
 # Install paths
 ######################################################################
 
+VERSION      = 5.2.0
+
 unix {
-    INSTALLBASE    = /usr/local/qwt-5.2.0-svn
+    INSTALLBASE    = /usr/local/qwt-$$VERSION-svn
 }
 
 win32 {
-    INSTALLBASE    = C:/Qwt-5.2.0-svn
+    INSTALLBASE    = C:/Qwt-$$VERSION-svn
 }
 
 target.path    = $$INSTALLBASE/lib
