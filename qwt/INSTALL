@@ -71,6 +71,15 @@ MSVC.NET) for Qwt.
 To generate makefiles, type: "admin\msvc-qmake"
 To generate project files, type: "admin\msvc-qmake vc"
 
+When you have built a Qwt DLL you need to add the following
+define to your compiler flags: QWT_DLL.
+
+Windows doesn't like mixing of debug and release binaries. Most
+of the problems with using the Qwt designer plugin are because
+of trying to load a Qwt debug library into a designer release 
+executable.
+
+
 C) Win32/MinGW Qt4
 ==================
 
@@ -116,6 +125,17 @@ cd examples
 qmake examples.pro
 make -i
 make -i install
+
+C1-C3)
+
+When you have built a Qwt DLL you need to add QWT_DLL to your compiler 
+flags. If you are using qmake for your own builds this done by adding 
+the following line to your profile: "DEFINES += QWT_DLL".
+
+Windows doesn't like mixing of debug and release binaries. Most
+of the problems with using the Qwt designer plugin are because
+of trying to load a Qwt debug library into a designer release 
+executable.
 
 D) MacOSX
 
