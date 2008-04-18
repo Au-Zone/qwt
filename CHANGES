@@ -1,5 +1,28 @@
-Release 5.0.3
+Release 5.1.0
 ===================
+
+Changes
+-------
+1) QwtSymbol::copy introduced
+   Now it is possible to use derived symbol classes for curves
+2) QwtPlotScaleItem introduced
+   A new type of plot item for displaying axes on the canvas
+3) QwtClipper added
+   A collection of clipping algos
+4) Using DBL_EPSILON
+   This change allows smaller intervals for sliders/dials
+5) QwtPanner
+   setOrientation() added.
+6) QwtPlot
+   axisStepSize() added
+   clear is virtual now
+7) QwtPlotPrintFilter
+   PrintCanvasBackground splitted into PrintBackground, PrintFrameWithScales
+8) QwtPlotZoomer
+   setZoomStack() added
+9) Changes for the QwtPolar package
+   QwtLegendItemManager introduced
+   QwtMagnifier introduced
 
 Bug Fixes
 ---------
@@ -23,6 +46,7 @@ Bug Fixes
    Handling of QwtScaleWidget fixed
 10. realtime example
    Qt::WA_PaintOutsidePaintEvent added, ScrollZoomer fixed
+11. Several others I have forgotten
 
 Release 5.0.2
 ===================
