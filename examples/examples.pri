@@ -7,29 +7,33 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ###################################################################
 
-include( ../../qwtconfig.pri )
+QWT_ROOT = ../..
+
+include( $${QWT_ROOT}/qwtconfig.pri )
 
 TEMPLATE     = app
 
 MOC_DIR      = moc
 OBJECTS_DIR  = obj
-INCLUDEPATH += ../../src
-DEPENDPATH  += ../../src
+INCLUDEPATH += $${QWT_ROOT}/src
+DEPENDPATH  += $${QWT_ROOT}/src
 
-unix:LIBS        += -L../../lib -lqwt
+win32 {
+	contains(CONFIG, QwtDll) {
+		DEFINES    += QT_DLL QWT_DLL
+		QWTLIB      = qwt$${VER_MAJ}
+	}
+	else {
+		QWTLIB      = qwt
+	}
 
-win32:QwtDll {
-	DEFINES    += QT_DLL QWT_DLL
+    msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    msvc.net:LIBS  += $${QWT_ROOT}/lib/{QWTLIB}.lib
+    msvc2005:LIBS += $${QWT_ROOT}/lib/{QWTLIB}.lib
+    g++:LIBS   += -L$${QWT_ROOT}/lib -lqwt
+}
+else {
+	LIBS        += -L$${QWT_ROOT}/lib -lqwt
 }
 
 contains(CONFIG, QwtDll) {
-    win32-msvc:LIBS  += ../../lib/qwt5.lib
-    win32-msvc.net:LIBS  += ../../lib/qwt5.lib
-    win32-msvc2005:LIBS += ../../lib/qwt5.lib
-    win32-g++:LIBS   += -L../../lib -lqwt
-} else {
-    win32-msvc:LIBS  += ../../lib/qwt.lib
-    win32-msvc.net:LIBS  += ../../lib/qwt.lib
-    win32-msvc2005:LIBS += ../../lib/qwt.lib
-    win32-g++:LIBS   += -L../../lib -lqwt
-}
