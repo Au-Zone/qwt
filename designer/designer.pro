@@ -11,6 +11,31 @@ QWT_ROOT = ..
 
 include ( $${QWT_ROOT}/qwtconfig.pri )
 
+win32 {
+
+    # To avoid debug/release mismatches on Windows, we suppress
+    # debug builds
+
+    VVERSION = $$[QT_VERSION]
+    isEmpty(VVERSION) {
+
+        # Qt 3
+        debug {
+			CONFIG -= QwtDesigner
+        }
+    }
+    else {
+
+        CONFIG(debug, debug|release) {
+			CONFIG -= QwtDesigner
+        }
+    }
+    
+    !contains(CONFIG, QwtDesigner) {
+        message("A debug version of the designer plugin is pointless, beside for debugging the designer itsself.")
+	}
+}
+
 contains(CONFIG, QwtDesigner) {
 
 	CONFIG    += warn_on
@@ -22,7 +47,6 @@ contains(CONFIG, QwtDesigner) {
 
         # Qt 3
         debug {
-            message("A debug version of the designer plugin is pointless, beside for debugging the designer itsself. Be careful to avoid debug/release mismatches !")
             SUFFIX_STR = $${DEBUG_SUFFIX}
         }
         else {
@@ -32,7 +56,6 @@ contains(CONFIG, QwtDesigner) {
     else {
 
         CONFIG(debug, debug|release) {
-            message("A debug version of the designer plugin is pointless, beside for debugging the designer itsself. Be careful to avoid debug/release mismatches !")
             SUFFIX_STR = $${DEBUG_SUFFIX}
         }
         else {
