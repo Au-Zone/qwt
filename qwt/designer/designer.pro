@@ -7,19 +7,38 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ##############################################
 
-include ( ../qwtconfig.pri )
+QWT_ROOT = ..
 
-contains(CONFIG, QwtDesigner) {
+include ( $${QWT_ROOT}/qwtconfig.pri )
+
+win32:contains(CONFIG, QwtDesigner) {
+
+	CONFIG(debug, debug|release) {
+		message("A debug version of the designer plugin is pointless, beside for debugging the designer itsself. Be careful to avoid debug/release mismatches !")
+	}
+}
+
+contains(CONFIG,, QwtDesigner) {
+
+	CONFIG    += warn_on
+
+	SUFFIX_STR =
+	CONFIG(debug, debug|release) {
+   		SUFFIX_STR = $${DEBUG_SUFFIX}
+	}
+	else {
+    	SUFFIX_STR = $${RELEASE_SUFFIX}
+	}
 
 	TEMPLATE        = lib
 	MOC_DIR         = moc
-	OBJECTS_DIR     = obj 
+	OBJECTS_DIR     = obj$${SUFFIX_STR}
 	DESTDIR         = plugins/designer
-	INCLUDEPATH    += ../src 
-	DEPENDPATH     += ../src 
+	INCLUDEPATH    += $${QWT_ROOT}/src 
+	DEPENDPATH     += $${QWT_ROOT}/src 
 
 	contains(CONFIG, QwtDll) {
-		win32::DEFINES += QWT_DLL
+		win32::DEFINES += QT_DLL QWT_DLL
 	}
 
 	!contains(CONFIG, QwtPlot) {
@@ -30,18 +49,19 @@ contains(CONFIG, QwtDesigner) {
 		DEFINES += NO_QWT_WIDGETS
 	}
 
-	unix:LIBS      += -L../lib -lqwt
-	win32-msvc:LIBS  += ../lib/qwt5.lib
-	win32-msvc.net:LIBS  += ../lib/qwt5.lib
-	win32-msvc2005:LIBS += ../lib/qwt5.lib
-	win32-g++:LIBS   += -L../lib -lqwt5
+    LIBNAME         = qwt$${SUFFIX_STR}
+	unix:LIBS      += -L$${QWT_ROOT}/lib -l$${LIBNAME}
+	win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${LIBNAME}5.lib
+	win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${LIBNAME}5.lib
+	win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${LIBNAME}5.lib
+	win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${LIBNAME}5
 
 	# isEmpty(QT_VERSION) does not work with Qt-4.1.0/MinGW
 
 	VVERSION = $$[QT_VERSION]
 	isEmpty(VVERSION) {
 		# Qt 3 
-		TARGET    = qwtplugin
+		TARGET    = qwtplugin$${SUFFIX_STR}
 		CONFIG   += qt plugin
 
 		UI_DIR    = ui
@@ -69,7 +89,7 @@ contains(CONFIG, QwtDesigner) {
 
 		# Qt 4
 
-		TARGET    = qwt_designer_plugin
+		TARGET    = qwt_designer_plugin$${SUFFIX_STR}
 		CONFIG    += qt designer plugin 
 
 		RCC_DIR   = resources
@@ -96,8 +116,7 @@ contains(CONFIG, QwtDesigner) {
 		INSTALLS += target
 	}
 
-	CONFIG    += warn_on
-	CONFIG    += release
+
 }
 else {
 	TEMPLATE        = subdirs # do nothing
