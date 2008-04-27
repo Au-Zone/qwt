@@ -11,24 +11,42 @@ QWT_ROOT = ..
 
 include ( $${QWT_ROOT}/qwtconfig.pri )
 
-win32:contains(CONFIG, QwtDesigner) {
+contains(CONFIG, QwtDesigner) {
 
-	CONFIG(debug, debug|release) {
-		message("A debug version of the designer plugin is pointless, beside for debugging the designer itsself. Be careful to avoid debug/release mismatches !")
+	win32 {
+
+    	# To avoid debug/release mismatches on Windows, we suppress
+    	# debug builds
+
+		CONFIG -= debug_and_release
+		CONFIG -= debug
+		CONFIG += release
 	}
-}
-
-contains(CONFIG,, QwtDesigner) {
 
 	CONFIG    += warn_on
 
 	SUFFIX_STR =
-	CONFIG(debug, debug|release) {
-   		SUFFIX_STR = $${DEBUG_SUFFIX}
-	}
-	else {
-    	SUFFIX_STR = $${RELEASE_SUFFIX}
-	}
+
+    VVERSION = $$[QT_VERSION]
+    isEmpty(VVERSION) {
+
+        # Qt 3
+        debug {
+            SUFFIX_STR = $${DEBUG_SUFFIX}
+        }
+        else {
+            SUFFIX_STR = $${RELEASE_SUFFIX}
+        }
+    }
+    else {
+
+        CONFIG(debug, debug|release) {
+            SUFFIX_STR = $${DEBUG_SUFFIX}
+        }
+        else {
+            SUFFIX_STR = $${RELEASE_SUFFIX}
+        }
+    }
 
 	TEMPLATE        = lib
 	MOC_DIR         = moc
