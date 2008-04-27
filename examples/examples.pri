@@ -49,10 +49,10 @@ win32 {
 
 	QWTLIB = $${QWTLIB}$${VER_MAJ}
 
-    msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
-    msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
-    msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
-    g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}
+    win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}
 }
 else {
 	LIBS        += -L$${QWT_ROOT}/lib -l$${QWTLIB}
