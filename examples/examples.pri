@@ -11,8 +11,6 @@ QWT_ROOT = ../..
 
 include( $${QWT_ROOT}/qwtconfig.pri )
 
-CONFIG += QwtExamplesConfig
-
 SUFFIX_STR =
 VVERSION = $$[QT_VERSION]
 isEmpty(VVERSION) {
