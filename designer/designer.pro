@@ -11,32 +11,17 @@ QWT_ROOT = ..
 
 include ( $${QWT_ROOT}/qwtconfig.pri )
 
-win32 {
-
-    # To avoid debug/release mismatches on Windows, we suppress
-    # debug builds
-
-    VVERSION = $$[QT_VERSION]
-    isEmpty(VVERSION) {
-
-        # Qt 3
-        debug {
-			CONFIG -= QwtDesigner
-        }
-    }
-    else {
-
-        CONFIG(debug, debug|release) {
-			CONFIG -= QwtDesigner
-        }
-    }
-    
-    !contains(CONFIG, QwtDesigner) {
-        message("A debug version of the designer plugin is pointless, beside for debugging the designer itsself.")
-	}
-}
-
 contains(CONFIG, QwtDesigner) {
+
+	win32 {
+
+    	# To avoid debug/release mismatches on Windows, we suppress
+    	# debug builds
+
+		CONFIG -= debug_and_release
+		CONFIG -= debug
+		CONFIG += release
+	}
 
 	CONFIG    += warn_on
 
