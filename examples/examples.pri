@@ -11,29 +11,51 @@ QWT_ROOT = ../..
 
 include( $${QWT_ROOT}/qwtconfig.pri )
 
+CONFIG += QwtExamplesConfig
+
+SUFFIX_STR =
+VVERSION = $$[QT_VERSION]
+isEmpty(VVERSION) {
+
+    # Qt 3
+    debug {
+        SUFFIX_STR = $${DEBUG_SUFFIX}
+    }
+    else {
+        SUFFIX_STR = $${RELEASE_SUFFIX}
+    }
+}
+else {
+    CONFIG(debug, debug|release) {
+        SUFFIX_STR = $${DEBUG_SUFFIX}
+    }
+    else {
+        SUFFIX_STR = $${RELEASE_SUFFIX}
+    }
+}
+
 TEMPLATE     = app
 
 MOC_DIR      = moc
-OBJECTS_DIR  = obj
 INCLUDEPATH += $${QWT_ROOT}/src
 DEPENDPATH  += $${QWT_ROOT}/src
+OBJECTS_DIR  = obj$${SUFFIX_STR}
+DESTDIR      = $${QWT_ROOT}/examples/bin$${SUFFIX_STR}
+
+QWTLIB       = qwt$${SUFFIX_STR}
 
 win32 {
 	contains(CONFIG, QwtDll) {
 		DEFINES    += QT_DLL QWT_DLL
-		QWTLIB      = qwt$${VER_MAJ}
 	}
-	else {
-		QWTLIB      = qwt
-	}
+
+	QWTLIB = $${QWTLIB}$${VER_MAJ}
 
     msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
-    msvc.net:LIBS  += $${QWT_ROOT}/lib/{QWTLIB}.lib
-    msvc2005:LIBS += $${QWT_ROOT}/lib/{QWTLIB}.lib
-    g++:LIBS   += -L$${QWT_ROOT}/lib -lqwt
+    msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}
 }
 else {
-	LIBS        += -L$${QWT_ROOT}/lib -lqwt
+	LIBS        += -L$${QWT_ROOT}/lib -l$${QWTLIB}
 }
-
-contains(CONFIG, QwtDll) {

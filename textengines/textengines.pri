@@ -7,7 +7,30 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ##############################################
 
-include( ../qwtconfig.pri )
+QWT_ROOT = ../..
+
+include( $${QWT_ROOT}/qwtconfig.pri )
+
+SUFFIX_STR =
+VVERSION = $$[QT_VERSION]
+isEmpty(VVERSION) {
+
+    # Qt 3
+    debug {
+        SUFFIX_STR = $${DEBUG_SUFFIX}
+    }
+    else {
+        SUFFIX_STR = $${RELEASE_SUFFIX}
+    }
+}
+else {
+    CONFIG(debug, debug|release) {
+        SUFFIX_STR = $${DEBUG_SUFFIX}
+    }
+    else {
+        SUFFIX_STR = $${RELEASE_SUFFIX}
+    }
+}
 
 TEMPLATE  = lib
 
@@ -19,20 +42,28 @@ else {
 }
 
 MOC_DIR         = moc
-OBJECTS_DIR     = obj
-DESTDIR         = ../../lib
-INCLUDEPATH    += ../../src
-DEPENDPATH     += ../../src
+OBJECTS_DIR     = obj$${SUFFIX_STR}
+DESTDIR         = $${QWT_ROOT}/lib
+INCLUDEPATH    += $${QWT_ROOT}/src
+DEPENDPATH     += $${QWT_ROOT}/src
 
-win32:QwtDll {
-	DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+QWTLIB       = qwt$${SUFFIX_STR}
+
+win32 {
+	QwtDll {
+		DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+	}
+
+	QWTLIB = $${QWTLIB}$${VER_MAJ}
+
+	msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}$${VER_MAJ}.lib
+	msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}$${VER_MAJ}.lib
+	msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}$${VER_MAJ}.lib
+	g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}$${VER_MAJ}
 }
-
-unix:LIBS      += -L../../lib -lqwt
-win32-msvc:LIBS  += ../../lib/qwt5.lib
-win32-msvc.net:LIBS  += ../../lib/qwt5.lib
-win32-msvc2005:LIBS += ../../lib/qwt5.lib
-win32-g++:LIBS   += -L../../lib -lqwt5
+else {
+	LIBS      += -L$${QWT_ROOT}/lib -l$${QWTLIB}
+}
 
 target.path    = $$INSTALLBASE/lib
 headers.path   = $$INSTALLBASE/include

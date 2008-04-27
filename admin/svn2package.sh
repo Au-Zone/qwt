@@ -60,13 +60,6 @@ function cleanQwt {
     rm TODO
     rm admin/svn2package.sh
 
-    PROFILES="qwtconfig.pri"
-    for PROFILE in $PROFILES
-    do
-        sed -e 's/= debug/= release/' $PROFILE > $PROFILE.sed
-        mv $PROFILE.sed $PROFILE
-    done
-
     HEADERS=`find . -type f -name '*.h' -print`
     SOURCES=`find . -type f -name '*.cpp' -print`
     PROFILES=`find . -type f -name '*.pro' -print`

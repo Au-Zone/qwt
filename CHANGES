@@ -23,6 +23,8 @@ Changes
 9) Changes for the QwtPolar package
    QwtLegendItemManager introduced
    QwtMagnifier introduced
+10)Suffix rules added in qwtconfig.pri for different targets for 
+   debug/release builds.
 
 Bug Fixes
 ---------
