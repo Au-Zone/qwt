@@ -23,7 +23,7 @@ isEmpty(VVERSION) {
 
 	exists( qtmmlwidget.cpp ) {
 
-		TARGET    = qwtmathml
+		TARGET    = qwtmathml$${SUFFIX_STR}
 		VERSION   = 1.0.0
 		QT       += xml
 

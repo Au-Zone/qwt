@@ -1,4 +1,4 @@
-Release 5.1
+Release 5.2
 ===================
 
 Changes
@@ -8,6 +8,58 @@ Changes
 2. QwtPlotInterval introduced ( featuring error bars )
 3. QwtPlotRescaler introduced
 4. QwtPlotScaleItem introduced, displaying optional scales on the canvas
+
+Release 5.1.0
+===================
+
+Changes
+-------
+1) QwtSymbol::copy introduced
+   Now it is possible to use derived symbol classes for curves
+2) QwtPlotScaleItem introduced
+   A new type of plot item for displaying axes on the canvas
+3) QwtClipper added
+   A collection of clipping algos
+4) Using DBL_EPSILON
+   This change allows smaller intervals for sliders/dials
+5) QwtPanner
+   setOrientation() added.
+6) QwtPlot
+   axisStepSize() added
+   clear is virtual now
+7) QwtPlotPrintFilter
+   PrintCanvasBackground splitted into PrintBackground, PrintFrameWithScales
+8) QwtPlotZoomer
+   setZoomStack() added
+9) Changes for the QwtPolar package
+   QwtLegendItemManager introduced
+   QwtMagnifier introduced
+10)Suffix rules added in qwtconfig.pri for different targets for
+   debug/release builds.
+
+Bug Fixes
+---------
+1. QwtAbstractScaleDraw::setAbstractScaleDraw
+   Reinitialization problem fixed
+2. QwtLegendItem
+   key event handlers fixed
+3. QwtPicker
+   solaris-cc compiler problem fixed
+4. Inaccurate mapping of scale to widget coordinates fixed
+5. QwtPlotCurve::draw
+   Updates for Qt 4.3 added
+6. QwtPlotLayout
+   AlignToCanvas layout calculation fixed
+7. QwtPlot::print
+   Workaround for a QPen initialization problem,
+   when printing to Pdf, added
+8. QwtText
+   Layout of rich text documents fixed
+9. Designer
+   Handling of QwtScaleWidget fixed
+10. realtime example
+   Qt::WA_PaintOutsidePaintEvent added, ScrollZoomer fixed
+11. Several others I have forgotten
 
 Release 5.0.2
 ===================

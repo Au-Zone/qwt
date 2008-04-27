@@ -2,7 +2,10 @@
 # Install paths
 ######################################################################
 
-VERSION      = 5.2.0
+VER_MAJ      = 5
+VER_MIN      = 2
+VER_PAT      = 0
+VERSION      = $$VER_MAJ.$$VER_MIN.$$VER_PAT
 
 unix {
     INSTALLBASE    = /usr/local/qwt-$$VERSION-svn
@@ -26,11 +29,43 @@ CONFIG           += thread
 
 ######################################################################
 # release/debug mode
-# The designer plugin is always built in release mode.
-# If want to change this, you have to edit designer/designer.pro.
+# If you want to build both DEBUG_SUFFIX and RELEASE_SUFFIX
+# have to differ to avoid, that they overwrite each other.
 ######################################################################
 
-CONFIG           += debug     # release/debug
+VVERSION = $$[QT_VERSION]
+isEmpty(VVERSION) {
+
+   	# Qt 3
+	CONFIG           += release     # release/debug
+}
+else {
+   	# Qt 4
+	win32 {
+    	# On Windows you can't mix release and debug libraries.
+    	# The designer is built in release mode. If you like to use it
+    	# you need a release version. For your own application development you
+    	# might need a debug version. So we better built both.
+
+		CONFIG           += debug_and_release
+		CONFIG           += build_all
+	}
+	else {
+		CONFIG           += release     # release/debug
+	}
+}
+
+######################################################################
+# If you want to have different names for the debug and release 
+# versions you can add a suffix rules below.
+######################################################################
+
+DEBUG_SUFFIX        =
+RELEASE_SUFFIX      = 
+
+win32 {
+	DEBUG_SUFFIX      = d
+}
 
 ######################################################################
 # Build the static/shared libraries.
@@ -60,7 +95,7 @@ CONFIG     += QwtWidgets
 # QwtSVGItem.
 ######################################################################
 
-CONFIG     += QwtSVGItem
+#CONFIG     += QwtSVGItem
 
 ######################################################################
 # If you have a commercial license you can use the MathML renderer
@@ -84,4 +119,4 @@ CONFIG     += QwtDesigner
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-CONFIG     += QwtExamples
+#CONFIG     += QwtExamples

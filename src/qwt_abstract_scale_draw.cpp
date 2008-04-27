@@ -350,7 +350,8 @@ int QwtAbstractScaleDraw::majTickLength() const
 /*!
   \brief Convert a value into its representing label 
 
-  The value is converted to a plain text using QString::number(value).
+  The value is converted to a plain text using 
+  QLocale::system().toString(value).
   This method is often overloaded by applications to have individual
   labels.
 

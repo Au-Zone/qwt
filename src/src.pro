@@ -9,14 +9,37 @@
 
 # qmake project file for building the qwt libraries
 
-include( ../qwtconfig.pri )
+QWT_ROOT = ..
 
-TARGET            = qwt
+include( $${QWT_ROOT}/qwtconfig.pri )
+
+SUFFIX_STR =
+VVERSION = $$[QT_VERSION]
+isEmpty(VVERSION) {
+
+    # Qt 3
+	debug {
+		SUFFIX_STR = $${DEBUG_SUFFIX}
+	}
+	else {
+		SUFFIX_STR = $${RELEASE_SUFFIX} 
+	}
+}
+else {
+	CONFIG(debug, debug|release) {
+    	SUFFIX_STR = $${DEBUG_SUFFIX}
+	}
+	else {
+    	SUFFIX_STR = $${RELEASE_SUFFIX}
+	}
+}
+
+TARGET            = qwt$${SUFFIX_STR}
 TEMPLATE          = lib
 
 MOC_DIR           = moc
-OBJECTS_DIR       = obj
-DESTDIR           = ../lib
+OBJECTS_DIR       = obj$${SUFFIX_STR}
+DESTDIR           = $${QWT_ROOT}/lib
 
 contains(CONFIG, QwtDll ) {
     CONFIG += dll
@@ -200,9 +223,9 @@ contains(CONFIG, QwtWidgets) {
 # Install directives
 
 headers.files  = $$HEADERS
-doc.files      = ../doc/html
+doc.files      = $${QWT_ROOT}/doc/html
 unix {
-    doc.files      += ../doc/man
+    doc.files      += $${QWT_ROOT}/doc/man
 }
 
 INSTALLS       = target headers doc

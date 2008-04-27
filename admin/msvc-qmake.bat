@@ -49,6 +49,8 @@ cd ..\sliders
 qmake -t %1app sliders.pro
 cd ..\spectrogram
 qmake -t %1app spectrogram.pro
+cd ..\svgmap
+qmake -t %1app svgmap.pro
 cd ..\sysinfo
 qmake -t %1app sysinfo.pro
 cd ..\..
