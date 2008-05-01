@@ -13,16 +13,6 @@ include ( $${QWT_ROOT}/qwtconfig.pri )
 
 contains(CONFIG, QwtDesigner) {
 
-	win32 {
-
-    	# To avoid debug/release mismatches on Windows, we suppress
-    	# debug builds
-
-		CONFIG -= debug_and_release
-		CONFIG -= debug
-		CONFIG += release
-	}
-
 	CONFIG    += warn_on
 
 	SUFFIX_STR =
