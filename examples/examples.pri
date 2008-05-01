@@ -43,11 +43,10 @@ DESTDIR      = $${QWT_ROOT}/examples/bin$${SUFFIX_STR}
 QWTLIB       = qwt$${SUFFIX_STR}
 
 win32 {
-	contains(CONFIG, QwtDll) {
-		DEFINES    += QT_DLL QWT_DLL
-	}
-
-	QWTLIB = $${QWTLIB}$${VER_MAJ}
+    contains(CONFIG, QwtDll) {
+        DEFINES    += QT_DLL QWT_DLL
+        QWTLIB = $${QWTLIB}$${VER_MAJ}
+    }
 
     win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
     win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
@@ -55,5 +54,5 @@ win32 {
     win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}
 }
 else {
-	LIBS        += -L$${QWT_ROOT}/lib -l$${QWTLIB}
+    LIBS        += -L$${QWT_ROOT}/lib -l$${QWTLIB}
 }
