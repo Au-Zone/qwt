@@ -238,7 +238,7 @@ inline void QwtPolygonClipperF::addPoint(QwtPolygonF &pa, uint pos, const QwtDou
     if ( uint(pa.size()) <= pos ) 
         pa.resize(pos + 5);
 
-    pa[pos] = point;
+    pa[(int)pos] = point;
 }
 
 //! Sutherland-Hodgman polygon clipping
@@ -338,7 +338,7 @@ void QwtPolygonClipperF::clipEdge(Edge edge,
     const uint nPoints = pa.size();
     for ( uint i = 1; i < nPoints; i++ )
     {
-        const QwtDoublePoint p2 = pa[i];
+        const QwtDoublePoint p2 = pa[(int)i];
         if ( insideEdge(p2, edge) )
         {
             if ( insideEdge(p1, edge) )
