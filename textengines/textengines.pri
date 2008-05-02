@@ -55,8 +55,6 @@ win32 {
         QWTLIB   = $${QWTLIB}$${VER_MAJ}
     }
 
-    QWTLIB = $${QWTLIB}$${VER_MAJ}
-
     win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
     win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
     win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
