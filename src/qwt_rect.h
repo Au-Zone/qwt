@@ -25,7 +25,6 @@ public:
     QwtRect();
     QwtRect(const QRect &r);
 
-private:
     QwtPolygon clip(const QwtPolygon &) const;
 };
 
