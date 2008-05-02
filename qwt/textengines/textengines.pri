@@ -50,19 +50,18 @@ DEPENDPATH     += $${QWT_ROOT}/src
 QWTLIB       = qwt$${SUFFIX_STR}
 
 win32 {
-	QwtDll {
-		DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
-	}
+    QwtDll {
+        DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+        QWTLIB   = $${QWTLIB}$${VER_MAJ}
+    }
 
-	QWTLIB = $${QWTLIB}$${VER_MAJ}
-
-	win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}$${VER_MAJ}.lib
-	win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}$${VER_MAJ}.lib
-	win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}$${VER_MAJ}.lib
-	win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}$${VER_MAJ}
+    win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+    win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}
 }
 else {
-	LIBS      += -L$${QWT_ROOT}/lib -l$${QWTLIB}
+    LIBS      += -L$${QWT_ROOT}/lib -l$${QWTLIB}
 }
 
 target.path    = $$INSTALLBASE/lib

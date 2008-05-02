@@ -13,16 +13,6 @@ include ( $${QWT_ROOT}/qwtconfig.pri )
 
 contains(CONFIG, QwtDesigner) {
 
-	win32 {
-
-    	# To avoid debug/release mismatches on Windows, we suppress
-    	# debug builds
-
-		CONFIG -= debug_and_release
-		CONFIG -= debug
-		CONFIG += release
-	}
-
 	CONFIG    += warn_on
 
 	SUFFIX_STR =
@@ -55,8 +45,12 @@ contains(CONFIG, QwtDesigner) {
 	INCLUDEPATH    += $${QWT_ROOT}/src 
 	DEPENDPATH     += $${QWT_ROOT}/src 
 
+    LIBNAME         = qwt$${SUFFIX_STR}
 	contains(CONFIG, QwtDll) {
-		win32::DEFINES += QT_DLL QWT_DLL
+		win32 {
+			DEFINES += QT_DLL QWT_DLL
+			LIBNAME = $${LIBNAME}$${VER_MAJ}
+		}
 	}
 
 	!contains(CONFIG, QwtPlot) {
@@ -67,12 +61,11 @@ contains(CONFIG, QwtDesigner) {
 		DEFINES += NO_QWT_WIDGETS
 	}
 
-    LIBNAME         = qwt$${SUFFIX_STR}
 	unix:LIBS      += -L$${QWT_ROOT}/lib -l$${LIBNAME}
-	win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${LIBNAME}5.lib
-	win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${LIBNAME}5.lib
-	win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${LIBNAME}5.lib
-	win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${LIBNAME}5
+	win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${LIBNAME}.lib
+	win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${LIBNAME}.lib
+	win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${LIBNAME}.lib
+	win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${LIBNAME}
 
 	# isEmpty(QT_VERSION) does not work with Qt-4.1.0/MinGW
 
@@ -133,8 +126,6 @@ contains(CONFIG, QwtDesigner) {
 		target.path = $$[QT_INSTALL_PLUGINS]/designer
 		INSTALLS += target
 	}
-
-
 }
 else {
 	TEMPLATE        = subdirs # do nothing
