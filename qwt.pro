@@ -13,7 +13,7 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
     src \
-	textengines
+    textengines
 
 contains(CONFIG, QwtDesigner ) {
     SUBDIRS += designer 
