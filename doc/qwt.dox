@@ -104,13 +104,13 @@ to control or display values, arrays, or ranges of type double.
   \section donations Donations
 
   Sourceforge offers a <a href="http://sourceforge.net/docman/display_doc.php?docid=20244&group_id=1"> Donation System</a> via PayPal. You can use it, if you like to <a href="http://sourceforge.net/project/project_donations.php?group_id=13693">support</a> the development of Qwt.
-*/
 
   \section credits Credits:
   \par Authors: 
     Uwe Rathmann, Josef Wilgen ( <= Qwt 0.2 )
   \par Project admin:
     Uwe Rathmann \<rathmann@users.sourceforge.net\>
+*/
 
 /*!
   \page qwtlicense Qwt License, Version 1.0
