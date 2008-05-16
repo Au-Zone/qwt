@@ -259,16 +259,16 @@ double QwtKnob::getValue(const QPoint &p)
     const double dx = double((rect().x() + rect().width() / 2) - p.x() );
     const double dy = double((rect().y() + rect().height() / 2) - p.y() );
 
-    const double arc = atan2(-dx,dy) * 180.0 / M_PI;
+    const double arc = std::atan2(-dx,dy) * 180.0 / M_PI;
 
     double newValue =  0.5 * (minValue() + maxValue())
        + (arc + d_data->nTurns * 360.0) * (maxValue() - minValue())
       / d_data->totalAngle;
 
-    const double oneTurn = fabs(maxValue() - minValue()) * 360.0 / d_data->totalAngle;
+    const double oneTurn = std::fabs(maxValue() - minValue()) * 360.0 / d_data->totalAngle;
     const double eqValue = value() + mouseOffset();
 
-    if (fabs(newValue - eqValue) > 0.5 * oneTurn)
+    if (std::fabs(newValue - eqValue) > 0.5 * oneTurn)
     {
         if (newValue < eqValue)
            newValue += oneTurn;
@@ -300,7 +300,7 @@ void QwtKnob::getScrollMode(const QPoint &p, int &scrollMode, int &direction)
     else                                // point lies outside
     {
         scrollMode = ScrTimer;
-        double arc = atan2(double(-dx),double(dy)) * 180.0 / M_PI;
+        double arc = std::atan2(double(-dx),double(dy)) * 180.0 / M_PI;
         if ( arc < d_data->angle)
            direction = -1;
         else if (arc > d_data->angle)
@@ -405,8 +405,8 @@ void QwtKnob::draw(QPainter *painter, const QRect& ur)
 void QwtKnob::drawMarker(QPainter *p, double arc, const QColor &c)
 {
     const double rarc = arc * M_PI / 180.0;
-    const double ca = cos(rarc);
-    const double sa = - sin(rarc);
+    const double ca = std::cos(rarc);
+    const double sa = - std::sin(rarc);
 
     int radius = d_data->knobRect.width() / 2 - d_data->borderWidth;
     if (radius < 3) 
@@ -495,7 +495,7 @@ void QwtKnob::recalcAngle()
     {
         d_data->angle = (value() - 0.5 * (minValue() + maxValue()))
             / (maxValue() - minValue()) * d_data->totalAngle;
-        d_data->nTurns = floor((d_data->angle + 180.0) / 360.0);
+        d_data->nTurns = std::floor((d_data->angle + 180.0) / 360.0);
         d_data->angle = d_data->angle - d_data->nTurns * 360.0;
     }
 }

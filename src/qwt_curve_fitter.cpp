@@ -185,7 +185,7 @@ QPolygonF QwtSplineCurveFitter::fitParametric(
         const double y = p[i].y();
         if ( i > 0 )
         {
-            const double delta = sqrt( qwtSqr(x - spX[i-1].y())
+            const double delta = std::sqrt( qwtSqr(x - spX[i-1].y())
                       + qwtSqr( y - spY[i-1].y() ) );
             param += qwtMax(delta, 1.0);
         }
