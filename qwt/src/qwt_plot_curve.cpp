@@ -1080,7 +1080,7 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
         }
     }
     if ( dist )
-        *dist = sqrt(dmin);
+        *dist = std::sqrt(dmin);
 
     return index;
 }
