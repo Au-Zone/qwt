@@ -77,7 +77,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     if (x < vmin)
     {
         if ((d_periodic) && (vmin != vmax))
-           d_value = x + std::ceil( (vmin - x) / (vmax - vmin ) ) 
+           d_value = x + ::ceil( (vmin - x) / (vmax - vmin ) ) 
               * (vmax - vmin);
         else
            d_value = vmin;
@@ -85,7 +85,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     else if (x > vmax)
     {
         if ((d_periodic) && (vmin != vmax))
-           d_value = x - std::ceil( ( x - vmax) / (vmax - vmin )) 
+           d_value = x - ::ceil( ( x - vmax) / (vmax - vmin )) 
               * (vmax - vmin);
         else
            d_value = vmax;
@@ -108,11 +108,11 @@ void QwtDoubleRange::setNewValue(double x, bool align)
             d_value = d_minValue;
         
         // correct rounding error at the border
-        if (std::fabs(d_value - d_maxValue) < MinEps * qwtAbs(d_step))
+        if (fabs(d_value - d_maxValue) < MinEps * qwtAbs(d_step))
             d_value = d_maxValue;
 
         // correct rounding error if value = 0
-        if (std::fabs(d_value) < MinEps * qwtAbs(d_step))
+        if (::fabs(d_value) < MinEps * qwtAbs(d_step))
             d_value = 0.0;
     }
 
@@ -222,7 +222,7 @@ void QwtDoubleRange::setStep(double vstep)
         else
            newStep = vstep;
         
-        if ( std::fabs(newStep) < std::fabs(MinRelStep * intv) )
+        if ( fabs(newStep) < fabs(MinRelStep * intv) )
            newStep = MinRelStep * intv;
     }
     
