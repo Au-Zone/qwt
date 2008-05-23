@@ -217,7 +217,7 @@ void QwtScaleMap::newFactor()
             d_cnv = (d_p2 - d_p1) / (d_s2 - d_s1); 
             break;
         case QwtScaleTransformation::Log10:
-            d_cnv = (d_p2 - d_p1) / std::log(d_s2 / d_s1);
+            d_cnv = (d_p2 - d_p1) / log(d_s2 / d_s1);
             break;
         default:;
     }
