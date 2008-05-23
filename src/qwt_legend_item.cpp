@@ -370,7 +370,7 @@ void QwtLegendItem::mousePressEvent(QMouseEvent *e)
             default:;
         }
     }
-    return QwtTextLabel::mousePressEvent(e);
+    QwtTextLabel::mousePressEvent(e);
 }
 
 //! Handle mouse release events
@@ -392,7 +392,7 @@ void QwtLegendItem::mouseReleaseEvent(QMouseEvent *e)
             default:;
         }
     }
-    return QwtTextLabel::mouseReleaseEvent(e);
+    QwtTextLabel::mouseReleaseEvent(e);
 }
 
 //! Handle key press events
@@ -418,7 +418,7 @@ void QwtLegendItem::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    return QwtTextLabel::keyPressEvent(e);
+    QwtTextLabel::keyPressEvent(e);
 }
 
 //! Handle key release events
@@ -442,7 +442,7 @@ void QwtLegendItem::keyReleaseEvent(QKeyEvent *e)
         }
     }
 
-    return QwtTextLabel::keyReleaseEvent(e);
+    QwtTextLabel::keyReleaseEvent(e);
 }
 
 class QwtLegendCurveItem::PrivateData
