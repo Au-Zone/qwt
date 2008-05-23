@@ -54,7 +54,7 @@ double QwtScaleArithmetic::ceilEps(double value,
     const double eps = _eps * intervalSize;
 
     value = (value - eps) / intervalSize;
-    return std::ceil(value) * intervalSize;
+    return ceil(value) * intervalSize;
 }
 
 /*!
@@ -70,7 +70,7 @@ double QwtScaleArithmetic::floorEps(double value, double intervalSize)
     const double eps = _eps * intervalSize;
 
     value = (value + eps) / intervalSize;
-    return std::floor(value) * intervalSize;
+    return floor(value) * intervalSize;
 }
 
 /*
@@ -102,10 +102,10 @@ double QwtScaleArithmetic::ceil125(double x)
         return 0.0;
 
     const double sign = (x > 0) ? 1.0 : -1.0;
-    const double lx = std::log10(std::fabs(x));
-    const double p10 = std::floor(lx);
+    const double lx = log10(fabs(x));
+    const double p10 = floor(lx);
     
-    double fr = std::pow(10.0, lx - p10);
+    double fr = pow(10.0, lx - p10);
     if (fr <=1.0)
        fr = 1.0; 
     else if (fr <= 2.0)
@@ -115,7 +115,7 @@ double QwtScaleArithmetic::ceil125(double x)
     else
        fr = 10.0;
 
-    return sign * fr * std::pow(10.0, p10);
+    return sign * fr * pow(10.0, p10);
 }
 
 /*!
@@ -130,10 +130,10 @@ double QwtScaleArithmetic::floor125(double x)
         return 0.0;
 
     double sign = (x > 0) ? 1.0 : -1.0;
-    const double lx = std::log10(std::fabs(x));
-    const double p10 = std::floor(lx);
+    const double lx = log10(fabs(x));
+    const double p10 = floor(lx);
 
-    double fr = std::pow(10.0, lx - p10);
+    double fr = pow(10.0, lx - p10);
     if (fr >= 10.0)
        fr = 10.0;
     else if (fr >= 5.0)
@@ -143,7 +143,7 @@ double QwtScaleArithmetic::floor125(double x)
     else
        fr = 1.0;
 
-    return sign * fr * std::pow(10.0, p10);
+    return sign * fr * pow(10.0, p10);
 }
 
 class QwtScaleEngine::PrivateData
@@ -633,8 +633,8 @@ void QwtLog10ScaleEngine::autoScale(int maxNumSteps,
     if ( x1 > x2 )
         qSwap(x1, x2);
 
-    QwtDoubleInterval interval(x1 / std::pow(10.0, loMargin()), 
-        x2 * std::pow(10.0, hiMargin()) );
+    QwtDoubleInterval interval(x1 / pow(10.0, loMargin()), 
+        x2 * pow(10.0, hiMargin()) );
 
     double logRef = 1.0;
     if (reference() > LOG_MIN / 2)
@@ -761,8 +761,8 @@ QwtValueList QwtLog10ScaleEngine::buildMajorTicks(
     if ( numTicks > 10000 )
         numTicks = 10000;
 
-    const double lxmin = std::log(interval.minValue());
-    const double lxmax = std::log(interval.maxValue());
+    const double lxmin = log(interval.minValue());
+    const double lxmax = log(interval.maxValue());
     const double lstep = (lxmax - lxmin) / double(numTicks - 1);
 
     QwtValueList ticks;
@@ -770,7 +770,7 @@ QwtValueList QwtLog10ScaleEngine::buildMajorTicks(
     ticks += interval.minValue();
 
     for (int i = 1; i < numTicks; i++)
-       ticks += std::exp(lxmin + double(i) * lstep);
+       ticks += exp(lxmin + double(i) * lstep);
 
     ticks += interval.maxValue();
 
@@ -848,7 +848,7 @@ QwtValueList QwtLog10ScaleEngine::buildMinorTicks(
             return QwtValueList();      // no subticks
 
         // substep factor = 10^substeps
-        const double minFactor = qwtMax(std::pow(10.0, minStep), 10.0);
+        const double minFactor = qwtMax(pow(10.0, minStep), 10.0);
 
         QwtValueList minorTicks;
         for (int i = 0; i < (int)majorTicks.count(); i++)
@@ -893,8 +893,8 @@ QwtDoubleInterval QwtLog10ScaleEngine::align(
 QwtDoubleInterval QwtLog10ScaleEngine::log10(
     const QwtDoubleInterval &interval) const
 {
-    return QwtDoubleInterval(std::log10(interval.minValue()),
-            std::log10(interval.maxValue()));
+    return QwtDoubleInterval(::log10(interval.minValue()),
+            ::log10(interval.maxValue()));
 }
 
 /*!
@@ -903,6 +903,6 @@ QwtDoubleInterval QwtLog10ScaleEngine::log10(
 QwtDoubleInterval QwtLog10ScaleEngine::pow10(
     const QwtDoubleInterval &interval) const
 {
-    return QwtDoubleInterval(std::pow(10.0, interval.minValue()),
-            std::pow(10.0, interval.maxValue()));
+    return QwtDoubleInterval(pow(10.0, interval.minValue()),
+            pow(10.0, interval.maxValue()));
 }

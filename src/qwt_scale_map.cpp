@@ -48,7 +48,7 @@ double QwtScaleTransformation::xForm(
     double s, double s1, double s2, double p1, double p2) const
 {
     if ( d_type == Log10 )  
-        return p1 + (p2 - p1) / std::log(s2 / s1) * std::log(s / s1);
+        return p1 + (p2 - p1) / log(s2 / s1) * log(s / s1);
     else 
         return p1 + (p2 - p1) / (s2 - s1) * (s - s1);
 }
@@ -71,7 +71,7 @@ double QwtScaleTransformation::invXForm(double p, double p1, double p2,
     double s1, double s2) const
 {
     if ( d_type == Log10 )  
-        return std::exp((p - p1) / (p2 - p1) * std::log(s2 / s1)) * s1;
+        return exp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;
     else
         return s1 + (s2 - s1) / (p2 - p1) * (p - p1);
 }

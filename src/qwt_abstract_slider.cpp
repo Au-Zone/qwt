@@ -215,7 +215,7 @@ void QwtAbstractSlider::mouseReleaseEvent(QMouseEvent *e)
             if (d_data->mass > 0.0) 
             {
                 const int ms = d_data->time.elapsed();
-                if ((std::fabs(d_data->speed) >  0.0) && (ms < 50))
+                if ((fabs(d_data->speed) >  0.0) && (ms < 50))
                     d_data->tmrID = startTimer(d_data->updTime);
             }
             else
@@ -424,12 +424,12 @@ void QwtAbstractSlider::timerEvent(QTimerEvent *)
         {
             if (d_data->mass > 0.0)
             {
-                d_data->speed *= std::exp( - double(d_data->updTime) * 0.001 / d_data->mass );
+                d_data->speed *= exp( - double(d_data->updTime) * 0.001 / d_data->mass );
                 const double newval = 
                     exactValue() + d_data->speed * double(d_data->updTime);
                 QwtDoubleRange::fitValue(newval);
                 // stop if d_data->speed < one step per second
-                if (std::fabs(d_data->speed) < 0.001 * std::fabs(step()))
+                if (fabs(d_data->speed) < 0.001 * fabs(step()))
                 {
                     d_data->speed = 0;
                     stopMoving();
