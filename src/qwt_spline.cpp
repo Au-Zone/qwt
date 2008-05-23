@@ -338,7 +338,7 @@ bool QwtSpline::buildPeriodicSpline(const QPolygonF &points)
     //
     
     // L-U Factorization
-    a[0] = std::sqrt(a[0]);
+    a[0] = sqrt(a[0]);
     c[0] = h[imax] / a[0];
     double sum = 0;
 
@@ -347,11 +347,11 @@ bool QwtSpline::buildPeriodicSpline(const QPolygonF &points)
         b[i] /= a[i];
         if (i > 0)
            c[i] = - c[i-1] * b[i-1] / a[i];
-        a[i+1] = std::sqrt( a[i+1] - qwtSqr(b[i]));
+        a[i+1] = sqrt( a[i+1] - qwtSqr(b[i]));
         sum += qwtSqr(c[i]);
     }
     b[imax-1] = (b[imax-1] - c[imax-2] * b[imax-2]) / a[imax-1];
-    a[imax] = std::sqrt(a[imax] - qwtSqr(b[imax-1]) - sum);
+    a[imax] = sqrt(a[imax] - qwtSqr(b[imax-1]) - sum);
     
 
     // forward elimination

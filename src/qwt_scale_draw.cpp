@@ -234,7 +234,7 @@ int QwtScaleDraw::minLabelDist(const QFont &font) const
     if ( vertical )
         angle += M_PI / 2;
 
-    if ( std::sin(angle) == 0.0 )
+    if ( sin(angle) == 0.0 )
         return maxDist;
 
     const int fmHeight = fm.ascent() - 2; 
@@ -243,7 +243,7 @@ int QwtScaleDraw::minLabelDist(const QFont &font) const
     // the height of the label font. This height is needed
     // for the neighbour labal.
 
-    int labelDist = (int)(fmHeight / std::sin(angle) * std::cos(angle));
+    int labelDist = (int)(fmHeight / sin(angle) * cos(angle));
     if ( labelDist < 0 )
         labelDist = -labelDist;
 

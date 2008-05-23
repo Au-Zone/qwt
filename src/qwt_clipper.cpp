@@ -414,7 +414,7 @@ double QwtCircleClipper::toAngle(
 
     const double m = qwtAbs((to.y() - from.y()) / (to.x() - from.x()) );
 
-    double angle = std::atan(m);
+    double angle = ::atan(m);
     if ( to.x() > from.x() )
     {   
         if ( to.y() > from.y() )
@@ -441,7 +441,7 @@ QList<QwtDoublePoint> QwtCircleClipper::cuttingPoints(
         const double x = (edge == Left) ? left() : right();
         if ( qwtAbs(pos.x() - x) < radius )
         {
-            const double off = std::sqrt(qwtSqr(radius) - qwtSqr(pos.x() - x));
+            const double off = ::sqrt(qwtSqr(radius) - qwtSqr(pos.x() - x));
             const double y1 = pos.y() + off;
             if ( y1 >= top() && y1 <= bottom() )
                 points += QwtDoublePoint(x, y1);
@@ -455,7 +455,7 @@ QList<QwtDoublePoint> QwtCircleClipper::cuttingPoints(
         const double y = (edge == Top) ? top() : bottom();
         if ( qwtAbs(pos.y() - y) < radius )
         {
-            const double off = std::sqrt(qwtSqr(radius) - qwtSqr(pos.y() - y));
+            const double off = ::sqrt(qwtSqr(radius) - qwtSqr(pos.y() - y));
             const double x1 = pos.x() + off;
             if ( x1 >= left() && x1 <= right() )
                 points += QwtDoublePoint(x1, y);
