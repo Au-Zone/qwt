@@ -147,16 +147,35 @@ double QwtThermo::value() const
     return d_data->value; 
 }
 
+/*!
+  \brief Set a scale draw
+
+  For changing the labels of the scales, it
+  is necessary to derive from QwtScaleDraw and
+  overload QwtScaleDraw::label().
+
+  \param scaleDraw ScaleDraw object, that has to be created with 
+                   new and will be deleted in ~QwtThermo or the next 
+                   call of setScaleDraw().
+*/
 void QwtThermo::setScaleDraw(QwtScaleDraw *scaleDraw)
 {
     setAbstractScaleDraw(scaleDraw);
 }
 
+/*!
+   \return the scale draw of the thermo
+   \sa setScaleDraw()
+*/
 const QwtScaleDraw *QwtThermo::scaleDraw() const
 {
     return (QwtScaleDraw *)abstractScaleDraw();
 }
 
+/*!
+   \return the scale draw of the thermo
+   \sa setScaleDraw()
+*/
 QwtScaleDraw *QwtThermo::scaleDraw() 
 {
     return (QwtScaleDraw *)abstractScaleDraw();

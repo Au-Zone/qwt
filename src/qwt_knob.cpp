@@ -161,6 +161,7 @@ double QwtKnob::totalAngle() const
 void QwtKnob::setScaleDraw(QwtRoundScaleDraw *scaleDraw)
 {
     setAbstractScaleDraw(scaleDraw);
+    setTotalAngle(d_data->totalAngle);
 }
 
 /*! 
