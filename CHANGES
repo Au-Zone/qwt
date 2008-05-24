@@ -1,3 +1,18 @@
+Release 5.1.1
+===================
+
+Bug Fixes
+---------
+1) Several compiler incompatibilities fixed
+2) DBL_EPSILON removed 
+   Using DBL_EPSILON in the calculations of the dials/sliders and the 
+   scale engines leads to problems with the inaccuracy of floating points.
+   The behaviour has been reverted to 5.0.x.
+3) QwtSlider/QwtKnob
+   setScaleDraw() fixed.
+4) QwtRect
+   Pointless private declaration removed
+
 Release 5.1.0
 ===================
 
