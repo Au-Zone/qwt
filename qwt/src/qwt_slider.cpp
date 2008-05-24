@@ -317,16 +317,43 @@ void QwtSlider::setThumbWidth(int w)
     }
 }
 
+/*!
+  \brief Set a scale draw
+
+  For changing the labels of the scales, it
+  is necessary to derive from QwtScaleDraw and
+  overload QwtScaleDraw::label().
+
+  \param scaleDraw ScaleDraw object, that has to be created with 
+                   new and will be deleted in ~QwtSlider or the next 
+                   call of setScaleDraw().
+*/
 void QwtSlider::setScaleDraw(QwtScaleDraw *scaleDraw)
 {
+    const QwtScaleDraw *previousScaleDraw = this->scaleDraw();
+    if ( scaleDraw == NULL || scaleDraw == previousScaleDraw )
+        return;
+
+    if ( previousScaleDraw )
+        scaleDraw->setAlignment(previousScaleDraw->alignment());
+
     setAbstractScaleDraw(scaleDraw);
+    layoutSlider();
 }
 
+/*!
+  \return the scale draw of the slider
+  \sa setScaleDraw()
+*/
 const QwtScaleDraw *QwtSlider::scaleDraw() const
 {
     return (QwtScaleDraw *)abstractScaleDraw();
 }
 
+/*!
+  \return the scale draw of the slider
+  \sa setScaleDraw()
+*/
 QwtScaleDraw *QwtSlider::scaleDraw()
 {
     return (QwtScaleDraw *)abstractScaleDraw();
