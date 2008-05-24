@@ -12,8 +12,8 @@
 #include "qwt_math.h"
 
 static double MinRelStep = 1.0e-10;
-static double DefaultRelStep = DBL_EPSILON;
-static double MinEps = DBL_EPSILON;
+static double DefaultRelStep = 1.0e-2;
+static double MinEps = 1.0e-10;
 
 /*!
   The range is initialized to [0.0, 100.0], the
