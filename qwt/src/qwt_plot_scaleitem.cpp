@@ -391,7 +391,7 @@ void QwtPlotScaleItem::draw(QPainter *painter,
             return;
 
         sd->move(canvasRect.left(), y);
-        sd->setLength(canvasRect.width());
+        sd->setLength(canvasRect.width() - 1);
         sd->setTransformation(xMap.transformation()->copy());
     }
     else // == Qt::Vertical
@@ -414,7 +414,7 @@ void QwtPlotScaleItem::draw(QPainter *painter,
             return;
 
         sd->move(x, canvasRect.top());
-        sd->setLength(canvasRect.height());
+        sd->setLength(canvasRect.height() - 1);
         sd->setTransformation(yMap.transformation()->copy());
     }
 

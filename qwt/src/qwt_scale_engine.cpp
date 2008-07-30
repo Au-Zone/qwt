@@ -388,7 +388,7 @@ void QwtScaleEngine::setReference(double r)
 
 /*!
  \return the reference value
- \sa QwtScaleEngine::setReference(), QwtScaleEngine::setOptions()
+ \sa QwtScaleEngine::setReference(), QwtScaleEngine::setAttribute()
 */
 double QwtScaleEngine::reference() const 
 { 
