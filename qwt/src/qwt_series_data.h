@@ -370,7 +370,9 @@ QWT_EXPORT QwtDoubleRect qwtBoundingRect(
 
 #if defined(QWT_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
+#if QT_VERSION < 0x040000 // there is already a QVector<QPointF> in qvector.h
 template class QWT_EXPORT QwtArray<QwtDoublePoint>;
+#endif
 template class QWT_EXPORT QwtArray<QwtIntervalSample>;
 template class QWT_EXPORT QwtArray<QwtSetSample>;
 // MOC_SKIP_END
