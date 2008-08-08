@@ -1,39 +1,43 @@
-Qwt 5.x TODO list
+Qwt TODO list
 
-A) Planned (5.1)
-   -------
+5.2.x)
+------
 1) QwtPlotRescaler
-2) Using gradients for knobs, ...
+2) Cleanup of all widgets using QGradient and friends
 3) Histogram
-4) Interval Curve
+4) Interval Curve (including error bars)
 5) Curve with z value displayed as colors
 6) Curve for Price Movement 
 7) Thread support for rendering spectrograms
 9) Navigation example
 10) QwtSymbol + QPainterPath
 11) QwtData + functors
-12) QwtPlotCurve + Level of details
+12) QwtData/QwtPlotCurve + Level of details
+13) Cleaning up the examples
 
-B) Wish List ( >= 5.1 )
-   -------
+6.0.x)
+------
 
-2) MathML texts, using another (L)GPL Qt/MathML render engine 
-3) Grid of QwtPlots
-4) QwtPolarPlot
-5) Adding error bars
-6) Adding candle sticks
-7) Adding box plots
-8) Time/Date scale engine
-9) OpenGL plot canvas
-11) Using doubles in QwtPainter
-12) Interval scale labels
+1) Drop Qt3 Compatibility
 
-C) Open Tasks (5.0)
-   ----------
-2) QwtScaleWidget: Aligned/Opposite modes for the title
-4) QwtPlotDict, performance of z sorting
-5) setAlignCanvasToScales(true) + 2 X-Axes layout bug
-6) Alignment of left axis, without title. Layout init of round scales too late.
-7) Printing with Qt4 in HighResolution cuts off tick labels
+6.1.x)
+------
+1) Using doubles in QwtPainter
 
----
+Other ideas
+-----------
+1) OpenGL plot canvas
+2) Time/Date scale engine
+3) MathML texts, using another (L)GPL Qt/MathML render engine 
+4) Grid of QwtPlots
+5) Adding candle sticks
+6) Adding box plots
+7) Interval scale labels ( between 2 ticks )
+
+Bugs/Change requests
+--------------------
+1) QwtScaleWidget: Aligned/Opposite modes for the title
+2) QwtPlotDict, performance of z sorting
+3) setAlignCanvasToScales(true) + 2 X-Axes layout bug
+4) Alignment of left axis, without title. 
+5) Layout init of round scales too late.
