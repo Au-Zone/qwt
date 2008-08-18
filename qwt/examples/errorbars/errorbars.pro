@@ -11,6 +11,10 @@ include( ../examples.pri )
 
 TARGET       = errorbars
 
+HEADERS = \
+    friedberg2007.h
+
 SOURCES = \
+    friedberg2007.cpp \
     errorbars.cpp
 
