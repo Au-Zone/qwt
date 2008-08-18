@@ -10,72 +10,24 @@
 #include <qwt_symbol.h>
 #include <qwt_series_data.h>
 #include <qwt_text.h>
-#include <math.h>
+#include "friedberg2007.h"
 
-class CurveData: public QwtSeriesData<QwtDoublePoint>
+class FriedbergPlot: public QwtPlot
 {
 public:
-    CurveData(double(*y)(double), 
-            const QwtDoubleInterval& interval, size_t size):
-        d_interval(interval.normalized()),
-        d_size(size),
-        d_y(y)
-    {
-    }
-
-    virtual QwtSeriesData<QwtDoublePoint> *copy() const
-    {
-        return new CurveData(d_y, d_interval, d_size);
-    }
-
-    virtual size_t size() const
-    {
-        return d_size;
-    }
-
-    virtual QwtDoublePoint sample(size_t i) const
-    {
-        if ( d_size == 0 || !d_interval.isValid() )
-            return QwtDoublePoint();
-
-        const double dist = d_interval.width() / d_size;
-
-        const double x = d_interval.minValue() + dist * i;
-        const double y = d_y(x);
-
-        return QwtDoublePoint(x, y);
-    }
-
-    virtual QwtDoubleRect boundingRect() const
-    {
-        return qwtBoundingRect(*this);
-    }
+    FriedbergPlot();
 
 private:
-    QwtDoubleInterval d_interval;
-    size_t d_size;
-    double(*d_y)(double);
+    void insertCurve(const QString& title,
+        const QwtArray<QwtDoublePoint>&, const QColor &);
+
+    void insertErrorBars(const QwtArray<QwtIntervalSample>&,
+        const QColor &color, bool showTube);
 };
 
-class Plot: public QwtPlot
+FriedbergPlot::FriedbergPlot()
 {
-public:
-    Plot();
-
-private:
-    void insertCurve(const QString &title, 
-        const QwtSeriesData<QwtDoublePoint> &, const QColor &);
-    void insertErrorBars(const QwtSeriesData<QwtDoublePoint> &, 
-        Qt::Orientation, const QColor &, bool showTube);
-};
-
-
-Plot::Plot()
-{
-    const QwtDoubleInterval interval(-1.5, 1.5);
-    const int numPoints(30);
-
-    setTitle("A Plot with Error Bars");
+    setTitle("Temperature of Friedberg/Germany 2007");
     setCanvasBackground(QColor(Qt::darkGray));
 
     // grid
@@ -85,25 +37,29 @@ Plot::Plot()
     grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
     grid->attach(this);
 
-    // sinus
-    const CurveData sinusData(::cosh, interval, numPoints);
-    insertCurve("y = sin(x)", sinusData, Qt::black );
-    insertErrorBars(sinusData, Qt::Vertical, Qt::red, true);
+    insertLegend(new QwtLegend(), QwtPlot::RightLegend);
 
-    // cosinus
-    const CurveData tangensData(::sinh, interval, numPoints);
-    insertCurve("y = sinh(x)", tangensData, Qt::black );
-    insertErrorBars(tangensData, Qt::Horizontal, Qt::blue, true);
+    QwtArray<QwtDoublePoint> averageData;
+    QwtArray<QwtIntervalSample> rangeData;
+
+    for ( int i = 0; i < 365; i++ )
+    {
+        const Temperature &t = friedberg2007[i];
+        averageData += QwtDoublePoint(double(i), t.averageValue);
+        rangeData += QwtIntervalSample( double(i),
+            QwtDoubleInterval(t.minValue, t.maxValue) );
+    }
+
+    insertCurve("Average", averageData, Qt::black);
+    insertErrorBars(rangeData, Qt::blue, true);
 
     QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
     zoomer->setRubberBandPen(QColor(Qt::black));
     zoomer->setTrackerPen(QColor(Qt::black));
-
-    insertLegend(new QwtLegend(), QwtPlot::RightLegend);
 }
 
-void Plot::insertCurve(const QString& title, 
-    const QwtSeriesData<QwtDoublePoint>& data, const QColor &color)
+void FriedbergPlot::insertCurve(const QString& title, 
+    const QwtArray<QwtDoublePoint>& data, const QColor &color)
 {
     QwtPlotCurve *curve = new QwtPlotCurve(title);
 #if QT_VERSION >= 0x040000
@@ -121,14 +77,14 @@ void Plot::insertCurve(const QString& title,
     curve->attach(this);
 }
 
-void Plot::insertErrorBars(const QwtSeriesData<QwtDoublePoint>& data, 
-    Qt::Orientation orientation, const QColor &color, bool showTube)
+void FriedbergPlot::insertErrorBars(
+    const QwtArray<QwtIntervalSample>& data, 
+    const QColor &color, bool showTube)
 {
     QwtPlotIntervalCurve *errorCurve = new QwtPlotIntervalCurve();
 #if QT_VERSION >= 0x040000
     errorCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
-    errorCurve->setOrientation(orientation);
     errorCurve->setPen(QPen(Qt::white));
 
     if ( showTube )
@@ -150,27 +106,7 @@ void Plot::insertErrorBars(const QwtSeriesData<QwtDoublePoint>& data,
     errorBar.setPen(QPen(color));
     errorCurve->setSymbol(errorBar);
 
-    QwtArray<QwtIntervalSample> errorSamples(data.size());
-    for ( uint i = 0; i < data.size(); i++ )
-    {
-        const QwtDoublePoint point = data.sample(i);
-
-        QwtIntervalSample &sample = errorSamples[i];
-        if ( orientation == Qt::Vertical )
-        {
-            sample.value = point.x();
-            sample.interval.setMinValue(0.9 * point.y());
-            sample.interval.setMaxValue(1.1 * point.y());
-        }
-        else
-        {
-            sample.value = point.y();
-            sample.interval.setMinValue(0.9 * point.x());
-            sample.interval.setMaxValue(1.1 * point.x());
-        }
-        sample.interval = sample.interval.normalized();
-    }
-    errorCurve->setData(errorSamples);
+    errorCurve->setData(data);
     errorCurve->attach(this);
 }
 
@@ -178,7 +114,7 @@ int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
 
-    Plot plot;
+    FriedbergPlot plot;
 #if QT_VERSION < 0x040000
     a.setMainWidget(&plot);
 #endif
