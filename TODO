@@ -10,10 +10,12 @@ Qwt TODO list
 6) Curve for Price Movement 
 7) Thread support for rendering spectrograms
 9) Navigation example
-10) QwtSymbol + QPainterPath
+10) QwtSymbol/QwtIntervalSymbol + QPainterPath
 11) QwtData + functors
 12) QwtData/QwtPlotCurve + Level of details
 13) Cleaning up the examples
+14) Counter clockwise dials
+15) .qch files, using doxygen2qthelp
 
 6.0.x)
 ------
@@ -22,22 +24,26 @@ Qwt TODO list
 
 6.1.x)
 ------
-1) Using doubles in QwtPainter
+1) Using doubles for layout/paint calculations
+2) Improve Documention
+3) Qwt Jambi
+4) QAbstractModel -> QwtSeriesData
 
 Other ideas
 -----------
 1) OpenGL plot canvas
 2) Time/Date scale engine
 3) MathML texts, using another (L)GPL Qt/MathML render engine 
-4) Grid of QwtPlots
-5) Adding candle sticks
-6) Adding box plots
-7) Interval scale labels ( between 2 ticks )
+4) TeX texts
+5) Grid of QwtPlots
+6) Adding candle sticks
+7) Adding box plots
+8) Interval scale labels ( between 2 ticks )
+9) More than 4 axes
 
 Bugs/Change requests
 --------------------
 1) QwtScaleWidget: Aligned/Opposite modes for the title
 2) QwtPlotDict, performance of z sorting
 3) setAlignCanvasToScales(true) + 2 X-Axes layout bug
-4) Alignment of left axis, without title. 
-5) Layout init of round scales too late.
+4) Layout init of round scales too late.

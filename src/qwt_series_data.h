@@ -21,8 +21,14 @@
 class QWT_EXPORT QwtIntervalSample
 {
 public:
-    QwtIntervalSample():
+    inline QwtIntervalSample():
         value(0.0)
+    {
+    }
+
+    inline QwtIntervalSample(double v, const QwtDoubleInterval &intv):
+        value(v),
+        interval(intv)
     {
     }
 
