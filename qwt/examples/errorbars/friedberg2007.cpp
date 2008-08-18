@@ -1,6 +1,7 @@
 #include "friedberg2007.h"
 
 // Temperature 2007 from Friedberg somewhere in Germany
+// See: http://wetter61169.de
 
 Temperature friedberg2007[] =
 {
