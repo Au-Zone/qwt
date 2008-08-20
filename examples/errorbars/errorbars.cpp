@@ -27,9 +27,13 @@ private:
 
 FriedbergPlot::FriedbergPlot()
 {
-    setTitle("Temperature of Friedberg/Germany 2007");
+    setTitle("Temperature of Friedberg/Germany");
     setCanvasBackground(QColor(Qt::darkGray));
 
+	setAxisTitle(QwtPlot::xBottom, "2007");
+	setAxisScale(QwtPlot::xBottom, 0.0, 365.0);
+	setAxisTitle(QwtPlot::yLeft, 
+		QString("Temperature [%1C]").arg(QChar(0x00B0)) );
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
     grid->enableXMin(true);
