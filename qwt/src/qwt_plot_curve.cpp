@@ -56,6 +56,53 @@ private:
 
 #endif // QT_VERSION >= 0x040000
 
+// Creating and initializing a QPainter is an
+// expensive operation. So we keep an painter
+// open for situations, where we paint outside
+// of paint events. This improves the performance
+// of incremental painting like in the realtime
+// example a lot.
+// But it is not possible to have more than
+// one QPainter open at the same time. So we
+// need to close it before regular paint events
+// are processed.
+
+class QwtGuardedPainter: public QObject
+{
+public:
+    void begin(QwtPlotCanvas *canvas)
+    {
+        if ( !painter.isActive() )
+        {
+            canvas->installEventFilter(this);
+
+            painter.begin(canvas);
+            painter.setClipping(true);
+            painter.setClipRect(canvas->contentsRect());
+        }
+    }
+
+    void end()
+    {
+        if ( painter.isActive() )
+        {
+            QWidget *canvas = (QWidget *)painter.device();
+            canvas->removeEventFilter(this);
+            painter.end();
+        }
+    }
+
+    virtual bool eventFilter(QObject *, QEvent *event)
+    {
+        if ( event->type() == QEvent::Paint )
+            end();
+
+        return false;
+    }
+
+    QPainter painter;
+};
+
 static int verifyRange(int size, int &i1, int &i2)
 {
     if (size < 1) 
@@ -130,6 +177,8 @@ public:
 
     int attributes;
     int paintAttributes;
+
+    QwtGuardedPainter guardedPainter;
 };
 
 /*!
@@ -425,12 +474,22 @@ void QwtPlotCurve::draw(int from, int to) const
         draw(&cachePainter, xMap, yMap, from, to);
     }
 
-    QPainter painter(canvas);
+#if QT_VERSION >= 0x040000
+    if ( canvas->testAttribute(Qt::WA_WState_InPaintEvent) )
+    {
+        QPainter painter(canvas);
 
-    painter.setClipping(true);
-    painter.setClipRect(canvas->contentsRect());
+        painter.setClipping(true);
+        painter.setClipRect(canvas->contentsRect());
 
-    draw(&painter, xMap, yMap, from, to);
+        draw(&painter, xMap, yMap, from, to);
+    }
+    else
+#endif
+    {
+        d_data->guardedPainter.begin(canvas);
+        draw(&d_data->guardedPainter.painter, xMap, yMap, from, to);
+    }
 }
 
 /*!
