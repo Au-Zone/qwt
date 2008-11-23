@@ -206,16 +206,18 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         }
         else
         {
-            const int margin = plotLayout()->canvasMargin(axisId);
+            int margin = plotLayout()->canvasMargin(axisId);
             if ( axisId == yLeft || axisId == yRight )
             {
-                from = metricsMap.layoutToDeviceX(canvasRect.bottom() - margin);
-                to = metricsMap.layoutToDeviceX(canvasRect.top() + margin);
+                margin = metricsMap.layoutToDeviceY(margin);
+                from = canvasRect.bottom() - margin;
+                to = canvasRect.top() + margin;
             }
             else
             {
-                from = metricsMap.layoutToDeviceY(canvasRect.left() + margin);
-                to = metricsMap.layoutToDeviceY(canvasRect.right() - margin);
+                margin = metricsMap.layoutToDeviceX(margin);
+                from = canvasRect.left() + margin;
+                to = canvasRect.right() - margin;
             }
         }
         map[axisId].setPaintXInterval(from, to);
