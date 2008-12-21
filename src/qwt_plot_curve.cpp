@@ -104,6 +104,31 @@ public:
     QPainter painter;
 };
 
+static QwtPolygon clipPolygon(QPainter *painter, int attributes, 
+    const QwtPolygon &polygon)
+{
+    bool doClipping = attributes & QwtPlotCurve::ClipPolygons;
+    QRect clipRect = painter->window();
+#if QT_VERSION >= 0x040000
+    if ( painter->paintEngine()->type() == QPaintEngine::SVG )
+#else
+    if ( painter->device()->isExtDev() )
+#endif
+    {
+        // The SVG paint engine ignores any clipping,
+        // so we enable polygon clipping.
+
+        doClipping = true;
+        if ( painter->hasClipping() )
+            clipRect &= painter->clipRegion().boundingRect();
+    }
+
+    if ( doClipping )
+        return QwtClipper::clipPolygon(clipRect, polygon);
+    
+    return polygon;
+}
+
 static int verifyRange(int size, int &i1, int &i2)
 {
     if (size < 1) 
@@ -809,8 +834,7 @@ void QwtPlotCurve::drawLines(QPainter *painter,
         }
     }
 
-    if ( d_data->paintAttributes & ClipPolygons )
-        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
+    polyline = ::clipPolygon(painter, d_data->paintAttributes, polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
@@ -931,9 +955,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
 
     if ( doFill )
     {
-        if ( d_data->paintAttributes & ClipPolygons )
-            polyline = QwtClipper::clipPolygon(painter->window(), polyline);
-
+        polyline = ::clipPolygon(painter, d_data->paintAttributes, polyline);
         fillCurve(painter, xMap, yMap, polyline);
     }
 }
@@ -979,8 +1001,7 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
         polyline.setPoint(ip, xi, yi);
     }
 
-    if ( d_data->paintAttributes & ClipPolygons )
-        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
+    polyline = ::clipPolygon(painter, d_data->paintAttributes, polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
