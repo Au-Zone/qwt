@@ -348,7 +348,7 @@ void QwtPainter::drawText(QPainter *painter, const QRect &rect,
 #if QT_VERSION < 0x040000
     if ( d_SVGMode &&
         ( flags == 0 || flags & Qt::AlignVCenter ) 
-        && painter->device()->devType() & QInternal::Picture )
+        && painter->device()->devType() == QInternal::Picture )
     {
         /*
             Qt3 misalignes texts, when saving a text
