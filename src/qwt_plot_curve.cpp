@@ -24,6 +24,12 @@
 #include "qwt_symbol.h"
 #include "qwt_plot_curve.h"
 
+#if QT_VERSION < 0x040000
+#include <qguardedptr.h>
+#else
+#include <qpointer.h>
+#endif
+
 #if QT_VERSION >= 0x040000
 
 #include <qevent.h>
@@ -70,25 +76,48 @@ private:
 class QwtGuardedPainter: public QObject
 {
 public:
-    void begin(QwtPlotCanvas *canvas)
+    ~QwtGuardedPainter()
     {
-        if ( !painter.isActive() )
-        {
-            canvas->installEventFilter(this);
+        end();
+    }
 
-            painter.begin(canvas);
-            painter.setClipping(true);
-            painter.setClipRect(canvas->contentsRect());
+    QPainter *begin(QwtPlotCanvas *canvas)
+    {
+        _canvas = canvas;
+
+        QMap<QwtPlotCanvas *, QPainter *>::iterator it = _map.find(_canvas);
+        if ( it == _map.end() )
+        {
+            QPainter *painter = new QPainter(_canvas);
+            painter->setClipping(true);
+            painter->setClipRect(_canvas->contentsRect());
+
+            it = _map.insert(_canvas, painter);
+            _canvas->installEventFilter(this);
         }
+#if QT_VERSION < 0x040000
+        return it.data();
+#else
+        return it.value();
+#endif
     }
 
     void end()
     {
-        if ( painter.isActive() )
+        if ( _canvas )
         {
-            QWidget *canvas = (QWidget *)painter.device();
-            canvas->removeEventFilter(this);
-            painter.end();
+            QMap<QwtPlotCanvas *, QPainter *>::iterator it = _map.find(_canvas);
+            if ( it != _map.end() )
+            {
+                _canvas->removeEventFilter(this);
+
+#if QT_VERSION < 0x040000
+                delete it.data();
+#else
+                delete it.value();
+#endif
+                _map.erase(it);
+            }
         }
     }
 
@@ -100,8 +129,16 @@ public:
         return false;
     }
 
-    QPainter painter;
+private:
+#if QT_VERSION < 0x040000
+    QGuardedPtr<QwtPlotCanvas> _canvas;
+#else
+    QPointer<QwtPlotCanvas> _canvas;
+#endif
+    static QMap<QwtPlotCanvas *, QPainter *> _map;
 };
+
+QMap<QwtPlotCanvas *, QPainter *> QwtGuardedPainter::_map;
 
 static int verifyRange(int size, int &i1, int &i2)
 {
@@ -487,8 +524,8 @@ void QwtPlotCurve::draw(int from, int to) const
     else
 #endif
     {
-        d_data->guardedPainter.begin(canvas);
-        draw(&d_data->guardedPainter.painter, xMap, yMap, from, to);
+        QPainter *painter = d_data->guardedPainter.begin(canvas);
+        draw(painter, xMap, yMap, from, to);
     }
 }
 
