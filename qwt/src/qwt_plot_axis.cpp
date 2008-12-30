@@ -59,7 +59,7 @@ void QwtPlot::initAxesData()
         d.scaleWidget->setFont(fscl);
         d.scaleWidget->setMargin(2);
 
-        QwtText text;
+        QwtText text = d.scaleWidget->title();
         text.setFont(fttl);
         d.scaleWidget->setTitle(text);
 
