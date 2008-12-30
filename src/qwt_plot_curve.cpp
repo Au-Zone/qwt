@@ -149,7 +149,7 @@ static QwtPolygon clipPolygon(QPainter *painter, int attributes,
 #if QT_VERSION >= 0x040000
     if ( painter->paintEngine()->type() == QPaintEngine::SVG )
 #else
-    if ( painter->device()->isExtDev() )
+    if ( painter->device()->devType() == QInternal::Picture )
 #endif
     {
         // The SVG paint engine ignores any clipping,
