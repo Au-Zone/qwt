@@ -744,8 +744,18 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
     int &dimTitle, int dimAxis[QwtPlot::axisCnt]) const
 {
     dimTitle = 0;
-    for ( int i = 0; i < QwtPlot::axisCnt; i++ )
-        dimAxis[i] = 0;
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+        dimAxis[axis] = 0;
+
+    int backboneOffset[QwtPlot::axisCnt];
+    for (int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+    {
+        backboneOffset[axis] = 0;
+        if ( !d_data->alignCanvasToScales )
+            backboneOffset[axis] += d_data->canvasMargin[axis];
+        if ( !(options & IgnoreFrames) )
+            backboneOffset[axis] += d_data->layoutData.canvas.frameWidth;
+    }
 
     bool done = false;
     while (!done)
@@ -784,10 +794,6 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
 
         for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
         {
-            int backboneOffset = d_data->canvasMargin[axis];
-            if ( !(options & IgnoreFrames) )
-                backboneOffset += d_data->layoutData.canvas.frameWidth;
-
             const struct LayoutData::t_scaleData &scaleData = 
                 d_data->layoutData.scale[axis];
 
@@ -804,9 +810,9 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
                         length -= 1;
 
                     length += qwtMin(dimAxis[QwtPlot::yLeft], 
-                        scaleData.start - backboneOffset);
+                        scaleData.start - backboneOffset[QwtPlot::yLeft]);
                     length += qwtMin(dimAxis[QwtPlot::yRight], 
-                        scaleData.end - backboneOffset);
+                        scaleData.end - backboneOffset[QwtPlot::yRight]);
                 }
                 else // QwtPlot::yLeft, QwtPlot::yRight
                 {
@@ -824,13 +830,13 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
                     {
                         length += qwtMin(
                             d_data->layoutData.scale[QwtPlot::xBottom].tickOffset, 
-                            scaleData.start - backboneOffset);
+                            scaleData.start - backboneOffset[QwtPlot::xBottom]);
                     }
                     if ( dimAxis[QwtPlot::xTop] > 0 )
                     {
                         length += qwtMin(
                             d_data->layoutData.scale[QwtPlot::xTop].tickOffset, 
-                            scaleData.end - backboneOffset);
+                            scaleData.end - backboneOffset[QwtPlot::xTop]);
                     }
 
                     if ( dimTitle > 0 )
@@ -839,7 +845,10 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
 
                 int d = scaleData.dimWithoutTitle;
                 if ( !scaleData.scaleWidget->title().isEmpty() )
+				{
                     d += scaleData.scaleWidget->titleHeightForWidth(length);
+				}
+
 
                 if ( d > dimAxis[axis] )
                 {
@@ -1091,6 +1100,9 @@ void QwtPlotLayout::activate(const QwtPlot *plot,
         }
     }
 
+#ifdef __GNUC__
+#warning Layout code needs to be reorganized
+#endif
     /*
      +---+-----------+---+
      |       Title       |
