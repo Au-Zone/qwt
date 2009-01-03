@@ -798,6 +798,11 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
                 {
                     length = rect.width() - dimAxis[QwtPlot::yLeft] 
                         - dimAxis[QwtPlot::yRight];
+                    length -= scaleData.start + scaleData.end;
+
+                    if ( dimAxis[QwtPlot::yRight] > 0 )
+                        length -= 1;
+
                     length += qwtMin(dimAxis[QwtPlot::yLeft], 
                         scaleData.start - backboneOffset);
                     length += qwtMin(dimAxis[QwtPlot::yRight], 
@@ -807,6 +812,13 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
                 {
                     length = rect.height() - dimAxis[QwtPlot::xTop] 
                         - dimAxis[QwtPlot::xBottom];
+                    length -= scaleData.start + scaleData.end;
+                    length -= 1;
+
+                    if ( dimAxis[QwtPlot::xBottom] <= 0 )
+                        length -= 1;
+                    if ( dimAxis[QwtPlot::xTop] <= 0 )
+                        length -= 1;
 
                     if ( dimAxis[QwtPlot::xBottom] > 0 )
                     {
@@ -827,9 +839,7 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
 
                 int d = scaleData.dimWithoutTitle;
                 if ( !scaleData.scaleWidget->title().isEmpty() )
-                {
                     d += scaleData.scaleWidget->titleHeightForWidth(length);
-                }
 
                 if ( d > dimAxis[axis] )
                 {
@@ -1095,7 +1105,6 @@ void QwtPlotLayout::activate(const QwtPlot *plot,
      |   |   Axis    |   |
      +---+-----------+---+
     */
-
 
     // axes and title include text labels. The height of each
     // label depends on its line breaks, that depend on the width
