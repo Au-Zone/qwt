@@ -446,6 +446,17 @@ void QwtScaleWidget::draw(QPainter *painter) const
     }
 
     QRect r = rect();
+    if ( d_data->scaleDraw->orientation() == Qt::Horizontal )
+    {
+        r.setLeft(r.left() + d_data->borderDist[0]);
+        r.setWidth(r.width() - d_data->borderDist[1]);
+    }
+    else
+    {
+        r.setTop(r.top() + d_data->borderDist[0]);
+        r.setHeight(r.height() - d_data->borderDist[1]);
+    }
+
     if ( !d_data->title.isEmpty() )
     {
         QRect tr = r;
