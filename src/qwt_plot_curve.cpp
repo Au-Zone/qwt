@@ -25,6 +25,8 @@
 #include "qwt_symbol.h"
 #include "qwt_plot_curve.h"
 
+#define SCALE_PEN 0
+
 #if QT_VERSION < 0x040000
 #include <qguardedptr.h>
 #else
@@ -688,7 +690,18 @@ void QwtPlotCurve::draw(QPainter *painter,
     if ( verifyRange(dataSize(), from, to) > 0 )
     {
         painter->save();
-        painter->setPen(d_data->pen);
+        
+        QPen pen = d_data->pen;
+
+#if SCALE_PEN
+        if ( pen.width() > 0 )
+        {
+            const QwtMetricsMap &metricsMap = QwtPainter::metricsMap();
+            pen.setWidth(metricsMap.screenToLayoutX(pen.width()));
+        }
+#endif
+            
+        painter->setPen(pen);
 
         /*
           Qt 4.0.0 is slow when drawing lines, but it's even 
@@ -1226,10 +1239,20 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     int from, int to) const
 {
     painter->setBrush(symbol.brush());
-    painter->setPen(symbol.pen());
+
+    const QwtMetricsMap &metricsMap = QwtPainter::metricsMap();
+
+    QPen pen = symbol.pen();
+
+#if SCALE_PEN
+    if ( pen.width() > 0 )
+        pen.setWidth(metricsMap.screenToLayoutX(pen.width()));
+#endif
+
+    painter->setPen(pen);
 
     QRect rect;
-    rect.setSize(QwtPainter::metricsMap().screenToLayout(symbol.size()));
+    rect.setSize(metricsMap.screenToLayout(symbol.size()));
 
     if ( to > from && d_data->paintAttributes & PaintFiltered )
     {
