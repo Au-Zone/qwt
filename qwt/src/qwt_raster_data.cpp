@@ -264,7 +264,7 @@ QSize QwtRasterData::rasterHint(const QwtDoubleRect &) const
    Calculate contour lines
    
    An adaption of CONREC, a simple contouring algorithm.
-   http://astronomy.swin.edu.au/~pbourke/projection/conrec
+   http://local.wasp.uwa.edu.au/~pbourke/papers/conrec/
 */ 
 #if QT_VERSION >= 0x040000
 QwtRasterData::ContourLines QwtRasterData::contourLines(
