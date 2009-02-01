@@ -5,7 +5,7 @@
 VER_MAJ      = 5
 VER_MIN      = 1
 VER_PAT      = 2
-VERSION      = $$VER_MAJ.$$VER_MIN.$$VER_PAT
+VERSION      = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 
 unix {
     INSTALLBASE    = /usr/local/qwt-$$VERSION-svn
