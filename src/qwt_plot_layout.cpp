@@ -242,7 +242,7 @@ void QwtPlotLayout::setCanvasMargin(int margin, int axis)
         for (axis = 0; axis < QwtPlot::axisCnt; axis++)
             d_data->canvasMargin[axis] = margin;
     }
-    else if ( axis >= 0 || axis < QwtPlot::axisCnt )
+    else if ( axis >= 0 && axis < QwtPlot::axisCnt )
         d_data->canvasMargin[axis] = margin;
 }
 
