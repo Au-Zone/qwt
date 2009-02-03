@@ -68,7 +68,7 @@ public:
    to implement an individual data access.
 */
 template <typename T> 
-class QWT_EXPORT QwtSeriesData
+class QwtSeriesData
 {
 public:
     virtual ~QwtSeriesData() {} 
@@ -130,7 +130,7 @@ private:
   passed around as argument efficiently.
 */
 template <typename T>
-class QWT_EXPORT QwtArraySeriesData: public QwtSeriesData<T>
+class QwtArraySeriesData: public QwtSeriesData<T>
 {
 public:
     QwtArraySeriesData();
