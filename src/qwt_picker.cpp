@@ -130,15 +130,17 @@ void QwtPicker::PickerWidget::updateMask()
     {
         d_hasTextMask = true;
 #if QT_VERSION >= 0x040300
-        if ( !parentWidget()->testAttribute(Qt::WA_PaintOnScreen) &&
-           parentWidget()->paintEngine()->type() != QPaintEngine::OpenGL )
+        if ( !parentWidget()->testAttribute(Qt::WA_PaintOnScreen) )
         {
-            /*
-              With Qt >= 4.3 drawing of the tracker can be implemented in an
-              easier way, using the textRect as mask. 
-            */
+#if 0
+            if ( parentWidget()->paintEngine()->type() != QPaintEngine::OpenGL )
+#endif
+            {
+                // With Qt >= 4.3 drawing of the tracker can be implemented in an
+                // easier way, using the textRect as mask. 
 
-            d_hasTextMask = false;
+                d_hasTextMask = false;
+            }
         }
 #endif
         
