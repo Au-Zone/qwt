@@ -8,9 +8,6 @@
  *****************************************************************************/
 
 #include <qpainter.h>
-#if QT_VERSION >= 0x040000
-#include <qpaintengine.h>
-#endif
 #include <qpalette.h>
 #include <qstyle.h>
 #include <qevent.h>
@@ -370,8 +367,7 @@ void QwtKnob::paintEvent(QPaintEvent *e)
         draw(paintBuffer.painter(), ur);
 #else
         QPainter painter(this);
-        if ( paintEngine()->hasFeature(QPaintEngine::Antialiasing) )
-            painter.setRenderHint(QPainter::Antialiasing);
+        painter.setRenderHint(QPainter::Antialiasing);
         draw(&painter, ur);
 #endif
     }

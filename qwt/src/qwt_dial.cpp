@@ -10,7 +10,6 @@
 #include <math.h>
 #include <qpainter.h>
 #if QT_VERSION >= 0x040000
-#include <qpaintengine.h>
 #include <qbitmap.h>
 #include <qpalette.h>
 #endif
@@ -23,19 +22,6 @@
 #include "qwt_painter.h"
 #include "qwt_dial_needle.h"
 #include "qwt_dial.h"
-
-#if QT_VERSION >= 0x040000
-static void setAntialiasing(QPainter *painter, bool on)
-{
-    QPaintEngine *engine = painter->paintEngine();
-    if ( engine && engine->hasFeature(QPaintEngine::Antialiasing) )
-        painter->setRenderHint(QPainter::Antialiasing, on);
-}
-#else
-static void setAntialiasing(QPainter *, bool)
-{
-}
-#endif
 
 class QwtDial::PrivateData
 {
@@ -438,9 +424,8 @@ void QwtDial::paintEvent(QPaintEvent *e)
         QPainter &painter = *paintBuffer.painter();
 #else
         QPainter painter(this);
+		painter.setRenderHint(QPainter::Antialiasing, true);
 #endif
-
-        setAntialiasing(&painter, true);
 
         painter.save();
         drawContents(&painter);
