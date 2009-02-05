@@ -486,15 +486,19 @@ void QwtPlot::printCanvas(QPainter *painter,
             r = canvasRect;
 #if QT_VERSION >= 0x040000
             // Unfortunately the paint engines do no always the same
-            switch(painter->paintEngine()->type() )
+            const QPaintEngine *pe = painter->paintEngine();
+            if ( pe )
             {
-                case QPaintEngine::Raster:
-                case QPaintEngine::X11:
-                    break;
-                default:
-                    r.setWidth(r.width() - 1);
-                    r.setHeight(r.height() - 1);
-                    break;
+                switch(painter->paintEngine()->type() )
+                {
+                    case QPaintEngine::Raster:
+                    case QPaintEngine::X11:
+                        break;
+                    default:
+                        r.setWidth(r.width() - 1);
+                        r.setHeight(r.height() - 1);
+                        break;
+                }
             }
 #else
             if ( painter->device()->isExtDev() )

@@ -48,7 +48,8 @@ static inline bool isClippingNeeded(const QPainter *painter, QRect &clipRect)
 {
     bool doClipping = false;
 #if QT_VERSION >= 0x040000
-    if ( painter->paintEngine()->type() == QPaintEngine::SVG )
+    const QPaintEngine *pe = painter->paintEngine();
+    if ( pe && pe->type() == QPaintEngine::SVG )
 #else
     if ( painter->device()->devType() == QInternal::Picture )
 #endif
@@ -513,7 +514,9 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
 
 #if QT_VERSION >= 0x040000 && QT_VERSION < 0x040400
     bool doSplit = false;
-    if ( painter->paintEngine()->type() == QPaintEngine::Raster &&
+
+    const QPaintEngine *pe = painter->paintEngine();
+    if ( pe && pe->type() == QPaintEngine::Raster &&
         painter->pen().width() >= 2 )
     {
         /*
