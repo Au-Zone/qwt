@@ -148,18 +148,23 @@ static QwtPolygon clipPolygon(QPainter *painter, int attributes,
 {
     bool doClipping = attributes & QwtPlotCurve::ClipPolygons;
     QRect clipRect = painter->window();
-#if QT_VERSION >= 0x040000
-    if ( painter->paintEngine()->type() == QPaintEngine::SVG )
-#else
-    if ( painter->device()->devType() == QInternal::Picture )
-#endif
-    {
-        // The SVG paint engine ignores any clipping,
-        // so we enable polygon clipping.
 
-        doClipping = true;
-        if ( painter->hasClipping() )
-            clipRect &= painter->clipRegion().boundingRect();
+    if ( !doClipping )
+    {
+#if QT_VERSION >= 0x040000
+        const QPaintEngine *pe = painter->paintEngine();
+        if ( pe && pe->type() == QPaintEngine::SVG )
+#else
+        if ( painter->device()->devType() == QInternal::Picture )
+#endif
+        {
+            // The SVG paint engine ignores any clipping,
+            // so we enable polygon clipping.
+
+            doClipping = true;
+            if ( painter->hasClipping() )
+                clipRect &= painter->clipRegion().boundingRect();
+        }
     }
 
     if ( doClipping )
