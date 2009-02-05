@@ -511,7 +511,7 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
     if ( deviceClipping )
         cpa = QwtClipper::clipPolygon(clipRect, cpa);
 
-#if QT_VERSION >= 0x040000
+#if QT_VERSION >= 0x040000 && QT_VERSION < 0x040400
     bool doSplit = false;
     if ( painter->paintEngine()->type() == QPaintEngine::Raster &&
         painter->pen().width() >= 2 )
