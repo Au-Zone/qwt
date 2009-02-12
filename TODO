@@ -16,6 +16,7 @@ Qwt TODO list
 13) Cleaning up the examples
 14) Counter clockwise dials
 15) .qch files, using doxygen2qthelp
+16) QwtPlotLegendItem
 
 6.0.x)
 ------
