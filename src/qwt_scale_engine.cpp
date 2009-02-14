@@ -150,16 +150,16 @@ class QwtScaleEngine::PrivateData
 public:
     PrivateData():
         attributes(QwtScaleEngine::NoAttribute),
-        loMargin(0.0),
-        hiMargin(0.0),
+        lowMargin(0.0),
+        highMargin(0.0),
         referenceValue(0.0)
     {
     }
 
     int attributes;       // scale attributes
 
-    double loMargin;      // margins
-    double hiMargin;
+    double lowMargin;      // margins
+    double highMargin;
 
     double referenceValue; // reference value
 
@@ -182,22 +182,22 @@ QwtScaleEngine::~QwtScaleEngine ()
     \return the margin at the lower end of the scale
     The default margin is 0.
 
-    \sa QwtScaleEngine::setMargins()
+    \sa setMargins()
 */
 double QwtScaleEngine::loMargin() const 
 { 
-    return d_data->loMargin; 
+    return d_data->lowMargin; 
 }
 
 /*!
     \return the margin at the upper end of the scale
     The default margin is 0.
 
-    \sa QwtScaleEngine::setMargins()
+    \sa setMargins()
 */
 double QwtScaleEngine::hiMargin() const 
 { 
-    return d_data->hiMargin; 
+    return d_data->highMargin; 
 }
 
 /*!
@@ -218,8 +218,8 @@ double QwtScaleEngine::hiMargin() const
 
 void QwtScaleEngine::setMargins(double mlo, double mhi)
 {
-    d_data->loMargin = qwtMax(mlo,0.0);
-    d_data->hiMargin = qwtMax(mhi,0.0);
+    d_data->lowMargin = qwtMax(mlo,0.0);
+    d_data->highMargin = qwtMax(mhi,0.0);
 }
 
 /*!
@@ -334,7 +334,7 @@ QwtDoubleInterval QwtScaleEngine::buildInterval(double v) const
   <dd>Turn the scale upside down.
   </dl>
 
-  \sa QwtScaleEngine::testAttribute()
+  \sa testAttribute()
 */
 void QwtScaleEngine::setAttribute(Attribute attribute, bool on)
 {
@@ -348,7 +348,7 @@ void QwtScaleEngine::setAttribute(Attribute attribute, bool on)
   Check if a attribute is set.
 
   \param attribute Attribute to be tested
-  \sa QwtScaleEngine::setAttribute() for a description of the possible options.
+  \sa setAttribute() for a description of the possible options.
 */
 bool QwtScaleEngine::testAttribute(Attribute attribute) const
 {
@@ -359,7 +359,7 @@ bool QwtScaleEngine::testAttribute(Attribute attribute) const
   Change the scale attribute
 
   \param attributes Set scale attributes
-  \sa QwtScaleEngine::attributes()
+  \sa attributes()
 */
 void QwtScaleEngine::setAttributes(int attributes)
 {
@@ -388,7 +388,7 @@ void QwtScaleEngine::setReference(double r)
 
 /*!
  \return the reference value
- \sa QwtScaleEngine::setReference(), QwtScaleEngine::setAttribute()
+ \sa setReference(), setAttribute()
 */
 double QwtScaleEngine::reference() const 
 { 

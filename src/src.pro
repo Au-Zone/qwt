@@ -71,7 +71,6 @@ HEADERS += \
     qwt_picker.h \
     qwt_picker_machine.h \
     qwt_polygon.h \
-    qwt_rect.h \
     qwt_round_scale_draw.h \
     qwt_scale_div.h \
     qwt_scale_draw.h \
@@ -98,7 +97,6 @@ SOURCES += \
     qwt_panner.cpp \
     qwt_painter.cpp \
     qwt_picker.cpp \
-    qwt_rect.cpp \
     qwt_round_scale_draw.cpp \
     qwt_scale_div.cpp \
     qwt_scale_draw.cpp \
