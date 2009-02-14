@@ -550,27 +550,27 @@ void QwtLinearScaleEngine::buildMinorTicks(
     if (minStep == 0.0)  
         return; 
         
-    // # minor steps per interval
-    int nMin = qwtAbs(qRound(stepSize / minStep)) - 1;
+    // # ticks per interval
+    int numTicks = (int)::ceil(qwtAbs(stepSize / minStep)) - 1;
     
     // Do the minor steps fit into the interval?
-    if ( QwtScaleArithmetic::compareEps((nMin +  1) * qwtAbs(minStep), 
+    if ( QwtScaleArithmetic::compareEps((numTicks +  1) * qwtAbs(minStep), 
         qwtAbs(stepSize), stepSize) > 0)
     {   
-        nMin = 1;
+        numTicks = 1;
         minStep = stepSize * 0.5;
     }
 
     int medIndex = -1;
-    if ( nMin % 2 )
-        medIndex = nMin / 2;
+    if ( numTicks % 2 )
+        medIndex = numTicks / 2;
 
     // calculate minor ticks
 
     for (int i = 0; i < (int)majorTicks.count(); i++)
     {
         double val = majorTicks[i];
-        for (int k=0; k< nMin; k++)
+        for (int k = 0; k < numTicks; k++)
         {
             val += minStep;
 
