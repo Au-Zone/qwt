@@ -76,8 +76,6 @@ myPlot->replot();
 
 class QWT_EXPORT QwtPlot: public QFrame, public QwtPlotDict
 {
-    friend class QwtPlotCanvas;
-
     Q_OBJECT
     Q_PROPERTY( QString propertiesDocument 
         READ grabProperties WRITE applyProperties )
@@ -225,6 +223,9 @@ public:
     virtual QSize minimumSizeHint() const;
 
     virtual void updateLayout();
+    virtual void drawCanvas(QPainter *);
+
+    void updateAxes();
 
     virtual bool event(QEvent *);
 
@@ -268,14 +269,11 @@ protected slots:
 protected:
     static bool axisValid(int axisId);
 
-    virtual void drawCanvas(QPainter *);
     virtual void drawItems(QPainter *, const QRect &,
         const QwtScaleMap maps[axisCnt],
         const QwtPlotPrintFilter &) const;
 
     virtual void updateTabOrder();
-
-    void updateAxes();
 
     virtual void resizeEvent(QResizeEvent *e);
 

@@ -65,7 +65,7 @@ public:
     void setIdentifierMode(int);
     int identifierMode() const;
 
-    void setIdentfierWidth(int width);
+    void setIdentifierWidth(int width);
     int identifierWidth() const;
 
     void setSpacing(int spacing);

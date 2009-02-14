@@ -97,6 +97,8 @@ public:
     const QPixmap *paintCache() const;
     void invalidatePaintCache();
 
+    void replot();
+
 protected:
     virtual void hideEvent(QHideEvent *);
 

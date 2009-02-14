@@ -184,7 +184,7 @@ QwtScaleEngine::~QwtScaleEngine ()
 
     \sa setMargins()
 */
-double QwtScaleEngine::loMargin() const 
+double QwtScaleEngine::lowMargin() const 
 { 
     return d_data->lowMargin; 
 }
@@ -195,7 +195,7 @@ double QwtScaleEngine::loMargin() const
 
     \sa setMargins()
 */
-double QwtScaleEngine::hiMargin() const 
+double QwtScaleEngine::highMargin() const 
 { 
     return d_data->highMargin; 
 }
@@ -213,7 +213,7 @@ double QwtScaleEngine::hiMargin() const
   \warning
   \li QwtLog10ScaleEngine measures the margins in decades.
 
-  \sa QwtScaleEngine::hiMargin, QwtScaleEngine::loMargin
+  \sa highMargin(), lowMargin()
 */
 
 void QwtScaleEngine::setMargins(double mlo, double mhi)
@@ -419,8 +419,8 @@ void QwtLinearScaleEngine::autoScale(int maxNumSteps,
     QwtDoubleInterval interval(x1, x2);
     interval = interval.normalized();
 
-    interval.setMinValue(interval.minValue() - loMargin());
-    interval.setMaxValue(interval.maxValue() + hiMargin());
+    interval.setMinValue(interval.minValue() - lowMargin());
+    interval.setMaxValue(interval.maxValue() + highMargin());
 
     if (testAttribute(QwtScaleEngine::Symmetric))
         interval = interval.symmetrize(reference());
@@ -632,8 +632,8 @@ void QwtLog10ScaleEngine::autoScale(int maxNumSteps,
     if ( x1 > x2 )
         qSwap(x1, x2);
 
-    QwtDoubleInterval interval(x1 / pow(10.0, loMargin()), 
-        x2 * pow(10.0, hiMargin()) );
+    QwtDoubleInterval interval(x1 / pow(10.0, lowMargin()), 
+        x2 * pow(10.0, highMargin()) );
 
     double logRef = 1.0;
     if (reference() > LOG_MIN / 2)
@@ -699,7 +699,7 @@ QwtScaleDiv QwtLog10ScaleEngine::divideScale(double x1, double x2,
         QwtLinearScaleEngine linearScaler;
         linearScaler.setAttributes(attributes());
         linearScaler.setReference(reference());
-        linearScaler.setMargins(loMargin(), hiMargin());
+        linearScaler.setMargins(lowMargin(), highMargin());
 
         return linearScaler.divideScale(x1, x2, 
             maxMajSteps, maxMinSteps, stepSize);

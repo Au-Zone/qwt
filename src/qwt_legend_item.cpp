@@ -204,7 +204,7 @@ int QwtLegendItem::identifierMode() const
 
   \sa identifierMode(), identifierWidth
 */
-void QwtLegendItem::setIdentfierWidth(int width)
+void QwtLegendItem::setIdentifierWidth(int width)
 {
     width = qwtMax(width, 0);
     if ( width != d_data->identifierWidth )
@@ -217,7 +217,7 @@ void QwtLegendItem::setIdentfierWidth(int width)
 /*!
    Return the width of the identifier
 
-   \sa setIdentfierWidth
+   \sa setIdentifierWidth
 */
 int QwtLegendItem::identifierWidth() const
 {
