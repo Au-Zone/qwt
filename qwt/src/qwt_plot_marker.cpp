@@ -118,35 +118,55 @@ void QwtPlotMarker::setYValue(double y)
 }
 
 /*!
-  \brief Draw the marker
-  \param p Painter
+  Draw the marker
+
+  \param painter Painter
   \param xMap x Scale Map
   \param yMap y Scale Map
-  \param r Bounding rect, where to paint
+  \param canvasRect Contents rect of the canvas in painter coordinates
 */
-void QwtPlotMarker::draw(QPainter *p,
+void QwtPlotMarker::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &r) const
+    const QRect &canvasRect) const
 {
     const int x = xMap.transform(d_data->xValue);
     const int y = yMap.transform(d_data->yValue);
 
+    drawAt(painter, canvasRect, QPoint(x, y));
+}
+
+/*!
+  Draw the marker at a specific position
+
+  \param painter Painter
+  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param pos Position of the marker in painter coordinates
+*/
+void QwtPlotMarker::drawAt(QPainter *painter, 
+    const QRect &canvasRect, const QPoint &pos) const
+{
     // draw lines
     if (d_data->style != NoLine)
     {
-        p->setPen(d_data->pen);
+        painter->setPen(d_data->pen);
         if ((d_data->style == HLine) || (d_data->style == Cross))
-            QwtPainter::drawLine(p, r.left(), y, r.right(), y);
-        if ((d_data->style == VLine)||(d_data->style == Cross))
-            QwtPainter::drawLine(p, x, r.top(), x, r.bottom());
+        {
+            QwtPainter::drawLine(painter, canvasRect.left(), 
+                pos.y(), canvasRect.right(), pos.y() );
+        }
+        if ((d_data->style == VLine) || (d_data->style == Cross))
+        {
+            QwtPainter::drawLine(painter, pos.x(), 
+                canvasRect.top(), pos.x(), canvasRect.bottom());
+        }
     }
 
     // draw symbol
-    QSize sSym(0, 0);
+    QSize symbolSize(0, 0);
     if (d_data->symbol->style() != QwtSymbol::NoSymbol)
     {
-        sSym = d_data->symbol->size();
-        d_data->symbol->draw(p, x, y);
+        symbolSize = d_data->symbol->size();
+        d_data->symbol->draw(painter, pos.x(), pos.y());
     }
 
     // draw label
@@ -171,26 +191,26 @@ void QwtPlotMarker::draw(QPainter *p,
         }
         else 
         {
-            xlw1 = qwtMax((xlw + 1) / 2, (sSym.width() + 1) / 2) + xLabelDist;
-            xlw = qwtMax(xlw / 2, (sSym.width() + 1) / 2) + xLabelDist;
-            ylw1 = qwtMax((ylw + 1) / 2, (sSym.height() + 1) / 2) + yLabelDist;
-            ylw = qwtMax(ylw / 2, (sSym. height() + 1) / 2) + yLabelDist;
+            xlw1 = qwtMax((xlw + 1) / 2, (symbolSize.width() + 1) / 2) + xLabelDist;
+            xlw = qwtMax(xlw / 2, (symbolSize.width() + 1) / 2) + xLabelDist;
+            ylw1 = qwtMax((ylw + 1) / 2, (symbolSize.height() + 1) / 2) + yLabelDist;
+            ylw = qwtMax(ylw / 2, (symbolSize. height() + 1) / 2) + yLabelDist;
         }
 
-        QRect tr(QPoint(0, 0), d_data->label.textSize(p->font()));
+        QRect tr(QPoint(0, 0), d_data->label.textSize(painter->font()));
         tr.moveCenter(QPoint(0, 0));
 
-        int dx = x;
-        int dy = y;
+        int dx = pos.x();
+        int dy = pos.y();
 
         if (d_data->style == VLine)
         {
             if (d_data->align & (int) Qt::AlignTop)
-                dy = r.top() + yLabelDist - tr.y();
+                dy = canvasRect.top() + yLabelDist - tr.y();
             else if (d_data->align & (int) Qt::AlignBottom)
-                dy = r.bottom() - yLabelDist + tr.y();
+                dy = canvasRect.bottom() - yLabelDist + tr.y();
             else
-                dy = r.top() + r.height() / 2;
+                dy = canvasRect.top() + canvasRect.height() / 2;
         }
         else
         {
@@ -204,11 +224,11 @@ void QwtPlotMarker::draw(QPainter *p,
         if (d_data->style == HLine)
         {
             if (d_data->align & (int) Qt::AlignLeft)
-                dx = r.left() + xLabelDist - tr.x();
+                dx = canvasRect.left() + xLabelDist - tr.x();
             else if (d_data->align & (int) Qt::AlignRight)
-                dx = r.right() - xLabelDist + tr.x();
+                dx = canvasRect.right() - xLabelDist + tr.x();
             else
-                dx = r.left() + r.width() / 2;
+                dx = canvasRect.left() + canvasRect.width() / 2;
         }
         else
         {
@@ -223,7 +243,7 @@ void QwtPlotMarker::draw(QPainter *p,
 #else
         tr.translate(dx, dy);
 #endif
-        d_data->label.draw(p, tr);
+        d_data->label.draw(painter, tr);
     }
 }
 
