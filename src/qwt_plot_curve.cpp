@@ -143,36 +143,6 @@ private:
 
 QMap<QwtPlotCanvas *, QPainter *> QwtGuardedPainter::_map;
 
-static QwtPolygon clipPolygon(QPainter *painter, int attributes, 
-    const QwtPolygon &polygon)
-{
-    bool doClipping = attributes & QwtPlotCurve::ClipPolygons;
-    QRect clipRect = painter->window();
-
-    if ( !doClipping )
-    {
-#if QT_VERSION >= 0x040000
-        const QPaintEngine *pe = painter->paintEngine();
-        if ( pe && pe->type() == QPaintEngine::SVG )
-#else
-        if ( painter->device()->devType() == QInternal::Picture )
-#endif
-        {
-            // The SVG paint engine ignores any clipping,
-            // so we enable polygon clipping.
-
-            doClipping = true;
-            if ( painter->hasClipping() )
-                clipRect &= painter->clipRegion().boundingRect();
-        }
-    }
-
-    if ( doClipping )
-        return QwtClipper::clipPolygon(clipRect, polygon);
-    
-    return polygon;
-}
-
 static int verifyRange(int size, int &i1, int &i2)
 {
     if (size < 1) 
@@ -891,7 +861,8 @@ void QwtPlotCurve::drawLines(QPainter *painter,
         }
     }
 
-    polyline = ::clipPolygon(painter, d_data->paintAttributes, polyline);
+    if ( d_data->paintAttributes & ClipPolygons )
+        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
@@ -1012,7 +983,9 @@ void QwtPlotCurve::drawDots(QPainter *painter,
 
     if ( doFill )
     {
-        polyline = ::clipPolygon(painter, d_data->paintAttributes, polyline);
+        if ( d_data->paintAttributes & ClipPolygons )
+            polyline = QwtClipper::clipPolygon(painter->window(), polyline);
+
         fillCurve(painter, xMap, yMap, polyline);
     }
 }
@@ -1058,7 +1031,8 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
         polyline.setPoint(ip, xi, yi);
     }
 
-    polyline = ::clipPolygon(painter, d_data->paintAttributes, polyline);
+    if ( d_data->paintAttributes & ClipPolygons )
+        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
