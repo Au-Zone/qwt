@@ -133,6 +133,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_spectrogram.h \
         qwt_plot_scaleitem.h \
         qwt_plot_canvas.h \
+        qwt_plot_rescaler.h \
         qwt_plot_panner.h \
         qwt_plot_picker.h \
         qwt_plot_zoomer.h \
@@ -159,9 +160,10 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_marker.cpp \
         qwt_plot_layout.cpp \
         qwt_plot_printfilter.cpp \
-        qwt_plot_canvas.cpp \
-        qwt_plot_panner.cpp \
         qwt_plot_rasteritem.cpp \
+        qwt_plot_canvas.cpp \
+        qwt_plot_rescaler.cpp \
+        qwt_plot_panner.cpp \
         qwt_plot_picker.cpp \
         qwt_plot_zoomer.cpp \
         qwt_plot_magnifier.cpp \
