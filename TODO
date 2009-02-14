@@ -1,6 +1,6 @@
 Qwt TODO list
 
-5.2.x)
+5.3.x)
 ------
 1) QwtPlotRescaler
 2) Cleanup of all widgets using QGradient and friends
