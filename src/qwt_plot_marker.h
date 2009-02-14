@@ -92,6 +92,9 @@ public:
     
     virtual QwtDoubleRect boundingRect() const;
 
+protected:
+	void drawAt(QPainter *,const QRect &, const QPoint &) const;
+
 private:
     class PrivateData;
     PrivateData *d_data;
