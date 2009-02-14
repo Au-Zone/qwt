@@ -26,8 +26,8 @@
 #include <qpaintengine.h>
 #endif
 
-#include "qwt_clipper.h"
 #include "qwt_math.h"
+#include "qwt_clipper.h"
 #include "qwt_color_map.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
@@ -44,12 +44,43 @@ bool QwtPainter::d_deviceClipping = false;
 bool QwtPainter::d_SVGMode = false;
 #endif
 
-static inline bool needDeviceClipping(
-    const QPainter *painter, bool deviceClipping)
+static inline bool isClippingNeeded(const QPainter *painter, QRect &clipRect)
 {
-    return deviceClipping && 
-        (painter->device()->devType() == QInternal::Widget ||
-          painter->device()->devType() == QInternal::Pixmap );
+    bool doClipping = false;
+#if QT_VERSION >= 0x040000
+    const QPaintEngine *pe = painter->paintEngine();
+    if ( pe && pe->type() == QPaintEngine::SVG )
+#else
+    if ( painter->device()->devType() == QInternal::Picture )
+#endif
+    {
+        // The SVG paint engine ignores any clipping,
+
+        if ( painter->hasClipping() )
+        {
+            doClipping = true;
+            clipRect = painter->clipRegion().boundingRect();
+        }
+    }
+
+    if ( QwtPainter::deviceClipping() )
+    {
+        if (painter->device()->devType() == QInternal::Widget ||
+          painter->device()->devType() == QInternal::Pixmap )
+        {
+            if ( doClipping )
+            {
+                clipRect &= QwtPainter::deviceClipRect();
+            }
+            else
+            {
+                doClipping = true;
+                clipRect = QwtPainter::deviceClipRect();
+            }
+        }
+    }
+
+    return doClipping;
 }
 
 /*!
@@ -62,17 +93,6 @@ static inline bool needDeviceClipping(
 void QwtPainter::setDeviceClipping(bool enable)
 {
     d_deviceClipping = enable;
-}
-
-/*!
-  Returns whether device clipping is enabled. On X11 the default
-  is enabled, otherwise it is disabled.
-  \sa QwtPainter::setDeviceClipping()
-*/
-
-bool QwtPainter::deviceClipping()
-{
-    return d_deviceClipping;
 }
 
 /*!
@@ -89,12 +109,6 @@ const QRect &QwtPainter::deviceClipRect()
             QWT_COORD_MAX, QWT_COORD_MAX);
     }
     return clip;
-}
-
-//! Clip a point array
-QwtPolygon QwtPainter::clip(const QwtPolygon &pa)
-{
-    return QwtClipper::clipPolygon(deviceClipRect(), pa);
 }
 
 #if QT_VERSION < 0x040000 
@@ -186,12 +200,9 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
     const QRect r = d_metricsMap.layoutToDevice(rect, painter);
 
     QRect clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
     if ( deviceClipping )
-        clipRect = deviceClipRect();
-
-    if ( clipRect.isValid() )
     {
         if ( !clipRect.intersects(r) )
             return;
@@ -231,29 +242,27 @@ void QwtPainter::fillRect(QPainter *painter,
     if ( !rect.isValid() )
         return;
 
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
-
     QRect clipRect;
-#if QT_VERSION >= 0x040000
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
+#if QT_VERSION >= 0x040000
     /*
       Performance of Qt4 is horrible for non trivial brushs. Without
       clipping expect minutes or hours for repainting large rects
       (might result from zooming)
     */
 
-    clipRect = painter->window();
+    if ( deviceClipping )
+        clipRect &= painter->window();
+    else
+        clipRect = painter->window();
+
     if ( painter->hasClipping() )
         clipRect &= painter->clipRegion().boundingRect();
-    if ( deviceClipping )
-        clipRect &= deviceClipRect();
-#else
-    if ( deviceClipping )
-        clipRect = deviceClipRect();
 #endif
 
     QRect r = d_metricsMap.layoutToDevice(rect, painter);
-    if ( clipRect.isValid() )
+    if ( deviceClipping )
         r = r.intersect(clipRect);
 
     if ( r.isValid() )
@@ -266,10 +275,11 @@ void QwtPainter::fillRect(QPainter *painter,
 void QwtPainter::drawPie(QPainter *painter, const QRect &rect, 
     int a, int alen)
 {
-    QRect r = d_metricsMap.layoutToDevice(rect, painter);
+    const QRect r = d_metricsMap.layoutToDevice(rect, painter);
 
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
-    if ( deviceClipping && !deviceClipRect().contains(rect) )
+    QRect clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
+    if ( deviceClipping && !clipRect.contains(r) )
         return;
 
     painter->drawPie(r, a, alen);
@@ -282,9 +292,10 @@ void QwtPainter::drawEllipse(QPainter *painter, const QRect &rect)
 {
     QRect r = d_metricsMap.layoutToDevice(rect, painter);
 
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+    QRect clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
-    if ( deviceClipping && !deviceClipRect().contains(rect) )
+    if ( deviceClipping && !clipRect.contains(r) )
         return;
 
 #if QT_VERSION >= 0x040000
@@ -321,9 +332,10 @@ void QwtPainter::drawText(QPainter *painter, const QPoint &pos,
 {
     const QPoint p = d_metricsMap.layoutToDevice(pos, painter);
 
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+    QRect clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
-    if ( deviceClipping && !deviceClipRect().contains(p) )
+    if ( deviceClipping && !clipRect.contains(p) )
         return;
 
     painter->drawText(p, text);
@@ -423,10 +435,11 @@ void QwtPainter::drawSimpleRichText(QPainter *painter, const QRect &rect,
 */
 void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
 {
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+    QRect clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
     if ( deviceClipping && 
-        !(deviceClipRect().contains(x1, y1) && deviceClipRect().contains(x2, y2)) )
+        !(clipRect.contains(x1, y1) && clipRect.contains(x2, y2)) )
     {
         QwtPolygon pa(2);
         pa.setPoint(0, x1, y1);
@@ -473,7 +486,8 @@ void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
 */
 void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
 {
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+    QRect clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
     QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
     if ( deviceClipping )
@@ -481,7 +495,7 @@ void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
 #ifdef __GNUC__
 #warning clipping ignores painter transformations
 #endif
-        cpa = clip(cpa);
+        cpa = QwtClipper::clipPolygon(clipRect, cpa);
     }
     painter->drawPolygon(cpa);
 }
@@ -491,15 +505,18 @@ void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
 */
 void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
 {
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+    QRect clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
     QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
     if ( deviceClipping )
-        cpa = clip(cpa);
+        cpa = QwtClipper::clipPolygon(clipRect, cpa);
 
 #if QT_VERSION >= 0x040000 && QT_VERSION < 0x040400
     bool doSplit = false;
-    if ( painter->paintEngine()->type() == QPaintEngine::Raster &&
+
+    const QPaintEngine *pe = painter->paintEngine();
+    if ( pe && pe->type() == QPaintEngine::Raster &&
         painter->pen().width() >= 2 )
     {
         /*
@@ -534,11 +551,12 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
 
 void QwtPainter::drawPoint(QPainter *painter, int x, int y)
 {
-    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+    QRect clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
     const QPoint pos = d_metricsMap.layoutToDevice(QPoint(x, y));
 
-    if ( deviceClipping && !deviceClipRect().contains(pos) )
+    if ( deviceClipping && !clipRect.contains(pos) )
         return;
 
     painter->drawPoint(pos);
