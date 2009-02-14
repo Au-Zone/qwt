@@ -103,7 +103,7 @@ inline QwtDoubleInterval::QwtDoubleInterval():
 /*!
    Constructor
 
-   Build an interval with included min/max values
+   Build an interval with from min/max values
 
    \param minValue Minimum value
    \param maxValue Maximum value
@@ -118,7 +118,7 @@ inline QwtDoubleInterval::QwtDoubleInterval(
 }
 
 /*!
-   Assign the limits (included) of the interval
+   Assign the limits of the interval
 
    \param minValue Minimum value
    \param maxValue Maximum value

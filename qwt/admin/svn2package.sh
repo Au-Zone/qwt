@@ -63,8 +63,7 @@ function cleanQwt {
     PROFILES="qwtconfig.pri"
     for PROFILE in $PROFILES
     do
-        sed -e 's/= debug/= release/' $PROFILE > $PROFILE.sed
-        mv $PROFILE.sed $PROFILE
+        sed -i -e 's/= debug/= release/' $PROFILE 
     done
 
     HEADERS=`find . -type f -name '*.h' -print`
@@ -80,14 +79,11 @@ function cleanQwt {
 
     for SRCFILE in $SOURCES $PROFILES $PRIFILES
     do
-    	sed -e '/#warning/d' $SRCFILE > $SRCFILE.sed
-        mv $SRCFILE.sed $SRCFILE
+    	sed -i -e '/#warning/d' $SRCFILE 
     done 
 
-    sed -e "s/\$\$VERSION-svn/$VERSION/" qwtconfig.pri > qwtconfig.pri.sed
-    mv qwtconfig.pri.sed qwtconfig.pri
-    sed -e "s/\$\${QwtVersion}-svn/\$\${QwtVersion}/" qwt.prf > qwt.prf.sed
-    mv qwt.prf.sed qwt.prf
+    sed -i -e "s/\$\$VERSION-svn/$VERSION/" qwtconfig.pri 
+    sed -i -e "s/\$\${QwtVersion}-svn/\$\${QwtVersion}/" qwt.prf 
 
     cd - > /dev/null
 }
