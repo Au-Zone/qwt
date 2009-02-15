@@ -151,7 +151,7 @@ QwtDoubleRect QwtPlotPicker::scaleRect() const
 
         if ( xs && ys )
         {
-            rect = QwtDoubleRect( xs->lBound(), ys->lBound(), 
+            rect = QwtDoubleRect( xs->lowerBound(), ys->lowerBound(), 
                 xs->range(), ys->range() );
             rect = rect.normalized();
         }

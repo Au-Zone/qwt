@@ -150,16 +150,16 @@ class QwtScaleEngine::PrivateData
 public:
     PrivateData():
         attributes(QwtScaleEngine::NoAttribute),
-        lowMargin(0.0),
-        highMargin(0.0),
+        lowerMargin(0.0),
+        upperMargin(0.0),
         referenceValue(0.0)
     {
     }
 
     int attributes;       // scale attributes
 
-    double lowMargin;      // margins
-    double highMargin;
+    double lowerMargin;      // margins
+    double upperMargin;
 
     double referenceValue; // reference value
 
@@ -184,9 +184,9 @@ QwtScaleEngine::~QwtScaleEngine ()
 
     \sa setMargins()
 */
-double QwtScaleEngine::lowMargin() const 
+double QwtScaleEngine::lowerMargin() const 
 { 
-    return d_data->lowMargin; 
+    return d_data->lowerMargin; 
 }
 
 /*!
@@ -195,16 +195,16 @@ double QwtScaleEngine::lowMargin() const
 
     \sa setMargins()
 */
-double QwtScaleEngine::highMargin() const 
+double QwtScaleEngine::upperMargin() const 
 { 
-    return d_data->highMargin; 
+    return d_data->upperMargin; 
 }
 
 /*!
   \brief Specify margins at the scale's endpoints
-  \param mlo minimum distance between the scale's lower boundary and the
+  \param lower minimum distance between the scale's lower boundary and the
              smallest enclosed value
-  \param mhi minimum distance between the scale's upper boundary and the
+  \param upper minimum distance between the scale's upper boundary and the
              greatest enclosed value
 
   Margins can be used to leave a minimum amount of space between
@@ -213,13 +213,13 @@ double QwtScaleEngine::highMargin() const
   \warning
   \li QwtLog10ScaleEngine measures the margins in decades.
 
-  \sa highMargin(), lowMargin()
+  \sa upperMargin(), lowerMargin()
 */
 
-void QwtScaleEngine::setMargins(double mlo, double mhi)
+void QwtScaleEngine::setMargins(double lower, double upper)
 {
-    d_data->lowMargin = qwtMax(mlo,0.0);
-    d_data->highMargin = qwtMax(mhi,0.0);
+    d_data->lowerMargin = qwtMax(lower, 0.0);
+    d_data->upperMargin = qwtMax(upper, 0.0);
 }
 
 /*!
@@ -419,8 +419,8 @@ void QwtLinearScaleEngine::autoScale(int maxNumSteps,
     QwtDoubleInterval interval(x1, x2);
     interval = interval.normalized();
 
-    interval.setMinValue(interval.minValue() - lowMargin());
-    interval.setMaxValue(interval.maxValue() + highMargin());
+    interval.setMinValue(interval.minValue() - lowerMargin());
+    interval.setMaxValue(interval.maxValue() + upperMargin());
 
     if (testAttribute(QwtScaleEngine::Symmetric))
         interval = interval.symmetrize(reference());
@@ -632,8 +632,8 @@ void QwtLog10ScaleEngine::autoScale(int maxNumSteps,
     if ( x1 > x2 )
         qSwap(x1, x2);
 
-    QwtDoubleInterval interval(x1 / pow(10.0, lowMargin()), 
-        x2 * pow(10.0, highMargin()) );
+    QwtDoubleInterval interval(x1 / pow(10.0, lowerMargin()), 
+        x2 * pow(10.0, upperMargin()) );
 
     double logRef = 1.0;
     if (reference() > LOG_MIN / 2)
@@ -699,7 +699,7 @@ QwtScaleDiv QwtLog10ScaleEngine::divideScale(double x1, double x2,
         QwtLinearScaleEngine linearScaler;
         linearScaler.setAttributes(attributes());
         linearScaler.setReference(reference());
-        linearScaler.setMargins(lowMargin(), highMargin());
+        linearScaler.setMargins(lowerMargin(), upperMargin());
 
         return linearScaler.divideScale(x1, x2, 
             maxMajSteps, maxMinSteps, stepSize);
