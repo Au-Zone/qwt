@@ -12,6 +12,7 @@
 
 #include <qpoint.h>
 #include <qrect.h>
+#include <qpen.h>
 #include "qwt_global.h"
 #include "qwt_layout_metrics.h"
 #include "qwt_polygon.h"
@@ -124,6 +125,8 @@ public:
     static void setSVGMode(bool on);
     static bool isSVGMode();
 #endif
+
+	static QPen scaledPen(const QPen &);
 
 private:
     static void drawColoredArc(QPainter *, const QRect &,

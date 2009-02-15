@@ -310,7 +310,7 @@ void QwtLegendItem::drawIdentifier(
     if ( (d_data->identifierMode & ShowLine ) && (d_data->curvePen.style() != Qt::NoPen) )
     {
         painter->save();
-        painter->setPen(d_data->curvePen);
+        painter->setPen(QwtPainter::scaledPen(d_data->curvePen));
         QwtPainter::drawLine(painter, rect.left(), rect.center().y(), 
             rect.right(), rect.center().y());
         painter->restore();
@@ -345,7 +345,7 @@ void QwtLegendItem::drawIdentifier(
 
         painter->save();
         painter->setBrush(d_data->symbol->brush());
-        painter->setPen(d_data->symbol->pen());
+        painter->setPen(QwtPainter::scaledPen(d_data->symbol->pen()));
         d_data->symbol->draw(painter, symbolRect);
         painter->restore();
     }

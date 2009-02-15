@@ -1,3 +1,21 @@
+Release 5.2.0
+===================
+
+Changes
+-------
+1) Ported to Qt 4.5.x 
+2) Scaling of non cosmetic pens (for printing to devices in high resolution)
+3) Clipping of polygons for SVG rendering 
+4) QwtRect removed: use QwtClipper instead
+5) QwtPlotRescaler introduced
+6) Performance of incremental curve painting ( = QwtPlotCurve::draw(from, to) )
+   improved.
+
+Bug Fixes
+---------
+1) QwtLinearScaleEngine
+   Rounding problems fixed
+
 Release 5.1.1
 ===================
 
