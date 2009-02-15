@@ -570,7 +570,7 @@ void QwtText::draw(QPainter *painter, const QRect &rect) const
             d_data->backgroundBrush != Qt::NoBrush )
         {
             painter->save();
-            painter->setPen(d_data->backgroundPen);
+            painter->setPen(QwtPainter::scaledPen(d_data->backgroundPen));
             painter->setBrush(d_data->backgroundBrush);
 #if QT_VERSION < 0x040000
             QwtPainter::drawRect(painter, rect);

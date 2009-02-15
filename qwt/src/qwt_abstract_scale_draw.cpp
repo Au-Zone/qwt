@@ -108,7 +108,7 @@ bool QwtAbstractScaleDraw::hasComponent(ScaleComponent component) const
 void QwtAbstractScaleDraw::setScaleDiv(const QwtScaleDiv &sd)
 {
     d_data->scldiv = sd;
-    d_data->map.setScaleInterval(sd.lBound(), sd.hBound());
+    d_data->map.setScaleInterval(sd.lowerBound(), sd.upperBound());
     d_data->labelCache.clear();
 }
 

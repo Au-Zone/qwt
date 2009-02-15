@@ -106,6 +106,10 @@ public:
     bool isValid() const;
     double value(double x) const;
 
+	const QwtArray<double> &coefficientsA() const;
+	const QwtArray<double> &coefficientsB() const;
+	const QwtArray<double> &coefficientsC() const;
+
 protected:
 
 #if QT_VERSION < 0x040000

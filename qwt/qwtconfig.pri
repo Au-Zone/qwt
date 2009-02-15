@@ -97,7 +97,7 @@ CONFIG     += QwtWidgets
 # QwtSVGItem.
 ######################################################################
 
-#CONFIG     += QwtSVGItem
+CONFIG     += QwtSVGItem
 
 ######################################################################
 # If you have a commercial license you can use the MathML renderer
@@ -121,4 +121,4 @@ CONFIG     += QwtDesigner
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-#CONFIG     += QwtExamples
+CONFIG     += QwtExamples

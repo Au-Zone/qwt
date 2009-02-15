@@ -734,3 +734,35 @@ void QwtPainter::drawColorBar(QPainter *painter,
     pmPainter.end();
     painter->drawPixmap(devRect, pixmap);
 }
+
+/*!
+  \brief Scale a pen according to the layout metrics
+    
+  The width of non cosmetic pens is scaled from screen to layout metrics, 
+  so that they look similar on paint devices with different resolutions.
+
+  \param pen Unscaled pen
+  \return Scaled pen
+*/
+
+QPen QwtPainter::scaledPen(const QPen &pen)
+{
+#if QT_VERSION < 0x040000
+    return pen;
+#else
+    QPen sPen = pen;
+
+    if ( !pen.isCosmetic() )
+    {
+        int pw = pen.width();
+        if ( pw == 0 )
+            pw = 1;
+
+        sPen.setWidth(QwtPainter::metricsMap().screenToLayoutX(pw));
+		sPen.setCosmetic(true);
+    }
+
+    return sPen;
+#endif
+}
+

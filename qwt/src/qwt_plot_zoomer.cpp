@@ -390,8 +390,8 @@ void QwtPlotZoomer::rescale()
 
         double x1 = rect.left();
         double x2 = rect.right();
-        if ( plt->axisScaleDiv(xAxis())->lBound() > 
-            plt->axisScaleDiv(xAxis())->hBound() )
+        if ( plt->axisScaleDiv(xAxis())->lowerBound() > 
+            plt->axisScaleDiv(xAxis())->upperBound() )
         {
             qSwap(x1, x2);
         }
@@ -400,8 +400,8 @@ void QwtPlotZoomer::rescale()
 
         double y1 = rect.top();
         double y2 = rect.bottom();
-        if ( plt->axisScaleDiv(yAxis())->lBound() > 
-            plt->axisScaleDiv(yAxis())->hBound() )
+        if ( plt->axisScaleDiv(yAxis())->lowerBound() > 
+            plt->axisScaleDiv(yAxis())->upperBound() )
         {
             qSwap(y1, y2);
         }

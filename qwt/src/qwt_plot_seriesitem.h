@@ -170,7 +170,7 @@ void QwtPlotSeriesItem<T>::updateScaleDiv(const QwtScaleDiv &xScaleDiv,
         const QwtScaleDiv &yScaleDiv)
 {   
     const QwtDoubleRect rect = QwtDoubleRect( 
-        xScaleDiv.lBound(), yScaleDiv.lBound(),
+        xScaleDiv.lowerBound(), yScaleDiv.lowerBound(),
         xScaleDiv.range(), yScaleDiv.range());
 
     d_series->setRectOfInterest(rect);

@@ -148,7 +148,7 @@ void QwtPlotMarker::drawAt(QPainter *painter,
     // draw lines
     if (d_data->style != NoLine)
     {
-        painter->setPen(d_data->pen);
+        painter->setPen(QwtPainter::scaledPen(d_data->pen));
         if ((d_data->style == HLine) || (d_data->style == Cross))
         {
             QwtPainter::drawLine(painter, canvasRect.left(), 
@@ -353,15 +353,19 @@ Qt::Alignment QwtPlotMarker::labelAlignment() const
 }
 
 /*!
-  \brief Specify a pen for the line.
-  \param p New pen
-  \sa linePen()
+  Specify a pen for the line.
+
+  The width of non cosmetic pens is scaled according to the resolution
+  of the paint device.
+
+  \param pen New pen
+  \sa linePen(), QwtPainter::scaledPen()
 */
-void QwtPlotMarker::setLinePen(const QPen &p)
+void QwtPlotMarker::setLinePen(const QPen &pen)
 {
-    if ( p != d_data->pen )
+    if ( pen != d_data->pen )
     {
-        d_data->pen = p;
+        d_data->pen = pen;
         itemChanged();
     }
 }

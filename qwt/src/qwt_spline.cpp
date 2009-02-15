@@ -167,6 +167,24 @@ QPolygonF QwtSpline::points() const
     return d_data->points;
 }
 
+//! \return A coefficients
+const QwtArray<double> &QwtSpline::coefficientsA() const
+{
+	return d_data->a;
+}
+
+//! \return B coefficients
+const QwtArray<double> &QwtSpline::coefficientsB() const
+{
+	return d_data->b;
+}
+
+//! \return C coefficients
+const QwtArray<double> &QwtSpline::coefficientsC() const
+{
+	return d_data->c;
+}
+
 
 //! Free allocated memory and set size to 0
 void QwtSpline::reset()

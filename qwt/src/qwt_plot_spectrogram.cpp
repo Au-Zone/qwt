@@ -582,7 +582,7 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
         if ( pen.style() == Qt::NoPen )
             continue;
 
-        painter->setPen(pen);
+        painter->setPen(QwtPainter::scaledPen(pen));
 
 #if QT_VERSION >= 0x040000
         const QPolygonF &lines = contourLines[level];

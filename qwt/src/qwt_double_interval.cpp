@@ -271,22 +271,22 @@ QwtDoubleInterval QwtDoubleInterval::symmetrize(double value) const
 /*!
    Limit the interval, keeping the border modes
 
-   \param lBound Lower limit
-   \param hBound Upper limit
+   \param lowerBound Lower limit
+   \param upperBound Upper limit
 
    \return Limited interval
 */
 QwtDoubleInterval QwtDoubleInterval::limited(
-    double lBound, double hBound) const
+    double lowerBound, double upperBound) const
 {
-    if ( !isValid() || lBound > hBound )
+    if ( !isValid() || lowerBound > upperBound )
         return QwtDoubleInterval();
 
-    double minValue = qwtMax(d_minValue, lBound);
-    minValue = qwtMin(minValue, hBound);
+    double minValue = qwtMax(d_minValue, lowerBound);
+    minValue = qwtMin(minValue, upperBound);
 
-    double maxValue = qwtMax(d_maxValue, lBound);
-    maxValue = qwtMin(maxValue, hBound);
+    double maxValue = qwtMax(d_maxValue, lowerBound);
+    maxValue = qwtMin(maxValue, upperBound);
 
     return QwtDoubleInterval(minValue, maxValue, d_borderFlags);
 }

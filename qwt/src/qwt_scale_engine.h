@@ -72,9 +72,9 @@ public:
     void setReference(double reference);
     double reference() const;
 
-    void setMargins(double m1, double m2);
-    double lowMargin() const;
-    double highMargin() const;
+    void setMargins(double lower, double upper);
+    double lowerMargin() const;
+    double upperMargin() const;
 
     /*!
       Align and divide an interval 

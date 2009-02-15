@@ -371,9 +371,13 @@ const QwtSymbol &QwtPlotCurve::symbol() const
 }
 
 /*!
-  \brief Assign a pen
+  Assign a pen
+
+  The width of non cosmetic pens is scaled according to the resolution
+  of the paint device.
+
   \param pen New pen
-  \sa pen(), brush()
+  \sa pen(), brush(), QwtPainter::scaledPen()
 */
 void QwtPlotCurve::setPen(const QPen &pen)
 {
@@ -556,7 +560,7 @@ void QwtPlotCurve::draw(QPainter *painter,
     if ( verifyRange(dataSize(), from, to) > 0 )
     {
         painter->save();
-        painter->setPen(d_data->pen);
+        painter->setPen(QwtPainter::scaledPen(d_data->pen));
 
         /*
           Qt 4.0.0 is slow when drawing lines, but it's even 

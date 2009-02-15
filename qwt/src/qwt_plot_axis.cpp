@@ -224,7 +224,7 @@ int QwtPlot::axisMaxMinor(int axisId) const
 /*!
   \brief Return the scale division of a specified axis
 
-  axisScaleDiv(axisId)->lBound(), axisScaleDiv(axisId)->hBound()
+  axisScaleDiv(axisId)->lowerBound(), axisScaleDiv(axisId)->upperBound()
   are the current limits of the axis scale.
 
   \param axisId axis index
@@ -243,7 +243,7 @@ const QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) const
 /*!
   \brief Return the scale division of a specified axis
 
-  axisScaleDiv(axisId)->lBound(), axisScaleDiv(axisId)->hBound()
+  axisScaleDiv(axisId)->lowerBound(), axisScaleDiv(axisId)->upperBound()
   are the current limits of the axis scale.
 
   \param axisId axis index
