@@ -31,6 +31,7 @@ public:
         frameShadow(Sunken),
         lineWidth(0),
         mode(RotateNeedle),
+        direction(Clockwise),
         origin(90.0),
         minScaleArc(0.0),
         maxScaleArc(0.0),
@@ -52,6 +53,7 @@ public:
     int lineWidth;
 
     QwtDial::Mode mode;
+    QwtDial::Direction direction;
 
     double origin;
     double minScaleArc;
@@ -398,6 +400,33 @@ bool QwtDial::wrapping() const
     return periodic();
 }
 
+/*!
+    Set the direction of the dial (clockwise/counterclockwise)
+
+    Direction direction
+    \sa direction
+*/
+void QwtDial::setDirection(Direction direction)
+{
+    if ( direction != d_data->direction )
+    {
+        d_data->direction = direction;
+        update();
+    }
+}
+
+/*!
+   \return Direction of the dial
+
+   The default direction of a dial is QwtDial::Clockwise
+
+   \sa setDirection
+*/
+QwtDial::Direction QwtDial::direction() const
+{
+    return d_data->direction;
+}
+
 /*! 
    Resize the dial widget
    \param e Resize event
@@ -424,7 +453,7 @@ void QwtDial::paintEvent(QPaintEvent *e)
         QPainter &painter = *paintBuffer.painter();
 #else
         QPainter painter(this);
-		painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::Antialiasing, true);
 #endif
 
         painter.save();

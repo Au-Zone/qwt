@@ -70,6 +70,7 @@ class QWT_EXPORT QwtDial: public QwtAbstractSlider
 
     Q_ENUMS(Shadow)
     Q_ENUMS(Mode)
+    Q_ENUMS(Direction)
 
     Q_PROPERTY(bool visibleBackground READ hasVisibleBackground WRITE showBackground)
     Q_PROPERTY(int lineWidth READ lineWidth WRITE setLineWidth)
@@ -77,6 +78,7 @@ class QWT_EXPORT QwtDial: public QwtAbstractSlider
     Q_PROPERTY(Mode mode READ mode WRITE setMode)
     Q_PROPERTY(double origin READ origin WRITE setOrigin)
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
+    Q_PROPERTY(Direction direction READ direction WRITE setDirection)
 
     friend class QwtDialScaleDraw;
 public:
@@ -115,6 +117,15 @@ public:
         RotateScale
     };
 
+    /*!
+      Direction of the dial
+    */
+    enum Direction
+    {
+        Clockwise,
+        CounterClockwise
+    };
+
     explicit QwtDial( QWidget *parent = NULL);
 #if QT_VERSION < 0x040000
     explicit QwtDial( QWidget *parent, const char *name);
@@ -136,6 +147,9 @@ public:
 
     virtual void setWrapping(bool);
     bool wrapping() const;
+
+    void setDirection(Direction);
+    Direction direction() const;
 
     virtual void setScale(int maxMajIntv, int maxMinIntv, double step = 0.0);
 
