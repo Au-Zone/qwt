@@ -51,20 +51,14 @@ to control or display values, arrays, or ranges of type double.
   \section downloads Downloads
   Stable releases, prereleases and snapshots are available at the Qwt <a href="http://sourceforge.net/projects/qwt">project page</a>.
 
-  Qwt doesn't distribute binary packages, but below is a incomplete list
-  of packagers :
-<a href="http://packages.qa.debian.org/q/qwt.html">Debian</a>,
-  <a href="http://packman.links2linux.de/package/libqwt5">S.u.S.E</a>,
-  <a href="ftp://open-gnss.org/pub/fedora/qwt">Fedora</a>,
-  <a href="http://packages.gentoo.org/packages/?category=x11-libs;name=qwt">Gentoo</a>. 
-  <a href="http://pdb.finkproject.org/pdb/package.php/qwt">Fink</a>. 
-  <a href="http://packages.ubuntu.com/cgi-bin//search_packages.pl?version=all&subword=0&exact=1&arch=any&releases=all&case=insensitive&keywords=qwt&searchon=sourcenames">Ubuntu</a>. 
+  For getting a snapshot with all bugfixes for the latest 5.2 release:
+  \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.2 \endcode
 
-  For getting a 5.2 development snapshot from the SVN repository: 
+  For getting a development snapshot from the SVN repository:
   \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt \endcode
 
-  For getting a snapshot with all bugfixes for the latest 5.1 release:
-  \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.1 \endcode
+  Qwt doesn't distribute binary packages, but today all major Linux distributors
+  offer one. Note, that these packages often don't include the examples.
 
   \section installonmainpage Installation
  
