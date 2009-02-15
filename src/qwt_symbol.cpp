@@ -91,11 +91,15 @@ void QwtSymbol::setBrush(const QBrush &br)
 }
 
 /*!
-  \brief Assign a pen
+  Assign a pen
 
   The pen is used to draw the symbol's outline.
 
+  The width of non cosmetic pens is scaled according to the resolution
+  of the paint device.
+
   \param pn pen
+  \sa pen(), setBrush(), QwtPainter::scaledPen()
 */
 void QwtSymbol::setPen(const QPen &pn)
 {
@@ -244,7 +248,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w = r.width();
             const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
-                2.0);  // 0.866025 = cos(30°)
+                2.0);  // 0.866025 = cos(30Â°)
             const int h4 = r.height() / 4;
             const int h2 = r.height() / 2;
             const int h34 = (r.height() * 3) / 4;
@@ -275,7 +279,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w2 = r.width() / 2;
             const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
-                2.0);  // 0.866025 = cos(30°)
+                2.0);  // 0.866025 = cos(30Â°)
             const int h4 = r.height() / 4;
             const int h34 = (r.height() * 3) / 4;
 
@@ -306,7 +310,7 @@ void QwtSymbol::draw(QPainter *painter, const QPoint &pos) const
     rect.moveCenter(pos);
 
     painter->setBrush(d_brush);
-    painter->setPen(d_pen);
+    painter->setPen(QwtPainter::scaledPen(d_pen));
     
     draw(painter, rect);
 }
