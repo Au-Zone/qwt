@@ -364,7 +364,7 @@ QScrollBar *QwtLegend::horizontalScrollBar() const
 
 QScrollBar *QwtLegend::verticalScrollBar() const
 {
-    return d_data->view->horizontalScrollBar();
+    return d_data->view->verticalScrollBar();
 }
 
 /*!  
