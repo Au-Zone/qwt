@@ -530,9 +530,6 @@ void QwtDial::drawFrame(QPainter *painter)
     r.setRect(r.x() + lw / 2 - off, r.y() + lw / 2 - off,
         r.width() - lw + off + 1, r.height() - lw + off + 1);
 #if QT_VERSION >= 0x040000
-#ifdef __GNUC__
-#warning QwtPainter::drawRoundFrame 
-#endif
     r.setX(r.x() + 1);
     r.setY(r.y() + 1);
     r.setWidth(r.width() - 2);
@@ -648,7 +645,7 @@ void QwtDial::drawContents(QPainter *painter) const
 
     if (isValid())
     {
-        direction = d_data->origin + d_data->minScaleArc;
+        direction = d_data->minScaleArc;
         if ( maxValue() > minValue() && d_data->maxScaleArc > d_data->minScaleArc )
         {
             const double ratio = 
@@ -656,8 +653,14 @@ void QwtDial::drawContents(QPainter *painter) const
             direction += ratio * (d_data->maxScaleArc - d_data->minScaleArc);
         }
 
+        if ( d_data->direction == QwtDial::CounterClockwise )
+            direction = d_data->maxScaleArc - (direction - d_data->minScaleArc);
+
+        direction += d_data->origin;
         if ( direction >= 360.0 )
             direction -= 360.0;
+        else if ( direction < 0.0 )
+            direction += 360.0;
     }
 
     double origin = d_data->origin;
@@ -668,7 +671,8 @@ void QwtDial::drawContents(QPainter *painter) const
     }
 
     painter->save();
-    drawScale(painter, center, radius, origin, d_data->minScaleArc, d_data->maxScaleArc);
+    drawScale(painter, center, radius, origin, 
+        d_data->minScaleArc, d_data->maxScaleArc);
     painter->restore();
 
     if ( isValid() )
@@ -726,11 +730,11 @@ void QwtDial::drawScale(QPainter *painter, const QPoint &center,
 
     double angle = maxArc - minArc;
     if ( angle > 360.0 )
-        angle = fmod(angle, 360.0);
+        angle = ::fmod(angle, 360.0);
 
     minArc += origin;
     if ( minArc < -360.0 )
-        minArc = fmod(minArc, 360.0);
+        minArc = ::fmod(minArc, 360.0);
     
     maxArc = minArc + angle;
     if ( maxArc > 360.0 )
@@ -740,6 +744,9 @@ void QwtDial::drawScale(QPainter *painter, const QPoint &center,
         minArc -= 360.0;
         maxArc -= 360.0;
     }
+
+    if ( d_data->direction == QwtDial::CounterClockwise )
+        qSwap(minArc, maxArc);
     
     painter->setFont(font());
 

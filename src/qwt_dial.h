@@ -148,9 +148,6 @@ public:
     virtual void setWrapping(bool);
     bool wrapping() const;
 
-    void setDirection(Direction);
-    Direction direction() const;
-
     virtual void setScale(int maxMajIntv, int maxMinIntv, double step = 0.0);
 
     void setScaleArc(double min, double max);
@@ -162,6 +159,9 @@ public:
 
     virtual void setOrigin(double);
     double origin() const;
+
+    void setDirection(Direction);
+    Direction direction() const;
 
     virtual void setNeedle(QwtDialNeedle *);
     const QwtDialNeedle *needle() const;
