@@ -630,9 +630,12 @@ void QwtPlotSpectrogram::draw(QPainter *painter,
         QwtDoubleRect area = invTransform(xMap, yMap, rasterRect);
 
         const QwtDoubleRect br = boundingRect();
-        if ( br.isValid() && br.contains(area) )
+        if ( br.isValid() ) 
         {
             area &= br;
+            if ( area.isEmpty() )
+                return;
+
             rasterRect = transform(xMap, yMap, area);
         }
 
