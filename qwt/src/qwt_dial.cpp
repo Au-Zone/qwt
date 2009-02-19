@@ -31,6 +31,7 @@ public:
         frameShadow(Sunken),
         lineWidth(0),
         mode(RotateNeedle),
+        direction(Clockwise),
         origin(90.0),
         minScaleArc(0.0),
         maxScaleArc(0.0),
@@ -52,6 +53,7 @@ public:
     int lineWidth;
 
     QwtDial::Mode mode;
+    QwtDial::Direction direction;
 
     double origin;
     double minScaleArc;
@@ -398,6 +400,33 @@ bool QwtDial::wrapping() const
     return periodic();
 }
 
+/*!
+    Set the direction of the dial (clockwise/counterclockwise)
+
+    Direction direction
+    \sa direction
+*/
+void QwtDial::setDirection(Direction direction)
+{
+    if ( direction != d_data->direction )
+    {
+        d_data->direction = direction;
+        update();
+    }
+}
+
+/*!
+   \return Direction of the dial
+
+   The default direction of a dial is QwtDial::Clockwise
+
+   \sa setDirection
+*/
+QwtDial::Direction QwtDial::direction() const
+{
+    return d_data->direction;
+}
+
 /*! 
    Resize the dial widget
    \param e Resize event
@@ -424,7 +453,7 @@ void QwtDial::paintEvent(QPaintEvent *e)
         QPainter &painter = *paintBuffer.painter();
 #else
         QPainter painter(this);
-		painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::Antialiasing, true);
 #endif
 
         painter.save();
@@ -501,9 +530,6 @@ void QwtDial::drawFrame(QPainter *painter)
     r.setRect(r.x() + lw / 2 - off, r.y() + lw / 2 - off,
         r.width() - lw + off + 1, r.height() - lw + off + 1);
 #if QT_VERSION >= 0x040000
-#ifdef __GNUC__
-#warning QwtPainter::drawRoundFrame 
-#endif
     r.setX(r.x() + 1);
     r.setY(r.y() + 1);
     r.setWidth(r.width() - 2);
@@ -619,7 +645,7 @@ void QwtDial::drawContents(QPainter *painter) const
 
     if (isValid())
     {
-        direction = d_data->origin + d_data->minScaleArc;
+        direction = d_data->minScaleArc;
         if ( maxValue() > minValue() && d_data->maxScaleArc > d_data->minScaleArc )
         {
             const double ratio = 
@@ -627,8 +653,14 @@ void QwtDial::drawContents(QPainter *painter) const
             direction += ratio * (d_data->maxScaleArc - d_data->minScaleArc);
         }
 
+        if ( d_data->direction == QwtDial::CounterClockwise )
+            direction = d_data->maxScaleArc - (direction - d_data->minScaleArc);
+
+        direction += d_data->origin;
         if ( direction >= 360.0 )
             direction -= 360.0;
+        else if ( direction < 0.0 )
+            direction += 360.0;
     }
 
     double origin = d_data->origin;
@@ -639,7 +671,8 @@ void QwtDial::drawContents(QPainter *painter) const
     }
 
     painter->save();
-    drawScale(painter, center, radius, origin, d_data->minScaleArc, d_data->maxScaleArc);
+    drawScale(painter, center, radius, origin, 
+        d_data->minScaleArc, d_data->maxScaleArc);
     painter->restore();
 
     if ( isValid() )
@@ -697,11 +730,11 @@ void QwtDial::drawScale(QPainter *painter, const QPoint &center,
 
     double angle = maxArc - minArc;
     if ( angle > 360.0 )
-        angle = fmod(angle, 360.0);
+        angle = ::fmod(angle, 360.0);
 
     minArc += origin;
     if ( minArc < -360.0 )
-        minArc = fmod(minArc, 360.0);
+        minArc = ::fmod(minArc, 360.0);
     
     maxArc = minArc + angle;
     if ( maxArc > 360.0 )
@@ -711,6 +744,9 @@ void QwtDial::drawScale(QPainter *painter, const QPoint &center,
         minArc -= 360.0;
         maxArc -= 360.0;
     }
+
+    if ( d_data->direction == QwtDial::CounterClockwise )
+        qSwap(minArc, maxArc);
     
     painter->setFont(font());
 
