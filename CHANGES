@@ -23,6 +23,10 @@ Changes
    loMargin/hiMargin renamed to lowerMargin/upperMargin
 12)QwtScaleDiv: 
    lBound/hBound renamed to lowerBound/upperBound
+13)QwtSpline
+   cofficientA/B/C introduced
+14)QwtDial
+   counter clockwise scales introduced
 
 Bug Fixes
 ---------
@@ -30,6 +34,9 @@ Bug Fixes
    Rounding problems fixed
 2) Again some print layout problems fixed
 3) QwtPlotScaleItem: 1 pixel offset fixed
+4) QwtPlotSpectrogram, clipping of contour lines 
+   against the bounding rect
+5) QwtPlotZoomer::setZoomStack for stacks with unlimited depth
 
 
 Release 5.1.1
