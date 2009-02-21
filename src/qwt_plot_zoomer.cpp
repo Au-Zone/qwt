@@ -352,8 +352,14 @@ void QwtPlotZoomer::zoom(int offset)
 void QwtPlotZoomer::setZoomStack(
     const QwtZoomStack &zoomStack, int zoomRectIndex)
 {
-    if ( zoomStack.isEmpty() || int(zoomStack.count()) > d_data->maxStackDepth )
+    if ( zoomStack.isEmpty() )
         return;
+
+    if ( d_data->maxStackDepth >= 0 &&
+        int(zoomStack.count()) > d_data->maxStackDepth )
+    {
+        return;
+    }
 
     if ( zoomRectIndex < 0 || zoomRectIndex > int(zoomStack.count()) )
         zoomRectIndex = zoomStack.count() - 1;
