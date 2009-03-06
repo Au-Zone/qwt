@@ -762,7 +762,10 @@ void QwtPlot::legendItemChecked(bool on)
     }
 }
 
-//! Remove all curves and markers
+/*! 
+   Remove all curves and markers
+   \deprecated Use QwtPlotDeict::detachItems instead
+*/
 void QwtPlot::clear()
 {
     detachItems(QwtPlotItem::Rtti_PlotCurve);
