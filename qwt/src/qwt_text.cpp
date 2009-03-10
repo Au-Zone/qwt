@@ -536,6 +536,7 @@ QSize QwtText::textSize(const QFont &defaultFont) const
         d_data->textEngine->textMargins(font, d_data->text,
             left, right, top, bottom);
         sz -= QSize(left + right, top + bottom);
+
 #if QT_VERSION >= 0x040000
         if ( !map.isIdentity() )
         {
@@ -547,7 +548,7 @@ QSize QwtText::textSize(const QFont &defaultFont) const
                 of are cut of. We need to find out why, but for
                 the moment we add a couple of pixels instead.
              */
-            sz += QSize(3, 0);
+            sz += QSize(3, 2);
         }
 #endif
     }
