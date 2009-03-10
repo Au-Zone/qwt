@@ -37,6 +37,7 @@ Bug Fixes
 4) QwtPlotSpectrogram, clipping of contour lines 
    against the bounding rect
 5) QwtPlotZoomer::setZoomStack for stacks with unlimited depth
+6) Printing of rotated tick labels
 
 
 Release 5.1.1
