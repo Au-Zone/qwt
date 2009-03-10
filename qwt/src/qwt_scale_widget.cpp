@@ -659,6 +659,11 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
     painter->setPen(palette().color(QPalette::Text));
 #endif
 
+    const QwtMetricsMap metricsMap = QwtPainter::metricsMap();
+    QwtPainter::resetMetricsMap();
+
+    r = metricsMap.layoutToDevice(r);
+
     painter->translate(r.x(), r.y());
     if (angle != 0.0)
         painter->rotate(angle);
@@ -666,6 +671,8 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
     QwtText title = d_data->title;
     title.setRenderFlags(flags);
     title.draw(painter, QRect(0, 0, r.width(), r.height()));
+
+    QwtPainter::setMetricsMap(metricsMap); // restore metrics map
 
     painter->restore();
 }
