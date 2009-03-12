@@ -99,6 +99,11 @@ QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, int selectionFlags,
 {
 }
 
+//! Destructor
+QwtPlotPicker::~QwtPlotPicker()
+{
+}
+
 //! Return observed plot canvas
 QwtPlotCanvas *QwtPlotPicker::canvas()
 {
