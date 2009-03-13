@@ -12,13 +12,14 @@ Release 5.2.0
 
 Changes
 -------
-1) Ported to Qt 4.5.x 
+1) Ported to Qt 4.5.x
 2) Scaling of non cosmetic pens (for printing to devices in high resolution)
-3) Clipping of polygons for SVG rendering 
+3) Clipping of polygons for SVG rendering
 4) QwtRect removed
    use QwtClipper instead
-5) QwtPlotRescaler introduced
-6) QwtDoubleInterval 
+5) QwtPlotRescaler 
+   Introduced
+6) QwtDoubleInterval
    BorderMode introduced
 7) QwtPlotCurve
    Performance of incremental curve painting ( = draw(from, to) ) improved.
@@ -26,16 +27,18 @@ Changes
    setIdentfierMode renamed to setIdentifierMode
 9) QwtPlotCanvas::replot() introduced
    code from QwtPlot::replot shifted
-10)QwtPlot: 
+10)QwtPlot 
    drawCanvas(), updateAxes() changed from protected to public
-11)QwtScaleEngine: 
+11)QwtScaleEngine 
    loMargin/hiMargin renamed to lowerMargin/upperMargin
-12)QwtScaleDiv: 
+12)QwtScaleDiv 
    lBound/hBound renamed to lowerBound/upperBound
 13)QwtSpline
    cofficientA/B/C introduced
 14)QwtDial
    counter clockwise scales introduced
+15)QwtPlotMarker
+   Vertical text labels
 
 Bug Fixes
 ---------
