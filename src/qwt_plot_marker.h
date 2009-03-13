@@ -50,7 +50,13 @@ public:
         Line styles.
         \sa QwtPlotMarker::setLineStyle, QwtPlotMarker::lineStyle
     */
-    enum LineStyle {NoLine, HLine, VLine, Cross};
+    enum LineStyle 
+    {
+        NoLine, 
+        HLine, 
+        VLine, 
+        Cross
+    };
    
     explicit QwtPlotMarker();
     virtual ~QwtPlotMarker();
@@ -86,6 +92,9 @@ public:
     Qt::Alignment labelAlignment() const;
 #endif
 
+    void setSpacing(int);
+    int spacing() const;
+
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &) const;
@@ -93,9 +102,11 @@ public:
     virtual QwtDoubleRect boundingRect() const;
 
 protected:
-	void drawAt(QPainter *,const QRect &, const QPoint &) const;
+    void drawAt(QPainter *,const QRect &, const QPoint &) const;
 
 private:
+    void drawLabel(QPainter *, const QRect &, const QPoint &) const;
+
     class PrivateData;
     PrivateData *d_data;
 };

@@ -17,13 +17,12 @@
 #include "qwt_text.h"
 #include "qwt_math.h"
 
-static const int LabelDist = 2;
-
 class QwtPlotMarker::PrivateData
 {
 public:
     PrivateData():
         align(Qt::AlignCenter),
+        spacing(2),
         style(NoLine),
         xValue(0.0),
         yValue(0.0)
@@ -42,6 +41,8 @@ public:
 #else
     Qt::Alignment align;
 #endif
+    int spacing;
+
     QPen pen;
     QwtSymbol *symbol;
     LineStyle style;
@@ -149,12 +150,14 @@ void QwtPlotMarker::drawAt(QPainter *painter,
     if (d_data->style != NoLine)
     {
         painter->setPen(QwtPainter::scaledPen(d_data->pen));
-        if ((d_data->style == HLine) || (d_data->style == Cross))
+        if ( d_data->style == QwtPlotMarker::HLine || 
+            d_data->style == QwtPlotMarker::Cross )
         {
             QwtPainter::drawLine(painter, canvasRect.left(), 
                 pos.y(), canvasRect.right(), pos.y() );
         }
-        if ((d_data->style == VLine) || (d_data->style == Cross))
+        if (d_data->style == QwtPlotMarker::VLine || 
+            d_data->style == QwtPlotMarker::Cross )
         {
             QwtPainter::drawLine(painter, pos.x(), 
                 canvasRect.top(), pos.x(), canvasRect.bottom());
@@ -162,89 +165,112 @@ void QwtPlotMarker::drawAt(QPainter *painter,
     }
 
     // draw symbol
-    QSize symbolSize(0, 0);
     if (d_data->symbol->style() != QwtSymbol::NoSymbol)
-    {
-        symbolSize = d_data->symbol->size();
         d_data->symbol->draw(painter, pos.x(), pos.y());
-    }
 
-    // draw label
-    if (!d_data->label.isEmpty())
+    drawLabel(painter, canvasRect, pos);
+}
+
+void QwtPlotMarker::drawLabel(QPainter *painter, 
+    const QRect &canvasRect, const QPoint &pos) const
+{
+    if (d_data->label.isEmpty())
+        return;
+
+    int align = d_data->align;
+    QPoint alignPos = pos;
+
+    QSize symbolOff(0, 0);
+
+    switch(d_data->style)
     {
-        int xlw = qwtMax(int(d_data->pen.width()), 1);
-        int ylw = xlw;
-        int xlw1;
-        int ylw1;
-
-        const int xLabelDist = 
-            QwtPainter::metricsMap().screenToLayoutX(LabelDist);
-        const int yLabelDist = 
-            QwtPainter::metricsMap().screenToLayoutY(LabelDist);
-
-        if ((d_data->style == VLine) || (d_data->style == HLine))
+        case QwtPlotMarker::VLine:
         {
-            xlw1 = (xlw + 1) / 2 + xLabelDist;
-            xlw = xlw / 2 + xLabelDist;
-            ylw1 = (ylw + 1) / 2 + yLabelDist;
-            ylw = ylw / 2 + yLabelDist;
-        }
-        else 
-        {
-            xlw1 = qwtMax((xlw + 1) / 2, (symbolSize.width() + 1) / 2) + xLabelDist;
-            xlw = qwtMax(xlw / 2, (symbolSize.width() + 1) / 2) + xLabelDist;
-            ylw1 = qwtMax((ylw + 1) / 2, (symbolSize.height() + 1) / 2) + yLabelDist;
-            ylw = qwtMax(ylw / 2, (symbolSize. height() + 1) / 2) + yLabelDist;
-        }
+            // In VLine-style the y-position is pointless and
+            // the alignment flags are relative to the canvas
 
-        QRect tr(QPoint(0, 0), d_data->label.textSize(painter->font()));
-        tr.moveCenter(QPoint(0, 0));
-
-        int dx = pos.x();
-        int dy = pos.y();
-
-        if (d_data->style == VLine)
-        {
             if (d_data->align & (int) Qt::AlignTop)
-                dy = canvasRect.top() + yLabelDist - tr.y();
+            {
+                alignPos.setY(canvasRect.top());
+                align &= ~Qt::AlignTop;
+                align |= Qt::AlignBottom;
+            }
             else if (d_data->align & (int) Qt::AlignBottom)
-                dy = canvasRect.bottom() - yLabelDist + tr.y();
+            {
+                // In HLine-style the x-position is pointless and
+                // the alignment flags are relative to the canvas
+
+                alignPos.setY(canvasRect.bottom() - 1);
+                align &= ~Qt::AlignBottom;
+                align |= Qt::AlignTop;
+            }
             else
-                dy = canvasRect.top() + canvasRect.height() / 2;
+            {
+                alignPos.setY(canvasRect.center().y());
+            }
+            break;
         }
-        else
-        {
-            if (d_data->align & (int) Qt::AlignTop)
-                dy += tr.y() - ylw1;
-            else if (d_data->align & (int) Qt::AlignBottom)
-                dy -= tr.y() - ylw1;
-        }
-
-
-        if (d_data->style == HLine)
+        case QwtPlotMarker::HLine:
         {
             if (d_data->align & (int) Qt::AlignLeft)
-                dx = canvasRect.left() + xLabelDist - tr.x();
+            {
+                alignPos.setX(canvasRect.left());
+                align &= ~Qt::AlignLeft;
+                align |= Qt::AlignRight;
+            }
             else if (d_data->align & (int) Qt::AlignRight)
-                dx = canvasRect.right() - xLabelDist + tr.x();
+            {
+                alignPos.setX(canvasRect.right() - 1);
+                align &= ~Qt::AlignRight;
+                align |= Qt::AlignLeft;
+            }
             else
-                dx = canvasRect.left() + canvasRect.width() / 2;
+            {
+                alignPos.setX(canvasRect.center().x());
+            }
+            break;
         }
-        else
+        default:
         {
-            if (d_data->align & (int) Qt::AlignLeft)
-                dx += tr.x() - xlw1;
-            else if (d_data->align & (int) Qt::AlignRight)
-                dx -= tr.x() - xlw1;
+            if ( d_data->symbol->style() != QwtSymbol::NoSymbol )
+            {
+                symbolOff = d_data->symbol->size() + QSize(1, 1);
+                symbolOff /= 2;
+            }
         }
-
-#if QT_VERSION < 0x040000
-        tr.moveBy(dx, dy);
-#else
-        tr.translate(dx, dy);
-#endif
-        d_data->label.draw(painter, tr);
     }
+    
+    int pw = d_data->pen.width();
+    if ( pw == 0 )
+        pw = 1;
+
+    const int xSpacing = 
+        QwtPainter::metricsMap().screenToLayoutX(d_data->spacing);
+    const int ySpacing = 
+        QwtPainter::metricsMap().screenToLayoutY(d_data->spacing);
+
+
+    int xOff = qwtMax( (pw + 1) / 2, symbolOff.width() );
+    int yOff = qwtMax( (pw + 1) / 2, symbolOff.height() );
+
+    const QSize textSize = d_data->label.textSize(painter->font());
+
+    if ( align & Qt::AlignLeft )
+        alignPos.rx() -= xOff + xSpacing + textSize.width();
+    else if ( align & Qt::AlignRight )
+        alignPos.rx() += xOff + xSpacing;
+    else
+        alignPos.rx() -= textSize.width() / 2;
+
+    if (align & (int) Qt::AlignTop)
+        alignPos.ry() -= yOff + ySpacing + textSize.height();
+    else if (align & (int) Qt::AlignBottom)
+        alignPos.ry() += yOff + ySpacing;
+    else
+        alignPos.ry() -= textSize.height() / 2;
+
+    const QRect tr(alignPos, textSize);
+    d_data->label.draw(painter, tr);
 }
 
 /*!
@@ -318,8 +344,13 @@ QwtText QwtPlotMarker::label() const
 /*!
   \brief Set the alignment of the label
 
-  The alignment determines where the label is drawn relative to
-  the marker's position.
+  In case of QwtPlotMarker::HLine the alignment is relative to the
+  y position of the marker, but the horizontal flags correspond to the 
+  canvas rectangle. In case of QwtPlotMarker::VLine the alignment is 
+  relative to the x position of the marker, but the vertical flags
+  correspond to the canvas rectangle.
+
+  In all other styles the alignment is relative to the marker's position.
 
   \param align Alignment. A combination of AlignTop, AlignBottom,
     AlignLeft, AlignRight, AlignCenter, AlgnHCenter,
@@ -350,6 +381,36 @@ Qt::Alignment QwtPlotMarker::labelAlignment() const
 #endif
 { 
     return d_data->align; 
+}
+
+/*!
+  \brief Set the spacing
+
+  When the label is not centered on the marker position, the spacing
+  is the distance between the position and the label.
+
+  \param spacing Spacing
+  \sa spacing(), setLabelAlignment()
+*/
+void QwtPlotMarker::setSpacing(int spacing)
+{
+    if ( spacing < 0 )
+        spacing = 0;
+
+    if ( spacing == d_data->spacing )
+        return;
+
+    d_data->spacing = spacing;
+    itemChanged();
+}
+
+/*!
+  \return the spacing
+  \sa setSpacing()
+*/
+int QwtPlotMarker::spacing() const
+{
+    return d_data->spacing;
 }
 
 /*!
