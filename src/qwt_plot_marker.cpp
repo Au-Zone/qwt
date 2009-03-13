@@ -297,7 +297,7 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
             alignPos.ry() -= textSize.height() / 2;
     }
 
-    painter->translate(alignPos);
+    painter->translate(alignPos.x(), alignPos.y());
     if ( d_data->labelOrientation == Qt::Vertical )
         painter->rotate(-90.0);
 
