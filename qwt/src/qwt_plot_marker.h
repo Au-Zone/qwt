@@ -92,6 +92,9 @@ public:
     Qt::Alignment labelAlignment() const;
 #endif
 
+    void setLabelOrientation(Qt::Orientation);
+    Qt::Orientation labelOrientation() const;
+
     void setSpacing(int);
     int spacing() const;
 
