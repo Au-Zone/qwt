@@ -21,7 +21,8 @@ class QwtPlotMarker::PrivateData
 {
 public:
     PrivateData():
-        align(Qt::AlignCenter),
+        labelAlignment(Qt::AlignCenter),
+        labelOrientation(Qt::Horizontal),
         spacing(2),
         style(NoLine),
         xValue(0.0),
@@ -37,10 +38,11 @@ public:
 
     QwtText label;
 #if QT_VERSION < 0x040000
-    int align;
+    int labelAlignment;
 #else
-    Qt::Alignment align;
+    Qt::Alignment labelAlignment;
 #endif
+    Qt::Orientation labelOrientation;
     int spacing;
 
     QPen pen;
@@ -177,7 +179,7 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
     if (d_data->label.isEmpty())
         return;
 
-    int align = d_data->align;
+    int align = d_data->labelAlignment;
     QPoint alignPos = pos;
 
     QSize symbolOff(0, 0);
@@ -189,13 +191,13 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
             // In VLine-style the y-position is pointless and
             // the alignment flags are relative to the canvas
 
-            if (d_data->align & (int) Qt::AlignTop)
+            if (d_data->labelAlignment & (int) Qt::AlignTop)
             {
                 alignPos.setY(canvasRect.top());
                 align &= ~Qt::AlignTop;
                 align |= Qt::AlignBottom;
             }
-            else if (d_data->align & (int) Qt::AlignBottom)
+            else if (d_data->labelAlignment & (int) Qt::AlignBottom)
             {
                 // In HLine-style the x-position is pointless and
                 // the alignment flags are relative to the canvas
@@ -212,13 +214,13 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
         }
         case QwtPlotMarker::HLine:
         {
-            if (d_data->align & (int) Qt::AlignLeft)
+            if (d_data->labelAlignment & (int) Qt::AlignLeft)
             {
                 alignPos.setX(canvasRect.left());
                 align &= ~Qt::AlignLeft;
                 align |= Qt::AlignRight;
             }
-            else if (d_data->align & (int) Qt::AlignRight)
+            else if (d_data->labelAlignment & (int) Qt::AlignRight)
             {
                 alignPos.setX(canvasRect.right() - 1);
                 align &= ~Qt::AlignRight;
@@ -256,21 +258,51 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
     const QSize textSize = d_data->label.textSize(painter->font());
 
     if ( align & Qt::AlignLeft )
-        alignPos.rx() -= xOff + xSpacing + textSize.width();
+    {
+        alignPos.rx() -= xOff + xSpacing;
+        if ( d_data->labelOrientation == Qt::Vertical )
+            alignPos.rx() -= textSize.height();
+        else
+            alignPos.rx() -= textSize.width();
+    }
     else if ( align & Qt::AlignRight )
+    {
         alignPos.rx() += xOff + xSpacing;
+    }
     else
-        alignPos.rx() -= textSize.width() / 2;
+    {
+        if ( d_data->labelOrientation == Qt::Vertical )
+            alignPos.rx() -= textSize.height() / 2;
+        else
+            alignPos.rx() -= textSize.width() / 2;
+    }
 
     if (align & (int) Qt::AlignTop)
-        alignPos.ry() -= yOff + ySpacing + textSize.height();
+    {
+        alignPos.ry() -= yOff + ySpacing;
+        if ( d_data->labelOrientation != Qt::Vertical )
+            alignPos.ry() -= textSize.height();
+    }
     else if (align & (int) Qt::AlignBottom)
+    {
         alignPos.ry() += yOff + ySpacing;
+        if ( d_data->labelOrientation == Qt::Vertical )
+            alignPos.ry() += textSize.width();
+    }
     else
-        alignPos.ry() -= textSize.height() / 2;
+    {
+        if ( d_data->labelOrientation == Qt::Vertical )
+            alignPos.ry() += textSize.width() / 2;
+        else
+            alignPos.ry() -= textSize.height() / 2;
+    }
 
-    const QRect tr(alignPos, textSize);
-    d_data->label.draw(painter, tr);
+    painter->translate(alignPos);
+    if ( d_data->labelOrientation == Qt::Vertical )
+        painter->rotate(-90.0);
+
+    const QRect textRect(0, 0, textSize.width(), textSize.height());
+    d_data->label.draw(painter, textRect);
 }
 
 /*!
@@ -355,7 +387,7 @@ QwtText QwtPlotMarker::label() const
   \param align Alignment. A combination of AlignTop, AlignBottom,
     AlignLeft, AlignRight, AlignCenter, AlgnHCenter,
     AlignVCenter.  
-  \sa labelAlignment()
+  \sa labelAlignment(), labelOrientation()
 */
 #if QT_VERSION < 0x040000
 void QwtPlotMarker::setLabelAlignment(int align)
@@ -363,16 +395,16 @@ void QwtPlotMarker::setLabelAlignment(int align)
 void QwtPlotMarker::setLabelAlignment(Qt::Alignment align)
 #endif
 {
-    if ( align == d_data->align )
-        return;
-    
-    d_data->align = align;
-    itemChanged();
+    if ( align != d_data->labelAlignment )
+    {
+        d_data->labelAlignment = align;
+        itemChanged();
+    }
 }
 
 /*!
   \return the label alignment
-  \sa setLabelAlignment()
+  \sa setLabelAlignment(), setLabelOrientation()
 */
 #if QT_VERSION < 0x040000
 int QwtPlotMarker::labelAlignment() const 
@@ -380,7 +412,35 @@ int QwtPlotMarker::labelAlignment() const
 Qt::Alignment QwtPlotMarker::labelAlignment() const 
 #endif
 { 
-    return d_data->align; 
+    return d_data->labelAlignment; 
+}
+
+/*!
+  \brief Set the orientation of the label
+
+  When orientation is Qt::Vertical the label is rotated by 90.0 degrees
+  ( from bottom to top ).
+
+  \param orientation Orientation of the label
+
+  \sa labelOrientation(), setLabelAlignment()
+*/
+void QwtPlotMarker::setLabelOrientation(Qt::Orientation orientation)
+{
+    if ( orientation != d_data->labelOrientation )
+    {
+        d_data->labelOrientation = orientation;
+        itemChanged();
+    }
+}
+
+/*!
+  \return the label orientation
+  \sa setLabelOrientation(), labelAlignment()
+*/
+Qt::Orientation QwtPlotMarker::labelOrientation() const
+{
+    return d_data->labelOrientation;
 }
 
 /*!
