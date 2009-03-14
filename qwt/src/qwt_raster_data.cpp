@@ -181,24 +181,42 @@ inline QwtDoublePoint QwtRasterData::ContourPlane::intersection(
     return QwtDoublePoint(x, y);
 }
 
+//! Constructor
 QwtRasterData::QwtRasterData()
 {
 }
 
+/*! 
+   Constructor
+
+   \param boundingRect Bounding rectangle
+   \sa setBoundingRect()
+*/
 QwtRasterData::QwtRasterData(const QwtDoubleRect &boundingRect):
     d_boundingRect(boundingRect)
 {
 }
 
+//! Destructor
 QwtRasterData::~QwtRasterData()
 {
 }
 
+/*!
+   Set the bounding rect ( == area, un plot coordinates )
+
+   \param boundingRect Bounding rectangle
+   \sa boundingRect()
+*/
 void QwtRasterData::setBoundingRect(const QwtDoubleRect &boundingRect)
 {
     d_boundingRect = boundingRect;
 }
 
+/*!
+   \return Bounding rectangle
+   \sa boundingRect()
+*/
 QwtDoubleRect QwtRasterData::boundingRect() const
 {
     return d_boundingRect;

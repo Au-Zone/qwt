@@ -343,7 +343,10 @@ QSize QwtPlot::minimumSizeHint() const
     return hint;
 }
 
-//! Resize and update internal layout
+/*! 
+  Resize and update internal layout
+  \param e Resize event
+*/
 void QwtPlot::resizeEvent(QResizeEvent *e)
 {
     QFrame::resizeEvent(e);

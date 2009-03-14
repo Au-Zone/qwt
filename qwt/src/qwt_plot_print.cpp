@@ -185,7 +185,7 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
 
         const QwtScaleDiv &scaleDiv = *axisScaleDiv(axisId);
         map[axisId].setScaleInterval(
-			scaleDiv.lowerBound(), scaleDiv.upperBound());
+            scaleDiv.lowerBound(), scaleDiv.upperBound());
 
         double from, to;
         if ( axisEnabled(axisId) )

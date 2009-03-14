@@ -253,6 +253,8 @@ inline QMap<QWidget *, const QwtLegendItemManager *> &
 } 
 
 /*!
+  Constructor
+
   \param parent Parent widget
 */
 QwtLegend::QwtLegend(QWidget *parent): 
@@ -291,7 +293,7 @@ QwtLegend::~QwtLegend()
   \param policy Legend display policy
   \param mode Identifier mode (or'd ShowLine, ShowSymbol, ShowText)
 
-  \sa displayPolicy, LegendDisplayPolicy
+  \sa displayPolicy(), LegendDisplayPolicy
 */
 void QwtLegend::setDisplayPolicy(LegendDisplayPolicy policy, int mode)
 {
@@ -318,7 +320,7 @@ void QwtLegend::setDisplayPolicy(LegendDisplayPolicy policy, int mode)
 /*! 
   \return the legend display policy.
   Default is LegendDisplayPolicy::Auto.
-  \sa setDisplayPolicy, LegendDisplayPolicy
+  \sa setDisplayPolicy(), LegendDisplayPolicy
 */ 
 
 QwtLegend::LegendDisplayPolicy QwtLegend::displayPolicy() const 
@@ -342,7 +344,6 @@ QwtLegend::LegendItemMode QwtLegend::itemMode() const
 
   Default is ShowLine | ShowSymbol | ShowText.
 */
-
 int QwtLegend::identifierMode() const
 {
     return d_data->identifierMode;
@@ -357,11 +358,19 @@ QWidget *QwtLegend::contentsWidget()
     return d_data->view->contentsWidget; 
 }
 
+/*! 
+  \return Horizontal scrollbar
+  \sa verticalScrollBar()
+*/
 QScrollBar *QwtLegend::horizontalScrollBar() const
 {
     return d_data->view->horizontalScrollBar();
 }
 
+/*! 
+  \return Vertical scrollbar
+  \sa horizontalScrollBar()
+*/
 QScrollBar *QwtLegend::verticalScrollBar() const
 {
     return d_data->view->verticalScrollBar();
@@ -371,7 +380,6 @@ QScrollBar *QwtLegend::verticalScrollBar() const
   The contents widget is the only child of the viewport() and
   the parent widget of all legend items.
 */
-
 const QWidget *QwtLegend::contentsWidget() const 
 { 
     return d_data->view->contentsWidget; 
@@ -568,13 +576,12 @@ void QwtLegend::layoutContents()
     }
 }
 
-/*
+/*!
   Filter layout related events of QwtLegend::contentsWidget().
 
   \param o Object to be filtered
   \param e Event
 */
-
 bool QwtLegend::eventFilter(QObject *o, QEvent *e)
 {
     if ( o == d_data->view->contentsWidget )
@@ -625,6 +632,7 @@ uint QwtLegend::itemCount() const
     return d_data->map.count();
 }
 
+//! Return a list of all legend items
 #if QT_VERSION < 0x040000
 QValueList<QWidget *> QwtLegend::legendItems() const
 #else
@@ -649,7 +657,7 @@ QList<QWidget *> QwtLegend::legendItems() const
 
 /*!
    Resize event
-   \param e Event
+   \param e Resize event
 */
 void QwtLegend::resizeEvent(QResizeEvent *e)
 {

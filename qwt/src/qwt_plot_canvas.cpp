@@ -208,9 +208,13 @@ QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
     return d_data->focusIndicator;
 }
 
-void QwtPlotCanvas::hideEvent(QHideEvent *e)
+/*!
+  Hide event
+  \param event Hide event
+*/
+void QwtPlotCanvas::hideEvent(QHideEvent *event)
 {
-    QFrame::hideEvent(e);
+    QFrame::hideEvent(event);
 
     if ( d_data->paintAttributes & PaintPacked )
     {
@@ -221,7 +225,10 @@ void QwtPlotCanvas::hideEvent(QHideEvent *e)
     }
 }
 
-//! Paint event
+/*!
+  Paint event
+  \param event Paint event
+*/
 void QwtPlotCanvas::paintEvent(QPaintEvent *event)
 {
 #if QT_VERSION >= 0x040000
@@ -246,7 +253,10 @@ void QwtPlotCanvas::paintEvent(QPaintEvent *event)
         setSystemBackground(false);
 }
 
-//! Redraw the canvas, and focus rect
+/*! 
+  Redraw the canvas, and focus rect
+  \param painter Painter
+*/
 void QwtPlotCanvas::drawContents(QPainter *painter)
 {
     if ( d_data->paintAttributes & PaintCached && d_data->cache 
@@ -275,9 +285,10 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
   Paints all plot items to the contentsRect(), using QwtPlot::drawCanvas
   and updates the paint cache.
 
+  \param painter Painter
+
   \sa QwtPlot::drawCanvas, setPaintAttributes(), testPaintAttributes()
 */
-
 void QwtPlotCanvas::drawCanvas(QPainter *painter)
 {
     if ( !contentsRect().isValid() )
@@ -346,7 +357,10 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
     }
 }
 
-//! Draw the focus indication
+/*! 
+  Draw the focus indication
+  \param painter Painter
+*/
 void QwtPlotCanvas::drawFocusIndicator(QPainter *painter)
 {
     const int margin = 1;

@@ -342,9 +342,17 @@ const QwtScaleDiv &QwtPlotGrid::yScaleDiv() const
     return d_data->yScaleDiv; 
 }
  
-void QwtPlotGrid::updateScaleDiv(const QwtScaleDiv& xDiv,
-    const QwtScaleDiv& yDiv)
+/*!
+   Update the grid to changes of the axes scale division
+
+   \param xScaleDiv Scale division of the x-axis
+   \param yScaleDiv Scale division of the y-axis
+
+   \sa QwtPlot::updateAxes()
+*/
+void QwtPlotGrid::updateScaleDiv(const QwtScaleDiv& xScaleDiv,
+    const QwtScaleDiv& yScaleDiv)
 {
-    setXDiv(xDiv);
-    setYDiv(yDiv);
+    setXDiv(xScaleDiv);
+    setYDiv(yScaleDiv);
 }

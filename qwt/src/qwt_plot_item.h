@@ -31,6 +31,12 @@ class QwtScaleDiv;
 class QWT_EXPORT QwtPlotItem: public QwtLegendItemManager
 {
 public:
+    /*!
+        \brief Runtime type information
+  
+        RttiValues is used to cast plot items, without
+        having to enable runtime type information of the compiler.
+     */
     enum RttiValues
     { 
         Rtti_PlotItem = 0,
@@ -47,6 +53,18 @@ public:
         Rtti_PlotUserItem = 1000
     };
 
+    /*!
+       Valid attributes are:
+       <dl>
+       <dt>Legend</dt>
+       <dd>The item is represented on the legend.</dd>
+       <dt>AutoScale</dt> 
+       <dd>The boundingRect() of the item is included in the 
+           autoscaling calculation.</dd>
+       </dl>
+
+       \sa setItemAttribute(), testItemAttribute()
+     */
     enum ItemAttribute
     {
         Legend = 1,
