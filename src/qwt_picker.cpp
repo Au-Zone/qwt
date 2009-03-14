@@ -773,11 +773,21 @@ void QwtPicker::drawTracker(QPainter *painter) const
     }
 }
 
+//! \return Current position of the tracker
 QPoint QwtPicker::trackerPosition() const 
 {
     return d_data->trackerPosition;
 }
 
+/*!
+   Calculate the bounding rectangle for the tracker text
+   from the current position of the tracker
+
+   \param font Font of the tracker text
+   \return Bounding rectangle of the tracker text
+
+   \sa trackerPosition()
+*/
 QRect QwtPicker::trackerRect(const QFont &font) const
 {
     if ( trackerMode() == AlwaysOff || 
@@ -1357,6 +1367,7 @@ QRect QwtPicker::pickRect() const
     return rect;
 }
 
+//! Update the state of rubberband and tracker label
 void QwtPicker::updateDisplay()
 {
     QWidget *w = parentWidget();
@@ -1416,11 +1427,13 @@ void QwtPicker::updateDisplay()
         delete tw;
 }
 
+//! \return Widget displaying the rubberband
 const QWidget *QwtPicker::rubberBandWidget() const
 {
     return d_data->rubberBandWidget;
 }
 
+//! \return Widget displaying the tracker text
 const QWidget *QwtPicker::trackerWidget() const
 {
     return d_data->trackerWidget;

@@ -30,6 +30,7 @@ class QwtDoubleInterval;
 class QWT_EXPORT QwtScaleDiv
 {
 public:
+    //! Scale tick types
     enum TickType
     {
         NoTick = -1,
@@ -78,8 +79,8 @@ private:
 
 /*!
    Change the interval
-   \lowerBound lower bound
-   \upperBound upper bound
+   \param lowerBound lower bound
+   \param upperBound upper bound
 */
 inline void QwtScaleDiv::setInterval(double lowerBound, double upperBound)
 {
@@ -97,7 +98,7 @@ inline QwtDoubleInterval QwtScaleDiv::interval() const
 
 /*! 
   \return lower bound
-  \sa QwtScaleDiv::upperBound
+  \sa upperBound()
 */
 inline double QwtScaleDiv::lowerBound() const 
 { 
@@ -106,7 +107,7 @@ inline double QwtScaleDiv::lowerBound() const
 
 /*! 
   \return upper bound
-  \sa QwtScaleDiv::lowerBound
+  \sa lowerBound()
 */
 inline double QwtScaleDiv::upperBound() const 
 { 

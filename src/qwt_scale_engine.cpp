@@ -525,10 +525,8 @@ QwtValueList QwtLinearScaleEngine::buildMajorTicks(
     const QwtDoubleInterval &interval, double stepSize) const
 {
     int numTicks = qRound(interval.width() / stepSize) + 1;
-#if 1
     if ( numTicks > 10000 )
         numTicks = 10000;
-#endif
 
     QwtValueList ticks;
 

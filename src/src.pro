@@ -18,20 +18,20 @@ VVERSION = $$[QT_VERSION]
 isEmpty(VVERSION) {
 
     # Qt 3
-	debug {
-		SUFFIX_STR = $${DEBUG_SUFFIX}
-	}
-	else {
-		SUFFIX_STR = $${RELEASE_SUFFIX} 
-	}
+    debug {
+        SUFFIX_STR = $${DEBUG_SUFFIX}
+    }
+    else {
+        SUFFIX_STR = $${RELEASE_SUFFIX} 
+    }
 }
 else {
-	CONFIG(debug, debug|release) {
-    	SUFFIX_STR = $${DEBUG_SUFFIX}
-	}
-	else {
-    	SUFFIX_STR = $${RELEASE_SUFFIX}
-	}
+    CONFIG(debug, debug|release) {
+        SUFFIX_STR = $${DEBUG_SUFFIX}
+    }
+    else {
+        SUFFIX_STR = $${RELEASE_SUFFIX}
+    }
 }
 
 TARGET            = qwt$${SUFFIX_STR}

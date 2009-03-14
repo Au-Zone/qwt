@@ -56,6 +56,10 @@ class QwtCurveFitter;
 class QWT_EXPORT QwtPlotCurve: public QwtPlotItem
 {
 public:
+    /*! 
+        Curve type. 
+        \sa setCurveType(), curveType()
+     */
     enum CurveType
     {
         Yfx,
@@ -64,7 +68,7 @@ public:
 
     /*! 
         Curve styles. 
-        \sa setStyle
+        \sa setStyle(), style()
     */
     enum CurveStyle
     {
@@ -80,7 +84,7 @@ public:
 
     /*! 
         Curve attributes. 
-        \sa setCurveAttribute, testCurveAttribute
+        \sa setCurveAttribute(), testCurveAttribute()
     */
     enum CurveAttribute
     {
@@ -90,7 +94,7 @@ public:
 
     /*! 
         Paint attributes 
-        \sa setPaintAttribute, testPaintAttribute
+        \sa setPaintAttribute(), testPaintAttribute()
     */
     enum PaintAttribute
     {

@@ -308,7 +308,7 @@ void QwtPlotCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 
 /*!
     \brief Return the current paint attributes
-    \sa setPaintAttribute
+    \sa setPaintAttribute()
 */
 bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
 {
@@ -325,7 +325,7 @@ bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
   <dt>Lines</dt>
   <dd>Connect the points with straight lines. The lines might
       be interpolated depending on the 'Fitted' option. Curve
-      fitting can be configured using setCurveFitter.</dd>
+      fitting can be configured using setCurveFitter().</dd>
   <dt>Sticks</dt>
   <dd>Draw vertical sticks from a baseline which is defined by setBaseline().</dd>
   <dt>Steps</dt>
@@ -340,6 +340,8 @@ bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
       classes of QwtPlotCurve that overload drawCurve() with
       additional application specific curve types.</dd>
   </dl>
+
+  \param style Curve style
   \sa style()
 */
 void QwtPlotCurve::setStyle(CurveStyle style)
@@ -514,7 +516,7 @@ void QwtPlotCurve::setData(const QwtData &data)
   \param yData pointer to y data
   \param size size of x and y
 
-  \sa QwtCPointerData::setData.
+  \sa QwtCPointerData::setData().
 */
 void QwtPlotCurve::setRawData(const double *xData, const double *yData, int size)
 {
@@ -1079,6 +1081,7 @@ bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const
 /*!
   Assign the curve type
 
+  <dl>
   <dt>QwtPlotCurve::Yfx
   <dd>Draws y as a function of x (the default). The
       baseline is interpreted as a horizontal line
@@ -1086,6 +1089,7 @@ bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const
   <dt>QwtPlotCurve::Xfy
   <dd>Draws x as a function of y. The baseline is
       interpreted as a vertical line with x = baseline().</dd>
+  </dl>
 
   The baseline is used for aligning the sticks, or
   filling the curve with a brush.
@@ -1110,6 +1114,12 @@ QwtPlotCurve::CurveType QwtPlotCurve::curveType() const
     return d_data->curveType;
 }
 
+/*!
+  Assign a curve fitter
+  setCurveFitter(NULL) disables curve fitting.
+
+  \param curveFitter Curve fitter
+*/
 void QwtPlotCurve::setCurveFitter(QwtCurveFitter *curveFitter)
 {
     delete d_data->curveFitter;
@@ -1118,6 +1128,10 @@ void QwtPlotCurve::setCurveFitter(QwtCurveFitter *curveFitter)
     itemChanged();
 }
 
+/*!
+  Get the curve fitter. If curve fitting is disabled NULL is returned.
+  \return Curve fitter
+*/
 QwtCurveFitter *QwtPlotCurve::curveFitter() const
 {
     return d_data->curveFitter;
@@ -1134,7 +1148,6 @@ QwtCurveFitter *QwtPlotCurve::curveFitter() const
 
   \sa setBrush(), setBaseline(), setCurveType()
 */
-
 void QwtPlotCurve::fillCurve(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     QwtPolygon &pa) const
@@ -1168,7 +1181,6 @@ void QwtPlotCurve::fillCurve(QPainter *painter,
   \param yMap Y map
   \param pa Polygon to be completed
 */
-
 void QwtPlotCurve::closePolyline(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     QwtPolygon &pa) const

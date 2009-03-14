@@ -126,7 +126,7 @@ public:
     static bool isSVGMode();
 #endif
 
-	static QPen scaledPen(const QPen &);
+    static QPen scaledPen(const QPen &);
 
 private:
     static void drawColoredArc(QPainter *, const QRect &,

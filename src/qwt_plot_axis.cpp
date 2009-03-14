@@ -140,7 +140,10 @@ void QwtPlot::setAxisScaleEngine(int axisId, QwtScaleEngine *scaleEngine)
     }
 }
 
-//! \return Scale engine for a specific axis
+/*! 
+  \param axisId axis index
+  \return Scale engine for a specific axis
+*/
 QwtScaleEngine *QwtPlot::axisScaleEngine(int axisId)
 {
     if (axisValid(axisId))
@@ -149,7 +152,10 @@ QwtScaleEngine *QwtPlot::axisScaleEngine(int axisId)
         return NULL;
 }
 
-//! \return Scale engine for a specific axis
+/*! 
+  \param axisId axis index
+  \return Scale engine for a specific axis
+*/
 const QwtScaleEngine *QwtPlot::axisScaleEngine(int axisId) const
 {
     if (axisValid(axisId))

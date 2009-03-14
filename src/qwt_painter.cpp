@@ -759,7 +759,7 @@ QPen QwtPainter::scaledPen(const QPen &pen)
             pw = 1;
 
         sPen.setWidth(QwtPainter::metricsMap().screenToLayoutX(pw));
-		sPen.setCosmetic(true);
+        sPen.setCosmetic(true);
     }
 
     return sPen;

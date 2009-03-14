@@ -922,7 +922,16 @@ void QwtDial::setScaleOptions(int options)
         options & ScaleLabel);
 }
 
-//! See: QwtAbstractScaleDraw::setTickLength, QwtDialScaleDraw::setPenWidth
+/*! 
+  Assign length and width of the ticks
+
+  \param minLen Length of the minor ticks
+  \param medLen Length of the medium ticks
+  \param majLen Length of the major ticks
+  \param penWidth Width of the pen for all ticks
+
+  \sa QwtAbstractScaleDraw::setTickLength(), QwtDialScaleDraw::setPenWidth()
+*/
 void QwtDial::setScaleTicks(int minLen, int medLen, 
     int majLen, int penWidth)
 {
@@ -1172,15 +1181,21 @@ double QwtDial::getValue(const QPoint &pos)
 }
 
 /*!
-  \sa QwtAbstractSlider::getScrollMode
+  See QwtAbstractSlider::getScrollMode()
+
+  \param pos point where the mouse was pressed
+  \retval scrollMode The scrolling mode
+  \retval direction  direction: 1, 0, or -1.
+
+  \sa QwtAbstractSlider::getScrollMode()
 */
-void QwtDial::getScrollMode(const QPoint &p, int &scrollMode, int &direction)
+void QwtDial::getScrollMode(const QPoint &pos, int &scrollMode, int &direction)
 {
     direction = 0;
     scrollMode = ScrNone;
 
     const QRegion region(contentsRect(), QRegion::Ellipse);
-    if ( region.contains(p) && p != rect().center() )
+    if ( region.contains(pos) && pos != rect().center() )
     {
         scrollMode = ScrMouse;
         d_data->previousDir = -1.0;
@@ -1204,13 +1219,14 @@ void QwtDial::getScrollMode(const QPoint &p, int &scrollMode, int &direction)
   - Key_End\n
     Set the value to maxValue()
 
+  \param event Key event
   \sa isReadOnly()
 */
-void QwtDial::keyPressEvent(QKeyEvent *e)
+void QwtDial::keyPressEvent(QKeyEvent *event)
 {
     if ( isReadOnly() )
     {
-        e->ignore();
+        event->ignore();
         return;
     }
 
@@ -1218,7 +1234,7 @@ void QwtDial::keyPressEvent(QKeyEvent *e)
         return;
 
     double previous = prevValue();
-    switch ( e->key() )
+    switch ( event->key() )
     {
         case Qt::Key_Down:
         case Qt::Key_Left:
@@ -1250,7 +1266,7 @@ void QwtDial::keyPressEvent(QKeyEvent *e)
             setValue(maxValue());
             break;
         default:;
-            e->ignore();
+            event->ignore();
     }
 
     if (value() != previous)
