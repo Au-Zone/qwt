@@ -56,7 +56,7 @@ QwtScaleDiv::QwtScaleDiv(
 
 /*!
    Change the interval
-   \interval Interval
+   \param interval Interval
 */
 void QwtScaleDiv::setInterval(const QwtDoubleInterval &interval)
 {
@@ -112,7 +112,13 @@ bool QwtScaleDiv::isValid() const
     return d_isValid;
 }
 
-bool QwtScaleDiv::contains(double v) const
+/*!
+  Return if a value is between lowerBound() and upperBound()
+
+  \param value Value
+  \return true/false
+*/ 
+bool QwtScaleDiv::contains(double value) const
 {
     if ( !d_isValid )
         return false;
@@ -120,7 +126,7 @@ bool QwtScaleDiv::contains(double v) const
     const double min = qwtMin(d_lowerBound, d_upperBound);
     const double max = qwtMax(d_lowerBound, d_upperBound);
 
-    return v >= min && v <= max;
+    return value >= min && value <= max;
 }
 
 //! Invert the scale divison

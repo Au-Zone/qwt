@@ -845,9 +845,9 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
 
                 int d = scaleData.dimWithoutTitle;
                 if ( !scaleData.scaleWidget->title().isEmpty() )
-				{
+                {
                     d += scaleData.scaleWidget->titleHeightForWidth(length);
-				}
+                }
 
 
                 if ( d > dimAxis[axis] )

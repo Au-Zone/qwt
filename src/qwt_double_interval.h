@@ -21,6 +21,20 @@
 class QWT_EXPORT QwtDoubleInterval
 {
 public:
+    /*!
+      Flag indicating if a border is included/excluded from an interval
+
+      - IncludeBorders\n
+        min/max values are inside the interval
+      - ExcludeMinimum\n
+        min value is not included in the interval
+      - ExcludeMaximum\n
+        max value is not included in the interval
+      - ExcludeBorders\n
+        min/max values are not included in the interval
+  
+      \sa setBorderMode(), testBorderMode() 
+    */
     enum BorderMode
     {
         IncludeBorders = 0,
@@ -47,9 +61,6 @@ public:
 
     inline void setBorderFlags(int);
     inline int borderFlags() const;
-
-    inline void setBorderMode(BorderMode, bool on = true);
-    inline bool testBorderMode() const;
 
     inline double minValue() const;
     inline double maxValue() const;
@@ -132,11 +143,21 @@ inline void QwtDoubleInterval::setInterval(
     d_borderFlags = borderFlags;
 }
 
+/*!
+   Change the border flags
+
+   \param borderFlags Or'd BorderMode flags
+   \sa borderFlags()
+*/
 inline void QwtDoubleInterval::setBorderFlags(int borderFlags)
 {
     d_borderFlags = borderFlags;
 }
 
+/*!
+   \return Border flags
+   \sa setBorderFlags()
+*/
 inline int QwtDoubleInterval::borderFlags() const
 {
     return d_borderFlags; 
@@ -235,6 +256,11 @@ inline bool QwtDoubleInterval::isNull() const
     return isValid() && d_minValue >= d_maxValue;
 }
 
+/*! 
+   A interval is valid when minValue() <= maxValue().
+   In case of QwtDoubleInterval::ExcludeBorders it is true
+   when minValue() < maxValue()
+*/
 inline bool QwtDoubleInterval::isValid() const
 {
     if ( (d_borderFlags & ExcludeBorders) == 0 )

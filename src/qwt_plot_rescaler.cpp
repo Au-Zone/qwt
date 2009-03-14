@@ -37,7 +37,6 @@ public:
     PrivateData():
         referenceAxis(QwtPlot::xBottom),
         rescalePolicy(QwtPlotRescaler::Expanding),
-        ratioMM(0.0),
         isEnabled(false),
         inReplot(0)
     {
@@ -45,13 +44,21 @@ public:
 
     int referenceAxis;
     RescalePolicy rescalePolicy;
-    double ratioMM;
     QwtPlotRescaler::AxisData axisData[QwtPlot::axisCnt];
     bool isEnabled;
 
     mutable int inReplot;
 };
 
+/*!
+   Constructor
+
+   \param canvas Canvas
+   \param referenceAxis Reference axis, see RescalePolicy
+   \param policy Rescale policy
+
+   \sa setRescalePolicy(), setReferenceAxis()
+*/
 QwtPlotRescaler::QwtPlotRescaler(QwtPlotCanvas *canvas,
         int referenceAxis, RescalePolicy policy):
     QObject(canvas)
@@ -63,16 +70,17 @@ QwtPlotRescaler::QwtPlotRescaler(QwtPlotCanvas *canvas,
     setEnabled(true);
 }
 
+//! Destructor
 QwtPlotRescaler::~QwtPlotRescaler()
 {
     delete d_data;
 }
 
 /*!
-  \brief En/disable the panner
+  \brief En/disable the rescaler
 
   When enabled is true an event filter is installed for
-  the observed widget, otherwise the event filter is removed.
+  the canvas, otherwise the event filter is removed.
 
   \param on true or false
   \sa isEnabled(), eventFilter()
@@ -103,26 +111,52 @@ bool QwtPlotRescaler::isEnabled() const
     return d_data->isEnabled;
 }
 
+/*!
+  Change the rescale policy
+
+  \param policy Rescale policy
+  \sa rescalePolicy()
+*/
 void QwtPlotRescaler::setRescalePolicy(RescalePolicy policy)
 {
     d_data->rescalePolicy = policy;
 }
 
+/*!
+  \return Rescale policy
+  \sa setRescalePolicy()
+*/
 QwtPlotRescaler::RescalePolicy QwtPlotRescaler::rescalePolicy() const
 {
     return d_data->rescalePolicy;
 }
 
+/*!
+  Set the referenca axis ( see RescalePolicy )
+
+  \param axis Axis index ( QwtPlot::Axis )
+  \sa referenceAxis()
+*/
 void QwtPlotRescaler::setReferenceAxis(int axis)
 {
     d_data->referenceAxis = axis;
 }
 
+/*!
+  \return Reference axis ( see RescalePolicy )
+  \sa setReferenceAxis()
+*/
 int QwtPlotRescaler::referenceAxis() const
 {
     return d_data->referenceAxis;
 }
 
+/*!
+  Set the direction in which all axis should be expanded
+
+  \param direction Direction
+  \sa expandingDirection()
+*/
 void QwtPlotRescaler::setExpandingDirection(
     ExpandingDirection direction)
 {
@@ -130,6 +164,13 @@ void QwtPlotRescaler::setExpandingDirection(
         setExpandingDirection(axis, direction);
 }
 
+/*!
+  Set the direction in which an axis should be expanded
+
+  \param axis Axis index ( see QwtPlot::AxisId )
+  \param direction Direction
+  \sa expandingDirection()
+*/
 void QwtPlotRescaler::setExpandingDirection(
     int axis, ExpandingDirection direction)
 {
@@ -137,6 +178,12 @@ void QwtPlotRescaler::setExpandingDirection(
         d_data->axisData[axis].expandingDirection = direction;
 }
 
+/*!
+  Return direction in which an axis should be expanded
+
+  \param axis Axis index ( see QwtPlot::AxisId )
+  \sa setExpandingDirection()
+*/
 QwtPlotRescaler::ExpandingDirection
 QwtPlotRescaler::expandingDirection(int axis) const
 {
@@ -146,12 +193,27 @@ QwtPlotRescaler::expandingDirection(int axis) const
     return ExpandBoth;
 }
 
+/*!
+  Set the aspect ratio between the scale of the reference axis
+  and the other scales. The default ratio is 1.0
+
+  \param ratio Aspect ratio
+  \sa aspectRatio()
+*/
 void QwtPlotRescaler::setAspectRatio(double ratio)
 {
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
         setAspectRatio(axis, ratio);
 }
 
+/*!
+  Set the aspect ratio between the scale of the reference axis
+  and another scale. The default ratio is 1.0
+
+  \param axis Axis index ( see QwtPlot::AxisId )
+  \param ratio Aspect ratio
+  \sa aspectRatio()
+*/
 void QwtPlotRescaler::setAspectRatio(int axis, double ratio)
 {
     if ( ratio < 0.0 )
@@ -161,25 +223,18 @@ void QwtPlotRescaler::setAspectRatio(int axis, double ratio)
         d_data->axisData[axis].aspectRatio = ratio;
 }
 
+/*!
+  Return aspect ratio between an axis and the reference axis.
+
+  \param axis Axis index ( see QwtPlot::AxisId )
+  \sa setAspectRatio()
+*/
 double QwtPlotRescaler::aspectRatio(int axis) const
 {
     if ( axis >= 0 && axis < QwtPlot::axisCnt )
         return d_data->axisData[axis].aspectRatio;
 
     return 0.0;
-}
-
-void QwtPlotRescaler::setRatioMM(double ratio)
-{
-    if ( ratio < 0.0 )
-        ratio = 0.0;
-
-    d_data->ratioMM = ratio;
-}
-
-double QwtPlotRescaler::ratioMM() const
-{
-    return d_data->ratioMM;
 }
 
 void QwtPlotRescaler::setIntervalHint(int axis, 
@@ -197,6 +252,7 @@ QwtDoubleInterval QwtPlotRescaler::intervalHint(int axis) const
     return QwtDoubleInterval();
 }
 
+//! \return plot canvas
 QwtPlotCanvas *QwtPlotRescaler::canvas()
 {
     QObject *o = parent();
@@ -206,11 +262,13 @@ QwtPlotCanvas *QwtPlotRescaler::canvas()
     return NULL;
 }
 
+//! \return plot canvas
 const QwtPlotCanvas *QwtPlotRescaler::canvas() const
 {
     return ((QwtPlotRescaler *)this)->canvas();
 }
 
+//! \return plot widget
 QwtPlot *QwtPlotRescaler::plot()
 {
     QObject *w = canvas();
@@ -224,11 +282,13 @@ QwtPlot *QwtPlotRescaler::plot()
     return NULL;
 }
 
+//! \return plot widget
 const QwtPlot *QwtPlotRescaler::plot() const
 {
     return ((QwtPlotRescaler *)this)->plot();
 }
 
+//!  Event filter for the plot canvas
 bool QwtPlotRescaler::eventFilter(QObject *o, QEvent *e)
 {
     if ( o && o == canvas() )
@@ -259,6 +319,7 @@ void QwtPlotRescaler::canvasResizeEvent(QResizeEvent* e)
     rescale(oldSize, newSize);
 }
 
+//! Adjust the plot axes scales
 void QwtPlotRescaler::rescale() const
 {
 #if 0
@@ -283,6 +344,12 @@ void QwtPlotRescaler::rescale() const
     rescale(size, size);
 }
 
+/*! 
+   Adjust the plot axes scales
+
+   \param oldSize Previous size of the canvas
+   \param newSize New size of the canvas
+*/
 void QwtPlotRescaler::rescale(
     const QSize &oldSize, const QSize &newSize) const
 {
@@ -305,6 +372,15 @@ void QwtPlotRescaler::rescale(
     updateScales(intervals);
 }
 
+/*!
+  Calculate the new scale interval of a plot axis
+
+  \param axis Axis index ( see QwtPlot::AxisId )
+  \param oldSize Previous size of the canvas
+  \param newSize New size of the canvas
+
+  \return Calculated new interval for the axis
+*/
 QwtDoubleInterval QwtPlotRescaler::expandScale( int axis,
     const QSize &oldSize, const QSize &newSize) const
 {
@@ -359,6 +435,13 @@ QwtDoubleInterval QwtPlotRescaler::expandScale( int axis,
     return expanded;
 }
 
+/*!
+   Synchronize an axis scale according to the scale of the reference axis
+
+  \param axis Axis index ( see QwtPlot::AxisId )
+  \param reference Interval of the reference axis
+  \param size Size of the canvas
+*/
 QwtDoubleInterval QwtPlotRescaler::syncScale(int axis, 
     const QwtDoubleInterval& reference, const QSize &size) const 
 {
@@ -386,6 +469,10 @@ QwtDoubleInterval QwtPlotRescaler::syncScale(int axis,
     return intv;
 }
 
+/*!
+  Return orientation of an axis
+  \param axis Axis index ( see QwtPlot::AxisId )
+*/
 Qt::Orientation QwtPlotRescaler::orientation(int axis) const
 {
     if ( axis == QwtPlot::yLeft || axis == QwtPlot::yRight )
@@ -394,6 +481,10 @@ Qt::Orientation QwtPlotRescaler::orientation(int axis) const
     return Qt::Horizontal;
 }
 
+/*!
+  Return interval of an axis
+  \param axis Axis index ( see QwtPlot::AxisId )
+*/
 QwtDoubleInterval QwtPlotRescaler::interval(int axis) const
 {
     if ( axis < 0 || axis >= QwtPlot::axisCnt )
@@ -407,6 +498,15 @@ QwtDoubleInterval QwtPlotRescaler::interval(int axis) const
     return QwtDoubleInterval(v1, v2).normalized();
 }
 
+/*! 
+  Expand the interval
+
+  \param interval Interval to be expanded
+  \param width Distance to be added to the interval
+  \param direction Direction of the expand operation
+
+  \return Expanded interval
+*/
 QwtDoubleInterval QwtPlotRescaler::expandInterval(
     const QwtDoubleInterval &interval, double width,    
     ExpandingDirection direction) const
@@ -460,6 +560,11 @@ double QwtPlotRescaler::pixelDist(int axis, const QSize &size) const
     return dist;
 }
 
+/*!
+   Update the axes scales 
+
+   \param intervals Scale intervals
+*/
 void QwtPlotRescaler::updateScales(
     QwtDoubleInterval intervals[QwtPlot::axisCnt]) const
 {

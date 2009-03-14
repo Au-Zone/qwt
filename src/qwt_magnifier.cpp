@@ -462,6 +462,7 @@ void QwtMagnifier::widgetKeyReleaseEvent(QKeyEvent *)
 {
 }
 
+//! \return Parent widget, where the rescaling happens
 QWidget *QwtMagnifier::parentWidget()
 {
     if ( parent()->inherits("QWidget") )
@@ -470,6 +471,7 @@ QWidget *QwtMagnifier::parentWidget()
     return NULL;
 }
 
+//! \return Parent widget, where the rescaling happens
 const QWidget *QwtMagnifier::parentWidget() const
 {
     if ( parent()->inherits("QWidget") )

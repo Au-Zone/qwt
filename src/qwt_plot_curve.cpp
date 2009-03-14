@@ -297,7 +297,7 @@ void QwtPlotCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 
 /*!
     \brief Return the current paint attributes
-    \sa setPaintAttribute
+    \sa setPaintAttribute()
 */
 bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
 {
@@ -314,7 +314,7 @@ bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
   <dt>Lines</dt>
   <dd>Connect the points with straight lines. The lines might
       be interpolated depending on the 'Fitted' option. Curve
-      fitting can be configured using setCurveFitter.</dd>
+      fitting can be configured using setCurveFitter().</dd>
   <dt>Sticks</dt>
   <dd>Draw vertical sticks from a baseline which is defined by setBaseline().</dd>
   <dt>Steps</dt>
@@ -329,6 +329,8 @@ bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
       classes of QwtPlotCurve that overload drawCurve() with
       additional application specific curve types.</dd>
   </dl>
+
+  \param style Curve style
   \sa style()
 */
 void QwtPlotCurve::setStyle(CurveStyle style)

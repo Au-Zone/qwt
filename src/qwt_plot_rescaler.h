@@ -20,8 +20,8 @@ class QwtPlot;
 class QResizeEvent;
 
 /*!
-    \brief QwtPlotRescaler adjusts the axes of a QwtPlot according
-           to fixed aspect ratios.
+    QwtPlotRescaler autoadjusts the axes of a QwtPlot according
+    to fixed aspect ratios.
 */
 
 class QWT_EXPORT QwtPlotRescaler: public QObject
@@ -89,9 +89,6 @@ public:
     void setAspectRatio(double ratio);
     void setAspectRatio(int axis, double ratio);
     double aspectRatio(int axis) const;
-
-    void setRatioMM(double ratio);
-    double ratioMM() const;
 
     void setIntervalHint(int axis, const QwtDoubleInterval&);
     QwtDoubleInterval intervalHint(int axis) const;

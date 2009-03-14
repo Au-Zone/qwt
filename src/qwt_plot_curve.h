@@ -74,7 +74,7 @@ public:
 
     /*! 
         Curve attributes. 
-        \sa setCurveAttribute, testCurveAttribute
+        \sa setCurveAttribute(), testCurveAttribute()
     */
     enum CurveAttribute
     {
@@ -84,7 +84,7 @@ public:
 
     /*! 
         Paint attributes 
-        \sa setPaintAttribute, testPaintAttribute
+        \sa setPaintAttribute(), testPaintAttribute()
     */
     enum PaintAttribute
     {
