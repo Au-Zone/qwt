@@ -200,6 +200,7 @@ QwtDoubleInterval QwtDoubleInterval::intersect(
     return intersected;
 }
 
+//! Unites this interval with the given interval.
 QwtDoubleInterval& QwtDoubleInterval::operator|=(
     const QwtDoubleInterval &interval)
 {
@@ -207,6 +208,7 @@ QwtDoubleInterval& QwtDoubleInterval::operator|=(
     return *this;
 }
 
+//! Intersects this interval with the given interval.
 QwtDoubleInterval& QwtDoubleInterval::operator&=(
     const QwtDoubleInterval &interval) 
 {

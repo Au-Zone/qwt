@@ -165,14 +165,14 @@ public:
 
 };
 
-//! Ctor
+//! Constructor
 QwtScaleEngine::QwtScaleEngine()
 {
     d_data = new PrivateData;
 }
 
 
-//! Dtor
+//! Destructor
 QwtScaleEngine::~QwtScaleEngine ()
 {
     delete d_data;
@@ -318,23 +318,7 @@ QwtDoubleInterval QwtScaleEngine::buildInterval(double v) const
   \param attribute Attribute to change
   \param on On/Off
 
-  The behaviour of the scale engine can be changed
-  with the following attributes:
-  <dl>
-  <dt>QwtScaleEngine::IncludeReference
-  <dd>Build a scale which includes the reference value.
-  <dt>QwtScaleEngine::Symmetric
-  <dd>Build a scale which is symmetric to the reference value.
-  <dt>QwtScaleEngine::Floating
-  <dd>The endpoints of the scale are supposed to be equal the outmost included
-  values plus the specified margins (see setMargins()). If this attribute is
-  *not* set, the endpoints of the scale will be integer multiples of the step
-  size.
-  <dt>QwtScaleEngine::Inverted
-  <dd>Turn the scale upside down.
-  </dl>
-
-  \sa testAttribute()
+  \sa Attribute, testAttribute()
 */
 void QwtScaleEngine::setAttribute(Attribute attribute, bool on)
 {
@@ -348,7 +332,7 @@ void QwtScaleEngine::setAttribute(Attribute attribute, bool on)
   Check if a attribute is set.
 
   \param attribute Attribute to be tested
-  \sa setAttribute() for a description of the possible options.
+  \sa Attribute, setAttribute()
 */
 bool QwtScaleEngine::testAttribute(Attribute attribute) const
 {
@@ -359,7 +343,7 @@ bool QwtScaleEngine::testAttribute(Attribute attribute) const
   Change the scale attribute
 
   \param attributes Set scale attributes
-  \sa attributes()
+  \sa Attribute, attributes()
 */
 void QwtScaleEngine::setAttributes(int attributes)
 {
@@ -368,6 +352,7 @@ void QwtScaleEngine::setAttributes(int attributes)
 
 /*!
   Return the scale attributes
+  \sa Attribute, setAttributes(), testAttribute()
 */
 int QwtScaleEngine::attributes() const
 {
@@ -378,8 +363,10 @@ int QwtScaleEngine::attributes() const
   \brief Specify a reference point
   \param r new reference value
 
-  The reference point is needed if options IncludeRef or
+  The reference point is needed if options IncludeReference or
   Symmetric are active. Its default value is 0.0.
+
+  \sa Attribute
 */
 void QwtScaleEngine::setReference(double r)
 {

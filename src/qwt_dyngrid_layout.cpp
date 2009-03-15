@@ -189,7 +189,7 @@ void QwtDynGridLayout::updateLayoutCache()
 /*!
   Limit the number of columns.
   \param maxCols upper limit, 0 means unlimited
-  \sa QwtDynGridLayout::maxCols()
+  \sa maxCols()
 */
   
 void QwtDynGridLayout::setMaxCols(uint maxCols)
@@ -200,7 +200,7 @@ void QwtDynGridLayout::setMaxCols(uint maxCols)
 /*!
   Return the upper limit for the number of columns.
   0 means unlimited, what is the default.
-  \sa QwtDynGridLayout::setMaxCols()
+  \sa setMaxCols()
 */
 
 uint QwtDynGridLayout::maxCols() const 
@@ -245,26 +245,10 @@ QLayoutIterator QwtDynGridLayout::iterator()
         new QwtDynGridLayout::PrivateData::LayoutIterator(d_data) );
 }
 
-/*!
-  Set whether this layout can make use of more space than sizeHint(). 
-  A value of Vertical or Horizontal means that it wants to grow in only 
-  one dimension, while BothDirections means that it wants to grow in 
-  both dimensions. The default value is NoDirection. 
-  \sa QwtDynGridLayout::expanding()
-*/
-
 void QwtDynGridLayout::setExpanding(QSizePolicy::ExpandData expanding)
 {
     d_data->expanding = expanding;
 }
-
-/*!
-  Returns whether this layout can make use of more space than sizeHint(). 
-  A value of Vertical or Horizontal means that it wants to grow in only 
-  one dimension, while BothDirections means that it wants to grow in 
-  both dimensions. 
-  \sa QwtDynGridLayout::setExpanding()
-*/
 
 QSizePolicy::ExpandData QwtDynGridLayout::expanding() const
 {
@@ -308,11 +292,27 @@ int QwtDynGridLayout::count() const
     return d_data->itemList.count();
 }
 
+/*!
+  Set whether this layout can make use of more space than sizeHint().
+  A value of Qt::Vertical or Qt::Horizontal means that it wants to grow in only
+  one dimension, while Qt::Vertical | Qt::Horizontal means that it wants 
+  to grow in both dimensions. The default value is 0.
+
+  \param expanding Or'd orientations
+  \sa expandingDirections()
+*/
 void QwtDynGridLayout::setExpandingDirections(Qt::Orientations expanding)
 {
     d_data->expanding = expanding;
 }
 
+/*!
+  Returns whether this layout can make use of more space than sizeHint().
+  A value of Qt::Vertical or Qt::Horizontal means that it wants to grow in only
+  one dimension, while Qt::Vertical | Qt::Horizontal means that it wants 
+  to grow in both dimensions.
+  \sa setExpandingDirections()
+*/
 Qt::Orientations QwtDynGridLayout::expandingDirections() const
 {
     return d_data->expanding;
