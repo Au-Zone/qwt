@@ -238,7 +238,7 @@ signals:
                  selected legend item
 
       \note clicks are disabled as default
-      \sa QwtLegend::setItemMode, QwtLegend::itemMode
+      \sa QwtLegend::setItemMode(), QwtLegend::itemMode()
      */
     void legendClicked(QwtPlotItem *plotItem);
 
@@ -251,7 +251,7 @@ signals:
       \param on True when the legen item is checked
 
       \note clicks are disabled as default
-      \sa QwtLegend::setItemMode, QwtLegend::itemMode
+      \sa QwtLegend::setItemMode(), QwtLegend::itemMode()
      */
 
     void legendChecked(QwtPlotItem *plotItem, bool on);

@@ -102,7 +102,7 @@ private:
   \brief Default Constructor
 
   Creates an invalid interval [0.0, -1.0]
-  \sa setInterval, isValid
+  \sa setInterval(), isValid()
 */
 inline QwtDoubleInterval::QwtDoubleInterval():
     d_minValue(0.0),
@@ -200,7 +200,7 @@ inline double QwtDoubleInterval::maxValue() const
    The width of invalid intervals is 0.0, otherwise the result is
    maxValue() - minValue().
 
-   \sa isValid
+   \sa isValid()
 */
 inline double QwtDoubleInterval::width() const 
 { 
@@ -209,7 +209,7 @@ inline double QwtDoubleInterval::width() const
 
 /*! 
    Intersection of two intervals
-   \sa intersect
+   \sa intersect()
 */
 inline QwtDoubleInterval QwtDoubleInterval::operator&(
     const QwtDoubleInterval &interval ) const
@@ -219,7 +219,7 @@ inline QwtDoubleInterval QwtDoubleInterval::operator&(
 
 /*! 
    Union of two intervals
-   \sa unite
+   \sa unite()
 */
 inline QwtDoubleInterval QwtDoubleInterval::operator|(
     const QwtDoubleInterval &interval) const
@@ -243,7 +243,7 @@ inline int QwtDoubleInterval::operator!=(const QwtDoubleInterval &other) const
 
 /*!
    Extend an interval
-   \sa extend
+   \sa extend()
 */
 inline QwtDoubleInterval QwtDoubleInterval::operator|(double value) const
 {
@@ -273,7 +273,7 @@ inline bool QwtDoubleInterval::isValid() const
   Invalidate the interval
 
   The limits are set to interval [0.0, -1.0]
-  \sa isValid
+  \sa isValid()
 */
 inline void QwtDoubleInterval::invalidate()
 {

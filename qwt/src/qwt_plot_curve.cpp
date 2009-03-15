@@ -1152,7 +1152,7 @@ void QwtPlotCurve::setBaseline(double reference)
 
 /*!
     Return the value of the baseline
-    \sa setBaseline
+    \sa setBaseline()
 */
 double QwtPlotCurve::baseline() const 
 { 
@@ -1278,7 +1278,7 @@ void QwtPlotCurve::setData(const QwtSeriesData<QwtDoublePoint> &data)
   \param yData pointer to y data
   \param size size of x and y
 
-  \sa QwtCPointerData::setData.
+  \sa QwtCPointerData::setData()
 */
 void QwtPlotCurve::setRawData(const double *xData, const double *yData, int size)
 {

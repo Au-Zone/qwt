@@ -531,7 +531,7 @@ void QwtPicker::setEnabled(bool enabled)
 
 /*!
   \return true when enabled, false otherwise
-  \sa setEnabled, eventFilter()
+  \sa setEnabled(), eventFilter()
 */
 
 bool QwtPicker::isEnabled() const
@@ -1141,7 +1141,7 @@ void QwtPicker::transition(const QEvent *e)
 /*!
   Open a selection setting the state to active
 
-  \sa isActive, end(), append(), move()
+  \sa isActive(), end(), append(), move()
 */
 void QwtPicker::begin()
 {
@@ -1173,7 +1173,7 @@ void QwtPicker::begin()
   \param ok If true, complete the selection and emit a selected signal
             otherwise discard the selection.
   \return true if the selection is accepted, false otherwise
-  \sa isActive, begin(), append(), move(), selected(), accept()
+  \sa isActive(), begin(), append(), move(), selected(), accept()
 */
 bool QwtPicker::end(bool ok)
 {
@@ -1220,7 +1220,7 @@ void QwtPicker::reset()
 
   \param pos Additional point
 
-  \sa isActive, begin(), end(), move(), appended()
+  \sa isActive(), begin(), end(), move(), appended()
 */
 void QwtPicker::append(const QPoint &pos)
 {
@@ -1241,7 +1241,7 @@ void QwtPicker::append(const QPoint &pos)
   The moved() signal is emitted.
 
   \param pos New position
-  \sa isActive, begin(), end(), append()
+  \sa isActive(), begin(), end(), append()
 
 */
 void QwtPicker::move(const QPoint &pos)

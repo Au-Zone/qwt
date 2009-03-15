@@ -384,7 +384,7 @@ void QwtThermo::layoutThermo( bool update_geometry )
      RightScale or NoScale;
    - an invalid scale position will default to NoScale.
 
-   \sa QwtThermo::setScalePosition()
+   \sa setScalePosition()
 */
 void QwtThermo::setOrientation(Qt::Orientation o, ScalePos s)
 {
@@ -864,7 +864,7 @@ bool QwtThermo::alarmEnabled() const
 
 /*!
   \return the minimum size hint
-  \sa QwtThermo::minimumSizeHint
+  \sa minimumSizeHint()
 */
 QSize QwtThermo::sizeHint() const
 {
@@ -874,7 +874,7 @@ QSize QwtThermo::sizeHint() const
 /*!
   \brief Return a minimum size hint
   \warning The return value depends on the font and the scale.
-  \sa QwtThermo::sizeHint
+  \sa sizeHint()
 */
 QSize QwtThermo::minimumSizeHint() const
 {

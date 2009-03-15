@@ -379,7 +379,7 @@ int QwtCounter::incSteps(QwtCounter::Button btn) const
   \brief Set a new value
   \param v new value
   Calls QwtDoubleRange::setValue and does all visual updates.
-  \sa QwtDoubleRange::setValue
+  \sa QwtDoubleRange::setValue()
 */
 
 void QwtCounter::setValue(double v)
