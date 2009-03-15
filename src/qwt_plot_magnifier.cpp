@@ -53,7 +53,7 @@ QwtPlotMagnifier::~QwtPlotMagnifier()
    \param axis Axis, see QwtPlot::Axis
    \param on On/Off
 
-   \sa isAxisEnabled
+   \sa isAxisEnabled()
 */
 void QwtPlotMagnifier::setAxisEnabled(int axis, bool on)
 {
@@ -67,7 +67,7 @@ void QwtPlotMagnifier::setAxisEnabled(int axis, bool on)
    \param axis Axis, see QwtPlot::Axis
    \return True, if the axis is enabled
 
-   \sa setAxisEnabled
+   \sa setAxisEnabled()
 */
 bool QwtPlotMagnifier::isAxisEnabled(int axis) const
 {

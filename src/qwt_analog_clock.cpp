@@ -87,7 +87,7 @@ QwtAnalogClock::~QwtAnalogClock()
 
 /*! 
   Nop method, use setHand instead
-  \sa QwtAnalogClock::setHand
+  \sa setHand()
 */
 void QwtAnalogClock::setNeedle(QwtDialNeedle *)
 {
@@ -99,7 +99,7 @@ void QwtAnalogClock::setNeedle(QwtDialNeedle *)
    Set a clockhand
    \param hand Specifies the type of hand
    \param needle Hand
-   \sa QwtAnalogClock::hand()
+   \sa hand()
 */
 void QwtAnalogClock::setHand(Hand hand, QwtDialNeedle *needle)
 {
@@ -113,7 +113,7 @@ void QwtAnalogClock::setHand(Hand hand, QwtDialNeedle *needle)
 /*!
   \return Clock hand
   \param hd Specifies the type of hand
-  \sa QwtAnalogClock::setHand
+  \sa setHand()
 */
 QwtDialNeedle *QwtAnalogClock::hand(Hand hd)
 {
@@ -126,7 +126,7 @@ QwtDialNeedle *QwtAnalogClock::hand(Hand hd)
 /*!
   \return Clock hand
   \param hd Specifies the type of hand
-  \sa QwtAnalogClock::setHand
+  \sa setHand()
 */
 const QwtDialNeedle *QwtAnalogClock::hand(Hand hd) const
 {
@@ -186,7 +186,7 @@ QwtText QwtAnalogClock::scaleLabel(double value) const
   \param direction Dummy, not used.
   \param cg ColorGroup
 
-  \sa QwtAnalogClock::drawHand()
+  \sa drawHand()
 */
 void QwtAnalogClock::drawNeedle(QPainter *painter, const QPoint &center,
         int radius, double, QPalette::ColorGroup cg) const

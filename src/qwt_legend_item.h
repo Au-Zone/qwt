@@ -41,7 +41,7 @@ public:
        \brief Identifier mode
 
        Default is ShowLine | ShowText
-       \sa QwtLegendItem::identifierMode, QwtLegendItem::setIdentifierMode
+       \sa identifierMode(), setIdentifierMode()
      */
 
     enum IdentifierMode

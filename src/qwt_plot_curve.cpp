@@ -1287,7 +1287,7 @@ void QwtPlotCurve::setBaseline(double reference)
 
 /*!
     Return the value of the baseline
-    \sa setBaseline
+    \sa setBaseline()
 */
 double QwtPlotCurve::baseline() const 
 { 

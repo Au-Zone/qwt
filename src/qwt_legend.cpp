@@ -328,11 +328,13 @@ QwtLegend::LegendDisplayPolicy QwtLegend::displayPolicy() const
     return d_data->displayPolicy; 
 }
 
+//! \sa LegendItemMode
 void QwtLegend::setItemMode(LegendItemMode mode)
 {
     d_data->itemMode = mode;
 }
 
+//! \sa LegendItemMode
 QwtLegend::LegendItemMode QwtLegend::itemMode() const
 {
     return d_data->itemMode;

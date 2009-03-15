@@ -191,7 +191,7 @@ void QwtPlotCanvas::invalidatePaintCache()
 /*!
   Set the focus indicator
 
-  \sa FocusIndicator, focusIndicator
+  \sa FocusIndicator, focusIndicator()
 */
 void QwtPlotCanvas::setFocusIndicator(FocusIndicator focusIndicator)
 {
@@ -201,7 +201,7 @@ void QwtPlotCanvas::setFocusIndicator(FocusIndicator focusIndicator)
 /*!
   \return Focus indicator
   
-  \sa FocusIndicator, setFocusIndicator
+  \sa FocusIndicator, setFocusIndicator()
 */
 QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
 {
@@ -287,7 +287,7 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
 
   \param painter Painter
 
-  \sa QwtPlot::drawCanvas, setPaintAttributes(), testPaintAttributes()
+  \sa QwtPlot::drawCanvas(), setPaintAttributes(), testPaintAttributes()
 */
 void QwtPlotCanvas::drawCanvas(QPainter *painter)
 {

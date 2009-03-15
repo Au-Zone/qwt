@@ -132,7 +132,7 @@ QwtPlotRescaler::RescalePolicy QwtPlotRescaler::rescalePolicy() const
 }
 
 /*!
-  Set the referenca axis ( see RescalePolicy )
+  Set the reference axis ( see RescalePolicy )
 
   \param axis Axis index ( QwtPlot::Axis )
   \sa referenceAxis()

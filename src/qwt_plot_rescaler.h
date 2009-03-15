@@ -20,6 +20,8 @@ class QwtPlot;
 class QResizeEvent;
 
 /*!
+    \brief QwtPlotRescaler takes care of fixed aspect ratios for plot scales
+
     QwtPlotRescaler autoadjusts the axes of a QwtPlot according
     to fixed aspect ratios.
 */

@@ -236,7 +236,7 @@ int QwtPlot::axisMaxMinor(int axisId) const
   \param axisId axis index
   \return Scale division 
 
-  \sa QwtScaleDiv, setAxisScaleDiv
+  \sa QwtScaleDiv, setAxisScaleDiv()
 */
 const QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) const
 {
@@ -255,7 +255,7 @@ const QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) const
   \param axisId axis index
   \return Scale division 
 
-  \sa QwtScaleDiv, setAxisScaleDiv
+  \sa QwtScaleDiv, setAxisScaleDiv()
 */
 QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) 
 {
@@ -301,7 +301,7 @@ QwtScaleDraw *QwtPlot::axisScaleDraw(int axisId)
   \param axisId axis index
   \return step size parameter value
 
-   \sa setAxisScale
+   \sa setAxisScale()
 */ 
 double QwtPlot::axisStepSize(int axisId) const
 {
@@ -498,7 +498,7 @@ void QwtPlot::setAxisLabelAlignment(int axisId, Qt::Alignment alignment)
   \param axisId axis index
   \param rotation Angle in degrees. When changing the label rotation,
                   the label alignment might be adjusted too.
-  \sa QwtScaleDraw::setLabelRotation(), QwtPlot::setAxisLabelAlignment
+  \sa QwtScaleDraw::setLabelRotation(), setAxisLabelAlignment()
 */
 void QwtPlot::setAxisLabelRotation(int axisId, double rotation)
 {

@@ -202,7 +202,7 @@ int QwtLegendItem::identifierMode() const
 
   \param width New width
 
-  \sa identifierMode(), identifierWidth
+  \sa identifierMode(), identifierWidth()
 */
 void QwtLegendItem::setIdentifierWidth(int width)
 {
@@ -217,7 +217,7 @@ void QwtLegendItem::setIdentifierWidth(int width)
 /*!
    Return the width of the identifier
 
-   \sa setIdentifierWidth
+   \sa setIdentifierWidth()
 */
 int QwtLegendItem::identifierWidth() const
 {
