@@ -95,7 +95,7 @@ QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis,
                   when the plot is in a state with pending scale changes.
 
   \sa QwtPicker, QwtPicker::setSelectionFlags(), QwtPicker::setRubberBand(),
-      QwtPicker::setTrackerMode
+      QwtPicker::setTrackerMode()
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), setZoomBase()
 */
@@ -503,7 +503,7 @@ void QwtPlotZoomer::moveBy(double dx, double dy)
   \param x X value
   \param y Y value
 
-  \sa QwtDoubleRect::move
+  \sa QwtDoubleRect::move()
   \note The changed rectangle is limited by the zoom base
 */
 void QwtPlotZoomer::move(double x, double y)
@@ -612,7 +612,7 @@ void QwtPlotZoomer::begin()
   Expand the selected rectangle to minZoomSize() and zoom in
   if accepted.
 
-  \sa QwtPlotZoomer::accept()a, QwtPlotZoomer::minZoomSize()
+  \sa accept(), minZoomSize()
 */
 bool QwtPlotZoomer::end(bool ok)
 {

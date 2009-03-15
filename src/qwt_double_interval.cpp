@@ -23,7 +23,7 @@
    If maxValue() < minValue() the limits will be inverted.
    \return Normalized interval
 
-   \sa isValid, inverted
+   \sa isValid(), inverted()
 */
 QwtDoubleInterval QwtDoubleInterval::normalized() const
 {
@@ -42,7 +42,7 @@ QwtDoubleInterval QwtDoubleInterval::normalized() const
 /*!
    Invert the limits of the interval
    \return Inverted interval
-   \sa normalized
+   \sa normalized()
 */
 QwtDoubleInterval QwtDoubleInterval::inverted() const
 {
@@ -300,7 +300,7 @@ QwtDoubleInterval QwtDoubleInterval::limited(
    extend has no effect for invalid intervals
 
    \param value Value
-   \sa isValid
+   \sa isValid()
 */
 QwtDoubleInterval QwtDoubleInterval::extend(double value) const
 {

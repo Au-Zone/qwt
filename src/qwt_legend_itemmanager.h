@@ -18,7 +18,7 @@ class QwtLegend;
 class QWidget;
 
 /*!
-  Abstract API to bind plot items to the legend
+  \brief Abstract API to bind plot items to the legend
 */
 
 class QWT_EXPORT QwtLegendItemManager

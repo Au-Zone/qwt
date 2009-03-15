@@ -106,7 +106,7 @@ void QwtPlotIntervalCurve::setCurveStyle(CurveStyle style)
 
 /*!
     \brief Return the current style
-    \sa setStyle
+    \sa setStyle()
 */
 QwtPlotIntervalCurve::CurveStyle QwtPlotIntervalCurve::curveStyle() const 
 { 

@@ -24,7 +24,7 @@ class QwtDoubleInterval;
 
   In most cases scale divisions are calculated by a QwtScaleEngine.
 
-  \sa QwtScaleEngine::subDivideInto, QwtScaleEngine::subDivide
+  \sa subDivideInto(), subDivide()
 */
 
 class QWT_EXPORT QwtScaleDiv

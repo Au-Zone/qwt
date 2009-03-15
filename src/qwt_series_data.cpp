@@ -228,7 +228,7 @@ QwtDoubleRect QwtSetSeriesData::boundingRect() const
   \param x Array of x values
   \param y Array of y values
   
-  \sa QwtPlotCurve::setData
+  \sa QwtPlotCurve::setData()
 */
 QwtPointArrayData::QwtPointArrayData(
         const QwtArray<double> &x, const QwtArray<double> &y): 
@@ -243,7 +243,7 @@ QwtPointArrayData::QwtPointArrayData(
   \param x Array of x values
   \param y Array of y values
   \param size Size of the x and y arrays
-  \sa QwtPlotCurve::setData
+  \sa QwtPlotCurve::setData()
 */
 QwtPointArrayData::QwtPointArrayData(const double *x, const double *y, size_t size)
 {

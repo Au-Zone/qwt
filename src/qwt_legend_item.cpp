@@ -180,7 +180,7 @@ void QwtLegendItem::setIdentifierWidth(int width)
 /*!
    Return the width of the identifier
 
-   \sa setIdentfierWidth
+   \sa setIdentfierWidth()
 */
 int QwtLegendItem::identifierWidth() const
 {

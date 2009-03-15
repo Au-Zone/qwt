@@ -48,7 +48,7 @@ public:
 
     /*!
         Line styles.
-        \sa QwtPlotMarker::setLineStyle, QwtPlotMarker::lineStyle
+        \sa setLineStyle(), lineStyle()
     */
     enum LineStyle 
     {

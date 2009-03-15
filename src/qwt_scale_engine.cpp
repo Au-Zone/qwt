@@ -45,7 +45,7 @@ int QwtScaleArithmetic::compareEps(double value1, double value2,
   \param value Value to ceil
   \param intervalSize Interval size
  
-  \sa floorEps
+  \sa floorEps()
 */
 double QwtScaleArithmetic::ceilEps(double value, 
     double intervalSize) 
@@ -62,7 +62,7 @@ double QwtScaleArithmetic::ceilEps(double value,
   \param value Value to floor
   \param intervalSize Interval size
  
-  \sa floorEps
+  \sa floorEps()
 */
 double QwtScaleArithmetic::floorEps(double value, double intervalSize) 
 {
@@ -72,7 +72,7 @@ double QwtScaleArithmetic::floorEps(double value, double intervalSize)
     return floor(value) * intervalSize;
 }
 
-/*
+/*!
   \brief Divide an interval into steps
 
   \f$stepSize = (intervalSize - intervalSize * 10e^{-6}) / numSteps\f$
@@ -246,7 +246,7 @@ double QwtScaleEngine::divideInterval(
   \param interval Interval
   \param value Value
 
-  \sa QwtScaleArithmetic::compareEps
+  \sa QwtScaleArithmetic::compareEps()
 */
 bool QwtScaleEngine::contains(
     const QwtDoubleInterval &interval, double value) const
@@ -411,7 +411,7 @@ QwtScaleTransformation *QwtLinearScaleEngine::transformation() const
    \param x2 Second limit of the interval (In/Out)
    \param stepSize Step size (Out)
 
-   \sa QwtLinearScaleEngine::setAttribute
+   \sa setAttribute()
 */
 void QwtLinearScaleEngine::autoScale(int maxNumSteps, 
     double &x1, double &x2, double &stepSize) const
@@ -456,7 +456,7 @@ void QwtLinearScaleEngine::autoScale(int maxNumSteps,
    \param stepSize Step size. If stepSize == 0, the scaleEngine
                    calculates one.
 
-   \sa QwtScaleEngine::stepSize, QwtScaleEngine::subDivide
+   \sa QwtScaleEngine::stepSize(), QwtScaleEngine::subDivide()
 */
 QwtScaleDiv QwtLinearScaleEngine::divideScale(double x1, double x2,
     int maxMajSteps, int maxMinSteps, double stepSize) const
@@ -622,7 +622,7 @@ QwtScaleTransformation *QwtLog10ScaleEngine::transformation() const
    \param x2 Second limit of the interval (In/Out)
    \param stepSize Step size (Out)
 
-   \sa QwtScaleEngine::setAttribute
+   \sa QwtScaleEngine::setAttribute()
 */
 void QwtLog10ScaleEngine::autoScale(int maxNumSteps, 
     double &x1, double &x2, double &stepSize) const
@@ -679,7 +679,7 @@ void QwtLog10ScaleEngine::autoScale(int maxNumSteps,
    \param stepSize Step size. If stepSize == 0, the scaleEngine
                    calculates one.
 
-   \sa QwtScaleEngine::stepSize, QwtLog10ScaleEngine::subDivide
+   \sa QwtScaleEngine::stepSize(), QwtLog10ScaleEngine::subDivide()
 */
 QwtScaleDiv QwtLog10ScaleEngine::divideScale(double x1, double x2,
     int maxMajSteps, int maxMinSteps, double stepSize) const

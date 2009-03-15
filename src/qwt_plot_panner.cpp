@@ -33,7 +33,7 @@ public:
 
   \param canvas Plot canvas to pan, also the parent object
 
-  \sa setAxisEnabled
+  \sa setAxisEnabled()
 */
 QwtPlotPanner::QwtPlotPanner(QwtPlotCanvas *canvas):
     QwtPanner(canvas)
@@ -59,7 +59,7 @@ QwtPlotPanner::~QwtPlotPanner()
    \param axis Axis, see QwtPlot::Axis
    \param on On/Off
 
-   \sa isAxisEnabled, moveCanvas
+   \sa isAxisEnabled(), moveCanvas()
 */
 void QwtPlotPanner::setAxisEnabled(int axis, bool on)
 {
@@ -73,7 +73,7 @@ void QwtPlotPanner::setAxisEnabled(int axis, bool on)
    \param axis Axis, see QwtPlot::Axis
    \return True, if the axis is enabled
    
-   \sa setAxisEnabled, moveCanvas
+   \sa setAxisEnabled(), moveCanvas()
 */
 bool QwtPlotPanner::isAxisEnabled(int axis) const
 {

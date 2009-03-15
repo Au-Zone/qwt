@@ -141,7 +141,7 @@ bool QwtPainter::isSVGMode()
   QwtPaintMetrics(from).logicalDpiX() / QwtPaintMetrics(to).logicalDpiX()
   and QwtPaintMetrics(from).logicalDpiY() / QwtPaintMetrics(to).logicalDpiY()
 
-  \sa QwtPainter::resetScaleMetrics(), QwtPainter::scaleMetricsX,
+  \sa QwtPainter::resetScaleMetrics(), QwtPainter::scaleMetricsX(),
         QwtPainter::scaleMetricsY()
 */
 void QwtPainter::setMetricsMap(const QPaintDevice *layout,
@@ -152,7 +152,7 @@ void QwtPainter::setMetricsMap(const QPaintDevice *layout,
 
 /*! 
   Change the metrics map 
-  \sa QwtPainter::resetMetricsMap, QwtPainter::metricsMap
+  \sa QwtPainter::resetMetricsMap(), QwtPainter::metricsMap()
 */
 void QwtPainter::setMetricsMap(const QwtMetricsMap &map)
 {
@@ -161,7 +161,7 @@ void QwtPainter::setMetricsMap(const QwtMetricsMap &map)
 
 /*! 
    Reset the metrics map to the ratio 1:1
-   \sa QwtPainter::setMetricsMap, QwtPainter::resetMetricsMap
+   \sa QwtPainter::setMetricsMap(), QwtPainter::resetMetricsMap()
 */
 void QwtPainter::resetMetricsMap()
 {

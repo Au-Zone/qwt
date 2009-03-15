@@ -36,7 +36,7 @@
 
   \param paintDev device to paint on, often a printer
   \param pfilter print filter
-  \sa QwtPlot::print
+
   \sa QwtPlotPrintFilter
 */
 
@@ -68,6 +68,7 @@ void QwtPlot::print(QPaintDevice &paintDev,
   \param painter Painter
   \param plotRect Bounding rectangle
   \param pfilter Print filter
+
   \sa QwtPlotPrintFilter
 */
 void QwtPlot::print(QPainter *painter, const QRect &plotRect,

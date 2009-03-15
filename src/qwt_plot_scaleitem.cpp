@@ -186,7 +186,7 @@ QPalette QwtPlotScaleItem::palette() const
 
 /*!
    Change the tick label font
-   \sa font
+   \sa font()
 */
 void QwtPlotScaleItem::setFont(const QFont &font)
 {

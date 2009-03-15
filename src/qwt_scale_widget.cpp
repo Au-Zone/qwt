@@ -147,6 +147,12 @@ void QwtScaleWidget::initScale(QwtScaleDraw::Alignment align)
 
 }
 
+/*!
+  Give title new text contents
+
+  \param title New title
+  \sa title(), setTitle(const QwtText &);
+*/
 void QwtScaleWidget::setTitle(const QString &title)
 {
     if ( d_data->title.text() != title )
@@ -157,7 +163,8 @@ void QwtScaleWidget::setTitle(const QString &title)
 }
 
 /*!
-  \brief Give title new text contents
+  Give title new text contents
+
   \param title New title
   \sa title()
   \warning The title flags are interpreted in

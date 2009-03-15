@@ -108,7 +108,7 @@ uint QwtDialScaleDraw::penWidth() const
 
   \param value Value to display
     
-  \sa QwtDial::scaleLabel
+  \sa QwtDial::scaleLabel()
 */  
 QwtText QwtDialScaleDraw::label(double value) const
 {
@@ -404,7 +404,7 @@ bool QwtDial::wrapping() const
     Set the direction of the dial (clockwise/counterclockwise)
 
     Direction direction
-    \sa direction
+    \sa direction()
 */
 void QwtDial::setDirection(Direction direction)
 {
@@ -420,7 +420,7 @@ void QwtDial::setDirection(Direction direction)
 
    The default direction of a dial is QwtDial::Clockwise
 
-   \sa setDirection
+   \sa setDirection()
 */
 QwtDial::Direction QwtDial::direction() const
 {
@@ -579,7 +579,7 @@ void QwtDial::drawFrame(QPainter *painter)
 
   \param painter Painter
   \sa boundingRect(), contentsRect(),
-    scaleContentsRect(), QWidget::setPalette
+    scaleContentsRect(), QWidget::setPalette()
 */
 void QwtDial::drawContents(QPainter *painter) const
 {
@@ -718,7 +718,7 @@ void QwtDial::drawNeedle(QPainter *painter, const QPoint &center,
   \param minArc Minimum of the arc 
   \param maxArc Minimum of the arc 
   
-  \sa QwtAbstractScaleDraw::setAngleRange
+  \sa QwtAbstractScaleDraw::setAngleRange()
 */
 void QwtDial::drawScale(QPainter *painter, const QPoint &center,
     int radius, double origin, double minArc, double maxArc) const
@@ -878,7 +878,7 @@ void QwtDial::setScaleDraw(QwtDialScaleDraw *scaleDraw)
 
 /*!
   Change the intervals of the scale
-  \sa QwtAbstractScaleDraw::setScale
+  \sa QwtAbstractScaleDraw::setScale()
 */
 void QwtDial::setScale(int maxMajIntv, int maxMinIntv, double step)
 {
@@ -901,7 +901,7 @@ void QwtDial::setScale(int maxMajIntv, int maxMinIntv, double step)
   - options & ScaleLabel\n
     En/disable scale labels
     
-  \sa QwtAbstractScaleDraw::enableComponent 
+  \sa QwtAbstractScaleDraw::enableComponent()
 */
 void QwtDial::setScaleOptions(int options)
 {
