@@ -475,7 +475,7 @@ QWidget *QwtLegend::find(const QwtLegendItemManager *plotItem) const
 /*!
   Find the widget that represents a plot item
 
-  \param plotItem Plot item
+  \param legendItem Legend item
   \return Widget on the legend, or NULL
 */
 QwtLegendItemManager *QwtLegend::find(const QWidget *legendItem) const

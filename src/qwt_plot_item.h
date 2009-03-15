@@ -26,6 +26,40 @@ class QwtScaleDiv;
 
 /*!
   \brief Base class for items on the plot canvas
+
+  A plot item is "something", that can be painted on the plot canvas,
+  or only affects the scales of the plot widget. They can be categorized as:
+
+  - Representator\n
+    A "Representator" is an item that represents some sort of data
+    on the plot canvas. The different representator classes are organized
+    according to the characteristics of the data:
+    - QwtPlotMarker
+      Represents a point or a horizontal/vertical coordinate
+    - QwtPlotCurve
+      Represents a series of points
+    - QwtPlotSpectrogram ( QwtPlotRasterItem )
+      Represents raster data
+    - ...
+
+  - Decorators\n
+    A "Decorator" is an item, that displays additional information, that
+    is not related to any data:
+    - QwtPlotGrid
+    - QwtPlotScaleItem
+    - QwtPlotSvgItem
+    - ...
+
+  Depending on the QwtPlotItem::ItemAttribute flags, an item is included
+  into autoscaling or has an entry on the legnd.
+
+  Before misusing the existing item classes it might be better to
+  implement a new type of plot item 
+  ( don't implement a watermark as spectrogram ).
+  Deriving a new type of QwtPlotItem primarily means to implement 
+  the YourPlotItem::draw() method. 
+
+  \sa The cpuplot example shows the implementation of additional plot items.
 */
 
 class QWT_EXPORT QwtPlotItem: public QwtLegendItemManager
@@ -54,14 +88,13 @@ public:
     };
 
     /*!
-       Valid attributes are:
-       <dl>
-       <dt>Legend</dt>
-       <dd>The item is represented on the legend.</dd>
-       <dt>AutoScale</dt> 
-       <dd>The boundingRect() of the item is included in the 
-           autoscaling calculation.</dd>
-       </dl>
+       Plot Item Attributes
+
+       - Legend\n
+         The item is represented on the legend.
+       - AutoScale \n
+         The boundingRect() of the item is included in the 
+         autoscaling calculation.
 
        \sa setItemAttribute(), testItemAttribute()
      */
@@ -72,6 +105,7 @@ public:
     };
 
 #if QT_VERSION >= 0x040000
+    //! Render hints
     enum RenderHint
     {
         RenderAntialiased = 1
