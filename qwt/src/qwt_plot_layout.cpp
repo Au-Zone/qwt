@@ -642,6 +642,7 @@ QSize QwtPlotLayout::minimumSizeHint(const QwtPlot *plot) const
   \param options Options how to layout the legend
   \param rect Rectangle where to place the legend
   \return Geometry for the legend
+  \sa Options
 */
 
 QRect QwtPlotLayout::layoutLegend(int options, 
@@ -739,6 +740,8 @@ QRect QwtPlotLayout::alignLegend(const QRect &canvasRect,
   \param rect Bounding rect for title, axes and canvas.
   \param dimTitle Expanded height of the title widget
   \param dimAxis Expanded heights of the axis in axis orientation.
+
+  \sa Options
 */
 void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect, 
     int &dimTitle, int dimAxis[QwtPlot::axisCnt]) const
@@ -863,6 +866,8 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRect &rect,
 /*!
   Align the ticks of the axis to the canvas borders using
   the empty corners.
+
+  \sa Options
 */
 
 void QwtPlotLayout::alignScales(int options,
@@ -1035,7 +1040,7 @@ void QwtPlotLayout::alignScales(int options,
   \param plotRect Rect where to place the components
   \param options Options
 
-  \sa invalidate(), titleRect(),
+  \sa invalidate(), Options, titleRect(),
       legendRect(), scaleRect(), canvasRect()
 */
 void QwtPlotLayout::activate(const QwtPlot *plot,

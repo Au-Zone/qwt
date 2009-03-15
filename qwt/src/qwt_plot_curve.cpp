@@ -220,7 +220,7 @@ public:
 
 /*!
   Constructor
-  \param title title of the curve   
+  \param title Title of the curve   
 */
 QwtPlotCurve::QwtPlotCurve(const QwtText &title):
     QwtPlotSeriesItem<QwtDoublePoint>(title)
@@ -230,7 +230,7 @@ QwtPlotCurve::QwtPlotCurve(const QwtText &title):
 
 /*!
   Constructor
-  \param title title of the curve   
+  \param title Title of the curve   
 */
 QwtPlotCurve::QwtPlotCurve(const QString &title):
     QwtPlotSeriesItem<QwtDoublePoint>(QwtText(title))
@@ -265,27 +265,11 @@ int QwtPlotCurve::rtti() const
 }
 
 /*!
-  \brief Specify an attribute how to draw the curve
-
-  The attributes can be used to modify the drawing algorithm.
-
-  The following attributes are defined:<dl>
-  <dt>PaintFiltered</dt>
-  <dd>Tries to reduce the data that has to be painted, by sorting out
-      duplicates, or paintings outside the visible area. Might have a
-      notable impact on curves with many close points. 
-      Only a couple of very basic filtering algos are implemented.</dd>
-  <dt>ClipPolygons</dt>
-  <dd>Clip polygons before painting them. In situations, where points
-      are far outside the visible area this might be a great improvement
-      for the painting performance ( especially on Windows ).
-  </dl>
-
-  The default is, that no paint attributes are enabled.
+  Specify an attribute how to draw the curve
 
   \param attribute Paint attribute
   \param on On/Off
-  /sa testPaintAttribute()
+  /sa PaintAttribute, testPaintAttribute()
 */
 void QwtPlotCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 {
@@ -297,7 +281,7 @@ void QwtPlotCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 
 /*!
     \brief Return the current paint attributes
-    \sa setPaintAttribute()
+    \sa PaintAttribute, setPaintAttribute()
 */
 bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
 {
@@ -305,33 +289,10 @@ bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
 }
 
 /*!
-  \brief Set the curve's drawing style
-
-  Valid styles are:
-  <dl>
-  <dt>NoCurve</dt>
-  <dd>Don't draw a curve. Note: This doesn't affect the symbol. </dd>
-  <dt>Lines</dt>
-  <dd>Connect the points with straight lines. The lines might
-      be interpolated depending on the 'Fitted' option. Curve
-      fitting can be configured using setCurveFitter().</dd>
-  <dt>Sticks</dt>
-  <dd>Draw vertical sticks from a baseline which is defined by setBaseline().</dd>
-  <dt>Steps</dt>
-  <dd>Connect the points with a step function. The step function
-      is drawn from the left to the right or vice versa,
-      depending on the 'Inverted' option.</dd>
-  <dt>Dots</dt>
-  <dd>Draw dots at the locations of the data points. Note:
-      This is different from a dotted line (see setPen()).</dd>
-  <dt>UserCurve ...</dt>
-  <dd>Styles >= UserCurve are reserved for derived
-      classes of QwtPlotCurve that overload drawCurve() with
-      additional application specific curve types.</dd>
-  </dl>
+  Set the curve's drawing style
 
   \param style Curve style
-  \sa style()
+  \sa CurveStyle, style()
 */
 void QwtPlotCurve::setStyle(CurveStyle style)
 {
@@ -343,8 +304,8 @@ void QwtPlotCurve::setStyle(CurveStyle style)
 }
 
 /*!
-    \brief Return the current style
-    \sa setStyle()
+    Return the current style
+    \sa CurveStyle, setStyle()
 */
 QwtPlotCurve::CurveStyle QwtPlotCurve::style() const 
 { 
@@ -401,13 +362,16 @@ const QPen& QwtPlotCurve::pen() const
 
 /*!
   \brief Assign a brush. 
-         In case of brush.style() != QBrush::NoBrush 
-         and style() != QwtPlotCurve::Sticks
-         the area between the curve and the baseline will be filled.
-         In case !brush.color().isValid() the area will be filled by
-         pen.color(). The fill algorithm simply connects the first and the
-         last curve point to the baseline. So the curve data has to be sorted 
-         (ascending or descending). 
+
+   In case of brush.style() != QBrush::NoBrush 
+   and style() != QwtPlotCurve::Sticks
+   the area between the curve and the baseline will be filled.
+
+   In case !brush.color().isValid() the area will be filled by
+   pen.color(). The fill algorithm simply connects the first and the
+   last curve point to the baseline. So the curve data has to be sorted 
+   (ascending or descending). 
+
   \param brush New brush
   \sa brush(), setBaseline(), baseline()
 */
@@ -470,7 +434,6 @@ void QwtPlotCurve::draw(int from, int to) const
     QwtPlotCanvas *canvas = plot()->canvas();
 
 #if QT_VERSION >= 0x040000
-
 #if 0
     if ( canvas->paintEngine()->type() == QPaintEngine::OpenGL )
     {
@@ -942,26 +905,12 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
 
 
 /*!
-  \brief Specify an attribute for drawing the curve
-
-  The attributes can be used to modify the drawing style.
-  The following attributes are defined:<dl>
-  <dt>Fitted</dt>
-  <dd>For Lines only. A QwtCurveFitter tries to
-      interpolate/smooth the curve, before it is painted.
-      Note that curve fitting requires temorary memory
-      for calculating coefficients and additional points. 
-      If painting in Fitted mode is slow it might be better
-      to fit the points, before they are passed to QwtPlotCurve.
-  </dd>
-  <dt>Inverted</dt>
-  <dd>For Steps only. Draws a step function
-      from the right to the left.</dd></dl>
+  Specify an attribute for drawing the curve
 
   \param attribute Curve attribute
   \param on On/Off
 
-  /sa testCurveAttribute(), setCurveFitter()
+  /sa CurveAttribute, testCurveAttribute(), setCurveFitter()
 */
 void QwtPlotCurve::setCurveAttribute(CurveAttribute attribute, bool on)
 {
@@ -978,7 +927,7 @@ void QwtPlotCurve::setCurveAttribute(CurveAttribute attribute, bool on)
 
 /*!
     \return true, if attribute is enabled
-    \sa setCurveAttribute()
+    \sa CurveAttribute, setCurveAttribute()
 */
 bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const 
 { 
@@ -993,6 +942,10 @@ void QwtPlotCurve::setCurveFitter(QwtCurveFitter *curveFitter)
     itemChanged();
 }
 
+/*!
+  Get the curve fitter. If curve fitting is disabled NULL is returned.
+  \return Curve fitter
+*/
 QwtCurveFitter *QwtPlotCurve::curveFitter() const
 {
     return d_data->curveFitter;
@@ -1009,7 +962,6 @@ QwtCurveFitter *QwtPlotCurve::curveFitter() const
 
   \sa setBrush(), setBaseline(), setCurveType()
 */
-
 void QwtPlotCurve::fillCurve(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     QwtPolygon &pa) const
@@ -1043,7 +995,6 @@ void QwtPlotCurve::fillCurve(QPainter *painter,
   \param yMap Y map
   \param pa Polygon to be completed
 */
-
 void QwtPlotCurve::closePolyline(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     QwtPolygon &pa) const
@@ -1159,6 +1110,17 @@ double QwtPlotCurve::baseline() const
     return d_data->reference; 
 }
 
+/*!
+  Find the closest curve point for a specific position
+
+  \param pos Position, wher to look for the closest curve point
+  \param dist If dist != NULL, closestPoint() returns the distance between
+              the position and the clostest curve point
+  \return Index of the closest curve point, or -1 if none can be found
+          ( f.e when the curve has no points )
+  \note closestPoint() implements a dumb algorithm, that iterates
+        over all points
+*/
 int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
 {
     if ( plot() == NULL || dataSize() <= 0 )
