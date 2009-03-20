@@ -79,7 +79,7 @@ function cleanQwt {
 
     for SRCFILE in $SOURCES $PROFILES $PRIFILES
     do
-    	sed -i -e '/#warning/d' $SRCFILE 
+        sed -i -e '/#warning/d' $SRCFILE 
     done 
 
     sed -i -e "s/\$\$VERSION-svn/$VERSION/" qwtconfig.pri 
@@ -117,7 +117,8 @@ function createDocs {
         exit $?
     fi
 
-    rm Doxyfile.doc Doxygen.log INSTALL COPYING
+    doxygen2qthelp --namespace=net.sourceforge.qwt-$VERSION --folder=qwt-$VERSION html/index.hhp qwt-$VERSION.qch
+    rm Doxyfile.doc Doxygen.log INSTALL COPYING html/index.hh*
     rm -r images
 
     cd latex
@@ -216,8 +217,8 @@ done
 
 if [ "$QWTDIR" == "" ] 
 then 
-	usage 
-	exit 2 
+    usage 
+    exit 2 
 fi
 
 TMPDIR=/tmp/$QWTDIR-tmp
