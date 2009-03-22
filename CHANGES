@@ -39,6 +39,7 @@ Changes
    counter clockwise scales introduced
 15)QwtPlotMarker
    Vertical text labels
+16)doc/qwt-5.2.0.qch added foe browsing the Qwt docs in the Qt assistant
 
 Bug Fixes
 ---------
