@@ -14,9 +14,8 @@ Qwt TODO list
 11) QwtData + functors
 12) QwtData/QwtPlotCurve + Level of details
 13) Cleaning up the examples
-14) Counter clockwise dials
-15) .qch files, using doxygen2qthelp
-16) QwtPlotLegendItem
+14) QwtPlotLegendItem
+15) Qt 4.5 + reintroduced raster operations
 
 6.0.x)
 ------
