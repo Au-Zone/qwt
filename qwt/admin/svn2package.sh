@@ -10,7 +10,7 @@
 ##########################
 
 function usage() {
-    echo "Usage: $0 [-b|--branch <svn-branch>] [packagename]"
+    echo "Usage: $0 [-b|--branch <svn-branch>] [-pdf] [-qch] [packagename]"
     exit 1
 }
 
@@ -79,7 +79,7 @@ function cleanQwt {
 
     for SRCFILE in $SOURCES $PROFILES $PRIFILES
     do
-    	sed -i -e '/#warning/d' $SRCFILE 
+        sed -i -e '/#warning/d' $SRCFILE 
     done 
 
     sed -i -e "s/\$\$VERSION-svn/$VERSION/" qwtconfig.pri 
@@ -102,12 +102,32 @@ function createDocs {
         exit $?
     fi
 
-    # We need LateX for the qwtdoc.pdf
+    cp Doxyfile Doxyfile.doc
 
-    sed -e '/GENERATE_LATEX/d' -e '/GENERATE_MAN/d' -e '/PROJECT_NUMBER/d' Doxyfile > Doxyfile.doc
-    echo 'GENERATE_LATEX = YES' >> Doxyfile.doc
-    echo 'GENERATE_MAN = YES' >> Doxyfile.doc
+    sed -i '/PROJECT_NUMBER/d' Doxyfile.doc
     echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
+
+    if [ $GENERATE_MAN -ne 0 ]
+    then
+        sed -i -e '/GENERATE_MAN/d' -e '/PROJECT_NUMBER/d' Doxyfile.doc
+        echo 'GENERATE_MAN = YES' >> Doxyfile.doc
+    fi
+
+    if [ $GENERATE_PDF -ne 0 ]
+    then
+        # We need LateX for the qwtdoc.pdf
+
+        sed -i -e '/GENERATE_LATEX/d' -e '/GENERATE_MAN/d' -e '/PROJECT_NUMBER/d' Doxyfile.doc
+        echo 'GENERATE_LATEX = YES' >> Doxyfile.doc
+        echo 'GENERATE_MAN = YES' >> Doxyfile.doc
+        echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
+    fi
+
+    if [ $GENERATE_QCH -ne 0 ]
+    then
+        sed -i -e '/GENERATE_HTMLHELP/d' Doxyfile.doc
+        echo "GENERATE_HTMLHELP = YES" >> Doxyfile.doc
+    fi
 
     cp ../INSTALL ../COPYING ./
 
@@ -117,21 +137,30 @@ function createDocs {
         exit $?
     fi
 
-    rm Doxyfile.doc Doxygen.log INSTALL COPYING
-    rm -r images
-
-    cd latex
-    make > /dev/null 2>&1
-    if [ $? -ne 0 ]
-    then 
-        exit $?
+    if [ $GENERATE_QCH -ne 0 ]
+    then
+        doxygen2qthelp --namespace=net.sourceforge.qwt-$VERSION --folder=qwt-$VERSION html/index.hhp qwt-$VERSION.qch
+        rm html/index.hh*
     fi
 
-    cd ..
-    mkdir pdf
-    mv latex/refman.pdf pdf/qwtdoc.pdf
+    rm Doxyfile.doc Doxygen.log INSTALL COPYING 
+    rm -r images
 
-    rm -r latex 
+    if [ $GENERATE_PDF -ne 0 ]
+    then
+        cd latex
+        make > /dev/null 2>&1
+        if [ $? -ne 0 ]
+        then 
+            exit $?
+        fi
+
+        cd ..
+        mkdir pdf
+        mv latex/refman.pdf pdf/qwtdoc.pdf
+
+        rm -r latex 
+    fi
     
     cd $ODIR
 }
@@ -202,6 +231,9 @@ QWTDIR=
 SVNDIR=trunk
 BRANCH=qwt
 VERSION=
+GENERATE_PDF=0
+GENERATE_QCH=0
+GENERATE_MAN=1
 
 while [ $# -gt 0 ] ; do
     case "$1" in
@@ -209,6 +241,10 @@ while [ $# -gt 0 ] ; do
             usage; exit 1 ;;
         -b|--branch)
             shift; SVNDIR=branches; BRANCH=$1; shift;;
+        -pdf)
+            GENERATE_PDF=1; shift;;
+        -qch)
+            GENERATE_QCH=1; shift;;
         *) 
             QWTDIR=qwt-$1 ; VERSION=$1; shift;;
     esac
@@ -216,8 +252,8 @@ done
 
 if [ "$QWTDIR" == "" ] 
 then 
-	usage 
-	exit 2 
+    usage 
+    exit 2 
 fi
 
 TMPDIR=/tmp/$QWTDIR-tmp
@@ -229,8 +265,13 @@ echo done
 
 echo -n "generate documentation ... "
 createDocs $TMPDIR/doc
-mv $TMPDIR/doc/pdf/qwtdoc.pdf $QWTDIR.pdf
-rmdir $TMPDIR/doc/pdf
+
+if [ $GENERATE_PDF -ne 0 ]
+then
+    mv $TMPDIR/doc/pdf/qwtdoc.pdf $QWTDIR.pdf
+    rmdir $TMPDIR/doc/pdf
+fi
+
 echo done
 
 
