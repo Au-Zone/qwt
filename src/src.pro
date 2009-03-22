@@ -216,7 +216,7 @@ contains(CONFIG, QwtWidgets) {
 # Install directives
 
 headers.files  = $$HEADERS
-doc.files      = $${QWT_ROOT}/doc/html
+doc.files      = $${QWT_ROOT}/doc/html $${QWT_ROOT}/doc/qwt-5.2.0.qch
 unix {
     doc.files      += $${QWT_ROOT}/doc/man
 }
