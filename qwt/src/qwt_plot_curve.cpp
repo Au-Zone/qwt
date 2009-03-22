@@ -1113,7 +1113,7 @@ double QwtPlotCurve::baseline() const
 /*!
   Find the closest curve point for a specific position
 
-  \param pos Position, wher to look for the closest curve point
+  \param pos Position, where to look for the closest curve point
   \param dist If dist != NULL, closestPoint() returns the distance between
               the position and the clostest curve point
   \return Index of the closest curve point, or -1 if none can be found
