@@ -17,6 +17,7 @@ Qwt TODO list
 14) QwtPlotLegendItem
 15) Qt 4.5 + reintroduced raster operations
 16) Customizable rotation of the vertical scale titles
+1/) Rubberband always on
 
 6.0.x)
 ------
