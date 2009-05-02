@@ -458,7 +458,7 @@ void QwtPlotZoomer::widgetMouseReleaseEvent(QMouseEvent *me)
 }
 
 /*!
-   Qt::Key_Plus zooms out, Qt::Key_Minus zooms in one position on the 
+   Qt::Key_Plus zooms in, Qt::Key_Minus zooms out one position on the 
    zoom stack, Qt::Key_Escape zooms out to the zoom base.
 
    Changes the current position on the stack, but doesn't pop
