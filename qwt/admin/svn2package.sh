@@ -63,7 +63,7 @@ function cleanQwt {
     PROFILES="qwtconfig.pri"
     for PROFILE in $PROFILES
     do
-        sed -i -e 's/= debug/= release/' $PROFILE 
+        sed -i -e 's/= debug /= release /' $PROFILE 
     done
 
     HEADERS=`find . -type f -name '*.h' -print`
