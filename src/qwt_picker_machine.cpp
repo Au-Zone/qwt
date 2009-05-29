@@ -12,7 +12,8 @@
 #include "qwt_picker_machine.h"
 
 //! Constructor
-QwtPickerMachine::QwtPickerMachine():
+QwtPickerMachine::QwtPickerMachine(SelectionType type):
+    d_selectionType(type),
     d_state(0)
 {
 }
@@ -20,6 +21,12 @@ QwtPickerMachine::QwtPickerMachine():
 //! Destructor
 QwtPickerMachine::~QwtPickerMachine()
 {
+}
+
+//! Return the selection type
+QwtPickerMachine::SelectionType QwtPickerMachine::selectionType() const
+{
+    return d_selectionType;
 }
 
 //! Return the current state
@@ -38,6 +45,12 @@ void QwtPickerMachine::setState(int state)
 void QwtPickerMachine::reset() 
 {
     setState(0);
+}
+
+//! Constructor
+QwtPickerMovePointMachine::QwtPickerMovePointMachine():
+    QwtPickerMachine(PointSelection)
+{
 }
 
 //! Transition
@@ -75,6 +88,12 @@ QwtPickerMachine::CommandList QwtPickerMovePointMachine::transition(
     return cmdList;
 }
 
+//! Constructor
+QwtPickerClickPointMachine::QwtPickerClickPointMachine():
+    QwtPickerMachine(PointSelection)
+{
+}
+
 //! Transition
 QwtPickerMachine::CommandList QwtPickerClickPointMachine::transition(
     const QwtEventPattern &eventPattern, const QEvent *e)
@@ -110,6 +129,12 @@ QwtPickerMachine::CommandList QwtPickerClickPointMachine::transition(
     }
 
     return cmdList;
+}
+
+//! Constructor
+QwtPickerDragPointMachine::QwtPickerDragPointMachine():
+    QwtPickerMachine(PointSelection)
+{
 }
 
 //! Transition
@@ -174,6 +199,12 @@ QwtPickerMachine::CommandList QwtPickerDragPointMachine::transition(
     }
 
     return cmdList;
+}
+
+//! Constructor
+QwtPickerClickRectMachine::QwtPickerClickRectMachine():
+    QwtPickerMachine(RectSelection)
+{
 }
 
 //! Transition
@@ -265,6 +296,12 @@ QwtPickerMachine::CommandList QwtPickerClickRectMachine::transition(
     return cmdList;
 }
 
+//! Constructor
+QwtPickerDragRectMachine::QwtPickerDragRectMachine():
+    QwtPickerMachine(RectSelection)
+{   
+}
+
 //! Transition
 QwtPickerMachine::CommandList QwtPickerDragRectMachine::transition(
     const QwtEventPattern &eventPattern, const QEvent *e)
@@ -329,6 +366,12 @@ QwtPickerMachine::CommandList QwtPickerDragRectMachine::transition(
     }
 
     return cmdList;
+}
+
+//! Constructor
+QwtPickerPolygonMachine::QwtPickerPolygonMachine():
+    QwtPickerMachine(PolygonSelection)
+{
 }
 
 //! Transition

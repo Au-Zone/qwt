@@ -53,9 +53,6 @@ public:
     explicit QwtPlotZoomer(QwtPlotCanvas *, bool doReplot = true);
     explicit QwtPlotZoomer(int xAxis, int yAxis, 
         QwtPlotCanvas *, bool doReplot = true);
-    explicit QwtPlotZoomer(int xAxis, int yAxis, int selectionFlags,
-        DisplayMode trackerMode, QwtPlotCanvas *,
-        bool doReplot = true);
 
     virtual ~QwtPlotZoomer();
 
@@ -80,8 +77,6 @@ public:
         int zoomRectIndex = -1);
 #endif
     uint zoomRectIndex() const;
-
-    virtual void setSelectionFlags(int);
 
 public slots:
     void moveBy(double x, double y);
@@ -113,7 +108,7 @@ protected:
     virtual bool accept(QwtPolygon &) const;
 
 private:
-    void init(int selectionFlags, DisplayMode trackerMode, bool doReplot);
+    void init(bool doReplot);
 
     class PrivateData;
     PrivateData *d_data;

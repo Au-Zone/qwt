@@ -14,6 +14,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_painter.h"
 #include "qwt_scale_map.h"
+#include "qwt_picker_machine.h"
 #include "qwt_plot_picker.h"
 
 /*!
@@ -79,8 +80,6 @@ QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, QwtPlotCanvas *canvas):
 
   \param xAxis X axis of the picker
   \param yAxis Y axis of the picker
-  \param selectionFlags Or'd value of SelectionType, RectSelectionType and
-                        SelectionMode
   \param rubberBand Rubberband style
   \param trackerMode Tracker mode
   \param canvas Plot canvas to observe, also the parent object
@@ -90,10 +89,10 @@ QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, QwtPlotCanvas *canvas):
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::scaleRect()
 */
-QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, int selectionFlags,
+QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, 
         RubberBand rubberBand, DisplayMode trackerMode,
         QwtPlotCanvas *canvas):
-    QwtPicker(selectionFlags, rubberBand, trackerMode, canvas),
+    QwtPicker(rubberBand, trackerMode, canvas),
     d_xAxis(xAxis),
     d_yAxis(yAxis)
 {
@@ -289,40 +288,63 @@ bool QwtPlotPicker::end(bool ok)
     if ( pa.count() == 0 )
         return false;
 
-    if ( selectionFlags() & PointSelection )
-    {
-        const QwtDoublePoint pos = invTransform(pa[0]);
-        emit selected(pos);
-    }
-    else if ( (selectionFlags() & RectSelection) && pa.count() >= 2 )
-    {
-        QPoint p1 = pa[0];
-        QPoint p2 = pa[int(pa.count() - 1)];
+    QwtPickerMachine::SelectionType selectionType =
+        QwtPickerMachine::NoSelection;
 
-        if ( selectionFlags() & CenterToCorner )
+    if ( stateMachine() )
+        selectionType = stateMachine()->selectionType();
+
+    switch(selectionType)
+    {
+        case QwtPickerMachine::PointSelection:
         {
-            p1.setX(p1.x() - (p2.x() - p1.x()));
-            p1.setY(p1.y() - (p2.y() - p1.y()));
+            const QwtDoublePoint pos = invTransform(pa[0]);
+            emit selected(pos);
+            break;
         }
-        else if ( selectionFlags() & CenterToRadius )
+        case QwtPickerMachine::RectSelection:
         {
-            const int radius = qwtMax(qwtAbs(p2.x() - p1.x()),
-                qwtAbs(p2.y() - p1.y()));
-            p2.setX(p1.x() + radius);
-            p2.setY(p1.y() + radius);
-            p1.setX(p1.x() - radius);
-            p1.setY(p1.y() - radius);
+            if ( pa.count() >= 2 )
+            {
+                QPoint p1 = pa[0];
+                QPoint p2 = pa[int(pa.count() - 1)];
+
+                switch(rectSelectionType())
+                {
+                    case CenterToCorner:
+                    {
+                        p1.setX(p1.x() - (p2.x() - p1.x()));
+                        p1.setY(p1.y() - (p2.y() - p1.y()));
+                        break;
+                    }
+                    case CenterToRadius:
+                    {
+                        const int radius = qwtMax(qwtAbs(p2.x() - p1.x()),
+                            qwtAbs(p2.y() - p1.y()));
+                        p2.setX(p1.x() + radius);
+                        p2.setY(p1.y() + radius);
+                        p1.setX(p1.x() - radius);
+                        p1.setY(p1.y() - radius);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                emit selected(invTransform(QRect(p1, p2)).normalized());
+            }
+            break;
         }
+        case QwtPickerMachine::PolygonSelection:
+        {
+            QwtArray<QwtDoublePoint> dpa(pa.count());
+            for ( int i = 0; i < int(pa.count()); i++ )
+                dpa[i] = invTransform(pa[i]);
 
-        emit selected(invTransform(QRect(p1, p2)).normalized());
-    }
-    else 
-    {
-        QwtArray<QwtDoublePoint> dpa(pa.count());
-        for ( int i = 0; i < int(pa.count()); i++ )
-            dpa[i] = invTransform(pa[i]);
-
-        emit selected(dpa);
+            emit selected(dpa);
+        }
+        default:
+            break;
     }
 
     return true;

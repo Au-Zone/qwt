@@ -14,6 +14,7 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_zoomer.h"
 #include "qwt_scale_div.h"
+#include "qwt_picker_machine.h"
 #if QT_VERSION < 0x040000
 typedef QValueStack<QwtDoubleRect> QwtZoomStack;
 #else
@@ -52,7 +53,7 @@ QwtPlotZoomer::QwtPlotZoomer(QwtPlotCanvas *canvas, bool doReplot):
     QwtPlotPicker(canvas)
 {
     if ( canvas )
-        init(RectSelection & ClickSelection, ActiveOnly, doReplot);
+        init(doReplot);
 }
 
 /*!
@@ -77,48 +78,19 @@ QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis,
     QwtPlotPicker(xAxis, yAxis, canvas)
 {
     if ( canvas )
-        init(RectSelection & ClickSelection, ActiveOnly, doReplot);
-}
-
-/*!
-  Create a zoomer for a plot canvas.
-
-  \param xAxis X axis of the zoomer
-  \param yAxis Y axis of the zoomer
-  \param selectionFlags Or'd value of QwtPicker::RectSelectionType and
-                        QwtPicker::SelectionMode. 
-                        QwtPicker::RectSelection will be auto added.
-  \param trackerMode Tracker mode
-  \param canvas Plot canvas to observe, also the parent object
-  \param doReplot Call replot for the attached plot before initializing
-                  the zoomer with its scales. This might be necessary, 
-                  when the plot is in a state with pending scale changes.
-
-  \sa QwtPicker, QwtPicker::setSelectionFlags(), QwtPicker::setRubberBand(),
-      QwtPicker::setTrackerMode()
-
-  \sa QwtPlot::autoReplot(), QwtPlot::replot(), setZoomBase()
-*/
-
-QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis, int selectionFlags,
-        DisplayMode trackerMode, QwtPlotCanvas *canvas, bool doReplot):
-    QwtPlotPicker(xAxis, yAxis, canvas)
-{
-    if ( canvas )
-        init(selectionFlags, trackerMode, doReplot);
+        init(doReplot);
 }
 
 //! Init the zoomer, used by the constructors
-void QwtPlotZoomer::init(int selectionFlags, 
-    DisplayMode trackerMode, bool doReplot)
+void QwtPlotZoomer::init(bool doReplot)
 {
     d_data = new PrivateData;
 
     d_data->maxStackDepth = -1;
 
-    setSelectionFlags(selectionFlags);
-    setTrackerMode(trackerMode);
+    setTrackerMode(ActiveOnly);
     setRubberBand(RectRubberBand);
+    setStateMachine(new QwtPickerDragRectMachine());
 
     if ( doReplot && plot() )
         plot()->replot();
@@ -645,24 +617,4 @@ bool QwtPlotZoomer::end(bool ok)
     zoom(zoomRect);
 
     return true;
-}
-
-/*!
-  Set the selection flags
-  
-  \param flags Or'd value of QwtPicker::RectSelectionType and
-               QwtPicker::SelectionMode. The default value is 
-               QwtPicker::RectSelection & QwtPicker::ClickSelection.
-
-  \sa selectionFlags(), SelectionType, RectSelectionType, SelectionMode
-  \note QwtPicker::RectSelection will be auto added.
-*/
-
-void QwtPlotZoomer::setSelectionFlags(int flags)
-{
-    // we accept only rects
-    flags &= ~(PointSelection | PolygonSelection);
-    flags |= RectSelection;
-
-    QwtPlotPicker::setSelectionFlags(flags);
 }

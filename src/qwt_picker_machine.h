@@ -32,6 +32,29 @@ class QwtEventPattern;
 class QWT_EXPORT QwtPickerMachine
 {
 public:
+    /*!
+      Type of a selection. 
+
+      - NoSelection\n
+        The state machine not usable for any type of selection.
+      - PointSelection\n
+        The state machine is for selecting a single point.
+        - RectSelection\n
+        The state machine is for selecting a rectangle (2 points).
+      - PolygonSelection\n
+        The state machine is for selecting a polygon (many points).
+
+      \sa selectionType()
+    */
+    enum SelectionType
+    {
+        NoSelection = -1,
+
+        PointSelection,
+        RectSelection,
+        PolygonSelection
+    };
+
     //! Commands - the output of the state machine
     enum Command
     {
@@ -47,6 +70,7 @@ public:
     typedef QList<Command> CommandList;
 #endif
 
+    QwtPickerMachine(SelectionType);
     virtual ~QwtPickerMachine();
 
     //! Transition
@@ -57,10 +81,10 @@ public:
     int state() const;
     void setState(int);
 
-protected:
-    QwtPickerMachine();
+    SelectionType selectionType() const;
 
 private:
+    const SelectionType d_selectionType;
     int d_state;
 };
 
@@ -72,6 +96,8 @@ private:
 class QWT_EXPORT QwtPickerMovePointMachine: public QwtPickerMachine
 {
 public:
+    QwtPickerMovePointMachine();
+
     virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
@@ -87,6 +113,8 @@ public:
 class QWT_EXPORT QwtPickerClickPointMachine: public QwtPickerMachine
 {
 public:
+    QwtPickerClickPointMachine();
+
     virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
@@ -101,6 +129,8 @@ public:
 class QWT_EXPORT QwtPickerDragPointMachine: public QwtPickerMachine
 {
 public:
+    QwtPickerDragPointMachine();
+
     virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
@@ -121,6 +151,8 @@ public:
 class QWT_EXPORT QwtPickerClickRectMachine: public QwtPickerMachine
 {
 public:
+    QwtPickerClickRectMachine();
+
     virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
@@ -140,6 +172,8 @@ public:
 class QWT_EXPORT QwtPickerDragRectMachine: public QwtPickerMachine
 {
 public:
+    QwtPickerDragRectMachine();
+
     virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
@@ -158,6 +192,8 @@ public:
 class QWT_EXPORT QwtPickerPolygonMachine: public QwtPickerMachine
 {
 public:
+    QwtPickerPolygonMachine();
+
     virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
