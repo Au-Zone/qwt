@@ -48,6 +48,7 @@ QwtPickerMachine::CommandList QwtPickerMovePointMachine::transition(
 
     switch(e->type())
     {
+        case QEvent::Enter:
         case QEvent::MouseMove:
         {
             if ( state() == 0 )
