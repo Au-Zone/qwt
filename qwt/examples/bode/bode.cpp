@@ -21,6 +21,7 @@
 #include <qwt_painter.h>
 #endif
 #include <qwt_counter.h>
+#include <qwt_picker_machine.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_text.h>
@@ -35,7 +36,6 @@ public:
     Zoomer(int xAxis, int yAxis, QwtPlotCanvas *canvas):
         QwtPlotZoomer(xAxis, yAxis, canvas)
     {
-        setSelectionFlags(QwtPicker::DragSelection | QwtPicker::CornerToCorner);
         setTrackerMode(QwtPicker::AlwaysOff);
         setRubberBand(QwtPicker::NoRubberBand);
 
@@ -88,9 +88,9 @@ MainWin::MainWin(QWidget *parent):
     d_panner->setMouseButton(Qt::MidButton);
 
     d_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
-        QwtPicker::PointSelection | QwtPicker::DragSelection, 
         QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, 
         d_plot->canvas());
+    d_picker->setStateMachine(new QwtPickerDragPointMachine());
     d_picker->setRubberBandPen(QColor(Qt::green));
     d_picker->setRubberBand(QwtPicker::CrossRubberBand);
     d_picker->setTrackerPen(QColor(Qt::white));
