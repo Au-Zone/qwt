@@ -2,22 +2,21 @@ Qwt TODO list
 
 5.3.x)
 ------
-1) QwtPlotRescaler
-2) Cleanup of all widgets using QGradient and friends
 3) Histogram
 4) Interval Curve (including error bars)
 5) Curve with z value displayed as colors
-6) Curve for Price Movement 
 7) Thread support for rendering spectrograms
 9) Navigation example
 10) QwtSymbol/QwtIntervalSymbol + QPainterPath
 11) QwtData + functors
-12) QwtData/QwtPlotCurve + Level of details
+12) QwtData/QwtPlotCurve + Level of details (Douglas Peucker)
 13) Cleaning up the examples
-14) QwtPlotLegendItem
 15) Qt 4.5 + reintroduced raster operations
 16) Customizable rotation of the vertical scale titles
-1/) Rubberband always on
+18) Pen width + symbols
+19) Scale title rotation flag
+20) Include adopted MathML code
+21) Improve dataplot example
 
 6.0.x)
 ------
@@ -30,18 +29,20 @@ Qwt TODO list
 2) Improve Documention
 3) Qwt Jambi
 4) QAbstractModel -> QwtSeriesData
+5) Cleanup of all widgets using QGradient and friends
 
 Other ideas
 -----------
 1) OpenGL plot canvas
 2) Time/Date scale engine
-3) MathML texts, using another (L)GPL Qt/MathML render engine 
 4) TeX texts
 5) Grid of QwtPlots
-6) Adding candle sticks
-7) Adding box plots
+6) Curve for Price Movement 
+7) Adding candle sticks
+8) Adding box plots
 8) Interval scale labels ( between 2 ticks )
 9) More than 4 axes
+10) QwtPlotLegendItem
 
 Bugs/Change requests
 --------------------
