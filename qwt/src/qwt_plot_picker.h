@@ -37,7 +37,7 @@ public:
     explicit QwtPlotPicker(int xAxis, int yAxis,
         QwtPlotCanvas *);
 
-    explicit QwtPlotPicker(int xAxis, int yAxis, int selectionFlags, 
+    explicit QwtPlotPicker(int xAxis, int yAxis, 
         RubberBand rubberBand, DisplayMode trackerMode, 
         QwtPlotCanvas *);
 

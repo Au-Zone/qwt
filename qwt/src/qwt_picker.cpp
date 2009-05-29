@@ -57,7 +57,7 @@ public:
 
     QwtPickerMachine *stateMachine;
 
-    int selectionFlags;
+    QwtPicker::RectSelectionType rectSelectionType;
     QwtPicker::ResizeMode resizeMode;
 
     QwtPicker::RubberBand rubberBand;
@@ -249,7 +249,7 @@ void QwtPicker::PickerWidget::paintEvent(QPaintEvent *e)
 QwtPicker::QwtPicker(QWidget *parent):
     QObject(parent)
 {
-    init(parent, NoSelection, NoRubberBand, AlwaysOff);
+    init(parent, NoRubberBand, AlwaysOff);
 }
 
 /*!
@@ -261,11 +261,11 @@ QwtPicker::QwtPicker(QWidget *parent):
   \param trackerMode Tracker mode
   \param parent Parent widget, that will be observed
  */
-QwtPicker::QwtPicker(int selectionFlags, RubberBand rubberBand,
+QwtPicker::QwtPicker(RubberBand rubberBand,
         DisplayMode trackerMode, QWidget *parent):
     QObject(parent)
 {
-    init(parent, selectionFlags, rubberBand, trackerMode);
+    init(parent, rubberBand, trackerMode);
 }
 
 //! Destructor
@@ -279,7 +279,7 @@ QwtPicker::~QwtPicker()
 }
 
 //! Init the picker, used by the constructors
-void QwtPicker::init(QWidget *parent, int selectionFlags, 
+void QwtPicker::init(QWidget *parent, 
     RubberBand rubberBand, DisplayMode trackerMode)
 {
     d_data = new PrivateData;
@@ -296,7 +296,6 @@ void QwtPicker::init(QWidget *parent, int selectionFlags,
     d_data->mouseTracking = false;
 
     d_data->stateMachine = NULL;
-    setSelectionFlags(selectionFlags);
 
     if ( parent )
     {
@@ -332,47 +331,14 @@ void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
     }
 }
 
-/*!
-   Create a state machine depending on the selection flags.
-
-   - PointSelection | MoveSelection\n
-     QwtPickerMovePointMachine()
-   - PointSelection | ClickSelection\n
-     QwtPickerClickPointMachine()
-   - PointSelection | DragSelection\n
-     QwtPickerDragPointMachine()
-   - RectSelection | ClickSelection\n
-     QwtPickerClickRectMachine()
-   - RectSelection | DragSelection\n
-     QwtPickerDragRectMachine()
-   - PolygonSelection\n
-     QwtPickerPolygonMachine()
-
-   \sa setSelectionFlags()
-*/
-QwtPickerMachine *QwtPicker::stateMachine(int flags) const
+QwtPickerMachine *QwtPicker::stateMachine()
 {
-    if ( flags & PointSelection )
-    {
-        if ( flags & ClickSelection )
-            return new QwtPickerClickPointMachine;
-        if ( flags & MoveSelection )
-            return new QwtPickerMovePointMachine;
-        else
-            return new QwtPickerDragPointMachine;
-    }
-    if ( flags & RectSelection )
-    {
-        if ( flags & ClickSelection )
-            return new QwtPickerClickRectMachine;
-        else
-            return new QwtPickerDragRectMachine;
-    }
-    if ( flags & PolygonSelection )
-    {
-        return new QwtPickerPolygonMachine();
-    }
-    return NULL;
+    return d_data->stateMachine;
+}
+
+const QwtPickerMachine *QwtPicker::stateMachine() const
+{
+    return d_data->stateMachine;
 }
 
 //! Return the parent widget, where the selection happens
@@ -401,23 +367,22 @@ const QWidget *QwtPicker::parentWidget() const
   \param flags Or'd value of SelectionType, RectSelectionType and 
                SelectionMode. The default value is NoSelection.
 
-  \sa selectionFlags(), SelectionType, RectSelectionType, SelectionMode
+  \sa rectSelectionType(), RectSelectionType
 */
 
-void QwtPicker::setSelectionFlags(int flags)
+void QwtPicker::setRectSelectionType(RectSelectionType type)
 {
-    d_data->selectionFlags = flags;
-    setStateMachine(stateMachine(flags));
+    d_data->rectSelectionType = type;
 }
 
 /*!
   \return Selection flags, an Or'd value of SelectionType, RectSelectionType and
           SelectionMode.
-  \sa setSelectionFlags(), SelectionType, RectSelectionType, SelectionMode
+  \sa setRectSelectionType(), RectSelectionType
 */
-int QwtPicker::selectionFlags() const
+QwtPicker::RectSelectionType QwtPicker::rectSelectionType() const
 {
-    return d_data->selectionFlags;
+    return d_data->rectSelectionType;
 }
 
 /*!
@@ -666,80 +631,100 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
     const QRect &pRect = pickRect();
     const QwtPolygon &pa = d_data->selection;
 
-    if ( selectionFlags() & PointSelection )
+    QwtPickerMachine::SelectionType selectionType = 
+        QwtPickerMachine::NoSelection;
+
+    if ( d_data->stateMachine )
+        selectionType = d_data->stateMachine->selectionType();
+
+    switch(selectionType)
     {
-        if ( pa.count() < 1 )
-            return;
-
-        const QPoint pos = pa[0];
-
-        switch(rubberBand())
+        case QwtPickerMachine::PointSelection:
         {
-            case VLineRubberBand:
-                QwtPainter::drawLine(painter, pos.x(),
-                    pRect.top(), pos.x(), pRect.bottom());
-                break;
+            if ( pa.count() < 1 )
+                return;
 
-            case HLineRubberBand:
-                QwtPainter::drawLine(painter, pRect.left(), 
-                    pos.y(), pRect.right(), pos.y());
-                break;
+            const QPoint pos = pa[0];
 
-            case CrossRubberBand:
-                QwtPainter::drawLine(painter, pos.x(),
-                    pRect.top(), pos.x(), pRect.bottom());
-                QwtPainter::drawLine(painter, pRect.left(), 
-                    pos.y(), pRect.right(), pos.y());
-                break;
-            default:
-                break;
+            switch(rubberBand())
+            {
+                case VLineRubberBand:
+                    QwtPainter::drawLine(painter, pos.x(),
+                        pRect.top(), pos.x(), pRect.bottom());
+                    break;
+
+                case HLineRubberBand:
+                    QwtPainter::drawLine(painter, pRect.left(), 
+                        pos.y(), pRect.right(), pos.y());
+                    break;
+
+                case CrossRubberBand:
+                    QwtPainter::drawLine(painter, pos.x(),
+                        pRect.top(), pos.x(), pRect.bottom());
+                    QwtPainter::drawLine(painter, pRect.left(), 
+                        pos.y(), pRect.right(), pos.y());
+                    break;
+                default:
+                    break;
+            }
+            break;
         }
-    }
-
-    else if ( selectionFlags() & RectSelection )
-    {
-        if ( pa.count() < 2 )
-            return;
-
-        QPoint p1 = pa[0];
-        QPoint p2 = pa[int(pa.count() - 1)];
-
-        if ( selectionFlags() & CenterToCorner )
+        case QwtPickerMachine::RectSelection:
         {
-            p1.setX(p1.x() - (p2.x() - p1.x()));
-            p1.setY(p1.y() - (p2.y() - p1.y()));
-        }
-        else if ( selectionFlags() & CenterToRadius )
-        {
-            const int radius = qwtMax(qwtAbs(p2.x() - p1.x()), 
-                qwtAbs(p2.y() - p1.y()));
-            p2.setX(p1.x() + radius);
-            p2.setY(p1.y() + radius);
-            p1.setX(p1.x() - radius);
-            p1.setY(p1.y() - radius);
-        }
+            if ( pa.count() < 2 )
+                return;
+
+            QPoint p1 = pa[0];
+            QPoint p2 = pa[int(pa.count() - 1)];
+
+            switch(rectSelectionType())
+            {
+                case CenterToCorner:
+                {
+                    p1.setX(p1.x() - (p2.x() - p1.x()));
+                    p1.setY(p1.y() - (p2.y() - p1.y()));
+                    break;
+                }
+                case CenterToRadius:
+                {
+                    const int radius = qwtMax(qwtAbs(p2.x() - p1.x()), 
+                        qwtAbs(p2.y() - p1.y()));
+                    p2.setX(p1.x() + radius);
+                    p2.setY(p1.y() + radius);
+                    p1.setX(p1.x() - radius);
+                    p1.setY(p1.y() - radius);
+                }
+                case CornerToCorner:
+                default:
+                    break;
+            }
 
 #if QT_VERSION < 0x040000
-        const QRect rect = QRect(p1, p2).normalize();
+            const QRect rect = QRect(p1, p2).normalize();
 #else
-        const QRect rect = QRect(p1, p2).normalized();
+            const QRect rect = QRect(p1, p2).normalized();
 #endif
-        switch(rubberBand())
-        {
-            case EllipseRubberBand:
-                QwtPainter::drawEllipse(painter, rect);
-                break;
-            case RectRubberBand:
-                QwtPainter::drawRect(painter, rect);
-                break;
-            default:
-                break;
+            switch(rubberBand())
+            {
+                case EllipseRubberBand:
+                    QwtPainter::drawEllipse(painter, rect);
+                    break;
+                case RectRubberBand:
+                    QwtPainter::drawRect(painter, rect);
+                    break;
+                default:
+                    break;
+            }
+            break;
         }
-    }
-    else if ( selectionFlags() & PolygonSelection )
-    {
-        if ( rubberBand() == PolygonRubberBand )
-            painter->drawPolyline(pa);
+        case QwtPickerMachine::PolygonSelection:
+        {
+            if ( rubberBand() == PolygonRubberBand )
+                painter->drawPolyline(pa);
+            break;
+        }
+        default:
+            break;
     }
 }
 

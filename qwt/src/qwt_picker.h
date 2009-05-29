@@ -84,8 +84,10 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
     Q_ENUMS(RubberBand)
     Q_ENUMS(DisplayMode)
     Q_ENUMS(ResizeMode)
+    Q_ENUMS(RectSelectionType)
 
-    Q_PROPERTY(int selectionFlags READ selectionFlags WRITE setSelectionFlags)
+    Q_PROPERTY(RectSelectionType rectSelectionType 
+        READ rectSelectionType WRITE setRectSelectionType)
     Q_PROPERTY(DisplayMode trackerMode READ trackerMode WRITE setTrackerMode)
     Q_PROPERTY(QFont trackerFont READ trackerFont WRITE setTrackerFont)
     Q_PROPERTY(RubberBand rubberBand READ rubberBand WRITE setRubberBand)
@@ -96,71 +98,6 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
     Q_PROPERTY(QPen rubberBandPen READ rubberBandPen WRITE setRubberBandPen)
 
 public:
-    /*! 
-      This enum type describes the type of a selection. It can be or'd
-      with QwtPicker::RectSelectionType and QwtPicker::SelectionMode
-      and passed to QwtPicker::setSelectionFlags()
-      - NoSelection\n
-        Selection is disabled. Note this is different to the disabled
-        state, as you might have a tracker.
-      - PointSelection\n
-        Select a single point.
-      - RectSelection\n
-        Select a rectangle.
-      - PolygonSelection\n
-        Select a polygon.
-
-      The default value is NoSelection.
-      \sa QwtPicker::setSelectionFlags(), QwtPicker::selectionFlags()
-    */
-
-    enum SelectionType
-    {
-        NoSelection = 0,
-        PointSelection = 1,
-        RectSelection = 2,
-        PolygonSelection = 4
-    };
-
-    /*! 
-      \brief Selection subtype for RectSelection
-      This enum type describes the type of rectangle selections. 
-      It can be or'd with QwtPicker::RectSelectionType and 
-      QwtPicker::SelectionMode and passed to QwtPicker::setSelectionFlags().
-      - CornerToCorner\n
-        The first and the second selected point are the corners
-        of the rectangle.
-      - CenterToCorner\n
-        The first point is the center, the second a corner of the
-        rectangle.
-      - CenterToRadius\n
-        The first point is the center of a quadrat, calculated by the maximum 
-        of the x- and y-distance.
-
-      The default value is CornerToCorner.
-      \sa QwtPicker::setSelectionFlags(), QwtPicker::selectionFlags()
-    */
-    enum RectSelectionType
-    {
-        CornerToCorner = 64,
-        CenterToCorner = 128,
-        CenterToRadius = 256
-    };
-
-    /*! 
-      Values of this enum type or'd together with a SelectionType value
-      identifies which state machine should be used for the selection.
-
-      The default value is ClickSelection.
-      \sa stateMachine()
-    */
-    enum SelectionMode
-    {
-        ClickSelection = 1024,
-        DragSelection = 2048,
-        MoveSelection = 4096
-    };
-
     /*! 
       Rubberband style
       - NoRubberBand\n
@@ -240,31 +177,60 @@ public:
         KeepSize
     };
 
+    /*! 
+      \brief Selection subtype for RectSelection
+      This enum type describes the type of rectangle selections. 
+      It can be or'd with QwtPicker::RectSelectionType and 
+      QwtPicker::SelectionMode and passed to QwtPicker::setSelectionFlags().
+      - CornerToCorner\n
+        The first and the second selected point are the corners
+        of the rectangle.
+      - CenterToCorner\n
+        The first point is the center, the second a corner of the
+        rectangle.
+      - CenterToRadius\n
+        The first point is the center of a quadrat, calculated by the maximum 
+        of the x- and y-distance.
+
+      The default value is CornerToCorner.
+      \sa QwtPicker::setSelectionFlags(), QwtPicker::selectionFlags()
+    */
+    enum RectSelectionType
+    {
+        CornerToCorner = 0,
+        CenterToCorner,
+        CenterToRadius
+    };
+
     explicit QwtPicker(QWidget *parent);
-    explicit QwtPicker(int selectionFlags, RubberBand rubberBand,
+    explicit QwtPicker(RubberBand rubberBand,
         DisplayMode trackerMode, QWidget *);
 
     virtual ~QwtPicker();
 
-    virtual void setSelectionFlags(int);
-    int selectionFlags() const;
+    void setStateMachine(QwtPickerMachine *);
+    const QwtPickerMachine *stateMachine() const;
+    QwtPickerMachine *stateMachine();
 
-    virtual void setRubberBand(RubberBand);
+    void setRectSelectionType(RectSelectionType);
+    RectSelectionType rectSelectionType() const;
+
+    void setRubberBand(RubberBand);
     RubberBand rubberBand() const;
 
-    virtual void setTrackerMode(DisplayMode);
+    void setTrackerMode(DisplayMode);
     DisplayMode trackerMode() const;
 
-    virtual void setResizeMode(ResizeMode);
+    void setResizeMode(ResizeMode);
     ResizeMode resizeMode() const;
 
-    virtual void setRubberBandPen(const QPen &);
+    void setRubberBandPen(const QPen &);
     QPen rubberBandPen() const;
 
-    virtual void setTrackerPen(const QPen &);
+    void setTrackerPen(const QPen &);
     QPen trackerPen() const;
 
-    virtual void setTrackerFont(const QFont &);
+    void setTrackerFont(const QFont &);
     QFont trackerFont() const;
 
     bool isEnabled() const;
@@ -356,18 +322,14 @@ protected:
     virtual void stretchSelection(const QSize &oldSize, 
         const QSize &newSize);
 
-    virtual QwtPickerMachine *stateMachine(int) const;
-
     virtual void updateDisplay();
 
     const QWidget *rubberBandWidget() const;
     const QWidget *trackerWidget() const;
 
 private:
-    void init(QWidget *, int selectionFlags, RubberBand rubberBand,
-        DisplayMode trackerMode);
+    void init(QWidget *, RubberBand rubberBand, DisplayMode trackerMode);
 
-    void setStateMachine(QwtPickerMachine *);
     void setMouseTracking(bool);
 
     class PickerWidget;
