@@ -41,6 +41,40 @@ void QwtPickerMachine::reset()
 }
 
 //! Transition
+QwtPickerMachine::CommandList QwtPickerMovePointMachine::transition(
+    const QwtEventPattern &, const QEvent *e)
+{
+    QwtPickerMachine::CommandList cmdList;
+
+    switch(e->type())
+    {
+        case QEvent::MouseMove:
+        {
+            if ( state() == 0 )
+            {
+                cmdList += Begin;
+                cmdList += Append;
+                setState(1);
+            }
+            else
+            {
+                cmdList += Move;
+            }
+            break;
+        }
+        case QEvent::Leave:
+        {
+            cmdList += End;
+            setState(0);
+        }
+        default:
+            break;
+    }
+        
+    return cmdList;
+}
+
+//! Transition
 QwtPickerMachine::CommandList QwtPickerClickPointMachine::transition(
     const QwtEventPattern &eventPattern, const QEvent *e)
 {   

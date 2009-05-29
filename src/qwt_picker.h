@@ -157,7 +157,8 @@ public:
     enum SelectionMode
     {
         ClickSelection = 1024,
-        DragSelection = 2048
+        DragSelection = 2048,
+        MoveSelection = 4096
     };
 
     /*! 
