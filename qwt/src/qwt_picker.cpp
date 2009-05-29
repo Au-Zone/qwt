@@ -335,6 +335,8 @@ void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
 /*!
    Create a state machine depending on the selection flags.
 
+   - PointSelection | MoveSelection\n
+     QwtPickerMovePointMachine()
    - PointSelection | ClickSelection\n
      QwtPickerClickPointMachine()
    - PointSelection | DragSelection\n
@@ -354,6 +356,8 @@ QwtPickerMachine *QwtPicker::stateMachine(int flags) const
     {
         if ( flags & ClickSelection )
             return new QwtPickerClickPointMachine;
+        if ( flags & MoveSelection )
+            return new QwtPickerMovePointMachine;
         else
             return new QwtPickerDragPointMachine;
     }
@@ -953,8 +957,10 @@ void QwtPicker::widgetMouseMoveEvent(QMouseEvent *e)
       widgetMouseDoubleClickEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetLeaveEvent(QEvent *)   
+void QwtPicker::widgetLeaveEvent(QEvent *event)   
 {
+    transition(event);
+
     d_data->trackerPosition = QPoint(-1, -1);
     if ( !isActive() )
         updateDisplay();

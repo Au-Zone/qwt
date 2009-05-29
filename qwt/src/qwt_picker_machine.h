@@ -67,6 +67,18 @@ private:
 /*!
   \brief A state machine for point selections
 
+  Moving the mouse selects a point.
+*/
+class QWT_EXPORT QwtPickerMovePointMachine: public QwtPickerMachine
+{
+public:
+    virtual CommandList transition(
+        const QwtEventPattern &, const QEvent *);
+};
+
+/*!
+  \brief A state machine for point selections
+
   Pressing QwtEventPattern::MouseSelect1 or 
   QwtEventPattern::KeySelect1 selects a point.
 
