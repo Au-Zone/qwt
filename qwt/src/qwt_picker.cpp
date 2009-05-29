@@ -882,6 +882,9 @@ bool QwtPicker::eventFilter(QObject *o, QEvent *e)
                     d_data->trackerWidget->resize(re->size());
                 break;
             }
+            case QEvent::Enter:
+                widgetEnterEvent(e);
+                break;
             case QEvent::Leave:
                 widgetLeaveEvent(e);
                 break;
@@ -948,6 +951,18 @@ void QwtPicker::widgetMouseMoveEvent(QMouseEvent *e)
         updateDisplay();
 
     transition(e);
+}
+
+/*!
+  Handle a enter event for the observed widget.
+
+  \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
+      widgetMouseDoubleClickEvent(),
+      widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
+*/
+void QwtPicker::widgetEnterEvent(QEvent *event)   
+{
+    transition(event);
 }
 
 /*!

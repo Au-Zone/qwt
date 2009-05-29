@@ -350,6 +350,7 @@ protected:
     virtual void widgetWheelEvent(QWheelEvent *);
     virtual void widgetKeyPressEvent(QKeyEvent *); 
     virtual void widgetKeyReleaseEvent(QKeyEvent *); 
+    virtual void widgetEnterEvent(QEvent *); 
     virtual void widgetLeaveEvent(QEvent *); 
 
     virtual void stretchSelection(const QSize &oldSize, 
