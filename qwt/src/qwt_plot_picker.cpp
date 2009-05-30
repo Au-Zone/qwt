@@ -284,7 +284,7 @@ bool QwtPlotPicker::end(bool ok)
     if ( !plot )
         return false;
 
-    const QwtPolygon &pa = selection();
+    const QwtPolygon pa = selection();
     if ( pa.count() == 0 )
         return false;
 
@@ -306,32 +306,15 @@ bool QwtPlotPicker::end(bool ok)
         {
             if ( pa.count() >= 2 )
             {
-                QPoint p1 = pa[0];
-                QPoint p2 = pa[int(pa.count() - 1)];
+                const QPoint p1 = pa[0];
+                const QPoint p2 = pa[int(pa.count() - 1)];
 
-                switch(rectSelectionType())
-                {
-                    case CenterToCorner:
-                    {
-                        p1.setX(p1.x() - (p2.x() - p1.x()));
-                        p1.setY(p1.y() - (p2.y() - p1.y()));
-                        break;
-                    }
-                    case CenterToRadius:
-                    {
-                        const int radius = qwtMax(qwtAbs(p2.x() - p1.x()),
-                            qwtAbs(p2.y() - p1.y()));
-                        p2.setX(p1.x() + radius);
-                        p2.setY(p1.y() + radius);
-                        p1.setX(p1.x() - radius);
-                        p1.setY(p1.y() - radius);
-                        break;
-                    }
-                    default:
-                        break;
-                }
-
-                emit selected(invTransform(QRect(p1, p2)).normalized());
+#if QT_VERSION < 0x040000
+                const QRect rect = QRect(p1, p2).normalize();
+#else
+                const QRect rect = QRect(p1, p2).normalized();
+#endif
+                emit selected(invTransform(rect));
             }
             break;
         }
