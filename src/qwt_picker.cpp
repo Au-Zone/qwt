@@ -57,7 +57,6 @@ public:
 
     QwtPickerMachine *stateMachine;
 
-    QwtPicker::RectSelectionType rectSelectionType;
     QwtPicker::ResizeMode resizeMode;
 
     QwtPicker::RubberBand rubberBand;
@@ -67,7 +66,7 @@ public:
     QPen trackerPen;
     QFont trackerFont;
 
-    QwtPolygon selection;
+    QwtPolygon pickedPoints;
     bool isActive;
     QPoint trackerPosition;
 
@@ -362,30 +361,6 @@ const QWidget *QwtPicker::parentWidget() const
 }
 
 /*!
-  Set the selection flags
-
-  \param flags Or'd value of SelectionType, RectSelectionType and 
-               SelectionMode. The default value is NoSelection.
-
-  \sa rectSelectionType(), RectSelectionType
-*/
-
-void QwtPicker::setRectSelectionType(RectSelectionType type)
-{
-    d_data->rectSelectionType = type;
-}
-
-/*!
-  \return Selection flags, an Or'd value of SelectionType, RectSelectionType and
-          SelectionMode.
-  \sa setRectSelectionType(), RectSelectionType
-*/
-QwtPicker::RectSelectionType QwtPicker::rectSelectionType() const
-{
-    return d_data->rectSelectionType;
-}
-
-/*!
   Set the rubberband style 
 
   \param rubberBand Rubberband style
@@ -629,7 +604,7 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
     }
 
     const QRect &pRect = pickRect();
-    const QwtPolygon &pa = d_data->selection;
+    const QwtPolygon pa = adjustedPoints(d_data->pickedPoints);
 
     QwtPickerMachine::SelectionType selectionType = 
         QwtPickerMachine::NoSelection;
@@ -674,30 +649,8 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
             if ( pa.count() < 2 )
                 return;
 
-            QPoint p1 = pa[0];
-            QPoint p2 = pa[int(pa.count() - 1)];
-
-            switch(rectSelectionType())
-            {
-                case CenterToCorner:
-                {
-                    p1.setX(p1.x() - (p2.x() - p1.x()));
-                    p1.setY(p1.y() - (p2.y() - p1.y()));
-                    break;
-                }
-                case CenterToRadius:
-                {
-                    const int radius = qwtMax(qwtAbs(p2.x() - p1.x()), 
-                        qwtAbs(p2.y() - p1.y()));
-                    p2.setX(p1.x() + radius);
-                    p2.setY(p1.y() + radius);
-                    p1.setX(p1.x() - radius);
-                    p1.setY(p1.y() - radius);
-                }
-                case CornerToCorner:
-                default:
-                    break;
-            }
+            const QPoint p1 = pa[0];
+            const QPoint p2 = pa[int(pa.count() - 1)];
 
 #if QT_VERSION < 0x040000
             const QRect rect = QRect(p1, p2).normalize();
@@ -762,6 +715,16 @@ void QwtPicker::drawTracker(QPainter *painter) const
     }
 }
 
+QwtPolygon QwtPicker::adjustedPoints(const QwtPolygon &points) const
+{
+    return points;
+}
+
+QwtPolygon QwtPicker::selection() const
+{
+    return adjustedPoints(d_data->pickedPoints);
+}
+
 //! \return Current position of the tracker
 QPoint QwtPicker::trackerPosition() const 
 {
@@ -797,11 +760,11 @@ QRect QwtPicker::trackerRect(const QFont &font) const
     const QPoint &pos = d_data->trackerPosition;
 
     int alignment = 0;
-    if ( isActive() && d_data->selection.count() > 1 
+    if ( isActive() && d_data->pickedPoints.count() > 1 
         && rubberBand() != NoRubberBand )
     {
         const QPoint last = 
-            d_data->selection[int(d_data->selection.count()) - 2];
+            d_data->pickedPoints[int(d_data->pickedPoints.count()) - 2];
 
         alignment |= (pos.x() >= last.x()) ? Qt::AlignRight : Qt::AlignLeft;
         alignment |= (pos.y() > last.y()) ? Qt::AlignBottom : Qt::AlignTop;
@@ -1154,7 +1117,7 @@ void QwtPicker::begin()
     if ( d_data->isActive )
         return;
 
-    d_data->selection.resize(0);
+    d_data->pickedPoints.resize(0);
     d_data->isActive = true;
 
     if ( trackerMode() != AlwaysOff )
@@ -1193,12 +1156,12 @@ bool QwtPicker::end(bool ok)
             d_data->trackerPosition = QPoint(-1, -1);
 
         if ( ok )
-            ok = accept(d_data->selection);
+            ok = accept(d_data->pickedPoints);
 
         if ( ok )
-            emit selected(d_data->selection);
+            emit selected(d_data->pickedPoints);
         else
-            d_data->selection.resize(0);
+            d_data->pickedPoints.resize(0);
 
         updateDisplay();
     }
@@ -1232,9 +1195,9 @@ void QwtPicker::append(const QPoint &pos)
 {
     if ( d_data->isActive )
     {
-        const int idx = d_data->selection.count();
-        d_data->selection.resize(idx + 1);
-        d_data->selection[idx] = pos;
+        const int idx = d_data->pickedPoints.count();
+        d_data->pickedPoints.resize(idx + 1);
+        d_data->pickedPoints[idx] = pos;
 
         updateDisplay();
 
@@ -1254,12 +1217,12 @@ void QwtPicker::move(const QPoint &pos)
 {
     if ( d_data->isActive )
     {
-        const int idx = d_data->selection.count() - 1;
+        const int idx = d_data->pickedPoints.count() - 1;
         if ( idx >= 0 )
         {
-            if ( d_data->selection[idx] != pos )
+            if ( d_data->pickedPoints[idx] != pos )
             {
-                d_data->selection[idx] = pos;
+                d_data->pickedPoints[idx] = pos;
 
                 updateDisplay();
 
@@ -1269,6 +1232,14 @@ void QwtPicker::move(const QPoint &pos)
     }
 }
 
+/*!
+  \brief Validate and fixup the selection
+
+  Accepts all selections unmodified
+
+  \param selection Selection to validate and fixup
+  \return true, when accepted, false otherwise
+*/
 bool QwtPicker::accept(QwtPolygon &) const
 {
     return true;
@@ -1284,9 +1255,9 @@ bool QwtPicker::isActive() const
 }
 
 //!  Return Selected points
-const QwtPolygon &QwtPicker::selection() const
+const QwtPolygon &QwtPicker::pickedPoints() const
 {
-    return d_data->selection;
+    return d_data->pickedPoints;
 }
 
 /*!
@@ -1312,13 +1283,13 @@ void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
     const double yRatio =
         double(newSize.height()) / double(oldSize.height());
 
-    for ( int i = 0; i < int(d_data->selection.count()); i++ )
+    for ( int i = 0; i < int(d_data->pickedPoints.count()); i++ )
     {
-        QPoint &p = d_data->selection[i];
+        QPoint &p = d_data->pickedPoints[i];
         p.setX(qRound(p.x() * xRatio));
         p.setY(qRound(p.y() * yRatio));
 
-        emit changed(d_data->selection);
+        emit changed(d_data->pickedPoints);
     }
 }
 

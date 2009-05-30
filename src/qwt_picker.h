@@ -84,10 +84,7 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
     Q_ENUMS(RubberBand)
     Q_ENUMS(DisplayMode)
     Q_ENUMS(ResizeMode)
-    Q_ENUMS(RectSelectionType)
 
-    Q_PROPERTY(RectSelectionType rectSelectionType 
-        READ rectSelectionType WRITE setRectSelectionType)
     Q_PROPERTY(DisplayMode trackerMode READ trackerMode WRITE setTrackerMode)
     Q_PROPERTY(QFont trackerFont READ trackerFont WRITE setTrackerFont)
     Q_PROPERTY(RubberBand rubberBand READ rubberBand WRITE setRubberBand)
@@ -119,7 +116,7 @@ public:
         rubber bands.
 
       The default value is NoRubberBand.
-      \sa QwtPicker::setRubberBand(), QwtPicker::rubberBand()
+      \sa setRubberBand(), rubberBand()
     */
 
     enum RubberBand
@@ -149,8 +146,7 @@ public:
       - ActiveOnly\n
         Display only when the selection is active.
 
-      \sa QwtPicker::setTrackerMode(), QwtPicker::trackerMode(), 
-          QwtPicker::isActive()
+      \sa setTrackerMode(), trackerMode(), isActive()
     */
     enum DisplayMode
     {
@@ -177,31 +173,6 @@ public:
         KeepSize
     };
 
-    /*! 
-      \brief Selection subtype for RectSelection
-      This enum type describes the type of rectangle selections. 
-      It can be or'd with QwtPicker::RectSelectionType and 
-      QwtPicker::SelectionMode and passed to QwtPicker::setSelectionFlags().
-      - CornerToCorner\n
-        The first and the second selected point are the corners
-        of the rectangle.
-      - CenterToCorner\n
-        The first point is the center, the second a corner of the
-        rectangle.
-      - CenterToRadius\n
-        The first point is the center of a quadrat, calculated by the maximum 
-        of the x- and y-distance.
-
-      The default value is CornerToCorner.
-      \sa QwtPicker::setSelectionFlags(), QwtPicker::selectionFlags()
-    */
-    enum RectSelectionType
-    {
-        CornerToCorner = 0,
-        CenterToCorner,
-        CenterToRadius
-    };
-
     explicit QwtPicker(QWidget *parent);
     explicit QwtPicker(RubberBand rubberBand,
         DisplayMode trackerMode, QWidget *);
@@ -211,9 +182,6 @@ public:
     void setStateMachine(QwtPickerMachine *);
     const QwtPickerMachine *stateMachine() const;
     QwtPickerMachine *stateMachine();
-
-    void setRectSelectionType(RectSelectionType);
-    RectSelectionType rectSelectionType() const;
 
     void setRubberBand(RubberBand);
     RubberBand rubberBand() const;
@@ -244,7 +212,6 @@ public:
     const QWidget *parentWidget() const;
 
     virtual QRect pickRect() const;
-    const QwtPolygon &selection() const; 
 
     virtual void drawRubberBand(QPainter *) const;
     virtual void drawTracker(QPainter *) const;
@@ -253,6 +220,7 @@ public:
     QPoint trackerPosition() const;
     QRect trackerRect(const QFont &) const;
 
+    QwtPolygon selection() const;
 
 signals:
     /*!
@@ -290,6 +258,8 @@ signals:
     void changed(const QwtPolygon &pa);
 
 protected:
+    virtual QwtPolygon adjustedPoints(const QwtPolygon &) const;
+
     /*!
       \brief Validate and fixup the selection
 
@@ -326,6 +296,8 @@ protected:
 
     const QWidget *rubberBandWidget() const;
     const QWidget *trackerWidget() const;
+
+    const QwtPolygon &pickedPoints() const; 
 
 private:
     void init(QWidget *, RubberBand rubberBand, DisplayMode trackerMode);
