@@ -39,7 +39,7 @@ public:
         The state machine not usable for any type of selection.
       - PointSelection\n
         The state machine is for selecting a single point.
-        - RectSelection\n
+      - RectSelection\n
         The state machine is for selecting a rectangle (2 points).
       - PolygonSelection\n
         The state machine is for selecting a polygon (many points).
@@ -55,12 +55,13 @@ public:
         PolygonSelection
     };
 
-    //! Commands - the output of the state machine
+    //! Commands - the output of a state machine
     enum Command
     {
         Begin,
         Append,
         Move,
+        Remove,
         End
     };
 
@@ -89,14 +90,16 @@ private:
 };
 
 /*!
-  \brief A state machine for point selections
+  \brief A state machine for indicating mouse movements
 
-  Moving the mouse selects a point.
+  QwtPickerTrackerMachine supports displaying information
+  corresponding to mouse movements, but is not intended for
+  selecting anything. Begin/End are related to Enter/Leave events.  
 */
-class QWT_EXPORT QwtPickerMovePointMachine: public QwtPickerMachine
+class QWT_EXPORT QwtPickerTrackerMachine: public QwtPickerMachine
 {
 public:
-    QwtPickerMovePointMachine();
+    QwtPickerTrackerMachine();
 
     virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
