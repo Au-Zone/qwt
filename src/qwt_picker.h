@@ -28,41 +28,55 @@ class QwtPickerMachine;
 /*!
   \brief QwtPicker provides selections on a widget
 
-  QwtPicker filters all mouse and keyboard events of a widget
-  and translates them into an array of selected points. Depending
-  on the QwtPicker::SelectionType the selection might be a single point,
-  a rectangle or a polygon. The selection process is supported by 
-  optional rubberbands (rubberband selection) and position trackers. 
+  QwtPicker filters all enter, leave, mouse and keyboard events of a widget
+  and translates them into an array of selected points. 
 
-  QwtPicker is useful for widgets where the event handlers
-  can't be overloaded, like for components of composite widgets.
-  It offers alternative handlers for mouse and key events.
+  The way how the points are collected depends on type of state machine
+  that is connected to the picker. Qwt offers a couple of predefined
+  state machines for selecting:
+
+  - Nothing\n
+    QwtPickerTrackerMachine
+  - Single points\n
+    QwtPickerClickPointMachine, QwtPickerDragPointMachine
+  - Rectangles\n
+    QwtPickerClickRectMachine, QwtPickerDragRectMachine
+  - Polygons\n
+    QwtPickerPolygonMachine
+
+  While these state machines cover the most common ways to collect points
+  it is also possible to implement individual machines as well.
+
+  QwtPicker translates the picked points into a selection using the 
+  adjustedPoints method. adjustedPoints is intended to be reimplemented
+  to fixup the selection according to application specific requirements.
+  (F.e. when an application accepts rectangles of a fixed aspect ratio only.)
+
+  Optionally QwtPicker support the process of collecting points by a 
+  rubberband and tracker displaying a text for the current mouse
+  position.
 
   \par Example 
   \verbatim #include <qwt_picker.h>
+#include <qwt_picker_machine.h>
 
 QwtPicker *picker = new QwtPicker(widget);
+picker->setStateMachine(new QwtPickerDragRectMachine);
 picker->setTrackerMode(QwtPicker::ActiveOnly);
-connect(picker, SIGNAL(selected(const QwtPolygon &)), ...);
-
-// emit the position of clicks on widget
-picker->setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
-
-    ...
-    
-// now select rectangles
-picker->setSelectionFlags(QwtPicker::RectSelection | QwtPicker::DragSelection);
 picker->setRubberBand(QwtPicker::RectRubberBand); \endverbatim\n
 
-  The selection process uses the commands begin(), append(), move() and end().
-  append() adds a new point to the selection, move() changes the position of 
-  the latest point. 
+  The state machine triggers the following commands:
 
-  The commands are initiated from a small state machine (QwtPickerMachine) 
-  that translates mouse and key events. There are a couple of predefined 
-  state machines for point, rect and polygon selections. The selectionFlags()
-  control which one should be used. It is possible to use other machines 
-  by overloading stateMachine().
+  - begin()\n
+    Activate/Initialize the selection.
+  - append()\n
+    Add a new point 
+  - move() \n
+    Change the position of the last point. 
+  - remove()\n
+    Remove the last point. 
+  - end()\n
+    Terminate the selection and call accept to validate the picked points.
 
   The picker is active (isActive()), between begin() and end().
   In active state the rubberband is displayed, and the tracker is visible
@@ -73,7 +87,7 @@ picker->setRubberBand(QwtPicker::RectRubberBand); \endverbatim\n
 
   \warning In case of QWidget::NoFocus the focus policy of the observed
            widget is set to QWidget::WheelFocus and mouse tracking
-           will be manipulated for ClickSelection while the picker is active,
+           will be manipulated while the picker is active,
            or if trackerMode() is AlwayOn.
 */
 
@@ -85,13 +99,14 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
     Q_ENUMS(DisplayMode)
     Q_ENUMS(ResizeMode)
 
-    Q_PROPERTY(DisplayMode trackerMode READ trackerMode WRITE setTrackerMode)
-    Q_PROPERTY(QFont trackerFont READ trackerFont WRITE setTrackerFont)
-    Q_PROPERTY(RubberBand rubberBand READ rubberBand WRITE setRubberBand)
-    Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
 
+    Q_PROPERTY(DisplayMode trackerMode READ trackerMode WRITE setTrackerMode)
     Q_PROPERTY(QPen trackerPen READ trackerPen WRITE setTrackerPen)
+    Q_PROPERTY(QFont trackerFont READ trackerFont WRITE setTrackerFont)
+
+    Q_PROPERTY(RubberBand rubberBand READ rubberBand WRITE setRubberBand)
     Q_PROPERTY(QPen rubberBandPen READ rubberBandPen WRITE setRubberBandPen)
 
 public:
@@ -139,6 +154,7 @@ public:
     };
 
     /*! 
+      Display mode
       - AlwaysOff\n
         Display never.
       - AlwaysOn\n
@@ -202,8 +218,6 @@ public:
     QFont trackerFont() const;
 
     bool isEnabled() const;
-    virtual void setEnabled(bool);
-
     bool isActive() const;
 
     virtual bool eventFilter(QObject *, QEvent *);
@@ -222,7 +236,19 @@ public:
 
     QwtPolygon selection() const;
 
+public slots:
+    void setEnabled(bool);
+
 signals:
+    /*!
+      A signal indicating, when the picker has been activated.
+      Together with setEnabled() it can be used to implement
+      selections with more than one picker.
+
+      \param pa Selected points
+    */
+    void activated(bool);
+
     /*!
       A signal emitting the selected points, 
       at the end of a selection.
@@ -249,6 +275,13 @@ signals:
     void moved(const QPoint &pos);
 
     /*!
+      A signal emitted whenever the last appended point of the 
+      selection has been removed.
+
+      \sa remove(), appended()
+    */
+    void removed(const QPoint &pos);
+    /*!
       A signal emitted when the active selection has been changed.
       This might happen when the observed widget is resized.
 
@@ -260,23 +293,15 @@ signals:
 protected:
     virtual QwtPolygon adjustedPoints(const QwtPolygon &) const;
 
-    /*!
-      \brief Validate and fixup the selection
-
-      Accepts all selections unmodified
-    
-      \param selection Selection to validate and fixup
-      \return true, when accepted, false otherwise
-    */
-    virtual bool accept(QwtPolygon &selection) const;
-
     virtual void transition(const QEvent *);
 
     virtual void begin();
     virtual void append(const QPoint &);
     virtual void move(const QPoint &);
+    virtual void remove();
     virtual bool end(bool ok = true);
 
+    virtual bool accept(QwtPolygon &) const;
     virtual void reset();
 
     virtual void widgetMousePressEvent(QMouseEvent *);

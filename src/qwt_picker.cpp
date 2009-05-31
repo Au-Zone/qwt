@@ -239,8 +239,8 @@ void QwtPicker::PickerWidget::paintEvent(QPaintEvent *e)
 /*!
   Constructor
 
-  Creates an picker that is enabled, but where selection flag
-  is set to NoSelection, rubberband and tracker are disabled.
+  Creates an picker that is enabled, but without a state machine.
+  rubberband and tracker are disabled.
   
   \param parent Parent widget, that will be observed
  */
@@ -254,8 +254,6 @@ QwtPicker::QwtPicker(QWidget *parent):
 /*!
   Constructor
 
-  \param selectionFlags Or'd value of SelectionType, RectSelectionType and 
-                        SelectionMode
   \param rubberBand Rubberband style
   \param trackerMode Tracker mode
   \param parent Parent widget, that will be observed
@@ -314,7 +312,10 @@ void QwtPicker::init(QWidget *parent,
 }
 
 /*!
-   Set a state machine and delete the previous one
+  Set a state machine and delete the previous one
+
+  \param stateMachine State machine
+  \sa stateMachine()
 */
 void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
 {
@@ -330,11 +331,19 @@ void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
     }
 }
 
+/*! 
+  \return Assigned state machine
+  \sa setStateMachine()
+*/
 QwtPickerMachine *QwtPicker::stateMachine()
 {
     return d_data->stateMachine;
 }
 
+/*! 
+  \return Assigned state machine
+  \sa setStateMachine()
+*/
 const QwtPickerMachine *QwtPicker::stateMachine() const
 {
     return d_data->stateMachine;
@@ -588,11 +597,11 @@ QwtText QwtPicker::trackerText(const QPoint &pos) const
 }
 
 /*!
-   Draw a rubberband , depending on rubberBand() and selectionFlags()
+   Draw a rubberband, depending on rubberBand() 
 
    \param painter Painter, initialized with clip rect 
 
-   \sa rubberBand(), RubberBand, selectionFlags()
+   \sa rubberBand(), RubberBand
 */
 
 void QwtPicker::drawRubberBand(QPainter *painter) const
@@ -614,6 +623,7 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
 
     switch(selectionType)
     {
+        case QwtPickerMachine::NoSelection:
         case QwtPickerMachine::PointSelection:
         {
             if ( pa.count() < 1 )
@@ -715,11 +725,49 @@ void QwtPicker::drawTracker(QPainter *painter) const
     }
 }
 
+/*!
+   \brief Map the pickedPoints() into a selection()
+
+   adjustedPoints() maps the points, that have been collected on
+   the parentWidget() into a selection(). The default implementation
+   simply returns the points unmodified.
+
+   The reason, why a selection() differs from the picked points 
+   depends on the application requirements. F.e. :
+
+   - A rectangular selection might need to have a specific aspect ratio only.\n
+   - A selection could accept non intersecting polygons only.\n
+   - ...\n
+
+   The example below is for a rectangular selection, where the first 
+   point is the center of the selected rectangle.
+  \par Example
+  \verbatim QwtPolygon MyPicker::adjustedPoints(const QwtPolygon &points) const
+{
+    QwtPolygon adjusted;
+    if ( points.size() == 2 )
+    {
+        const int width = qAbs(points[1].x() - points[0].x());
+        const int height = qAbs(points[1].y() - points[0].y());
+
+        QRect rect(0, 0, 2 * width, 2 * height);
+        rect.moveCenter(points[0]);
+
+        adjusted += rect.topLeft();
+        adjusted += rect.bottomRight();
+    }
+    return adjusted;
+}\endverbatim\n
+*/
 QwtPolygon QwtPicker::adjustedPoints(const QwtPolygon &points) const
 {
     return points;
 }
 
+/*! 
+  \return Selected points
+  \sa pickedPoints(), adjustedPoints()
+*/
 QwtPolygon QwtPicker::selection() const
 {
     return adjustedPoints(d_data->pickedPoints);
@@ -807,7 +855,8 @@ QRect QwtPicker::trackerRect(const QFont &font) const
   and widgetWheel-events. Paint and Resize events are handled to keep 
   rubberband and tracker up to date.
 
-  \sa event(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
+  \sa event(), widgetEnterEvent(), widgetLeaveEvent(),
+      widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
@@ -867,9 +916,6 @@ bool QwtPicker::eventFilter(QObject *o, QEvent *e)
 /*!
   Handle a mouse press event for the observed widget.
 
-  Begin and/or end a selection depending on the selection flags.
-
-  \sa QwtPicker, selectionFlags()
   \sa eventFilter(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
@@ -881,8 +927,6 @@ void QwtPicker::widgetMousePressEvent(QMouseEvent *e)
 
 /*!
   Handle a mouse move event for the observed widget.
-
-  Move the last point of the selection in case of isActive() == true
 
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(),
@@ -932,9 +976,6 @@ void QwtPicker::widgetLeaveEvent(QEvent *event)
 /*!
   Handle a mouse relase event for the observed widget.
 
-  End a selection depending on the selection flags.
-
-  \sa QwtPicker, selectionFlags()
   \sa eventFilter(), widgetMousePressEvent(), 
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
@@ -987,7 +1028,6 @@ void QwtPicker::widgetWheelEvent(QWheelEvent *e)
   move the cursor, the abort key aborts a selection. All other keys
   are handled by the current state machine.
 
-  \sa QwtPicker, selectionFlags()
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyReleaseEvent(), stateMachine(),
@@ -1098,6 +1138,11 @@ void QwtPicker::transition(const QEvent *e)
                 move(pos);
                 break;
             }
+            case QwtPickerMachine::Remove:
+            {
+                remove();
+                break;
+            }
             case QwtPickerMachine::End:
             {
                 end();
@@ -1119,6 +1164,7 @@ void QwtPicker::begin()
 
     d_data->pickedPoints.resize(0);
     d_data->isActive = true;
+    emit activated(true);
 
     if ( trackerMode() != AlwaysOff )
     {
@@ -1137,7 +1183,7 @@ void QwtPicker::begin()
 /*!
   \brief Close a selection setting the state to inactive.
 
-  The selection is validated and maybe fixed by QwtPicker::accept().
+  The selection is validated and maybe fixed by accept().
 
   \param ok If true, complete the selection and emit a selected signal
             otherwise discard the selection.
@@ -1151,6 +1197,7 @@ bool QwtPicker::end(bool ok)
         setMouseTracking(false);
 
         d_data->isActive = false;
+        emit activated(false);
 
         if ( trackerMode() == ActiveOnly )
             d_data->trackerPosition = QPoint(-1, -1);
@@ -1200,7 +1247,6 @@ void QwtPicker::append(const QPoint &pos)
         d_data->pickedPoints[idx] = pos;
 
         updateDisplay();
-
         emit appended(pos);
     }
 }
@@ -1211,7 +1257,6 @@ void QwtPicker::append(const QPoint &pos)
 
   \param pos New position
   \sa isActive(), begin(), end(), append()
-
 */
 void QwtPicker::move(const QPoint &pos)
 {
@@ -1225,13 +1270,35 @@ void QwtPicker::move(const QPoint &pos)
                 d_data->pickedPoints[idx] = pos;
 
                 updateDisplay();
-
                 emit moved(pos);
             }
         }
     }
 }
 
+/*!
+  Remove the last point of the selection
+  The removed() signal is emitted.
+
+  \sa isActive(), begin(), end(), append(), move()
+*/
+void QwtPicker::remove()
+{
+    if ( d_data->isActive )
+    {
+        const int idx = d_data->pickedPoints.count() - 1;
+        if ( idx > 0 )
+        {
+            const int idx = d_data->pickedPoints.count();
+
+            const QPoint pos = d_data->pickedPoints[idx - 1];
+            d_data->pickedPoints.resize(idx - 1);
+
+            updateDisplay();
+            emit removed(pos);
+        }
+    }
+}
 /*!
   \brief Validate and fixup the selection
 
@@ -1254,7 +1321,11 @@ bool QwtPicker::isActive() const
     return d_data->isActive;
 }
 
-//!  Return Selected points
+/*!  
+  Return the points, that have been collected so far. The selection()
+  is calculated from the pickedPoints() in adjustedPoints().
+  \return Picked points
+*/
 const QwtPolygon &QwtPicker::pickedPoints() const
 {
     return d_data->pickedPoints;

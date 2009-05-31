@@ -48,13 +48,13 @@ void QwtPickerMachine::reset()
 }
 
 //! Constructor
-QwtPickerMovePointMachine::QwtPickerMovePointMachine():
-    QwtPickerMachine(PointSelection)
+QwtPickerTrackerMachine::QwtPickerTrackerMachine():
+    QwtPickerMachine(NoSelection)
 {
 }
 
 //! Transition
-QwtPickerMachine::CommandList QwtPickerMovePointMachine::transition(
+QwtPickerMachine::CommandList QwtPickerTrackerMachine::transition(
     const QwtEventPattern &, const QEvent *e)
 {
     QwtPickerMachine::CommandList cmdList;
@@ -78,6 +78,7 @@ QwtPickerMachine::CommandList QwtPickerMovePointMachine::transition(
         }
         case QEvent::Leave:
         {
+            cmdList += Remove;
             cmdList += End;
             setState(0);
         }
