@@ -36,6 +36,18 @@ class QWT_EXPORT QwtScaleWidget : public QWidget
     Q_OBJECT 
 
 public:
+    /*!
+     Layout flags of the title
+
+     - TitleInverted\n
+       The title of vertical scales is painted from top to bottom. Otherwise
+       it is painted from bottom to top.
+     */
+    enum LayoutFlag
+    {
+        TitleInverted = 1
+    };
+
     explicit QwtScaleWidget(QWidget *parent = NULL);
 #if QT_VERSION < 0x040000
     explicit QwtScaleWidget(QWidget *parent, const char *name);
@@ -51,6 +63,9 @@ public:
     void setTitle(const QString &title);
     void setTitle(const QwtText &title);
     QwtText title() const;
+
+    void setLayoutFlag(LayoutFlag, bool on);
+    bool testLayoutFlag(LayoutFlag) const;
 
     void setBorderDist(int start, int end);
     int startBorderDist() const;

@@ -44,4 +44,3 @@ Bugs/Change requests
 3) setAlignCanvasToScales(true) + 2 X-Axes layout bug
 4) Layout init of round scales too late.
 5) Pen width + symbols
-6) Customizable rotation of the vertical scale titles
