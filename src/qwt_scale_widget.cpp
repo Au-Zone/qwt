@@ -47,6 +47,8 @@ public:
     int spacing;
     QwtText title;
 
+    int layoutFlags;
+
     struct t_colorBar
     {
         bool isEnabled;
@@ -106,6 +108,10 @@ void QwtScaleWidget::initScale(QwtScaleDraw::Alignment align)
     setWFlags(Qt::WNoAutoErase);
 #endif 
 
+    d_data->layoutFlags = 0;
+    if ( align == QwtScaleDraw::RightScale )
+        d_data->layoutFlags |= TitleInverted;
+
     d_data->borderDist[0] = 0;
     d_data->borderDist[1] = 0;
     d_data->minBorderDist[0] = 0;
@@ -145,6 +151,37 @@ void QwtScaleWidget::initScale(QwtScaleDraw::Alignment align)
     clearWState( WState_OwnSizePolicy );
 #endif
 
+}
+
+/*!
+   Toggle an layout flag
+ 
+   \param flag Layout flag
+   \param on true/false
+
+   \sa testLayoutFlag(), LayoutFlag
+*/
+void QwtScaleWidget::setLayoutFlag(LayoutFlag flag, bool on)
+{
+    if ( ((d_data->layoutFlags & flag) != 0) != on )
+    {
+        if ( on )
+            d_data->layoutFlags |= flag;
+        else
+            d_data->layoutFlags &= ~flag;
+    }
+}
+
+/*!
+   Test a layout flag
+
+   \param hint Layout flag
+   \return true/false
+   \sa setLayoutFlag(), LayoutFlag
+*/
+bool QwtScaleWidget::testLayoutFlag(LayoutFlag flag) const
+{
+    return (d_data->layoutFlags & flag);
 }
 
 /*!
@@ -641,26 +678,38 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
     switch(align)
     {
         case QwtScaleDraw::LeftScale:
-            flags |= Qt::AlignTop;
-            angle = -90.0;
-            r.setRect(rect.left(), rect.bottom(), rect.height(), rect.width());
-            break;
         case QwtScaleDraw::RightScale:
+        {
             flags |= Qt::AlignTop;
-            angle = 90.0;
-            r.setRect(rect.right(), rect.top(), rect.height(), rect.width());
+            if ( d_data->layoutFlags & TitleInverted )
+            {
+                angle = 90.0;
+                r.setRect(rect.right(), rect.top(), 
+                    rect.height(), rect.width());
+            }
+            else
+            {
+                angle = -90.0;
+                r.setRect(rect.left(), rect.bottom(), 
+                    rect.height(), rect.width());
+            }
             break;
+        }
         case QwtScaleDraw::TopScale:
+        {
             flags |= Qt::AlignTop;
             angle = 0.0;
             r = rect;
             break;
+        }
         case QwtScaleDraw::BottomScale:
         default:
+        {
             flags |= Qt::AlignBottom;
             angle = 0.0;
             r = rect;
             break;
+        }
     }
 
     painter->save();
