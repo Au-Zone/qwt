@@ -7,8 +7,8 @@ Changes
    to be reusable in all plot items displaying series of samples.
 2. QwtPlotIntervalCurve introduced ( featuring error bars )
 3. QwtPicker and friends reorganized, 
-   QwtPickerMovePointMachine added for displaying a rubberband for
-   mouse moves. Enter/Leave events added to events, that are handled
+   QwtPickerTrackerMachine added for displaying a rubberband for
+   mouse moves. Enter/Leave added to events, that are handled
    by the picker machines.
 
 Release 5.2.0
