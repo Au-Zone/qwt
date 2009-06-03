@@ -934,6 +934,23 @@ bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const
     return d_data->attributes & attribute;
 }
 
+/*!
+  Assign a curve fitter
+
+  The curve fitter "smooths" the curve points, when the Fitted 
+  CurveAttribute is set. setCurveFitter(NULL) also disables curve fitting.
+
+  The curve fitter operates on the translated points ( = widget coordinates)
+  to be functional for logarithmic scales. Obviously this is less performant
+  for fitting algorithms, that reduce the number of points.
+
+  For situations, where curve fitting is used to improve the performance
+  of painting huge series of points it might be better to execute the fitter
+  on the curve points once and to cache the result in the QwtSeriesData object.
+
+  \param curveFitter() Curve fitter
+  \sa Fitted
+*/
 void QwtPlotCurve::setCurveFitter(QwtCurveFitter *curveFitter)
 {
     delete d_data->curveFitter;
@@ -944,7 +961,9 @@ void QwtPlotCurve::setCurveFitter(QwtCurveFitter *curveFitter)
 
 /*!
   Get the curve fitter. If curve fitting is disabled NULL is returned.
+
   \return Curve fitter
+  \sa setCurveFitter(), Fitted
 */
 QwtCurveFitter *QwtPlotCurve::curveFitter() const
 {

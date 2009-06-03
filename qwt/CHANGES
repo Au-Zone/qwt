@@ -12,7 +12,11 @@ Changes
    by the picker machines.
 4. QwtScaleWidget::LayoutFlag added
    Introduced to control the direction of vertical axis titles.
-   
+5. QwtWeedingCurveFitter added
+   QwtWeedingCurveFitter is an implementation of the Douglas/Peuker 
+   algorithm, that can be used to reduce the number of curve points.
+   It can be very useful to improve the performance of painting
+   curves of many lines ( f.e. by implementing different level of details ).
 
 Release 5.2.0
 ===================
