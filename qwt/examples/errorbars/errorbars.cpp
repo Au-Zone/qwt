@@ -30,10 +30,10 @@ FriedbergPlot::FriedbergPlot()
     setTitle("Temperature of Friedberg/Germany");
     setCanvasBackground(QColor(Qt::darkGray));
 
-	setAxisTitle(QwtPlot::xBottom, "2007");
-	setAxisScale(QwtPlot::xBottom, 0.0, 365.0);
-	setAxisTitle(QwtPlot::yLeft, 
-		QString("Temperature [%1C]").arg(QChar(0x00B0)) );
+    setAxisTitle(QwtPlot::xBottom, "2007");
+    setAxisScale(QwtPlot::xBottom, 0.0, 365.0);
+    setAxisTitle(QwtPlot::yLeft, 
+        QString("Temperature [%1C]").arg(QChar(0x00B0)) );
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
     grid->enableXMin(true);
@@ -43,14 +43,15 @@ FriedbergPlot::FriedbergPlot()
 
     insertLegend(new QwtLegend(), QwtPlot::RightLegend);
 
-    QwtArray<QwtDoublePoint> averageData;
-    QwtArray<QwtIntervalSample> rangeData;
+    const int numDays = 365;
+    QwtArray<QwtDoublePoint> averageData(numDays);
+    QwtArray<QwtIntervalSample> rangeData(numDays);
 
-    for ( int i = 0; i < 365; i++ )
+    for ( int i = 0; i < numDays; i++ )
     {
         const Temperature &t = friedberg2007[i];
-        averageData += QwtDoublePoint(double(i), t.averageValue);
-        rangeData += QwtIntervalSample( double(i),
+        averageData[i] = QwtDoublePoint(double(i), t.averageValue);
+        rangeData[i] = QwtIntervalSample( double(i),
             QwtDoubleInterval(t.minValue, t.maxValue) );
     }
 
