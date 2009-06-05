@@ -501,6 +501,11 @@ void QwtPlotCurve::draw(int from, int to) const
     }
 }
 
+void QwtPlotCurve::resetPainter()
+{
+    d_data->guardedPainter.end();
+}
+
 /*!
   \brief Draw an interval of the curve
   \param painter Painter

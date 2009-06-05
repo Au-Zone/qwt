@@ -199,6 +199,7 @@ public:
         int from, int to) const;
 
     void draw(int from, int to) const;
+    void resetPainter();
 
     virtual void updateLegend(QwtLegend *) const;
 
