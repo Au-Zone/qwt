@@ -30,6 +30,7 @@ contains(CONFIG, QwtPlot) {
 		SUBDIRS += \
     		bode \
     		data_plot \
+    		oscilloscope \
     		event_filter
 	}
 	
@@ -48,5 +49,3 @@ contains(CONFIG, QwtWidgets) {
     	dials \
     	sliders
 }
-
-
