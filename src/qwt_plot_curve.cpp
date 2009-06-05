@@ -487,6 +487,11 @@ void QwtPlotCurve::draw(int from, int to) const
     if ( canvas->testAttribute(Qt::WA_WState_InPaintEvent) )
     {
         QPainter painter(canvas);
+#if QT_VERSION >= 0x040000
+        painter.setRenderHint(QPainter::Antialiasing,
+                testRenderHint(QwtPlotItem::RenderAntialiased) );
+#endif
+
 
         painter.setClipping(true);
         painter.setClipRect(canvas->contentsRect());
@@ -497,6 +502,10 @@ void QwtPlotCurve::draw(int from, int to) const
 #endif
     {
         QPainter *painter = d_data->guardedPainter.begin(canvas);
+#if QT_VERSION >= 0x040000
+        painter->setRenderHint(QPainter::Antialiasing,
+                testRenderHint(QwtPlotItem::RenderAntialiased) );
+#endif
         draw(painter, xMap, yMap, from, to);
     }
 }
