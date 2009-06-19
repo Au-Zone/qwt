@@ -1,17 +1,36 @@
 #include <qapplication.h>
 #include "mainwindow.h"
+#include "signalgenerator.h"
 
 int main(int argc, char **argv)
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
     MainWindow window;
+    window.resize(800,400);
+
+	SignalGenerator signalGenerator;
+	signalGenerator.setFrequency(window.frequency());
+	signalGenerator.setAmplitude(window.amplitude());
+
+	app.connect(&app, SIGNAL(aboutToQuit()), &signalGenerator, SLOT(quit()));
+
+	window.connect(&window, SIGNAL(frequencyChanged(double)),
+		&signalGenerator, SLOT(setFrequency(double)));
+	window.connect(&window, SIGNAL(amplitudeChanged(double)),
+		&signalGenerator, SLOT(setAmplitude(double)));
+	window.connect(&window, SIGNAL(signalIntervalChanged(int)),
+		&signalGenerator, SLOT(setSignalInterval(int)));
+
+	window.connect(&signalGenerator, SIGNAL(value(double, double)),
+		&window, SLOT(appendValue(double, double)));
+
 #if QT_VERSION < 0x040000
-    a.setMainWidget(&window);
+    app.setMainWidget(&window);
 #endif
 
-    window.resize(800,400);
     window.show();
 
-    return a.exec(); 
+	signalGenerator.start();
+    return app.exec(); 
 }
