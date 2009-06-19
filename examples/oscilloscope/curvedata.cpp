@@ -25,7 +25,7 @@ void CurveData::reset(double min)
     if ( index > 0 )
         append(values[index++]);
 
-    while ( index < values.size() )
+    while ( index < values.size() - 1 )
         append(values[index++]);
 }
 

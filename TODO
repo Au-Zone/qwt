@@ -10,6 +10,7 @@ Qwt TODO list
 7) QwtData/QwtPlotCurve + Level of details (Douglas Peucker)
 8) Include adopted MathML code
 9) Common zoom stack for all navigation objects
+10) Watermark Item
 
 6.0.x)
 ------
