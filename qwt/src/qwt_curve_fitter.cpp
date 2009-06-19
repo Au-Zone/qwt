@@ -272,10 +272,16 @@ public:
     int to;
 };
 
-//! Constructor
-QwtWeedingCurveFitter::QwtWeedingCurveFitter()
+/*! 
+   Constructor
+
+   \param tolerance Tolerance
+   \sa setTolerance(), tolerance()
+*/
+QwtWeedingCurveFitter::QwtWeedingCurveFitter(double tolerance)
 {
     d_data = new PrivateData;
+	setTolerance(tolerance);
 }
 
 //! Destructor

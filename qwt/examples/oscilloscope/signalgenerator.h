@@ -23,8 +23,10 @@ signals:
     void value(double elapsed, double value);
 
 protected:
-	virtual void run(); 
     virtual void timerEvent(QTimerEvent *);
+
+private slots:
+	void activateSignal();
 
 private:
     Clock d_clock;

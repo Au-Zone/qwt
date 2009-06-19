@@ -11,6 +11,7 @@ SignalGenerator::SignalGenerator(QObject *parent):
 	d_signalInterval(5),
 	d_timerId(-1)
 {
+	connect(this, SIGNAL(started()), SLOT(activateSignal()));
 }
 
 void SignalGenerator::setSignalInterval(int interval)
@@ -54,12 +55,10 @@ double SignalGenerator::amplitude() const
     return d_amplitude;
 }
 
-void SignalGenerator::run()
+void SignalGenerator::activateSignal()
 {
-    d_clock.start();
+	d_clock.start();
     d_timerId = startTimer(d_signalInterval);
-
-	exec();
 }
 
 void SignalGenerator::timerEvent(QTimerEvent *event)

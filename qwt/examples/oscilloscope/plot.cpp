@@ -5,6 +5,7 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
+#include <qwt_curve_fitter.h>
 #include <qwt_painter.h>
 #include <qevent.h>
 #include <QDebug>
@@ -59,9 +60,12 @@ Plot::Plot(QWidget *parent):
     origin->attach(this);
 
     d_curve = new QwtPlotCurve();
+    d_curve->setPaintAttribute(QwtPlotCurve::PaintFiltered);
     d_curve->setStyle(QwtPlotCurve::Lines);
     d_curve->setPen(QPen(Qt::green));
+#if 1
     d_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+#endif
     d_curve->setData(CurveData());
     d_curve->attach(this);
 

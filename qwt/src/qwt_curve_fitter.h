@@ -133,7 +133,7 @@ private:
 class QWT_EXPORT QwtWeedingCurveFitter: public QwtCurveFitter
 {
 public:
-    QwtWeedingCurveFitter();
+    QwtWeedingCurveFitter(double tolerance = 1.0);
     virtual ~QwtWeedingCurveFitter();
 
     void setTolerance(double);
