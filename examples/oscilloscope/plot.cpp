@@ -105,6 +105,9 @@ void Plot::incrementInterval()
         d_interval.maxValue() + d_interval.width());
 
     CurveData &data = (CurveData &)d_curve->data();
+#if 1
+	qDebug() << "Number of Points" << data.size();
+#endif
     data.reset(d_interval.minValue());
 
     // To avoid, that the grid is jumping, we disable 
