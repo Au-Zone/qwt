@@ -1,4 +1,6 @@
 #include <qwt_plot.h>
+#include <qwt_double_interval.h>
+#include "clock.h"
 
 class QwtPlotCurve;
 
@@ -10,17 +12,22 @@ public:
     Plot(QWidget * = NULL);
 
 public slots:
-	void reset();
-	void append(double value);
+    void append(double elapsed, double value);
+    void setIntervalLength(double);
 
 protected:
-	virtual void resizeEvent(QResizeEvent *);
-	virtual void timerEvent(QTimerEvent *);
+    virtual void resizeEvent(QResizeEvent *);
+    virtual void timerEvent(QTimerEvent *);
 
 private:
-	void updateStatistics();
+    void updateCurve();
+    void incrementInterval();
 
-	QwtPlotCurve *d_curve;
-	int d_numPoints;
-	int d_timerId;
+    QwtPlotCurve *d_curve;
+    int d_paintedPoints;
+
+    QwtDoubleInterval d_interval;
+    int d_timerId;
+
+    Clock d_clock;
 };

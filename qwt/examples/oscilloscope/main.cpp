@@ -1,22 +1,17 @@
 #include <qapplication.h>
-#include "plot.h"
-#include "signalgenerator.h"
+#include "mainwindow.h"
 
 int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
 
-    Plot plot;
+    MainWindow window;
 #if QT_VERSION < 0x040000
-    a.setMainWidget(&plot);
+    a.setMainWidget(&window);
 #endif
 
-    plot.resize(600,400);
-    plot.show();
-
-	SignalGenerator signalGenerator;
-	QObject::connect( &signalGenerator, SIGNAL(value(double)), 
-		&plot, SLOT(append(double)) );
+    window.resize(800,400);
+    window.show();
 
     return a.exec(); 
 }
