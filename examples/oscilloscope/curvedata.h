@@ -4,22 +4,19 @@
 class CurveData: public QwtSeriesData<QwtDoublePoint>
 {
 public:
-	CurveData(double interval);
+    CurveData();
 
-	void append(double value);
-	void reset();
+    void append(const QwtDoublePoint &);
+    void reset(double min);
 
     virtual QwtDoublePoint sample(size_t i) const;
     virtual size_t size() const;
 
-	virtual QwtDoubleRect boundingRect() const;
+    virtual QwtDoubleRect boundingRect() const;
 
     virtual QwtSeriesData<QwtDoublePoint> *copy() const;
 
 private:
-	QTime d_startTime;
-	const double d_interval; 
-
-	QwtDoubleRect d_boundingRect; 
-	QVector<QwtDoublePoint> d_values;
+    QwtDoubleRect d_boundingRect; 
+    QVector<QwtDoublePoint> d_values;
 };
