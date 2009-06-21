@@ -1,76 +1,32 @@
 #include "curvedata.h"
+#include "signaldata.h"
 
-CurveData::CurveData()
+const SignalData &CurveData::values() const
 {
-    d_boundingRect = QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
-    d_values.reserve(10000);
-}
-    
-void CurveData::reset(double min)
-{
-    d_boundingRect = QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
-
-    QVector<QwtDoublePoint> values = d_values;
-
-    d_values.clear();
-    d_values.reserve(values.size());
-
-    int index;
-    for ( index = values.size() - 1; index >= 0; index-- )
-    {
-        if ( values[index].x() < min )
-            break;
-    }
-
-    if ( index > 0 )
-        append(values[index++]);
-
-    while ( index < values.size() - 1 )
-        append(values[index++]);
+    return SignalData::instance();
 }
 
-void CurveData::append(const QwtDoublePoint &sample)
+SignalData &CurveData::values() 
 {
-    d_values += sample;
-
-    // adjust the bounding rectangle 
-
-    if ( !d_boundingRect.isValid() )
-        d_boundingRect = QwtDoubleRect(sample.x(), sample.y(), 0.0, 0.0);
-    else
-    {
-        d_boundingRect.setRight(sample.x());
-        if ( sample.y() > d_boundingRect.bottom() )
-            d_boundingRect.setBottom(sample.y());
-        if ( sample.y() < d_boundingRect.top() )
-            d_boundingRect.setBottom(sample.y());
-    }
+    return SignalData::instance();
 }
 
 QwtDoublePoint CurveData::sample(size_t i) const
 {
-    if ( i < (size_t) d_values.size() )
-        return d_values[i];
-
-    return QwtDoublePoint();
+    return SignalData::instance().value(i);
 }
 
 size_t CurveData::size() const
 {
-    return d_values.size();
+    return SignalData::instance().size();
 }
 
 QwtSeriesData<QwtDoublePoint> *CurveData::copy() const
 {
-    CurveData *other = new CurveData();
-    other->d_values = d_values;
-    other->d_boundingRect = d_boundingRect;
-
-    return other;
+    return new CurveData();
 }
 
 QwtDoubleRect CurveData::boundingRect() const
 {
-    return d_boundingRect;
+    return SignalData::instance().boundingRect();
 }
-

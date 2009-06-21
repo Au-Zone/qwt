@@ -1,4 +1,3 @@
-#include <qobject.h>
 #include <qdatetime.h>
 #include <qthread.h>
 #include "clock.h"
@@ -19,14 +18,8 @@ public slots:
     void setFrequency(double);
     void setSignalInterval(int); // ms
 
-signals:
-    void value(double elapsed, double value);
-
 protected:
-    virtual void timerEvent(QTimerEvent *);
-
-private slots:
-	void activateSignal();
+    virtual void run();
 
 private:
     Clock d_clock;
@@ -34,6 +27,5 @@ private:
     double d_frequency;
     double d_amplitude;
 
-	int d_signalInterval;
-	int d_timerId;
+    int d_signalInterval;
 };

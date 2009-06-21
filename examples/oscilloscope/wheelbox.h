@@ -14,7 +14,7 @@ class WheelBox: public QWidget
 public:
     WheelBox(const QString &title, 
         double min, double max, double stepSize, 
-		QWidget *parent = NULL);
+        QWidget *parent = NULL);
 
     void setUnit(const QString &);
     QString unit() const;
@@ -30,7 +30,7 @@ private:
     QwtWheel *d_wheel;
     QLabel *d_label;
 
-	QString d_unit;
+    QString d_unit;
 };
 
 #endif

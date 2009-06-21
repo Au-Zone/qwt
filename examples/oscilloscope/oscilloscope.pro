@@ -12,8 +12,9 @@ include( ../examples.pri )
 TARGET   = oscilloscope
 
 HEADERS = \
-    plot.h \
     clock.h \
+    signaldata.h \
+    plot.h \
     knob.h \
     wheelbox.h \
     signalgenerator.h \
@@ -21,8 +22,9 @@ HEADERS = \
     mainwindow.h 
 
 SOURCES = \
-    plot.cpp \
     clock.cpp \
+    signaldata.cpp \
+    plot.cpp \
     knob.cpp \
     wheelbox.cpp \
     signalgenerator.cpp \

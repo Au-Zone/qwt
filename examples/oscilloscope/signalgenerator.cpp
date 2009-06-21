@@ -1,6 +1,6 @@
 #include "signalgenerator.h"
+#include "signaldata.h"
 #include <qdatetime.h>
-#include <qevent.h>
 #include <clock.h>
 #include <math.h>
 
@@ -8,31 +8,22 @@ SignalGenerator::SignalGenerator(QObject *parent):
     QThread(parent),
     d_frequency(5.0),
     d_amplitude(20.0),
-	d_signalInterval(5),
-	d_timerId(-1)
+    d_signalInterval(5)
 {
-	connect(this, SIGNAL(started()), SLOT(activateSignal()));
+    d_clock.start();
 }
 
 void SignalGenerator::setSignalInterval(int interval)
 {
-	if ( interval < 0 )
-		interval = 0;
+    if ( interval < 0 )
+        interval = 0;
 
-	if ( interval != d_signalInterval )
-	{
-		d_signalInterval = interval;
-		if ( d_timerId >= 0 )
-		{
-			killTimer(d_timerId);
-			d_timerId = startTimer(d_signalInterval);
-		}
-	}
+    d_signalInterval = interval;
 }
 
 int SignalGenerator::timerInterval() const
 {
-	return d_signalInterval;
+    return d_signalInterval;
 }
 
 void SignalGenerator::setFrequency(double frequency)
@@ -55,22 +46,22 @@ double SignalGenerator::amplitude() const
     return d_amplitude;
 }
 
-void SignalGenerator::activateSignal()
+void SignalGenerator::run()
 {
-	d_clock.start();
-    d_timerId = startTimer(d_signalInterval);
-}
+    //while ( !wait(d_signalInterval) )
+    while(true)
+    {
+        if ( d_frequency > 0 )
+        {
+            const double period = 1.0 / d_frequency;
+            const double elapsed = d_clock.elapsed() / 1000.0;
 
-void SignalGenerator::timerEvent(QTimerEvent *event)
-{
-    if ( event->timerId() != d_timerId || d_frequency <= 0.0 )
-        return;
+            const double x = ::fmod(elapsed, period);
+            const double v = d_amplitude * ::sin(x / period * 2 * M_PI);
 
-    const double period = 1.0 / d_frequency;
-    const double elapsed = d_clock.elapsed() / 1000.0;
+            SignalData::instance().append(QwtDoublePoint(elapsed, v));
+        }
 
-    const double x = ::fmod(elapsed, period);
-    const double v = d_amplitude * ::sin(x / period * 2 * M_PI);
-
-    emit value(elapsed, v);
+        msleep(d_signalInterval);
+    }
 }
