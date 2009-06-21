@@ -34,5 +34,11 @@ int main(int argc, char **argv)
     window.show();
 
     signalGenerator.start();
-    return app.exec(); 
+
+    bool ok = app.exec(); 
+
+	signalGenerator.terminate();
+	signalGenerator.wait(1000);
+
+	return ok;
 }
