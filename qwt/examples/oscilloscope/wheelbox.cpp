@@ -3,6 +3,7 @@
 #include <qlcdnumber.h>
 #include <qlabel.h>
 #include <qlayout.h>
+#include <QDebug>
 
 WheelBox::WheelBox(const QString &title,
     	double min, double max, double stepSize, QWidget *parent):
@@ -10,10 +11,18 @@ WheelBox::WheelBox(const QString &title,
 {
     d_number = new QLCDNumber(this);
     d_number->setSegmentStyle(QLCDNumber::Filled);
+	d_number->setAutoFillBackground(true);
+	d_number->setFixedHeight(d_number->sizeHint().height() * 2 );
 
+	QPalette pal(Qt::black);
+	pal.setColor(QPalette::WindowText, Qt::green);
+	d_number->setPalette(pal);
+	
     d_wheel = new QwtWheel(this);
     d_wheel->setOrientation(Qt::Vertical);
     d_wheel->setRange(min, max, stepSize);
+	d_wheel->setFixedSize(
+		qRound(d_number->height() / 2.5), d_number->height());
 
     QFont font("Helvetica", 10);
 	font.setBold(true);
@@ -22,6 +31,8 @@ WheelBox::WheelBox(const QString &title,
 	d_label->setFont(font);
 
     QHBoxLayout *hLayout = new QHBoxLayout;
+	hLayout->setContentsMargins(0, 0, 0, 0);
+	hLayout->setSpacing(2);
     hLayout->addWidget(d_number, 10);
     hLayout->addWidget(d_wheel);
 
