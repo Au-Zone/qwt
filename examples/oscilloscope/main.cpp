@@ -13,7 +13,12 @@ int main(int argc, char **argv)
 	signalGenerator.setFrequency(window.frequency());
 	signalGenerator.setAmplitude(window.amplitude());
 
-	app.connect(&app, SIGNAL(aboutToQuit()), &signalGenerator, SLOT(quit()));
+#if 1
+	app.connect(&app, SIGNAL(aboutToQuit()), 
+		&signalGenerator, SLOT(quit()));
+	app.connect(&app, SIGNAL(aboutToQuit()), 
+		&signalGenerator, SLOT(terminate()));
+#endif
 
 	window.connect(&window, SIGNAL(frequencyChanged(double)),
 		&signalGenerator, SLOT(setFrequency(double)));

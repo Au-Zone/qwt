@@ -39,9 +39,13 @@ Plot::Plot(QWidget *parent):
 
     plotLayout()->setCanvasMargin(0);
 
+#if 0
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
         enableAxis(axis, false);
+#endif
 
+    setAxisTitle(QwtPlot::xBottom, "Time [s]");
+    setAxisScale(QwtPlot::xBottom, d_interval.minValue(), d_interval.maxValue()); 
     setAxisScale(QwtPlot::xBottom, d_interval.minValue(), d_interval.maxValue()); 
     setAxisScale(QwtPlot::yLeft, -200.0, 200.0);
 
@@ -53,11 +57,11 @@ Plot::Plot(QWidget *parent):
     grid->enableYMin(false);
     grid->attach(this);
 
-    QwtPlotMarker *origin = new QwtPlotMarker();
-    origin->setLineStyle(QwtPlotMarker::Cross);
-    origin->setValue(5.0, 0.0);
-    origin->setLinePen(QPen(Qt::gray, 0.0, Qt::DashLine));
-    origin->attach(this);
+    d_origin = new QwtPlotMarker();
+    d_origin->setLineStyle(QwtPlotMarker::Cross);
+    d_origin->setValue(d_interval.minValue() + d_interval.width() / 2.0, 0.0);
+    d_origin->setLinePen(QPen(Qt::gray, 0.0, Qt::DashLine));
+    d_origin->attach(this);
 
     d_curve = new QwtPlotCurve();
     d_curve->setPaintAttribute(QwtPlotCurve::PaintFiltered);
@@ -109,9 +113,6 @@ void Plot::incrementInterval()
         d_interval.maxValue() + d_interval.width());
 
     CurveData &data = (CurveData &)d_curve->data();
-#if 1
-	qDebug() << "Number of Points" << data.size();
-#endif
     data.reset(d_interval.minValue());
 
     // To avoid, that the grid is jumping, we disable 
@@ -130,6 +131,8 @@ void Plot::incrementInterval()
     }
     setAxisScaleDiv(QwtPlot::xBottom, scaleDiv);
 
+    d_origin->setValue(d_interval.minValue() + d_interval.width() / 2.0, 0.0);
+
     replot();
 
     d_paintedPoints = data.size();
@@ -139,11 +142,12 @@ void Plot::timerEvent(QTimerEvent *event)
 {
     if ( event->timerId() == d_timerId )
     {
+       	updateCurve();
+
         const double elapsed = d_clock.elapsed() / 1000.0;
-        if ( elapsed > d_interval.maxValue() )
+		if ( elapsed > d_interval.maxValue() )
             incrementInterval();
-        else
-            updateCurve();
+
         return;
     }
 
@@ -158,7 +162,7 @@ void Plot::resizeEvent(QResizeEvent *event)
     const QColor color(46, 74, 95);
     const QRect cr = canvas()->contentsRect();
     QLinearGradient gradient(cr.topLeft(), cr.topRight());
-    gradient.setColorAt(0.0, color.dark(130));
+    gradient.setColorAt(0.0, color.light(130));
     gradient.setColorAt(0.2, color.dark(110));
     gradient.setColorAt(0.7, color);
     gradient.setColorAt(1.0, color.dark(150));

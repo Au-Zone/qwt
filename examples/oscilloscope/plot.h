@@ -3,6 +3,7 @@
 #include "clock.h"
 
 class QwtPlotCurve;
+class QwtPlotMarker;
 
 class Plot: public QwtPlot
 {
@@ -23,6 +24,7 @@ private:
     void updateCurve();
     void incrementInterval();
 
+    QwtPlotMarker *d_origin;
     QwtPlotCurve *d_curve;
     int d_paintedPoints;
 

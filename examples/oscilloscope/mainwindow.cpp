@@ -9,22 +9,22 @@
 MainWindow::MainWindow(QWidget *parent):
     QWidget(parent)
 {
-    const double intervalLength = 10.0; // seconds
+    const double intervalLength = 4.0; // seconds
 
     d_plot = new Plot(this);
     d_plot->setIntervalLength(intervalLength);
 
     d_amplitudeKnob = new Knob("Amplitude", 0.0, 200.0, this);
-    d_amplitudeKnob->setValue(50.0);
+    d_amplitudeKnob->setValue(160.0);
     
     d_frequencyKnob = new Knob("Frequency [Hz]", 0.1, 20.0, this);
-    d_frequencyKnob->setValue(5.0);
+    d_frequencyKnob->setValue(17.8);
 
     d_intervalWheel = new WheelBox("Displayed [s]", 1.0, 100.0, 1.0, this);
     d_intervalWheel->setValue(intervalLength);
 
     d_timerWheel = new WheelBox("Signal Interval [ms]", 0.0, 100.0, 1.0, this);
-    d_timerWheel->setValue(5.0);
+    d_timerWheel->setValue(29.0);
 
     QVBoxLayout* vLayout1 = new QVBoxLayout();
     vLayout1->addWidget(d_intervalWheel);
