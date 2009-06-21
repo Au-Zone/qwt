@@ -12,8 +12,9 @@ class Plot: public QwtPlot
 public:
     Plot(QWidget * = NULL);
 
+    virtual void replot();
+
 public slots:
-    void append(double elapsed, double value);
     void setIntervalLength(double);
 
 protected:

@@ -1,5 +1,6 @@
 #include "plot.h"
 #include "curvedata.h"
+#include "signaldata.h"
 #include <qwt_plot_grid.h>
 #include <qwt_plot_layout.h>
 #include <qwt_plot_canvas.h>
@@ -76,6 +77,17 @@ Plot::Plot(QWidget *parent):
     d_timerId = startTimer(10);
 }
 
+void Plot::replot()
+{
+    CurveData &data = (CurveData &)d_curve->data();
+    data.values().lock();
+
+    QwtPlot::replot();
+    d_paintedPoints = data.size();
+
+    data.values().unlock();
+}
+
 void Plot::setIntervalLength(double interval)
 {
     if ( interval > 0.0 && interval != d_interval.width() )
@@ -88,23 +100,19 @@ void Plot::setIntervalLength(double interval)
     }
 }
 
-void Plot::append(double elapsed, double value)
-{
-    if ( elapsed > d_interval.minValue() )
-    {
-        CurveData &data = (CurveData &)d_curve->data();
-        data.append(QwtDoublePoint(elapsed, value));
-    }
-}
-
 void Plot::updateCurve()
 {
+    CurveData &data = (CurveData &)d_curve->data();
+    data.values().lock();
+
     const int numPoints = d_curve->data().size();
     if ( numPoints > d_paintedPoints )
     {
         d_curve->draw(d_paintedPoints - 1, numPoints - 1);
         d_paintedPoints = numPoints;
     }
+
+    data.values().unlock();
 }
 
 void Plot::incrementInterval()
@@ -113,7 +121,7 @@ void Plot::incrementInterval()
         d_interval.maxValue() + d_interval.width());
 
     CurveData &data = (CurveData &)d_curve->data();
-    data.reset(d_interval.minValue());
+    data.values().clearStaleValues(d_interval.minValue());
 
     // To avoid, that the grid is jumping, we disable 
     // the autocalculation of the ticks and shift them
@@ -133,19 +141,18 @@ void Plot::incrementInterval()
 
     d_origin->setValue(d_interval.minValue() + d_interval.width() / 2.0, 0.0);
 
+    d_paintedPoints = 0;
     replot();
-
-    d_paintedPoints = data.size();
 }
 
 void Plot::timerEvent(QTimerEvent *event)
 {
     if ( event->timerId() == d_timerId )
     {
-       	updateCurve();
+        updateCurve();
 
         const double elapsed = d_clock.elapsed() / 1000.0;
-		if ( elapsed > d_interval.maxValue() )
+        if ( elapsed > d_interval.maxValue() )
             incrementInterval();
 
         return;

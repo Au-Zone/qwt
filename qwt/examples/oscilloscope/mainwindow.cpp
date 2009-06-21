@@ -38,32 +38,27 @@ MainWindow::MainWindow(QWidget *parent):
     layout->addLayout(vLayout1);
 
     connect(d_amplitudeKnob, SIGNAL(valueChanged(double)),
-		SIGNAL(amplitudeChanged(double)));
+        SIGNAL(amplitudeChanged(double)));
     connect(d_frequencyKnob, SIGNAL(valueChanged(double)),
-		SIGNAL(frequencyChanged(double)));
+        SIGNAL(frequencyChanged(double)));
     connect(d_timerWheel, SIGNAL(valueChanged(double)),
-		SLOT(timerWheelChanged(double)));
+        SLOT(timerWheelChanged(double)));
 
     connect(d_intervalWheel, SIGNAL(valueChanged(double)),
         d_plot, SLOT(setIntervalLength(double)) );
 }
 
-void MainWindow::appendValue(double time, double value)
-{
-	d_plot->append(time, value);
-}
-
 double MainWindow::frequency() const
 {
-	return d_frequencyKnob->value();
+    return d_frequencyKnob->value();
 }
 
 double MainWindow::amplitude() const
 {
-	return d_amplitudeKnob->value();
+    return d_amplitudeKnob->value();
 }
 
 void MainWindow::timerWheelChanged(double value)
 {
-	emit signalIntervalChanged(qRound(value));
+    emit signalIntervalChanged(qRound(value));
 }
