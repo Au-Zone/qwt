@@ -22,6 +22,8 @@ protected:
     virtual void run();
 
 private:
+    virtual double readValue(double timeStamp) const;
+
     Clock d_clock;
 
     double d_frequency;
