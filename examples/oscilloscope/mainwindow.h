@@ -13,14 +13,12 @@ public:
 
     double amplitude() const;
     double frequency() const;
+    double signalInterval() const;
 
 signals:
     void amplitudeChanged(double);
     void frequencyChanged(double);
-    void signalIntervalChanged(int);
-
-private slots:
-    void timerWheelChanged(double);
+    void signalIntervalChanged(double);
 
 private:
     Knob *d_frequencyKnob;

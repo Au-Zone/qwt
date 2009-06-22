@@ -12,6 +12,7 @@ int main(int argc, char **argv)
     SignalGenerator signalGenerator;
     signalGenerator.setFrequency(window.frequency());
     signalGenerator.setAmplitude(window.amplitude());
+    signalGenerator.setSignalInterval(window.signalInterval());
 
 #if 1
     app.connect(&app, SIGNAL(aboutToQuit()), 
@@ -24,8 +25,8 @@ int main(int argc, char **argv)
         &signalGenerator, SLOT(setFrequency(double)));
     window.connect(&window, SIGNAL(amplitudeChanged(double)),
         &signalGenerator, SLOT(setAmplitude(double)));
-    window.connect(&window, SIGNAL(signalIntervalChanged(int)),
-        &signalGenerator, SLOT(setSignalInterval(int)));
+    window.connect(&window, SIGNAL(signalIntervalChanged(double)),
+        &signalGenerator, SLOT(setSignalInterval(double)));
 
 #if QT_VERSION < 0x040000
     app.setMainWidget(&window);
