@@ -48,9 +48,9 @@ double SignalGenerator::amplitude() const
 
 void SignalGenerator::run()
 {
-	int counter = 0;
+    int counter = 0;
 
-	SignalData &data = SignalData::instance();
+    SignalData &data = SignalData::instance();
 
     d_clock.start();
     while(true)
@@ -58,23 +58,30 @@ void SignalGenerator::run()
         const double elapsed = d_clock.elapsed();
         if ( d_frequency > 0.0 )
         {
-            const double period = 1.0 / d_frequency;
-            const double time = elapsed / 1000.0;
+            const double timeStamp = elapsed / 1000.0;
+            const double v = readValue(timeStamp);
+            data.append(QwtDoublePoint(timeStamp, v));
 
-            const double x = ::fmod(time, period);
-            const double v = d_amplitude * ::sin(x / period * 2 * M_PI);
-
-            data.append(QwtDoublePoint(time, v));
-
-			if ( counter++ % 100 == 0 )
-			{
-				//qDebug() << d_clock.elapsed() - elapsed;
-			}
+            if ( counter++ % 100 == 0 )
+            {
+                //qDebug() << d_clock.elapsed() - elapsed;
+            }
         }
 
-		const double msecs = 
-			d_signalInterval - (d_clock.elapsed() - elapsed);
+        const double msecs = 
+            d_signalInterval - (d_clock.elapsed() - elapsed);
 
-        usleep(1000.0 * msecs);
+        if ( msecs > 0.0 )
+            usleep(1000.0 * msecs);
     }
+}
+
+double SignalGenerator::readValue(double timeStamp) const
+{
+    const double period = 1.0 / d_frequency;
+
+    const double x = ::fmod(timeStamp, period);
+    const double v = d_amplitude * ::sin(x / period * 2 * M_PI);
+
+    return v;
 }
