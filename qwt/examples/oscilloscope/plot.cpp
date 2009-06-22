@@ -9,7 +9,6 @@
 #include <qwt_curve_fitter.h>
 #include <qwt_painter.h>
 #include <qevent.h>
-#include <QDebug>
 
 Plot::Plot(QWidget *parent):
     QwtPlot(parent),

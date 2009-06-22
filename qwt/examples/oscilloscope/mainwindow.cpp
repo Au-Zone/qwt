@@ -9,7 +9,7 @@
 MainWindow::MainWindow(QWidget *parent):
     QWidget(parent)
 {
-    const double intervalLength = 4.0; // seconds
+    const double intervalLength = 10.0; // seconds
 
     d_plot = new Plot(this);
     d_plot->setIntervalLength(intervalLength);
@@ -23,8 +23,8 @@ MainWindow::MainWindow(QWidget *parent):
     d_intervalWheel = new WheelBox("Displayed [s]", 1.0, 100.0, 1.0, this);
     d_intervalWheel->setValue(intervalLength);
 
-    d_timerWheel = new WheelBox("Signal Interval [ms]", 0.0, 100.0, 1.0, this);
-    d_timerWheel->setValue(29.0);
+    d_timerWheel = new WheelBox("Signal Interval [ms]", 0.0, 20.0, 0.1, this);
+    d_timerWheel->setValue(10.0);
 
     QVBoxLayout* vLayout1 = new QVBoxLayout();
     vLayout1->addWidget(d_intervalWheel);
@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent):
     connect(d_frequencyKnob, SIGNAL(valueChanged(double)),
         SIGNAL(frequencyChanged(double)));
     connect(d_timerWheel, SIGNAL(valueChanged(double)),
-        SLOT(timerWheelChanged(double)));
+        SIGNAL(signalIntervalChanged(double)));
 
     connect(d_intervalWheel, SIGNAL(valueChanged(double)),
         d_plot, SLOT(setIntervalLength(double)) );
@@ -58,7 +58,7 @@ double MainWindow::amplitude() const
     return d_amplitudeKnob->value();
 }
 
-void MainWindow::timerWheelChanged(double value)
+double MainWindow::signalInterval() const
 {
-    emit signalIntervalChanged(qRound(value));
+    return d_timerWheel->value();
 }

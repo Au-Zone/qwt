@@ -16,7 +16,7 @@ public:
 public slots:
     void setAmplitude(double);
     void setFrequency(double);
-    void setSignalInterval(int); // ms
+    void setSignalInterval(double); // ms
 
 protected:
     virtual void run();
@@ -27,5 +27,5 @@ private:
     double d_frequency;
     double d_amplitude;
 
-    int d_signalInterval;
+    double d_signalInterval;
 };
