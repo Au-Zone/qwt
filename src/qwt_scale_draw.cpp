@@ -149,29 +149,46 @@ void QwtScaleDraw::getBorderDistHint(const QFont &font,
     if ( ticks.count() == 0 ) 
         return;
 
-    QRect lr = labelRect(font, ticks[0]);
+    // Find the ticks, that are mapped to the borders.
+    // minTick is the tick, that is mapped to the top/left-most position
+    // in widget coordinates.
 
-    // find the distance between tick and border
-    int off = qwtAbs(map().transform(ticks[0]) - qRound(map().p1()));
+    double minTick = ticks[0];
+    int minPos = map().transform(minTick);
+    double maxTick = minTick;
+    int maxPos = minPos;
+
+    for (uint i = 1; i < (uint)ticks.count(); i++)
+    {
+        const int tickPos = map().transform(ticks[i]);
+        if ( tickPos < minPos )
+        {
+            minTick = ticks[i];
+            minPos = tickPos;
+        }
+        if ( tickPos > map().transform(maxTick) )
+        {
+            maxTick = ticks[i];
+            maxPos = tickPos;
+        }
+    }
 
     if ( orientation() == Qt::Vertical )
-        end = lr.bottom() + 1 - off;
+    {
+        start = -labelRect(font, minTick).top();
+        start -= qwtAbs(minPos - qRound(map().p2()));
+
+        end = labelRect(font, maxTick).bottom() + 1;
+        end -= qwtAbs(maxPos - qRound(map().p1()));
+    }
     else
-        start = -lr.left() - off;
+    {
+        start = -labelRect(font, minTick).left();
+        start -= qwtAbs(minPos - qRound(map().p1()));
 
-    const int lastTick = ticks.count() - 1;
-    lr = labelRect(font, ticks[lastTick]);
-
-    // find the distance between tick and border
-    off = qwtAbs(map().transform(ticks[lastTick]) - qRound(map().p2()));
-
-    if ( orientation() == Qt::Vertical )
-        start = -lr.top() - off;
-    else
-        end = lr.right() + 1 - off;
-
-    // if the distance between tick and border is larger
-    // than half of the label width/height, we set to 0
+        end = labelRect(font, maxTick).right() + 1;
+        end -= qwtAbs(maxPos - qRound(map().p2()));
+    }
 
     if ( start < 0 )
         start = 0;
