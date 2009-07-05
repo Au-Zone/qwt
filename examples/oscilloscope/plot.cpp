@@ -28,7 +28,7 @@ Plot::Plot(QWidget *parent):
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
 
 #if 0
-#if QT_VERSION >= 0x040000 && defined(Q_WS_X11)
+#if defined(Q_WS_X11)
     // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent
     // works on X11. This has an tremendous effect on the performance..
     

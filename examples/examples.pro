@@ -12,40 +12,44 @@ include( ../qwtconfig.pri )
 TEMPLATE = subdirs
 
 contains(CONFIG, QwtPlot) {
-	
-	SUBDIRS += \
-    	cpuplot \
-    	curvdemo1   \
-    	curvdemo2 \
-    	errorbars \
-    	simple_plot \
-    	realtime_plot \
-    	navigation \
-    	plotmatrix \
-    	spectrogram \
-    	histogram 
+    
+    SUBDIRS += \
+        cpuplot \
+        curvdemo1   \
+        curvdemo2 \
+        errorbars \
+        simple_plot \
+        realtime_plot \
+        navigation \
+        plotmatrix \
+        spectrogram \
+        histogram 
 
-	contains(CONFIG, QwtWidgets) {
+    contains(CONFIG, QwtWidgets) {
 
-		SUBDIRS += \
-    		bode \
-    		data_plot \
-    		oscilloscope \
-    		event_filter
-	}
-	
-	contains(CONFIG, QwtSVGItem) {
+        SUBDIRS += \
+            bode \
+            data_plot \
+            event_filter
 
-		SUBDIRS += \
-			svgmap
-	}
+        VVERSION = $$[QT_VERSION]
+        !isEmpty(VVERSION) {
+            SUBDIRS += oscilloscope  # Qt4 only
+        }
+    }
+    
+    contains(CONFIG, QwtSVGItem) {
+
+        SUBDIRS += \
+            svgmap
+    }
 }
 
 contains(CONFIG, QwtWidgets) {
 
-	SUBDIRS += \
-    	sysinfo \
-    	radio \
-    	dials \
-    	sliders
+    SUBDIRS += \
+        sysinfo \
+        radio \
+        dials \
+        sliders
 }

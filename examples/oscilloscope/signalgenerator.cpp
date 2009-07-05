@@ -9,7 +9,8 @@ SignalGenerator::SignalGenerator(QObject *parent):
     QThread(parent),
     d_frequency(5.0),
     d_amplitude(20.0),
-    d_signalInterval(5)
+    d_signalInterval(5),
+	d_isStopped(true)
 {
 }
 
@@ -21,7 +22,7 @@ void SignalGenerator::setSignalInterval(double interval)
     d_signalInterval = interval;
 }
 
-int SignalGenerator::timerInterval() const
+double SignalGenerator::signalInterval() const
 {
     return d_signalInterval;
 }
@@ -53,7 +54,8 @@ void SignalGenerator::run()
     SignalData &data = SignalData::instance();
 
     d_clock.start();
-    while(true)
+	d_isStopped = false;
+    while(!d_isStopped)
     {
         const double elapsed = d_clock.elapsed();
         if ( d_frequency > 0.0 )
@@ -72,8 +74,13 @@ void SignalGenerator::run()
             d_signalInterval - (d_clock.elapsed() - elapsed);
 
         if ( msecs > 0.0 )
-            usleep(1000.0 * msecs);
+            usleep(qRound(1000.0 * msecs));
     }
+}
+
+void SignalGenerator::stop()
+{
+	d_isStopped = true;
 }
 
 double SignalGenerator::readValue(double timeStamp) const

@@ -11,12 +11,13 @@ public:
 
     double frequency() const;
     double amplitude() const;
-    int timerInterval() const;
+    double signalInterval() const;
 
 public slots:
     void setAmplitude(double);
     void setFrequency(double);
     void setSignalInterval(double); // ms
+    void stop();
 
 protected:
     virtual void run();
@@ -30,4 +31,5 @@ private:
     double d_amplitude;
 
     double d_signalInterval;
+	double d_isStopped;
 };
