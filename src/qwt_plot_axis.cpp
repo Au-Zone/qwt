@@ -550,7 +550,7 @@ void QwtPlot::setAxisMaxMajor(int axisId, int maxMajor)
             maxMajor = 10000;
             
         AxisData &d = *d_axisData[axisId];
-        if ( maxMajor != d.maxMinor )
+        if ( maxMajor != d.maxMajor )
         {
             d.maxMajor = maxMajor;
             d.scaleDiv.invalidate();
