@@ -49,13 +49,9 @@ public:
     void setSymbol(const QwtIntervalSymbol&);
     const QwtIntervalSymbol& symbol() const;
 
-    virtual void draw(QPainter *p, 
+    virtual void drawSeries(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &) const;
-
-    virtual void draw(QPainter *p, 
-        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        const QRect &canvasRect, int from, int to) const;
 
     virtual QwtDoubleRect boundingRect() const;
     virtual void updateLegend(QwtLegend *) const;

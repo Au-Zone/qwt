@@ -165,22 +165,6 @@ const QBrush& QwtPlotIntervalCurve::brush() const
     return d_data->brush;
 }
 
-/*!
-  \brief Draw the complete curve
-
-  \param painter Painter
-  \param xMap Maps x-values into pixel coordinates.
-  \param yMap Maps y-values into pixel coordinates.
-
-  \sa drawCurve(), drawSymbols()
-*/
-void QwtPlotIntervalCurve::draw(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &) const
-{
-    draw(painter, xMap, yMap, 0, -1);
-}
-
 QwtDoubleRect QwtPlotIntervalCurve::boundingRect() const
 {
     QwtDoubleRect br = 
@@ -196,9 +180,9 @@ QwtDoubleRect QwtPlotIntervalCurve::boundingRect() const
     return br;
 }
 
-void QwtPlotIntervalCurve::draw(QPainter *painter,
+void QwtPlotIntervalCurve::drawSeries(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    int from, int to) const
+    const QRect &, int from, int to) const
 {
     if (to < 0)
         to = dataSize() - 1;

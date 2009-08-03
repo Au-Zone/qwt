@@ -2,6 +2,7 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
+#include <qwt_plot_directpainter.h>
 #include "incrementalplot.h"
 #if QT_VERSION >= 0x040000
 #include <qpaintengine.h>
@@ -54,11 +55,13 @@ IncrementalPlot::IncrementalPlot(QWidget *parent):
     d_data(NULL),
     d_curve(NULL)
 {
+	d_directPainter = new QwtPlotDirectPainter;
     setAutoReplot(false);
 }
 
 IncrementalPlot::~IncrementalPlot()
 {
+	delete d_directPainter;
     delete d_data;
 }
 
@@ -102,7 +105,8 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
 #endif
 
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
-    d_curve->draw(d_curve->dataSize() - size, d_curve->dataSize() - 1);
+    d_directPainter->drawSeries(d_curve, 
+		d_curve->dataSize() - size, d_curve->dataSize() - 1);
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, cacheMode);
 
 #if QT_VERSION >= 0x040000 && defined(Q_WS_X11)

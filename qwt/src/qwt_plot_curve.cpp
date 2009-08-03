@@ -24,122 +24,6 @@
 #include "qwt_symbol.h"
 #include "qwt_plot_curve.h"
 
-#if QT_VERSION < 0x040000
-#include <qguardedptr.h>
-#else
-#include <qpointer.h>
-#endif
-
-#if QT_VERSION >= 0x040000
-
-#include <qevent.h>
-#include <qpaintengine.h>
-
-class QwtPlotCurvePaintHelper: public QObject
-{
-public:
-    QwtPlotCurvePaintHelper(const QwtPlotCurve *curve, int from, int to):
-        _curve(curve),
-        _from(from),
-        _to(to)
-    {
-    }
-
-    virtual bool eventFilter(QObject *, QEvent *event)
-    {
-        if ( event->type() == QEvent::Paint )
-        {
-            _curve->draw(_from, _to);
-            return true;
-        }
-        return false;
-    }
-private:
-    const QwtPlotCurve *_curve;
-    int _from;
-    int _to;
-};
-
-#endif // QT_VERSION >= 0x040000
-
-// Creating and initializing a QPainter is an
-// expensive operation. So we keep an painter
-// open for situations, where we paint outside
-// of paint events. This improves the performance
-// of incremental painting like in the realtime
-// example a lot.
-// But it is not possible to have more than
-// one QPainter open at the same time. So we
-// need to close it before regular paint events
-// are processed.
-
-class QwtGuardedPainter: public QObject
-{
-public:
-    ~QwtGuardedPainter()
-    {
-        end();
-    }
-
-    QPainter *begin(QwtPlotCanvas *canvas)
-    {
-        _canvas = canvas;
-
-        QMap<QwtPlotCanvas *, QPainter *>::iterator it = _map.find(_canvas);
-        if ( it == _map.end() )
-        {
-            QPainter *painter = new QPainter(_canvas);
-            painter->setClipping(true);
-            painter->setClipRect(_canvas->contentsRect());
-
-            it = _map.insert(_canvas, painter);
-            _canvas->installEventFilter(this);
-        }
-#if QT_VERSION < 0x040000
-        return it.data();
-#else
-        return it.value();
-#endif
-    }
-
-    void end()
-    {
-        if ( _canvas )
-        {
-            QMap<QwtPlotCanvas *, QPainter *>::iterator it = _map.find(_canvas);
-            if ( it != _map.end() )
-            {
-                _canvas->removeEventFilter(this);
-
-#if QT_VERSION < 0x040000
-                delete it.data();
-#else
-                delete it.value();
-#endif
-                _map.erase(it);
-            }
-        }
-    }
-
-    virtual bool eventFilter(QObject *, QEvent *event)
-    {
-        if ( event->type() == QEvent::Paint )
-            end();
-
-        return false;
-    }
-
-private:
-#if QT_VERSION < 0x040000
-    QGuardedPtr<QwtPlotCanvas> _canvas;
-#else
-    QPointer<QwtPlotCanvas> _canvas;
-#endif
-    static QMap<QwtPlotCanvas *, QPainter *> _map;
-};
-
-QMap<QwtPlotCanvas *, QPainter *> QwtGuardedPainter::_map;
-
 static int verifyRange(int size, int &i1, int &i2)
 {
     if (size < 1) 
@@ -214,8 +98,6 @@ public:
 
     int attributes;
     int paintAttributes;
-
-    QwtGuardedPainter guardedPainter;
 };
 
 /*!
@@ -394,141 +276,20 @@ const QBrush& QwtPlotCurve::brush() const
 }
 
 /*!
-  \brief Draw the complete curve
-
+  \brief Draw an interval of the curve
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-
-  \sa drawCurve(), drawSymbols()
-*/
-void QwtPlotCurve::draw(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &) const
-{
-    draw(painter, xMap, yMap, 0, -1);
-}
-
-/*!
-  \brief Draw a set of points of a curve.
-
-  When observing an measurement while it is running, new points have to be
-  added to an existing curve. drawCurve can be used to display them avoiding
-  a complete redraw of the canvas.
-
-  Setting plot()->canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
-  will result in faster painting, if the paint engine of the canvas widget
-  supports this feature. 
-
+  \param canvasRect Contents rect of the canvas
   \param from Index of the first point to be painted
-  \param to Index of the last point to be painted. If to < 0 the
-         curve will be painted to its last point.
-
-  \sa drawCurve(), drawSymbols()
-*/
-void QwtPlotCurve::draw(int from, int to) const
-{
-    if ( !plot() )
-        return;
-
-    QwtPlotCanvas *canvas = plot()->canvas();
-
-#if QT_VERSION >= 0x040000
-#if 0
-    if ( canvas->paintEngine()->type() == QPaintEngine::OpenGL )
-    {
-        /*
-            OpenGL alway repaint the complete widget.
-            So for this operation OpenGL is one of the slowest
-            environments.
-         */
-        canvas->repaint();
-        return;
-    }
-#endif
-
-    if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
-        !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
-    {
-        /*
-          We save curve and range in helper and call repaint.
-          The helper filters the Paint event, to repeat
-          the QwtPlotCurve::draw, but now from inside the paint
-          event.
-         */
-
-        QwtPlotCurvePaintHelper helper(this, from, to);
-        canvas->installEventFilter(&helper);
-
-        const bool noSystemBackground =
-            canvas->testAttribute(Qt::WA_NoSystemBackground);
-        canvas->setAttribute(Qt::WA_NoSystemBackground, true);
-        canvas->repaint();
-        canvas->setAttribute(Qt::WA_NoSystemBackground, noSystemBackground);
-
-        return;
-    }
-#endif
-
-    const QwtScaleMap xMap = plot()->canvasMap(xAxis());
-    const QwtScaleMap yMap = plot()->canvasMap(yAxis());
-
-    if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
-        canvas->paintCache() && !canvas->paintCache()->isNull() )
-    {
-        QPainter cachePainter((QPixmap *)canvas->paintCache());
-        cachePainter.translate(-canvas->contentsRect().x(),
-            -canvas->contentsRect().y());
-
-        draw(&cachePainter, xMap, yMap, from, to);
-    }
-
-#if QT_VERSION >= 0x040000
-    if ( canvas->testAttribute(Qt::WA_WState_InPaintEvent) )
-    {
-        QPainter painter(canvas);
-#if QT_VERSION >= 0x040000
-        painter.setRenderHint(QPainter::Antialiasing,
-                testRenderHint(QwtPlotItem::RenderAntialiased) );
-#endif
-
-
-        painter.setClipping(true);
-        painter.setClipRect(canvas->contentsRect());
-
-        draw(&painter, xMap, yMap, from, to);
-    }
-    else
-#endif
-    {
-        QPainter *painter = d_data->guardedPainter.begin(canvas);
-#if QT_VERSION >= 0x040000
-        painter->setRenderHint(QPainter::Antialiasing,
-                testRenderHint(QwtPlotItem::RenderAntialiased) );
-#endif
-        draw(painter, xMap, yMap, from, to);
-    }
-}
-
-void QwtPlotCurve::resetPainter()
-{
-    d_data->guardedPainter.end();
-}
-
-/*!
-  \brief Draw an interval of the curve
-  \param painter Painter
-  \param xMap maps x-values into pixel coordinates.
-  \param yMap maps y-values into pixel coordinates.
-  \param from index of the first point to be painted
-  \param to index of the last point to be painted. If to < 0 the 
+  \param to Index of the last point to be painted. If to < 0 the 
          curve will be painted to its last point.
 
   \sa drawCurve(), drawSymbols(),
 */
-void QwtPlotCurve::draw(QPainter *painter,
+void QwtPlotCurve::drawSeries(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    int from, int to) const
+    const QRect &, int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
         return;
