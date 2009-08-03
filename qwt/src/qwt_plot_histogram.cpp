@@ -1,10 +1,10 @@
 #include <qstring.h>
 #include <qpainter.h>
-#include <qwt_plot.h>
-#include <qwt_painter.h>
-#include <qwt_column_symbol.h>
-#include <qwt_scale_map.h>
-#include <qwt_plot_histogram.h>
+#include "qwt_plot.h"
+#include "qwt_painter.h"
+#include "qwt_column_symbol.h"
+#include "qwt_scale_map.h"
+#include "qwt_plot_histogram.h"
 
 class QwtPlotHistogram::PrivateData
 {

@@ -747,7 +747,7 @@ void QwtPainter::drawColorBar(QPainter *painter,
 
 QPen QwtPainter::scaledPen(const QPen &pen)
 {
-#if QT_VERSION < 0x040000
+#if QT_VERSION < 0x040300
     return pen;
 #else
     QPen sPen = pen;
