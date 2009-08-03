@@ -170,16 +170,9 @@ void QwtPlotHistogram::setData(
     QwtPlotSeriesItem<QwtIntervalSample>::setData(data);
 }
 
-void QwtPlotHistogram::draw(QPainter *painter, 
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    const QRect &) const
-{
-    draw(painter, xMap, yMap, 0, -1);
-}
-
-void QwtPlotHistogram::draw(QPainter *painter,
+void QwtPlotHistogram::drawSeries(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to) const
+    const QRect &, int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
         return;

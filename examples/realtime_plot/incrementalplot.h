@@ -5,6 +5,7 @@
 #include <qwt_plot.h>
 
 class QwtPlotCurve;
+class QwtPlotDirectPainter;
 
 class CurveData
 {
@@ -41,6 +42,7 @@ public:
 private:
     CurveData *d_data;
     QwtPlotCurve *d_curve;
+    QwtPlotDirectPainter *d_directPainter;
 };
 
 #endif // _INCREMENTALPLOT_H_

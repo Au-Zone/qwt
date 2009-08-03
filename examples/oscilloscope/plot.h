@@ -4,6 +4,7 @@
 
 class QwtPlotCurve;
 class QwtPlotMarker;
+class QwtPlotDirectPainter;
 
 class Plot: public QwtPlot
 {
@@ -11,6 +12,7 @@ class Plot: public QwtPlot
 
 public:
     Plot(QWidget * = NULL);
+	virtual ~Plot();
 
     virtual void replot();
 
@@ -28,6 +30,8 @@ private:
     QwtPlotMarker *d_origin;
     QwtPlotCurve *d_curve;
     int d_paintedPoints;
+
+	QwtPlotDirectPainter *d_directPainter;
 
     QwtDoubleInterval d_interval;
     int d_timerId;

@@ -14,19 +14,39 @@
 #include "qwt_plot_item.h"
 #include "qwt_scale_div.h"
 #include "qwt_series_data.h"
-#include <cassert>
+
+class QwtPlotAbstractSeriesItem: public QwtPlotItem
+{
+public:
+    explicit QwtPlotAbstractSeriesItem(const QString &title = QString::null);
+    explicit QwtPlotAbstractSeriesItem(const QwtText &title);
+
+	virtual ~QwtPlotAbstractSeriesItem();
+
+    void setOrientation(Qt::Orientation);
+    Qt::Orientation orientation() const;
+
+    virtual void draw(QPainter *p,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        const QRect &) const;
+
+    virtual void drawSeries(QPainter *,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+		const QRect &, int from, int to) const = 0;
+
+private:
+	class PrivateData;
+	PrivateData *d_data;
+};
 
 template <typename T> 
-class QwtPlotSeriesItem: public QwtPlotItem
+class QwtPlotSeriesItem: public QwtPlotAbstractSeriesItem
 {
 public:
     explicit QwtPlotSeriesItem<T>(const QString &title = QString::null);
     explicit QwtPlotSeriesItem<T>(const QwtText &title);
 
     virtual ~QwtPlotSeriesItem<T>();
-
-    void setOrientation(Qt::Orientation);
-    Qt::Orientation orientation() const;
 
     void setData(const QwtSeriesData<T> &);
     
@@ -42,23 +62,20 @@ public:
 
 protected:
     QwtSeriesData<T> *d_series;
-    Qt::Orientation d_orientation;
 };
 
 template <typename T> 
 QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QString &title):
-    QwtPlotItem(QwtText(title)),
-    d_series(NULL),
-    d_orientation(Qt::Vertical)
+    QwtPlotAbstractSeriesItem(QwtText(title)),
+    d_series(NULL)
 {
 }
 
 template <typename T> 
 QwtPlotSeriesItem<T>::QwtPlotSeriesItem(
         const QwtText &title):
-    QwtPlotItem(title),
-    d_series(NULL),
-    d_orientation(Qt::Vertical)
+    QwtPlotAbstractSeriesItem(title),
+    d_series(NULL)
 {
 }
 
@@ -66,38 +83,6 @@ template <typename T>
 QwtPlotSeriesItem<T>::~QwtPlotSeriesItem()
 {
     delete d_series;
-}
-
-/*!
-  Assign the curve type
-
-  <dt>Qt::Vertical
-  <dd>Draws y as a function of x (the default). The
-      baseline is interpreted as a horizontal line
-      with y = baseline().</dd>
-  <dt>Qt::Horizontal
-  <dd>Draws x as a function of y. The baseline is
-      interpreted as a vertical line with x = baseline().</dd>
-
-  The baseline is used for aligning the sticks, or
-  filling the curve with a brush.
-
-  \sa curveType()
-*/
-template <typename T> 
-void QwtPlotSeriesItem<T>::setOrientation(Qt::Orientation orientation)
-{
-    if ( d_orientation != orientation )
-    {
-        d_orientation = orientation;
-        itemChanged();
-    }
-}
-
-template <typename T> 
-Qt::Orientation QwtPlotSeriesItem<T>::orientation() const 
-{ 
-    return d_orientation; 
 }
 
 //! \return the the curve data

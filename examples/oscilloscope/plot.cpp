@@ -6,6 +6,7 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
+#include <qwt_plot_directpainter.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_painter.h>
 #include <qevent.h>
@@ -16,6 +17,8 @@ Plot::Plot(QWidget *parent):
     d_interval(0.0, 10.0),
     d_timerId(-1)
 {
+	d_directPainter = new QwtPlotDirectPainter();
+
     d_clock.start();
 
     setAutoReplot(false);
@@ -76,6 +79,11 @@ Plot::Plot(QWidget *parent):
     d_timerId = startTimer(10);
 }
 
+Plot::~Plot()
+{
+	delete d_directPainter;
+}
+
 void Plot::replot()
 {
     CurveData &data = (CurveData &)d_curve->data();
@@ -107,7 +115,8 @@ void Plot::updateCurve()
     const int numPoints = d_curve->data().size();
     if ( numPoints > d_paintedPoints )
     {
-        d_curve->draw(d_paintedPoints - 1, numPoints - 1);
+        d_directPainter->drawSeries(d_curve, 
+			d_paintedPoints - 1, numPoints - 1);
         d_paintedPoints = numPoints;
     }
 
@@ -162,7 +171,7 @@ void Plot::timerEvent(QTimerEvent *event)
 
 void Plot::resizeEvent(QResizeEvent *event)
 {
-    d_curve->resetPainter();
+    d_directPainter->reset();
     QwtPlot::resizeEvent(event);
 
     const QColor color(46, 74, 95);

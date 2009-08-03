@@ -7,6 +7,7 @@
 #include <qwt_scale_map.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_curve.h>
+#include <qwt_plot_directpainter.h>
 #include "canvaspicker.h"
 
 CanvasPicker::CanvasPicker(QwtPlot *plot):
@@ -263,7 +264,8 @@ void CanvasPicker::showCursor(bool showIt)
     plot()->setAutoReplot(false);
     d_selectedCurve->setSymbol(newSymbol);
 
-    d_selectedCurve->draw(d_selectedPoint, d_selectedPoint);
+	QwtPlotDirectPainter directPainter;
+    directPainter.drawSeries(d_selectedCurve, d_selectedPoint, d_selectedPoint);
 
     d_selectedCurve->setSymbol(symbol);
     plot()->setAutoReplot(doReplot);
