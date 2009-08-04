@@ -17,7 +17,7 @@ Plot::Plot(QWidget *parent):
     d_interval(0.0, 10.0),
     d_timerId(-1)
 {
-	d_directPainter = new QwtPlotDirectPainter();
+    d_directPainter = new QwtPlotDirectPainter();
 
     d_clock.start();
 
@@ -28,16 +28,15 @@ Plot::Plot(QWidget *parent):
 
     // We don't need the cache here
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
+    //canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
 
-#if 0
+
 #if defined(Q_WS_X11)
     // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent
     // works on X11. This has an tremendous effect on the performance..
     
     canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
     canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
-#endif
 #endif
 
     plotLayout()->setCanvasMargin(0);
@@ -81,7 +80,7 @@ Plot::Plot(QWidget *parent):
 
 Plot::~Plot()
 {
-	delete d_directPainter;
+    delete d_directPainter;
 }
 
 void Plot::replot()
@@ -116,7 +115,7 @@ void Plot::updateCurve()
     if ( numPoints > d_paintedPoints )
     {
         d_directPainter->drawSeries(d_curve, 
-			d_paintedPoints - 1, numPoints - 1);
+            d_paintedPoints - 1, numPoints - 1);
         d_paintedPoints = numPoints;
     }
 
