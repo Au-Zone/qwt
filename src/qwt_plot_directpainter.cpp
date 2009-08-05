@@ -17,124 +17,42 @@
 #include "qwt_plot_seriesitem.h"
 #include "qwt_plot_directpainter.h"
 
-class QwtPlotCurvePaintHelper: public QObject
+static void renderItem(QPainter *painter,
+    QwtPlotAbstractSeriesItem *seriesItem, int from, int to)
 {
-public:
-    QwtPlotCurvePaintHelper(QwtPlotDirectPainter *painter,
-            QwtPlotAbstractSeriesItem *seriesItem, int from, int to):
-        d_painter(painter),
-        d_seriesItem(seriesItem),
-        d_from(from),
-        d_to(to)
-    {
-    }
+    QwtPlot *plot = seriesItem->plot();
 
-    virtual bool eventFilter(QObject *, QEvent *event)
-    {
-        if ( event->type() == QEvent::Paint )
-        {
-            paintSeries();
-            return true;
-        }
-        return false;
-    }
+    const QwtScaleMap xMap = plot->canvasMap(seriesItem->xAxis());
+    const QwtScaleMap yMap = plot->canvasMap(seriesItem->yAxis());
 
-private:
-    inline void paintSeries()
-    {
-        QwtPlot *plot = d_seriesItem->plot();
-
-        const QwtScaleMap xMap = plot->canvasMap(d_seriesItem->xAxis());
-        const QwtScaleMap yMap = plot->canvasMap(d_seriesItem->yAxis());
-
-        QPainter painter(plot->canvas());
 #if QT_VERSION >= 0x040000
-        painter.setRenderHint(QPainter::Antialiasing,
-            d_seriesItem->testRenderHint(QwtPlotItem::RenderAntialiased) );
+    painter->setRenderHint(QPainter::Antialiasing,
+        seriesItem->testRenderHint(QwtPlotItem::RenderAntialiased) );
 #endif
-        painter.setClipping(true);
-        painter.setClipRect(plot->canvas()->contentsRect());
-
-        d_seriesItem->drawSeries(&painter, xMap, yMap,
-            plot->canvas()->contentsRect(), d_from, d_to);
-    }
-
-    QwtPlotDirectPainter *d_painter;
-    QwtPlotAbstractSeriesItem *d_seriesItem;
-    int d_from;
-    int d_to;
-};
-
-/*
-    Creating and initializing a QPainter is an
-    expensive operation. So we keep an painter
-    open for situations, where we paint outside
-    of paint events. This improves the performance
-    of incremental painting like in the realtime
-    example a lot.
-    But it is not possible to have more than
-    one QPainter open at the same time. So we
-    need to close it before regular paint events
-    are processed.
-*/
-
-class QwtGuardedPainter: public QObject
-{
-public:
-    ~QwtGuardedPainter()
-    {
-        end();
-    }
-
-    QPainter *begin(QwtPlotCanvas *canvas)
-    {
-        if ( !(d_painter.isActive() && d_painter.device() == canvas) )
-        {
-            end();
-
-            if ( canvas != NULL )
-            {
-                d_painter.begin(canvas);
-                d_painter.setClipping(true);
-                d_painter.setClipRect(canvas->contentsRect());
-
-                canvas->installEventFilter(this);
-            }
-        }
-        return &d_painter;
-    }
-
-    void end()
-    {
-        if ( d_painter.isActive() )
-        {
-            QwtPlotCanvas *canvas = (QwtPlotCanvas *)d_painter.device();
-            if ( canvas )
-                canvas->removeEventFilter(this);
-
-            d_painter.end();
-        }
-    }
-
-    virtual bool eventFilter(QObject *, QEvent *event)
-    {
-        if ( event->type() == QEvent::Paint )
-            end();
-
-        return false;
-    }
-
-private:
-    QPainter d_painter;
-};
+    seriesItem->drawSeries(painter, xMap, yMap,
+        plot->canvas()->contentsRect(), from, to);
+}
 
 class QwtPlotDirectPainter::PrivateData
 {
 public:
-    QwtGuardedPainter guardedPainter;
+    PrivateData():
+        attributes(0),
+        seriesItem(NULL)
+    {
+    }
+
+    int attributes;
+
+    QPainter painter;
+
+    QwtPlotAbstractSeriesItem *seriesItem;
+    int from;
+    int to;
 };
 
-QwtPlotDirectPainter::QwtPlotDirectPainter()
+QwtPlotDirectPainter::QwtPlotDirectPainter(QObject *parent):
+    QObject(parent)
 {
     d_data = new PrivateData;
 }
@@ -142,6 +60,25 @@ QwtPlotDirectPainter::QwtPlotDirectPainter()
 QwtPlotDirectPainter::~QwtPlotDirectPainter()
 {
     delete d_data;
+}
+
+void QwtPlotDirectPainter::setAttribute(Attribute attribute, bool on)
+{
+    if ( bool(d_data->attributes & attribute) != on )
+    {
+        if ( on )
+            d_data->attributes |= attribute;
+        else
+            d_data->attributes &= ~attribute;
+
+        if ( attribute == AtomicPainter && on )
+            reset();
+    }
+}
+
+bool QwtPlotDirectPainter::testAttribute(Attribute attribute) const
+{
+    return d_data->attributes & attribute;
 }
 
 /*!
@@ -173,12 +110,11 @@ void QwtPlotDirectPainter::drawSeries(
     if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
         canvas->paintCache() && !canvas->paintCache()->isNull() )
     {
-        QPainter cachePainter((QPixmap *)canvas->paintCache());
-        cachePainter.translate(-canvas->contentsRect().x(),
+        QPainter painter((QPixmap *)canvas->paintCache());
+        painter.translate(-canvas->contentsRect().x(),
             -canvas->contentsRect().y());
 
-        seriesItem->drawSeries(&cachePainter, xMap, yMap, 
-            canvas->contentsRect(), from, to);
+        renderItem(&painter, seriesItem, from, to);
     }
 
     bool immediatePaint = true;
@@ -190,34 +126,79 @@ void QwtPlotDirectPainter::drawSeries(
     }
 #endif
 
-    if ( !immediatePaint )
+    if ( immediatePaint )
     {
-        /*
-          We save seriesItem and range in helper and call repaint.
-          The helper filters the Paint event, to repeat
-          the QwtPlotAbstractSeriesItem::draw, but now from inside the paint
-          event.
-         */
+        QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
+        if ( !(d_data->painter.isActive() && 
+            d_data->painter.device() == canvas) )
+        {
+            reset();
 
-        QwtPlotCurvePaintHelper helper(this, seriesItem, from, to);
-        canvas->installEventFilter(&helper);
+            d_data->painter.begin(canvas);
+            d_data->painter.setClipping(true);
+            d_data->painter.setClipRect(canvas->contentsRect());
 
-        QPaintEvent event(canvas->contentsRect());
-        QApplication::sendEvent(canvas, &event);
+            canvas->installEventFilter(this);
+        }
+
+        renderItem(&d_data->painter, seriesItem, from, to);
+
+        if ( d_data->attributes & AtomicPainter )
+            reset();
     }
     else
     {
-        QPainter *painter = d_data->guardedPainter.begin(canvas);
-#if QT_VERSION >= 0x040000
-        painter->setRenderHint(QPainter::Antialiasing,
-            seriesItem->testRenderHint(QwtPlotItem::RenderAntialiased) );
-#endif
-        seriesItem->drawSeries(painter, xMap, yMap,
-            canvas->contentsRect(), from, to);
+        reset();
+
+        d_data->seriesItem = seriesItem;
+        d_data->from = from;
+        d_data->to = to;
+
+        canvas->installEventFilter(this);
+
+        if ( d_data->attributes & FullRepaint )
+            canvas->repaint();
+        else
+        {
+            QPaintEvent event(canvas->contentsRect());
+            QApplication::sendEvent(canvas, &event);
+        }
+
+        canvas->removeEventFilter(this);
+        d_data->seriesItem = NULL;
     }
 }
 
 void QwtPlotDirectPainter::reset()
 {
-    d_data->guardedPainter.end();
+    if ( d_data->painter.isActive() )
+    {
+        QWidget *w = (QWidget *)d_data->painter.device();
+        if ( w )
+            w->removeEventFilter(this);
+
+        d_data->painter.end();
+    }
+}
+
+bool QwtPlotDirectPainter::eventFilter(QObject *, QEvent *event)
+{
+    if ( event->type() == QEvent::Paint )
+    {
+        reset();
+
+        if ( d_data->seriesItem )
+        {
+            QwtPlotCanvas *canvas = d_data->seriesItem->plot()->canvas();
+
+            QPainter painter(canvas);
+            painter.setClipping(true);
+            painter.setClipRect(canvas->contentsRect());
+
+            renderItem(&painter, d_data->seriesItem,
+                d_data->from, d_data->to);
+        }
+    }
+
+    return false;
 }

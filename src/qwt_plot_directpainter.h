@@ -11,18 +11,29 @@
 #define QWT_PLOT_DIRECT_PAINTER_H
 
 #include "qwt_global.h"
+#include <qobject.h>
 
 class QwtPlotAbstractSeriesItem;
-class QwtPlot;
 
-class QWT_EXPORT QwtPlotDirectPainter
+class QWT_EXPORT QwtPlotDirectPainter: public QObject
 {
 public:
-    QwtPlotDirectPainter();
+    enum Attribute
+    {
+        AtomicPainter = 1,
+        FullRepaint = 2
+    };
+
+    QwtPlotDirectPainter(QObject *parent = NULL);
     virtual ~QwtPlotDirectPainter();
 
+    void setAttribute(Attribute, bool on);
+    bool testAttribute(Attribute) const;
+
     void drawSeries(QwtPlotAbstractSeriesItem *, int from, int to);
-	void reset();
+    void reset();
+
+    virtual bool eventFilter(QObject *, QEvent *);
 
 private:
     class PrivateData;
