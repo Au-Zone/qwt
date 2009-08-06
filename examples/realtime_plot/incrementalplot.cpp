@@ -55,17 +55,18 @@ IncrementalPlot::IncrementalPlot(QWidget *parent):
     d_data(NULL),
     d_curve(NULL)
 {
+    d_directPainter = new QwtPlotDirectPainter(this);
+
 #if QT_VERSION >= 0x040000 && defined(Q_WS_X11)
+    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
     canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
 #endif
 
-    d_directPainter = new QwtPlotDirectPainter;
     setAutoReplot(false);
 }
 
 IncrementalPlot::~IncrementalPlot()
 {
-    delete d_directPainter;
     delete d_data;
 }
 
@@ -98,19 +99,8 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
 #warning better use QwtData
 #endif
 
-#if QT_VERSION >= 0x040000 && defined(Q_WS_X11)
-    // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent 
-    // works on X11. This has an tremendous effect on the performance..
-
-    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
-#endif
-
     d_directPainter->drawSeries(d_curve, 
         d_curve->dataSize() - size, d_curve->dataSize() - 1);
-
-#if QT_VERSION >= 0x040000 && defined(Q_WS_X11)
-    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, false);
-#endif
 }
 
 void IncrementalPlot::removeData()
