@@ -115,6 +115,12 @@ void QwtPlotDirectPainter::drawSeries(
             -canvas->contentsRect().y());
 
         renderItem(&painter, seriesItem, from, to);
+
+        if ( d_data->attributes & FullRepaint )
+        {
+            canvas->repaint();
+            return;
+        }
     }
 
     bool immediatePaint = true;
@@ -155,16 +161,9 @@ void QwtPlotDirectPainter::drawSeries(
         d_data->to = to;
 
         canvas->installEventFilter(this);
-
-        if ( d_data->attributes & FullRepaint )
-            canvas->repaint();
-        else
-        {
-            QPaintEvent event(canvas->contentsRect());
-            QApplication::sendEvent(canvas, &event);
-        }
-
+        canvas->repaint();
         canvas->removeEventFilter(this);
+
         d_data->seriesItem = NULL;
     }
 }
@@ -197,6 +196,8 @@ bool QwtPlotDirectPainter::eventFilter(QObject *, QEvent *event)
 
             renderItem(&painter, d_data->seriesItem,
                 d_data->from, d_data->to);
+
+            return true;
         }
     }
 
