@@ -38,7 +38,7 @@ public:
   enabled, it is set to QwtPlot::yLeft.
 
   The selectionFlags() are set to 
-  QwtPicker::RectSelection & QwtPicker::ClickSelection, the
+  QwtPicker::RectSelection | QwtPicker::ClickSelection, the
   tracker mode to QwtPicker::ActiveOnly.
 
   \param canvas Plot canvas to observe, also the parent object
@@ -52,14 +52,14 @@ QwtPlotZoomer::QwtPlotZoomer(QwtPlotCanvas *canvas, bool doReplot):
     QwtPlotPicker(canvas)
 {
     if ( canvas )
-        init(RectSelection & ClickSelection, ActiveOnly, doReplot);
+        init(RectSelection | ClickSelection, ActiveOnly, doReplot);
 }
 
 /*!
   \brief Create a zoomer for a plot canvas.
 
   The selectionFlags() are set to 
-  QwtPicker::RectSelection & QwtPicker::ClickSelection, the
+  QwtPicker::RectSelection | QwtPicker::ClickSelection, the
   tracker mode to QwtPicker::ActiveOnly. 
 
   \param xAxis X axis of the zoomer
@@ -77,7 +77,7 @@ QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis,
     QwtPlotPicker(xAxis, yAxis, canvas)
 {
     if ( canvas )
-        init(RectSelection & ClickSelection, ActiveOnly, doReplot);
+        init(RectSelection | ClickSelection, ActiveOnly, doReplot);
 }
 
 /*!
