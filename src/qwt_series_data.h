@@ -21,43 +21,52 @@
 class QWT_EXPORT QwtIntervalSample
 {
 public:
-    inline QwtIntervalSample():
-        value(0.0)
-    {
-    }
+    QwtIntervalSample();
+    QwtIntervalSample(double, const QwtDoubleInterval &);
 
-    inline QwtIntervalSample(double v, const QwtDoubleInterval &intv):
-        value(v),
-        interval(intv)
-    {
-    }
-
-    bool operator==(const QwtIntervalSample &other) const
-    {
-        return value == other.value && interval == other.interval;
-    }
+    bool operator==(const QwtIntervalSample &) const;
 
     double value;
     QwtDoubleInterval interval;
 };
 
+inline QwtIntervalSample::QwtIntervalSample():
+    value(0.0)
+{
+}
+
+inline QwtIntervalSample::QwtIntervalSample(
+		double v, const QwtDoubleInterval &intv):
+    value(v),
+    interval(intv)
+{
+}
+
+inline bool QwtIntervalSample::operator==(const QwtIntervalSample &other) const
+{
+	return value == other.value && interval == other.interval;
+}
+
 //! A sample of the types (x1...xn, y) or (x, y1..yn)
 class QWT_EXPORT QwtSetSample
 {
 public:
-    QwtSetSample():
-        value(0.0)
-    {
-    }
-
-    bool operator==(const QwtSetSample &other) const
-    {   
-        return value == other.value && set == other.set;
-    }
+    QwtSetSample();
+    bool operator==(const QwtSetSample &other) const;
 
     double value;
     QwtArray<double> set;
 };
+
+inline QwtSetSample::QwtSetSample():
+    value(0.0)
+{
+}
+
+inline bool QwtSetSample::operator==(const QwtSetSample &other) const
+{
+	return value == other.value && set == other.set;
+}
 
 /*!
    Abstract interface for iterating over samples

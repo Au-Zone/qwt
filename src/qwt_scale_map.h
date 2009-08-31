@@ -35,8 +35,7 @@ public:
     virtual double invXForm(double x, double s1, double s2,
         double p1, double p2) const;
 
-    //! \return Transformation type
-    inline Type type() const { return d_type; }
+    Type type() const;
     
     virtual QwtScaleTransformation *copy() const;
 
@@ -46,6 +45,12 @@ private:
 
     const Type d_type;
 };
+
+//! \return Transformation type
+inline QwtScaleTransformation::Type QwtScaleTransformation::type() const 
+{ 
+    return d_type; 
+}
 
 /*!
    \brief A scale map
@@ -75,14 +80,14 @@ public:
 
     double xTransform(double x) const;
 
-    inline double p1() const;
-    inline double p2() const;
+    double p1() const;
+    double p2() const;
 
-    inline double s1() const;
-    inline double s2() const;
+    double s1() const;
+    double s2() const;
 
-    inline double pDist() const;
-    inline double sDist() const;
+    double pDist() const;
+    double sDist() const;
 
     QT_STATIC_CONST double LogMin;
     QT_STATIC_CONST double LogMax;
