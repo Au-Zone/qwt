@@ -55,9 +55,9 @@ public:
     void setInterval(const QwtDoubleInterval &);
     QwtDoubleInterval interval() const;
 
-    inline double lowerBound() const;
-    inline double upperBound() const;
-    inline double range() const;
+    double lowerBound() const;
+    double upperBound() const;
+    double range() const;
 
     bool contains(double v) const;
 

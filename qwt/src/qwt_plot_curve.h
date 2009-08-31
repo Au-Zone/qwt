@@ -160,14 +160,10 @@ public:
 
     int closestPoint(const QPoint &pos, double *dist = NULL) const;
 
-    //! boundingRect().left()
-    inline double minXValue() const { return boundingRect().left(); }
-    //! boundingRect().right()
-    inline double maxXValue() const { return boundingRect().right(); }
-    //! boundingRect().top()
-    inline double minYValue() const { return boundingRect().top(); }
-    //! boundingRect().bottom()
-    inline double maxYValue() const { return boundingRect().bottom(); }
+    double minXValue() const;
+    double maxXValue() const;
+    double minYValue() const;
+    double maxYValue() const;
 
     void setCurveAttribute(CurveAttribute, bool on = true);
     bool testCurveAttribute(CurveAttribute) const;
@@ -231,5 +227,29 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+//! boundingRect().left()
+inline double QwtPlotCurve::minXValue() const 
+{ 
+	return boundingRect().left(); 
+}
+
+//! boundingRect().right()
+inline double QwtPlotCurve::maxXValue() const 
+{ 
+	return boundingRect().right(); 
+}
+
+//! boundingRect().top()
+inline double QwtPlotCurve::minYValue() const 
+{ 
+	return boundingRect().top(); 
+}
+
+//! boundingRect().bottom()
+inline double QwtPlotCurve::maxYValue() const 
+{ 
+	return boundingRect().bottom(); 
+}
 
 #endif
