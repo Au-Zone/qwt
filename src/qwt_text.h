@@ -145,11 +145,8 @@ public:
         QwtText::TextFormat textFormat = AutoText);
     QString text() const;
 
-    //! \return text().isNull()
-    inline bool isNull() const { return text().isNull(); }
-
-    //! \return text().isEmpty()
-    inline bool isEmpty() const { return text().isEmpty(); }
+    bool isNull() const;
+    bool isEmpty() const;
 
     void setFont(const QFont &);
     QFont font() const;
@@ -194,5 +191,17 @@ private:
     class LayoutCache;
     LayoutCache *d_layoutCache;
 };
+
+//! \return text().isNull()
+inline bool QwtText::isNull() const 
+{ 
+    return text().isNull(); 
+}
+
+//! \return text().isEmpty()
+inline bool QwtText::isEmpty() const 
+{ 
+    return text().isEmpty(); 
+}
 
 #endif
