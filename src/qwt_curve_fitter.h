@@ -114,9 +114,9 @@ private:
 };
 
 /*!
-  \brief A curve fitter implementing Douglas and Peuker algorithm
+  \brief A curve fitter implementing Douglas and Peucker algorithm
 
-  The purpose of the Douglas and Peuker algorithm is that given a 'curve' 
+  The purpose of the Douglas and Peucker algorithm is that given a 'curve' 
   composed of line segments to find a curve not too dissimilar but that 
   has fewer points. The algorithm defines 'too dissimilar' based on the 
   maximum distance (tolerance) between the original curve and the 
@@ -125,7 +125,7 @@ private:
   The smoothed curve consists of a subset of the points that defined the 
   original curve.
 
-  In opposite to QwtSplineCurveFitter the Douglas and Peuker algorithm reduces
+  In opposite to QwtSplineCurveFitter the Douglas and Peucker algorithm reduces
   the number of points. By adjusting the tolerance parameter according to the 
   axis scales QwtSplineCurveFitter can be used to implement different 
   level of details to speed up painting of curves of many points.
