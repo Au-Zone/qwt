@@ -15,7 +15,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_series_data.h"
 
-class QwtPlotAbstractSeriesItem: public QwtPlotItem
+class QWT_EXPORT QwtPlotAbstractSeriesItem: public QwtPlotItem
 {
 public:
     explicit QwtPlotAbstractSeriesItem(const QString &title = QString::null);
