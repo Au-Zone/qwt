@@ -5,6 +5,10 @@ Bug Fixes
 ---------
 1) QwtScaleDraw
    Wrong border dist hints for unregular scale divisions fixed
+2) QwtScaleDraw
+   Layout calculation for the tick labels fixed. 
+   The layout was wrong by 1 pixel for top/left/bottom axes. 
+   On a left axis without a title the labels ere sometimes cut off.
 
 Release 5.2.0
 ===================
