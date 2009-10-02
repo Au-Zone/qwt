@@ -6,6 +6,7 @@
 #include <qwt_double_interval.h>
 #include <qwt_painter.h>
 #include <qwt_plot_item.h>
+#include <stdlib.h>
 
 class RectItem: public QwtPlotItem
 {
