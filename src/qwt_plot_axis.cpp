@@ -397,7 +397,7 @@ void QwtPlot::setAxisFont(int axisId, const QFont &f)
   after a fixed scale has been set. Autoscaling is enabled by default.
 
   \param axisId axis index
-  \sa QwtPlot::setAxisScale(), QwtPlot::setAxisScaleDiv()
+  \sa setAxisScale(), setAxisScaleDiv()
 */
 void QwtPlot::setAxisAutoScale(int axisId)
 {
