@@ -9,6 +9,9 @@ Bug Fixes
    Layout calculation for the tick labels fixed. 
    The layout was wrong by 1 pixel for top/left/bottom axes. 
    On a left axis without a title the labels ere sometimes cut off.
+3) qwt.pro 
+   CONFIG += ordered added for using make -j
+   CONFIG += silent added
 
 Release 5.2.0
 ===================
