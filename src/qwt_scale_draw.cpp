@@ -744,14 +744,14 @@ QwtMatrix QwtScaleDraw::labelMatrix(
     int x, y;
     
     if ( flags & Qt::AlignLeft )
-        x = -w;
+        x = -w + 1;
     else if ( flags & Qt::AlignRight )
-        x = -(w % 2); 
+        x = -(w % 2) + 1; 
     else // Qt::AlignHCenter
         x = -(w / 2);
         
     if ( flags & Qt::AlignTop )
-        y =  -h ;
+        y = -h + 1;
     else if ( flags & Qt::AlignBottom )
         y = -(h % 2); 
     else // Qt::AlignVCenter
