@@ -101,10 +101,10 @@ CONFIG     += QwtWidgets
 CONFIG     += QwtSVGItem
 
 ######################################################################
-# If you have a commercial license you can use the MathML renderer
-# of the Qt solutions package to enable MathML support in Qwt.
-# So if you want this, copy qtmmlwidget.h + qtmmlwidget.cpp to
-# textengines/mathml and enable the line below.
+# You can use the MathML renderer of the Qt solutions package to 
+# enable MathML support in Qwt.  # If you want this, copy 
+# qtmmlwidget.h + qtmmlwidget.cpp to # textengines/mathml and enable 
+# the line below.
 ######################################################################
 
 #CONFIG     += QwtMathML
