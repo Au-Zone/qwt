@@ -22,7 +22,7 @@
 #define QWT_VERSION       0x050300
 #define QWT_VERSION_STR   "5.3.0-svn"
 
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) || defined(Q_WS_S60)
 
 #if defined(_MSC_VER) /* MSVC Compiler */
 /* template-class specialization 'identifier' is already instantiated */
@@ -40,7 +40,7 @@
 
 #endif // QWT_DLL
 
-#endif // Q_WS_WIN
+#endif // Q_WS_WIN || Q_WS_S60
 
 #ifndef QWT_EXPORT
 #define QWT_EXPORT
