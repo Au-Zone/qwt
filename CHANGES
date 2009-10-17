@@ -13,6 +13,10 @@ Bug Fixes
    CONFIG += ordered added for using make -j
    CONFIG += silent added
 
+Changes
+-------
+1) Project files adopted for symbian
+
 Release 5.2.0
 ===================
 
