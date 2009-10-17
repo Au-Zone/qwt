@@ -52,6 +52,10 @@ win32:QwtDll {
     DEFINES    += QT_DLL QWT_DLL QWT_MAKEDLL
 }
 
+symbian:QwtDll {
+    DEFINES    += QT_DLL QWT_DLL QWT_MAKEDLL
+}
+
 HEADERS += \
     qwt.h \
     qwt_abstract_scale_draw.h \
