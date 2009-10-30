@@ -12,12 +12,12 @@
 class QwtPlotAbstractSeriesItem::PrivateData
 {
 public:
-	PrivateData():
-		orientation(Qt::Vertical)
-	{
-	}
+    PrivateData():
+        orientation(Qt::Vertical)
+    {
+    }
 
-	Qt::Orientation orientation;
+    Qt::Orientation orientation;
 };
 
 /*!
@@ -27,7 +27,7 @@ public:
 QwtPlotAbstractSeriesItem::QwtPlotAbstractSeriesItem(const QwtText &title):
     QwtPlotItem(title)
 {
-	d_data = new PrivateData();
+    d_data = new PrivateData();
 }
 
 /*!
@@ -37,13 +37,13 @@ QwtPlotAbstractSeriesItem::QwtPlotAbstractSeriesItem(const QwtText &title):
 QwtPlotAbstractSeriesItem::QwtPlotAbstractSeriesItem(const QString &title):
     QwtPlotItem(QwtText(title))
 {
-	d_data = new PrivateData();
+    d_data = new PrivateData();
 }
 
 //! Destructor
 QwtPlotAbstractSeriesItem::~QwtPlotAbstractSeriesItem()
 {
-	delete d_data;
+    delete d_data;
 }
 
 void QwtPlotAbstractSeriesItem::setOrientation(Qt::Orientation orientation)

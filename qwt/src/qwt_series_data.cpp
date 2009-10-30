@@ -56,6 +56,44 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint>& series)
   \param series Series
   \return Bounding rectangle
 */
+QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D>& series)
+{
+    const size_t sz = series.size();
+
+    if ( sz <= 0 )
+        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
+
+    double minX, maxX, minY, maxY;
+
+    const QwtDoublePoint3D point0 = series.sample(0);
+    minX = maxX = point0.x();
+    minY = maxY = point0.y();
+
+    for ( size_t i = 1; i < sz; i++ )
+    {
+        const QwtDoublePoint3D point = series.sample(i);
+
+        if ( point.x() < minX )
+            minX = point.x();
+        if ( point.x() > maxX )
+            maxX = point.x();
+
+        if ( point.y() < minY )
+            minY = point.y();
+        if ( point.y() > maxY )
+            maxY = point.y();
+    }
+    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+}
+
+/*!
+  \brief Calculate the bounding rect of a series
+
+  Slow implementation, that iterates over the series.
+
+  \param series Series
+  \return Bounding rectangle
+*/
 QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
 {
     double minX, maxX, minY, maxY;
@@ -172,6 +210,21 @@ QwtSeriesData<QwtDoublePoint> *QwtPointSeriesData::copy() const
   \return Bounding rectangle
 */
 QwtDoubleRect QwtPointSeriesData::boundingRect() const
+{
+    return qwtBoundingRect(*this);
+}
+
+/*! 
+   Constructor
+   \param samples Samples
+*/
+QwtPoint3DSeriesData::QwtPoint3DSeriesData(
+        const QwtArray<QwtDoublePoint3D> &samples):
+    QwtArraySeriesData<QwtDoublePoint3D>(samples)
+{
+}
+
+QwtDoubleRect QwtPoint3DSeriesData::boundingRect() const
 {
     return qwtBoundingRect(*this);
 }

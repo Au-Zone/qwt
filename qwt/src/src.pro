@@ -66,6 +66,7 @@ HEADERS += \
     qwt_column_symbol.h \
     qwt_double_interval.h \
     qwt_double_rect.h \
+    qwt_double_point_3d.h \
     qwt_dyngrid_layout.h \
     qwt_global.h \
     qwt_layout_metrics.h \
@@ -129,6 +130,7 @@ contains(CONFIG, QwtPlot) {
         qwt_legend_itemmanager.h \
         qwt_plot.h \
         qwt_plot_curve.h \
+        qwt_plot_curve_3d.h \
         qwt_plot_dict.h \
         qwt_plot_directpainter.h \
         qwt_plot_grid.h \
@@ -161,6 +163,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_xml.cpp \
         qwt_plot_axis.cpp \
         qwt_plot_curve.cpp \
+        qwt_plot_curve_3d.cpp \
         qwt_plot_dict.cpp \
         qwt_plot_directpainter.cpp \
         qwt_plot_grid.cpp \

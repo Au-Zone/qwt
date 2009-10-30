@@ -21,7 +21,7 @@ public:
     explicit QwtPlotAbstractSeriesItem(const QString &title = QString::null);
     explicit QwtPlotAbstractSeriesItem(const QwtText &title);
 
-	virtual ~QwtPlotAbstractSeriesItem();
+    virtual ~QwtPlotAbstractSeriesItem();
 
     void setOrientation(Qt::Orientation);
     Qt::Orientation orientation() const;
@@ -32,11 +32,11 @@ public:
 
     virtual void drawSeries(QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		const QRect &, int from, int to) const = 0;
+        const QRect &, int from, int to) const = 0;
 
 private:
-	class PrivateData;
-	PrivateData *d_data;
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 template <typename T> 
