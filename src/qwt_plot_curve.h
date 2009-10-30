@@ -186,7 +186,7 @@ public:
     void setCurveFitter(QwtCurveFitter *);
     QwtCurveFitter *curveFitter() const;
 
-    virtual void drawSeries(QPainter *p, 
+    virtual void drawSeries(QPainter *, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &canvasRect, int from, int to) const;
 
@@ -231,25 +231,25 @@ private:
 //! boundingRect().left()
 inline double QwtPlotCurve::minXValue() const 
 { 
-	return boundingRect().left(); 
+    return boundingRect().left(); 
 }
 
 //! boundingRect().right()
 inline double QwtPlotCurve::maxXValue() const 
 { 
-	return boundingRect().right(); 
+    return boundingRect().right(); 
 }
 
 //! boundingRect().top()
 inline double QwtPlotCurve::minYValue() const 
 { 
-	return boundingRect().top(); 
+    return boundingRect().top(); 
 }
 
 //! boundingRect().bottom()
 inline double QwtPlotCurve::maxYValue() const 
 { 
-	return boundingRect().bottom(); 
+    return boundingRect().bottom(); 
 }
 
 #endif

@@ -281,7 +281,7 @@ public:
 QwtWeedingCurveFitter::QwtWeedingCurveFitter(double tolerance)
 {
     d_data = new PrivateData;
-	setTolerance(tolerance);
+    setTolerance(tolerance);
 }
 
 //! Destructor

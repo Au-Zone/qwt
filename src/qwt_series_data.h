@@ -16,6 +16,7 @@
 #include "qwt_array.h"
 #include "qwt_double_rect.h"
 #include "qwt_double_interval.h"
+#include "qwt_double_point_3d.h"
 
 //! A sample of the types (x1-x2, y) or (x, y1-y2)
 class QWT_EXPORT QwtIntervalSample
@@ -36,7 +37,7 @@ inline QwtIntervalSample::QwtIntervalSample():
 }
 
 inline QwtIntervalSample::QwtIntervalSample(
-		double v, const QwtDoubleInterval &intv):
+        double v, const QwtDoubleInterval &intv):
     value(v),
     interval(intv)
 {
@@ -44,7 +45,7 @@ inline QwtIntervalSample::QwtIntervalSample(
 
 inline bool QwtIntervalSample::operator==(const QwtIntervalSample &other) const
 {
-	return value == other.value && interval == other.interval;
+    return value == other.value && interval == other.interval;
 }
 
 //! A sample of the types (x1...xn, y) or (x, y1..yn)
@@ -65,7 +66,7 @@ inline QwtSetSample::QwtSetSample():
 
 inline bool QwtSetSample::operator==(const QwtSetSample &other) const
 {
-	return value == other.value && set == other.set;
+    return value == other.value && set == other.set;
 }
 
 /*!
@@ -215,6 +216,19 @@ public:
 
     virtual QwtSeriesData<QwtDoublePoint> *copy() const;
     virtual QwtDoubleRect boundingRect() const;
+};
+
+//! Interface for iterating over an array of 3D points
+class QWT_EXPORT QwtPoint3DSeriesData: public QwtArraySeriesData<QwtDoublePoint3D>
+{
+public:
+    QwtPoint3DSeriesData(
+        const QwtArray<QwtDoublePoint3D> & = QwtArray<QwtDoublePoint3D>());
+
+    virtual QwtDoubleRect boundingRect() const;
+
+    //! \return the range of the z-values
+    virtual QwtDoubleInterval range() const = 0;
 };
 
 //! Interface for iterating over an array of intervals
@@ -379,6 +393,8 @@ private:
 QWT_EXPORT QwtDoubleRect qwtBoundingRect(
     const QwtSeriesData<QwtDoublePoint> &);
 QWT_EXPORT QwtDoubleRect qwtBoundingRect(
+    const QwtSeriesData<QwtDoublePoint3D> &);
+QWT_EXPORT QwtDoubleRect qwtBoundingRect(
     const QwtSeriesData<QwtIntervalSample> &);
 QWT_EXPORT QwtDoubleRect qwtBoundingRect(
     const QwtSeriesData<QwtSetSample> &);
@@ -388,6 +404,7 @@ QWT_EXPORT QwtDoubleRect qwtBoundingRect(
 #if QT_VERSION < 0x040000 // there is already a QVector<QPointF> in qvector.h
 template class QWT_EXPORT QwtArray<QwtDoublePoint>;
 #endif
+template class QWT_EXPORT QwtArray<QwtDoublePoint3D>;
 template class QWT_EXPORT QwtArray<QwtIntervalSample>;
 template class QWT_EXPORT QwtArray<QwtSetSample>;
 // MOC_SKIP_END
