@@ -13,8 +13,8 @@ public slots:
     void setDamp(double damping);
 
 private:
-    void showData(double *frequency, double *amplitude, 
-        double *phase, int count);
+    void showData(const double *frequency, const double *amplitude, 
+        const double *phase, int count);
     void showPeak(double freq, double amplitude);
     void show3dB(double freq);
 

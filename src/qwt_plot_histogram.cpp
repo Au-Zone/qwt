@@ -157,17 +157,12 @@ int QwtPlotHistogram::rtti() const
     return QwtPlotItem::Rtti_PlotHistogram;
 }
 
-void QwtPlotHistogram::setData(
+void QwtPlotHistogram::setSamples(
     const QwtArray<QwtIntervalSample> &data)
 {
-    QwtPlotSeriesItem<QwtIntervalSample>::setData(
-        QwtIntervalSeriesData(data));
-}
-
-void QwtPlotHistogram::setData(
-    const QwtSeriesData<QwtIntervalSample> &data)
-{
-    QwtPlotSeriesItem<QwtIntervalSample>::setData(data);
+    delete d_series;
+    d_series = new QwtIntervalSeriesData(data);
+    itemChanged();
 }
 
 void QwtPlotHistogram::drawSeries(QPainter *painter,

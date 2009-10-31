@@ -41,8 +41,7 @@ public:
     void setPaintAttribute(PaintAttribute, bool on = true);
     bool testPaintAttribute(PaintAttribute) const;
 
-    void setData(const QwtArray<QwtDoublePoint3D> &data);
-    void setData(const QwtSeriesData<QwtDoublePoint3D> &data);
+    void setSamples(const QwtArray<QwtDoublePoint3D> &);
 
     void setColorMap(const QwtColorMap &);
     const QwtColorMap &colorMap() const;

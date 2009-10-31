@@ -241,7 +241,7 @@ void CanvasPicker::move(const QPoint &pos)
             yData[i] = sample.y();
         }
     }
-    d_selectedCurve->setData(xData, yData);
+    d_selectedCurve->setSamples(xData, yData);
 
     plot()->replot();
     showCursor(true);

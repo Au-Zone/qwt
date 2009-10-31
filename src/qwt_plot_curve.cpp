@@ -1016,18 +1016,13 @@ void QwtPlotCurve::updateLegend(QwtLegend *legend) const
     legendItem->update();
 }
 
-void QwtPlotCurve::setData(const QwtSeriesData<QwtDoublePoint> &data)
-{
-    QwtPlotSeriesItem<QwtDoublePoint>::setData(data);
-}
-
 /*!
   Initialize data with an array of points (explicitly shared).
 
   \param data Data
   \sa QwtPolygonFData
 */
-void QwtPlotCurve::setData(const QwtArray<QwtDoublePoint> &data)
+void QwtPlotCurve::setSamples(const QwtArray<QwtDoublePoint> &data)
 {
     delete d_series;
     d_series = new QwtPointSeriesData(data);
@@ -1040,16 +1035,16 @@ void QwtPlotCurve::setData(const QwtArray<QwtDoublePoint> &data)
   \brief Initialize the data by pointing to memory blocks which are not managed
   by QwtPlotCurve.
 
-  setRawData is provided for efficiency. It is important to keep the pointers
+  setRawSamples is provided for efficiency. It is important to keep the pointers
   during the lifetime of the underlying QwtCPointerData class.
 
   \param xData pointer to x data
   \param yData pointer to y data
   \param size size of x and y
 
-  \sa QwtCPointerData::setData()
+  \sa QwtCPointerData::setSamples()
 */
-void QwtPlotCurve::setRawData(const double *xData, const double *yData, int size)
+void QwtPlotCurve::setRawSamples(const double *xData, const double *yData, int size)
 {
     delete d_series;
     d_series = new QwtCPointerData(xData, yData, size);
@@ -1058,7 +1053,7 @@ void QwtPlotCurve::setRawData(const double *xData, const double *yData, int size
 
 /*!
   Set data by copying x- and y-values from specified memory blocks.
-  Contrary to setCurveRawData(), this function makes a 'deep copy' of
+  Contrary to setRawSamples(), this function makes a 'deep copy' of
   the data.
 
   \param xData pointer to x values
@@ -1067,7 +1062,7 @@ void QwtPlotCurve::setRawData(const double *xData, const double *yData, int size
 
   \sa QwtCPointerData
 */
-void QwtPlotCurve::setData(const double *xData, const double *yData, int size)
+void QwtPlotCurve::setSamples(const double *xData, const double *yData, int size)
 {
     delete d_series;
     d_series = new QwtPointArrayData(xData, yData, size);
@@ -1082,7 +1077,7 @@ void QwtPlotCurve::setData(const double *xData, const double *yData, int size)
 
   \sa QwtArrayData
 */
-void QwtPlotCurve::setData(const QwtArray<double> &xData, 
+void QwtPlotCurve::setSamples(const QwtArray<double> &xData, 
     const QwtArray<double> &yData)
 {
     delete d_series;

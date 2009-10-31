@@ -287,7 +287,7 @@ QwtDoubleRect QwtSetSeriesData::boundingRect() const
   \param x Array of x values
   \param y Array of y values
   
-  \sa QwtPlotCurve::setData()
+  \sa QwtPlotCurve::setData(), QwtPlotCurve::setSamples()
 */
 QwtPointArrayData::QwtPointArrayData(
         const QwtArray<double> &x, const QwtArray<double> &y): 
@@ -302,7 +302,7 @@ QwtPointArrayData::QwtPointArrayData(
   \param x Array of x values
   \param y Array of y values
   \param size Size of the x and y arrays
-  \sa QwtPlotCurve::setData()
+  \sa QwtPlotCurve::setData(), QwtPlotCurve::setSamples()
 */
 QwtPointArrayData::QwtPointArrayData(const double *x, const double *y, size_t size)
 {
@@ -391,7 +391,7 @@ QwtSeriesData<QwtDoublePoint> *QwtPointArrayData::copy() const
            by the pointers remain valid during the lifetime of the 
            QwtPlotCPointer object.
 
-  \sa QwtPlotCurve::setData(), QwtPlotCurve::setRawData()
+  \sa QwtPlotCurve::setData(), QwtPlotCurve::setRawSamples()
 */
 QwtCPointerData::QwtCPointerData(
     const double *x, const double *y, size_t size):

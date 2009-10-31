@@ -72,7 +72,7 @@ MainWin::MainWin():
     
     curve[i].setSymbol(sym);
 
-    curve[i].setRawData(yval,xval,Size);
+    curve[i].setRawSamples(yval,xval,Size);
     
     //
     // curve 2
@@ -85,7 +85,7 @@ MainWin::MainWin():
     curve[i].setSymbol(QwtSymbol(QwtSymbol::Ellipse,
         QColor(Qt::blue), QColor(Qt::yellow), QSize(5,5)));
 
-    curve[i].setRawData(xval,zval,Size);
+    curve[i].setRawSamples(xval,zval,Size);
 
     
     //
@@ -102,7 +102,7 @@ MainWin::MainWin():
     curveFitter->setSplineSize(200);
     curve[i].setCurveFitter(curveFitter);
 
-    curve[i].setRawData(yval,zval,Size);
+    curve[i].setRawSamples(yval,zval,Size);
 
 
     //
@@ -118,7 +118,7 @@ MainWin::MainWin():
     curveFitter->setSplineSize(200);
     curve[i].setCurveFitter(curveFitter);
 
-    curve[i].setRawData(uval,vval,USize);
+    curve[i].setRawSamples(uval,vval,USize);
 
     //
     //  initialize values
