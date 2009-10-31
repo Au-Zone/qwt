@@ -123,7 +123,7 @@ MainWin::MainWin()
     // attach data
     //
     for(i=0;i<CurvCnt;i++)
-        crv[i].setRawData(xval,yval,Size);
+        crv[i].setRawSamples(xval, yval, Size);
 }
 
 void MainWin::shiftDown(QRect &rect, int offset) const

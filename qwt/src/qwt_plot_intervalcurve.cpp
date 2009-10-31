@@ -82,17 +82,12 @@ int QwtPlotIntervalCurve::rtti() const
     return QwtPlotIntervalCurve::Rtti_PlotIntervalCurve;
 }
 
-void QwtPlotIntervalCurve::setData(
+void QwtPlotIntervalCurve::setSamples(
     const QwtArray<QwtIntervalSample> &data)
 {
-    QwtPlotSeriesItem<QwtIntervalSample>::setData(
-        QwtIntervalSeriesData(data));
-}
-
-void QwtPlotIntervalCurve::setData(
-    const QwtSeriesData<QwtIntervalSample> &data)
-{
-    QwtPlotSeriesItem<QwtIntervalSample>::setData(data);
+    delete d_series;
+    d_series = new QwtIntervalSeriesData(data);
+    itemChanged();
 }
 
 void QwtPlotIntervalCurve::setCurveStyle(CurveStyle style)

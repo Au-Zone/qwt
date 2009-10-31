@@ -191,6 +191,6 @@ void Plot::insertCurve(Qt::Orientation o,
         }
     }
         
-    curve->setData(x, y, sizeof(x) / sizeof(x[0]));
+    curve->setSamples(x, y, sizeof(x) / sizeof(x[0]));
     curve->attach(this);
 }

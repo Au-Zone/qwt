@@ -60,8 +60,8 @@ DataPlot::DataPlot(QWidget *parent):
     cLeft->setPen(QPen(Qt::blue));
 
     // Attach (don't copy) data. Both curves use the same x array.
-    cRight->setRawData(d_x, d_y, PLOT_SIZE);
-    cLeft->setRawData(d_x, d_z, PLOT_SIZE);
+    cRight->setRawSamples(d_x, d_y, PLOT_SIZE);
+    cLeft->setRawSamples(d_x, d_z, PLOT_SIZE);
 
 #if 0
     //  Insert zero line at y = 0

@@ -47,8 +47,7 @@ public:
     void setBrush(const QBrush &);
     const QBrush &brush() const;
 
-    void setData(const QwtArray<QwtIntervalSample> &data);
-    void setData(const QwtSeriesData<QwtIntervalSample> &data);
+    void setSamples(const QwtArray<QwtIntervalSample> &);
 
     void setBaseline(double reference);
     double baseline() const;

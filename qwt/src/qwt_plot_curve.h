@@ -150,13 +150,11 @@ public:
     bool testPaintAttribute(PaintAttribute) const;
 
 #ifndef QWT_NO_COMPAT
-    void setRawData(const double *x, const double *y, int size);
-    void setData(const double *xData, const double *yData, int size);
-    void setData(const QwtArray<double> &xData, const QwtArray<double> &yData);
+    void setRawSamples(const double *xData, const double *yData, int size);
+    void setSamples(const double *xData, const double *yData, int size);
+    void setSamples(const QwtArray<double> &xData, const QwtArray<double> &yData);
 #endif
-
-    void setData(const QwtArray<QwtDoublePoint> &data);
-    void setData(const QwtSeriesData<QwtDoublePoint> &data);
+    void setSamples(const QwtArray<QwtDoublePoint> &);
 
     int closestPoint(const QPoint &pos, double *dist = NULL) const;
 

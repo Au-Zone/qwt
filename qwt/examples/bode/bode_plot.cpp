@@ -96,11 +96,11 @@ BodePlot::BodePlot(QWidget *parent):
     setAutoReplot(true);
 }
 
-void BodePlot::showData(double *frequency, double *amplitude,
-    double *phase, int count)
+void BodePlot::showData(const double *frequency, const double *amplitude,
+    const double *phase, int count)
 {
-    d_crv1->setData(frequency, amplitude, count);
-    d_crv2->setData(frequency, phase, count);
+    d_crv1->setSamples(frequency, amplitude, count);
+    d_crv2->setSamples(frequency, phase, count);
 }
 
 void BodePlot::showPeak(double freq, double amplitude)

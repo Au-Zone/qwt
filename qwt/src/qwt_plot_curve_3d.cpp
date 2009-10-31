@@ -121,14 +121,11 @@ bool QwtPlotCurve3D::testPaintAttribute(PaintAttribute attribute) const
     return (d_data->paintAttributes & attribute);
 }
 
-void QwtPlotCurve3D::setData(const QwtArray<QwtDoublePoint3D> &data)
+void QwtPlotCurve3D::setSamples(const QwtArray<QwtDoublePoint3D> &data)
 {
-    QwtPlotSeriesItem<QwtDoublePoint3D>::setData(QwtPoint3DSeriesData(data));
-}
-
-void QwtPlotCurve3D::setData(const QwtSeriesData<QwtDoublePoint3D> &data)
-{
-    QwtPlotSeriesItem<QwtDoublePoint3D>::setData(data);
+    delete d_series;
+    d_series = new QwtPoint3DSeriesData(data);
+    itemChanged();
 }
 
 /*!

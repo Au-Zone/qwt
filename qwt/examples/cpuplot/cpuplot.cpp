@@ -192,7 +192,7 @@ void CpuPlot::timerEvent(QTimerEvent *)
 
     for ( int c = 0; c < NCpuData; c++ )
     {
-        data[c].curve->setRawData(
+        data[c].curve->setRawSamples(
             timeData, data[c].data, dataCount);
     }
 

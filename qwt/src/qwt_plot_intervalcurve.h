@@ -34,8 +34,7 @@ public:
 
     virtual int rtti() const;
 
-    void setData(const QwtArray<QwtIntervalSample> &data);
-    void setData(const QwtSeriesData<QwtIntervalSample> &data);
+    void setSamples(const QwtArray<QwtIntervalSample> &);
 
     void setPen(const QPen &);
     const QPen &pen() const;

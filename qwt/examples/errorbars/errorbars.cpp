@@ -64,7 +64,7 @@ FriedbergPlot::FriedbergPlot()
 }
 
 void FriedbergPlot::insertCurve(const QString& title, 
-    const QwtArray<QwtDoublePoint>& data, const QColor &color)
+    const QwtArray<QwtDoublePoint>& samples, const QColor &color)
 {
     QwtPlotCurve *curve = new QwtPlotCurve(title);
 #if QT_VERSION >= 0x040000
@@ -78,12 +78,12 @@ void FriedbergPlot::insertCurve(const QString& title,
     symbol.setPen(QPen(color));
     curve->setSymbol(symbol);
 
-    curve->setData(data);
+    curve->setSamples(samples);
     curve->attach(this);
 }
 
 void FriedbergPlot::insertErrorBars(
-    const QwtArray<QwtIntervalSample>& data, 
+    const QwtArray<QwtIntervalSample>& samples, 
     const QColor &color, bool showTube)
 {
     QwtPlotIntervalCurve *errorCurve = new QwtPlotIntervalCurve();
@@ -111,7 +111,7 @@ void FriedbergPlot::insertErrorBars(
     errorBar.setPen(QPen(color));
     errorCurve->setSymbol(errorBar);
 
-    errorCurve->setData(data);
+    errorCurve->setSamples(samples);
     errorCurve->attach(this);
 }
 

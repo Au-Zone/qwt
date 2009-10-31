@@ -146,8 +146,8 @@ public:
     QwtArraySeriesData();
     QwtArraySeriesData(const QwtArray<T> &);
 
-    void setData(const QwtArray<T> &);
-    const QwtArray<T> data() const;
+    void setSamples(const QwtArray<T> &);
+    const QwtArray<T> samples() const;
 
     virtual size_t size() const;
     virtual T sample(size_t) const;
@@ -177,14 +177,14 @@ QwtArraySeriesData<T>::QwtArraySeriesData(const QwtArray<T> &samples):
   \param samples Array of samples
 */
 template <typename T>
-void QwtArraySeriesData<T>::setData(const QwtArray<T> &samples)
+void QwtArraySeriesData<T>::setSamples(const QwtArray<T> &samples)
 {
     d_samples = samples;
 }
 
 //! \return Array of samples
 template <typename T>
-const QwtArray<T> QwtArraySeriesData<T>::data() const
+const QwtArray<T> QwtArraySeriesData<T>::samples() const
 {
    return d_samples;
 }
