@@ -387,7 +387,6 @@ private:
     QwtDoubleInterval d_intervalOfInterest;
 };
 
-
 QWT_EXPORT QwtDoubleRect qwtBoundingRect(
     const QwtSeriesData<QwtDoublePoint> &);
 QWT_EXPORT QwtDoubleRect qwtBoundingRect(

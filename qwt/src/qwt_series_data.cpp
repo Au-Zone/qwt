@@ -18,7 +18,9 @@
   \param series Series
   \return Bounding rectangle
 */
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint>& series)
+
+template <class T> 
+QwtDoubleRect qwtBoundingRectT(const QwtSeriesData<T>& series)
 {
     const size_t sz = series.size();
 
@@ -27,13 +29,13 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint>& series)
 
     double minX, maxX, minY, maxY;
 
-    const QwtDoublePoint point0 = series.sample(0);
+    const T point0 = series.sample(0);
     minX = maxX = point0.x();
     minY = maxY = point0.y();
 
     for ( size_t i = 1; i < sz; i++ )
     {
-        const QwtDoublePoint point = series.sample(i);
+        const T point = series.sample(i);
 
         if ( point.x() < minX )
             minX = point.x();
@@ -48,42 +50,14 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint>& series)
     return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
-/*!
-  \brief Calculate the bounding rect of a series
-
-  Slow implementation, that iterates over the series.
-
-  \param series Series
-  \return Bounding rectangle
-*/
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D>& series)
+QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint> &data)
 {
-    const size_t sz = series.size();
+	return qwtBoundingRectT<QwtDoublePoint>(data);
+}
 
-    if ( sz <= 0 )
-        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
-
-    double minX, maxX, minY, maxY;
-
-    const QwtDoublePoint3D point0 = series.sample(0);
-    minX = maxX = point0.x();
-    minY = maxY = point0.y();
-
-    for ( size_t i = 1; i < sz; i++ )
-    {
-        const QwtDoublePoint3D point = series.sample(i);
-
-        if ( point.x() < minX )
-            minX = point.x();
-        if ( point.x() > maxX )
-            maxX = point.x();
-
-        if ( point.y() < minY )
-            minY = point.y();
-        if ( point.y() > maxY )
-            maxY = point.y();
-    }
-    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &data)
+{
+	return qwtBoundingRectT<QwtDoublePoint3D>(data);
 }
 
 /*!
