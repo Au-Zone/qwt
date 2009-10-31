@@ -10,6 +10,41 @@
 #include "qwt_math.h"
 #include "qwt_series_data.h"
 
+static inline QwtDoubleRect qwtBoundingRect(const QwtDoublePoint &sample)
+{
+	return QwtDoubleRect(sample.x(), sample.y(), 0.0, 0.0);
+}
+
+static inline QwtDoubleRect qwtBoundingRect(const QwtDoublePoint3D &sample)
+{
+    return QwtDoubleRect(sample.x(), sample.y(), 0.0, 0.0);
+}
+
+static inline QwtDoubleRect qwtBoundingRect(const QwtIntervalSample &sample)
+{
+    return QwtDoubleRect(sample.interval.minValue(), sample.value, 
+		sample.interval.maxValue() - sample.interval.minValue(), 0.0);
+}
+
+static inline QwtDoubleRect qwtBoundingRect(const QwtSetSample &sample)
+{
+	double minX = sample.set[0];
+	double maxX = sample.set[0];
+
+    for ( int i = 1; i < (int)sample.set.size(); i++ )
+	{
+		if ( sample.set[i] < minX )
+			minX = sample.set[i];
+		if ( sample.set[i] > maxX )
+			maxX = sample.set[i];
+	}
+
+    double minY = sample.value;
+    double maxY = sample.value;
+
+	return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+}
+
 /*!
   \brief Calculate the bounding rect of a series
 
@@ -22,42 +57,63 @@
 template <class T> 
 QwtDoubleRect qwtBoundingRectT(const QwtSeriesData<T>& series)
 {
+	QwtDoubleRect boundingRect(1.0, 1.0, -2.0, -2.0); // invalid;
+
     const size_t sz = series.size();
-
     if ( sz <= 0 )
-        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
+        return boundingRect;
 
-    double minX, maxX, minY, maxY;
+	size_t i;
+    for ( i = 0; i < sz; i++ )
+	{
+		const QwtDoubleRect rect = qwtBoundingRect(series.sample(i));
+		if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
+		{
+			boundingRect = rect;
+			i++;
+			break;
+		}
+	}
 
-    const T point0 = series.sample(0);
-    minX = maxX = point0.x();
-    minY = maxY = point0.y();
-
-    for ( size_t i = 1; i < sz; i++ )
+    for ( ;i < sz; i++ )
     {
-        const T point = series.sample(i);
-
-        if ( point.x() < minX )
-            minX = point.x();
-        if ( point.x() > maxX )
-            maxX = point.x();
-
-        if ( point.y() < minY )
-            minY = point.y();
-        if ( point.y() > maxY )
-            maxY = point.y();
+		const QwtDoubleRect rect = qwtBoundingRect(series.sample(i));
+		if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
+		{
+			boundingRect.setLeft(qwtMin(boundingRect.left(), rect.left()));
+			boundingRect.setRight(qwtMax(boundingRect.right(), rect.right()));
+			boundingRect.setTop(qwtMin(boundingRect.top(), rect.top()));
+			boundingRect.setBottom(qwtMax(boundingRect.bottom(), rect.bottom()));
+		}
     }
-    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+
+    return boundingRect;
 }
 
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint> &data)
+/*!
+  \brief Calculate the bounding rect of a series
+
+  Slow implementation, that iterates over the series.
+
+  \param series Series
+  \return Bounding rectangle
+*/
+QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint> &series)
 {
-	return qwtBoundingRectT<QwtDoublePoint>(data);
+	return qwtBoundingRectT<QwtDoublePoint>(series);
 }
 
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &data)
+/*!
+  \brief Calculate the bounding rect of a series
+
+  Slow implementation, that iterates over the series.
+
+  \param series Series
+  \return Bounding rectangle
+*/
+QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &series)
 {
-	return qwtBoundingRectT<QwtDoublePoint3D>(data);
+	return qwtBoundingRectT<QwtDoublePoint3D>(series);
 }
 
 /*!
@@ -70,44 +126,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &data)
 */
 QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
 {
-    double minX, maxX, minY, maxY;
-    minX = maxX = minY = maxY = 0.0;
-
-    bool isValid = false;
-
-    const size_t sz = series.size();
-    for ( size_t i = 0; i < sz; i++ )
-    {
-        const QwtIntervalSample sample = series.sample(i);
-
-        if ( !sample.interval.isValid() )
-            continue;
-
-        if ( !isValid )
-        {
-            minX = sample.interval.minValue();
-            maxX = sample.interval.maxValue();
-            minY = maxY = sample.value;
-
-            isValid = true;
-        }
-        else
-        {
-            if ( sample.interval.minValue() < minX )
-                minX = sample.interval.minValue();
-            if ( sample.interval.maxValue() > maxX )
-                maxX = sample.interval.maxValue();
-
-            if ( sample.value < minY )
-                minY = sample.value;
-            if ( sample.value > maxY )
-                maxY = sample.value;
-        }
-    }
-    if ( !isValid )
-        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
-
-    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+	return qwtBoundingRectT<QwtIntervalSample>(series);
 }
 
 /*!
@@ -120,45 +139,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
 */
 QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtSetSample>& series)
 {
-    double minX, maxX, minY, maxY;
-    minX = maxX = minY = maxY = 0.0;
-
-    bool isValid = false;
-
-    const size_t sz = series.size();
-    for ( size_t i = 0; i < sz; i++ )
-    {
-        const QwtSetSample sample = series.sample(i);
-
-        if ( !sample.set.isEmpty() )
-            continue;
-
-        if ( !isValid )
-        {
-            minX = sample.set[0];
-            maxX = sample.set[0];
-            minY = maxY = sample.value;
-
-            isValid = true;
-        }
-
-        if ( sample.value < minY )
-            minY = sample.value;
-        if ( sample.value > maxY )
-            maxY = sample.value;
-
-        for ( int i = 0; i < (int)sample.set.size(); i++ )
-        {
-            if ( sample.set[i] < minX )
-                minX = sample.set[i];
-            if ( sample.set[i] > maxX )
-                maxX = sample.set[i];
-        }
-    }
-    if ( !isValid )
-        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
-
-    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+	return qwtBoundingRectT<QwtSetSample>(series);
 }
 
 /*! 
