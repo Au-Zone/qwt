@@ -225,10 +225,8 @@ public:
     QwtPoint3DSeriesData(
         const QwtArray<QwtDoublePoint3D> & = QwtArray<QwtDoublePoint3D>());
 
+    virtual QwtSeriesData<QwtDoublePoint3D> *copy() const;
     virtual QwtDoubleRect boundingRect() const;
-
-    //! \return the range of the z-values
-    virtual QwtDoubleInterval range() const = 0;
 };
 
 //! Interface for iterating over an array of intervals

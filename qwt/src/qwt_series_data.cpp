@@ -224,6 +224,12 @@ QwtPoint3DSeriesData::QwtPoint3DSeriesData(
 {
 }
 
+//! Copy operator
+QwtSeriesData<QwtDoublePoint3D> *QwtPoint3DSeriesData::copy() const
+{
+    return new QwtPoint3DSeriesData(d_samples);
+}
+
 QwtDoubleRect QwtPoint3DSeriesData::boundingRect() const
 {
     return qwtBoundingRect(*this);

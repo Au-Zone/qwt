@@ -1021,6 +1021,19 @@ void QwtPlotCurve::setData(const QwtSeriesData<QwtDoublePoint> &data)
     QwtPlotSeriesItem<QwtDoublePoint>::setData(data);
 }
 
+/*!
+  Initialize data with an array of points (explicitly shared).
+
+  \param data Data
+  \sa QwtPolygonFData
+*/
+void QwtPlotCurve::setData(const QwtArray<QwtDoublePoint> &data)
+{
+    delete d_series;
+    d_series = new QwtPointSeriesData(data);
+    itemChanged();
+}
+
 #ifndef QWT_NO_COMPAT
 
 /*!
@@ -1076,19 +1089,5 @@ void QwtPlotCurve::setData(const QwtArray<double> &xData,
     d_series = new QwtPointArrayData(xData, yData);
     itemChanged();
 }
-
-/*!
-  Initialize data with an array of points (explicitly shared).
-
-  \param data Data
-  \sa QwtPolygonFData
-*/
-void QwtPlotCurve::setData(const QwtArray<QwtDoublePoint> &data)
-{
-    delete d_series;
-    d_series = new QwtPointSeriesData(data);
-    itemChanged();
-}
-
 #endif // !QWT_NO_COMPAT
 
