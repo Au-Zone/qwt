@@ -41,10 +41,14 @@ public:
     void setPaintAttribute(PaintAttribute, bool on = true);
     bool testPaintAttribute(PaintAttribute) const;
 
-    void setData(const QwtPoint3DSeriesData &data);
+    void setData(const QwtArray<QwtDoublePoint3D> &data);
+    void setData(const QwtSeriesData<QwtDoublePoint3D> &data);
 
     void setColorMap(const QwtColorMap &);
     const QwtColorMap &colorMap() const;
+
+	void setColorRange(const QwtDoubleInterval &);
+	QwtDoubleInterval & colorRange() const;
 
     void setStyle(CurveStyle style);
     CurveStyle style() const;
@@ -65,8 +69,7 @@ protected:
         const QRect &canvasRect, int from, int to) const;
 
 
-    virtual QwtSymbol *valueSymbol(const QwtDoublePoint3D &, 
-        const QwtDoubleInterval &) const;
+    virtual QwtSymbol *valueSymbol(const QwtDoublePoint3D &) const;
     
     void init();
 
