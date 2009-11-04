@@ -1,7 +1,6 @@
 #include "signalgenerator.h"
 #include "signaldata.h"
 #include <qdatetime.h>
-#include <clock.h>
 #include <math.h>
 #include <qdebug.h>
 

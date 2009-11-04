@@ -1,17 +1,30 @@
 #include "clock.h"
 
-Clock::Clock()
-{
-    stop();
-}
-
 #if USE_QTIME
 
-bool Clock::isValid() const { return d_time.isValid() };
-void Clock::start() { d_time.start(); }
-void Clock::stop() { d_time.stop(); }
-double Clock::restart() { return d_time.restart(); }
-double Clock::elapsed() { return d_time.elapsed(); }
+Clock::Clock()
+{
+}
+
+bool Clock::isValid() const 
+{ 
+	return d_time.isValid(); 
+}
+
+void Clock::start() 
+{ 
+	d_time.start(); 
+}
+
+double Clock::restart() 
+{ 
+	return d_time.restart(); 
+}
+
+double Clock::elapsed() const 
+{ 
+	return d_time.elapsed(); 
+}
 
 #else
 
@@ -20,6 +33,11 @@ static inline double msecsTo(
 {
     return (t2.tv_sec - t1.tv_sec) * 1e3
             + (t2.tv_nsec - t1.tv_nsec) * 1e-6;
+}
+
+Clock::Clock()
+{
+    d_timeStamp.tv_sec = d_timeStamp.tv_nsec = 0;
 }
 
 bool Clock::isValid() const
@@ -31,11 +49,6 @@ bool Clock::isValid() const
 void Clock::start()
 {
     ::clock_gettime(CLOCK_MONOTONIC, &d_timeStamp);
-}
-
-void Clock::stop()
-{
-    d_timeStamp.tv_sec = d_timeStamp.tv_nsec = 0;
 }
 
 double Clock::restart()
