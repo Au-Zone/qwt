@@ -20,8 +20,6 @@ public:
     bool isValid() const;
 
     void start();
-    void stop();
-
     double restart();
     double elapsed() const;
 
