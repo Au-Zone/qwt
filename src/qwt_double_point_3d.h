@@ -9,7 +9,7 @@
 
 /*! \file */
 #ifndef QWT_DOUBLE_POINT_3D_H
-#define QWT_DOUBLE_RECT_H 1
+#define QWT_DOUBLE_POINT_3D_H 1
 
 #include "qwt_global.h"
 #include "qwt_double_rect.h"
