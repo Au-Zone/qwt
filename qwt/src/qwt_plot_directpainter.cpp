@@ -10,6 +10,7 @@
 #include <qpainter.h>
 #include <qevent.h>
 #include <qapplication.h>
+#include <qpixmap.h>
 #include "qwt_global.h"
 #include "qwt_scale_map.h"
 #include "qwt_plot.h"
