@@ -9,7 +9,11 @@
 
 include( ../examples.pri )
 
-TARGET   = histogram
+TARGET   = tvplot
 
 SOURCES = \
-	main.cpp
+    tvplot.cpp \
+    main.cpp
+
+HEADERS = \
+    tvplot.h
