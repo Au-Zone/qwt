@@ -49,6 +49,7 @@ public:
     bool autoDelete() const;
 
     const QwtPlotItemList& itemList() const;
+    QwtPlotItemList itemList(int rtti) const;
 
     void detachItems(int rtti = QwtPlotItem::Rtti_PlotItem,
         bool autoDelete = true);
