@@ -188,6 +188,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &canvasRect, int from, int to) const;
 
+	virtual QWidget *legendItem() const;
     virtual void updateLegend(QwtLegend *) const;
 
 protected:

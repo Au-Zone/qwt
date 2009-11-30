@@ -1,6 +1,8 @@
 #include <qstring.h>
 #include <qpainter.h>
 #include "qwt_plot.h"
+#include "qwt_legend.h"
+#include "qwt_legend_item.h"
 #include "qwt_painter.h"
 #include "qwt_column_symbol.h"
 #include "qwt_scale_map.h"
@@ -321,15 +323,6 @@ void QwtPlotHistogram::drawLines(QPainter *painter,
     }
 }
 
-void QwtPlotHistogram::updateLegend(QwtLegend *) const
-{
-#if 0
-#ifdef __GNUC__
-#warning TODO
-#endif
-#endif
-}
-
 #if QT_VERSION < 0x040000
 void QwtPlotHistogram::flushPolygon(QPainter *painter, 
     int baseLine, QValueList<QPoint> &points ) const
@@ -457,6 +450,38 @@ void QwtPlotHistogram::drawColumn(QPainter *painter,
 #endif
         QwtPainter::drawRect(painter, r);
     }
+}
+
+void QwtPlotHistogram::updateLegend(QwtLegend *legend) const
+{
+    if ( !legend )
+        return;
+
+    QwtPlotItem::updateLegend(legend);
+
+    QWidget *widget = legend->find(this);
+    if ( !widget || !widget->inherits("QwtLegendItem") )
+        return;
+
+    QwtLegendItem *legendItem = (QwtLegendItem *)widget;
+
+#if QT_VERSION < 0x040000
+    const bool doUpdate = legendItem->isUpdatesEnabled();
+#else
+    const bool doUpdate = legendItem->updatesEnabled();
+#endif
+    legendItem->setUpdatesEnabled(false);
+
+    legendItem->setIdentifierColor(d_data->brush.color());
+    legendItem->setIdentifierMode(legend->identifierMode());
+
+    if (legend->identifierMode() & QwtLegendItem::ShowText)
+        legendItem->setText(title());
+    else
+        legendItem->setText(QwtText());
+
+    legendItem->setUpdatesEnabled(doUpdate);
+    legendItem->update();
 }
 
 #if QT_VERSION < 0x040000

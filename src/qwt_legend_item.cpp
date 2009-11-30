@@ -61,6 +61,8 @@ public:
 
     int identifierMode;
     int identifierWidth;
+	QColor identifierColor;
+
     int spacing;
 };
 
@@ -187,6 +189,16 @@ int QwtLegendItem::identifierWidth() const
     return d_data->identifierWidth;
 }
 
+void QwtLegendItem::setIdentifierColor(const QColor &color)
+{
+	d_data->identifierColor = color;
+}
+
+QColor QwtLegendItem::identifierColor() const
+{
+	return d_data->identifierColor;
+}
+
 /*!
    Change the spacing
    \param spacing Spacing
@@ -305,6 +317,15 @@ void QwtLegendItem::drawItem(QPainter *painter, const QRect &rect) const
     text().draw(painter, titleRect);
 
     painter->restore();
+}
+
+void QwtLegendItem::drawIdentifier(QPainter *painter, const QRect &rect) const
+{
+	const int dim = qMin(rect.width(), rect.height());
+	QRect r(0, 0, dim, dim);
+	r.moveCenter(rect.center());
+
+	painter->fillRect(r, d_data->identifierColor);
 }
 
 //! Paint event

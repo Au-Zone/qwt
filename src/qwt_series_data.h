@@ -24,6 +24,7 @@ class QWT_EXPORT QwtIntervalSample
 public:
     QwtIntervalSample();
     QwtIntervalSample(double, const QwtDoubleInterval &);
+    QwtIntervalSample(double value, double min, double max);
 
     bool operator==(const QwtIntervalSample &) const;
 
@@ -40,6 +41,13 @@ inline QwtIntervalSample::QwtIntervalSample(
         double v, const QwtDoubleInterval &intv):
     value(v),
     interval(intv)
+{
+}
+
+inline QwtIntervalSample::QwtIntervalSample(
+        double v, double min, double max):
+    value(v),
+    interval(min, max)
 {
 }
 
