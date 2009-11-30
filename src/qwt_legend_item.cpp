@@ -321,7 +321,7 @@ void QwtLegendItem::drawItem(QPainter *painter, const QRect &rect) const
 
 void QwtLegendItem::drawIdentifier(QPainter *painter, const QRect &rect) const
 {
-	const int dim = qMin(rect.width(), rect.height());
+	const int dim = qwtMin(rect.width(), rect.height());
 	QRect r(0, 0, dim, dim);
 	r.moveCenter(rect.center());
 
