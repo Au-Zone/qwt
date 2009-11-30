@@ -946,6 +946,11 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
     return index;
 }
 
+QWidget *QwtPlotCurve::legendItem() const
+{
+    return new QwtLegendCurveItem;
+}
+
 //!  Update the widget that represents the curve on the legend
 void QwtPlotCurve::updateLegend(QwtLegend *legend) const
 {

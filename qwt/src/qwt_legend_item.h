@@ -48,6 +48,9 @@ public:
 
     virtual void setText(const QwtText &);
 
+    void setIdentifierColor(const QColor &);
+	QColor identifierColor() const;
+
     void setSpacing(int spacing);
     int spacing() const;
 
@@ -61,7 +64,7 @@ public:
 
     bool isChecked() const;
 
-    virtual void drawIdentifier(QPainter *, const QRect &) const = 0;
+    virtual void drawIdentifier(QPainter *, const QRect &) const;
     virtual void drawItem(QPainter *p, const QRect &) const; 
 
 public slots:
