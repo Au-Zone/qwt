@@ -29,7 +29,9 @@ Histogram::Histogram(const QString &title, const QColor &symbolColor):
 void Histogram::setColor(const QColor &symbolColor)
 {
     QColor color = symbolColor;
+#if QT_VERSION >= 0x040000
     color.setAlpha(180);
+#endif
 
     setPen(QPen(Qt::black));
     setBrush(QBrush(color));
@@ -43,13 +45,13 @@ void Histogram::setColor(const QColor &symbolColor)
 
 void Histogram::setValues(uint numValues, const double *values)
 {
-    QwtArray<QwtIntervalSample> samples;
+    QwtArray<QwtIntervalSample> samples(numValues);
     for ( uint i = 0; i < numValues; i++ )
     {
         QwtDoubleInterval interval(double(i), i + 1.0);
         interval.setBorderFlags(QwtDoubleInterval::ExcludeMaximum);
         
-        samples += QwtIntervalSample(values[i], interval);
+        samples[i] = QwtIntervalSample(values[i], interval);
     }
 
     setData(QwtIntervalSeriesData(samples));
