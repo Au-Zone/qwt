@@ -18,6 +18,12 @@ Changes
    It can be very useful to improve the performance of painting
    curves of many lines ( f.e. by implementing different level of details ).
 
+Release 5.2.1
+===================
+
+1. export declarations removed from qwt_valuelist.h to avoid
+   compiler errors with Qt 4.6 + certain compilers on Windows.
+
 Release 5.2.0
 ===================
 
