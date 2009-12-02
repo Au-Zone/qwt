@@ -12,6 +12,8 @@ Bug Fixes
 3) qwt.pro 
    CONFIG += ordered added for using make -j
    CONFIG += silent added
+4) export declarations removed from qwt_valuelist.h to avoid
+   compiler errors with Qt 4.6 + certain compilers on Windows.
 
 Changes
 -------
