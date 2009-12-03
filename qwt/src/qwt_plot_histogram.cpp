@@ -452,36 +452,18 @@ void QwtPlotHistogram::drawColumn(QPainter *painter,
     }
 }
 
-void QwtPlotHistogram::updateLegend(QwtLegend *legend) const
+void QwtPlotHistogram::drawLegendIdentifier(
+    QPainter *painter, const QRect &rect) const
 {
-    if ( !legend )
-        return;
+    const int dim = qwtMin(rect.width(), rect.height());
 
-    QwtPlotItem::updateLegend(legend);
+    QSize size(dim, dim);
+    size = QwtPainter::metricsMap().screenToLayout(size);
 
-    QWidget *widget = legend->find(this);
-    if ( !widget || !widget->inherits("QwtLegendItem") )
-        return;
+    QRect r(0, 0, size.width(), size.height());
+    r.moveCenter(rect.center());
 
-    QwtLegendItem *legendItem = (QwtLegendItem *)widget;
-
-#if QT_VERSION < 0x040000
-    const bool doUpdate = legendItem->isUpdatesEnabled();
-#else
-    const bool doUpdate = legendItem->updatesEnabled();
-#endif
-    legendItem->setUpdatesEnabled(false);
-
-    legendItem->setIdentifierColor(d_data->brush.color());
-    legendItem->setIdentifierMode(legend->identifierMode());
-
-    if (legend->identifierMode() & QwtLegendItem::ShowText)
-        legendItem->setText(title());
-    else
-        legendItem->setText(QwtText());
-
-    legendItem->setUpdatesEnabled(doUpdate);
-    legendItem->update();
+    painter->fillRect(r, d_data->brush);
 }
 
 #if QT_VERSION < 0x040000

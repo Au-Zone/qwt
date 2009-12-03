@@ -191,19 +191,19 @@ const QwtPlotItemList &QwtPlotDict::itemList() const
 
 QwtPlotItemList QwtPlotDict::itemList(int rtti) const
 {
-	if ( rtti == QwtPlotItem::Rtti_PlotItem )
-		return d_data->itemList;
+    if ( rtti == QwtPlotItem::Rtti_PlotItem )
+        return d_data->itemList;
 
-	QwtPlotItemList items;
+    QwtPlotItemList items;
 
     PrivateData::ItemList list = d_data->itemList;
-	for ( QwtPlotItemIterator it = list.begin(); it != list.end(); ++it )
-	{
+    for ( QwtPlotItemIterator it = list.begin(); it != list.end(); ++it )
+    {
         QwtPlotItem *item = *it;
-		if ( item->rtti() == rtti )
-			items += item;
-	}
+        if ( item->rtti() == rtti )
+            items += item;
+    }
 
-	return items;
+    return items;
 }
 

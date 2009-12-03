@@ -27,7 +27,7 @@ class QwtPlotCurve3D::PrivateData
 public:
     PrivateData():
         style(QwtPlotCurve3D::Dots),
-		colorRange(0.0, 1000.0),
+        colorRange(0.0, 1000.0),
         paintAttributes(QwtPlotCurve3D::ClipPoints)
     {
         symbol = new QwtSymbol();
@@ -46,7 +46,7 @@ public:
     QwtPlotCurve3D::CurveStyle style;
     QwtSymbol *symbol;
     QwtColorMap *colorMap;
-	QwtDoubleInterval colorRange;
+    QwtDoubleInterval colorRange;
     QwtColorTable colorTable;
     int paintAttributes;
 };
@@ -182,16 +182,16 @@ const QwtColorMap &QwtPlotCurve3D::colorMap() const
 
 void QwtPlotCurve3D::setColorRange(const QwtDoubleInterval &interval)
 {
-	if ( interval != d_data->colorRange )
-	{
-		d_data->colorRange = interval;
-		itemChanged();
-	}
+    if ( interval != d_data->colorRange )
+    {
+        d_data->colorRange = interval;
+        itemChanged();
+    }
 }
 
 QwtDoubleInterval &QwtPlotCurve3D::colorRange() const
 {
-	return d_data->colorRange;
+    return d_data->colorRange;
 }
 
 void QwtPlotCurve3D::drawSeries(QPainter *painter, 
@@ -328,11 +328,4 @@ QwtSymbol *QwtPlotCurve3D::valueSymbol(const QwtDoublePoint3D &sample) const
     symbol->setBrush(QColor(rgb));
         
     return symbol;
-}
-
-void QwtPlotCurve3D::updateLegend(QwtLegend *) const
-{
-#ifdef __GNUC__
-//#warning TODO
-#endif
 }

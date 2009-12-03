@@ -74,7 +74,8 @@ public:
         style(QwtPlotCurve::Lines),
         reference(0.0),
         attributes(0),
-        paintAttributes(0)
+        paintAttributes(0),
+        legendAttributes(0)
     {
         symbol = new QwtSymbol();
         pen = QPen(Qt::black);
@@ -98,6 +99,8 @@ public:
 
     int attributes;
     int paintAttributes;
+
+    int legendAttributes;
 };
 
 /*!
@@ -168,6 +171,30 @@ void QwtPlotCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
 {
     return (d_data->paintAttributes & attribute);
+}
+
+/*!
+  Specify an attribute how to draw the legend identifier
+
+  \param attribute Attribute
+  \param on On/Off
+  /sa LegendAttribute, testLegendAttribute()
+*/
+void QwtPlotCurve::setLegendAttribute(LegendAttribute attribute, bool on)
+{
+    if ( on )
+        d_data->legendAttributes |= attribute;
+    else
+        d_data->legendAttributes &= ~attribute;
+}
+
+/*!
+    \brief Return the current paint attributes
+    \sa LegendAttribute, setLegendAttribute()
+*/
+bool QwtPlotCurve::testLegendAttribute(LegendAttribute attribute) const
+{
+    return (d_data->legendAttributes & attribute);
 }
 
 /*!
@@ -946,79 +973,80 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
     return index;
 }
 
-QWidget *QwtPlotCurve::legendItem() const
+void QwtPlotCurve::drawLegendIdentifier(
+    QPainter *painter, const QRect &rect) const
 {
-    return new QwtLegendCurveItem;
-}
-
-//!  Update the widget that represents the curve on the legend
-void QwtPlotCurve::updateLegend(QwtLegend *legend) const
-{
-    if ( !legend )
+    if ( rect.isEmpty() )
         return;
 
-    QwtPlotItem::updateLegend(legend);
+    const int dim = qwtMin(rect.width(), rect.height());
 
-    QWidget *widget = legend->find(this);
-    if ( !widget || !widget->inherits("QwtLegendItem") )
-        return;
+    QSize size(dim, dim);
+    size = QwtPainter::metricsMap().screenToLayout(size);
 
-    QwtLegendCurveItem *legendItem = (QwtLegendCurveItem *)widget;
+    QRect r(0, 0, size.width(), size.height());
+    r.moveCenter(rect.center());
 
-#if QT_VERSION < 0x040000
-    const bool doUpdate = legendItem->isUpdatesEnabled();
-#else
-    const bool doUpdate = legendItem->updatesEnabled();
-#endif
-    legendItem->setUpdatesEnabled(false);
-
-    const int policy = legend->displayPolicy();
-
-    if (policy == QwtLegend::FixedIdentifier)
+    int mode = d_data->attributes;
+    if ( mode == 0 )
     {
-        int mode = legend->identifierMode();
-
-        if (mode & QwtLegendItem::ShowLine)
-            legendItem->setCurvePen(pen());
-
-        if (mode & QwtLegendItem::ShowSymbol)
-            legendItem->setSymbol(symbol());
-
-        if (mode & QwtLegendItem::ShowText)
-            legendItem->setText(title());
-        else
-            legendItem->setText(QwtText());
-
-        legendItem->setIdentifierMode(mode);
+        QBrush brush = d_data->brush;
+        if ( brush.style() == Qt::NoBrush )
+        {
+            if ( style() != QwtPlotCurve::NoCurve )
+                brush = QBrush(pen().color());
+            else if ( d_data->symbol->style() != QwtSymbol::NoSymbol )
+                brush = QBrush(d_data->symbol->pen().color());
+        }
+        if ( brush.style() != Qt::NoBrush )
+            painter->fillRect(r, brush);
     }
-    else if (policy == QwtLegend::AutoIdentifier)
+    if ( mode & QwtPlotCurve::LegendShowBrush )
     {
-        int mode = 0;
-
-        if (QwtPlotCurve::NoCurve != style())
-        {
-            legendItem->setCurvePen(pen());
-            mode |= QwtLegendItem::ShowLine;
-        }
-        if (QwtSymbol::NoSymbol != symbol().style())
-        {
-            legendItem->setSymbol(symbol());
-            mode |= QwtLegendItem::ShowSymbol;
-        }
-        if ( !title().isEmpty() )
-        {
-            legendItem->setText(title());
-            mode |= QwtLegendItem::ShowText;
-        }
-        else
-        {
-            legendItem->setText(QwtText());
-        }
-        legendItem->setIdentifierMode(mode);
+        if ( d_data->brush.style() != Qt::NoBrush )
+            painter->fillRect(r, d_data->brush);
     }
+    if ( mode & QwtPlotCurve::LegendShowLine )
+    {
+        if ( pen() != Qt::NoPen )
+        {
+            painter->setPen(QwtPainter::scaledPen(pen()));
+            QwtPainter::drawLine(painter, rect.left(), rect.center().y(),
+                rect.right(), rect.center().y());
+        }
+    }
+    if ( mode & QwtPlotCurve::LegendShowSymbol )
+    {
+        if ( symbol().style() != QwtSymbol::NoSymbol )
+        {
+            QSize symbolSize =
+                QwtPainter::metricsMap().screenToLayout(symbol().size());
 
-    legendItem->setUpdatesEnabled(doUpdate);
-    legendItem->update();
+            // scale the symbol size down if it doesn't fit into rect.
+
+            if ( rect.width() < symbolSize.width() )
+            {
+                const double ratio =
+                    double(symbolSize.width()) / double(rect.width());
+                symbolSize.setWidth(rect.width());
+                symbolSize.setHeight(qRound(symbolSize.height() / ratio));
+            }
+            if ( rect.height() < symbolSize.height() )
+            {
+                const double ratio =
+                    double(symbolSize.width()) / double(rect.width());
+                symbolSize.setHeight(rect.height());
+                symbolSize.setWidth(qRound(symbolSize.width() / ratio));
+            }
+            QRect symbolRect;
+            symbolRect.setSize(symbolSize);
+            symbolRect.moveCenter(rect.center());
+
+            painter->setBrush(d_data->symbol->brush());
+            painter->setPen(QwtPainter::scaledPen(d_data->symbol->pen()));
+            d_data->symbol->draw(painter, symbolRect);
+        }
+    }
 }
 
 /*!

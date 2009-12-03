@@ -192,26 +192,6 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
 
             cache.legendFonts.insert(w, w->font());
             w->setFont(font(w->font(), Legend));
-
-            if ( w->inherits("QwtLegendCurveItem") )
-            {
-                QwtLegendCurveItem *label = (QwtLegendCurveItem *)w;
-
-                QwtSymbol symbol = label->symbol();
-                QPen pen = symbol.pen();
-                QBrush brush = symbol.brush();
-
-                pen.setColor(color(pen.color(), CurveSymbol));
-                brush.setColor(color(brush.color(), CurveSymbol));
-
-                symbol.setPen(pen);
-                symbol.setBrush(brush);
-                label->setSymbol(symbol);
-
-                pen = label->curvePen();
-                pen.setColor(color(pen.color(), Curve));
-                label->setCurvePen(pen);
-            }
         }
     }
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
@@ -418,36 +398,6 @@ void QwtPlotPrintFilter::reset(QwtPlot *plot) const
 
             if ( cache.legendFonts.contains(w) )
                 w->setFont(cache.legendFonts[w]);
-
-            if ( w->inherits("QwtLegendItem") )
-            {
-                QwtLegendCurveItem *label = (QwtLegendCurveItem *)w;
-                const QwtPlotItem *plotItem = 
-                    (const QwtPlotItem *)plot->legend()->find(label);
-
-                QwtSymbol symbol = label->symbol();
-                if ( cache.curveSymbolPenColors.contains(plotItem) )
-                {
-                    QPen pen = symbol.pen();
-                    pen.setColor(cache.curveSymbolPenColors[plotItem]);
-                    symbol.setPen(pen);
-                }
-
-                if ( cache.curveSymbolBrushColors.contains(plotItem) )
-                {
-                    QBrush brush = symbol.brush();
-                    brush.setColor(cache.curveSymbolBrushColors[plotItem]);
-                    symbol.setBrush(brush);
-                }
-                label->setSymbol(symbol);
-
-                if ( cache.curveColors.contains(plotItem) )
-                {
-                    QPen pen = label->curvePen();
-                    pen.setColor(cache.curveColors[plotItem]);
-                    label->setCurvePen(pen);
-                }
-            }
         }
     }
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )

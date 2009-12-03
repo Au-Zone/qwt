@@ -50,8 +50,6 @@ public:
     };
 
     QwtLegend::LegendItemMode itemMode;
-    QwtLegend::LegendDisplayPolicy displayPolicy;
-    int identifierMode;
 
     LegendMap map;
 
@@ -264,9 +262,6 @@ QwtLegend::QwtLegend(QWidget *parent):
 
     d_data = new QwtLegend::PrivateData;
     d_data->itemMode = QwtLegend::ReadOnlyItem;
-    d_data->displayPolicy = QwtLegend::AutoIdentifier;
-    d_data->identifierMode = QwtLegendItem::ShowLine | 
-        QwtLegendItem::ShowSymbol | QwtLegendItem::ShowText;
 
     d_data->view = new QwtLegend::PrivateData::LegendView(this);
     d_data->view->setFrameStyle(NoFrame);
@@ -287,47 +282,6 @@ QwtLegend::~QwtLegend()
     delete d_data;
 }
 
-/*!
-  Set the legend display policy to:
-
-  \param policy Legend display policy
-  \param mode Identifier mode (or'd ShowLine, ShowSymbol, ShowText)
-
-  \sa displayPolicy(), LegendDisplayPolicy
-*/
-void QwtLegend::setDisplayPolicy(LegendDisplayPolicy policy, int mode)
-{
-    d_data->displayPolicy = policy;
-    if (-1 != mode)
-       d_data->identifierMode = mode;
-
-    QMap<QWidget *, const QwtLegendItemManager *> &map = 
-        d_data->map.widgetMap();
-
-    QMap<QWidget *, const QwtLegendItemManager *>::iterator it;
-    for ( it = map.begin(); it != map.end(); ++it ) 
-    {
-#if QT_VERSION < 0x040000
-        QwtLegendItemManager *item = (QwtLegendItemManager *)it.data();
-#else
-        QwtLegendItemManager *item = (QwtLegendItemManager *)it.value();
-#endif
-        if ( item )
-            item->updateLegend(this);
-    }
-}
-
-/*! 
-  \return the legend display policy.
-  Default is LegendDisplayPolicy::Auto.
-  \sa setDisplayPolicy(), LegendDisplayPolicy
-*/ 
-
-QwtLegend::LegendDisplayPolicy QwtLegend::displayPolicy() const 
-{ 
-    return d_data->displayPolicy; 
-}
-
 //! \sa LegendItemMode
 void QwtLegend::setItemMode(LegendItemMode mode)
 {
@@ -338,17 +292,6 @@ void QwtLegend::setItemMode(LegendItemMode mode)
 QwtLegend::LegendItemMode QwtLegend::itemMode() const
 {
     return d_data->itemMode;
-}
-
-/*!
-  \return the IdentifierMode to be used in combination with
-  LegendDisplayPolicy::Fixed.
-
-  Default is ShowLine | ShowSymbol | ShowText.
-*/
-int QwtLegend::identifierMode() const
-{
-    return d_data->identifierMode;
 }
 
 /*! 

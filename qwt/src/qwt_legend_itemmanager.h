@@ -16,6 +16,8 @@
 
 class QwtLegend;
 class QWidget;
+class QRect;
+class QPainter;
 
 /*!
   \brief Abstract API to bind plot items to the legend
@@ -48,6 +50,18 @@ public:
      */
 
     virtual QWidget *legendItem() const = 0;
+
+    /*!
+      QwtLegendItem can display an icon-identifier followed
+      by a text. The icon helps to identify a plot item on
+      the plot canvas and depends on the type of information,
+      that is displayed.
+
+      The default implementation paints nothing.
+     */
+    virtual void drawLegendIdentifier(QPainter *, const QRect &) const
+    {
+    }
 };
 
 #endif

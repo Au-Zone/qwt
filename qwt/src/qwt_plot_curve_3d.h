@@ -46,8 +46,8 @@ public:
     void setColorMap(const QwtColorMap &);
     const QwtColorMap &colorMap() const;
 
-	void setColorRange(const QwtDoubleInterval &);
-	QwtDoubleInterval & colorRange() const;
+    void setColorRange(const QwtDoubleInterval &);
+    QwtDoubleInterval & colorRange() const;
 
     void setStyle(CurveStyle style);
     CurveStyle style() const;
@@ -55,8 +55,6 @@ public:
     virtual void drawSeries(QPainter *, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &canvasRect, int from, int to) const;
-
-    virtual void updateLegend(QwtLegend *) const;
 
 protected:
     virtual void drawDots(QPainter *, 

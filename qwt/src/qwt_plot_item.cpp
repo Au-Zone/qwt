@@ -12,6 +12,7 @@
 #include "qwt_legend.h"
 #include "qwt_legend_item.h"
 #include "qwt_plot_item.h"
+#include <qpainter.h>
 
 class QwtPlotItem::PrivateData
 {
@@ -425,7 +426,7 @@ QWidget *QwtPlotItem::legendItem() const
 */
 void QwtPlotItem::updateLegend(QwtLegend *legend) const
 {
-    if ( !legend )
+    if ( legend == NULL )
         return;
 
     QWidget *lgdItem = legend->find(this);
@@ -439,7 +440,6 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
                 if ( lgdItem->inherits("QwtLegendItem") )
                 {
                     QwtLegendItem *label = (QwtLegendItem *)lgdItem;
-                    label->setItemMode(legend->itemMode());
 
                     if ( d_data->plot )
                     {
@@ -456,7 +456,35 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
         {
             QwtLegendItem* label = (QwtLegendItem*)lgdItem;
             if ( label )
-                label->setText(d_data->title);
+            {
+                // paint the identifier
+                const int w = label->identifierWidth();
+                const int h = label->identifierWidth();
+
+                QPixmap identifier(w, h);
+#if 1
+                identifier.fill(QColor(0, 0, 0, 0));
+#endif
+            
+                QPainter painter(&identifier);
+                drawLegendIdentifier(&painter, QRect(0, 0, w, h));
+                painter.end();
+
+#if QT_VERSION < 0x040000
+                const bool doUpdate = label->isUpdatesEnabled();
+#else
+                const bool doUpdate = label->updatesEnabled();
+#endif
+
+                label->setUpdatesEnabled(false);
+
+                label->setText(title());
+                label->setIdentifier(identifier);
+                label->setItemMode(legend->itemMode());
+
+                label->setUpdatesEnabled(doUpdate);
+                label->update();
+            }
         }
     }
     else
