@@ -50,7 +50,6 @@ public:
     PrivateData():
         itemMode(QwtLegend::ReadOnlyItem),
         isDown(false),
-        identifierMode(QwtLegendItem::ShowLine | QwtLegendItem::ShowText),
         identifierWidth(8),
         spacing(Margin)
     {
@@ -59,9 +58,8 @@ public:
     QwtLegend::LegendItemMode itemMode;
     bool isDown;
 
-    int identifierMode;
     int identifierWidth;
-	QColor identifierColor;
+    QPixmap identifier;
 
     int spacing;
 };
@@ -114,16 +112,19 @@ void QwtLegendItem::setText(const QwtText &text)
 */
 void QwtLegendItem::setItemMode(QwtLegend::LegendItemMode mode) 
 { 
-    d_data->itemMode = mode; 
-    d_data->isDown = false; 
+    if ( mode != d_data->itemMode )
+    {
+        d_data->itemMode = mode; 
+        d_data->isDown = false; 
 
 #if QT_VERSION >= 0x040000
-    using namespace Qt;
+        using namespace Qt;
 #endif
-    setFocusPolicy(mode != QwtLegend::ReadOnlyItem ? TabFocus : NoFocus);
-    setMargin(ButtonFrame + Margin);
+        setFocusPolicy(mode != QwtLegend::ReadOnlyItem ? TabFocus : NoFocus);
+        setMargin(ButtonFrame + Margin);
 
-    updateGeometry();
+        updateGeometry();
+    }
 }
 
 /*! 
@@ -137,28 +138,26 @@ QwtLegend::LegendItemMode QwtLegendItem::itemMode() const
 }
 
 /*!
-  Set identifier mode.
-  Default is ShowLine | ShowText.
-  \param mode Or'd values of IdentifierMode
+  Assign the identifier
+  The identifier needs to be created according to the identifierWidth()
 
-  \sa identifierMode()
+  \param identifier Pixmap representing a plot item
+
+  \sa identifier(), identifierWidth()
 */
-void QwtLegendItem::setIdentifierMode(int mode)
+void QwtLegendItem::setIdentifier(const QPixmap &identifier)
 {
-    if ( mode != d_data->identifierMode )
-    {
-        d_data->identifierMode = mode;
-        update();
-    }
+    d_data->identifier = identifier;
+    update();
 }
 
-/*!
-  Or'd values of IdentifierMode.
-  \sa setIdentifierMode(), IdentifierMode
+/*! 
+  \return pixmap representing a plot item
+  \sa setIdentifier()
 */
-int QwtLegendItem::identifierMode() const 
-{ 
-    return d_data->identifierMode; 
+QPixmap QwtLegendItem::identifier() const
+{
+    return d_data->identifier;
 }
 
 /*!
@@ -167,7 +166,7 @@ int QwtLegendItem::identifierMode() const
 
   \param width New width
 
-  \sa identifierMode(), identifierWidth
+  \sa identifierWidth()
 */
 void QwtLegendItem::setIdentifierWidth(int width)
 {
@@ -187,16 +186,6 @@ void QwtLegendItem::setIdentifierWidth(int width)
 int QwtLegendItem::identifierWidth() const
 {
     return d_data->identifierWidth;
-}
-
-void QwtLegendItem::setIdentifierColor(const QColor &color)
-{
-	d_data->identifierColor = color;
-}
-
-QColor QwtLegendItem::identifierColor() const
-{
-	return d_data->identifierColor;
 }
 
 /*!
@@ -283,49 +272,12 @@ bool QwtLegendItem::isDown() const
 QSize QwtLegendItem::sizeHint() const
 {
     QSize sz = QwtTextLabel::sizeHint();
+    sz.setHeight(qwtMax(sz.height(), d_data->identifier.height()));
+
     if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
         sz += buttonShift(this);
 
     return sz;
-}
-
-/*!
-  Draw the legend item to a given rect.
-  \param painter Painter
-  \param rect Rect where to paint the button
-*/
-
-void QwtLegendItem::drawItem(QPainter *painter, const QRect &rect) const
-{
-    painter->save();
-
-    const QwtMetricsMap &map = QwtPainter::metricsMap();
-
-    const int m = map.screenToLayoutX(margin());
-    const int spacing = map.screenToLayoutX(d_data->spacing);
-    const int identifierWidth = map.screenToLayoutX(d_data->identifierWidth);
-
-    const QRect identifierRect(rect.x() + m, rect.y(), 
-        identifierWidth, rect.height());
-    drawIdentifier(painter, identifierRect);
-
-    // Label
-
-    QRect titleRect = rect;
-    titleRect.setX(identifierRect.right() + 2 * spacing);
-     
-    text().draw(painter, titleRect);
-
-    painter->restore();
-}
-
-void QwtLegendItem::drawIdentifier(QPainter *painter, const QRect &rect) const
-{
-	const int dim = qwtMin(rect.width(), rect.height());
-	QRect r(0, 0, dim, dim);
-	r.moveCenter(rect.center());
-
-	painter->fillRect(r, d_data->identifierColor);
 }
 
 //! Paint event
@@ -359,14 +311,18 @@ void QwtLegendItem::paintEvent(QPaintEvent *e)
 
     drawContents(&painter);
 
-    QRect rect = cr;
-    rect.setX(rect.x() + margin());
-    if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
-        rect.setX(rect.x() + ButtonFrame);
+    if ( !d_data->identifier.isNull() )
+    {
+        QRect identRect = cr;
+        identRect.setX(identRect.x() + margin());
+        if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
+            identRect.setX(identRect.x() + ButtonFrame);
 
-    rect.setWidth(d_data->identifierWidth);
+        identRect.setSize(d_data->identifier.size());
+        identRect.moveCenter(QPoint(identRect.center().x(), cr.center().y()));
 
-    drawIdentifier(&painter, rect);
+        painter.drawPixmap(identRect, d_data->identifier);
+    }
 
     painter.restore();
 }
@@ -464,160 +420,4 @@ void QwtLegendItem::keyReleaseEvent(QKeyEvent *e)
     }
 
     QwtTextLabel::keyReleaseEvent(e);
-}
-
-class QwtLegendCurveItem::PrivateData
-{
-public:
-    PrivateData():
-        curvePen(Qt::NoPen)
-    {
-        symbol = new QwtSymbol();
-    }
-
-    ~PrivateData()
-    {
-        delete symbol;
-    }
-
-    QwtSymbol *symbol;
-    QPen curvePen;
-};
-
-/*!
-  \param parent Parent widget
-*/
-QwtLegendCurveItem::QwtLegendCurveItem(QWidget *parent):
-    QwtLegendItem(parent)
-{
-    d_data = new PrivateData;
-}
-
-/*!
-  \param symbol Curve symbol
-  \param curvePen Curve pen
-  \param text Label text
-  \param parent Parent widget
-*/
-QwtLegendCurveItem::QwtLegendCurveItem(const QwtSymbol &symbol, 
-        const QPen &curvePen, const QwtText &text, 
-        QWidget *parent):
-    QwtLegendItem(parent)
-{
-    d_data = new PrivateData;
-
-    delete d_data->symbol;
-    d_data->symbol = symbol.clone();
-    d_data->curvePen = curvePen;
-
-    setText(text);
-}
-
-//! Destructor
-QwtLegendCurveItem::~QwtLegendCurveItem()
-{
-    delete d_data;
-    d_data = NULL;
-}
-
-/*! 
-  Set curve symbol.
-  \param symbol Symbol
-
-  \sa symbol()
-*/
-void QwtLegendCurveItem::setSymbol(const QwtSymbol &symbol) 
-{
-    delete d_data->symbol;
-    d_data->symbol = symbol.clone();
-    update();
-}
-    
-/*!
-  \return The curve symbol.
-  \sa setSymbol()
-*/
-const QwtSymbol& QwtLegendCurveItem::symbol() const 
-{ 
-    return *d_data->symbol; 
-}
-    
-/*! 
-  Set curve pen.
-  \param pen Curve pen
-
-  \sa curvePen()
-*/
-void QwtLegendCurveItem::setCurvePen(const QPen &pen) 
-{
-    if ( pen != d_data->curvePen )
-    {
-        d_data->curvePen = pen;
-        update();
-    }
-}
-
-/*!
-  \return The curve pen.
-  \sa setCurvePen()
-*/
-const QPen& QwtLegendCurveItem::curvePen() const 
-{ 
-    return d_data->curvePen; 
-}
-
-/*! 
-  Paint the identifier to a given rect.
-  \param painter Painter
-  \param rect Rect where to paint
-*/
-void QwtLegendCurveItem::drawIdentifier(
-    QPainter *painter, const QRect &rect) const
-{
-    if ( rect.isEmpty() )
-        return;
-
-    if ( (identifierMode() & ShowLine ) && 
-        (d_data->curvePen.style() != Qt::NoPen) )
-    {
-        painter->save();
-        painter->setPen(QwtPainter::scaledPen(d_data->curvePen));
-        QwtPainter::drawLine(painter, rect.left(), rect.center().y(), 
-            rect.right(), rect.center().y());
-        painter->restore();
-    }
-
-    if ( (identifierMode() & ShowSymbol) 
-        && (d_data->symbol->style() != QwtSymbol::NoSymbol) )
-    {
-        QSize symbolSize = 
-            QwtPainter::metricsMap().screenToLayout(d_data->symbol->size());
-
-        // scale the symbol size down if it doesn't fit into rect.
-
-        if ( rect.width() < symbolSize.width() )
-        {
-            const double ratio = 
-                double(symbolSize.width()) / double(rect.width());
-            symbolSize.setWidth(rect.width());
-            symbolSize.setHeight(qRound(symbolSize.height() / ratio));
-        }
-        if ( rect.height() < symbolSize.height() )
-        {
-            const double ratio = 
-                double(symbolSize.width()) / double(rect.width());
-            symbolSize.setHeight(rect.height());
-            symbolSize.setWidth(qRound(symbolSize.width() / ratio));
-        }
-
-        QRect symbolRect;
-        symbolRect.setSize(symbolSize);
-        symbolRect.moveCenter(rect.center());
-
-        painter->save();
-        painter->setBrush(d_data->symbol->brush());
-        painter->setPen(QwtPainter::scaledPen(d_data->symbol->pen()));
-        d_data->symbol->draw(painter, symbolRect);
-        painter->restore();
-    }
 }

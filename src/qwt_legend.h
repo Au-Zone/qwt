@@ -39,34 +39,6 @@ class QWT_EXPORT QwtLegend : public QFrame
 
 public:
     /*!
-      \brief Display policy
-
-       - NoIdentifier\n
-         The client code is responsible how to display of each legend item.
-         The Qwt library will not interfere.
-
-       - FixedIdentifier\n
-         All legend items are displayed with the QwtLegendItem::IdentifierMode
-         to be passed in 'mode'.
-
-       - AutoIdentifier\n
-         Each legend item is displayed with a mode that is a bitwise or of
-         - QwtLegendItem::ShowLine (if its curve is drawn with a line) and
-         - QwtLegendItem::ShowSymbol (if its curve is drawn with symbols) and
-         - QwtLegendItem::ShowText (if the has a title).
-
-       Default is AutoIdentifier.
-       \sa setDisplayPolicy(), displayPolicy(), QwtLegendItem::IdentifierMode
-     */
-
-    enum LegendDisplayPolicy
-    {
-        NoIdentifier = 0,
-        FixedIdentifier = 1,
-        AutoIdentifier = 2
-    };
-
-    /*!
       \brief Interaction mode for the legend items
 
        - ReadOnlyItem\n
@@ -94,13 +66,8 @@ public:
     explicit QwtLegend(QWidget *parent = NULL);
     virtual ~QwtLegend();
     
-    void setDisplayPolicy(LegendDisplayPolicy policy, int mode);
-    LegendDisplayPolicy displayPolicy() const;
-
     void setItemMode(LegendItemMode);
     LegendItemMode itemMode() const;
-
-    int identifierMode() const;
 
     QWidget *contentsWidget();
     const QWidget *contentsWidget() const;

@@ -63,7 +63,8 @@ public:
         const QRect &canvasRect, int from, int to) const;
 
     virtual QwtDoubleRect boundingRect() const;
-    virtual void updateLegend(QwtLegend *) const;
+
+    virtual void drawLegendIdentifier(QPainter *, const QRect &) const;
 
 protected:
     virtual QRect columnRect(const QwtIntervalSample &,

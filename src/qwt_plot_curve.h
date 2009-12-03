@@ -116,6 +116,33 @@ public:
     };
 
     /*! 
+        Attributes how to represent the curve on the legend
+
+        - LegendShowLine
+          If the curveStyle() is not NoCurve a line is painted with the 
+          curvePen().
+        - LegendShowSymbol
+          If the curve has a valid symbol it is painted.
+        - LegendShowBrush
+          If the curve has a brush a rectangle filled with this brush
+          is painted
+
+        If none of the flags is activated QwtPlotCurve tries to find
+        color representing the curve and paints a rectangle with it.
+        In the default setting is all attributes are off.
+
+        \sa setLegendAttribute(), testLegendAttribute(),
+            drawLegendIdentifier()
+     */
+
+    enum LegendAttribute
+    {
+        LegendShowLine = 1,
+        LegendShowSymbol = 2,
+        LegendShowBrush = 4
+    };
+
+    /*! 
         Attributes to modify the drawing algorithm.
 
         - PaintFiltered\n
@@ -148,6 +175,9 @@ public:
 
     void setPaintAttribute(PaintAttribute, bool on = true);
     bool testPaintAttribute(PaintAttribute) const;
+
+    void setLegendAttribute(LegendAttribute, bool on = true);
+    bool testLegendAttribute(LegendAttribute) const;
 
 #ifndef QWT_NO_COMPAT
     void setRawSamples(const double *xData, const double *yData, int size);
@@ -188,8 +218,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &canvasRect, int from, int to) const;
 
-	virtual QWidget *legendItem() const;
-    virtual void updateLegend(QwtLegend *) const;
+    virtual void drawLegendIdentifier(QPainter *, const QRect &) const;
 
 protected:
 

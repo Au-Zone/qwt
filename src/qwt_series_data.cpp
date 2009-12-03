@@ -12,7 +12,7 @@
 
 static inline QwtDoubleRect qwtBoundingRect(const QwtDoublePoint &sample)
 {
-	return QwtDoubleRect(sample.x(), sample.y(), 0.0, 0.0);
+    return QwtDoubleRect(sample.x(), sample.y(), 0.0, 0.0);
 }
 
 static inline QwtDoubleRect qwtBoundingRect(const QwtDoublePoint3D &sample)
@@ -23,26 +23,26 @@ static inline QwtDoubleRect qwtBoundingRect(const QwtDoublePoint3D &sample)
 static inline QwtDoubleRect qwtBoundingRect(const QwtIntervalSample &sample)
 {
     return QwtDoubleRect(sample.interval.minValue(), sample.value, 
-		sample.interval.maxValue() - sample.interval.minValue(), 0.0);
+        sample.interval.maxValue() - sample.interval.minValue(), 0.0);
 }
 
 static inline QwtDoubleRect qwtBoundingRect(const QwtSetSample &sample)
 {
-	double minX = sample.set[0];
-	double maxX = sample.set[0];
+    double minX = sample.set[0];
+    double maxX = sample.set[0];
 
     for ( int i = 1; i < (int)sample.set.size(); i++ )
-	{
-		if ( sample.set[i] < minX )
-			minX = sample.set[i];
-		if ( sample.set[i] > maxX )
-			maxX = sample.set[i];
-	}
+    {
+        if ( sample.set[i] < minX )
+            minX = sample.set[i];
+        if ( sample.set[i] > maxX )
+            maxX = sample.set[i];
+    }
 
     double minY = sample.value;
     double maxY = sample.value;
 
-	return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
 /*!
@@ -57,34 +57,34 @@ static inline QwtDoubleRect qwtBoundingRect(const QwtSetSample &sample)
 template <class T> 
 QwtDoubleRect qwtBoundingRectT(const QwtSeriesData<T>& series)
 {
-	QwtDoubleRect boundingRect(1.0, 1.0, -2.0, -2.0); // invalid;
+    QwtDoubleRect boundingRect(1.0, 1.0, -2.0, -2.0); // invalid;
 
     const size_t sz = series.size();
     if ( sz <= 0 )
         return boundingRect;
 
-	size_t i;
+    size_t i;
     for ( i = 0; i < sz; i++ )
-	{
-		const QwtDoubleRect rect = qwtBoundingRect(series.sample(i));
-		if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
-		{
-			boundingRect = rect;
-			i++;
-			break;
-		}
-	}
+    {
+        const QwtDoubleRect rect = qwtBoundingRect(series.sample(i));
+        if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
+        {
+            boundingRect = rect;
+            i++;
+            break;
+        }
+    }
 
     for ( ;i < sz; i++ )
     {
-		const QwtDoubleRect rect = qwtBoundingRect(series.sample(i));
-		if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
-		{
-			boundingRect.setLeft(qwtMin(boundingRect.left(), rect.left()));
-			boundingRect.setRight(qwtMax(boundingRect.right(), rect.right()));
-			boundingRect.setTop(qwtMin(boundingRect.top(), rect.top()));
-			boundingRect.setBottom(qwtMax(boundingRect.bottom(), rect.bottom()));
-		}
+        const QwtDoubleRect rect = qwtBoundingRect(series.sample(i));
+        if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
+        {
+            boundingRect.setLeft(qwtMin(boundingRect.left(), rect.left()));
+            boundingRect.setRight(qwtMax(boundingRect.right(), rect.right()));
+            boundingRect.setTop(qwtMin(boundingRect.top(), rect.top()));
+            boundingRect.setBottom(qwtMax(boundingRect.bottom(), rect.bottom()));
+        }
     }
 
     return boundingRect;
@@ -100,7 +100,7 @@ QwtDoubleRect qwtBoundingRectT(const QwtSeriesData<T>& series)
 */
 QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint> &series)
 {
-	return qwtBoundingRectT<QwtDoublePoint>(series);
+    return qwtBoundingRectT<QwtDoublePoint>(series);
 }
 
 /*!
@@ -113,7 +113,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint> &series)
 */
 QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &series)
 {
-	return qwtBoundingRectT<QwtDoublePoint3D>(series);
+    return qwtBoundingRectT<QwtDoublePoint3D>(series);
 }
 
 /*!
@@ -126,7 +126,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &series)
 */
 QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
 {
-	return qwtBoundingRectT<QwtIntervalSample>(series);
+    return qwtBoundingRectT<QwtIntervalSample>(series);
 }
 
 /*!
@@ -139,7 +139,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
 */
 QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtSetSample>& series)
 {
-	return qwtBoundingRectT<QwtSetSample>(series);
+    return qwtBoundingRectT<QwtSetSample>(series);
 }
 
 /*! 

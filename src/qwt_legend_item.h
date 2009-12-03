@@ -16,46 +16,25 @@
 #include "qwt_legend.h"
 #include "qwt_text.h"
 #include "qwt_text_label.h"
-
-class QPainter;
-class QPen;
-class QwtSymbol;
+#include <qpixmap.h>
 
 class QWT_EXPORT QwtLegendItem: public QwtTextLabel
 {
     Q_OBJECT
 public:
-    /*!
-       \brief Identifier mode
-
-       Default is ShowLine | ShowText
-       \sa identifierMode(), setIdentifierMode()
-     */
-
-    enum IdentifierMode
-    {
-        NoIdentifier = 0,
-        ShowLine = 1,
-        ShowSymbol = 2,
-        ShowText = 4
-    };
-
     explicit QwtLegendItem(QWidget *parent = 0);
     virtual ~QwtLegendItem();
 
     void setItemMode(QwtLegend::LegendItemMode);
     QwtLegend::LegendItemMode itemMode() const;
 
-    virtual void setText(const QwtText &);
-
-    void setIdentifierColor(const QColor &);
-	QColor identifierColor() const;
-
     void setSpacing(int spacing);
     int spacing() const;
 
-    void setIdentifierMode(int);
-    int identifierMode() const;
+    virtual void setText(const QwtText &);
+
+    void setIdentifier(const QPixmap &);
+    QPixmap identifier() const;
 
     void setIdentifierWidth(int width);
     int identifierWidth() const;
@@ -63,9 +42,6 @@ public:
     virtual QSize sizeHint() const;
 
     bool isChecked() const;
-
-    virtual void drawIdentifier(QPainter *, const QRect &) const;
-    virtual void drawItem(QPainter *p, const QRect &) const; 
 
 public slots:
     void setChecked(bool on);
@@ -93,40 +69,6 @@ protected:
     virtual void keyPressEvent(QKeyEvent *);
     virtual void keyReleaseEvent(QKeyEvent *);
     
-private:
-    class PrivateData;
-    PrivateData *d_data;
-};
-
-/*!
-  \brief A legend item for curves
-
-  QwtLegendCurveItem represents a curve on a legend.
-  It displays an curve identifier with an explaining text.
-  The identifier might be a combination of curve symbol and line.
-  In readonly mode it behaves like a label, otherwise like 
-  an unstylish push button.
-
-  \sa QwtLegend, QwtPlotCurve
-*/
-class QWT_EXPORT QwtLegendCurveItem: public QwtLegendItem
-{
-    Q_OBJECT
-public:
-   
-    explicit QwtLegendCurveItem(QWidget *parent = 0);
-    explicit QwtLegendCurveItem(const QwtSymbol &, const QPen &,
-        const QwtText &, QWidget *parent = 0);
-    virtual ~QwtLegendCurveItem();
-
-    void setSymbol(const QwtSymbol &);
-    const QwtSymbol& symbol() const;
-
-    void setCurvePen(const QPen &);
-    const QPen& curvePen() const;
-
-    virtual void drawIdentifier(QPainter *, const QRect &) const;
-
 private:
     class PrivateData;
     PrivateData *d_data;

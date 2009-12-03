@@ -341,10 +341,33 @@ void QwtPlot::printLegendItem(QPainter *painter,
 {
     if ( w->inherits("QwtLegendItem") )
     {
+        const QwtMetricsMap &map = QwtPainter::metricsMap();
+
         QwtLegendItem *item = (QwtLegendItem *)w;
 
+        const int m = map.screenToLayoutX(item->margin());
+        const int spacing = map.screenToLayoutX(item->spacing());
+        const int identifierWidth = 
+            map.screenToLayoutX(item->identifierWidth());
+
+        const QRect identifierRect(rect.x() + m, rect.y(),
+            identifierWidth, rect.height());
+
+        QwtLegendItemManager *itemManger = legend()->find(item);
+        if ( itemManger )
+        {
+            painter->save();
+            itemManger->drawLegendIdentifier(painter, identifierRect);
+            painter->restore();
+        }
+
+        // Label
+    
+        QRect titleRect = rect;
+        titleRect.setX(identifierRect.right() + 2 * spacing);
+
         painter->setFont(item->font());
-        item->drawItem(painter, rect);
+        item->text().draw(painter, titleRect);
     }
 }
 
