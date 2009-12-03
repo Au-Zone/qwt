@@ -63,6 +63,7 @@ Plot::Plot()
 #if QT_VERSION >= 0x040000
     cSin->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
+	cSin->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
     cSin->setPen(QPen(Qt::red));
     cSin->attach(this);
 
@@ -70,6 +71,7 @@ Plot::Plot()
 #if QT_VERSION >= 0x040000
     cCos->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
+	cCos->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
     cCos->setPen(QPen(Qt::blue));
     cCos->attach(this);
 

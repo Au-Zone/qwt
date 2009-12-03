@@ -38,7 +38,6 @@ BodePlot::BodePlot(QWidget *parent):
 
     // legend
     QwtLegend *legend = new QwtLegend;
-    legend->setFrameStyle(QFrame::Box|QFrame::Sunken);
     insertLegend(legend, QwtPlot::BottomLegend);
 
     // grid 
@@ -64,6 +63,7 @@ BodePlot::BodePlot(QWidget *parent):
     d_crv1->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
     d_crv1->setPen(QPen(Qt::yellow));
+	d_crv1->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     d_crv1->setYAxis(QwtPlot::yLeft);
     d_crv1->attach(this);
 
@@ -72,6 +72,7 @@ BodePlot::BodePlot(QWidget *parent):
     d_crv2->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
     d_crv2->setPen(QPen(Qt::cyan));
+	d_crv2->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     d_crv2->setYAxis(QwtPlot::yRight);
     d_crv2->attach(this);
     

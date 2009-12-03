@@ -987,8 +987,7 @@ void QwtPlotCurve::drawLegendIdentifier(
     QRect r(0, 0, size.width(), size.height());
     r.moveCenter(rect.center());
 
-    int mode = d_data->attributes;
-    if ( mode == 0 )
+    if ( d_data->legendAttributes == 0 )
     {
         QBrush brush = d_data->brush;
         if ( brush.style() == Qt::NoBrush )
@@ -1001,12 +1000,12 @@ void QwtPlotCurve::drawLegendIdentifier(
         if ( brush.style() != Qt::NoBrush )
             painter->fillRect(r, brush);
     }
-    if ( mode & QwtPlotCurve::LegendShowBrush )
+    if ( d_data->legendAttributes & QwtPlotCurve::LegendShowBrush )
     {
         if ( d_data->brush.style() != Qt::NoBrush )
             painter->fillRect(r, d_data->brush);
     }
-    if ( mode & QwtPlotCurve::LegendShowLine )
+    if ( d_data->legendAttributes & QwtPlotCurve::LegendShowLine )
     {
         if ( pen() != Qt::NoPen )
         {
@@ -1015,7 +1014,7 @@ void QwtPlotCurve::drawLegendIdentifier(
                 rect.right(), rect.center().y());
         }
     }
-    if ( mode & QwtPlotCurve::LegendShowSymbol )
+    if ( d_data->legendAttributes & QwtPlotCurve::LegendShowSymbol )
     {
         if ( symbol().style() != QwtSymbol::NoSymbol )
         {

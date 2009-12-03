@@ -17,6 +17,8 @@ Changes
    algorithm, that can be used to reduce the number of curve points.
    It can be very useful to improve the performance of painting
    curves of many lines ( f.e. by implementing different level of details ).
+6. Legend code update for representing different pixmaps for different
+   types of plot items.
 
 Release 5.2.1
 ===================
