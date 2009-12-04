@@ -16,6 +16,12 @@
 #include "qwt_color_map.h"
 #include "qwt_plot_spectrogram.h"
 
+#if QT_VERSION >= 0x040400
+#include <qthread.h>
+#include <qfuture.h>
+#include <qtconcurrentrun.h>
+#endif
+
 #if QT_VERSION < 0x040000
 typedef QValueVector<QRgb> QwtColorTable;
 #else
@@ -96,7 +102,8 @@ public:
         }
     };
 
-    PrivateData()
+    PrivateData():
+		renderThreadCount(1)
     {
         data = new DummyData();
         colorMap = new QwtLinearColorMap();
@@ -114,6 +121,8 @@ public:
     QwtRasterData *data;
     QwtColorMap *colorMap;
     int displayMode;
+
+    uint renderThreadCount;
 
     QwtValueList contourLevels;
     QPen defaultContourPen;
@@ -186,6 +195,37 @@ void QwtPlotSpectrogram::setDisplayMode(DisplayMode mode, bool on)
 bool QwtPlotSpectrogram::testDisplayMode(DisplayMode mode) const
 {
     return (d_data->displayMode & mode);
+}
+
+/*!
+   Rendering an image from the raster data can often be done 
+   parallel on a multicore system. 
+
+   \param numThreads Number of threads to be used for rendering.
+                     If numThreads is set to 0, the system specific
+                     ideal thread count is used.
+
+   The default thread count is 1 ( = no additional threads )
+
+   \warning Rendering in multiple threads is only supported for Qt >= 4.4
+   \sa renderThreadCount(), renderImage(), renderTile()
+*/
+void QwtPlotSpectrogram::setRenderThreadCount(uint numThreads)
+{
+	d_data->renderThreadCount = numThreads;
+}
+
+/*
+   \return Number of threads to be used for rendering.
+           If numThreads is set to 0, the system specific
+           ideal thread count is used.
+
+   \warning Rendering in multiple threads is only supported for Qt >= 4.4
+   \sa setRenderThreadCount(), renderImage(), renderTile()
+*/
+uint QwtPlotSpectrogram::renderThreadCount() const
+{
+	return d_data->renderThreadCount;
 }
 
 /*!
@@ -456,42 +496,45 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( !intensityRange.isValid() )
         return image;
 
-    d_data->data->initRaster(area, rect.size());
-
-    if ( d_data->colorMap->format() == QwtColorMap::RGB )
-    {
-        for ( int y = rect.top(); y <= rect.bottom(); y++ )
-        {
-            const double ty = yyMap.invTransform(y);
-
-            QRgb *line = (QRgb *)image.scanLine(y - rect.top());
-            for ( int x = rect.left(); x <= rect.right(); x++ )
-            {
-                const double tx = xxMap.invTransform(x);
-
-                *line++ = d_data->colorMap->rgb(intensityRange,
-                    d_data->data->value(tx, ty));
-            }
-        }
-    }
-    else if ( d_data->colorMap->format() == QwtColorMap::Indexed )
-    {
+    if ( d_data->colorMap->format() == QwtColorMap::Indexed )
         image.setColorTable(d_data->colorMap->colorTable(intensityRange));
 
-        for ( int y = rect.top(); y <= rect.bottom(); y++ )
-        {
-            const double ty = yyMap.invTransform(y);
+    d_data->data->initRaster(area, rect.size());
 
-            unsigned char *line = image.scanLine(y - rect.top());
-            for ( int x = rect.left(); x <= rect.right(); x++ )
-            {
-                const double tx = xxMap.invTransform(x);
+#if QT_VERSION >= 0x040400
+	uint numThreads = d_data->renderThreadCount;
 
-                *line++ = d_data->colorMap->colorIndex(intensityRange,
-                    d_data->data->value(tx, ty));
-            }
-        }
-    }
+	if ( numThreads <= 0 )
+		numThreads = QThread::idealThreadCount();
+
+	if ( numThreads <= 0 )
+		numThreads = 1;
+
+	const int numRows = rect.height() / numThreads;
+
+	QList< QFuture<void> > futures;
+	for ( uint i = 0; i < numThreads; i++ )
+	{
+		QRect r(rect.x(), rect.y() + i * numRows,
+			rect.width(), numRows);
+		if ( i == numThreads - 1 )
+		{
+			r.setHeight(rect.height() - i * numRows);
+			renderTile(xxMap, yyMap, rect, r, &image);
+		}
+		else
+		{
+			futures += QtConcurrent::run(
+				this, &QwtPlotSpectrogram::renderTile,
+				xxMap, yyMap, rect, r, &image);
+		}
+	}
+	for ( int i = 0; i < futures.size(); i++ )
+		futures[i].waitForFinished();
+
+#else // QT_VERSION < 0x040400
+	renderTile(xxMap, yyMap, rect, rect, &image);
+#endif
 
     d_data->data->discardRaster();
 
@@ -501,9 +544,7 @@ QImage QwtPlotSpectrogram::renderImage(
     const bool vInvert = yyMap.p1() < yyMap.p2();
     if ( hInvert || vInvert )
     {
-#ifdef __GNUC__
-#warning Better invert the for loops above
-#endif
+		// Better invert the image composition !
 #if QT_VERSION < 0x040000
         image = image.mirror(hInvert, vInvert);
 #else
@@ -512,6 +553,64 @@ QImage QwtPlotSpectrogram::renderImage(
     }
 
     return image;
+}
+
+/*!
+    \brief Render a tile of an image.
+
+	Rendering in tiles can be used to composite an image in parallel
+    threads.
+
+    \param xMap X-Scale Map
+    \param yMap Y-Scale Map
+    \param rect Geometry of the image in screen coordinates
+    \param tileRect Geometry of the tile in screen coordinates
+    \param image Image to be rendered
+*/
+void QwtPlotSpectrogram::renderTile(
+	const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+	const QRect &rect, const QRect &tileRect, QImage *image) const
+{
+    const QwtDoubleInterval intensityRange = d_data->data->range();
+    if ( !intensityRange.isValid() )
+		return;
+
+    if ( d_data->colorMap->format() == QwtColorMap::RGB )
+    {
+        for ( int y = tileRect.top(); y <= tileRect.bottom(); y++ )
+        {
+            const double ty = yMap.invTransform(y);
+
+            QRgb *line = (QRgb *)image->scanLine(y - rect.top());
+			line += tileRect.left() - rect.left();
+
+            for ( int x = tileRect.left(); x <= tileRect.right(); x++ )
+            {
+                const double tx = xMap.invTransform(x);
+
+                *line++ = d_data->colorMap->rgb(intensityRange,
+                    d_data->data->value(tx, ty));
+            }
+        }
+    }
+    else if ( d_data->colorMap->format() == QwtColorMap::Indexed )
+    {
+        for ( int y = tileRect.top(); y <= tileRect.bottom(); y++ )
+        {
+            const double ty = yMap.invTransform(y);
+
+            unsigned char *line = image->scanLine(y - rect.top());
+			line += tileRect.left() - rect.left();
+
+            for ( int x = tileRect.left(); x <= tileRect.right(); x++ )
+            {
+                const double tx = xMap.invTransform(x);
+
+                *line++ = d_data->colorMap->colorIndex(intensityRange,
+                    d_data->data->value(tx, ty));
+            }
+        }
+    }
 }
 
 /*!

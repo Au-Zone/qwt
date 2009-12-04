@@ -66,6 +66,7 @@ Plot::Plot(QWidget *parent):
     QwtPlot(parent)
 {
     d_spectrogram = new QwtPlotSpectrogram();
+    d_spectrogram->setRenderThreadCount(0); // use system specific thread count
 
     QwtLinearColorMap colorMap(Qt::darkCyan, Qt::red);
     colorMap.addColorStop(0.1, Qt::cyan);
