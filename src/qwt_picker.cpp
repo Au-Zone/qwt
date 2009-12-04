@@ -1468,6 +1468,7 @@ void QwtPicker::updateDisplay()
             tw = new PickerWidget( this, w, PickerWidget::Text);
             tw->resize(w->size());
         }
+        tw->setFont(d_data->trackerFont);
         tw->updateMask();
         tw->update(); // Needed, when the mask doesn't change
     }

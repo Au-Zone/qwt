@@ -462,7 +462,7 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
                 const int h = label->identifierWidth();
 
                 QPixmap identifier(w, h);
-#if 1
+#if QT_VERSION >= 0x040000
                 identifier.fill(QColor(0, 0, 0, 0));
 #endif
             
