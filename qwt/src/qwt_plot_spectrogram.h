@@ -57,6 +57,9 @@ public:
     explicit QwtPlotSpectrogram(const QString &title = QString::null);
     virtual ~QwtPlotSpectrogram();
 
+	void setRenderThreadCount(uint numThreads);
+	uint renderThreadCount() const;
+
     void setDisplayMode(DisplayMode, bool on = true);
     bool testDisplayMode(DisplayMode) const;
 
@@ -100,6 +103,9 @@ protected:
     virtual void drawContourLines(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QwtRasterData::ContourLines& lines) const;
+
+	void renderTile(const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+		const QRect &rect, const QRect &imageRect, QImage *image) const;
 
 private:
     class PrivateData;

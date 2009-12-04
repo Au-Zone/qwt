@@ -19,6 +19,8 @@ Changes
    curves of many lines ( f.e. by implementing different level of details ).
 6. Legend code update for representing different pixmaps for different
    types of plot items.
+7) Thread support for rendering spectrograms
+
 
 Release 5.2.1
 ===================
