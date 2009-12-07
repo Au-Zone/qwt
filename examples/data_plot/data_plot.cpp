@@ -4,19 +4,22 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 #include <qwt_scale_widget.h>
-#include <qwt_legend.h>
 #include <qwt_scale_draw.h>
 #include <qwt_math.h>
 #include "data_plot.h"
+#if 1
+#include <qdebug.h>
+#include <QBasicTimer>
+#endif
 
-//
-//  Initialize main window
-//
+const double numSeconds = 10.0; // seconds
+
 DataPlot::DataPlot(QWidget *parent):
-    QwtPlot(parent),
-    d_interval(0),
-    d_timerId(-1)
+    QwtPlot(parent)
 {
+    // Assign a title
+    setTitle("A Test for High Refresh Rates");
+
     // Disable polygon clipping
     QwtPainter::setDeviceClipping(false);
 
@@ -36,32 +39,26 @@ DataPlot::DataPlot(QWidget *parent):
 
     alignScales();
     
-    //  Initialize data
-    for (int i = 0; i< PLOT_SIZE; i++)
-    {
-        d_x[i] = 0.5 * i;     // time axis
-        d_y[i] = 0;
-        d_z[i] = 0;
-    }
+    d_started.start();
 
-    // Assign a title
-    setTitle("A Test for High Refresh Rates");
-    insertLegend(new QwtLegend(), QwtPlot::BottomLegend);
+    for ( int i = 0; i < PLOT_SIZE; i++ )
+        d_x[i] = i * (numSeconds / PLOT_SIZE);
+
+    updateValues();
 
     // Insert new curves
     QwtPlotCurve *cRight = new QwtPlotCurve("Data Moving Right");
-    cRight->attach(this);
+    cRight->setPen(QPen(Qt::red));
 
     QwtPlotCurve *cLeft = new QwtPlotCurve("Data Moving Left");
-    cLeft->attach(this);
-
-    // Set curve styles
-    cRight->setPen(QPen(Qt::red));
     cLeft->setPen(QPen(Qt::blue));
 
     // Attach (don't copy) data. Both curves use the same x array.
     cRight->setRawSamples(d_x, d_y, PLOT_SIZE);
     cLeft->setRawSamples(d_x, d_z, PLOT_SIZE);
+
+    cRight->attach(this);
+    cLeft->attach(this);
 
 #if 0
     //  Insert zero line at y = 0
@@ -74,7 +71,7 @@ DataPlot::DataPlot(QWidget *parent):
 
     // Axis 
     setAxisTitle(QwtPlot::xBottom, "Time/seconds");
-    setAxisScale(QwtPlot::xBottom, 0, 100);
+    setAxisScale(QwtPlot::xBottom, 0.0, numSeconds);
 
     setAxisTitle(QwtPlot::yLeft, "Values");
     setAxisScale(QwtPlot::yLeft, -1.5, 1.5);
@@ -106,42 +103,34 @@ void DataPlot::alignScales()
     }
 }
 
-void DataPlot::setTimerInterval(double ms)
+void DataPlot::setTimerInterval(int ms)
 {
-    d_interval = qRound(ms);
-
-    if ( d_timerId >= 0 )
-    {
-        killTimer(d_timerId);
-        d_timerId = -1;
-    }
-    if (d_interval >= 0 )
-        d_timerId = startTimer(d_interval);
+    d_timer.start(ms, this);
 }
 
 //  Generate new values 
 void DataPlot::timerEvent(QTimerEvent *)
 {
-    static double phase = 0.0;
+    updateValues();
 
-    if (phase > (M_PI - 0.0001)) 
-        phase = 0.0;
+    // the axes are unchanged. So all we need to do
+    // is to erase and repaint the content of the canvas 
+    // ( without te frame )
 
-    // y moves from left to right:
-    // Shift y array right and assign new value to y[0].
+    canvas()->update(canvas()->contentsRect());
+    //canvas()->repaint(canvas()->contentsRect());
+}
 
-    for ( int i = PLOT_SIZE - 1; i > 0; i-- )
-        d_y[i] = d_y[i-1];
-    d_y[0] = sin(phase) * (-1.0 + 2.0 * double(rand()) / double(RAND_MAX));
+void DataPlot::updateValues()
+{
+    const double elapsed = d_started.elapsed() / 1000.0;
+    const double interval = numSeconds / PLOT_SIZE;
 
-    for ( int j = 0; j < PLOT_SIZE - 1; j++ )
-        d_z[j] = d_z[j+1];
+    for ( int i = 0; i < PLOT_SIZE; i++ )
+    {
+        const double v = elapsed - i * interval;
 
-    d_z[PLOT_SIZE - 1] = 0.8 - (2.0 * phase/M_PI) + 0.4 * 
-        double(rand()) / double(RAND_MAX);
-
-    // update the display
-    replot();
-
-    phase += M_PI * 0.02;
+        d_y[i] = ::cos(v) * fmod(v, 1.0);
+        d_z[PLOT_SIZE - i - 1] = ::sin(v) * fmod(v, 1.0);
+    }
 }
