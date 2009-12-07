@@ -105,59 +105,107 @@ const QPen& QwtIntervalSymbol::pen() const
 void QwtIntervalSymbol::draw(QPainter *painter, 
         const QPoint& from, const QPoint& to) const
 {
+    const int pw = qwtMax(painter->pen().width(), 1);
+
     switch(d_data->style)
     {
         case QwtIntervalSymbol::Bar:
         {
-            const int pw = qwtMax(painter->pen().width(), 1);
-
             QwtPainter::drawLine(painter, from, to);
             if ( d_data->width > pw )
             {
                 if ( from.y() == to.y() )
                 {
-                    const int y = from.y() - d_data->width / 2;
+                    const int sw = 
+                        QwtPainter::metricsMap().screenToLayoutY(d_data->width);
+
+                    const int y = from.y() - sw / 2;
                     QwtPainter::drawLine(painter,
-                        from.x(), y, from.x(), y + d_data->width);
+                        from.x(), y, from.x(), y + sw);
                     QwtPainter::drawLine(painter,
-                        to.x(), y, to.x(), y + d_data->width);
+                        to.x(), y, to.x(), y + sw);
                 }
                 else if ( from.x() == to.x() )
                 {
-                    const int x = from.x() - d_data->width / 2;
+                    const int sw = 
+                        QwtPainter::metricsMap().screenToLayoutX(d_data->width);
+
+                    const int x = from.x() - sw / 2;
                     QwtPainter::drawLine(painter,
-                        x, from.y(), x + d_data->width, from.y());
+                        x, from.y(), x + sw, from.y());
                     QwtPainter::drawLine(painter,
-                        x, to.y(), x + d_data->width, to.y());
+                        x, to.y(), x + sw, to.y());
                 }
                 else    
                 {
-#ifdef __GNUC__
-#warning TODO
-#endif
+                    const int sw = 
+                        QwtPainter::metricsMap().screenToLayoutX(d_data->width);
+
+                    const double dx = to.x() - from.x();
+                    const double dy = to.y() - from.y();
+                    const double angle = ::atan2(dy, dx) + M_PI_2;
+                    double dw2 = sw / 2.0;
+
+                    const int cx = qRound(::cos(angle) * dw2);
+                    const int sy = qRound(::sin(angle) * dw2);
+
+                    QwtPainter::drawLine(painter, 
+                        from.x() - cx, from.y() - sy,
+                        from.x() + cx, from.y() + sy);
+                    QwtPainter::drawLine(painter, 
+                        to.x() - cx, to.y() - sy,
+                        to.x() + cx, to.y() + sy);
                 }
             }
             break;
         }
         case QwtIntervalSymbol::Box:
         {
-            if ( from.y() == to.y() )
+            if ( d_data->width <= pw )
             {
-                const int y = from.y() - d_data->width / 2;
-                QwtPainter::drawRect(painter,
-                    from.x(), y, to.x() - from.x(),  d_data->width);
-            }
-            else if ( from.x() == to.x() )
-            {
-                const int x = from.x() - d_data->width / 2;
-                QwtPainter::drawRect(painter,
-                    x, from.y(), d_data->width, to.y() - from.y() );
+                QwtPainter::drawLine(painter, from, to);
             }
             else
             {
-#ifdef __GNUC__
-#warning TODO
-#endif
+                if ( from.y() == to.y() )
+                {
+                    const int sw = 
+                        QwtPainter::metricsMap().screenToLayoutY(d_data->width);
+
+                    const int y = from.y() - d_data->width / 2;
+                    QwtPainter::drawRect(painter,
+                        from.x(), y, to.x() - from.x(),  sw);
+                }
+                else if ( from.x() == to.x() )
+                {
+                    const int sw = 
+                        QwtPainter::metricsMap().screenToLayoutX(d_data->width);
+
+                    const int x = from.x() - d_data->width / 2;
+                    QwtPainter::drawRect(painter,
+                        x, from.y(), sw, to.y() - from.y() );
+                }
+                else
+                {
+                    const int sw = 
+                        QwtPainter::metricsMap().screenToLayoutX(d_data->width);
+
+                    const double dx = to.x() - from.x();
+                    const double dy = to.y() - from.y();
+                    const double angle = ::atan2(dy, dx) + M_PI_2;
+                    double dw2 = sw / 2.0;
+
+                    const int cx = qRound(::cos(angle) * dw2);
+                    const int sy = qRound(::sin(angle) * dw2);
+
+                    QPolygon polygon(4);
+                    polygon.setPoint(0, from.x() - cx, from.y() - sy);
+                    polygon.setPoint(1, from.x() + cx, from.y() + sy);
+                    polygon.setPoint(2, to.x() + cx, to.y() + sy);
+                    polygon.setPoint(3, to.x() - cx, to.y() - sy);
+
+                    QwtPainter::drawPolygon(painter, polygon);
+                }
             }
             break;
         }
