@@ -23,7 +23,6 @@ Qwt TODO list
 2) Improve Documention
 4) QAbstractModel -> QwtSeriesData
 5) Cleanup of all widgets using QGradient and friends
-6) Thread support for rendering spectrograms
 
 Other ideas
 -----------
