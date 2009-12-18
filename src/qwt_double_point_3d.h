@@ -165,4 +165,16 @@ inline QwtDoublePoint QwtDoublePoint3D::toPoint() const
     return QwtDoublePoint(d_x, d_y);
 }
 
+//! Returns true if this point and other are equal; otherwise returns false. 
+inline bool QwtDoublePoint3D::operator==(const QwtDoublePoint3D &other) const
+{
+    return (d_x == other.d_x) && (d_y == other.d_y) && (d_z == other.d_z);
+}
+
+//! Returns true if this rect and other are different; otherwise returns false. 
+inline bool QwtDoublePoint3D::operator!=(const QwtDoublePoint3D &other) const
+{
+    return !operator==(other);
+}
+
 #endif
