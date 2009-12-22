@@ -1,6 +1,6 @@
 #include <qwt_plot.h>
 #include <qwt_double_interval.h>
-#include "clock.h"
+#include <qwt_system_clock.h>
 
 class QwtPlotCurve;
 class QwtPlotMarker;
@@ -36,5 +36,5 @@ private:
     QwtDoubleInterval d_interval;
     int d_timerId;
 
-    Clock d_clock;
+    QwtSystemClock d_clock;
 };
