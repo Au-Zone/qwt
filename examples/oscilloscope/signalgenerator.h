@@ -1,6 +1,6 @@
 #include <qdatetime.h>
 #include <qthread.h>
-#include "clock.h"
+#include <qwt_system_clock.h>
 
 class SignalGenerator: public QThread
 {
@@ -25,7 +25,7 @@ protected:
 private:
     virtual double readValue(double timeStamp) const;
 
-    Clock d_clock;
+    QwtSystemClock d_clock;
 
     double d_frequency;
     double d_amplitude;

@@ -85,6 +85,7 @@ HEADERS += \
     qwt_scale_map.h \
     qwt_spline.h \
     qwt_symbol.h \
+    qwt_system_clock.h \
     qwt_text_engine.h \
     qwt_text_label.h \
     qwt_text.h \
@@ -117,7 +118,8 @@ SOURCES += \
     qwt_event_pattern.cpp \
     qwt_picker_machine.cpp \
     qwt_scale_engine.cpp \
-    qwt_symbol.cpp
+    qwt_symbol.cpp \
+    qwt_system_clock.cpp
 
  
 contains(CONFIG, QwtPlot) {
