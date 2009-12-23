@@ -12,13 +12,27 @@
 
 #include "qwt_global.h"
 
+/*!
+  \brief QwtSystemClock provides high resolution clock time functions.
+
+  Sometimes the resolution offered by QTime ( millisecond ) is not accurate
+  enough for implementing time measurements. QwtSystemClock offers a
+  subset of the QTime functionality using higher resolution timers 
+  ( if possible ).
+
+  Precision and time intervals are multiples of milliseconds (ms).  
+
+  \hint The implementation uses POSIX timers or high-resolution performance 
+        counter on Windows. If both are not available it falls back on QTimer.
+*/
+
 class QWT_EXPORT QwtSystemClock
 {
 public:
     QwtSystemClock();
     virtual ~QwtSystemClock();
     
-    bool isValid() const;
+    bool isNull() const;
 
     void start();
     double restart();
@@ -27,8 +41,8 @@ public:
     static double precision();
 
 private:
-	class PrivateData;
-	PrivateData *d_data;
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif
