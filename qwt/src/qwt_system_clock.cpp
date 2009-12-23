@@ -30,7 +30,7 @@ public:
     double restart();
     double elapsed() const;
 
-    bool isValid() const;
+    bool isNull() const;
 
     static double precision();
 
@@ -71,9 +71,9 @@ double QwtHighResolutionClock::precision()
     return resolution.tv_nsec / 1e3;
 }
 
-inline bool QwtHighResolutionClock::isValid() const
+inline bool QwtHighResolutionClock::isNull() const
 {
-    return d_timeStamp.tv_sec > 0 && d_timeStamp.tv_nsec > 0;
+    return d_timeStamp.tv_sec <= 0 && d_timeStamp.tv_nsec <= 0;
 }
 
 inline void QwtHighResolutionClock::start()
@@ -86,9 +86,7 @@ double QwtHighResolutionClock::restart()
     struct timespec timeStamp;
     ::clock_gettime(d_clockId, &timeStamp);
 
-    double elapsed = 0.0;
-    if ( isValid() )
-        elapsed = msecsTo(d_timeStamp, timeStamp);
+    const double elapsed = msecsTo(d_timeStamp, timeStamp);
 
     d_timeStamp = timeStamp;
     return elapsed;
@@ -148,9 +146,9 @@ double QwtHighResolutionClock::precision()
     return (ticks <= 0) ? 0.0 : 1e3 / ticks;
 }
 
-inline bool QwtHighResolutionClock::isValid() const
+inline bool QwtHighResolutionClock::isNull() const
 {   
-    return d_startTicks > 0;
+    return d_startTicks <= 0;
 }
 
 inline void QwtHighResolutionClock::start()
@@ -191,6 +189,7 @@ public:
     QTime time;
 };
 
+//!  Constructs a null clock object.
 QwtSystemClock::QwtSystemClock()
 {
     d_data = new PrivateData;
@@ -202,6 +201,7 @@ QwtSystemClock::QwtSystemClock()
 #endif
 }
 
+//! Destructor
 QwtSystemClock::~QwtSystemClock()
 {
 #if defined(QWT_HIGH_RESOLUTION_CLOCK)
@@ -210,16 +210,22 @@ QwtSystemClock::~QwtSystemClock()
     delete d_data;
 }
 
-bool QwtSystemClock::isValid() const
+/*!
+  \return true if the clock has never been started.
+*/
+bool QwtSystemClock::isNull() const
 {
 #if defined(QWT_HIGH_RESOLUTION_CLOCK)
     if ( d_data->clock )
-        return d_data->clock->isValid();
+        return d_data->clock->isNull();
 #endif
 
-    return d_data->time.isValid();
+    return d_data->time.isNull();
 }
 
+/*!
+  Sets the start time to the current time.
+*/
 void QwtSystemClock::start()
 {
 #if defined(QWT_HIGH_RESOLUTION_CLOCK)
@@ -233,6 +239,11 @@ void QwtSystemClock::start()
     d_data->time.start();
 }
 
+/*!
+  The start time to the current time and
+  return the time, that is elapsed since the 
+  previous start time.
+*/
 double QwtSystemClock::restart()
 {
 #if defined(QWT_HIGH_RESOLUTION_CLOCK)
@@ -243,6 +254,10 @@ double QwtSystemClock::restart()
     return d_data->time.restart();
 }
 
+/*!
+  \return Number of milliseconds that have elapsed since the last time 
+          start() or restart() was called or 0.0 for null clocks.
+*/
 double QwtSystemClock::elapsed() const
 {
     double elapsed = 0.0;
@@ -250,19 +265,22 @@ double QwtSystemClock::elapsed() const
 #if defined(QWT_HIGH_RESOLUTION_CLOCK)
     if ( d_data->clock )
     {
-        if ( d_data->clock->isValid() )
+        if ( !d_data->clock->isNull() )
             elapsed = d_data->clock->elapsed();
 
         return elapsed;
     }
 #endif
 
-    if ( d_data->time.isValid() )
+    if ( !d_data->time.isNull() )
         elapsed = d_data->time.elapsed();
 
     return elapsed;
 }
 
+/*!
+  \return Accuracy of the system clock in milliseconds.
+*/
 double QwtSystemClock::precision()
 {
     static double prec = 0.0;
@@ -277,4 +295,3 @@ double QwtSystemClock::precision()
 
     return prec;
 }
-
