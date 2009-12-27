@@ -133,22 +133,23 @@ bool QwtHighResolutionClock::isMonotonic()
 #elif defined(Q_OS_WIN)
 
 QwtHighResolutionClock::QwtHighResolutionClock():
-    d_startTicks(0)
 {
+    d_startTicks.QuadPart = 0;
     QueryPerformanceFrequency(&d_ticksPerSecond);
 }
 
 double QwtHighResolutionClock::precision() 
 {
     LARGE_INTEGER ticks;
-    QueryPerformanceFrequency(&ticks);
+    if ( QueryPerformanceFrequency(&ticks) && ticks.QuadPart > 0 )
+        return 1e3 / ticks.QuadPart;
 
-    return (ticks <= 0) ? 0.0 : 1e3 / ticks;
+    return 0.0;
 }
 
 inline bool QwtHighResolutionClock::isNull() const
 {   
-    return d_startTicks <= 0;
+    return d_startTicks.QuadPart <= 0;
 }
 
 inline void QwtHighResolutionClock::start()
@@ -164,7 +165,7 @@ inline double QwtHighResolutionClock::restart()
     const double dt = ticks.QuadPart - d_startTicks.QuadPart;
     d_startTicks = ticks;
 
-    return dt / d_ticksPerSecond * 1e3;
+    return dt / d_ticksPerSecond.QuadPart * 1e3;
 }
 
 inline double QwtHighResolutionClock::elapsed() const
@@ -173,7 +174,7 @@ inline double QwtHighResolutionClock::elapsed() const
     QueryPerformanceCounter(&ticks);
 
     const double dt = ticks.QuadPart - d_startTicks.QuadPart;
-    return dt / d_ticksPerSecond * 1e3;
+    return dt / d_ticksPerSecond.QuadPart * 1e3;
 }
 
 #endif
