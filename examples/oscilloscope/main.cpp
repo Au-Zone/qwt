@@ -1,6 +1,6 @@
 #include <qapplication.h>
 #include "mainwindow.h"
-#include "signalgenerator.h"
+#include "samplingthread.h"
 
 int main(int argc, char **argv)
 {
@@ -9,26 +9,26 @@ int main(int argc, char **argv)
     MainWindow window;
     window.resize(800,400);
 
-    SignalGenerator signalGenerator;
-    signalGenerator.setFrequency(window.frequency());
-    signalGenerator.setAmplitude(window.amplitude());
-    signalGenerator.setInterval(window.signalInterval());
+    SamplingThread samplingThread;
+    samplingThread.setFrequency(window.frequency());
+    samplingThread.setAmplitude(window.amplitude());
+    samplingThread.setInterval(window.signalInterval());
 
     window.connect(&window, SIGNAL(frequencyChanged(double)),
-        &signalGenerator, SLOT(setFrequency(double)));
+        &samplingThread, SLOT(setFrequency(double)));
     window.connect(&window, SIGNAL(amplitudeChanged(double)),
-        &signalGenerator, SLOT(setAmplitude(double)));
+        &samplingThread, SLOT(setAmplitude(double)));
     window.connect(&window, SIGNAL(signalIntervalChanged(double)),
-        &signalGenerator, SLOT(setInterval(double)));
+        &samplingThread, SLOT(setInterval(double)));
 
     window.show();
 
-    signalGenerator.start();
+    samplingThread.start();
 
     bool ok = app.exec(); 
 
-    signalGenerator.stop();
-    signalGenerator.wait(1000);
+    samplingThread.stop();
+    samplingThread.wait(1000);
 
     return ok;
 }

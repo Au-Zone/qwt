@@ -1,35 +1,35 @@
-#include "signalgenerator.h"
+#include "samplingthread.h"
 #include "signaldata.h"
 #include <math.h>
 
-SignalGenerator::SignalGenerator(QObject *parent):
-    QwtSampleThread(parent),
+SamplingThread::SamplingThread(QObject *parent):
+    QwtSamplingThread(parent),
     d_frequency(5.0),
     d_amplitude(20.0)
 {
 }
 
-void SignalGenerator::setFrequency(double frequency)
+void SamplingThread::setFrequency(double frequency)
 {
     d_frequency = frequency;
 }
 
-double SignalGenerator::frequency() const
+double SamplingThread::frequency() const
 {
     return d_frequency;
 }
 
-void SignalGenerator::setAmplitude(double amplitude)
+void SamplingThread::setAmplitude(double amplitude)
 {
     d_amplitude = amplitude;
 }
 
-double SignalGenerator::amplitude() const
+double SamplingThread::amplitude() const
 {
     return d_amplitude;
 }
 
-void SignalGenerator::sample(double elapsed)
+void SamplingThread::sample(double elapsed)
 {
     if ( d_frequency > 0.0 )
     {
@@ -38,7 +38,7 @@ void SignalGenerator::sample(double elapsed)
     }
 }
 
-double SignalGenerator::value(double timeStamp) const
+double SamplingThread::value(double timeStamp) const
 {
     const double period = 1.0 / d_frequency;
 

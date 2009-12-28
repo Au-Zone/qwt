@@ -1,11 +1,11 @@
-#include <qwt_sample_thread.h>
+#include <qwt_sampling_thread.h>
 
-class SignalGenerator: public QwtSampleThread
+class SamplingThread: public QwtSamplingThread
 {
     Q_OBJECT
 
 public:
-    SignalGenerator(QObject *parent = NULL);
+    SamplingThread(QObject *parent = NULL);
 
     double frequency() const;
     double amplitude() const;
