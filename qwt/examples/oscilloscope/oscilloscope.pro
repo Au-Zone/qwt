@@ -16,7 +16,7 @@ HEADERS = \
     plot.h \
     knob.h \
     wheelbox.h \
-    signalgenerator.h \
+    samplingthread.h \
     curvedata.h \
     mainwindow.h 
 
@@ -25,7 +25,7 @@ SOURCES = \
     plot.cpp \
     knob.cpp \
     wheelbox.cpp \
-    signalgenerator.cpp \
+    samplingthread.cpp \
     curvedata.cpp \
     mainwindow.cpp \
     main.cpp
