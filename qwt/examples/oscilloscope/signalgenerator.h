@@ -1,8 +1,6 @@
-#include <qdatetime.h>
-#include <qthread.h>
-#include <qwt_system_clock.h>
+#include <qwt_sample_thread.h>
 
-class SignalGenerator: public QThread
+class SignalGenerator: public QwtSampleThread
 {
     Q_OBJECT
 
@@ -11,25 +9,17 @@ public:
 
     double frequency() const;
     double amplitude() const;
-    double signalInterval() const;
 
 public slots:
     void setAmplitude(double);
     void setFrequency(double);
-    void setSignalInterval(double); // ms
-    void stop();
 
 protected:
-    virtual void run();
+    virtual void sample(double elapsed);
 
 private:
-    virtual double readValue(double timeStamp) const;
-
-    QwtSystemClock d_clock;
+    virtual double value(double timeStamp) const;
 
     double d_frequency;
     double d_amplitude;
-
-    double d_signalInterval;
-	double d_isStopped;
 };

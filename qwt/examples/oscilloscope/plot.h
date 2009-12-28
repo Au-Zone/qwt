@@ -12,7 +12,7 @@ class Plot: public QwtPlot
 
 public:
     Plot(QWidget * = NULL);
-	virtual ~Plot();
+    virtual ~Plot();
 
     virtual void replot();
 
@@ -31,7 +31,7 @@ private:
     QwtPlotCurve *d_curve;
     int d_paintedPoints;
 
-	QwtPlotDirectPainter *d_directPainter;
+    QwtPlotDirectPainter *d_directPainter;
 
     QwtDoubleInterval d_interval;
     int d_timerId;

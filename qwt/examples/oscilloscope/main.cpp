@@ -12,14 +12,14 @@ int main(int argc, char **argv)
     SignalGenerator signalGenerator;
     signalGenerator.setFrequency(window.frequency());
     signalGenerator.setAmplitude(window.amplitude());
-    signalGenerator.setSignalInterval(window.signalInterval());
+    signalGenerator.setInterval(window.signalInterval());
 
     window.connect(&window, SIGNAL(frequencyChanged(double)),
         &signalGenerator, SLOT(setFrequency(double)));
     window.connect(&window, SIGNAL(amplitudeChanged(double)),
         &signalGenerator, SLOT(setAmplitude(double)));
     window.connect(&window, SIGNAL(signalIntervalChanged(double)),
-        &signalGenerator, SLOT(setSignalInterval(double)));
+        &signalGenerator, SLOT(setInterval(double)));
 
     window.show();
 
@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 
     bool ok = app.exec(); 
 
-	signalGenerator.stop();
-	signalGenerator.wait(1000);
+    signalGenerator.stop();
+    signalGenerator.wait(1000);
 
-	return ok;
+    return ok;
 }
