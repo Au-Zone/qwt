@@ -1,14 +1,14 @@
-#ifndef _QWT_SAMPLE_THREAD_H_
-#define _QWT_SAMPLE_THREAD_H_
+#ifndef _QWT_SAMPLING_THREAD_H_
+#define _QWT_SAMPLING_THREAD_H_
 
 #include <qthread.h>
 
-class QwtSampleThread: public QThread
+class QwtSamplingThread: public QThread
 {
     Q_OBJECT
 
 public:
-    virtual ~QwtSampleThread();
+    virtual ~QwtSamplingThread();
     
 public slots:
     void setInterval(double interval);
@@ -18,7 +18,7 @@ public:
     double interval() const;
 
 protected:
-    explicit QwtSampleThread(QObject *parent = NULL);
+    explicit QwtSamplingThread(QObject *parent = NULL);
 
     virtual void run();
     virtual void sample(double elapsed) = 0;

@@ -103,7 +103,7 @@ public:
     };
 
     PrivateData():
-		renderThreadCount(1)
+        renderThreadCount(1)
     {
         data = new DummyData();
         colorMap = new QwtLinearColorMap();
@@ -212,7 +212,7 @@ bool QwtPlotSpectrogram::testDisplayMode(DisplayMode mode) const
 */
 void QwtPlotSpectrogram::setRenderThreadCount(uint numThreads)
 {
-	d_data->renderThreadCount = numThreads;
+    d_data->renderThreadCount = numThreads;
 }
 
 /*
@@ -225,7 +225,7 @@ void QwtPlotSpectrogram::setRenderThreadCount(uint numThreads)
 */
 uint QwtPlotSpectrogram::renderThreadCount() const
 {
-	return d_data->renderThreadCount;
+    return d_data->renderThreadCount;
 }
 
 /*!
@@ -502,38 +502,38 @@ QImage QwtPlotSpectrogram::renderImage(
     d_data->data->initRaster(area, rect.size());
 
 #if QT_VERSION >= 0x040400
-	uint numThreads = d_data->renderThreadCount;
+    uint numThreads = d_data->renderThreadCount;
 
-	if ( numThreads <= 0 )
-		numThreads = QThread::idealThreadCount();
+    if ( numThreads <= 0 )
+        numThreads = QThread::idealThreadCount();
 
-	if ( numThreads <= 0 )
-		numThreads = 1;
+    if ( numThreads <= 0 )
+        numThreads = 1;
 
-	const int numRows = rect.height() / numThreads;
+    const int numRows = rect.height() / numThreads;
 
-	QList< QFuture<void> > futures;
-	for ( uint i = 0; i < numThreads; i++ )
-	{
-		QRect r(rect.x(), rect.y() + i * numRows,
-			rect.width(), numRows);
-		if ( i == numThreads - 1 )
-		{
-			r.setHeight(rect.height() - i * numRows);
-			renderTile(xxMap, yyMap, rect, r, &image);
-		}
-		else
-		{
-			futures += QtConcurrent::run(
-				this, &QwtPlotSpectrogram::renderTile,
-				xxMap, yyMap, rect, r, &image);
-		}
-	}
-	for ( int i = 0; i < futures.size(); i++ )
-		futures[i].waitForFinished();
+    QList< QFuture<void> > futures;
+    for ( uint i = 0; i < numThreads; i++ )
+    {
+        QRect r(rect.x(), rect.y() + i * numRows,
+            rect.width(), numRows);
+        if ( i == numThreads - 1 )
+        {
+            r.setHeight(rect.height() - i * numRows);
+            renderTile(xxMap, yyMap, rect, r, &image);
+        }
+        else
+        {
+            futures += QtConcurrent::run(
+                this, &QwtPlotSpectrogram::renderTile,
+                xxMap, yyMap, rect, r, &image);
+        }
+    }
+    for ( int i = 0; i < futures.size(); i++ )
+        futures[i].waitForFinished();
 
 #else // QT_VERSION < 0x040400
-	renderTile(xxMap, yyMap, rect, rect, &image);
+    renderTile(xxMap, yyMap, rect, rect, &image);
 #endif
 
     d_data->data->discardRaster();
@@ -544,7 +544,7 @@ QImage QwtPlotSpectrogram::renderImage(
     const bool vInvert = yyMap.p1() < yyMap.p2();
     if ( hInvert || vInvert )
     {
-		// Better invert the image composition !
+        // Better invert the image composition !
 #if QT_VERSION < 0x040000
         image = image.mirror(hInvert, vInvert);
 #else
@@ -558,7 +558,7 @@ QImage QwtPlotSpectrogram::renderImage(
 /*!
     \brief Render a tile of an image.
 
-	Rendering in tiles can be used to composite an image in parallel
+    Rendering in tiles can be used to composite an image in parallel
     threads.
 
     \param xMap X-Scale Map
@@ -568,12 +568,12 @@ QImage QwtPlotSpectrogram::renderImage(
     \param image Image to be rendered
 */
 void QwtPlotSpectrogram::renderTile(
-	const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-	const QRect &rect, const QRect &tileRect, QImage *image) const
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    const QRect &rect, const QRect &tileRect, QImage *image) const
 {
     const QwtDoubleInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
-		return;
+        return;
 
     if ( d_data->colorMap->format() == QwtColorMap::RGB )
     {
@@ -582,7 +582,7 @@ void QwtPlotSpectrogram::renderTile(
             const double ty = yMap.invTransform(y);
 
             QRgb *line = (QRgb *)image->scanLine(y - rect.top());
-			line += tileRect.left() - rect.left();
+            line += tileRect.left() - rect.left();
 
             for ( int x = tileRect.left(); x <= tileRect.right(); x++ )
             {
@@ -600,7 +600,7 @@ void QwtPlotSpectrogram::renderTile(
             const double ty = yMap.invTransform(y);
 
             unsigned char *line = image->scanLine(y - rect.top());
-			line += tileRect.left() - rect.left();
+            line += tileRect.left() - rect.left();
 
             for ( int x = tileRect.left(); x <= tileRect.right(); x++ )
             {

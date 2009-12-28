@@ -7,10 +7,10 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_sample_thread.h"
+#include "qwt_sampling_thread.h"
 #include "qwt_system_clock.h"
 
-class QwtSampleThread::PrivateData
+class QwtSamplingThread::PrivateData
 {
 public:
     QwtSystemClock clock;
@@ -20,7 +20,7 @@ public:
 };
 
 
-QwtSampleThread::QwtSampleThread(QObject *parent):
+QwtSamplingThread::QwtSamplingThread(QObject *parent):
     QThread(parent)
 {
     d_data = new PrivateData;
@@ -28,12 +28,12 @@ QwtSampleThread::QwtSampleThread(QObject *parent):
     d_data->isStopped = true;
 }
 
-QwtSampleThread::~QwtSampleThread()
+QwtSamplingThread::~QwtSamplingThread()
 {
     delete d_data;
 }
 
-void QwtSampleThread::setInterval(double interval)
+void QwtSamplingThread::setInterval(double interval)
 {
     if ( interval < 0.0 )
         interval = 0.0;
@@ -41,17 +41,17 @@ void QwtSampleThread::setInterval(double interval)
     d_data->interval = interval;
 }
 
-double QwtSampleThread::interval() const
+double QwtSamplingThread::interval() const
 {
     return d_data->interval;
 }
 
-void QwtSampleThread::stop()
+void QwtSamplingThread::stop()
 {
     d_data->isStopped = true;
 }
 
-void QwtSampleThread::run()
+void QwtSamplingThread::run()
 {
     d_data->clock.start();
     d_data->isStopped = false;
