@@ -79,7 +79,7 @@ HEADERS += \
     qwt_picker_machine.h \
     qwt_polygon.h \
     qwt_round_scale_draw.h \
-    qwt_sample_thread.h \
+    qwt_sampling_thread.h \
     qwt_scale_div.h \
     qwt_scale_draw.h \
     qwt_scale_engine.h \
@@ -119,7 +119,7 @@ SOURCES += \
     qwt_event_pattern.cpp \
     qwt_picker_machine.cpp \
     qwt_scale_engine.cpp \
-    qwt_sample_thread.cpp \
+    qwt_sampling_thread.cpp \
     qwt_symbol.cpp \
     qwt_system_clock.cpp
 

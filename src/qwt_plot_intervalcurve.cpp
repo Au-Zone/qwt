@@ -317,7 +317,7 @@ void QwtPlotIntervalCurve::drawSymbols(
 }
 
 void QwtPlotIntervalCurve::drawLegendIdentifier(
-	QPainter *, const QRect &) const
+    QPainter *, const QRect &) const
 {
 #ifdef __GNUC__
 #warning TODO
