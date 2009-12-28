@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent):
     d_intervalWheel = new WheelBox("Displayed [s]", 1.0, 100.0, 1.0, this);
     d_intervalWheel->setValue(intervalLength);
 
-    d_timerWheel = new WheelBox("Signal Interval [ms]", 0.0, 20.0, 0.1, this);
+    d_timerWheel = new WheelBox("Sample Interval [ms]", 0.0, 20.0, 0.1, this);
     d_timerWheel->setValue(10.0);
 
     QVBoxLayout* vLayout1 = new QVBoxLayout();
