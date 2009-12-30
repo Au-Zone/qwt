@@ -93,7 +93,7 @@ CONFIG       += QwtPlot
 CONFIG     += QwtWidgets
 
 ######################################################################
-# If you want to display svg imageson the plot canvas, enable the 
+# If you want to display svg images on the plot canvas, enable the 
 # line below. Note that Qwt needs the svg+xml, when enabling 
 # QwtSVGItem.
 ######################################################################
