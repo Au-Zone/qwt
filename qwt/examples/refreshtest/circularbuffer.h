@@ -25,6 +25,10 @@ private:
     double d_referenceTime;
     double d_interval;
     QwtArray<double> d_values;
+
+    double d_step;
+    int d_startIndex;
+    double d_offset;
 };
 
 #endif

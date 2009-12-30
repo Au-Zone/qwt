@@ -3,7 +3,9 @@
 #include <qwt_math.h>
 
 CircularBuffer::CircularBuffer(double interval, size_t numPoints):
-    d_referenceTime(0.0)
+    d_referenceTime(0.0),
+    d_startIndex(0),
+    d_offset(0.0)
 {
     fill(interval, numPoints);
 }
@@ -17,9 +19,9 @@ void CircularBuffer::fill(double interval, size_t numPoints)
     {
         d_values.resize(numPoints);
 
-        const double step = interval / (numPoints - 2);
+        d_step = interval / (numPoints - 2);
         for ( size_t i = 0; i < numPoints; i++ )
-            d_values[i] = value(i * step);
+            d_values[i] = value(i * d_step);
 
         d_interval = interval;
     }
@@ -28,6 +30,11 @@ void CircularBuffer::fill(double interval, size_t numPoints)
 void CircularBuffer::setReferenceTime(double timeStamp)
 {
     d_referenceTime = timeStamp;
+
+    const double startTime = ::fmod(d_referenceTime, d_values.size() * d_step);
+
+    d_startIndex = int(startTime / d_step); // floor
+    d_offset = ::fmod(startTime, d_step);
 }
 
 double CircularBuffer::referenceTime() const
@@ -42,13 +49,14 @@ size_t CircularBuffer::size() const
 
 QwtDoublePoint CircularBuffer::sample(size_t i) const
 {
-    const double step = d_interval / (d_values.size() - 2);
-    const double t = ::fmod(d_referenceTime, d_values.size() * step);
+    const int size = d_values.size();
 
-    const double x = i * step - ::fmod(t, step) - d_interval;
+    int index = d_startIndex + i;
+    if ( index >= size )
+        index -= size; 
 
-    const int index = int(t / step + i) % d_values.size();
-    const double y = d_values[index];
+    const double x = i * d_step - d_offset - d_interval;
+    const double y = d_values.data()[index];
 
     return QwtDoublePoint(x, y);
 }
