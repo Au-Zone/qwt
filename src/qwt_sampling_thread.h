@@ -9,13 +9,13 @@ class QwtSamplingThread: public QThread
 
 public:
     virtual ~QwtSamplingThread();
-    
+
+    double interval() const;
+    double elapsed() const;
+
 public slots:
     void setInterval(double interval);
     void stop();
-
-public:
-    double interval() const;
 
 protected:
     explicit QwtSamplingThread(QObject *parent = NULL);

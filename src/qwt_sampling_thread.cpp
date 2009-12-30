@@ -46,6 +46,14 @@ double QwtSamplingThread::interval() const
     return d_data->interval;
 }
 
+double QwtSamplingThread::elapsed() const
+{
+    if ( d_data->isStopped )
+        return 0.0;
+
+    return d_data->clock.elapsed();
+}
+
 void QwtSamplingThread::stop()
 {
     d_data->isStopped = true;
