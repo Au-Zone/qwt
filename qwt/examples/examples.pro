@@ -20,6 +20,7 @@ contains(CONFIG, QwtPlot) {
         errorbars \
         simple_plot \
         realtime_plot \
+        refreshtest \
         navigation \
         plotmatrix \
         spectrogram \
@@ -29,7 +30,6 @@ contains(CONFIG, QwtPlot) {
 
         SUBDIRS += \
             bode \
-            data_plot \
             event_filter
 
         VVERSION = $$[QT_VERSION]
