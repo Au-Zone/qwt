@@ -19,8 +19,10 @@ public:
     virtual QwtDoubleRect boundingRect() const;
     virtual QwtSeriesData<QwtDoublePoint> *copy() const;
 
+    void setFunction(double(*y)(double));
+
 private:
-    double value(double x) const;
+    double (*d_y)(double);
 
     double d_referenceTime;
     double d_interval;

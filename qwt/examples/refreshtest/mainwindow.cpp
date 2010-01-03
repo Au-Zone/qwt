@@ -2,6 +2,7 @@
 #include <qtoolbar.h>
 #include <qstatusbar.h>
 #include <qlabel.h>
+#include <qcombobox.h>
 #include <qlayout.h>
 #include <qevent.h>
 #include <qdatetime.h>
@@ -23,9 +24,12 @@ MainWindow::MainWindow(QWidget *parent):
         d_plot, SLOT(setTimerInterval(int)) );
     connect(d_numPoints, SIGNAL(valueChanged(int)),
         d_plot, SLOT(setNumPoints(int)) );
+    connect(d_functionType, SIGNAL(activated(int)),
+        d_plot, SLOT(setFunctionType(int)) );
 
     d_timerInterval->setValue(20);
     d_numPoints->setValue(1000);
+    d_plot->setFunctionType(d_functionType->currentIndex());
 }
 
 void MainWindow::initToolBar()
@@ -56,12 +60,18 @@ void MainWindow::initToolBar()
     d_numPoints->setSingleStep(100);
 #endif
 
+    d_functionType = new QComboBox(hBox);
+    d_functionType->addItem("Wave");
+    d_functionType->addItem("Noise");
+
     QHBoxLayout *layout = new QHBoxLayout(hBox);
     layout->addWidget(new QLabel("Update Interval", hBox));
     layout->addWidget(d_timerInterval);
     layout->addSpacing(20);
     layout->addWidget(new QLabel("Points", hBox));
     layout->addWidget(d_numPoints);
+    layout->addSpacing(20);
+    layout->addWidget(d_functionType);
     layout->addWidget(new QWidget(hBox), 10); // spacer);
 
 #if QT_VERSION >= 0x040000

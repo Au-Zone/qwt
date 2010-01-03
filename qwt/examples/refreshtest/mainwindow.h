@@ -6,6 +6,7 @@
 class Plot;
 class QSpinBox;
 class QLabel;
+class QComboBox;
 
 class MainWindow: public QMainWindow
 {
@@ -21,6 +22,7 @@ private:
 
     QSpinBox *d_timerInterval;
     QSpinBox *d_numPoints;
+    QComboBox *d_functionType;
     QLabel *d_frameCount;
 };
 

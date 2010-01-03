@@ -7,6 +7,24 @@
 #include "plot.h"
 #include "circularbuffer.h"
 
+static double wave(double x) 
+{
+    const double period = 1.0;
+    const double c = 5.0;
+
+    double v = ::fmod(x, period);
+
+    const double amplitude = qwtAbs(x - qRound(x / c) * c) / ( 0.5 * c );
+    v = amplitude * ::sin(v / period * 2 * M_PI);
+
+    return v;
+}
+
+static double noise(double)
+{
+    return 2.0 * ( rand() / ((double)RAND_MAX + 1) ) - 1.0;
+}
+
 Plot::Plot(QWidget *parent):
     QwtPlot(parent),
     d_interval(10.0), // seconds
@@ -91,6 +109,24 @@ void Plot::setNumPoints(int numPoints)
 {
     CircularBuffer &buffer = (CircularBuffer &)d_curve->data();
     buffer.fill(d_interval, numPoints);
+}
+
+void Plot::setFunctionType(int functionType)
+{
+    CircularBuffer &buffer = (CircularBuffer &)d_curve->data();
+    switch(functionType)
+    {
+        case Plot::Wave:
+            buffer.setFunction(wave);
+            break;
+        case Plot::Noise:
+            buffer.setFunction(noise);
+            break;
+        default:
+            buffer.setFunction(NULL);
+    }
+
+    buffer.fill(d_interval, buffer.size());
 }
 
 void Plot::timerEvent(QTimerEvent *)
