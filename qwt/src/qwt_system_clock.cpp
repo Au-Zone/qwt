@@ -11,12 +11,14 @@
 #include <qdatetime.h>
 #include <unistd.h>
 
+#if QT_VERSION >= 0x040000
 #if defined(_POSIX_TIMERS)
 #include <time.h>
 #define QWT_HIGH_RESOLUTION_CLOCK
 #elif defined(Q_OS_WIN)
 #define QWT_HIGH_RESOLUTION_CLOCK
 #include <qt_windows.h>
+#endif
 #endif
 
 #if defined(QWT_HIGH_RESOLUTION_CLOCK)

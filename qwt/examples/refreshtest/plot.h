@@ -3,7 +3,6 @@
 
 #include <qwt_plot.h>
 #include <qwt_system_clock.h>
-#include <qbasictimer.h>
 
 class QwtPlotCurve;
 
@@ -26,9 +25,10 @@ private:
 
     QwtPlotCurve *d_curve;
 
-    QBasicTimer d_timer;
     QwtSystemClock d_clock;
     double d_interval;
+
+    int d_timerId;
 };
 
 #endif

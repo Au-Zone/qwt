@@ -198,7 +198,7 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                     const int cx = qRound(::cos(angle) * dw2);
                     const int sy = qRound(::sin(angle) * dw2);
 
-                    QPolygon polygon(4);
+                    QwtPolygon polygon(4);
                     polygon.setPoint(0, from.x() - cx, from.y() - sy);
                     polygon.setPoint(1, from.x() + cx, from.y() + sy);
                     polygon.setPoint(2, to.x() + cx, to.y() + sy);
