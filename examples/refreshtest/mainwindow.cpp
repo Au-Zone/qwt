@@ -12,12 +12,12 @@
 MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent)
 {
-    initToolBar();
-    initStatusBar();
-
     d_plot = new Plot(this);
     setCentralWidget(d_plot);
     d_plot->canvas()->installEventFilter(this);
+
+    initToolBar();
+    initStatusBar();
 
     connect(d_timerInterval, SIGNAL(valueChanged(int)),
         d_plot, SLOT(setTimerInterval(int)) );
@@ -40,13 +40,21 @@ void MainWindow::initToolBar()
 #endif
     QWidget *hBox = new QWidget(toolBar);
 
+#if QT_VERSION < 0x040000
+    d_timerInterval = new QSpinBox(0, 1000, 1, hBox);
+#else
     d_timerInterval = new QSpinBox(hBox);
     d_timerInterval->setRange(0, 1000);
     d_timerInterval->setSingleStep(1);
+#endif
 
+#if QT_VERSION < 0x040000
+    d_numPoints = new QSpinBox(10, 1000000, 100, hBox);
+#else
     d_numPoints = new QSpinBox(hBox);
-    d_numPoints->setRange(10, 1000000.0);
+    d_numPoints->setRange(10, 1000000);
     d_numPoints->setSingleStep(100);
+#endif
 
     QHBoxLayout *layout = new QHBoxLayout(hBox);
     layout->addWidget(new QLabel("Update Interval", hBox));
@@ -64,7 +72,7 @@ void MainWindow::initToolBar()
 
 void MainWindow::initStatusBar()
 {
-    d_frameCount = new QLabel();
+    d_frameCount = new QLabel(this);
     statusBar()->addWidget(d_frameCount, 10);
 }
 

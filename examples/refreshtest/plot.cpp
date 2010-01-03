@@ -6,11 +6,11 @@
 #include <qwt_scale_draw.h>
 #include "plot.h"
 #include "circularbuffer.h"
-#include <QBasicTimer>
 
 Plot::Plot(QWidget *parent):
     QwtPlot(parent),
-    d_interval(10.0) // seconds
+    d_interval(10.0), // seconds
+    d_timerId(-1)
 {
     // Assign a title
     setTitle("Testing Refresh Rates");
@@ -81,7 +81,10 @@ void Plot::alignScales()
 
 void Plot::setTimerInterval(int ms)
 {
-    d_timer.start(ms, this);
+    if ( d_timerId >= 0 )
+        killTimer(d_timerId);
+
+    d_timerId = startTimer(ms);
 }
 
 void Plot::setNumPoints(int numPoints)

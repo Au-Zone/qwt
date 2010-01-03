@@ -2,6 +2,9 @@
 #define _QWT_SAMPLING_THREAD_H_
 
 #include "qwt_global.h"
+
+#if QT_VERSION >= 0x040000
+
 #include <qthread.h>
 
 class QWT_EXPORT QwtSamplingThread: public QThread
@@ -28,5 +31,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+#endif
 
 #endif
