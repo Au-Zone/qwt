@@ -49,7 +49,7 @@ private:
 #elif defined(Q_OS_WIN)
 
     LARGE_INTEGER d_startTicks;
-    long d_ticksPerSecond;
+    LARGE_INTEGER d_ticksPerSecond;
 #endif
 };
 

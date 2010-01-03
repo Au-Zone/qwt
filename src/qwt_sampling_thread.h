@@ -1,9 +1,10 @@
 #ifndef _QWT_SAMPLING_THREAD_H_
 #define _QWT_SAMPLING_THREAD_H_
 
+#include "qwt_global.h"
 #include <qthread.h>
 
-class QwtSamplingThread: public QThread
+class QWT_EXPORT QwtSamplingThread: public QThread
 {
     Q_OBJECT
 
