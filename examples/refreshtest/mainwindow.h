@@ -4,9 +4,8 @@
 #include <qmainwindow.h>
 
 class Plot;
-class QSpinBox;
+class Panel;
 class QLabel;
-class QComboBox;
 
 class MainWindow: public QMainWindow
 {
@@ -15,14 +14,8 @@ public:
     virtual bool eventFilter(QObject *, QEvent *);
 
 private:
-    void initToolBar();
-    void initStatusBar();
-
     Plot *d_plot;
-
-    QSpinBox *d_timerInterval;
-    QSpinBox *d_numPoints;
-    QComboBox *d_functionType;
+    Panel *d_panel;
     QLabel *d_frameCount;
 };
 
