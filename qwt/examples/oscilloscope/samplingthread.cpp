@@ -1,6 +1,6 @@
 #include "samplingthread.h"
 #include "signaldata.h"
-#include <math.h>
+#include <qwt_math.h>
 
 SamplingThread::SamplingThread(QObject *parent):
     QwtSamplingThread(parent),
