@@ -3,7 +3,9 @@
 
 #include <qwt_plot.h>
 #include <qwt_system_clock.h>
+#include "settings.h"
 
+class QwtPlotGrid;
 class QwtPlotCurve;
 
 class Plot: public QwtPlot
@@ -11,20 +13,10 @@ class Plot: public QwtPlot
     Q_OBJECT
 
 public:
-    enum FunctionType
-    {
-        NoFunction = -1,
-
-        Wave,
-        Noise
-    };
-
     Plot(QWidget* = NULL);
 
 public slots:
-    void setTimerInterval(int);
-    void setNumPoints(int);
-    void setFunctionType(int);
+    void setSettings(const Settings &);
 
 protected:
     virtual void timerEvent(QTimerEvent *e);
@@ -32,12 +24,15 @@ protected:
 private:
     void alignScales();
 
+    QwtPlotGrid *d_grid;
     QwtPlotCurve *d_curve;
 
     QwtSystemClock d_clock;
     double d_interval;
 
     int d_timerId;
+
+    Settings d_settings;
 };
 
 #endif

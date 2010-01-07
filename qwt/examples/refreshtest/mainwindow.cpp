@@ -1,89 +1,36 @@
-#include <qspinbox.h>
-#include <qtoolbar.h>
 #include <qstatusbar.h>
 #include <qlabel.h>
-#include <qcombobox.h>
 #include <qlayout.h>
 #include <qevent.h>
 #include <qdatetime.h>
 #include <qwt_plot_canvas.h>
+#include "panel.h"
 #include "plot.h"
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent)
 {
-    d_plot = new Plot(this);
-    setCentralWidget(d_plot);
+    QWidget *w = new QWidget(this);
+
+    d_panel = new Panel(w);
+
+    d_plot = new Plot(w);
     d_plot->canvas()->installEventFilter(this);
 
-    initToolBar();
-    initStatusBar();
+    QHBoxLayout *hLayout = new QHBoxLayout(w);
+    hLayout->addWidget(d_panel);
+    hLayout->addWidget(d_plot, 10);
 
-    connect(d_timerInterval, SIGNAL(valueChanged(int)),
-        d_plot, SLOT(setTimerInterval(int)) );
-    connect(d_numPoints, SIGNAL(valueChanged(int)),
-        d_plot, SLOT(setNumPoints(int)) );
-    connect(d_functionType, SIGNAL(activated(int)),
-        d_plot, SLOT(setFunctionType(int)) );
+    setCentralWidget(w);
 
-    d_timerInterval->setValue(20);
-    d_numPoints->setValue(1000);
-    d_plot->setFunctionType(d_functionType->currentIndex());
-}
-
-void MainWindow::initToolBar()
-{
-    QToolBar *toolBar = new QToolBar(this);
-
-#if QT_VERSION < 0x040000
-    setDockEnabled(TornOff, true);
-    setRightJustification(true);
-#else
-    toolBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
-#endif
-    QWidget *hBox = new QWidget(toolBar);
-
-#if QT_VERSION < 0x040000
-    d_timerInterval = new QSpinBox(0, 1000, 1, hBox);
-#else
-    d_timerInterval = new QSpinBox(hBox);
-    d_timerInterval->setRange(0, 1000);
-    d_timerInterval->setSingleStep(1);
-#endif
-
-#if QT_VERSION < 0x040000
-    d_numPoints = new QSpinBox(10, 1000000, 100, hBox);
-#else
-    d_numPoints = new QSpinBox(hBox);
-    d_numPoints->setRange(10, 1000000);
-    d_numPoints->setSingleStep(100);
-#endif
-
-    d_functionType = new QComboBox(hBox);
-    d_functionType->addItem("Wave");
-    d_functionType->addItem("Noise");
-
-    QHBoxLayout *layout = new QHBoxLayout(hBox);
-    layout->addWidget(new QLabel("Update Interval", hBox));
-    layout->addWidget(d_timerInterval);
-    layout->addSpacing(20);
-    layout->addWidget(new QLabel("Points", hBox));
-    layout->addWidget(d_numPoints);
-    layout->addSpacing(20);
-    layout->addWidget(d_functionType);
-    layout->addWidget(new QWidget(hBox), 10); // spacer);
-
-#if QT_VERSION >= 0x040000
-    toolBar->addWidget(hBox);
-#endif
-    addToolBar(toolBar);
-}
-
-void MainWindow::initStatusBar()
-{
     d_frameCount = new QLabel(this);
     statusBar()->addWidget(d_frameCount, 10);
+
+    d_plot->setSettings(d_panel->settings());
+
+    connect(d_panel, SIGNAL(settingsChanged(const Settings &)),
+        d_plot, SLOT(setSettings(const Settings &)));
 }
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event)
