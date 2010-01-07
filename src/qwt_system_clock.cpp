@@ -9,7 +9,10 @@
 
 #include "qwt_system_clock.h"
 #include <qdatetime.h>
+
+#if !defined(Q_OS_WIN) 
 #include <unistd.h>
+#endif
 
 #if QT_VERSION >= 0x040000
 #if defined(_POSIX_TIMERS)
@@ -134,7 +137,7 @@ bool QwtHighResolutionClock::isMonotonic()
 
 #elif defined(Q_OS_WIN)
 
-QwtHighResolutionClock::QwtHighResolutionClock():
+QwtHighResolutionClock::QwtHighResolutionClock()
 {
     d_startTicks.QuadPart = 0;
     QueryPerformanceFrequency(&d_ticksPerSecond);
