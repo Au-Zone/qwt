@@ -74,7 +74,7 @@ public:
         style(QwtPlotCurve::Lines),
         reference(0.0),
         attributes(0),
-        paintAttributes(0),
+        paintAttributes(QwtPlotCurve::ClipPolygons),
         legendAttributes(0)
     {
         symbol = new QwtSymbol();

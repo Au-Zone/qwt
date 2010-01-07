@@ -40,6 +40,8 @@ bool QwtPainter::d_deviceClipping = true;
 bool QwtPainter::d_deviceClipping = false;
 #endif
 
+bool QwtPainter::d_polylineSplitting = true;
+
 #if QT_VERSION < 0x040000
 bool QwtPainter::d_SVGMode = false;
 #endif
@@ -84,11 +86,24 @@ static inline bool isClippingNeeded(const QPainter *painter, QRect &clipRect)
 }
 
 /*!
+  \brief En/Disable line splitting for the raster paint engine
+
+  The raster paint engine paints polylines of many points
+  much faster when they are splitted in smaller chunks.
+
+  \sa polylineSplitting()
+*/
+void QwtPainter::setPolylineSplitting(bool enable)
+{
+    d_polylineSplitting = enable;
+}
+
+/*!
   \brief En/Disable device clipping. 
 
   On X11 the default for device clipping is enabled, 
   otherwise it is disabled.
-  \sa QwtPainter::deviceClipping()
+  \sa deviceClipping()
 */
 void QwtPainter::setDeviceClipping(bool enable)
 {
@@ -97,7 +112,7 @@ void QwtPainter::setDeviceClipping(bool enable)
 
 /*!
   Returns rect for device clipping
-  \sa QwtPainter::setDeviceClipping()
+  \sa setDeviceClipping()
 */
 const QRect &QwtPainter::deviceClipRect()
 {
@@ -141,8 +156,7 @@ bool QwtPainter::isSVGMode()
   QwtPaintMetrics(from).logicalDpiX() / QwtPaintMetrics(to).logicalDpiX()
   and QwtPaintMetrics(from).logicalDpiY() / QwtPaintMetrics(to).logicalDpiY()
 
-  \sa QwtPainter::resetScaleMetrics(), QwtPainter::scaleMetricsX(),
-        QwtPainter::scaleMetricsY()
+  \sa resetScaleMetrics(), scaleMetricsX(), scaleMetricsY()
 */
 void QwtPainter::setMetricsMap(const QPaintDevice *layout,
     const QPaintDevice *device)
@@ -152,7 +166,7 @@ void QwtPainter::setMetricsMap(const QPaintDevice *layout,
 
 /*! 
   Change the metrics map 
-  \sa QwtPainter::resetMetricsMap(), QwtPainter::metricsMap()
+  \sa resetMetricsMap(), metricsMap()
 */
 void QwtPainter::setMetricsMap(const QwtMetricsMap &map)
 {
@@ -161,7 +175,7 @@ void QwtPainter::setMetricsMap(const QwtMetricsMap &map)
 
 /*! 
    Reset the metrics map to the ratio 1:1
-   \sa QwtPainter::setMetricsMap(), QwtPainter::resetMetricsMap()
+   \sa setMetricsMap(), resetMetricsMap()
 */
 void QwtPainter::resetMetricsMap()
 {
@@ -515,17 +529,19 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
 #if QT_VERSION >= 0x040000 
     bool doSplit = false;
 
-    const QPaintEngine *pe = painter->paintEngine();
-    if ( pe && pe->type() == QPaintEngine::Raster &&
-        painter->pen().width() >= 2 )
+    if ( d_polylineSplitting )
     {
-        /*
-            The raster paint engine seems to use some algo with O(n*n).
-            ( Qt 4.3 is better than Qt 4.2, but remains unacceptable)
-            To work around this problem, we have to split the polygon into
-            smaller pieces.
-         */
-        doSplit = true;
+        const QPaintEngine *pe = painter->paintEngine();
+        if ( pe && pe->type() == QPaintEngine::Raster )
+        {
+            /*
+                The raster paint engine seems to use some algo with O(n*n).
+                ( Qt 4.3 is better than Qt 4.2, but remains unacceptable)
+                To work around this problem, we have to split the polygon into
+                smaller pieces.
+             */
+            doSplit = true;
+        }
     }
 
     if ( doSplit )
@@ -548,7 +564,6 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
 /*!
     Wrapper for QPainter::drawPoint()
 */
-
 void QwtPainter::drawPoint(QPainter *painter, int x, int y)
 {
     QRect clipRect;
