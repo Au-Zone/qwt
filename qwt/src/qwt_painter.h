@@ -45,7 +45,7 @@ class QTextDocument;
 /*!
   \brief A collection of QPainter workarounds
 
-  1) Clipping to coordinate system limits (Qt3 only)
+  1) Clipping to coordinate system limits 
 
   On X11 pixel coordinates are stored in shorts. Qt 
   produces overruns when mapping QCOORDS to shorts. 
@@ -68,6 +68,9 @@ public:
     static void setMetricsMap(const QwtMetricsMap &);
     static void resetMetricsMap();
     static const QwtMetricsMap &metricsMap();
+
+    static void setPolylineSplitting(bool);
+    static bool polylineSplitting();
 
     static void setDeviceClipping(bool);
     static bool deviceClipping();
@@ -133,6 +136,7 @@ private:
         int peak, int arc, int intervall, const QColor &c1, const QColor &c2);
 
     static bool d_deviceClipping;
+    static bool d_polylineSplitting;
     static QwtMetricsMap d_metricsMap;
 #if QT_VERSION < 0x040000
     static bool d_SVGMode;
@@ -149,11 +153,20 @@ inline void QwtPainter::drawLine(QPainter *painter,
 /*!
   Returns whether device clipping is enabled. On X11 the default
   is enabled, otherwise it is disabled.
-  \sa QwtPainter::setDeviceClipping()
+  \sa setDeviceClipping()
 */
 inline bool QwtPainter::deviceClipping()
 {
     return d_deviceClipping;
+}
+
+/*!
+  Returns whether line splitting for the raster paint engine is enabled. 
+  \sa setPolylineSplitting()
+*/
+inline bool QwtPainter::polylineSplitting()
+{
+    return d_polylineSplitting;
 }
 
 #endif

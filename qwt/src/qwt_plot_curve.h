@@ -156,7 +156,7 @@ public:
           might be a substantial improvement for the painting performance 
           ( especially on Windows ).
 
-        The default is, that no paint attributes are enabled.
+        The default setting enables ClipPolygons
 
         \sa setPaintAttribute(), testPaintAttribute()
     */
