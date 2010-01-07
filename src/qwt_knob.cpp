@@ -398,7 +398,7 @@ void QwtKnob::draw(QPainter *painter, const QRect& rect)
     drawKnob( painter, d_data->knobRect );
 
     if ( hasFocus() )
-        QwtPainter::drawFocusRect(painter, this);
+        QwtPainter::drawFocusRect(painter, this, rect);
 }
 
 /*!
