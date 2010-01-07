@@ -11,6 +11,8 @@ class MainWindow : public QWidget
 public:
     MainWindow(QWidget * = NULL);
 
+    void start();
+
     double amplitude() const;
     double frequency() const;
     double signalInterval() const;
