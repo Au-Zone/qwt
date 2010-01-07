@@ -516,8 +516,7 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
     bool doSplit = false;
 
     const QPaintEngine *pe = painter->paintEngine();
-    if ( pe && pe->type() == QPaintEngine::Raster &&
-        painter->pen().width() >= 2 )
+    if ( pe && pe->type() == QPaintEngine::Raster )
     {
         /*
             The raster paint engine seems to use some algo with O(n*n).
