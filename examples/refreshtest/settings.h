@@ -31,10 +31,11 @@ public:
         curve.functionType = Wave;
         curve.paintAttributes = 0;
         curve.renderHint = 0;
+        curve.lineSplitting = true;
         
-        canvas.deviceClipping = false;
         canvas.cached = false;
-        canvas.paintOnScreen = true;
+        canvas.paintOnScreen = false;
+        canvas.deviceClipping = false;
 
         updateType = RepaintCanvas;
         updateInterval = 20;
@@ -53,6 +54,7 @@ public:
         FunctionType functionType;
         int paintAttributes;
         int renderHint;
+        bool lineSplitting;
     } curve;
 
     struct

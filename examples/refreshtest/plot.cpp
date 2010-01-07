@@ -87,22 +87,22 @@ void Plot::alignScales()
     plotLayout()->setAlignCanvasToScales(true);
 }
 
-void Plot::setSettings(const Settings &settings)
+void Plot::setSettings(const Settings &s)
 {
     if ( d_timerId >= 0 )
         killTimer(d_timerId);
 
-    d_timerId = startTimer(settings.updateInterval);
+    d_timerId = startTimer(s.updateInterval);
 
-    d_grid->setPen(settings.grid.pen);
-    d_grid->setVisible(settings.grid.pen.style() != Qt::NoPen);
+    d_grid->setPen(s.grid.pen);
+    d_grid->setVisible(s.grid.pen.style() != Qt::NoPen);
 
     CircularBuffer &buffer = (CircularBuffer &)d_curve->data();
-    if ( settings.curve.numPoints != buffer.size() ||
-        settings.curve.functionType != d_settings.curve.functionType )
+    if ( s.curve.numPoints != buffer.size() ||
+        s.curve.functionType != d_settings.curve.functionType )
     {
 
-        switch(settings.curve.functionType)
+        switch(s.curve.functionType)
         {
             case Settings::Wave:
                 buffer.setFunction(wave);
@@ -114,33 +114,27 @@ void Plot::setSettings(const Settings &settings)
                 buffer.setFunction(NULL);
         }
 
-        buffer.fill(d_interval, settings.curve.numPoints);
+        buffer.fill(d_interval, s.curve.numPoints);
     }
 
-    d_curve->setPen(settings.curve.pen);
-    d_curve->setBrush(settings.curve.brush);
+    d_curve->setPen(s.curve.pen);
+    d_curve->setBrush(s.curve.brush);
 
     d_curve->setPaintAttribute(QwtPlotCurve::PaintFiltered,
-        settings.curve.paintAttributes & QwtPlotCurve::PaintFiltered);
+        s.curve.paintAttributes & QwtPlotCurve::PaintFiltered);
     d_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons,
-        settings.curve.paintAttributes & QwtPlotCurve::ClipPolygons);
+        s.curve.paintAttributes & QwtPlotCurve::ClipPolygons);
+    d_curve->setRenderHint(QwtPlotCurve::RenderAntialiased,
+        s.curve.renderHint & QwtPlotCurve::RenderAntialiased);
 
-#if QT_VERSION >= 0x040000
-#ifdef Q_WS_X11
-    /*
-       Qt::WA_PaintOnScreen is only supported for X11, but leads
-       to substantial bugs with Qt 4.2.x/Windows
-     */
-    canvas()->setAttribute(Qt::WA_PaintOnScreen, settings.canvas.paintOnScreen);
-#endif
-#endif
-    
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, settings.canvas.cached);
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, settings.canvas.cached);
+    canvas()->setAttribute(Qt::WA_PaintOnScreen, s.canvas.paintOnScreen);
+    canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, s.canvas.cached);
+    canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, s.canvas.cached);
 
-    QwtPainter::setDeviceClipping(false);
+    QwtPainter::setDeviceClipping(s.canvas.deviceClipping);
+    QwtPainter::setPolylineSplitting(s.curve.lineSplitting);
 
-    d_settings = settings;
+    d_settings = s;
 }
 
 void Plot::timerEvent(QTimerEvent *)
