@@ -42,8 +42,10 @@ private:
     QCheckBox *d_curveAntialiasing;
     QCheckBox *d_curveClipping;
     QCheckBox *d_curveFilter;
+    QCheckBox *d_lineSplitting;
     QSpinBox  *d_curveWidth;
     QComboBox *d_curvePen;
+    QCheckBox *d_curveFilled;
 };
 
 #endif
