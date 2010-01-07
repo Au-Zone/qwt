@@ -10,6 +10,17 @@
 #ifndef QWT_MATH_H
 #define QWT_MATH_H
 
+#if defined(_MSC_VER)
+/*
+  Microsoft says:
+
+  Define _USE_MATH_DEFINES before including math.h to expose these macro
+  definitions for common math constants.  These are placed under an #ifdef
+  since these commonly-defined names are not part of the C/C++ standards.
+*/
+#define _USE_MATH_DEFINES 1
+#endif
+
 #include <math.h>
 #include <qpoint.h>
 #include "qwt_global.h"
