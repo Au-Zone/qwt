@@ -19,8 +19,6 @@ Plot::Plot(QWidget *parent):
 {
     d_directPainter = new QwtPlotDirectPainter();
 
-    d_clock.start();
-
     setAutoReplot(false);
 
     // Disable polygon clipping
@@ -33,18 +31,13 @@ Plot::Plot(QWidget *parent):
 
 #if defined(Q_WS_X11)
     // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent
-    // works on X11. This has an tremendous effect on the performance..
+    // works on X11. This has a nice effect on the performance.
     
     canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
     canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
 #endif
 
-    plotLayout()->setCanvasMargin(0);
-
-#if 0
-    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
-        enableAxis(axis, false);
-#endif
+    plotLayout()->setAlignCanvasToScales(true);
 
     setAxisTitle(QwtPlot::xBottom, "Time [s]");
     setAxisScale(QwtPlot::xBottom, d_interval.minValue(), d_interval.maxValue()); 
@@ -74,13 +67,17 @@ Plot::Plot(QWidget *parent):
 #endif
     d_curve->setData(CurveData());
     d_curve->attach(this);
-
-    d_timerId = startTimer(10);
 }
 
 Plot::~Plot()
 {
     delete d_directPainter;
+}
+
+void Plot::start()
+{
+    d_clock.start();
+    d_timerId = startTimer(10);
 }
 
 void Plot::replot()

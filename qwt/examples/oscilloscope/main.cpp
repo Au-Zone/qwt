@@ -24,6 +24,7 @@ int main(int argc, char **argv)
     window.show();
 
     samplingThread.start();
+    window.start();
 
     bool ok = app.exec(); 
 

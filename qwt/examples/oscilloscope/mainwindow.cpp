@@ -48,6 +48,11 @@ MainWindow::MainWindow(QWidget *parent):
         d_plot, SLOT(setIntervalLength(double)) );
 }
 
+void MainWindow::start()
+{
+    d_plot->start();
+}
+
 double MainWindow::frequency() const
 {
     return d_frequencyKnob->value();

@@ -14,6 +14,7 @@ public:
     Plot(QWidget * = NULL);
     virtual ~Plot();
 
+    void start();
     virtual void replot();
 
 public slots:
