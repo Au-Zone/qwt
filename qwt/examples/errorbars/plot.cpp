@@ -1,10 +1,7 @@
-#include <qapplication.h>
-#include <qwt_plot.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
-#include <qwt_plot_intervalcurve.h>
 #include <qwt_legend.h>
 #include <qwt_interval_symbol.h>
 #include <qwt_symbol.h>
@@ -12,10 +9,8 @@
 #include <qwt_text.h>
 #include <qwt_scale_draw.h>
 #include <qdatetime.h>
+#include "plot.h"
 #include "friedberg2007.h"
-#if 1
-#include <QDebug>
-#endif
 
 class Grid: public QwtPlotGrid
 {
@@ -50,8 +45,10 @@ public:
         setTickLength(QwtScaleDiv::MinorTick, 0);
         setTickLength(QwtScaleDiv::MediumTick, 6);
 
-        setLabelRotation(-90.0);
+        setLabelRotation(-60.0);
         setLabelAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+        setSpacing(15);
     }
 
     virtual QwtText label(double value) const
@@ -60,22 +57,7 @@ public:
     }
 };
 
-class FriedbergPlot: public QwtPlot
-{
-public:
-    FriedbergPlot();
-
-private:
-    void insertCurve(const QString& title,
-        const QwtArray<QwtDoublePoint>&, const QColor &);
-
-    void insertErrorBars(const QwtArray<QwtIntervalSample>&,
-        const QColor &color, bool showTube);
-
-    QwtScaleDiv yearScaleDiv() const;
-};
-
-FriedbergPlot::FriedbergPlot()
+Plot::Plot()
 {
     setTitle("Temperature of Friedberg/Germany");
     setCanvasBackground(QColor(Qt::darkGray));
@@ -105,14 +87,16 @@ FriedbergPlot::FriedbergPlot()
     }
 
     insertCurve("Average", averageData, Qt::black);
-    insertErrorBars(rangeData, Qt::blue, true);
+    insertErrorBars("Range", rangeData, Qt::blue);
+
+    setMode(QwtPlotIntervalCurve::NoCurve);
 
     QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
     zoomer->setRubberBandPen(QColor(Qt::black));
     zoomer->setTrackerPen(QColor(Qt::black));
 }
 
-QwtScaleDiv FriedbergPlot::yearScaleDiv() const
+QwtScaleDiv Plot::yearScaleDiv() const
 {
     const int days[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
@@ -135,69 +119,63 @@ QwtScaleDiv FriedbergPlot::yearScaleDiv() const
     return scaleDiv;
 }
 
-void FriedbergPlot::insertCurve(const QString& title, 
+void Plot::insertCurve(const QString& title, 
     const QwtArray<QwtDoublePoint>& samples, const QColor &color)
 {
-    QwtPlotCurve *curve = new QwtPlotCurve(title);
+    d_curve = new QwtPlotCurve(title);
 #if QT_VERSION >= 0x040000
-    curve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    d_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
-    curve->setStyle(QwtPlotCurve::NoCurve);
+    d_curve->setStyle(QwtPlotCurve::NoCurve);
+    d_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
 
     QwtSymbol symbol;
     symbol.setStyle(QwtSymbol::XCross);
     symbol.setSize(4);
     symbol.setPen(QPen(color));
-    curve->setSymbol(symbol);
+    d_curve->setSymbol(symbol);
 
-    curve->setSamples(samples);
-    curve->attach(this);
+    d_curve->setSamples(samples);
+    d_curve->attach(this);
 }
 
-void FriedbergPlot::insertErrorBars(
+void Plot::insertErrorBars(
+    const QString &title,
     const QwtArray<QwtIntervalSample>& samples, 
-    const QColor &color, bool showTube)
+    const QColor &color)
 {
-    QwtPlotIntervalCurve *errorCurve = new QwtPlotIntervalCurve();
+    d_intervalCurve = new QwtPlotIntervalCurve(title);
 #if QT_VERSION >= 0x040000
-    errorCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    d_intervalCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
 #endif
-    errorCurve->setPen(QPen(Qt::white));
+    d_intervalCurve->setPen(QPen(Qt::white));
 
-    if ( showTube )
-    {
-        QColor bg(Qt::white);
+    QColor bg(color);
 #if QT_VERSION >= 0x040000
-        bg.setAlpha(150);
+    bg.setAlpha(150);
 #endif
-        errorCurve->setBrush(QBrush(bg));
-        errorCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+    d_intervalCurve->setBrush(QBrush(bg));
+    d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+
+    d_intervalCurve->setSamples(samples);
+    d_intervalCurve->attach(this);
+}
+
+void Plot::setMode(QwtPlotIntervalCurve::CurveStyle style)
+{
+    if ( style == QwtPlotIntervalCurve::Tube )
+    {
+        d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+        d_intervalCurve->setSymbol(QwtIntervalSymbol());
     }
     else
     {
-        errorCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
+        d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
+
+        QwtIntervalSymbol errorBar(QwtIntervalSymbol::Bar);
+        errorBar.setWidth(7);
+        errorBar.setPen(QPen(d_intervalCurve->brush().color()));
+
+        d_intervalCurve->setSymbol(errorBar);
     }
-
-#if 0
-    QwtIntervalSymbol errorBar(QwtIntervalSymbol::Bar);
-    errorBar.setWidth(7);
-    errorBar.setPen(QPen(color));
-    errorCurve->setSymbol(errorBar);
-#endif
-
-    errorCurve->setSamples(samples);
-    errorCurve->attach(this);
-}
-
-int main(int argc, char **argv)
-{
-    QApplication a(argc, argv);
-
-    FriedbergPlot plot;
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&plot);
-#endif
-    plot.resize(600,400);
-    plot.show();
-    return a.exec(); 
 }

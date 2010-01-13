@@ -9,12 +9,14 @@
 
 include( ../examples.pri )
 
-TARGET       = errorbars
+TARGET       = friedberg
 
 HEADERS = \
+    plot.h \
     friedberg2007.h
 
 SOURCES = \
     friedberg2007.cpp \
-    errorbars.cpp
+    plot.cpp \
+    main.cpp
 

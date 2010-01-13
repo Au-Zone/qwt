@@ -128,8 +128,8 @@ public:
           is painted
 
         If none of the flags is activated QwtPlotCurve tries to find
-        color representing the curve and paints a rectangle with it.
-        In the default setting is all attributes are off.
+        a color representing the curve and paints a rectangle with it.
+        In the default setting all attributes are off.
 
         \sa setLegendAttribute(), testLegendAttribute(),
             drawLegendIdentifier()

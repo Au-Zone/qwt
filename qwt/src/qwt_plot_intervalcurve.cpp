@@ -68,8 +68,8 @@ QwtPlotIntervalCurve::~QwtPlotIntervalCurve()
 */
 void QwtPlotIntervalCurve::init()
 {
-    setItemAttribute(QwtPlotItem::Legend);
-    setItemAttribute(QwtPlotItem::AutoScale);
+    setItemAttribute(QwtPlotItem::Legend, true);
+    setItemAttribute(QwtPlotItem::AutoScale, true);
 
     d_data = new PrivateData;
     d_series = new QwtIntervalSeriesData();
@@ -317,9 +317,37 @@ void QwtPlotIntervalCurve::drawSymbols(
 }
 
 void QwtPlotIntervalCurve::drawLegendIdentifier(
-    QPainter *, const QRect &) const
+    QPainter *painter, const QRect &rect) const
 {
-#ifdef __GNUC__
-#warning TODO
-#endif
+    const int dim = qwtMin(rect.width(), rect.height());
+
+    QSize size(dim, dim);
+    size = QwtPainter::metricsMap().screenToLayout(size);
+
+    QRect r(0, 0, size.width(), size.height());
+    r.moveCenter(rect.center());
+
+    if (d_data->curveStyle == Tube)
+    {
+        painter->fillRect(r, d_data->brush);
+    }
+
+    if ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol )
+    {
+        painter->setPen(d_data->symbol->pen());
+        painter->setBrush(d_data->symbol->brush());
+
+        if ( orientation() == Qt::Vertical )
+        {
+            d_data->symbol->draw(painter,
+                QPoint(r.center().x(), r.top()), 
+                QPoint(r.center().x(), r.bottom()) );
+        }
+        else
+        {
+            d_data->symbol->draw(painter,
+                QPoint(r.left(), r.center().y()), 
+                QPoint(r.right(), r.center().y()) );
+        }
+    }
 }
