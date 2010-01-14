@@ -33,9 +33,6 @@ class QWT_EXPORT QwtWheel : public QwtAbstractSlider
             
 public:
     explicit QwtWheel(QWidget *parent = NULL);
-#if QT_VERSION < 0x040000
-    explicit QwtWheel(QWidget *parent, const char *name);
-#endif
     virtual ~QwtWheel();
 
     virtual void setOrientation(Qt::Orientation);

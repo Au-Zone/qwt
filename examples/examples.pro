@@ -30,12 +30,8 @@ contains(CONFIG, QwtPlot) {
 
         SUBDIRS += \
             bode \
-            event_filter
-
-        VVERSION = $$[QT_VERSION]
-        !isEmpty(VVERSION) {
-            SUBDIRS += oscilloscope  # Qt4 only
-        }
+            event_filter \
+            oscilloscope  
     }
     
     contains(CONFIG, QwtSVGItem) {

@@ -22,16 +22,9 @@ CanvasPicker::CanvasPicker(QwtPlot *plot):
     // We want the focus, but no focus rect. The
     // selected point will be highlighted instead.
 
-#if QT_VERSION >= 0x040000
     canvas->setFocusPolicy(Qt::StrongFocus);
 #ifndef QT_NO_CURSOR
     canvas->setCursor(Qt::PointingHandCursor);
-#endif
-#else
-    canvas->setFocusPolicy(QWidget::StrongFocus);
-#ifndef QT_NO_CURSOR
-    canvas->setCursor(Qt::pointingHandCursor);
-#endif
 #endif
     canvas->setFocusIndicator(QwtPlotCanvas::ItemFocusIndicator);
     canvas->setFocus();
@@ -44,11 +37,7 @@ CanvasPicker::CanvasPicker(QwtPlot *plot):
         "- Left, ´-´:\tSelect next point\n"
         "- Right, ´+´:\tSelect previous point\n"
         "- 7, 8, 9, 4, 6, 1, 2, 3:\tMove selected point";
-#if QT_VERSION >= 0x040000
     canvas->setWhatsThis(text);
-#else
-    QWhatsThis::add(canvas, text);
-#endif
 
     shiftCurveCursor(true);
 }

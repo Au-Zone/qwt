@@ -7,9 +7,6 @@ int main(int argc, char **argv)
 
     MainWindow w;
     w.show();
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&w);
-#endif
 
     return a.exec();
 }

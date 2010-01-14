@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include "qwt_plot.h"
 #include "qwt_double_rect.h"
 #include "qwt_scale_div.h"
@@ -309,11 +307,7 @@ bool QwtPlotPicker::end(bool ok)
                 const QPoint p1 = pa[0];
                 const QPoint p2 = pa[int(pa.count() - 1)];
 
-#if QT_VERSION < 0x040000
-                const QRect rect = QRect(p1, p2).normalize();
-#else
                 const QRect rect = QRect(p1, p2).normalized();
-#endif
                 emit selected(invTransform(rect));
             }
             break;

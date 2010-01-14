@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_TEXT_ENGINE_H
 #define QWT_TEXT_ENGINE_H 1
 

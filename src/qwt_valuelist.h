@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_VALUELIST_H
 #define QWT_VALUELIST_H
 
@@ -18,18 +16,7 @@
   \def QwtValueList
  */
 
-#if QT_VERSION < 0x040000
-
-#include <qvaluelist.h>
-
-typedef QValueList<double> QwtValueList;
-
-#else // QT_VERSION >= 0x040000
-
 #include <qlist.h>
-
 typedef QList<double> QwtValueList;
-
-#endif
 
 #endif

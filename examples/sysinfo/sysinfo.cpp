@@ -102,9 +102,6 @@ int main (int argc, char **argv)
     
     SysInfo info;
     info.resize(info.sizeHint().expandedTo(QSize(600, 400)));
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&info);
-#endif
     info.show();
 
     int rv = a.exec();

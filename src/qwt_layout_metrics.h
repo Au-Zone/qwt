@@ -18,11 +18,7 @@
 class QPainter;
 class QString;
 class QFontMetrics;
-#if QT_VERSION < 0x040000
-class QWMatrix;
-#else
 class QMatrix;
-#endif
 class QPaintDevice;
 
 /*!
@@ -81,13 +77,8 @@ public:
     QwtPolygon deviceToLayout(const QwtPolygon &, 
         const QPainter * = NULL) const;
 
-#if QT_VERSION < 0x040000
-    static QwtPolygon translate(const QWMatrix &, const QwtPolygon &);
-    static QRect translate(const QWMatrix &, const QRect &);
-#else
     static QwtPolygon translate(const QMatrix &, const QwtPolygon &);
     static QRect translate(const QMatrix &, const QRect &);
-#endif
 
 private:
     double d_screenToLayoutX;

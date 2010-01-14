@@ -7,17 +7,11 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_PLOT_ZOOMER_H
 #define QWT_PLOT_ZOOMER_H
 
 #include <qglobal.h>
-#if QT_VERSION < 0x040000
-#include <qvaluestack.h>
-#else
 #include <qstack.h>
-#endif
 
 #include "qwt_double_rect.h"
 #include "qwt_plot_picker.h"
@@ -67,15 +61,10 @@ public:
     void setMaxStackDepth(int);
     int maxStackDepth() const;
 
-#if QT_VERSION < 0x040000
-    const QValueStack<QwtDoubleRect> &zoomStack() const;
-    void setZoomStack(const QValueStack<QwtDoubleRect> &,
-        int zoomRectIndex = -1);
-#else
     const QStack<QwtDoubleRect> &zoomStack() const;
     void setZoomStack(const QStack<QwtDoubleRect> &,
         int zoomRectIndex = -1);
-#endif
+
     uint zoomRectIndex() const;
 
 public slots:

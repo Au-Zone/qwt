@@ -8,13 +8,8 @@
  *****************************************************************************/
 
 #include <qpainter.h>
-#if QT_VERSION < 0x040000
-#include <qguardedptr.h>
-#include <qfocusdata.h>
-#else
 #include <qpointer.h>
 #include <qpaintengine.h>
-#endif
 #include <qapplication.h>
 #include <qevent.h>
 #include "qwt_plot.h"
@@ -26,20 +21,13 @@
 #include "qwt_legend.h"
 #include "qwt_dyngrid_layout.h"
 #include "qwt_plot_canvas.h"
-#include "qwt_paint_buffer.h"
 
 class QwtPlot::PrivateData
 {
 public:
-#if QT_VERSION < 0x040000
-    QGuardedPtr<QwtTextLabel> lblTitle;
-    QGuardedPtr<QwtPlotCanvas> canvas;
-    QGuardedPtr<QwtLegend> legend;
-#else
     QPointer<QwtTextLabel> lblTitle;
     QPointer<QwtPlotCanvas> canvas;
     QPointer<QwtLegend> legend;
-#endif
     QwtPlotLayout *layout;
 
     bool autoReplot;
@@ -66,20 +54,6 @@ QwtPlot::QwtPlot(const QwtText &title, QWidget *parent):
     initPlot(title);
 }
 
-#if QT_VERSION < 0x040000
-/*!
-  \brief Constructor
-  \param parent Parent widget
-  \param name Object name
- */
-QwtPlot::QwtPlot(QWidget *parent, const char *name):
-    QFrame(parent, name)
-{   
-    initPlot(QwtText());
-}   
-#endif
-
-
 //! Destructor
 QwtPlot::~QwtPlot()
 {
@@ -98,25 +72,14 @@ void QwtPlot::initPlot(const QwtText &title)
 {
     d_data = new PrivateData;
 
-#if QT_VERSION < 0x040000
-    setWFlags(Qt::WNoAutoErase);
-#endif 
-
     d_data->layout = new QwtPlotLayout;
-
     d_data->autoReplot = false;
 
     d_data->lblTitle = new QwtTextLabel(title, this);
     d_data->lblTitle->setFont(QFont(fontInfo().family(), 14, QFont::Bold));
 
     QwtText text(title);
-    int flags = Qt::AlignCenter;
-#if QT_VERSION < 0x040000
-    flags |= Qt::WordBreak | Qt::ExpandTabs;
-#else
-    flags |= Qt::TextWordWrap;
-#endif
-    text.setRenderFlags(flags);
+    text.setRenderFlags(Qt::AlignCenter | Qt::TextWordWrap);
     d_data->lblTitle->setText(text);
 
     d_data->legend = NULL;
@@ -142,18 +105,12 @@ bool QwtPlot::event(QEvent *e)
     bool ok = QFrame::event(e);
     switch(e->type())
     {
-#if QT_VERSION < 0x040000
-        case QEvent::LayoutHint:
-#else
         case QEvent::LayoutRequest:
-#endif
             updateLayout();
             break;
-#if QT_VERSION >= 0x040000
         case QEvent::PolishRequest:
             polish();
             break;
-#endif
         default:;
     }
     return ok;
@@ -289,10 +246,6 @@ const QwtPlotCanvas *QwtPlot::canvas() const
 void QwtPlot::polish()
 {
     replot();
-
-#if QT_VERSION < 0x040000
-    QFrame::polish();
-#endif
 }
 
 /*!  
@@ -375,11 +328,7 @@ void QwtPlot::replot()
       axes labels. We need to process them here before painting
       to avoid that scales and canvas get out of sync.
      */
-#if QT_VERSION >= 0x040000
     QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
-#else
-    QApplication::sendPostedEvents(this, QEvent::LayoutHint);
-#endif
 
     d_data->canvas->replot();
 
@@ -456,12 +405,8 @@ void QwtPlot::updateLayout()
 
 void QwtPlot::updateTabOrder()
 {
-#if QT_VERSION >= 0x040000
-    using namespace Qt; // QWidget::NoFocus/Qt::NoFocus
-#else
-    if ( d_data->canvas->focusPolicy() == NoFocus )
+    if ( d_data->canvas->focusPolicy() == Qt::NoFocus )
         return;
-#endif
     if ( d_data->legend.isNull()  
         || d_data->layout->legendPosition() == ExternalLegend
         || d_data->legend->legendItems().count() == 0 )
@@ -480,20 +425,11 @@ void QwtPlot::updateTabOrder()
 
     QWidget *previous = NULL; 
 
-    QWidget *w;
-#if QT_VERSION >= 0x040000
-    w = d_data->canvas;
+    QWidget *w = d_data->canvas;
     while ( ( w = w->nextInFocusChain() ) != d_data->canvas )
-#else
-    if ( focusData() == NULL )
-        return;
-
-    while ( focusData()->next() != d_data->canvas );
-    while ( (w = focusData()->next()) != d_data->canvas )
-#endif
     {
         bool isLegendItem = false;
-        if ( w->focusPolicy() != NoFocus 
+        if ( w->focusPolicy() != Qt::NoFocus 
             && w->parent() && w->parent() == d_data->legend->contentsWidget() )
         {
             isLegendItem = true;
@@ -568,10 +504,8 @@ void QwtPlot::drawItems(QPainter *painter, const QRect &rect,
 
             painter->save();
 
-#if QT_VERSION >= 0x040000
             painter->setRenderHint(QPainter::Antialiasing,
                 item->testRenderHint(QwtPlotItem::RenderAntialiased) );
-#endif
 
             item->draw(painter, 
                 map[item->xAxis()], map[item->yAxis()],
@@ -676,13 +610,7 @@ void QwtPlot::setCanvasBackground(const QColor &c)
     QPalette p = d_data->canvas->palette();
 
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
-    {
-#if QT_VERSION < 0x040000
-        p.setColor((QPalette::ColorGroup)i, QColorGroup::Background, c);
-#else
         p.setColor((QPalette::ColorGroup)i, QPalette::Background, c);
-#endif
-    }
 
     canvas()->setPalette(p);
 }
@@ -695,13 +623,8 @@ void QwtPlot::setCanvasBackground(const QColor &c)
 */
 const QColor & QwtPlot::canvasBackground() const
 {
-#if QT_VERSION < 0x040000
-    return canvas()->palette().color(
-        QPalette::Normal, QColorGroup::Background);
-#else
     return canvas()->palette().color(
         QPalette::Normal, QPalette::Background);
-#endif
 }
 
 /*!
@@ -819,13 +742,7 @@ void QwtPlot::insertLegend(QwtLegend *legend,
             if ( pos != ExternalLegend )
             {
                 if ( d_data->legend->parent() != this )
-                {
-#if QT_VERSION < 0x040000
-                    d_data->legend->reparent(this, QPoint(0, 0));
-#else
                     d_data->legend->setParent(this);
-#endif
-                }
             }
 
             const QwtPlotItemList& itmList = itemList();

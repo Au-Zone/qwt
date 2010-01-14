@@ -9,8 +9,6 @@
 
 #include "qwt_sampling_thread.h"
 
-#if QT_VERSION >= 0x040000
-
 #include "qwt_system_clock.h"
 
 class QwtSamplingThread::PrivateData
@@ -82,5 +80,3 @@ void QwtSamplingThread::run()
         }
     }
 }
-
-#endif // QT_VERSION >= 0x040000

@@ -12,8 +12,6 @@
 #ifndef QWT_MATHML_TEXT_ENGINE_H
 #define QWT_MATHML_TEXT_ENGINE_H 1
 
-#if QT_VERSION >= 0x040000
-
 #include "qwt_text_engine.h"
 
 /*!
@@ -56,7 +54,5 @@ public:
     virtual void textMargins(const QFont &, const QString &,
         int &left, int &right, int &top, int &bottom) const;
 };
-
-#endif // QT_VERSION >= 0x040000
 
 #endif

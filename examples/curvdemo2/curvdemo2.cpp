@@ -41,13 +41,10 @@ MainWin::MainWin():
     setMidLineWidth(3);
     
     const QColor bgColor(30,30,50);
-#if QT_VERSION < 0x040000
-    setPaletteBackgroundColor(bgColor);
-#else
+
     QPalette p = palette();
     p.setColor(backgroundRole(), bgColor);
     setPalette(p);
-#endif
 
     QwtSplineCurveFitter* curveFitter; 
 
@@ -144,7 +141,6 @@ MainWin::MainWin():
     (void)startTimer(250);  
 }
 
-#if QT_VERSION >= 0x040000
 void MainWin::paintEvent(QPaintEvent *event)
 {
     QFrame::paintEvent(event);
@@ -153,7 +149,6 @@ void MainWin::paintEvent(QPaintEvent *event)
     painter.setClipRect(contentsRect());
     drawContents(&painter);
 }
-#endif
 
 void MainWin::drawContents(QPainter *painter)
 {
@@ -213,9 +208,6 @@ int main (int argc, char **argv)
 
     MainWin w;
 
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&w);
-#endif
     w.resize(300,300);
     w.show();
 

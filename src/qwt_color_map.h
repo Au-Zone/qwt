@@ -12,11 +12,7 @@
 
 #include <qglobal.h>
 #include <qcolor.h>
-#if QT_VERSION < 0x040000
-#include <qvaluevector.h>
-#else
 #include <qvector.h>
-#endif
 #include "qwt_array.h"
 #include "qwt_double_interval.h"
 
@@ -87,11 +83,7 @@ public:
         const QwtDoubleInterval &interval, double value) const = 0;
 
     QColor color(const QwtDoubleInterval &, double value) const;
-#if QT_VERSION < 0x040000
-    virtual QValueVector<QRgb> colorTable(const QwtDoubleInterval &) const;
-#else
     virtual QVector<QRgb> colorTable(const QwtDoubleInterval &) const;
-#endif
 
 private:
     Format d_format;

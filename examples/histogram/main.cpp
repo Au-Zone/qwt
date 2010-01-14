@@ -7,10 +7,6 @@ int main(int argc, char **argv)
 
     TVPlot plot;
     
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&plot);
-#endif
-
     plot.resize(600,400);
     plot.show();
 

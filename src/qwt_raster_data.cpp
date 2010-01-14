@@ -284,15 +284,9 @@ QSize QwtRasterData::rasterHint(const QwtDoubleRect &) const
    An adaption of CONREC, a simple contouring algorithm.
    http://local.wasp.uwa.edu.au/~pbourke/papers/conrec/
 */ 
-#if QT_VERSION >= 0x040000
 QwtRasterData::ContourLines QwtRasterData::contourLines(
     const QwtDoubleRect &rect, const QSize &raster, 
     const QList<double> &levels, int flags) const
-#else
-QwtRasterData::ContourLines QwtRasterData::contourLines(
-    const QwtDoubleRect &rect, const QSize &raster, 
-    const QValueList<double> &levels, int flags) const
-#endif
 {   
     ContourLines contourLines;
     
@@ -393,11 +387,7 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
                 const double level = levels[l];
                 if ( level < zMin || level > zMax )
                     continue;
-#if QT_VERSION >= 0x040000
                 QPolygonF &lines = contourLines[level];
-#else
-                QwtArray<QwtDoublePoint> &lines = contourLines[level];
-#endif
                 const ContourPlane plane(level);
 
                 QwtDoublePoint line[2];
@@ -413,16 +403,8 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
                         plane.intersect(vertex, line, ignoreOnPlane);
                     if ( intersects )
                     {
-#if QT_VERSION >= 0x040000
                         lines += line[0];
                         lines += line[1];
-#else
-                        const int index = lines.size();
-                        lines.resize(lines.size() + 2, QGArray::SpeedOptim);
-
-                        lines[index] = line[0];
-                        lines[index+1] = line[1];
-#endif
                     }
                 }
             }

@@ -483,11 +483,7 @@ void QwtPlot::setAxisScaleDraw(int axisId, QwtScaleDraw *scaleDraw)
   \param alignment Or'd Qt::AlignmentFlags <see qnamespace.h>
   \sa QwtScaleDraw::setLabelAlignment()
 */
-#if QT_VERSION < 0x040000
-void QwtPlot::setAxisLabelAlignment(int axisId, int alignment)
-#else
 void QwtPlot::setAxisLabelAlignment(int axisId, Qt::Alignment alignment)
-#endif
 {
     if (axisValid(axisId))
         axisWidget(axisId)->setLabelAlignment(alignment);

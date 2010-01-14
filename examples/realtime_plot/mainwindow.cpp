@@ -21,9 +21,7 @@ public:
     void addSpacing(int spacing)
     {
         QLabel *label = new QLabel(this);
-#if QT_VERSION >= 0x040000
         addWidget(label);
-#endif
         label->setFixedWidth(spacing);
     }    
 };
@@ -41,13 +39,9 @@ public:
         if ( !prefix.isEmpty() )
             layout->addWidget(new QLabel(prefix + " ", this));
 
-#if QT_VERSION < 0x040000
-        d_counter = new QSpinBox(min, max, step, this);
-#else
         d_counter = new QSpinBox(this);
         d_counter->setRange(min, max);
         d_counter->setSingleStep(step);
-#endif
         layout->addWidget(d_counter);
 
         if ( !suffix.isEmpty() )
@@ -63,11 +57,6 @@ private:
 
 MainWindow::MainWindow()
 {
-#if QT_VERSION < 0x040000
-    setDockEnabled(TornOff, true);
-    setRightJustification(true);
-#endif
-
     addToolBar(toolBar());
 #ifndef QT_NO_STATUSBAR
     (void)statusBar();
@@ -78,27 +67,19 @@ MainWindow::MainWindow()
 
     setCentralWidget(d_plot);
 
-#if QT_VERSION >= 0x040000
     connect(d_startAction, SIGNAL(toggled(bool)), this, SLOT(appendPoints(bool)));
     connect(d_clearAction, SIGNAL(triggered()), d_plot, SLOT(clear()));
-#else
-    connect(d_startBtn, SIGNAL(toggled(bool)), this, SLOT(appendPoints(bool)));
-    connect(d_clearBtn, SIGNAL(clicked()), d_plot, SLOT(clear()));
-#endif
     connect(d_plot, SIGNAL(running(bool)), this, SLOT(showRunning(bool)));
 
     initWhatsThis();
 
-#if QT_VERSION >= 0x040000
     setContextMenuPolicy(Qt::NoContextMenu);
-#endif
 }
 
 QToolBar *MainWindow::toolBar()
 {
     MyToolBar *toolBar = new MyToolBar(this);
 
-#if QT_VERSION >= 0x040000
     toolBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
     setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
@@ -113,21 +94,6 @@ QToolBar *MainWindow::toolBar()
     toolBar->addAction(whatsThisAction);
 
     setIconSize(QSize(22, 22));
-#else
-    d_startBtn = new QToolButton(toolBar);
-    d_startBtn->setUsesTextLabel(true);
-    d_startBtn->setPixmap(QPixmap(start_xpm));
-    d_startBtn->setToggleButton(true);
-
-    d_clearBtn = new QToolButton(toolBar);
-    d_clearBtn->setUsesTextLabel(true);
-    d_clearBtn->setPixmap(QPixmap(clear_xpm));
-    d_clearBtn->setTextLabel("Clear", false);
-
-    QToolButton *helpBtn = QWhatsThis::whatsThisButton(toolBar);
-    helpBtn->setUsesTextLabel(true);
-    helpBtn->setTextLabel("Help", false);
-#endif
 
     QWidget *hBox = new QWidget(toolBar);
 
@@ -149,15 +115,7 @@ QToolBar *MainWindow::toolBar()
 
     showRunning(false);
 
-#if QT_VERSION < 0x040000
-    toolBar->setStretchableWidget(hBox);
-
-    d_startBtn->setMinimumWidth(helpBtn->sizeHint().width() + 20);
-    d_clearBtn->setMinimumWidth(helpBtn->sizeHint().width() + 20);
-    helpBtn->setMinimumWidth(helpBtn->sizeHint().width() + 20);
-#else
     toolBar->addWidget(hBox);
-#endif
 
     return toolBar;
 }
@@ -175,13 +133,8 @@ void MainWindow::showRunning(bool running)
 {
     d_randomCount->setEnabled(!running);
     d_timerCount->setEnabled(!running);
-#if QT_VERSION < 0x040000
-    d_startBtn->setOn(running);
-    d_startBtn->setTextLabel(running ? "Stop" : "Start", false);
-#else
     d_startAction->setChecked(running);
     d_startAction->setText(running ? "Stop" : "Start");
-#endif
 }
 
 void MainWindow::initWhatsThis()
@@ -213,18 +166,10 @@ void MainWindow::initWhatsThis()
 
     const char *text5 = "Remove all points.";
 
-#if QT_VERSION < 0x040000
-    QWhatsThis::add(d_plot, text1);
-    QWhatsThis::add(d_randomCount, text2);
-    QWhatsThis::add(d_timerCount, text3);
-    QWhatsThis::add(d_startBtn, text4);
-    QWhatsThis::add(d_clearBtn, text5);
-#else
     d_plot->setWhatsThis(text1);
     d_randomCount->setWhatsThis(text2);
     d_timerCount->setWhatsThis(text3);
     d_startAction->setWhatsThis(text4);
     d_clearAction->setWhatsThis(text5);
-#endif
 }
 

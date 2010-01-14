@@ -4,7 +4,7 @@
 #include "settings.h"
 #include <qtabwidget.h>
 
-class ComboBox;
+class QComboBox;
 class SpinBox;
 class CheckBox;
 
@@ -31,24 +31,20 @@ private:
 
     SpinBox *d_numPoints;
     SpinBox *d_updateInterval;
-    ComboBox *d_updateType;
+    QComboBox *d_updateType;
 
-    ComboBox *d_gridStyle;
+    QComboBox *d_gridStyle;
     CheckBox *d_paintCache;
-#if QT_VERSION >= 0x040000
     CheckBox *d_paintOnScreen;
-#endif
     CheckBox *d_canvasClipping;
 
-    ComboBox *d_curveType;
-#if QT_VERSION >= 0x040000
+    QComboBox *d_curveType;
     CheckBox *d_curveAntialiasing;
-#endif
     CheckBox *d_curveClipping;
     CheckBox *d_curveFilter;
     CheckBox *d_lineSplitting;
     SpinBox  *d_curveWidth;
-    ComboBox *d_curvePen;
+    QComboBox *d_curvePen;
     CheckBox *d_curveFilled;
 };
 

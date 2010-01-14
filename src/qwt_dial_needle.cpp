@@ -15,12 +15,6 @@
 #include "qwt_polygon.h"
 #include "qwt_dial_needle.h"
 
-#if QT_VERSION < 0x040000
-typedef QColorGroup QwtPalette;
-#else
-typedef QPalette QwtPalette;
-#endif
-
 //! Constructor
 QwtDialNeedle::QwtDialNeedle():
     d_palette(QApplication::palette())
@@ -103,9 +97,9 @@ QwtDialSimpleNeedle::QwtDialSimpleNeedle(Style style, bool hasKnob,
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
     {
         palette.setColor((QPalette::ColorGroup)i,
-            QwtPalette::Mid, mid);
+            QPalette::Mid, mid);
         palette.setColor((QPalette::ColorGroup)i,
-            QwtPalette::Base, base);
+            QPalette::Base, base);
     }
 
     setPalette(palette);
@@ -184,7 +178,7 @@ void QwtDialSimpleNeedle::drawRayNeedle(QPainter *painter,
     if ( width == 1 )
     {
         const QColor midColor =
-            palette.color(colorGroup, QwtPalette::Mid);
+            palette.color(colorGroup, QPalette::Mid);
 
         painter->setPen(QPen(midColor, 1));
         painter->drawLine(p1, p2);
@@ -198,7 +192,7 @@ void QwtDialSimpleNeedle::drawRayNeedle(QPainter *painter,
         pa.setPoint(3, qwtPolar2Pos(p1, width / 2, direction - M_PI_2));
 
         painter->setPen(Qt::NoPen);
-        painter->setBrush(palette.brush(colorGroup, QwtPalette::Mid));
+        painter->setBrush(palette.brush(colorGroup, QPalette::Mid));
         painter->drawPolygon(pa);
     }
     if ( hasKnob )
@@ -208,7 +202,7 @@ void QwtDialSimpleNeedle::drawRayNeedle(QPainter *painter,
             knobWidth++;
 
         drawKnob(painter, center, knobWidth, 
-            palette.brush(colorGroup, QwtPalette::Base), 
+            palette.brush(colorGroup, QPalette::Base), 
             false);
     }
 
@@ -256,7 +250,7 @@ void QwtDialSimpleNeedle::drawArrowNeedle(QPainter *painter,
     pa.setPoint(4, qwtPolar2Pos(p1, width / 2, direction + M_PI_2));
 
     painter->setPen(Qt::NoPen);
-    painter->setBrush(palette.brush(colorGroup, QwtPalette::Mid));
+    painter->setBrush(palette.brush(colorGroup, QPalette::Mid));
     painter->drawPolygon(pa);
 
     QwtPolygon shadowPa(3);
@@ -267,7 +261,7 @@ void QwtDialSimpleNeedle::drawArrowNeedle(QPainter *painter,
     for ( i = 0; i < 3; i++ )
         shadowPa.setPoint(i, pa[i]);
 
-    const QColor midColor = palette.color(colorGroup, QwtPalette::Mid);
+    const QColor midColor = palette.color(colorGroup, QPalette::Mid);
 
     painter->setPen(midColor.dark(100 + colorOffset));
     painter->drawPolyline(shadowPa);
@@ -281,7 +275,7 @@ void QwtDialSimpleNeedle::drawArrowNeedle(QPainter *painter,
     if ( hasKnob )
     {
         drawKnob(painter, center, qRound(width * 1.3), 
-            palette.brush(colorGroup, QwtPalette::Base),
+            palette.brush(colorGroup, QPalette::Base),
             false);
     }
 
@@ -298,11 +292,11 @@ QwtCompassMagnetNeedle::QwtCompassMagnetNeedle(Style style,
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
     {
         palette.setColor((QPalette::ColorGroup)i,
-            QwtPalette::Light, light);
+            QPalette::Light, light);
         palette.setColor((QPalette::ColorGroup)i,
-            QwtPalette::Dark, dark);
+            QPalette::Dark, dark);
         palette.setColor((QPalette::ColorGroup)i,
-            QwtPalette::Base, Qt::darkGray);
+            QPalette::Base, Qt::darkGray);
     }
 
     setPalette(palette); 
@@ -346,8 +340,8 @@ void QwtCompassMagnetNeedle::drawTriangleNeedle(QPainter *painter,
     const QPalette &palette, QPalette::ColorGroup colorGroup,
     const QPoint &center, int length, double direction) 
 {
-    const QBrush darkBrush = palette.brush(colorGroup, QwtPalette::Dark);
-    const QBrush lightBrush = palette.brush(colorGroup, QwtPalette::Light);
+    const QBrush darkBrush = palette.brush(colorGroup, QPalette::Dark);
+    const QBrush lightBrush = palette.brush(colorGroup, QPalette::Light);
 
     QBrush brush;
 
@@ -412,9 +406,9 @@ void QwtCompassMagnetNeedle::drawThinNeedle(QPainter *painter,
     const QPalette &palette, QPalette::ColorGroup colorGroup,
     const QPoint &center, int length, double direction) 
 {
-    const QBrush darkBrush = palette.brush(colorGroup, QwtPalette::Dark);
-    const QBrush lightBrush = palette.brush(colorGroup, QwtPalette::Light);
-    const QBrush baseBrush = palette.brush(colorGroup, QwtPalette::Base);
+    const QBrush darkBrush = palette.brush(colorGroup, QPalette::Dark);
+    const QBrush lightBrush = palette.brush(colorGroup, QPalette::Light);
+    const QBrush baseBrush = palette.brush(colorGroup, QPalette::Base);
 
     const int colorOffset = 10;
     const int width = qwtMax(qRound(length / 6.0), 3);
@@ -500,9 +494,9 @@ QwtCompassWindArrow::QwtCompassWindArrow(Style style,
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
     {
         palette.setColor((QPalette::ColorGroup)i,
-            QwtPalette::Light, light);
+            QPalette::Light, light);
         palette.setColor((QPalette::ColorGroup)i,
-            QwtPalette::Dark, dark);
+            QPalette::Dark, dark);
     }
 
     setPalette(palette);
@@ -546,7 +540,7 @@ void QwtCompassWindArrow::drawStyle1Needle(QPainter *painter,
     const QPalette &palette, QPalette::ColorGroup colorGroup,
     const QPoint &center, int length, double direction) 
 {
-    const QBrush lightBrush = palette.brush(colorGroup, QwtPalette::Light);
+    const QBrush lightBrush = palette.brush(colorGroup, QPalette::Light);
 
     const double AR1[] = {0, 0.4, 0.3, 1, 0.8, 1, 0.3, 0.4};
     const double AW1[] = {0, -45, -20, -15, 0, 15, 20, 45};
@@ -583,8 +577,8 @@ void QwtCompassWindArrow::drawStyle2Needle(QPainter *painter,
     const QPalette &palette, QPalette::ColorGroup colorGroup,
     const QPoint &center, int length, double direction) 
 {
-    const QBrush lightBrush = palette.brush(colorGroup, QwtPalette::Light);
-    const QBrush darkBrush = palette.brush(colorGroup, QwtPalette::Dark);
+    const QBrush lightBrush = palette.brush(colorGroup, QPalette::Light);
+    const QBrush darkBrush = palette.brush(colorGroup, QPalette::Dark);
 
     painter->save();
     painter->setPen(Qt::NoPen);

@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <math.h>
 #include <qevent.h>
 #include "qwt_plot.h"

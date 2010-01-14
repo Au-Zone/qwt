@@ -13,32 +13,7 @@
 
 static inline QwtDoubleRect boundingRect(const QwtPolygonF &polygon)
 {
-#if QT_VERSION < 0x040000
-    if (polygon.isEmpty())
-        return QwtDoubleRect(0, 0, 0, 0);
-
-    register const QwtDoublePoint *pd = polygon.data();
-
-    double minx, maxx, miny, maxy;
-    minx = maxx = pd->x();
-    miny = maxy = pd->y();
-    pd++;
-
-    for (uint i = 1; i < polygon.size(); i++, pd++) 
-    {
-        if (pd->x() < minx)
-            minx = pd->x();
-        else if (pd->x() > maxx)
-            maxx = pd->x();
-        if (pd->y() < miny)
-            miny = pd->y();
-        else if (pd->y() > maxy)
-            maxy = pd->y();
-    }
-    return QwtDoubleRect(minx, miny, maxx - minx, maxy - miny);
-#else
     return polygon.boundingRect();
-#endif
 }
 
 enum Edge 
@@ -81,7 +56,6 @@ private:
     void addPoint(QwtPolygonF &, uint pos, const QwtDoublePoint &point) const;
 };
 
-#if QT_VERSION >= 0x040000
 class QwtCircleClipper: public QwtDoubleRect
 {
 public:
@@ -94,7 +68,6 @@ private:
         Edge, const QwtDoublePoint &pos, double radius) const;
     double toAngle(const QwtDoublePoint &, const QwtDoublePoint &) const;
 };
-#endif
 
 QwtPolygonClipper::QwtPolygonClipper(const QRect &r): 
     QRect(r) 
@@ -123,9 +96,6 @@ QwtPolygon QwtPolygonClipper::clipPolygon(const QwtPolygon &pa) const
     for ( uint edge = 1; edge < NEdges; edge++ ) 
     {
         const QwtPolygon rpa = cpa;
-#if QT_VERSION < 0x040000
-        cpa.detach();
-#endif
         clipEdge((Edge)edge, rpa, cpa);
     }
 
@@ -254,9 +224,6 @@ QwtPolygonF QwtPolygonClipperF::clipPolygon(const QwtPolygonF &pa) const
     for ( uint edge = 1; edge < NEdges; edge++ ) 
     {
         const QwtPolygonF rpa = cpa;
-#if QT_VERSION < 0x040000
-        cpa.detach();
-#endif
         clipEdge((Edge)edge, rpa, cpa);
     }
 
@@ -358,8 +325,6 @@ void QwtPolygonClipperF::clipEdge(Edge edge,
     }
     cpa.resize(count);
 }
-
-#if QT_VERSION >= 0x040000
 
 QwtCircleClipper::QwtCircleClipper(const QwtDoubleRect &r):
     QwtDoubleRect(r)
@@ -466,7 +431,6 @@ QList<QwtDoublePoint> QwtCircleClipper::cuttingPoints(
     }
     return points;
 }
-#endif
     
 /*! 
    Sutherland-Hodgman polygon clipping
@@ -498,7 +462,6 @@ QwtPolygonF QwtClipper::clipPolygonF(
     return clipper.clipPolygon(polygon);
 }
 
-#if QT_VERSION >= 0x040000
 /*! 
    Circle clipping
 
@@ -519,4 +482,3 @@ QwtArray<QwtDoubleInterval> QwtClipper::clipCircle(
     QwtCircleClipper clipper(clipRect);
     return clipper.clipCircle(center, radius);
 }
-#endif

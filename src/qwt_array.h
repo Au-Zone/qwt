@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_ARRAY_H
 #define QWT_ARRAY_H
 
@@ -18,12 +16,7 @@
   \def QwtArray
  */
 
-#if QT_VERSION < 0x040000
-#include <qmemarray.h>
-#define QwtArray QMemArray
-#else
 #include <qvector.h>
 #define QwtArray QVector
-#endif
 
 #endif

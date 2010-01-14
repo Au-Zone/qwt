@@ -16,10 +16,8 @@
 #include "qwt_double_rect.h" 
 #include "qwt_plot_item.h" 
 
-#if QT_VERSION >= 0x040100
 class QSvgRenderer;
 class QByteArray;
-#endif
 
 /*!
   \brief A plot item, which displays 
@@ -47,10 +45,8 @@ public:
     virtual int rtti() const;
 
 protected:
-#if QT_VERSION >= 0x040100
     const QSvgRenderer &renderer() const;
     QSvgRenderer &renderer();
-#endif
 
     void render(QPainter *painter,
         const QwtDoubleRect &viewBox, const QRect &rect) const;

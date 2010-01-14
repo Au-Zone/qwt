@@ -16,9 +16,7 @@ public:
     
 protected:
     virtual void timerEvent(QTimerEvent *t);
-#if QT_VERSION >= 0x040000
     virtual void paintEvent(QPaintEvent *);
-#endif
     virtual void drawContents(QPainter *);
 
 private:

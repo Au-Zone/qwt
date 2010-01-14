@@ -14,24 +14,12 @@ QWT_ROOT = ..
 include( $${QWT_ROOT}/qwtconfig.pri )
 
 SUFFIX_STR =
-VVERSION = $$[QT_VERSION]
-isEmpty(VVERSION) {
 
-    # Qt 3
-    debug {
-        SUFFIX_STR = $${DEBUG_SUFFIX}
-    }
-    else {
-        SUFFIX_STR = $${RELEASE_SUFFIX} 
-    }
+CONFIG(debug, debug|release) {
+	SUFFIX_STR = $${DEBUG_SUFFIX}
 }
 else {
-    CONFIG(debug, debug|release) {
-        SUFFIX_STR = $${DEBUG_SUFFIX}
-    }
-    else {
-        SUFFIX_STR = $${RELEASE_SUFFIX}
-    }
+	SUFFIX_STR = $${RELEASE_SUFFIX}
 }
 
 TARGET            = qwt$${SUFFIX_STR}
@@ -72,7 +60,6 @@ HEADERS += \
     qwt_layout_metrics.h \
     qwt_math.h \
     qwt_magnifier.h \
-    qwt_paint_buffer.h \
     qwt_painter.h \
     qwt_panner.h \
     qwt_picker.h \
@@ -98,12 +85,10 @@ SOURCES += \
     qwt_color_map.cpp \
     qwt_column_symbol.cpp \
     qwt_double_interval.cpp \
-    qwt_double_rect.cpp \
     qwt_dyngrid_layout.cpp \
     qwt_layout_metrics.cpp \
     qwt_math.cpp \
     qwt_magnifier.cpp \
-    qwt_paint_buffer.cpp \
     qwt_panner.cpp \
     qwt_painter.cpp \
     qwt_picker.cpp \
@@ -153,6 +138,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_magnifier.h \
         qwt_plot_rescaler.h \
         qwt_raster_data.h \
+    	qwt_sampling_thread.h \
         qwt_series_data.h \
         qwt_scale_widget.h 
 
@@ -186,6 +172,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_magnifier.cpp \
         qwt_plot_rescaler.cpp \
         qwt_raster_data.cpp \
+    	qwt_sampling_thread.cpp \
         qwt_series_data.cpp \
         qwt_scale_widget.cpp 
 }
@@ -230,11 +217,6 @@ contains(CONFIG, QwtWidgets) {
         qwt_slider.cpp \
         qwt_thermo.cpp \
         qwt_wheel.cpp
-}
-
-!isEmpty(VVERSION) {
-    HEADERS += qwt_sampling_thread.h
-    SOURCES += qwt_sampling_thread.cpp
 }
 
 # Install directives

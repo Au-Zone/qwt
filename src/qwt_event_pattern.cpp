@@ -37,15 +37,9 @@ QwtEventPattern::~QwtEventPattern()
 */
 void QwtEventPattern::initMousePattern(int numButtons)
 {
-#if QT_VERSION < 0x040000
-    const int altButton = Qt::AltButton;
-    const int controlButton = Qt::ControlButton;
-    const int shiftButton = Qt::ShiftButton;
-#else
     const int altButton = Qt::AltModifier;
     const int controlButton = Qt::ControlModifier;
     const int shiftButton = Qt::ShiftModifier;
-#endif
 
     d_mousePattern.resize(MousePatternCount);
 
@@ -221,13 +215,8 @@ bool QwtEventPattern::mouseMatch(const MousePattern &pattern,
         return false;
 
     const bool matched =
-#if QT_VERSION < 0x040000
-        (e->state() & Qt::KeyButtonMask) == 
-            (pattern.state & Qt::KeyButtonMask);
-#else
         (e->modifiers() & Qt::KeyboardModifierMask) == 
             (int)(pattern.state & Qt::KeyboardModifierMask);
-#endif
 
     return matched;
 }
@@ -276,13 +265,8 @@ bool QwtEventPattern::keyMatch(
         return false;
 
     const bool matched =
-#if QT_VERSION < 0x040000
-        (e->state() & Qt::KeyButtonMask) == 
-            (pattern.state & Qt::KeyButtonMask);
-#else
         (e->modifiers() & Qt::KeyboardModifierMask) == 
             (int)(pattern.state & Qt::KeyboardModifierMask);
-#endif
 
     return matched;
 }

@@ -255,20 +255,10 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
         painter->setBrush(Qt::NoBrush);
 
         QwtPolygon curve;
-#if QT_VERSION >= 0x040000
         curve = points.mid(0, size);
         QwtPainter::drawPolyline(painter, curve);
         curve = points.mid(size, size);
         QwtPainter::drawPolyline(painter, curve);
-#else
-        curve.setRawData(points.data(), size);
-        QwtPainter::drawPolyline(painter, curve);
-        curve.resetRawData(points.data(), size);
-
-        curve.setRawData(points.data() + size, size);
-        QwtPainter::drawPolyline(painter, curve);
-        curve.resetRawData(points.data() + size, size);
-#endif
     }
 #else
     painter->setPen(d_data->pen);
@@ -285,9 +275,7 @@ void QwtPlotIntervalCurve::drawSymbols(
 {
     painter->save();
 
-#if QT_VERSION >= 0x040000
     painter->setRenderHint(QPainter::Antialiasing, false);
-#endif
     painter->setPen(d_data->symbol->pen());
     painter->setBrush(d_data->symbol->brush());
 

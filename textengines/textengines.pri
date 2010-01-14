@@ -12,24 +12,11 @@ QWT_ROOT = ../..
 include( $${QWT_ROOT}/qwtconfig.pri )
 
 SUFFIX_STR =
-VVERSION = $$[QT_VERSION]
-isEmpty(VVERSION) {
-
-    # Qt 3
-    debug {
-        SUFFIX_STR = $${DEBUG_SUFFIX}
-    }
-    else {
-        SUFFIX_STR = $${RELEASE_SUFFIX}
-    }
+CONFIG(debug, debug|release) {
+	SUFFIX_STR = $${DEBUG_SUFFIX}
 }
 else {
-    CONFIG(debug, debug|release) {
-        SUFFIX_STR = $${DEBUG_SUFFIX}
-    }
-    else {
-        SUFFIX_STR = $${RELEASE_SUFFIX}
-    }
+	SUFFIX_STR = $${RELEASE_SUFFIX}
 }
 
 TEMPLATE  = lib

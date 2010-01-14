@@ -2,8 +2,8 @@
 # Install paths
 ######################################################################
 
-VER_MAJ      = 5
-VER_MIN      = 3
+VER_MAJ      = 6
+VER_MIN      = 0
 VER_PAT      = 0
 VERSION      = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 
@@ -34,28 +34,19 @@ CONFIG           += silent
 # have to differ to avoid, that they overwrite each other.
 ######################################################################
 
-VVERSION = $$[QT_VERSION]
-isEmpty(VVERSION) {
+win32 {
+	# On Windows you can't mix release and debug libraries.
+	# The designer is built in release mode. If you like to use it
+	# you need a release version. For your own application development you
+	# might need a debug version. 
+	# Enable debug_and_release + build_all if you want to build both.
 
-    # Qt 3
-    CONFIG           += debug     # release/debug
+	CONFIG           += debug     # release/debug/debug_and_release
+	#CONFIG           += debug_and_release
+	#CONFIG           += build_all
 }
 else {
-    # Qt 4
-    win32 {
-        # On Windows you can't mix release and debug libraries.
-        # The designer is built in release mode. If you like to use it
-        # you need a release version. For your own application development you
-        # might need a debug version. 
-        # Enable debug_and_release + build_all if you want to build both.
-
-        CONFIG           += debug     # release/debug/debug_and_release
-        #CONFIG           += debug_and_release
-        #CONFIG           += build_all
-    }
-    else {
-        CONFIG           += debug     # release/debug
-    }
+	CONFIG           += debug     # release/debug
 }
 
 ######################################################################

@@ -11,11 +11,7 @@ class Layout: public QBoxLayout
 {
 public:
     Layout(Qt::Orientation o, QWidget *parent = NULL):
-#if QT_VERSION < 0x040000
-        QBoxLayout(parent, QBoxLayout::LeftToRight)
-#else
         QBoxLayout(QBoxLayout::LeftToRight, parent)
-#endif
     {
         if ( o == Qt::Vertical )
             setDirection(QBoxLayout::TopToBottom);
@@ -30,11 +26,7 @@ Slider::Slider(QWidget *parent, int sliderType):
 {
     d_slider = createSlider(this, sliderType);
 
-#if QT_VERSION < 0x040000
-    int alignment = Qt::AlignCenter;
-#else
     QFlags<Qt::AlignmentFlag> alignment;
-#endif
     switch(d_slider->scalePosition())
     {
         case QwtSlider::NoScale:
@@ -191,10 +183,6 @@ int main (int argc, char **argv)
     QApplication::setFont(QFont("Helvetica",10));
 
     SliderDemo w;
-
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&w);
-#endif
     w.show();
 
     return a.exec();

@@ -60,17 +60,13 @@ Plot::Plot()
     
     // Insert new curves
     QwtPlotCurve *cSin = new QwtPlotCurve("y = sin(x)");
-#if QT_VERSION >= 0x040000
     cSin->setRenderHint(QwtPlotItem::RenderAntialiased);
-#endif
 	cSin->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
     cSin->setPen(QPen(Qt::red));
     cSin->attach(this);
 
     QwtPlotCurve *cCos = new QwtPlotCurve("y = cos(x)");
-#if QT_VERSION >= 0x040000
     cCos->setRenderHint(QwtPlotItem::RenderAntialiased);
-#endif
 	cCos->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
     cCos->setPen(QPen(Qt::blue));
     cCos->attach(this);
@@ -105,10 +101,8 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
 
     Plot plot;
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&plot);
-#endif
     plot.resize(600,400);
     plot.show();
+
     return a.exec(); 
 }

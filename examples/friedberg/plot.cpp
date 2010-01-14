@@ -123,9 +123,7 @@ void Plot::insertCurve(const QString& title,
     const QwtArray<QwtDoublePoint>& samples, const QColor &color)
 {
     d_curve = new QwtPlotCurve(title);
-#if QT_VERSION >= 0x040000
     d_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
-#endif
     d_curve->setStyle(QwtPlotCurve::NoCurve);
     d_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
 
@@ -145,15 +143,11 @@ void Plot::insertErrorBars(
     const QColor &color)
 {
     d_intervalCurve = new QwtPlotIntervalCurve(title);
-#if QT_VERSION >= 0x040000
     d_intervalCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
-#endif
     d_intervalCurve->setPen(QPen(Qt::white));
 
     QColor bg(color);
-#if QT_VERSION >= 0x040000
     bg.setAlpha(150);
-#endif
     d_intervalCurve->setBrush(QBrush(bg));
     d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
 

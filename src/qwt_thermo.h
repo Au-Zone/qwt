@@ -105,9 +105,6 @@ public:
     };
 
     explicit QwtThermo(QWidget *parent = NULL);
-#if QT_VERSION < 0x040000
-    explicit QwtThermo(QWidget *parent, const char *name);
-#endif
     virtual ~QwtThermo();
 
     void setOrientation(Qt::Orientation o, ScalePos s);

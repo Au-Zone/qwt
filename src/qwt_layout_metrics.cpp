@@ -9,14 +9,6 @@
 
 #include <qapplication.h>
 #include <qpainter.h>
-#if QT_VERSION < 0x040000
-#include <qpaintdevicemetrics.h> 
-#include <qwmatrix.h> 
-#define QwtMatrix QWMatrix
-#else
-#include <qmatrix.h> 
-#define QwtMatrix QMatrix
-#endif
 #include <qpaintdevice.h> 
 #include <qdesktopwidget.h> 
 #include "qwt_math.h"
@@ -26,30 +18,11 @@
 static QSize deviceDpi(const QPaintDevice *device)
 {
     QSize dpi;
-#if QT_VERSION < 0x040000
-    const QPaintDeviceMetrics metrics(device);
-    dpi.setWidth(metrics.logicalDpiX());
-    dpi.setHeight(metrics.logicalDpiY());
-#else
     dpi.setWidth(device->logicalDpiX());
     dpi.setHeight(device->logicalDpiY());
-#endif
 
     return dpi;
 }
-
-#if QT_VERSION < 0x040000
-
-inline static const QWMatrix &matrix(const QPainter *painter)
-{
-    return painter->worldMatrix();
-}
-inline static QWMatrix invMatrix(const QPainter *painter)
-{
-    return painter->worldMatrix().invert();
-}
-
-#else // QT_VERSION >= 0x040000
 
 inline static const QMatrix &matrix(const QPainter *painter)
 {
@@ -59,8 +32,6 @@ inline static QMatrix invMatrix(const QPainter *painter)
 {
     return painter->matrix().inverted();
 }
-
-#endif
 
 QwtMetricsMap::QwtMetricsMap()
 {
@@ -269,7 +240,7 @@ QwtPolygon QwtMetricsMap::layoutToDevice(const QwtPolygon &pa,
         mappedPa = translate(matrix(painter), mappedPa);
 #endif
 
-    QwtMatrix m;
+    QMatrix m;
     m.scale(1.0 / d_deviceToLayoutX, 1.0 / d_deviceToLayoutY);
     mappedPa = translate(m, mappedPa);
 
@@ -299,7 +270,7 @@ QwtPolygon QwtMetricsMap::deviceToLayout(const QwtPolygon &pa,
         mappedPa = translate(matrix(painter), mappedPa);
 #endif
 
-    QwtMatrix m;
+    QMatrix m;
     m.scale(d_deviceToLayoutX, d_deviceToLayoutY);
     mappedPa = translate(m, mappedPa);
 
@@ -320,7 +291,7 @@ QwtPolygon QwtMetricsMap::deviceToLayout(const QwtPolygon &pa,
 */
 
 QRect QwtMetricsMap::translate(
-    const QwtMatrix &m, const QRect &rect) 
+    const QMatrix &m, const QRect &rect) 
 {
     return m.mapRect(rect);
 }
@@ -333,7 +304,7 @@ QRect QwtMetricsMap::translate(
   \return Translated polygon
 */
 QwtPolygon QwtMetricsMap::translate(
-    const QwtMatrix &m, const QwtPolygon &pa) 
+    const QMatrix &m, const QwtPolygon &pa) 
 {
     return m.map(pa);
 }

@@ -14,13 +14,7 @@
 #include "qwt_painter.h"
 #include <qpainter.h>
 
-#if QT_VERSION < 0x040000
-#include <qvaluelist.h>
-typedef QValueVector<QRgb> QwtColorTable;
-#else
 typedef QVector<QRgb> QwtColorTable;
-#endif
-
 
 class QwtPlotCurve3D::PrivateData
 {

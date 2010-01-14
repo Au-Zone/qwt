@@ -66,13 +66,8 @@ public:
     virtual void setMass(double val);
     virtual double mass() const;
 
-#if QT_VERSION >= 0x040000
     virtual void setOrientation(Qt::Orientation o);
     Qt::Orientation orientation() const;
-#else
-    virtual void setOrientation(Orientation o);
-    Orientation orientation() const;
-#endif
 
     bool isReadOnly() const;
 

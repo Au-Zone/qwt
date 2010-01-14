@@ -17,26 +17,12 @@ contains(CONFIG, QwtDesigner) {
 
 	SUFFIX_STR =
 
-    VVERSION = $$[QT_VERSION]
-    isEmpty(VVERSION) {
-
-        # Qt 3
-        debug {
-            SUFFIX_STR = $${DEBUG_SUFFIX}
-        }
-        else {
-            SUFFIX_STR = $${RELEASE_SUFFIX}
-        }
-    }
-    else {
-
-        CONFIG(debug, debug|release) {
-            SUFFIX_STR = $${DEBUG_SUFFIX}
-        }
-        else {
-            SUFFIX_STR = $${RELEASE_SUFFIX}
-        }
-    }
+	CONFIG(debug, debug|release) {
+		SUFFIX_STR = $${DEBUG_SUFFIX}
+	}
+	else {
+		SUFFIX_STR = $${RELEASE_SUFFIX}
+	}
 
 	TEMPLATE        = lib
 	MOC_DIR         = moc
@@ -70,65 +56,31 @@ contains(CONFIG, QwtDesigner) {
 	win32-msvc2008:LIBS += $${QWT_ROOT}/lib/$${LIBNAME}.lib
 	win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${LIBNAME}
 
-	# isEmpty(QT_VERSION) does not work with Qt-4.1.0/MinGW
+	TARGET    = qwt_designer_plugin$${SUFFIX_STR}
+	CONFIG    += qt designer plugin 
 
-	VVERSION = $$[QT_VERSION]
-	isEmpty(VVERSION) {
-		# Qt 3 
-		TARGET    = qwtplugin$${SUFFIX_STR}
-		CONFIG   += qt plugin
+	RCC_DIR   = resources
 
-		UI_DIR    = ui
+	HEADERS += \
+		qwt_designer_plugin.h
 
-		HEADERS  += qwtplugin.h
-		SOURCES  += qwtplugin.cpp
+	SOURCES += \
+		qwt_designer_plugin.cpp
 
-		target.path = $(QTDIR)/plugins/designer
-		INSTALLS += target
-
-		IMAGES  += \
-			pixmaps/qwtplot.png \
-			pixmaps/qwtanalogclock.png \
-			pixmaps/qwtcounter.png \
-			pixmaps/qwtcompass.png \
-			pixmaps/qwtdial.png \
-			pixmaps/qwtknob.png \
-			pixmaps/qwtscale.png \
-			pixmaps/qwtslider.png \
-			pixmaps/qwtthermo.png \
-			pixmaps/qwtwheel.png \
-			pixmaps/qwtwidget.png 
-
-	} else {
-
-		# Qt 4
-
-		TARGET    = qwt_designer_plugin$${SUFFIX_STR}
-		CONFIG    += qt designer plugin 
-
-		RCC_DIR   = resources
+	contains(CONFIG, QwtPlot) {
 
 		HEADERS += \
-			qwt_designer_plugin.h
+			qwt_designer_plotdialog.h
 
 		SOURCES += \
-			qwt_designer_plugin.cpp
-
-	    contains(CONFIG, QwtPlot) {
-
-			HEADERS += \
-				qwt_designer_plotdialog.h
-
-			SOURCES += \
-				qwt_designer_plotdialog.cpp
-		}
-
-		RESOURCES += \
-			qwt_designer_plugin.qrc
-
-		target.path = $$[QT_INSTALL_PLUGINS]/designer
-		INSTALLS += target
+			qwt_designer_plotdialog.cpp
 	}
+
+	RESOURCES += \
+		qwt_designer_plugin.qrc
+
+	target.path = $$[QT_INSTALL_PLUGINS]/designer
+	INSTALLS += target
 }
 else {
 	TEMPLATE        = subdirs # do nothing

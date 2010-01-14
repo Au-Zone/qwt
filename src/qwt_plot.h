@@ -128,9 +128,6 @@ public:
 
     explicit QwtPlot(QWidget * = NULL);
     explicit QwtPlot(const QwtText &title, QWidget *p = NULL);
-#if QT_VERSION < 0x040000
-    explicit QwtPlot(QWidget *, const char* name);
-#endif
 
     virtual ~QwtPlot();
 
@@ -208,11 +205,7 @@ public:
     const QwtScaleWidget *axisWidget(int axisId) const;
     QwtScaleWidget *axisWidget(int axisId);
 
-#if QT_VERSION < 0x040000
-    void setAxisLabelAlignment(int axisId, int);
-#else
     void setAxisLabelAlignment(int axisId, Qt::Alignment);
-#endif
     void setAxisLabelRotation(int axisId, double rotation);
 
     void setAxisTitle(int axisId, const QString &);

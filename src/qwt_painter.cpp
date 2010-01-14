@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <qwindowdefs.h>
 #include <qwidget.h>
 #include <qrect.h>
@@ -17,14 +15,10 @@
 #include <qpaintdevice.h>
 #include <qpixmap.h>
 #include <qstyle.h>
-#if QT_VERSION < 0x040000
-#include <qsimplerichtext.h>
-#else
 #include <qtextdocument.h>
 #include <qabstracttextdocumentlayout.h>
 #include <qstyleoption.h>
 #include <qpaintengine.h>
-#endif
 
 #include "qwt_math.h"
 #include "qwt_clipper.h"
@@ -42,19 +36,11 @@ bool QwtPainter::d_deviceClipping = false;
 
 bool QwtPainter::d_polylineSplitting = true;
 
-#if QT_VERSION < 0x040000
-bool QwtPainter::d_SVGMode = false;
-#endif
-
 static inline bool isClippingNeeded(const QPainter *painter, QRect &clipRect)
 {
     bool doClipping = false;
-#if QT_VERSION >= 0x040000
     const QPaintEngine *pe = painter->paintEngine();
     if ( pe && pe->type() == QPaintEngine::SVG )
-#else
-    if ( painter->device()->devType() == QInternal::Picture )
-#endif
     {
         // The SVG paint engine ignores any clipping,
 
@@ -125,31 +111,6 @@ const QRect &QwtPainter::deviceClipRect()
     }
     return clip;
 }
-
-#if QT_VERSION < 0x040000 
-
-/*!
-  \brief En/Disable SVG mode. 
-
-  When saving a QPicture to a SVG some texts are misaligned.
-  In SVGMode QwtPainter tries to fix them. 
-
-  \sa QwtPainter::isSVGMode()
-  \note A QPicture that is created in SVG mode and saved to the
-        native format, will be misaligned. Also it is not possible to
-        reload and play a SVG document, that was created in SVG mode.
-*/
-void QwtPainter::setSVGMode(bool on)
-{
-    d_SVGMode = on;
-}
-
-bool QwtPainter::isSVGMode()
-{
-    return d_SVGMode;
-}
-
-#endif // QT_VERSION < 0x040000
 
 /*!
   Scale all QwtPainter drawing operations using the ratio
@@ -259,7 +220,6 @@ void QwtPainter::fillRect(QPainter *painter,
     QRect clipRect;
     const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
-#if QT_VERSION >= 0x040000
     /*
       Performance of Qt4 is horrible for non trivial brushs. Without
       clipping expect minutes or hours for repainting large rects
@@ -273,7 +233,6 @@ void QwtPainter::fillRect(QPainter *painter,
 
     if ( painter->hasClipping() )
         clipRect &= painter->clipRegion().boundingRect();
-#endif
 
     QRect r = d_metricsMap.layoutToDevice(rect, painter);
     if ( deviceClipping )
@@ -371,18 +330,6 @@ void QwtPainter::drawText(QPainter *painter, const QRect &rect,
         int flags, const QString &text)
 {
     QRect textRect = d_metricsMap.layoutToDevice(rect, painter);
-#if QT_VERSION < 0x040000
-    if ( d_SVGMode &&
-        ( flags == 0 || flags & Qt::AlignVCenter ) 
-        && painter->device()->devType() == QInternal::Picture )
-    {
-        /*
-            Qt3 misalignes texts, when saving a text
-            to a SVG image. 
-         */
-        textRect.setY(textRect.y() - painter->fontMetrics().height() / 4);
-    }
-#endif
     painter->drawText(textRect, flags, text);
 }
 
@@ -391,29 +338,6 @@ void QwtPainter::drawText(QPainter *painter, const QRect &rect,
 /*!
   Wrapper for QSimpleRichText::draw()
 */
-#if QT_VERSION < 0x040000
-
-void QwtPainter::drawSimpleRichText(QPainter *painter, const QRect &rect,
-    int flags, QSimpleRichText &text)
-{
-    QColorGroup cg;
-    cg.setColor(QColorGroup::Text, painter->pen().color());
-
-    const QRect scaledRect = d_metricsMap.layoutToDevice(rect, painter);
-
-    text.setWidth(painter, scaledRect.width());
-
-    // QSimpleRichText is Qt::AlignTop by default
-
-    int y = scaledRect.y();
-    if (flags & Qt::AlignBottom)
-        y += (scaledRect.height() - text.height());
-    else if (flags & Qt::AlignVCenter)
-        y += (scaledRect.height() - text.height())/2;
-
-    text.draw(painter, scaledRect.x(), y, scaledRect, cg);
-}
-#else
 void QwtPainter::drawSimpleRichText(QPainter *painter, const QRect &rect,
     int flags, QTextDocument &text)
 {
@@ -439,7 +363,6 @@ void QwtPainter::drawSimpleRichText(QPainter *painter, const QRect &rect,
 
     painter->restore();
 }
-#endif
 
 #endif // !QT_NO_RICHTEXT
 
@@ -464,35 +387,14 @@ void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
 
     if ( d_metricsMap.isIdentity() )
     {
-#if QT_VERSION >= 0x030200 && QT_VERSION < 0x040000
-        if ( !painter->device()->isExtDev() )
-#endif
-        {
-            painter->drawLine(x1, y1, x2, y2);
-            return;
-        }
+		painter->drawLine(x1, y1, x2, y2);
+		return;
     }
 
     const QPoint p1 = d_metricsMap.layoutToDevice(QPoint(x1, y1));
     const QPoint p2 = d_metricsMap.layoutToDevice(QPoint(x2, y2));
 
-#if QT_VERSION >= 0x030200 && QT_VERSION < 0x040000
-    if ( painter->device()->isExtDev() )
-    {
-        // Strange: the postscript driver of QPrinter adds an offset 
-        // of 0.5 to the start/endpoint when using drawLine, but not
-        // for lines painted with drawLineSegments.
-
-        QwtPolygon pa(2);
-        pa.setPoint(0, p1);
-        pa.setPoint(1, p2);
-        painter->drawLineSegments(pa);
-    }
-    else
-        painter->drawLine(p1, p2);
-#else
     painter->drawLine(p1, p2);
-#endif
 }
 
 /*!
@@ -526,7 +428,6 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
     if ( deviceClipping )
         cpa = QwtClipper::clipPolygon(clipRect, cpa);
 
-#if QT_VERSION >= 0x040000 
     bool doSplit = false;
 
     if ( d_polylineSplitting )
@@ -557,7 +458,6 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
         }
     }
     else
-#endif
         painter->drawPolyline(cpa);
 }
 
@@ -583,13 +483,8 @@ void QwtPainter::drawColoredArc(QPainter *painter, const QRect &rect,
     int h1, s1, v1;
     int h2, s2, v2;
 
-#if QT_VERSION < 0x040000
-    c1.hsv(&h1, &s1, &v1);
-    c2.hsv(&h2, &s2, &v2);
-#else
     c1.getHsv(&h1, &s1, &v1);
     c2.getHsv(&h2, &s2, &v2);
-#endif
     
     arc /= 2;
     for ( int angle = -arc; angle < arc; angle += interval)
@@ -619,45 +514,20 @@ void QwtPainter::drawFocusRect(QPainter *painter, QWidget *widget)
 void QwtPainter::drawFocusRect(QPainter *painter, QWidget *widget,
     const QRect &rect)
 {
-#if QT_VERSION < 0x040000
-        widget->style().drawPrimitive(QStyle::PE_FocusRect, painter,
-            rect, widget->colorGroup());
-#else
-        QStyleOptionFocusRect opt;
-        opt.init(widget);
-        opt.rect = rect;
-        opt.state |= QStyle::State_HasFocus;
+	QStyleOptionFocusRect opt;
+	opt.init(widget);
+	opt.rect = rect;
+	opt.state |= QStyle::State_HasFocus;
 
-        widget->style()->drawPrimitive(QStyle::PE_FrameFocusRect, 
-            &opt, painter, widget);
-#endif
-
+	widget->style()->drawPrimitive(QStyle::PE_FrameFocusRect, 
+		&opt, painter, widget);
 }
 
 //!  Draw a round frame
-#if QT_VERSION < 0x040000
-void QwtPainter::drawRoundFrame(QPainter *painter, const QRect &rect,
-    int width, const QColorGroup &cg, bool sunken)
-#else
 void QwtPainter::drawRoundFrame(QPainter *painter, const QRect &rect,
     int width, const QPalette &palette, bool sunken)
-#endif
 {
 
-#if QT_VERSION < 0x040000
-    QColor c0 = cg.mid();
-    QColor c1, c2;
-    if ( sunken )
-    {
-        c1 = cg.dark();
-        c2 = cg.light();
-    }
-    else
-    {
-        c1 = cg.light();
-        c2 = cg.dark();
-    }
-#else
     QColor c0 = palette.color(QPalette::Mid);
     QColor c1, c2;
     if ( sunken )
@@ -670,7 +540,6 @@ void QwtPainter::drawRoundFrame(QPainter *painter, const QRect &rect,
         c1 = palette.color(QPalette::Light);
         c2 = palette.color(QPalette::Dark);
     }
-#endif
 
     painter->setPen(QPen(c0, width));
     painter->drawArc(rect, 0, 360 * 16); // full
@@ -689,11 +558,7 @@ void QwtPainter::drawColorBar(QPainter *painter,
         const QwtScaleMap &scaleMap, Qt::Orientation orientation,
         const QRect &rect)
 {
-#if QT_VERSION < 0x040000
-    QValueVector<QRgb> colorTable;
-#else
     QVector<QRgb> colorTable;
-#endif
     if ( colorMap.format() == QwtColorMap::Indexed )
         colorTable = colorMap.colorTable(interval);
 

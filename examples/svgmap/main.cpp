@@ -17,14 +17,9 @@ public:
 
         QToolButton *btnLoad = new QToolButton(toolBar);
         
-#if QT_VERSION >= 0x040000
         btnLoad->setText("Load SVG");
         btnLoad->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
         toolBar->addWidget(btnLoad);
-#else
-        btnLoad->setTextLabel("Load SVG");
-        btnLoad->setUsesTextLabel(true);
-#endif
 
         addToolBar(toolBar);
 
@@ -37,9 +32,6 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
 
     MainWindow w;
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&w);
-#endif
     w.resize(600,400);
     w.show();
 

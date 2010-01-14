@@ -29,9 +29,7 @@ Histogram::Histogram(const QString &title, const QColor &symbolColor):
 void Histogram::setColor(const QColor &symbolColor)
 {
     QColor color = symbolColor;
-#if QT_VERSION >= 0x040000
     color.setAlpha(180);
-#endif
 
     setPen(QPen(Qt::black));
     setBrush(QBrush(color));

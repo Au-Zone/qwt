@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qvalidator.h>
@@ -53,29 +51,9 @@ QwtCounter::QwtCounter(QWidget *parent):
     initCounter();
 }
 
-#if QT_VERSION < 0x040000
-/*!
-  The default number of buttons is set to 2. The default increments are:
-  \li Button 1: 1 step
-  \li Button 2: 10 steps
-  \li Button 3: 100 steps
-
-  \param parent
- */
-QwtCounter::QwtCounter(QWidget *parent, const char *name):
-    QWidget(parent, name) 
-{
-    initCounter();
-}
-#endif
-
 void QwtCounter::initCounter()
 {
     d_data = new PrivateData;
-
-#if QT_VERSION >= 0x040000
-    using namespace Qt;
-#endif
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setSpacing(0);
@@ -86,7 +64,7 @@ void QwtCounter::initCounter()
     {
         QwtArrowButton *btn =
             new QwtArrowButton(i+1, Qt::DownArrow,this);
-        btn->setFocusPolicy(NoFocus);
+        btn->setFocusPolicy(Qt::NoFocus);
         btn->installEventFilter(this);
         layout->addWidget(btn);
 
@@ -113,12 +91,9 @@ void QwtCounter::initCounter()
 
     for(i = 0; i < ButtonCnt; i++)
     {
-#if QT_VERSION >= 0x040000
-        using namespace Qt;
-#endif
         QwtArrowButton *btn =
             new QwtArrowButton(i+1, Qt::UpArrow, this);
-        btn->setFocusPolicy(NoFocus);
+        btn->setFocusPolicy(Qt::NoFocus);
         btn->installEventFilter(this);
         layout->addWidget(btn);
 
@@ -136,7 +111,7 @@ void QwtCounter::initCounter()
         QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
 
     setFocusProxy(d_data->valueEdit);
-    setFocusPolicy(StrongFocus);
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 //! Destructor
@@ -157,10 +132,6 @@ void QwtCounter::polish()
         d_data->buttonDown[i]->setMinimumWidth(w);
         d_data->buttonUp[i]->setMinimumWidth(w);
     }
-
-#if QT_VERSION < 0x040000
-    QWidget::polish();
-#endif
 }
 
 //! Set from lineedit
@@ -184,9 +155,6 @@ void QwtCounter::textChanged()
 */
 void QwtCounter::setEditable(bool editable)
 {
-#if QT_VERSION >= 0x040000
-    using namespace Qt;
-#endif
     if ( editable == d_data->editable ) 
         return;
 
@@ -205,10 +173,9 @@ bool QwtCounter::editable() const
 */
 bool QwtCounter::event ( QEvent * e ) 
 {
-#if QT_VERSION >= 0x040000
     if ( e->type() == QEvent::PolishRequest )
         polish();
-#endif
+
     return QWidget::event(e);
 }
 
