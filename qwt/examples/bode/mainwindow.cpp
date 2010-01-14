@@ -1,5 +1,4 @@
 #include <qregexp.h>
-#include <qapplication.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qlabel.h>
@@ -27,8 +26,8 @@
 #include <qwt_text.h>
 #include <qwt_math.h>
 #include "pixmaps.h"
-#include "bode_plot.h"
-#include "bode.h"
+#include "plot.h"
+#include "mainwindow.h"
 
 class Zoomer: public QwtPlotZoomer
 {
@@ -64,10 +63,10 @@ public:
 //
 //-----------------------------------------------------------------
 
-MainWin::MainWin(QWidget *parent): 
+MainWindow::MainWindow(QWidget *parent): 
     QMainWindow(parent)
 {
-    d_plot = new BodePlot(this);
+    d_plot = new Plot(this);
     d_plot->setMargin(5);
 
 #if QT_VERSION >= 0x040000
@@ -195,7 +194,7 @@ MainWin::MainWin(QWidget *parent):
             SLOT(selected(const QwtPolygon &)));
 }
 
-void MainWin::print()
+void MainWindow::print()
 {
 #if 0
     QPrinter printer;
@@ -240,7 +239,7 @@ void MainWin::print()
     }
 }
 
-void MainWin::exportSVG()
+void MainWindow::exportSVG()
 {
     QString fileName = "bode.svg";
 
@@ -284,7 +283,7 @@ void MainWin::exportSVG()
 #endif
 }
 
-void MainWin::enableZoomMode(bool on)
+void MainWindow::enableZoomMode(bool on)
 {
     d_panner->setEnabled(on);
 
@@ -299,7 +298,7 @@ void MainWin::enableZoomMode(bool on)
     showInfo();
 }
 
-void MainWin::showInfo(QString text)
+void MainWindow::showInfo(QString text)
 {
     if ( text == QString::null )
     {
@@ -318,7 +317,7 @@ void MainWin::showInfo(QString text)
 #endif
 }
 
-void MainWin::moved(const QPoint &pos)
+void MainWindow::moved(const QPoint &pos)
 {
     QString info;
     info.sprintf("Freq=%g, Ampl=%g, Phase=%g",
@@ -329,22 +328,7 @@ void MainWin::moved(const QPoint &pos)
     showInfo(info);
 }
 
-void MainWin::selected(const QwtPolygon &)
+void MainWindow::selected(const QwtPolygon &)
 {
     showInfo();
-}
-
-int main (int argc, char **argv)
-{
-    QApplication a(argc, argv);
-
-    MainWin w;
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&w);
-#endif
-    w.resize(540,400);
-    w.show();
-
-    int rv = a.exec();
-    return rv;
 }
