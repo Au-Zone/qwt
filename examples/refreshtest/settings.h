@@ -34,7 +34,9 @@ public:
         curve.lineSplitting = true;
         
         canvas.cached = false;
+#if QT_VERSION >= 0x040000
         canvas.paintOnScreen = false;
+#endif
         canvas.deviceClipping = false;
 
         updateType = RepaintCanvas;
@@ -61,7 +63,9 @@ public:
     {
         bool deviceClipping;
         bool cached;
+#if QT_VERSION >= 0x040000
         bool paintOnScreen;
+#endif
     } canvas;
 
     UpdateType updateType;

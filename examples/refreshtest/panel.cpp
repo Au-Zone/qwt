@@ -5,11 +5,109 @@
 #include <qcheckbox.h>
 #include <qlayout.h>
 #include <qwt_plot_curve.h>
+#include <iostream>
+
+class GridLayout: public QGridLayout
+{
+public:
+	GridLayout(QWidget *parent):
+		QGridLayout(parent)
+	{
+#if QT_VERSION < 0x040000
+		setMargin(10);
+		setSpacing(5);
+#endif
+	}
+#if QT_VERSION < 0x040000
+	void setColumnStretch ( int column, int stretch )
+	{
+		setColStretch(column, stretch);
+	}
+
+	void addWidget(QWidget * w, int row, int col) 
+	{
+		QGridLayout::addWidget(w, row, col);
+	}
+
+	void addWidget(QWidget *w, int fromRow, int fromColumn, 
+		int rowSpan, int columnSpan)
+	{
+		int toRow = ( rowSpan == -1 ) ? numRows() : fromRow + rowSpan - 1;
+		int toCol = ( columnSpan == -1 ) ? numCols() : fromColumn + columnSpan -1;
+
+		addMultiCellWidget(w, fromRow, toRow, fromColumn, toCol);
+	}
+#endif
+};
+
+class ComboBox: public QComboBox
+{
+public:
+	ComboBox(QWidget *parent):
+		QComboBox(parent)
+	{
+	}
+
+#if QT_VERSION < 0x040000
+	void setCurrentIndex(int idx)
+	{
+		setCurrentItem(idx);
+	}
+
+	int currentIndex() const
+	{
+		return currentItem();
+	}
+
+	void addItem(const QString &item)
+	{
+		insertItem(item);
+	}
+#endif
+};
+
+class SpinBox: public QSpinBox
+{
+public:
+	SpinBox(int min, int max, int step, QWidget *parent):
+		QSpinBox(parent)
+	{
+#if QT_VERSION < 0x040000
+		setMinValue(min);
+		setMaxValue(max);
+		setLineStep(step);
+#else
+		setRange(min, max);
+		setSingleStep(step);
+#endif
+	}
+};
+
+class CheckBox: public QCheckBox
+{
+public:
+	CheckBox(const QString &title, QWidget *parent):
+		QCheckBox(title, parent)
+	{
+	}
+
+#if QT_VERSION >= 0x040000
+	void setChecked(bool)
+	{
+		setCheckState(Qt::Checked);
+	}
+
+	bool isChecked() const
+	{
+		return checkState() == Qt::Checked;
+	}
+#endif
+};
 
 Panel::Panel(QWidget *parent):
     QTabWidget(parent)
 {
-#if 1
+#if QT_VERSION >= 0x040000
     setTabPosition(QTabWidget::West);
 #endif
 
@@ -21,41 +119,46 @@ Panel::Panel(QWidget *parent):
 
     connect(d_numPoints, SIGNAL(valueChanged(int)), SLOT(edited()) );
     connect(d_updateInterval, SIGNAL(valueChanged(int)), SLOT(edited()) );
-    connect(d_updateType, SIGNAL(currentIndexChanged(int)), SLOT(edited()) );
-    connect(d_gridStyle, SIGNAL(currentIndexChanged(int)), SLOT(edited()) );
+    connect(d_curveWidth, SIGNAL(valueChanged(int)), SLOT(edited()) );
     connect(d_paintCache, SIGNAL(stateChanged(int)), SLOT(edited()) );
-    connect(d_paintOnScreen, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_canvasClipping, SIGNAL(stateChanged(int)), SLOT(edited()) );
-    connect(d_curveType, SIGNAL(currentIndexChanged(int)), SLOT(edited()) );
+#if QT_VERSION >= 0x040000
+    connect(d_paintOnScreen, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveAntialiasing, SIGNAL(stateChanged(int)), SLOT(edited()) );
+#endif
     connect(d_curveClipping, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveFilter, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_lineSplitting, SIGNAL(stateChanged(int)), SLOT(edited()) );
-    connect(d_curveWidth, SIGNAL(valueChanged(int)), SLOT(edited()) );
-    connect(d_curvePen, SIGNAL(currentIndexChanged(int)), SLOT(edited()) );
     connect(d_curveFilled, SIGNAL(stateChanged(int)), SLOT(edited()) );
+
+#if QT_VERSION < 0x040000
+    connect(d_updateType, SIGNAL(activated(int)), SLOT(edited()) );
+    connect(d_gridStyle, SIGNAL(activated(int)), SLOT(edited()) );
+    connect(d_curveType, SIGNAL(activated(int)), SLOT(edited()) );
+    connect(d_curvePen, SIGNAL(activated(int)), SLOT(edited()) );
+#else
+    connect(d_updateType, SIGNAL(currentIndexChanged(int)), SLOT(edited()) );
+    connect(d_gridStyle, SIGNAL(currentIndexChanged(int)), SLOT(edited()) );
+    connect(d_curveType, SIGNAL(currentIndexChanged(int)), SLOT(edited()) );
+    connect(d_curvePen, SIGNAL(currentIndexChanged(int)), SLOT(edited()) );
+#endif
 }
 
 QWidget *Panel::createPlotTab(QWidget *parent)
 {
     QWidget *page = new QWidget(parent);
 
-    d_updateInterval = new QSpinBox(page);
-    d_updateInterval->setRange(0, 1000);
-    d_updateInterval->setSingleStep(10);
+    d_updateInterval = new SpinBox(0, 1000, 10, page);
+    d_numPoints = new SpinBox(10, 1000000, 1000, page);
 
-    d_numPoints = new QSpinBox(page);
-    d_numPoints->setRange(10, 1000000);
-    d_numPoints->setSingleStep(1000);
-
-    d_updateType = new QComboBox(page);
+    d_updateType = new ComboBox(page);
     d_updateType->addItem("Update");
     d_updateType->addItem("Repaint");
     d_updateType->addItem("Replot");
 
     int row = 0;
 
-    QGridLayout *layout = new QGridLayout(page);
+    GridLayout *layout = new GridLayout(page);
 
     layout->addWidget(new QLabel("Updates", page), row, 0 );
     layout->addWidget(d_updateInterval, row, 1);
@@ -79,23 +182,27 @@ QWidget *Panel::createCanvasTab(QWidget *parent)
 {
     QWidget *page = new QWidget(parent);
 
-    d_gridStyle = new QComboBox(page);
+    d_gridStyle = new ComboBox(page);
     d_gridStyle->addItem("None");
     d_gridStyle->addItem("Solid");
     d_gridStyle->addItem("Dashes");
 
-    d_paintCache = new QCheckBox("Paint Cache", page);
-    d_paintOnScreen = new QCheckBox("Paint On Screen", page);
-    d_canvasClipping = new QCheckBox("Canvas Clipping", page);
+    d_paintCache = new CheckBox("Paint Cache", page);
+#if QT_VERSION >= 0x040000
+    d_paintOnScreen = new CheckBox("Paint On Screen", page);
+#endif
+    d_canvasClipping = new CheckBox("Canvas Clipping", page);
 
     int row = 0;
 
-    QGridLayout *layout = new QGridLayout(page);
+    GridLayout *layout = new GridLayout(page);
     layout->addWidget(new QLabel("Grid", page), row, 0);
     layout->addWidget(d_gridStyle, row++, 1);
 
     layout->addWidget(d_paintCache, row++, 0, 1, -1);
+#if QT_VERSION >= 0x040000
     layout->addWidget(d_paintOnScreen, row++, 0, 1, -1);
+#endif
     layout->addWidget(d_canvasClipping, row++, 0, 1, -1);
 
     layout->addLayout(new QHBoxLayout(), row++, 0);
@@ -110,31 +217,34 @@ QWidget *Panel::createCurveTab(QWidget *parent)
 {
     QWidget *page = new QWidget(parent);
 
-    d_curveType = new QComboBox(page);
+    d_curveType = new ComboBox(page);
     d_curveType->addItem("Wave");
     d_curveType->addItem("Noise");
 
-    d_curveAntialiasing = new QCheckBox("Antialiasing", page);
-    d_curveClipping = new QCheckBox("Clipping", page);
-    d_curveFilter = new QCheckBox("Filter", page);
-    d_lineSplitting = new QCheckBox("Split Lines", page);
+#if QT_VERSION >= 0x040000
+    d_curveAntialiasing = new CheckBox("Antialiasing", page);
+#endif
+    d_curveClipping = new CheckBox("Clipping", page);
+    d_curveFilter = new CheckBox("Filter", page);
+    d_lineSplitting = new CheckBox("Split Lines", page);
 
-    d_curveWidth = new QSpinBox(page);
-    d_curveWidth->setRange(0, 10);
+    d_curveWidth = new SpinBox(0, 10, 1, page);
 
-    d_curvePen = new QComboBox(page);
+    d_curvePen = new ComboBox(page);
     d_curvePen->addItem("Solid");
     d_curvePen->addItem("Dotted");
 
-    d_curveFilled = new QCheckBox("Filled", page);
+    d_curveFilled = new CheckBox("Filled", page);
 
     int row = 0;
 
-    QGridLayout *layout = new QGridLayout(page);
+    GridLayout *layout = new GridLayout(page);
     layout->addWidget(new QLabel("Type", page), row, 0 );
     layout->addWidget(d_curveType, row++, 1);
 
+#if QT_VERSION >= 0x040000
     layout->addWidget(d_curveAntialiasing, row++, 0, 1, -1);
+#endif
     layout->addWidget(d_curveClipping, row++, 0, 1, -1);
     layout->addWidget(d_curveFilter, row++, 0, 1, -1);
     layout->addWidget(d_lineSplitting, row++, 0, 1, -1);
@@ -181,29 +291,33 @@ Settings Panel::settings() const
     s.curve.pen.setStyle(d_curvePen->currentIndex() == 0 ?
         Qt::SolidLine : Qt::DotLine);
     s.curve.pen.setWidth(d_curveWidth->value());
-    s.curve.brush.setStyle((d_curveFilled->checkState() == Qt::Checked) ?
+    s.curve.brush.setStyle((d_curveFilled->isChecked()) ?
         Qt::SolidPattern : Qt::NoBrush);
     s.curve.numPoints = d_numPoints->value();
     s.curve.functionType = (Settings::FunctionType)d_curveType->currentIndex();
-    if ( d_curveClipping->checkState() == Qt::Checked )
+    if ( d_curveClipping->isChecked() )
         s.curve.paintAttributes |= QwtPlotCurve::ClipPolygons;
     else
         s.curve.paintAttributes &= ~QwtPlotCurve::ClipPolygons;
-    if ( d_curveFilter->checkState() == Qt::Checked )
+    if ( d_curveFilter->isChecked() )
         s.curve.paintAttributes |= QwtPlotCurve::PaintFiltered;
     else
         s.curve.paintAttributes &= ~QwtPlotCurve::PaintFiltered;
 
-    if ( d_curveAntialiasing->checkState() == Qt::Checked )
+#if QT_VERSION >= 0x040000
+    if ( d_curveAntialiasing->isChecked() )
         s.curve.renderHint |= QwtPlotCurve::RenderAntialiased;
     else
         s.curve.renderHint &= ~QwtPlotCurve::RenderAntialiased;
+#endif
 
-    s.curve.lineSplitting = (d_lineSplitting->checkState() == Qt::Checked);
+    s.curve.lineSplitting = (d_lineSplitting->isChecked() );
 
-    s.canvas.deviceClipping = (d_canvasClipping->checkState() == Qt::Checked);
-    s.canvas.cached = (d_paintCache->checkState() == Qt::Checked);
-    s.canvas.paintOnScreen = (d_paintOnScreen->checkState() == Qt::Checked);
+    s.canvas.deviceClipping = (d_canvasClipping->isChecked() );
+    s.canvas.cached = (d_paintCache->isChecked() );
+#if QT_VERSION >= 0x040000
+    s.canvas.paintOnScreen = (d_paintOnScreen->isChecked() );
+#endif
 
     s.updateInterval = d_updateInterval->value();
     s.updateType = (Settings::UpdateType)d_updateType->currentIndex();
@@ -229,32 +343,28 @@ void Panel::setSettings(const Settings &s)
             d_gridStyle->setCurrentIndex(1); // Solid
     }
 
-    d_paintCache->setCheckState(s.canvas.cached 
-        ? Qt::Checked : Qt::Unchecked);
-    d_paintOnScreen->setCheckState(s.canvas.paintOnScreen 
-        ? Qt::Checked : Qt::Unchecked);
-    d_canvasClipping->setCheckState(s.canvas.deviceClipping 
-        ? Qt::Checked : Qt::Unchecked);
+    d_paintCache->setChecked(s.canvas.cached );
+#if QT_VERSION >= 0x040000
+    d_paintOnScreen->setChecked(s.canvas.paintOnScreen);
+#endif
+    d_canvasClipping->setChecked(s.canvas.deviceClipping);
 
     d_curveType->setCurrentIndex(s.curve.functionType);
-    d_curveAntialiasing->setCheckState(
-        s.curve.renderHint & QwtPlotCurve::RenderAntialiased 
-            ? Qt::Checked : Qt::Unchecked);
+#if QT_VERSION >= 0x040000
+    d_curveAntialiasing->setChecked(
+        s.curve.renderHint & QwtPlotCurve::RenderAntialiased );
+#endif
 
-    d_curveClipping->setCheckState(
-        s.curve.paintAttributes & QwtPlotCurve::ClipPolygons 
-            ? Qt::Checked : Qt::Unchecked);
+    d_curveClipping->setChecked(
+        s.curve.paintAttributes & QwtPlotCurve::ClipPolygons);
 
-    d_curveFilter->setCheckState(
-        s.curve.paintAttributes & QwtPlotCurve::PaintFiltered 
-            ? Qt::Checked : Qt::Unchecked);
+    d_curveFilter->setChecked(
+        s.curve.paintAttributes & QwtPlotCurve::PaintFiltered);
 
-    d_lineSplitting->setCheckState(
-        s.curve.lineSplitting ? Qt::Checked : Qt::Unchecked);
+    d_lineSplitting->setChecked(s.curve.lineSplitting );
 
     d_curveWidth->setValue(s.curve.pen.width());
     d_curvePen->setCurrentIndex(
         s.curve.pen.style() == Qt::SolidLine ? 0 : 1);
-    d_curveFilled->setCheckState((s.curve.brush.style() != Qt::NoBrush)
-        ? Qt::Checked : Qt::Unchecked);
+    d_curveFilled->setChecked(s.curve.brush.style() != Qt::NoBrush);
 }
