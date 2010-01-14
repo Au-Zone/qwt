@@ -419,11 +419,7 @@ void QwtPlotCurve::drawLines(QPainter *painter,
         // to avoid a distinction between linear and
         // logarithmic scales.
 
-#if QT_VERSION < 0x040000
-        QwtArray<QwtDoublePoint> points(size);
-#else
         QPolygonF points(size);
-#endif
         for (int i = from; i <= to; i++)
         {
             const QwtDoublePoint sample = d_series->sample(i);

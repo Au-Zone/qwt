@@ -33,9 +33,7 @@ public:
     virtual QSize minimumSizeHint() const;
 
 protected:
-#if QT_VERSION >= 0x040000
     virtual void paintEvent(QPaintEvent *event);
-#endif
 
     virtual void drawButtonLabel(QPainter *p);
     virtual void drawArrow(QPainter *, 

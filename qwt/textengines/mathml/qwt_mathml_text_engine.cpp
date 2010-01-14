@@ -9,9 +9,6 @@
 
 // vim: expandtab
 
-#include <qglobal.h>
-#if QT_VERSION >= 0x040000
-
 #include <qstring.h>
 #include <qpainter.h>
 #include "qwt_mathml_text_engine.h"
@@ -132,5 +129,3 @@ bool QwtMathMLTextEngine::mightRender(const QString &text) const
 {
     return text.trimmed().startsWith("<math");
 }
-
-#endif // QT_VERSION < 0x040000

@@ -7,14 +7,11 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <math.h>
 #include <qevent.h>
 #include <qdrawutil.h>
 #include <qpainter.h>
 #include "qwt_painter.h"
-#include "qwt_paint_buffer.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_map.h"
 #include "qwt_slider.h"
@@ -68,24 +65,6 @@ QwtSlider::QwtSlider(QWidget *parent,
     initSlider(orientation, scalePos, bgStyle);
 }
 
-#if QT_VERSION < 0x040000
-/*!
-  \brief Constructor
-
-  Build a horizontal slider with no scale and BgTrough as 
-  background style
-
-  \param parent parent widget
-  \param name Object name
-*/
-QwtSlider::QwtSlider(QWidget *parent, const char* name):
-    QwtAbstractSlider(Qt::Horizontal, parent)
-{
-    setName(name);
-    initSlider(Qt::Horizontal, NoScale, BgTrough);
-}
-#endif
-
 void QwtSlider::initSlider(Qt::Orientation orientation, 
     ScalePos scalePos, BGSTYLE bgStyle)
 {
@@ -94,16 +73,8 @@ void QwtSlider::initSlider(Qt::Orientation orientation,
     else
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-#if QT_VERSION >= 0x040000
     setAttribute(Qt::WA_WState_OwnSizePolicy, false);
-#else
-    clearWState( WState_OwnSizePolicy );
-#endif
 
-
-#if QT_VERSION < 0x040000
-    setWFlags(Qt::WNoAutoErase);
-#endif
 
     d_data = new QwtSlider::PrivateData;
 
@@ -187,21 +158,13 @@ void QwtSlider::setOrientation(Qt::Orientation o)
             d_data->scalePos = NoScale;
     }
 
-#if QT_VERSION >= 0x040000
     if ( !testAttribute(Qt::WA_WState_OwnSizePolicy) )
-#else
-    if ( !testWState( WState_OwnSizePolicy ) ) 
-#endif
     {
         QSizePolicy sp = sizePolicy();
         sp.transpose();
         setSizePolicy(sp);
 
-#if QT_VERSION >= 0x040000
         setAttribute(Qt::WA_WState_OwnSizePolicy, false);
-#else
-        clearWState( WState_OwnSizePolicy );
-#endif
     }
 
     QwtAbstractSlider::setOrientation(o);
@@ -386,12 +349,7 @@ void QwtSlider::drawSlider(QPainter *painter, const QRect &r)
     if (d_data->bgStyle & BgTrough)
     {
         qDrawShadePanel(painter, r.x(), r.y(),
-            r.width(), r.height(),
-#if QT_VERSION < 0x040000
-            colorGroup(), 
-#else
-            palette(), 
-#endif
+            r.width(), r.height(), palette(), 
             true, d_data->borderWidth,0);
 
         cr.setRect(r.x() + d_data->borderWidth,
@@ -400,12 +358,7 @@ void QwtSlider::drawSlider(QPainter *painter, const QRect &r)
             r.height() - 2 * d_data->borderWidth);
 
         painter->fillRect(cr.x(), cr.y(), cr.width(), cr.height(), 
-#if QT_VERSION < 0x040000
-            colorGroup().brush(QColorGroup::Mid)
-#else
-            palette().brush(QPalette::Mid)
-#endif
-        );
+            palette().brush(QPalette::Mid) );
     }
 
     if ( d_data->bgStyle & BgSlot)
@@ -433,21 +386,10 @@ void QwtSlider::drawSlider(QPainter *painter, const QRect &r)
                     ws, cr.height() - 2 * ds);
         }
         painter->fillRect(rSlot.x(), rSlot.y(), rSlot.width(), rSlot.height(),
-#if QT_VERSION < 0x040000
-            colorGroup().brush(QColorGroup::Dark)
-#else
-            palette().brush(QPalette::Dark)
-#endif
-        );
+            palette().brush(QPalette::Dark) );
         qDrawShadePanel(painter, rSlot.x(), rSlot.y(),
-            rSlot.width(), rSlot.height(), 
-#if QT_VERSION < 0x040000
-            colorGroup(), 
-#else
-            palette(), 
-#endif
+            rSlot.width(), rSlot.height(), palette(), 
             true, 1 ,0);
-
     }
 
     if ( isValid() )
@@ -468,53 +410,25 @@ void QwtSlider::drawThumb(QPainter *painter, const QRect &sliderRect, int pos)
     {
         qDrawShadePanel(painter, pos - d_data->thumbLength / 2, 
             sliderRect.y(), d_data->thumbLength, sliderRect.height(),
-#if QT_VERSION < 0x040000
-            colorGroup(), 
-#else
-            palette(), 
-#endif
-            false, d_data->borderWidth, 
-#if QT_VERSION < 0x040000
-            &colorGroup().brush(QColorGroup::Button)
-#else
+            palette(), false, d_data->borderWidth, 
             &palette().brush(QPalette::Button)
-#endif
         );
 
         qDrawShadeLine(painter, pos, sliderRect.y(), 
             pos, sliderRect.y() + sliderRect.height() - 2, 
-#if QT_VERSION < 0x040000
-            colorGroup(), 
-#else
-            palette(), 
-#endif
-            true, 1);
+            palette(), true, 1);
     }
     else // Vertical
     {
         qDrawShadePanel(painter, sliderRect.x(), pos - d_data->thumbLength / 2, 
             sliderRect.width(), d_data->thumbLength,
-#if QT_VERSION < 0x040000
-            colorGroup(),
-#else
-            palette(), 
-#endif
-            false, d_data->borderWidth, 
-#if QT_VERSION < 0x040000
-            &colorGroup().brush(QColorGroup::Button)
-#else
+            palette(), false, d_data->borderWidth, 
             &palette().brush(QPalette::Button)
-#endif
         );
 
         qDrawShadeLine(painter, sliderRect.x(), pos,
             sliderRect.x() + sliderRect.width() - 2, pos, 
-#if QT_VERSION < 0x040000
-            colorGroup(), 
-#else
-            palette(), 
-#endif
-            true, 1);
+            palette(), true, 1);
     }
 }
 
@@ -580,13 +494,8 @@ void QwtSlider::paintEvent(QPaintEvent *event)
     const QRect &ur = event->rect();
     if ( ur.isValid() )
     {
-#if QT_VERSION < 0x040000
-        QwtPaintBuffer paintBuffer(this, ur);
-        draw(paintBuffer.painter(), ur);
-#else
         QPainter painter(this);
         draw(&painter, ur);
-#endif
     }
 }
 
@@ -594,13 +503,7 @@ void QwtSlider::paintEvent(QPaintEvent *event)
 void QwtSlider::draw(QPainter *painter, const QRect&)
 {
     if (d_data->scalePos != NoScale)
-    {
-#if QT_VERSION < 0x040000
-        scaleDraw()->draw(painter, colorGroup());
-#else
         scaleDraw()->draw(painter, palette());
-#endif
-    }
 
     drawSlider(painter, d_data->sliderRect);
 

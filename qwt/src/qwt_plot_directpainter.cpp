@@ -26,10 +26,8 @@ static void renderItem(QPainter *painter,
     const QwtScaleMap xMap = plot->canvasMap(seriesItem->xAxis());
     const QwtScaleMap yMap = plot->canvasMap(seriesItem->yAxis());
 
-#if QT_VERSION >= 0x040000
     painter->setRenderHint(QPainter::Antialiasing,
         seriesItem->testRenderHint(QwtPlotItem::RenderAntialiased) );
-#endif
     seriesItem->drawSeries(painter, xMap, yMap,
         plot->canvas()->contentsRect(), from, to);
 }
@@ -125,13 +123,11 @@ void QwtPlotDirectPainter::drawSeries(
     }
 
     bool immediatePaint = true;
-#if QT_VERSION >= 0x040000
     if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
         !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
     {
         immediatePaint = false;
     }
-#endif
 
     if ( immediatePaint )
     {

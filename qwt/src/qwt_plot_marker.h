@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_PLOT_MARKER_H
 #define QWT_PLOT_MARKER_H
 
@@ -84,13 +82,8 @@ public:
     void setLabel(const QwtText&);
     QwtText label() const;
 
-#if QT_VERSION < 0x040000
-    void setLabelAlignment(int align);
-    int labelAlignment() const;
-#else
     void setLabelAlignment(Qt::Alignment);
     Qt::Alignment labelAlignment() const;
-#endif
 
     void setLabelOrientation(Qt::Orientation);
     Qt::Orientation labelOrientation() const;

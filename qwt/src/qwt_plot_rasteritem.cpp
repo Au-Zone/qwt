@@ -41,12 +41,7 @@ static QImage toRgba(const QImage& image, int alpha)
     if ( alpha < 0 || alpha >= 255 )  
         return image;
 
-#if QT_VERSION < 0x040000
-    QImage alphaImage(image.size(), 32);
-    alphaImage.setAlphaBuffer(true);
-#else
     QImage alphaImage(image.size(), QImage::Format_ARGB32);
-#endif
 
     const QRgb mask1 = qRgba(0, 0, 0, alpha);
     const QRgb mask2 = qRgba(255, 255, 255, 0);

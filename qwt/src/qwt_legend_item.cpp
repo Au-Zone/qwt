@@ -7,16 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qstyle.h>
 #include <qpen.h>
-#if QT_VERSION >= 0x040000
 #include <qevent.h>
 #include <qstyleoption.h>
-#endif
 #include "qwt_math.h"
 #include "qwt_painter.h"
 #include "qwt_symbol.h"
@@ -27,12 +23,6 @@ static const int Margin = 2;
 
 static QSize buttonShift(const QwtLegendItem *w)
 {
-#if QT_VERSION < 0x040000
-    const int ph = w->style().pixelMetric(
-        QStyle::PM_ButtonShiftHorizontal, w);
-    const int pv = w->style().pixelMetric(
-        QStyle::PM_ButtonShiftVertical, w);
-#else
     QStyleOption option;
     option.init(w);
 
@@ -40,7 +30,6 @@ static QSize buttonShift(const QwtLegendItem *w)
         QStyle::PM_ButtonShiftHorizontal, &option, w);
     const int pv = w->style()->pixelMetric(
         QStyle::PM_ButtonShiftVertical, &option, w);
-#endif
     return QSize(ph, pv);
 }
 
@@ -91,11 +80,7 @@ QwtLegendItem::~QwtLegendItem()
 void QwtLegendItem::setText(const QwtText &text)
 {
     const int flags = Qt::AlignLeft | Qt::AlignVCenter
-#if QT_VERSION < 0x040000
-        | Qt::WordBreak | Qt::ExpandTabs;
-#else
         | Qt::TextExpandTabs | Qt::TextWordWrap;
-#endif
 
     QwtText txt = text;
     txt.setRenderFlags(flags);
@@ -117,10 +102,7 @@ void QwtLegendItem::setItemMode(QwtLegend::LegendItemMode mode)
         d_data->itemMode = mode; 
         d_data->isDown = false; 
 
-#if QT_VERSION >= 0x040000
-        using namespace Qt;
-#endif
-        setFocusPolicy(mode != QwtLegend::ReadOnlyItem ? TabFocus : NoFocus);
+        setFocusPolicy(mode != QwtLegend::ReadOnlyItem ? Qt::TabFocus : Qt::NoFocus);
         setMargin(ButtonFrame + Margin);
 
         updateGeometry();
@@ -291,12 +273,7 @@ void QwtLegendItem::paintEvent(QPaintEvent *e)
     if ( d_data->isDown )
     {
         qDrawWinButton(&painter, 0, 0, width(), height(), 
-#if QT_VERSION < 0x040000
-            colorGroup(), 
-#else
-            palette(),
-#endif
-            true);
+            palette(), true);
     }
 
     painter.save();

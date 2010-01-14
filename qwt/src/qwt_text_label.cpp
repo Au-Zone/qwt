@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <qpainter.h>
 #include <qevent.h>
 #include "qwt_text.h"
@@ -38,19 +36,6 @@ QwtTextLabel::QwtTextLabel(QWidget *parent):
 {
     init();
 }
-
-#if QT_VERSION < 0x040000
-/*! 
-  Constructs an empty label.
-  \param parent Parent widget
-  \param name Object name
-*/
-QwtTextLabel::QwtTextLabel(QWidget *parent, const char *name):
-    QFrame(parent, name)
-{
-    init();
-}
-#endif
 
 /*!
   Constructs a label that displays the text, text
@@ -220,7 +205,6 @@ int QwtTextLabel::heightForWidth(int width) const
 */
 void QwtTextLabel::paintEvent(QPaintEvent *event)
 {
-#if QT_VERSION >= 0x040000
     QPainter painter(this);
 
     if ( !contentsRect().contains( event->rect() ) )
@@ -234,10 +218,6 @@ void QwtTextLabel::paintEvent(QPaintEvent *event)
     painter.setClipRegion(event->region() & contentsRect());
 
     drawContents( &painter );
-#else // QT_VERSION < 0x040000
-    QFrame::paintEvent(event);
-#endif
-
 }
 
 //! Redraw the text and focus indicator

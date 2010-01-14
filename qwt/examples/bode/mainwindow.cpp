@@ -8,17 +8,11 @@
 #include <qpicture.h>
 #include <qpainter.h>
 #include <qfiledialog.h>
-#if QT_VERSION >= 0x040300
 #ifdef QT_SVG_LIB
 #include <qsvggenerator.h>
 #endif
-#endif
-#if QT_VERSION >= 0x040000
 #include <qprintdialog.h>
 #include <qfileinfo.h>
-#else
-#include <qwt_painter.h>
-#endif
 #include <qwt_counter.h>
 #include <qwt_picker_machine.h>
 #include <qwt_plot_zoomer.h>
@@ -41,13 +35,8 @@ public:
         // RightButton: zoom out by 1
         // Ctrl+RightButton: zoom out to full size
 
-#if QT_VERSION < 0x040000
-        setMousePattern(QwtEventPattern::MouseSelect2,
-            Qt::RightButton, Qt::ControlButton);
-#else
         setMousePattern(QwtEventPattern::MouseSelect2,
             Qt::RightButton, Qt::ControlModifier);
-#endif
         setMousePattern(QwtEventPattern::MouseSelect3,
             Qt::RightButton);
     }
@@ -69,9 +58,7 @@ MainWindow::MainWindow(QWidget *parent):
     d_plot = new Plot(this);
     d_plot->setMargin(5);
 
-#if QT_VERSION >= 0x040000
     setContextMenuPolicy(Qt::NoContextMenu);
-#endif
 
     d_zoomer[0] = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft, 
         d_plot->canvas());
@@ -99,51 +86,27 @@ MainWindow::MainWindow(QWidget *parent):
     QToolBar *toolBar = new QToolBar(this);
 
     QToolButton *btnZoom = new QToolButton(toolBar);
-#if QT_VERSION >= 0x040000
     btnZoom->setText("Zoom");
     btnZoom->setIcon(QIcon(zoom_xpm));
     btnZoom->setCheckable(true);
     btnZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-#else
-    btnZoom->setTextLabel("Zoom");
-    btnZoom->setPixmap(zoom_xpm);
-    btnZoom->setToggleButton(true);
-    btnZoom->setUsesTextLabel(true);
-#endif
 
     QToolButton *btnPrint = new QToolButton(toolBar);
-#if QT_VERSION >= 0x040000
     btnPrint->setText("Print");
     btnPrint->setIcon(QIcon(print_xpm));
     btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-#else
-    btnPrint->setTextLabel("Print");
-    btnPrint->setPixmap(print_xpm);
-    btnPrint->setUsesTextLabel(true);
-#endif
 
-#if QT_VERSION < 0x040000 
-    QToolButton *btnSVG = new QToolButton(toolBar);
-    btnSVG->setTextLabel("SVG");
-    btnSVG->setPixmap(print_xpm);
-    btnSVG->setUsesTextLabel(true);
-#elif QT_VERSION >= 0x040300
 #ifdef QT_SVG_LIB
     QToolButton *btnSVG = new QToolButton(toolBar);
     btnSVG->setText("SVG");
     btnSVG->setIcon(QIcon(print_xpm));
     btnSVG->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 #endif
-#endif
 
-#if QT_VERSION >= 0x040000
     toolBar->addWidget(btnZoom);
     toolBar->addWidget(btnPrint);
-#if QT_VERSION >= 0x040300
 #ifdef QT_SVG_LIB
     toolBar->addWidget(btnSVG);
-#endif
-#endif
 #endif
     toolBar->addSeparator();
 
@@ -161,11 +124,7 @@ MainWindow::MainWindow(QWidget *parent):
     
     layout->addWidget(cntDamp, 0);
 
-#if QT_VERSION >= 0x040000
     (void)toolBar->addWidget(hBox);
-#else
-    toolBar->setStretchableWidget(hBox);
-#endif
 
     addToolBar(toolBar);
 #ifndef QT_NO_STATUSBAR
@@ -179,12 +138,8 @@ MainWindow::MainWindow(QWidget *parent):
         d_plot, SLOT(setDamp(double))); 
 
     connect(btnPrint, SIGNAL(clicked()), SLOT(print()));
-#if QT_VERSION < 0x040000 
-    connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
-#elif QT_VERSION >= 0x040300
 #ifdef QT_SVG_LIB
     connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
-#endif
 #endif
     connect(btnZoom, SIGNAL(toggled(bool)), SLOT(enableZoomMode(bool)));
 
@@ -200,13 +155,7 @@ void MainWindow::print()
     QPrinter printer;
 #else
     QPrinter printer(QPrinter::HighResolution);
-#if QT_VERSION < 0x040000
-    printer.setOutputToFile(true);
-    printer.setOutputFileName("/tmp/bode.ps");
-    printer.setColorMode(QPrinter::Color);
-#else
     printer.setOutputFileName("/tmp/bode.pdf");
-#endif
 #endif
 
     QString docName = d_plot->title().text();
@@ -219,14 +168,9 @@ void MainWindow::print()
     printer.setCreator("Bode example");
     printer.setOrientation(QPrinter::Landscape);
 
-#if QT_VERSION >= 0x040000
     QPrintDialog dialog(&printer);
     if ( dialog.exec() )
     {
-#else
-    if (printer.setup())
-    {
-#endif
         QwtPlotPrintFilter filter;
         if ( printer.colorMode() == QPrinter::GrayScale )
         {
@@ -243,28 +187,6 @@ void MainWindow::exportSVG()
 {
     QString fileName = "bode.svg";
 
-#if QT_VERSION < 0x040000
-
-#ifndef QT_NO_FILEDIALOG
-    fileName = QFileDialog::getSaveFileName(
-        "bode.svg", "SVG Documents (*.svg)", this);
-#endif
-    if ( !fileName.isEmpty() )
-    {
-        // enable workaround for Qt3 misalignments
-        QwtPainter::setSVGMode(true); 
-
-        QPicture picture;
-
-        QPainter p(&picture);
-        d_plot->print(&p, QRect(0, 0, 800, 600));
-        p.end();
-
-        picture.save(fileName, "svg");
-    }
-
-#elif QT_VERSION >= 0x040300
-
 #ifdef QT_SVG_LIB
 #ifndef QT_NO_FILEDIALOG
     fileName = QFileDialog::getSaveFileName(
@@ -279,7 +201,6 @@ void MainWindow::exportSVG()
 
         d_plot->print(generator);
     }
-#endif
 #endif
 }
 
@@ -309,11 +230,7 @@ void MainWindow::showInfo(QString text)
     }
 
 #ifndef QT_NO_STATUSBAR
-#if QT_VERSION >= 0x040000
     statusBar()->showMessage(text);
-#else
-    statusBar()->message(text);
-#endif
 #endif
 }
 

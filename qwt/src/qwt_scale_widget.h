@@ -49,9 +49,6 @@ public:
     };
 
     explicit QwtScaleWidget(QWidget *parent = NULL);
-#if QT_VERSION < 0x040000
-    explicit QwtScaleWidget(QWidget *parent, const char *name);
-#endif
     explicit QwtScaleWidget(QwtScaleDraw::Alignment, QWidget *parent = NULL);
     virtual ~QwtScaleWidget();
 
@@ -91,11 +88,7 @@ public:
     const QwtScaleDraw *scaleDraw() const;
     QwtScaleDraw *scaleDraw();
 
-#if QT_VERSION < 0x040000
-    void setLabelAlignment(int);
-#else
     void setLabelAlignment(Qt::Alignment);
-#endif
     void setLabelRotation(double rotation);
 
     void setColorBarEnabled(bool);
@@ -127,10 +120,6 @@ public:
 protected:
     virtual void paintEvent(QPaintEvent *e);
     virtual void resizeEvent(QResizeEvent *e);
-
-#if QT_VERSION < 0x040000
-    virtual void fontChange(const QFont &oldfont);
-#endif
 
     void draw(QPainter *p) const;
 

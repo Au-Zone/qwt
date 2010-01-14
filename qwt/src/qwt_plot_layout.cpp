@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <qscrollbar.h>
 #include "qwt_text.h"
 #include "qwt_text_label.h"
@@ -1188,11 +1186,7 @@ void QwtPlotLayout::activate(const QwtPlot *plot,
                     scaleRect.setHeight(dim);
                     break;
             }
-#if QT_VERSION < 0x040000
-            scaleRect = scaleRect.normalize();
-#else
             scaleRect = scaleRect.normalized();
-#endif
         }
     }
 

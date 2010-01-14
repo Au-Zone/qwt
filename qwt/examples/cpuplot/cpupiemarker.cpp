@@ -7,9 +7,7 @@
 CpuPieMarker::CpuPieMarker()
 {
     setZ(1000);
-#if QT_VERSION >= 0x040000
     setRenderHint(QwtPlotItem::RenderAntialiased, true);
-#endif
 }
 
 int CpuPieMarker::rtti() const

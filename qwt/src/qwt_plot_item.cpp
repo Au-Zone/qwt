@@ -21,9 +21,7 @@ public:
         plot(NULL),
         isVisible(true),
         attributes(0),
-#if QT_VERSION >= 0x040000
         renderHints(0),
-#endif
         z(0.0),
         xAxis(QwtPlot::xBottom),
         yAxis(QwtPlot::yLeft)
@@ -34,9 +32,7 @@ public:
 
     bool isVisible;
     int attributes;
-#if QT_VERSION >= 0x040000
     int renderHints;
-#endif
     double z;
 
     int xAxis;
@@ -230,8 +226,6 @@ bool QwtPlotItem::testItemAttribute(ItemAttribute attribute) const
     return d_data->attributes & attribute;
 }
 
-#if QT_VERSION >= 0x040000
-
 /*!
    Toggle an render hint
  
@@ -264,8 +258,6 @@ bool QwtPlotItem::testRenderHint(RenderHint hint) const
 {
     return (d_data->renderHints & hint);
 }
-
-#endif
 
 //! Show the item
 void QwtPlotItem::show()
@@ -462,19 +454,13 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
                 const int h = label->identifierWidth();
 
                 QPixmap identifier(w, h);
-#if QT_VERSION >= 0x040000
                 identifier.fill(QColor(0, 0, 0, 0));
-#endif
             
                 QPainter painter(&identifier);
                 drawLegendIdentifier(&painter, QRect(0, 0, w, h));
                 painter.end();
 
-#if QT_VERSION < 0x040000
-                const bool doUpdate = label->isUpdatesEnabled();
-#else
                 const bool doUpdate = label->updatesEnabled();
-#endif
 
                 label->setUpdatesEnabled(false);
 

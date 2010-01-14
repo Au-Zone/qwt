@@ -1,7 +1,5 @@
 #include <qprinter.h>
-#if QT_VERSION >= 0x040000
 #include <qprintdialog.h>
-#endif
 #include <qwt_color_map.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_scale_widget.h>
@@ -23,9 +21,7 @@ public:
     virtual QwtText trackerText(const QwtDoublePoint &pos) const
     {
         QColor bg(Qt::white);
-#if QT_VERSION >= 0x040300
         bg.setAlpha(200);
-#endif
 
         QwtText text = QwtPlotZoomer::trackerText(pos);
         text.setBackgroundBrush( QBrush( bg ));
@@ -104,13 +100,8 @@ Plot::Plot(QWidget *parent):
     // Ctrl+RighButton: zoom out to full size
 
     QwtPlotZoomer* zoomer = new MyZoomer(canvas());
-#if QT_VERSION < 0x040000
-    zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
-        Qt::RightButton, Qt::ControlButton);
-#else
     zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
         Qt::RightButton, Qt::ControlModifier);
-#endif
     zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
         Qt::RightButton);
 
@@ -147,17 +138,9 @@ void Plot::printPlot()
 {
     QPrinter printer;
     printer.setOrientation(QPrinter::Landscape);
-#if QT_VERSION < 0x040000
-    printer.setColorMode(QPrinter::Color);
-    printer.setOutputFileName("/tmp/spectrogram.ps");
-    if (printer.setup())
-#else
     printer.setOutputFileName("/tmp/spectrogram.pdf");
     QPrintDialog dialog(&printer);
     if ( dialog.exec() )
-#endif
-    {
         print(printer);
-    }
 }
 

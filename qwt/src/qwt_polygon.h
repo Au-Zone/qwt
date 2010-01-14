@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_POLYGON_H
 #define QWT_POLYGON_H
 
@@ -18,18 +16,8 @@
   \def QwtPolygon
  */
 
-#if QT_VERSION < 0x040000
-#include <qpointarray.h>
-#include "qwt_double_rect.h"
-
-typedef QPointArray QwtPolygon;
-typedef QMemArray<QwtDoublePoint> QwtPolygonF;
-
-#else
-
 #include <qpolygon.h>
 typedef QPolygon QwtPolygon;
 typedef QPolygonF QwtPolygonF;
-#endif
 
 #endif

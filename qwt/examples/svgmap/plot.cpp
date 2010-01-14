@@ -37,28 +37,17 @@ Plot::Plot(QWidget *parent):
     (void)new QwtPlotPanner(canvas());
     (void)new QwtPlotMagnifier(canvas());
 
-#if QT_VERSION >= 0x040000
-    using namespace Qt;
-#endif
-    canvas()->setFocusPolicy(WheelFocus);
+    canvas()->setFocusPolicy(Qt::WheelFocus);
     rescale();
 }
 
 void Plot::loadSVG()
 {
     QString dir;
-#if 0
-    dir = "/dw/svg";
-#endif
-#if QT_VERSION >= 0x040000
     const QString fileName = QFileDialog::getOpenFileName( NULL,
         "Load a Scaleable Vector Graphic (SVG) Map",
         dir, "SVG Files (*.svg)");
-#else
-    const QString fileName = QFileDialog::getOpenFileName( 
-        dir, "SVG Files (*.svg)", NULL, NULL, 
-        "Load a Scaleable Vector Graphic (SVG) Map" );
-#endif
+
     if ( !fileName.isEmpty() )
     {
         if ( d_mapItem == NULL )

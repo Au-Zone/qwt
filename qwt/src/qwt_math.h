@@ -26,19 +26,9 @@
 #include "qwt_global.h"
 #include "qwt_double_rect.h"
 
-#if QT_VERSION < 0x040000
-
-#define qwtMax QMAX
-#define qwtMin QMIN
-#define qwtAbs QABS
-
-#else // QT_VERSION >= 0x040000
-
 #define qwtMax qMax
 #define qwtMin qMin
 #define qwtAbs qAbs
-
-#endif
 
 #ifndef LOG10_2
 #define LOG10_2     0.30102999566398119802  /* log10(2) */

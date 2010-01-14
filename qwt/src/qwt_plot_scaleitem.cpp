@@ -31,11 +31,7 @@ public:
         delete scaleDraw;
     }
 
-#if QT_VERSION < 0x040000
-    QColorGroup colorGroup;
-#else
     QPalette palette;
-#endif
     QFont font;
     double position;
     int borderDistance;
@@ -134,32 +130,6 @@ bool QwtPlotScaleItem::isScaleDivFromAxis() const
     return d_data->scaleDivFromAxis;
 }
 
-#if QT_VERSION < 0x040000 
-
-/*!
-   Set the color group
-   \sa QwtAbstractScaleDraw::draw(), colorGroup()
-*/
-void QwtPlotScaleItem::setColorGroup(const QColorGroup &colorGroup)
-{
-    if ( colorGroup != d_data->colorGroup )
-    {
-        d_data->colorGroup = colorGroup;
-        itemChanged();
-    }
-}
-
-/*!
-   \return color group
-   \sa setColorGroup()
-*/
-QColorGroup QwtPlotScaleItem::colorGroup() const
-{
-    return d_data->colorGroup;
-}
-
-#else
-
 /*!
    Set the palette
    \sa QwtAbstractScaleDraw::draw(), palette()
@@ -181,8 +151,6 @@ QPalette QwtPlotScaleItem::palette() const
 {
     return d_data->palette;
 }
-
-#endif
 
 /*!
    Change the tick label font
@@ -421,12 +389,7 @@ void QwtPlotScaleItem::draw(QPainter *painter,
 
     painter->setFont(d_data->font);
 
-#if QT_VERSION < 0x040000
-    sd->draw(painter, d_data->colorGroup);
-#else
     sd->draw(painter, d_data->palette);
-#endif
-    
 }
 
 /*!

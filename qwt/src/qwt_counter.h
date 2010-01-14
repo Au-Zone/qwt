@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_COUNTER_H
 #define QWT_COUNTER_H
 
@@ -85,9 +83,6 @@ public:
     };
 
     explicit QwtCounter(QWidget *parent = NULL);
-#if QT_VERSION < 0x040000
-    explicit QwtCounter(QWidget *parent, const char *name);
-#endif
     virtual ~QwtCounter();
 
     bool editable() const;

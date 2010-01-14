@@ -19,11 +19,7 @@
 //   Array Sizes
 //
 const int Size = 27;
-#if QT_VERSION >= 0x040000
 const int CurvCnt = 6;
-#else
-const int CurvCnt = 5;
-#endif
 
 //
 //   Arrays holding the values
@@ -39,9 +35,7 @@ public:
     MainWin();
     
 protected:
-#if QT_VERSION >= 0x040000
     virtual void paintEvent(QPaintEvent *);
-#endif
     void drawContents(QPainter *p);
 
 private:
@@ -100,13 +94,10 @@ MainWin::MainWin()
     crv[i].setStyle(QwtPlotCurve::Lines);
     i++;
 
-#if QT_VERSION >= 0x040000
     crv[i].setPen(QColor(Qt::darkBlue));
     crv[i].setStyle(QwtPlotCurve::Lines);
     crv[i].setRenderHint(QwtPlotItem::RenderAntialiased);
     i++;
-#endif
-
 
     crv[i].setPen(QColor(Qt::darkCyan));
     crv[i].setStyle(QwtPlotCurve::Steps);
@@ -128,14 +119,9 @@ MainWin::MainWin()
 
 void MainWin::shiftDown(QRect &rect, int offset) const
 {
-#if QT_VERSION < 0x040000
-        rect.moveBy(0, offset);     
-#else
-        rect.translate(0, offset);     
-#endif
+    rect.translate(0, offset);     
 }
 
-#if QT_VERSION >= 0x040000
 void MainWin::paintEvent(QPaintEvent *event)
 {
     QFrame::paintEvent(event);
@@ -144,7 +130,6 @@ void MainWin::paintEvent(QPaintEvent *event)
     painter.setClipRect(contentsRect());
     drawContents(&painter);
 }
-#endif
 
 
 //
@@ -168,10 +153,8 @@ void MainWin::drawContents(QPainter *painter)
         xMap.setPaintInterval(r.left(), r.right());
         yMap.setPaintInterval(r.top(), r.bottom());
 
-#if QT_VERSION >= 0x040000
         painter->setRenderHint(QPainter::Antialiasing,
             crv[i].testRenderHint(QwtPlotItem::RenderAntialiased) );
-#endif
         crv[i].draw(painter, xMap, yMap, r);
 
         shiftDown(r, deltay);
@@ -199,12 +182,9 @@ void MainWin::drawContents(QPainter *painter)
         alignment, "Style: Lines, Symbol: None");
     shiftDown(r, deltay);
 
-#if QT_VERSION >= 0x040000
     painter->drawText(0 ,r.top(),r.width(), painter->fontMetrics().height(),
         alignment, "Style: Lines, Symbol: None, Antialiased");
     shiftDown(r, deltay);
-#endif
-    
     
     painter->drawText(0, r.top(),r.width(), painter->fontMetrics().height(),
         alignment, "Style: Steps, Symbol: None");
@@ -220,9 +200,6 @@ int main (int argc, char **argv)
 
     MainWin w;
 
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&w);
-#endif
     w.resize(300,600);
     w.show();
 

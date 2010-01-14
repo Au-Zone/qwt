@@ -8,78 +8,19 @@
  *****************************************************************************/
 
 #include <qwidget.h>
+#include <qlist.h>
 #include "qwt_dyngrid_layout.h"
 #include "qwt_math.h"
-
-#if QT_VERSION < 0x040000
-#include <qvaluelist.h>
-#else
-#include <qlist.h>
-#endif
 
 class QwtDynGridLayout::PrivateData
 {
 public:
-
-#if QT_VERSION < 0x040000
-    class LayoutIterator: public QGLayoutIterator
-    {
-    public:
-        LayoutIterator(PrivateData *data):
-            d_data(data)  
-        {
-            d_iterator = d_data->itemList.begin();
-        }
-
-        virtual QLayoutItem *current()
-        { 
-            if (d_iterator == d_data->itemList.end())
-               return NULL;
-
-            return *d_iterator;
-        }
-
-        virtual QLayoutItem *next()
-        { 
-            if (d_iterator == d_data->itemList.end())
-               return NULL;
-
-            d_iterator++;
-            if (d_iterator == d_data->itemList.end())
-               return NULL;
-
-            return *d_iterator;
-        }
-
-        virtual QLayoutItem *takeCurrent()
-        { 
-            if ( d_iterator == d_data->itemList.end() )
-                return NULL;
-
-            QLayoutItem *item = *d_iterator;
-
-            d_data->isDirty = true;
-            d_iterator = d_data->itemList.remove(d_iterator);
-            return item;
-        }
-
-    private:
-        
-        QValueListIterator<QLayoutItem*> d_iterator;
-        QwtDynGridLayout::PrivateData *d_data;
-    };
-#endif
-
     PrivateData():
         isDirty(true)
     {
     }
 
-#if QT_VERSION < 0x040000
-    typedef QValueList<QLayoutItem*> LayoutItemList;
-#else
     typedef QList<QLayoutItem*> LayoutItemList;
-#endif
 
     mutable LayoutItemList itemList;
 
@@ -87,11 +28,7 @@ public:
     uint numRows;
     uint numCols;
 
-#if QT_VERSION < 0x040000
-    QSizePolicy::ExpandData expanding;
-#else
     Qt::Orientations expanding;
-#endif
 
     bool isDirty;
     QwtArray<QSize> itemSizeHints;
@@ -114,18 +51,6 @@ QwtDynGridLayout::QwtDynGridLayout(QWidget *parent,
     setMargin(margin);
 }
 
-#if QT_VERSION < 0x040000
-/*!
-  \param parent Parent widget
-  \param spacing Spacing
-*/
-QwtDynGridLayout::QwtDynGridLayout(QLayout *parent, int spacing):
-    QLayout(parent, spacing)
-{
-    init();
-}
-#endif
-
 /*!
   \param spacing Spacing
 */
@@ -142,25 +67,14 @@ QwtDynGridLayout::QwtDynGridLayout(int spacing)
 void QwtDynGridLayout::init()
 {
     d_data = new QwtDynGridLayout::PrivateData;
-    d_data->maxCols = d_data->numRows 
-        = d_data->numCols = 0;
-
-#if QT_VERSION < 0x040000
-    d_data->expanding = QSizePolicy::NoDirection;
-    setSupportsMargin(true);
-#else
+    d_data->maxCols = d_data->numRows = d_data->numCols = 0;
     d_data->expanding = 0;
-#endif
 }
 
 //! Destructor
 
 QwtDynGridLayout::~QwtDynGridLayout()
 {
-#if QT_VERSION < 0x040000
-    deleteAllItems(); 
-#endif
-
     delete d_data;
 }
 
@@ -234,29 +148,6 @@ uint QwtDynGridLayout::itemCount() const
     return d_data->itemList.count();
 }
 
-#if  QT_VERSION < 0x040000
-/*! 
-  \return An iterator over the children of this layout.
-*/
-
-QLayoutIterator QwtDynGridLayout::iterator()
-{       
-    return QLayoutIterator( 
-        new QwtDynGridLayout::PrivateData::LayoutIterator(d_data) );
-}
-
-void QwtDynGridLayout::setExpanding(QSizePolicy::ExpandData expanding)
-{
-    d_data->expanding = expanding;
-}
-
-QSizePolicy::ExpandData QwtDynGridLayout::expanding() const
-{
-    return d_data->expanding;
-}
-
-#else // QT_VERSION >= 0x040000
-
 /*!
   Find the item at a spcific index
 
@@ -318,8 +209,6 @@ Qt::Orientations QwtDynGridLayout::expandingDirections() const
     return d_data->expanding;
 }
 
-#endif
-
 /*!
   Reorganizes columns and rows and resizes managed widgets within 
   the rectangle rect. 
@@ -338,11 +227,7 @@ void QwtDynGridLayout::setGeometry(const QRect &rect)
     if ( itemCount() % d_data->numCols )
         d_data->numRows++;
 
-#if QT_VERSION < 0x040000
-    QValueList<QRect> itemGeometries = layoutItems(rect, d_data->numCols);
-#else
     QList<QRect> itemGeometries = layoutItems(rect, d_data->numCols);
-#endif
 
     int index = 0;
     for (PrivateData::LayoutItemList::iterator it = d_data->itemList.begin();
@@ -448,19 +333,10 @@ int QwtDynGridLayout::maxItemWidth() const
   \return item geometries
 */
 
-#if QT_VERSION < 0x040000
-QValueList<QRect> QwtDynGridLayout::layoutItems(const QRect &rect,
-    uint numCols) const
-#else
 QList<QRect> QwtDynGridLayout::layoutItems(const QRect &rect,
     uint numCols) const
-#endif
 {
-#if QT_VERSION < 0x040000
-    QValueList<QRect> itemGeometries;
-#else
     QList<QRect> itemGeometries;
-#endif
     if ( numCols == 0 || isEmpty() )
         return itemGeometries;
 
@@ -474,13 +350,8 @@ QList<QRect> QwtDynGridLayout::layoutItems(const QRect &rect,
     layoutGrid(numCols, rowHeight, colWidth);
 
     bool expandH, expandV;
-#if QT_VERSION >= 0x040000
     expandH = expandingDirections() & Qt::Horizontal;
     expandV = expandingDirections() & Qt::Vertical;
-#else
-    expandH = expanding() & QSizePolicy::Horizontally;
-    expandV = expanding() & QSizePolicy::Vertically;
-#endif
 
     if ( expandH || expandV )
         stretchGrid(rect, numCols, rowHeight, colWidth);
@@ -604,13 +475,8 @@ void QwtDynGridLayout::stretchGrid(const QRect &rect,
         return;
 
     bool expandH, expandV;
-#if QT_VERSION >= 0x040000
     expandH = expandingDirections() & Qt::Horizontal;
     expandV = expandingDirections() & Qt::Vertical;
-#else
-    expandH = expanding() & QSizePolicy::Horizontally;
-    expandV = expanding() & QSizePolicy::Vertically;
-#endif
 
     if ( expandH )
     {

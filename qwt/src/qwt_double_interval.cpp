@@ -8,11 +8,7 @@
  *****************************************************************************/
 
 #include <qglobal.h>
-#if QT_VERSION >= 0x040000
 #include <qalgorithms.h>
-#else
-#include <qtl.h>
-#endif
 
 #include "qwt_math.h"
 #include "qwt_double_interval.h"

@@ -64,23 +64,16 @@ public:
     CpuCurve(const QString &title):
         QwtPlotCurve(title)
     {
-#if QT_VERSION >= 0x040000
         setRenderHint(QwtPlotItem::RenderAntialiased);
-#endif
     }
 
     void setColor(const QColor &color)
     {
-#if QT_VERSION >= 0x040000
         QColor c = color;
         c.setAlpha(150);
 
         setPen(c);
         setBrush(c);
-#else
-        setPen(color);
-        setBrush(QBrush(color, Qt::Dense4Pattern));
-#endif
     }
 };
 
@@ -214,11 +207,7 @@ int main(int argc, char **argv)
     QApplication a(argc, argv); 
     
     QWidget vBox;
-#if QT_VERSION >= 0x040000
     vBox.setWindowTitle("Cpu Plot");
-#else
-    vBox.setCaption("Cpu Plot");
-#endif
 
     CpuPlot *plot = new CpuPlot(&vBox);
     plot->setTitle("History");
@@ -231,10 +220,6 @@ int main(int argc, char **argv)
     QVBoxLayout *layout = new QVBoxLayout(&vBox);
     layout->addWidget(plot);
     layout->addWidget(label);
-
-#if QT_VERSION < 0x040000
-    a.setMainWidget(&vBox);
-#endif
 
     vBox.resize(600,400);
     vBox.show();

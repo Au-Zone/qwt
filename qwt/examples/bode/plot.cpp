@@ -59,18 +59,14 @@ Plot::Plot(QWidget *parent):
   
     // curves
     d_curve1 = new QwtPlotCurve("Amplitude");
-#if QT_VERSION >= 0x040000
     d_curve1->setRenderHint(QwtPlotItem::RenderAntialiased);
-#endif
     d_curve1->setPen(QPen(Qt::yellow));
     d_curve1->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     d_curve1->setYAxis(QwtPlot::yLeft);
     d_curve1->attach(this);
 
     d_curve2 = new QwtPlotCurve("Phase");
-#if QT_VERSION >= 0x040000
     d_curve2->setRenderHint(QwtPlotItem::RenderAntialiased);
-#endif
     d_curve2->setPen(QPen(Qt::cyan));
     d_curve2->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     d_curve2->setYAxis(QwtPlot::yRight);

@@ -37,45 +37,30 @@ QWidget *MainWindow::createPanel(QWidget *parent)
 
     QComboBox *navigationBox = new QComboBox(panel);
     navigationBox->setEditable(false);
-#if QT_VERSION < 0x040000
-    navigationBox->insertItem("Tracking", Tracking);
-    navigationBox->insertItem("Zooming", Zooming);
-    navigationBox->insertItem("Panning", Panning);
-#else
     navigationBox->insertItem(Tracking, "Tracking");
     navigationBox->insertItem(Zooming, "Zooming");
     navigationBox->insertItem(Panning, "Panning");
-#endif
+
     connect(navigationBox, SIGNAL(activated(int)), SLOT(setMouseMode(int)));
 
     d_navigationInfo = new QLabel(panel);
     d_navigationInfo->setSizePolicy(
         QSizePolicy::Expanding, QSizePolicy::Expanding); 
-#if QT_VERSION >= 0x040000
     d_navigationInfo->setWordWrap(true);
-#endif
 
     QComboBox *rescaleBox = new QComboBox(panel);
     rescaleBox->setEditable(false);
-#if QT_VERSION < 0x040000
-    rescaleBox->insertItem("None", KeepScales);
-    rescaleBox->insertItem("Fixed", Fixed);
-    rescaleBox->insertItem("Expanding", Expanding);
-    rescaleBox->insertItem("Fitting", Fitting);
-#else
     rescaleBox->insertItem(KeepScales, "None");
     rescaleBox->insertItem(Fixed, "Fixed");
     rescaleBox->insertItem(Expanding, "Expanding");
     rescaleBox->insertItem(Fitting, "Fitting");
-#endif
+
     connect(rescaleBox, SIGNAL(activated(int)), SLOT(setRescaleMode(int)));
 
     d_rescaleInfo = new QLabel(panel);
     d_rescaleInfo->setSizePolicy(
         QSizePolicy::Expanding, QSizePolicy::Expanding); 
-#if QT_VERSION >= 0x040000
     d_rescaleInfo->setWordWrap(true);
-#endif
 
     QVBoxLayout *layout = new QVBoxLayout(panel);
     layout->addWidget(navigationBox);
@@ -194,10 +179,6 @@ void MainWindow::setRescaleMode(int mode)
 void MainWindow::showRatio(double xRatio, double yRatio)
 {
 	const QString msg = QString("%1, %2").arg(xRatio).arg(yRatio);
-#if QT_VERSION < 0x040000
-    statusBar()->message(msg);
-#else
     statusBar()->showMessage(msg);
-#endif
 }
 

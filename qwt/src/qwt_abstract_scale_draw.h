@@ -14,12 +14,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_text.h"
 
-
-#if QT_VERSION < 0x040000
-class QColorGroup;
-#else
 class QPalette;
-#endif
 class QPainter;
 class QFont;
 class QwtScaleTransformation;
@@ -77,11 +72,7 @@ public:
     void setSpacing(int margin);
     int spacing() const;
         
-#if QT_VERSION < 0x040000
-    virtual void draw(QPainter *, const QColorGroup &) const;
-#else
     virtual void draw(QPainter *, const QPalette &) const;
-#endif
 
     virtual QwtText label(double) const;
 

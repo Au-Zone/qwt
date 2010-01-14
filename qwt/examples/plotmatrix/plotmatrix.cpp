@@ -67,27 +67,18 @@ PlotMatrix::~PlotMatrix()
 
 int PlotMatrix::numRows() const
 {
-#if QT_VERSION < 0x040000
-    if ( layout() && layout()->inherits("QGridLayout") )
-        return ((QGridLayout *)layout())->numRows();
-#else
     const QGridLayout *l = qobject_cast<const QGridLayout *>(layout());
     if ( l )
         return l->rowCount(); 
-#endif
+
     return 0;
 }
 
 int PlotMatrix::numColumns() const
 {
-#if QT_VERSION < 0x040000
-    if ( layout() && layout()->inherits("QGridLayout") )
-        return ((QGridLayout *)layout())->numCols();
-#else
     const QGridLayout *l = qobject_cast<const QGridLayout *>(layout());
     if ( l )
         return l->columnCount(); 
-#endif
     return 0;
 }
 

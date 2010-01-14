@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_SERIES_DATA_H
 #define QWT_SERIES_DATA_H 1
 
@@ -403,16 +401,5 @@ QWT_EXPORT QwtDoubleRect qwtBoundingRect(
     const QwtSeriesData<QwtIntervalSample> &);
 QWT_EXPORT QwtDoubleRect qwtBoundingRect(
     const QwtSeriesData<QwtSetSample> &);
-
-#if defined(QWT_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-#if QT_VERSION < 0x040000 // there is already a QVector<QPointF> in qvector.h
-template class QWT_EXPORT QwtArray<QwtDoublePoint>;
-#endif
-template class QWT_EXPORT QwtArray<QwtDoublePoint3D>;
-template class QWT_EXPORT QwtArray<QwtIntervalSample>;
-template class QWT_EXPORT QwtArray<QwtSetSample>;
-// MOC_SKIP_END
-#endif
 
 #endif // !QWT_SERIES_DATA_H

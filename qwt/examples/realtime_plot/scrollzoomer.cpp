@@ -12,11 +12,7 @@ public:
     ScrollData():
         scrollBar(NULL),
         position(ScrollZoomer::OppositeToScale),
-#if QT_VERSION < 0x040000
-        mode(QScrollView::Auto)
-#else
         mode(Qt::ScrollBarAsNeeded)
-#endif
     {
     }
 
@@ -27,11 +23,7 @@ public:
 
     ScrollBar *scrollBar;
     ScrollZoomer::ScrollBarPosition position;
-#if QT_VERSION < 0x040000
-    QScrollView::ScrollBarMode mode;
-#else
     Qt::ScrollBarPolicy mode;
-#endif
 };
 
 ScrollZoomer::ScrollZoomer(QwtPlotCanvas *canvas):
@@ -132,11 +124,7 @@ ScrollBar *ScrollZoomer::verticalScrollBar() const
     return d_vScrollData->scrollBar;
 }
     
-#if QT_VERSION < 0x040000
-void ScrollZoomer::setHScrollBarMode(QScrollView::ScrollBarMode mode)
-#else
 void ScrollZoomer::setHScrollBarMode(Qt::ScrollBarPolicy mode)
-#endif
 {
     if ( hScrollBarMode() != mode )
     {
@@ -145,11 +133,7 @@ void ScrollZoomer::setHScrollBarMode(Qt::ScrollBarPolicy mode)
     }
 }
 
-#if QT_VERSION < 0x040000
-void ScrollZoomer::setVScrollBarMode(QScrollView::ScrollBarMode mode)
-#else
 void ScrollZoomer::setVScrollBarMode(Qt::ScrollBarPolicy mode)
-#endif
 {
     if ( vScrollBarMode() != mode )
     {
@@ -158,20 +142,12 @@ void ScrollZoomer::setVScrollBarMode(Qt::ScrollBarPolicy mode)
     }
 }
 
-#if QT_VERSION < 0x040000
-QScrollView::ScrollBarMode ScrollZoomer::hScrollBarMode() const
-#else
 Qt::ScrollBarPolicy ScrollZoomer::hScrollBarMode() const
-#endif
 {
     return d_hScrollData->mode;
 }
 
-#if QT_VERSION < 0x040000
-QScrollView::ScrollBarMode ScrollZoomer::vScrollBarMode() const
-#else
 Qt::ScrollBarPolicy ScrollZoomer::vScrollBarMode() const
-#endif
 {
     return d_vScrollData->mode;
 }
@@ -213,13 +189,7 @@ void ScrollZoomer::setCornerWidget(QWidget *w)
             delete d_cornerWidget;
             d_cornerWidget = w;
             if ( d_cornerWidget->parent() != canvas() )
-            {
-#if QT_VERSION < 0x040000
-                d_cornerWidget->reparent(canvas(), QPoint(0, 0));
-#else
                 d_cornerWidget->setParent(canvas());
-#endif
-            }
 
             updateScrollBars();
         }
@@ -269,11 +239,7 @@ bool ScrollZoomer::eventFilter(QObject *o, QEvent *e)
 
 bool ScrollZoomer::needScrollBar(Qt::Orientation o) const
 {
-#if QT_VERSION < 0x040000
-    QScrollView::ScrollBarMode mode;
-#else
     Qt::ScrollBarPolicy mode;
-#endif
     double zoomMin, zoomMax, baseMin, baseMax;
 
     if ( o == Qt::Horizontal )
@@ -296,18 +262,10 @@ bool ScrollZoomer::needScrollBar(Qt::Orientation o) const
     bool needed = false;
     switch(mode)
     {
-#if QT_VERSION < 0x040000
-        case QScrollView::AlwaysOn:
-#else
         case Qt::ScrollBarAlwaysOn:
-#endif
             needed = true;
             break;
-#if QT_VERSION < 0x040000
-        case QScrollView::AlwaysOff:    
-#else
         case Qt::ScrollBarAlwaysOff:
-#endif
             needed = false;
             break;
         default:
@@ -404,9 +362,7 @@ void ScrollZoomer::updateScrollBars()
         if ( d_cornerWidget == NULL )
         {
             d_cornerWidget = new QWidget(canvas());
-#if QT_VERSION >= 0x040100
             d_cornerWidget->setAutoFillBackground(true);
-#endif
             d_cornerWidget->setPalette(plot()->palette());
         }
         d_cornerWidget->show();

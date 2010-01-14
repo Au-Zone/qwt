@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #ifndef QWT_LEGEND_ITEM_MANAGER_H
 #define QWT_LEGEND_ITEM_MANAGER_H
 

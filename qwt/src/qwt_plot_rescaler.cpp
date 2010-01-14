@@ -7,8 +7,6 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <qevent.h>
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
@@ -298,11 +296,9 @@ bool QwtPlotRescaler::eventFilter(QObject *o, QEvent *e)
             case QEvent::Resize:
                 canvasResizeEvent((QResizeEvent *)e);
                 break;
-#if QT_VERSION >= 0x040000
             case QEvent::PolishRequest:
                 rescale();
                 break;
-#endif
             default:;
         }
     }

@@ -7,15 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
 #include <math.h>
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qevent.h>
 #include "qwt_math.h"
 #include "qwt_scale_draw.h"
-#include "qwt_paint_buffer.h"
 #include "qwt_painter.h"
 #include "qwt_dial_needle.h"
 #include "qwt_compass_rose.h"
@@ -52,26 +49,6 @@ QwtCompass::QwtCompass(QWidget* parent):
 {
     initCompass();
 }
-
-#if QT_VERSION < 0x040000
-
-/*!
-  \brief Constructor
-  \param parent Parent widget
-  \param name Object name
-
-  Create a compass widget with a scale, no needle and no rose. 
-  The default origin is 270.0 with no valid value. It accepts
-  mouse and keyboard inputs and has no step size. The default mode
-  is QwtDial::RotateNeedle.
-*/  
-QwtCompass::QwtCompass(QWidget* parent, const char *name):
-    QwtDial(parent, name)
-{
-    initCompass();
-}
-
-#endif
 
 //!  Destructor
 QwtCompass::~QwtCompass() 

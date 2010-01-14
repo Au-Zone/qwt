@@ -4,9 +4,7 @@
 #include <qwt_symbol.h>
 #include <qwt_plot_directpainter.h>
 #include "incrementalplot.h"
-#if QT_VERSION >= 0x040000
 #include <qpaintengine.h>
-#endif
 
 CurveData::CurveData():
     d_count(0)
@@ -57,7 +55,7 @@ IncrementalPlot::IncrementalPlot(QWidget *parent):
 {
     d_directPainter = new QwtPlotDirectPainter(this);
 
-#if QT_VERSION >= 0x040000 && defined(Q_WS_X11)
+#if defined(Q_WS_X11)
     canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
     canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
 #endif

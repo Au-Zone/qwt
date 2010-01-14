@@ -10,35 +10,26 @@
 #include <qimage.h>
 #include <qpen.h>
 #include <qpainter.h>
+#if QT_VERSION >= 0x040400
+#include <qthread.h>
+#include <qfuture.h>
+#include <qtconcurrentrun.h>
+#endif
 #include "qwt_painter.h"
 #include "qwt_double_interval.h"
 #include "qwt_scale_map.h"
 #include "qwt_color_map.h"
 #include "qwt_plot_spectrogram.h"
 
-#if QT_VERSION >= 0x040400
-#include <qthread.h>
-#include <qfuture.h>
-#include <qtconcurrentrun.h>
-#endif
-
-#if QT_VERSION < 0x040000
-typedef QValueVector<QRgb> QwtColorTable;
-#else
 typedef QVector<QRgb> QwtColorTable;
-#endif
 
 class QwtPlotSpectrogramImage: public QImage
 {
   // This class hides some Qt3/Qt4 API differences
 public:
     QwtPlotSpectrogramImage(const QSize &size, QwtColorMap::Format format):
-#if QT_VERSION < 0x040000
-        QImage(size, format == QwtColorMap::RGB ? 32 : 8)
-#else
         QImage(size, format == QwtColorMap::RGB
             ? QImage::Format_ARGB32 : QImage::Format_Indexed8 )
-#endif
     {
     }
 
@@ -49,35 +40,8 @@ public:
 
     void initColorTable(const QImage& other)
     {
-#if QT_VERSION < 0x040000
-        const unsigned int numColors = other.numColors();
-
-        setNumColors(numColors);
-        for ( unsigned int i = 0; i < numColors; i++ )
-            setColor(i, other.color(i));
-#else
         setColorTable(other.colorTable());
-#endif
     }
-
-#if QT_VERSION < 0x040000
-
-    void setColorTable(const QwtColorTable &colorTable)
-    {
-        setNumColors(colorTable.size());
-        for ( unsigned int i = 0; i < colorTable.size(); i++ )
-            setColor(i, colorTable[i]);
-    }
-
-    QwtColorTable colorTable() const
-    {
-        QwtColorTable table(numColors());
-        for ( int i = 0; i < numColors(); i++ )
-            table[i] = color(i);
-
-        return table;
-    }
-#endif
 };
 
 class QwtPlotSpectrogram::PrivateData
@@ -356,11 +320,7 @@ bool QwtPlotSpectrogram::testConrecAttribute(
 void QwtPlotSpectrogram::setContourLevels(const QwtValueList &levels)
 {
     d_data->contourLevels = levels;
-#if QT_VERSION >= 0x040000
     qSort(d_data->contourLevels);
-#else
-    qHeapSort(d_data->contourLevels);
-#endif
     itemChanged();
 }
 
@@ -545,11 +505,7 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( hInvert || vInvert )
     {
         // Better invert the image composition !
-#if QT_VERSION < 0x040000
-        image = image.mirror(hInvert, vInvert);
-#else
         image = image.mirrored(hInvert, vInvert);
-#endif
     }
 
     return image;
@@ -688,11 +644,7 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
 
         painter->setPen(QwtPainter::scaledPen(pen));
 
-#if QT_VERSION >= 0x040000
         const QPolygonF &lines = contourLines[level];
-#else
-        const QwtArray<QwtDoublePoint> &lines = contourLines[level];
-#endif
         for ( int i = 0; i < (int)lines.size(); i += 2 )
         {
             const QPoint p1( xMap.transform(lines[i].x()),

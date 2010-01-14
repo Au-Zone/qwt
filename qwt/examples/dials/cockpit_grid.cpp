@@ -5,18 +5,10 @@
 #include "speedo_meter.h"
 #include "cockpit_grid.h"
 
-#if QT_VERSION < 0x040000
-typedef QColorGroup Palette;
-#else
-typedef QPalette Palette;
-#endif
-
 CockpitGrid::CockpitGrid(QWidget *parent):
     QFrame(parent)
 {
-#if QT_VERSION >= 0x040100
     setAutoFillBackground(true);
-#endif
 
     setPalette(colorTheme(QColor(Qt::darkGray).dark(150)));
 
@@ -31,13 +23,8 @@ CockpitGrid::CockpitGrid(QWidget *parent):
         layout->addWidget(dial, 0, i);
     }
 
-#if QT_VERSION < 0x040000
-    for ( i = 0; i < layout->numCols(); i++ )
-        layout->setColStretch(i, 1);
-#else
     for ( i = 0; i < layout->columnCount(); i++ )
         layout->setColumnStretch(i, 1);
-#endif
 }
 
 QwtDial *CockpitGrid::createDial(int pos)
@@ -136,13 +123,13 @@ QPalette CockpitGrid::colorTheme(const QColor &base) const
     {
         QPalette::ColorGroup cg = (QPalette::ColorGroup)i;
 
-        palette.setColor(cg, Palette::Base, base);
-        palette.setColor(cg, Palette::Background, background);
-        palette.setColor(cg, Palette::Mid, mid);
-        palette.setColor(cg, Palette::Light, light);
-        palette.setColor(cg, Palette::Dark, dark);
-        palette.setColor(cg, Palette::Text, text);
-        palette.setColor(cg, Palette::Foreground, foreground);
+        palette.setColor(cg, QPalette::Base, base);
+        palette.setColor(cg, QPalette::Background, background);
+        palette.setColor(cg, QPalette::Mid, mid);
+        palette.setColor(cg, QPalette::Light, light);
+        palette.setColor(cg, QPalette::Dark, dark);
+        palette.setColor(cg, QPalette::Text, text);
+        palette.setColor(cg, QPalette::Foreground, foreground);
     }
 
     return palette;

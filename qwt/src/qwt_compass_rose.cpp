@@ -70,17 +70,10 @@ QwtSimpleCompassRose::QwtSimpleCompassRose(int numThorns, int numThornLevels):
     QPalette palette;
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
     {
-#if QT_VERSION < 0x040000
-        palette.setColor((QPalette::ColorGroup)i,
-            QColorGroup::Dark, dark);
-        palette.setColor((QPalette::ColorGroup)i,
-            QColorGroup::Light, light);
-#else
         palette.setColor((QPalette::ColorGroup)i,
             QPalette::Dark, dark);
         palette.setColor((QPalette::ColorGroup)i,
             QPalette::Light, light);
-#endif
     }
 
     setPalette(palette);
@@ -98,26 +91,10 @@ QwtSimpleCompassRose::QwtSimpleCompassRose(int numThorns, int numThornLevels):
 void QwtSimpleCompassRose::draw(QPainter *painter, const QPoint &center, 
     int radius, double north, QPalette::ColorGroup cg) const
 {
-#if QT_VERSION < 0x040000
-    QColorGroup colorGroup;
-    switch(cg)
-    {
-        case QPalette::Disabled:
-            colorGroup = palette().disabled();
-        case QPalette::Inactive:
-            colorGroup = palette().inactive();
-        default:
-            colorGroup = palette().active();
-    }
-
-    drawRose(painter, colorGroup, center, radius, north, d_width, 
-        d_numThorns, d_numThornLevels, d_shrinkFactor);
-#else
     QPalette pal = palette();
     pal.setCurrentColorGroup(cg);
     drawRose(painter, pal, center, radius, north, d_width, 
         d_numThorns, d_numThornLevels, d_shrinkFactor);
-#endif
 }
 
 /*!
@@ -135,11 +112,7 @@ void QwtSimpleCompassRose::draw(QPainter *painter, const QPoint &center,
 */
 void QwtSimpleCompassRose::drawRose(
     QPainter *painter, 
-#if QT_VERSION < 0x040000
-    const QColorGroup &cg,
-#else
     const QPalette &palette,
-#endif
     const QPoint &center, int radius, double north, double width,
     int numThorns, int numThornLevels, double shrinkFactor)
 {
@@ -194,22 +167,14 @@ void QwtSimpleCompassRose::drawRose(
             QPoint p3 = qwtPolar2Pos(center, r, angle + step / 2.0);
             p1 = cutPoint(center, p3, p1, p);
             pa.setPoint(2, p1);
-#if QT_VERSION < 0x040000
-            painter->setBrush(cg.brush(QColorGroup::Dark));
-#else
             painter->setBrush(palette.brush(QPalette::Dark));
-#endif
             painter->drawPolygon(pa);
 
             QPoint p4 = qwtPolar2Pos(center, r, angle - step / 2.0);
             p2 = cutPoint(center, p4, p2, p);
 
             pa.setPoint(2, p2);
-#if QT_VERSION < 0x040000
-            painter->setBrush(cg.brush(QColorGroup::Light));
-#else
             painter->setBrush(palette.brush(QPalette::Light));
-#endif
             painter->drawPolygon(pa);
         }
     }
