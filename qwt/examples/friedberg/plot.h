@@ -3,14 +3,26 @@
 
 #include <qwt_plot.h>
 #include <qwt_scale_div.h>
-#include <qwt_plot_intervalcurve.h>
+#include <qwt_series_data.h>
 
 class QwtPlotCurve;
+class QwtPlotIntervalCurve;
 
 class Plot: public QwtPlot
 {
+	Q_OBJECT
+
 public:
-    Plot();
+	enum Mode
+	{
+		Bars,
+		Tube
+	};
+
+    Plot(QWidget * = NULL);
+
+public slots:
+    void setMode(int);
 
 private:
     void insertCurve(const QString &title,
@@ -20,7 +32,6 @@ private:
         const QwtArray<QwtIntervalSample> &,
         const QColor &color);
 
-    void setMode(QwtPlotIntervalCurve::CurveStyle);
 
     QwtScaleDiv yearScaleDiv() const;
 

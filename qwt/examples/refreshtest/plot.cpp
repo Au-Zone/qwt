@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
@@ -124,10 +125,14 @@ void Plot::setSettings(const Settings &s)
         s.curve.paintAttributes & QwtPlotCurve::PaintFiltered);
     d_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons,
         s.curve.paintAttributes & QwtPlotCurve::ClipPolygons);
+#if QT_VERSION >= 0x040000
     d_curve->setRenderHint(QwtPlotCurve::RenderAntialiased,
         s.curve.renderHint & QwtPlotCurve::RenderAntialiased);
+#endif
 
+#if QT_VERSION >= 0x040000
     canvas()->setAttribute(Qt::WA_PaintOnScreen, s.canvas.paintOnScreen);
+#endif
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, s.canvas.cached);
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, s.canvas.cached);
 

@@ -2,6 +2,7 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
+#include <qwt_plot_intervalcurve.h>
 #include <qwt_legend.h>
 #include <qwt_interval_symbol.h>
 #include <qwt_symbol.h>
@@ -57,7 +58,8 @@ public:
     }
 };
 
-Plot::Plot()
+Plot::Plot(QWidget *parent):
+	QwtPlot(parent)
 {
     setTitle("Temperature of Friedberg/Germany");
     setCanvasBackground(QColor(Qt::darkGray));
@@ -88,8 +90,6 @@ Plot::Plot()
 
     insertCurve("Average", averageData, Qt::black);
     insertErrorBars("Range", rangeData, Qt::blue);
-
-    setMode(QwtPlotIntervalCurve::NoCurve);
 
     QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
     zoomer->setRubberBandPen(QColor(Qt::black));
@@ -161,9 +161,9 @@ void Plot::insertErrorBars(
     d_intervalCurve->attach(this);
 }
 
-void Plot::setMode(QwtPlotIntervalCurve::CurveStyle style)
+void Plot::setMode(int style)
 {
-    if ( style == QwtPlotIntervalCurve::Tube )
+    if ( style == Tube )
     {
         d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
         d_intervalCurve->setSymbol(QwtIntervalSymbol());
@@ -178,4 +178,6 @@ void Plot::setMode(QwtPlotIntervalCurve::CurveStyle style)
 
         d_intervalCurve->setSymbol(errorBar);
     }
+
+	replot();
 }
