@@ -1,13 +1,17 @@
+#ifndef _PLOT_H_
+#define _PLOT_H_ 
+
 #include <qwt_plot.h>
 
 class QwtPlotCurve;
 class QwtPlotMarker;
 
-class BodePlot: public QwtPlot
+class Plot: public QwtPlot
 {
     Q_OBJECT
+
 public:
-    BodePlot(QWidget *parent);
+    Plot(QWidget *parent);
 
 public slots:
     void setDamp(double damping);
@@ -18,8 +22,10 @@ private:
     void showPeak(double freq, double amplitude);
     void show3dB(double freq);
 
-    QwtPlotCurve *d_crv1;
-    QwtPlotCurve *d_crv2;
-    QwtPlotMarker *d_mrk1;
-    QwtPlotMarker *d_mrk2;
+    QwtPlotCurve *d_curve1;
+    QwtPlotCurve *d_curve2;
+    QwtPlotMarker *d_marker1;
+    QwtPlotMarker *d_marker2;
 };
+
+#endif

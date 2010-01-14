@@ -4,14 +4,14 @@
 class QwtPlotZoomer;
 class QwtPlotPicker;
 class QwtPlotPanner;
-class BodePlot;
+class Plot;
 
-class MainWin : public QMainWindow
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWin(QWidget *parent = 0);
+    MainWindow(QWidget *parent = 0);
 
 private slots:
     void moved(const QPoint &);
@@ -24,7 +24,7 @@ private slots:
 private:
     void showInfo(QString text = QString::null);
 
-    BodePlot *d_plot;
+    Plot *d_plot;
 
     QwtPlotZoomer *d_zoomer[2];
     QwtPlotPicker *d_picker;
