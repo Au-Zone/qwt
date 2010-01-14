@@ -17,7 +17,7 @@ contains(CONFIG, QwtPlot) {
         cpuplot \
         curvdemo1   \
         curvdemo2 \
-        errorbars \
+        friedberg \
         simple_plot \
         realtime_plot \
         refreshtest \
