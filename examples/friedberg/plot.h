@@ -26,10 +26,10 @@ public slots:
 
 private:
     void insertCurve(const QString &title,
-        const QwtArray<QwtDoublePoint> &, const QColor &);
+        const QVector<QPointF> &, const QColor &);
 
     void insertErrorBars(const QString &title,
-        const QwtArray<QwtIntervalSample> &,
+        const QVector<QwtIntervalSample> &,
         const QColor &color);
 
 

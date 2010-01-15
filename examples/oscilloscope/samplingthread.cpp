@@ -33,7 +33,7 @@ void SamplingThread::sample(double elapsed)
 {
     if ( d_frequency > 0.0 )
     {
-        const QwtDoublePoint s(elapsed, value(elapsed));
+        const QPointF s(elapsed, value(elapsed));
         SignalData::instance().append(s);
     }
 }

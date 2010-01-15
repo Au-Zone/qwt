@@ -10,11 +10,11 @@
 #ifndef QWT_PLOT_RASTERITEM_H
 #define QWT_PLOT_RASTERITEM_H
 
+#include "qwt_global.h" 
+#include "qwt_plot_item.h" 
 #include <qglobal.h>
 #include <qstring.h>
 #include <qimage.h>
-
-#include "qwt_plot_item.h" 
 
 /*!
   \brief A class, which displays raster data
@@ -76,7 +76,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &rect) const;
 
-    virtual QSize rasterHint(const QwtDoubleRect &) const;
+    virtual QSize rasterHint(const QRectF &) const;
 
 protected:
 
@@ -91,7 +91,7 @@ protected:
       \param area Requested area for the image in scale coordinates
      */
     virtual QImage renderImage(const QwtScaleMap &xMap, 
-        const QwtScaleMap &yMap, const QwtDoubleRect &area
+        const QwtScaleMap &yMap, const QRectF &area
         ) const = 0;
 
 private:

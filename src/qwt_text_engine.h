@@ -10,8 +10,8 @@
 #ifndef QWT_TEXT_ENGINE_H
 #define QWT_TEXT_ENGINE_H 1
 
-#include <qsize.h>
 #include "qwt_global.h"
+#include <qsize.h>
 
 class QFont;
 class QRect;

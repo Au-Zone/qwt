@@ -10,12 +10,11 @@
 #ifndef QWT_PLOT_HISTOGRAM_H
 #define QWT_PLOT_HISTOGRAM_H
 
-#include <qglobal.h>
-#include <qcolor.h>
-
-#include "qwt_polygon.h" 
+#include "qwt_global.h" 
 #include "qwt_plot_seriesitem.h" 
 #include "qwt_column_symbol.h" 
+#include <qcolor.h>
+#include <qvector.h>
 
 class QwtIntervalData;
 class QString;
@@ -47,7 +46,7 @@ public:
     void setBrush(const QBrush &);
     const QBrush &brush() const;
 
-    void setSamples(const QwtArray<QwtIntervalSample> &);
+    void setSamples(const QVector<QwtIntervalSample> &);
 
     void setBaseline(double reference);
     double baseline() const;
@@ -62,7 +61,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &canvasRect, int from, int to) const;
 
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
 
     virtual void drawLegendIdentifier(QPainter *, const QRect &) const;
 
@@ -88,7 +87,7 @@ protected:
 
 private:
     void init();
-    void flushPolygon(QPainter *, int baseLine, QwtPolygon &) const;
+    void flushPolygon(QPainter *, int baseLine, QPolygon &) const;
 
     class PrivateData;
     PrivateData *d_data;

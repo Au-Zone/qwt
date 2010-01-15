@@ -10,8 +10,8 @@
 #ifndef QWT_LEGEND_H
 #define QWT_LEGEND_H
 
-#include <qframe.h>
 #include "qwt_global.h"
+#include <qframe.h>
 #include <qlist.h>
 
 class QScrollBar;

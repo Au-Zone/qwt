@@ -10,11 +10,9 @@
 #ifndef QWT_PLOT_ZOOMER_H
 #define QWT_PLOT_ZOOMER_H
 
-#include <qglobal.h>
-#include <qstack.h>
-
-#include "qwt_double_rect.h"
+#include "qwt_global.h"
 #include "qwt_plot_picker.h"
+#include <qstack.h>
 
 /*!
   \brief QwtPlotZoomer provides stacked zooming for a plot widget
@@ -51,18 +49,18 @@ public:
     virtual ~QwtPlotZoomer();
 
     virtual void setZoomBase(bool doReplot = true);
-    virtual void setZoomBase(const QwtDoubleRect &);
+    virtual void setZoomBase(const QRectF &);
 
-    QwtDoubleRect zoomBase() const;
-    QwtDoubleRect zoomRect() const;
+    QRectF zoomBase() const;
+    QRectF zoomRect() const;
 
     virtual void setAxis(int xAxis, int yAxis);
 
     void setMaxStackDepth(int);
     int maxStackDepth() const;
 
-    const QStack<QwtDoubleRect> &zoomStack() const;
-    void setZoomStack(const QStack<QwtDoubleRect> &,
+    const QStack<QRectF> &zoomStack() const;
+    void setZoomStack(const QStack<QRectF> &,
         int zoomRectIndex = -1);
 
     uint zoomRectIndex() const;
@@ -71,7 +69,7 @@ public slots:
     void moveBy(double x, double y);
     virtual void move(double x, double y);
 
-    virtual void zoom(const QwtDoubleRect &);
+    virtual void zoom(const QRectF &);
     virtual void zoom(int up);
 
 signals:
@@ -82,19 +80,19 @@ signals:
       \param rect Current zoom rectangle.
     */
 
-    void zoomed(const QwtDoubleRect &rect);
+    void zoomed(const QRectF &rect);
 
 protected:
     virtual void rescale();
 
-    virtual QwtDoubleSize minZoomSize() const;
+    virtual QSizeF minZoomSize() const;
 
     virtual void widgetMouseReleaseEvent(QMouseEvent *);
     virtual void widgetKeyPressEvent(QKeyEvent *);
 
     virtual void begin();
     virtual bool end(bool ok = true);
-    virtual bool accept(QwtPolygon &) const;
+    virtual bool accept(QPolygon &) const;
 
 private:
     void init(bool doReplot);

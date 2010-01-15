@@ -12,7 +12,7 @@
 #define QWT_DOUBLE_POINT_3D_H 1
 
 #include "qwt_global.h"
-#include "qwt_double_rect.h"
+#include <qpoint.h>
 
 /*!
   \brief QwtDoublePoint3D class defines a 3D point in double coordinates
@@ -24,7 +24,7 @@ public:
     QwtDoublePoint3D();
     QwtDoublePoint3D(double x, double y, double z);
     QwtDoublePoint3D(const QwtDoublePoint3D &);
-    QwtDoublePoint3D(const QwtDoublePoint &);
+    QwtDoublePoint3D(const QPointF &);
 
     bool isNull()    const;
 
@@ -40,7 +40,7 @@ public:
     void setY(double y);
     void setZ(double y);
 
-    QwtDoublePoint toPoint() const;
+    QPointF toPoint() const;
 
     bool operator==(const QwtDoublePoint3D &) const;
     bool operator!=(const QwtDoublePoint3D &) const;
@@ -85,7 +85,7 @@ inline QwtDoublePoint3D::QwtDoublePoint3D(const QwtDoublePoint3D &other):
     Constructs a point with x and y coordinates from a 2D point, 
     and a z coordinate of 0.
 */
-inline QwtDoublePoint3D::QwtDoublePoint3D(const QwtDoublePoint &other):
+inline QwtDoublePoint3D::QwtDoublePoint3D(const QPointF &other):
     d_x(other.x()),
     d_y(other.y()),
     d_z(0.0)
@@ -160,9 +160,9 @@ inline void QwtDoublePoint3D::setZ(double z)
 /*!
    Rounds 2D point, where the z coordinate is dropped.
 */
-inline QwtDoublePoint QwtDoublePoint3D::toPoint() const
+inline QPointF QwtDoublePoint3D::toPoint() const
 {
-    return QwtDoublePoint(d_x, d_y);
+    return QPointF(d_x, d_y);
 }
 
 //! Returns true if this point and other are equal; otherwise returns false. 

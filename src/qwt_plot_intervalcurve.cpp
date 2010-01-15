@@ -7,12 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
-#include "qwt_polygon.h"
+#include "qwt_plot_intervalcurve.h"
 #include "qwt_interval_symbol.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
-#include "qwt_plot_intervalcurve.h"
+
+#include <qpainter.h>
 
 class QwtPlotIntervalCurve::PrivateData
 {
@@ -83,7 +83,7 @@ int QwtPlotIntervalCurve::rtti() const
 }
 
 void QwtPlotIntervalCurve::setSamples(
-    const QwtArray<QwtIntervalSample> &data)
+    const QVector<QwtIntervalSample> &data)
 {
     delete d_series;
     d_series = new QwtIntervalSeriesData(data);
@@ -160,10 +160,9 @@ const QBrush& QwtPlotIntervalCurve::brush() const
     return d_data->brush;
 }
 
-QwtDoubleRect QwtPlotIntervalCurve::boundingRect() const
+QRectF QwtPlotIntervalCurve::boundingRect() const
 {
-    QwtDoubleRect br = 
-        QwtPlotSeriesItem<QwtIntervalSample>::boundingRect();
+    QRectF br = QwtPlotSeriesItem<QwtIntervalSample>::boundingRect();
     if ( br.isValid() )
     {
         if ( orientation() == Qt::Vertical )
@@ -209,7 +208,7 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
     painter->save();
 
     const size_t size = to - from + 1;
-    QwtPolygon points(2 * size);
+    QPolygon points(2 * size);
 
     for ( uint i = 0; i < size; i++ )
     {
@@ -254,7 +253,7 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
         painter->setPen(d_data->pen);
         painter->setBrush(Qt::NoBrush);
 
-        QwtPolygon curve;
+        QPolygon curve;
         curve = points.mid(0, size);
         QwtPainter::drawPolyline(painter, curve);
         curve = points.mid(size, size);
@@ -307,7 +306,7 @@ void QwtPlotIntervalCurve::drawSymbols(
 void QwtPlotIntervalCurve::drawLegendIdentifier(
     QPainter *painter, const QRect &rect) const
 {
-    const int dim = qwtMin(rect.width(), rect.height());
+    const int dim = qMin(rect.width(), rect.height());
 
     QSize size(dim, dim);
     size = QwtPainter::metricsMap().screenToLayout(size);

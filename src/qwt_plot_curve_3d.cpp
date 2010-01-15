@@ -115,7 +115,7 @@ bool QwtPlotCurve3D::testPaintAttribute(PaintAttribute attribute) const
     return (d_data->paintAttributes & attribute);
 }
 
-void QwtPlotCurve3D::setSamples(const QwtArray<QwtDoublePoint3D> &data)
+void QwtPlotCurve3D::setSamples(const QVector<QwtDoublePoint3D> &data)
 {
     delete d_series;
     d_series = new QwtPoint3DSeriesData(data);

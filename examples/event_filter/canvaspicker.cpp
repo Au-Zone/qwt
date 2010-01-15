@@ -194,7 +194,7 @@ void CanvasPicker::moveBy(int dx, int dy)
     if ( !d_selectedCurve )
         return;
 
-    const QwtDoublePoint sample = 
+    const QPointF sample = 
 		d_selectedCurve->sample(d_selectedPoint);
 
     const int x = plot()->transform(
@@ -211,8 +211,8 @@ void CanvasPicker::move(const QPoint &pos)
     if ( !d_selectedCurve )
         return;
 
-    QwtArray<double> xData(d_selectedCurve->dataSize());
-    QwtArray<double> yData(d_selectedCurve->dataSize());
+    QVector<double> xData(d_selectedCurve->dataSize());
+    QVector<double> yData(d_selectedCurve->dataSize());
 
     for ( int i = 0; i < d_selectedCurve->dataSize(); i++ )
     {
@@ -225,7 +225,7 @@ void CanvasPicker::move(const QPoint &pos)
         }
         else
         {
-			const QwtDoublePoint sample = d_selectedCurve->sample(i);
+			const QPointF sample = d_selectedCurve->sample(i);
             xData[i] = sample.x();
             yData[i] = sample.y();
         }

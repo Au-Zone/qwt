@@ -7,15 +7,15 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_text.h"
+#include "qwt_painter.h"
+#include "qwt_text_engine.h"
 #include <qmap.h>
 #include <qfont.h>
 #include <qcolor.h>
 #include <qpen.h>
 #include <qbrush.h>
 #include <qpainter.h>
-#include "qwt_painter.h"
-#include "qwt_text_engine.h"
-#include "qwt_text.h"
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 

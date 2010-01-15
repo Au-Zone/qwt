@@ -63,12 +63,12 @@ public:
 
     double xValue() const;
     double yValue() const;
-    QwtDoublePoint value() const;
+    QPointF value() const;
 
     void setXValue(double);
     void setYValue(double);
     void setValue(double, double);
-    void setValue(const QwtDoublePoint &);
+    void setValue(const QPointF &);
 
     void setLineStyle(LineStyle st);
     LineStyle lineStyle() const;
@@ -95,7 +95,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &) const;
     
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
 
 protected:
     void drawAt(QPainter *,const QRect &, const QPoint &) const;

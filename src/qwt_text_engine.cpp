@@ -7,6 +7,9 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_text_engine.h"
+#include "qwt_math.h"
+#include "qwt_painter.h"
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qimage.h>
@@ -15,10 +18,6 @@
 #include <qtextobject.h>
 #include <qtextdocument.h>
 #include <qabstracttextdocumentlayout.h>
-
-#include "qwt_math.h"
-#include "qwt_painter.h"
-#include "qwt_text_engine.h"
 
 static QString taggedRichText(const QString &text, int flags)
 {

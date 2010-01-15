@@ -117,7 +117,7 @@ void MainWindow::setRescaleMode(int mode)
 {
     bool doEnable = true;
     QString info;
-    QwtDoubleRect rectOfInterest;
+    QRectF rectOfInterest;
     QwtPlotRescaler::ExpandingDirection direction = QwtPlotRescaler::ExpandUp;
 
     switch(mode)
@@ -154,7 +154,7 @@ void MainWindow::setRescaleMode(int mode)
             const QwtDoubleInterval yIntv = 
                 d_rescaler->intervalHint(QwtPlot::yLeft);
 
-            rectOfInterest = QwtDoubleRect( xIntv.minValue(), yIntv.minValue(),
+            rectOfInterest = QRectF( xIntv.minValue(), yIntv.minValue(),
                 xIntv.width(), yIntv.width());
             direction = QwtPlotRescaler::ExpandBoth;
 

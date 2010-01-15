@@ -7,15 +7,15 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_legend.h"
+#include "qwt_legend_itemmanager.h"
+#include "qwt_legend_item.h"
+#include "qwt_dyngrid_layout.h"
+#include "qwt_math.h"
 #include <qapplication.h> 
 #include <qmap.h> 
 #include <qscrollbar.h> 
 #include <qscrollarea.h>
-#include "qwt_math.h"
-#include "qwt_dyngrid_layout.h"
-#include "qwt_legend_itemmanager.h"
-#include "qwt_legend_item.h"
-#include "qwt_legend.h"
 
 class QwtLegend::PrivateData
 {
@@ -414,14 +414,14 @@ void QwtLegend::layoutContents()
 
         const int minW = int(tl->maxItemWidth()) + 2 * tl->margin();
 
-        int w = qwtMax(visibleSize.width(), minW);
-        int h = qwtMax(tl->heightForWidth(w), visibleSize.height());
+        int w = qMax(visibleSize.width(), minW);
+        int h = qMax(tl->heightForWidth(w), visibleSize.height());
 
         const int vpWidth = d_data->view->viewportSize(w, h).width();
         if ( w > vpWidth )
         {
-            w = qwtMax(vpWidth, minW);
-            h = qwtMax(tl->heightForWidth(w), visibleSize.height());
+            w = qMax(vpWidth, minW);
+            h = qMax(tl->heightForWidth(w), visibleSize.height());
         }
 
         d_data->view->contentsWidget->resize(w, h);

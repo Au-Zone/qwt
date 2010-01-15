@@ -14,7 +14,6 @@
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
 #include <qwt_scale_draw.h>
-#include <qwt_array.h>
 #include "plotmatrix.h"
 
 class PlotMatrix::PrivateData
@@ -30,7 +29,7 @@ public:
     }
 
     bool isAxisEnabled[QwtPlot::axisCnt];
-    QwtArray<QwtPlot *> plotWidgets;
+    QVector<QwtPlot *> plotWidgets;
     mutable bool inScaleSync;
 };
 

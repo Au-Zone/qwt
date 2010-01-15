@@ -7,6 +7,10 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_plot_canvas.h"
+#include "qwt_painter.h"
+#include "qwt_math.h"
+#include "qwt_plot.h"
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
@@ -15,10 +19,6 @@
 #include <qx11info_x11.h>
 #endif
 #include <qevent.h>
-#include "qwt_painter.h"
-#include "qwt_math.h"
-#include "qwt_plot.h"
-#include "qwt_plot_canvas.h"
 
 class QwtPlotCanvas::PrivateData
 {

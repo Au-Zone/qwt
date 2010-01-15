@@ -10,17 +10,10 @@
 #ifndef QWT_COLOR_MAP_H
 #define QWT_COLOR_MAP_H
 
-#include <qglobal.h>
+#include "qwt_global.h"
+#include "qwt_double_interval.h"
 #include <qcolor.h>
 #include <qvector.h>
-#include "qwt_array.h"
-#include "qwt_double_interval.h"
-
-#if defined(QWT_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class QWT_EXPORT QwtArray<double>;
-// MOC_SKIP_END
-#endif
 
 /*!
   \brief QwtColorMap is used to map values into colors. 
@@ -130,7 +123,7 @@ public:
 
     void setColorInterval(const QColor &color1, const QColor &color2);
     void addColorStop(double value, const QColor&);
-    QwtArray<double> colorStops() const;
+    QVector<double> colorStops() const;
 
     QColor color1() const;
     QColor color2() const;

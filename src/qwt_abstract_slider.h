@@ -10,9 +10,9 @@
 #ifndef QWT_ABSTRACT_SLIDER_H
 #define QWT_ABSTRACT_SLIDER_H
 
-#include <qwidget.h>
 #include "qwt_global.h"
 #include "qwt_double_range.h"
+#include <qwidget.h>
 
 /*!
   \brief An abstract base class for slider widgets

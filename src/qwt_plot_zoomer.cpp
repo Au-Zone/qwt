@@ -7,19 +7,18 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <math.h>
+#include "qwt_plot_zoomer.h"
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
-#include "qwt_plot_zoomer.h"
 #include "qwt_scale_div.h"
 #include "qwt_picker_machine.h"
-typedef QStack<QwtDoubleRect> QwtZoomStack;
+#include <math.h>
 
 class QwtPlotZoomer::PrivateData
 {
 public:
     uint zoomRectIndex;
-    QwtZoomStack zoomStack;
+    QStack<QRectF> zoomStack;
 
     int maxStackDepth;
 };
@@ -146,7 +145,7 @@ int QwtPlotZoomer::maxStackDepth() const
 
   \sa setZoomStack(), zoomRectIndex()
 */
-const QwtZoomStack &QwtPlotZoomer::zoomStack() const
+const QStack<QRectF> &QwtPlotZoomer::zoomStack() const
 {
     return d_data->zoomStack;
 }
@@ -155,7 +154,7 @@ const QwtZoomStack &QwtPlotZoomer::zoomStack() const
   \return Initial rectangle of the zoomer
   \sa setZoomBase(), zoomRect()
 */
-QwtDoubleRect QwtPlotZoomer::zoomBase() const
+QRectF QwtPlotZoomer::zoomBase() const
 {
     return d_data->zoomStack[0];
 }
@@ -195,14 +194,14 @@ void QwtPlotZoomer::setZoomBase(bool doReplot)
   
   \sa zoomBase(), scaleRect()
 */
-void QwtPlotZoomer::setZoomBase(const QwtDoubleRect &base)
+void QwtPlotZoomer::setZoomBase(const QRectF &base)
 {
     const QwtPlot *plt = plot();
     if ( !plt )
         return;
 
-    const QwtDoubleRect sRect = scaleRect();
-    const QwtDoubleRect bRect = base | sRect;
+    const QRectF sRect = scaleRect();
+    const QRectF bRect = base | sRect;
 
     d_data->zoomStack.clear();
     d_data->zoomStack.push(bRect);
@@ -222,7 +221,7 @@ void QwtPlotZoomer::setZoomBase(const QwtDoubleRect &base)
 
   \sa zoomRectIndex(), scaleRect().
 */
-QwtDoubleRect QwtPlotZoomer::zoomRect() const
+QRectF QwtPlotZoomer::zoomRect() const
 {
     return d_data->zoomStack[d_data->zoomRectIndex];
 }
@@ -246,7 +245,7 @@ uint QwtPlotZoomer::zoomRectIndex() const
   \note The zoomed signal is emitted.
 */
 
-void QwtPlotZoomer::zoom(const QwtDoubleRect &rect)
+void QwtPlotZoomer::zoom(const QRectF &rect)
 {   
     if ( d_data->maxStackDepth >= 0 && 
         int(d_data->zoomRectIndex) >= d_data->maxStackDepth )
@@ -254,7 +253,7 @@ void QwtPlotZoomer::zoom(const QwtDoubleRect &rect)
         return;
     }
 
-    const QwtDoubleRect zoomRect = d_data->zoomStack[0] & rect.normalized();
+    const QRectF zoomRect = d_data->zoomStack[0] & rect.normalized();
     if ( zoomRect != d_data->zoomStack[d_data->zoomRectIndex] )
     {
         for ( uint i = int(d_data->zoomStack.count()) - 1; 
@@ -290,8 +289,8 @@ void QwtPlotZoomer::zoom(int offset)
     else
     {
         int newIndex = d_data->zoomRectIndex + offset;
-        newIndex = qwtMax(0, newIndex);
-        newIndex = qwtMin(int(d_data->zoomStack.count()) - 1, newIndex);
+        newIndex = qMax(0, newIndex);
+        newIndex = qMin(int(d_data->zoomStack.count()) - 1, newIndex);
 
         d_data->zoomRectIndex = uint(newIndex);
     }
@@ -316,7 +315,7 @@ void QwtPlotZoomer::zoom(int offset)
   \sa zoomStack(), zoomRectIndex()
 */
 void QwtPlotZoomer::setZoomStack(
-    const QwtZoomStack &zoomStack, int zoomRectIndex)
+    const QStack<QRectF> &zoomStack, int zoomRectIndex)
 {
     if ( zoomStack.isEmpty() )
         return;
@@ -354,7 +353,7 @@ void QwtPlotZoomer::rescale()
     if ( !plt )
         return;
 
-    const QwtDoubleRect &rect = d_data->zoomStack[d_data->zoomRectIndex];
+    const QRectF &rect = d_data->zoomStack[d_data->zoomRectIndex];
     if ( rect != scaleRect() )
     {
         const bool doReplot = plt->autoReplot();
@@ -459,7 +458,7 @@ void QwtPlotZoomer::widgetKeyPressEvent(QKeyEvent *ke)
 */
 void QwtPlotZoomer::moveBy(double dx, double dy)
 {
-    const QwtDoubleRect &rect = d_data->zoomStack[d_data->zoomRectIndex];
+    const QRectF &rect = d_data->zoomStack[d_data->zoomRectIndex];
     move(rect.left() + dx, rect.top() + dy);
 }
 
@@ -469,7 +468,7 @@ void QwtPlotZoomer::moveBy(double dx, double dy)
   \param x X value
   \param y Y value
 
-  \sa QwtDoubleRect::move()
+  \sa QRectF::move()
   \note The changed rectangle is limited by the zoom base
 */
 void QwtPlotZoomer::move(double x, double y)
@@ -502,7 +501,7 @@ void QwtPlotZoomer::move(double x, double y)
           to a accepted rectangle. 
 */
 
-bool QwtPlotZoomer::accept(QwtPolygon &pa) const
+bool QwtPlotZoomer::accept(QPolygon &pa) const
 {
     if ( pa.count() < 2 )
         return false;
@@ -532,9 +531,9 @@ bool QwtPlotZoomer::accept(QwtPolygon &pa) const
 
   \return zoomBase().width() / 10e4, zoomBase().height() / 10e4
 */
-QwtDoubleSize QwtPlotZoomer::minZoomSize() const
+QSizeF QwtPlotZoomer::minZoomSize() const
 {
-    return QwtDoubleSize(
+    return QSizeF(
         d_data->zoomStack[0].width() / 10e4,
         d_data->zoomStack[0].height() / 10e4
     );
@@ -554,10 +553,10 @@ void QwtPlotZoomer::begin()
             return;
     }
 
-    const QwtDoubleSize minSize = minZoomSize();
+    const QSizeF minSize = minZoomSize();
     if ( minSize.isValid() )
     {
-        const QwtDoubleSize sz = 
+        const QSizeF sz = 
             d_data->zoomStack[d_data->zoomRectIndex].size() * 0.9999;
 
         if ( minSize.width() >= sz.width() &&
@@ -586,16 +585,16 @@ bool QwtPlotZoomer::end(bool ok)
     if ( !plot )
         return false;
 
-    const QwtPolygon &pa = selection();
+    const QPolygon &pa = selection();
     if ( pa.count() < 2 )
         return false;
 
     QRect rect = QRect(pa[0], pa[int(pa.count() - 1)]);
     rect = rect.normalized();
 
-    QwtDoubleRect zoomRect = invTransform(rect).normalized();
+    QRectF zoomRect = invTransform(rect).normalized();
 
-    const QwtDoublePoint center = zoomRect.center();
+    const QPointF center = zoomRect.center();
     zoomRect.setSize(zoomRect.size().expandedTo(minZoomSize()));
     zoomRect.moveCenter(center);
 

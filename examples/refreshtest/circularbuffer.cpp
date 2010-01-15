@@ -54,7 +54,7 @@ size_t CircularBuffer::size() const
     return d_values.size();
 }
 
-QwtDoublePoint CircularBuffer::sample(size_t i) const
+QPointF CircularBuffer::sample(size_t i) const
 {
     const int size = d_values.size();
 
@@ -65,15 +65,15 @@ QwtDoublePoint CircularBuffer::sample(size_t i) const
     const double x = i * d_step - d_offset - d_interval;
     const double y = d_values.data()[index];
 
-    return QwtDoublePoint(x, y);
+    return QPointF(x, y);
 }
 
-QwtDoubleRect CircularBuffer::boundingRect() const
+QRectF CircularBuffer::boundingRect() const
 {
-    return QwtDoubleRect(-1.0, -d_interval, 2.0, d_interval);
+    return QRectF(-1.0, -d_interval, 2.0, d_interval);
 }
 
-QwtSeriesData<QwtDoublePoint> *CircularBuffer::copy() const
+QwtSeriesData<QPointF> *CircularBuffer::copy() const
 {
     return new CircularBuffer(*this);
 }

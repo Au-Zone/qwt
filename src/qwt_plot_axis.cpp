@@ -597,7 +597,7 @@ void QwtPlot::updateAxes()
 
         if ( axisAutoScale(item->xAxis()) || axisAutoScale(item->yAxis()) )
         {
-            const QwtDoubleRect rect = item->boundingRect();
+            const QRectF rect = item->boundingRect();
             intv[item->xAxis()] |= QwtDoubleInterval(rect.left(), rect.right());
             intv[item->yAxis()] |= QwtDoubleInterval(rect.top(), rect.bottom());
         }

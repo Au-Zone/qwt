@@ -7,14 +7,10 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qevent.h>
-#include <qdatetime.h>
 #include "qwt_abstract_slider.h"
 #include "qwt_math.h"
-
-#ifndef WHEEL_DELTA
-#define WHEEL_DELTA 120
-#endif
+#include <qevent.h>
+#include <qdatetime.h>
 
 class QwtAbstractSlider::PrivateData
 {
@@ -166,7 +162,7 @@ void QwtAbstractSlider::mousePressEvent(QMouseEvent *e)
         case ScrPage:
         case ScrTimer:
             d_data->mouseOffset = 0;
-            d_data->tmrID = startTimer(qwtMax(250, 2 * d_data->updTime));
+            d_data->tmrID = startTimer(qMax(250, 2 * d_data->updTime));
             break;
         
         case ScrMouse:
@@ -353,7 +349,10 @@ void QwtAbstractSlider::wheelEvent(QWheelEvent *e)
     getScrollMode(e->pos(), mode, direction);
     if ( mode != ScrNone )
     {
-        const int inc = e->delta() / WHEEL_DELTA;
+        // Most mouse types work in steps of 15 degrees, in which case 
+        // the delta value is a multiple of 120
+
+        const int inc = e->delta() / 120;
         QwtDoubleRange::incPages(inc);
         if (value() != prevValue())
             emit sliderMoved(value());

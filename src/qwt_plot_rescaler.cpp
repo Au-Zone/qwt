@@ -7,12 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qevent.h>
+#include "qwt_plot_rescaler.h"
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_scale_div.h"
 #include "qwt_double_interval.h"
-#include "qwt_plot_rescaler.h"
+#include <qevent.h>
 
 class QwtPlotRescaler::AxisData
 {
@@ -594,7 +594,7 @@ void QwtPlotRescaler::updateScales(
 
             if ( d_data->inReplot >= 2 )
             {
-                QwtValueList ticks[QwtScaleDiv::NTickTypes];
+                QList<double> ticks[QwtScaleDiv::NTickTypes];
                 for ( int i = 0; i < QwtScaleDiv::NTickTypes; i++ )
                     ticks[i] = d_data->axisData[axis].scaleDiv.ticks(i);
 

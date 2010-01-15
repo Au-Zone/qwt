@@ -7,10 +7,10 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
-#include "qwt_math.h"
 #include "qwt_interval_symbol.h"
 #include "qwt_painter.h"
+#include "qwt_math.h"
+#include <qpainter.h>
 
 class QwtIntervalSymbol::PrivateData
 {
@@ -105,7 +105,7 @@ const QPen& QwtIntervalSymbol::pen() const
 void QwtIntervalSymbol::draw(QPainter *painter, 
         const QPoint& from, const QPoint& to) const
 {
-    const int pw = qwtMax(painter->pen().width(), 1);
+    const int pw = qMax(painter->pen().width(), 1);
 
     switch(d_data->style)
     {
@@ -198,7 +198,7 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                     const int cx = qRound(::cos(angle) * dw2);
                     const int sy = qRound(::sin(angle) * dw2);
 
-                    QwtPolygon polygon(4);
+                    QPolygon polygon(4);
                     polygon.setPoint(0, from.x() - cx, from.y() - sy);
                     polygon.setPoint(1, from.x() + cx, from.y() + sy);
                     polygon.setPoint(2, to.x() + cx, to.y() + sy);

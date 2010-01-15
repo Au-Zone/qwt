@@ -7,11 +7,9 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
-#include <qpaintengine.h>
+#include "qwt_plot.h"
 #include "qwt_painter.h"
 #include "qwt_legend_item.h"
-#include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_layout.h"
 #include "qwt_legend.h"
@@ -21,6 +19,8 @@
 #include "qwt_text.h"
 #include "qwt_text_label.h"
 #include "qwt_math.h"
+#include <qpainter.h>
+#include <qpaintengine.h>
 
 /*!
   \brief Print the plot to a \c QPaintDevice (\c QPrinter)
@@ -484,7 +484,7 @@ void QwtPlot::printCanvas(QPainter *painter,
                         break;
                 }
             }
-		}
+        }
         QwtPainter::fillRect(painter, r, bgBrush);
     }
 

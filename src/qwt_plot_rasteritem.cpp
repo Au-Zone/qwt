@@ -7,14 +7,14 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_plot_rasteritem.h"
+#include "qwt_legend.h"
+#include "qwt_legend_item.h"
+#include "qwt_scale_map.h"
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 #include <qpaintdevice.h>
 #include <qpainter.h>
-#include "qwt_legend.h"
-#include "qwt_legend_item.h"
-#include "qwt_scale_map.h"
-#include "qwt_plot_rasteritem.h"
 
 class QwtPlotRasterItem::PrivateData
 {
@@ -30,7 +30,7 @@ public:
     struct ImageCache
     {
         QwtPlotRasterItem::CachePolicy policy;
-        QwtDoubleRect rect;
+        QRectF rect;
         QSize size;
         QImage image;
     } cache;
@@ -196,7 +196,7 @@ QwtPlotRasterItem::CachePolicy QwtPlotRasterItem::cachePolicy() const
 void QwtPlotRasterItem::invalidateCache()
 {
     d_data->cache.image = QImage();
-    d_data->cache.rect = QwtDoubleRect();
+    d_data->cache.rect = QRectF();
     d_data->cache.size = QSize();
 }
 
@@ -209,7 +209,7 @@ void QwtPlotRasterItem::invalidateCache()
    The default implementation returns an invalid size (QSize()),
    what means: no hint.
 */
-QSize QwtPlotRasterItem::rasterHint(const QwtDoubleRect &) const
+QSize QwtPlotRasterItem::rasterHint(const QRectF &) const
 {
     return QSize();
 }
@@ -228,7 +228,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
 
-    QwtDoubleRect area = invTransform(xMap, yMap, canvasRect);
+    QRectF area = invTransform(xMap, yMap, canvasRect);
     if ( boundingRect().isValid() )
         area &= boundingRect();
 

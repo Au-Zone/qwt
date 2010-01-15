@@ -10,10 +10,10 @@
 #ifndef QWT_ANALOG_CLOCK_H
 #define QWT_ANALOG_CLOCK_H
 
-#include <qdatetime.h>
 #include "qwt_global.h"
 #include "qwt_dial.h"
 #include "qwt_dial_needle.h"
+#include <qdatetime.h>
 
 /*!
   \brief An analog clock

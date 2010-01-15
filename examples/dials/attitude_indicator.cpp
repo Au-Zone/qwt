@@ -1,8 +1,8 @@
+#include "attitude_indicator.h"
+#include <qwt_math.h>
 #include <qevent.h>
 #include <qpainter.h>
-#include <qwt_math.h>
-#include <qwt_polygon.h>
-#include "attitude_indicator.h"
+#include <qpolygon.h>
 
 AttitudeIndicatorNeedle::AttitudeIndicatorNeedle(const QColor &c)
 {
@@ -28,7 +28,7 @@ void AttitudeIndicatorNeedle::draw(QPainter *painter, const QPoint &center,
     const QPoint p1 = qwtPolar2Pos(p0,
         length - 2 * triangleSize - 2, direction);
 
-    QwtPolygon pa(3);
+    QPolygon pa(3);
     pa.setPoint(0, qwtPolar2Pos(p1, 2 * triangleSize, direction));
     pa.setPoint(1, qwtPolar2Pos(p1, triangleSize, direction + M_PI_2));
     pa.setPoint(2, qwtPolar2Pos(p1, triangleSize, direction - M_PI_2));
@@ -85,7 +85,7 @@ void AttitudeIndicator::drawScale(QPainter *painter, const QPoint &center,
 
     const int w = contentsRect().width();
 
-    QwtPolygon pa(4);
+    QPolygon pa(4);
     pa.setPoint(0, qwtPolar2Pos(p0, w, dir - M_PI_2));
     pa.setPoint(1, qwtPolar2Pos(pa.point(0), 2 * w, dir + M_PI_2));
     pa.setPoint(2, qwtPolar2Pos(pa.point(1), w, dir));

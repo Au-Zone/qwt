@@ -10,6 +10,8 @@
 #ifndef QWT_MATH_H
 #define QWT_MATH_H
 
+#include "qwt_global.h"
+
 #if defined(_MSC_VER)
 /*
   Microsoft says:
@@ -24,11 +26,6 @@
 #include <math.h>
 #include <qpoint.h>
 #include "qwt_global.h"
-#include "qwt_double_rect.h"
-
-#define qwtMax qMax
-#define qwtMin qMin
-#define qwtAbs qAbs
 
 #ifndef LOG10_2
 #define LOG10_2     0.30102999566398119802  /* log10(2) */
@@ -141,8 +138,8 @@ T qwtLim(const T& x, const T& x1, const T& x2)
     T rv;
     T xmin, xmax;
     
-    xmin = qwtMin(x1, x2);
-    xmax = qwtMax(x1, x2);
+    xmin = qMin(x1, x2);
+    xmax = qMax(x1, x2);
 
     if ( x < xmin )
        rv = xmin;
@@ -169,7 +166,7 @@ inline QPoint qwtDegree2Pos(const QPoint &pole,
     return qwtPolar2Pos(pole, radius, angle / 180.0 * M_PI);
 }
 
-inline QwtDoublePoint qwtPolar2Pos(const QwtDoublePoint &pole,
+inline QPointF qwtPolar2Pos(const QPointF &pole,
     double radius, double angle)
 {
     const double x = pole.x() + radius * ::cos(angle);
@@ -178,16 +175,10 @@ inline QwtDoublePoint qwtPolar2Pos(const QwtDoublePoint &pole,
     return QPoint(qRound(x), qRound(y));
 }
 
-inline QwtDoublePoint qwtDegree2Pos(const QwtDoublePoint &pole,
+inline QPointF qwtDegree2Pos(const QPointF &pole,
     double radius, double angle)
 {
     return qwtPolar2Pos(pole, radius, angle / 180.0 * M_PI);
-}
-
-//! Rounding of doubles, like qRound for integers
-inline double qwtRound(double value)
-{
-    return ::floor(value + 0.5); // MSVC has no ::round().
 }
 
 #endif

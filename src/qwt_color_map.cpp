@@ -7,10 +7,9 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_array.h"
+#include "qwt_color_map.h"
 #include "qwt_math.h"
 #include "qwt_double_interval.h"
-#include "qwt_color_map.h"
 
 typedef QVector<QRgb> QwtColorTable;
 
@@ -25,7 +24,7 @@ public:
     void insert(double pos, const QColor &color);
     QRgb rgb(QwtLinearColorMap::Mode, double pos) const;
 
-    QwtArray<double> stops() const;
+    QVector<double> stops() const;
 
 private:
 
@@ -53,7 +52,7 @@ private:
     };
 
     inline int findUpper(double pos) const; 
-    QwtArray<ColorStop> _stops;
+    QVector<ColorStop> _stops;
 };
 
 void QwtLinearColorMap::ColorStops::insert(double pos, const QColor &color)
@@ -74,7 +73,7 @@ void QwtLinearColorMap::ColorStops::insert(double pos, const QColor &color)
     {
         index = findUpper(pos);
         if ( index == (int)_stops.size() || 
-            qwtAbs(_stops[index].pos - pos) >= 0.001 )
+            qAbs(_stops[index].pos - pos) >= 0.001 )
         {
             _stops.resize(_stops.size() + 1);
             for ( int i = _stops.size() - 1; i > index; i-- )
@@ -85,9 +84,9 @@ void QwtLinearColorMap::ColorStops::insert(double pos, const QColor &color)
     _stops[index] = ColorStop(pos, color);
 }
 
-inline QwtArray<double> QwtLinearColorMap::ColorStops::stops() const
+inline QVector<double> QwtLinearColorMap::ColorStops::stops() const
 {
-    QwtArray<double> positions(_stops.size());
+    QVector<double> positions(_stops.size());
     for ( int i = 0; i < (int)_stops.size(); i++ )
         positions[i] = _stops[i].pos;
     return positions;
@@ -310,7 +309,7 @@ void QwtLinearColorMap::addColorStop(double value, const QColor& color)
 /*!
    Return all positions of color stops in increasing order
 */
-QwtArray<double> QwtLinearColorMap::colorStops() const
+QVector<double> QwtLinearColorMap::colorStops() const
 {
     return d_data->colorStops.stops();
 }

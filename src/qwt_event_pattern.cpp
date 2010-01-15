@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qevent.h>
 #include "qwt_event_pattern.h"
+#include <qevent.h>
 
 /*! 
   Constructor
@@ -134,39 +134,39 @@ void QwtEventPattern::setKeyPattern(uint pattern, int key, int state)
 }
 
 //! Change the mouse event patterns
-void QwtEventPattern::setMousePattern(const QwtArray<MousePattern> &pattern)
+void QwtEventPattern::setMousePattern(const QVector<MousePattern> &pattern)
 {
     d_mousePattern = pattern;
 }
 
 //! Change the key event patterns
-void QwtEventPattern::setKeyPattern(const QwtArray<KeyPattern> &pattern)
+void QwtEventPattern::setKeyPattern(const QVector<KeyPattern> &pattern)
 {
     d_keyPattern = pattern;
 }
 
 //! Return mouse patterns
-const QwtArray<QwtEventPattern::MousePattern> &
+const QVector<QwtEventPattern::MousePattern> &
 QwtEventPattern::mousePattern() const
 {
     return d_mousePattern;
 }
 
 //! Return key patterns
-const QwtArray<QwtEventPattern::KeyPattern> &
+const QVector<QwtEventPattern::KeyPattern> &
 QwtEventPattern::keyPattern() const
 {
     return d_keyPattern;
 }
 
 //! Return ,ouse patterns
-QwtArray<QwtEventPattern::MousePattern> &QwtEventPattern::mousePattern() 
+QVector<QwtEventPattern::MousePattern> &QwtEventPattern::mousePattern() 
 {
     return d_mousePattern;
 }
 
 //! Return Key patterns
-QwtArray<QwtEventPattern::KeyPattern> &QwtEventPattern::keyPattern() 
+QVector<QwtEventPattern::KeyPattern> &QwtEventPattern::keyPattern() 
 {
     return d_keyPattern;
 }

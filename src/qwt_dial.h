@@ -10,11 +10,11 @@
 #ifndef QWT_DIAL_H
 #define QWT_DIAL_H 1
 
-#include <qframe.h>
-#include <qpalette.h>
 #include "qwt_global.h"
 #include "qwt_abstract_slider.h"
 #include "qwt_round_scale_draw.h"
+#include <qframe.h>
+#include <qpalette.h>
 
 class QwtDialNeedle;
 class QwtDial;

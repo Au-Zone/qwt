@@ -7,6 +7,11 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_painter.h"
+#include "qwt_math.h"
+#include "qwt_clipper.h"
+#include "qwt_color_map.h"
+#include "qwt_scale_map.h"
 #include <qwindowdefs.h>
 #include <qwidget.h>
 #include <qrect.h>
@@ -20,13 +25,8 @@
 #include <qstyleoption.h>
 #include <qpaintengine.h>
 
-#include "qwt_math.h"
-#include "qwt_clipper.h"
-#include "qwt_color_map.h"
-#include "qwt_scale_map.h"
-#include "qwt_painter.h"
-
 QwtMetricsMap QwtPainter::d_metricsMap;
+bool QwtPainter::d_polylineSplitting = true;
 
 #if defined(Q_WS_X11)
 bool QwtPainter::d_deviceClipping = true;
@@ -34,7 +34,6 @@ bool QwtPainter::d_deviceClipping = true;
 bool QwtPainter::d_deviceClipping = false;
 #endif
 
-bool QwtPainter::d_polylineSplitting = true;
 
 static inline bool isClippingNeeded(const QPainter *painter, QRect &clipRect)
 {
@@ -189,7 +188,7 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
             int pw = painter->pen().width();
             pw = pw % 2 + pw / 2;
 
-            QwtPolygon pa(5);
+            QPolygon pa(5);
             pa.setPoint(0, r.left(), r.top());
             pa.setPoint(1, r.right() - pw, r.top());
             pa.setPoint(2, r.right() - pw, r.bottom() - pw);
@@ -378,7 +377,7 @@ void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
     if ( deviceClipping && 
         !(clipRect.contains(x1, y1) && clipRect.contains(x2, y2)) )
     {
-        QwtPolygon pa(2);
+        QPolygon pa(2);
         pa.setPoint(0, x1, y1);
         pa.setPoint(1, x2, y2);
         drawPolyline(painter, pa);
@@ -387,8 +386,8 @@ void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
 
     if ( d_metricsMap.isIdentity() )
     {
-		painter->drawLine(x1, y1, x2, y2);
-		return;
+        painter->drawLine(x1, y1, x2, y2);
+        return;
     }
 
     const QPoint p1 = d_metricsMap.layoutToDevice(QPoint(x1, y1));
@@ -400,12 +399,12 @@ void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
 /*!
   Wrapper for QPainter::drawPolygon()
 */
-void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
+void QwtPainter::drawPolygon(QPainter *painter, const QPolygon &pa)
 {
     QRect clipRect;
     const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
-    QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
+    QPolygon cpa = d_metricsMap.layoutToDevice(pa);
     if ( deviceClipping )
     {
 #ifdef __GNUC__
@@ -419,12 +418,12 @@ void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
 /*!
     Wrapper for QPainter::drawPolyline()
 */
-void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
+void QwtPainter::drawPolyline(QPainter *painter, const QPolygon &pa)
 {
     QRect clipRect;
     const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
-    QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
+    QPolygon cpa = d_metricsMap.layoutToDevice(pa);
     if ( deviceClipping )
         cpa = QwtClipper::clipPolygon(clipRect, cpa);
 
@@ -453,7 +452,7 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
         const int splitSize = 20;
         for ( int i = 0; i < numPoints; i += splitSize )
         {
-            const int n = qwtMin(splitSize + 1, cpa.size() - i);
+            const int n = qMin(splitSize + 1, cpa.size() - i);
             painter->drawPolyline(points + i, n);
         }
     }
@@ -514,13 +513,13 @@ void QwtPainter::drawFocusRect(QPainter *painter, QWidget *widget)
 void QwtPainter::drawFocusRect(QPainter *painter, QWidget *widget,
     const QRect &rect)
 {
-	QStyleOptionFocusRect opt;
-	opt.init(widget);
-	opt.rect = rect;
-	opt.state |= QStyle::State_HasFocus;
+    QStyleOptionFocusRect opt;
+    opt.init(widget);
+    opt.rect = rect;
+    opt.state |= QStyle::State_HasFocus;
 
-	widget->style()->drawPrimitive(QStyle::PE_FrameFocusRect, 
-		&opt, painter, widget);
+    widget->style()->drawPrimitive(QStyle::PE_FrameFocusRect, 
+        &opt, painter, widget);
 }
 
 //!  Draw a round frame

@@ -12,7 +12,7 @@ public:
         values.reserve(1000);
     }
 
-    inline void append(const QwtDoublePoint &sample)
+    inline void append(const QPointF &sample)
     {
         values.append(sample);
 
@@ -36,11 +36,11 @@ public:
 
     QReadWriteLock lock;
 
-    QVector<QwtDoublePoint> values;
-    QwtDoubleRect boundingRect;
+    QVector<QPointF> values;
+    QRectF boundingRect;
 
     QMutex mutex; // protecting pendingValues
-    QVector<QwtDoublePoint> pendingValues;
+    QVector<QPointF> pendingValues;
 };
 
 SignalData::SignalData()
@@ -58,12 +58,12 @@ int SignalData::size() const
     return d_data->values.size();
 }   
 
-QwtDoublePoint SignalData::value(int index) const
+QPointF SignalData::value(int index) const
 {
     return d_data->values[index];
 }   
 
-QwtDoubleRect SignalData::boundingRect() const
+QRectF SignalData::boundingRect() const
 {
     return d_data->boundingRect;
 }
@@ -78,7 +78,7 @@ void SignalData::unlock()
     d_data->lock.unlock();
 }
 
-void SignalData::append(const QwtDoublePoint &sample)
+void SignalData::append(const QPointF &sample)
 {
     d_data->mutex.lock();
     d_data->pendingValues += sample;
@@ -87,7 +87,7 @@ void SignalData::append(const QwtDoublePoint &sample)
     if ( isLocked )
     {
         const int numValues = d_data->pendingValues.size();
-        const QwtDoublePoint *pendingValues = d_data->pendingValues.data();
+        const QPointF *pendingValues = d_data->pendingValues.data();
 
         for ( int i = 0; i < numValues; i++ )
             d_data->append(pendingValues[i]);
@@ -104,9 +104,9 @@ void SignalData::clearStaleValues(double limit)
 {
     d_data->lock.lockForWrite();
 
-    d_data->boundingRect = QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
+    d_data->boundingRect = QRectF(1.0, 1.0, -2.0, -2.0); // invalid
 
-    const QVector<QwtDoublePoint> values = d_data->values;
+    const QVector<QPointF> values = d_data->values;
     d_data->values.clear();
     d_data->values.reserve(values.size());
 

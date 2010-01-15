@@ -10,9 +10,9 @@
 #ifndef QWT_COUNTER_H
 #define QWT_COUNTER_H
 
-#include <qwidget.h>
 #include "qwt_global.h"
 #include "qwt_double_range.h"
+#include <qwidget.h>
 
 /*!
   \brief The Counter Widget

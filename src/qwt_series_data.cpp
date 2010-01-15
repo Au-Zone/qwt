@@ -7,26 +7,26 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_math.h"
 #include "qwt_series_data.h"
+#include "qwt_math.h"
 
-static inline QwtDoubleRect qwtBoundingRect(const QwtDoublePoint &sample)
+static inline QRectF qwtBoundingRect(const QPointF &sample)
 {
-    return QwtDoubleRect(sample.x(), sample.y(), 0.0, 0.0);
+    return QRectF(sample.x(), sample.y(), 0.0, 0.0);
 }
 
-static inline QwtDoubleRect qwtBoundingRect(const QwtDoublePoint3D &sample)
+static inline QRectF qwtBoundingRect(const QwtDoublePoint3D &sample)
 {
-    return QwtDoubleRect(sample.x(), sample.y(), 0.0, 0.0);
+    return QRectF(sample.x(), sample.y(), 0.0, 0.0);
 }
 
-static inline QwtDoubleRect qwtBoundingRect(const QwtIntervalSample &sample)
+static inline QRectF qwtBoundingRect(const QwtIntervalSample &sample)
 {
-    return QwtDoubleRect(sample.interval.minValue(), sample.value, 
+    return QRectF(sample.interval.minValue(), sample.value, 
         sample.interval.maxValue() - sample.interval.minValue(), 0.0);
 }
 
-static inline QwtDoubleRect qwtBoundingRect(const QwtSetSample &sample)
+static inline QRectF qwtBoundingRect(const QwtSetSample &sample)
 {
     double minX = sample.set[0];
     double maxX = sample.set[0];
@@ -42,7 +42,7 @@ static inline QwtDoubleRect qwtBoundingRect(const QwtSetSample &sample)
     double minY = sample.value;
     double maxY = sample.value;
 
-    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+    return QRectF(minX, minY, maxX - minX, maxY - minY);
 }
 
 /*!
@@ -55,9 +55,9 @@ static inline QwtDoubleRect qwtBoundingRect(const QwtSetSample &sample)
 */
 
 template <class T> 
-QwtDoubleRect qwtBoundingRectT(const QwtSeriesData<T>& series)
+QRectF qwtBoundingRectT(const QwtSeriesData<T>& series)
 {
-    QwtDoubleRect boundingRect(1.0, 1.0, -2.0, -2.0); // invalid;
+    QRectF boundingRect(1.0, 1.0, -2.0, -2.0); // invalid;
 
     const size_t sz = series.size();
     if ( sz <= 0 )
@@ -66,7 +66,7 @@ QwtDoubleRect qwtBoundingRectT(const QwtSeriesData<T>& series)
     size_t i;
     for ( i = 0; i < sz; i++ )
     {
-        const QwtDoubleRect rect = qwtBoundingRect(series.sample(i));
+        const QRectF rect = qwtBoundingRect(series.sample(i));
         if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
         {
             boundingRect = rect;
@@ -77,13 +77,13 @@ QwtDoubleRect qwtBoundingRectT(const QwtSeriesData<T>& series)
 
     for ( ;i < sz; i++ )
     {
-        const QwtDoubleRect rect = qwtBoundingRect(series.sample(i));
+        const QRectF rect = qwtBoundingRect(series.sample(i));
         if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
         {
-            boundingRect.setLeft(qwtMin(boundingRect.left(), rect.left()));
-            boundingRect.setRight(qwtMax(boundingRect.right(), rect.right()));
-            boundingRect.setTop(qwtMin(boundingRect.top(), rect.top()));
-            boundingRect.setBottom(qwtMax(boundingRect.bottom(), rect.bottom()));
+            boundingRect.setLeft(qMin(boundingRect.left(), rect.left()));
+            boundingRect.setRight(qMax(boundingRect.right(), rect.right()));
+            boundingRect.setTop(qMin(boundingRect.top(), rect.top()));
+            boundingRect.setBottom(qMax(boundingRect.bottom(), rect.bottom()));
         }
     }
 
@@ -98,9 +98,9 @@ QwtDoubleRect qwtBoundingRectT(const QwtSeriesData<T>& series)
   \param series Series
   \return Bounding rectangle
 */
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint> &series)
+QRectF qwtBoundingRect(const QwtSeriesData<QPointF> &series)
 {
-    return qwtBoundingRectT<QwtDoublePoint>(series);
+    return qwtBoundingRectT<QPointF>(series);
 }
 
 /*!
@@ -111,7 +111,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint> &series)
   \param series Series
   \return Bounding rectangle
 */
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &series)
+QRectF qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &series)
 {
     return qwtBoundingRectT<QwtDoublePoint3D>(series);
 }
@@ -124,7 +124,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &series)
   \param series Series
   \return Bounding rectangle
 */
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
+QRectF qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
 {
     return qwtBoundingRectT<QwtIntervalSample>(series);
 }
@@ -137,7 +137,7 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtIntervalSample>& series)
   \param series Series
   \return Bounding rectangle
 */
-QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtSetSample>& series)
+QRectF qwtBoundingRect(const QwtSeriesData<QwtSetSample>& series)
 {
     return qwtBoundingRectT<QwtSetSample>(series);
 }
@@ -147,13 +147,13 @@ QwtDoubleRect qwtBoundingRect(const QwtSeriesData<QwtSetSample>& series)
    \param samples Samples
 */
 QwtPointSeriesData::QwtPointSeriesData(
-        const QwtArray<QwtDoublePoint> &samples):
-    QwtArraySeriesData<QwtDoublePoint>(samples)
+        const QVector<QPointF> &samples):
+    QwtArraySeriesData<QPointF>(samples)
 {
 }   
 
 //! Copy operator
-QwtSeriesData<QwtDoublePoint> *QwtPointSeriesData::copy() const
+QwtSeriesData<QPointF> *QwtPointSeriesData::copy() const
 {
     return new QwtPointSeriesData(d_samples);
 }
@@ -164,7 +164,7 @@ QwtSeriesData<QwtDoublePoint> *QwtPointSeriesData::copy() const
   This implementation iterates over all points. 
   \return Bounding rectangle
 */
-QwtDoubleRect QwtPointSeriesData::boundingRect() const
+QRectF QwtPointSeriesData::boundingRect() const
 {
     return qwtBoundingRect(*this);
 }
@@ -174,7 +174,7 @@ QwtDoubleRect QwtPointSeriesData::boundingRect() const
    \param samples Samples
 */
 QwtPoint3DSeriesData::QwtPoint3DSeriesData(
-        const QwtArray<QwtDoublePoint3D> &samples):
+        const QVector<QwtDoublePoint3D> &samples):
     QwtArraySeriesData<QwtDoublePoint3D>(samples)
 {
 }
@@ -185,7 +185,7 @@ QwtSeriesData<QwtDoublePoint3D> *QwtPoint3DSeriesData::copy() const
     return new QwtPoint3DSeriesData(d_samples);
 }
 
-QwtDoubleRect QwtPoint3DSeriesData::boundingRect() const
+QRectF QwtPoint3DSeriesData::boundingRect() const
 {
     return qwtBoundingRect(*this);
 }
@@ -195,7 +195,7 @@ QwtDoubleRect QwtPoint3DSeriesData::boundingRect() const
    \param samples Samples
 */
 QwtIntervalSeriesData::QwtIntervalSeriesData(
-        const QwtArray<QwtIntervalSample> &samples):
+        const QVector<QwtIntervalSample> &samples):
     QwtArraySeriesData<QwtIntervalSample>(samples)
 {
 }   
@@ -205,7 +205,7 @@ QwtSeriesData<QwtIntervalSample> *QwtIntervalSeriesData::copy() const
     return new QwtIntervalSeriesData(d_samples);
 }
 
-QwtDoubleRect QwtIntervalSeriesData::boundingRect() const
+QRectF QwtIntervalSeriesData::boundingRect() const
 {
     return qwtBoundingRect(*this);
 }
@@ -215,7 +215,7 @@ QwtDoubleRect QwtIntervalSeriesData::boundingRect() const
    \param samples Samples
 */
 QwtSetSeriesData::QwtSetSeriesData(
-        const QwtArray<QwtSetSample> &samples):
+        const QVector<QwtSetSample> &samples):
     QwtArraySeriesData<QwtSetSample>(samples)
 {
 }   
@@ -231,7 +231,7 @@ QwtSeriesData<QwtSetSample> *QwtSetSeriesData::copy() const
   This implementation iterates over all points. 
   \return Bounding rectangle
 */
-QwtDoubleRect QwtSetSeriesData::boundingRect() const
+QRectF QwtSetSeriesData::boundingRect() const
 {
     return qwtBoundingRect(*this);
 }
@@ -245,7 +245,7 @@ QwtDoubleRect QwtSetSeriesData::boundingRect() const
   \sa QwtPlotCurve::setData(), QwtPlotCurve::setSamples()
 */
 QwtPointArrayData::QwtPointArrayData(
-        const QwtArray<double> &x, const QwtArray<double> &y): 
+        const QVector<double> &x, const QVector<double> &y): 
     d_x(x), 
     d_y(y)
 {
@@ -285,7 +285,7 @@ QwtPointArrayData& QwtPointArrayData::operator=(const QwtPointArrayData &data)
   This implementation iterates over all points. 
   \return Bounding rectangle
 */
-QwtDoubleRect QwtPointArrayData::boundingRect() const
+QRectF QwtPointArrayData::boundingRect() const
 {
     return qwtBoundingRect(*this);
 }
@@ -293,7 +293,7 @@ QwtDoubleRect QwtPointArrayData::boundingRect() const
 //! \return Size of the data set 
 size_t QwtPointArrayData::size() const 
 { 
-    return qwtMin(d_x.size(), d_y.size()); 
+    return qMin(d_x.size(), d_y.size()); 
 }
 
 /*!
@@ -302,19 +302,19 @@ size_t QwtPointArrayData::size() const
   \param i Index
   \return Sample at position i
 */
-QwtDoublePoint QwtPointArrayData::sample(size_t i) const 
+QPointF QwtPointArrayData::sample(size_t i) const 
 { 
-    return QwtDoublePoint(d_x[int(i)], d_y[int(i)]); 
+    return QPointF(d_x[int(i)], d_y[int(i)]); 
 }
 
 //! \return Array of the x-values
-const QwtArray<double> &QwtPointArrayData::xData() const
+const QVector<double> &QwtPointArrayData::xData() const
 {
     return d_x;
 }
 
 //! \return Array of the y-values
-const QwtArray<double> &QwtPointArrayData::yData() const
+const QVector<double> &QwtPointArrayData::yData() const
 {
     return d_y;
 }
@@ -322,7 +322,7 @@ const QwtArray<double> &QwtPointArrayData::yData() const
 /*!
   \return Pointer to a copy (virtual copy constructor)
 */
-QwtSeriesData<QwtDoublePoint> *QwtPointArrayData::copy() const 
+QwtSeriesData<QPointF> *QwtPointArrayData::copy() const 
 { 
     return new QwtPointArrayData(d_x, d_y); 
 }
@@ -366,7 +366,7 @@ QwtCPointerData& QwtCPointerData::operator=(const QwtCPointerData &data)
   This implementation iterates over all points. 
   \return Bounding rectangle
 */
-QwtDoubleRect QwtCPointerData::boundingRect() const
+QRectF QwtCPointerData::boundingRect() const
 {
     return qwtBoundingRect(*this);
 }
@@ -383,9 +383,9 @@ size_t QwtCPointerData::size() const
   \param i Index
   \return Sample at position i
 */
-QwtDoublePoint QwtCPointerData::sample(size_t i) const 
+QPointF QwtCPointerData::sample(size_t i) const 
 { 
-    return QwtDoublePoint(d_x[int(i)], d_y[int(i)]); 
+    return QPointF(d_x[int(i)], d_y[int(i)]); 
 }
 
 //! \return Array of the x-values
@@ -403,7 +403,7 @@ const double *QwtCPointerData::yData() const
 /*!
   \return Pointer to a copy (virtual copy constructor)
 */
-QwtSeriesData<QwtDoublePoint> *QwtCPointerData::copy() const 
+QwtSeriesData<QPointF> *QwtCPointerData::copy() const 
 {
     return new QwtCPointerData(d_x, d_y, d_size);
 }
@@ -474,7 +474,7 @@ QwtDoubleInterval QwtSyntheticPointData::interval() const
 
    \sa rectOfInterest()
 */
-void QwtSyntheticPointData::setRectOfInterest(const QwtDoubleRect &rect)
+void QwtSyntheticPointData::setRectOfInterest(const QRectF &rect)
 {
     d_rectOfInterest = rect;
     d_intervalOfInterest = QwtDoubleInterval(
@@ -485,7 +485,7 @@ void QwtSyntheticPointData::setRectOfInterest(const QwtDoubleRect &rect)
    \return "rect of interest"
    \sa setRectOfInterest()
 */
-QwtDoubleRect QwtSyntheticPointData::rectOfInterest() const
+QRectF QwtSyntheticPointData::rectOfInterest() const
 {
    return d_rectOfInterest;
 }
@@ -496,10 +496,10 @@ QwtDoubleRect QwtSyntheticPointData::rectOfInterest() const
   This implementation iterates over all points. 
   \return Bounding rectangle
 */
-QwtDoubleRect QwtSyntheticPointData::boundingRect() const
+QRectF QwtSyntheticPointData::boundingRect() const
 {
     if ( d_size == 0 || !d_interval.isValid() )
-        return QwtDoubleRect();
+        return QRectF();
 
     return qwtBoundingRect(*this);
 }
@@ -508,20 +508,20 @@ QwtDoubleRect QwtSyntheticPointData::boundingRect() const
    Calculate the point from an index
 
    \param index Index
-   \return QwtDoublePoint(x(index), y(x(index)));
+   \return QPointF(x(index), y(x(index)));
 
    \warning For invalid indices ( index < 0 || index >= size() ) 
             (0, 0) is returned.
 */
-QwtDoublePoint QwtSyntheticPointData::sample(size_t index) const
+QPointF QwtSyntheticPointData::sample(size_t index) const
 {
     if ( index >= d_size )
-        return QwtDoublePoint(0, 0);
+        return QPointF(0, 0);
 
     const double xValue = x(index);
     const double yValue = y(xValue);
 
-    return QwtDoublePoint(xValue, yValue);
+    return QPointF(xValue, yValue);
 }
 
 /*!

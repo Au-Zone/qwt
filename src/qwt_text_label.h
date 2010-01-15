@@ -10,9 +10,9 @@
 #ifndef QWT_TEXT_LABEL_H
 #define QWT_TEXT_LABEL_H
 
-#include <qframe.h>
 #include "qwt_global.h"
 #include "qwt_text.h"
+#include <qframe.h>
 
 class QString;
 class QPaintEvent;

@@ -10,8 +10,8 @@
 #ifndef QWT_DIAL_NEEDLE_H
 #define QWT_DIAL_NEEDLE_H 1
 
-#include <qpalette.h>
 #include "qwt_global.h"
+#include <qpalette.h>
 
 class QPainter;
 class QPoint;

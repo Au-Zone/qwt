@@ -7,7 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qmap.h>
+#include "qwt_plot_printfilter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_curve.h"
@@ -17,7 +17,7 @@
 #include "qwt_legend_item.h"
 #include "qwt_scale_widget.h"
 #include "qwt_text_label.h"
-#include "qwt_plot_printfilter.h"
+#include <qmap.h>
 
 typedef QPalette Palette;
 

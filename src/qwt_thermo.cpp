@@ -7,16 +7,16 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_thermo.h"
+#include "qwt_math.h"
+#include "qwt_scale_engine.h"
+#include "qwt_scale_draw.h"
+#include "qwt_scale_map.h"
 #include <qpainter.h>
 #include <qevent.h>
 #include <qstyle.h>
 #include <qpixmap.h>
 #include <qdrawutil.h>
-#include "qwt_math.h"
-#include "qwt_scale_engine.h"
-#include "qwt_scale_draw.h"
-#include "qwt_scale_map.h"
-#include "qwt_thermo.h"
 
 class QwtThermo::PrivateData
 {
@@ -234,7 +234,7 @@ void QwtThermo::layoutThermo( bool update_geometry )
     {
         int d1, d2;
         scaleDraw()->getBorderDistHint(font(), d1, d2);
-        mbd = qwtMax(d1, d2);
+        mbd = qMax(d1, d2);
     }
 
     if ( d_data->orientation == Qt::Horizontal )
@@ -606,7 +606,7 @@ void QwtThermo::drawThermo(QPainter *painter)
 */
 void QwtThermo::setBorderWidth(int width)
 {
-    if ((width >= 0) && (width < (qwtMin(d_data->thermoRect.width(), 
+    if ((width >= 0) && (width < (qMin(d_data->thermoRect.width(), 
         d_data->thermoRect.height()) + d_data->borderWidth) / 2  - 1))
     {
         d_data->borderWidth = width;
@@ -857,8 +857,8 @@ QSize QwtThermo::minimumSizeHint() const
 
 int QwtThermo::transform(double value) const
 {
-    const double min = qwtMin(d_data->map.s1(), d_data->map.s2());
-    const double max = qwtMax(d_data->map.s1(), d_data->map.s2());
+    const double min = qMin(d_data->map.s1(), d_data->map.s2());
+    const double max = qMax(d_data->map.s1(), d_data->map.s2());
 
     if ( value > max )
         value = max;

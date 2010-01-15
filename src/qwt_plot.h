@@ -10,13 +10,12 @@
 #ifndef QWT_PLOT_H
 #define QWT_PLOT_H
 
-#include <qframe.h>
 #include "qwt_global.h"
-#include "qwt_array.h"
 #include "qwt_text.h"
 #include "qwt_plot_dict.h"
 #include "qwt_scale_map.h"
 #include "qwt_plot_printfilter.h"
+#include <qframe.h>
 
 class QwtPlotLayout;
 class QwtLegend;

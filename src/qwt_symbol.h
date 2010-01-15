@@ -10,10 +10,10 @@
 #ifndef QWT_SYMBOL_H
 #define QWT_SYMBOL_H
 
+#include "qwt_global.h"
 #include <qbrush.h>
 #include <qpen.h>
 #include <qsize.h>
-#include "qwt_global.h"
 
 class QPainter;
 class QRect;

@@ -17,7 +17,7 @@ static double wave(double x)
 
     double v = ::fmod(x, period);
 
-    const double amplitude = qwtAbs(x - qRound(x / c) * c) / ( 0.5 * c );
+    const double amplitude = qAbs(x - qRound(x / c) * c) / ( 0.5 * c );
     v = amplitude * ::sin(v / period * 2 * M_PI);
 
     return v;

@@ -13,12 +13,12 @@
 
 #include "qwt_global.h"
 #include "qwt_plot_item.h"
-
 #include <qlist.h>
-typedef QList<QwtPlotItem *>::ConstIterator QwtPlotItemIterator;
+
 /// \var typedef QList< QwtPlotItem *> QwtPlotItemList
 /// \brief See QT 4.x assistant documentation for QList
 typedef QList<QwtPlotItem *> QwtPlotItemList;
+typedef QList<QwtPlotItem *>::ConstIterator QwtPlotItemIterator;
 
 /*!
   \brief A dictionary for plot items

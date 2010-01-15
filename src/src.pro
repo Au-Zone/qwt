@@ -47,13 +47,12 @@ symbian:QwtDll {
 HEADERS += \
     qwt.h \
     qwt_abstract_scale_draw.h \
-    qwt_array.h \
     qwt_interval_symbol.h \
     qwt_clipper.h \
     qwt_color_map.h \
+    qwt_compat.h \
     qwt_column_symbol.h \
     qwt_double_interval.h \
-    qwt_double_rect.h \
     qwt_double_point_3d.h \
     qwt_dyngrid_layout.h \
     qwt_global.h \
@@ -64,7 +63,6 @@ HEADERS += \
     qwt_panner.h \
     qwt_picker.h \
     qwt_picker_machine.h \
-    qwt_polygon.h \
     qwt_round_scale_draw.h \
     qwt_scale_div.h \
     qwt_scale_draw.h \
@@ -75,8 +73,7 @@ HEADERS += \
     qwt_system_clock.h \
     qwt_text_engine.h \
     qwt_text_label.h \
-    qwt_text.h \
-    qwt_valuelist.h
+    qwt_text.h
 
 SOURCES += \
     qwt_abstract_scale_draw.cpp \

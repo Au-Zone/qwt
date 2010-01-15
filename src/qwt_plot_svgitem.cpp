@@ -7,14 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qglobal.h>
-
-#include <qpainter.h>
-#include <qsvgrenderer.h>
+#include "qwt_plot_svgitem.h"
 #include "qwt_scale_map.h"
 #include "qwt_legend.h"
 #include "qwt_legend_item.h"
-#include "qwt_plot_svgitem.h"
+#include <qpainter.h>
+#include <qsvgrenderer.h>
 
 class QwtPlotSvgItem::PrivateData
 {
@@ -23,7 +21,7 @@ public:
     {
     }
 
-    QwtDoubleRect boundingRect;
+    QRectF boundingRect;
     QSvgRenderer renderer;
 };
 
@@ -87,7 +85,7 @@ int QwtPlotSvgItem::rtti() const
 
    \return true, if the SVG file could be loaded
 */
-bool QwtPlotSvgItem::loadFile(const QwtDoubleRect &rect, 
+bool QwtPlotSvgItem::loadFile(const QRectF &rect, 
     const QString &fileName)
 {
     d_data->boundingRect = rect;
@@ -104,7 +102,7 @@ bool QwtPlotSvgItem::loadFile(const QwtDoubleRect &rect,
 
    \return true, if the SVG data could be loaded
 */
-bool QwtPlotSvgItem::loadData(const QwtDoubleRect &rect, 
+bool QwtPlotSvgItem::loadData(const QRectF &rect, 
     const QByteArray &data)
 {
     d_data->boundingRect = rect;
@@ -114,7 +112,7 @@ bool QwtPlotSvgItem::loadData(const QwtDoubleRect &rect,
 }
 
 //! Bounding rect of the item
-QwtDoubleRect QwtPlotSvgItem::boundingRect() const
+QRectF QwtPlotSvgItem::boundingRect() const
 {
     return d_data->boundingRect;
 }
@@ -143,11 +141,11 @@ void QwtPlotSvgItem::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &canvasRect) const
 {
-    const QwtDoubleRect cRect = invTransform(xMap, yMap, canvasRect);
-    const QwtDoubleRect bRect = boundingRect();
+    const QRectF cRect = invTransform(xMap, yMap, canvasRect);
+    const QRectF bRect = boundingRect();
     if ( bRect.isValid() && cRect.isValid() )
     {
-        QwtDoubleRect rect = bRect;
+        QRectF rect = bRect;
         if ( bRect.contains(cRect) )
             rect = cRect;
 
@@ -164,7 +162,7 @@ void QwtPlotSvgItem::draw(QPainter *painter,
   \param rect Traget rectangle on the paint device
 */
 void QwtPlotSvgItem::render(QPainter *painter,
-        const QwtDoubleRect &viewBox, const QRect &rect) const
+        const QRectF &viewBox, const QRect &rect) const
 {
     if ( !viewBox.isValid() )
         return;
@@ -179,13 +177,13 @@ void QwtPlotSvgItem::render(QPainter *painter,
   \param rect Rectangle in scale coordinates
   \return viewBox View Box, see QSvgRenderer::viewBox
 */
-QwtDoubleRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &rect) const
+QRectF QwtPlotSvgItem::viewBox(const QRectF &rect) const
 {
     const QSize sz = d_data->renderer.defaultSize();
-    const QwtDoubleRect br = boundingRect();
+    const QRectF br = boundingRect();
 
     if ( !rect.isValid() || !br.isValid() || sz.isNull() )
-        return QwtDoubleRect();
+        return QRectF();
 
     QwtScaleMap xMap;
     xMap.setScaleInterval(br.left(), br.right());
@@ -200,5 +198,5 @@ QwtDoubleRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &rect) const
     const double y1 = yMap.xTransform(rect.bottom());
     const double y2 = yMap.xTransform(rect.top());
 
-    return QwtDoubleRect(x1, y1, x2 - x1, y2 - y1);
+    return QRectF(x1, y1, x2 - x1, y2 - y1);
 }

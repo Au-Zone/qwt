@@ -7,11 +7,11 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_magnifier.h"
+#include "qwt_math.h"
 #include <math.h>
 #include <qevent.h>
 #include <qwidget.h>
-#include "qwt_math.h"
-#include "qwt_magnifier.h"
 
 class QwtMagnifier::PrivateData
 {
@@ -400,7 +400,7 @@ void QwtMagnifier::widgetWheelEvent(QWheelEvent *we)
            of 120 (== 15 * 8).
         */
         double f = ::pow(d_data->wheelFactor, 
-            qwtAbs(we->delta() / 120));
+            qAbs(we->delta() / 120));
         if ( we->delta() > 0 )
             f = 1 / f;
 

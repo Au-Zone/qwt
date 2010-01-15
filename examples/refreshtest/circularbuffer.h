@@ -2,9 +2,9 @@
 #define _CIRCULAR_BUFFER_H_
 
 #include <qwt_series_data.h>
-#include <qwt_array.h>
+#include <qvector.h>
 
-class CircularBuffer: public QwtSeriesData<QwtDoublePoint>
+class CircularBuffer: public QwtSeriesData<QPointF>
 {
 public:
     CircularBuffer(double interval = 10.0, size_t numPoints = 1000);
@@ -14,10 +14,10 @@ public:
     double referenceTime() const;
 
     virtual size_t size() const;
-    virtual QwtDoublePoint sample(size_t i) const;
+    virtual QPointF sample(size_t i) const;
 
-    virtual QwtDoubleRect boundingRect() const;
-    virtual QwtSeriesData<QwtDoublePoint> *copy() const;
+    virtual QRectF boundingRect() const;
+    virtual QwtSeriesData<QPointF> *copy() const;
 
     void setFunction(double(*y)(double));
 
@@ -26,7 +26,7 @@ private:
 
     double d_referenceTime;
     double d_interval;
-    QwtArray<double> d_values;
+    QVector<double> d_values;
 
     double d_step;
     int d_startIndex;

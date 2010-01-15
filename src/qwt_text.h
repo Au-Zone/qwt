@@ -10,10 +10,10 @@
 #ifndef QWT_TEXT_H
 #define QWT_TEXT_H
 
+#include "qwt_global.h"
 #include <qstring.h>
 #include <qsize.h>
 #include <qfont.h>
-#include "qwt_global.h"
 
 class QColor;
 class QPen;

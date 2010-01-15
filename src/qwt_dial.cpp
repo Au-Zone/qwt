@@ -7,18 +7,18 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_dial.h"
+#include "qwt_dial_needle.h"
+#include "qwt_math.h"
+#include "qwt_scale_engine.h"
+#include "qwt_scale_map.h"
+#include "qwt_painter.h"
 #include <math.h>
 #include <qpainter.h>
 #include <qbitmap.h>
 #include <qpalette.h>
 #include <qpixmap.h>
 #include <qevent.h>
-#include "qwt_math.h"
-#include "qwt_scale_engine.h"
-#include "qwt_scale_map.h"
-#include "qwt_painter.h"
-#include "qwt_dial_needle.h"
-#include "qwt_dial.h"
 
 class QwtDial::PrivateData
 {
@@ -264,7 +264,7 @@ QRect QwtDial::contentsRect() const
 */
 QRect QwtDial::boundingRect() const
 {
-    const int radius = qwtMin(width(), height()) / 2;
+    const int radius = qMin(width(), height()) / 2;
 
     QRect r(0, 0, 2 * radius, 2 * radius);
     r.moveCenter(rect().center());
@@ -914,8 +914,8 @@ void QwtDial::setScaleArc(double minArc, double maxArc)
     if ( maxArc != 360.0 && maxArc != -360.0 )
         maxArc = fmod(maxArc, 360.0);
 
-    d_data->minScaleArc = qwtMin(minArc, maxArc);
-    d_data->maxScaleArc = qwtMax(minArc, maxArc);
+    d_data->minScaleArc = qMin(minArc, maxArc);
+    d_data->maxScaleArc = qMax(minArc, maxArc);
     if ( d_data->maxScaleArc - d_data->minScaleArc > 360.0 )
         d_data->maxScaleArc = d_data->minScaleArc + 360.0;
     

@@ -7,16 +7,15 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
-#include <qevent.h>
-#include <qapplication.h>
-#include <qpixmap.h>
-#include "qwt_global.h"
+#include "qwt_plot_directpainter.h"
 #include "qwt_scale_map.h"
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_seriesitem.h"
-#include "qwt_plot_directpainter.h"
+#include <qpainter.h>
+#include <qevent.h>
+#include <qapplication.h>
+#include <qpixmap.h>
 
 static void renderItem(QPainter *painter,
     QwtPlotAbstractSeriesItem *seriesItem, int from, int to)
