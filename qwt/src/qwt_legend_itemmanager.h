@@ -14,7 +14,7 @@
 
 class QwtLegend;
 class QWidget;
-class QRect;
+class QRectF;
 class QPainter;
 
 /*!
@@ -57,7 +57,7 @@ public:
 
       The default implementation paints nothing.
      */
-    virtual void drawLegendIdentifier(QPainter *, const QRect &) const
+    virtual void drawLegendIdentifier(QPainter *, const QRectF &) const
     {
     }
 };

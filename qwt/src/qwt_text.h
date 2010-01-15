@@ -18,7 +18,7 @@
 class QColor;
 class QPen;
 class QBrush;
-class QRect;
+class QRectF;
 class QPainter;
 class QwtTextEngine;
 
@@ -174,7 +174,7 @@ public:
     int heightForWidth(int width, const QFont & = QFont()) const;
     QSize textSize(const QFont & = QFont()) const;
 
-    void draw(QPainter *painter, const QRect &rect) const;
+    void draw(QPainter *painter, const QRectF &rect) const;
 
     static const QwtTextEngine *textEngine(const QString &text,
         QwtText::TextFormat = AutoText);

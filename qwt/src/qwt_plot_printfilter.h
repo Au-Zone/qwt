@@ -69,7 +69,7 @@ public:
     void setOptions(int options);
     int options() const;
 
-    virtual void apply(QwtPlot *) const;
+    virtual void apply(QwtPlot *, bool isScaled) const;
     virtual void reset(QwtPlot *) const;
 
     virtual void apply(QwtPlotItem *) const;

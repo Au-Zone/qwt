@@ -176,7 +176,7 @@ QRectF QwtPlotIntervalCurve::boundingRect() const
 
 void QwtPlotIntervalCurve::drawSeries(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    const QRect &, int from, int to) const
+    const QRectF &, int from, int to) const
 {
     if (to < 0)
         to = dataSize() - 1;
@@ -304,14 +304,13 @@ void QwtPlotIntervalCurve::drawSymbols(
 }
 
 void QwtPlotIntervalCurve::drawLegendIdentifier(
-    QPainter *painter, const QRect &rect) const
+    QPainter *painter, const QRectF &rect) const
 {
-    const int dim = qMin(rect.width(), rect.height());
+    const double dim = qMin(rect.width(), rect.height());
 
-    QSize size(dim, dim);
-    size = QwtPainter::metricsMap().screenToLayout(size);
+    QSizeF size(dim, dim);
 
-    QRect r(0, 0, size.width(), size.height());
+    QRectF r(0, 0, size.width(), size.height());
     r.moveCenter(rect.center());
 
     if (d_data->curveStyle == Tube)
@@ -327,14 +326,14 @@ void QwtPlotIntervalCurve::drawLegendIdentifier(
         if ( orientation() == Qt::Vertical )
         {
             d_data->symbol->draw(painter,
-                QPoint(r.center().x(), r.top()), 
-                QPoint(r.center().x(), r.bottom()) );
+                QPointF(r.center().x(), r.top()), 
+                QPointF(r.center().x(), r.bottom()) );
         }
         else
         {
             d_data->symbol->draw(painter,
-                QPoint(r.left(), r.center().y()), 
-                QPoint(r.right(), r.center().y()) );
+                QPointF(r.left(), r.center().y()), 
+                QPointF(r.right(), r.center().y()) );
         }
     }
 }

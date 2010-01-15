@@ -81,7 +81,7 @@ public:
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &rect) const;
+        const QRectF &rect) const;
 
     virtual void updateScaleDiv(const QwtScaleDiv&,
         const QwtScaleDiv&);

@@ -102,7 +102,7 @@ protected:
 
        \sa drawBackbone(), drawLabel()
     */  
-    virtual void drawTick(QPainter *painter, double value, int len) const = 0;
+    virtual void drawTick(QPainter *painter, double value, double len) const = 0;
 
     /*!
       Draws the baseline of the scale

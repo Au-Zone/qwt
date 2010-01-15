@@ -76,6 +76,7 @@ void QwtPlot::initPlot(const QwtText &title)
     d_data->autoReplot = false;
 
     d_data->lblTitle = new QwtTextLabel(title, this);
+
     d_data->lblTitle->setFont(QFont(fontInfo().family(), 14, QFont::Bold));
 
     QwtText text(title);
@@ -87,9 +88,8 @@ void QwtPlot::initPlot(const QwtText &title)
     initAxesData();
 
     d_data->canvas = new QwtPlotCanvas(this);
-    d_data->canvas->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+    d_data->canvas->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     d_data->canvas->setLineWidth(2);
-    d_data->canvas->setMidLineWidth(0);
 
     updateTabOrder();
 
@@ -343,12 +343,19 @@ void QwtPlot::updateLayout()
 {
     d_data->layout->activate(this, contentsRect());
 
+    QRect titleRect = d_data->layout->titleRect().toRect();
+    QRect scaleRect[QwtPlot::axisCnt];
+    for (int axisId = 0; axisId < axisCnt; axisId++ )
+        scaleRect[axisId] = d_data->layout->scaleRect(axisId).toRect();
+    QRect legendRect = d_data->layout->legendRect().toRect();
+    QRect canvasRect = d_data->layout->canvasRect().toRect();
+
     //
     // resize and show the visible widgets
     //
     if (!d_data->lblTitle->text().isEmpty())
     {
-        d_data->lblTitle->setGeometry(d_data->layout->titleRect());
+        d_data->lblTitle->setGeometry(titleRect);
         if (!d_data->lblTitle->isVisible())
             d_data->lblTitle->show();
     }
@@ -359,17 +366,17 @@ void QwtPlot::updateLayout()
     {
         if (axisEnabled(axisId) )
         {
-            axisWidget(axisId)->setGeometry(d_data->layout->scaleRect(axisId));
+            axisWidget(axisId)->setGeometry(scaleRect[axisId]);
 
             if ( axisId == xBottom || axisId == xTop )
             {
-                QRegion r(d_data->layout->scaleRect(axisId));
+                QRegion r(scaleRect[axisId]);
                 if ( axisEnabled(yLeft) )
-                    r = r.subtract(QRegion(d_data->layout->scaleRect(yLeft)));
+                    r = r.subtract(QRegion(scaleRect[yLeft]));
                 if ( axisEnabled(yRight) )
-                    r = r.subtract(QRegion(d_data->layout->scaleRect(yRight)));
+                    r = r.subtract(QRegion(scaleRect[yRight]));
                 r.translate(-d_data->layout->scaleRect(axisId).x(), 
-                    -d_data->layout->scaleRect(axisId).y());
+                    -scaleRect[axisId].y());
 
                 axisWidget(axisId)->setMask(r);
             }
@@ -385,14 +392,14 @@ void QwtPlot::updateLayout()
     {
         if (d_data->legend->itemCount() > 0)
         {
-            d_data->legend->setGeometry(d_data->layout->legendRect());
+            d_data->legend->setGeometry(legendRect);
             d_data->legend->show();
         }
         else
             d_data->legend->hide();
     }
 
-    d_data->canvas->setGeometry(d_data->layout->canvasRect());
+    d_data->canvas->setGeometry(canvasRect);
 }
 
 /*! 
@@ -485,7 +492,7 @@ void QwtPlot::drawCanvas(QPainter *painter)
   \param pfilter Plot print filter
 */
 
-void QwtPlot::drawItems(QPainter *painter, const QRect &rect, 
+void QwtPlot::drawItems(QPainter *painter, const QRectF &rect, 
         const QwtScaleMap map[axisCnt], 
         const QwtPlotPrintFilter &pfilter) const
 {

@@ -69,7 +69,7 @@ Qt::Orientation QwtPlotAbstractSeriesItem::orientation() const
 */
 void QwtPlotAbstractSeriesItem::draw(QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &canvasRect) const
+        const QRectF &canvasRect) const
 {
     drawSeries(painter, xMap, yMap, canvasRect, 0, -1);
 }

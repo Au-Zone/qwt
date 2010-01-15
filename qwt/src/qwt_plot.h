@@ -138,7 +138,7 @@ public:
 
     void print(QPaintDevice &p,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
-    virtual void print(QPainter *, const QRect &rect,
+    virtual void print(QPainter *, const QRectF &rect,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
 
     // Layout
@@ -277,7 +277,7 @@ protected Q_SLOTS:
 protected:
     static bool axisValid(int axisId);
 
-    virtual void drawItems(QPainter *, const QRect &,
+    virtual void drawItems(QPainter *, const QRectF &,
         const QwtScaleMap maps[axisCnt],
         const QwtPlotPrintFilter &) const;
 
@@ -286,18 +286,17 @@ protected:
     virtual void resizeEvent(QResizeEvent *e);
 
     virtual void printLegendItem(QPainter *, 
-        const QWidget *, const QRect &) const;
+        const QWidget *, const QRectF &) const;
 
-    virtual void printTitle(QPainter *, const QRect &) const;
+    virtual void printTitle(QPainter *, const QRectF &) const;
 
     virtual void printScale(QPainter *, int axisId, int startDist, int endDist,
-        int baseDist, const QRect &) const;
+        int baseDist, const QRectF &) const;
 
-    virtual void printCanvas(QPainter *, 
-        const QRect &boundingRect, const QRect &canvasRect,
+    virtual void printCanvas(QPainter *, const QRectF &canvasRect,
         const QwtScaleMap maps[axisCnt], const QwtPlotPrintFilter &) const;
 
-    virtual void printLegend(QPainter *, const QRect &) const;
+    virtual void printLegend(QPainter *, const QRectF &) const;
 
 private:
     void initAxesData();

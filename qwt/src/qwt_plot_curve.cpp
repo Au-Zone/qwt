@@ -247,7 +247,7 @@ const QwtSymbol &QwtPlotCurve::symbol() const
   of the paint device.
 
   \param pen New pen
-  \sa pen(), brush(), QwtPainter::scaledPen()
+  \sa pen(), brush()
 */
 void QwtPlotCurve::setPen(const QPen &pen)
 {
@@ -314,7 +314,7 @@ const QBrush& QwtPlotCurve::brush() const
 */
 void QwtPlotCurve::drawSeries(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    const QRect &, int from, int to) const
+    const QRectF &, int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
         return;
@@ -325,7 +325,7 @@ void QwtPlotCurve::drawSeries(QPainter *painter,
     if ( verifyRange(dataSize(), from, to) > 0 )
     {
         painter->save();
-        painter->setPen(QwtPainter::scaledPen(d_data->pen));
+        painter->setPen(d_data->pen);
 
         /*
           Qt 4.0.0 is slow when drawing lines, but it's even 
@@ -855,7 +855,7 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     painter->setPen(symbol.pen());
 
     QRect rect;
-    rect.setSize(QwtPainter::metricsMap().screenToLayout(symbol.size()));
+    rect.setSize(symbol.size());
 
     if ( to > from && d_data->paintAttributes & PaintFiltered )
     {
@@ -968,7 +968,7 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
 }
 
 void QwtPlotCurve::drawLegendIdentifier(
-    QPainter *painter, const QRect &rect) const
+    QPainter *painter, const QRectF &rect) const
 {
     if ( rect.isEmpty() )
         return;
@@ -976,9 +976,9 @@ void QwtPlotCurve::drawLegendIdentifier(
     const int dim = qMin(rect.width(), rect.height());
 
     QSize size(dim, dim);
-    size = QwtPainter::metricsMap().screenToLayout(size);
+    size = size;
 
-    QRect r(0, 0, size.width(), size.height());
+    QRectF r(0, 0, size.width(), size.height());
     r.moveCenter(rect.center());
 
     if ( d_data->legendAttributes == 0 )
@@ -1003,7 +1003,7 @@ void QwtPlotCurve::drawLegendIdentifier(
     {
         if ( pen() != Qt::NoPen )
         {
-            painter->setPen(QwtPainter::scaledPen(pen()));
+            painter->setPen(pen());
             QwtPainter::drawLine(painter, rect.left(), rect.center().y(),
                 rect.right(), rect.center().y());
         }
@@ -1012,8 +1012,7 @@ void QwtPlotCurve::drawLegendIdentifier(
     {
         if ( symbol().style() != QwtSymbol::NoSymbol )
         {
-            QSize symbolSize =
-                QwtPainter::metricsMap().screenToLayout(symbol().size());
+            QSize symbolSize = symbol().size();
 
             // scale the symbol size down if it doesn't fit into rect.
 
@@ -1031,12 +1030,12 @@ void QwtPlotCurve::drawLegendIdentifier(
                 symbolSize.setHeight(rect.height());
                 symbolSize.setWidth(qRound(symbolSize.width() / ratio));
             }
-            QRect symbolRect;
+            QRectF symbolRect;
             symbolRect.setSize(symbolSize);
             symbolRect.moveCenter(rect.center());
 
             painter->setBrush(d_data->symbol->brush());
-            painter->setPen(QwtPainter::scaledPen(d_data->symbol->pen()));
+            painter->setPen(d_data->symbol->pen());
             d_data->symbol->draw(painter, symbolRect);
         }
     }

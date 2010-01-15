@@ -38,7 +38,7 @@ public:
 
     virtual void draw(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &rect) const;
+        const QRectF &rect) const;
 
     virtual int rtti() const;
 
@@ -47,7 +47,7 @@ protected:
     QSvgRenderer &renderer();
 
     void render(QPainter *painter,
-        const QRectF &viewBox, const QRect &rect) const;
+        const QRectF &viewBox, const QRectF &rect) const;
     QRectF viewBox(const QRectF &area) const;
 
 private:

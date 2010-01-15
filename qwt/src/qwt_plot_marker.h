@@ -17,7 +17,7 @@
 #include "qwt_global.h"
 #include "qwt_plot_item.h"
 
-class QRect;
+class QRectF;
 class QwtText;
 class QwtSymbol;
 
@@ -93,15 +93,15 @@ public:
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &) const;
+        const QRectF &) const;
     
     virtual QRectF boundingRect() const;
 
 protected:
-    void drawAt(QPainter *,const QRect &, const QPoint &) const;
+    void drawAt(QPainter *,const QRectF &, const QPoint &) const;
 
 private:
-    void drawLabel(QPainter *, const QRect &, const QPoint &) const;
+    void drawLabel(QPainter *, const QRectF &, const QPoint &) const;
 
     class PrivateData;
     PrivateData *d_data;

@@ -21,6 +21,7 @@
 #include "qwt_math.h"
 #include <qpainter.h>
 #include <qpaintengine.h>
+#include <qtransform.h>
 
 /*!
   \brief Print the plot to a \c QPaintDevice (\c QPrinter)
@@ -59,7 +60,7 @@ void QwtPlot::print(QPaintDevice &paintDev,
 
   \sa QwtPlotPrintFilter
 */
-void QwtPlot::print(QPainter *painter, const QRect &plotRect,
+void QwtPlot::print(QPainter *painter, const QRectF &plotRect,
         const QwtPlotPrintFilter &pfilter) const
 {
     int axisId;
@@ -68,32 +69,19 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
             !plotRect.isValid() || size().isNull() )
        return;
 
-    painter->save();
-#if 1
-    /*
-      PDF: In Qt4 ( <= 4.3.2 ) the scales are painted in gray instead of
-      black. See http://trolltech.com/developer/task-tracker/index_html?id=184671&method=entry
-      The dummy lines below work around the problem.
+    /* 
+      The layout engine uses the same methods as they are used
+      by the Qt layout system. Therefore we need to calculate the 
+      layout in screen coordinates and paint with a scaled painter.
      */
-    const QPen pen = painter->pen();
-    painter->setPen(QPen(Qt::black, 1));
-    painter->setPen(pen);
-#endif
+    QTransform transform;
+    transform.scale(
+        double(painter->device()->logicalDpiX()) / logicalDpiX(),
+        double(painter->device()->logicalDpiY()) / logicalDpiY() );
+        
+    painter->save();
 
-    // All paint operations need to be scaled according to
-    // the paint device metrics. 
-
-    QwtPainter::setMetricsMap(this, painter->device());
-    const QwtMetricsMap &metricsMap = QwtPainter::metricsMap();
-
-    // It is almost impossible to integrate into the Qt layout
-    // framework, when using different fonts for printing
-    // and screen. To avoid writing different and Qt unconform
-    // layout engines we change the widget attributes, print and 
-    // reset the widget attributes again. This way we produce a lot of
-    // useless layout events ...
-
-    pfilter.apply((QwtPlot *)this);
+    pfilter.apply((QwtPlot *)this, transform.isScaling());
 
     int baseLineDists[QwtPlot::axisCnt];
     if ( pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales )
@@ -117,9 +105,11 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
     if ( !(pfilter.options() & QwtPlotPrintFilter::PrintLegend) )
         layoutOptions |= QwtPlotLayout::IgnoreLegend;
 
+    const QRectF layoutRect = transform.inverted().mapRect(plotRect);
     ((QwtPlot *)this)->plotLayout()->activate(this, 
-        QwtPainter::metricsMap().deviceToLayout(plotRect), 
-        layoutOptions);
+        layoutRect, layoutOptions);
+
+    painter->setTransform(transform);
 
     if ((pfilter.options() & QwtPlotPrintFilter::PrintTitle)
         && (!titleLabel()->text().isEmpty()))
@@ -148,24 +138,7 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         }
     }
 
-    QRect canvasRect = plotLayout()->canvasRect();
-
-    /* 
-       The border of the bounding rect needs to ba scaled to
-       layout coordinates, so that it is aligned to the axes 
-     */
-    QRect boundingRect( canvasRect.left() - 1, canvasRect.top() - 1,
-        canvasRect.width() + 2, canvasRect.height() + 2);
-    boundingRect = metricsMap.layoutToDevice(boundingRect);
-    boundingRect.setWidth(boundingRect.width() - 1);
-    boundingRect.setHeight(boundingRect.height() - 1);
-
-    canvasRect = metricsMap.layoutToDevice(canvasRect);
- 
-    // When using QwtPainter all sizes where computed in pixel
-    // coordinates and scaled by QwtPainter later. This limits
-    // the precision to screen resolution. A better solution
-    // is to scale the maps and print in unlimited resolution.
+    QRectF canvasRect = plotLayout()->canvasRect();
 
     QwtScaleMap map[axisCnt];
     for (axisId = 0; axisId < axisCnt; axisId++)
@@ -181,17 +154,17 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         {
             const int sDist = axisWidget(axisId)->startBorderDist();
             const int eDist = axisWidget(axisId)->endBorderDist();
-            const QRect &scaleRect = plotLayout()->scaleRect(axisId);
+            const QRectF &scaleRect = plotLayout()->scaleRect(axisId);
 
             if ( axisId == xTop || axisId == xBottom )
             {
-                from = metricsMap.layoutToDeviceX(scaleRect.left() + sDist);
-                to = metricsMap.layoutToDeviceX(scaleRect.right() + 1 - eDist);
+                from = scaleRect.left() + sDist;
+                to = scaleRect.right() + 1 - eDist;
             }
             else
             {
-                from = metricsMap.layoutToDeviceY(scaleRect.bottom() + 1 - eDist );
-                to = metricsMap.layoutToDeviceY(scaleRect.top() + sDist);
+                from = scaleRect.bottom() + 1 - eDist;
+                to = scaleRect.top() + sDist;
             }
         }
         else
@@ -199,24 +172,46 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
             int margin = plotLayout()->canvasMargin(axisId);
             if ( axisId == yLeft || axisId == yRight )
             {
-                margin = metricsMap.layoutToDeviceY(margin);
                 from = canvasRect.bottom() - margin;
                 to = canvasRect.top() + margin;
             }
             else
             {
-                margin = metricsMap.layoutToDeviceX(margin);
                 from = canvasRect.left() + margin;
                 to = canvasRect.right() - margin;
             }
         }
-        map[axisId].setPaintXInterval(from, to);
+        map[axisId].setPaintInterval(from, to);
     }
 
-    // The canvas maps are already scaled. 
-    QwtPainter::setMetricsMap(painter->device(), painter->device());
-    printCanvas(painter, boundingRect, canvasRect, map, pfilter);
-    QwtPainter::resetMetricsMap();
+    /*
+      While we can scale vector graphics we can't do the same for
+      raster data. So we better scale the canvas rectangle back to 
+      device resolution and render in the resolution of the paint device.
+     */
+    painter->resetTransform();
+    canvasRect = transform.mapRect(canvasRect);
+    for (axisId = 0; axisId < axisCnt; axisId++)
+    {
+        double p1 = map[axisId].p1();
+        double p2 = map[axisId].p2();
+
+        if ( axisId == xTop || axisId == xBottom )
+        {
+            p1 *= transform.m11();
+            p2 *= transform.m11();
+        }
+        else
+        {
+            p1 *= transform.m22();
+            p2 *= transform.m22();
+        }
+
+        map[axisId].setPaintInterval( p1, p2 ); 
+    }
+
+    // canvas 
+    printCanvas(painter, canvasRect, map, pfilter);
 
     ((QwtPlot *)this)->plotLayout()->invalidate();
 
@@ -245,7 +240,7 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
   \param rect Bounding rectangle
 */
 
-void QwtPlot::printTitle(QPainter *painter, const QRect &rect) const
+void QwtPlot::printTitle(QPainter *painter, const QRectF &rect) const
 {
     painter->setFont(titleLabel()->font());
 
@@ -263,7 +258,7 @@ void QwtPlot::printTitle(QPainter *painter, const QRect &rect) const
   \param rect Bounding rectangle
 */
 
-void QwtPlot::printLegend(QPainter *painter, const QRect &rect) const
+void QwtPlot::printLegend(QPainter *painter, const QRectF &rect) const
 {
     if ( !legend() || legend()->isEmpty() )
         return;
@@ -276,7 +271,7 @@ void QwtPlot::printLegend(QPainter *painter, const QRect &rect) const
 
     uint numCols = legendLayout->columnsForWidth(rect.width());
     QList<QRect> itemRects = 
-        legendLayout->layoutItems(rect, numCols);
+        legendLayout->layoutItems(rect.toRect(), numCols);
 
     int index = 0;
 
@@ -307,21 +302,15 @@ void QwtPlot::printLegend(QPainter *painter, const QRect &rect) const
 */
 
 void QwtPlot::printLegendItem(QPainter *painter, 
-    const QWidget *w, const QRect &rect) const
+    const QWidget *w, const QRectF &rect) const
 {
     if ( w->inherits("QwtLegendItem") )
     {
-        const QwtMetricsMap &map = QwtPainter::metricsMap();
-
         QwtLegendItem *item = (QwtLegendItem *)w;
 
-        const int m = map.screenToLayoutX(item->margin());
-        const int spacing = map.screenToLayoutX(item->spacing());
-        const int identifierWidth = 
-            map.screenToLayoutX(item->identifierWidth());
-
-        const QRect identifierRect(rect.x() + m, rect.y(),
-            identifierWidth, rect.height());
+        const QRect identifierRect(
+            rect.x() + item->margin(), rect.y(),
+            item->identifierWidth(), rect.height());
 
         QwtLegendItemManager *itemManger = legend()->find(item);
         if ( itemManger )
@@ -333,8 +322,8 @@ void QwtPlot::printLegendItem(QPainter *painter,
 
         // Label
     
-        QRect titleRect = rect;
-        titleRect.setX(identifierRect.right() + 2 * spacing);
+        QRectF titleRect = rect;
+        titleRect.setX(identifierRect.right() + 2 * item->spacing());
 
         painter->setFont(item->font());
         item->text().draw(painter, titleRect);
@@ -355,7 +344,7 @@ void QwtPlot::printLegendItem(QPainter *painter,
 
 void QwtPlot::printScale(QPainter *painter,
     int axisId, int startDist, int endDist, int baseDist, 
-    const QRect &rect) const
+    const QRectF &rect) const
 {
     if (!axisEnabled(axisId))
         return;
@@ -364,9 +353,7 @@ void QwtPlot::printScale(QPainter *painter,
     if ( scaleWidget->isColorBarEnabled() 
         && scaleWidget->colorBarWidth() > 0)
     {
-        const QwtMetricsMap map = QwtPainter::metricsMap();
-
-        QRect r = map.layoutToScreen(rect);
+        QRectF r = rect;
         r.setWidth(r.width() - 1);
         r.setHeight(r.height() - 1);
 
@@ -374,9 +361,9 @@ void QwtPlot::printScale(QPainter *painter,
 
         const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
         if ( scaleWidget->scaleDraw()->orientation() == Qt::Horizontal )
-            baseDist += map.screenToLayoutY(off);
+            baseDist += off;
         else
-            baseDist += map.screenToLayoutX(off);
+            baseDist += off;
     }
 
     QwtScaleDraw::Alignment align;
@@ -430,8 +417,8 @@ void QwtPlot::printScale(QPainter *painter,
     painter->setPen(pen);
 
     QwtScaleDraw *sd = (QwtScaleDraw *)scaleWidget->scaleDraw();
-    const QPoint sdPos = sd->pos();
-    const int sdLength = sd->length();
+    const QPointF sdPos = sd->pos();
+    const double sdLength = sd->length();
 
     sd->move(x, y);
     sd->setLength(w);
@@ -452,20 +439,18 @@ void QwtPlot::printScale(QPainter *painter,
 
   \param painter Painter
   \param map Maps mapping between plot and paint device coordinates
-  \param boundingRect Bounding rectangle
   \param canvasRect Canvas rectangle
   \param pfilter Print filter
   \sa QwtPlotPrintFilter
 */
 
-void QwtPlot::printCanvas(QPainter *painter, 
-    const QRect &boundingRect, const QRect &canvasRect,
+void QwtPlot::printCanvas(QPainter *painter, const QRectF &canvasRect,
     const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
 {
     if ( pfilter.options() & QwtPlotPrintFilter::PrintBackground )
     {
         const QBrush bgBrush = canvas()->palette().brush(backgroundRole());
-        QRect r = boundingRect;
+        QRectF r = canvasRect;
         if ( !(pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales) )
         {
             r = canvasRect;
@@ -493,12 +478,12 @@ void QwtPlot::printCanvas(QPainter *painter,
         painter->save();
         painter->setPen(QPen(Qt::black));
         painter->setBrush(QBrush(Qt::NoBrush));
-        QwtPainter::drawRect(painter, boundingRect);
+        QwtPainter::drawRect(painter, canvasRect);
         painter->restore();
     }
 
     painter->setClipping(true);
-    QwtPainter::setClipRect(painter, canvasRect);
+    QwtPainter::setClipRect(painter, canvasRect.toRect());
 
     drawItems(painter, canvasRect, map, pfilter);
 }

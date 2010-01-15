@@ -16,7 +16,6 @@
 #include <qrect.h>
 
 class QString;
-class QRect;
 class QPainter;
 class QWidget;
 class QwtPlot;
@@ -167,7 +166,7 @@ public:
     */
     virtual void draw(QPainter *painter, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &canvasRect) const = 0;
+        const QRectF &canvasRect) const = 0;
 
     virtual QRectF boundingRect() const;
 
@@ -178,12 +177,12 @@ public:
     virtual QWidget *legendItem() const;
 
     QRectF scaleRect(const QwtScaleMap &, const QwtScaleMap &) const;
-    QRect paintRect(const QwtScaleMap &, const QwtScaleMap &) const;
+    QRectF paintRect(const QwtScaleMap &, const QwtScaleMap &) const;
     
-    QRect transform(const QwtScaleMap &, const QwtScaleMap &, 
+    QRectF transform(const QwtScaleMap &, const QwtScaleMap &, 
         const QRectF&) const; 
     QRectF invTransform(const QwtScaleMap &, const QwtScaleMap &,
-        const QRect&) const; 
+        const QRectF &) const; 
 
 private:
     // Disabled copy constructor and operator=

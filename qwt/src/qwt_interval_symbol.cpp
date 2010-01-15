@@ -103,7 +103,7 @@ const QPen& QwtIntervalSymbol::pen() const
 }
 
 void QwtIntervalSymbol::draw(QPainter *painter, 
-        const QPoint& from, const QPoint& to) const
+        const QPointF &from, const QPointF &to) const
 {
     const int pw = qMax(painter->pen().width(), 1);
 
@@ -116,8 +116,7 @@ void QwtIntervalSymbol::draw(QPainter *painter,
             {
                 if ( from.y() == to.y() )
                 {
-                    const int sw = 
-                        QwtPainter::metricsMap().screenToLayoutY(d_data->width);
+                    const int sw = d_data->width;
 
                     const int y = from.y() - sw / 2;
                     QwtPainter::drawLine(painter,
@@ -127,8 +126,7 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                 }
                 else if ( from.x() == to.x() )
                 {
-                    const int sw = 
-                        QwtPainter::metricsMap().screenToLayoutX(d_data->width);
+                    const int sw = d_data->width;
 
                     const int x = from.x() - sw / 2;
                     QwtPainter::drawLine(painter,
@@ -138,8 +136,7 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                 }
                 else    
                 {
-                    const int sw = 
-                        QwtPainter::metricsMap().screenToLayoutX(d_data->width);
+                    const int sw = d_data->width;
 
                     const double dx = to.x() - from.x();
                     const double dy = to.y() - from.y();
@@ -169,8 +166,7 @@ void QwtIntervalSymbol::draw(QPainter *painter,
             {
                 if ( from.y() == to.y() )
                 {
-                    const int sw = 
-                        QwtPainter::metricsMap().screenToLayoutY(d_data->width);
+                    const int sw = d_data->width;
 
                     const int y = from.y() - d_data->width / 2;
                     QwtPainter::drawRect(painter,
@@ -178,8 +174,7 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                 }
                 else if ( from.x() == to.x() )
                 {
-                    const int sw = 
-                        QwtPainter::metricsMap().screenToLayoutX(d_data->width);
+                    const int sw = d_data->width;
 
                     const int x = from.x() - d_data->width / 2;
                     QwtPainter::drawRect(painter,
@@ -187,8 +182,7 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                 }
                 else
                 {
-                    const int sw = 
-                        QwtPainter::metricsMap().screenToLayoutX(d_data->width);
+                    const int sw = d_data->width;
 
                     const double dx = to.x() - from.x();
                     const double dy = to.y() - from.y();

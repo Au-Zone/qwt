@@ -173,6 +173,8 @@ void QwtAbstractScaleDraw::draw(QPainter *painter,
 
         QPen pen = painter->pen();
         pen.setColor(palette.color(QPalette::Foreground));
+        pen.setCapStyle(Qt::FlatCap);
+
         painter->setPen(pen);
 
         for ( int tickType = QwtScaleDiv::MinorTick; 
@@ -196,6 +198,8 @@ void QwtAbstractScaleDraw::draw(QPainter *painter,
 
         QPen pen = painter->pen();
         pen.setColor(palette.color(QPalette::Foreground));
+        pen.setCapStyle(Qt::FlatCap);
+
         painter->setPen(pen);
 
         drawBackbone(painter);

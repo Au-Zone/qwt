@@ -74,9 +74,9 @@ public:
     //! Return Style
     Style style() const { return d_style; } 
     
-    void draw(QPainter *p, const QPoint &pt) const; 
-    void draw(QPainter *p, int x, int y) const;
-    virtual void draw(QPainter *p, const QRect &r) const;
+    void draw(QPainter *p, const QPointF &) const; 
+    void draw(QPainter *p, double x, double y) const;
+    virtual void draw(QPainter *p, const QRectF &r) const;
 
 private:
     QBrush d_brush;

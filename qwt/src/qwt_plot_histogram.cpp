@@ -178,7 +178,7 @@ void QwtPlotHistogram::setSamples(
 
 void QwtPlotHistogram::drawSeries(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &, int from, int to) const
+    const QRectF &, int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
         return;
@@ -436,14 +436,13 @@ void QwtPlotHistogram::drawColumn(QPainter *painter,
 }
 
 void QwtPlotHistogram::drawLegendIdentifier(
-    QPainter *painter, const QRect &rect) const
+    QPainter *painter, const QRectF &rect) const
 {
-    const int dim = qMin(rect.width(), rect.height());
+    const double dim = qMin(rect.width(), rect.height());
 
-    QSize size(dim, dim);
-    size = QwtPainter::metricsMap().screenToLayout(size);
+    QSizeF size(dim, dim);
 
-    QRect r(0, 0, size.width(), size.height());
+    QRectF r(0, 0, size.width(), size.height());
     r.moveCenter(rect.center());
 
     painter->fillRect(r, d_data->brush);

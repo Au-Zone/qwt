@@ -201,7 +201,7 @@ void QwtPlainTextEngine::textMargins(const QFont &font, const QString &,
   \param flags Bitwise OR of the flags used like in QPainter::drawText
   \param text Text to be rendered
 */
-void QwtPlainTextEngine::draw(QPainter *painter, const QRect &rect,
+void QwtPlainTextEngine::draw(QPainter *painter, const QRectF &rect,
     int flags, const QString& text) const
 {
     QwtPainter::drawText(painter, rect, flags, text);
@@ -277,7 +277,7 @@ QSize QwtRichTextEngine::textSize(const QFont &font,
   \param flags Bitwise OR of the flags like in for QPainter::drawText
   \param text Text to be rendered
 */
-void QwtRichTextEngine::draw(QPainter *painter, const QRect &rect,
+void QwtRichTextEngine::draw(QPainter *painter, const QRectF &rect,
     int flags, const QString& text) const
 {
     QwtRichTextDocument doc(text, flags, painter->font());

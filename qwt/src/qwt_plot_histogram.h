@@ -59,11 +59,11 @@ public:
 
     virtual void drawSeries(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &canvasRect, int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
 
     virtual QRectF boundingRect() const;
 
-    virtual void drawLegendIdentifier(QPainter *, const QRect &) const;
+    virtual void drawLegendIdentifier(QPainter *, const QRectF &) const;
 
 protected:
     virtual QRect columnRect(const QwtIntervalSample &,

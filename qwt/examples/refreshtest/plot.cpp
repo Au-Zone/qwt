@@ -132,7 +132,6 @@ void Plot::setSettings(const Settings &s)
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, s.canvas.cached);
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, s.canvas.cached);
 
-    QwtPainter::setDeviceClipping(s.canvas.deviceClipping);
     QwtPainter::setPolylineSplitting(s.curve.lineSplitting);
 
     d_settings = s;

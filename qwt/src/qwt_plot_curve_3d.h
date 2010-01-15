@@ -54,16 +54,16 @@ public:
 
     virtual void drawSeries(QPainter *, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &canvasRect, int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
 
 protected:
     virtual void drawDots(QPainter *, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &canvasRect, int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
 
     void drawSymbols(QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &canvasRect, int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
 
 
     virtual QwtSymbol *valueSymbol(const QwtDoublePoint3D &) const;

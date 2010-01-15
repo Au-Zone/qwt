@@ -71,8 +71,7 @@ public:
     void setTransformation(QwtScaleTransformation * );
     const QwtScaleTransformation *transformation() const;
 
-    void setPaintInterval(int p1, int p2);
-    void setPaintXInterval(double p1, double p2);
+    void setPaintInterval(double p1, double p2);
     void setScaleInterval(double s1, double s2);
 
     int transform(double x) const;
