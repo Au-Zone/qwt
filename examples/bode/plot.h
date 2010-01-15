@@ -13,7 +13,7 @@ class Plot: public QwtPlot
 public:
     Plot(QWidget *parent);
 
-public slots:
+public Q_SLOTS:
     void setDamp(double damping);
 
 private:

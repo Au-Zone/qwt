@@ -34,7 +34,7 @@ public:
     explicit QwtTextLabel(const QwtText &, QWidget *parent = NULL);
     virtual ~QwtTextLabel();
 
-public slots:
+public Q_SLOTS:
     void setText(const QString &, 
         QwtText::TextFormat textFormat = QwtText::AutoText);
     virtual void setText(const QwtText &);

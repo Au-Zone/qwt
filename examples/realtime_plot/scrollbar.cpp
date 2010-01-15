@@ -139,14 +139,14 @@ void ScrollBar::catchValueChanged(int value)
 {
     double min, max;
     sliderRange(value, min, max);
-    emit valueChanged(orientation(), min, max);
+    Q_EMIT valueChanged(orientation(), min, max);
 }
 
 void ScrollBar::catchSliderMoved(int value)
 {
     double min, max;
     sliderRange(value, min, max);
-    emit sliderMoved(orientation(), min, max);
+    Q_EMIT sliderMoved(orientation(), min, max);
 }
 
 int ScrollBar::extent() const

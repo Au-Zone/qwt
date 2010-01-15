@@ -232,16 +232,16 @@ void QwtLegendItem::setDown(bool down)
     if ( d_data->itemMode == QwtLegend::ClickableItem )
     {
         if ( d_data->isDown )
-            emit pressed();
+            Q_EMIT pressed();
         else
         {
-            emit released();
-            emit clicked();
+            Q_EMIT released();
+            Q_EMIT clicked();
         }
     }
 
     if ( d_data->itemMode == QwtLegend::CheckableItem )
-        emit checked(d_data->isDown);
+        Q_EMIT checked(d_data->isDown);
 }
 
 //! Return true, if the item is down

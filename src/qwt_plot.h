@@ -237,7 +237,7 @@ public:
 
     virtual bool event(QEvent *);
 
-signals:
+Q_SIGNALS:
     /*!
       A signal which is emitted when the user has clicked on 
       a legend item, which is in QwtLegend::ClickableItem mode. 
@@ -264,13 +264,13 @@ signals:
 
     void legendChecked(QwtPlotItem *plotItem, bool on);
 
-public slots:
+public Q_SLOTS:
     virtual void clear();
 
     virtual void replot();
     void autoRefresh();
 
-protected slots:
+protected Q_SLOTS:
     virtual void legendItemClicked();
     virtual void legendItemChecked(bool);
 

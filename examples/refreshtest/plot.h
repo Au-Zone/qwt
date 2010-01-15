@@ -15,7 +15,7 @@ class Plot: public QwtPlot
 public:
     Plot(QWidget* = NULL);
 
-public slots:
+public Q_SLOTS:
     void setSettings(const Settings &);
 
 protected:

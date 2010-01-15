@@ -17,7 +17,7 @@ public:
     void start();
     virtual void replot();
 
-public slots:
+public Q_SLOTS:
     void setIntervalLength(double);
 
 protected:

@@ -10,7 +10,7 @@ public:
     double frequency() const;
     double amplitude() const;
 
-public slots:
+public Q_SLOTS:
     void setAmplitude(double);
     void setFrequency(double);
 

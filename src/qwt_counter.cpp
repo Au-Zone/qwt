@@ -370,7 +370,7 @@ void QwtCounter::valueChange()
     updateButtons();
 
     if ( isValid() )
-        emit valueChanged(value());
+        Q_EMIT valueChanged(value());
 }
 
 /*!
@@ -469,7 +469,7 @@ void QwtCounter::btnClicked()
 //!  Button released
 void QwtCounter::btnReleased()
 {
-    emit buttonReleased(value());
+    Q_EMIT buttonReleased(value());
 }
 
 /*!

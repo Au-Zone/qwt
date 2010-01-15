@@ -235,10 +235,10 @@ public:
 
     QPolygon selection() const;
 
-public slots:
+public Q_SLOTS:
     void setEnabled(bool);
 
-signals:
+Q_SIGNALS:
     /*!
       A signal indicating, when the picker has been activated.
       Together with setEnabled() it can be used to implement

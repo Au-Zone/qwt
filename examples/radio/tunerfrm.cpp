@@ -87,7 +87,7 @@ void TunerFrame::adjustFreq(double frq)
     if (d_whlFreq->value() != frq) 
         d_whlFreq->setValue(frq);
 
-    emit fieldChanged(field);   
+    Q_EMIT fieldChanged(field);   
 }
 
 void TunerFrame::setFreq(double frq)

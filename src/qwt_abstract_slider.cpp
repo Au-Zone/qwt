@@ -169,7 +169,7 @@ void QwtAbstractSlider::mousePressEvent(QMouseEvent *e)
             d_data->time.start();
             d_data->speed = 0;
             d_data->mouseOffset = getValue(p) - value();
-            emit sliderPressed();
+            Q_EMIT sliderPressed();
             break;
         
         default:
@@ -184,7 +184,7 @@ void QwtAbstractSlider::mousePressEvent(QMouseEvent *e)
 void QwtAbstractSlider::buttonReleased()
 {
     if ((!d_data->tracking) || (value() != prevValue()))
-        emit valueChanged(value());
+        Q_EMIT valueChanged(value());
 }
 
 
@@ -222,7 +222,7 @@ void QwtAbstractSlider::mouseReleaseEvent(QMouseEvent *e)
                 d_data->scrollMode = ScrNone;
                 buttonReleased();
             }
-            emit sliderReleased();
+            Q_EMIT sliderReleased();
             
             break;
         }
@@ -324,7 +324,7 @@ void QwtAbstractSlider::mouseMoveEvent(QMouseEvent *e)
             d_data->time.start();
         }
         if (value() != prevValue())
-            emit sliderMoved(value());
+            Q_EMIT sliderMoved(value());
     }
 }
 
@@ -355,7 +355,7 @@ void QwtAbstractSlider::wheelEvent(QWheelEvent *e)
         const int inc = e->delta() / 120;
         QwtDoubleRange::incPages(inc);
         if (value() != prevValue())
-            emit sliderMoved(value());
+            Q_EMIT sliderMoved(value());
     }
 }
 
@@ -408,7 +408,7 @@ void QwtAbstractSlider::keyPressEvent(QKeyEvent *e)
     {
         QwtDoubleRange::incValue(increment);
         if (value() != prevValue())
-            emit sliderMoved(value());
+            Q_EMIT sliderMoved(value());
     }
 }
 
@@ -486,7 +486,7 @@ void QwtAbstractSlider::timerEvent(QTimerEvent *)
 void QwtAbstractSlider::valueChange() 
 {
     if (d_data->tracking)
-       emit valueChanged(value());  
+       Q_EMIT valueChanged(value());  
 }
 
 /*!

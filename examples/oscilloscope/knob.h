@@ -19,7 +19,7 @@ public:
     void setValue(double value);
     double value() const;
 
-signals:
+Q_SIGNALS:
     double valueChanged(double);
 
 protected:

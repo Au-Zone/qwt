@@ -47,7 +47,7 @@ protected:
     virtual void updateScrollBars();
     virtual void layoutScrollBars(const QRect &);
 
-private slots:
+private Q_SLOTS:
     void scrollBarMoved(Qt::Orientation o, double min, double max);
 
 private:

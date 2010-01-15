@@ -70,7 +70,7 @@ void ScalePicker::mouseClicked(const QwtScaleWidget *scale, const QPoint &pos)
                 break;
             }
         }
-        emit clicked(axis, value);
+        Q_EMIT clicked(axis, value);
     }
 }
 

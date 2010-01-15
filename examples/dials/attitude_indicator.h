@@ -20,7 +20,7 @@ public:
     double angle() const { return value(); }
     double gradient() const { return d_gradient; }
 
-public slots:
+public Q_SLOTS:
     void setGradient(double);
     void setAngle(double angle) { setValue(angle); }
 

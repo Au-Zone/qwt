@@ -30,7 +30,7 @@ public:
 
     MainWindow();
 
-private slots:
+private Q_SLOTS:
     void setMouseMode(int);
     void setRescaleMode(int);
     void showRatio(double, double);

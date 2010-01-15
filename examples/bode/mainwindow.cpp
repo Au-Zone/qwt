@@ -145,8 +145,8 @@ MainWindow::MainWindow(QWidget *parent):
 
     connect(d_picker, SIGNAL(moved(const QPoint &)),
             SLOT(moved(const QPoint &)));
-    connect(d_picker, SIGNAL(selected(const QwtPolygon &)),
-            SLOT(selected(const QwtPolygon &)));
+    connect(d_picker, SIGNAL(selected(const QPolygon &)),
+            SLOT(selected(const QPolygon &)));
 }
 
 void MainWindow::print()

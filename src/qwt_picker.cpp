@@ -1114,7 +1114,7 @@ void QwtPicker::begin()
 
     d_data->pickedPoints.resize(0);
     d_data->isActive = true;
-    emit activated(true);
+    Q_EMIT activated(true);
 
     if ( trackerMode() != AlwaysOff )
     {
@@ -1147,7 +1147,7 @@ bool QwtPicker::end(bool ok)
         setMouseTracking(false);
 
         d_data->isActive = false;
-        emit activated(false);
+        Q_EMIT activated(false);
 
         if ( trackerMode() == ActiveOnly )
             d_data->trackerPosition = QPoint(-1, -1);
@@ -1156,7 +1156,7 @@ bool QwtPicker::end(bool ok)
             ok = accept(d_data->pickedPoints);
 
         if ( ok )
-            emit selected(d_data->pickedPoints);
+            Q_EMIT selected(d_data->pickedPoints);
         else
             d_data->pickedPoints.resize(0);
 
@@ -1197,7 +1197,7 @@ void QwtPicker::append(const QPoint &pos)
         d_data->pickedPoints[idx] = pos;
 
         updateDisplay();
-        emit appended(pos);
+        Q_EMIT appended(pos);
     }
 }
 
@@ -1220,7 +1220,7 @@ void QwtPicker::move(const QPoint &pos)
                 d_data->pickedPoints[idx] = pos;
 
                 updateDisplay();
-                emit moved(pos);
+                Q_EMIT moved(pos);
             }
         }
     }
@@ -1245,7 +1245,7 @@ void QwtPicker::remove()
             d_data->pickedPoints.resize(idx - 1);
 
             updateDisplay();
-            emit removed(pos);
+            Q_EMIT removed(pos);
         }
     }
 }
@@ -1310,7 +1310,7 @@ void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
         p.setX(qRound(p.x() * xRatio));
         p.setY(qRound(p.y() * yRatio));
 
-        emit changed(d_data->pickedPoints);
+        Q_EMIT changed(d_data->pickedPoints);
     }
 }
 

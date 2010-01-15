@@ -14,15 +14,15 @@ public:
 
     virtual QSize sizeHint() const;
 
-signals:
+Q_SIGNALS:
     void running(bool);
 
-public slots:
+public Q_SLOTS:
     void clear();
     void stop();
     void append(int timeout, int count);
 
-private slots:
+private Q_SLOTS:
     void appendPoint();
 
 private:

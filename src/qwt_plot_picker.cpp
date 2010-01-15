@@ -245,7 +245,7 @@ QwtText QwtPlotPicker::trackerText(const QPointF &pos) const
 void QwtPlotPicker::append(const QPoint &pos)
 {
     QwtPicker::append(pos);
-    emit appended(invTransform(pos));
+    Q_EMIT appended(invTransform(pos));
 }
 
 /*!
@@ -260,7 +260,7 @@ void QwtPlotPicker::append(const QPoint &pos)
 void QwtPlotPicker::move(const QPoint &pos)
 {
     QwtPicker::move(pos);
-    emit moved(invTransform(pos));
+    Q_EMIT moved(invTransform(pos));
 }
 
 /*!
@@ -296,7 +296,7 @@ bool QwtPlotPicker::end(bool ok)
         case QwtPickerMachine::PointSelection:
         {
             const QPointF pos = invTransform(pa[0]);
-            emit selected(pos);
+            Q_EMIT selected(pos);
             break;
         }
         case QwtPickerMachine::RectSelection:
@@ -307,7 +307,7 @@ bool QwtPlotPicker::end(bool ok)
                 const QPoint p2 = pa[int(pa.count() - 1)];
 
                 const QRect rect = QRect(p1, p2).normalized();
-                emit selected(invTransform(rect));
+                Q_EMIT selected(invTransform(rect));
             }
             break;
         }
@@ -317,7 +317,7 @@ bool QwtPlotPicker::end(bool ok)
             for ( int i = 0; i < int(pa.count()); i++ )
                 dpa[i] = invTransform(pa[i]);
 
-            emit selected(dpa);
+            Q_EMIT selected(dpa);
         }
         default:
             break;

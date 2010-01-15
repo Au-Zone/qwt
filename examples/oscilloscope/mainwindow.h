@@ -17,7 +17,7 @@ public:
     double frequency() const;
     double signalInterval() const;
 
-signals:
+Q_SIGNALS:
     void amplitudeChanged(double);
     void frequencyChanged(double);
     void signalIntervalChanged(double);
