@@ -18,7 +18,7 @@ public:
     QColor light() const { return d_light; }
     QColor dark() const { return d_dark; }
 
-signals:
+Q_SIGNALS:
     void selected(const QColor &);
 
 protected:

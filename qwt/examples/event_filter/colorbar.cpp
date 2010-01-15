@@ -50,7 +50,7 @@ void ColorBar::mousePressEvent(QMouseEvent *e)
         const QPixmap pm = QPixmap::grabWidget(this);
         const QRgb rgb = pm.toImage().pixel(e->x(), e->y());
     
-        emit selected(QColor(rgb));
+        Q_EMIT selected(QColor(rgb));
         e->accept();
     }
 }

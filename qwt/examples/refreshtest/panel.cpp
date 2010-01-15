@@ -181,7 +181,7 @@ QWidget *Panel::createCurveTab(QWidget *parent)
 void Panel::edited()
 {
     const Settings s = settings();
-    emit settingsChanged(s);
+    Q_EMIT settingsChanged(s);
 }
 
 

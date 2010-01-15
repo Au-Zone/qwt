@@ -21,7 +21,7 @@ public:
 
     Plot(QWidget * = NULL);
 
-public slots:
+public Q_SLOTS:
     void setMode(int);
 
 private:

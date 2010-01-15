@@ -329,7 +329,7 @@ QSize QwtArrowButton::arrowSize(Qt::ArrowType arrowType,
 void QwtArrowButton::keyPressEvent(QKeyEvent *e)
 {
     if ( e->isAutoRepeat() && e->key() == Qt::Key_Space )
-        emit clicked();
+        Q_EMIT clicked();
 
     QPushButton::keyPressEvent(e);
 }

@@ -115,7 +115,7 @@ public:
     int stepButton3() const;
     virtual double value() const;
 
-signals:
+Q_SIGNALS:
     /*!
         This signal is emitted when a button has been released
         \param value The new value
@@ -134,7 +134,7 @@ protected:
     virtual void keyPressEvent(QKeyEvent *);
     virtual void rangeChange();
 
-private slots:
+private Q_SLOTS:
     void btnReleased();
     void btnClicked();
     void textChanged();

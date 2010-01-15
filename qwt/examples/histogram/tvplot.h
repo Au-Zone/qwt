@@ -12,7 +12,7 @@ public:
 private:
     void populate();
 
-private slots:
+private Q_SLOTS:
     void showItem(QwtPlotItem *, bool on);
 };
 

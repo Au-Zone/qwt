@@ -9,7 +9,7 @@ class AmpFrame : public QFrame
 public:
     AmpFrame(QWidget *);
 
-public slots:
+public Q_SLOTS:
     void setMaster(double v);
 
 protected:

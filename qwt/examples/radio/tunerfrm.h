@@ -10,13 +10,13 @@ class TunerFrame : public QFrame
 public:
     TunerFrame(QWidget *p);
 
-signals:
+Q_SIGNALS:
     void fieldChanged(double f);
 
-public slots:
+public Q_SLOTS:
     void setFreq(double frq);
 
-private slots:
+private Q_SLOTS:
     void adjustFreq(double frq);
 
 private:

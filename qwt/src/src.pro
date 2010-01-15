@@ -29,6 +29,8 @@ MOC_DIR           = moc
 OBJECTS_DIR       = obj$${SUFFIX_STR}
 DESTDIR           = $${QWT_ROOT}/lib
 
+CONFIG += no_keywords
+
 contains(CONFIG, QwtDll ) {
     CONFIG += dll
 } 
@@ -225,3 +227,4 @@ unix {
 }
 
 INSTALLS       = target headers doc
+CONFIG += no_keywords

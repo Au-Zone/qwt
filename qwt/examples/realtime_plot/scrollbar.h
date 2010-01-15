@@ -24,11 +24,11 @@ public:
 
     int extent() const;
 
-signals:
+Q_SIGNALS:
     void sliderMoved(Qt::Orientation, double, double);
     void valueChanged(Qt::Orientation, double, double);
 
-public slots:
+public Q_SLOTS:
     virtual void setBase(double min, double max);
     virtual void moveSlider(double min, double max);
 
@@ -37,7 +37,7 @@ protected:
     int mapToTick(double) const;
     double mapFromTick(int) const;
 
-private slots:
+private Q_SLOTS:
     void catchValueChanged(int value);
     void catchSliderMoved(int value);
 

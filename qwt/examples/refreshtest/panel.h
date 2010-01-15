@@ -18,10 +18,10 @@ public:
     Settings settings() const;
     void setSettings(const Settings &);
 
-signals:
+Q_SIGNALS:
     void settingsChanged(const Settings &);
 
-private slots:
+private Q_SLOTS:
     void edited();
 
 private:

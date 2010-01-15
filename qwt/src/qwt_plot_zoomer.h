@@ -65,14 +65,14 @@ public:
 
     uint zoomRectIndex() const;
 
-public slots:
+public Q_SLOTS:
     void moveBy(double x, double y);
     virtual void move(double x, double y);
 
     virtual void zoom(const QRectF &);
     virtual void zoom(int up);
 
-signals:
+Q_SIGNALS:
     /*!
       A signal emitting the zoomRect(), when the plot has been 
       zoomed in or out.

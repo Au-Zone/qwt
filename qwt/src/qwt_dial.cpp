@@ -1165,7 +1165,7 @@ void QwtDial::keyPressEvent(QKeyEvent *event)
     }
 
     if (value() != previous)
-        emit sliderMoved(value());
+        Q_EMIT sliderMoved(value());
 }
 
 /*!

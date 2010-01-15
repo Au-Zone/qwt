@@ -828,7 +828,7 @@ void QwtScaleWidget::setScaleDiv(
         sd->setScaleDiv(scaleDiv);
         layoutScale();
 
-        emit scaleDivChanged();
+        Q_EMIT scaleDivChanged();
     }
     else
         delete transformation;

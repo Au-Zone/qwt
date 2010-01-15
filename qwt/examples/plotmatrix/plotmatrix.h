@@ -24,7 +24,7 @@ public:
     void setAxisScale(int axisId, int rowOrColumn,
         double min, double max, double step = 0);
 
-private slots:
+private Q_SLOTS:
     void scaleDivChanged();
 
 private:

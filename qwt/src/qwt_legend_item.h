@@ -41,10 +41,10 @@ public:
 
     bool isChecked() const;
 
-public slots:
+public Q_SLOTS:
     void setChecked(bool on);
 
-signals: 
+Q_SIGNALS: 
     //! Signal, when the legend item has been clicked
     void clicked();
 

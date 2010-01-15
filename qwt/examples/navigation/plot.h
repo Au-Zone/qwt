@@ -16,7 +16,7 @@ public:
 
     void setRectOfInterest(const QRectF &);
 
-signals:
+Q_SIGNALS:
     void resized(double xRatio, double yRatio);
 
 private:

@@ -19,6 +19,8 @@ else {
 	SUFFIX_STR = $${RELEASE_SUFFIX}
 }
 
+CONFIG += no_keywords
+
 TEMPLATE     = app
 
 MOC_DIR      = moc

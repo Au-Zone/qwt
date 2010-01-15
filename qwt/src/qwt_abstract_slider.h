@@ -87,14 +87,14 @@ public:
     */
     void setValid(bool valid) { QwtDoubleRange::setValid(valid); }
 
-public slots:
+public Q_SLOTS:
     virtual void setValue(double val);
     virtual void fitValue(double val);
     virtual void incValue(int steps);
 
     virtual void setReadOnly(bool); 
 
-signals:
+Q_SIGNALS:
 
     /*!
       \brief Notify a change of value.

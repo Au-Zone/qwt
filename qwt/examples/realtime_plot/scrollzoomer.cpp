@@ -451,7 +451,7 @@ void ScrollZoomer::scrollBarMoved(Qt::Orientation o, double min, double)
     else
         move(zoomRect().left(), min);
 
-    emit zoomed(zoomRect());
+    Q_EMIT zoomed(zoomRect());
 }
 
 int ScrollZoomer::oppositeAxis(int axis) const

@@ -136,7 +136,7 @@ void Plot::updateLayout()
     const double xRatio = (x2 - x1) / cr.width();
     const double yRatio = (y2 - y1) / cr.height();
 
-    emit resized(xRatio, yRatio);
+    Q_EMIT resized(xRatio, yRatio);
 }
 
 void Plot::setRectOfInterest(const QRectF &rect)

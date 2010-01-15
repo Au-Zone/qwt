@@ -68,7 +68,7 @@ public:
     const QwtDialNeedle *hand(Hand) const;
     QwtDialNeedle *hand(Hand);
 
-public slots:
+public Q_SLOTS:
     void setCurrentTime();
     void setTime(const QTime & = QTime::currentTime());
 

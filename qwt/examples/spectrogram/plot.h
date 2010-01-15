@@ -8,7 +8,7 @@ class Plot: public QwtPlot
 public:
     Plot(QWidget * = NULL);
 
-public slots:
+public Q_SLOTS:
     void showContour(bool on);
     void showSpectrogram(bool on);
     void printPlot();

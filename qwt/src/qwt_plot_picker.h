@@ -51,7 +51,7 @@ public:
     QwtPlotCanvas *canvas();
     const QwtPlotCanvas *canvas() const;
 
-signals:
+Q_SIGNALS:
 
     /*!
       A signal emitted in case of selectionFlags() & PointSelection.

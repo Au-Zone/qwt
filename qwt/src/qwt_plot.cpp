@@ -669,7 +669,7 @@ void QwtPlot::legendItemClicked()
         QwtPlotItem *plotItem = 
             (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
         if ( plotItem )
-            emit legendClicked(plotItem);
+            Q_EMIT legendClicked(plotItem);
     }
 }
 
@@ -684,7 +684,7 @@ void QwtPlot::legendItemChecked(bool on)
         QwtPlotItem *plotItem = 
             (QwtPlotItem*)d_data->legend->find((QWidget *)sender());
         if ( plotItem )
-            emit legendChecked(plotItem, on);
+            Q_EMIT legendChecked(plotItem, on);
     }
 }
 

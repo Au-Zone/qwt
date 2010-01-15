@@ -14,7 +14,7 @@ public:
     double interval() const;
     double elapsed() const;
 
-public slots:
+public Q_SLOTS:
     void setInterval(double interval);
     void stop();
 
