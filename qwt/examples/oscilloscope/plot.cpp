@@ -136,7 +136,7 @@ void Plot::incrementInterval()
 
     for ( int i = 0; i < QwtScaleDiv::NTickTypes; i++ )
     {
-        QwtValueList ticks = scaleDiv.ticks(i);
+        QList<double> ticks = scaleDiv.ticks(i);
         for ( int j = 0; j < ticks.size(); j++ )
             ticks[j] += d_interval.width();
         scaleDiv.setTicks(i, ticks);

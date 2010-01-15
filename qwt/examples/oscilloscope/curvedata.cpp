@@ -11,7 +11,7 @@ SignalData &CurveData::values()
     return SignalData::instance();
 }
 
-QwtDoublePoint CurveData::sample(size_t i) const
+QPointF CurveData::sample(size_t i) const
 {
     return SignalData::instance().value(i);
 }
@@ -21,12 +21,12 @@ size_t CurveData::size() const
     return SignalData::instance().size();
 }
 
-QwtSeriesData<QwtDoublePoint> *CurveData::copy() const
+QwtSeriesData<QPointF> *CurveData::copy() const
 {
     return new CurveData();
 }
 
-QwtDoubleRect CurveData::boundingRect() const
+QRectF CurveData::boundingRect() const
 {
     return SignalData::instance().boundingRect();
 }

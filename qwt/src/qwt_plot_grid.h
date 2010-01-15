@@ -75,7 +75,7 @@ public:
 private:
     void drawLines(QPainter *painter, const QRect &,
         Qt::Orientation orientation, const QwtScaleMap &, 
-        const QwtValueList &) const;
+        const QList<double> &) const;
 
     class PrivateData;
     PrivateData *d_data;

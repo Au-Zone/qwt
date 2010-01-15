@@ -25,7 +25,7 @@ public:
     {
     }
 
-    virtual QwtSeriesData<QwtDoublePoint> *copy() const
+    virtual QwtSeriesData<QPointF> *copy() const
     {
         return new FunctionData(d_y);
     }

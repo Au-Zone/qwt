@@ -11,9 +11,8 @@
 #define QWT_SPLINE_H
 
 #include "qwt_global.h"
-#include "qwt_double_rect.h"
-#include "qwt_array.h"
-#include <QPolygonF>
+#include <qpolygon.h>
+#include <qvector.h>
 
 /*!
   \brief A class for spline interpolation
@@ -76,8 +75,8 @@ public:
     SplineType splineType() const;
 
 #if QT_VERSION < 0x040000
-    bool setPoints(const QwtArray<QwtDoublePoint>& points);
-    QwtArray<QwtDoublePoint> points() const;
+    bool setPoints(const QVector<QPointF>& points);
+    QVector<QPointF> points() const;
 #else
     bool setPoints(const QPolygonF& points);
     QPolygonF points() const;
@@ -88,9 +87,9 @@ public:
     bool isValid() const;
     double value(double x) const;
 
-    const QwtArray<double> &coefficientsA() const;
-    const QwtArray<double> &coefficientsB() const;
-    const QwtArray<double> &coefficientsC() const;
+    const QVector<double> &coefficientsA() const;
+    const QVector<double> &coefficientsB() const;
+    const QVector<double> &coefficientsC() const;
 
 protected:
     bool buildNaturalSpline(const QPolygonF &);

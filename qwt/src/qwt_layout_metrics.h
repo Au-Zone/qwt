@@ -10,10 +10,10 @@
 #ifndef QWT_LAYOUT_METRICS_H
 #define QWT_LAYOUT_METRICS_H
 
+#include "qwt_global.h"
 #include <qsize.h>
 #include <qrect.h>
-#include "qwt_polygon.h"
-#include "qwt_global.h"
+#include <qpolygon.h>
 
 class QPainter;
 class QString;
@@ -72,12 +72,12 @@ public:
     QRect screenToLayout(const QRect &) const;
     QRect layoutToScreen(const QRect &) const;
 
-    QwtPolygon layoutToDevice(const QwtPolygon &, 
+    QPolygon layoutToDevice(const QPolygon &, 
         const QPainter * = NULL) const;
-    QwtPolygon deviceToLayout(const QwtPolygon &, 
+    QPolygon deviceToLayout(const QPolygon &, 
         const QPainter * = NULL) const;
 
-    static QwtPolygon translate(const QMatrix &, const QwtPolygon &);
+    static QPolygon translate(const QMatrix &, const QPolygon &);
     static QRect translate(const QMatrix &, const QRect &);
 
 private:

@@ -33,7 +33,7 @@ public:
         QSize sz1 = d_knob->sizeHint();
         QSize sz2 = d_label->sizeHint();
 
-        const int w = qwtMax(sz1.width(), sz2.width());
+        const int w = qMax(sz1.width(), sz2.width());
         const int h = sz1.height() + sz2.height();
             
         int off = d_knob->scaleDraw()->extent(QPen(), d_knob->font());

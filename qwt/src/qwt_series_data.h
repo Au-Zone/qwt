@@ -11,10 +11,10 @@
 #define QWT_SERIES_DATA_H 1
 
 #include "qwt_global.h"
-#include "qwt_array.h"
-#include "qwt_double_rect.h"
 #include "qwt_double_interval.h"
 #include "qwt_double_point_3d.h"
+#include <qvector.h>
+#include <qrect.h>
 
 //! A sample of the types (x1-x2, y) or (x, y1-y2)
 class QWT_EXPORT QwtIntervalSample
@@ -62,7 +62,7 @@ public:
     bool operator==(const QwtSetSample &other) const;
 
     double value;
-    QwtArray<double> set;
+    QVector<double> set;
 };
 
 inline QwtSetSample::QwtSetSample():
@@ -119,7 +119,7 @@ public:
        over the samples. For large sets it is recommended to implement
        something faster f.e. by caching the bounding rect.
      */
-    virtual QwtDoubleRect boundingRect() const = 0;
+    virtual QRectF boundingRect() const = 0;
 
     /*!
        Set a the "rect of interest"
@@ -130,7 +130,7 @@ public:
 
        The default implementation does nothing.
      */
-    virtual void setRectOfInterest(const QwtDoubleRect &) {};
+    virtual void setRectOfInterest(const QRectF &) {};
 
 private:
     /*!
@@ -140,9 +140,9 @@ private:
 };
 
 /*!
-  \brief Template class for data, that is organized as QwtArray
+  \brief Template class for data, that is organized as QVector
 
-  QwtArray uses implicit data sharing and can be
+  QVector uses implicit data sharing and can be
   passed around as argument efficiently.
 */
 template <typename T>
@@ -150,16 +150,16 @@ class QwtArraySeriesData: public QwtSeriesData<T>
 {
 public:
     QwtArraySeriesData();
-    QwtArraySeriesData(const QwtArray<T> &);
+    QwtArraySeriesData(const QVector<T> &);
 
-    void setSamples(const QwtArray<T> &);
-    const QwtArray<T> samples() const;
+    void setSamples(const QVector<T> &);
+    const QVector<T> samples() const;
 
     virtual size_t size() const;
     virtual T sample(size_t) const;
 
 protected:
-    QwtArray<T> d_samples;
+    QVector<T> d_samples;
 };
 
 //! Constructor
@@ -173,7 +173,7 @@ QwtArraySeriesData<T>::QwtArraySeriesData()
    \param samples Array of samples
 */
 template <typename T>
-QwtArraySeriesData<T>::QwtArraySeriesData(const QwtArray<T> &samples):
+QwtArraySeriesData<T>::QwtArraySeriesData(const QVector<T> &samples):
     d_samples(samples)
 {
 }
@@ -183,14 +183,14 @@ QwtArraySeriesData<T>::QwtArraySeriesData(const QwtArray<T> &samples):
   \param samples Array of samples
 */
 template <typename T>
-void QwtArraySeriesData<T>::setSamples(const QwtArray<T> &samples)
+void QwtArraySeriesData<T>::setSamples(const QVector<T> &samples)
 {
     d_samples = samples;
 }
 
 //! \return Array of samples
 template <typename T>
-const QwtArray<T> QwtArraySeriesData<T>::samples() const
+const QVector<T> QwtArraySeriesData<T>::samples() const
 {
    return d_samples;
 }
@@ -214,14 +214,14 @@ T QwtArraySeriesData<T>::sample(size_t i) const
 }
 
 //! Interface for iterating over an array of points
-class QWT_EXPORT QwtPointSeriesData: public QwtArraySeriesData<QwtDoublePoint>
+class QWT_EXPORT QwtPointSeriesData: public QwtArraySeriesData<QPointF>
 {
 public:
     QwtPointSeriesData(
-        const QwtArray<QwtDoublePoint> & = QwtArray<QwtDoublePoint>());
+        const QVector<QPointF> & = QVector<QPointF>());
 
-    virtual QwtSeriesData<QwtDoublePoint> *copy() const;
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QwtSeriesData<QPointF> *copy() const;
+    virtual QRectF boundingRect() const;
 };
 
 //! Interface for iterating over an array of 3D points
@@ -229,10 +229,10 @@ class QWT_EXPORT QwtPoint3DSeriesData: public QwtArraySeriesData<QwtDoublePoint3
 {
 public:
     QwtPoint3DSeriesData(
-        const QwtArray<QwtDoublePoint3D> & = QwtArray<QwtDoublePoint3D>());
+        const QVector<QwtDoublePoint3D> & = QVector<QwtDoublePoint3D>());
 
     virtual QwtSeriesData<QwtDoublePoint3D> *copy() const;
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
 };
 
 //! Interface for iterating over an array of intervals
@@ -240,10 +240,10 @@ class QWT_EXPORT QwtIntervalSeriesData: public QwtArraySeriesData<QwtIntervalSam
 {
 public:
     QwtIntervalSeriesData(
-        const QwtArray<QwtIntervalSample> & = QwtArray<QwtIntervalSample>());
+        const QVector<QwtIntervalSample> & = QVector<QwtIntervalSample>());
 
     virtual QwtSeriesData<QwtIntervalSample> *copy() const;
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
 };
 
 //! Interface for iterating over an array of samples
@@ -251,48 +251,48 @@ class QWT_EXPORT QwtSetSeriesData: public QwtArraySeriesData<QwtSetSample>
 {
 public:
     QwtSetSeriesData(
-        const QwtArray<QwtSetSample> & = QwtArray<QwtSetSample>());
+        const QVector<QwtSetSample> & = QVector<QwtSetSample>());
 
     virtual QwtSeriesData<QwtSetSample> *copy() const;
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
 };
 
 /*! 
-  Interface for iterating over two QwtArray<double> objects.
+  Interface for iterating over two QVector<double> objects.
 */
-class QWT_EXPORT QwtPointArrayData: public QwtSeriesData<QwtDoublePoint>
+class QWT_EXPORT QwtPointArrayData: public QwtSeriesData<QPointF>
 {
 public:
-    QwtPointArrayData(const QwtArray<double> &x, const QwtArray<double> &y);
+    QwtPointArrayData(const QVector<double> &x, const QVector<double> &y);
     QwtPointArrayData(const double *x, const double *y, size_t size);
     QwtPointArrayData &operator=(const QwtPointArrayData &);
-    virtual QwtSeriesData<QwtDoublePoint> *copy() const;
+    virtual QwtSeriesData<QPointF> *copy() const;
 
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
     virtual size_t size() const;
-    virtual QwtDoublePoint sample(size_t i) const;
+    virtual QPointF sample(size_t i) const;
 
-    const QwtArray<double> &xData() const;
-    const QwtArray<double> &yData() const;
+    const QVector<double> &xData() const;
+    const QVector<double> &yData() const;
 
 private:
-    QwtArray<double> d_x;
-    QwtArray<double> d_y;
+    QVector<double> d_x;
+    QVector<double> d_y;
 };
 
 /*!
   \brief Data class containing two pointers to memory blocks of doubles.
  */
-class QWT_EXPORT QwtCPointerData: public QwtSeriesData<QwtDoublePoint>
+class QWT_EXPORT QwtCPointerData: public QwtSeriesData<QPointF>
 {
 public:
     QwtCPointerData(const double *x, const double *y, size_t size);
     QwtCPointerData &operator=(const QwtCPointerData &);
-    virtual QwtSeriesData<QwtDoublePoint> *copy() const;
+    virtual QwtSeriesData<QPointF> *copy() const;
 
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
     virtual size_t size() const;
-    virtual QwtDoublePoint sample(size_t i) const;
+    virtual QPointF sample(size_t i) const;
 
     const double *xData() const;
     const double *yData() const;
@@ -332,7 +332,7 @@ public:
         QwtSyntheticPointData(100)
     {
     }
-    virtual QwtSeriesData<QwtDoublePoint> *copy() const
+    virtual QwtSeriesData<QPointF> *copy() const
     {
         return new SinusData();
     }
@@ -359,7 +359,7 @@ int main(int argc, char **argv)
 }
    \endverbatim
 */
-class QWT_EXPORT QwtSyntheticPointData: public QwtSeriesData<QwtDoublePoint>
+class QWT_EXPORT QwtSyntheticPointData: public QwtSeriesData<QPointF>
 {
 public:
     QwtSyntheticPointData(size_t size, 
@@ -371,8 +371,8 @@ public:
     void setInterval(const QwtDoubleInterval& );
     QwtDoubleInterval interval() const;
 
-    virtual QwtDoubleRect boundingRect() const;
-    virtual QwtDoublePoint sample(size_t i) const;
+    virtual QRectF boundingRect() const;
+    virtual QPointF sample(size_t i) const;
 
     /*! 
        Calculate a y value for a x value
@@ -383,23 +383,23 @@ public:
     virtual double y(double x) const = 0;
     virtual double x(uint index) const;
 
-    virtual void setRectOfInterest(const QwtDoubleRect &);
-    QwtDoubleRect rectOfInterest() const;
+    virtual void setRectOfInterest(const QRectF &);
+    QRectF rectOfInterest() const;
 
 private:
     size_t d_size;
     QwtDoubleInterval d_interval;
-    QwtDoubleRect d_rectOfInterest;
+    QRectF d_rectOfInterest;
     QwtDoubleInterval d_intervalOfInterest;
 };
 
-QWT_EXPORT QwtDoubleRect qwtBoundingRect(
-    const QwtSeriesData<QwtDoublePoint> &);
-QWT_EXPORT QwtDoubleRect qwtBoundingRect(
+QWT_EXPORT QRectF qwtBoundingRect(
+    const QwtSeriesData<QPointF> &);
+QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtDoublePoint3D> &);
-QWT_EXPORT QwtDoubleRect qwtBoundingRect(
+QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtIntervalSample> &);
-QWT_EXPORT QwtDoubleRect qwtBoundingRect(
+QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtSetSample> &);
 
 #endif // !QWT_SERIES_DATA_H

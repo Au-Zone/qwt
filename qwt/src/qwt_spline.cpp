@@ -9,7 +9,6 @@
 
 #include "qwt_spline.h"
 #include "qwt_math.h"
-#include "qwt_array.h"
 
 class QwtSpline::PrivateData
 {
@@ -22,9 +21,9 @@ public:
     QwtSpline::SplineType splineType;
 
     // coefficient vectors
-    QwtArray<double> a;
-    QwtArray<double> b;
-    QwtArray<double> c;
+    QVector<double> a;
+    QVector<double> b;
+    QVector<double> c;
 
     // control points
     QPolygonF points;
@@ -164,19 +163,19 @@ QPolygonF QwtSpline::points() const
 }
 
 //! \return A coefficients
-const QwtArray<double> &QwtSpline::coefficientsA() const
+const QVector<double> &QwtSpline::coefficientsA() const
 {
     return d_data->a;
 }
 
 //! \return B coefficients
-const QwtArray<double> &QwtSpline::coefficientsB() const
+const QVector<double> &QwtSpline::coefficientsB() const
 {
     return d_data->b;
 }
 
 //! \return C coefficients
-const QwtArray<double> &QwtSpline::coefficientsC() const
+const QVector<double> &QwtSpline::coefficientsC() const
 {
     return d_data->c;
 }
@@ -230,7 +229,7 @@ bool QwtSpline::buildNaturalSpline(const QPolygonF &points)
 
     //  set up tridiagonal equation system; use coefficient
     //  vectors as temporary buffers
-    QwtArray<double> h(size-1);
+    QVector<double> h(size-1);
     for (i = 0; i < size - 1; i++) 
     {
         h[i] = p[i+1].x() - p[i].x();
@@ -238,7 +237,7 @@ bool QwtSpline::buildNaturalSpline(const QPolygonF &points)
             return false;
     }
     
-    QwtArray<double> d(size-1);
+    QVector<double> d(size-1);
     double dy1 = (p[1].y() - p[0].y()) / h[0];
     for (i = 1; i < size - 1; i++)
     {
@@ -262,7 +261,7 @@ bool QwtSpline::buildNaturalSpline(const QPolygonF &points)
     }
 
     // forward elimination
-    QwtArray<double> s(size);
+    QVector<double> s(size);
     s[1] = d[1];
     for ( i = 2; i < size - 1; i++)
        s[i] = d[i] - c[i-1] * s[i-1];
@@ -302,9 +301,9 @@ bool QwtSpline::buildPeriodicSpline(const QPolygonF &points)
     double *b = d_data->b.data();
     double *c = d_data->c.data();
 
-    QwtArray<double> d(size-1);
-    QwtArray<double> h(size-1);
-    QwtArray<double> s(size);
+    QVector<double> d(size-1);
+    QVector<double> h(size-1);
+    QVector<double> s(size);
     
     //
     //  setup equation system; use coefficient

@@ -7,13 +7,13 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
+#include "qwt_plot_marker.h"
 #include "qwt_painter.h"
 #include "qwt_scale_map.h"
-#include "qwt_plot_marker.h"
 #include "qwt_symbol.h"
 #include "qwt_text.h"
 #include "qwt_math.h"
+#include <qpainter.h>
 
 class QwtPlotMarker::PrivateData
 {
@@ -68,9 +68,9 @@ int QwtPlotMarker::rtti() const
 }
 
 //! Return Value
-QwtDoublePoint QwtPlotMarker::value() const
+QPointF QwtPlotMarker::value() const
 {
-    return QwtDoublePoint(d_data->xValue, d_data->yValue);
+    return QPointF(d_data->xValue, d_data->yValue);
 }
 
 //! Return x Value
@@ -86,7 +86,7 @@ double QwtPlotMarker::yValue() const
 }
 
 //! Set Value
-void QwtPlotMarker::setValue(const QwtDoublePoint& pos)
+void QwtPlotMarker::setValue(const QPointF& pos)
 {
     setValue(pos.x(), pos.y());
 }
@@ -246,8 +246,8 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
         QwtPainter::metricsMap().screenToLayoutY(d_data->spacing);
 
 
-    int xOff = qwtMax( (pw + 1) / 2, symbolOff.width() );
-    int yOff = qwtMax( (pw + 1) / 2, symbolOff.height() );
+    int xOff = qMax( (pw + 1) / 2, symbolOff.width() );
+    int yOff = qMax( (pw + 1) / 2, symbolOff.height() );
 
     const QSize textSize = d_data->label.textSize(painter->font());
 
@@ -486,7 +486,7 @@ const QPen &QwtPlotMarker::linePen() const
     return d_data->pen; 
 }
 
-QwtDoubleRect QwtPlotMarker::boundingRect() const
+QRectF QwtPlotMarker::boundingRect() const
 {
-    return QwtDoubleRect(d_data->xValue, d_data->yValue, 0.0, 0.0);
+    return QRectF(d_data->xValue, d_data->yValue, 0.0, 0.0);
 }

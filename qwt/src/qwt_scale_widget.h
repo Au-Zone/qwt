@@ -10,14 +10,13 @@
 #ifndef QWT_SCALE_WIDGET_H
 #define QWT_SCALE_WIDGET_H
 
+#include "qwt_global.h"
+#include "qwt_text.h"
+#include "qwt_scale_draw.h"
 #include <qwidget.h>
 #include <qfont.h>
 #include <qcolor.h>
 #include <qstring.h>
-
-#include "qwt_global.h"
-#include "qwt_text.h"
-#include "qwt_scale_draw.h"
 
 class QPainter;
 class QwtScaleTransformation;

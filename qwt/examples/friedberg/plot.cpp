@@ -26,7 +26,7 @@ public:
     virtual void updateScaleDiv(const QwtScaleDiv &xMap,
         const QwtScaleDiv &yMap)
     {
-        QwtValueList ticks[QwtScaleDiv::NTickTypes];
+        QList<double> ticks[QwtScaleDiv::NTickTypes];
         
         ticks[QwtScaleDiv::MajorTick] = xMap.ticks(QwtScaleDiv::MediumTick);
         ticks[QwtScaleDiv::MinorTick] = xMap.ticks(QwtScaleDiv::MinorTick);
@@ -77,13 +77,13 @@ Plot::Plot(QWidget *parent):
     insertLegend(new QwtLegend(), QwtPlot::RightLegend);
 
     const int numDays = 365;
-    QwtArray<QwtDoublePoint> averageData(numDays);
-    QwtArray<QwtIntervalSample> rangeData(numDays);
+    QVector<QPointF> averageData(numDays);
+    QVector<QwtIntervalSample> rangeData(numDays);
 
     for ( int i = 0; i < numDays; i++ )
     {
         const Temperature &t = friedberg2007[i];
-        averageData[i] = QwtDoublePoint(double(i), t.averageValue);
+        averageData[i] = QPointF(double(i), t.averageValue);
         rangeData[i] = QwtIntervalSample( double(i),
             QwtDoubleInterval(t.minValue, t.maxValue) );
     }
@@ -100,18 +100,18 @@ QwtScaleDiv Plot::yearScaleDiv() const
 {
     const int days[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-    QwtValueList ticks[QwtScaleDiv::NTickTypes];
+    QList<double> ticks[QwtScaleDiv::NTickTypes];
 
-    QwtValueList &mediumTicks = ticks[QwtScaleDiv::MediumTick];
+    QList<double> &mediumTicks = ticks[QwtScaleDiv::MediumTick];
     mediumTicks += 0.0;
     for ( uint i = 0; i < sizeof(days) / sizeof(days[0]); i++ )
         mediumTicks += mediumTicks.last() + days[i];
 
-    QwtValueList &minorTicks = ticks[QwtScaleDiv::MinorTick];
+    QList<double> &minorTicks = ticks[QwtScaleDiv::MinorTick];
     for ( int i = 1; i <= 365; i += 7 )
         minorTicks += i;
 
-    QwtValueList &majorTicks = ticks[QwtScaleDiv::MajorTick];
+    QList<double> &majorTicks = ticks[QwtScaleDiv::MajorTick];
     for ( int i = 0; i < 12; i++ )
         majorTicks += i * 30 + 15;
 
@@ -120,7 +120,7 @@ QwtScaleDiv Plot::yearScaleDiv() const
 }
 
 void Plot::insertCurve(const QString& title, 
-    const QwtArray<QwtDoublePoint>& samples, const QColor &color)
+    const QVector<QPointF>& samples, const QColor &color)
 {
     d_curve = new QwtPlotCurve(title);
     d_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -139,7 +139,7 @@ void Plot::insertCurve(const QString& title,
 
 void Plot::insertErrorBars(
     const QString &title,
-    const QwtArray<QwtIntervalSample>& samples, 
+    const QVector<QwtIntervalSample>& samples, 
     const QColor &color)
 {
     d_intervalCurve = new QwtPlotIntervalCurve(title);

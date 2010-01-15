@@ -10,9 +10,9 @@
 #ifndef QWT_PLOT_CANVAS_H
 #define QWT_PLOT_CANVAS_H
 
+#include "qwt_global.h"
 #include <qframe.h>
 #include <qpen.h>
-#include "qwt_global.h"
 
 class QwtPlot;
 class QPixmap;

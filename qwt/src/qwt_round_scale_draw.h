@@ -10,9 +10,9 @@
 #ifndef QWT_ROUND_SCALE_DRAW_H
 #define QWT_ROUND_SCALE_DRAW_H
 
-#include <qpoint.h>
 #include "qwt_global.h"
 #include "qwt_abstract_scale_draw.h"
+#include <qpoint.h>
 
 class QPen;
 

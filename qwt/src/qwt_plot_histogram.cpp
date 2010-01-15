@@ -1,12 +1,21 @@
-#include <qstring.h>
-#include <qpainter.h>
+/* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
+ * Qwt Widget Library
+ * Copyright (C) 1997   Josef Wilgen
+ * Copyright (C) 2002   Uwe Rathmann
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the Qwt License, Version 1.0
+ *****************************************************************************/
+
+#include "qwt_plot_histogram.h"
 #include "qwt_plot.h"
 #include "qwt_legend.h"
 #include "qwt_legend_item.h"
 #include "qwt_painter.h"
 #include "qwt_column_symbol.h"
 #include "qwt_scale_map.h"
-#include "qwt_plot_histogram.h"
+#include <qstring.h>
+#include <qpainter.h>
 
 class QwtPlotHistogram::PrivateData
 {
@@ -126,15 +135,15 @@ double QwtPlotHistogram::baseline() const
     return d_data->reference;
 }
 
-QwtDoubleRect QwtPlotHistogram::boundingRect() const
+QRectF QwtPlotHistogram::boundingRect() const
 {
-    QwtDoubleRect rect = d_series->boundingRect();
+    QRectF rect = d_series->boundingRect();
     if ( !rect.isValid() ) 
         return rect;
 
     if ( orientation() == Qt::Horizontal )
     {
-        rect = QwtDoubleRect( rect.y(), rect.x(), 
+        rect = QRectF( rect.y(), rect.x(), 
             rect.height(), rect.width() );
 
         if ( rect.left() > d_data->reference ) 
@@ -160,7 +169,7 @@ int QwtPlotHistogram::rtti() const
 }
 
 void QwtPlotHistogram::setSamples(
-    const QwtArray<QwtIntervalSample> &data)
+    const QVector<QwtIntervalSample> &data)
 {
     delete d_series;
     d_series = new QwtIntervalSeriesData(data);
@@ -203,7 +212,7 @@ void QwtPlotHistogram::drawOutline(QPainter *painter,
 
     QwtIntervalSample previous;
 
-    QwtPolygon points;
+    QPolygon points;
     for ( int i = from; i <= to; i++ )
     {
         const QwtIntervalSample sample = d_series->sample(i);
@@ -320,7 +329,7 @@ void QwtPlotHistogram::drawLines(QPainter *painter,
 }
 
 void QwtPlotHistogram::flushPolygon(QPainter *painter, 
-    int baseLine, QwtPolygon &points ) const
+    int baseLine, QPolygon &points ) const
 {
     if ( points.size() == 0 )
         return;
@@ -429,7 +438,7 @@ void QwtPlotHistogram::drawColumn(QPainter *painter,
 void QwtPlotHistogram::drawLegendIdentifier(
     QPainter *painter, const QRect &rect) const
 {
-    const int dim = qwtMin(rect.width(), rect.height());
+    const int dim = qMin(rect.width(), rect.height());
 
     QSize size(dim, dim);
     size = QwtPainter::metricsMap().screenToLayout(size);

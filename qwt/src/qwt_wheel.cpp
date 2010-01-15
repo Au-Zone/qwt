@@ -7,13 +7,13 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_wheel.h"
+#include "qwt_math.h"
+#include "qwt_painter.h"
 #include <qevent.h>
 #include <qdrawutil.h>
 #include <qpainter.h>
 #include <qstyle.h>
-#include "qwt_math.h"
-#include "qwt_painter.h"
-#include "qwt_wheel.h"
 
 #define NUM_COLORS 30
 
@@ -141,9 +141,9 @@ double QwtWheel::mass() const
 */
 void QwtWheel::setInternalBorder(int w)
 {
-    const int d = qwtMin( width(), height() ) / 3;
-    w = qwtMin( w, d );
-    d_data->intBorder = qwtMax( w, 1 );
+    const int d = qMin( width(), height() ) / 3;
+    w = qMin( w, d );
+    d_data->intBorder = qMax( w, 1 );
     layoutWheel();
 }
 
@@ -203,7 +203,7 @@ void QwtWheel::drawWheelBackground(QPainter *painter, const QRect &r )
         {
             const int x2 = rx + (rw * i) / nFields;
             painter->fillRect(x1, ry, x2-x1 + 1 ,rh, 
-                d_data->colors[qwtAbs(i-hiPos)]);
+                d_data->colors[qAbs(i-hiPos)]);
             x1 = x2 + 1;
         }
         painter->fillRect(x1, ry, rw - (x1 - rx), rh, 
@@ -235,7 +235,7 @@ void QwtWheel::drawWheelBackground(QPainter *painter, const QRect &r )
         {
             const int y2 = ry + (rh * i) / nFields;
             painter->fillRect(rx, y1, rw, y2-y1 + 1, 
-                d_data->colors[qwtAbs(i-hiPos)]);
+                d_data->colors[qAbs(i-hiPos)]);
             y1 = y2 + 1;
         }
         painter->fillRect(rx, y1, rw, rh - (y1 - ry), 
@@ -357,7 +357,7 @@ void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
     const QColor dark = palette().color(QPalette::Dark);
 
     const double sign = (minValue() < maxValue()) ? 1.0 : -1.0;
-    double cnvFactor = qwtAbs(d_data->totalAngle / (maxValue() - minValue()));
+    double cnvFactor = qAbs(d_data->totalAngle / (maxValue() - minValue()));
     const double halfIntv = 0.5 * d_data->viewAngle / cnvFactor;
     const double loValue = value() - halfIntv;
     const double hiValue = value() + halfIntv;

@@ -7,14 +7,14 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <math.h>
-#include <qpen.h>
-#include <qpainter.h>
-#include <qfontmetrics.h>
+#include "qwt_round_scale_draw.h"
 #include "qwt_painter.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_map.h"
-#include "qwt_round_scale_draw.h"
+#include <qpen.h>
+#include <qpainter.h>
+#include <qfontmetrics.h>
+#include <math.h>
 
 class QwtRoundScaleDraw::PrivateData
 {
@@ -236,8 +236,8 @@ void QwtRoundScaleDraw::drawTick(QPainter *painter, double value, int len) const
 */
 void QwtRoundScaleDraw::drawBackbone(QPainter *painter) const
 {
-    const int a1 = qRound(qwtMin(map().p1(), map().p2()) - 90 * 16);
-    const int a2 = qRound(qwtMax(map().p1(), map().p2()) - 90 * 16);
+    const int a1 = qRound(qMin(map().p1(), map().p2()) - 90 * 16);
+    const int a2 = qRound(qMax(map().p1(), map().p2()) - 90 * 16);
 
     const int radius = d_data->radius;
     const int x = d_data->center.x() - radius;
@@ -269,7 +269,7 @@ int QwtRoundScaleDraw::extent(const QPen &pen, const QFont &font) const
     if ( hasComponent(QwtAbstractScaleDraw::Labels) )
     {
         const QwtScaleDiv &sd = scaleDiv();
-        const QwtValueList &ticks = sd.ticks(QwtScaleDiv::MajorTick);
+        const QList<double> &ticks = sd.ticks(QwtScaleDiv::MajorTick);
         for (uint i = 0; i < (uint)ticks.count(); i++)
         {
             const double value = ticks[i];
@@ -287,7 +287,7 @@ int QwtRoundScaleDraw::extent(const QPen &pen, const QFont &font) const
                 const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
 
                 const QSize sz = label.textSize(font);
-                const double off = qwtMax(sz.width(), sz.height());
+                const double off = qMax(sz.width(), sz.height());
 
                 double x = off * sin(arc);
                 double y = off * cos(arc);
@@ -306,7 +306,7 @@ int QwtRoundScaleDraw::extent(const QPen &pen, const QFont &font) const
 
     if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
     {
-        const int pw = qwtMax( 1, pen.width() );  // penwidth can be zero
+        const int pw = qMax( 1, pen.width() );  // penwidth can be zero
         d += pw;
     }
 
@@ -317,7 +317,7 @@ int QwtRoundScaleDraw::extent(const QPen &pen, const QFont &font) const
         d += spacing();
     }
 
-    d = qwtMax(d, minimumExtent());
+    d = qMax(d, minimumExtent());
 
     return d;
 }

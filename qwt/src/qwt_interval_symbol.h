@@ -10,9 +10,9 @@
 #ifndef QWT_INTERVAL_SYMBOL_H
 #define QWT_INTERVAL_SYMBOL_H
 
+#include "qwt_global.h"
 #include <qpen.h>
 #include <qsize.h>
-#include "qwt_global.h"
 
 class QPainter;
 class QRect;

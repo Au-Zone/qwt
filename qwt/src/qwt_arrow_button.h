@@ -10,8 +10,8 @@
 #ifndef QWT_ARROW_BUTTON_H
 #define QWT_ARROW_BUTTON_H
 
-#include <qpushbutton.h>
 #include "qwt_global.h"
+#include <qpushbutton.h>
 
 /*!
   \brief Arrow Button

@@ -18,7 +18,7 @@ public:
         setTrackerMode(AlwaysOn);
     }
 
-    virtual QwtText trackerText(const QwtDoublePoint &pos) const
+    virtual QwtText trackerText(const QPointF &pos) const
     {
         QColor bg(Qt::white);
         bg.setAlpha(200);
@@ -33,7 +33,7 @@ class SpectrogramData: public QwtRasterData
 {
 public:
     SpectrogramData():
-        QwtRasterData(QwtDoubleRect(-1.5, -1.5, 3.0, 3.0))
+        QwtRasterData(QRectF(-1.5, -1.5, 3.0, 3.0))
     {
     }
 
@@ -74,7 +74,7 @@ Plot::Plot(QWidget *parent):
     d_spectrogram->setData(SpectrogramData());
     d_spectrogram->attach(this);
 
-    QwtValueList contourLevels;
+    QList<double> contourLevels;
     for ( double level = 0.5; level < 10.0; level += 1.0 )
         contourLevels += level;
     d_spectrogram->setContourLevels(contourLevels);

@@ -10,9 +10,8 @@
 #ifndef QWT_PANNER_H
 #define QWT_PANNER_H 1
 
-#include <qnamespace.h>
-#include <qwidget.h>
 #include "qwt_global.h"
+#include <qwidget.h>
 
 class QCursor;
 

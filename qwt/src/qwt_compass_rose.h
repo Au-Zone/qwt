@@ -10,8 +10,8 @@
 #ifndef QWT_COMPASS_ROSE_H
 #define QWT_COMPASS_ROSE_H 1
 
-#include <qpalette.h>
 #include "qwt_global.h"
+#include <qpalette.h>
 
 class QPainter;
 

@@ -7,15 +7,15 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
-#include <qpalette.h>
-#include <qmap.h>
-#include <qlocale.h>
+#include "qwt_abstract_scale_draw.h"
 #include "qwt_math.h"
 #include "qwt_text.h"
 #include "qwt_painter.h"
 #include "qwt_scale_map.h"
-#include "qwt_scale_draw.h"
+#include <qpainter.h>
+#include <qpalette.h>
+#include <qmap.h>
+#include <qlocale.h>
 
 class QwtAbstractScaleDraw::PrivateData
 {
@@ -154,7 +154,7 @@ void QwtAbstractScaleDraw::draw(QPainter *painter,
         painter->save();
         painter->setPen(palette.color(QPalette::Text)); // ignore pen style
 
-        const QwtValueList &majorTicks = 
+        const QList<double> &majorTicks = 
             d_data->scldiv.ticks(QwtScaleDiv::MajorTick);
 
         for (int i = 0; i < (int)majorTicks.count(); i++)
@@ -178,7 +178,7 @@ void QwtAbstractScaleDraw::draw(QPainter *painter,
         for ( int tickType = QwtScaleDiv::MinorTick; 
             tickType < QwtScaleDiv::NTickTypes; tickType++ )
         {
-            const QwtValueList &ticks = d_data->scldiv.ticks(tickType);
+            const QList<double> &ticks = d_data->scldiv.ticks(tickType);
             for (int i = 0; i < (int)ticks.count(); i++)
             {
                 const double v = ticks[i];

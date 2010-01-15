@@ -10,11 +10,10 @@
 #ifndef QWT_DYNGRID_LAYOUT_H
 #define QWT_DYNGRID_LAYOUT_H
 
+#include "qwt_global.h"
 #include <qlayout.h>
 #include <qsize.h>
 #include <qlist.h>
-#include "qwt_global.h"
-#include "qwt_array.h"
 
 /*!
   \brief The QwtDynGridLayout class lays out widgets in a grid,
@@ -69,9 +68,9 @@ public:
 protected:
 
     void layoutGrid(uint numCols,
-        QwtArray<int>& rowHeight, QwtArray<int>& colWidth) const;
+        QVector<int>& rowHeight, QVector<int>& colWidth) const;
     void stretchGrid(const QRect &rect, uint numCols, 
-        QwtArray<int>& rowHeight, QwtArray<int>& colWidth) const;
+        QVector<int>& rowHeight, QVector<int>& colWidth) const;
 
 
 private:
@@ -79,7 +78,7 @@ private:
     int maxRowWidth(int numCols) const;
     void updateLayoutCache();
 
-   	class PrivateData;
+    class PrivateData;
 
 private:
     PrivateData *d_data;

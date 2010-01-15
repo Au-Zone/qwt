@@ -7,13 +7,12 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_curve_fitter.h"
 #include "qwt_math.h"
 #include "qwt_spline.h"
-#include "qwt_curve_fitter.h"
 #include <math.h>
 #include <qstack.h>
 #include <qvector.h>
-
 
 //! Constructor
 QwtCurveFitter::QwtCurveFitter()
@@ -89,7 +88,7 @@ QwtSpline &QwtSplineCurveFitter::spline()
 
 void QwtSplineCurveFitter::setSplineSize(int splineSize)
 {
-    d_data->splineSize = qwtMax(splineSize, 10);
+    d_data->splineSize = qMax(splineSize, 10);
 }
 
 int QwtSplineCurveFitter::splineSize() const
@@ -114,7 +113,7 @@ QPolygonF QwtSplineCurveFitter::fitCurve(const QPolygonF &points) const
     {
         fitMode = Spline;
 
-        const QwtDoublePoint *p = points.data();
+        const QPointF *p = points.data();
         for ( int i = 1; i < size; i++ )
         {
             if ( p[i].x() <= p[i-1].x() )
@@ -146,7 +145,7 @@ QPolygonF QwtSplineCurveFitter::fitSpline(const QPolygonF &points) const
 
     for (int i = 0; i < d_data->splineSize; i++)
     {
-        QwtDoublePoint &p = fittedPoints[i];
+        QPointF &p = fittedPoints[i];
 
         const double v = x1 + i * delta;
         const double sv = d_data->spline.value(v);
@@ -168,9 +167,9 @@ QPolygonF QwtSplineCurveFitter::fitParametric(const QPolygonF &points) const
     QPolygonF splinePointsX(size);
     QPolygonF splinePointsY(size);
 
-    const QwtDoublePoint *p = points.data();
-    QwtDoublePoint *spX = splinePointsX.data();
-    QwtDoublePoint *spY = splinePointsY.data();
+    const QPointF *p = points.data();
+    QPointF *spX = splinePointsX.data();
+    QPointF *spY = splinePointsY.data();
 
     double param = 0.0;
     for (i = 0; i < size; i++)
@@ -181,7 +180,7 @@ QPolygonF QwtSplineCurveFitter::fitParametric(const QPolygonF &points) const
         {
             const double delta = sqrt( qwtSqr(x - spX[i-1].y())
                       + qwtSqr( y - spY[i-1].y() ) );
-            param += qwtMax(delta, 1.0);
+            param += qMax(delta, 1.0);
         }
         spX[i].setX(param);
         spX[i].setY(x);
@@ -273,7 +272,7 @@ QwtWeedingCurveFitter::~QwtWeedingCurveFitter()
 */
 void QwtWeedingCurveFitter::setTolerance(double tolerance)
 {
-    d_data->tolerance = qwtMax(tolerance, 0.0);
+    d_data->tolerance = qMax(tolerance, 0.0);
 }
 
 /*!
@@ -294,7 +293,7 @@ QPolygonF QwtWeedingCurveFitter::fitCurve(const QPolygonF &points) const
     QStack<Line> stack;
     stack.reserve(500);
 
-    const QwtDoublePoint *p = points.data();
+    const QPointF *p = points.data();
     const int nPoints = points.size();
 
     QVector<bool> usePoint(nPoints, false);

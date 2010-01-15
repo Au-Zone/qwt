@@ -39,7 +39,7 @@ public:
             itemChanged();
         }
     }
-    void setRect(const QwtDoubleRect &rect)
+    void setRect(const QRectF &rect)
     {
         if ( d_rect != rect )
         {
@@ -48,7 +48,7 @@ public:
         }
     }
 
-    virtual QwtDoubleRect boundingRect() const
+    virtual QRectF boundingRect() const
     {
         return d_rect;
     }
@@ -71,7 +71,7 @@ public:
 private:
     QPen d_pen;
     QBrush d_brush;
-    QwtDoubleRect d_rect;
+    QRectF d_rect;
     Type d_type;
 };
 
@@ -102,7 +102,7 @@ Plot::Plot(QWidget *parent, const QwtDoubleInterval &interval):
         const double r = interval.minValue() + 
             rand() % qRound(interval.width() / 6);
 
-        const QwtDoubleRect area(x - r, y - r , 2 * r, 2 * r);
+        const QRectF area(x - r, y - r , 2 * r, 2 * r);
 
         RectItem *item = new RectItem(RectItem::Ellipse);
         item->setRenderHint(QwtPlotItem::RenderAntialiased, true);
@@ -139,7 +139,7 @@ void Plot::updateLayout()
     emit resized(xRatio, yRatio);
 }
 
-void Plot::setRectOfInterest(const QwtDoubleRect &rect)
+void Plot::setRectOfInterest(const QRectF &rect)
 {
     d_rectOfInterest->setRect(rect);
 }

@@ -10,11 +10,9 @@
 #ifndef QWT_PLOT_SVGITEM_H
 #define QWT_PLOT_SVGITEM_H
 
-#include <qglobal.h>
-
-#include <qstring.h>
-#include "qwt_double_rect.h" 
+#include "qwt_global.h" 
 #include "qwt_plot_item.h" 
+#include <qstring.h>
 
 class QSvgRenderer;
 class QByteArray;
@@ -33,10 +31,10 @@ public:
     explicit QwtPlotSvgItem(const QwtText& title );
     virtual ~QwtPlotSvgItem();
 
-    bool loadFile(const QwtDoubleRect&, const QString &fileName);
-    bool loadData(const QwtDoubleRect&, const QByteArray &);
+    bool loadFile(const QRectF&, const QString &fileName);
+    bool loadData(const QRectF&, const QByteArray &);
 
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
 
     virtual void draw(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -49,8 +47,8 @@ protected:
     QSvgRenderer &renderer();
 
     void render(QPainter *painter,
-        const QwtDoubleRect &viewBox, const QRect &rect) const;
-    QwtDoubleRect viewBox(const QwtDoubleRect &area) const;
+        const QRectF &viewBox, const QRect &rect) const;
+    QRectF viewBox(const QRectF &area) const;
 
 private:
     void init();

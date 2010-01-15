@@ -2,7 +2,6 @@
 #define _QWT_SAMPLING_THREAD_H_
 
 #include "qwt_global.h"
-
 #include <qthread.h>
 
 class QWT_EXPORT QwtSamplingThread: public QThread

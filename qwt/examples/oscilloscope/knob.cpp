@@ -19,7 +19,7 @@ Knob::Knob(const QString &title, double min, double max, QWidget *parent):
     QwtScaleDiv scaleDiv = 
         d_knob->scaleEngine()->divideScale(min, max, 5, 3);
 
-    QwtValueList ticks = scaleDiv.ticks(QwtScaleDiv::MajorTick);
+    QList<double> ticks = scaleDiv.ticks(QwtScaleDiv::MajorTick);
     if ( ticks.size() > 0 && ticks[0] > min )
     {
         if ( ticks.first() > min )
@@ -49,7 +49,7 @@ QSize Knob::sizeHint() const
     QSize sz1 = d_knob->sizeHint();
     QSize sz2 = d_label->sizeHint();
 
-    const int w = qwtMax(sz1.width(), sz2.width());
+    const int w = qMax(sz1.width(), sz2.width());
     const int h = sz1.height() + sz2.height();
 
     int off = d_knob->scaleDraw()->extent(QPen(), d_knob->font());

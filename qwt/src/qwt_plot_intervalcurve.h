@@ -34,7 +34,7 @@ public:
 
     virtual int rtti() const;
 
-    void setSamples(const QwtArray<QwtIntervalSample> &);
+    void setSamples(const QVector<QwtIntervalSample> &);
 
     void setPen(const QPen &);
     const QPen &pen() const;
@@ -52,7 +52,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRect &canvasRect, int from, int to) const;
 
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
     virtual void drawLegendIdentifier(QPainter *, const QRect &) const;
 
 protected:

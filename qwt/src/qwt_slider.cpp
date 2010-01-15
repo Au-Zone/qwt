@@ -7,14 +7,14 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <math.h>
-#include <qevent.h>
-#include <qdrawutil.h>
-#include <qpainter.h>
+#include "qwt_slider.h"
 #include "qwt_painter.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_map.h"
-#include "qwt_slider.h"
+#include <qevent.h>
+#include <qdrawutil.h>
+#include <qpainter.h>
+#include <math.h>
 
 class QwtSlider::PrivateData
 {
@@ -540,7 +540,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
     {
         int d1, d2;
         scaleDraw()->getBorderDistHint(font(), d1, d2);
-        scd = qwtMax(d1, d2);
+        scd = qMax(d1, d2);
     }
 
     int slo = scd - sld1;
@@ -768,7 +768,7 @@ QSize QwtSlider::minimumSizeHint() const
     {
         int d1, d2;
         scaleDraw()->getBorderDistHint(font(), d1, d2);
-        int msMbd = qwtMax(d1, d2);
+        int msMbd = qMax(d1, d2);
 
         int mbd = d_data->thumbLength / 2;
         if (d_data->bgStyle & BgTrough)

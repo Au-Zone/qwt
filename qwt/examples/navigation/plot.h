@@ -14,7 +14,7 @@ public:
     Plot(QWidget *parent, const QwtDoubleInterval &);
     virtual void updateLayout();
 
-    void setRectOfInterest(const QwtDoubleRect &);
+    void setRectOfInterest(const QRectF &);
 
 signals:
     void resized(double xRatio, double yRatio);

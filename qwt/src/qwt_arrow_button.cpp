@@ -7,12 +7,11 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_arrow_button.h"
+#include "qwt_math.h"
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qevent.h>
-#include "qwt_math.h"
-#include "qwt_polygon.h"
-#include "qwt_arrow_button.h"
 
 static const int MaxNum = 3;
 static const int Margin = 2;
@@ -217,7 +216,7 @@ void QwtArrowButton::drawButtonLabel(QPainter *painter)
 void QwtArrowButton::drawArrow(QPainter *painter, 
     const QRect &r, Qt::ArrowType arrowType) const 
 {
-    QwtPolygon pa(3);
+    QPolygon pa(3);
 
     switch(arrowType)
     {

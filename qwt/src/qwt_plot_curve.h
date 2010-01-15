@@ -10,13 +10,12 @@
 #ifndef QWT_PLOT_CURVE_H
 #define QWT_PLOT_CURVE_H
 
-#include <qpen.h>
-#include <qstring.h>
 #include "qwt_global.h"
 #include "qwt_plot_seriesitem.h"
-#include "qwt_text.h"
-#include "qwt_polygon.h"
 #include "qwt_series_data.h"
+#include "qwt_text.h"
+#include <qpen.h>
+#include <qstring.h>
 
 class QPainter;
 class QwtScaleMap;
@@ -51,7 +50,7 @@ class QwtCurveFitter;
 
   \sa QwtPointSeriesData, QwtSymbol, QwtScaleMap
 */
-class QWT_EXPORT QwtPlotCurve: public QwtPlotSeriesItem<QwtDoublePoint>
+class QWT_EXPORT QwtPlotCurve: public QwtPlotSeriesItem<QPointF>
 {
 public:
     /*! 
@@ -182,9 +181,9 @@ public:
 #ifndef QWT_NO_COMPAT
     void setRawSamples(const double *xData, const double *yData, int size);
     void setSamples(const double *xData, const double *yData, int size);
-    void setSamples(const QwtArray<double> &xData, const QwtArray<double> &yData);
+    void setSamples(const QVector<double> &xData, const QVector<double> &yData);
 #endif
-    void setSamples(const QwtArray<QwtDoublePoint> &);
+    void setSamples(const QVector<QPointF> &);
 
     int closestPoint(const QPoint &pos, double *dist = NULL) const;
 
@@ -247,9 +246,9 @@ protected:
 
     void fillCurve(QPainter *,
         const QwtScaleMap &, const QwtScaleMap &,
-        QwtPolygon &) const;
+        QPolygon &) const;
     void closePolyline(const QwtScaleMap &, const QwtScaleMap &,
-        QwtPolygon &) const;
+        QPolygon &) const;
 
 private:
     class PrivateData;

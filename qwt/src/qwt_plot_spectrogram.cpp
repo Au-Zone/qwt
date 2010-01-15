@@ -7,6 +7,11 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_plot_spectrogram.h"
+#include "qwt_painter.h"
+#include "qwt_double_interval.h"
+#include "qwt_scale_map.h"
+#include "qwt_color_map.h"
 #include <qimage.h>
 #include <qpen.h>
 #include <qpainter.h>
@@ -15,11 +20,6 @@
 #include <qfuture.h>
 #include <qtconcurrentrun.h>
 #endif
-#include "qwt_painter.h"
-#include "qwt_double_interval.h"
-#include "qwt_scale_map.h"
-#include "qwt_color_map.h"
-#include "qwt_plot_spectrogram.h"
 
 typedef QVector<QRgb> QwtColorTable;
 
@@ -88,7 +88,7 @@ public:
 
     uint renderThreadCount;
 
-    QwtValueList contourLevels;
+    QList<double> contourLevels;
     QPen defaultContourPen;
     int conrecAttributes;
 };
@@ -317,7 +317,7 @@ bool QwtPlotSpectrogram::testConrecAttribute(
 
    \note contourLevels returns the same levels but sorted.
 */
-void QwtPlotSpectrogram::setContourLevels(const QwtValueList &levels)
+void QwtPlotSpectrogram::setContourLevels(const QList<double> &levels)
 {
     d_data->contourLevels = levels;
     qSort(d_data->contourLevels);
@@ -332,7 +332,7 @@ void QwtPlotSpectrogram::setContourLevels(const QwtValueList &levels)
    \sa contourLevels(), renderContourLines(), 
        QwtRasterData::contourLines()
 */
-QwtValueList QwtPlotSpectrogram::contourLevels() const
+QList<double> QwtPlotSpectrogram::contourLevels() const
 {
     return d_data->contourLevels;
 }
@@ -365,7 +365,7 @@ const QwtRasterData &QwtPlotSpectrogram::data() const
    \return Bounding rect of the data
    \sa QwtRasterData::boundingRect()
 */
-QwtDoubleRect QwtPlotSpectrogram::boundingRect() const
+QRectF QwtPlotSpectrogram::boundingRect() const
 {
     return d_data->data->boundingRect();
 }
@@ -379,7 +379,7 @@ QwtDoubleRect QwtPlotSpectrogram::boundingRect() const
    \param rect Rect for the raster hint
    \return data().rasterHint(rect)
 */
-QSize QwtPlotSpectrogram::rasterHint(const QwtDoubleRect &rect) const
+QSize QwtPlotSpectrogram::rasterHint(const QRectF &rect) const
 {
     return d_data->data->rasterHint(rect);
 }
@@ -403,7 +403,7 @@ QSize QwtPlotSpectrogram::rasterHint(const QwtDoubleRect &rect) const
 */
 QImage QwtPlotSpectrogram::renderImage(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    const QwtDoubleRect &area) const
+    const QRectF &area) const
 {
     if ( area.isEmpty() )
         return QImage();
@@ -586,7 +586,7 @@ void QwtPlotSpectrogram::renderTile(
    
    \sa drawContourLines(), QwtRasterData::contourLines()
 */
-QSize QwtPlotSpectrogram::contourRasterSize(const QwtDoubleRect &area,
+QSize QwtPlotSpectrogram::contourRasterSize(const QRectF &area,
     const QRect &rect) const
 {
     QSize raster = rect.size() / 2;
@@ -608,7 +608,7 @@ QSize QwtPlotSpectrogram::contourRasterSize(const QwtDoubleRect &area,
        QwtRasterData::contourLines()
 */
 QwtRasterData::ContourLines QwtPlotSpectrogram::renderContourLines(
-    const QwtDoubleRect &rect, const QSize &raster) const
+    const QRectF &rect, const QSize &raster) const
 {
     return d_data->data->contourLines(rect, raster,
         d_data->contourLevels, d_data->conrecAttributes );
@@ -683,9 +683,9 @@ void QwtPlotSpectrogram::draw(QPainter *painter,
         QRect rasterRect(canvasRect.x() - margin, canvasRect.y() - margin,
             canvasRect.width() + 2 * margin, canvasRect.height() + 2 * margin);
 
-        QwtDoubleRect area = invTransform(xMap, yMap, rasterRect);
+        QRectF area = invTransform(xMap, yMap, rasterRect);
 
-        const QwtDoubleRect br = boundingRect();
+        const QRectF br = boundingRect();
         if ( br.isValid() ) 
         {
             area &= br;

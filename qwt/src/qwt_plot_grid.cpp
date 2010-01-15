@@ -7,13 +7,13 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
-#include <qpen.h>
+#include "qwt_plot_grid.h"
 #include "qwt_painter.h"
 #include "qwt_text.h"
 #include "qwt_scale_map.h"
 #include "qwt_scale_div.h"
-#include "qwt_plot_grid.h"
+#include <qpainter.h>
+#include <qpen.h>
 
 class QwtPlotGrid::PrivateData
 {
@@ -252,7 +252,7 @@ void QwtPlotGrid::draw(QPainter *painter,
 
 void QwtPlotGrid::drawLines(QPainter *painter, const QRect &canvasRect,
     Qt::Orientation orientation, const QwtScaleMap &scaleMap, 
-    const QwtValueList &values) const
+    const QList<double> &values) const
 {
     const int x1 = canvasRect.left();
     const int x2 = canvasRect.right();

@@ -7,14 +7,14 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_knob.h"
+#include "qwt_round_scale_draw.h"
+#include "qwt_math.h"
+#include "qwt_painter.h"
 #include <qpainter.h>
 #include <qpalette.h>
 #include <qstyle.h>
 #include <qevent.h>
-#include "qwt_round_scale_draw.h"
-#include "qwt_knob.h"
-#include "qwt_math.h"
-#include "qwt_painter.h"
 
 class QwtKnob::PrivateData
 {
@@ -174,7 +174,7 @@ void QwtKnob::drawKnob(QPainter *painter, const QRect &r)
 
     const int bw2 = d_data->borderWidth / 2;
 
-    const int radius = (qwtMin(r.width(), r.height()) - bw2) / 2;
+    const int radius = (qMin(r.width(), r.height()) - bw2) / 2;
 
     const QRect aRect( 
         r.center().x() - radius, r.center().y() - radius,
@@ -390,7 +390,7 @@ void QwtKnob::drawMarker(QPainter *p, double arc, const QColor &c)
             p->setBrush(c);
             p->setPen(Qt::NoPen);
 
-            const double rb = double(qwtMax(radius - 4 - d_data->dotWidth / 2, 0));
+            const double rb = double(qMax(radius - 4 - d_data->dotWidth / 2, 0));
             p->drawEllipse(xm - qRound(sa * rb) - d_data->dotWidth / 2,
                    ym - qRound(ca * rb) - d_data->dotWidth / 2,
                    d_data->dotWidth, d_data->dotWidth);
@@ -400,8 +400,8 @@ void QwtKnob::drawMarker(QPainter *p, double arc, const QColor &c)
         {
             p->setPen(QPen(c, 2));
 
-            const double rb = qwtMax(double((radius - 4) / 3.0), 0.0);
-            const double re = qwtMax(double(radius - 4), 0.0);
+            const double rb = qMax(double((radius - 4) / 3.0), 0.0);
+            const double re = qMax(double(radius - 4), 0.0);
             
             p->drawLine ( xm - qRound(sa * rb), ym - qRound(ca * rb),
                 xm - qRound(sa * re), ym - qRound(ca * re));
@@ -419,7 +419,7 @@ void QwtKnob::drawMarker(QPainter *p, double arc, const QColor &c)
 */
 void QwtKnob::setKnobWidth(int w)
 {
-    d_data->knobWidth = qwtMax(w,5);
+    d_data->knobWidth = qMax(w,5);
     layoutKnob();
 }
 
@@ -435,7 +435,7 @@ int QwtKnob::knobWidth() const
 */
 void QwtKnob::setBorderWidth(int bw)
 {
-    d_data->borderWidth = qwtMax(bw, 0);
+    d_data->borderWidth = qMax(bw, 0);
     layoutKnob();
 }
 

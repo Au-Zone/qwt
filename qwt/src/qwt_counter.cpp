@@ -7,14 +7,14 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_arrow_button.h"
+#include "qwt_math.h"
+#include "qwt_counter.h"
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qvalidator.h>
 #include <qevent.h>
 #include <qstyle.h>
-#include "qwt_math.h"
-#include "qwt_counter.h"
-#include "qwt_arrow_button.h"
 
 class QwtCounter::PrivateData
 {
@@ -515,7 +515,7 @@ QSize QwtCounter::sizeHint() const
 
     w += QWidget::sizeHint().width() - d_data->valueEdit->sizeHint().width();
 
-    const int h = qwtMin(QWidget::sizeHint().height(), 
+    const int h = qMin(QWidget::sizeHint().height(), 
         d_data->valueEdit->minimumSizeHint().height());
     return QSize(w, h);
 }

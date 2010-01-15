@@ -43,7 +43,7 @@ void Histogram::setColor(const QColor &symbolColor)
 
 void Histogram::setValues(uint numValues, const double *values)
 {
-    QwtArray<QwtIntervalSample> samples(numValues);
+    QVector<QwtIntervalSample> samples(numValues);
     for ( uint i = 0; i < numValues; i++ )
     {
         QwtDoubleInterval interval(double(i), i + 1.0);

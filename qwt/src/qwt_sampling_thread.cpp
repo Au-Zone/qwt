@@ -8,7 +8,6 @@
  *****************************************************************************/
 
 #include "qwt_sampling_thread.h"
-
 #include "qwt_system_clock.h"
 
 class QwtSamplingThread::PrivateData

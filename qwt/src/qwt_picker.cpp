@@ -7,16 +7,16 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_picker.h"
+#include "qwt_picker_machine.h"
+#include "qwt_painter.h"
+#include "qwt_math.h"
 #include <qapplication.h>
 #include <qevent.h>
 #include <qpainter.h>
 #include <qframe.h>
 #include <qcursor.h>
 #include <qbitmap.h>
-#include "qwt_math.h"
-#include "qwt_painter.h"
-#include "qwt_picker_machine.h"
-#include "qwt_picker.h"
 #include <qpointer.h>
 #include <qpaintengine.h>
 
@@ -62,7 +62,7 @@ public:
     QPen trackerPen;
     QFont trackerFont;
 
-    QwtPolygon pickedPoints;
+    QPolygon pickedPoints;
     bool isActive;
     QPoint trackerPosition;
 
@@ -571,7 +571,7 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
     }
 
     const QRect &pRect = pickRect();
-    const QwtPolygon pa = adjustedPoints(d_data->pickedPoints);
+    const QPolygon pa = adjustedPoints(d_data->pickedPoints);
 
     QwtPickerMachine::SelectionType selectionType = 
         QwtPickerMachine::NoSelection;
@@ -692,9 +692,9 @@ void QwtPicker::drawTracker(QPainter *painter) const
    The example below is for a rectangular selection, where the first 
    point is the center of the selected rectangle.
   \par Example
-  \verbatim QwtPolygon MyPicker::adjustedPoints(const QwtPolygon &points) const
+  \verbatim QPolygon MyPicker::adjustedPoints(const QPolygon &points) const
 {
-    QwtPolygon adjusted;
+    QPolygon adjusted;
     if ( points.size() == 2 )
     {
         const int width = qAbs(points[1].x() - points[0].x());
@@ -709,7 +709,7 @@ void QwtPicker::drawTracker(QPainter *painter) const
     return adjusted;
 }\endverbatim\n
 */
-QwtPolygon QwtPicker::adjustedPoints(const QwtPolygon &points) const
+QPolygon QwtPicker::adjustedPoints(const QPolygon &points) const
 {
     return points;
 }
@@ -718,7 +718,7 @@ QwtPolygon QwtPicker::adjustedPoints(const QwtPolygon &points) const
   \return Selected points
   \sa pickedPoints(), adjustedPoints()
 */
-QwtPolygon QwtPicker::selection() const
+QPolygon QwtPicker::selection() const
 {
     return adjustedPoints(d_data->pickedPoints);
 }
@@ -786,12 +786,12 @@ QRect QwtPicker::trackerRect(const QFont &font) const
     
     textRect.moveTopLeft(QPoint(x, y));
 
-    int right = qwtMin(textRect.right(), pickRect().right() - margin);
-    int bottom = qwtMin(textRect.bottom(), pickRect().bottom() - margin);
+    int right = qMin(textRect.right(), pickRect().right() - margin);
+    int bottom = qMin(textRect.bottom(), pickRect().bottom() - margin);
     textRect.moveBottomRight(QPoint(right, bottom));
 
-    int left = qwtMax(textRect.left(), pickRect().left() + margin);
-    int top = qwtMax(textRect.top(), pickRect().top() + margin);
+    int left = qMax(textRect.left(), pickRect().left() + margin);
+    int top = qMax(textRect.top(), pickRect().top() + margin);
     textRect.moveTopLeft(QPoint(left, top));
 
     return textRect;
@@ -1013,12 +1013,12 @@ void QwtPicker::widgetKeyPressEvent(QKeyEvent *ke)
         const QPoint pos = parentWidget()->mapFromGlobal(QCursor::pos());
 
         int x = pos.x() + dx;
-        x = qwtMax(rect.left(), x);
-        x = qwtMin(rect.right(), x);
+        x = qMax(rect.left(), x);
+        x = qMin(rect.right(), x);
 
         int y = pos.y() + dy;
-        y = qwtMax(rect.top(), y);
-        y = qwtMin(rect.bottom(), y);
+        y = qMax(rect.top(), y);
+        y = qMin(rect.bottom(), y);
 
         QCursor::setPos(parentWidget()->mapToGlobal(QPoint(x, y)));
     }
@@ -1257,7 +1257,7 @@ void QwtPicker::remove()
   \param selection Selection to validate and fixup
   \return true, when accepted, false otherwise
 */
-bool QwtPicker::accept(QwtPolygon &) const
+bool QwtPicker::accept(QPolygon &) const
 {
     return true;
 }
@@ -1276,7 +1276,7 @@ bool QwtPicker::isActive() const
   is calculated from the pickedPoints() in adjustedPoints().
   \return Picked points
 */
-const QwtPolygon &QwtPicker::pickedPoints() const
+const QPolygon &QwtPicker::pickedPoints() const
 {
     return d_data->pickedPoints;
 }

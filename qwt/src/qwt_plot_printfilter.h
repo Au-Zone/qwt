@@ -10,9 +10,9 @@
 #ifndef QWT_PLOT_PRINTFILTER_H
 #define QWT_PLOT_PRINTFILTER_H
 
+#include "qwt_global.h"
 #include <qcolor.h>
 #include <qfont.h>
-#include "qwt_global.h"
 
 class QwtPlot;
 class QwtPlotItem;

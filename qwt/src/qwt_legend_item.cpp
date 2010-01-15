@@ -7,16 +7,16 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_legend_item.h"
+#include "qwt_math.h"
+#include "qwt_painter.h"
+#include "qwt_symbol.h"
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qstyle.h>
 #include <qpen.h>
 #include <qevent.h>
 #include <qstyleoption.h>
-#include "qwt_math.h"
-#include "qwt_painter.h"
-#include "qwt_symbol.h"
-#include "qwt_legend_item.h"
 
 static const int ButtonFrame = 2;
 static const int Margin = 2;
@@ -152,7 +152,7 @@ QPixmap QwtLegendItem::identifier() const
 */
 void QwtLegendItem::setIdentifierWidth(int width)
 {
-    width = qwtMax(width, 0);
+    width = qMax(width, 0);
     if ( width != d_data->identifierWidth )
     {
         d_data->identifierWidth = width;
@@ -177,7 +177,7 @@ int QwtLegendItem::identifierWidth() const
 */
 void QwtLegendItem::setSpacing(int spacing)
 {
-    spacing = qwtMax(spacing, 0);
+    spacing = qMax(spacing, 0);
     if ( spacing != d_data->spacing )
     {
         d_data->spacing = spacing;
@@ -254,7 +254,7 @@ bool QwtLegendItem::isDown() const
 QSize QwtLegendItem::sizeHint() const
 {
     QSize sz = QwtTextLabel::sizeHint();
-    sz.setHeight(qwtMax(sz.height(), d_data->identifier.height()));
+    sz.setHeight(qMax(sz.height(), d_data->identifier.height()));
 
     if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
         sz += buttonShift(this);

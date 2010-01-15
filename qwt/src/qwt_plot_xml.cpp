@@ -9,9 +9,9 @@
 
 #include "qwt_plot.h"
 
-void QwtPlot::applyProperties(const QString &xmlDocument)
+void QwtPlot::applyProperties(const QString & /* xmlDocument */)
 {
-#if 1
+#if 0
     // Temporary dummy code, for designer tests
     setTitle(xmlDocument);
     replot();
@@ -20,8 +20,10 @@ void QwtPlot::applyProperties(const QString &xmlDocument)
 
 QString QwtPlot::grabProperties() const
 {
-#if 1
+#if 0
     // Temporary dummy code, for designer tests
     return title().text();
+#else
+    return QString::null;
 #endif
 }   

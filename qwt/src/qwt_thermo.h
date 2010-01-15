@@ -10,12 +10,12 @@
 #ifndef QWT_THERMO_H
 #define QWT_THERMO_H
 
+#include "qwt_global.h"
+#include "qwt_abstract_scale.h"
 #include <qwidget.h>
 #include <qcolor.h>
 #include <qfont.h>
 #include <qrect.h>
-#include "qwt_global.h"
-#include "qwt_abstract_scale.h"
 
 class QwtScaleDraw;
 

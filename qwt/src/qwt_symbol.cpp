@@ -7,11 +7,10 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
-#include <qapplication.h>
-#include "qwt_painter.h"
-#include "qwt_polygon.h"
 #include "qwt_symbol.h"
+#include "qwt_painter.h"
+#include <qapplication.h>
+#include <qpainter.h>
 
 /*!
   Default Constructor
@@ -147,7 +146,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
             const int w2 = r.width() / 2;
             const int h2 = r.height() / 2;
 
-            QwtPolygon pa(4);
+            QPolygon pa(4);
             pa.setPoint(0, r.x() + w2, r.y());
             pa.setPoint(1, r.right(), r.y() + h2);
             pa.setPoint(2, r.x() + w2, r.bottom());
@@ -179,7 +178,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w2 = r.width() / 2;
 
-            QwtPolygon pa(3);
+            QPolygon pa(3);
             pa.setPoint(0, r.x() + w2, r.y());
             pa.setPoint(1, r.right(), r.bottom());
             pa.setPoint(2, r.x(), r.bottom());
@@ -190,7 +189,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int w2 = r.width() / 2;
 
-            QwtPolygon pa(3);
+            QPolygon pa(3);
             pa.setPoint(0, r.x(), r.y());
             pa.setPoint(1, r.right(), r.y());
             pa.setPoint(2, r.x() + w2, r.bottom());
@@ -201,7 +200,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int h2 = r.height() / 2;
 
-            QwtPolygon pa(3);
+            QPolygon pa(3);
             pa.setPoint(0, r.x(), r.y());
             pa.setPoint(1, r.right(), r.y() + h2);
             pa.setPoint(2, r.x(), r.bottom());
@@ -212,7 +211,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         {
             const int h2 = r.height() / 2;
 
-            QwtPolygon pa(3);
+            QPolygon pa(3);
             pa.setPoint(0, r.right(), r.y());
             pa.setPoint(1, r.x(), r.y() + h2);
             pa.setPoint(2, r.right(), r.bottom());
@@ -260,7 +259,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
             const int h2 = r.height() / 2;
             const int h34 = (r.height() * 3) / 4;
 
-            QwtPolygon pa(12);
+            QPolygon pa(12);
             pa.setPoint(0, r.left() + (w / 2), r.top());
             pa.setPoint(1, r.right() - (side + (w - 2 * side) / 3),
                 r.top() + h4 );
@@ -290,7 +289,7 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
             const int h4 = r.height() / 4;
             const int h34 = (r.height() * 3) / 4;
 
-            QwtPolygon pa(6);
+            QPolygon pa(6);
             pa.setPoint(0, r.left() + w2, r.top());
             pa.setPoint(1, r.right() - side, r.top() + h4);
             pa.setPoint(2, r.right() - side, r.top() + h34);

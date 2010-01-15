@@ -245,7 +245,7 @@ void MainWindow::moved(const QPoint &pos)
     showInfo(info);
 }
 
-void MainWindow::selected(const QwtPolygon &)
+void MainWindow::selected(const QPolygon &)
 {
     showInfo();
 }

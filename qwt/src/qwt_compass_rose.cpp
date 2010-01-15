@@ -7,11 +7,11 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <math.h>
-#include <qpainter.h>
+#include "qwt_compass_rose.h"
 #include "qwt_math.h"
 #include "qwt_painter.h"
-#include "qwt_compass_rose.h"
+#include <qpainter.h>
+#include <math.h>
 
 static QPoint cutPoint(QPoint p11, QPoint p12, QPoint p21, QPoint p22)
 {
@@ -160,7 +160,7 @@ void QwtSimpleCompassRose::drawRose(
             QPoint p1 = qwtPolar2Pos(center, leafWidth, angle + M_PI_2);
             QPoint p2 = qwtPolar2Pos(center, leafWidth, angle - M_PI_2);
 
-            QwtPolygon pa(3);
+            QPolygon pa(3);
             pa.setPoint(0, center);
             pa.setPoint(1, p);
 

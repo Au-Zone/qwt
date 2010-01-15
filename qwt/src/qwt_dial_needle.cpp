@@ -7,13 +7,13 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <math.h>
-#include <qapplication.h>
-#include <qpainter.h>
+#include "qwt_dial_needle.h"
+#include "qwt_global.h"
 #include "qwt_math.h"
 #include "qwt_painter.h"
-#include "qwt_polygon.h"
-#include "qwt_dial_needle.h"
+#include <qapplication.h>
+#include <qpainter.h>
+#include <math.h>
 
 //! Constructor
 QwtDialNeedle::QwtDialNeedle():
@@ -185,7 +185,7 @@ void QwtDialSimpleNeedle::drawRayNeedle(QPainter *painter,
     }
     else
     {
-        QwtPolygon pa(4);
+        QPolygon pa(4);
         pa.setPoint(0, qwtPolar2Pos(p1, width / 2, direction + M_PI_2));
         pa.setPoint(1, qwtPolar2Pos(p2, width / 2, direction + M_PI_2));
         pa.setPoint(2, qwtPolar2Pos(p2, width / 2, direction - M_PI_2));
@@ -197,7 +197,7 @@ void QwtDialSimpleNeedle::drawRayNeedle(QPainter *painter,
     }
     if ( hasKnob )
     {
-        int knobWidth = qwtMax(qRound(width * 0.7), 5);
+        int knobWidth = qMax(qRound(width * 0.7), 5);
         if ( knobWidth % 2 == 0 )
             knobWidth++;
 
@@ -232,7 +232,7 @@ void QwtDialSimpleNeedle::drawArrowNeedle(QPainter *painter,
 
     if ( width <= 0 )
     {
-        width = (int)qwtMax(length * 0.06, 9.0);
+        width = (int)qMax(length * 0.06, 9.0);
         if ( width % 2 == 0 )
             width++;
     }
@@ -242,7 +242,7 @@ void QwtDialSimpleNeedle::drawArrowNeedle(QPainter *painter,
     const QPoint p2 = qwtPolar2Pos(p1, length - peak, direction);
     const QPoint p3 = qwtPolar2Pos(p1, length, direction);
 
-    QwtPolygon pa(5);
+    QPolygon pa(5);
     pa.setPoint(0, qwtPolar2Pos(p1, width / 2, direction - M_PI_2));
     pa.setPoint(1, qwtPolar2Pos(p2, 1, direction - M_PI_2));
     pa.setPoint(2, p3);
@@ -253,7 +253,7 @@ void QwtDialSimpleNeedle::drawArrowNeedle(QPainter *painter,
     painter->setBrush(palette.brush(colorGroup, QPalette::Mid));
     painter->drawPolygon(pa);
 
-    QwtPolygon shadowPa(3);
+    QPolygon shadowPa(3);
 
     const int colorOffset = 10;
 
@@ -353,7 +353,7 @@ void QwtCompassMagnetNeedle::drawTriangleNeedle(QPainter *painter,
 
     const QPoint arrowCenter(center.x() + 1, center.y() + 1);
 
-    QwtPolygon pa(3);
+    QPolygon pa(3);
     pa.setPoint(0, arrowCenter);
     pa.setPoint(1, qwtDegree2Pos(arrowCenter, length, direction));
 
@@ -411,7 +411,7 @@ void QwtCompassMagnetNeedle::drawThinNeedle(QPainter *painter,
     const QBrush baseBrush = palette.brush(colorGroup, QPalette::Base);
 
     const int colorOffset = 10;
-    const int width = qwtMax(qRound(length / 6.0), 3);
+    const int width = qMax(qRound(length / 6.0), 3);
 
     painter->save();
 
@@ -445,13 +445,13 @@ void QwtCompassMagnetNeedle::drawPointer(
 {
     painter->save();
 
-    const int peak = qwtMax(qRound(length / 10.0), 5);
+    const int peak = qMax(qRound(length / 10.0), 5);
 
     const int knobWidth = width + 8;
     QRect knobRect(0, 0, knobWidth, knobWidth);
     knobRect.moveCenter(center);
 
-    QwtPolygon pa(5);
+    QPolygon pa(5);
 
     pa.setPoint(0, qwtDegree2Pos(center, width / 2, direction + 90.0));
     pa.setPoint(1, center);
@@ -547,7 +547,7 @@ void QwtCompassWindArrow::drawStyle1Needle(QPainter *painter,
 
     const QPoint arrowCenter(center.x() + 1, center.y() + 1);
 
-    QwtPolygon pa(8);
+    QPolygon pa(8);
     pa.setPoint(0, arrowCenter);
     for (int i=1; i<8; i++) 
     {
@@ -588,7 +588,7 @@ void QwtCompassWindArrow::drawStyle2Needle(QPainter *painter,
 
     const QPoint arrowCenter(center.x() + 1, center.y() + 1);
 
-    QwtPolygon pa(3);
+    QPolygon pa(3);
 
     pa.setPoint(0, center);
     pa.setPoint(2, qwtDegree2Pos(arrowCenter, ratio * length, direction));

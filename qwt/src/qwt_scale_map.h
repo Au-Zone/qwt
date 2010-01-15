@@ -140,7 +140,7 @@ inline double QwtScaleMap::p2() const
 */
 inline double QwtScaleMap::pDist() const
 {
-    return qwtAbs(d_p2 - d_p1);
+    return qAbs(d_p2 - d_p1);
 }
 
 /*!
@@ -148,7 +148,7 @@ inline double QwtScaleMap::pDist() const
 */
 inline double QwtScaleMap::sDist() const
 {
-    return qwtAbs(d_s2 - d_s1);
+    return qAbs(d_s2 - d_s1);
 }
 
 /*!

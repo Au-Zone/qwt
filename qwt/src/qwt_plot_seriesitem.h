@@ -56,7 +56,7 @@ public:
     int dataSize() const;
     T sample(int i) const;
 
-    virtual QwtDoubleRect boundingRect() const;
+    virtual QRectF boundingRect() const;
     virtual void updateScaleDiv(const QwtScaleDiv &,
         const QwtScaleDiv &);
 
@@ -139,13 +139,13 @@ int QwtPlotSeriesItem<T>::dataSize() const
 /*!
   Returns the bounding rectangle of the curve data. If there is
   no bounding rect, like for empty data the rectangle is invalid.
-  \sa QwtSeriesData<T>::boundingRect(), QwtDoubleRect::isValid()
+  \sa QwtSeriesData<T>::boundingRect(), QRectF::isValid()
 */
 template <typename T> 
-QwtDoubleRect QwtPlotSeriesItem<T>::boundingRect() const
+QRectF QwtPlotSeriesItem<T>::boundingRect() const
 {
     if ( d_series == NULL )
-        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
+        return QRectF(1.0, 1.0, -2.0, -2.0); // invalid
 
     return d_series->boundingRect();
 }
@@ -154,7 +154,7 @@ template <typename T>
 void QwtPlotSeriesItem<T>::updateScaleDiv(const QwtScaleDiv &xScaleDiv,
         const QwtScaleDiv &yScaleDiv)
 {   
-    const QwtDoubleRect rect = QwtDoubleRect( 
+    const QRectF rect = QRectF( 
         xScaleDiv.lowerBound(), yScaleDiv.lowerBound(),
         xScaleDiv.range(), yScaleDiv.range());
 

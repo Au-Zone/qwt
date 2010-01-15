@@ -7,15 +7,15 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpainter.h>
-#include <qevent.h>
+#include "qwt_scale_widget.h"
 #include "qwt_painter.h"
 #include "qwt_color_map.h"
-#include "qwt_scale_widget.h"
 #include "qwt_scale_map.h"
 #include "qwt_math.h"
 #include "qwt_scale_div.h"
 #include "qwt_text.h"
+#include <qpainter.h>
+#include <qevent.h>
 
 class QwtScaleWidget::PrivateData
 {
@@ -254,7 +254,7 @@ void QwtScaleWidget::setBorderDist(int dist1, int dist2)
 */
 void QwtScaleWidget::setMargin(int margin)
 {
-    margin = qwtMax( 0, margin );
+    margin = qMax( 0, margin );
     if ( margin != d_data->margin )
     {
         d_data->margin = margin;
@@ -269,7 +269,7 @@ void QwtScaleWidget::setMargin(int margin)
 */
 void QwtScaleWidget::setSpacing(int spacing)
 {
-    spacing = qwtMax( 0, spacing );
+    spacing = qMax( 0, spacing );
     if ( spacing != d_data->spacing )
     {
         d_data->spacing = spacing;
@@ -699,8 +699,8 @@ QSize QwtScaleWidget::minimumSizeHint() const
     int length = 0;
     int mbd1, mbd2;
     getBorderDistHint(mbd1, mbd2);
-    length += qwtMax( 0, d_data->borderDist[0] - mbd1 );
-    length += qwtMax( 0, d_data->borderDist[1] - mbd2 );
+    length += qMax( 0, d_data->borderDist[0] - mbd1 );
+    length += qMax( 0, d_data->borderDist[1] - mbd2 );
     length += d_data->scaleDraw->minLength(
         QPen(Qt::black, d_data->penWidth), font());
 
