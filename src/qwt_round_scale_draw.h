@@ -51,7 +51,7 @@ public:
     virtual int extent(const QPen &, const QFont &) const;
 
 protected:
-    virtual void drawTick(QPainter *p, double val, int len) const;
+    virtual void drawTick(QPainter *p, double val, double len) const;
     virtual void drawBackbone(QPainter *p) const;
     virtual void drawLabel(QPainter *p, double val) const;
 

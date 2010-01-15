@@ -223,7 +223,7 @@ QSize QwtPlotRasterItem::rasterHint(const QRectF &) const
 */
 void QwtPlotRasterItem::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect) const
+    const QRectF &canvasRect) const
 {
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
@@ -232,7 +232,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( boundingRect().isValid() )
         area &= boundingRect();
 
-    const QRect paintRect = transform(xMap, yMap, area);
+    const QRect paintRect = transform(xMap, yMap, area).toRect();
     if ( !paintRect.isValid() )
         return;
 

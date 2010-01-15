@@ -190,7 +190,7 @@ QwtDoubleInterval &QwtPlotCurve3D::colorRange() const
 
 void QwtPlotCurve3D::drawSeries(QPainter *painter, 
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect, int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
         return;
@@ -219,7 +219,7 @@ void QwtPlotCurve3D::drawSeries(QPainter *painter,
 
 void QwtPlotCurve3D::drawDots(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect, int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
     if ( !d_data->colorRange.isValid() )
         return;
@@ -264,7 +264,7 @@ void QwtPlotCurve3D::drawDots(QPainter *painter,
 
 void QwtPlotCurve3D::drawSymbols(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect, int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
     if ( !d_data->colorRange.isValid() )
         return;
@@ -289,7 +289,7 @@ void QwtPlotCurve3D::drawSymbols(QPainter *painter,
         if ( symbol )
         {
             QRect rect;
-            rect.setSize(QwtPainter::metricsMap().screenToLayout(symbol->size()));
+            rect.setSize(symbol->size());
             rect.moveCenter(QPoint(xi, yi));
 
             symbol->draw(painter, rect);

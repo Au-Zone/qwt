@@ -144,8 +144,6 @@ void QwtColumnSymbol::drawBox(QPainter *painter,
     Direction, const QRect &rect) const
 {
     QRect r = rect.normalized();
-    r = QwtPainter::metricsMap().layoutToDevice(r, painter);
-
     r.setTop(r.top() + 1);
     r.setRight(r.right() + 1);
 

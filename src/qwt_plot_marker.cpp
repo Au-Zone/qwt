@@ -124,7 +124,7 @@ void QwtPlotMarker::setYValue(double y)
 */
 void QwtPlotMarker::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect) const
+    const QRectF &canvasRect) const
 {
     const int x = xMap.transform(d_data->xValue);
     const int y = yMap.transform(d_data->yValue);
@@ -140,12 +140,12 @@ void QwtPlotMarker::draw(QPainter *painter,
   \param pos Position of the marker in painter coordinates
 */
 void QwtPlotMarker::drawAt(QPainter *painter, 
-    const QRect &canvasRect, const QPoint &pos) const
+    const QRectF &canvasRect, const QPoint &pos) const
 {
     // draw lines
     if (d_data->style != NoLine)
     {
-        painter->setPen(QwtPainter::scaledPen(d_data->pen));
+        painter->setPen(d_data->pen);
         if ( d_data->style == QwtPlotMarker::HLine || 
             d_data->style == QwtPlotMarker::Cross )
         {
@@ -168,7 +168,7 @@ void QwtPlotMarker::drawAt(QPainter *painter,
 }
 
 void QwtPlotMarker::drawLabel(QPainter *painter, 
-    const QRect &canvasRect, const QPoint &pos) const
+    const QRectF &canvasRect, const QPoint &pos) const
 {
     if (d_data->label.isEmpty())
         return;
@@ -240,11 +240,7 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
     if ( pw == 0 )
         pw = 1;
 
-    const int xSpacing = 
-        QwtPainter::metricsMap().screenToLayoutX(d_data->spacing);
-    const int ySpacing = 
-        QwtPainter::metricsMap().screenToLayoutY(d_data->spacing);
-
+    const int spacing = d_data->spacing;
 
     int xOff = qMax( (pw + 1) / 2, symbolOff.width() );
     int yOff = qMax( (pw + 1) / 2, symbolOff.height() );
@@ -253,7 +249,7 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
 
     if ( align & Qt::AlignLeft )
     {
-        alignPos.rx() -= xOff + xSpacing;
+        alignPos.rx() -= xOff + spacing;
         if ( d_data->labelOrientation == Qt::Vertical )
             alignPos.rx() -= textSize.height();
         else
@@ -261,7 +257,7 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
     }
     else if ( align & Qt::AlignRight )
     {
-        alignPos.rx() += xOff + xSpacing;
+        alignPos.rx() += xOff + spacing;
     }
     else
     {
@@ -273,13 +269,13 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
 
     if (align & (int) Qt::AlignTop)
     {
-        alignPos.ry() -= yOff + ySpacing;
+        alignPos.ry() -= yOff + spacing;
         if ( d_data->labelOrientation != Qt::Vertical )
             alignPos.ry() -= textSize.height();
     }
     else if (align & (int) Qt::AlignBottom)
     {
-        alignPos.ry() += yOff + ySpacing;
+        alignPos.ry() += yOff + spacing;
         if ( d_data->labelOrientation == Qt::Vertical )
             alignPos.ry() += textSize.width();
     }

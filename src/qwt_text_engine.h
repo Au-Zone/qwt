@@ -14,7 +14,7 @@
 #include <qsize.h>
 
 class QFont;
-class QRect;
+class QRectF;
 class QString;
 class QPainter;
 
@@ -97,7 +97,7 @@ public:
       \param flags Bitwise OR of the flags like in for QPainter::drawText
       \param text Text to be rendered
      */ 
-    virtual void draw(QPainter *painter, const QRect &rect,
+    virtual void draw(QPainter *painter, const QRectF &rect,
         int flags, const QString &text) const = 0;
 
 protected:
@@ -123,7 +123,7 @@ public:
     virtual QSize textSize(const QFont &font, int flags,
         const QString &text) const;
 
-    virtual void draw(QPainter *painter, const QRect &rect,
+    virtual void draw(QPainter *painter, const QRectF &rect,
         int flags, const QString &text) const;
 
     virtual bool mightRender(const QString &) const;
@@ -156,7 +156,7 @@ public:
     virtual QSize textSize(const QFont &font, int flags,
         const QString &text) const;
 
-    virtual void draw(QPainter *painter, const QRect &rect,
+    virtual void draw(QPainter *painter, const QRectF &rect,
         int flags, const QString &text) const;
 
     virtual bool mightRender(const QString &) const;

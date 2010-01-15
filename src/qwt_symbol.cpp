@@ -115,9 +115,9 @@ void QwtSymbol::setPen(const QPen &pen)
 /*!
   \brief Draw the symbol at a point (x,y).
 */
-void QwtSymbol::draw(QPainter *painter, int x, int y) const
+void QwtSymbol::draw(QPainter *painter, double x, double y) const
 {
-    draw(painter, QPoint(x, y));
+    draw(painter, QPointF(x, y));
 }
 
 
@@ -131,7 +131,7 @@ void QwtSymbol::draw(QPainter *painter, int x, int y) const
   \param painter Painter
   \param r Bounding rectangle
 */
-void QwtSymbol::draw(QPainter *painter, const QRect& r) const
+void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
 {
     switch(d_style)
     {
@@ -309,14 +309,14 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
   \param painter Painter
   \param pos Center of the symbol
 */
-void QwtSymbol::draw(QPainter *painter, const QPoint &pos) const
+void QwtSymbol::draw(QPainter *painter, const QPointF &pos) const
 {
-    QRect rect;
-    rect.setSize(QwtPainter::metricsMap().screenToLayout(d_size));
+    QRectF rect;
+    rect.setSize(d_size);
     rect.moveCenter(pos);
 
     painter->setBrush(d_brush);
-    painter->setPen(QwtPainter::scaledPen(d_pen));
+    painter->setPen(d_pen);
     
     draw(painter, rect);
 }

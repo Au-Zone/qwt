@@ -200,7 +200,7 @@ void QwtRoundScaleDraw::drawLabel(QPainter *painter, double value) const
 
    \sa drawBackbone(), drawLabel() 
 */
-void QwtRoundScaleDraw::drawTick(QPainter *painter, double value, int len) const
+void QwtRoundScaleDraw::drawTick(QPainter *painter, double value, double len) const
 {
     if ( len <= 0 )
         return;

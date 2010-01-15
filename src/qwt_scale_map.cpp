@@ -181,21 +181,7 @@ void QwtScaleMap::setScaleInterval(double s1, double s2)
   \param p1 first border
   \param p2 second border
 */
-void QwtScaleMap::setPaintInterval(int p1, int p2)
-{
-    d_p1 = p1;
-    d_p2 = p2;
-
-    if ( d_transformation->type() != QwtScaleTransformation::Other )
-        newFactor();
-}
-
-/*!
-  \brief Specify the borders of the paint device interval
-  \param p1 first border
-  \param p2 second border
-*/
-void QwtScaleMap::setPaintXInterval(double p1, double p2)
+void QwtScaleMap::setPaintInterval(double p1, double p2)
 {
     d_p1 = p1;
     d_p2 = p2;

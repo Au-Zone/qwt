@@ -48,6 +48,12 @@ Plot::Plot(QWidget *parent):
     grid->attach(this);
 
     // axes
+#if 1
+    enableAxis(QwtPlot::xTop);
+    //grid->setXAxis(QwtPlot::xTop);
+	//setAxisScale(QwtPlot::xTop, 0.01, 100);
+    //setAxisScaleEngine(QwtPlot::xTop, new QwtLog10ScaleEngine);
+#endif
     enableAxis(QwtPlot::yRight);
     setAxisTitle(QwtPlot::xBottom, "Normalized Frequency");
     setAxisTitle(QwtPlot::yLeft, "Amplitude [dB]");

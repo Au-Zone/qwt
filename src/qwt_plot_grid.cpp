@@ -213,10 +213,10 @@ void QwtPlotGrid::setMinPen(const QPen &pen)
 */
 void QwtPlotGrid::draw(QPainter *painter, 
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect) const
+    const QRectF &canvasRect) const
 {
     //  draw minor gridlines
-    painter->setPen(QwtPainter::scaledPen(d_data->minPen));
+    painter->setPen(d_data->minPen);
     
     if (d_data->xEnabled && d_data->xMinEnabled)
     {
@@ -235,7 +235,7 @@ void QwtPlotGrid::draw(QPainter *painter,
     }
 
     //  draw major gridlines
-    painter->setPen(QwtPainter::scaledPen(d_data->majPen));
+    painter->setPen(d_data->majPen);
     
     if (d_data->xEnabled)
     {
@@ -250,18 +250,22 @@ void QwtPlotGrid::draw(QPainter *painter,
     }
 }
 
-void QwtPlotGrid::drawLines(QPainter *painter, const QRect &canvasRect,
+void QwtPlotGrid::drawLines(QPainter *painter, const QRectF &canvasRect,
     Qt::Orientation orientation, const QwtScaleMap &scaleMap, 
     const QList<double> &values) const
 {
-    const int x1 = canvasRect.left();
-    const int x2 = canvasRect.right();
-    const int y1 = canvasRect.top();
-    const int y2 = canvasRect.bottom();
+    double pw2 = painter->pen().widthF();
+    if ( pw2 == 0.0 )
+        pw2 = 0.5;
+
+    const double x1 = canvasRect.left();
+    const double x2 = canvasRect.right();
+    const double y1 = canvasRect.top();
+    const double y2 = canvasRect.bottom();
 
     for (uint i = 0; i < (uint)values.count(); i++)
     {
-        const int value = scaleMap.transform(values[i]);
+        const int value = scaleMap.transform(values[i]) + pw2;
         if ( orientation == Qt::Horizontal )
         {
             if ((value >= y1) && (value <= y2))

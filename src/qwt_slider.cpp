@@ -649,7 +649,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
     scaleDraw()->move(x, y);
     scaleDraw()->setLength(length);
 
-    d_data->map.setPaintXInterval(scaleDraw()->map().p1(),
+    d_data->map.setPaintInterval(scaleDraw()->map().p1(),
         scaleDraw()->map().p2());
 
     if ( update_geometry )

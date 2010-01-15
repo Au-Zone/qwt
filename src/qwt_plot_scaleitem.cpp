@@ -321,7 +321,7 @@ void QwtPlotScaleItem::setAlignment(QwtScaleDraw::Alignment alignment)
 */
 void QwtPlotScaleItem::draw(QPainter *painter, 
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect) const
+    const QRectF &canvasRect) const
 {
     if ( canvasRect != d_data->canvasRectCache )
     {

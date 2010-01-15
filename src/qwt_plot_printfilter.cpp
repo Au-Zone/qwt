@@ -21,6 +21,23 @@
 
 typedef QPalette Palette;
 
+static QFont toPixelFont(QFont &font)
+{
+    // Title, legend and scales are painted scaled, when the 
+    // resolution of the paint device is different to the screen
+    // resolution. Unfortunately fonts specified in point size are
+    // additionaly scaled. To avoid this unwanted scaling
+    // we switch to pixel size.
+
+    if ( font.pixelSize() < 0 )
+    {
+        QFont pixelFont = font;
+        pixelFont.setPixelSize(QFontInfo(font).pixelSize());
+        return pixelFont;
+    }
+    return font;
+}
+
 class QwtPlotPrintFilter::PrivateData
 {
 public:
@@ -148,7 +165,7 @@ QFont QwtPlotPrintFilter::font(const QFont &f, Item) const
   Change color and fonts of a plot
   \sa apply()
 */
-void QwtPlotPrintFilter::apply(QwtPlot *plot) const
+void QwtPlotPrintFilter::apply(QwtPlot *plot, bool isScaled) const
 {
     const bool doAutoReplot = plot->autoReplot();
     plot->setAutoReplot(false);
@@ -168,7 +185,12 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
         plot->titleLabel()->setPalette(palette);
 
         cache.titleFont = plot->titleLabel()->font();
-        plot->titleLabel()->setFont(font(cache.titleFont, Title));
+
+        QFont fnt = font(cache.titleFont, Title);
+        if ( isScaled )
+            fnt = toPixelFont(fnt);
+
+        plot->titleLabel()->setFont(fnt);
     }
     if ( plot->legend() )
     {
@@ -179,7 +201,12 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
             QWidget *w = *it;
 
             cache.legendFonts.insert(w, w->font());
-            w->setFont(font(w->font(), Legend));
+
+            QFont fnt = font(w->font(), Legend);
+            if ( isScaled )
+                fnt = toPixelFont(fnt);
+
+            w->setFont(fnt);
         }
     }
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
@@ -195,7 +222,12 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
             scaleWidget->setPalette(palette);
 
             cache.scaleFont[axis] = scaleWidget->font();
-            scaleWidget->setFont(font(cache.scaleFont[axis], AxisScale));
+
+            QFont fnt = font(scaleWidget->font(), AxisScale);
+            if ( isScaled )
+                fnt = toPixelFont(fnt);
+
+            scaleWidget->setFont(fnt);
 
             cache.scaleTitle[axis] = scaleWidget->title();
 
@@ -210,8 +242,12 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
             if ( scaleTitle.testPaintAttribute(QwtText::PaintUsingTextFont) )
             {
                 cache.scaleTitleFont[axis] = scaleTitle.font();
-                scaleTitle.setFont(
-                    font(cache.scaleTitleFont[axis], AxisTitle));
+
+                QFont fnt = font(cache.scaleTitleFont[axis], AxisTitle);
+                if ( isScaled )
+                    fnt = toPixelFont(fnt);
+
+                scaleTitle.setFont(fnt);
             }
 
             scaleWidget->setTitle(scaleTitle);

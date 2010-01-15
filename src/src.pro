@@ -58,7 +58,6 @@ HEADERS += \
     qwt_double_point_3d.h \
     qwt_dyngrid_layout.h \
     qwt_global.h \
-    qwt_layout_metrics.h \
     qwt_math.h \
     qwt_magnifier.h \
     qwt_painter.h \
@@ -85,7 +84,6 @@ SOURCES += \
     qwt_column_symbol.cpp \
     qwt_double_interval.cpp \
     qwt_dyngrid_layout.cpp \
-    qwt_layout_metrics.cpp \
     qwt_math.cpp \
     qwt_magnifier.cpp \
     qwt_panner.cpp \

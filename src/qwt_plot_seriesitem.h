@@ -28,11 +28,11 @@ public:
 
     virtual void draw(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &) const;
+        const QRectF &) const;
 
     virtual void drawSeries(QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &, int from, int to) const = 0;
+        const QRectF &, int from, int to) const = 0;
 
 private:
     class PrivateData;

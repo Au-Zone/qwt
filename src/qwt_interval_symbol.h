@@ -57,7 +57,7 @@ public:
     Style style() const;
     
     virtual void draw(QPainter *, 
-        const QPoint& from, const QPoint& to) const;
+        const QPointF& from, const QPointF& to) const;
 
 private:
     class PrivateData;

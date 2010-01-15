@@ -55,11 +55,11 @@ public:
 
     virtual void draw(QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &) const
+        const QRectF &) const
     {
         if ( d_rect.isValid() )
         {
-            const QRect rect = transform(xMap, yMap, d_rect);
+            const QRectF rect = transform(xMap, yMap, d_rect);
             painter->setPen(d_pen);
             painter->setBrush(d_brush);
             if ( d_type == Ellipse )

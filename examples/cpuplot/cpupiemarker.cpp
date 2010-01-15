@@ -17,7 +17,7 @@ int CpuPieMarker::rtti() const
 
 void CpuPieMarker::draw(QPainter *p, 
     const QwtScaleMap &, const QwtScaleMap &,
-    const QRect &rect) const
+    const QRectF &rect) const
 {
     const CpuPlot *cpuPlot = (CpuPlot *)plot();
 

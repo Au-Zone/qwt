@@ -21,9 +21,6 @@ Plot::Plot(QWidget *parent):
 
     setAutoReplot(false);
 
-    // Disable polygon clipping
-    QwtPainter::setDeviceClipping(false);
-
     // We don't need the cache here
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
     //canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);

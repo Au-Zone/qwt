@@ -35,7 +35,6 @@ public:
         
         canvas.cached = false;
         canvas.paintOnScreen = false;
-        canvas.deviceClipping = false;
 
         updateType = RepaintCanvas;
         updateInterval = 20;
@@ -59,7 +58,6 @@ public:
 
     struct
     {
-        bool deviceClipping;
         bool cached;
         bool paintOnScreen;
     } canvas;

@@ -520,10 +520,10 @@ QRectF QwtPlotItem::scaleRect(const QwtScaleMap &xMap,
 
    \return Bounding rect of the scale maps
 */
-QRect QwtPlotItem::paintRect(const QwtScaleMap &xMap, 
+QRectF QwtPlotItem::paintRect(const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap) const
 {
-    const QRect rect( qRound(xMap.p1()), qRound(yMap.p1()),
+    const QRectF rect( qRound(xMap.p1()), qRound(yMap.p1()),
         qRound(xMap.pDist()), qRound(yMap.pDist()) );
 
     return rect;
@@ -539,8 +539,8 @@ QRect QwtPlotItem::paintRect(const QwtScaleMap &xMap,
  
    \sa invTransform()
 */
-QRect QwtPlotItem::transform(const QwtScaleMap &xMap, 
-    const QwtScaleMap &yMap, const QRectF& rect) const
+QRectF QwtPlotItem::transform(const QwtScaleMap &xMap, 
+    const QwtScaleMap &yMap, const QRectF &rect) const
 {
     int x1 = qRound(xMap.transform(rect.left()));
     int x2 = qRound(xMap.transform(rect.right()));
@@ -565,7 +565,7 @@ QRect QwtPlotItem::transform(const QwtScaleMap &xMap,
    \sa transform()
 */
 QRectF QwtPlotItem::invTransform(const QwtScaleMap &xMap, 
-    const QwtScaleMap &yMap, const QRect& rect) const
+    const QwtScaleMap &yMap, const QRectF &rect) const
 {
     const double x1 = xMap.invTransform(rect.left());
     const double x2 = xMap.invTransform(rect.right());

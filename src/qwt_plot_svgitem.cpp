@@ -139,7 +139,7 @@ QSvgRenderer &QwtPlotSvgItem::renderer()
 */
 void QwtPlotSvgItem::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect) const
+    const QRectF &canvasRect) const
 {
     const QRectF cRect = invTransform(xMap, yMap, canvasRect);
     const QRectF bRect = boundingRect();
@@ -149,7 +149,7 @@ void QwtPlotSvgItem::draw(QPainter *painter,
         if ( bRect.contains(cRect) )
             rect = cRect;
 
-        const QRect r = transform(xMap, yMap, rect);
+        const QRectF r = transform(xMap, yMap, rect);
         render(painter, viewBox(rect), r);
     }
 }
@@ -162,7 +162,7 @@ void QwtPlotSvgItem::draw(QPainter *painter,
   \param rect Traget rectangle on the paint device
 */
 void QwtPlotSvgItem::render(QPainter *painter,
-        const QRectF &viewBox, const QRect &rect) const
+    const QRectF &viewBox, const QRectF &rect) const
 {
     if ( !viewBox.isValid() )
         return;

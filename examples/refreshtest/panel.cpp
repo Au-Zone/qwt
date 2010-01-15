@@ -9,31 +9,31 @@
 class SpinBox: public QSpinBox
 {
 public:
-	SpinBox(int min, int max, int step, QWidget *parent):
-		QSpinBox(parent)
-	{
-		setRange(min, max);
-		setSingleStep(step);
-	}
+    SpinBox(int min, int max, int step, QWidget *parent):
+        QSpinBox(parent)
+    {
+        setRange(min, max);
+        setSingleStep(step);
+    }
 };
 
 class CheckBox: public QCheckBox
 {
 public:
-	CheckBox(const QString &title, QWidget *parent):
-		QCheckBox(title, parent)
-	{
-	}
+    CheckBox(const QString &title, QWidget *parent):
+        QCheckBox(title, parent)
+    {
+    }
 
-	void setChecked(bool checked)
-	{
-		setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-	}
+    void setChecked(bool checked)
+    {
+        setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    }
 
-	bool isChecked() const
-	{
-		return checkState() == Qt::Checked;
-	}
+    bool isChecked() const
+    {
+        return checkState() == Qt::Checked;
+    }
 };
 
 Panel::Panel(QWidget *parent):
@@ -51,7 +51,6 @@ Panel::Panel(QWidget *parent):
     connect(d_updateInterval, SIGNAL(valueChanged(int)), SLOT(edited()) );
     connect(d_curveWidth, SIGNAL(valueChanged(int)), SLOT(edited()) );
     connect(d_paintCache, SIGNAL(stateChanged(int)), SLOT(edited()) );
-    connect(d_canvasClipping, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_paintOnScreen, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveAntialiasing, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveClipping, SIGNAL(stateChanged(int)), SLOT(edited()) );
@@ -110,7 +109,6 @@ QWidget *Panel::createCanvasTab(QWidget *parent)
 
     d_paintCache = new CheckBox("Paint Cache", page);
     d_paintOnScreen = new CheckBox("Paint On Screen", page);
-    d_canvasClipping = new CheckBox("Canvas Clipping", page);
 
     int row = 0;
 
@@ -120,7 +118,6 @@ QWidget *Panel::createCanvasTab(QWidget *parent)
 
     layout->addWidget(d_paintCache, row++, 0, 1, -1);
     layout->addWidget(d_paintOnScreen, row++, 0, 1, -1);
-    layout->addWidget(d_canvasClipping, row++, 0, 1, -1);
 
     layout->addLayout(new QHBoxLayout(), row++, 0);
 
@@ -224,7 +221,6 @@ Settings Panel::settings() const
 
     s.curve.lineSplitting = (d_lineSplitting->isChecked() );
 
-    s.canvas.deviceClipping = (d_canvasClipping->isChecked() );
     s.canvas.cached = (d_paintCache->isChecked() );
     s.canvas.paintOnScreen = (d_paintOnScreen->isChecked() );
 
@@ -254,7 +250,6 @@ void Panel::setSettings(const Settings &s)
 
     d_paintCache->setChecked(s.canvas.cached );
     d_paintOnScreen->setChecked(s.canvas.paintOnScreen);
-    d_canvasClipping->setChecked(s.canvas.deviceClipping);
 
     d_curveType->setCurrentIndex(s.curve.functionType);
     d_curveAntialiasing->setChecked(

@@ -107,14 +107,14 @@ public:
     int titleHeightForWidth(int width) const;
     int dimForLength(int length, const QFont &scaleFont) const;
 
-    void drawColorBar(QPainter *painter, const QRect &rect) const;
+    void drawColorBar(QPainter *painter, const QRectF &) const;
     void drawTitle(QPainter *painter, QwtScaleDraw::Alignment,
-        const QRect &rect) const;
+        const QRectF &rect) const;
         
     void setAlignment(QwtScaleDraw::Alignment);
     QwtScaleDraw::Alignment alignment() const;
 
-    QRect colorBarRect(const QRect&) const;
+    QRectF colorBarRect(const QRectF&) const;
 
 protected:
     virtual void paintEvent(QPaintEvent *e);

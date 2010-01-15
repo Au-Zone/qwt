@@ -460,9 +460,9 @@ void QwtScaleWidget::draw(QPainter *painter) const
         drawTitle(painter, d_data->scaleDraw->alignment(), r);
 }
 
-QRect QwtScaleWidget::colorBarRect(const QRect& rect) const
+QRectF QwtScaleWidget::colorBarRect(const QRectF& rect) const
 {
-    QRect cr = rect;
+    QRectF cr = rect;
 
     if ( d_data->scaleDraw->orientation() == Qt::Horizontal )
     {
@@ -537,8 +537,12 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     if ( d_data->colorBar.isEnabled && d_data->colorBar.interval.isValid() )
         colorBarWidth = d_data->colorBar.width + d_data->spacing;
 
-    const QRect r = rect();
-    int x, y, length;
+    double pw2 = d_data->penWidth / 2.0;
+    if ( pw2 == 0.0 )
+        pw2 = 0.5;
+
+    const QRectF r = rect();
+    double x, y, length;
 
     if ( d_data->scaleDraw->orientation() == Qt::Vertical )
     {
@@ -546,9 +550,9 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
         length = r.height() - (bd0 + bd1);
 
         if ( d_data->scaleDraw->alignment() == QwtScaleDraw::LeftScale )
-            x = r.right() - d_data->margin - colorBarWidth;
+            x = r.right() - d_data->margin - colorBarWidth - pw2;
         else
-            x = r.left() + d_data->margin + colorBarWidth;
+            x = r.left() + d_data->margin + colorBarWidth - pw2;
     }
     else
     {
@@ -556,9 +560,9 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
         length = r.width() - (bd0 + bd1);
 
         if ( d_data->scaleDraw->alignment() == QwtScaleDraw::BottomScale )
-            y = r.top() + d_data->margin + colorBarWidth;
+            y = r.top() + d_data->margin + colorBarWidth - pw2;
         else
-            y = r.bottom() - d_data->margin - colorBarWidth;
+            y = r.bottom() - d_data->margin - colorBarWidth - pw2;
     }
 
     d_data->scaleDraw->move(x, y);
@@ -575,7 +579,7 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     }
 }
 
-void QwtScaleWidget::drawColorBar(QPainter *painter, const QRect& rect) const
+void QwtScaleWidget::drawColorBar(QPainter *painter, const QRectF& rect) const
 {
     if ( !d_data->colorBar.interval.isValid() )
         return;
@@ -595,9 +599,9 @@ void QwtScaleWidget::drawColorBar(QPainter *painter, const QRect& rect) const
 */
 
 void QwtScaleWidget::drawTitle(QPainter *painter,
-    QwtScaleDraw::Alignment align, const QRect &rect) const
+    QwtScaleDraw::Alignment align, const QRectF &rect) const
 {
-    QRect r = rect;
+    QRectF r = rect;
     double angle;
     int flags = d_data->title.renderFlags() & 
         ~(Qt::AlignTop | Qt::AlignBottom | Qt::AlignVCenter);
@@ -647,11 +651,6 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
     painter->setFont(font());
     painter->setPen(palette().color(QPalette::Text));
 
-    const QwtMetricsMap metricsMap = QwtPainter::metricsMap();
-    QwtPainter::resetMetricsMap();
-
-    r = metricsMap.layoutToDevice(r);
-
     painter->translate(r.x(), r.y());
     if (angle != 0.0)
         painter->rotate(angle);
@@ -659,9 +658,6 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
     QwtText title = d_data->title;
     title.setRenderFlags(flags);
     title.draw(painter, QRect(0, 0, r.width(), r.height()));
-
-
-    QwtPainter::setMetricsMap(metricsMap); // restore metrics map
 
     painter->restore();
 }
