@@ -24,6 +24,8 @@
 #include <qabstracttextdocumentlayout.h>
 #include <qstyleoption.h>
 #include <qpaintengine.h>
+#include <qapplication.h>
+#include <qdesktopwidget.h>
 
 bool QwtPainter::d_polylineSplitting = true;
 
@@ -43,6 +45,15 @@ static inline bool isClippingNeeded(const QPainter *painter, QRectF &clipRect)
     }
 
     return doClipping;
+}
+
+QSizeF QwtPainter::deviceScaling(const QPainter *painter)
+{
+    QWidget *w = QApplication::desktop();
+
+    return QSizeF(
+        double(painter->device()->logicalDpiX()) / w->logicalDpiX(),
+        double(painter->device()->logicalDpiY()) / w->logicalDpiY() );
 }
 
 /*!
