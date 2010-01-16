@@ -408,7 +408,7 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( area.isEmpty() )
         return QImage();
 
-    QRect rect = transform(xMap, yMap, area).toRect();
+    QRect rect = transform(xMap, yMap, area);
 
     QwtScaleMap xxMap = xMap;
     QwtScaleMap yyMap = yMap;
@@ -692,7 +692,7 @@ void QwtPlotSpectrogram::draw(QPainter *painter,
             if ( area.isEmpty() )
                 return;
 
-            rasterRect = transform(xMap, yMap, area).toRect();
+            rasterRect = transform(xMap, yMap, area);
         }
 
         QSize raster = contourRasterSize(area, rasterRect);

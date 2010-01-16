@@ -372,7 +372,7 @@ void QwtPlotScaleItem::draw(QPainter *painter,
                 x = canvasRect.left() + d_data->borderDistance;
             else
             {
-                x = canvasRect.right() - d_data->borderDistance - pw + 1;
+                x = canvasRect.right() - d_data->borderDistance - pw;
             }
         }
         else

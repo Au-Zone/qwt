@@ -228,11 +228,11 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
 
-    QRectF area = invTransform(xMap, yMap, canvasRect);
+    QRectF area = invTransform(xMap, yMap, canvasRect.toRect());
     if ( boundingRect().isValid() )
         area &= boundingRect();
 
-    const QRect paintRect = transform(xMap, yMap, area).toRect();
+    const QRect paintRect = transform(xMap, yMap, area);
     if ( !paintRect.isValid() )
         return;
 
