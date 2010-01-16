@@ -254,10 +254,6 @@ void QwtPlotGrid::drawLines(QPainter *painter, const QRectF &canvasRect,
     Qt::Orientation orientation, const QwtScaleMap &scaleMap, 
     const QList<double> &values) const
 {
-    double pw2 = painter->pen().widthF();
-    if ( pw2 == 0.0 )
-        pw2 = 0.5;
-
     const double x1 = canvasRect.left();
     const double x2 = canvasRect.right();
     const double y1 = canvasRect.top();
@@ -265,7 +261,7 @@ void QwtPlotGrid::drawLines(QPainter *painter, const QRectF &canvasRect,
 
     for (uint i = 0; i < (uint)values.count(); i++)
     {
-        const int value = scaleMap.transform(values[i]) + pw2;
+        const double value = scaleMap.xTransform(values[i]);
         if ( orientation == Qt::Horizontal )
         {
             if ((value >= y1) && (value <= y2))

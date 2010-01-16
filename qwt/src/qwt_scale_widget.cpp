@@ -574,8 +574,8 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
 
     if ( update_geometry )
     {
-      updateGeometry();
-      update();
+      	updateGeometry();
+      	update();
     }
 }
 

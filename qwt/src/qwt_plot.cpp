@@ -546,14 +546,14 @@ QwtScaleMap QwtPlot::canvasMap(int axisId) const
         const QwtScaleWidget *s = axisWidget(axisId);
         if ( axisId == yLeft || axisId == yRight )
         {
-            int y = s->y() + s->startBorderDist() - d_data->canvas->y();
-            int h = s->height() - s->startBorderDist() - s->endBorderDist();
+            double y = s->y() + s->startBorderDist() - d_data->canvas->y();
+            double h = s->height() - s->startBorderDist() - s->endBorderDist();
             map.setPaintInterval(y + h, y);
         }
         else
         {
-            int x = s->x() + s->startBorderDist() - d_data->canvas->x();
-            int w = s->width() - s->startBorderDist() - s->endBorderDist();
+            double x = s->x() + s->startBorderDist() - d_data->canvas->x();
+            double w = s->width() - s->startBorderDist() - s->endBorderDist();
             map.setPaintInterval(x, x + w);
         }
     }
