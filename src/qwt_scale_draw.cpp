@@ -424,28 +424,28 @@ void QwtScaleDraw::drawTick(QPainter *painter, double value, double len) const
     {
         case LeftScale:
         {
-            const double x = pos.x() - pw2;
+            const double x = pos.x();
             QwtPainter::drawLine(painter, x, tval, x - len, tval);
             break;
         }
 
         case RightScale:
         {
-            const double x = pos.x() + pw2;
+            const double x = pos.x();
             QwtPainter::drawLine(painter, x, tval, x + len, tval);
             break;
         }
     
         case BottomScale:
         {
-            const double y = pos.y() + pw2;
+            const double y = pos.y();
             QwtPainter::drawLine(painter, tval, y, tval, y + len);
             break;
         }
 
         case TopScale:
         {
-            const double y = pos.y() - pw2;
+            const double y = pos.y();
             QwtPainter::drawLine(painter, tval, y, tval, y - len);
             break;
         }

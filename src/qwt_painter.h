@@ -37,7 +37,7 @@ public:
     static void setPolylineSplitting(bool);
     static bool polylineSplitting();
 
-    static void setClipRect(QPainter *, const QRect &);
+    static void setClipRect(QPainter *, const QRectF &);
 
     static void drawText(QPainter *, double x, double y, 
         const QString &);

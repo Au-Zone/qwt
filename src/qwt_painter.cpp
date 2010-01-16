@@ -61,7 +61,7 @@ void QwtPainter::setPolylineSplitting(bool enable)
 /*!
     Wrapper for QPainter::setClipRect()
 */
-void QwtPainter::setClipRect(QPainter *painter, const QRect &rect)
+void QwtPainter::setClipRect(QPainter *painter, const QRectF &rect)
 {
     painter->setClipRect(rect);
 }
