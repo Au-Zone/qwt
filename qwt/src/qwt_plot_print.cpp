@@ -353,11 +353,7 @@ void QwtPlot::printScale(QPainter *painter,
     if ( scaleWidget->isColorBarEnabled() 
         && scaleWidget->colorBarWidth() > 0)
     {
-        QRectF r = rect;
-        r.setWidth(r.width() - 1);
-        r.setHeight(r.height() - 1);
-
-        scaleWidget->drawColorBar(painter, scaleWidget->colorBarRect(r));
+        scaleWidget->drawColorBar(painter, scaleWidget->colorBarRect(rect));
 
         const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
         if ( scaleWidget->scaleDraw()->orientation() == Qt::Horizontal )
@@ -366,14 +362,20 @@ void QwtPlot::printScale(QPainter *painter,
             baseDist += off;
     }
 
+    painter->save();
+
+    QPen pen = painter->pen();
+    pen.setWidth(scaleWidget->penWidth());
+    painter->setPen(pen);
+
     QwtScaleDraw::Alignment align;
-    int x, y, w;
+    double x, y, w;
 
     switch(axisId)
     {
         case yLeft:
         {
-            x = rect.right() - 1 - baseDist;
+            x = rect.right() - 1.0 - baseDist;
             y = rect.y() + startDist;
             w = rect.height() - startDist - endDist;
             align = QwtScaleDraw::LeftScale;
@@ -390,7 +392,7 @@ void QwtPlot::printScale(QPainter *painter,
         case xTop:
         {
             x = rect.left() + startDist;
-            y = rect.bottom() - baseDist;
+            y = rect.bottom() - 1.0 - baseDist;
             w = rect.width() - startDist - endDist;
             align = QwtScaleDraw::TopScale;
             break;
@@ -409,12 +411,7 @@ void QwtPlot::printScale(QPainter *painter,
 
     scaleWidget->drawTitle(painter, align, rect);
 
-    painter->save();
     painter->setFont(scaleWidget->font());
-
-    QPen pen = painter->pen();
-    pen.setWidth(scaleWidget->penWidth());
-    painter->setPen(pen);
 
     QwtScaleDraw *sd = (QwtScaleDraw *)scaleWidget->scaleDraw();
     const QPointF sdPos = sd->pos();
@@ -447,43 +444,23 @@ void QwtPlot::printScale(QPainter *painter,
 void QwtPlot::printCanvas(QPainter *painter, const QRectF &canvasRect,
     const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
 {
-    if ( pfilter.options() & QwtPlotPrintFilter::PrintBackground )
-    {
-        const QBrush bgBrush = canvas()->palette().brush(backgroundRole());
-        QRectF r = canvasRect;
-        if ( !(pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales) )
-        {
-            r = canvasRect;
-            // Unfortunately the paint engines do no always the same
-            const QPaintEngine *pe = painter->paintEngine();
-            if ( pe )
-            {
-                switch(painter->paintEngine()->type() )
-                {
-                    case QPaintEngine::Raster:
-                    case QPaintEngine::X11:
-                        break;
-                    default:
-                        r.setWidth(r.width() - 1);
-                        r.setHeight(r.height() - 1);
-                        break;
-                }
-            }
-        }
-        QwtPainter::fillRect(painter, r, bgBrush);
-    }
+    painter->save();
 
     if ( pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales )
-    {
-        painter->save();
-        painter->setPen(QPen(Qt::black));
-        painter->setBrush(QBrush(Qt::NoBrush));
-        QwtPainter::drawRect(painter, canvasRect);
-        painter->restore();
-    }
+    	painter->setPen(QPen(Qt::black));
+
+    if ( pfilter.options() & QwtPlotPrintFilter::PrintBackground )
+	{
+        const QBrush bgBrush = canvas()->palette().brush(backgroundRole());
+    	painter->setBrush(bgBrush);
+	}
+
+    QwtPainter::drawRect(painter, canvasRect.adjusted(0.0, 0.0, -1.0, -1.0));
+
+    painter->restore();
 
     painter->setClipping(true);
-    QwtPainter::setClipRect(painter, canvasRect.toRect());
+    QwtPainter::setClipRect(painter, canvasRect);
 
     drawItems(painter, canvasRect, map, pfilter);
 }
