@@ -98,10 +98,10 @@ public:
     virtual QRectF boundingRect() const;
 
 protected:
-    void drawAt(QPainter *,const QRectF &, const QPoint &) const;
+    void drawAt(QPainter *,const QRectF &, const QPointF &) const;
 
 private:
-    void drawLabel(QPainter *, const QRectF &, const QPoint &) const;
+    void drawLabel(QPainter *, const QRectF &, const QPointF &) const;
 
     class PrivateData;
     PrivateData *d_data;

@@ -358,13 +358,13 @@ int QwtScaleDraw::minLength(const QPen &pen, const QFont &font) const
 */
 QPointF QwtScaleDraw::labelPosition( double value) const
 {
-    const int tval = map().transform(value);
+    const double tval = map().xTransform(value);
     int dist = spacing() + 1;
     if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
         dist += majTickLength();
 
-    int px = 0;
-    int py = 0;
+    double px = 0;
+    double py = 0;
 
     switch(alignment())
     {
@@ -411,14 +411,10 @@ void QwtScaleDraw::drawTick(QPainter *painter, double value, double len) const
     if ( len <= 0 )
         return;
 
-    double pw2 = painter->pen().widthF() / 2.0;
-    if ( pw2 == 0.0 )
-        pw2 = 0.5;
-    
     QwtScaleMap scaleMap = map();
     QPointF pos = d_data->pos;
 
-    const double tval = scaleMap.transform(value) - pw2;
+    const double tval = scaleMap.xTransform(value);
 
     switch(alignment())
     {
@@ -846,11 +842,12 @@ int QwtScaleDraw::maxLabelHeight(const QFont &font) const
 
 void QwtScaleDraw::updateMap()
 {
-    QPointF pos = d_data->pos + QPointF(1.0, 1.0);
+    const QPointF pos = d_data->pos;
+	double len = d_data->len;
 
     QwtScaleMap &sm = scaleMap();
     if ( orientation() == Qt::Vertical )
-        sm.setPaintInterval(pos.y() + d_data->len, pos.y());
+        sm.setPaintInterval(pos.y() + len, pos.y());
     else
-        sm.setPaintInterval(pos.x(), pos.x() + d_data->len);
+        sm.setPaintInterval(pos.x(), pos.x() + len);
 }
