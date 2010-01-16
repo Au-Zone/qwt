@@ -539,7 +539,7 @@ QRectF QwtPlotItem::paintRect(const QwtScaleMap &xMap,
  
    \sa invTransform()
 */
-QRectF QwtPlotItem::transform(const QwtScaleMap &xMap, 
+QRect QwtPlotItem::transform(const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap, const QRectF &rect) const
 {
     int x1 = qRound(xMap.transform(rect.left()));
@@ -565,7 +565,7 @@ QRectF QwtPlotItem::transform(const QwtScaleMap &xMap,
    \sa transform()
 */
 QRectF QwtPlotItem::invTransform(const QwtScaleMap &xMap, 
-    const QwtScaleMap &yMap, const QRectF &rect) const
+    const QwtScaleMap &yMap, const QRect &rect) const
 {
     const double x1 = xMap.invTransform(rect.left());
     const double x2 = xMap.invTransform(rect.right());

@@ -480,7 +480,7 @@ QRectF QwtScaleWidget::colorBarRect(const QRectF& rect) const
         case QwtScaleDraw::LeftScale:
         {
             cr.setLeft( cr.right() - d_data->spacing 
-                - d_data->colorBar.width + 1 );
+                - d_data->colorBar.width );
             cr.setWidth(d_data->colorBar.width);
             break;
         }
@@ -502,7 +502,7 @@ QRectF QwtScaleWidget::colorBarRect(const QRectF& rect) const
         case QwtScaleDraw::TopScale:
         {
             cr.setTop( cr.bottom() - d_data->spacing
-                - d_data->colorBar.width + 1 );
+                - d_data->colorBar.width );
             cr.setHeight(d_data->colorBar.width);
             break;
         }
@@ -552,7 +552,7 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
         if ( d_data->scaleDraw->alignment() == QwtScaleDraw::LeftScale )
             x = r.right() - d_data->margin - colorBarWidth - pw2;
         else
-            x = r.left() + d_data->margin + colorBarWidth - pw2;
+            x = r.left() + d_data->margin + colorBarWidth + pw2;
     }
     else
     {
@@ -560,7 +560,7 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
         length = r.width() - (bd0 + bd1);
 
         if ( d_data->scaleDraw->alignment() == QwtScaleDraw::BottomScale )
-            y = r.top() + d_data->margin + colorBarWidth - pw2;
+            y = r.top() + d_data->margin + colorBarWidth + pw2;
         else
             y = r.bottom() - d_data->margin - colorBarWidth - pw2;
     }
@@ -568,8 +568,8 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     d_data->scaleDraw->move(x, y);
     d_data->scaleDraw->setLength(length);
 
-    d_data->titleOffset = d_data->margin + d_data->spacing +
-        colorBarWidth +
+    d_data->titleOffset = 
+		d_data->margin + d_data->spacing + colorBarWidth +
         d_data->scaleDraw->extent(QPen(Qt::black, d_data->penWidth), font());
 
     if ( update_geometry )

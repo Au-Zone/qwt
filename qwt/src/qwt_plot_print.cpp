@@ -159,11 +159,11 @@ void QwtPlot::print(QPainter *painter, const QRectF &plotRect,
             if ( axisId == xTop || axisId == xBottom )
             {
                 from = scaleRect.left() + sDist;
-                to = scaleRect.right() + 1 - eDist;
+                to = scaleRect.right() - eDist;
             }
             else
             {
-                from = scaleRect.bottom() + 1 - eDist;
+                from = scaleRect.bottom() - eDist;
                 to = scaleRect.top() + sDist;
             }
         }
@@ -172,13 +172,13 @@ void QwtPlot::print(QPainter *painter, const QRectF &plotRect,
             int margin = plotLayout()->canvasMargin(axisId);
             if ( axisId == yLeft || axisId == yRight )
             {
-                from = canvasRect.bottom() - margin;
+                from = canvasRect.bottom() - 1 - margin;
                 to = canvasRect.top() + margin;
             }
             else
             {
                 from = canvasRect.left() + margin;
-                to = canvasRect.right() - margin;
+                to = canvasRect.right() - 1 - margin;
             }
         }
         map[axisId].setPaintInterval(from, to);
@@ -373,7 +373,7 @@ void QwtPlot::printScale(QPainter *painter,
     {
         case yLeft:
         {
-            x = rect.right() - baseDist;
+            x = rect.right() - 1 - baseDist;
             y = rect.y() + startDist;
             w = rect.height() - startDist - endDist;
             align = QwtScaleDraw::LeftScale;

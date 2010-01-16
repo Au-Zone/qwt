@@ -141,7 +141,7 @@ void QwtPlotSvgItem::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect) const
 {
-    const QRectF cRect = invTransform(xMap, yMap, canvasRect);
+    const QRectF cRect = invTransform(xMap, yMap, canvasRect.toRect());
     const QRectF bRect = boundingRect();
     if ( bRect.isValid() && cRect.isValid() )
     {

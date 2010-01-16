@@ -164,7 +164,7 @@ void QwtScaleDraw::getBorderDistHint(const QFont &font,
         start = -labelRect(font, minTick).top();
         start -= qAbs(minPos - qRound(map().p2()));
 
-        end = labelRect(font, maxTick).bottom() + 1;
+        end = labelRect(font, maxTick).bottom();
         end -= qAbs(maxPos - qRound(map().p1()));
     }
     else
@@ -172,7 +172,7 @@ void QwtScaleDraw::getBorderDistHint(const QFont &font,
         start = -labelRect(font, minTick).left();
         start -= qAbs(minPos - qRound(map().p1()));
 
-        end = labelRect(font, maxTick).right() + 1;
+        end = labelRect(font, maxTick).right();
         end -= qAbs(maxPos - qRound(map().p2()));
     }
 
@@ -460,10 +460,6 @@ void QwtScaleDraw::drawTick(QPainter *painter, double value, double len) const
 */
 void QwtScaleDraw::drawBackbone(QPainter *painter) const
 {
-    double pw2 = painter->pen().widthF() / 2.0;
-    if ( pw2 == 0.0 )
-        pw2 = 0.5;
-
     const QPointF &pos = d_data->pos;
     const double len = d_data->len;
 
@@ -472,15 +468,15 @@ void QwtScaleDraw::drawBackbone(QPainter *painter) const
         case LeftScale:
         case RightScale:
         {
-            const double x = pos.x() - pw2;
-            QwtPainter::drawLine(painter, x, pos.y(), x, pos.y() + len );
+            QwtPainter::drawLine(painter, pos.x(), pos.y(), 
+				pos.x(), pos.y() + len );
             break;
         }
         case TopScale:
         case BottomScale:
         {
-            const double y = pos.y() - pw2;
-            QwtPainter::drawLine(painter, pos.x(), y, pos.x() + len, y);
+            QwtPainter::drawLine(painter, pos.x(), pos.y(), 
+				pos.x() + len, pos.y());
             break;
         }
     }
