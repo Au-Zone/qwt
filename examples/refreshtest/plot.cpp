@@ -121,8 +121,6 @@ void Plot::setSettings(const Settings &s)
     d_curve->setPen(s.curve.pen);
     d_curve->setBrush(s.curve.brush);
 
-    d_curve->setPaintAttribute(QwtPlotCurve::PaintFiltered,
-        s.curve.paintAttributes & QwtPlotCurve::PaintFiltered);
     d_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons,
         s.curve.paintAttributes & QwtPlotCurve::ClipPolygons);
     d_curve->setRenderHint(QwtPlotCurve::RenderAntialiased,

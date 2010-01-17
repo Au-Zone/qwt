@@ -56,11 +56,13 @@ Plot::Plot(QWidget *parent):
     d_origin->attach(this);
 
     d_curve = new QwtPlotCurve();
-    d_curve->setPaintAttribute(QwtPlotCurve::PaintFiltered);
     d_curve->setStyle(QwtPlotCurve::Lines);
     d_curve->setPen(QPen(Qt::green));
 #if 1
     d_curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+#endif
+#if 1
+    d_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons, false);
 #endif
     d_curve->setData(CurveData());
     d_curve->attach(this);
