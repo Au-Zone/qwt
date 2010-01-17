@@ -854,7 +854,7 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     painter->setBrush(symbol.brush());
     painter->setPen(symbol.pen());
 
-    QRect rect;
+    QRectF rect;
     rect.setSize(symbol.size());
 
     if ( to > from && d_data->paintAttributes & PaintFiltered )
@@ -869,10 +869,10 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
         {
             const QPointF sample = d_series->sample(i);
 
-            const QPoint pi( xMap.transform(sample.x()),
-                yMap.transform(sample.y()) );
+            const QPointF pi( xMap.xTransform(sample.x()),
+                yMap.xTransform(sample.y()) );
 
-            if ( pixelMatrix.testPixel(pi) )
+            if ( pixelMatrix.testPixel(pi.toPoint()) )
             {
                 rect.moveCenter(pi);
                 symbol.draw(painter, rect);
@@ -885,10 +885,10 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
         {
             const QPointF sample = d_series->sample(i);
 
-            const int xi = xMap.transform(sample.x());
-            const int yi = yMap.transform(sample.y());
+            const double xi = xMap.xTransform(sample.x());
+            const double yi = yMap.xTransform(sample.y());
 
-            rect.moveCenter(QPoint(xi, yi));
+            rect.moveCenter(QPointF(xi, yi));
             symbol.draw(painter, rect);
         }
     }

@@ -202,7 +202,7 @@ void QwtPainter::drawEllipse(QPainter *painter, const QRectF &rect)
 void QwtPainter::drawText(QPainter *painter, double x, double y, 
         const QString &text)
 {
-    drawText(painter, QPoint(x, y), text);
+    drawText(painter, QPointF(x, y), text);
 }
 
 /*!
@@ -283,22 +283,23 @@ void QwtPainter::drawSimpleRichText(QPainter *painter, const QRectF &rect,
 /*!
   Wrapper for QPainter::drawLine()
 */
-void QwtPainter::drawLine(QPainter *painter, double x1, double y1, double x2, double y2)
+void QwtPainter::drawLine(QPainter *painter, 
+	const QPointF &p1, const QPointF &p2)
 {
     QRectF clipRect;
     const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
     if ( deviceClipping && 
-        !(clipRect.contains(x1, y1) && clipRect.contains(x2, y2)) )
+        !(clipRect.contains(p1) && clipRect.contains(p2)) )
     {
         QPolygonF polygon;
-        polygon += QPoint(x1, y1);
-        polygon += QPoint(x2, y2);
+        polygon += p1;
+        polygon += p1;
         drawPolyline(painter, polygon);
         return;
     }
 
-    painter->drawLine(x1, y1, x2, y2);
+    painter->drawLine(p1, p2);
 }
 
 /*!
