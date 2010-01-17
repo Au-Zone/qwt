@@ -255,9 +255,9 @@ void QwtPlotGrid::drawLines(QPainter *painter, const QRectF &canvasRect,
     const QList<double> &values) const
 {
     const double x1 = canvasRect.left();
-    const double x2 = canvasRect.right();
+    const double x2 = canvasRect.right() - 1.0;
     const double y1 = canvasRect.top();
-    const double y2 = canvasRect.bottom();
+    const double y2 = canvasRect.bottom() - 1.0;
 
     for (uint i = 0; i < (uint)values.count(); i++)
     {

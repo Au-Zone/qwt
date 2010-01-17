@@ -284,7 +284,7 @@ void QwtPainter::drawSimpleRichText(QPainter *painter, const QRectF &rect,
   Wrapper for QPainter::drawLine()
 */
 void QwtPainter::drawLine(QPainter *painter, 
-	const QPointF &p1, const QPointF &p2)
+    const QPointF &p1, const QPointF &p2)
 {
     QRectF clipRect;
     const bool deviceClipping = isClippingNeeded(painter, clipRect);
@@ -371,12 +371,10 @@ void QwtPainter::drawPolyline(QPainter *painter, const QPolygonF &pa)
 /*!
     Wrapper for QPainter::drawPoint()
 */
-void QwtPainter::drawPoint(QPainter *painter, double x, double y)
+void QwtPainter::drawPoint(QPainter *painter, const QPointF &pos)
 {
     QRectF clipRect;
     const bool deviceClipping = isClippingNeeded(painter, clipRect);
-
-    const QPointF pos(x, y);
 
     if ( deviceClipping && !clipRect.contains(pos) )
         return;
