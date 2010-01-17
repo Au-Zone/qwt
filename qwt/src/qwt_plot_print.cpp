@@ -184,32 +184,6 @@ void QwtPlot::print(QPainter *painter, const QRectF &plotRect,
         map[axisId].setPaintInterval(from, to);
     }
 
-    /*
-      While we can scale vector graphics we can't do the same for
-      raster data. So we better scale the canvas rectangle back to 
-      device resolution and render in the resolution of the paint device.
-     */
-    painter->resetTransform();
-    canvasRect = transform.mapRect(canvasRect);
-    for (axisId = 0; axisId < axisCnt; axisId++)
-    {
-        double p1 = map[axisId].p1();
-        double p2 = map[axisId].p2();
-
-        if ( axisId == xTop || axisId == xBottom )
-        {
-            p1 *= transform.m11();
-            p2 *= transform.m11();
-        }
-        else
-        {
-            p1 *= transform.m22();
-            p2 *= transform.m22();
-        }
-
-        map[axisId].setPaintInterval( p1, p2 ); 
-    }
-
     // canvas 
     printCanvas(painter, canvasRect, map, pfilter);
 

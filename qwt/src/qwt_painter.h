@@ -62,6 +62,8 @@ public:
 
     static void drawLine(QPainter *, double x1, double y1, double x2, double y2);
     static void drawLine(QPainter *, const QPointF &p1, const QPointF &p2);
+    static void drawLine(QPainter *, const QLineF &);
+
     static void drawPolygon(QPainter *, const QPolygonF &pa);
     static void drawPolyline(QPainter *, const QPolygonF &pa);
     static void drawPoint(QPainter *, double x, double y);
@@ -84,9 +86,15 @@ private:
 
 //!  Wrapper for QPainter::drawLine()
 inline void QwtPainter::drawLine(QPainter *painter,
-    const QPointF &p1, const QPointF &p2)
+    double x1, double y1, double x2, double y2)
 {
-    drawLine(painter, p1.x(), p1.y(), p2.x(), p2.y());
+	painter->drawLine(QPointF(x1, y1), QPointF(x2, y2));
+}
+
+//!  Wrapper for QPainter::drawLine()
+inline void QwtPainter::drawLine(QPainter *painter, const QLineF &line)
+{
+	painter->drawLine(line.p1(), line.p2());
 }
 
 /*!
