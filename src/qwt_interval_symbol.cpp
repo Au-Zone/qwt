@@ -105,7 +105,7 @@ const QPen& QwtIntervalSymbol::pen() const
 void QwtIntervalSymbol::draw(QPainter *painter, 
         const QPointF &from, const QPointF &to) const
 {
-    const int pw = qMax(painter->pen().width(), 1);
+    const double pw = qMax(painter->pen().widthF(), 1.0);
 
     switch(d_data->style)
     {
@@ -116,9 +116,9 @@ void QwtIntervalSymbol::draw(QPainter *painter,
             {
                 if ( from.y() == to.y() )
                 {
-                    const int sw = d_data->width;
+                    const double sw = d_data->width;
 
-                    const int y = from.y() - sw / 2;
+                    const double y = from.y() - sw / 2;
                     QwtPainter::drawLine(painter,
                         from.x(), y, from.x(), y + sw);
                     QwtPainter::drawLine(painter,
@@ -126,9 +126,9 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                 }
                 else if ( from.x() == to.x() )
                 {
-                    const int sw = d_data->width;
+                    const double sw = d_data->width;
 
-                    const int x = from.x() - sw / 2;
+                    const double x = from.x() - sw / 2;
                     QwtPainter::drawLine(painter,
                         x, from.y(), x + sw, from.y());
                     QwtPainter::drawLine(painter,
@@ -136,15 +136,15 @@ void QwtIntervalSymbol::draw(QPainter *painter,
                 }
                 else    
                 {
-                    const int sw = d_data->width;
+                    const double sw = d_data->width;
 
                     const double dx = to.x() - from.x();
                     const double dy = to.y() - from.y();
                     const double angle = ::atan2(dy, dx) + M_PI_2;
                     double dw2 = sw / 2.0;
 
-                    const int cx = qRound(::cos(angle) * dw2);
-                    const int sy = qRound(::sin(angle) * dw2);
+                    const double cx = ::cos(angle) * dw2;
+                    const double sy = ::sin(angle) * dw2;
 
                     QwtPainter::drawLine(painter, 
                         from.x() - cx, from.y() - sy,
@@ -166,37 +166,37 @@ void QwtIntervalSymbol::draw(QPainter *painter,
             {
                 if ( from.y() == to.y() )
                 {
-                    const int sw = d_data->width;
+                    const double sw = d_data->width;
 
-                    const int y = from.y() - d_data->width / 2;
+                    const double y = from.y() - d_data->width / 2;
                     QwtPainter::drawRect(painter,
                         from.x(), y, to.x() - from.x(),  sw);
                 }
                 else if ( from.x() == to.x() )
                 {
-                    const int sw = d_data->width;
+                    const double sw = d_data->width;
 
-                    const int x = from.x() - d_data->width / 2;
+                    const double x = from.x() - d_data->width / 2;
                     QwtPainter::drawRect(painter,
                         x, from.y(), sw, to.y() - from.y() );
                 }
                 else
                 {
-                    const int sw = d_data->width;
+                    const double sw = d_data->width;
 
                     const double dx = to.x() - from.x();
                     const double dy = to.y() - from.y();
                     const double angle = ::atan2(dy, dx) + M_PI_2;
                     double dw2 = sw / 2.0;
 
-                    const int cx = qRound(::cos(angle) * dw2);
-                    const int sy = qRound(::sin(angle) * dw2);
+                    const int cx = ::cos(angle) * dw2;
+                    const int sy = ::sin(angle) * dw2;
 
-                    QPolygon polygon(4);
-                    polygon.setPoint(0, from.x() - cx, from.y() - sy);
-                    polygon.setPoint(1, from.x() + cx, from.y() + sy);
-                    polygon.setPoint(2, to.x() + cx, to.y() + sy);
-                    polygon.setPoint(3, to.x() - cx, to.y() - sy);
+                    QPolygonF polygon;
+                    polygon += QPointF(from.x() - cx, from.y() - sy);
+                    polygon += QPointF(from.x() + cx, from.y() + sy);
+                    polygon += QPointF(to.x() + cx, to.y() + sy);
+                    polygon += QPointF(to.x() - cx, to.y() - sy);
 
                     QwtPainter::drawPolygon(painter, polygon);
                 }
