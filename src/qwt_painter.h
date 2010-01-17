@@ -88,13 +88,13 @@ private:
 inline void QwtPainter::drawLine(QPainter *painter,
     double x1, double y1, double x2, double y2)
 {
-	painter->drawLine(QPointF(x1, y1), QPointF(x2, y2));
+	QwtPainter::drawLine(painter, QPointF(x1, y1), QPointF(x2, y2));
 }
 
 //!  Wrapper for QPainter::drawLine()
 inline void QwtPainter::drawLine(QPainter *painter, const QLineF &line)
 {
-	painter->drawLine(line.p1(), line.p2());
+	QwtPainter::drawLine(painter, line.p1(), line.p2());
 }
 
 /*!
