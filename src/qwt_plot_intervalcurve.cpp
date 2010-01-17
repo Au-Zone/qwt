@@ -22,6 +22,7 @@ public:
         pen(Qt::black),
         brush(Qt::white)
     {
+        pen.setCapStyle(Qt::FlatCap);
         symbol = new QwtIntervalSymbol();
     }
 

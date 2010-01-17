@@ -385,8 +385,8 @@ void QwtPlotCurve::drawLines(QPainter *painter,
     for (int i = from; i <= to; i++)
     {
         const QPointF sample = d_series->sample(i);
-        points[i - from].rx() = xMap.transform(sample.x());
-        points[i - from].ry() = yMap.transform(sample.y());
+        points[i - from].rx() = xMap.xTransform(sample.x());
+        points[i - from].ry() = yMap.xTransform(sample.y());
     }
 
     if ( ( d_data->attributes & Fitted ) && d_data->curveFitter )
@@ -463,8 +463,8 @@ void QwtPlotCurve::drawDots(QPainter *painter,
     for (int i = from; i <= to; i++)
     {
         const QPointF sample = d_series->sample(i);
-        const double xi = xMap.transform(sample.x());
-        const double yi = yMap.transform(sample.y());
+        const double xi = xMap.xTransform(sample.x());
+        const double yi = yMap.xTransform(sample.y());
 
         QwtPainter::drawPoint(painter, QPointF(xi, yi));
 
