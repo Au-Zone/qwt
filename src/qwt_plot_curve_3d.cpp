@@ -288,11 +288,7 @@ void QwtPlotCurve3D::drawSymbols(QPainter *painter,
         const QwtSymbol *symbol = valueSymbol(sample);
         if ( symbol )
         {
-            QRectF rect;
-            rect.setSize(symbol->size());
-            rect.moveCenter(QPointF(xi, yi));
-
-            symbol->draw(painter, rect);
+            symbol->draw(painter, QPointF(xi, yi));
             delete symbol;
         }
     }
