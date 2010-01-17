@@ -569,13 +569,13 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     d_data->scaleDraw->setLength(length);
 
     d_data->titleOffset = 
-		d_data->margin + d_data->spacing + colorBarWidth +
+        d_data->margin + d_data->spacing + colorBarWidth +
         d_data->scaleDraw->extent(QPen(Qt::black, d_data->penWidth), font());
 
     if ( update_geometry )
     {
-      	updateGeometry();
-      	update();
+        updateGeometry();
+        update();
     }
 }
 

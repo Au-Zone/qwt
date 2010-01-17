@@ -81,7 +81,7 @@ void QwtPlot::print(QPainter *painter, const QRectF &plotRect,
         
     painter->save();
 
-    pfilter.apply((QwtPlot *)this, transform.isScaling());
+    pfilter.apply((QwtPlot *)this);
 
     int baseLineDists[QwtPlot::axisCnt];
     if ( pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales )
@@ -109,7 +109,7 @@ void QwtPlot::print(QPainter *painter, const QRectF &plotRect,
     ((QwtPlot *)this)->plotLayout()->activate(this, 
         layoutRect, layoutOptions);
 
-    painter->setTransform(transform);
+    painter->setWorldTransform(transform);
 
     if ((pfilter.options() & QwtPlotPrintFilter::PrintTitle)
         && (!titleLabel()->text().isEmpty()))
@@ -447,13 +447,13 @@ void QwtPlot::printCanvas(QPainter *painter, const QRectF &canvasRect,
     painter->save();
 
     if ( pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales )
-    	painter->setPen(QPen(Qt::black));
+        painter->setPen(QPen(Qt::black));
 
     if ( pfilter.options() & QwtPlotPrintFilter::PrintBackground )
-	{
+    {
         const QBrush bgBrush = canvas()->palette().brush(backgroundRole());
-    	painter->setBrush(bgBrush);
-	}
+        painter->setBrush(bgBrush);
+    }
 
     QwtPainter::drawRect(painter, canvasRect.adjusted(0.0, 0.0, -1.0, -1.0));
 

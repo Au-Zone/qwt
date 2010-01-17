@@ -47,13 +47,31 @@ static inline bool isClippingNeeded(const QPainter *painter, QRectF &clipRect)
     return doClipping;
 }
 
-QSizeF QwtPainter::deviceScaling(const QPainter *painter)
+static void unscaleFont(QPainter *painter)
 {
-    QWidget *w = QApplication::desktop();
+    if ( painter->font().pixelSize() >= 0 )
+        return;
 
-    return QSizeF(
-        double(painter->device()->logicalDpiX()) / w->logicalDpiX(),
-        double(painter->device()->logicalDpiY()) / w->logicalDpiY() );
+    static QSize screenResolution;
+    if ( !screenResolution.isValid() )
+    {
+        QDesktopWidget *desktop = QApplication::desktop();
+        if ( desktop )
+        {
+            screenResolution.setWidth(desktop->logicalDpiX());
+            screenResolution.setHeight(desktop->logicalDpiY());
+        }
+    }
+
+    const QPaintDevice *pd = painter->device();
+    if ( pd->logicalDpiX() != screenResolution.width() ||
+        pd->logicalDpiY() != screenResolution.height() )
+    {
+        QFont pixelFont(painter->font(), QApplication::desktop());
+        pixelFont.setPixelSize(QFontInfo(pixelFont).pixelSize());
+
+        painter->setFont(pixelFont);
+    }   
 }
 
 /*!
@@ -199,7 +217,11 @@ void QwtPainter::drawText(QPainter *painter, const QPointF &pos,
     if ( deviceClipping && !clipRect.contains(pos) )
         return;
 
+
+    painter->save();
+    unscaleFont(painter);
     painter->drawText(pos, text);
+    painter->restore();
 }
 
 /*!
@@ -218,7 +240,10 @@ void QwtPainter::drawText(QPainter *painter,
 void QwtPainter::drawText(QPainter *painter, const QRectF &rect, 
         int flags, const QString &text)
 {
+    painter->save();
+    unscaleFont(painter);
     painter->drawText(rect, flags, text);
+    painter->restore();
 }
 
 #ifndef QT_NO_RICHTEXT
