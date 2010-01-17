@@ -144,11 +144,6 @@ public:
     /*! 
         Attributes to modify the drawing algorithm.
 
-        - PaintFiltered\n
-          Tries to reduce the data that has to be painted, by sorting out
-          duplicates, or paintings outside the visible area. Might have a
-          notable impact on curves with many close points.
-          Only a couple of very basic filtering algos are implemented.
         - ClipPolygons\n
           Clip polygons before painting them. In situations, where points
           are far outside the visible area (f.e when zooming deep) this 
@@ -161,8 +156,7 @@ public:
     */
     enum PaintAttribute
     {
-        PaintFiltered = 1,
-        ClipPolygons = 2
+        ClipPolygons = 1
     };
 
     explicit QwtPlotCurve(const QString &title = QString::null);
@@ -246,9 +240,9 @@ protected:
 
     void fillCurve(QPainter *,
         const QwtScaleMap &, const QwtScaleMap &,
-        QPolygon &) const;
+        QPolygonF &) const;
     void closePolyline(const QwtScaleMap &, const QwtScaleMap &,
-        QPolygon &) const;
+        QPolygonF &) const;
 
 private:
     class PrivateData;

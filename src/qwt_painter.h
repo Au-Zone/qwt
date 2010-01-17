@@ -66,7 +66,9 @@ public:
 
     static void drawPolygon(QPainter *, const QPolygonF &pa);
     static void drawPolyline(QPainter *, const QPolygonF &pa);
+
     static void drawPoint(QPainter *, double x, double y);
+    static void drawPoint(QPainter *, const QPointF &);
 
     static void drawRoundFrame(QPainter *, const QRect &,
         int width, const QPalette &, bool sunken);
@@ -84,17 +86,23 @@ private:
     static bool d_polylineSplitting;
 };
 
+//!  Wrapper for QPainter::drawPoint()
+inline void QwtPainter::drawPoint(QPainter *painter, double x, double y)
+{
+    QwtPainter::drawPoint(painter, QPointF(x, y));
+}
+
 //!  Wrapper for QPainter::drawLine()
 inline void QwtPainter::drawLine(QPainter *painter,
     double x1, double y1, double x2, double y2)
 {
-	QwtPainter::drawLine(painter, QPointF(x1, y1), QPointF(x2, y2));
+    QwtPainter::drawLine(painter, QPointF(x1, y1), QPointF(x2, y2));
 }
 
 //!  Wrapper for QPainter::drawLine()
 inline void QwtPainter::drawLine(QPainter *painter, const QLineF &line)
 {
-	QwtPainter::drawLine(painter, line.p1(), line.p2());
+    QwtPainter::drawLine(painter, line.p1(), line.p2());
 }
 
 /*!

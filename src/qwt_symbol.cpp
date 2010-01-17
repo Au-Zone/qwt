@@ -136,18 +136,18 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
     switch(d_style)
     {
         case QwtSymbol::Ellipse:
-		{
+        {
             QwtPainter::drawEllipse(painter, r.adjusted(0, 0, -1, -1));
             break;
-		}
+        }
         case QwtSymbol::Rect:
-		{
+        {
             QwtPainter::drawRect(painter, r.adjusted(0, 0, -1, -1));
             break;
-		}
+        }
         case QwtSymbol::Diamond:
         {
-			const QPointF c = r.center();
+            const QPointF c = r.center();
 
             QPolygonF polygon;
             polygon += QPointF(c.x(), r.top());
@@ -161,7 +161,7 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
         }
         case QwtSymbol::Cross:
         {
-			const QPointF c = r.center();
+            const QPointF c = r.center();
 
             QwtPainter::drawLine(painter, c.x(), r.top(), 
                 c.x(), r.bottom() - 1.0);
@@ -180,7 +180,7 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
         case QwtSymbol::Triangle:
         case QwtSymbol::UTriangle:
         {
-			const QPointF c = r.center();
+            const QPointF c = r.center();
 
             QPolygonF polygon;
             polygon += QPointF(c.x(), r.top());
@@ -193,7 +193,7 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
         }
         case QwtSymbol::DTriangle:
         {
-			const QPointF c = r.center();
+            const QPointF c = r.center();
 
             QPolygonF polygon;
             polygon += QPointF(r.left(), r.y());
@@ -206,7 +206,7 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
         }
         case QwtSymbol::RTriangle:
         {
-			const QPointF c = r.center();
+            const QPointF c = r.center();
 
             QPolygonF polygon;
             polygon += QPointF(r.left(), r.top());
@@ -219,7 +219,7 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
         }
         case QwtSymbol::LTriangle:
         {
-			const QPointF c = r.center();
+            const QPointF c = r.center();
 
             QPolygonF polygon;
             polygon += QPointF(r.right() - 1.0, r.top());
@@ -232,19 +232,19 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
         }
         case QwtSymbol::HLine:
         {
-			const QPointF c = r.center();
+            const QPointF c = r.center();
 
             QwtPainter::drawLine(painter, 
-				r.left(), c.y(), r.right() - 1.0, c.y());
+                r.left(), c.y(), r.right() - 1.0, c.y());
 
             break;
         }
         case QwtSymbol::VLine:
         {
-			const QPointF c = r.center();
+            const QPointF c = r.center();
 
             QwtPainter::drawLine(painter, 
-				c.x(), r.top(), c.x(), r.bottom() - 1.0);
+                c.x(), r.top(), c.x(), r.bottom() - 1.0);
 
             break;
         }
@@ -252,27 +252,27 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
         {
             const double sqrt1_2 = 0.70710678118654752440; /* 1/sqrt(2) */
 
-			const QPointF c = r.center();
+            const QPointF c = r.center();
             const double d1  = r.width() / 2.0 * (1.0 - sqrt1_2);
 
             QwtPainter::drawLine(painter, 
-				r.left() + d1, r.top() + d1,
+                r.left() + d1, r.top() + d1,
                 r.right() - 1.0 - d1, r.bottom() - 1.0 - d1);
             QwtPainter::drawLine(painter, 
-				r.left() + d1, r.bottom() - 1.0 - d1,
+                r.left() + d1, r.bottom() - 1.0 - d1,
                 r.right() - 1.0 - d1, r.top() + d1);
             QwtPainter::drawLine(painter, 
-				c.x(), r.top(),
+                c.x(), r.top(),
                 c.x(), r.bottom() - 1.0);
             QwtPainter::drawLine(painter, 
-				r.left(), c.y(),
+                r.left(), c.y(),
                 r.right() - 1.0, c.y());
 
             break;
         }
         case QwtSymbol::Star2:
         {
-			const double cos30 = 0.866025; // cos(30°)
+            const double cos30 = 0.866025; // cos(30°)
 
             const double w = r.width();
             const double side = w * (1.0 - cos30) / 2.0;  
@@ -280,10 +280,10 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
             const double h2 = r.height() / 2.0;
             const double h34 = (r.height() * 3) / 4;
 
-			const double left = r.left();
-			const double right = r.right() - 1.0;;
-			const double top = r.top();
-			const double bottom = r.bottom() - 1.0;
+            const double left = r.left();
+            const double right = r.right() - 1.0;;
+            const double top = r.top();
+            const double bottom = r.bottom() - 1.0;
 
             QPolygonF polygon;
             polygon += QPointF(left + (w / 2), top);
@@ -311,9 +311,9 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
         }
         case QwtSymbol::Hexagon:
         {
-			const double cos30 = 0.866025; // cos(30°)
+            const double cos30 = 0.866025; // cos(30°)
 
-			const QPointF c = r.center();
+            const QPointF c = r.center();
             const double side = r.width() * (1.0 - cos30) / 2.0;  
             const double h4 = r.height() / 4;
             const double h34 = (r.height() * 3) / 4;

@@ -150,13 +150,13 @@ void QwtPlotMarker::drawAt(QPainter *painter,
             d_data->style == QwtPlotMarker::Cross )
         {
             QwtPainter::drawLine(painter, canvasRect.left(), 
-                pos.y(), canvasRect.right(), pos.y() );
+                pos.y(), canvasRect.right() - 1.0, pos.y() );
         }
         if (d_data->style == QwtPlotMarker::VLine || 
             d_data->style == QwtPlotMarker::Cross )
         {
             QwtPainter::drawLine(painter, pos.x(), 
-                canvasRect.top(), pos.x(), canvasRect.bottom());
+                canvasRect.top(), pos.x(), canvasRect.bottom() - 1.0);
         }
     }
 
