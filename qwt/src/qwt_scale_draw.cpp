@@ -465,14 +465,14 @@ void QwtScaleDraw::drawBackbone(QPainter *painter) const
         case RightScale:
         {
             QwtPainter::drawLine(painter, pos.x(), pos.y(), 
-				pos.x(), pos.y() + len );
+                pos.x(), pos.y() + len );
             break;
         }
         case TopScale:
         case BottomScale:
         {
             QwtPainter::drawLine(painter, pos.x(), pos.y(), 
-				pos.x() + len, pos.y());
+                pos.x() + len, pos.y());
             break;
         }
     }
@@ -843,7 +843,7 @@ int QwtScaleDraw::maxLabelHeight(const QFont &font) const
 void QwtScaleDraw::updateMap()
 {
     const QPointF pos = d_data->pos;
-	double len = d_data->len;
+    double len = d_data->len;
 
     QwtScaleMap &sm = scaleMap();
     if ( orientation() == Qt::Vertical )
