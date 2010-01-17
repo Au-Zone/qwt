@@ -420,8 +420,15 @@ void QwtPlot::printCanvas(QPainter *painter, const QRectF &canvasRect,
 {
     painter->save();
 
+    QRectF r = canvasRect.adjusted(0.0, 0.0, -1.0, -1.0);
+
     if ( pfilter.options() & QwtPlotPrintFilter::PrintFrameWithScales )
+    {
+        r.adjust(-1.0, -1.0, 1.0, 1.0);
         painter->setPen(QPen(Qt::black));
+    }
+    else
+        painter->setPen(Qt::NoPen);
 
     if ( pfilter.options() & QwtPlotPrintFilter::PrintBackground )
     {
@@ -429,7 +436,7 @@ void QwtPlot::printCanvas(QPainter *painter, const QRectF &canvasRect,
         painter->setBrush(bgBrush);
     }
 
-    QwtPainter::drawRect(painter, canvasRect.adjusted(0.0, 0.0, -1.0, -1.0));
+    QwtPainter::drawRect(painter, r);
 
     painter->restore();
 

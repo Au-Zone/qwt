@@ -232,8 +232,8 @@ void QwtPlotCurve3D::drawDots(QPainter *painter,
     {   
         const QwtDoublePoint3D sample = d_series->sample(i);
     
-        const int xi = xMap.transform(sample.x());
-        const int yi = yMap.transform(sample.y());
+        const double xi = xMap.xTransform(sample.x());
+        const double yi = yMap.xTransform(sample.y());
 
         if ( d_data->paintAttributes & QwtPlotCurve3D::ClipPoints )
         {
@@ -256,7 +256,7 @@ void QwtPlotCurve3D::drawDots(QPainter *painter,
             painter->setPen(QPen(d_data->colorTable[index]));
         }
 
-        QwtPainter::drawPoint(painter, xi, yi);
+        QwtPainter::drawPoint(painter, QPointF(xi, yi));
     }
     
     d_data->colorTable.clear();
@@ -276,8 +276,8 @@ void QwtPlotCurve3D::drawSymbols(QPainter *painter,
     {
         const QwtDoublePoint3D sample = d_series->sample(i);
 
-        const int xi = xMap.transform(sample.x());
-        const int yi = yMap.transform(sample.y());
+        const double xi = xMap.xTransform(sample.x());
+        const double yi = yMap.xTransform(sample.y());
 
         if ( d_data->paintAttributes & QwtPlotCurve3D::ClipPoints )
         {
@@ -288,9 +288,9 @@ void QwtPlotCurve3D::drawSymbols(QPainter *painter,
         const QwtSymbol *symbol = valueSymbol(sample);
         if ( symbol )
         {
-            QRect rect;
+            QRectF rect;
             rect.setSize(symbol->size());
-            rect.moveCenter(QPoint(xi, yi));
+            rect.moveCenter(QPointF(xi, yi));
 
             symbol->draw(painter, rect);
             delete symbol;

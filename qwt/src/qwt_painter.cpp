@@ -47,7 +47,39 @@ static inline bool isClippingNeeded(const QPainter *painter, QRectF &clipRect)
     return doClipping;
 }
 
-static void unscaleFont(QPainter *painter)
+static inline void drawPolyline(QPainter *painter, 
+    const QPointF *points, int pointCount, bool polylineSplitting)
+{
+    bool doSplit = false;
+    if ( polylineSplitting )
+    {
+        const QPaintEngine *pe = painter->paintEngine();
+        if ( pe && pe->type() == QPaintEngine::Raster )
+        {
+            /*
+                The raster paint engine seems to use some algo with O(n*n).
+                ( Qt 4.3 is better than Qt 4.2, but remains unacceptable)
+                To work around this problem, we have to split the polygon into
+                smaller pieces.
+             */
+            doSplit = true;
+        }
+    }
+
+    if ( doSplit )
+    {
+        const int splitSize = 20;
+        for ( int i = 0; i < pointCount; i += splitSize )
+        {
+            const int n = qMin(splitSize + 1, pointCount - i);
+            painter->drawPolyline(points + i, n);
+        }
+    }
+    else
+        painter->drawPolyline(points, pointCount);
+}
+
+static inline void unscaleFont(QPainter *painter)
 {
     if ( painter->font().pixelSize() >= 0 )
         return;
@@ -326,46 +358,36 @@ void QwtPainter::drawPolygon(QPainter *painter, const QPolygonF &polygon)
 /*!
     Wrapper for QPainter::drawPolyline()
 */
-void QwtPainter::drawPolyline(QPainter *painter, const QPolygonF &pa)
+void QwtPainter::drawPolyline(QPainter *painter, const QPolygonF &polygon)
 {
     QRectF clipRect;
     const bool deviceClipping = isClippingNeeded(painter, clipRect);
 
-    QPolygonF cpa = pa;
+    QPolygonF cpa = polygon;
     if ( deviceClipping )
         cpa = QwtClipper::clipPolygonF(clipRect, cpa);
 
-    bool doSplit = false;
+    ::drawPolyline(painter, 
+        cpa.constData(), cpa.size(), d_polylineSplitting);
+}
 
-    if ( d_polylineSplitting )
+void QwtPainter::drawPolyline(QPainter *painter, 
+    const QPointF *points, int pointCount)
+{
+    QRectF clipRect;
+    const bool deviceClipping = isClippingNeeded(painter, clipRect);
+
+    if ( deviceClipping )
     {
-        const QPaintEngine *pe = painter->paintEngine();
-        if ( pe && pe->type() == QPaintEngine::Raster )
-        {
-            /*
-                The raster paint engine seems to use some algo with O(n*n).
-                ( Qt 4.3 is better than Qt 4.2, but remains unacceptable)
-                To work around this problem, we have to split the polygon into
-                smaller pieces.
-             */
-            doSplit = true;
-        }
-    }
-
-    if ( doSplit )
-    {
-        const int numPoints = cpa.size();
-        const QPointF *points = cpa.data();
-
-        const int splitSize = 20;
-        for ( int i = 0; i < numPoints; i += splitSize )
-        {
-            const int n = qMin(splitSize + 1, cpa.size() - i);
-            painter->drawPolyline(points + i, n);
-        }
+        QPolygonF polygon(pointCount);
+        qMemCopy(polygon.data(), points, pointCount * sizeof(QPointF));
+        
+        polygon = QwtClipper::clipPolygonF(clipRect, polygon);
+        ::drawPolyline(painter, 
+            polygon.constData(), polygon.size(), d_polylineSplitting);
     }
     else
-        painter->drawPolyline(cpa);
+        ::drawPolyline(painter, points, pointCount, d_polylineSplitting);
 }
 
 /*!

@@ -66,6 +66,7 @@ public:
 
     static void drawPolygon(QPainter *, const QPolygonF &pa);
     static void drawPolyline(QPainter *, const QPolygonF &pa);
+    static void drawPolyline(QPainter *, const QPointF *, int pointCount);
 
     static void drawPoint(QPainter *, double x, double y);
     static void drawPoint(QPainter *, const QPointF &);
