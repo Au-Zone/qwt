@@ -54,7 +54,6 @@ Panel::Panel(QWidget *parent):
     connect(d_paintOnScreen, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveAntialiasing, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveClipping, SIGNAL(stateChanged(int)), SLOT(edited()) );
-    connect(d_curveFilter, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_lineSplitting, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveFilled, SIGNAL(stateChanged(int)), SLOT(edited()) );
 
@@ -137,7 +136,6 @@ QWidget *Panel::createCurveTab(QWidget *parent)
 
     d_curveAntialiasing = new CheckBox("Antialiasing", page);
     d_curveClipping = new CheckBox("Clipping", page);
-    d_curveFilter = new CheckBox("Filter", page);
     d_lineSplitting = new CheckBox("Split Lines", page);
 
     d_curveWidth = new SpinBox(0, 10, 1, page);
@@ -156,7 +154,6 @@ QWidget *Panel::createCurveTab(QWidget *parent)
 
     layout->addWidget(d_curveAntialiasing, row++, 0, 1, -1);
     layout->addWidget(d_curveClipping, row++, 0, 1, -1);
-    layout->addWidget(d_curveFilter, row++, 0, 1, -1);
     layout->addWidget(d_lineSplitting, row++, 0, 1, -1);
 
     layout->addWidget(new QLabel("Width", page), row, 0 );
@@ -209,10 +206,6 @@ Settings Panel::settings() const
         s.curve.paintAttributes |= QwtPlotCurve::ClipPolygons;
     else
         s.curve.paintAttributes &= ~QwtPlotCurve::ClipPolygons;
-    if ( d_curveFilter->isChecked() )
-        s.curve.paintAttributes |= QwtPlotCurve::PaintFiltered;
-    else
-        s.curve.paintAttributes &= ~QwtPlotCurve::PaintFiltered;
 
     if ( d_curveAntialiasing->isChecked() )
         s.curve.renderHint |= QwtPlotCurve::RenderAntialiased;
@@ -257,9 +250,6 @@ void Panel::setSettings(const Settings &s)
 
     d_curveClipping->setChecked(
         s.curve.paintAttributes & QwtPlotCurve::ClipPolygons);
-
-    d_curveFilter->setChecked(
-        s.curve.paintAttributes & QwtPlotCurve::PaintFiltered);
 
     d_lineSplitting->setChecked(s.curve.lineSplitting );
 

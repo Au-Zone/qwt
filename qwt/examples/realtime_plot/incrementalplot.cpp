@@ -82,7 +82,6 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
     {
         d_curve = new QwtPlotCurve("Test Curve");
         d_curve->setStyle(QwtPlotCurve::NoCurve);
-        d_curve->setPaintAttribute(QwtPlotCurve::PaintFiltered);
     
         const QColor &c = Qt::white;
         d_curve->setSymbol(QwtSymbol(QwtSymbol::XCross,
