@@ -228,11 +228,23 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
 
-    QRectF area = invTransform(xMap, yMap, canvasRect.toRect());
+	QwtScaleMap xxMap = xMap;
+	QwtScaleMap yyMap = yMap;
+	QRectF rasterRect = canvasRect;
+
+	const QTransform tr = painter->transform();
+	if ( tr.isScaling() )
+	{
+		rasterRect = tr.mapRect(rasterRect);
+		xxMap.setPaintInterval(tr.m11() * xxMap.p1(), tr.m11() * xxMap.p2());
+		yyMap.setPaintInterval(tr.m22() * yyMap.p1(), tr.m22() * yyMap.p2());
+	}
+
+    QRectF area = invTransform(xxMap, yyMap, rasterRect.toRect());
     if ( boundingRect().isValid() )
         area &= boundingRect();
 
-    const QRect paintRect = transform(xMap, yMap, area);
+    const QRect paintRect = transform(xxMap, yyMap, area);
     if ( !paintRect.isValid() )
         return;
 
@@ -247,7 +259,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
 
     if ( !doCache || d_data->cache.policy == NoCache )
     {
-        image = renderImage(xMap, yMap, area);
+        image = renderImage(xxMap, yyMap, area);
         if ( d_data->alpha >= 0 && d_data->alpha < 255 )
             image = toRgba(image, d_data->alpha);
 
@@ -257,7 +269,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         if ( d_data->cache.image.isNull() || d_data->cache.rect != area
             || d_data->cache.size != paintRect.size() )
         {
-            d_data->cache.image = renderImage(xMap, yMap, area);
+            d_data->cache.image = renderImage(xxMap, yyMap, area);
             d_data->cache.rect = area;
             d_data->cache.size = paintRect.size();
         }
@@ -274,16 +286,16 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         if ( paintRect.width() > screenSize.width() ||
             paintRect.height() > screenSize.height() )
         {
-            image = renderImage(xMap, yMap, area);
+            image = renderImage(xxMap, yyMap, area);
         }
         else
         {
             if ( d_data->cache.image.isNull() || d_data->cache.rect != area )
             {
-                QwtScaleMap cacheXMap = xMap;
+                QwtScaleMap cacheXMap = xxMap;
                 cacheXMap.setPaintInterval( 0, screenSize.width());
 
-                QwtScaleMap cacheYMap = yMap;
+                QwtScaleMap cacheYMap = yyMap;
                 cacheYMap.setPaintInterval(screenSize.height(), 0);
 
                 d_data->cache.image = renderImage(
@@ -297,5 +309,10 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         image = toRgba(image, d_data->alpha);
     }
 
+	painter->save();
+	painter->resetTransform();
+
     painter->drawImage(paintRect, image);
+
+	painter->restore();
 }
