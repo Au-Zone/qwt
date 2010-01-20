@@ -109,6 +109,16 @@ QWT_EXPORT double qwtGetMin(const double *array, int size);
 QWT_EXPORT double qwtGetMax(const double *array, int size);
 
 
+inline bool qwtFuzzyGreaterOrEqual(double d1, double d2)
+{
+    return (d1 >= d2) || qFuzzyCompare(d1, d2);
+}
+
+inline bool qwtFuzzyLessOrEqual(double d1, double d2)
+{
+    return (d1 <= d2) || qFuzzyCompare(d1, d2);
+}
+
 //! Return the sign 
 inline int qwtSign(double x)
 {
