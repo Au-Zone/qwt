@@ -228,17 +228,17 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
 
-	QwtScaleMap xxMap = xMap;
-	QwtScaleMap yyMap = yMap;
-	QRectF rasterRect = canvasRect;
+    QwtScaleMap xxMap = xMap;
+    QwtScaleMap yyMap = yMap;
+    QRectF rasterRect = canvasRect;
 
-	const QTransform tr = painter->transform();
-	if ( tr.isScaling() )
-	{
-		rasterRect = tr.mapRect(rasterRect);
-		xxMap.setPaintInterval(tr.m11() * xxMap.p1(), tr.m11() * xxMap.p2());
-		yyMap.setPaintInterval(tr.m22() * yyMap.p1(), tr.m22() * yyMap.p2());
-	}
+    const QTransform tr = painter->transform();
+    if ( tr.isScaling() )
+    {
+        rasterRect = tr.mapRect(rasterRect);
+        xxMap.setPaintInterval(tr.m11() * xxMap.p1(), tr.m11() * xxMap.p2());
+        yyMap.setPaintInterval(tr.m22() * yyMap.p1(), tr.m22() * yyMap.p2());
+    }
 
     QRectF area = invTransform(xxMap, yyMap, rasterRect.toRect());
     if ( boundingRect().isValid() )
@@ -309,10 +309,10 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         image = toRgba(image, d_data->alpha);
     }
 
-	painter->save();
-	painter->resetTransform();
+    painter->save();
+    painter->resetTransform();
 
     painter->drawImage(paintRect, image);
 
-	painter->restore();
+    painter->restore();
 }

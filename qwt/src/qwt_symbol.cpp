@@ -21,7 +21,7 @@
 QwtSymbol::QwtSymbol(): 
     d_brush(Qt::gray), 
     d_pen(Qt::black), 
-    d_size(0,0),
+    d_size(0.0, 0.0),
     d_style(QwtSymbol::NoSymbol)
 {
 }
@@ -34,7 +34,7 @@ QwtSymbol::QwtSymbol():
   \param size size
 */
 QwtSymbol::QwtSymbol(QwtSymbol::Style style, const QBrush &brush, 
-        const QPen &pen, const QSize &size): 
+        const QPen &pen, const QSizeF &size): 
     d_brush(brush), 
     d_pen(pen), 
     d_size(size),
@@ -66,20 +66,21 @@ QwtSymbol *QwtSymbol::clone() const
   and the 'w' parameter is greater than or equal to 0,
   the symbol size will be set to (w,w).
   \param width Width
-  \param height Height (defaults to -1)
+  \param height Height (defaults to -1.0)
 */
-void QwtSymbol::setSize(int width, int height)
+void QwtSymbol::setSize(double width, double height)
 {
-    if ((width >= 0) && (height < 0)) 
+    if ((width >= 0.0) && (height < 0.0)) 
         height = width;
-    d_size = QSize(width, height);
+
+    d_size = QSizeF(width, height);
 }
 
 /*! 
    Set the symbol's size
    \param size Size
 */
-void QwtSymbol::setSize(const QSize &size)
+void QwtSymbol::setSize(const QSizeF &size)
 {
     if (size.isValid()) 
         d_size = size;
@@ -120,6 +121,51 @@ void QwtSymbol::draw(QPainter *painter, double x, double y) const
     draw(painter, QPointF(x, y));
 }
 
+/*!
+  \brief Set the color of the symbol
+
+  Change the color of the brush for symbol types with a filled area.
+  For all other symbol types the color will be assigned to the pen.
+
+  \param color Color
+
+  \sa setBrush(), setPen(), brush(), pen()
+*/
+void QwtSymbol::setColor(const QColor &color)
+{
+    switch(d_style)
+    {
+        case QwtSymbol::Ellipse:
+        case QwtSymbol::Rect:
+        case QwtSymbol::Diamond:
+        case QwtSymbol::Triangle:
+        case QwtSymbol::UTriangle:
+        case QwtSymbol::DTriangle:
+        case QwtSymbol::RTriangle:
+        case QwtSymbol::LTriangle:
+        case QwtSymbol::Star2:
+        case QwtSymbol::Hexagon:
+        {
+            d_brush.setColor(color);
+            break;
+        }
+        case QwtSymbol::Cross:
+        case QwtSymbol::XCross:
+        case QwtSymbol::HLine:
+        case QwtSymbol::VLine:
+        case QwtSymbol::Star1:
+        {
+            d_pen.setColor(color);
+            break;
+        }
+        default:
+        {
+            d_brush.setColor(color);
+            d_pen.setColor(color);
+        }
+    }
+}
+
 
 /*!
   \brief Draw the symbol into a bounding rectangle.
@@ -137,12 +183,12 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
     {
         case QwtSymbol::Ellipse:
         {
-            QwtPainter::drawEllipse(painter, r.adjusted(0, 0, -1, -1));
+            QwtPainter::drawEllipse(painter, r);
             break;
         }
         case QwtSymbol::Rect:
         {
-            QwtPainter::drawRect(painter, r.adjusted(0, 0, -1, -1));
+            QwtPainter::drawRect(painter, r);
             break;
         }
         case QwtSymbol::Diamond:
@@ -151,12 +197,11 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
 
             QPolygonF polygon;
             polygon += QPointF(c.x(), r.top());
-            polygon += QPointF(r.right() - 1.0, c.y());
-            polygon += QPointF(c.x(), r.bottom() - 1.0);
+            polygon += QPointF(r.right(), c.y());
+            polygon += QPointF(c.x(), r.bottom());
             polygon += QPointF(r.left(), c.y());
 
             QwtPainter::drawPolygon(painter, polygon);
-
             break;
         }
         case QwtSymbol::Cross:
@@ -164,17 +209,17 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
             const QPointF c = r.center();
 
             QwtPainter::drawLine(painter, c.x(), r.top(), 
-                c.x(), r.bottom() - 1.0);
+                c.x(), r.bottom());
             QwtPainter::drawLine(painter, r.left(), c.y(), 
-                r.right() - 1.0, c.y());
+                r.right(), c.y());
             break;
         }
         case QwtSymbol::XCross:
         {
             QwtPainter::drawLine(painter, r.left(), r.top(), 
                 r.right(), r.bottom());
-            QwtPainter::drawLine(painter, r.left(), r.bottom() - 1.0, 
-                r.right() - 1.0, r.top());
+            QwtPainter::drawLine(painter, r.left(), r.bottom(), 
+                r.right(), r.top());
             break;
         }
         case QwtSymbol::Triangle:
@@ -184,8 +229,8 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
 
             QPolygonF polygon;
             polygon += QPointF(c.x(), r.top());
-            polygon += QPointF(r.right() - 1.0, r.bottom() - 1.0);
-            polygon += QPointF(r.left(), r.bottom() - 1.0);
+            polygon += QPointF(r.right(), r.bottom());
+            polygon += QPointF(r.left(), r.bottom());
 
             QwtPainter::drawPolygon(painter, polygon);
 
@@ -197,8 +242,8 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
 
             QPolygonF polygon;
             polygon += QPointF(r.left(), r.y());
-            polygon += QPointF(r.right() - 1.0, r.top());
-            polygon += QPointF(c.x(), r.bottom() - 1.0);
+            polygon += QPointF(r.right(), r.top());
+            polygon += QPointF(c.x(), r.bottom());
 
             QwtPainter::drawPolygon(painter, polygon);
 
@@ -210,7 +255,7 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
 
             QPolygonF polygon;
             polygon += QPointF(r.left(), r.top());
-            polygon += QPointF(r.right() - 1.0, c.y());
+            polygon += QPointF(r.right(), c.y());
             polygon += QPointF(r.left(), r.bottom());
 
             QwtPainter::drawPolygon(painter, polygon);
@@ -222,9 +267,9 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
             const QPointF c = r.center();
 
             QPolygonF polygon;
-            polygon += QPointF(r.right() - 1.0, r.top());
+            polygon += QPointF(r.right(), r.top());
             polygon += QPointF(r.left(), c.y());
-            polygon += QPointF(r.right() - 1.0, r.bottom() - 1.0);
+            polygon += QPointF(r.right(), r.bottom());
 
             QwtPainter::drawPolygon(painter, polygon);
 
@@ -235,7 +280,7 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
             const QPointF c = r.center();
 
             QwtPainter::drawLine(painter, 
-                r.left(), c.y(), r.right() - 1.0, c.y());
+                r.left(), c.y(), r.right(), c.y());
 
             break;
         }
@@ -244,7 +289,7 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
             const QPointF c = r.center();
 
             QwtPainter::drawLine(painter, 
-                c.x(), r.top(), c.x(), r.bottom() - 1.0);
+                c.x(), r.top(), c.x(), r.bottom());
 
             break;
         }
@@ -257,16 +302,16 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
 
             QwtPainter::drawLine(painter, 
                 r.left() + d1, r.top() + d1,
-                r.right() - 1.0 - d1, r.bottom() - 1.0 - d1);
+                r.right() - d1, r.bottom() - d1);
             QwtPainter::drawLine(painter, 
-                r.left() + d1, r.bottom() - 1.0 - d1,
-                r.right() - 1.0 - d1, r.top() + d1);
+                r.left() + d1, r.bottom() - d1,
+                r.right() - d1, r.top() + d1);
             QwtPainter::drawLine(painter, 
                 c.x(), r.top(),
-                c.x(), r.bottom() - 1.0);
+                c.x(), r.bottom());
             QwtPainter::drawLine(painter, 
                 r.left(), c.y(),
-                r.right() - 1.0, c.y());
+                r.right(), c.y());
 
             break;
         }
@@ -280,29 +325,24 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
             const double h2 = r.height() / 2.0;
             const double h34 = (r.height() * 3) / 4;
 
-            const double left = r.left();
-            const double right = r.right() - 1.0;;
-            const double top = r.top();
-            const double bottom = r.bottom() - 1.0;
-
             QPolygonF polygon;
-            polygon += QPointF(left + (w / 2), top);
-            polygon += QPointF(right - (side + (w - 2 * side) / 3),
+            polygon += QPointF(r.left() + (w / 2), r.top());
+            polygon += QPointF(r.right() - (side + (w - 2 * side) / 3),
                 r.top() + h4 );
-            polygon += QPointF(right - side, top + h4);
-            polygon += QPointF(right - (side + (w / 2 - side) / 3),
+            polygon += QPointF(r.right() - side, r.top() + h4);
+            polygon += QPointF(r.right() - (side + (w / 2 - side) / 3),
                 r.top() + h2 );
-            polygon += QPointF(right - side, top + h34);
-            polygon += QPointF(right - (side + (w - 2 * side) / 3),
+            polygon += QPointF(r.right() - side, r.top() + h34);
+            polygon += QPointF(r.right() - (side + (w - 2 * side) / 3),
                 r.top() + h34 );
-            polygon += QPointF(left + (w / 2), bottom);
-            polygon += QPointF(left + (side + (w - 2 * side) / 3),
+            polygon += QPointF(r.left() + (w / 2), r.bottom());
+            polygon += QPointF(r.left() + (side + (w - 2 * side) / 3),
                 r.top() + h34 );
-            polygon += QPointF(left + side, top + h34);
-            polygon += QPointF(left + (side + (w / 2 - side) / 3),
+            polygon += QPointF(r.left() + side, r.top() + h34);
+            polygon += QPointF(r.left() + (side + (w / 2 - side) / 3),
                 r.top() + h2 );
-            polygon += QPointF(left + side, top + h4);
-            polygon += QPointF(left + (side + (w - 2 * side) / 3),
+            polygon += QPointF(r.left() + side, r.top() + h4);
+            polygon += QPointF(r.left() + (side + (w - 2 * side) / 3),
                 r.top() + h4 );
 
             QwtPainter::drawPolygon(painter, polygon);
@@ -320,9 +360,9 @@ void QwtSymbol::draw(QPainter *painter, const QRectF &r) const
 
             QPolygonF polygon;
             polygon += QPointF(c.x(), r.top());
-            polygon += QPointF(r.right() - 1.0 - side, r.top() + h4);
-            polygon += QPointF(r.right() - 1.0 - side, r.top() + h34);
-            polygon += QPointF(c.x(), r.bottom() - 1.0);
+            polygon += QPointF(r.right() - side, r.top() + h4);
+            polygon += QPointF(r.right() - side, r.top() + h34);
+            polygon += QPointF(c.x(), r.bottom());
             polygon += QPointF(r.left() + side, r.top() + h34);
             polygon += QPointF(r.left() + side, r.top() + h4);
 

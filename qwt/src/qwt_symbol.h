@@ -51,7 +51,7 @@ public:
    
 public:
     QwtSymbol();
-    QwtSymbol(Style st, const QBrush &bd, const QPen &pn, const QSize &s);
+    QwtSymbol(Style, const QBrush &, const QPen &, const QSizeF &);
     virtual ~QwtSymbol();
     
     bool operator!=(const QwtSymbol &) const;
@@ -59,30 +59,55 @@ public:
 
     virtual QwtSymbol *clone() const;
 
-    void setSize(const QSize &s);
-    void setSize(int a, int b = -1);
-    void setBrush(const QBrush& b);
-    void setPen(const QPen &p);
-    void setStyle (Style s);
+    void setSize(const QSizeF &);
+    void setSize(double width, double height = -1.0);
+    const QSizeF& size() const;
 
-    //! Return Brush
-    const QBrush& brush() const { return d_brush; }
-    //! Return Pen
-    const QPen& pen() const { return d_pen; }
-    //! Return Size
-    const QSize& size() const { return d_size; }
-    //! Return Style
-    Style style() const { return d_style; } 
-    
+    virtual void setColor(const QColor &);
+
+    void setBrush(const QBrush& b);
+    const QBrush& brush() const;
+
+    void setPen(const QPen &);
+    const QPen& pen() const;
+
+    void setStyle(Style);
+    Style style() const;
+
     void draw(QPainter *p, const QPointF &) const; 
     void draw(QPainter *p, double x, double y) const;
+
     virtual void draw(QPainter *p, const QRectF &r) const;
 
 private:
     QBrush d_brush;
     QPen d_pen;
-    QSize d_size;
+    QSizeF d_size;
     Style d_style;
 };
 
+//! Return Brush
+inline const QBrush& QwtSymbol::brush() const 
+{ 
+    return d_brush; 
+}
+    
+//! Return Pen
+inline const QPen& QwtSymbol::pen() const 
+{ 
+    return d_pen; 
+}
+    
+//! Return Style
+inline QwtSymbol::Style QwtSymbol::style() const 
+{
+    return d_style; 
+}
+
+//! Return Size
+inline const QSizeF& QwtSymbol::size() const 
+{ 
+    return d_size; 
+}
+    
 #endif
