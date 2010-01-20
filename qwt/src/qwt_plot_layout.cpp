@@ -923,21 +923,21 @@ void QwtPlotLayout::alignScales(int options,
 
             if ( scaleRect[QwtPlot::yRight].isValid() )
             {
-                int maxRight = scaleRect[QwtPlot::yRight].right() - 1;
-                int right = axisRect.right() - 1 - rightOffset;
+                int maxRight = scaleRect[QwtPlot::yRight].right();
+                int right = axisRect.right() - rightOffset;
                 axisRect.setRight(qMin(right, maxRight));
             }
             else
             {
                 if ( d_data->alignCanvasToScales && rightOffset < 0 )
                 {
-                    canvasRect.setRight( qMin(canvasRect.right() - 1, 
-                        axisRect.right() - 1 + rightOffset) );
+                    canvasRect.setRight( qMin(canvasRect.right(), 
+                        axisRect.right() + rightOffset) );
                 }
                 else
                 {
                     if ( rightOffset > 0 )
-                        axisRect.setRight(axisRect.right() - 1 - rightOffset);
+                        axisRect.setRight(axisRect.right() - rightOffset);
                 }
             }
         }
@@ -951,20 +951,20 @@ void QwtPlotLayout::alignScales(int options,
                 int maxBottom = scaleRect[QwtPlot::xBottom].top() + 
                     d_data->layoutData.scale[QwtPlot::xBottom].tickOffset;
 
-                int bottom = axisRect.bottom() -1 - bottomOffset;
+                int bottom = axisRect.bottom() - bottomOffset;
                 axisRect.setBottom(qMin(bottom, maxBottom));
             }
             else
             {
                 if ( d_data->alignCanvasToScales && bottomOffset < 0 )
                 {
-                    canvasRect.setBottom(qMin(canvasRect.bottom() - 1, 
-                        axisRect.bottom() - 1 + bottomOffset));
+                    canvasRect.setBottom(qMin(canvasRect.bottom(), 
+                        axisRect.bottom() + bottomOffset));
                 }
                 else
                 {
                     if ( bottomOffset > 0 )
-                        axisRect.setBottom(axisRect.bottom() - 1 - bottomOffset);
+                        axisRect.setBottom(axisRect.bottom() - bottomOffset);
                 }
             }
         
@@ -972,7 +972,7 @@ void QwtPlotLayout::alignScales(int options,
 
             if ( scaleRect[QwtPlot::xTop].isValid() )
             {
-                int minTop = scaleRect[QwtPlot::xTop].bottom() - 1 -
+                int minTop = scaleRect[QwtPlot::xTop].bottom() -
                     d_data->layoutData.scale[QwtPlot::xTop].tickOffset;
 
                 int top = axisRect.top() + topOffset;
@@ -1012,7 +1012,7 @@ void QwtPlotLayout::alignScales(int options,
             {
                 scaleRect[axis].setLeft(canvasRect.left() + fw
                     - d_data->layoutData.scale[axis].start);
-                scaleRect[axis].setRight(canvasRect.right() - fw - 2
+                scaleRect[axis].setRight(canvasRect.right() - fw - 1
                     + d_data->layoutData.scale[axis].end);
             }
         }
@@ -1024,7 +1024,7 @@ void QwtPlotLayout::alignScales(int options,
             {
                 scaleRect[axis].setTop(canvasRect.top() + fw
                     - d_data->layoutData.scale[axis].start);
-                scaleRect[axis].setBottom(canvasRect.bottom() - fw - 2
+                scaleRect[axis].setBottom(canvasRect.bottom() - fw - 1
                     + d_data->layoutData.scale[axis].end);
             }
         }
@@ -1089,13 +1089,13 @@ void QwtPlotLayout::activate(const QwtPlot *plot,
                     rect.setLeft(rect.left() + d_data->spacing);
                     break;
                 case QwtPlot::RightLegend:
-                    rect.setRight(rect.right() - 1 - d_data->spacing);
+                    rect.setRight(rect.right() - d_data->spacing);
                     break;
                 case QwtPlot::TopLegend:
                     rect.setTop(rect.top() + d_data->spacing);
                     break;
                 case QwtPlot::BottomLegend:
-                    rect.setBottom(rect.bottom() - 1 - d_data->spacing);
+                    rect.setBottom(rect.bottom() - d_data->spacing);
                     break;
                 case QwtPlot::ExternalLegend:
                     break; // suppress compiler warning
