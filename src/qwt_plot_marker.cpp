@@ -176,7 +176,7 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
     int align = d_data->labelAlignment;
     QPointF alignPos = pos;
 
-    QSize symbolOff(0, 0);
+    QSizeF symbolOff(0, 0);
 
     switch(d_data->style)
     {
@@ -230,22 +230,22 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
         {
             if ( d_data->symbol->style() != QwtSymbol::NoSymbol )
             {
-                symbolOff = d_data->symbol->size() + QSize(1, 1);
+                symbolOff = d_data->symbol->size() + QSizeF(1, 1);
                 symbolOff /= 2;
             }
         }
     }
     
-    int pw = d_data->pen.width();
-    if ( pw == 0 )
-        pw = 1;
+    double pw2 = d_data->pen.widthF() / 2.0;
+    if ( pw2 == 0.0 )
+        pw2 = 0.5;
 
     const int spacing = d_data->spacing;
 
-    int xOff = qMax( (pw + 1) / 2, symbolOff.width() );
-    int yOff = qMax( (pw + 1) / 2, symbolOff.height() );
+    const double xOff = qMax( pw2, symbolOff.width() );
+    const double yOff = qMax( pw2, symbolOff.height() );
 
-    const QSize textSize = d_data->label.textSize(painter->font());
+    const QSizeF textSize = d_data->label.textSize(painter->font());
 
     if ( align & Qt::AlignLeft )
     {
@@ -291,7 +291,7 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
     if ( d_data->labelOrientation == Qt::Vertical )
         painter->rotate(-90.0);
 
-    const QRect textRect(0, 0, textSize.width(), textSize.height());
+    const QRectF textRect(0, 0, textSize.width(), textSize.height());
     d_data->label.draw(painter, textRect);
 }
 
