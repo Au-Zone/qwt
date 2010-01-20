@@ -12,6 +12,7 @@
 #include "qwt_text.h"
 #include "qwt_scale_map.h"
 #include "qwt_scale_div.h"
+#include "qwt_math.h"
 #include <qpainter.h>
 #include <qpen.h>
 
@@ -216,7 +217,10 @@ void QwtPlotGrid::draw(QPainter *painter,
     const QRectF &canvasRect) const
 {
     //  draw minor gridlines
-    painter->setPen(d_data->minPen);
+    QPen minPen = d_data->minPen;
+    minPen.setCapStyle(Qt::FlatCap);
+
+    painter->setPen(minPen);
     
     if (d_data->xEnabled && d_data->xMinEnabled)
     {
@@ -235,7 +239,10 @@ void QwtPlotGrid::draw(QPainter *painter,
     }
 
     //  draw major gridlines
-    painter->setPen(d_data->majPen);
+    QPen majPen = d_data->majPen;
+    majPen.setCapStyle(Qt::FlatCap);
+
+    painter->setPen(majPen);
     
     if (d_data->xEnabled)
     {
@@ -264,13 +271,19 @@ void QwtPlotGrid::drawLines(QPainter *painter, const QRectF &canvasRect,
         const double value = scaleMap.xTransform(values[i]);
         if ( orientation == Qt::Horizontal )
         {
-            if ((value >= y1) && (value <= y2))
+            if ( qwtFuzzyGreaterOrEqual(value, y1) && 
+                qwtFuzzyLessOrEqual(value, y2))
+            {
                 QwtPainter::drawLine(painter, x1, value, x2, value);
+            }
         }
         else
         {
-            if ((value >= x1) && (value <= x2))
+            if ( qwtFuzzyGreaterOrEqual(value, x1) && 
+                qwtFuzzyLessOrEqual(value, x2) )
+            {
                 QwtPainter::drawLine(painter, value, y1, value, y2);
+            }
         }
     }
 }
