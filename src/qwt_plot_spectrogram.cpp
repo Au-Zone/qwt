@@ -671,7 +671,7 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
 
 void QwtPlotSpectrogram::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &canvasRect) const
+    const QRectF &canvasRect) const
 {
     if ( d_data->displayMode & ImageMode )
         QwtPlotRasterItem::draw(painter, xMap, yMap, canvasRect);

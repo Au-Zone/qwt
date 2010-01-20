@@ -86,7 +86,7 @@ public:
 
     virtual void draw(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &rect) const;
+        const QRectF &rect) const;
 
 protected:
     virtual QImage renderImage(
