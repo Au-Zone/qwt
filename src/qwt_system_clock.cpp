@@ -44,9 +44,9 @@ public:
 private:
 
 #if defined(Q_OS_MAC)
-	static double msecsTo(uint64_t, uint64_t) const;
+    static double msecsTo(uint64_t, uint64_t) const;
 
-	uint64_t d_timeStamp;
+    uint64_t d_timeStamp;
 #elif defined(_POSIX_TIMERS)
 
     static double msecsTo(const struct timespec &, 
@@ -66,41 +66,41 @@ private:
 
 #if defined(Q_OS_MAC)
 QwtHighResolutionClock::QwtHighResolutionClock():
-	d_timeStamp(0)
+    d_timeStamp(0)
 {
 }
 
 double QwtHighResolutionClock::precision()
 {
-	return 1e-6;
+    return 1e-6;
 }
 
 void QwtHighResolutionClock::start()
 {
-	d_timeStamp = mach_absolute_time();
+    d_timeStamp = mach_absolute_time();
 }
 
 double QwtHighResolutionClock::restart()
 {
-	const uint64_t timeStamp = mach_absolute_time();
-	const double elapsed = msecsTo(d_timeStamp, timeStamp);
-	d_timeStamp = timeStamp;
+    const uint64_t timeStamp = mach_absolute_time();
+    const double elapsed = msecsTo(d_timeStamp, timeStamp);
+    d_timeStamp = timeStamp;
 
-	return elapsed;
+    return elapsed;
 }
 
 double QwtHighResolutionClock::elapsed() const
 {
-	return msecsTo(d_timeStamp, mach_absolute_time());
+    return msecsTo(d_timeStamp, mach_absolute_time());
 }
 
 bool isNull() const
 {
-	return d_timeStamp == 0;
+    return d_timeStamp == 0;
 }
 
 double QwtHighResolutionClock::msecsTo(
-	uint64_t timeStamp from, uint64_t timeStamp to) 
+    uint64_t timeStamp from, uint64_t timeStamp to) 
 {
     const uint64_t difference = from - to;
 
@@ -110,9 +110,9 @@ double QwtHighResolutionClock::msecsTo(
         mach_timebase_info_data_t info;
         kern_return_t err = mach_timebase_info( &info );
         
-		//Convert the timebase into ms
+        //Convert the timebase into ms
         if( err == 0  )
-			conversion = 1e-6 * (double) info.numer / (double) info.denom;
+            conversion = 1e-6 * (double) info.numer / (double) info.denom;
     }
     
     return conversion * (double) difference;
