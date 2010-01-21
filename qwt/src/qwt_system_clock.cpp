@@ -14,7 +14,11 @@
 #include <unistd.h>
 #endif
 
-#if defined(_POSIX_TIMERS)
+#if defined(Q_OS_MAC)
+#include <stdint.h>
+#include <mach/mach_time.h>
+#define QWT_HIGH_RESOLUTION_CLOCK
+#elif defined(_POSIX_TIMERS)
 #include <time.h>
 #define QWT_HIGH_RESOLUTION_CLOCK
 #elif defined(Q_OS_WIN)
@@ -39,7 +43,11 @@ public:
 
 private:
 
-#if defined(_POSIX_TIMERS)
+#if defined(Q_OS_MAC)
+	static double msecsTo(uint64_t, uint64_t) const;
+
+	uint64_t d_timeStamp;
+#elif defined(_POSIX_TIMERS)
 
     static double msecsTo(const struct timespec &, 
         const struct timespec &);
@@ -56,7 +64,61 @@ private:
 #endif
 };
 
-#if defined(_POSIX_TIMERS)
+#if defined(Q_OS_MAC)
+QwtHighResolutionClock::QwtHighResolutionClock():
+	d_timeStamp(0)
+{
+}
+
+double QwtHighResolutionClock::precision()
+{
+	return 1e-6;
+}
+
+void QwtHighResolutionClock::start()
+{
+	d_timeStamp = mach_absolute_time();
+}
+
+double QwtHighResolutionClock::restart()
+{
+	const uint64_t timeStamp = mach_absolute_time();
+	const double elapsed = msecsTo(d_timeStamp, timeStamp);
+	d_timeStamp = timeStamp;
+
+	return elapsed;
+}
+
+double QwtHighResolutionClock::elapsed() const
+{
+	return msecsTo(d_timeStamp, mach_absolute_time());
+}
+
+bool isNull() const
+{
+	return d_timeStamp == 0;
+}
+
+double QwtHighResolutionClock::msecsTo(
+	uint64_t timeStamp from, uint64_t timeStamp to) 
+{
+    const uint64_t difference = from - to;
+
+    static double conversion = 0.0;
+    if( conversion == 0.0 )
+    {
+        mach_timebase_info_data_t info;
+        kern_return_t err = mach_timebase_info( &info );
+        
+		//Convert the timebase into ms
+        if( err == 0  )
+			conversion = 1e-6 * (double) info.numer / (double) info.denom;
+    }
+    
+    return conversion * (double) difference;
+}
+
+#elif defined(_POSIX_TIMERS)
 
 QwtHighResolutionClock::QwtHighResolutionClock()
 {
@@ -114,7 +176,7 @@ bool QwtHighResolutionClock::isMonotonic()
 {
     // code copied from qcore_unix.cpp
 
-#if (_POSIX_MONOTONIC_CLOCK-0 > 0) || defined(Q_OS_MAC)
+#if (_POSIX_MONOTONIC_CLOCK-0 > 0) 
     return true;
 #else
     static int returnValue = 0;
