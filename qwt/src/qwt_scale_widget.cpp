@@ -420,6 +420,7 @@ void QwtScaleWidget::paintEvent(QPaintEvent *e)
     if ( ur.isValid() )
     {
         QPainter painter(this);
+        painter.setClipRect(ur);
         draw(&painter);
     }
 }
@@ -537,10 +538,6 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     if ( d_data->colorBar.isEnabled && d_data->colorBar.interval.isValid() )
         colorBarWidth = d_data->colorBar.width + d_data->spacing;
 
-    double pw2 = d_data->penWidth / 2.0;
-    if ( pw2 == 0.0 )
-        pw2 = 0.5;
-
     const QRectF r = rect();
     double x, y, length;
 
@@ -550,9 +547,9 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
         length = r.height() - (bd0 + bd1);
 
         if ( d_data->scaleDraw->alignment() == QwtScaleDraw::LeftScale )
-            x = r.right() - d_data->margin - colorBarWidth - pw2;
+            x = r.right() - 1.0 - d_data->margin - colorBarWidth;
         else
-            x = r.left() + d_data->margin + colorBarWidth + pw2;
+            x = r.left() + d_data->margin + colorBarWidth;
     }
     else
     {
@@ -560,9 +557,9 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
         length = r.width() - (bd0 + bd1);
 
         if ( d_data->scaleDraw->alignment() == QwtScaleDraw::BottomScale )
-            y = r.top() + d_data->margin + colorBarWidth + pw2;
+            y = r.top() + d_data->margin + colorBarWidth;
         else
-            y = r.bottom() - d_data->margin - colorBarWidth - pw2;
+            y = r.bottom() - 1.0 - d_data->margin - colorBarWidth;
     }
 
     d_data->scaleDraw->move(x, y);
