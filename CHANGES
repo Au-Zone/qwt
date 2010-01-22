@@ -17,6 +17,8 @@ Bug Fixes
 5) QwtPicker::setTrackerFont() fixed.
 6) QwtPainter now splits polylines for all pens to avoid a 
    bottleneck of the raster paint engine.
+7) QwtScaleWidget
+   Calculation of the colorbar position fixed ( spacing/margin )
 
 Changes
 -------

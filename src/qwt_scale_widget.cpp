@@ -515,7 +515,7 @@ QRect QwtScaleWidget::colorBarRect(const QRect& rect) const
     {
         case QwtScaleDraw::LeftScale:
         {
-            cr.setLeft( cr.right() - d_data->spacing 
+            cr.setLeft( cr.right() - d_data->margin 
                 - d_data->colorBar.width + 1 );
             cr.setWidth(d_data->colorBar.width);
             break;
@@ -523,21 +523,21 @@ QRect QwtScaleWidget::colorBarRect(const QRect& rect) const
 
         case QwtScaleDraw::RightScale:
         {
-            cr.setLeft( cr.left() + d_data->spacing );
+            cr.setLeft( cr.left() + d_data->margin );
             cr.setWidth(d_data->colorBar.width);
             break;
         }
 
         case QwtScaleDraw::BottomScale:
         {
-            cr.setTop( cr.top() + d_data->spacing );
+            cr.setTop( cr.top() + d_data->margin );
             cr.setHeight(d_data->colorBar.width);
             break;
         }
 
         case QwtScaleDraw::TopScale:
         {
-            cr.setTop( cr.bottom() - d_data->spacing
+            cr.setTop( cr.bottom() - d_data->margin
                 - d_data->colorBar.width + 1 );
             cr.setHeight(d_data->colorBar.width);
             break;
