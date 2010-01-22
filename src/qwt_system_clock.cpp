@@ -44,7 +44,7 @@ public:
 private:
 
 #if defined(Q_OS_MAC)
-    static double msecsTo(uint64_t, uint64_t) const;
+    static double msecsTo(uint64_t, uint64_t);
 
     uint64_t d_timeStamp;
 #elif defined(_POSIX_TIMERS)
@@ -94,13 +94,13 @@ double QwtHighResolutionClock::elapsed() const
     return msecsTo(d_timeStamp, mach_absolute_time());
 }
 
-bool isNull() const
+bool QwtHighResolutionClock::isNull() const
 {
     return d_timeStamp == 0;
 }
 
 double QwtHighResolutionClock::msecsTo(
-    uint64_t timeStamp from, uint64_t timeStamp to) 
+    uint64_t from, uint64_t to) 
 {
     const uint64_t difference = from - to;
 
