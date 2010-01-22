@@ -8,34 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_raster_data.h"
-
-class QwtRasterData::Contour3DPoint
-{
-public:
-    inline void setPos(double x, double y)
-    {
-        d_x = x;
-        d_y = y;
-    }
-
-    inline QPointF pos() const
-    {
-        return QPointF(d_x, d_y);
-    }
-
-    inline void setX(double x) { d_x = x; }
-    inline void setY(double y) { d_y = y; }
-    inline void setZ(double z) { d_z = z; }
-
-    inline double x() const { return d_x; }
-    inline double y() const { return d_y; }
-    inline double z() const { return d_z; }
-
-private:
-    double d_x;
-    double d_y;
-    double d_z;
-};
+#include "qwt_double_point_3d.h"
 
 class QwtRasterData::ContourPlane
 {
@@ -45,7 +18,7 @@ public:
     {
     }
 
-    inline bool intersect(const Contour3DPoint vertex[3],
+    inline bool intersect(const QwtDoublePoint3D vertex[3],
         QPointF line[2], bool ignoreOnPlane) const;
 
     inline double z() const { return d_z; }
@@ -53,13 +26,13 @@ public:
 private:
     inline int compare(double z) const;
     inline QPointF intersection(
-        const Contour3DPoint& p1, const Contour3DPoint &p2) const;
+        const QwtDoublePoint3D& p1, const QwtDoublePoint3D &p2) const;
 
     double d_z;
 };
 
 inline bool QwtRasterData::ContourPlane::intersect(
-    const Contour3DPoint vertex[3], QPointF line[2],
+    const QwtDoublePoint3D vertex[3], QPointF line[2],
     bool ignoreOnPlane) const
 {
     bool found = true;
@@ -95,32 +68,32 @@ inline bool QwtRasterData::ContourPlane::intersect(
     {
         case 1:
             // d(0,0,-1), h(0,0,1)
-            line[0] = vertex[0].pos();
-            line[1] = vertex[1].pos();
+            line[0] = vertex[0].toPoint();
+            line[1] = vertex[1].toPoint();
             break;
         case 2:
             // d(-1,0,0), h(1,0,0)
-            line[0] = vertex[1].pos();
-            line[1] = vertex[2].pos();
+            line[0] = vertex[1].toPoint();
+            line[1] = vertex[2].toPoint();
             break;
         case 3:
             // d(0,-1,0), h(0,1,0)
-            line[0] = vertex[2].pos();
-            line[1] = vertex[0].pos();
+            line[0] = vertex[2].toPoint();
+            line[1] = vertex[0].toPoint();
             break;
         case 4:
             // e(0,-1,1), e(0,1,-1)
-            line[0] = vertex[0].pos();
+            line[0] = vertex[0].toPoint();
             line[1] = intersection(vertex[1], vertex[2]);
             break;
         case 5:
             // e(-1,0,1), e(1,0,-1)
-            line[0] = vertex[1].pos();
+            line[0] = vertex[1].toPoint();
             line[1] = intersection(vertex[2], vertex[0]);
             break;
         case 6:
             // e(-1,1,0), e(1,0,-1)
-            line[0] = vertex[1].pos();
+            line[0] = vertex[1].toPoint();
             line[1] = intersection(vertex[0], vertex[1]);
             break;
         case 7:
@@ -147,8 +120,8 @@ inline bool QwtRasterData::ContourPlane::intersect(
                 found = false;
             else
             {
-                line[0] = vertex[2].pos();
-                line[1] = vertex[0].pos();
+                line[0] = vertex[2].toPoint();
+                line[1] = vertex[0].toPoint();
             }
             break;
         default:
@@ -170,7 +143,7 @@ inline int QwtRasterData::ContourPlane::compare(double z) const
 }
 
 inline QPointF QwtRasterData::ContourPlane::intersection(
-    const Contour3DPoint& p1, const Contour3DPoint &p2) const
+    const QwtDoublePoint3D& p1, const QwtDoublePoint3D &p2) const
 {
     const double h1 = p1.z() - d_z;
     const double h2 = p2.z() - d_z;
@@ -320,7 +293,7 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
             NumPositions
         };
 
-        Contour3DPoint xy[NumPositions];
+        QwtDoublePoint3D xy[NumPositions];
 
         for ( int x = 0; x < raster.width() - 1; x++ )
         {
@@ -328,12 +301,14 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
 
             if ( x == 0 )
             {
-                xy[TopRight].setPos(pos.x(), pos.y());
+                xy[TopRight].setX(pos.x());
+                xy[TopRight].setY(pos.y());
                 xy[TopRight].setZ(
                     value( xy[TopRight].x(), xy[TopRight].y())
                 );
 
-                xy[BottomRight].setPos(pos.x(), pos.y() + dy);
+                xy[BottomRight].setX(pos.x());
+                xy[BottomRight].setY(pos.y() + dy);
                 xy[BottomRight].setZ(
                     value(xy[BottomRight].x(), xy[BottomRight].y())
                 );
@@ -342,8 +317,10 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
             xy[TopLeft] = xy[TopRight];
             xy[BottomLeft] = xy[BottomRight];
 
-            xy[TopRight].setPos(pos.x() + dx, pos.y());
-            xy[BottomRight].setPos(pos.x() + dx, pos.y() + dy);
+            xy[TopRight].setX(pos.x() + dx);
+            xy[TopRight].setY(pos.y());
+            xy[BottomRight].setX(pos.x() + dx);
+            xy[BottomRight].setY(pos.y() + dy);
 
             xy[TopRight].setZ(
                 value(xy[TopRight].x(), xy[TopRight].y())
@@ -379,7 +356,8 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
                 continue;
             }
 
-            xy[Center].setPos(pos.x() + 0.5 * dx, pos.y() + 0.5 * dy);
+            xy[Center].setX(pos.x() + 0.5 * dx);
+            xy[Center].setY(pos.y() + 0.5 * dy);
             xy[Center].setZ(0.25 * zSum);
             const int numLevels = (int)levels.size();
             for (int l = 0; l < numLevels; l++)
@@ -391,7 +369,7 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
                 const ContourPlane plane(level);
 
                 QPointF line[2];
-                Contour3DPoint vertex[3];
+                QwtDoublePoint3D vertex[3];
 
                 for (int m = TopLeft; m < NumPositions; m++)
                 {
