@@ -539,20 +539,20 @@ QRectF QwtPlotItem::paintRect(const QwtScaleMap &xMap,
  
    \sa invTransform()
 */
-QRect QwtPlotItem::transform(const QwtScaleMap &xMap, 
+QRectF QwtPlotItem::xTransform(const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap, const QRectF &rect) const
 {
-    int x1 = qRound(xMap.transform(rect.left()));
-    int x2 = qRound(xMap.transform(rect.right()));
-    int y1 = qRound(yMap.transform(rect.top()));
-    int y2 = qRound(yMap.transform(rect.bottom()));
+    double x1 = xMap.xTransform(rect.left());
+    double x2 = xMap.xTransform(rect.right());
+    double y1 = yMap.xTransform(rect.top());
+    double y2 = yMap.xTransform(rect.bottom());
 
     if ( x2 < x1 )
         qSwap(x1, x2);
     if ( y2 < y1 )
         qSwap(y1, y2);
 
-    return QRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+    return QRectF(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 }
 
 /*!
@@ -565,14 +565,13 @@ QRect QwtPlotItem::transform(const QwtScaleMap &xMap,
    \sa transform()
 */
 QRectF QwtPlotItem::invTransform(const QwtScaleMap &xMap, 
-    const QwtScaleMap &yMap, const QRect &rect) const
+    const QwtScaleMap &yMap, const QRectF &rect) const
 {
     const double x1 = xMap.invTransform(rect.left());
-    const double x2 = xMap.invTransform(rect.right());
+    const double x2 = xMap.invTransform(rect.right() - 1);
     const double y1 = yMap.invTransform(rect.top());
-    const double y2 = yMap.invTransform(rect.bottom());
+    const double y2 = yMap.invTransform(rect.bottom() - 1);
         
     const QRectF r(x1, y1, x2 - x1, y2 - y1);
-
     return r.normalized();
 }

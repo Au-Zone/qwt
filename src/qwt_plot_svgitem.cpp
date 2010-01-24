@@ -149,7 +149,7 @@ void QwtPlotSvgItem::draw(QPainter *painter,
         if ( bRect.contains(cRect) )
             rect = cRect;
 
-        const QRectF r = transform(xMap, yMap, rect);
+        const QRectF r = xTransform(xMap, yMap, rect);
         render(painter, viewBox(rect), r);
     }
 }

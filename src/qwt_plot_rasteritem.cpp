@@ -240,13 +240,16 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         yyMap.setPaintInterval(tr.m22() * yyMap.p1(), tr.m22() * yyMap.p2());
     }
 
-    QRectF area = invTransform(xxMap, yyMap, rasterRect.toRect());
+    QRectF area = invTransform(xxMap, yyMap, rasterRect);
     if ( boundingRect().isValid() )
         area &= boundingRect();
 
-    const QRect paintRect = transform(xxMap, yyMap, area);
+    QRectF paintRect = xTransform(xxMap, yyMap, area);
     if ( !paintRect.isValid() )
         return;
+
+	paintRect.translate(tr.m31(), tr.m32());
+
 
     QImage image;
 
@@ -271,7 +274,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         {
             d_data->cache.image = renderImage(xxMap, yyMap, area);
             d_data->cache.rect = area;
-            d_data->cache.size = paintRect.size();
+            d_data->cache.size = paintRect.toRect().size();
         }
 
         image = d_data->cache.image;
@@ -301,7 +304,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
                 d_data->cache.image = renderImage(
                     cacheXMap, cacheYMap, area);
                 d_data->cache.rect = area;
-                d_data->cache.size = paintRect.size();
+                d_data->cache.size = paintRect.toRect().size();
             }
 
             image = d_data->cache.image;
