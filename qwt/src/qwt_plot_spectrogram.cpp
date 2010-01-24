@@ -408,7 +408,7 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( area.isEmpty() )
         return QImage();
 
-    QRect rect = transform(xMap, yMap, area);
+    QRectF rect = xTransform(xMap, yMap, area);
 
     QwtScaleMap xxMap = xMap;
     QwtScaleMap yyMap = yMap;
@@ -424,23 +424,23 @@ QImage QwtPlotSpectrogram::renderImage(
          */
         rect.setSize(rect.size().boundedTo(res));
 
-        int px1 = rect.x();
-        int px2 = rect.x() + rect.width();
+        double px1 = rect.left();
+        double px2 = rect.right();
         if ( xMap.p1() > xMap.p2() )
             qSwap(px1, px2);
 
-        double sx1 = area.x();
-        double sx2 = area.x() + area.width();
+        double sx1 = area.left();
+        double sx2 = area.right();
         if ( xMap.s1() > xMap.s2() )
             qSwap(sx1, sx2);
 
-        int py1 = rect.y();
-        int py2 = rect.y() + rect.height();
+        double py1 = rect.top();
+        double py2 = rect.bottom();
         if ( yMap.p1() > yMap.p2() )
             qSwap(py1, py2);
 
-        double sy1 = area.y();
-        double sy2 = area.y() + area.height();
+        double sy1 = area.top();
+        double sy2 = area.bottom();
         if ( yMap.s1() > yMap.s2() )
             qSwap(sy1, sy2);
 
@@ -450,7 +450,8 @@ QImage QwtPlotSpectrogram::renderImage(
         yyMap.setScaleInterval(sy1, sy2); 
     }
 
-    QwtPlotSpectrogramImage image(rect.size(), d_data->colorMap->format());
+    QwtPlotSpectrogramImage image(rect.toRect().size(), 
+		d_data->colorMap->format());
 
     const QwtDoubleInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
@@ -459,9 +460,10 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( d_data->colorMap->format() == QwtColorMap::Indexed )
         image.setColorTable(d_data->colorMap->colorTable(intensityRange));
 
-    d_data->data->initRaster(area, rect.size());
+    d_data->data->initRaster(area, image.size());
 
-#if QT_VERSION >= 0x040400
+//#if QT_VERSION >= 0x040400
+#if 0
     uint numThreads = d_data->renderThreadCount;
 
     if ( numThreads <= 0 )
@@ -475,25 +477,25 @@ QImage QwtPlotSpectrogram::renderImage(
     QList< QFuture<void> > futures;
     for ( uint i = 0; i < numThreads; i++ )
     {
-        QRect r(rect.x(), rect.y() + i * numRows,
+        QRectF r(rect.x(), rect.y() + i * numRows,
             rect.width(), numRows);
         if ( i == numThreads - 1 )
         {
             r.setHeight(rect.height() - i * numRows);
-            renderTile(xxMap, yyMap, rect, r, &image);
+            renderTile(xxMap, yyMap, rect.toRect(), r.toRect(), &image);
         }
         else
         {
             futures += QtConcurrent::run(
                 this, &QwtPlotSpectrogram::renderTile,
-                xxMap, yyMap, rect, r, &image);
+                xxMap, yyMap, rect.toRect(), r.toRect(), &image);
         }
     }
     for ( int i = 0; i < futures.size(); i++ )
         futures[i].waitForFinished();
 
 #else // QT_VERSION < 0x040400
-    renderTile(xxMap, yyMap, rect, rect, &image);
+    renderTile(xxMap, yyMap, rect.toRect(), rect.toRect(), &image);
 #endif
 
     d_data->data->discardRaster();
@@ -680,7 +682,7 @@ void QwtPlotSpectrogram::draw(QPainter *painter,
     {
         // Add some pixels at the borders, so that 
         const int margin = 2;
-        QRect rasterRect(canvasRect.x() - margin, canvasRect.y() - margin,
+        QRectF rasterRect(canvasRect.x() - margin, canvasRect.y() - margin,
             canvasRect.width() + 2 * margin, canvasRect.height() + 2 * margin);
 
         QRectF area = invTransform(xMap, yMap, rasterRect);
@@ -692,11 +694,11 @@ void QwtPlotSpectrogram::draw(QPainter *painter,
             if ( area.isEmpty() )
                 return;
 
-            rasterRect = transform(xMap, yMap, area);
+            rasterRect = xTransform(xMap, yMap, area);
         }
 
-        QSize raster = contourRasterSize(area, rasterRect);
-        raster = raster.boundedTo(rasterRect.size());
+        QSize raster = contourRasterSize(area, rasterRect.toRect());
+        raster = raster.boundedTo(rasterRect.toRect().size());
         if ( raster.isValid() )
         {
             const QwtRasterData::ContourLines lines =
@@ -706,4 +708,3 @@ void QwtPlotSpectrogram::draw(QPainter *painter,
         }
     }
 }
-

@@ -487,12 +487,12 @@ void QwtPlot::drawCanvas(QPainter *painter)
 /*! 
   Redraw the canvas items.
   \param painter Painter used for drawing
-  \param rect Bounding rectangle where to paint
+  \param canvasRect Bounding rectangle where to paint
   \param map QwtPlot::axisCnt maps, mapping between plot and paint device coordinates
   \param pfilter Plot print filter
 */
 
-void QwtPlot::drawItems(QPainter *painter, const QRectF &rect, 
+void QwtPlot::drawItems(QPainter *painter, const QRectF &canvasRect, 
         const QwtScaleMap map[axisCnt], 
         const QwtPlotPrintFilter &pfilter) const
 {
@@ -516,7 +516,7 @@ void QwtPlot::drawItems(QPainter *painter, const QRectF &rect,
 
             item->draw(painter, 
                 map[item->xAxis()], map[item->yAxis()],
-                rect);
+                canvasRect);
 
             painter->restore();
         }
