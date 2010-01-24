@@ -41,10 +41,10 @@ void QwtPlot::print(QPaintDevice &paintDev,
     int w = paintDev.width();
     int h = paintDev.height();
 
-    QRect rect(0, 0, w, h);
-    double aspect = double(rect.width())/double(rect.height());
+    QRectF rect(0, 0, w, h);
+    double aspect = rect.width() / rect.height();
     if ((aspect < 1.0))
-        rect.setHeight(int(aspect*rect.width()));
+        rect.setHeight(aspect * rect.width());
 
     QPainter p(&paintDev);
     print(&p, rect, pfilter);
@@ -172,13 +172,13 @@ void QwtPlot::print(QPainter *painter, const QRectF &plotRect,
             int margin = plotLayout()->canvasMargin(axisId);
             if ( axisId == yLeft || axisId == yRight )
             {
-                from = canvasRect.bottom() - 1 - margin;
+                from = canvasRect.bottom() - margin;
                 to = canvasRect.top() + margin;
             }
             else
             {
                 from = canvasRect.left() + margin;
-                to = canvasRect.right() - 1 - margin;
+                to = canvasRect.right() - margin;
             }
         }
         map[axisId].setPaintInterval(from, to);

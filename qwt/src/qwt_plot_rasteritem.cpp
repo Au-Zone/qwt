@@ -248,7 +248,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( !paintRect.isValid() )
         return;
 
-	paintRect.translate(tr.m31(), tr.m32());
+    paintRect.translate(tr.m31(), tr.m32());
 
 
     QImage image;

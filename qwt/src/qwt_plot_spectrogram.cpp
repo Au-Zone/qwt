@@ -451,7 +451,7 @@ QImage QwtPlotSpectrogram::renderImage(
     }
 
     QwtPlotSpectrogramImage image(rect.toRect().size(), 
-		d_data->colorMap->format());
+        d_data->colorMap->format());
 
     const QwtDoubleInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
