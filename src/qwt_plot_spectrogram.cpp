@@ -462,8 +462,7 @@ QImage QwtPlotSpectrogram::renderImage(
 
     d_data->data->initRaster(area, image.size());
 
-//#if QT_VERSION >= 0x040400
-#if 0
+#if QT_VERSION >= 0x040400
     uint numThreads = d_data->renderThreadCount;
 
     if ( numThreads <= 0 )
