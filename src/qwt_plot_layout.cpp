@@ -900,8 +900,8 @@ void QwtPlotLayout::alignScales(int options,
 
             if ( scaleRect[QwtPlot::yLeft].isValid() )
             {
-                int minLeft = scaleRect[QwtPlot::yLeft].left();
-                int left = axisRect.left() + leftOffset;
+                const double minLeft = scaleRect[QwtPlot::yLeft].left();
+                const double left = axisRect.left() + leftOffset;
                 axisRect.setLeft(qMax(left, minLeft));
             }
             else
@@ -923,8 +923,8 @@ void QwtPlotLayout::alignScales(int options,
 
             if ( scaleRect[QwtPlot::yRight].isValid() )
             {
-                int maxRight = scaleRect[QwtPlot::yRight].right();
-                int right = axisRect.right() - rightOffset;
+                const double maxRight = scaleRect[QwtPlot::yRight].right();
+                const double right = axisRect.right() - rightOffset;
                 axisRect.setRight(qMin(right, maxRight));
             }
             else
@@ -948,10 +948,9 @@ void QwtPlotLayout::alignScales(int options,
 
             if ( scaleRect[QwtPlot::xBottom].isValid() )
             {
-                int maxBottom = scaleRect[QwtPlot::xBottom].top() + 
+                const double maxBottom = scaleRect[QwtPlot::xBottom].top() + 
                     d_data->layoutData.scale[QwtPlot::xBottom].tickOffset;
-
-                int bottom = axisRect.bottom() - bottomOffset;
+                const double bottom = axisRect.bottom() - bottomOffset;
                 axisRect.setBottom(qMin(bottom, maxBottom));
             }
             else
@@ -972,10 +971,9 @@ void QwtPlotLayout::alignScales(int options,
 
             if ( scaleRect[QwtPlot::xTop].isValid() )
             {
-                int minTop = scaleRect[QwtPlot::xTop].bottom() -
+                const double minTop = scaleRect[QwtPlot::xTop].bottom() -
                     d_data->layoutData.scale[QwtPlot::xTop].tickOffset;
-
-                int top = axisRect.top() + topOffset;
+                const double top = axisRect.top() + topOffset;
                 axisRect.setTop(qMax(top, minTop));
             }
             else
