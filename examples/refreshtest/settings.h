@@ -40,12 +40,12 @@ public:
         updateInterval = 20;
     }
 
-    struct
+    struct gridSettings
     {
         QPen pen;
     } grid;
 
-    struct 
+    struct curveSettings
     {
         QPen pen;
         QBrush brush;
@@ -56,7 +56,7 @@ public:
         bool lineSplitting;
     } curve;
 
-    struct
+    struct canvasSettings
     {
         bool cached;
         bool paintOnScreen;
