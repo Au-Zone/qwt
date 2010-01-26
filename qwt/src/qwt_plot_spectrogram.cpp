@@ -15,34 +15,21 @@
 #include <qimage.h>
 #include <qpen.h>
 #include <qpainter.h>
+#include <qmath.h>
 #if QT_VERSION >= 0x040400
 #include <qthread.h>
 #include <qfuture.h>
 #include <qtconcurrentrun.h>
 #endif
 
-typedef QVector<QRgb> QwtColorTable;
-
-class QwtPlotSpectrogramImage: public QImage
+static inline QRect toInnerRect(const QRectF &r)
 {
-  // This class hides some Qt3/Qt4 API differences
-public:
-    QwtPlotSpectrogramImage(const QSize &size, QwtColorMap::Format format):
-        QImage(size, format == QwtColorMap::RGB
-            ? QImage::Format_ARGB32 : QImage::Format_Indexed8 )
-    {
-    }
+    QRect rect;
+    rect.setCoords(qCeil(r.left()), qCeil(r.top()),
+        qFloor(r.right() - 1.0), qFloor(r.bottom() - 1.0) );
 
-    QwtPlotSpectrogramImage(const QImage &other):
-        QImage(other)
-    {
-    }
-
-    void initColorTable(const QImage& other)
-    {
-        setColorTable(other.colorTable());
-    }
-};
+    return rect;
+}
 
 class QwtPlotSpectrogram::PrivateData
 {
@@ -408,7 +395,7 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( area.isEmpty() )
         return QImage();
 
-    QRectF rect = xTransform(xMap, yMap, area);
+    QRect rect = toInnerRect( xTransform(xMap, yMap, area) );
 
     QwtScaleMap xxMap = xMap;
     QwtScaleMap yyMap = yMap;
@@ -450,8 +437,10 @@ QImage QwtPlotSpectrogram::renderImage(
         yyMap.setScaleInterval(sy1, sy2); 
     }
 
-    QwtPlotSpectrogramImage image(rect.toRect().size(), 
-        d_data->colorMap->format());
+    QImage::Format format = (d_data->colorMap->format() == QwtColorMap::RGB)
+        ? QImage::Format_ARGB32 : QImage::Format_Indexed8;
+
+    QImage image( rect.size(), format);
 
     const QwtDoubleInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
@@ -476,25 +465,25 @@ QImage QwtPlotSpectrogram::renderImage(
     QList< QFuture<void> > futures;
     for ( uint i = 0; i < numThreads; i++ )
     {
-        QRectF r(rect.x(), rect.y() + i * numRows,
+        QRect tile(rect.x(), rect.y() + i * numRows,
             rect.width(), numRows);
         if ( i == numThreads - 1 )
         {
-            r.setHeight(rect.height() - i * numRows);
-            renderTile(xxMap, yyMap, rect.toRect(), r.toRect(), &image);
+            tile.setHeight(rect.height() - i * numRows);
+            renderTile(xxMap, yyMap, rect, tile, &image);
         }
         else
         {
             futures += QtConcurrent::run(
                 this, &QwtPlotSpectrogram::renderTile,
-                xxMap, yyMap, rect.toRect(), r.toRect(), &image);
+                xxMap, yyMap, rect, tile, &image);
         }
     }
     for ( int i = 0; i < futures.size(); i++ )
         futures[i].waitForFinished();
 
 #else // QT_VERSION < 0x040400
-    renderTile(xxMap, yyMap, rect.toRect(), rect.toRect(), &image);
+    renderTile(xxMap, yyMap, rect, rect, &image);
 #endif
 
     d_data->data->discardRaster();
@@ -521,12 +510,12 @@ QImage QwtPlotSpectrogram::renderImage(
     \param xMap X-Scale Map
     \param yMap Y-Scale Map
     \param rect Geometry of the image in screen coordinates
-    \param tileRect Geometry of the tile in screen coordinates
+    \param tile Geometry of the tile in screen coordinates
     \param image Image to be rendered
 */
 void QwtPlotSpectrogram::renderTile(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    const QRect &rect, const QRect &tileRect, QImage *image) const
+    const QRect &rect, const QRect &tile, QImage *image) const
 {
     const QwtDoubleInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
@@ -534,14 +523,14 @@ void QwtPlotSpectrogram::renderTile(
 
     if ( d_data->colorMap->format() == QwtColorMap::RGB )
     {
-        for ( int y = tileRect.top(); y <= tileRect.bottom(); y++ )
+        for ( int y = tile.top(); y <= tile.bottom(); y++ )
         {
             const double ty = yMap.invTransform(y);
 
             QRgb *line = (QRgb *)image->scanLine(y - rect.top());
-            line += tileRect.left() - rect.left();
+            line += tile.left() - rect.left();
 
-            for ( int x = tileRect.left(); x <= tileRect.right(); x++ )
+            for ( int x = tile.left(); x <= tile.right(); x++ )
             {
                 const double tx = xMap.invTransform(x);
 
@@ -552,14 +541,14 @@ void QwtPlotSpectrogram::renderTile(
     }
     else if ( d_data->colorMap->format() == QwtColorMap::Indexed )
     {
-        for ( int y = tileRect.top(); y <= tileRect.bottom(); y++ )
+        for ( int y = tile.top(); y <= tile.bottom(); y++ )
         {
             const double ty = yMap.invTransform(y);
 
             unsigned char *line = image->scanLine(y - rect.top());
-            line += tileRect.left() - rect.left();
+            line += tile.left() - rect.left();
 
-            for ( int x = tileRect.left(); x <= tileRect.right(); x++ )
+            for ( int x = tile.left(); x <= tile.right(); x++ )
             {
                 const double tx = xMap.invTransform(x);
 

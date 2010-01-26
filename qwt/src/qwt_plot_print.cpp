@@ -256,9 +256,8 @@ void QwtPlot::printLegend(QPainter *painter, const QRectF &rect) const
         if ( w )
         {
             painter->save();
-            painter->setClipping(true);
-            QwtPainter::setClipRect(painter, itemRects[index]);
 
+            painter->setClipRect(itemRects[index]);
             printLegendItem(painter, w, itemRects[index]);
 
             index++;
@@ -440,8 +439,6 @@ void QwtPlot::printCanvas(QPainter *painter, const QRectF &canvasRect,
 
     painter->restore();
 
-    painter->setClipping(true);
-    QwtPainter::setClipRect(painter, canvasRect);
-
+    painter->setClipRect(canvasRect);
     drawItems(painter, canvasRect, map, pfilter);
 }

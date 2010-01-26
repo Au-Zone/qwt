@@ -414,15 +414,11 @@ int QwtScaleWidget::penWidth() const
 /*!
   \brief paintEvent
 */
-void QwtScaleWidget::paintEvent(QPaintEvent *e)
+void QwtScaleWidget::paintEvent(QPaintEvent *event)
 {
-    const QRect &ur = e->rect();
-    if ( ur.isValid() )
-    {
-        QPainter painter(this);
-        painter.setClipRect(ur);
-        draw(&painter);
-    }
+    QPainter painter(this);
+    painter.setClipRegion(event->region());
+    draw(&painter);
 }
 
 /*!

@@ -37,8 +37,6 @@ public:
     static void setPolylineSplitting(bool);
     static bool polylineSplitting();
 
-    static void setClipRect(QPainter *, const QRectF &);
-
     static void drawText(QPainter *, double x, double y, 
         const QString &);
     static void drawText(QPainter *, const QPointF &, 
@@ -70,6 +68,9 @@ public:
 
     static void drawPoint(QPainter *, double x, double y);
     static void drawPoint(QPainter *, const QPointF &);
+
+    static void drawImage(QPainter *, const QRectF &, const QImage &);
+    static void drawPixmap(QPainter *, const QRectF &, const QPixmap &);
 
     static void drawRoundFrame(QPainter *, const QRect &,
         int width, const QPalette &, bool sunken);
