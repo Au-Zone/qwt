@@ -13,6 +13,8 @@
 #include "qwt_global.h"
 #include "qwt_math.h"
 
+class QRectF;
+
 /*!
    \brief Operations for linear or logarithmic (base 10) transformations
 */
@@ -74,7 +76,9 @@ public:
     void setPaintInterval(double p1, double p2);
     void setScaleInterval(double s1, double s2);
 
+#if 1
     int transform(double x) const;
+#endif
     double invTransform(double i) const;
 
     double xTransform(double x) const;
@@ -90,6 +94,11 @@ public:
 
     QT_STATIC_CONST double LogMin;
     QT_STATIC_CONST double LogMax;
+
+    static QRectF xTransform(const QwtScaleMap &,
+        const QwtScaleMap &, const QRectF &);
+    static QRectF invTransform(const QwtScaleMap &,
+        const QwtScaleMap &, const QRectF &);
 
 private:
     void newFactor();   
@@ -181,6 +190,7 @@ inline double QwtScaleMap::invTransform(double p) const
     return d_transformation->invXForm(p, d_p1, d_p2, d_s1, d_s2 );
 }
 
+#if 1
 /*!
   Transform a point related to the scale interval into an point 
   related to the interval of the paint device and round it to
@@ -193,5 +203,6 @@ inline int QwtScaleMap::transform(double s) const
 {
     return qRound(xTransform(s));
 }
+#endif
 
 #endif

@@ -330,44 +330,33 @@ bool QwtPlotPicker::end(bool ok)
     Translate a rectangle from pixel into plot coordinates
 
     \return Rectangle in plot coordinates
-    \sa QwtPlotPicker::transform()
+    \sa transform()
 */
 QRectF QwtPlotPicker::invTransform(const QRect &rect) const
 {
-    QwtScaleMap xMap = plot()->canvasMap(d_xAxis);
-    QwtScaleMap yMap = plot()->canvasMap(d_yAxis);
+    const QwtScaleMap xMap = plot()->canvasMap(d_xAxis);
+    const QwtScaleMap yMap = plot()->canvasMap(d_yAxis);
 
-    const double left = xMap.invTransform(rect.left());
-    const double right = xMap.invTransform(rect.right());
-    const double top = yMap.invTransform(rect.top());
-    const double bottom = yMap.invTransform(rect.bottom());
-
-    return QRectF(left, top,
-        right - left, bottom - top);
+    return QwtScaleMap::invTransform(xMap, yMap, rect);
 }
 
 /*!
     Translate a rectangle from plot into pixel coordinates
     \return Rectangle in pixel coordinates
-    \sa QwtPlotPicker::invTransform()
+    \sa invTransform()
 */
 QRect QwtPlotPicker::transform(const QRectF &rect) const
 {
-    QwtScaleMap xMap = plot()->canvasMap(d_xAxis);
-    QwtScaleMap yMap = plot()->canvasMap(d_yAxis);
+    const QwtScaleMap xMap = plot()->canvasMap(d_xAxis);
+    const QwtScaleMap yMap = plot()->canvasMap(d_yAxis);
 
-    const int left = xMap.transform(rect.left());
-    const int right = xMap.transform(rect.right());
-    const int top = yMap.transform(rect.top());
-    const int bottom = yMap.transform(rect.bottom());
-
-    return QRect(left, top, right - left, bottom - top);
+    return QwtScaleMap::xTransform(xMap, yMap, rect).toRect();
 }
 
 /*!
     Translate a point from pixel into plot coordinates
     \return Point in plot coordinates
-    \sa QwtPlotPicker::transform()
+    \sa transform()
 */
 QPointF QwtPlotPicker::invTransform(const QPoint &pos) const
 {
@@ -383,15 +372,15 @@ QPointF QwtPlotPicker::invTransform(const QPoint &pos) const
 /*!
     Translate a point from plot into pixel coordinates
     \return Point in pixel coordinates
-    \sa QwtPlotPicker::invTransform()
+    \sa invTransform()
 */
 QPoint QwtPlotPicker::transform(const QPointF &pos) const
 {
     QwtScaleMap xMap = plot()->canvasMap(d_xAxis);
     QwtScaleMap yMap = plot()->canvasMap(d_yAxis);
 
-    return QPoint(
-        xMap.transform(pos.x()),
-        yMap.transform(pos.y())
-    );
+    const QPointF p( xMap.xTransform(pos.x()), 
+        yMap.xTransform(pos.y()) );
+
+    return p.toPoint();
 }

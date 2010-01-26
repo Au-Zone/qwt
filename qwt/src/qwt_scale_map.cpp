@@ -8,6 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_scale_map.h"
+#include <qrect.h>
 
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
@@ -211,4 +212,51 @@ void QwtScaleMap::newFactor()
             break;
         default:;
     }
+}
+
+/*!
+   Transform a rectangle
+
+   \param xMap X map
+   \param yMap Y map
+   \param rect Rectangle in scale coordinates
+   \return Rectangle in paint coordinates
+ 
+   \sa invTransform()
+*/
+QRectF QwtScaleMap::xTransform(const QwtScaleMap &xMap,
+    const QwtScaleMap &yMap, const QRectF &rect) 
+{
+    double x1 = xMap.xTransform(rect.left());
+    double x2 = xMap.xTransform(rect.right());
+    double y1 = yMap.xTransform(rect.top());
+    double y2 = yMap.xTransform(rect.bottom());
+
+    if ( x2 < x1 )
+        qSwap(x1, x2);
+    if ( y2 < y1 )
+        qSwap(y1, y2);
+
+    return QRectF(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+}
+
+/*!
+   Transform a rectangle from paint to scale coordinates
+
+   \param xMap X map
+   \param yMap Y map
+   \param rect Rectangle in paint coordinates
+   \return Rectangle in scale coordinates
+   \sa transform()
+*/
+QRectF QwtScaleMap::invTransform(const QwtScaleMap &xMap,
+    const QwtScaleMap &yMap, const QRectF &rect) 
+{
+    const double x1 = xMap.invTransform(rect.left());
+    const double x2 = xMap.invTransform(rect.right() - 1);
+    const double y1 = yMap.invTransform(rect.top());
+    const double y2 = yMap.invTransform(rect.bottom() - 1);
+
+    const QRectF r(x1, y1, x2 - x1, y2 - y1);
+    return r.normalized();
 }
