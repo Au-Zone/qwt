@@ -247,11 +247,13 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         yyMap.setPaintInterval(tr.m22() * yyMap.p1(), tr.m22() * yyMap.p2());
     }
 
-    QRectF area = invTransform(xxMap, yyMap, scaledCanvasRect);
+    QRectF area = QwtScaleMap::invTransform(
+        xxMap, yyMap, scaledCanvasRect);
     if ( boundingRect().isValid() )
         area &= boundingRect();
 
-    QRectF paintRect = xTransform(xxMap, yyMap, area);
+    QRectF paintRect = QwtScaleMap::xTransform(
+        xxMap, yyMap, area);
     if ( !paintRect.isValid() )
         return;
 
@@ -263,7 +265,8 @@ void QwtPlotRasterItem::draw(QPainter *painter,
 
     // align the image to the raster of the paint device
     const QRect imageRect = paintRect.toAlignedRect();
-    const QRectF imageArea = invTransform(xxMap, yyMap, imageRect);
+    const QRectF imageArea = QwtScaleMap::invTransform(
+        xxMap, yyMap, imageRect);
 
     QImage image;
 

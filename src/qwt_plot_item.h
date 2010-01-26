@@ -179,11 +179,6 @@ public:
     QRectF scaleRect(const QwtScaleMap &, const QwtScaleMap &) const;
     QRectF paintRect(const QwtScaleMap &, const QwtScaleMap &) const;
     
-    QRectF xTransform(const QwtScaleMap &, const QwtScaleMap &, 
-        const QRectF&) const; 
-    QRectF invTransform(const QwtScaleMap &, const QwtScaleMap &,
-        const QRectF &) const; 
-
 private:
     // Disabled copy constructor and operator=
     QwtPlotItem( const QwtPlotItem & );
