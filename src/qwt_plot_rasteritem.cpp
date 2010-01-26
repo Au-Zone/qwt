@@ -11,10 +11,11 @@
 #include "qwt_legend.h"
 #include "qwt_legend_item.h"
 #include "qwt_scale_map.h"
+#include "qwt_painter.h"
 #include <qapplication.h>
 #include <qdesktopwidget.h>
-#include <qpaintdevice.h>
 #include <qpainter.h>
+#include <qpaintengine.h>
 
 class QwtPlotRasterItem::PrivateData
 {
@@ -30,7 +31,7 @@ public:
     struct ImageCache
     {
         QwtPlotRasterItem::CachePolicy policy;
-        QRectF rect;
+        QRectF area;
         QSize size;
         QImage image;
     } cache;
@@ -196,7 +197,7 @@ QwtPlotRasterItem::CachePolicy QwtPlotRasterItem::cachePolicy() const
 void QwtPlotRasterItem::invalidateCache()
 {
     d_data->cache.image = QImage();
-    d_data->cache.rect = QRectF();
+    d_data->cache.area = QRect();
     d_data->cache.size = QSize();
 }
 
@@ -230,17 +231,23 @@ void QwtPlotRasterItem::draw(QPainter *painter,
 
     QwtScaleMap xxMap = xMap;
     QwtScaleMap yyMap = yMap;
-    QRectF rasterRect = canvasRect;
+    QRectF scaledCanvasRect = canvasRect;
 
     const QTransform tr = painter->transform();
     if ( tr.isScaling() )
     {
-        rasterRect = tr.mapRect(rasterRect);
+        /*
+            Scaling a rastered image always results in a loss of
+            precision/quality. So we always render the image in
+            paint device resolution.
+         */
+
+        scaledCanvasRect = tr.mapRect(scaledCanvasRect);
         xxMap.setPaintInterval(tr.m11() * xxMap.p1(), tr.m11() * xxMap.p2());
         yyMap.setPaintInterval(tr.m22() * yyMap.p1(), tr.m22() * yyMap.p2());
     }
 
-    QRectF area = invTransform(xxMap, yyMap, rasterRect);
+    QRectF area = invTransform(xxMap, yyMap, scaledCanvasRect);
     if ( boundingRect().isValid() )
         area &= boundingRect();
 
@@ -248,52 +255,67 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( !paintRect.isValid() )
         return;
 
+    // after scaling the rectangle we also need to do the
+    // translation of the painter, when we want to use a
+    // painter without transformation later.
+
     paintRect.translate(tr.m31(), tr.m32());
 
+    // align the image to the raster of the paint device
+    const QRect imageRect = paintRect.toAlignedRect();
+    const QRectF imageArea = invTransform(xxMap, yyMap, imageRect);
 
     QImage image;
 
-    bool doCache = true;
-    if ( painter->device()->devType() == QInternal::Printer 
-            || painter->device()->devType() == QInternal::Picture )
+    QwtPlotRasterItem::CachePolicy policy = d_data->cache.policy;
+    if ( policy != QwtPlotRasterItem::NoCache )
     {
-        doCache = false;
-    }
+        // Caching doesn't make sense, when the item is
+        // not painted to screen
 
-    if ( !doCache || d_data->cache.policy == NoCache )
-    {
-        image = renderImage(xxMap, yyMap, area);
-        if ( d_data->alpha >= 0 && d_data->alpha < 255 )
-            image = toRgba(image, d_data->alpha);
-
-    }
-    else if ( d_data->cache.policy == PaintCache )
-    {
-        if ( d_data->cache.image.isNull() || d_data->cache.rect != area
-            || d_data->cache.size != paintRect.size() )
+        switch(painter->paintEngine()->type())
         {
-            d_data->cache.image = renderImage(xxMap, yyMap, area);
-            d_data->cache.rect = area;
-            d_data->cache.size = paintRect.toRect().size();
+            case QPaintEngine::SVG:
+            case QPaintEngine::Pdf:
+            case QPaintEngine::PostScript:
+            case QPaintEngine::MacPrinter:
+            case QPaintEngine::Picture:
+                policy = QwtPlotRasterItem::NoCache;
+                break;
+            default:;
+        }
+    }
+
+    if ( policy == QwtPlotRasterItem::NoCache )
+    {
+        image = renderImage(xxMap, yyMap, imageArea);
+    }
+    else if ( policy == QwtPlotRasterItem::PaintCache )
+    {
+        if ( d_data->cache.image.isNull() || d_data->cache.area != imageArea
+            || d_data->cache.size != imageRect.size() )
+        {
+            d_data->cache.image = renderImage(xxMap, yyMap, imageArea);
+            d_data->cache.area = imageArea;
+            d_data->cache.size = imageRect.size();
         }
 
         image = d_data->cache.image;
-        if ( d_data->alpha >= 0 && d_data->alpha < 255 )
-            image = toRgba(image, d_data->alpha);
     }
-    else if ( d_data->cache.policy == ScreenCache )
+    else if ( policy == QwtPlotRasterItem::ScreenCache )
     {
         const QSize screenSize =
             QApplication::desktop()->screenGeometry().size();
 
-        if ( paintRect.width() > screenSize.width() ||
-            paintRect.height() > screenSize.height() )
+        if ( imageArea.width() > screenSize.width() ||
+            imageArea.height() > screenSize.height() )
         {
-            image = renderImage(xxMap, yyMap, area);
+            image = renderImage(xxMap, yyMap, imageArea);
         }
         else
         {
-            if ( d_data->cache.image.isNull() || d_data->cache.rect != area )
+            if ( d_data->cache.image.isNull() || 
+                d_data->cache.area != imageArea )
             {
                 QwtScaleMap cacheXMap = xxMap;
                 cacheXMap.setPaintInterval( 0, screenSize.width());
@@ -302,20 +324,22 @@ void QwtPlotRasterItem::draw(QPainter *painter,
                 cacheYMap.setPaintInterval(screenSize.height(), 0);
 
                 d_data->cache.image = renderImage(
-                    cacheXMap, cacheYMap, area);
-                d_data->cache.rect = area;
-                d_data->cache.size = paintRect.toRect().size();
+                    cacheXMap, cacheYMap, imageArea);
+                d_data->cache.area = imageArea;
+                d_data->cache.size = imageRect.size();
             }
 
             image = d_data->cache.image;
         }
-        image = toRgba(image, d_data->alpha);
     }
+
+    if ( d_data->alpha >= 0 && d_data->alpha < 255 )
+        image = toRgba(image, d_data->alpha);
 
     painter->save();
     painter->resetTransform();
 
-    painter->drawImage(paintRect, image);
+    QwtPainter::drawImage(painter, paintRect, image);
 
     painter->restore();
 }

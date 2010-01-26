@@ -120,14 +120,6 @@ void QwtPainter::setPolylineSplitting(bool enable)
 }
 
 /*!
-    Wrapper for QPainter::setClipRect()
-*/
-void QwtPainter::setClipRect(QPainter *painter, const QRectF &rect)
-{
-    painter->setClipRect(rect);
-}
-
-/*!
     Wrapper for QPainter::drawRect()
 */
 void QwtPainter::drawRect(QPainter *painter, double x, double y, double w, double h) 
@@ -404,6 +396,46 @@ void QwtPainter::drawPoint(QPainter *painter, const QPointF &pos)
     painter->drawPoint(pos);
 }
 
+void QwtPainter::drawImage(QPainter *painter, 
+    const QRectF &rect, const QImage &image)
+{
+    const QRect alignedRect = rect.toAlignedRect();
+
+    if ( alignedRect != rect )
+    {
+        const QRectF clipRect = rect.adjusted(0.0, 0.0, -1.0, -1.0);
+
+        painter->save();
+        painter->setClipRect(clipRect, Qt::IntersectClip);
+        painter->drawImage(alignedRect, image);
+        painter->restore();
+    }
+    else
+    {
+        painter->drawImage(alignedRect, image);
+    }
+}
+
+void QwtPainter::drawPixmap(QPainter *painter, 
+    const QRectF &rect, const QPixmap &pixmap)
+{
+    const QRect alignedRect = rect.toAlignedRect();
+
+    if ( alignedRect != rect )
+    {
+        const QRectF clipRect = rect.adjusted(0.0, 0.0, -1.0, -1.0);
+
+        painter->save();
+        painter->setClipRect(clipRect, Qt::IntersectClip);
+        painter->drawPixmap(alignedRect, pixmap);
+        painter->restore();
+    }
+    else
+    {
+        painter->drawPixmap(alignedRect, pixmap);
+    }
+}
+
 void QwtPainter::drawColoredArc(QPainter *painter, const QRect &rect, 
     int peak, int arc, int interval, const QColor &c1, const QColor &c2)
 {
@@ -491,7 +523,7 @@ void QwtPainter::drawColorBar(QPainter *painter,
 
     QColor c;
 
-    const QRect devRect = rect.toRect();
+    const QRect devRect = rect.toAlignedRect();
 
     /*
       We paint to a pixmap first to have something scalable for printing
@@ -505,7 +537,7 @@ void QwtPainter::drawColorBar(QPainter *painter,
     if ( orientation == Qt::Horizontal )
     {
         QwtScaleMap sMap = scaleMap;
-        sMap.setPaintInterval(devRect.left(), devRect.right());
+        sMap.setPaintInterval(rect.left(), rect.right());
 
         for ( int x = devRect.left(); x <= devRect.right(); x++ )
         {
@@ -523,7 +555,7 @@ void QwtPainter::drawColorBar(QPainter *painter,
     else // Vertical
     {
         QwtScaleMap sMap = scaleMap;
-        sMap.setPaintInterval(devRect.bottom(), devRect.top());
+        sMap.setPaintInterval(rect.bottom(), rect.top());
 
         for ( int y = devRect.top(); y <= devRect.bottom(); y++ )
         {
@@ -539,5 +571,6 @@ void QwtPainter::drawColorBar(QPainter *painter,
         }
     }
     pmPainter.end();
-    painter->drawPixmap(devRect, pixmap);
+
+    drawPixmap(painter, rect, pixmap);
 }
