@@ -212,9 +212,10 @@ public:
     QwtText axisTitle(int axisId) const;
 
     void setAxisMaxMinor(int axisId, int maxMinor);
-    int axisMaxMajor(int axisId) const;
-    void setAxisMaxMajor(int axisId, int maxMajor);
     int axisMaxMinor(int axisId) const;
+
+    void setAxisMaxMajor(int axisId, int maxMajor);
+    int axisMaxMajor(int axisId) const;
 
     // Legend 
 
