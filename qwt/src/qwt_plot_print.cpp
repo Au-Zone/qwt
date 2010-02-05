@@ -22,33 +22,90 @@
 #include <qpainter.h>
 #include <qpaintengine.h>
 #include <qtransform.h>
+#include <qprinter.h>
+#ifdef QT_SVG_LIB
+#include <qsvggenerator.h>
+#endif
 
 /*!
-  \brief Print the plot to a \c QPaintDevice (\c QPrinter)
-  This function prints the contents of a QwtPlot instance to
-  \c QPaintDevice object. The size is derived from its device
-  metrics.
+  \brief Render the plot to a \c QPaintDevice 
+  This function renders the contents of a QwtPlot instance to
+  \c QPaintDevice object. The target rectangle is derived from 
+  its device metrics.
 
-  \param paintDev device to paint on, often a printer
+  \param paintDevice device to paint on, f.e a QImage
   \param pfilter print filter
 
   \sa QwtPlotPrintFilter
 */
 
-void QwtPlot::print(QPaintDevice &paintDev,
+void QwtPlot::print(QPaintDevice &paintDevice,
    const QwtPlotPrintFilter &pfilter) const
 {
-    int w = paintDev.width();
-    int h = paintDev.height();
+    int w = paintDevice.width();
+    int h = paintDevice.height();
+
+    QPainter p(&paintDevice);
+    print(&p, QRectF(0, 0, w, h), pfilter);
+}
+
+/*!
+  \brief Render the plot to a QPrinter
+
+  This function renders the contents of a QwtPlot instance to
+  \c QPaintDevice object. The size is derived from the printer
+  metrics.
+
+  \param printer Printer to paint on
+  \param pfilter print filter
+
+  \sa QwtPlotPrintFilter
+*/
+
+void QwtPlot::print(QPrinter &printer,
+   const QwtPlotPrintFilter &pfilter) const
+{
+    int w = printer.width();
+    int h = printer.height();
 
     QRectF rect(0, 0, w, h);
     double aspect = rect.width() / rect.height();
     if ((aspect < 1.0))
         rect.setHeight(aspect * rect.width());
 
-    QPainter p(&paintDev);
+    QPainter p(&printer);
     print(&p, rect, pfilter);
 }
+
+/*!
+  \brief Render the plot to a QSvgGenerator
+
+  If the generator has a view box, the plot will be rendered into it.
+  If it has no viewBox but a valid size the target coordinates
+  will be (0, 0, generator.width(), generator.height()). Otherwise
+  the target rectangle will be QRectF(0, 0, 800, 600);
+
+  \param generator SVG generator
+  \param pfilter print filter
+
+  \sa QwtPlotPrintFilter
+*/
+
+#ifdef QT_SVG_LIB
+void QwtPlot::print(QSvgGenerator &generator,
+   const QwtPlotPrintFilter &pfilter) const
+{
+    QRectF rect = generator.viewBoxF();
+    if ( rect.isEmpty() )
+        rect.setRect(0, 0, generator.width(), generator.height());
+
+    if ( rect.isEmpty() )
+        rect.setRect(0, 0, 800, 600); // something
+        
+    QPainter p(&generator);
+    print(&p, rect, pfilter);
+}
+#endif
 
 /*!
   \brief Paint the plot into a given rectangle.
