@@ -27,6 +27,11 @@ class QwtTextLabel;
 class QwtPlotCanvas;
 class QwtPlotPrintFilter;
 
+class QPrinter;
+#ifdef QT_SVG_LIB
+class QSvgGenerator;
+#endif
+
 /*!
   \brief A 2-D plotting widget
 
@@ -136,8 +141,16 @@ public:
     void setAutoReplot(bool tf = true);
     bool autoReplot() const;
 
+#ifdef QT_SVG_LIB
+    void print(QSvgGenerator &,
+        const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
+#endif
+    void print(QPrinter &,
+        const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
+
     void print(QPaintDevice &p,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
+
     virtual void print(QPainter *, const QRectF &rect,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
 
