@@ -12,6 +12,7 @@ public:
 
 public Q_SLOTS:
     void loadSVG();
+    void loadSVG(const QString &);
 
 private:
     void rescale();
