@@ -16,6 +16,7 @@
 #include <qpen.h>
 #include <qpainter.h>
 #include <qmath.h>
+#include <qalgorithms.h>
 #if QT_VERSION >= 0x040400
 #include <qthread.h>
 #include <qfuture.h>

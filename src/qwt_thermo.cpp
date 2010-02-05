@@ -17,6 +17,7 @@
 #include <qstyle.h>
 #include <qpixmap.h>
 #include <qdrawutil.h>
+#include <qalgorithms.h>
 
 class QwtThermo::PrivateData
 {
