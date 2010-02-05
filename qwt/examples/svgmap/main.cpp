@@ -7,10 +7,12 @@
 class MainWindow: public QMainWindow
 {
 public:
-    MainWindow(QWidget *parent = NULL):
-        QMainWindow(parent)
+    MainWindow(const QString &fileName)
     {   
         Plot *plot = new Plot(this);
+        if ( !fileName.isEmpty() )
+            plot->loadSVG(fileName);
+            
         setCentralWidget(plot);
 
         QToolBar *toolBar = new QToolBar(this);
@@ -31,7 +33,11 @@ int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
 
-    MainWindow w;
+    QString fileName;
+    if ( argc > 1 )
+        fileName = argv[1];
+
+    MainWindow w(fileName);
     w.resize(600,400);
     w.show();
 

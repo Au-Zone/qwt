@@ -13,8 +13,8 @@ TARGET   = svgmap
 QT      += svg
 
 HEADERS = \
-	plot.h
+    plot.h
 
 SOURCES = \
-	plot.cpp \
-	main.cpp
+    plot.cpp \
+    main.cpp

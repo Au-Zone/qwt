@@ -49,18 +49,21 @@ void Plot::loadSVG()
         dir, "SVG Files (*.svg)");
 
     if ( !fileName.isEmpty() )
+        loadSVG(fileName);
+}
+
+void Plot::loadSVG(const QString &fileName)
+{
+    if ( d_mapItem == NULL )
     {
-        if ( d_mapItem == NULL )
-        {
-            d_mapItem = new QwtPlotSvgItem();
-            d_mapItem->attach(this);
-        }
-
-        d_mapItem->loadFile(d_mapRect, fileName);
-        rescale();
-
-        replot();
+        d_mapItem = new QwtPlotSvgItem();
+        d_mapItem->attach(this);
     }
+
+    d_mapItem->loadFile(d_mapRect, fileName);
+    rescale();
+
+    replot();
 }
 
 void Plot::rescale()
