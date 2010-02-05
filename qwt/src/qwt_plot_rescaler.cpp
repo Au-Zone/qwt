@@ -13,6 +13,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_double_interval.h"
 #include <qevent.h>
+#include <qalgorithms.h>
 
 class QwtPlotRescaler::AxisData
 {

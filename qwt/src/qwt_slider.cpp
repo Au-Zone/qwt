@@ -14,6 +14,7 @@
 #include <qevent.h>
 #include <qdrawutil.h>
 #include <qpainter.h>
+#include <qalgorithms.h>
 #include <math.h>
 
 class QwtSlider::PrivateData

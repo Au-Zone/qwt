@@ -19,6 +19,7 @@
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
 #include <qpainter.h>
+#include <qalgorithms.h>
 
 static int verifyRange(int size, int &i1, int &i2)
 {

@@ -10,6 +10,7 @@
 #include "qwt_scale_engine.h"
 #include "qwt_math.h"
 #include "qwt_scale_map.h"
+#include <qalgorithms.h>
 
 static const double _eps = 1.0e-6;
 

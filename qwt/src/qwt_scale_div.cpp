@@ -10,6 +10,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_math.h"
 #include "qwt_double_interval.h"
+#include <qalgorithms.h>
 
 //! Construct an invalid QwtScaleDiv instance.
 QwtScaleDiv::QwtScaleDiv():

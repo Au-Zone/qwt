@@ -13,12 +13,13 @@
 #include "qwt_scale_engine.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
-#include <math.h>
 #include <qpainter.h>
 #include <qbitmap.h>
 #include <qpalette.h>
 #include <qpixmap.h>
 #include <qevent.h>
+#include <qalgorithms.h>
+#include <math.h>
 
 class QwtDial::PrivateData
 {
