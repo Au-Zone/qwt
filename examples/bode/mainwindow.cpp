@@ -17,6 +17,7 @@
 #include <qwt_picker_machine.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
+#include <qwt_plot_renderer.h>
 #include <qwt_text.h>
 #include <qwt_math.h>
 #include "pixmaps.h"
@@ -166,15 +167,15 @@ void MainWindow::print()
     QPrintDialog dialog(&printer);
     if ( dialog.exec() )
     {
-        QwtPlotPrintFilter filter;
+		QwtPlotRenderer renderer;
+
         if ( printer.colorMode() == QPrinter::GrayScale )
         {
-            int options = QwtPlotPrintFilter::PrintAll;
-            options &= ~QwtPlotPrintFilter::PrintBackground;
-            options |= QwtPlotPrintFilter::PrintFrameWithScales;
-            filter.setOptions(options);
+			renderer.setDiscardFlag(QwtPlotRenderer::DiscardCanvasBackground);
+			renderer.setLayoutFlag(QwtPlotRenderer::FrameWithScales);
         }
-        d_plot->print(printer, filter);
+
+        renderer.renderTo(d_plot, printer);
     }
 }
 
@@ -201,7 +202,8 @@ void MainWindow::exportSVG()
 		generator.setResolution(resolution);
         generator.setViewBox( QRectF(0, 0, w, h ) );
 
-        d_plot->print(generator);
+		QwtPlotRenderer renderer;
+        renderer.renderTo(d_plot, generator);
     }
 }
 #endif
