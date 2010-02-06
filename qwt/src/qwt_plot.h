@@ -14,7 +14,6 @@
 #include "qwt_text.h"
 #include "qwt_plot_dict.h"
 #include "qwt_scale_map.h"
-#include "qwt_plot_printfilter.h"
 #include <qframe.h>
 
 class QwtPlotLayout;
@@ -25,12 +24,6 @@ class QwtScaleDiv;
 class QwtScaleDraw;
 class QwtTextLabel;
 class QwtPlotCanvas;
-class QwtPlotPrintFilter;
-
-class QPrinter;
-#ifdef QT_SVG_LIB
-class QSvgGenerator;
-#endif
 
 /*!
   \brief A 2-D plotting widget
@@ -116,7 +109,7 @@ public:
           have a legend in an external window ( or on the canvas ).
 
         \note In case of ExternalLegend, the legend is not 
-              printed by print().
+              handled by QwtPlotRenderer
 
         \sa insertLegend()
      */
@@ -140,19 +133,6 @@ public:
 
     void setAutoReplot(bool tf = true);
     bool autoReplot() const;
-
-#ifdef QT_SVG_LIB
-    void print(QSvgGenerator &,
-        const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
-#endif
-    void print(QPrinter &,
-        const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
-
-    void print(QPaintDevice &p,
-        const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
-
-    virtual void print(QPainter *, const QRectF &rect,
-        const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
 
     // Layout
 
@@ -251,6 +231,9 @@ public:
 
     virtual bool event(QEvent *);
 
+    virtual void drawItems(QPainter *, const QRectF &,
+        const QwtScaleMap maps[axisCnt]) const;
+
 Q_SIGNALS:
     /*!
       A signal which is emitted when the user has clicked on 
@@ -291,26 +274,9 @@ protected Q_SLOTS:
 protected:
     static bool axisValid(int axisId);
 
-    virtual void drawItems(QPainter *, const QRectF &,
-        const QwtScaleMap maps[axisCnt],
-        const QwtPlotPrintFilter &) const;
-
     virtual void updateTabOrder();
 
     virtual void resizeEvent(QResizeEvent *e);
-
-    virtual void printLegendItem(QPainter *, 
-        const QWidget *, const QRectF &) const;
-
-    virtual void printTitle(QPainter *, const QRectF &) const;
-
-    virtual void printScale(QPainter *, int axisId, int startDist, int endDist,
-        int baseDist, const QRectF &) const;
-
-    virtual void printCanvas(QPainter *, const QRectF &canvasRect,
-        const QwtScaleMap maps[axisCnt], const QwtPlotPrintFilter &) const;
-
-    virtual void printLegend(QPainter *, const QRectF &) const;
 
 private:
     void initAxesData();

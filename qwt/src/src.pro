@@ -113,6 +113,7 @@ contains(CONFIG, QwtPlot) {
         qwt_legend_item.h \
         qwt_legend_itemmanager.h \
         qwt_plot.h \
+        qwt_plot_renderer.h \
         qwt_plot_curve.h \
         qwt_plot_curve_3d.h \
         qwt_plot_dict.h \
@@ -123,7 +124,6 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_intervalcurve.h \
         qwt_plot_layout.h \
         qwt_plot_marker.h \
-        qwt_plot_printfilter.h \
         qwt_plot_rasteritem.h \
         qwt_plot_spectrogram.h \
         qwt_plot_scaleitem.h \
@@ -144,7 +144,7 @@ contains(CONFIG, QwtPlot) {
         qwt_legend.cpp \
         qwt_legend_item.cpp \
         qwt_plot.cpp \
-        qwt_plot_print.cpp \
+        qwt_plot_renderer.cpp \
         qwt_plot_xml.cpp \
         qwt_plot_axis.cpp \
         qwt_plot_curve.cpp \
@@ -160,7 +160,6 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_seriesitem.cpp \
         qwt_plot_marker.cpp \
         qwt_plot_layout.cpp \
-        qwt_plot_printfilter.cpp \
         qwt_plot_canvas.cpp \
         qwt_plot_panner.cpp \
         qwt_plot_rasteritem.cpp \

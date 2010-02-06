@@ -480,8 +480,7 @@ void QwtPlot::drawCanvas(QPainter *painter)
     for ( int axisId = 0; axisId < axisCnt; axisId++ )
         maps[axisId] = canvasMap(axisId);
 
-    drawItems(painter, 
-        d_data->canvas->contentsRect(), maps, QwtPlotPrintFilter());
+    drawItems(painter, d_data->canvas->contentsRect(), maps);
 }
 
 /*! 
@@ -493,8 +492,7 @@ void QwtPlot::drawCanvas(QPainter *painter)
 */
 
 void QwtPlot::drawItems(QPainter *painter, const QRectF &canvasRect, 
-        const QwtScaleMap map[axisCnt], 
-        const QwtPlotPrintFilter &pfilter) const
+        const QwtScaleMap map[axisCnt]) const
 {
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
@@ -503,12 +501,6 @@ void QwtPlot::drawItems(QPainter *painter, const QRectF &canvasRect,
         QwtPlotItem *item = *it;
         if ( item && item->isVisible() )
         {
-            if ( !(pfilter.options() & QwtPlotPrintFilter::PrintGrid)
-                && item->rtti() == QwtPlotItem::Rtti_PlotGrid )
-            {
-                continue;
-            }
-
             painter->save();
 
             painter->setRenderHint(QPainter::Antialiasing,

@@ -7,6 +7,7 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_layout.h>
+#include <qwt_plot_renderer.h>
 #include "plot.h"
 
 class MyZoomer: public QwtPlotZoomer
@@ -141,6 +142,9 @@ void Plot::printPlot()
     printer.setOutputFileName("/tmp/spectrogram.pdf");
     QPrintDialog dialog(&printer);
     if ( dialog.exec() )
-        print(printer);
+	{
+		QwtPlotRenderer renderer;
+		renderer.renderTo(this, printer);
+	}
 }
 
