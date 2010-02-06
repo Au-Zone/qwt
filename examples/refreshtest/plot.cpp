@@ -149,13 +149,13 @@ void Plot::timerEvent(QTimerEvent *)
         case Settings::UpdateCanvas:
         {
             canvas()->invalidatePaintCache();
-            canvas()->repaint(canvas()->contentsRect());
+            canvas()->update(canvas()->contentsRect());
             break;
         }
         case Settings::RepaintCanvas:
         {
             canvas()->invalidatePaintCache();
-            canvas()->update(canvas()->contentsRect());
+            canvas()->repaint(canvas()->contentsRect());
             break;
         }
         default:

@@ -151,12 +151,7 @@ MainWindow::MainWindow(QWidget *parent):
 
 void MainWindow::print()
 {
-#if 0
-    QPrinter printer;
-#else
     QPrinter printer(QPrinter::HighResolution);
-    printer.setOutputFileName("/tmp/bode.pdf");
-#endif
 
     QString docName = d_plot->title().text();
     if ( !docName.isEmpty() )
@@ -183,11 +178,11 @@ void MainWindow::print()
     }
 }
 
+#ifdef QT_SVG_LIB
 void MainWindow::exportSVG()
 {
     QString fileName = "bode.svg";
 
-#ifdef QT_SVG_LIB
 #ifndef QT_NO_FILEDIALOG
     fileName = QFileDialog::getSaveFileName(
         this, "Export File Name", QString(),
@@ -195,14 +190,21 @@ void MainWindow::exportSVG()
 #endif
     if ( !fileName.isEmpty() )
     {
+		const double resolution = 85;
+
+		const double w = double(resolution) / logicalDpiX() * 800;
+		const double h = double(resolution) / logicalDpiY() * 600;
+
         QSvgGenerator generator;
+        generator.setTitle("title()");
         generator.setFileName(fileName);
-        generator.setSize(QSize(800, 600));
+		generator.setResolution(resolution);
+        generator.setViewBox( QRectF(0, 0, w, h ) );
 
         d_plot->print(generator);
     }
-#endif
 }
+#endif
 
 void MainWindow::enableZoomMode(bool on)
 {
