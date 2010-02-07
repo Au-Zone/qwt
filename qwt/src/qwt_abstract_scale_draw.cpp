@@ -22,12 +22,12 @@ class QwtAbstractScaleDraw::PrivateData
 public:
     PrivateData():
         components(Backbone | Ticks | Labels),
-        spacing(4),
-        minExtent(0)
+        spacing(4.0),
+        minExtent(0.0)
     {
-        tickLength[QwtScaleDiv::MinorTick] = 4;
-        tickLength[QwtScaleDiv::MediumTick] = 6;
-        tickLength[QwtScaleDiv::MajorTick] = 8;
+        tickLength[QwtScaleDiv::MinorTick] = 4.0;
+        tickLength[QwtScaleDiv::MediumTick] = 6.0;
+        tickLength[QwtScaleDiv::MajorTick] = 8.0;
     }
 
     int components;
@@ -35,10 +35,10 @@ public:
     QwtScaleMap map;
     QwtScaleDiv scldiv;
         
-    int spacing;
-    int tickLength[QwtScaleDiv::NTickTypes];
+    double spacing;
+    double tickLength[QwtScaleDiv::NTickTypes];
 
-    int minExtent;
+    double minExtent;
 
     QMap<double, QwtText> labelCache;
 };
@@ -218,7 +218,7 @@ void QwtAbstractScaleDraw::draw(QPainter *painter,
 
   \sa spacing()
 */
-void QwtAbstractScaleDraw::setSpacing(int spacing)
+void QwtAbstractScaleDraw::setSpacing(double spacing)
 {
     if ( spacing < 0 )
         spacing = 0;
@@ -234,7 +234,7 @@ void QwtAbstractScaleDraw::setSpacing(int spacing)
 
   \sa setSpacing()
 */
-int QwtAbstractScaleDraw::spacing() const
+double QwtAbstractScaleDraw::spacing() const
 {
     return d_data->spacing;
 }
@@ -252,10 +252,10 @@ int QwtAbstractScaleDraw::spacing() const
 
   \sa extent(), minimumExtent()
 */
-void QwtAbstractScaleDraw::setMinimumExtent(int minExtent)
+void QwtAbstractScaleDraw::setMinimumExtent(double minExtent)
 {
-    if ( minExtent < 0 )
-        minExtent = 0;
+    if ( minExtent < 0.0 )
+        minExtent = 0.0;
 
     d_data->minExtent = minExtent;
 }
@@ -264,7 +264,7 @@ void QwtAbstractScaleDraw::setMinimumExtent(int minExtent)
   Get the minimum extent
   \sa extent(), setMinimumExtent()
 */
-int QwtAbstractScaleDraw::minimumExtent() const
+double QwtAbstractScaleDraw::minimumExtent() const
 {
     return d_data->minExtent;
 }
@@ -278,7 +278,7 @@ int QwtAbstractScaleDraw::minimumExtent() const
   \warning the length is limited to [0..1000]
 */
 void QwtAbstractScaleDraw::setTickLength(
-    QwtScaleDiv::TickType tickType, int length)
+    QwtScaleDiv::TickType tickType, double length)
 {
     if ( tickType < QwtScaleDiv::MinorTick || 
         tickType > QwtScaleDiv::MajorTick )
@@ -286,12 +286,12 @@ void QwtAbstractScaleDraw::setTickLength(
         return;
     }
 
-    if ( length < 0 )
-        length = 0;
+    if ( length < 0.0 )
+        length = 0.0;
 
-    const int maxTickLen = 1000;
+    const double maxTickLen = 1000.0;
     if ( length > maxTickLen )
-        length = 1000;
+        length = maxTickLen;
 
     d_data->tickLength[tickType] = length;
 }
@@ -301,7 +301,7 @@ void QwtAbstractScaleDraw::setTickLength(
 
     \sa setTickLength(), majTickLength()
 */
-int QwtAbstractScaleDraw::tickLength(QwtScaleDiv::TickType tickType) const
+double QwtAbstractScaleDraw::tickLength(QwtScaleDiv::TickType tickType) const
 {
     if ( tickType < QwtScaleDiv::MinorTick || 
         tickType > QwtScaleDiv::MajorTick )
@@ -315,7 +315,7 @@ int QwtAbstractScaleDraw::tickLength(QwtScaleDiv::TickType tickType) const
 /*!
    The same as QwtAbstractScaleDraw::tickLength(QwtScaleDiv::MajorTick).
 */
-int QwtAbstractScaleDraw::majTickLength() const
+double QwtAbstractScaleDraw::majTickLength() const
 {
     return d_data->tickLength[QwtScaleDiv::MajorTick];
 }

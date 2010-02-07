@@ -59,7 +59,7 @@ public:
     {
         if ( d_rect.isValid() )
         {
-            const QRectF rect = QwtScaleMap::xTransform(
+            const QRectF rect = QwtScaleMap::transform(
                 xMap, yMap, d_rect);
             painter->setPen(d_pen);
             painter->setBrush(d_brush);

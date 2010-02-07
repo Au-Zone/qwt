@@ -268,7 +268,7 @@ void QwtPlotGrid::drawLines(QPainter *painter, const QRectF &canvasRect,
 
     for (uint i = 0; i < (uint)values.count(); i++)
     {
-        const double value = scaleMap.xTransform(values[i]);
+        const double value = scaleMap.transform(values[i]);
         if ( orientation == Qt::Horizontal )
         {
             if ( qwtFuzzyGreaterOrEqual(value, y1) && 

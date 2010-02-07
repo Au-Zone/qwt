@@ -252,7 +252,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( boundingRect().isValid() )
         area &= boundingRect();
 
-    QRectF paintRect = QwtScaleMap::xTransform(
+    QRectF paintRect = QwtScaleMap::transform(
         xxMap, yyMap, area);
     if ( !paintRect.isValid() )
         return;

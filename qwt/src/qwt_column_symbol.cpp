@@ -122,9 +122,9 @@ const QwtText& QwtColumnSymbol::label() const
 }
 
 void QwtColumnSymbol::draw(QPainter *painter, 
-    Direction direction, const QRect &rect) const
+    Direction direction, const QRectF &rect) const
 {
-    const QRect r = rect.normalized();
+    const QRectF r = rect.normalized();
     painter->save();
 
     switch(d_data->style)
@@ -141,12 +141,8 @@ void QwtColumnSymbol::draw(QPainter *painter,
 }
 
 void QwtColumnSymbol::drawBox(QPainter *painter, 
-    Direction, const QRect &rect) const
+    Direction, const QRectF &rect) const
 {
-    QRect r = rect.normalized();
-    r.setTop(r.top() + 1);
-    r.setRight(r.right() + 1);
-
     const int shadowMask = QFrame::Shadow_Mask;
     const int shapeMask = QFrame::Shape_Mask;
 
@@ -166,7 +162,7 @@ void QwtColumnSymbol::drawBox(QPainter *painter,
         case QFrame::StyledPanel:
         case QFrame::WinPanel:
         {
-            qDrawShadePanel(painter, r, d_data->palette, 
+            qDrawShadePanel(painter, rect.toRect(), d_data->palette, 
                 shadow == QFrame::Sunken, d_data->lineWidth, &brush);
             break;
         }
@@ -175,7 +171,7 @@ void QwtColumnSymbol::drawBox(QPainter *painter,
         {
             if ( shadow == QFrame::Plain )
             {
-                qDrawPlainRect(painter, r, 
+                qDrawPlainRect(painter, rect.toRect(), 
                     d_data->palette.color(QPalette::Foreground),
                     d_data->lineWidth, &brush);
             }
@@ -183,7 +179,7 @@ void QwtColumnSymbol::drawBox(QPainter *painter,
             {
                 const int midLineWidth = 0;
 
-                qDrawShadeRect( painter, r, d_data->palette, 
+                qDrawShadeRect( painter, rect.toRect(), d_data->palette, 
                     shadow == QFrame::Sunken, 
                     d_data->lineWidth, midLineWidth, &brush 
                 );

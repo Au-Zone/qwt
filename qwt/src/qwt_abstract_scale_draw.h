@@ -65,12 +65,12 @@ public:
     void enableComponent(ScaleComponent, bool enable = true);
     bool hasComponent(ScaleComponent) const;
 
-    void setTickLength(QwtScaleDiv::TickType, int length);
-    int tickLength(QwtScaleDiv::TickType) const;
-    int majTickLength() const;
+    void setTickLength(QwtScaleDiv::TickType, double length);
+    double tickLength(QwtScaleDiv::TickType) const;
+    double majTickLength() const;
 
-    void setSpacing(int margin);
-    int spacing() const;
+    void setSpacing(double margin);
+    double spacing() const;
         
     virtual void draw(QPainter *, const QPalette &) const;
 
@@ -85,10 +85,10 @@ public:
  
       \sa setMinimumExtent(), minimumExtent()
     */
-    virtual int extent(const QPen &, const QFont &) const = 0;
+    virtual double extent(const QPen &, const QFont &) const = 0;
 
-    void setMinimumExtent(int);
-    int minimumExtent() const;
+    void setMinimumExtent(double);
+    double minimumExtent() const;
 
     QwtScaleMap &scaleMap();
 

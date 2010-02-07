@@ -48,7 +48,7 @@ public:
     int minLabelDist(const QFont &) const;
 
     int minLength(const QPen &, const QFont &) const;
-    virtual int extent(const QPen &, const QFont &) const;
+    virtual double extent(const QPen &, const QFont &) const;
 
     void move(double x, double y);
     void move(const QPointF &);

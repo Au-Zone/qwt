@@ -126,8 +126,8 @@ void QwtPlotMarker::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect) const
 {
-    const double x = xMap.xTransform(d_data->xValue);
-    const double y = yMap.xTransform(d_data->yValue);
+    const double x = xMap.transform(d_data->xValue);
+    const double y = yMap.transform(d_data->yValue);
 
     drawAt(painter, canvasRect, QPointF(x, y));
 }

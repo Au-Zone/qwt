@@ -165,7 +165,7 @@ public:
     virtual QwtScaleMap canvasMap(int axisId) const;
 
     double invTransform(int axisId, int pos) const;
-    double xTransform(int axisId, double value) const;
+    double transform(int axisId, double value) const;
 
     // Axes
 

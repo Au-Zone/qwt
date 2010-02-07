@@ -833,8 +833,8 @@ QSize QwtThermo::minimumSizeHint() const
 
     if ( d_data->scalePos != NoScale )
     {
-        const int sdExtent = scaleDraw()->extent( QPen(), font() );
-        const int sdLength = scaleDraw()->minLength( QPen(), font() );
+        const int sdExtent = ::ceil(scaleDraw()->extent( QPen(), font() ));
+        const int sdLength = ::ceil(scaleDraw()->minLength( QPen(), font() ));
 
         w = sdLength;
         h = d_data->thermoWidth + sdExtent + 
@@ -866,5 +866,5 @@ int QwtThermo::transform(double value) const
     if ( value < min )
         value = min;
 
-    return d_data->map.transform(value);
+    return qRound(d_data->map.transform(value));
 }

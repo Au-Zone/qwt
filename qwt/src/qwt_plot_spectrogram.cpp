@@ -396,7 +396,7 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( area.isEmpty() )
         return QImage();
 
-    QRect rect = toInnerRect( QwtScaleMap::xTransform(xMap, yMap, area) );
+    QRect rect = toInnerRect( QwtScaleMap::transform(xMap, yMap, area) );
 
     QwtScaleMap xxMap = xMap;
     QwtScaleMap yyMap = yMap;
@@ -638,9 +638,9 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
         const QPolygonF &lines = contourLines[level];
         for ( int i = 0; i < (int)lines.size(); i += 2 )
         {
-            const QPoint p1( xMap.transform(lines[i].x()),
+            const QPointF p1( xMap.transform(lines[i].x()),
                 yMap.transform(lines[i].y()) );
-            const QPoint p2( xMap.transform(lines[i+1].x()),
+            const QPointF p2( xMap.transform(lines[i+1].x()),
                 yMap.transform(lines[i+1].y()) );
 
             QwtPainter::drawLine(painter, p1, p2);
@@ -683,7 +683,7 @@ void QwtPlotSpectrogram::draw(QPainter *painter,
             if ( area.isEmpty() )
                 return;
 
-            rasterRect = QwtScaleMap::xTransform(xMap, yMap, area);
+            rasterRect = QwtScaleMap::transform(xMap, yMap, area);
         }
 
         QSize raster = contourRasterSize(area, rasterRect.toRect());

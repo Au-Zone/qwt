@@ -76,7 +76,7 @@ double QwtDial::PrivateData::previousDir = -1.0;
 */
 QwtDialScaleDraw::QwtDialScaleDraw(QwtDial *parent):
     d_parent(parent),
-    d_penWidth(1)
+    d_penWidth(1.0)
 {
 }
 
@@ -87,16 +87,16 @@ QwtDialScaleDraw::QwtDialScaleDraw(QwtDial *parent):
   \sa penWidth(), QwtDial::drawScale()
 */
     
-void QwtDialScaleDraw::setPenWidth(uint penWidth)
+void QwtDialScaleDraw::setPenWidth(double penWidth)
 {
-    d_penWidth = penWidth;
+    d_penWidth = qMax(penWidth, 0.0);
 }
 
 /*!
   \return Pen width used for painting the scale
   \sa setPenWidth, QwtDial::drawScale()
 */
-uint QwtDialScaleDraw::penWidth() const
+double QwtDialScaleDraw::penWidth() const
 {
     return d_penWidth;
 }
@@ -283,7 +283,7 @@ QRect QwtDial::scaleContentsRect() const
     int scaleDist = 0;
     if ( d_data->scaleDraw )
     {
-        scaleDist = d_data->scaleDraw->extent(scalePen, font());
+        scaleDist = ::ceil(d_data->scaleDraw->extent(scalePen, font()));
         scaleDist++; // margin
     }
 
@@ -937,7 +937,7 @@ QSize QwtDial::sizeHint() const
 {
     int sh = 0;
     if ( d_data->scaleDraw )
-        sh = d_data->scaleDraw->extent( QPen(), font() );
+        sh = ::ceil(d_data->scaleDraw->extent( QPen(), font() ));
 
     const int d = 6 * sh + 2 * lineWidth();
     
@@ -953,7 +953,7 @@ QSize QwtDial::minimumSizeHint() const
 {   
     int sh = 0;
     if ( d_data->scaleDraw )
-        sh = d_data->scaleDraw->extent(QPen(), font() );
+        sh = ::ceil(d_data->scaleDraw->extent(QPen(), font() ));
 
     const int d = 3 * sh + 2 * lineWidth();
     

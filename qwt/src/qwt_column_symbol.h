@@ -68,10 +68,10 @@ public:
     void setLabel(const QwtText&);
     const QwtText &label() const;
 
-    virtual void draw(QPainter *, Direction, const QRect&) const;
+    virtual void draw(QPainter *, Direction, const QRectF&) const;
 
 protected:
-    void drawBox(QPainter *, Direction, const QRect&) const;
+    void drawBox(QPainter *, Direction, const QRectF&) const;
 
 private:
     class PrivateData;

@@ -30,12 +30,12 @@ public:
     explicit QwtDialScaleDraw(QwtDial *);
     virtual QwtText label(double value) const;
 
-    void setPenWidth(uint);
-    uint penWidth() const;
+    void setPenWidth(double);
+    double penWidth() const;
 
 private:
     QwtDial *d_parent;
-    int d_penWidth;
+    double d_penWidth;
 };
 
 /*!
