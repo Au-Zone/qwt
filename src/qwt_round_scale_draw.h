@@ -42,13 +42,13 @@ public:
     void setRadius(int radius);
     int radius() const;
 
-    void moveCenter(int x, int y);
-    void moveCenter(const QPoint &);
-    QPoint center() const;
+    void moveCenter(double x, double y);
+    void moveCenter(const QPointF &);
+    QPointF center() const;
 
     void setAngleRange(double angle1, double angle2);
 
-    virtual int extent(const QPen &, const QFont &) const;
+    virtual double extent(const QPen &, const QFont &) const;
 
 protected:
     virtual void drawTick(QPainter *p, double val, double len) const;
@@ -61,9 +61,9 @@ private:
 };
 
 //! Move the center of the scale draw, leaving the radius unchanged
-inline void QwtRoundScaleDraw::moveCenter(int x, int y)
+inline void QwtRoundScaleDraw::moveCenter(double x, double y)
 {
-    moveCenter(QPoint(x, y));
+    moveCenter(QPointF(x, y));
 }
 
 #endif

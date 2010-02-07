@@ -220,9 +220,9 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
         const QwtIntervalSample intervalSample = sample(from + i);
         if ( orientation() == Qt::Vertical )
         {
-            const double x = xMap.xTransform(intervalSample.value);
-            const double y1 = yMap.xTransform(intervalSample.interval.minValue());
-            const double y2 = yMap.xTransform(intervalSample.interval.maxValue());
+            const double x = xMap.transform(intervalSample.value);
+            const double y1 = yMap.transform(intervalSample.interval.minValue());
+            const double y2 = yMap.transform(intervalSample.interval.maxValue());
 
             minValue.rx() = x;
             minValue.ry() = y1;
@@ -231,9 +231,9 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
         }
         else
         {
-            const double y = yMap.xTransform(intervalSample.value);
-            const double x1 = xMap.xTransform(intervalSample.interval.minValue());
-            const double x2 = xMap.xTransform(intervalSample.interval.maxValue());
+            const double y = yMap.transform(intervalSample.value);
+            const double x1 = xMap.transform(intervalSample.interval.minValue());
+            const double x2 = xMap.transform(intervalSample.interval.maxValue());
 
             minValue.rx() = x1;
             minValue.ry() = y;
@@ -277,17 +277,17 @@ void QwtPlotIntervalCurve::drawSymbols(
 
         if ( orientation() == Qt::Vertical )
         {
-            const double x = xMap.xTransform(intervalSample.value);
-            const double y1 = yMap.xTransform(intervalSample.interval.minValue());
-            const double y2 = yMap.xTransform(intervalSample.interval.maxValue());
+            const double x = xMap.transform(intervalSample.value);
+            const double y1 = yMap.transform(intervalSample.interval.minValue());
+            const double y2 = yMap.transform(intervalSample.interval.maxValue());
 
             d_data->symbol->draw(painter, QPointF(x, y1), QPointF(x, y2));
         }
         else
         {
-            const double y = yMap.xTransform(intervalSample.value);
-            const double x1 = xMap.xTransform(intervalSample.interval.minValue());
-            const double x2 = xMap.xTransform(intervalSample.interval.maxValue());
+            const double y = yMap.transform(intervalSample.value);
+            const double x1 = xMap.transform(intervalSample.interval.minValue());
+            const double x2 = xMap.transform(intervalSample.interval.maxValue());
 
             d_data->symbol->draw(painter, QPointF(x1, y), QPointF(x2, y));
         }

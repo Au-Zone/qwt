@@ -333,21 +333,17 @@ void QwtPlotScaleItem::draw(QPainter *painter,
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
 
-    int pw = painter->pen().width();
-    if ( pw == 0 )
-        pw = 1;
-
     QwtScaleDraw *sd = d_data->scaleDraw;
     if ( sd->orientation() == Qt::Horizontal )
     {
-        int y;
+        double y;
         if ( d_data->borderDistance >= 0 )
         {
             if ( sd->alignment() == QwtScaleDraw::BottomScale )
                 y = canvasRect.top() + d_data->borderDistance;
             else
             {
-                y = canvasRect.bottom() - d_data->borderDistance - pw + 1;
+                y = canvasRect.bottom() - d_data->borderDistance;
             }
 
         }
@@ -365,14 +361,14 @@ void QwtPlotScaleItem::draw(QPainter *painter,
     }
     else // == Qt::Vertical
     {
-        int x;
+        double x;
         if ( d_data->borderDistance >= 0 )
         {
             if ( sd->alignment() == QwtScaleDraw::RightScale )
                 x = canvasRect.left() + d_data->borderDistance;
             else
             {
-                x = canvasRect.right() - d_data->borderDistance - pw;
+                x = canvasRect.right() - d_data->borderDistance;
             }
         }
         else

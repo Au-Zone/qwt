@@ -150,7 +150,7 @@ void QwtPlotSvgItem::draw(QPainter *painter,
         if ( bRect.contains(cRect) )
             rect = cRect;
 
-        const QRectF r = QwtScaleMap::xTransform(xMap, yMap, rect);
+        const QRectF r = QwtScaleMap::transform(xMap, yMap, rect);
         render(painter, viewBox(rect), r);
     }
 }
@@ -194,10 +194,10 @@ QRectF QwtPlotSvgItem::viewBox(const QRectF &rect) const
     yMap.setScaleInterval(br.top(), br.bottom());
     yMap.setPaintInterval(sz.height(), 0);
 
-    const double x1 = xMap.xTransform(rect.left());
-    const double x2 = xMap.xTransform(rect.right());
-    const double y1 = yMap.xTransform(rect.bottom());
-    const double y2 = yMap.xTransform(rect.top());
+    const double x1 = xMap.transform(rect.left());
+    const double x2 = xMap.transform(rect.right());
+    const double y1 = yMap.transform(rect.bottom());
+    const double y2 = yMap.transform(rect.top());
 
     return QRectF(x1, y1, x2 - x1, y2 - y1);
 }

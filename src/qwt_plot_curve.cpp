@@ -386,8 +386,8 @@ void QwtPlotCurve::drawLines(QPainter *painter,
     for (int i = from; i <= to; i++)
     {
         const QPointF sample = d_series->sample(i);
-        points[i - from].rx() = xMap.xTransform(sample.x());
-        points[i - from].ry() = yMap.xTransform(sample.y());
+        points[i - from].rx() = xMap.transform(sample.x());
+        points[i - from].ry() = yMap.transform(sample.y());
     }
 
     if ( ( d_data->attributes & Fitted ) && d_data->curveFitter )
@@ -417,15 +417,15 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
-    const double x0 = xMap.xTransform(d_data->reference);
-    const double y0 = yMap.xTransform(d_data->reference);
+    const double x0 = xMap.transform(d_data->reference);
+    const double y0 = yMap.transform(d_data->reference);
     const Qt::Orientation o = orientation();
 
     for (int i = from; i <= to; i++)
     {
         const QPointF sample = d_series->sample(i);
-        const double xi = xMap.xTransform(sample.x());
-        const double yi = yMap.xTransform(sample.y());
+        const double xi = xMap.transform(sample.x());
+        const double yi = yMap.transform(sample.y());
 
         if (o == Qt::Horizontal)
             QwtPainter::drawLine(painter, x0, yi, xi, yi);
@@ -464,8 +464,8 @@ void QwtPlotCurve::drawDots(QPainter *painter,
     for (int i = from; i <= to; i++)
     {
         const QPointF sample = d_series->sample(i);
-        const double xi = xMap.xTransform(sample.x());
-        const double yi = yMap.xTransform(sample.y());
+        const double xi = xMap.transform(sample.x());
+        const double yi = yMap.transform(sample.y());
 
         QwtPainter::drawPoint(painter, QPointF(xi, yi));
 
@@ -514,8 +514,8 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
     for (i = from, ip = 0; i <= to; i++, ip += 2)
     {
         const QPointF sample = d_series->sample(i);
-        const double xi = xMap.xTransform(sample.x());
-        const double yi = yMap.xTransform(sample.y());
+        const double xi = xMap.transform(sample.x());
+        const double yi = yMap.transform(sample.y());
 
         if ( ip > 0 )
         {
@@ -667,13 +667,13 @@ void QwtPlotCurve::closePolyline(
 
     if ( orientation() == Qt::Vertical )
     {
-        const double refY = yMap.xTransform(d_data->reference);
+        const double refY = yMap.transform(d_data->reference);
         polygon += QPointF(polygon.last().x(), refY);
         polygon += QPointF(polygon.first().x(), refY);
     }
     else
     {
-        const double refX = xMap.xTransform(d_data->reference);
+        const double refX = xMap.transform(d_data->reference);
         polygon += QPointF(refX, polygon.last().y());
         polygon += QPointF(refX, polygon.first().y());
     }
@@ -704,8 +704,8 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     {
         const QPointF sample = d_series->sample(i);
 
-        const double xi = xMap.xTransform(sample.x());
-        const double yi = yMap.xTransform(sample.y());
+        const double xi = xMap.transform(sample.x());
+        const double yi = yMap.transform(sample.y());
 
         rect.moveCenter(QPointF(xi, yi));
         symbol.draw(painter, rect);
@@ -769,8 +769,8 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
     {
         const QPointF sample = d_series->sample(i);
 
-        const double cx = xMap.xTransform(sample.x()) - pos.x();
-        const double cy = yMap.xTransform(sample.y()) - pos.y();
+        const double cx = xMap.transform(sample.x()) - pos.x();
+        const double cy = yMap.transform(sample.y()) - pos.y();
 
         const double f = qwtSqr(cx) + qwtSqr(cy);
         if (f < dmin)

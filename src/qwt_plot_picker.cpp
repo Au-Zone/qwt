@@ -350,7 +350,7 @@ QRect QwtPlotPicker::transform(const QRectF &rect) const
     const QwtScaleMap xMap = plot()->canvasMap(d_xAxis);
     const QwtScaleMap yMap = plot()->canvasMap(d_yAxis);
 
-    return QwtScaleMap::xTransform(xMap, yMap, rect).toRect();
+    return QwtScaleMap::transform(xMap, yMap, rect).toRect();
 }
 
 /*!
@@ -379,8 +379,8 @@ QPoint QwtPlotPicker::transform(const QPointF &pos) const
     QwtScaleMap xMap = plot()->canvasMap(d_xAxis);
     QwtScaleMap yMap = plot()->canvasMap(d_yAxis);
 
-    const QPointF p( xMap.xTransform(pos.x()), 
-        yMap.xTransform(pos.y()) );
+    const QPointF p( xMap.transform(pos.x()), 
+        yMap.transform(pos.y()) );
 
     return p.toPoint();
 }

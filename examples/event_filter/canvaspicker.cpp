@@ -197,9 +197,9 @@ void CanvasPicker::moveBy(int dx, int dy)
     const QPointF sample = 
 		d_selectedCurve->sample(d_selectedPoint);
 
-    const double x = plot()->xTransform(
+    const double x = plot()->transform(
 		d_selectedCurve->xAxis(), sample.x());
-    const double y = plot()->xTransform(
+    const double y = plot()->transform(
 		d_selectedCurve->yAxis(), sample.y());
 
     move( QPoint(qRound(x + dx), qRound(y + dy)) );

@@ -232,8 +232,8 @@ void QwtPlotCurve3D::drawDots(QPainter *painter,
     {   
         const QwtDoublePoint3D sample = d_series->sample(i);
     
-        const double xi = xMap.xTransform(sample.x());
-        const double yi = yMap.xTransform(sample.y());
+        const double xi = xMap.transform(sample.x());
+        const double yi = yMap.transform(sample.y());
 
         if ( d_data->paintAttributes & QwtPlotCurve3D::ClipPoints )
         {
@@ -276,8 +276,8 @@ void QwtPlotCurve3D::drawSymbols(QPainter *painter,
     {
         const QwtDoublePoint3D sample = d_series->sample(i);
 
-        const double xi = xMap.xTransform(sample.x());
-        const double yi = yMap.xTransform(sample.y());
+        const double xi = xMap.transform(sample.x());
+        const double yi = yMap.transform(sample.y());
 
         if ( d_data->paintAttributes & QwtPlotCurve3D::ClipPoints )
         {

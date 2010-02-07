@@ -561,9 +561,11 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     d_data->scaleDraw->move(x, y);
     d_data->scaleDraw->setLength(length);
 
+    const int extent = ::ceil(d_data->scaleDraw->extent(
+        QPen(Qt::black, d_data->penWidth), font()));
+
     d_data->titleOffset = 
-        d_data->margin + d_data->spacing + colorBarWidth +
-        d_data->scaleDraw->extent(QPen(Qt::black, d_data->penWidth), font());
+        d_data->margin + d_data->spacing + colorBarWidth + extent;
 
     if ( update_geometry )
     {
@@ -730,9 +732,10 @@ int QwtScaleWidget::titleHeightForWidth(int width) const
 
 int QwtScaleWidget::dimForLength(int length, const QFont &scaleFont) const
 {
-    int dim = d_data->margin;
-    dim += d_data->scaleDraw->extent(
-        QPen(Qt::black, d_data->penWidth), scaleFont);
+    const int extent = ::ceil(d_data->scaleDraw->extent(
+        QPen(Qt::black, d_data->penWidth), scaleFont));
+
+    int dim = d_data->margin + extent;
 
     if ( !d_data->title.isEmpty() )
         dim += titleHeightForWidth(length) + d_data->spacing;

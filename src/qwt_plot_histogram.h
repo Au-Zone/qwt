@@ -66,11 +66,11 @@ public:
     virtual void drawLegendIdentifier(QPainter *, const QRectF &) const;
 
 protected:
-    virtual QRect columnRect(const QwtIntervalSample &,
+    virtual QRectF columnRect(const QwtIntervalSample &,
         const QwtScaleMap &, const QwtScaleMap &,
         QwtColumnSymbol::Direction &) const;
 
-    virtual void drawColumn(QPainter *, const QRect &, 
+    virtual void drawColumn(QPainter *, const QRectF &, 
         QwtColumnSymbol::Direction, const QwtIntervalSample &) const;
 
     void drawColumns(QPainter *,
@@ -87,7 +87,7 @@ protected:
 
 private:
     void init();
-    void flushPolygon(QPainter *, int baseLine, QPolygon &) const;
+    void flushPolygon(QPainter *, double baseLine, QPolygonF &) const;
 
     class PrivateData;
     PrivateData *d_data;

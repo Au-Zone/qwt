@@ -76,12 +76,8 @@ public:
     void setPaintInterval(double p1, double p2);
     void setScaleInterval(double s1, double s2);
 
-#if 1
-    int transform(double x) const;
-#endif
-    double invTransform(double i) const;
-
-    double xTransform(double x) const;
+    double transform(double s) const;
+    double invTransform(double p) const;
 
     double p1() const;
     double p2() const;
@@ -95,7 +91,7 @@ public:
     QT_STATIC_CONST double LogMin;
     QT_STATIC_CONST double LogMax;
 
-    static QRectF xTransform(const QwtScaleMap &,
+    static QRectF transform(const QwtScaleMap &,
         const QwtScaleMap &, const QRectF &);
     static QRectF invTransform(const QwtScaleMap &,
         const QwtScaleMap &, const QRectF &);
@@ -165,7 +161,7 @@ inline double QwtScaleMap::sDist() const
 
   \param s Value relative to the coordinates of the scale
 */
-inline double QwtScaleMap::xTransform(double s) const
+inline double QwtScaleMap::transform(double s) const
 {
     // try to inline code from QwtScaleTransformation
 
@@ -189,20 +185,5 @@ inline double QwtScaleMap::invTransform(double p) const
 {
     return d_transformation->invXForm(p, d_p1, d_p2, d_s1, d_s2 );
 }
-
-#if 1
-/*!
-  Transform a point related to the scale interval into an point 
-  related to the interval of the paint device and round it to
-  an integer. (In Qt <= 3.x paint devices are integer based. )
-
-  \param s Value relative to the coordinates of the scale
-  \sa xTransform()
-*/
-inline int QwtScaleMap::transform(double s) const
-{
-    return qRound(xTransform(s));
-}
-#endif
 
 #endif

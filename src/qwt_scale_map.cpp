@@ -225,13 +225,13 @@ void QwtScaleMap::newFactor()
  
    \sa invTransform()
 */
-QRectF QwtScaleMap::xTransform(const QwtScaleMap &xMap,
+QRectF QwtScaleMap::transform(const QwtScaleMap &xMap,
     const QwtScaleMap &yMap, const QRectF &rect) 
 {
-    double x1 = xMap.xTransform(rect.left());
-    double x2 = xMap.xTransform(rect.right());
-    double y1 = yMap.xTransform(rect.top());
-    double y2 = yMap.xTransform(rect.bottom());
+    double x1 = xMap.transform(rect.left());
+    double x2 = xMap.transform(rect.right());
+    double y1 = yMap.transform(rect.top());
+    double y2 = yMap.transform(rect.bottom());
 
     if ( x2 < x1 )
         qSwap(x1, x2);

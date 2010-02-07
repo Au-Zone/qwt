@@ -368,10 +368,10 @@ double QwtPlot::invTransform(int axisId, int pos) const
   \return X or y coordinate in the plotting region corresponding
           to the value.
 */
-double QwtPlot::xTransform(int axisId, double value) const
+double QwtPlot::transform(int axisId, double value) const
 {
     if (axisValid(axisId))
-       return(canvasMap(axisId).xTransform(value));
+       return(canvasMap(axisId).transform(value));
     else
        return 0.0;
 }
