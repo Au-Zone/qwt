@@ -8,9 +8,7 @@
 #include <qpicture.h>
 #include <qpainter.h>
 #include <qfiledialog.h>
-#ifdef QT_SVG_LIB
-#include <qsvggenerator.h>
-#endif
+#include <qimagewriter.h>
 #include <qprintdialog.h>
 #include <qfileinfo.h>
 #include <qwt_counter.h>
@@ -97,18 +95,14 @@ MainWindow::MainWindow(QWidget *parent):
     btnPrint->setIcon(QIcon(print_xpm));
     btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
-#ifdef QT_SVG_LIB
-    QToolButton *btnSVG = new QToolButton(toolBar);
-    btnSVG->setText("SVG");
-    btnSVG->setIcon(QIcon(print_xpm));
-    btnSVG->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-#endif
+    QToolButton *btnExport = new QToolButton(toolBar);
+    btnExport->setText("Export");
+    btnExport->setIcon(QIcon(print_xpm));
+    btnExport->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
     toolBar->addWidget(btnZoom);
     toolBar->addWidget(btnPrint);
-#ifdef QT_SVG_LIB
-    toolBar->addWidget(btnSVG);
-#endif
+    toolBar->addWidget(btnExport);
     toolBar->addSeparator();
 
     QWidget *hBox = new QWidget(toolBar);
@@ -139,9 +133,7 @@ MainWindow::MainWindow(QWidget *parent):
         d_plot, SLOT(setDamp(double))); 
 
     connect(btnPrint, SIGNAL(clicked()), SLOT(print()));
-#ifdef QT_SVG_LIB
-    connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
-#endif
+    connect(btnExport, SIGNAL(clicked()), SLOT(exportDocument()));
     connect(btnZoom, SIGNAL(toggled(bool)), SLOT(enableZoomMode(bool)));
 
     connect(d_picker, SIGNAL(moved(const QPoint &)),
@@ -167,46 +159,63 @@ void MainWindow::print()
     QPrintDialog dialog(&printer);
     if ( dialog.exec() )
     {
-		QwtPlotRenderer renderer;
+        QwtPlotRenderer renderer;
 
         if ( printer.colorMode() == QPrinter::GrayScale )
         {
-			renderer.setDiscardFlag(QwtPlotRenderer::DiscardCanvasBackground);
-			renderer.setLayoutFlag(QwtPlotRenderer::FrameWithScales);
+            renderer.setDiscardFlag(QwtPlotRenderer::DiscardCanvasBackground);
+            renderer.setLayoutFlag(QwtPlotRenderer::FrameWithScales);
         }
 
         renderer.renderTo(d_plot, printer);
     }
 }
 
-#ifdef QT_SVG_LIB
-void MainWindow::exportSVG()
+void MainWindow::exportDocument()
 {
     QString fileName = "bode.svg";
 
 #ifndef QT_NO_FILEDIALOG
+    const QList<QByteArray> imageFormats = 
+        QImageWriter::supportedImageFormats();
+
+    QStringList filter;
+    filter += "SVG Documents (*.svg)";
+    filter += "PDF Documents (*.pdf)";
+    filter += "Postscript Documents (*.ps)";
+
+    if ( imageFormats.size() > 0 )
+    {
+        QString imageFilter("Images (");
+        for ( int i = 0; i < imageFormats.size(); i++ )
+        {
+            if ( i > 0 )
+                imageFilter += " ";
+            imageFilter += "*.";
+            imageFilter += imageFormats[i];
+        }
+        imageFilter += ")";
+
+        filter += imageFilter;
+    }
+
     fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", QString(),
-        "SVG Documents (*.svg)");
+        this, "Export File Name", fileName,
+        filter.join(";;"));
 #endif
+
     if ( !fileName.isEmpty() )
     {
-		const double resolution = 85;
-
-		const double w = double(resolution) / logicalDpiX() * 800;
-		const double h = double(resolution) / logicalDpiY() * 600;
-
-        QSvgGenerator generator;
-        generator.setTitle("title()");
-        generator.setFileName(fileName);
-		generator.setResolution(resolution);
-        generator.setViewBox( QRectF(0, 0, w, h ) );
-
-		QwtPlotRenderer renderer;
-        renderer.renderTo(d_plot, generator);
+        QwtPlotRenderer renderer;
+#if 0
+        // flags to make the document look like the widget
+        renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
+        renderer.setLayoutFlag(QwtPlotRenderer::KeepMargins, true);
+        renderer.setLayoutFlag(QwtPlotRenderer::KeepFrames, true);
+#endif
+        renderer.renderDocument(d_plot, fileName, QSizeF(300, 200), 85);
     }
 }
-#endif
 
 void MainWindow::enableZoomMode(bool on)
 {

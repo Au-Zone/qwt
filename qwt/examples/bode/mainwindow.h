@@ -18,9 +18,7 @@ private Q_SLOTS:
     void selected(const QPolygon &);
     
     void print();
-#ifdef QT_SVG_LIB
-    void exportSVG();
-#endif
+    void exportDocument();
     void enableZoomMode(bool);
 
 private:
