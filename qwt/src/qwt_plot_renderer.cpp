@@ -142,6 +142,7 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
         QPrinter printer;
         printer.setResolution(resolution);
         printer.setFullPage(true);
+        printer.setPaperSize(sizeMM, QPrinter::Millimeter);
         printer.setDocName(title);
         printer.setOutputFileName(fileName);
         printer.setOutputFormat(QPrinter::PdfFormat);
@@ -154,6 +155,7 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
         QPrinter printer;
         printer.setResolution(resolution);
         printer.setFullPage(true);
+        printer.setPaperSize(sizeMM, QPrinter::Millimeter);
         printer.setDocName(title);
         printer.setOutputFileName(fileName);
         printer.setOutputFormat(QPrinter::PostScriptFormat);
@@ -279,7 +281,7 @@ void QwtPlotRenderer::render(QwtPlot *plot,
             !plotRect.isValid() || plot->size().isNull() )
        return;
 
-    if ( !(d_data->layoutFlags & DiscardBackground) )
+    if ( !(d_data->discardFlags & DiscardBackground) )
     {
         const QBrush brush = plot->palette().brush(plot->backgroundRole());
         painter->fillRect(plotRect, brush);
