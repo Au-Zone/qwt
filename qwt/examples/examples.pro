@@ -18,13 +18,13 @@ contains(CONFIG, QwtPlot) {
         curvdemo1   \
         curvdemo2 \
         friedberg \
-        simple_plot \
-        realtime_plot \
+        sinusplot \
+        realtime \
         refreshtest \
         navigation \
         plotmatrix \
         spectrogram \
-        histogram 
+        tvplot 
 
     contains(CONFIG, QwtWidgets) {
 

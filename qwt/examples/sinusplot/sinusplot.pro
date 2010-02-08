@@ -9,8 +9,8 @@
 
 include( ../examples.pri )
 
-TARGET       = simple
+TARGET       = sinusplot
 
 SOURCES = \
-	simple.cpp
+	sinusplot.cpp
 
