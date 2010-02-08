@@ -19,7 +19,7 @@ HEADERS = \
 	randomplot.h
 
 SOURCES = \
-	realtime.cpp \
+	main.cpp \
 	mainwindow.cpp \
 	scrollzoomer.cpp \
 	scrollbar.cpp \
