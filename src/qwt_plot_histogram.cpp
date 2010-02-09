@@ -272,10 +272,8 @@ void QwtPlotHistogram::drawColumns(QPainter *painter,
         const QwtIntervalSample sample = d_series->sample(i);
         if ( !sample.interval.isNull() )
         { 
-            QwtColumnSymbol::Direction direction;
-            const QRectF rect = columnRect(sample, xMap, yMap, direction);
-            if ( !rect.isNull() )
-                drawColumn(painter, rect, direction, sample);
+			const QwtColumnRect rect = columnRect(sample, xMap, yMap);
+            drawColumn(painter, rect, sample);
         }
     }
 }
@@ -292,38 +290,36 @@ void QwtPlotHistogram::drawLines(QPainter *painter,
         const QwtIntervalSample sample = d_series->sample(i);
         if ( !sample.interval.isNull() )
         { 
-            QwtColumnSymbol::Direction direction;
-            const QRectF rect = columnRect(sample, xMap, yMap, direction);
-            if ( !rect.isNull() )
-            {
-                switch(direction)
-                {
-                    case QwtColumnSymbol::LeftToRight:
-                    {
-                        QwtPainter::drawLine(painter, 
-                            rect.topRight(), rect.bottomRight());
-                        break;
-                    }
-                    case QwtColumnSymbol::RightToLeft:
-                    {
-                        QwtPainter::drawLine(painter, 
-                            rect.topLeft(), rect.bottomLeft());
-                        break;
-                    }
-                    case QwtColumnSymbol::TopToBottom:
-                    {
-                        QwtPainter::drawLine(painter, 
-                            rect.bottomRight(), rect.bottomLeft());
-                        break;
-                    }
-                    case QwtColumnSymbol::BottomToTop:
-                    {
-                        QwtPainter::drawLine(painter, 
-                            rect.topRight(), rect.topLeft());
-                        break;
-                    }
-                }
-            }
+			const QwtColumnRect rect = columnRect(sample, xMap, yMap);
+			const QRectF r = rect.toRect();
+
+			switch(rect.direction)
+			{
+				case QwtColumnRect::LeftToRight:
+				{
+					QwtPainter::drawLine(painter, 
+						r.topRight(), r.bottomRight());
+					break;
+				}
+				case QwtColumnRect::RightToLeft:
+				{
+					QwtPainter::drawLine(painter, 
+						r.topLeft(), r.bottomLeft());
+					break;
+				}
+				case QwtColumnRect::TopToBottom:
+				{
+					QwtPainter::drawLine(painter, 
+						r.bottomRight(), r.bottomLeft());
+					break;
+				}
+				case QwtColumnRect::BottomToTop:
+				{
+					QwtPainter::drawLine(painter, 
+						r.topRight(), r.topLeft());
+					break;
+				}
+			}
         }
     }
 }
@@ -366,69 +362,54 @@ void QwtPlotHistogram::flushPolygon(QPainter *painter,
     polygon.clear();
 }
 
-QRectF QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    QwtColumnSymbol::Direction &direction) const
+QwtColumnRect QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap) const
 {
-    const double v0 = (orientation() == Qt::Horizontal) ?
-        xMap.transform(baseline()) : yMap.transform(baseline());
+	QwtColumnRect rect;
 
     const QwtDoubleInterval &iv = sample.interval;
     if ( !iv.isValid() )
-    {
-        direction = QwtColumnSymbol::LeftToRight; // something
-        return QRectF();
-    }
+        return rect;
 
-    int minOff = 0;
-    if ( iv.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
-        minOff = 1;
-
-    int maxOff = 0;
-    if ( iv.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
-        maxOff = 1;
-
-    QRectF rect;
     if ( orientation() == Qt::Horizontal )
     {
-        const double x = xMap.transform(sample.value);
-        const double y1 = yMap.transform( iv.minValue()) - minOff;
-        const double y2 = yMap.transform( iv.maxValue()) + maxOff;
+    	const double x0 = xMap.transform(baseline());
+        const double x  = xMap.transform(sample.value);
+        const double y1 = yMap.transform( iv.minValue());
+        const double y2 = yMap.transform( iv.maxValue());
 
-        rect.setRect(v0, y1, x - v0, y2 - y1);
-        direction = x < v0 ? QwtColumnSymbol::RightToLeft :
-            QwtColumnSymbol::LeftToRight;
+		rect.hInterval.setInterval(x0, x);
+		rect.vInterval.setInterval(y1, y2, iv.borderFlags());
+        rect.direction = (x < x0) ? QwtColumnRect::RightToLeft :
+            QwtColumnRect::LeftToRight;
     }
     else
     {
-        const double x1 = xMap.transform( iv.minValue()) + minOff;
-        const double x2 = xMap.transform( iv.maxValue()) - maxOff;
+        const double x1 = xMap.transform( iv.minValue());
+        const double x2 = xMap.transform( iv.maxValue());
+    	const double y0 = yMap.transform(baseline());
         const double y = yMap.transform(sample.value);
 
-        rect.setRect(x1, v0, x2 - x1, y - v0);
-        direction = y < v0 ? QwtColumnSymbol::BottomToTop :
-            QwtColumnSymbol::TopToBottom;
+		rect.hInterval.setInterval(x1, x2, iv.borderFlags());
+		rect.vInterval.setInterval(y0, y);
+        rect.direction = (y < y0) ? QwtColumnRect::BottomToTop :
+            QwtColumnRect::TopToBottom;
     }
 
-    return rect;
+	return rect;
 }
 
 void QwtPlotHistogram::drawColumn(QPainter *painter, 
-    const QRectF &rect, QwtColumnSymbol::Direction direction,
-    const QwtIntervalSample &) const
+    const QwtColumnRect &rect, const QwtIntervalSample &) const
 {
     if ( d_data->symbol->style() != QwtColumnSymbol::NoSymbol)
-        d_data->symbol->draw(painter, direction, rect);
+	{
+        d_data->symbol->draw(painter, rect);
+	}
     else
     {
-        double pw2 = painter->pen().widthF() / 2.0;
-        if ( pw2 == 0.0 )
-            pw2 = 0.5;
-
-        QRectF r = rect.normalized();
-        r.adjust(pw2, pw2, -1.0 - pw2, -1.0 - pw2);
-
-        QwtPainter::drawRect(painter, r);
+		const QRectF r = rect.toRect();
+        QwtPainter::drawRect(painter, r.adjusted(0, 0, -1, -1));
     }
 }
 

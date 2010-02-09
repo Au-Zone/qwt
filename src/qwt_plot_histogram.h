@@ -66,12 +66,11 @@ public:
     virtual void drawLegendIdentifier(QPainter *, const QRectF &) const;
 
 protected:
-    virtual QRectF columnRect(const QwtIntervalSample &,
-        const QwtScaleMap &, const QwtScaleMap &,
-        QwtColumnSymbol::Direction &) const;
+    virtual QwtColumnRect columnRect(const QwtIntervalSample &,
+        const QwtScaleMap &, const QwtScaleMap &) const;
 
-    virtual void drawColumn(QPainter *, const QRectF &, 
-        QwtColumnSymbol::Direction, const QwtIntervalSample &) const;
+    virtual void drawColumn(QPainter *, const QwtColumnRect &,
+		const QwtIntervalSample & ) const;
 
     void drawColumns(QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
