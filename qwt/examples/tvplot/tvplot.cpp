@@ -35,7 +35,7 @@ void Histogram::setColor(const QColor &symbolColor)
     setBrush(QBrush(color));
 
     QwtColumnSymbol symbol(QwtColumnSymbol::Box);
-    symbol.setFrameStyle(QFrame::Panel | QFrame::Raised);
+    symbol.setFrameStyle(QwtColumnSymbol::Raised);
     symbol.setLineWidth(2);
     symbol.setPalette(QPalette(color));
     setSymbol(symbol);

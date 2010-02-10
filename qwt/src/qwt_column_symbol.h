@@ -32,21 +32,21 @@ public:
         TopToBottom
     };
 
-	QwtColumnRect():
-		direction(BottomToTop)
-	{
-	}
+    QwtColumnRect():
+        direction(BottomToTop)
+    {
+    }
 
-	QRectF toRect() const
-	{
-		return QRectF(hInterval.minValue(), vInterval.minValue(),
-			hInterval.maxValue() - hInterval.minValue(),
-			vInterval.maxValue() - vInterval.minValue() ).normalized();
-	}
+    QRectF toRect() const
+    {
+        return QRectF(hInterval.minValue(), vInterval.minValue(),
+            hInterval.maxValue() - hInterval.minValue(),
+            vInterval.maxValue() - vInterval.minValue() ).normalized();
+    }
 
-	QwtDoubleInterval hInterval;
-	QwtDoubleInterval vInterval;
-	Direction direction;
+    QwtDoubleInterval hInterval;
+    QwtDoubleInterval vInterval;
+    Direction direction;
 };
 
 //! A drawing primitive for columns
@@ -67,12 +67,20 @@ public:
         StyleCnt 
     };
    
+    enum FrameStyle
+    {
+        NoFrame,
+
+        Plain,
+        Raised
+    };
+
 public:
     QwtColumnSymbol(Style = NoSymbol);
     virtual ~QwtColumnSymbol();
     
-    void setFrameStyle(int style);
-    int frameStyle() const;
+    void setFrameStyle(FrameStyle style);
+    FrameStyle frameStyle() const;
 
     void setLineWidth(int width);
     int lineWidth() const;
