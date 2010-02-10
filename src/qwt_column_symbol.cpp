@@ -13,26 +13,60 @@
 #include "qwt_painter.h"
 #include <qpainter.h>
 #include <qpalette.h>
-#include <qframe.h>
+
+static void drawPanel(QPainter *p, const QRectF &rect,
+    const QPalette &pal, double lw)
+{
+    if ( lw > 0.0 )
+    {
+        const QRectF outerRect = rect.adjusted(0, 0, 1, 1);
+        const QRectF innerRect = outerRect.adjusted(lw, lw, -lw, -lw);
+
+        QPolygonF lines[2];
+
+        lines[0] += outerRect.bottomLeft();
+        lines[0] += outerRect.topLeft();
+        lines[0] += outerRect.topRight();
+        lines[0] += innerRect.topRight();
+        lines[0] += innerRect.topLeft();
+        lines[0] += innerRect.bottomLeft();
+
+        lines[1] += outerRect.topRight();
+        lines[1] += outerRect.bottomRight();
+        lines[1] += outerRect.bottomLeft();
+        lines[1] += innerRect.bottomLeft();
+        lines[1] += innerRect.bottomRight();
+        lines[1] += innerRect.topRight();
+
+        p->setPen(Qt::NoPen);
+
+        p->setBrush(pal.light());
+        p->drawPolygon(lines[0]);
+        p->setBrush(pal.dark());
+        p->drawPolygon(lines[1]);
+    }
+
+    p->fillRect(rect.adjusted(lw, lw, -lw + 1, -lw + 1), pal.window());
+}
 
 class QwtColumnSymbol::PrivateData
 {
 public:
     PrivateData():
         style(QwtColumnSymbol::Box),
-        lineWidth(2),
-        frameStyle(QFrame::Box | QFrame::Raised)
+        frameStyle(QwtColumnSymbol::Raised),
+        lineWidth(2)
     {
         palette = QPalette(Qt::gray);
     }
 
     QwtColumnSymbol::Style style;
+    QwtColumnSymbol::FrameStyle frameStyle;
 
     QPalette palette;
     QwtText label;
 
     int lineWidth;
-    int frameStyle;
 };
 
 QwtColumnSymbol::QwtColumnSymbol(Style style) 
@@ -90,12 +124,12 @@ const QPalette& QwtColumnSymbol::palette() const
     return d_data->palette;
 }
 
-void QwtColumnSymbol::setFrameStyle(int style)
+void QwtColumnSymbol::setFrameStyle(FrameStyle style)
 {
     d_data->frameStyle = style;
 }
 
-int QwtColumnSymbol::frameStyle() const
+QwtColumnSymbol::FrameStyle QwtColumnSymbol::frameStyle() const
 {
     return d_data->frameStyle;
 }
@@ -142,58 +176,36 @@ void QwtColumnSymbol::draw(QPainter *painter,
 void QwtColumnSymbol::drawBox(QPainter *painter, 
     const QwtColumnRect &rect) const
 {
-    const int shadowMask = QFrame::Shadow_Mask;
-    const int shapeMask = QFrame::Shape_Mask;
-
-    int shadow = d_data->frameStyle & shadowMask;
-    if ( shadow == 0 )
-        shadow = QFrame::Plain;
-
-    int shape = d_data->frameStyle & shapeMask;
-    if ( shadow == QFrame::Plain )
-        shape = QFrame::Box;
-
     const QBrush brush = d_data->palette.brush(QPalette::Window);
 
-	QRectF r = rect.toRect();
-	r.adjust(0, 0, d_data->lineWidth, d_data->lineWidth);
-	if ( rect.hInterval.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
-		r.adjust(1, 0, 0, 0);
-	if ( rect.hInterval.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
-		r.adjust(0, 0, -1, 0);
-	if ( rect.vInterval.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
-		r.adjust(0, 1, 0, 0);
-	if ( rect.vInterval.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
-		r.adjust(0, 0, 0, -1);
+    QRectF r = rect.toRect();
+    if ( rect.hInterval.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
+        r.adjust(1, 0, 0, 0);
+    if ( rect.hInterval.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
+        r.adjust(0, 0, -1, 0);
+    if ( rect.vInterval.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
+        r.adjust(0, 1, 0, 0);
+    if ( rect.vInterval.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
+        r.adjust(0, 0, 0, -1);
 
-    switch(d_data->frameStyle & shapeMask )
+    switch(d_data->frameStyle) 
     {
-        case QFrame::Panel:
-        case QFrame::StyledPanel:
-        case QFrame::WinPanel:
+        case QwtColumnSymbol::Raised:
         {
-            qDrawShadePanel(painter, r.toRect(), d_data->palette, 
-                shadow == QFrame::Sunken, d_data->lineWidth, &brush);
+            drawPanel(painter, r, d_data->palette, d_data->lineWidth);
             break;
         }
-        case QFrame::Box:
+        case QwtColumnSymbol::Plain:
+        {
+            painter->setPen(d_data->palette.dark().color());
+            painter->setBrush(d_data->palette.window());
+            painter->drawRect(r.adjusted(0, 0, -1, -1));
+            break;
+        }
         default:
         {
-            if ( shadow == QFrame::Plain )
-            {
-                qDrawPlainRect(painter, r.toRect(), 
-                    d_data->palette.color(QPalette::Foreground),
-                    d_data->lineWidth, &brush);
-            }
-            else
-            {
-                const int midLineWidth = 0;
-
-                qDrawShadeRect( painter, r.toRect(), d_data->palette, 
-                    shadow == QFrame::Sunken, 
-                    d_data->lineWidth, midLineWidth, &brush 
-                );
-            }
+            painter->fillRect(r.adjusted(0, 0, -1, -1),
+                d_data->palette.window());
         }
     }
 }
