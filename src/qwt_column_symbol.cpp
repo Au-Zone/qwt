@@ -14,11 +14,72 @@
 #include <qpainter.h>
 #include <qpalette.h>
 
-static void drawPanel(QPainter *p, const QRectF &rect,
+static void drawBox(QPainter *p, const QRectF &rect,
     const QPalette &pal, double lw)
 {
     if ( lw > 0.0 )
     {
+        if ( rect.width() == 0.0 )
+        {
+            p->setPen(pal.dark().color());
+            p->drawLine(rect.topLeft(), rect.bottomLeft());
+            return;
+        }
+
+        if ( rect.height() == 0.0 )
+        {
+            p->setPen(pal.dark().color());
+            p->drawLine(rect.topLeft(), rect.topRight());
+            return;
+        }
+
+        lw = qMin(lw, rect.height() / 2.0 - 1.0);
+        lw = qMin(lw, rect.width() / 2.0 - 1.0);
+
+        const QRectF outerRect = rect.adjusted(0, 0, 1, 1);
+        QPolygonF polygon(outerRect);
+
+        if ( outerRect.width() > 2 * lw && 
+            outerRect.height() > 2 * lw )
+        {
+            const QRectF innerRect = outerRect.adjusted(lw, lw, -lw, -lw);
+            polygon = polygon.subtracted(innerRect);
+        }
+
+        p->setPen(Qt::NoPen);
+
+        p->setBrush(pal.dark());
+        p->drawPolygon(polygon);
+    }
+
+    const QRectF windowRect = rect.adjusted(lw, lw, -lw + 1, -lw + 1);
+    if ( windowRect.isValid() )
+        p->fillRect(windowRect, pal.window());
+}
+
+static void drawPanel(QPainter *p, const QRectF &rect,
+    const QPalette &pal, double lw)
+{
+
+    if ( lw > 0.0 )
+    {
+        if ( rect.width() == 0.0 )
+        {
+            p->setPen(pal.window().color());
+            p->drawLine(rect.topLeft(), rect.bottomLeft());
+            return;
+        }
+
+        if ( rect.height() == 0.0 )
+        {
+            p->setPen(pal.window().color());
+            p->drawLine(rect.topLeft(), rect.topRight());
+            return;
+        }
+
+        lw = qMin(lw, rect.height() / 2.0 - 1.0);
+        lw = qMin(lw, rect.width() / 2.0 - 1.0);
+
         const QRectF outerRect = rect.adjusted(0, 0, 1, 1);
         const QRectF innerRect = outerRect.adjusted(lw, lw, -lw, -lw);
 
@@ -176,8 +237,6 @@ void QwtColumnSymbol::draw(QPainter *painter,
 void QwtColumnSymbol::drawBox(QPainter *painter, 
     const QwtColumnRect &rect) const
 {
-    const QBrush brush = d_data->palette.brush(QPalette::Window);
-
     QRectF r = rect.toRect();
     if ( rect.hInterval.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
         r.adjust(1, 0, 0, 0);
@@ -192,14 +251,12 @@ void QwtColumnSymbol::drawBox(QPainter *painter,
     {
         case QwtColumnSymbol::Raised:
         {
-            drawPanel(painter, r, d_data->palette, d_data->lineWidth);
+            ::drawPanel(painter, r, d_data->palette, d_data->lineWidth);
             break;
         }
         case QwtColumnSymbol::Plain:
         {
-            painter->setPen(d_data->palette.dark().color());
-            painter->setBrush(d_data->palette.window());
-            painter->drawRect(r.adjusted(0, 0, -1, -1));
+            ::drawBox(painter, r, d_data->palette, d_data->lineWidth);
             break;
         }
         default:
