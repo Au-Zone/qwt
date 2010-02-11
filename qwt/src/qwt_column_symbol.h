@@ -44,6 +44,15 @@ public:
             vInterval.maxValue() - vInterval.minValue() ).normalized();
     }
 
+	Qt::Orientation orientation() const
+	{
+		if ( direction == LeftToRight || direction == RightToLeft )
+			return Qt::Horizontal;
+
+		return Qt::Vertical;
+	}
+
+	
     QwtDoubleInterval hInterval;
     QwtDoubleInterval vInterval;
     Direction direction;
