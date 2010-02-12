@@ -318,7 +318,7 @@ void QwtPainter::drawLine(QPainter *painter,
     {
         QPolygonF polygon;
         polygon += p1;
-        polygon += p1;
+        polygon += p2;
         drawPolyline(painter, polygon);
         return;
     }
