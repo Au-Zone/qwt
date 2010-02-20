@@ -15,7 +15,7 @@
 #include <qdrawutil.h>
 #include <qpainter.h>
 #include <qalgorithms.h>
-#include <math.h>
+#include <qmath.h>
 
 class QwtSlider::PrivateData
 {
@@ -778,7 +778,7 @@ QSize QwtSlider::minimumSizeHint() const
         if ( mbd < msMbd )
             mbd = msMbd;
 
-        const int sdExtent = (int)::ceil(scaleDraw()->extent( QPen(), font() ));
+        const int sdExtent = qCeil(scaleDraw()->extent( QPen(), font() ));
         const int sdLength = scaleDraw()->minLength( QPen(), font() );
 
         h = sliderWidth + sdExtent + d_data->scaleDist;

@@ -16,6 +16,7 @@
 #include "qwt_text.h"
 #include <qpainter.h>
 #include <qevent.h>
+#include <qmath.h>
 
 class QwtScaleWidget::PrivateData
 {
@@ -561,7 +562,7 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     d_data->scaleDraw->move(x, y);
     d_data->scaleDraw->setLength(length);
 
-    const int extent = ::ceil(d_data->scaleDraw->extent(
+    const int extent = qCeil(d_data->scaleDraw->extent(
         QPen(Qt::black, d_data->penWidth), font()));
 
     d_data->titleOffset = 
@@ -732,7 +733,7 @@ int QwtScaleWidget::titleHeightForWidth(int width) const
 
 int QwtScaleWidget::dimForLength(int length, const QFont &scaleFont) const
 {
-    const int extent = ::ceil(d_data->scaleDraw->extent(
+    const int extent = qCeil(d_data->scaleDraw->extent(
         QPen(Qt::black, d_data->penWidth), scaleFont));
 
     int dim = d_data->margin + extent;
