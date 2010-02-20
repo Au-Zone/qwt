@@ -15,6 +15,7 @@
 #include <qpalette.h>
 #include <qstyle.h>
 #include <qevent.h>
+#include <qmath.h>
 
 class QwtKnob::PrivateData
 {
@@ -463,7 +464,7 @@ void QwtKnob::recalcAngle()
     {
         d_data->angle = (value() - 0.5 * (minValue() + maxValue()))
             / (maxValue() - minValue()) * d_data->totalAngle;
-        d_data->nTurns = floor((d_data->angle + 180.0) / 360.0);
+        d_data->nTurns = qFloor((d_data->angle + 180.0) / 360.0);
         d_data->angle = d_data->angle - d_data->nTurns * 360.0;
     }
 }
@@ -504,7 +505,7 @@ QSize QwtKnob::sizeHint() const
 QSize QwtKnob::minimumSizeHint() const
 {
     // Add the scale radial thickness to the knobWidth
-    const int sh = ::ceil(scaleDraw()->extent( QPen(), font() ));
+    const int sh = qCeil(scaleDraw()->extent( QPen(), font() ));
     const int d = 2 * sh + 2 * d_data->scaleDist + d_data->knobWidth;
 
     return QSize( d, d );

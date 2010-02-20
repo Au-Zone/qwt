@@ -11,6 +11,7 @@
 #include "qwt_math.h"
 #include "qwt_scale_map.h"
 #include <qalgorithms.h>
+#include <qmath.h>
 
 static const double _eps = 1.0e-6;
 
@@ -103,7 +104,7 @@ double QwtScaleArithmetic::ceil125(double x)
 
     const double sign = (x > 0) ? 1.0 : -1.0;
     const double lx = log10(fabs(x));
-    const double p10 = floor(lx);
+    const double p10 = ::floor(lx);
     
     double fr = pow(10.0, lx - p10);
     if (fr <=1.0)
@@ -131,7 +132,7 @@ double QwtScaleArithmetic::floor125(double x)
 
     double sign = (x > 0) ? 1.0 : -1.0;
     const double lx = log10(fabs(x));
-    const double p10 = floor(lx);
+    const double p10 = ::floor(lx);
 
     double fr = pow(10.0, lx - p10);
     if (fr >= 10.0)
@@ -537,7 +538,7 @@ void QwtLinearScaleEngine::buildMinorTicks(
         return; 
         
     // # ticks per interval
-    int numTicks = (int)::ceil(qAbs(stepSize / minStep)) - 1;
+    int numTicks = qCeil(qAbs(stepSize / minStep)) - 1;
     
     // Do the minor steps fit into the interval?
     if ( QwtScaleArithmetic::compareEps((numTicks +  1) * qAbs(minStep), 

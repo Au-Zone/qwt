@@ -18,6 +18,7 @@
 #include <qpixmap.h>
 #include <qdrawutil.h>
 #include <qalgorithms.h>
+#include <qmath.h>
 
 class QwtThermo::PrivateData
 {
@@ -833,7 +834,7 @@ QSize QwtThermo::minimumSizeHint() const
 
     if ( d_data->scalePos != NoScale )
     {
-        const int sdExtent = ::ceil(scaleDraw()->extent( QPen(), font() ));
+        const int sdExtent = qCeil(scaleDraw()->extent( QPen(), font() ));
         const int sdLength = scaleDraw()->minLength( QPen(), font() );
 
         w = sdLength;

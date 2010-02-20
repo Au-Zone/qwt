@@ -19,7 +19,7 @@
 #include <qpixmap.h>
 #include <qevent.h>
 #include <qalgorithms.h>
-#include <math.h>
+#include <qmath.h>
 
 class QwtDial::PrivateData
 {
@@ -283,7 +283,7 @@ QRect QwtDial::scaleContentsRect() const
     int scaleDist = 0;
     if ( d_data->scaleDraw )
     {
-        scaleDist = ::ceil(d_data->scaleDraw->extent(scalePen, font()));
+        scaleDist = qCeil(d_data->scaleDraw->extent(scalePen, font()));
         scaleDist++; // margin
     }
 
@@ -937,7 +937,7 @@ QSize QwtDial::sizeHint() const
 {
     int sh = 0;
     if ( d_data->scaleDraw )
-        sh = ::ceil(d_data->scaleDraw->extent( QPen(), font() ));
+        sh = qCeil(d_data->scaleDraw->extent( QPen(), font() ));
 
     const int d = 6 * sh + 2 * lineWidth();
     
@@ -953,7 +953,7 @@ QSize QwtDial::minimumSizeHint() const
 {   
     int sh = 0;
     if ( d_data->scaleDraw )
-        sh = ::ceil(d_data->scaleDraw->extent(QPen(), font() ));
+        sh = qCeil(d_data->scaleDraw->extent(QPen(), font() ));
 
     const int d = 3 * sh + 2 * lineWidth();
     

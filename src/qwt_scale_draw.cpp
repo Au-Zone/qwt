@@ -15,6 +15,7 @@
 #include <qpen.h>
 #include <qpainter.h>
 #include <qmatrix.h>
+#include <qmath.h>
 
 class QwtScaleDraw::PrivateData
 {
@@ -183,8 +184,8 @@ void QwtScaleDraw::getBorderDistHint(const QFont &font,
     if ( e < 0.0 )
         e = 0.0;
 
-    start = ::ceil(s);
-    end = ::ceil(e);
+    start = qCeil(s);
+    end = qCeil(e);
 }
 
 /*!
