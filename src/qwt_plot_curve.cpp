@@ -219,6 +219,8 @@ public:
     int paintAttributes;
 
     QwtGuardedPainter guardedPainter;
+
+    QRect canvasRect; // temporary, while painting
 };
 
 //! Constructor
@@ -515,9 +517,11 @@ QwtDoubleRect QwtPlotCurve::boundingRect() const
 */
 void QwtPlotCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &) const
+    const QRect &canvasRect) const
 {
+    d_data->canvasRect = canvasRect;
     draw(painter, xMap, yMap, 0, -1);
+    d_data->canvasRect = QRect();
 }
 
 /*!
@@ -819,8 +823,8 @@ void QwtPlotCurve::drawLines(QPainter *painter,
         }
     }
 
-    if ( d_data->paintAttributes & ClipPolygons )
-        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
+    if ( d_data->canvasRect.isValid() && d_data->paintAttributes & ClipPolygons )
+        polyline = QwtClipper::clipPolygon(d_data->canvasRect, polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
@@ -873,10 +877,6 @@ void QwtPlotCurve::drawDots(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
-    const QRect window = painter->window();
-    if ( window.isEmpty() )
-        return;
-
     const bool doFill = d_data->brush.style() != Qt::NoBrush;
 
     QwtPolygon polyline;
@@ -885,7 +885,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
 
     if ( to > from && d_data->paintAttributes & PaintFiltered )
     {
-        if ( doFill )   
+        if ( doFill || d_data->canvasRect.isEmpty() )   
         {
             QPoint pp( xMap.transform(x(from)), yMap.transform(y(from)) );
 
@@ -914,7 +914,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
             // if we don't need to fill, we can sort out
             // duplicates independent from the order
 
-            PrivateData::PixelMatrix pixelMatrix(window);
+            PrivateData::PixelMatrix pixelMatrix(d_data->canvasRect);
 
             for (int i = from; i <= to; i++)
             {
@@ -941,8 +941,8 @@ void QwtPlotCurve::drawDots(QPainter *painter,
 
     if ( doFill )
     {
-        if ( d_data->paintAttributes & ClipPolygons )
-            polyline = QwtClipper::clipPolygon(painter->window(), polyline);
+        if ( d_data->canvasRect.isValid() && (d_data->paintAttributes & ClipPolygons) )
+            polyline = QwtClipper::clipPolygon(d_data->canvasRect, polyline);
 
         fillCurve(painter, xMap, yMap, polyline);
     }
@@ -989,8 +989,8 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
         polyline.setPoint(ip, xi, yi);
     }
 
-    if ( d_data->paintAttributes & ClipPolygons )
-        polyline = QwtClipper::clipPolygon(painter->window(), polyline);
+    if ( d_data->canvasRect.isValid() && (d_data->paintAttributes & ClipPolygons) )
+        polyline = QwtClipper::clipPolygon(d_data->canvasRect, polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
@@ -1169,13 +1169,10 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     QRect rect;
     rect.setSize(metricsMap.screenToLayout(symbol.size()));
 
-    if ( to > from && d_data->paintAttributes & PaintFiltered )
+    if ( (to > from) && (d_data->paintAttributes & PaintFiltered) &&
+         d_data->canvasRect.isValid() )
     {
-        const QRect window = painter->window();
-        if ( window.isEmpty() )
-            return;
-
-        PrivateData::PixelMatrix pixelMatrix(window);
+        PrivateData::PixelMatrix pixelMatrix(d_data->canvasRect);
 
         for (int i = from; i <= to; i++)
         {

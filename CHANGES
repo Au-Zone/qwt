@@ -19,6 +19,8 @@ Bug Fixes
    bottleneck of the raster paint engine.
 7) QwtScaleWidget
    Calculation of the colorbar position fixed ( spacing/margin )
+8) QwtPlotCurve
+   Wrong clipping rect fixed
 
 Changes
 -------
