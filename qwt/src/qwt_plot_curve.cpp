@@ -284,7 +284,7 @@ const QBrush& QwtPlotCurve::brush() const
 */
 void QwtPlotCurve::drawSeries(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    const QRectF &, int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
     if ( !painter || dataSize() <= 0 )
         return;
@@ -303,13 +303,14 @@ void QwtPlotCurve::drawSeries(QPainter *painter,
           set the brush before we really need it.
          */
 
-        drawCurve(painter, d_data->style, xMap, yMap, from, to);
+        drawCurve(painter, d_data->style, xMap, yMap, canvasRect, from, to);
         painter->restore();
 
         if (d_data->symbol->style() != QwtSymbol::NoSymbol)
         {
             painter->save();
-            drawSymbols(painter, *d_data->symbol, xMap, yMap, from, to);
+            drawSymbols(painter, *d_data->symbol, 
+                xMap, yMap, canvasRect, from, to);
             painter->restore();
         }
     }
@@ -321,6 +322,7 @@ void QwtPlotCurve::drawSeries(QPainter *painter,
   \param style curve style, see QwtPlotCurve::CurveStyle
   \param xMap x map
   \param yMap y map
+  \param canvasRect Contents rect of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
   \sa draw(), drawDots(), drawLines(), drawSteps(), drawSticks()
@@ -328,7 +330,7 @@ void QwtPlotCurve::drawSeries(QPainter *painter,
 
 void QwtPlotCurve::drawCurve(QPainter *painter, int style,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
     switch (style)
     {
@@ -340,16 +342,16 @@ void QwtPlotCurve::drawCurve(QPainter *painter, int style,
                 from = 0;
                 to = dataSize() - 1;
             }
-            drawLines(painter, xMap, yMap, from, to);
+            drawLines(painter, xMap, yMap, canvasRect, from, to);
             break;
         case Sticks:
-            drawSticks(painter, xMap, yMap, from, to);
+            drawSticks(painter, xMap, yMap, canvasRect, from, to);
             break;
         case Steps:
-            drawSteps(painter, xMap, yMap, from, to);
+            drawSteps(painter, xMap, yMap, canvasRect, from, to);
             break;
         case Dots:
-            drawDots(painter, xMap, yMap, from, to);
+            drawDots(painter, xMap, yMap, canvasRect, from, to);
             break;
         case NoCurve:
         default:
@@ -366,6 +368,7 @@ void QwtPlotCurve::drawCurve(QPainter *painter, int style,
   \param painter Painter
   \param xMap x map
   \param yMap y map
+  \param canvasRect Contents rect of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -374,7 +377,7 @@ void QwtPlotCurve::drawCurve(QPainter *painter, int style,
 */
 void QwtPlotCurve::drawLines(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
     int size = to - from + 1;
     if ( size <= 0 )
@@ -394,7 +397,7 @@ void QwtPlotCurve::drawLines(QPainter *painter,
         polyline = d_data->curveFitter->fitCurve(polyline);
 
     if ( d_data->paintAttributes & ClipPolygons )
-        polyline = QwtClipper::clipPolygonF(painter->window(), polyline);
+        polyline = QwtClipper::clipPolygonF(canvasRect, polyline);
 
     QwtPainter::drawPolyline(painter, polyline);
 
@@ -408,6 +411,7 @@ void QwtPlotCurve::drawLines(QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
+  \param canvasRect Contents rect of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -415,7 +419,7 @@ void QwtPlotCurve::drawLines(QPainter *painter,
 */
 void QwtPlotCurve::drawSticks(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    int from, int to) const
+    const QRectF &, int from, int to) const
 {
     const double x0 = xMap.transform(d_data->reference);
     const double y0 = yMap.transform(d_data->reference);
@@ -440,6 +444,7 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
+  \param canvasRect Contents rect of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -447,12 +452,8 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
 */
 void QwtPlotCurve::drawDots(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
-    const QRect window = painter->window();
-    if ( window.isEmpty() )
-        return;
-
     const bool doFill = d_data->brush.style() != Qt::NoBrush;
 
     QPolygonF polyline;
@@ -479,7 +480,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
     if ( doFill )
     {
         if ( d_data->paintAttributes & ClipPolygons )
-            polyline = QwtClipper::clipPolygonF(painter->window(), polyline);
+            polyline = QwtClipper::clipPolygonF(canvasRect, polyline);
 
         fillCurve(painter, xMap, yMap, polyline);
     }
@@ -493,6 +494,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
+  \param canvasRect Contents rect of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -501,7 +503,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
 */
 void QwtPlotCurve::drawSteps(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
     QPolygonF polygon(2 * (to - from) + 1);
     QPointF *points = polygon.data();
@@ -539,7 +541,7 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
     }
 
     if ( d_data->paintAttributes & ClipPolygons )
-        polygon = QwtClipper::clipPolygonF(painter->window(), polygon);
+        polygon = QwtClipper::clipPolygonF(canvasRect, polygon);
 
     QwtPainter::drawPolyline(painter, polygon);
 
@@ -685,6 +687,7 @@ void QwtPlotCurve::closePolyline(
   \param symbol Curve symbol
   \param xMap x map
   \param yMap y map
+  \param canvasRect Contents rect of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -692,7 +695,7 @@ void QwtPlotCurve::closePolyline(
 */
 void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
-    int from, int to) const
+    const QRectF &canvasRect, int from, int to) const
 {
     painter->setBrush(symbol.brush());
     painter->setPen(symbol.pen());
@@ -707,8 +710,12 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
         const double xi = xMap.transform(sample.x());
         const double yi = yMap.transform(sample.y());
 
-        rect.moveCenter(QPointF(xi, yi));
-        symbol.draw(painter, rect);
+        const QPointF pos(xi, yi);
+        if ( canvasRect.contains(pos) )
+        {
+            rect.moveCenter(pos);
+            symbol.draw(painter, rect);
+        }
     }
 }
 

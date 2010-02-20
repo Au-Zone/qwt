@@ -219,28 +219,32 @@ protected:
 
     virtual void drawCurve(QPainter *p, int style,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
 
     virtual void drawSymbols(QPainter *p, const QwtSymbol &,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
 
     void drawLines(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
+
     void drawSticks(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
+
     void drawDots(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
+
     void drawSteps(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        const QRectF &canvasRect, int from, int to) const;
 
     void fillCurve(QPainter *,
         const QwtScaleMap &, const QwtScaleMap &,
         QPolygonF &) const;
+
     void closePolyline(const QwtScaleMap &, const QwtScaleMap &,
         QPolygonF &) const;
 
