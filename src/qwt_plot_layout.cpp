@@ -14,6 +14,7 @@
 #include "qwt_scale_widget.h"
 #include "qwt_legend.h"
 #include <qscrollbar.h>
+#include <qmath.h>
 
 class QwtPlotLayout::LayoutData
 {
@@ -782,7 +783,7 @@ void QwtPlotLayout::expandLineBreaks(int options, const QRectF &rect,
                 w -= dimAxis[QwtPlot::yLeft] + dimAxis[QwtPlot::yRight]; 
             }
 
-            int d = d_data->layoutData.title.text.heightForWidth(w);
+            int d = qCeil(d_data->layoutData.title.text.heightForWidth(w));
             if ( !(options & IgnoreFrames) )
                 d += 2 * d_data->layoutData.title.frameWidth;
 

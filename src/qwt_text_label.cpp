@@ -12,6 +12,7 @@
 #include "qwt_painter.h"
 #include <qpainter.h>
 #include <qevent.h>
+#include <qmath.h>
 
 class QwtTextLabel::PrivateData
 {
@@ -151,7 +152,7 @@ QSize QwtTextLabel::sizeHint() const
 //! Return a minimum size hint
 QSize QwtTextLabel::minimumSizeHint() const
 {
-    QSize sz = d_data->text.textSize(font());
+    QSizeF sz = d_data->text.textSize(font());
 
     int mw = 2 * (frameWidth() + d_data->margin);
     int mh = mw;
@@ -169,9 +170,9 @@ QSize QwtTextLabel::minimumSizeHint() const
             mh += d_data->indent;
     }
         
-    sz += QSize(mw, mh);
+    sz += QSizeF(mw, mh);
 
-    return sz;
+    return QSize( qCeil(sz.width()), qCeil(sz.height()) );
 }
 
 /*!

@@ -40,19 +40,19 @@ public:
     QwtMathMLTextEngine();
     virtual ~QwtMathMLTextEngine();
 
-    virtual int heightForWidth(const QFont &font, int flags, 
-        const QString &text, int width) const;
+    virtual double heightForWidth(const QFont &font, int flags, 
+        const QString &text, double width) const;
 
-    virtual QSize textSize(const QFont &font, int flags,
+    virtual QSizeF textSize(const QFont &font, int flags,
         const QString &text) const;
 
-    virtual void draw(QPainter *painter, const QRect &rect,
+    virtual void draw(QPainter *painter, const QRectF &rect,
         int flags, const QString &text) const;
 
     virtual bool mightRender(const QString &) const;
 
     virtual void textMargins(const QFont &, const QString &,
-        int &left, int &right, int &top, int &bottom) const;
+        double &left, double &right, double &top, double &bottom) const;
 };
 
 #endif

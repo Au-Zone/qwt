@@ -693,31 +693,14 @@ QRectF QwtScaleDraw::labelRect(const QFont &font, double value) const
 {   
     QwtText lbl = tickLabel(font, value);
     if ( lbl.isEmpty() )
-        return QRect(0, 0, 0, 0);
+        return QRectF(0.0, 0.0, 0.0, 0.0);
 
     const QPointF pos = labelPosition(value);
 
-    QSize labelSize = lbl.textSize(font);
-    if ( labelSize.height() % 2 )
-    {
-        labelSize.setHeight(labelSize.height() + 1);
-    }
-
+    const QSizeF labelSize = lbl.textSize(font);
     const QMatrix matrix = labelMatrix(pos, labelSize);
 
-#if 0
-    QRect br = QwtMetricsMap::translate(m, QRect(QPoint(0, 0), labelSize));
-#else
-    QPolygon pol(4);
-    pol.setPoint(0, 0, 0); 
-    pol.setPoint(1, 0, labelSize.height() - 1 );
-    pol.setPoint(2, labelSize.width() - 1, 0);
-    pol.setPoint(3, labelSize.width() - 1, labelSize.height() - 1 );
-
-    pol = matrix.map(pol);
-    QRect br = pol.boundingRect();
-#endif
-
+    QRectF br = matrix.mapRect(QRectF(QPointF(0, 0), labelSize));
     br.translate(-pos.x(), -pos.y());
 
     return br;

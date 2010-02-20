@@ -171,8 +171,8 @@ public:
     void setLayoutAttribute(LayoutAttribute, bool on = true);
     bool testLayoutAttribute(LayoutAttribute) const;
 
-    int heightForWidth(int width, const QFont & = QFont()) const;
-    QSize textSize(const QFont & = QFont()) const;
+    double heightForWidth(double width, const QFont & = QFont()) const;
+    QSizeF textSize(const QFont & = QFont()) const;
 
     void draw(QPainter *painter, const QRectF &rect) const;
 
