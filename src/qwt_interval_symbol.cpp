@@ -17,7 +17,7 @@ class QwtIntervalSymbol::PrivateData
 public:
     PrivateData():
         style(QwtIntervalSymbol::NoSymbol),
-        width(5)
+        width(6)
     {
     }
 

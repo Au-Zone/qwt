@@ -170,7 +170,7 @@ void Plot::setMode(int style)
         QColor c(d_intervalCurve->brush().color().rgb()); // skip alpha
 
         QwtIntervalSymbol errorBar(QwtIntervalSymbol::Bar);
-        errorBar.setWidth(7);
+        errorBar.setWidth(8); // should be something even
         errorBar.setPen(c);
 
         d_intervalCurve->setSymbol(errorBar);
