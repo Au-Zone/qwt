@@ -35,8 +35,8 @@ QwtMathMLTextEngine::~QwtMathMLTextEngine()
 
    \return Calculated height
 */
-int QwtMathMLTextEngine::heightForWidth(const QFont& font, int flags,
-        const QString& text, int) const
+double QwtMathMLTextEngine::heightForWidth(const QFont& font, int flags,
+        const QString& text, double) const
 {
     return textSize(font, flags, text).height();
 }
@@ -50,7 +50,7 @@ int QwtMathMLTextEngine::heightForWidth(const QFont& font, int flags,
 
   \return Caluclated size
 */
-QSize QwtMathMLTextEngine::textSize(const QFont &font,
+QSizeF QwtMathMLTextEngine::textSize(const QFont &font,
     int, const QString& text) const
 {
     static QString t;
@@ -78,7 +78,7 @@ QSize QwtMathMLTextEngine::textSize(const QFont &font,
   \param bottom Return 0
 */
 void QwtMathMLTextEngine::textMargins(const QFont &, const QString &,
-    int &left, int &right, int &top, int &bottom) const
+    double &left, double &right, double &top, double &bottom) const
 {
     left = right = top = bottom = 0;
 }
@@ -91,16 +91,16 @@ void QwtMathMLTextEngine::textMargins(const QFont &, const QString &,
    \param flags Bitwise OR of the flags like in for QPainter::drawText
    \param text Text to be rendered
 */ 
-void QwtMathMLTextEngine::draw(QPainter *painter, const QRect &rect,
+void QwtMathMLTextEngine::draw(QPainter *painter, const QRectF &rect,
     int flags, const QString& text) const
 {
     QtMmlDocument doc;
     doc.setContent(text);
     doc.setBaseFontPointSize(painter->font().pointSize());
 
-    const QSize docSize = doc.size();
+    const QSizeF docSize = doc.size();
 
-    QPoint pos = rect.topLeft();
+    QPointF pos = rect.topLeft();
     if ( rect.width() > docSize.width() )
     {
         if ( flags & Qt::AlignRight )
@@ -116,7 +116,7 @@ void QwtMathMLTextEngine::draw(QPainter *painter, const QRect &rect,
             pos.setY(rect.center().y() - docSize.height() / 2);
     }
 
-    doc.paint(painter, pos);
+    doc.paint(painter, pos.toPoint());
 }
 
 /*!

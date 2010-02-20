@@ -48,8 +48,8 @@ public:
 
       \return Calculated height
      */
-    virtual int heightForWidth(const QFont &font, int flags, 
-        const QString &text, int width) const = 0;
+    virtual double heightForWidth(const QFont &font, int flags, 
+        const QString &text, double width) const = 0;
 
     /*!
       Returns the size, that is needed to render text
@@ -60,7 +60,7 @@ public:
 
       \return Caluclated size
      */
-    virtual QSize textSize(const QFont &font, int flags,
+    virtual QSizeF textSize(const QFont &font, int flags,
         const QString &text) const = 0;
 
     /*! 
@@ -87,7 +87,7 @@ public:
       \param bottom Return value for the bottom margin
      */
     virtual void textMargins(const QFont &font, const QString &text,
-        int &left, int &right, int &top, int &bottom) const = 0;
+        double &left, double &right, double &top, double &bottom) const = 0;
 
     /*!
       Draw the text in a clipping rectangle
@@ -117,10 +117,10 @@ public:
     QwtPlainTextEngine();
     virtual ~QwtPlainTextEngine();
 
-    virtual int heightForWidth(const QFont &font, int flags, 
-        const QString &text, int width) const;
+    virtual double heightForWidth(const QFont &font, int flags, 
+        const QString &text, double width) const;
 
-    virtual QSize textSize(const QFont &font, int flags,
+    virtual QSizeF textSize(const QFont &font, int flags,
         const QString &text) const;
 
     virtual void draw(QPainter *painter, const QRectF &rect,
@@ -129,7 +129,7 @@ public:
     virtual bool mightRender(const QString &) const;
 
     virtual void textMargins(const QFont &, const QString &,
-        int &left, int &right, int &top, int &bottom) const;
+        double &left, double &right, double &top, double &bottom) const;
 
 private:
     class PrivateData; 
@@ -150,10 +150,10 @@ class QWT_EXPORT QwtRichTextEngine: public QwtTextEngine
 public:
     QwtRichTextEngine();
 
-    virtual int heightForWidth(const QFont &font, int flags, 
-        const QString &text, int width) const;
+    virtual double heightForWidth(const QFont &font, int flags, 
+        const QString &text, double width) const;
 
-    virtual QSize textSize(const QFont &font, int flags,
+    virtual QSizeF textSize(const QFont &font, int flags,
         const QString &text) const;
 
     virtual void draw(QPainter *painter, const QRectF &rect,
@@ -162,7 +162,7 @@ public:
     virtual bool mightRender(const QString &) const;
 
     virtual void textMargins(const QFont &, const QString &,
-        int &left, int &right, int &top, int &bottom) const;
+        double &left, double &right, double &top, double &bottom) const;
 private:
     QString taggedText(const QString &, int flags) const;
 };

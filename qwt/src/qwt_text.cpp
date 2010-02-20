@@ -18,6 +18,7 @@
 #include <qpainter.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
+#include <qmath.h>
 
 class QwtTextEngineDict
 {
@@ -156,11 +157,11 @@ class QwtText::LayoutCache
 public:
     void invalidate()
     {
-        textSize = QSize();
+        textSize = QSizeF();
     }
 
     QFont font;
-    QSize textSize;
+    QSizeF textSize;
 };
 
 /*!
@@ -452,18 +453,18 @@ bool QwtText::testLayoutAttribute(LayoutAttribute attribute) const
 
    \return Calculated height
 */
-int QwtText::heightForWidth(int width, const QFont &defaultFont) const
+double QwtText::heightForWidth(double width, const QFont &defaultFont) const
 {
     // We want to calculate in screen metrics. So
     // we need a font that uses screen metrics
 
     const QFont font(usedFont(defaultFont), QApplication::desktop());
 
-    int h = 0;
+    double h = 0;
 
     if ( d_data->layoutAttributes & MinimumLayout )
     {
-        int left, right, top, bottom;
+        double left, right, top, bottom;
         d_data->textEngine->textMargins(font, d_data->text,
             left, right, top, bottom);
 
@@ -496,7 +497,7 @@ int QwtText::heightForWidth(int width, const QFont &defaultFont) const
    \param defaultFont Font of the text
    \return Caluclated size
 */
-QSize QwtText::textSize(const QFont &defaultFont) const
+QSizeF QwtText::textSize(const QFont &defaultFont) const
 {
     // We want to calculate in screen metrics. So
     // we need a font that uses screen metrics
@@ -511,24 +512,14 @@ QSize QwtText::textSize(const QFont &defaultFont) const
         d_layoutCache->font = font;
     }
 
-    QSize sz = d_layoutCache->textSize;
+    QSizeF sz = d_layoutCache->textSize;
 
     if ( d_data->layoutAttributes & MinimumLayout )
     {
-        int left, right, top, bottom;
+        double left, right, top, bottom;
         d_data->textEngine->textMargins(font, d_data->text,
             left, right, top, bottom);
-        sz -= QSize(left + right, top + bottom);
-
-#ifdef __GNUC__
-#warning Too small text size, when printing in high resolution
-#endif
-        /*
-            When printing in high resolution, the tick labels
-            of are cut of. We need to find out why, but for
-            the moment we add a couple of pixels instead.
-         */
-        sz += QSize(3, 2);
+        sz -= QSizeF(left + right, top + bottom);
     }
 
     return sz;
@@ -576,10 +567,9 @@ void QwtText::draw(QPainter *painter, const QRectF &rect) const
 
         const QFont font(painter->font(), QApplication::desktop());
 
-        int left, right, top, bottom;
+        double left, right, top, bottom;
         d_data->textEngine->textMargins(
-            font, d_data->text,
-            left, right, top, bottom);
+            font, d_data->text, left, right, top, bottom);
 
         expandedRect.setTop(rect.top() - top);
         expandedRect.setBottom(rect.bottom() + bottom);

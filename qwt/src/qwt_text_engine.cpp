@@ -46,7 +46,7 @@ static QString taggedRichText(const QString &text, int flags)
 class QwtRichTextDocument: public QTextDocument
 {
 public:
-    QwtRichTextDocument(const QString &text, int flags, const QFont &font)
+    QwtRichTextDocument(const QString &text, int /* flags */, const QFont &font)
     {
         setUndoRedoEnabled(false);
         setDefaultFont(font);
@@ -143,12 +143,12 @@ QwtPlainTextEngine::~QwtPlainTextEngine()
 
    \return Calculated height
 */
-int QwtPlainTextEngine::heightForWidth(const QFont& font, int flags,
-        const QString& text, int width) const
+double QwtPlainTextEngine::heightForWidth(const QFont& font, int flags,
+        const QString& text, double width) const
 {
-    const QFontMetrics fm(font);
-    const QRect rect = fm.boundingRect(
-        0, 0, width, QWIDGETSIZE_MAX, flags, text);
+    const QFontMetricsF fm(font);
+    const QRectF rect = fm.boundingRect(
+		QRectF(0, 0, width, QWIDGETSIZE_MAX), flags, text);
 
     return rect.height();
 }
@@ -162,12 +162,12 @@ int QwtPlainTextEngine::heightForWidth(const QFont& font, int flags,
 
   \return Caluclated size
 */
-QSize QwtPlainTextEngine::textSize(const QFont &font,
+QSizeF QwtPlainTextEngine::textSize(const QFont &font,
     int flags, const QString& text) const
 {
-    const QFontMetrics fm(font);
-    const QRect rect = fm.boundingRect(
-        0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX, flags, text);
+    const QFontMetricsF fm(font);
+    const QRectF rect = fm.boundingRect(
+        QRectF(0, 0, QWIDGETSIZE_MAX, QWIDGETSIZE_MAX), flags, text);
 
     return rect.size();
 }
@@ -182,13 +182,13 @@ QSize QwtPlainTextEngine::textSize(const QFont &font,
   \param bottom Return value for the bottom margin
 */
 void QwtPlainTextEngine::textMargins(const QFont &font, const QString &,
-    int &left, int &right, int &top, int &bottom) const
+    double &left, double &right, double &top, double &bottom) const
 {
     left = right = top = 0;
 
-    const QFontMetrics fm(font);
+    const QFontMetricsF fm(font);
     top = fm.ascent() - d_data->effectiveAscent(font);
-    bottom = fm.descent() + 1;
+    bottom = fm.descent();
 }
 
 /*!
@@ -233,14 +233,13 @@ QwtRichTextEngine::QwtRichTextEngine()
 
    \return Calculated height
 */
-int QwtRichTextEngine::heightForWidth(const QFont& font, int flags,
-        const QString& text, int width) const
+double QwtRichTextEngine::heightForWidth(const QFont& font, int flags,
+        const QString& text, double width) const
 {
     QwtRichTextDocument doc(text, flags, font);
 
-    doc.setPageSize(QSize(width, QWIDGETSIZE_MAX));
-    const int h = qRound(doc.documentLayout()->documentSize().height());
-    return h;
+    doc.setPageSize(QSizeF(width, QWIDGETSIZE_MAX));
+    return doc.documentLayout()->documentSize().height();
 }
 
 /*!
@@ -253,7 +252,7 @@ int QwtRichTextEngine::heightForWidth(const QFont& font, int flags,
   \return Caluclated size
 */
 
-QSize QwtRichTextEngine::textSize(const QFont &font,
+QSizeF QwtRichTextEngine::textSize(const QFont &font,
     int flags, const QString& text) const
 {
     QwtRichTextDocument doc(text, flags, font);
@@ -266,7 +265,7 @@ QSize QwtRichTextEngine::textSize(const QFont &font,
         doc.adjustSize();
     }
 
-    return doc.size().toSize();
+    return doc.size();
 }
 
 /*!
@@ -317,7 +316,7 @@ bool QwtRichTextEngine::mightRender(const QString &text) const
   \param bottom Return 0
 */
 void QwtRichTextEngine::textMargins(const QFont &, const QString &,
-    int &left, int &right, int &top, int &bottom) const
+    double &left, double &right, double &top, double &bottom) const
 {
     left = right = top = bottom = 0;
 }
