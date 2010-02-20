@@ -267,8 +267,10 @@ void QwtPlotIntervalCurve::drawSymbols(
 {
     painter->save();
 
-    painter->setRenderHint(QPainter::Antialiasing, false);
-    painter->setPen(d_data->symbol->pen());
+    QPen pen = d_data->symbol->pen();
+    pen.setCapStyle(Qt::FlatCap);
+
+    painter->setPen(pen);
     painter->setBrush(d_data->symbol->brush());
 
     for ( int i = from; i <= to; i++ )
@@ -313,7 +315,11 @@ void QwtPlotIntervalCurve::drawLegendIdentifier(
 
     if ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol )
     {
-        painter->setPen(d_data->symbol->pen());
+        QPen pen = d_data->symbol->pen();
+        pen.setWidthF(pen.widthF());
+        pen.setCapStyle(Qt::FlatCap);
+
+        painter->setPen(pen);
         painter->setBrush(d_data->symbol->brush());
 
         if ( orientation() == Qt::Vertical )

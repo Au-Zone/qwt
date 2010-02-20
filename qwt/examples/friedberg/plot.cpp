@@ -59,7 +59,7 @@ public:
 };
 
 Plot::Plot(QWidget *parent):
-	QwtPlot(parent)
+    QwtPlot(parent)
 {
     setTitle("Temperature of Friedberg/Germany");
     setCanvasBackground(QColor(Qt::darkGray));
@@ -161,17 +161,21 @@ void Plot::setMode(int style)
     {
         d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
         d_intervalCurve->setSymbol(QwtIntervalSymbol());
+        d_intervalCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
     }
     else
     {
         d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
 
+        QColor c(d_intervalCurve->brush().color().rgb()); // skip alpha
+
         QwtIntervalSymbol errorBar(QwtIntervalSymbol::Bar);
         errorBar.setWidth(7);
-        errorBar.setPen(QPen(d_intervalCurve->brush().color()));
+        errorBar.setPen(c);
 
         d_intervalCurve->setSymbol(errorBar);
+        d_intervalCurve->setRenderHint(QwtPlotItem::RenderAntialiased, false);
     }
 
-	replot();
+    replot();
 }
