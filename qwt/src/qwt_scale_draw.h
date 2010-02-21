@@ -14,6 +14,7 @@
 #include "qwt_abstract_scale_draw.h"
 #include <qpoint.h>
 #include <qrect.h>
+#include <qtransform.h>
 
 /*!
   \brief A class for drawing scales
@@ -80,7 +81,7 @@ public:
 
 protected:
 
-    QMatrix labelMatrix(const QPointF &, const QSizeF &) const;
+    QTransform labelTransformation(const QPointF &, const QSizeF &) const;
 
     virtual void drawTick(QPainter *p, double val, double len) const;
     virtual void drawBackbone(QPainter *p) const;
