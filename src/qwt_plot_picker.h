@@ -100,7 +100,7 @@ protected:
     QPoint transform(const QPointF &) const;
 
     virtual QwtText trackerText(const QPoint &) const;
-    virtual QwtText trackerText(const QPointF &) const;
+    virtual QwtText trackerTextF(const QPointF &) const;
 
     virtual void move(const QPoint &);
     virtual void append(const QPoint &);

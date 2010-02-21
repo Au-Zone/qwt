@@ -9,6 +9,5 @@ int main (int argc, char **argv)
     w.resize(540,400);
     w.show();
 
-    int rv = a.exec();
-    return rv;
+    return a.exec();
 }
