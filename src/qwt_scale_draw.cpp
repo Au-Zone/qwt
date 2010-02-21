@@ -14,7 +14,6 @@
 #include "qwt_painter.h"
 #include <qpen.h>
 #include <qpainter.h>
-#include <qmatrix.h>
 #include <qmath.h>
 
 class QwtScaleDraw::PrivateData
@@ -576,10 +575,10 @@ void QwtScaleDraw::drawLabel(QPainter *painter, double value) const
 
     QSizeF labelSize = lbl.textSize(painter->font());
 
-    const QMatrix m = labelMatrix( pos, labelSize);
+    const QTransform transform = labelTransformation( pos, labelSize);
 
     painter->save();
-    painter->setMatrix(m, true);
+    painter->setWorldTransform(transform, true);
 
     lbl.draw (painter, QRect(QPoint(0, 0), labelSize.toSize() ) );
 
@@ -605,12 +604,12 @@ QRect QwtScaleDraw::boundingLabelRect(const QFont &font, double value) const
     const QPointF pos = labelPosition(value);
     QSizeF labelSize = lbl.textSize(font);
 
-    const QMatrix m = labelMatrix( pos, labelSize);
-    return m.mapRect(QRect(QPoint(0, 0), labelSize.toSize()));
+    const QTransform transform = labelTransformation( pos, labelSize);
+    return transform.mapRect(QRect(QPoint(0, 0), labelSize.toSize()));
 }
 
 /*!
-   Calculate the matrix that is needed to paint a label
+   Calculate the transformation that is needed to paint a label
    depending on its alignment and rotation.
 
    \param pos Position where to paint the label
@@ -618,12 +617,12 @@ QRect QwtScaleDraw::boundingLabelRect(const QFont &font, double value) const
 
    \sa setLabelAlignment(), setLabelRotation()
 */
-QMatrix QwtScaleDraw::labelMatrix( 
+QTransform QwtScaleDraw::labelTransformation( 
     const QPointF &pos, const QSizeF &size) const
 {   
-    QMatrix m;
-    m.translate(pos.x(), pos.y());
-    m.rotate(labelRotation());
+    QTransform transform;
+    transform.translate(pos.x(), pos.y());
+    transform.rotate(labelRotation());
     
     int flags = labelAlignment();
     if ( flags == 0 )
@@ -657,8 +656,8 @@ QMatrix QwtScaleDraw::labelMatrix(
         }
     }
 
-    const int w = size.width();
-    const int h = size.height();
+    const int w = qCeil(size.width());
+    const int h = qCeil(size.height());
 
     int x, y;
     
@@ -676,9 +675,9 @@ QMatrix QwtScaleDraw::labelMatrix(
     else // Qt::AlignVCenter
         y = -(h/2);
         
-    m.translate(x, y);
+    transform.translate(x, y);
     
-    return m;
+    return transform;
 }   
 
 /*!
@@ -698,9 +697,9 @@ QRectF QwtScaleDraw::labelRect(const QFont &font, double value) const
     const QPointF pos = labelPosition(value);
 
     const QSizeF labelSize = lbl.textSize(font);
-    const QMatrix matrix = labelMatrix(pos, labelSize);
+    const QTransform transform = labelTransformation(pos, labelSize);
 
-    QRectF br = matrix.mapRect(QRectF(QPointF(0, 0), labelSize));
+    QRectF br = transform.mapRect(QRectF(QPointF(0, 0), labelSize));
     br.translate(-pos.x(), -pos.y());
 
     return br;
