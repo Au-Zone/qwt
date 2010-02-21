@@ -19,12 +19,12 @@ public:
         setTrackerMode(AlwaysOn);
     }
 
-    virtual QwtText trackerText(const QPointF &pos) const
+    virtual QwtText trackerTextF(const QPointF &pos) const
     {
         QColor bg(Qt::white);
         bg.setAlpha(200);
 
-        QwtText text = QwtPlotZoomer::trackerText(pos);
+        QwtText text = QwtPlotZoomer::trackerTextF(pos);
         text.setBackgroundBrush( QBrush( bg ));
         return text;
     }

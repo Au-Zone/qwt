@@ -200,7 +200,7 @@ int QwtPlotPicker::yAxis() const
 */
 QwtText QwtPlotPicker::trackerText(const QPoint &pos) const
 {
-    return trackerText(invTransform(pos));
+    return trackerTextF(invTransform(pos));
 }
 
 /*!
@@ -215,7 +215,7 @@ QwtText QwtPlotPicker::trackerText(const QPoint &pos) const
   \param pos Position
   \return Position string
 */
-QwtText QwtPlotPicker::trackerText(const QPointF &pos) const
+QwtText QwtPlotPicker::trackerTextF(const QPointF &pos) const
 {
     QString text;
 
