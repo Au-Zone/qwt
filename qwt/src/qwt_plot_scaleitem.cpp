@@ -37,7 +37,7 @@ public:
     int borderDistance;
     bool scaleDivFromAxis;
     QwtScaleDraw *scaleDraw;
-    QRect canvasRectCache;
+    QRectF canvasRectCache;
 };
 
 /*!
@@ -323,10 +323,13 @@ void QwtPlotScaleItem::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect) const
 {
-    if ( canvasRect != d_data->canvasRectCache )
+    if ( d_data->scaleDivFromAxis )
     {
-        QwtPlotScaleItem* that = (QwtPlotScaleItem*)this;
-        that->updateBorders();
+        if ( canvasRect != d_data->canvasRectCache )
+        {
+            QwtPlotScaleItem* that = (QwtPlotScaleItem*)this;
+            that->updateBorders(canvasRect, xMap, yMap);
+        }
     }
 
     QPen pen = painter->pen();
@@ -408,31 +411,31 @@ void QwtPlotScaleItem::updateScaleDiv(const QwtScaleDiv& xScaleDiv,
     {
         sd->setScaleDiv(
             sd->orientation() == Qt::Horizontal ? xScaleDiv : yScaleDiv);
-        updateBorders();
+
+        const QwtPlot *plt = plot();
+        if ( plt != NULL )
+        {
+            updateBorders(plt->canvas()->contentsRect(),
+                plt->canvasMap(xAxis()), plt->canvasMap(yAxis()) );
+        }
     }
 }
 
-void QwtPlotScaleItem::updateBorders()
+void QwtPlotScaleItem::updateBorders(const QRectF &canvasRect,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap)
 {
-    const QwtPlot *plt = plot();
-    if ( plt == NULL || !d_data->scaleDivFromAxis )
-        return;
-    
-    const QRect r = plt->canvas()->contentsRect();
-    d_data->canvasRectCache = r;
+    d_data->canvasRectCache = canvasRect;
 
     QwtDoubleInterval interval;
     if ( d_data->scaleDraw->orientation() == Qt::Horizontal )
     {
-        const QwtScaleMap map = plt->canvasMap(xAxis());
-        interval.setMinValue(map.invTransform(r.left()));
-        interval.setMaxValue(map.invTransform(r.right()));
+        interval.setMinValue(xMap.invTransform(canvasRect.left()));
+        interval.setMaxValue(xMap.invTransform(canvasRect.right() - 1));
     }
     else
     {
-        const QwtScaleMap map = plt->canvasMap(yAxis());
-        interval.setMinValue(map.invTransform(r.bottom()));
-        interval.setMaxValue(map.invTransform(r.top()));
+        interval.setMinValue(yMap.invTransform(canvasRect.bottom() - 1));
+        interval.setMaxValue(yMap.invTransform(canvasRect.top()));
     }
 
     QwtScaleDiv scaleDiv = d_data->scaleDraw->scaleDiv();
