@@ -83,11 +83,11 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &rect) const;
 
-    virtual void updateScaleDiv(const QwtScaleDiv&,
-        const QwtScaleDiv&);
+    virtual void updateScaleDiv(const QwtScaleDiv &, const QwtScaleDiv &);
 
 private:
-    void updateBorders();
+    void updateBorders(const QRectF &, 
+        const QwtScaleMap &, const QwtScaleMap &);
 
     class PrivateData;
     PrivateData *d_data;
