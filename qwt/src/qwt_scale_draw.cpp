@@ -656,24 +656,21 @@ QTransform QwtScaleDraw::labelTransformation(
         }
     }
 
-    const int w = qCeil(size.width());
-    const int h = qCeil(size.height());
-
-    int x, y;
+    double x, y;
     
     if ( flags & Qt::AlignLeft )
-        x = -w + 1;
+        x = -size.width();
     else if ( flags & Qt::AlignRight )
-        x = -(w % 2) + 1; 
+        x = 0.0;
     else // Qt::AlignHCenter
-        x = -(w / 2);
+        x = -(0.5 * size.width());
         
     if ( flags & Qt::AlignTop )
-        y = -h + 1;
+        y = -size.height();
     else if ( flags & Qt::AlignBottom )
-        y = -(h % 2); 
+        y = 0;
     else // Qt::AlignVCenter
-        y = -(h/2);
+        y = -(0.5 * size.height());
         
     transform.translate(x, y);
     
