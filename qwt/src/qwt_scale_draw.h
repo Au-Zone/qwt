@@ -48,8 +48,8 @@ public:
     void getBorderDistHint(const QFont &, int &start, int &end) const;
     int minLabelDist(const QFont &) const;
 
-    int minLength(const QPen &, const QFont &) const;
-    virtual double extent(const QPen &, const QFont &) const;
+    int minLength(const QFont &) const;
+    virtual double extent(const QFont &) const;
 
     void move(double x, double y);
     void move(const QPointF &);

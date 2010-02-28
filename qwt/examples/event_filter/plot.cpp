@@ -30,8 +30,7 @@ Plot::Plot(QWidget *parent):
     // appear/disappear when scrolling vertically
 
     QwtScaleDraw *sd = axisScaleDraw(QwtPlot::yLeft);
-    sd->setMinimumExtent( sd->extent(QPen(), 
-        axisWidget(QwtPlot::yLeft)->font()));
+    sd->setMinimumExtent( sd->extent(axisWidget(QwtPlot::yLeft)->font()));
 
     plotLayout()->setAlignCanvasToScales(true);
 

@@ -173,15 +173,15 @@ void MainWindow::print()
 
 void MainWindow::exportDocument()
 {
-    QString fileName = "bode.svg";
+    QString fileName = "bode.pdf";
 
 #ifndef QT_NO_FILEDIALOG
     const QList<QByteArray> imageFormats = 
         QImageWriter::supportedImageFormats();
 
     QStringList filter;
-    filter += "SVG Documents (*.svg)";
     filter += "PDF Documents (*.pdf)";
+    filter += "SVG Documents (*.svg)";
     filter += "Postscript Documents (*.ps)";
 
     if ( imageFormats.size() > 0 )

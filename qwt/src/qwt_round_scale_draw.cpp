@@ -262,7 +262,7 @@ void QwtRoundScaleDraw::drawBackbone(QPainter *painter) const
             calculates only an upper limit, that might be a
             few pixels too large
 */
-double QwtRoundScaleDraw::extent(const QPen &pen, const QFont &font) const
+double QwtRoundScaleDraw::extent(const QFont &font) const
 {
     double d = 0.0;
 
@@ -306,7 +306,7 @@ double QwtRoundScaleDraw::extent(const QPen &pen, const QFont &font) const
 
     if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
     {
-        const double pw = qMax( 0.5, pen.widthF() );  // penwidth can be zero
+        const double pw = qMax( 0.5, penWidth() );  // penwidth can be zero
         d += pw;
     }
 

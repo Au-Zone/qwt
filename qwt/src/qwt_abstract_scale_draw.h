@@ -72,6 +72,9 @@ public:
     void setSpacing(double margin);
     double spacing() const;
         
+    void setPenWidth(double width);
+    double penWidth() const;
+
     virtual void draw(QPainter *, const QPalette &) const;
 
     virtual QwtText label(double) const;
@@ -85,7 +88,7 @@ public:
  
       \sa setMinimumExtent(), minimumExtent()
     */
-    virtual double extent(const QPen &, const QFont &) const = 0;
+    virtual double extent(const QFont &) const = 0;
 
     void setMinimumExtent(double);
     double minimumExtent() const;

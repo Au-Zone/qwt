@@ -283,7 +283,7 @@ QRect QwtDial::scaleContentsRect() const
     int scaleDist = 0;
     if ( d_data->scaleDraw )
     {
-        scaleDist = qCeil(d_data->scaleDraw->extent(scalePen, font()));
+        scaleDist = qCeil(d_data->scaleDraw->extent(font()));
         scaleDist++; // margin
     }
 
@@ -937,7 +937,7 @@ QSize QwtDial::sizeHint() const
 {
     int sh = 0;
     if ( d_data->scaleDraw )
-        sh = qCeil(d_data->scaleDraw->extent( QPen(), font() ));
+        sh = qCeil(d_data->scaleDraw->extent( font() ));
 
     const int d = 6 * sh + 2 * lineWidth();
     
@@ -953,7 +953,7 @@ QSize QwtDial::minimumSizeHint() const
 {   
     int sh = 0;
     if ( d_data->scaleDraw )
-        sh = qCeil(d_data->scaleDraw->extent(QPen(), font() ));
+        sh = qCeil(d_data->scaleDraw->extent(font() ));
 
     const int d = 3 * sh + 2 * lineWidth();
     

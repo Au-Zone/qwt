@@ -137,7 +137,7 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
     const QRectF documentRect(0.0, 0.0, size.width(), size.height());
 
     const QString fmt = format.toLower();
-    if ( format == "pdf" )
+    if ( format == "pdf" || format == "ps" )
     {
         QPrinter printer;
         printer.setResolution(resolution);
@@ -145,21 +145,14 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
         printer.setPaperSize(sizeMM, QPrinter::Millimeter);
         printer.setDocName(title);
         printer.setOutputFileName(fileName);
-        printer.setOutputFormat(QPrinter::PdfFormat);
-        
-        QPainter painter(&printer);
-        render(plot, &painter, documentRect);
-    }
-    else if ( format == "ps" )
-    {
-        QPrinter printer;
-        printer.setResolution(resolution);
-        printer.setFullPage(true);
-        printer.setPaperSize(sizeMM, QPrinter::Millimeter);
-        printer.setDocName(title);
-        printer.setOutputFileName(fileName);
-        printer.setOutputFormat(QPrinter::PostScriptFormat);
+        printer.setOutputFormat( (format == "pdf") 
+			? QPrinter::PdfFormat : QPrinter::PostScriptFormat);
 
+#if 0
+		if ( QFile::exists(fileName) )
+			QFile::remove(fileName); // Avoid confirmation dialog
+#endif
+        
         QPainter painter(&printer);
         render(plot, &painter, documentRect);
     }
@@ -563,10 +556,6 @@ void QwtPlotRenderer::renderScale(QPainter *painter,
     }
 
     painter->save();
-
-    QPen pen = painter->pen();
-    pen.setWidth(scaleWidget->penWidth());
-    painter->setPen(pen);
 
     QwtScaleDraw::Alignment align;
     double x, y, w;

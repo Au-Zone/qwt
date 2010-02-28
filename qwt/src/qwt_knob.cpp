@@ -505,7 +505,7 @@ QSize QwtKnob::sizeHint() const
 QSize QwtKnob::minimumSizeHint() const
 {
     // Add the scale radial thickness to the knobWidth
-    const int sh = qCeil(scaleDraw()->extent( QPen(), font() ));
+    const int sh = qCeil(scaleDraw()->extent( font() ));
     const int d = 2 * sh + 2 * d_data->scaleDist + d_data->knobWidth;
 
     return QSize( d, d );
