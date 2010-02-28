@@ -346,8 +346,8 @@ int QwtScaleDraw::minLength(const QPen &pen, const QFont &font) const
     int lengthForTicks = 0;
     if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
     {
-        const int pw = qMax( 1, pen.width() );  // penwidth can be zero
-        lengthForTicks = 2 * (majorCount + minorCount) * pw;
+        const double pw = qMax( 1.0, pen.widthF() );  // penwidth can be zero
+        lengthForTicks = qCeil( (majorCount + minorCount) * (pw + 1.0) );
     }
 
     return startDist + endDist + qMax(lengthForLabels, lengthForTicks);
