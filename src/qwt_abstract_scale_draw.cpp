@@ -37,6 +37,7 @@ public:
         
     double spacing;
     double tickLength[QwtScaleDiv::NTickTypes];
+	double penWidth;
 
     double minExtent;
 
@@ -139,6 +140,29 @@ const QwtScaleDiv& QwtAbstractScaleDraw::scaleDiv() const
 }
 
 /*!
+  \brief Specify the width of the scale pen
+  \param width Pen width
+  \sa penWidth()
+*/
+void QwtAbstractScaleDraw::setPenWidth(double width)
+{
+    if ( width < 0 )
+        width = 0;
+
+    if ( width != d_data->penWidth )
+        d_data->penWidth = width;
+}
+
+/*! 
+    \return Scale pen width
+    \sa setPenWidth()
+*/
+double QwtAbstractScaleDraw::penWidth() const
+{
+    return d_data->penWidth;
+}
+
+/*!
   \brief Draw the scale
 
   \param painter    The painter
@@ -149,6 +173,12 @@ const QwtScaleDiv& QwtAbstractScaleDraw::scaleDiv() const
 void QwtAbstractScaleDraw::draw(QPainter *painter, 
     const QPalette& palette) const
 {
+	painter->save();
+
+	QPen pen = painter->pen();
+	pen.setWidth(d_data->penWidth);
+	painter->setPen(pen);
+
     if ( hasComponent(QwtAbstractScaleDraw::Labels) )
     {
         painter->save();
@@ -206,6 +236,8 @@ void QwtAbstractScaleDraw::draw(QPainter *painter,
 
         painter->restore();
     }
+
+	painter->restore();
 }
 
 /*!

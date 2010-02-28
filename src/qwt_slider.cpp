@@ -778,8 +778,8 @@ QSize QwtSlider::minimumSizeHint() const
         if ( mbd < msMbd )
             mbd = msMbd;
 
-        const int sdExtent = qCeil(scaleDraw()->extent( QPen(), font() ));
-        const int sdLength = scaleDraw()->minLength( QPen(), font() );
+        const int sdExtent = qCeil(scaleDraw()->extent( font() ));
+        const int sdLength = scaleDraw()->minLength( font() );
 
         h = sliderWidth + sdExtent + d_data->scaleDist;
         w = sdLength - 2 * msMbd + 2 * mbd;

@@ -48,7 +48,7 @@ public:
 
     void setAngleRange(double angle1, double angle2);
 
-    virtual double extent(const QPen &, const QFont &) const;
+    virtual double extent(const QFont &) const;
 
 protected:
     virtual void drawTick(QPainter *p, double val, double len) const;

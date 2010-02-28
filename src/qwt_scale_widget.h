@@ -78,9 +78,6 @@ public:
     void setSpacing(int td);
     int spacing() const;
 
-    void setPenWidth(int);
-    int penWidth() const;
-
     void setScaleDiv(QwtScaleTransformation *, const QwtScaleDiv &sd);
 
     void setScaleDraw(QwtScaleDraw *);

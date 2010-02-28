@@ -39,7 +39,6 @@ public:
     int minBorderDist[2];
     int scaleLength;
     int margin;
-    int penWidth;
 
     int titleOffset;
     int spacing;
@@ -98,7 +97,6 @@ void QwtScaleWidget::initScale(QwtScaleDraw::Alignment align)
     d_data->minBorderDist[0] = 0;
     d_data->minBorderDist[1] = 0;
     d_data->margin = 4;
-    d_data->penWidth = 0;
     d_data->titleOffset = 0;
     d_data->spacing = 2;
 
@@ -279,23 +277,6 @@ void QwtScaleWidget::setSpacing(int spacing)
 }
 
 /*!
-  \brief Specify the width of the scale pen
-  \param width Pen width
-  \sa penWidth()
-*/
-void QwtScaleWidget::setPenWidth(int width)
-{
-    if ( width < 0 )
-        width = 0;
-
-    if ( width != d_data->penWidth )
-    {
-        d_data->penWidth = width;
-        layoutScale();
-    }
-}
-
-/*!
   \brief Change the alignment for the labels.
 
   \sa QwtScaleDraw::setLabelAlignment(), setLabelRotation()
@@ -404,14 +385,6 @@ int QwtScaleWidget::spacing() const
     return d_data->spacing; 
 }
 
-/*! 
-    \return Scale pen width
-    \sa setPenWidth()
-*/
-int QwtScaleWidget::penWidth() const
-{
-    return d_data->penWidth;
-} 
 /*!
   \brief paintEvent
 */
@@ -427,14 +400,7 @@ void QwtScaleWidget::paintEvent(QPaintEvent *event)
 */
 void QwtScaleWidget::draw(QPainter *painter) const
 {
-    painter->save();
-
-    QPen scalePen = painter->pen();
-    scalePen.setWidth(d_data->penWidth);
-    painter->setPen(scalePen);
-    
     d_data->scaleDraw->draw(painter, palette());
-    painter->restore();
 
     if ( d_data->colorBar.isEnabled && d_data->colorBar.width > 0 &&
         d_data->colorBar.interval.isValid() )
@@ -562,8 +528,7 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     d_data->scaleDraw->move(x, y);
     d_data->scaleDraw->setLength(length);
 
-    const int extent = qCeil(d_data->scaleDraw->extent(
-        QPen(Qt::black, d_data->penWidth), font()));
+    const int extent = qCeil(d_data->scaleDraw->extent(font()));
 
     d_data->titleOffset = 
         d_data->margin + d_data->spacing + colorBarWidth + extent;
@@ -693,8 +658,7 @@ QSize QwtScaleWidget::minimumSizeHint() const
     getBorderDistHint(mbd1, mbd2);
     length += qMax( 0, d_data->borderDist[0] - mbd1 );
     length += qMax( 0, d_data->borderDist[1] - mbd2 );
-    length += d_data->scaleDraw->minLength(
-        QPen(Qt::black, d_data->penWidth), font());
+    length += d_data->scaleDraw->minLength(font());
 
     int dim = dimForLength(length, font());
     if ( length < dim )
@@ -733,8 +697,7 @@ int QwtScaleWidget::titleHeightForWidth(int width) const
 
 int QwtScaleWidget::dimForLength(int length, const QFont &scaleFont) const
 {
-    const int extent = qCeil(d_data->scaleDraw->extent(
-        QPen(Qt::black, d_data->penWidth), scaleFont));
+    const int extent = qCeil(d_data->scaleDraw->extent(scaleFont));
 
     int dim = d_data->margin + extent;
 

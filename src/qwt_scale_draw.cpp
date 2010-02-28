@@ -280,12 +280,11 @@ int QwtScaleDraw::minLabelDist(const QFont &font) const
    the major tick length, the spacing and the maximum width/height
    of the labels.
 
-   \param pen Pen that is used for painting backbone and ticks
    \param font Font used for painting the labels
 
    \sa minLength()
 */
-double QwtScaleDraw::extent(const QPen &pen, const QFont &font) const
+double QwtScaleDraw::extent(const QFont &font) const
 {
     double d = 0;
 
@@ -307,7 +306,7 @@ double QwtScaleDraw::extent(const QPen &pen, const QFont &font) const
 
     if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
     {
-        const double pw = qMax( 0.5, pen.widthF() );  // penwidth can be zero
+        const double pw = qMax( 0.5, penWidth() );  // penwidth can be zero
         d += pw;
     }
 
@@ -318,12 +317,11 @@ double QwtScaleDraw::extent(const QPen &pen, const QFont &font) const
 /*!
    Calculate the minimum length that is needed to draw the scale
 
-   \param pen Pen that is used for painting backbone and ticks
    \param font Font used for painting the labels
 
    \sa extent()
 */
-int QwtScaleDraw::minLength(const QPen &pen, const QFont &font) const
+int QwtScaleDraw::minLength(const QFont &font) const
 {
     int startDist, endDist;
     getBorderDistHint(font, startDist, endDist);
@@ -346,7 +344,7 @@ int QwtScaleDraw::minLength(const QPen &pen, const QFont &font) const
     int lengthForTicks = 0;
     if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
     {
-        const double pw = qMax( 1.0, pen.widthF() );  // penwidth can be zero
+        const double pw = qMax( 1.0, penWidth() );  // penwidth can be zero
         lengthForTicks = qCeil( (majorCount + minorCount) * (pw + 1.0) );
     }
 
@@ -364,7 +362,10 @@ int QwtScaleDraw::minLength(const QPen &pen, const QFont &font) const
 QPointF QwtScaleDraw::labelPosition( double value) const
 {
     const double tval = map().transform(value);
-    int dist = spacing() + 1;
+    double dist = spacing();
+    if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
+		dist += qMax(1.0, penWidth());
+
     if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
         dist += majTickLength();
 
@@ -399,7 +400,7 @@ QPointF QwtScaleDraw::labelPosition( double value) const
         }
     }
 
-    return QPoint(px, py);
+    return QPointF(px, py);
 }
 
 /*!
@@ -421,6 +422,12 @@ void QwtScaleDraw::drawTick(QPainter *painter, double value, double len) const
 
     const double tval = scaleMap.transform(value);
 
+#if 0
+	double pw = 0.0;
+	if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
+		pw = qMax(1.0, penWidth());
+#endif
+		
     switch(alignment())
     {
         case LeftScale:
@@ -463,21 +470,32 @@ void QwtScaleDraw::drawBackbone(QPainter *painter) const
 {
     const QPointF &pos = d_data->pos;
     const double len = d_data->len;
+	const double pw = qMax(0.0, 0.5 * (penWidth() - 1.0));
 
     switch(alignment())
     {
         case LeftScale:
-        case RightScale:
         {
-            QwtPainter::drawLine(painter, pos.x(), pos.y(), 
-                pos.x(), pos.y() + len );
+            QwtPainter::drawLine(painter, pos.x() - pw, pos.y(), 
+                pos.x() - pw, pos.y() + len );
+            break;
+        }
+		case RightScale:
+        {
+            QwtPainter::drawLine(painter, pos.x() + pw, pos.y(), 
+                pos.x() + pw, pos.y() + len );
             break;
         }
         case TopScale:
-        case BottomScale:
         {
-            QwtPainter::drawLine(painter, pos.x(), pos.y(), 
-                pos.x() + len, pos.y());
+            QwtPainter::drawLine(painter, pos.x(), pos.y() - pw, 
+                pos.x() + len, pos.y() - pw);
+            break;
+        }
+		case BottomScale:
+        {
+            QwtPainter::drawLine(painter, pos.x(), pos.y() + pw, 
+                pos.x() + len, pos.y() + pw);
             break;
         }
     }

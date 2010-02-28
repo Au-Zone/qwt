@@ -276,9 +276,7 @@ void PlotMatrix::alignVAxes(int col, int axis)
             QwtScaleDraw *sd = scaleWidget->scaleDraw();
             sd->setMinimumExtent(0);
 
-            const int extent = sd->extent(  
-                QPen(Qt::black, scaleWidget->penWidth()),
-                scaleWidget->font() );
+            const int extent = sd->extent( scaleWidget->font() );
             if ( extent > maxExtent )
                 maxExtent = extent;
         }
