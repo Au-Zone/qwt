@@ -81,6 +81,8 @@ public:
         const QwtColorMap &, const QwtDoubleInterval &,
         const QwtScaleMap &, Qt::Orientation, const QRectF &);
 
+    static bool isAligning(QPainter *painter);
+
 private:
     static void drawColoredArc(QPainter *, const QRect &,
         int peak, int arc, int intervall, const QColor &c1, const QColor &c2);

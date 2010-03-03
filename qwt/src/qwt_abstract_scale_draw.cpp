@@ -23,6 +23,7 @@ public:
     PrivateData():
         components(Backbone | Ticks | Labels),
         spacing(4.0),
+        penWidth(0),
         minExtent(0.0)
     {
         tickLength[QwtScaleDiv::MinorTick] = 4.0;
@@ -37,7 +38,7 @@ public:
         
     double spacing;
     double tickLength[QwtScaleDiv::NTickTypes];
-	double penWidth;
+    int penWidth;
 
     double minExtent;
 
@@ -144,7 +145,7 @@ const QwtScaleDiv& QwtAbstractScaleDraw::scaleDiv() const
   \param width Pen width
   \sa penWidth()
 */
-void QwtAbstractScaleDraw::setPenWidth(double width)
+void QwtAbstractScaleDraw::setPenWidth(int width)
 {
     if ( width < 0 )
         width = 0;
@@ -157,7 +158,7 @@ void QwtAbstractScaleDraw::setPenWidth(double width)
     \return Scale pen width
     \sa setPenWidth()
 */
-double QwtAbstractScaleDraw::penWidth() const
+int QwtAbstractScaleDraw::penWidth() const
 {
     return d_data->penWidth;
 }
@@ -173,11 +174,12 @@ double QwtAbstractScaleDraw::penWidth() const
 void QwtAbstractScaleDraw::draw(QPainter *painter, 
     const QPalette& palette) const
 {
-	painter->save();
+    painter->save();
 
-	QPen pen = painter->pen();
-	pen.setWidth(d_data->penWidth);
-	painter->setPen(pen);
+    QPen pen = painter->pen();
+    pen.setWidth(d_data->penWidth);
+	pen.setCosmetic(false);
+    painter->setPen(pen);
 
     if ( hasComponent(QwtAbstractScaleDraw::Labels) )
     {
@@ -237,7 +239,7 @@ void QwtAbstractScaleDraw::draw(QPainter *painter,
         painter->restore();
     }
 
-	painter->restore();
+    painter->restore();
 }
 
 /*!

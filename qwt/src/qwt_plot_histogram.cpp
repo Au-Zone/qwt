@@ -272,7 +272,7 @@ void QwtPlotHistogram::drawColumns(QPainter *painter,
         const QwtIntervalSample sample = d_series->sample(i);
         if ( !sample.interval.isNull() )
         { 
-			const QwtColumnRect rect = columnRect(sample, xMap, yMap);
+            const QwtColumnRect rect = columnRect(sample, xMap, yMap);
             drawColumn(painter, rect, sample);
         }
     }
@@ -290,36 +290,36 @@ void QwtPlotHistogram::drawLines(QPainter *painter,
         const QwtIntervalSample sample = d_series->sample(i);
         if ( !sample.interval.isNull() )
         { 
-			const QwtColumnRect rect = columnRect(sample, xMap, yMap);
-			const QRectF r = rect.toRect();
+            const QwtColumnRect rect = columnRect(sample, xMap, yMap);
+            const QRectF r = rect.toRect();
 
-			switch(rect.direction)
-			{
-				case QwtColumnRect::LeftToRight:
-				{
-					QwtPainter::drawLine(painter, 
-						r.topRight(), r.bottomRight());
-					break;
-				}
-				case QwtColumnRect::RightToLeft:
-				{
-					QwtPainter::drawLine(painter, 
-						r.topLeft(), r.bottomLeft());
-					break;
-				}
-				case QwtColumnRect::TopToBottom:
-				{
-					QwtPainter::drawLine(painter, 
-						r.bottomRight(), r.bottomLeft());
-					break;
-				}
-				case QwtColumnRect::BottomToTop:
-				{
-					QwtPainter::drawLine(painter, 
-						r.topRight(), r.topLeft());
-					break;
-				}
-			}
+            switch(rect.direction)
+            {
+                case QwtColumnRect::LeftToRight:
+                {
+                    QwtPainter::drawLine(painter, 
+                        r.topRight(), r.bottomRight());
+                    break;
+                }
+                case QwtColumnRect::RightToLeft:
+                {
+                    QwtPainter::drawLine(painter, 
+                        r.topLeft(), r.bottomLeft());
+                    break;
+                }
+                case QwtColumnRect::TopToBottom:
+                {
+                    QwtPainter::drawLine(painter, 
+                        r.bottomRight(), r.bottomLeft());
+                    break;
+                }
+                case QwtColumnRect::BottomToTop:
+                {
+                    QwtPainter::drawLine(painter, 
+                        r.topRight(), r.topLeft());
+                    break;
+                }
+            }
         }
     }
 }
@@ -365,7 +365,7 @@ void QwtPlotHistogram::flushPolygon(QPainter *painter,
 QwtColumnRect QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap) const
 {
-	QwtColumnRect rect;
+    QwtColumnRect rect;
 
     const QwtDoubleInterval &iv = sample.interval;
     if ( !iv.isValid() )
@@ -373,13 +373,13 @@ QwtColumnRect QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
 
     if ( orientation() == Qt::Horizontal )
     {
-    	const double x0 = xMap.transform(baseline());
+        const double x0 = xMap.transform(baseline());
         const double x  = xMap.transform(sample.value);
         const double y1 = yMap.transform( iv.minValue());
         const double y2 = yMap.transform( iv.maxValue());
 
-		rect.hInterval.setInterval(x0, x);
-		rect.vInterval.setInterval(y1, y2, iv.borderFlags());
+        rect.hInterval.setInterval(x0, x);
+        rect.vInterval.setInterval(y1, y2, iv.borderFlags());
         rect.direction = (x < x0) ? QwtColumnRect::RightToLeft :
             QwtColumnRect::LeftToRight;
     }
@@ -387,28 +387,28 @@ QwtColumnRect QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
     {
         const double x1 = xMap.transform( iv.minValue());
         const double x2 = xMap.transform( iv.maxValue());
-    	const double y0 = yMap.transform(baseline());
+        const double y0 = yMap.transform(baseline());
         const double y = yMap.transform(sample.value);
 
-		rect.hInterval.setInterval(x1, x2, iv.borderFlags());
-		rect.vInterval.setInterval(y0, y);
+        rect.hInterval.setInterval(x1, x2, iv.borderFlags());
+        rect.vInterval.setInterval(y0, y);
         rect.direction = (y < y0) ? QwtColumnRect::BottomToTop :
             QwtColumnRect::TopToBottom;
     }
 
-	return rect;
+    return rect;
 }
 
 void QwtPlotHistogram::drawColumn(QPainter *painter, 
     const QwtColumnRect &rect, const QwtIntervalSample &) const
 {
     if ( d_data->symbol->style() != QwtColumnSymbol::NoSymbol)
-	{
+    {
         d_data->symbol->draw(painter, rect);
-	}
+    }
     else
     {
-		const QRectF r = rect.toRect();
+        const QRectF r = rect.toRect();
         QwtPainter::drawRect(painter, r.adjusted(0, 0, -1, -1));
     }
 }

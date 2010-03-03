@@ -148,7 +148,7 @@ double QwtPlainTextEngine::heightForWidth(const QFont& font, int flags,
 {
     const QFontMetricsF fm(font);
     const QRectF rect = fm.boundingRect(
-		QRectF(0, 0, width, QWIDGETSIZE_MAX), flags, text);
+        QRectF(0, 0, width, QWIDGETSIZE_MAX), flags, text);
 
     return rect.height();
 }

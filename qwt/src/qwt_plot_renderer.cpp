@@ -146,12 +146,7 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
         printer.setDocName(title);
         printer.setOutputFileName(fileName);
         printer.setOutputFormat( (format == "pdf") 
-			? QPrinter::PdfFormat : QPrinter::PostScriptFormat);
-
-#if 0
-		if ( QFile::exists(fileName) )
-			QFile::remove(fileName); // Avoid confirmation dialog
-#endif
+            ? QPrinter::PdfFormat : QPrinter::PostScriptFormat);
         
         QPainter painter(&printer);
         render(plot, &painter, documentRect);

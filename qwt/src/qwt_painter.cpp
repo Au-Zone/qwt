@@ -107,6 +107,29 @@ static inline void unscaleFont(QPainter *painter)
 }
 
 /*!
+  Check if the painter is using a paint engine, that aligns
+  coordinates to integers,
+
+  \param  painter Painter
+  \return true, when the paint engine is aligning
+*/
+bool QwtPainter::isAligning(QPainter *painter)
+{
+    if ( painter && painter->isActive() )
+    {
+        switch(painter->paintEngine()->type())
+        {
+            case QPaintEngine::Pdf:
+            case QPaintEngine::SVG:
+                return false;
+            default:;
+        }
+    }
+
+    return true;
+}
+
+/*!
   \brief En/Disable line splitting for the raster paint engine
 
   The raster paint engine paints polylines of many points

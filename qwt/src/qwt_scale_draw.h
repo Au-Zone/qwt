@@ -80,12 +80,11 @@ public:
     QRect boundingLabelRect(const QFont &, double val) const;
 
 protected:
-
     QTransform labelTransformation(const QPointF &, const QSizeF &) const;
 
-    virtual void drawTick(QPainter *p, double val, double len) const;
-    virtual void drawBackbone(QPainter *p) const;
-    virtual void drawLabel(QPainter *p, double val) const;
+    virtual void drawTick(QPainter *, double val, double len) const;
+    virtual void drawBackbone(QPainter *) const;
+    virtual void drawLabel(QPainter *, double val) const;
 
 private:
     void updateMap();
