@@ -70,7 +70,7 @@ protected:
         const QwtScaleMap &, const QwtScaleMap &) const;
 
     virtual void drawColumn(QPainter *, const QwtColumnRect &,
-		const QwtIntervalSample & ) const;
+        const QwtIntervalSample & ) const;
 
     void drawColumns(QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,

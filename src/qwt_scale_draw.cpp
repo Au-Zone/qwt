@@ -306,7 +306,7 @@ double QwtScaleDraw::extent(const QFont &font) const
 
     if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
     {
-        const double pw = qMax( 0.5, penWidth() );  // penwidth can be zero
+        const double pw = qMax( 1, penWidth() );  // penwidth can be zero
         d += pw;
     }
 
@@ -344,7 +344,7 @@ int QwtScaleDraw::minLength(const QFont &font) const
     int lengthForTicks = 0;
     if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
     {
-        const double pw = qMax( 1.0, penWidth() );  // penwidth can be zero
+        const double pw = qMax( 1, penWidth() );  // penwidth can be zero
         lengthForTicks = qCeil( (majorCount + minorCount) * (pw + 1.0) );
     }
 
@@ -364,7 +364,7 @@ QPointF QwtScaleDraw::labelPosition( double value) const
     const double tval = map().transform(value);
     double dist = spacing();
     if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
-		dist += qMax(1.0, penWidth());
+        dist += qMax(1, penWidth());
 
     if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
         dist += majTickLength();
@@ -422,39 +422,42 @@ void QwtScaleDraw::drawTick(QPainter *painter, double value, double len) const
 
     const double tval = scaleMap.transform(value);
 
-#if 0
-	double pw = 0.0;
-	if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
-		pw = qMax(1.0, penWidth());
-#endif
-		
+    const int pw = penWidth();
+    int a = 0;
+	if ( pw > 1 && QwtPainter::isAligning(painter) )
+		a = 1;
+
     switch(alignment())
     {
         case LeftScale:
         {
-            const double x = pos.x();
-            QwtPainter::drawLine(painter, x, tval, x - len, tval);
+            const double x1 = pos.x() + a;
+            const double x2 = pos.x() + a - pw - len;
+            QwtPainter::drawLine(painter, x1, tval, x2, tval);
             break;
         }
 
         case RightScale:
         {
-            const double x = pos.x();
-            QwtPainter::drawLine(painter, x, tval, x + len, tval);
+            const double x1 = pos.x();
+            const double x2 = pos.x() + pw + len;
+            QwtPainter::drawLine(painter, x1, tval, x2, tval);
             break;
         }
     
         case BottomScale:
         {
-            const double y = pos.y();
-            QwtPainter::drawLine(painter, tval, y, tval, y + len);
+            const double y1 = pos.y();
+            const double y2 = pos.y() + pw + len;
+            QwtPainter::drawLine(painter, tval, y1, tval, y2);
             break;
         }
 
         case TopScale:
         {
-            const double y = pos.y();
-            QwtPainter::drawLine(painter, tval, y, tval, y - len);
+            const double y1 = pos.y() + a;
+            const double y2 = pos.y() - pw - len + a;
+            QwtPainter::drawLine(painter, tval, y1, tval, y2);
             break;
         }
     }
@@ -470,32 +473,49 @@ void QwtScaleDraw::drawBackbone(QPainter *painter) const
 {
     const QPointF &pos = d_data->pos;
     const double len = d_data->len;
-	const double pw = qMax(0.0, 0.5 * (penWidth() - 1.0));
+   	const int pw = qMax(penWidth(), 1);
+
+    // pos indicates a border not the center of the backbone line
+    // so we need to shift its position depending on the pen width
+    // and the alignment of the scale
+
+    double off;
+    if ( QwtPainter::isAligning(painter) )
+    {
+        if ( alignment() == LeftScale || alignment() == TopScale )
+            off = (pw - 1) / 2;
+        else
+            off = pw / 2;
+    }
+    else
+    {
+        off = 0.5 * penWidth();
+    }
 
     switch(alignment())
     {
         case LeftScale:
         {
-            QwtPainter::drawLine(painter, pos.x() - pw, pos.y(), 
-                pos.x() - pw, pos.y() + len );
+            const double x = pos.x() - off;
+            QwtPainter::drawLine(painter, x, pos.y(), x, pos.y() + len );
             break;
         }
-		case RightScale:
+        case RightScale:
         {
-            QwtPainter::drawLine(painter, pos.x() + pw, pos.y(), 
-                pos.x() + pw, pos.y() + len );
+            const double x = pos.x() + off;
+            QwtPainter::drawLine(painter, x, pos.y(), x, pos.y() + len );
             break;
         }
         case TopScale:
         {
-            QwtPainter::drawLine(painter, pos.x(), pos.y() - pw, 
-                pos.x() + len, pos.y() - pw);
+            const double y = pos.y() - off;
+            QwtPainter::drawLine(painter, pos.x(), y, pos.x() + len, y);
             break;
         }
-		case BottomScale:
+        case BottomScale:
         {
-            QwtPainter::drawLine(painter, pos.x(), pos.y() + pw, 
-                pos.x() + len, pos.y() + pw);
+            const double y = pos.y() + off;
+            QwtPainter::drawLine(painter, pos.x(), y, pos.x() + len, y);
             break;
         }
     }

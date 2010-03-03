@@ -754,7 +754,7 @@ QRect QwtPicker::trackerRect(const QFont &font) const
     if ( text.isEmpty() )
         return QRect();
 
-	const QSizeF textSize = text.textSize(font);
+    const QSizeF textSize = text.textSize(font);
     QRect textRect(0, 0, qCeil(textSize.width()), qCeil(textSize.height()) );
 
     const QPoint &pos = d_data->trackerPosition;

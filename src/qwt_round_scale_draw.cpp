@@ -306,7 +306,7 @@ double QwtRoundScaleDraw::extent(const QFont &font) const
 
     if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
     {
-        const double pw = qMax( 0.5, penWidth() );  // penwidth can be zero
+        const double pw = qMax( 1, penWidth() );  // penwidth can be zero
         d += pw;
     }
 

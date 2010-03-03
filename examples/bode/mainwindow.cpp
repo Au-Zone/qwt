@@ -201,7 +201,7 @@ void MainWindow::exportDocument()
 
     fileName = QFileDialog::getSaveFileName(
         this, "Export File Name", fileName,
-        filter.join(";;"));
+        filter.join(";;"), NULL, QFileDialog::DontConfirmOverwrite);
 #endif
 
     if ( !fileName.isEmpty() )
