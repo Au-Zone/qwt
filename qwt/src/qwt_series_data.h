@@ -220,8 +220,13 @@ public:
     QwtPointSeriesData(
         const QVector<QPointF> & = QVector<QPointF>());
 
+    QwtPointSeriesData &operator=(const QwtPointSeriesData &);
+
     virtual QwtSeriesData<QPointF> *copy() const;
     virtual QRectF boundingRect() const;
+
+private:
+    mutable QRectF d_boundingRect;
 };
 
 //! Interface for iterating over an array of 3D points
@@ -233,6 +238,9 @@ public:
 
     virtual QwtSeriesData<QwtDoublePoint3D> *copy() const;
     virtual QRectF boundingRect() const;
+
+private:
+    mutable QRectF d_boundingRect;
 };
 
 //! Interface for iterating over an array of intervals
@@ -244,6 +252,9 @@ public:
 
     virtual QwtSeriesData<QwtIntervalSample> *copy() const;
     virtual QRectF boundingRect() const;
+
+private:
+    mutable QRectF d_boundingRect;
 };
 
 //! Interface for iterating over an array of samples
@@ -255,6 +266,9 @@ public:
 
     virtual QwtSeriesData<QwtSetSample> *copy() const;
     virtual QRectF boundingRect() const;
+
+private:
+    mutable QRectF d_boundingRect;
 };
 
 /*! 
@@ -278,6 +292,7 @@ public:
 private:
     QVector<double> d_x;
     QVector<double> d_y;
+    mutable QRectF d_boundingRect;
 };
 
 /*!
@@ -301,6 +316,7 @@ private:
     const double *d_x;
     const double *d_y;
     size_t d_size;
+    mutable QRectF d_boundingRect;
 };
 
 /*!

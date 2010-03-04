@@ -424,8 +424,8 @@ void QwtScaleDraw::drawTick(QPainter *painter, double value, double len) const
 
     const int pw = penWidth();
     int a = 0;
-	if ( pw > 1 && QwtPainter::isAligning(painter) )
-		a = 1;
+    if ( pw > 1 && QwtPainter::isAligning(painter) )
+        a = 1;
 
     switch(alignment())
     {
@@ -473,7 +473,7 @@ void QwtScaleDraw::drawBackbone(QPainter *painter) const
 {
     const QPointF &pos = d_data->pos;
     const double len = d_data->len;
-   	const int pw = qMax(penWidth(), 1);
+    const int pw = qMax(penWidth(), 1);
 
     // pos indicates a border not the center of the backbone line
     // so we need to shift its position depending on the pen width

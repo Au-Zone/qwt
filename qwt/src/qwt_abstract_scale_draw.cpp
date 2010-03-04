@@ -178,7 +178,7 @@ void QwtAbstractScaleDraw::draw(QPainter *painter,
 
     QPen pen = painter->pen();
     pen.setWidth(d_data->penWidth);
-	pen.setCosmetic(false);
+    pen.setCosmetic(false);
     painter->setPen(pen);
 
     if ( hasComponent(QwtAbstractScaleDraw::Labels) )

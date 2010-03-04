@@ -148,7 +148,8 @@ QRectF qwtBoundingRect(const QwtSeriesData<QwtSetSample>& series)
 */
 QwtPointSeriesData::QwtPointSeriesData(
         const QVector<QPointF> &samples):
-    QwtArraySeriesData<QPointF>(samples)
+    QwtArraySeriesData<QPointF>(samples),
+    d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
 }   
 
@@ -161,12 +162,17 @@ QwtSeriesData<QPointF> *QwtPointSeriesData::copy() const
 /*!
   \brief Calculate the bounding rect
 
-  This implementation iterates over all points. 
+  The bounding rectangle is calculated once by iterating over all
+  points and is stored for all following requests.
+
   \return Bounding rectangle
 */
 QRectF QwtPointSeriesData::boundingRect() const
 {
-    return qwtBoundingRect(*this);
+    if ( d_boundingRect.width() < 0.0 )
+        d_boundingRect = qwtBoundingRect(*this);
+
+    return d_boundingRect;
 }
 
 /*! 
@@ -175,7 +181,8 @@ QRectF QwtPointSeriesData::boundingRect() const
 */
 QwtPoint3DSeriesData::QwtPoint3DSeriesData(
         const QVector<QwtDoublePoint3D> &samples):
-    QwtArraySeriesData<QwtDoublePoint3D>(samples)
+    QwtArraySeriesData<QwtDoublePoint3D>(samples),
+    d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
 }
 
@@ -185,9 +192,20 @@ QwtSeriesData<QwtDoublePoint3D> *QwtPoint3DSeriesData::copy() const
     return new QwtPoint3DSeriesData(d_samples);
 }
 
+/*!
+  \brief Calculate the bounding rect
+
+  The bounding rectangle is calculated once by iterating over all
+  points and is stored for all following requests.
+
+  \return Bounding rectangle
+*/
 QRectF QwtPoint3DSeriesData::boundingRect() const
 {
-    return qwtBoundingRect(*this);
+    if ( d_boundingRect.width() < 0.0 )
+        d_boundingRect = qwtBoundingRect(*this);
+
+    return d_boundingRect;
 }
 
 /*! 
@@ -196,7 +214,8 @@ QRectF QwtPoint3DSeriesData::boundingRect() const
 */
 QwtIntervalSeriesData::QwtIntervalSeriesData(
         const QVector<QwtIntervalSample> &samples):
-    QwtArraySeriesData<QwtIntervalSample>(samples)
+    QwtArraySeriesData<QwtIntervalSample>(samples),
+    d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
 }   
 
@@ -205,9 +224,20 @@ QwtSeriesData<QwtIntervalSample> *QwtIntervalSeriesData::copy() const
     return new QwtIntervalSeriesData(d_samples);
 }
 
+/*!
+  \brief Calculate the bounding rect
+
+  The bounding rectangle is calculated once by iterating over all
+  points and is stored for all following requests.
+
+  \return Bounding rectangle
+*/
 QRectF QwtIntervalSeriesData::boundingRect() const
 {
-    return qwtBoundingRect(*this);
+    if ( d_boundingRect.width() < 0.0 )
+        d_boundingRect = qwtBoundingRect(*this);
+
+    return d_boundingRect;
 }
 
 /*! 
@@ -216,7 +246,8 @@ QRectF QwtIntervalSeriesData::boundingRect() const
 */
 QwtSetSeriesData::QwtSetSeriesData(
         const QVector<QwtSetSample> &samples):
-    QwtArraySeriesData<QwtSetSample>(samples)
+    QwtArraySeriesData<QwtSetSample>(samples),
+    d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
 }   
 
@@ -228,12 +259,17 @@ QwtSeriesData<QwtSetSample> *QwtSetSeriesData::copy() const
 /*!
   \brief Calculate the bounding rect
 
-  This implementation iterates over all points. 
+  The bounding rectangle is calculated once by iterating over all
+  points and is stored for all following requests.
+
   \return Bounding rectangle
 */
 QRectF QwtSetSeriesData::boundingRect() const
 {
-    return qwtBoundingRect(*this);
+    if ( d_boundingRect.width() < 0.0 )
+        d_boundingRect = qwtBoundingRect(*this);
+
+    return d_boundingRect;
 }
 
 /*!
@@ -247,7 +283,8 @@ QRectF QwtSetSeriesData::boundingRect() const
 QwtPointArrayData::QwtPointArrayData(
         const QVector<double> &x, const QVector<double> &y): 
     d_x(x), 
-    d_y(y)
+    d_y(y),
+    d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
 }
 
@@ -259,7 +296,9 @@ QwtPointArrayData::QwtPointArrayData(
   \param size Size of the x and y arrays
   \sa QwtPlotCurve::setData(), QwtPlotCurve::setSamples()
 */
-QwtPointArrayData::QwtPointArrayData(const double *x, const double *y, size_t size)
+QwtPointArrayData::QwtPointArrayData(const double *x, 
+        const double *y, size_t size):
+    d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
     d_x.resize(size);
     qMemCopy(d_x.data(), x, size * sizeof(double));
@@ -268,26 +307,20 @@ QwtPointArrayData::QwtPointArrayData(const double *x, const double *y, size_t si
     qMemCopy(d_y.data(), y, size * sizeof(double));
 }
 
-//! Assignment 
-QwtPointArrayData& QwtPointArrayData::operator=(const QwtPointArrayData &data)
-{
-    if (this != &data)
-    {
-        d_x = data.d_x;
-        d_y = data.d_y;
-    }
-    return *this;
-}
-
 /*!
   \brief Calculate the bounding rect
 
-  This implementation iterates over all points. 
+  The bounding rectangle is calculated once by iterating over all
+  points and is stored for all following requests.
+
   \return Bounding rectangle
 */
 QRectF QwtPointArrayData::boundingRect() const
 {
-    return qwtBoundingRect(*this);
+    if ( !d_boundingRect.width() < 0 )
+        d_boundingRect = qwtBoundingRect(*this);
+
+    return d_boundingRect;
 }
 
 //! \return Size of the data set 
@@ -344,31 +377,25 @@ QwtCPointerData::QwtCPointerData(
     const double *x, const double *y, size_t size):
     d_x(x), 
     d_y(y), 
-    d_size(size)
+    d_size(size),
+    d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
-}
-
-//! Assignment 
-QwtCPointerData& QwtCPointerData::operator=(const QwtCPointerData &data)
-{
-    if (this != &data)
-    {
-        d_x = data.d_x;
-        d_y = data.d_y;
-        d_size = data.d_size;
-    }
-    return *this;
 }
 
 /*!
   \brief Calculate the bounding rect
 
-  This implementation iterates over all points. 
+  The bounding rectangle is calculated once by iterating over all
+  points and is stored for all following requests.
+
   \return Bounding rectangle
 */
 QRectF QwtCPointerData::boundingRect() const
 {
-    return qwtBoundingRect(*this);
+    if ( d_boundingRect.width() < 0 )
+        d_boundingRect = qwtBoundingRect(*this);
+
+    return d_boundingRect;
 }
 
 //! \return Size of the data set 
@@ -493,7 +520,12 @@ QRectF QwtSyntheticPointData::rectOfInterest() const
 /*!
   \brief Calculate the bounding rect
 
-  This implementation iterates over all points. 
+  This implementation iterates over all points, what could often
+  be implemented much faster using the characteristics of the series.
+  When there are many points it is recommended to overload and
+  reimplement this method using the characteristics of the series
+  ( if possible ).
+   
   \return Bounding rectangle
 */
 QRectF QwtSyntheticPointData::boundingRect() const
