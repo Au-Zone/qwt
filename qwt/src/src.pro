@@ -16,10 +16,10 @@ include( $${QWT_ROOT}/qwtconfig.pri )
 SUFFIX_STR =
 
 CONFIG(debug, debug|release) {
-	SUFFIX_STR = $${DEBUG_SUFFIX}
+    SUFFIX_STR = $${DEBUG_SUFFIX}
 }
 else {
-	SUFFIX_STR = $${RELEASE_SUFFIX}
+    SUFFIX_STR = $${RELEASE_SUFFIX}
 }
 
 TARGET            = qwt$${SUFFIX_STR}
@@ -115,7 +115,6 @@ contains(CONFIG, QwtPlot) {
         qwt_plot.h \
         qwt_plot_renderer.h \
         qwt_plot_curve.h \
-        qwt_plot_curve_3d.h \
         qwt_plot_dict.h \
         qwt_plot_directpainter.h \
         qwt_plot_grid.h \
@@ -126,6 +125,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_marker.h \
         qwt_plot_rasteritem.h \
         qwt_plot_spectrogram.h \
+        qwt_plot_spectrocurve.h \
         qwt_plot_scaleitem.h \
         qwt_plot_seriesitem.h \
         qwt_plot_canvas.h \
@@ -135,7 +135,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_magnifier.h \
         qwt_plot_rescaler.h \
         qwt_raster_data.h \
-    	qwt_sampling_thread.h \
+        qwt_sampling_thread.h \
         qwt_series_data.h \
         qwt_scale_widget.h 
 
@@ -148,7 +148,6 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_xml.cpp \
         qwt_plot_axis.cpp \
         qwt_plot_curve.cpp \
-        qwt_plot_curve_3d.cpp \
         qwt_plot_dict.cpp \
         qwt_plot_directpainter.cpp \
         qwt_plot_grid.cpp \
@@ -156,6 +155,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_item.cpp \
         qwt_plot_intervalcurve.cpp \
         qwt_plot_spectrogram.cpp \
+        qwt_plot_spectrocurve.cpp \
         qwt_plot_scaleitem.cpp \
         qwt_plot_seriesitem.cpp \
         qwt_plot_marker.cpp \
@@ -168,7 +168,7 @@ contains(CONFIG, QwtPlot) {
         qwt_plot_magnifier.cpp \
         qwt_plot_rescaler.cpp \
         qwt_raster_data.cpp \
-    	qwt_sampling_thread.cpp \
+        qwt_sampling_thread.cpp \
         qwt_series_data.cpp \
         qwt_scale_widget.cpp 
 }

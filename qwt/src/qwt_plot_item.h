@@ -78,7 +78,7 @@ public:
         Rtti_PlotScale,
         Rtti_PlotMarker,
         Rtti_PlotCurve,
-        Rtti_PlotCurve3D,
+        Rtti_PlotSpectroCurve,
         Rtti_PlotIntervalCurve,
         Rtti_PlotHistogram,
         Rtti_PlotSpectrogram,

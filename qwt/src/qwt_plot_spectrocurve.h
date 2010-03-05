@@ -17,24 +17,18 @@
 class QwtSymbol;
 class QwtColorMap;
 
-class QWT_EXPORT QwtPlotCurve3D: public QwtPlotSeriesItem<QwtDoublePoint3D>
+class QWT_EXPORT QwtPlotSpectroCurve: public QwtPlotSeriesItem<QwtDoublePoint3D>
 {
 public:
-    enum CurveStyle
-    {
-        Dots,
-        Symbols
-    };
-
     enum PaintAttribute
     {
         ClipPoints = 1
     };
 
-    explicit QwtPlotCurve3D(const QString &title = QString::null);
-    explicit QwtPlotCurve3D(const QwtText &title);
+    explicit QwtPlotSpectroCurve(const QString &title = QString::null);
+    explicit QwtPlotSpectroCurve(const QwtText &title);
 
-    virtual ~QwtPlotCurve3D();
+    virtual ~QwtPlotSpectroCurve();
 
     virtual int rtti() const;
 
@@ -49,9 +43,6 @@ public:
     void setColorRange(const QwtDoubleInterval &);
     QwtDoubleInterval & colorRange() const;
 
-    void setStyle(CurveStyle style);
-    CurveStyle style() const;
-
     virtual void drawSeries(QPainter *, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to) const;
@@ -61,13 +52,6 @@ protected:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to) const;
 
-    void drawSymbols(QPainter *painter,
-        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, int from, int to) const;
-
-
-    virtual QwtSymbol *valueSymbol(const QwtDoublePoint3D &) const;
-    
     void init();
 
     class PrivateData;
