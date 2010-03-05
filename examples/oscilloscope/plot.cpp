@@ -63,7 +63,7 @@ Plot::Plot(QWidget *parent):
 #if 1
     d_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons, false);
 #endif
-    d_curve->setData(CurveData());
+    d_curve->setData(new CurveData());
     d_curve->attach(this);
 }
 
@@ -80,13 +80,13 @@ void Plot::start()
 
 void Plot::replot()
 {
-    CurveData &data = (CurveData &)d_curve->data();
-    data.values().lock();
+    CurveData *data = (CurveData *)d_curve->data();
+    data->values().lock();
 
     QwtPlot::replot();
-    d_paintedPoints = data.size();
+    d_paintedPoints = data->size();
 
-    data.values().unlock();
+    data->values().unlock();
 }
 
 void Plot::setIntervalLength(double interval)
@@ -103,10 +103,10 @@ void Plot::setIntervalLength(double interval)
 
 void Plot::updateCurve()
 {
-    CurveData &data = (CurveData &)d_curve->data();
-    data.values().lock();
+    CurveData *data = (CurveData *)d_curve->data();
+    data->values().lock();
 
-    const int numPoints = d_curve->data().size();
+    const int numPoints = d_curve->data()->size();
     if ( numPoints > d_paintedPoints )
     {
         d_directPainter->drawSeries(d_curve, 
@@ -114,7 +114,7 @@ void Plot::updateCurve()
         d_paintedPoints = numPoints;
     }
 
-    data.values().unlock();
+    data->values().unlock();
 }
 
 void Plot::incrementInterval()
@@ -122,8 +122,8 @@ void Plot::incrementInterval()
     d_interval = QwtDoubleInterval(d_interval.maxValue(),
         d_interval.maxValue() + d_interval.width());
 
-    CurveData &data = (CurveData &)d_curve->data();
-    data.values().clearStaleValues(d_interval.minValue());
+    CurveData *data = (CurveData *)d_curve->data();
+    data->values().clearStaleValues(d_interval.minValue());
 
     // To avoid, that the grid is jumping, we disable 
     // the autocalculation of the ticks and shift them

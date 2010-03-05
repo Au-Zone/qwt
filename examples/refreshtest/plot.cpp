@@ -47,7 +47,7 @@ Plot::Plot(QWidget *parent):
     // Insert curve
     d_curve = new QwtPlotCurve("Data Moving Right");
     d_curve->setPen(QPen(Qt::black));
-    d_curve->setData(CircularBuffer(d_interval, 10));
+    d_curve->setData(new CircularBuffer(d_interval, 10));
     d_curve->attach(this);
 
     // Axis 
@@ -98,24 +98,24 @@ void Plot::setSettings(const Settings &s)
     d_grid->setPen(s.grid.pen);
     d_grid->setVisible(s.grid.pen.style() != Qt::NoPen);
 
-    CircularBuffer &buffer = (CircularBuffer &)d_curve->data();
-    if ( s.curve.numPoints != buffer.size() ||
+    CircularBuffer *buffer = (CircularBuffer *)d_curve->data();
+    if ( s.curve.numPoints != buffer->size() ||
         s.curve.functionType != d_settings.curve.functionType )
     {
 
         switch(s.curve.functionType)
         {
             case Settings::Wave:
-                buffer.setFunction(wave);
+                buffer->setFunction(wave);
                 break;
             case Settings::Noise:
-                buffer.setFunction(noise);
+                buffer->setFunction(noise);
                 break;
             default:
-                buffer.setFunction(NULL);
+                buffer->setFunction(NULL);
         }
 
-        buffer.fill(d_interval, s.curve.numPoints);
+        buffer->fill(d_interval, s.curve.numPoints);
     }
 
     d_curve->setPen(s.curve.pen);
@@ -137,8 +137,8 @@ void Plot::setSettings(const Settings &s)
 
 void Plot::timerEvent(QTimerEvent *)
 {
-    CircularBuffer &buffer = (CircularBuffer &)d_curve->data();
-    buffer.setReferenceTime(d_clock.elapsed() / 1000.0);
+    CircularBuffer *buffer = (CircularBuffer *)d_curve->data();
+    buffer->setReferenceTime(d_clock.elapsed() / 1000.0);
 
     // the axes are unchanged. So all we need to do
     // is to erase and repaint the content of the canvas 

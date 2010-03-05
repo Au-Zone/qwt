@@ -153,12 +153,6 @@ QwtPointSeriesData::QwtPointSeriesData(
 {
 }   
 
-//! Copy operator
-QwtSeriesData<QPointF> *QwtPointSeriesData::copy() const
-{
-    return new QwtPointSeriesData(d_samples);
-}
-
 /*!
   \brief Calculate the bounding rect
 
@@ -184,12 +178,6 @@ QwtPoint3DSeriesData::QwtPoint3DSeriesData(
     QwtArraySeriesData<QwtDoublePoint3D>(samples),
     d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
-}
-
-//! Copy operator
-QwtSeriesData<QwtDoublePoint3D> *QwtPoint3DSeriesData::copy() const
-{
-    return new QwtPoint3DSeriesData(d_samples);
 }
 
 /*!
@@ -219,11 +207,6 @@ QwtIntervalSeriesData::QwtIntervalSeriesData(
 {
 }   
 
-QwtSeriesData<QwtIntervalSample> *QwtIntervalSeriesData::copy() const
-{
-    return new QwtIntervalSeriesData(d_samples);
-}
-
 /*!
   \brief Calculate the bounding rect
 
@@ -250,11 +233,6 @@ QwtSetSeriesData::QwtSetSeriesData(
     d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
 }   
-
-QwtSeriesData<QwtSetSample> *QwtSetSeriesData::copy() const
-{
-    return new QwtSetSeriesData(d_samples);
-}
 
 /*!
   \brief Calculate the bounding rect
@@ -353,14 +331,6 @@ const QVector<double> &QwtPointArrayData::yData() const
 }
 
 /*!
-  \return Pointer to a copy (virtual copy constructor)
-*/
-QwtSeriesData<QPointF> *QwtPointArrayData::copy() const 
-{ 
-    return new QwtPointArrayData(d_x, d_y); 
-}
-
-/*!
   Constructor
 
   \param x Array of x values
@@ -425,14 +395,6 @@ const double *QwtCPointerData::xData() const
 const double *QwtCPointerData::yData() const
 {
     return d_y;
-}
-
-/*!
-  \return Pointer to a copy (virtual copy constructor)
-*/
-QwtSeriesData<QPointF> *QwtCPointerData::copy() const 
-{
-    return new QwtCPointerData(d_x, d_y, d_size);
 }
 
 /*! 

@@ -62,8 +62,9 @@ public:
     void setDisplayMode(DisplayMode, bool on = true);
     bool testDisplayMode(DisplayMode) const;
 
-    void setData(const QwtRasterData &data);
-    const QwtRasterData &data() const;
+    void setData(QwtRasterData *data);
+    const QwtRasterData *data() const;
+    QwtRasterData *data();
 
     void setColorMap(const QwtColorMap &);
     const QwtColorMap &colorMap() const;

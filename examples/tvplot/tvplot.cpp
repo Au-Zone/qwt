@@ -52,7 +52,7 @@ void Histogram::setValues(uint numValues, const double *values)
         samples[i] = QwtIntervalSample(values[i], interval);
     }
 
-    setData(QwtIntervalSeriesData(samples));
+    setData(new QwtIntervalSeriesData(samples));
 }
 
 TVPlot::TVPlot(QWidget *parent):

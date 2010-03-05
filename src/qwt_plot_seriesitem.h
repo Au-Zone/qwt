@@ -48,12 +48,12 @@ public:
 
     virtual ~QwtPlotSeriesItem<T>();
 
-    void setData(const QwtSeriesData<T> &);
+    void setData(QwtSeriesData<T> *);
     
-    QwtSeriesData<T> &data();
-    const QwtSeriesData<T> &data() const;
+    QwtSeriesData<T> *data();
+    const QwtSeriesData<T> *data() const;
 
-    int dataSize() const;
+    size_t dataSize() const;
     T sample(int i) const;
 
     virtual QRectF boundingRect() const;
@@ -87,16 +87,16 @@ QwtPlotSeriesItem<T>::~QwtPlotSeriesItem()
 
 //! \return the the curve data
 template <typename T> 
-inline QwtSeriesData<T> &QwtPlotSeriesItem<T>::data()
+inline QwtSeriesData<T> *QwtPlotSeriesItem<T>::data()
 {
-    return *d_series;
+    return d_series;
 }
 
 //! \return the the curve data
 template <typename T> 
-inline const QwtSeriesData<T> &QwtPlotSeriesItem<T>::data() const
+inline const QwtSeriesData<T> *QwtPlotSeriesItem<T>::data() const
 {
-    return *d_series;
+    return d_series;
 }
 
 /*!
@@ -106,21 +106,23 @@ inline const QwtSeriesData<T> &QwtPlotSeriesItem<T>::data() const
 template <typename T> 
 inline T QwtPlotSeriesItem<T>::sample(int i) const 
 { 
-    return d_series->sample(i); 
+    return d_series ? d_series->sample(i) : T(); 
 }
 
 /*!
   Assign a series of samples
 
   \param data Data
-  \sa QwtSeriesData<T>::copy()
 */
 template <typename T> 
-void QwtPlotSeriesItem<T>::setData(const QwtSeriesData<T> &data)
+void QwtPlotSeriesItem<T>::setData(QwtSeriesData<T> *data)
 {
-    delete d_series;
-    d_series = data.copy();
-    itemChanged();
+	if ( d_series != data )
+	{
+    	delete d_series;
+    	d_series = data;
+    	itemChanged();
+	}
 }
 
 /*!
@@ -128,7 +130,7 @@ void QwtPlotSeriesItem<T>::setData(const QwtSeriesData<T> &data)
   \sa setData()
 */
 template <typename T> 
-int QwtPlotSeriesItem<T>::dataSize() const
+size_t QwtPlotSeriesItem<T>::dataSize() const
 {
     if ( d_series == NULL )
         return 0;

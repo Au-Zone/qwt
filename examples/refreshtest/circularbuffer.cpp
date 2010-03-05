@@ -72,8 +72,3 @@ QRectF CircularBuffer::boundingRect() const
 {
     return QRectF(-1.0, -d_interval, 2.0, d_interval);
 }
-
-QwtSeriesData<QPointF> *CircularBuffer::copy() const
-{
-    return new CircularBuffer(*this);
-}

@@ -38,11 +38,6 @@ public:
     {
     }
 
-    virtual QwtRasterData *copy() const
-    {
-        return new SpectrogramData();
-    }
-
     virtual QwtDoubleInterval range() const
     {
         return QwtDoubleInterval(0.0, 10.0);
@@ -72,7 +67,7 @@ Plot::Plot(QWidget *parent):
 
     d_spectrogram->setColorMap(colorMap);
 
-    d_spectrogram->setData(SpectrogramData());
+    d_spectrogram->setData(new SpectrogramData());
     d_spectrogram->attach(this);
 
     QList<double> contourLevels;
@@ -84,12 +79,12 @@ Plot::Plot(QWidget *parent):
     QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
     rightAxis->setTitle("Intensity");
     rightAxis->setColorBarEnabled(true);
-    rightAxis->setColorMap(d_spectrogram->data().range(),
+    rightAxis->setColorMap(d_spectrogram->data()->range(),
         d_spectrogram->colorMap());
 
     setAxisScale(QwtPlot::yRight,
-        d_spectrogram->data().range().minValue(),
-        d_spectrogram->data().range().maxValue() );
+        d_spectrogram->data()->range().minValue(),
+        d_spectrogram->data()->range().maxValue() );
     enableAxis(QwtPlot::yRight);
 
     plotLayout()->setAlignCanvasToScales(true);

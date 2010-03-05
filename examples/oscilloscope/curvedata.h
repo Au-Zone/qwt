@@ -13,6 +13,4 @@ public:
     virtual size_t size() const;
 
     virtual QRectF boundingRect() const;
-
-    virtual QwtSeriesData<QPointF> *copy() const;
 };

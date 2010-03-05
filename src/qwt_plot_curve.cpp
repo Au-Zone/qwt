@@ -772,7 +772,7 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
     int index = -1;
     double dmin = 1.0e10;
 
-    for (int i=0; i < dataSize(); i++)
+    for (uint i = 0; i < dataSize(); i++)
     {
         const QPointF sample = d_series->sample(i);
 
