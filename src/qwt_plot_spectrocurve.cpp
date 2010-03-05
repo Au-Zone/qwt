@@ -7,41 +7,30 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_plot_curve_3d.h"
-#include "qwt_symbol.h"
+#include "qwt_plot_spectrocurve.h"
 #include "qwt_color_map.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
 
-typedef QVector<QRgb> QwtColorTable;
-
-class QwtPlotCurve3D::PrivateData
+class QwtPlotSpectroCurve::PrivateData
 {
 public:
     PrivateData():
-        style(QwtPlotCurve3D::Dots),
         colorRange(0.0, 1000.0),
-        paintAttributes(QwtPlotCurve3D::ClipPoints)
+        paintAttributes(QwtPlotSpectroCurve::ClipPoints)
     {
-        symbol = new QwtSymbol();
-        symbol->setStyle(QwtSymbol::XCross);
-        symbol->setSize(5);
-
         colorMap = new QwtLinearColorMap();
     }
 
     ~PrivateData()
     {
-        delete symbol;
         delete colorMap;
     }
 
-    QwtPlotCurve3D::CurveStyle style;
-    QwtSymbol *symbol;
     QwtColorMap *colorMap;
     QwtDoubleInterval colorRange;
-    QwtColorTable colorTable;
+    QVector<QRgb> colorTable;
     int paintAttributes;
 };
 
@@ -49,7 +38,7 @@ public:
   Constructor
   \param title Title of the curve   
 */
-QwtPlotCurve3D::QwtPlotCurve3D(const QwtText &title):
+QwtPlotSpectroCurve::QwtPlotSpectroCurve(const QwtText &title):
     QwtPlotSeriesItem<QwtDoublePoint3D>(title)
 {
     init();
@@ -59,14 +48,14 @@ QwtPlotCurve3D::QwtPlotCurve3D(const QwtText &title):
   Constructor
   \param title Title of the curve   
 */
-QwtPlotCurve3D::QwtPlotCurve3D(const QString &title):
+QwtPlotSpectroCurve::QwtPlotSpectroCurve(const QString &title):
     QwtPlotSeriesItem<QwtDoublePoint3D>(QwtText(title))
 {
     init();
 }
 
 //! Destructor
-QwtPlotCurve3D::~QwtPlotCurve3D()
+QwtPlotSpectroCurve::~QwtPlotSpectroCurve()
 {
     delete d_data;
 }
@@ -74,7 +63,7 @@ QwtPlotCurve3D::~QwtPlotCurve3D()
 /*!
   \brief Initialize data members
 */
-void QwtPlotCurve3D::init()
+void QwtPlotSpectroCurve::init()
 {
     setItemAttribute(QwtPlotItem::Legend);
     setItemAttribute(QwtPlotItem::AutoScale);
@@ -86,9 +75,9 @@ void QwtPlotCurve3D::init()
 }
 
 //! \return QwtPlotItem::Rtti_PlotCurve
-int QwtPlotCurve3D::rtti() const
+int QwtPlotSpectroCurve::rtti() const
 {
-    return QwtPlotItem::Rtti_PlotCurve3D;
+    return QwtPlotItem::Rtti_PlotSpectroCurve;
 }
 
 /*!
@@ -98,7 +87,7 @@ int QwtPlotCurve3D::rtti() const
   \param on On/Off
   /sa PaintAttribute, testPaintAttribute()
 */
-void QwtPlotCurve3D::setPaintAttribute(PaintAttribute attribute, bool on)
+void QwtPlotSpectroCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 {
     if ( on )
         d_data->paintAttributes |= attribute;
@@ -110,40 +99,16 @@ void QwtPlotCurve3D::setPaintAttribute(PaintAttribute attribute, bool on)
     \brief Return the current paint attributes
     \sa PaintAttribute, setPaintAttribute()
 */
-bool QwtPlotCurve3D::testPaintAttribute(PaintAttribute attribute) const
+bool QwtPlotSpectroCurve::testPaintAttribute(PaintAttribute attribute) const
 {
     return (d_data->paintAttributes & attribute);
 }
 
-void QwtPlotCurve3D::setSamples(const QVector<QwtDoublePoint3D> &data)
+void QwtPlotSpectroCurve::setSamples(const QVector<QwtDoublePoint3D> &data)
 {
     delete d_series;
     d_series = new QwtPoint3DSeriesData(data);
     itemChanged();
-}
-
-/*!
-  Set the curve's drawing style
-
-  \param style Curve style
-  \sa CurveStyle, style()
-*/
-void QwtPlotCurve3D::setStyle(CurveStyle style)
-{
-    if ( style != d_data->style )
-    {
-        d_data->style = style;
-        itemChanged();
-    }
-}
-
-/*!
-    Return the current style
-    \sa CurveStyle, setStyle()
-*/
-QwtPlotCurve3D::CurveStyle QwtPlotCurve3D::style() const
-{
-    return d_data->style;
 }
 
 /*!
@@ -157,7 +122,7 @@ QwtPlotCurve3D::CurveStyle QwtPlotCurve3D::style() const
   \sa colorMap(), QwtScaleWidget::setColorBarEnabled(),
       QwtScaleWidget::setColorMap()
 */
-void QwtPlotCurve3D::setColorMap(const QwtColorMap &colorMap)
+void QwtPlotSpectroCurve::setColorMap(const QwtColorMap &colorMap)
 {
     delete d_data->colorMap;
     d_data->colorMap = colorMap.copy();
@@ -169,12 +134,12 @@ void QwtPlotCurve3D::setColorMap(const QwtColorMap &colorMap)
    \return Color Map used for mapping the intensity values to colors
    \sa setColorMap()
 */
-const QwtColorMap &QwtPlotCurve3D::colorMap() const
+const QwtColorMap &QwtPlotSpectroCurve::colorMap() const
 {
     return *d_data->colorMap;
 }
 
-void QwtPlotCurve3D::setColorRange(const QwtDoubleInterval &interval)
+void QwtPlotSpectroCurve::setColorRange(const QwtDoubleInterval &interval)
 {
     if ( interval != d_data->colorRange )
     {
@@ -183,12 +148,12 @@ void QwtPlotCurve3D::setColorRange(const QwtDoubleInterval &interval)
     }
 }
 
-QwtDoubleInterval &QwtPlotCurve3D::colorRange() const
+QwtDoubleInterval &QwtPlotSpectroCurve::colorRange() const
 {
     return d_data->colorRange;
 }
 
-void QwtPlotCurve3D::drawSeries(QPainter *painter, 
+void QwtPlotSpectroCurve::drawSeries(QPainter *painter, 
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to) const
 {
@@ -204,20 +169,10 @@ void QwtPlotCurve3D::drawSeries(QPainter *painter,
     if ( from >= to )
         return;
 
-    switch(d_data->style)
-    {
-        case QwtPlotCurve3D::Symbols:
-            drawSymbols(painter, xMap, yMap, canvasRect, from, to);
-            break;
-
-        case QwtPlotCurve3D::Dots:
-        default:
-            drawDots(painter, xMap, yMap, canvasRect, from, to);
-            break;
-    }
+    drawDots(painter, xMap, yMap, canvasRect, from, to);
 }
 
-void QwtPlotCurve3D::drawDots(QPainter *painter,
+void QwtPlotSpectroCurve::drawDots(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to) const
 {
@@ -235,7 +190,7 @@ void QwtPlotCurve3D::drawDots(QPainter *painter,
         const double xi = xMap.transform(sample.x());
         const double yi = yMap.transform(sample.y());
 
-        if ( d_data->paintAttributes & QwtPlotCurve3D::ClipPoints )
+        if ( d_data->paintAttributes & QwtPlotSpectroCurve::ClipPoints )
         {
             if ( !canvasRect.contains(xi, yi ) )
                 continue;
@@ -260,62 +215,4 @@ void QwtPlotCurve3D::drawDots(QPainter *painter,
     }
     
     d_data->colorTable.clear();
-}
-
-void QwtPlotCurve3D::drawSymbols(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRectF &canvasRect, int from, int to) const
-{
-    if ( !d_data->colorRange.isValid() )
-        return;
-
-    if ( d_data->colorMap->format() == QwtColorMap::Indexed )
-        d_data->colorTable = d_data->colorMap->colorTable(d_data->colorRange);
-
-    for (int i = from; i <= to; i++)
-    {
-        const QwtDoublePoint3D sample = d_series->sample(i);
-
-        const double xi = xMap.transform(sample.x());
-        const double yi = yMap.transform(sample.y());
-
-        if ( d_data->paintAttributes & QwtPlotCurve3D::ClipPoints )
-        {
-            if ( !canvasRect.contains(xi, yi ) )
-                continue;
-        }
-
-        const QwtSymbol *symbol = valueSymbol(sample);
-        if ( symbol )
-        {
-            symbol->draw(painter, QPointF(xi, yi));
-            delete symbol;
-        }
-    }
-
-    d_data->colorTable.clear();
-}
-
-QwtSymbol *QwtPlotCurve3D::valueSymbol(const QwtDoublePoint3D &sample) const
-{
-    QwtSymbol *symbol = new QwtSymbol();
-    symbol->setSize(5, 5);
-    symbol->setStyle(QwtSymbol::XCross);
-
-    QRgb rgb;
-    if ( d_data->colorMap->format() == QwtColorMap::RGB )
-    {
-        rgb = d_data->colorMap->rgb(d_data->colorRange, sample.z());
-    }
-    else
-    {
-        const unsigned char index = 
-            d_data->colorMap->colorIndex(d_data->colorRange, sample.z());
-        rgb = d_data->colorTable[index];
-    }
-
-    symbol->setPen(QColor(rgb));
-    symbol->setBrush(QColor(rgb));
-        
-    return symbol;
 }

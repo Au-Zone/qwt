@@ -317,7 +317,7 @@ QwtPointArrayData::QwtPointArrayData(const double *x,
 */
 QRectF QwtPointArrayData::boundingRect() const
 {
-    if ( !d_boundingRect.width() < 0 )
+    if ( d_boundingRect.width() < 0 )
         d_boundingRect = qwtBoundingRect(*this);
 
     return d_boundingRect;

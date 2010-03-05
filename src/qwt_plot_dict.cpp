@@ -21,27 +21,9 @@ public:
             if ( item == NULL )
                 return;
 
-            // Unfortunately there is no inSort operation
-            // for lists in Qt4. The implementation below
-            // is slow, but there shouldn't be many plot items.
-
-#ifdef __GNUC__
-#warning binary search missing
-#endif
-
-            QList<QwtPlotItem *>::Iterator it;
-            for ( it = begin(); it != end(); ++it )
-            {
-                if ( *it == item )
-                    return;
-
-                if ( (*it)->z() > item->z() )
-                {
-                    insert(it, item);
-                    return;
-                }
-            }
-            append(item);
+            QList<QwtPlotItem *>::iterator it = 
+                qUpperBound(begin(), end(), item, LessZThan() );
+            insert(it, item);
         }
 
         void removeItem(QwtPlotItem *item)
@@ -49,19 +31,28 @@ public:
             if ( item == NULL )
                 return;
 
-            int i = 0;
+            QList<QwtPlotItem *>::iterator it = 
+                qLowerBound(begin(), end(), item, LessZThan() );
 
-            QList<QwtPlotItem *>::Iterator it;
-            for ( it = begin(); it != end(); ++it )
+            for ( ;it != end(); ++it )
             {
                 if ( item == *it )
                 {
-                    removeAt(i);
-                    return;
+                    erase(it);
+                    break;
                 }
-                i++;
             }
         }
+        private:
+            class LessZThan
+            {
+            public:
+                inline bool operator()(const QwtPlotItem *item1, 
+                    const QwtPlotItem *item2) const
+                {
+                    return item1->z() < item2->z();
+                }
+            };
     };
 
     ItemList itemList;
