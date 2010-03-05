@@ -38,11 +38,6 @@ public:
     class DummyData: public QwtRasterData
     {
     public:
-        virtual QwtRasterData *copy() const
-        {
-            return new DummyData();
-        }
-
         virtual double value(double, double) const
         {
             return 0.0;
@@ -331,22 +326,34 @@ QList<double> QwtPlotSpectrogram::contourLevels() const
   \param data Spectrogram Data
   \sa data()
 */
-void QwtPlotSpectrogram::setData(const QwtRasterData &data)
+void QwtPlotSpectrogram::setData(QwtRasterData *data)
 {
-    delete d_data->data;
-    d_data->data = data.copy();
+	if ( data != d_data->data )
+	{
+    	delete d_data->data;
+    	d_data->data = data;
 
-    invalidateCache();
-    itemChanged();
+    	invalidateCache();
+    	itemChanged();
+	}
 }
 
 /*!
   \return Spectrogram data
   \sa setData()
 */
-const QwtRasterData &QwtPlotSpectrogram::data() const
+const QwtRasterData *QwtPlotSpectrogram::data() const
 {
-    return *d_data->data;
+    return d_data->data;
+}
+
+/*!
+  \return Spectrogram data
+  \sa setData()
+*/
+QwtRasterData *QwtPlotSpectrogram::data() 
+{
+    return d_data->data;
 }
 
 /*!

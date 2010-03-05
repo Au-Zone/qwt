@@ -45,9 +45,6 @@ public:
     QwtRasterData(const QRectF &);
     virtual ~QwtRasterData();
 
-    //! Clone the data
-    virtual QwtRasterData *copy() const = 0;
-
     virtual void setBoundingRect(const QRectF &);
     QRectF boundingRect() const;
 
@@ -74,6 +71,10 @@ public:
     class ContourPlane;
 
 private:
+    // Disabled copy constructor and operator=
+    QwtRasterData( const QwtRasterData & );
+    QwtRasterData &operator=( const QwtRasterData & );
+
     QRectF d_boundingRect;
 };
 

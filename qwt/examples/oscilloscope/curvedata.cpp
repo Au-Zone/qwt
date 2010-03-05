@@ -21,11 +21,6 @@ size_t CurveData::size() const
     return SignalData::instance().size();
 }
 
-QwtSeriesData<QPointF> *CurveData::copy() const
-{
-    return new CurveData();
-}
-
 QRectF CurveData::boundingRect() const
 {
     return SignalData::instance().boundingRect();

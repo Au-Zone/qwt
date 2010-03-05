@@ -25,11 +25,6 @@ public:
     {
     }
 
-    virtual QwtSeriesData<QPointF> *copy() const
-    {
-        return new FunctionData(d_y);
-    }
-
     virtual double y(double x) const
     {
         return d_y(x);
@@ -72,8 +67,8 @@ Plot::Plot()
     cCos->attach(this);
 
     // Create sin and cos data
-    cSin->setData(FunctionData(::sin));
-    cCos->setData(FunctionData(::cos));
+    cSin->setData(new FunctionData(::sin));
+    cCos->setData(new FunctionData(::cos));
 
     // Insert markers
     

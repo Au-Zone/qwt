@@ -17,7 +17,6 @@ public:
     virtual QPointF sample(size_t i) const;
 
     virtual QRectF boundingRect() const;
-    virtual QwtSeriesData<QPointF> *copy() const;
 
     void setFunction(double(*y)(double));
 

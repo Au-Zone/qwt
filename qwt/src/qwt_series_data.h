@@ -89,16 +89,6 @@ class QwtSeriesData
 public:
     virtual ~QwtSeriesData() {} 
 
-    /*! 
-       Virtual copy constructor
-
-       When accessing a large amount of samples it is recommended
-       to copy only the interface (shallow copy) to them.
-
-       \return Pointer to a copy 
-    */
-    virtual QwtSeriesData *copy() const = 0;
-
     //! \return Number of samples
     virtual size_t size() const = 0;
 
@@ -133,9 +123,6 @@ public:
     virtual void setRectOfInterest(const QRectF &) {};
 
 private:
-    /*!
-      Assignment operator (virtualized)
-     */
     QwtSeriesData<T> &operator=(const QwtSeriesData<T> &);
 };
 
@@ -220,9 +207,6 @@ public:
     QwtPointSeriesData(
         const QVector<QPointF> & = QVector<QPointF>());
 
-    QwtPointSeriesData &operator=(const QwtPointSeriesData &);
-
-    virtual QwtSeriesData<QPointF> *copy() const;
     virtual QRectF boundingRect() const;
 
 private:
@@ -235,8 +219,6 @@ class QWT_EXPORT QwtPoint3DSeriesData: public QwtArraySeriesData<QwtDoublePoint3
 public:
     QwtPoint3DSeriesData(
         const QVector<QwtDoublePoint3D> & = QVector<QwtDoublePoint3D>());
-
-    virtual QwtSeriesData<QwtDoublePoint3D> *copy() const;
     virtual QRectF boundingRect() const;
 
 private:
@@ -250,7 +232,6 @@ public:
     QwtIntervalSeriesData(
         const QVector<QwtIntervalSample> & = QVector<QwtIntervalSample>());
 
-    virtual QwtSeriesData<QwtIntervalSample> *copy() const;
     virtual QRectF boundingRect() const;
 
 private:
@@ -264,7 +245,6 @@ public:
     QwtSetSeriesData(
         const QVector<QwtSetSample> & = QVector<QwtSetSample>());
 
-    virtual QwtSeriesData<QwtSetSample> *copy() const;
     virtual QRectF boundingRect() const;
 
 private:
@@ -279,10 +259,9 @@ class QWT_EXPORT QwtPointArrayData: public QwtSeriesData<QPointF>
 public:
     QwtPointArrayData(const QVector<double> &x, const QVector<double> &y);
     QwtPointArrayData(const double *x, const double *y, size_t size);
-    QwtPointArrayData &operator=(const QwtPointArrayData &);
-    virtual QwtSeriesData<QPointF> *copy() const;
 
     virtual QRectF boundingRect() const;
+
     virtual size_t size() const;
     virtual QPointF sample(size_t i) const;
 
@@ -302,8 +281,6 @@ class QWT_EXPORT QwtCPointerData: public QwtSeriesData<QPointF>
 {
 public:
     QwtCPointerData(const double *x, const double *y, size_t size);
-    QwtCPointerData &operator=(const QwtCPointerData &);
-    virtual QwtSeriesData<QPointF> *copy() const;
 
     virtual QRectF boundingRect() const;
     virtual size_t size() const;
@@ -347,10 +324,6 @@ public:
     SinusData():
         QwtSyntheticPointData(100)
     {
-    }
-    virtual QwtSeriesData<QPointF> *copy() const
-    {
-        return new SinusData();
     }
     virtual double y(double x) const
     {

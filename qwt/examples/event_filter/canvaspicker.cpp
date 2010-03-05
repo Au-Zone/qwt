@@ -214,7 +214,7 @@ void CanvasPicker::move(const QPoint &pos)
     QVector<double> xData(d_selectedCurve->dataSize());
     QVector<double> yData(d_selectedCurve->dataSize());
 
-    for ( int i = 0; i < d_selectedCurve->dataSize(); i++ )
+    for ( int i = 0; i < (int)d_selectedCurve->dataSize(); i++ )
     {
         if ( i == d_selectedPoint )
         {
