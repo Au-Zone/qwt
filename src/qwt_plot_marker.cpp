@@ -22,11 +22,11 @@ public:
         labelAlignment(Qt::AlignCenter),
         labelOrientation(Qt::Horizontal),
         spacing(2),
+		symbol(NULL),
         style(NoLine),
         xValue(0.0),
         yValue(0.0)
     {
-        symbol = new QwtSymbol();
     }
 
     ~PrivateData()
@@ -40,7 +40,7 @@ public:
     int spacing;
 
     QPen pen;
-    QwtSymbol *symbol;
+    const QwtSymbol *symbol;
     LineStyle style;
 
     double xValue;
@@ -161,8 +161,11 @@ void QwtPlotMarker::drawAt(QPainter *painter,
     }
 
     // draw symbol
-    if (d_data->symbol->style() != QwtSymbol::NoSymbol)
+    if ( d_data->symbol &&
+		( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
+	{
         d_data->symbol->draw(painter, pos.x(), pos.y());
+	}
 
     drawLabel(painter, canvasRect, pos);
 }
@@ -228,7 +231,8 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
         }
         default:
         {
-            if ( d_data->symbol->style() != QwtSymbol::NoSymbol )
+            if ( d_data->symbol &&
+				( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
             {
                 symbolOff = d_data->symbol->size() + QSizeF(1, 1);
                 symbolOff /= 2;
@@ -321,14 +325,17 @@ QwtPlotMarker::LineStyle QwtPlotMarker::lineStyle() const
 
 /*!
   \brief Assign a symbol
-  \param s New symbol 
+  \param symbol New symbol 
   \sa symbol()
 */
-void QwtPlotMarker::setSymbol(const QwtSymbol &s)
+void QwtPlotMarker::setSymbol(const QwtSymbol *symbol)
 {
-    delete d_data->symbol;
-    d_data->symbol = s.clone();
-    itemChanged();
+	if ( symbol != d_data->symbol )
+	{
+    	delete d_data->symbol;
+    	d_data->symbol = symbol;
+    	itemChanged();
+	}
 }
 
 /*!

@@ -62,12 +62,11 @@ MainWin::MainWin():
     curveFitter->setSplineSize(150);
     curve[i].setCurveFitter(curveFitter);
 
-    QwtSymbol sym;
-    sym.setStyle(QwtSymbol::XCross);
-    sym.setPen(QPen(Qt::yellow,2));
-    sym.setSize(7);
+    QwtSymbol *symbol = new QwtSymbol(QwtSymbol::XCross);
+    symbol->setPen(QPen(Qt::yellow,2));
+    symbol->setSize(7);
     
-    curve[i].setSymbol(sym);
+    curve[i].setSymbol(symbol);
 
     curve[i].setRawSamples(yval,xval,Size);
     
@@ -79,7 +78,7 @@ MainWin::MainWin():
     yMap[i].setScaleInterval(-3.0, 1.1);
     curve[i].setPen(QPen(QColor(200,150,50)));
     curve[i].setStyle(QwtPlotCurve::Sticks);
-    curve[i].setSymbol(QwtSymbol(QwtSymbol::Ellipse,
+    curve[i].setSymbol(new QwtSymbol(QwtSymbol::Ellipse,
         QColor(Qt::blue), QColor(Qt::yellow), QSize(5,5)));
 
     curve[i].setRawSamples(xval,zval,Size);

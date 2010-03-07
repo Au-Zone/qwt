@@ -39,14 +39,6 @@ QwtIntervalSymbol::~QwtIntervalSymbol()
     delete d_data;
 }
 
-QwtIntervalSymbol *QwtIntervalSymbol::clone() const
-{
-    QwtIntervalSymbol *other = new QwtIntervalSymbol;
-    *other->d_data = *d_data;
-
-    return other;
-}
-
 //! == operator
 bool QwtIntervalSymbol::operator==(const QwtIntervalSymbol &other) const
 {

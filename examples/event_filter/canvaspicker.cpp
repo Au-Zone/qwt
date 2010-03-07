@@ -242,21 +242,22 @@ void CanvasPicker::showCursor(bool showIt)
     if ( !d_selectedCurve )
         return;
 
-    const QwtSymbol symbol = d_selectedCurve->symbol();
+    QwtSymbol *symbol = (QwtSymbol *)d_selectedCurve->symbol();
 
-    QwtSymbol newSymbol = symbol;
+	const QBrush brush = symbol->brush();
     if ( showIt )
-        newSymbol.setBrush(symbol.brush().color().dark(150));
+        symbol->setBrush(symbol->brush().color().dark(150));
 
     const bool doReplot = plot()->autoReplot();
 
     plot()->setAutoReplot(false);
-    d_selectedCurve->setSymbol(newSymbol);
 
 	QwtPlotDirectPainter directPainter;
     directPainter.drawSeries(d_selectedCurve, d_selectedPoint, d_selectedPoint);
 
-    d_selectedCurve->setSymbol(symbol);
+    if ( showIt )
+		symbol->setBrush(brush); // reset brush
+
     plot()->setAutoReplot(doReplot);
 }
 

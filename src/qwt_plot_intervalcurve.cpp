@@ -19,11 +19,11 @@ class QwtPlotIntervalCurve::PrivateData
 public:
     PrivateData():
         curveStyle(Tube),
+		symbol(NULL),
         pen(Qt::black),
         brush(Qt::white)
     {
         pen.setCapStyle(Qt::FlatCap);
-        symbol = new QwtIntervalSymbol();
     }
 
     ~PrivateData()
@@ -32,7 +32,7 @@ public:
     }
 
     CurveStyle curveStyle;
-    QwtIntervalSymbol *symbol;
+    const QwtIntervalSymbol *symbol;
 
     QPen pen;
     QBrush brush;
@@ -109,19 +109,19 @@ QwtPlotIntervalCurve::CurveStyle QwtPlotIntervalCurve::curveStyle() const
     return d_data->curveStyle; 
 }
 
-void QwtPlotIntervalCurve::setSymbol(const QwtIntervalSymbol &symbol)
+void QwtPlotIntervalCurve::setSymbol(const QwtIntervalSymbol *symbol)
 {
-    if ( symbol != *d_data->symbol )
+    if ( symbol != d_data->symbol )
     {
         delete d_data->symbol;
-        d_data->symbol = symbol.clone();
+        d_data->symbol = symbol;
         itemChanged();
     }
 }
 
-const QwtIntervalSymbol &QwtPlotIntervalCurve::symbol() const 
+const QwtIntervalSymbol *QwtPlotIntervalCurve::symbol() const 
 { 
-    return *d_data->symbol; 
+    return d_data->symbol; 
 }
 
 /*!
@@ -198,8 +198,11 @@ void QwtPlotIntervalCurve::drawSeries(QPainter *painter,
             break;
     }
 
-    if ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol )
-        drawSymbols(painter, xMap, yMap, from, to);
+    if ( d_data->symbol &&
+		( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol ) )
+	{
+        drawSymbols(painter, *d_data->symbol, xMap, yMap, from, to);
+	}
 }
 
 void QwtPlotIntervalCurve::drawTube(QPainter *painter, 
@@ -262,16 +265,17 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
 }
 
 void QwtPlotIntervalCurve::drawSymbols(
-    QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    QPainter *painter, const QwtIntervalSymbol &symbol,
+	const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
     painter->save();
 
-    QPen pen = d_data->symbol->pen();
+    QPen pen = symbol.pen();
     pen.setCapStyle(Qt::FlatCap);
 
     painter->setPen(pen);
-    painter->setBrush(d_data->symbol->brush());
+    painter->setBrush(symbol.brush());
 
     for ( int i = from; i <= to; i++ )
     {
@@ -283,7 +287,7 @@ void QwtPlotIntervalCurve::drawSymbols(
             const double y1 = yMap.transform(intervalSample.interval.minValue());
             const double y2 = yMap.transform(intervalSample.interval.maxValue());
 
-            d_data->symbol->draw(painter, QPointF(x, y1), QPointF(x, y2));
+            symbol.draw(painter, QPointF(x, y1), QPointF(x, y2));
         }
         else
         {
@@ -291,7 +295,7 @@ void QwtPlotIntervalCurve::drawSymbols(
             const double x1 = xMap.transform(intervalSample.interval.minValue());
             const double x2 = xMap.transform(intervalSample.interval.maxValue());
 
-            d_data->symbol->draw(painter, QPointF(x1, y), QPointF(x2, y));
+            symbol.draw(painter, QPointF(x1, y), QPointF(x2, y));
         }
     }
 
@@ -313,7 +317,8 @@ void QwtPlotIntervalCurve::drawLegendIdentifier(
         painter->fillRect(r, d_data->brush);
     }
 
-    if ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol )
+    if ( d_data->symbol &&
+		( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol ) )
     {
         QPen pen = d_data->symbol->pen();
         pen.setWidthF(pen.widthF());

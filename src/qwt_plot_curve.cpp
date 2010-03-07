@@ -41,11 +41,11 @@ public:
     PrivateData():
         style(QwtPlotCurve::Lines),
         reference(0.0),
+		symbol(NULL),
         attributes(0),
         paintAttributes(QwtPlotCurve::ClipPolygons),
         legendAttributes(0)
     {
-        symbol = new QwtSymbol();
         pen = QPen(Qt::black);
         curveFitter = new QwtSplineCurveFitter;
     }
@@ -59,7 +59,7 @@ public:
     QwtPlotCurve::CurveStyle style;
     double reference;
 
-    QwtSymbol *symbol;
+    const QwtSymbol *symbol;
     QwtCurveFitter *curveFitter;
 
     QPen pen;
@@ -194,20 +194,23 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
   \param symbol Symbol
   \sa symbol()
 */
-void QwtPlotCurve::setSymbol(const QwtSymbol &symbol )
+void QwtPlotCurve::setSymbol(const QwtSymbol *symbol )
 {
-    delete d_data->symbol;
-    d_data->symbol = symbol.clone();
-    itemChanged();
+	if ( symbol != d_data->symbol )
+	{
+    	delete d_data->symbol;
+    	d_data->symbol = symbol;
+    	itemChanged();
+	}
 }
 
 /*!
     \brief Return the current symbol
     \sa setSymbol()
 */
-const QwtSymbol &QwtPlotCurve::symbol() const 
+const QwtSymbol *QwtPlotCurve::symbol() const 
 { 
-    return *d_data->symbol; 
+    return d_data->symbol; 
 }
 
 /*!
@@ -306,7 +309,8 @@ void QwtPlotCurve::drawSeries(QPainter *painter,
         drawCurve(painter, d_data->style, xMap, yMap, canvasRect, from, to);
         painter->restore();
 
-        if (d_data->symbol->style() != QwtSymbol::NoSymbol)
+        if (d_data->symbol && 
+			( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
             painter->save();
             drawSymbols(painter, *d_data->symbol, 
@@ -813,8 +817,11 @@ void QwtPlotCurve::drawLegendIdentifier(
         {
             if ( style() != QwtPlotCurve::NoCurve )
                 brush = QBrush(pen().color());
-            else if ( d_data->symbol->style() != QwtSymbol::NoSymbol )
+            else if ( d_data->symbol &&
+				( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
+			{
                 brush = QBrush(d_data->symbol->pen().color());
+			}
         }
         if ( brush.style() != Qt::NoBrush )
             painter->fillRect(r, brush);
@@ -835,9 +842,10 @@ void QwtPlotCurve::drawLegendIdentifier(
     }
     if ( d_data->legendAttributes & QwtPlotCurve::LegendShowSymbol )
     {
-        if ( symbol().style() != QwtSymbol::NoSymbol )
+		if ( d_data->symbol &&
+        	( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
-            QSizeF symbolSize = symbol().size();
+            QSizeF symbolSize = d_data->symbol->size();
 
             // scale the symbol size down if it doesn't fit into rect.
 

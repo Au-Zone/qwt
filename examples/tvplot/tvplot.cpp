@@ -34,10 +34,10 @@ void Histogram::setColor(const QColor &symbolColor)
     setPen(QPen(Qt::black));
     setBrush(QBrush(color));
 
-    QwtColumnSymbol symbol(QwtColumnSymbol::Box);
-    symbol.setFrameStyle(QwtColumnSymbol::Raised);
-    symbol.setLineWidth(2);
-    symbol.setPalette(QPalette(color));
+    QwtColumnSymbol *symbol = new QwtColumnSymbol(QwtColumnSymbol::Box);
+    symbol->setFrameStyle(QwtColumnSymbol::Raised);
+    symbol->setLineWidth(2);
+    symbol->setPalette(QPalette(color));
     setSymbol(symbol);
 }
 

@@ -141,14 +141,6 @@ QwtColumnSymbol::~QwtColumnSymbol()
     delete d_data;
 }
 
-QwtColumnSymbol *QwtColumnSymbol::clone() const
-{
-    QwtColumnSymbol *other = new QwtColumnSymbol;
-    *other->d_data = *d_data;
-
-    return other;
-}
-
 //! == operator
 bool QwtColumnSymbol::operator==(const QwtColumnSymbol &other) const
 {

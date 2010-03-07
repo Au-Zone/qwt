@@ -50,14 +50,12 @@ public:
     };
    
 public:
-    QwtSymbol();
+    QwtSymbol(Style = NoSymbol);
     QwtSymbol(Style, const QBrush &, const QPen &, const QSizeF &);
     virtual ~QwtSymbol();
     
     bool operator!=(const QwtSymbol &) const;
     virtual bool operator==(const QwtSymbol &) const;
-
-    virtual QwtSymbol *clone() const;
 
     void setSize(const QSizeF &);
     void setSize(double width, double height = -1.0);
@@ -80,6 +78,10 @@ public:
     virtual void draw(QPainter *p, const QRectF &r) const;
 
 private:
+    // Disabled copy constructor and operator=
+    QwtSymbol( const QwtSymbol & );
+    QwtSymbol &operator=( const QwtSymbol & );
+
     QBrush d_brush;
     QPen d_pen;
     QSizeF d_size;

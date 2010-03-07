@@ -41,7 +41,7 @@ protected:
 private:
     void shiftDown(QRect &rect, int offset) const;
 
-    QwtPlotCurve crv[CurvCnt];
+    QwtPlotCurve d_curves[CurvCnt];
 };
 
 MainWin::MainWin() 
@@ -69,44 +69,37 @@ MainWin::MainWin()
     //
     //  define curve styles
     // 
-    QwtSymbol sym;
     i = 0;
 
-    sym.setStyle(QwtSymbol::Cross);
-    sym.setPen(QColor(Qt::black));
-    sym.setSize(5);
-    crv[i].setSymbol(sym);
-    crv[i].setPen(QColor(Qt::darkGreen));
-    crv[i].setStyle(QwtPlotCurve::Lines);
-    crv[i].setCurveAttribute(QwtPlotCurve::Fitted);
+    d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::Cross, Qt::NoBrush,
+		QPen(Qt::black), QSizeF(5, 5) ) );
+    d_curves[i].setPen(QColor(Qt::darkGreen));
+    d_curves[i].setStyle(QwtPlotCurve::Lines);
+    d_curves[i].setCurveAttribute(QwtPlotCurve::Fitted);
     i++;
 
-    sym.setStyle(QwtSymbol::Ellipse);
-    sym.setPen(QColor(Qt::blue));
-    sym.setBrush(QColor(Qt::yellow));
-    sym.setSize(5);
-    crv[i].setSymbol(sym);
-    crv[i].setPen(QColor(Qt::red));
-    crv[i].setStyle(QwtPlotCurve::Sticks);
+    d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::yellow,
+		QPen(Qt::blue), QSizeF(5, 5) ) );
+    d_curves[i].setPen(QColor(Qt::red));
+    d_curves[i].setStyle(QwtPlotCurve::Sticks);
     i++;
 
-    crv[i].setPen(QColor(Qt::darkBlue));
-    crv[i].setStyle(QwtPlotCurve::Lines);
+    d_curves[i].setPen(QColor(Qt::darkBlue));
+    d_curves[i].setStyle(QwtPlotCurve::Lines);
     i++;
 
-    crv[i].setPen(QColor(Qt::darkBlue));
-    crv[i].setStyle(QwtPlotCurve::Lines);
-    crv[i].setRenderHint(QwtPlotItem::RenderAntialiased);
+    d_curves[i].setPen(QColor(Qt::darkBlue));
+    d_curves[i].setStyle(QwtPlotCurve::Lines);
+    d_curves[i].setRenderHint(QwtPlotItem::RenderAntialiased);
     i++;
 
-    crv[i].setPen(QColor(Qt::darkCyan));
-    crv[i].setStyle(QwtPlotCurve::Steps);
+    d_curves[i].setPen(QColor(Qt::darkCyan));
+    d_curves[i].setStyle(QwtPlotCurve::Steps);
     i++;
 
-    sym.setStyle(QwtSymbol::XCross);
-    sym.setPen(QColor(Qt::darkMagenta));
-    crv[i].setSymbol(sym);
-    crv[i].setStyle(QwtPlotCurve::NoCurve);
+    d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::XCross, Qt::NoBrush,
+		QPen(Qt::darkMagenta), QSizeF(5, 5) ) );
+    d_curves[i].setStyle(QwtPlotCurve::NoCurve);
     i++;
 
 
@@ -114,7 +107,7 @@ MainWin::MainWin()
     // attach data
     //
     for(i=0;i<CurvCnt;i++)
-        crv[i].setRawSamples(xval, yval, Size);
+        d_curves[i].setRawSamples(xval, yval, Size);
 }
 
 void MainWin::shiftDown(QRect &rect, int offset) const
@@ -154,8 +147,8 @@ void MainWin::drawContents(QPainter *painter)
         yMap.setPaintInterval(r.top(), r.bottom());
 
         painter->setRenderHint(QPainter::Antialiasing,
-            crv[i].testRenderHint(QwtPlotItem::RenderAntialiased) );
-        crv[i].draw(painter, xMap, yMap, r);
+            d_curves[i].testRenderHint(QwtPlotItem::RenderAntialiased) );
+        d_curves[i].draw(painter, xMap, yMap, r);
 
         shiftDown(r, deltay);
     }
