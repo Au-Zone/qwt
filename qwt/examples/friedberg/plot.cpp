@@ -127,10 +127,9 @@ void Plot::insertCurve(const QString& title,
     d_curve->setStyle(QwtPlotCurve::NoCurve);
     d_curve->setLegendAttribute(QwtPlotCurve::LegendShowSymbol);
 
-    QwtSymbol symbol;
-    symbol.setStyle(QwtSymbol::XCross);
-    symbol.setSize(4);
-    symbol.setPen(QPen(color));
+    QwtSymbol *symbol = new QwtSymbol(QwtSymbol::XCross);
+    symbol->setSize(4);
+    symbol->setPen(QPen(color));
     d_curve->setSymbol(symbol);
 
     d_curve->setSamples(samples);
@@ -160,7 +159,7 @@ void Plot::setMode(int style)
     if ( style == Tube )
     {
         d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
-        d_intervalCurve->setSymbol(QwtIntervalSymbol());
+        d_intervalCurve->setSymbol(NULL);
         d_intervalCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
     }
     else
@@ -169,9 +168,10 @@ void Plot::setMode(int style)
 
         QColor c(d_intervalCurve->brush().color().rgb()); // skip alpha
 
-        QwtIntervalSymbol errorBar(QwtIntervalSymbol::Bar);
-        errorBar.setWidth(8); // should be something even
-        errorBar.setPen(c);
+        QwtIntervalSymbol *errorBar = 
+			new QwtIntervalSymbol(QwtIntervalSymbol::Bar);
+        errorBar->setWidth(8); // should be something even
+        errorBar->setPen(c);
 
         d_intervalCurve->setSymbol(errorBar);
         d_intervalCurve->setRenderHint(QwtPlotItem::RenderAntialiased, false);

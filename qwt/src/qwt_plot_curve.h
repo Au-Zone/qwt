@@ -201,8 +201,8 @@ public:
     void setStyle(CurveStyle style);
     CurveStyle style() const;
 
-    void setSymbol(const QwtSymbol &s);
-    const QwtSymbol& symbol() const;
+    void setSymbol(const QwtSymbol *s);
+    const QwtSymbol *symbol() const;
 
     void setCurveFitter(QwtCurveFitter *);
     QwtCurveFitter *curveFitter() const;

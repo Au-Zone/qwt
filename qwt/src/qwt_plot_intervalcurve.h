@@ -45,8 +45,8 @@ public:
     void setCurveStyle(CurveStyle style);
     CurveStyle curveStyle() const;
 
-    void setSymbol(const QwtIntervalSymbol&);
-    const QwtIntervalSymbol& symbol() const;
+    void setSymbol(const QwtIntervalSymbol *);
+    const QwtIntervalSymbol *symbol() const;
 
     virtual void drawSeries(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -59,11 +59,11 @@ protected:
 
     void init();
 
-    virtual void drawTube(QPainter *p, 
+    virtual void drawTube(QPainter *, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 
-    virtual void drawSymbols(QPainter *p, 
+    virtual void drawSymbols(QPainter *, const QwtIntervalSymbol &, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
 

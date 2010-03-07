@@ -22,9 +22,9 @@ class QwtPlotHistogram::PrivateData
 public:
     PrivateData():
         reference(0.0),
-        curveStyle(NoCurve)
+        curveStyle(NoCurve),
+		symbol(NULL)
     {
-        symbol = new QwtColumnSymbol(QwtColumnSymbol::NoSymbol);
     }
 
     ~PrivateData()
@@ -37,7 +37,7 @@ public:
     QPen pen;
     QBrush brush;
     QwtPlotHistogram::CurveStyle curveStyle;
-    QwtColumnSymbol *symbol;
+    const QwtColumnSymbol *symbol;
 };
 
 QwtPlotHistogram::QwtPlotHistogram(const QwtText &title):
@@ -110,15 +110,19 @@ const QBrush &QwtPlotHistogram::brush() const
     return d_data->brush; 
 }
 
-void QwtPlotHistogram::setSymbol(const QwtColumnSymbol &symbol)
+void QwtPlotHistogram::setSymbol(const QwtColumnSymbol *symbol)
 {
-    delete d_data->symbol;
-    d_data->symbol = symbol.clone();
+	if ( symbol != d_data->symbol )
+	{
+    	delete d_data->symbol;
+    	d_data->symbol = symbol;
+		itemChanged();
+	}
 }
 
-const QwtColumnSymbol &QwtPlotHistogram::symbol() const
+const QwtColumnSymbol *QwtPlotHistogram::symbol() const
 {
-    return *d_data->symbol;
+    return d_data->symbol;
 }
 
 void QwtPlotHistogram::setBaseline(double reference)
@@ -402,7 +406,8 @@ QwtColumnRect QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
 void QwtPlotHistogram::drawColumn(QPainter *painter, 
     const QwtColumnRect &rect, const QwtIntervalSample &) const
 {
-    if ( d_data->symbol->style() != QwtColumnSymbol::NoSymbol)
+    if ( d_data->symbol &&
+		( d_data->symbol->style() != QwtColumnSymbol::NoSymbol ) )
     {
         d_data->symbol->draw(painter, rect);
     }

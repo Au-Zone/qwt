@@ -150,7 +150,7 @@ void Plot::insertCurve(Qt::Orientation o,
     QwtPlotCurve *curve = new QwtPlotCurve();
 
     curve->setPen(c);
-    curve->setSymbol(QwtSymbol(QwtSymbol::Ellipse,
+    curve->setSymbol(new QwtSymbol(QwtSymbol::Ellipse,
         Qt::gray, c, QSize(8, 8)));
 
     double x[10];

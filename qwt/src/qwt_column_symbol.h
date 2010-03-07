@@ -97,8 +97,6 @@ public:
     bool operator!=(const QwtColumnSymbol &) const;
     virtual bool operator==(const QwtColumnSymbol &) const;
 
-    virtual QwtColumnSymbol *clone() const;
-
     void setPalette(const QPalette &);
     const QPalette &palette() const;
 

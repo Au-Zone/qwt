@@ -14,15 +14,16 @@
 
 /*!
   Default Constructor
+  \param style Symbol Style
 
   The symbol is constructed with gray interior,
   black outline with zero width, no size and style 'NoSymbol'.
 */
-QwtSymbol::QwtSymbol(): 
+QwtSymbol::QwtSymbol(Style style): 
     d_brush(Qt::gray), 
     d_pen(Qt::black), 
     d_size(0.0, 0.0),
-    d_style(QwtSymbol::NoSymbol)
+    d_style(style)
 {
 }
 
@@ -45,18 +46,6 @@ QwtSymbol::QwtSymbol(QwtSymbol::Style style, const QBrush &brush,
 //! Destructor
 QwtSymbol::~QwtSymbol()
 {
-}
-
-/*!
-  Allocate and return a symbol with the same attributes
-  \return Cloned symbol
-*/
-QwtSymbol *QwtSymbol::clone() const
-{
-    QwtSymbol *other = new QwtSymbol;
-    *other = *this;
-
-    return other;
 }
 
 /*!

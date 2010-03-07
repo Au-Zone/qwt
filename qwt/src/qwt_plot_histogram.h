@@ -54,8 +54,8 @@ public:
     void setStyle(CurveStyle style);
     CurveStyle style() const;
 
-    void setSymbol(const QwtColumnSymbol &);
-    const QwtColumnSymbol &symbol() const;
+    void setSymbol(const QwtColumnSymbol *);
+    const QwtColumnSymbol *symbol() const;
 
     virtual void drawSeries(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,

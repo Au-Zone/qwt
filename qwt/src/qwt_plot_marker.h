@@ -76,7 +76,7 @@ public:
     void setLinePen(const QPen &p);
     const QPen &linePen() const;
 
-    void setSymbol(const QwtSymbol &s);
+    void setSymbol(const QwtSymbol *s);
     const QwtSymbol &symbol() const;
 
     void setLabel(const QwtText&);
