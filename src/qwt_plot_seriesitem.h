@@ -110,9 +110,11 @@ inline T QwtPlotSeriesItem<T>::sample(int i) const
 }
 
 /*!
-  Assign a series of samples
-
+  Assign a series of samples 
+  
   \param data Data
+  \warning The item takes ownership of the data object, deleting 
+           it when its not used anymore.
 */
 template <typename T> 
 void QwtPlotSeriesItem<T>::setData(QwtSeriesData<T> *data)
