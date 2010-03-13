@@ -23,7 +23,7 @@ public:
     PrivateData():
         reference(0.0),
         curveStyle(NoCurve),
-		symbol(NULL)
+        symbol(NULL)
     {
     }
 
@@ -112,12 +112,12 @@ const QBrush &QwtPlotHistogram::brush() const
 
 void QwtPlotHistogram::setSymbol(const QwtColumnSymbol *symbol)
 {
-	if ( symbol != d_data->symbol )
-	{
-    	delete d_data->symbol;
-    	d_data->symbol = symbol;
-		itemChanged();
-	}
+    if ( symbol != d_data->symbol )
+    {
+        delete d_data->symbol;
+        d_data->symbol = symbol;
+        itemChanged();
+    }
 }
 
 const QwtColumnSymbol *QwtPlotHistogram::symbol() const
@@ -407,7 +407,7 @@ void QwtPlotHistogram::drawColumn(QPainter *painter,
     const QwtColumnRect &rect, const QwtIntervalSample &) const
 {
     if ( d_data->symbol &&
-		( d_data->symbol->style() != QwtColumnSymbol::NoSymbol ) )
+        ( d_data->symbol->style() != QwtColumnSymbol::NoSymbol ) )
     {
         d_data->symbol->draw(painter, rect);
     }

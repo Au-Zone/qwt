@@ -119,12 +119,12 @@ inline T QwtPlotSeriesItem<T>::sample(int i) const
 template <typename T> 
 void QwtPlotSeriesItem<T>::setData(QwtSeriesData<T> *data)
 {
-	if ( d_series != data )
-	{
-    	delete d_series;
-    	d_series = data;
-    	itemChanged();
-	}
+    if ( d_series != data )
+    {
+        delete d_series;
+        d_series = data;
+        itemChanged();
+    }
 }
 
 /*!

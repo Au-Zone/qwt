@@ -19,6 +19,7 @@
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
 #include <qpainter.h>
+#include <qpixmap.h>
 #include <qalgorithms.h>
 
 static int verifyRange(int size, int &i1, int &i2)
@@ -41,7 +42,7 @@ public:
     PrivateData():
         style(QwtPlotCurve::Lines),
         reference(0.0),
-		symbol(NULL),
+        symbol(NULL),
         attributes(0),
         paintAttributes(QwtPlotCurve::ClipPolygons),
         legendAttributes(0)
@@ -196,12 +197,12 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 */
 void QwtPlotCurve::setSymbol(const QwtSymbol *symbol )
 {
-	if ( symbol != d_data->symbol )
-	{
-    	delete d_data->symbol;
-    	d_data->symbol = symbol;
-    	itemChanged();
-	}
+    if ( symbol != d_data->symbol )
+    {
+        delete d_data->symbol;
+        d_data->symbol = symbol;
+        itemChanged();
+    }
 }
 
 /*!
@@ -310,7 +311,7 @@ void QwtPlotCurve::drawSeries(QPainter *painter,
         painter->restore();
 
         if (d_data->symbol && 
-			( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
+            ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
             painter->save();
             drawSymbols(painter, *d_data->symbol, 
@@ -701,24 +702,65 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     const QRectF &canvasRect, int from, int to) const
 {
-    painter->setBrush(symbol.brush());
-    painter->setPen(symbol.pen());
-
-    QRectF rect;
-    rect.setSize(symbol.size());
-
-    for (int i = from; i <= to; i++)
+    bool usePixmap = testPaintAttribute(CacheSymbols);
+    if ( usePixmap )
     {
-        const QPointF sample = d_series->sample(i);
+        // Don't use the pixmap, when the paint device
+        // could generate scalable vectors
 
-        const double xi = xMap.transform(sample.x());
-        const double yi = yMap.transform(sample.y());
+        usePixmap = !QwtPainter::isAligning(painter);
+    }
 
-        const QPointF pos(xi, yi);
-        if ( canvasRect.contains(pos) )
+    if ( usePixmap )
+    {
+        QRect rect;
+        rect.setSize(symbol.size().toSize());
+
+        QPixmap pm(rect.size());
+        pm.fill(Qt::transparent);
+
+        QPainter p(&pm);
+        p.setBrush(symbol.brush());
+        p.setPen(symbol.pen());
+        symbol.draw(painter, QRectF(0, 0, pm.width(), pm.height()));
+        p.end();
+
+        for (int i = from; i <= to; i++)
         {
-            rect.moveCenter(pos);
-            symbol.draw(painter, rect);
+            const QPointF sample = d_series->sample(i);
+
+            const int xi = qRound(xMap.transform(sample.x()));
+            const int yi = qRound(yMap.transform(sample.y()));
+
+            const QPoint pos(xi, yi);
+            if ( canvasRect.contains(pos) )
+            {
+                rect.moveCenter(pos);
+                painter->drawPixmap(rect.topLeft(), pm);
+            }
+        }
+    }
+    else
+    {
+        painter->setBrush(symbol.brush());
+        painter->setPen(symbol.pen());
+
+        QRectF rect;
+        rect.setSize(symbol.size());
+
+        for (int i = from; i <= to; i++)
+        {
+            const QPointF sample = d_series->sample(i);
+
+            const double xi = xMap.transform(sample.x());
+            const double yi = yMap.transform(sample.y());
+
+            const QPointF pos(xi, yi);
+            if ( canvasRect.contains(pos) )
+            {
+                rect.moveCenter(pos);
+                symbol.draw(painter, rect);
+            }
         }
     }
 }
@@ -818,10 +860,10 @@ void QwtPlotCurve::drawLegendIdentifier(
             if ( style() != QwtPlotCurve::NoCurve )
                 brush = QBrush(pen().color());
             else if ( d_data->symbol &&
-				( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
-			{
+                ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
+            {
                 brush = QBrush(d_data->symbol->pen().color());
-			}
+            }
         }
         if ( brush.style() != Qt::NoBrush )
             painter->fillRect(r, brush);
@@ -842,8 +884,8 @@ void QwtPlotCurve::drawLegendIdentifier(
     }
     if ( d_data->legendAttributes & QwtPlotCurve::LegendShowSymbol )
     {
-		if ( d_data->symbol &&
-        	( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
+        if ( d_data->symbol &&
+            ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
             QSizeF symbolSize = d_data->symbol->size();
 

@@ -22,7 +22,7 @@ public:
         labelAlignment(Qt::AlignCenter),
         labelOrientation(Qt::Horizontal),
         spacing(2),
-		symbol(NULL),
+        symbol(NULL),
         style(NoLine),
         xValue(0.0),
         yValue(0.0)
@@ -162,10 +162,10 @@ void QwtPlotMarker::drawAt(QPainter *painter,
 
     // draw symbol
     if ( d_data->symbol &&
-		( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
-	{
+        ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
+    {
         d_data->symbol->draw(painter, pos.x(), pos.y());
-	}
+    }
 
     drawLabel(painter, canvasRect, pos);
 }
@@ -232,7 +232,7 @@ void QwtPlotMarker::drawLabel(QPainter *painter,
         default:
         {
             if ( d_data->symbol &&
-				( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
+                ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
             {
                 symbolOff = d_data->symbol->size() + QSizeF(1, 1);
                 symbolOff /= 2;
@@ -330,12 +330,12 @@ QwtPlotMarker::LineStyle QwtPlotMarker::lineStyle() const
 */
 void QwtPlotMarker::setSymbol(const QwtSymbol *symbol)
 {
-	if ( symbol != d_data->symbol )
-	{
-    	delete d_data->symbol;
-    	d_data->symbol = symbol;
-    	itemChanged();
-	}
+    if ( symbol != d_data->symbol )
+    {
+        delete d_data->symbol;
+        d_data->symbol = symbol;
+        itemChanged();
+    }
 }
 
 /*!
