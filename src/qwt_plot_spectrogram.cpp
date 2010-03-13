@@ -328,14 +328,14 @@ QList<double> QwtPlotSpectrogram::contourLevels() const
 */
 void QwtPlotSpectrogram::setData(QwtRasterData *data)
 {
-	if ( data != d_data->data )
-	{
-    	delete d_data->data;
-    	d_data->data = data;
+    if ( data != d_data->data )
+    {
+        delete d_data->data;
+        d_data->data = data;
 
-    	invalidateCache();
-    	itemChanged();
-	}
+        invalidateCache();
+        itemChanged();
+    }
 }
 
 /*!

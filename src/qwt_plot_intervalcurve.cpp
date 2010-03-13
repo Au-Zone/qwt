@@ -19,7 +19,7 @@ class QwtPlotIntervalCurve::PrivateData
 public:
     PrivateData():
         curveStyle(Tube),
-		symbol(NULL),
+        symbol(NULL),
         pen(Qt::black),
         brush(Qt::white)
     {
@@ -199,10 +199,10 @@ void QwtPlotIntervalCurve::drawSeries(QPainter *painter,
     }
 
     if ( d_data->symbol &&
-		( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol ) )
-	{
+        ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol ) )
+    {
         drawSymbols(painter, *d_data->symbol, xMap, yMap, from, to);
-	}
+    }
 }
 
 void QwtPlotIntervalCurve::drawTube(QPainter *painter, 
@@ -266,7 +266,7 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
 
 void QwtPlotIntervalCurve::drawSymbols(
     QPainter *painter, const QwtIntervalSymbol &symbol,
-	const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
     painter->save();
@@ -318,7 +318,7 @@ void QwtPlotIntervalCurve::drawLegendIdentifier(
     }
 
     if ( d_data->symbol &&
-		( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol ) )
+        ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol ) )
     {
         QPen pen = d_data->symbol->pen();
         pen.setWidthF(pen.widthF());

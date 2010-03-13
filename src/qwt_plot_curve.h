@@ -149,6 +149,11 @@ public:
           are far outside the visible area (f.e when zooming deep) this 
           might be a substantial improvement for the painting performance 
           ( especially on Windows ).
+        - CacheSymbols\n
+          Paint the symbol to a QPixmap and paint the pixmap
+          instead rendering the symbol for each point. The flag has
+          no effect, when the curve is not painted to the canvas 
+          ( or its cache )
 
         The default setting enables ClipPolygons
 
@@ -156,7 +161,8 @@ public:
     */
     enum PaintAttribute
     {
-        ClipPolygons = 1
+        ClipPolygons = 1,
+        CacheSymbols = 2
     };
 
     explicit QwtPlotCurve(const QString &title = QString::null);
