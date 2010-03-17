@@ -30,7 +30,7 @@ public:
                 boundingRect.setBottom(sample.y());
 
             if ( sample.y() < boundingRect.top() )
-                boundingRect.setBottom(sample.y());
+                boundingRect.setTop(sample.y());
         }
     }
 
