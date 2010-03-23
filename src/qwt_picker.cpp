@@ -105,7 +105,6 @@ QwtPicker::PickerWidget::PickerWidget(
     setFocusPolicy(QWidget::NoFocus);
     setMouseTracking(true);
 #endif
-    hide();
 }
 
 void QwtPicker::PickerWidget::updateMask()
@@ -1400,6 +1399,7 @@ void QwtPicker::updateDisplay()
         if ( rw.isNull() )
         {
             rw = new PickerWidget( this, w, PickerWidget::RubberBand);
+            rw->hide();
             rw->resize(w->size());
         }
         rw->updateMask();
@@ -1418,9 +1418,10 @@ void QwtPicker::updateDisplay()
         if ( tw.isNull() )
         {
             tw = new PickerWidget( this, w, PickerWidget::Text);
+            tw->hide();
             tw->resize(w->size());
         }
-		tw->setFont(d_data->trackerFont);
+        tw->setFont(d_data->trackerFont);
         tw->updateMask();
         tw->update(); // Needed, when the mask doesn't change
     }
