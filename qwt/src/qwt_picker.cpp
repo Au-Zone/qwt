@@ -90,8 +90,6 @@ QwtPicker::PickerWidget::PickerWidget(
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAttribute(Qt::WA_NoSystemBackground);
     setFocusPolicy(Qt::NoFocus);
-
-    hide();
 }
 
 void QwtPicker::PickerWidget::updateMask()
@@ -1396,6 +1394,7 @@ void QwtPicker::updateDisplay()
         if ( rw.isNull() )
         {
             rw = new PickerWidget( this, w, PickerWidget::RubberBand);
+            rw->hide();
             rw->resize(w->size());
         }
         rw->updateMask();
@@ -1410,6 +1409,7 @@ void QwtPicker::updateDisplay()
         if ( tw.isNull() )
         {
             tw = new PickerWidget( this, w, PickerWidget::Text);
+            tw->hide();
             tw->resize(w->size());
         }
         tw->setFont(d_data->trackerFont);
