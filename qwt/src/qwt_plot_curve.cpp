@@ -21,6 +21,7 @@
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qalgorithms.h>
+#include <qmath.h>
 
 static int verifyRange(int size, int &i1, int &i2)
 {
@@ -426,6 +427,9 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     const QRectF &, int from, int to) const
 {
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing, false);
+
     const double x0 = xMap.transform(d_data->reference);
     const double y0 = yMap.transform(d_data->reference);
     const Qt::Orientation o = orientation();
@@ -441,6 +445,8 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
         else
             QwtPainter::drawLine(painter, xi, y0, xi, yi);
     }
+
+    painter->restore();
 }
 
 /*!
@@ -702,51 +708,30 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     const QRectF &canvasRect, int from, int to) const
 {
+    const bool isAligning = QwtPainter::isAligning(painter);
+
     bool usePixmap = testPaintAttribute(CacheSymbols);
-    if ( usePixmap )
+    if ( usePixmap && !isAligning )
     {
         // Don't use the pixmap, when the paint device
         // could generate scalable vectors
 
-        usePixmap = !QwtPainter::isAligning(painter);
+        usePixmap = false;
     }
 
+    usePixmap = false;
     if ( usePixmap )
     {
-        QRect rect;
-        rect.setSize(symbol.size().toSize());
-
-        QPixmap pm(rect.size());
+        QPixmap pm(symbol.size() + QSize(1, 1));
         pm.fill(Qt::transparent);
 
+        const double pw2 = 0.5 * pm.width();
+        const double ph2 = 0.5 * pm.height();
+
         QPainter p(&pm);
-        p.setBrush(symbol.brush());
-        p.setPen(symbol.pen());
-        symbol.draw(painter, QRectF(0, 0, pm.width(), pm.height()));
+        p.setRenderHints(painter->renderHints());
+        symbol.drawSymbol(&p, QPointF(pw2, ph2) );
         p.end();
-
-        for (int i = from; i <= to; i++)
-        {
-            const QPointF sample = d_series->sample(i);
-
-            const int xi = qRound(xMap.transform(sample.x()));
-            const int yi = qRound(yMap.transform(sample.y()));
-
-            const QPoint pos(xi, yi);
-            if ( canvasRect.contains(pos) )
-            {
-                rect.moveCenter(pos);
-                painter->drawPixmap(rect.topLeft(), pm);
-            }
-        }
-    }
-    else
-    {
-        painter->setBrush(symbol.brush());
-        painter->setPen(symbol.pen());
-
-        QRectF rect;
-        rect.setSize(symbol.size());
 
         for (int i = from; i <= to; i++)
         {
@@ -755,12 +740,37 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
             const double xi = xMap.transform(sample.x());
             const double yi = yMap.transform(sample.y());
 
-            const QPointF pos(xi, yi);
-            if ( canvasRect.contains(pos) )
+            if ( canvasRect.contains(xi, yi) )
             {
-                rect.moveCenter(pos);
-                symbol.draw(painter, rect);
+                const int left = qCeil(xi - pw2);
+                const int top = qCeil(yi - ph2);
+
+                painter->drawPixmap(left, top, pm);
             }
+        }
+    }
+    else
+    {
+        const int chunkSize = 500;
+
+        for ( int i = from; i <= to; i += chunkSize )
+        {
+            const int n = qMin(chunkSize, to - i + 1);
+
+            QPolygonF points;
+            for ( int j = 0; j < n; j++ )
+            {
+                const QPointF sample = d_series->sample(i+j);
+
+                const double xi = xMap.transform(sample.x());
+                const double yi = yMap.transform(sample.y());
+
+                if ( canvasRect.contains(xi, yi) )
+                    points += QPointF(xi, yi);
+            }
+
+            if ( points.size() > 0 )
+                symbol.drawSymbols(painter, points);
         }
     }
 }
@@ -887,7 +897,7 @@ void QwtPlotCurve::drawLegendIdentifier(
         if ( d_data->symbol &&
             ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
-            QSizeF symbolSize = d_data->symbol->size();
+            QSize symbolSize = d_data->symbol->size();
 
             // scale the symbol size down if it doesn't fit into rect.
 
@@ -905,13 +915,12 @@ void QwtPlotCurve::drawLegendIdentifier(
                 symbolSize.setHeight(rect.height());
                 symbolSize.setWidth(qRound(symbolSize.width() / ratio));
             }
-            QRectF symbolRect;
-            symbolRect.setSize(symbolSize);
-            symbolRect.moveCenter(rect.center());
 
-            painter->setBrush(d_data->symbol->brush());
-            painter->setPen(d_data->symbol->pen());
-            d_data->symbol->draw(painter, symbolRect);
+            QwtSymbol *symbol = (QwtSymbol *)d_data->symbol;
+            const QSize sz = symbol->size();
+            symbol->setSize(symbolSize);
+            symbol->drawSymbol(painter, rect.center());
+            symbol->setSize(sz);
         }
     }
 }

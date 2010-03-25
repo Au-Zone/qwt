@@ -164,7 +164,7 @@ void QwtPlotMarker::drawAt(QPainter *painter,
     if ( d_data->symbol &&
         ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
     {
-        d_data->symbol->draw(painter, pos.x(), pos.y());
+        d_data->symbol->drawSymbol(painter, pos);
     }
 
     drawLabel(painter, canvasRect, pos);
