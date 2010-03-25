@@ -1,25 +1,29 @@
-Release 5.3
+Release 6.0
 ===================
 
 Changes
 -------
-1. Template base classes introduced for curve and curve data
+1. Qt3 support dropped
+2. QwtPlot layout/render code using doubles
+3. QwtPlot::print moved to QwtPlotRenderer
+4. Template base classes introduced for curve and curve data
    to be reusable in all plot items displaying series of samples.
-2. QwtPlotIntervalCurve introduced ( featuring error bars )
-3. QwtPicker and friends reorganized, 
+5. QwtPlotIntervalCurve introduced ( featuring error bars )
+6. QwtPicker and friends reorganized, 
    QwtPickerTrackerMachine added for displaying a rubberband for
    mouse moves. Enter/Leave added to events, that are handled
    by the picker machines.
-4. QwtScaleWidget::LayoutFlag added
+7. QwtScaleWidget::LayoutFlag added
    Introduced to control the direction of vertical axis titles.
-5. QwtWeedingCurveFitter added
+8. QwtWeedingCurveFitter added
    QwtWeedingCurveFitter is an implementation of the Douglas/Peuker 
    algorithm, that can be used to reduce the number of curve points.
    It can be very useful to improve the performance of painting
    curves of many lines ( f.e. by implementing different level of details ).
-6. Legend code update for representing different pixmaps for different
+9. Legend code update for representing different pixmaps for different
    types of plot items.
-7) Thread support for rendering spectrograms
+10)Thread support for rendering spectrograms
+11)Copy operators removed, using pointers instead
 
 
 Release 5.2.1
