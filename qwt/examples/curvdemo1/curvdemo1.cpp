@@ -72,14 +72,14 @@ MainWin::MainWin()
     i = 0;
 
     d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::Cross, Qt::NoBrush,
-		QPen(Qt::black), QSizeF(5, 5) ) );
+		QPen(Qt::black), QSize(5, 5) ) );
     d_curves[i].setPen(QColor(Qt::darkGreen));
     d_curves[i].setStyle(QwtPlotCurve::Lines);
     d_curves[i].setCurveAttribute(QwtPlotCurve::Fitted);
     i++;
 
     d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::yellow,
-		QPen(Qt::blue), QSizeF(5, 5) ) );
+		QPen(Qt::blue), QSize(5, 5) ) );
     d_curves[i].setPen(QColor(Qt::red));
     d_curves[i].setStyle(QwtPlotCurve::Sticks);
     i++;
@@ -98,7 +98,7 @@ MainWin::MainWin()
     i++;
 
     d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::XCross, Qt::NoBrush,
-		QPen(Qt::darkMagenta), QSizeF(5, 5) ) );
+		QPen(Qt::darkMagenta), QSize(5, 5) ) );
     d_curves[i].setStyle(QwtPlotCurve::NoCurve);
     i++;
 
