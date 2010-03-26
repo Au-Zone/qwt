@@ -212,6 +212,9 @@ static inline void qwtDrawTriangleSymbols(
         sh2 = qFloor(sh2);
     }
 
+    QPolygonF triangle(3);
+    QPointF *trianglePoints = triangle.data();
+
     for ( int i = 0; i < numPoints; i++ )
     {
         const QPointF &pos = points[i];
@@ -230,39 +233,62 @@ static inline void qwtDrawTriangleSymbols(
         const double y1 = y - sh2;
         const double y2 = y1 + size.height();
 
-        QPolygonF polygon;
         switch(type)
         {
             case QwtTriangle::Left:
             {
-                polygon += QPointF(x2, y1);
-                polygon += QPointF(x1, y);
-                polygon += QPointF(x2, y2);
+                trianglePoints[0].rx() = x2;
+                trianglePoints[0].ry() = y1;
+
+                trianglePoints[1].rx() = x1;
+                trianglePoints[1].ry() = y;
+
+                trianglePoints[2].rx() = x2;
+                trianglePoints[2].ry() = y2;
+
                 break;
             }
             case QwtTriangle::Right:
             {
-                polygon += QPointF(x1, y1);
-                polygon += QPointF(x2, y);
-                polygon += QPointF(x1, y2);
+                trianglePoints[0].rx() = x1;
+                trianglePoints[0].ry() = y1;
+
+                trianglePoints[1].rx() = x2;
+                trianglePoints[1].ry() = y;
+
+                trianglePoints[2].rx() = x1;
+                trianglePoints[2].ry() = y2;
+
                 break;
             }
             case QwtTriangle::Up:
             {
-                polygon += QPointF(x1, y2);
-                polygon += QPointF(x, y1);
-                polygon += QPointF(x2, y2);
+                trianglePoints[0].rx() = x1;
+                trianglePoints[0].ry() = y2;
+
+                trianglePoints[1].rx() = x;
+                trianglePoints[1].ry() = y1;
+
+                trianglePoints[2].rx() = x2;
+                trianglePoints[2].ry() = y2;
+
                 break;
             }
             case QwtTriangle::Down:
             {
-                polygon += QPointF(x1, y1);
-                polygon += QPointF(x, y2);
-                polygon += QPointF(x2, y1);
+                trianglePoints[0].rx() = x1;
+                trianglePoints[0].ry() = y1;
+
+                trianglePoints[1].rx() = x;
+                trianglePoints[1].ry() = y2;
+
+                trianglePoints[2].rx() = x2;
+                trianglePoints[2].ry() = y1;
+
                 break;
             }
         }
-        QwtPainter::drawPolygon(painter, polygon);
+        QwtPainter::drawPolygon(painter, triangle);
     }
 }
 
@@ -331,8 +357,14 @@ static inline void qwtDrawXCrossSymbols(QPainter *painter,
     pen.setCapStyle(Qt::FlatCap);
     painter->setPen(pen);
 
+
     if ( QwtPainter::isAligning(painter) )
     {
+        const int sw = size.width();
+        const int sh = size.height();
+        const int sw2 = size.width() / 2;
+        const int sh2 = size.height() / 2;
+
         for ( int i = 0; i < numPoints; i++ )
         {
             const QPointF &pos = points[i];
@@ -340,10 +372,10 @@ static inline void qwtDrawXCrossSymbols(QPainter *painter,
             const int x = (int)qCeil(pos.x());
             const int y = (int)qCeil(pos.y());
 
-            const int x1 = x - size.width() / 2;
-            const int x2 = x1 + size.width();
-            const int y1 = y - size.height() / 2;
-            const int y2 = y1 + size.height();
+            const int x1 = x - sw2;
+            const int x2 = x1 + sw;
+            const int y1 = y - sh2;
+            const int y2 = y1 + sh;
 
             QwtPainter::drawLine(painter, x1, y1, x2, y2);
             QwtPainter::drawLine(painter, x2, y1, x1, y2);
@@ -351,14 +383,19 @@ static inline void qwtDrawXCrossSymbols(QPainter *painter,
     }
     else
     {
+        const double sw = size.width();
+        const double sh = size.height();
+        const double sw2 = 0.5 * size.width();
+        const double sh2 = 0.5 * size.height();
+
         for ( int i = 0; i < numPoints; i++ )
         {
             const QPointF &pos = points[i];
 
-            const double x1 = pos.x() - 0.5 * size.width();
-            const double x2 = x1 + size.width();
-            const double y1 = pos.y() - 0.5 * size.height();
-            const double y2 = y1 + size.height();
+            const double x1 = pos.x() - sw2;
+            const double x2 = x1 + sw;
+            const double y1 = pos.y() - sh2;
+            const double y2 = y1 + sh;
 
             QwtPainter::drawLine(painter, x1, y1, x2, y2);
             QwtPainter::drawLine(painter, x1, y2, x2, y1);
@@ -401,8 +438,6 @@ static inline void qwtDrawStar1Symbols(QPainter *painter,
 static inline void qwtDrawStar2Symbols(QPainter *painter,
     const QPointF *points, int numPoints, const QwtSymbol &symbol)
 {
-    const QSize size = symbol.size();
-
     QPen pen = symbol.pen();
     pen.setCapStyle(Qt::FlatCap);
     pen.setJoinStyle(Qt::MiterJoin);
@@ -412,42 +447,73 @@ static inline void qwtDrawStar2Symbols(QPainter *painter,
 
     const double cos30 = 0.866025; // cos(30°)
 
-    const double dy = 0.25 * size.height();
-    const double dx = 0.5 * size.width() * cos30 / 3.0;
+    const double dy = 0.25 * symbol.size().height();
+    const double dx = 0.5 * symbol.size().width() * cos30 / 3.0;
 
     QPolygonF star(12);
     QPointF *starPoints = star.data();
 
+    const bool doAlign = QwtPainter::isAligning(painter);
+
     for ( int i = 0; i < numPoints; i++ )
     {
-        const QPointF pos = points[i];
+        double x = points[i].x();
+        double y = points[i].y();
+        if ( doAlign )
+        {
+            x = qCeil(x);
+            y = qCeil(y);
+        }
 
-        const double x1 = pos.x() - 3 * dx;
-        const double x2 = x1 + dx;
+        const double x1 = x - 3 * dx;
+        const double x2 = x1 + 1 * dx;
         const double x3 = x1 + 2 * dx;
         const double x4 = x1 + 3 * dx;
         const double x5 = x1 + 4 * dx;
         const double x6 = x1 + 5 * dx;
         const double x7 = x1 + 6 * dx;
 
-        const double y1 = pos.y() - 2 * dy;
-        const double y2 = y1 + dy;
+        const double y1 = y - 2 * dy;
+        const double y2 = y1 + 1 * dy;
         const double y3 = y1 + 2 * dy;
         const double y4 = y1 + 3 * dy;
         const double y5 = y1 + 4 * dy;
 
-        starPoints[0] = QPointF(x4, y1);
-        starPoints[1] = QPointF(x5, y2 );
-        starPoints[2] = QPointF(x7, y2);
-        starPoints[3] = QPointF(x6, y3 );
-        starPoints[4] = QPointF(x7, y4);
-        starPoints[5] = QPointF(x5, y4 );
-        starPoints[6] = QPointF(x4, y5);
-        starPoints[7] = QPointF(x3, y4 );
-        starPoints[8] = QPointF(x1, y4);
-        starPoints[9] = QPointF(x2, y3 );
-        starPoints[10] = QPointF(x1, y2);
-        starPoints[11] = QPointF(x3, y2 );
+        starPoints[0].rx() = x4;
+        starPoints[0].ry() = y1;
+
+        starPoints[1].rx() = x5;
+        starPoints[1].ry() = y2;
+
+        starPoints[2].rx() = x7;
+        starPoints[2].ry() = y2;
+
+        starPoints[3].rx() = x6;
+        starPoints[3].ry() = y3;
+
+        starPoints[4].rx() = x7;
+        starPoints[4].ry() = y4;
+
+        starPoints[5].rx() = x5;
+        starPoints[5].ry() = y4;
+
+        starPoints[6].rx() = x4;
+        starPoints[6].ry() = y5;
+
+        starPoints[7].rx() = x3;
+        starPoints[7].ry() = y4;
+
+        starPoints[8].rx() = x1;
+        starPoints[8].ry() = y4;
+
+        starPoints[9].rx() = x2;
+        starPoints[9].ry() = y3;
+
+        starPoints[10].rx() = x1;
+        starPoints[10].ry() = y2;
+
+        starPoints[11].rx() = x3;
+        starPoints[11].ry() = y2;
 
         QwtPainter::drawPolygon(painter, star);
     }
@@ -467,25 +533,44 @@ static inline void qwtDrawHexagonSymbols(QPainter *painter,
     QPolygonF hexaPolygon(6);
     QPointF *hexaPoints = hexaPolygon.data();
 
+    const bool doAlign = QwtPainter::isAligning(painter);
+
     for ( int i = 0; i < numPoints; i++ )
     {
-        const QPointF pos = points[i];
+        double x = points[i].x();
+        double y = points[i].y();
+        if ( doAlign )
+        {
+            x = qCeil(x);
+            y = qCeil(y);
+        }
 
-        const double x1 = pos.x() - dx;
-        const double x2 = x1 + dx;
+        const double x1 = x - dx;
+        const double x2 = x1 + 1 * dx;
         const double x3 = x1 + 2 * dx;
 
-        const double y1 = pos.y() - 2 * dy;
-        const double y2 = y1 + dy;
+        const double y1 = y - 2 * dy;
+        const double y2 = y1 + 1 * dy;
         const double y3 = y1 + 3 * dy;
         const double y4 = y1 + 4 * dy;
 
-        hexaPoints[0] = QPointF(x2, y1);
-        hexaPoints[1] = QPointF(x3, y2);
-        hexaPoints[2] = QPointF(x3, y3);
-        hexaPoints[3] = QPointF(x2, y4);
-        hexaPoints[4] = QPointF(x1, y3);
-        hexaPoints[5] = QPointF(x1, y2);
+        hexaPoints[0].rx() = x2;
+        hexaPoints[0].ry() = y1;
+
+        hexaPoints[1].rx() = x3;
+        hexaPoints[1].ry() = y2;
+
+        hexaPoints[2].rx() = x3;
+        hexaPoints[2].ry() = y3;
+
+        hexaPoints[3].rx() = x2;
+        hexaPoints[3].ry() = y4;
+
+        hexaPoints[4].rx() = x1;
+        hexaPoints[4].ry() = y3;
+
+        hexaPoints[5].rx() = x1;
+        hexaPoints[5].ry() = y2;
 
         QwtPainter::drawPolygon(painter, hexaPolygon);
     }
@@ -537,6 +622,8 @@ QwtSymbol::QwtSymbol(Style style)
   \param brush brush to fill the interior
   \param pen outline pen 
   \param size size
+
+  \sa setStyle(), setBrush(), setPen(), setSize()
 */
 QwtSymbol::QwtSymbol(QwtSymbol::Style style, const QBrush &brush, 
     const QPen &pen, const QSize &size) 
@@ -558,6 +645,8 @@ QwtSymbol::~QwtSymbol()
   the symbol size will be set to (w,w).
   \param width Width
   \param height Height (defaults to -1.0)
+
+  \sa size()
 */
 void QwtSymbol::setSize(int width, int height)
 {
@@ -570,6 +659,8 @@ void QwtSymbol::setSize(int width, int height)
 /*! 
    Set the symbol's size
    \param size Size
+
+   \sa size()
 */
 void QwtSymbol::setSize(const QSize &size)
 {
@@ -577,7 +668,10 @@ void QwtSymbol::setSize(const QSize &size)
         d_data->size = size;
 }
 
-//! Return Size
+/*! 
+   \return Size
+   \sa setSize()
+*/
 const QSize& QwtSymbol::size() const
 { 
     return d_data->size;
@@ -588,13 +682,18 @@ const QSize& QwtSymbol::size() const
 
   The brush is used to draw the interior of the symbol.
   \param brush Brush
+
+  \sa brush()
 */
 void QwtSymbol::setBrush(const QBrush &brush)
 {
     d_data->brush = brush;
 }
 
-//! Return Brush
+/*! 
+  \return Brush
+  \sa setBrush()
+*/
 const QBrush& QwtSymbol::brush() const
 {
     return d_data->brush;
@@ -609,7 +708,7 @@ const QBrush& QwtSymbol::brush() const
   of the paint device.
 
   \param pen Pen
-  \sa pen(), setBrush(), QwtPainter::scaledPen()
+  \sa pen(), setBrush()
 */
 void QwtSymbol::setPen(const QPen &pen)
 {
@@ -783,38 +882,25 @@ void QwtSymbol::drawSymbols(QPainter *painter,
 }
 
 /*!
-  \brief Specify the symbol style
-
-  The following styles are defined:<dl>
-  <dt>NoSymbol<dd>No Style. The symbol cannot be drawn.
-  <dt>Ellipse<dd>Ellipse or circle
-  <dt>Rect<dd>Rectangle
-  <dt>Diamond<dd>Diamond
-  <dt>Triangle<dd>Triangle pointing upwards
-  <dt>DTriangle<dd>Triangle pointing downwards
-  <dt>UTriangle<dd>Triangle pointing upwards
-  <dt>LTriangle<dd>Triangle pointing left
-  <dt>RTriangle<dd>Triangle pointing right
-  <dt>Cross<dd>Cross (+)
-  <dt>XCross<dd>Diagonal cross (X)
-  <dt>HLine<dd>Horizontal line
-  <dt>VLine<dd>Vertical line
-  <dt>Star1<dd>X combined with +
-  <dt>Star2<dd>Six-pointed star
-  <dt>Hexagon<dd>Hexagon</dl>
+  Specify the symbol style
 
   \param style Style
+  \sa style()
 */
 void QwtSymbol::setStyle(QwtSymbol::Style style)
 {
     d_data->style = style;
 }
 
-//! Return Style
+/*! 
+  \return Style
+  \sa setStyle()
+*/
 QwtSymbol::Style QwtSymbol::style() const
 {
     return d_data->style;
 }
+
 //! == operator
 bool QwtSymbol::operator==(const QwtSymbol &other) const
 {

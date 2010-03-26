@@ -26,7 +26,56 @@ class QWT_EXPORT QwtSymbol
 {
 public:
     /*!
-        Style
+        Symbol Style
+
+         - NoSymbol\n
+           No Style. The symbol cannot be drawn.
+
+         - Ellipse
+           Ellipse or circle
+
+         - Rect
+           Rectangle
+
+         - Diamond
+           Diamond
+
+         - Triangle
+           Triangle pointing upwards
+
+         - DTriangle
+           Triangle pointing downwards
+
+         - UTriangle
+           Triangle pointing upwards
+
+         - LTriangle
+           Triangle pointing left
+
+         - RTriangle
+           Triangle pointing right
+
+         - Cross
+           Cross (+)
+
+         - XCross
+           Diagonal cross (X)
+
+         - HLine
+           Horizontal line
+
+         - VLine
+           Vertical line
+
+         - Star1
+           X combined with +
+
+         - Star2
+           Six-pointed star
+
+         - Hexagon
+           Hexagon
+
         \sa setStyle(), style()
      */
     enum Style 
