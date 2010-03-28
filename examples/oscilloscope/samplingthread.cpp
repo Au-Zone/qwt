@@ -1,6 +1,7 @@
 #include "samplingthread.h"
 #include "signaldata.h"
 #include <qwt_math.h>
+#include <math.h>
 
 SamplingThread::SamplingThread(QObject *parent):
     QwtSamplingThread(parent),
@@ -43,7 +44,7 @@ double SamplingThread::value(double timeStamp) const
     const double period = 1.0 / d_frequency;
 
     const double x = ::fmod(timeStamp, period);
-    const double v = d_amplitude * ::sin(x / period * 2 * M_PI);
+    const double v = d_amplitude * qFastSin(x / period * 2 * M_PI);
 
     return v;
 }

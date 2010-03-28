@@ -1,13 +1,13 @@
 #include "ampfrm.h"
 #include <qwt_knob.h>
+#include <qwt_thermo.h>
+#include <qwt_round_scale_draw.h>
+#include <qwt_math.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qfont.h>
 #include <qpen.h>
 #include <qevent.h>
-#include <qwt_thermo.h>
-#include <qwt_round_scale_draw.h>
-#include <qwt_math.h>
 
 class Knob: public QWidget
 {
@@ -139,13 +139,13 @@ void AmpFrame::timerEvent(QTimerEvent *)
     //
 
     const double sig_bass = (1.0 + 0.1 * d_knbBass->value()) 
-        * sin(13.0 * phs);
-    const double sig_mid_l = sin(17.0 * phs);
-    const double sig_mid_r = cos(17.5 * phs);
+        * qFastSin(13.0 * phs);
+    const double sig_mid_l = qFastSin(17.0 * phs);
+    const double sig_mid_r = qFastCos(17.5 * phs);
     const double sig_trbl_l = 0.5 * (1.0 + 0.1 * d_knbTreble->value()) 
-        * sin(35.0 * phs);
+        * qFastSin(35.0 * phs);
     const double sig_trbl_r = 0.5 * (1.0 + 0.1 * d_knbTreble->value()) 
-        * sin(34.0 * phs);
+        * qFastSin(34.0 * phs);
 
     double sig_l = 0.05 * d_master * d_knbVolume->value() 
         * qwtSqr(sig_bass + sig_mid_l + sig_trbl_l);

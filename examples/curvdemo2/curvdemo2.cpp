@@ -123,8 +123,8 @@ MainWin::MainWin():
     double toggle = 1.0; 
     for (i = 0; i < USize; i++)
     {
-        uval[i] =  toggle * cos( double(i) * base);
-        vval[i] =  toggle * sin( double(i) * base);
+        uval[i] =  toggle * qCos( double(i) * base);
+        vval[i] =  toggle * qSin( double(i) * base);
             
         if (toggle == 1.0)
            toggle = 0.5;
@@ -182,12 +182,12 @@ void MainWin::newValues()
     for (i=0;i<Size;i++)
     {
         xval[i] = 6.28 * double(i) / double(Size -1);
-        yval[i] = sin(xval[i] - phs);
-        zval[i] = cos(3.0 * (xval[i] + phs));
+        yval[i] = qSin(xval[i] - phs);
+        zval[i] = qCos(3.0 * (xval[i] + phs));
     }
     
-    s = 0.25 * sin(phs);
-    c = sqrt(1.0 - s*s);
+    s = 0.25 * qSin(phs);
+    c = qSqrt(1.0 - s*s);
     for (i=0; i<USize;i++)
     {
         u = uval[i];

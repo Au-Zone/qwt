@@ -18,14 +18,14 @@ MainWindow::MainWindow():
 
     for ( int row = 0; row < numRows(); row++ )
     {
-        const double v = ::pow(10.0, row);
+        const double v = qPow(10.0, row);
         setAxisScale(QwtPlot::yLeft, row, -v, v);
         setAxisScale(QwtPlot::yRight, row, -v, v);
     }
 
     for ( int col = 0; col < numColumns(); col++ )
     {
-        const double v = ::pow(10.0, col);
+        const double v = qPow(10.0, col);
         setAxisScale(QwtPlot::xBottom, col, -v, v);
         setAxisScale(QwtPlot::xTop, col, -v, v);
     }

@@ -78,7 +78,7 @@ void TunerFrame::adjustFreq(double frq)
     const double factor = 13.0 / (108 - 87.5);
 
     const double x = (frq - 87.5) * factor;
-    const double field = qwtSqr(sin(x) * cos(4.0 * x));
+    const double field = qwtSqr(qFastSin(x) * qFastCos(4.0 * x));
     
     d_thmTune->setValue(field);  
 

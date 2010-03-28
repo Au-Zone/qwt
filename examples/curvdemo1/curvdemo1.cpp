@@ -1,11 +1,12 @@
-#include <qapplication.h>
-#include <qframe.h>
+
 #include <qwt_scale_map.h>
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
+#include <qwt_math.h>
 #include <qcolor.h>
 #include <qpainter.h>
-#include <math.h>
+#include <qapplication.h>
+#include <qframe.h>
 
 //------------------------------------------------------------
 //      curvdemo1
@@ -62,8 +63,9 @@ MainWin::MainWin()
     // Calculate values
     //
     for(i=0; i<Size;i++)
-    {   xval[i] = double(i) * 10.0 / double(Size - 1);
-        yval[i] = sin(xval[i]) * cos(2.0 * xval[i]);
+    {   
+        xval[i] = double(i) * 10.0 / double(Size - 1);
+        yval[i] = qSin(xval[i]) * qCos(2.0 * xval[i]);
     }
     
     //

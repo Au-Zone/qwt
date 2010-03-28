@@ -1,4 +1,3 @@
-#include <math.h>
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -132,7 +131,7 @@ void Slider::setNum(double v)
     if ( d_slider->scaleMap().transformation()->type() ==
         QwtScaleTransformation::Log10 )
     {
-        v = pow(10.0, v);
+        v = qPow(10.0, v);
     }
 
     QString text;
