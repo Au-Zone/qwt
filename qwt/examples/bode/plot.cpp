@@ -6,6 +6,7 @@
 #include <qwt_plot_curve.h>
 #include <qwt_legend.h>
 #include <qwt_text.h>
+#include <qmath.h>
 #include "complexnumber.h"
 #include "plot.h"
 
@@ -24,7 +25,7 @@ static void logSpace(double *array, int size, double xmin, double xmax)
     const double lstep = (lxmax - lxmin) / double(imax);
 
     for (int i = 1; i < imax; i++)
-       array[i] = exp(lxmin + double(i) * lstep);
+       array[i] = qExp(lxmin + double(i) * lstep);
 }
 
 Plot::Plot(QWidget *parent):
@@ -153,8 +154,8 @@ void Plot::setDamp(double damping)
         const ComplexNumber g = 
             ComplexNumber(1.0) / ComplexNumber(1.0 - f * f, 2.0 * damping * f);
 
-        amplitude[i] = 20.0 * log10(sqrt( g.real() * g.real() + g.imag() * g.imag()));
-        phase[i] = atan2(g.imag(), g.real()) * (180.0 / M_PI);
+        amplitude[i] = 20.0 * log10(qSqrt( g.real() * g.real() + g.imag() * g.imag()));
+        phase[i] = qAtan2(g.imag(), g.real()) * (180.0 / M_PI);
 
         if ((i3 <= 1) && (amplitude[i] < -3.0)) 
            i3 = i;
