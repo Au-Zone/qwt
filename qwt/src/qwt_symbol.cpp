@@ -137,7 +137,7 @@ static inline void qwtDrawDiamondSymbols(QPainter *painter,
         if ( painter->pen().style() != Qt::NoPen )
             pw = qMax(painter->pen().width(), 1);
 
-        const int off2 = int(0.5 * qSqrt(2 * pw * pw));
+        const int off2 = int(0.5 * qSqrt(2.0 * pw * pw));
 
         for ( int i = 0; i < numPoints; i++ )
         {
@@ -166,7 +166,7 @@ static inline void qwtDrawDiamondSymbols(QPainter *painter,
         if ( painter->pen().style() != Qt::NoPen )
             pw = qMax(painter->pen().widthF(), 1.0);
 
-        const double off = qSqrt(2 * pw * pw);
+        const double off = qSqrt(2.0 * pw * pw);
 
         for ( int i = 0; i < numPoints; i++ )
         {
