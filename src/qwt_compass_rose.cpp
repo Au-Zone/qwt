@@ -11,7 +11,6 @@
 #include "qwt_math.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
-#include <math.h>
 
 static QPoint cutPoint(QPoint p11, QPoint p12, QPoint p21, QPoint p22)
 {
@@ -137,7 +136,7 @@ void QwtSimpleCompassRose::drawRose(
 
     for ( int j = 1; j <= numThornLevels; j++ )
     {
-        double step =  pow(2.0, j) * M_PI / (double)numThorns;
+        double step =  qPow(2.0, j) * M_PI / (double)numThorns;
         if ( step > M_PI_2 )
             break;
 

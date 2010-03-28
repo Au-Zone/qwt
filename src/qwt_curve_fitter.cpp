@@ -10,7 +10,6 @@
 #include "qwt_curve_fitter.h"
 #include "qwt_math.h"
 #include "qwt_spline.h"
-#include <math.h>
 #include <qstack.h>
 #include <qvector.h>
 
@@ -178,7 +177,7 @@ QPolygonF QwtSplineCurveFitter::fitParametric(const QPolygonF &points) const
         const double y = p[i].y();
         if ( i > 0 )
         {
-            const double delta = sqrt( qwtSqr(x - spX[i-1].y())
+            const double delta = qSqrt( qwtSqr(x - spX[i-1].y())
                       + qwtSqr( y - spY[i-1].y() ) );
             param += qMax(delta, 1.0);
         }
@@ -310,7 +309,7 @@ QPolygonF QwtWeedingCurveFitter::fitCurve(const QPolygonF &points) const
         const double vecX = p[r.to].x() - p[r.from].x();
         const double vecY = p[r.to].y() - p[r.from].y();
 
-        const double vecLength = ::sqrt( vecX * vecX + vecY * vecY );
+        const double vecLength = qSqrt( vecX * vecX + vecY * vecY );
 
         const double unitVecX = (vecLength != 0.0) ? vecX / vecLength : 0.0;
         const double unitVecY = (vecLength != 0.0) ? vecY / vecLength : 0.0;
@@ -323,7 +322,7 @@ QPolygonF QwtWeedingCurveFitter::fitCurve(const QPolygonF &points) const
             const double fromVecX = p[i].x() - p[r.from].x();
             const double fromVecY = p[i].y() - p[r.from].y();
             const double fromVecLength =
-                ::sqrt(fromVecX * fromVecX + fromVecY * fromVecY );
+                qSqrt(fromVecX * fromVecX + fromVecY * fromVecY );
 
             if ( fromVecX * unitVecX + fromVecY * unitVecY < 0.0 )
             {
@@ -337,13 +336,13 @@ QPolygonF QwtWeedingCurveFitter::fitCurve(const QPolygonF &points) const
             {
                 const double toVecX = p[i].x() - p[r.to].x();
                 const double toVecY = p[i].y() - p[r.to].y();
-                const double toVecLength = ::sqrt( toVecX * toVecX + toVecY * toVecY );
+                const double toVecLength = qSqrt( toVecX * toVecX + toVecY * toVecY );
                 const double s = toVecX * (-unitVecX) + toVecY * (-unitVecY);
                 if ( s < 0.0 )
                     distToSegment = toVecLength;
                 else
                 {
-                    distToSegment = ::sqrt( fabs( toVecLength * toVecLength - s * s ) );
+                    distToSegment = qSqrt( qFabs( toVecLength * toVecLength - s * s ) );
                 }
             }
 

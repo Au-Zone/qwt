@@ -379,7 +379,7 @@ double QwtCircleClipper::toAngle(
 
     const double m = qAbs((to.y() - from.y()) / (to.x() - from.x()) );
 
-    double angle = ::atan(m);
+    double angle = qAtan(m);
     if ( to.x() > from.x() )
     {   
         if ( to.y() > from.y() )
@@ -406,7 +406,7 @@ QList<QPointF> QwtCircleClipper::cuttingPoints(
         const double x = (edge == Left) ? left() : right();
         if ( qAbs(pos.x() - x) < radius )
         {
-            const double off = ::sqrt(qwtSqr(radius) - qwtSqr(pos.x() - x));
+            const double off = qSqrt(qwtSqr(radius) - qwtSqr(pos.x() - x));
             const double y1 = pos.y() + off;
             if ( y1 >= top() && y1 <= bottom() )
                 points += QPointF(x, y1);
@@ -420,7 +420,7 @@ QList<QPointF> QwtCircleClipper::cuttingPoints(
         const double y = (edge == Top) ? top() : bottom();
         if ( qAbs(pos.y() - y) < radius )
         {
-            const double off = ::sqrt(qwtSqr(radius) - qwtSqr(pos.y() - y));
+            const double off = qSqrt(qwtSqr(radius) - qwtSqr(pos.y() - y));
             const double x1 = pos.x() + off;
             if ( x1 >= left() && x1 <= right() )
                 points += QPointF(x1, y);

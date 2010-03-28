@@ -14,7 +14,7 @@
 #include <qpen.h>
 #include <qpainter.h>
 #include <qfontmetrics.h>
-#include <math.h>
+#include <qmath.h>
 
 class QwtRoundScaleDraw::PrivateData
 {
@@ -182,7 +182,7 @@ void QwtRoundScaleDraw::drawLabel(QPainter *painter, double value) const
     const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
 
     const double x = d_data->center.x() +
-        (radius + sz.width() / 2.0) * sin(arc);
+        (radius + sz.width() / 2.0) * qSin(arc);
     const double y = d_data->center.y() -
         (radius + sz.height() / 2.0) * cos(arc);
 
@@ -216,8 +216,8 @@ void QwtRoundScaleDraw::drawTick(QPainter *painter, double value, double len) co
     {
         const double arc = double(tval) / 16.0 * M_PI / 180.0;
 
-        const double sinArc = sin(arc);
-        const double cosArc = cos(arc);
+        const double sinArc = qSin(arc);
+        const double cosArc = qCos(arc);
 
         const double x1 = cx + radius * sinArc;
         const double x2 = cx + (radius + len) * sinArc;
@@ -289,10 +289,10 @@ double QwtRoundScaleDraw::extent(const QFont &font) const
                 const QSizeF sz = label.textSize(font);
                 const double off = qMax(sz.width(), sz.height());
 
-                double x = off * sin(arc);
-                double y = off * cos(arc);
+                double x = off * qSin(arc);
+                double y = off * qCos(arc);
 
-                const double dist = sqrt(x * x + y * y);
+                const double dist = qSqrt(x * x + y * y);
                 if ( dist > d )
                     d = dist;
             }

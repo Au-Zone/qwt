@@ -362,7 +362,7 @@ void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
     const double loValue = value() - halfIntv;
     const double hiValue = value() + halfIntv;
     const double tickWidth = 360.0 / double(d_data->tickCnt) / cnvFactor;
-    const double sinArc = sin(d_data->viewAngle * M_PI / 360.0);
+    const double sinArc = qSin(d_data->viewAngle * M_PI / 360.0);
     cnvFactor *= M_PI / 180.0;
 
 
@@ -389,7 +389,7 @@ void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
         //
         // draw tick marks
         //
-        for ( double tickValue = ::ceil(loValue / tickWidth) * tickWidth;
+        for ( double tickValue = qCeil(loValue / tickWidth) * tickWidth;
             tickValue < hiValue; tickValue += tickWidth )
         {
             //
@@ -397,7 +397,7 @@ void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
             //
             const int tickPos = r.x() + r.width()
                 - int( halfSize
-                    * (sinArc + sign *  sin((tickValue - value()) * cnvFactor))
+                    * (sinArc + sign *  qSin((tickValue - value()) * cnvFactor))
                     / sinArc);
             //
             // draw vertical line
@@ -430,7 +430,7 @@ void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
         //
         // draw tick marks
         //
-        for ( double tickValue = ::ceil(loValue / tickWidth) * tickWidth;
+        for ( double tickValue = qCeil(loValue / tickWidth) * tickWidth;
             tickValue < hiValue; tickValue += tickWidth )
         {
 
@@ -438,7 +438,7 @@ void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
             // calculate position
             //
             const int tickPos = r.y() + int( halfSize *
-                (sinArc + sign * sin((tickValue - value()) * cnvFactor))
+                (sinArc + sign * qSin((tickValue - value()) * cnvFactor))
                 / sinArc);
 
             //

@@ -13,7 +13,6 @@
 #include "qwt_painter.h"
 #include <qapplication.h>
 #include <qpainter.h>
-#include <math.h>
 
 //! Constructor
 QwtDialNeedle::QwtDialNeedle():

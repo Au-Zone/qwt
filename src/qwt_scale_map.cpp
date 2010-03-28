@@ -10,6 +10,7 @@
 #include "qwt_scale_map.h"
 #include <qrect.h>
 #include <qalgorithms.h>
+#include <qmath.h>
 
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
@@ -75,7 +76,7 @@ double QwtScaleTransformation::invXForm(double p, double p1, double p2,
     double s1, double s2) const
 {
     if ( d_type == Log10 )  
-        return exp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;
+        return qExp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;
     else
         return s1 + (s2 - s1) / (p2 - p1) * (p - p1);
 }

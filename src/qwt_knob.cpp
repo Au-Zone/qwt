@@ -232,16 +232,16 @@ double QwtKnob::getValue(const QPoint &p)
     const double dx = double((rect().x() + rect().width() / 2) - p.x() );
     const double dy = double((rect().y() + rect().height() / 2) - p.y() );
 
-    const double arc = atan2(-dx,dy) * 180.0 / M_PI;
+    const double arc = qAtan2(-dx,dy) * 180.0 / M_PI;
 
     double newValue =  0.5 * (minValue() + maxValue())
        + (arc + d_data->nTurns * 360.0) * (maxValue() - minValue())
       / d_data->totalAngle;
 
-    const double oneTurn = fabs(maxValue() - minValue()) * 360.0 / d_data->totalAngle;
+    const double oneTurn = qFabs(maxValue() - minValue()) * 360.0 / d_data->totalAngle;
     const double eqValue = value() + mouseOffset();
 
-    if (fabs(newValue - eqValue) > 0.5 * oneTurn)
+    if (qFabs(newValue - eqValue) > 0.5 * oneTurn)
     {
         if (newValue < eqValue)
            newValue += oneTurn;
@@ -273,7 +273,7 @@ void QwtKnob::getScrollMode(const QPoint &p, int &scrollMode, int &direction)
     else                                // point lies outside
     {
         scrollMode = ScrTimer;
-        double arc = atan2(double(-dx),double(dy)) * 180.0 / M_PI;
+        double arc = qAtan2(double(-dx),double(dy)) * 180.0 / M_PI;
         if ( arc < d_data->angle)
            direction = -1;
         else if (arc > d_data->angle)
@@ -374,8 +374,8 @@ void QwtKnob::draw(QPainter *painter, const QRect& rect)
 void QwtKnob::drawMarker(QPainter *p, double arc, const QColor &c)
 {
     const double rarc = arc * M_PI / 180.0;
-    const double ca = cos(rarc);
-    const double sa = - sin(rarc);
+    const double ca = qFastCos(rarc);
+    const double sa = - qFastSin(rarc);
 
     int radius = d_data->knobRect.width() / 2 - d_data->borderWidth;
     if (radius < 3) 

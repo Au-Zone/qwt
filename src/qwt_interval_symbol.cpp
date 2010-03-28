@@ -9,8 +9,8 @@
 
 #include "qwt_interval_symbol.h"
 #include "qwt_painter.h"
-#include "qwt_math.h"
 #include <qpainter.h>
+#include <qmath.h>
 
 class QwtIntervalSymbol::PrivateData
 {
@@ -132,11 +132,11 @@ void QwtIntervalSymbol::draw(QPainter *painter,
 
                     const double dx = to.x() - from.x();
                     const double dy = to.y() - from.y();
-                    const double angle = ::atan2(dy, dx) + M_PI_2;
+                    const double angle = qAtan2(dy, dx) + M_PI_2;
                     double dw2 = sw / 2.0;
 
-                    const double cx = ::cos(angle) * dw2;
-                    const double sy = ::sin(angle) * dw2;
+                    const double cx = qCos(angle) * dw2;
+                    const double sy = qSin(angle) * dw2;
 
                     QwtPainter::drawLine(painter, 
                         from.x() - cx, from.y() - sy,
@@ -178,11 +178,11 @@ void QwtIntervalSymbol::draw(QPainter *painter,
 
                     const double dx = to.x() - from.x();
                     const double dy = to.y() - from.y();
-                    const double angle = ::atan2(dy, dx) + M_PI_2;
+                    const double angle = qAtan2(dy, dx) + M_PI_2;
                     double dw2 = sw / 2.0;
 
-                    const int cx = ::cos(angle) * dw2;
-                    const int sy = ::sin(angle) * dw2;
+                    const int cx = qCos(angle) * dw2;
+                    const int sy = qSin(angle) * dw2;
 
                     QPolygonF polygon;
                     polygon += QPointF(from.x() - cx, from.y() - sy);
