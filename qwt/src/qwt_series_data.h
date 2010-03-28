@@ -327,7 +327,7 @@ public:
     }
     virtual double y(double x) const
     {
-        return std::sin(x);
+        return qSin(x);
     }
 };
 

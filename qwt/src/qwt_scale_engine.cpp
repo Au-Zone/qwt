@@ -55,7 +55,7 @@ double QwtScaleArithmetic::ceilEps(double value,
     const double eps = _eps * intervalSize;
 
     value = (value - eps) / intervalSize;
-    return ceil(value) * intervalSize;
+    return qCeil(value) * intervalSize;
 }
 
 /*!
@@ -71,7 +71,7 @@ double QwtScaleArithmetic::floorEps(double value, double intervalSize)
     const double eps = _eps * intervalSize;
 
     value = (value + eps) / intervalSize;
-    return floor(value) * intervalSize;
+    return qFloor(value) * intervalSize;
 }
 
 /*!
@@ -103,10 +103,10 @@ double QwtScaleArithmetic::ceil125(double x)
         return 0.0;
 
     const double sign = (x > 0) ? 1.0 : -1.0;
-    const double lx = log10(fabs(x));
-    const double p10 = ::floor(lx);
+    const double lx = log10(qFabs(x));
+    const double p10 = qFloor(lx);
     
-    double fr = pow(10.0, lx - p10);
+    double fr = qPow(10.0, lx - p10);
     if (fr <=1.0)
        fr = 1.0; 
     else if (fr <= 2.0)
@@ -116,7 +116,7 @@ double QwtScaleArithmetic::ceil125(double x)
     else
        fr = 10.0;
 
-    return sign * fr * pow(10.0, p10);
+    return sign * fr * qPow(10.0, p10);
 }
 
 /*!
@@ -131,10 +131,10 @@ double QwtScaleArithmetic::floor125(double x)
         return 0.0;
 
     double sign = (x > 0) ? 1.0 : -1.0;
-    const double lx = log10(fabs(x));
-    const double p10 = ::floor(lx);
+    const double lx = log10(qFabs(x));
+    const double p10 = qFloor(lx);
 
-    double fr = pow(10.0, lx - p10);
+    double fr = qPow(10.0, lx - p10);
     if (fr >= 10.0)
        fr = 10.0;
     else if (fr >= 5.0)
@@ -144,7 +144,7 @@ double QwtScaleArithmetic::floor125(double x)
     else
        fr = 1.0;
 
-    return sign * fr * pow(10.0, p10);
+    return sign * fr * qPow(10.0, p10);
 }
 
 class QwtScaleEngine::PrivateData
@@ -619,8 +619,8 @@ void QwtLog10ScaleEngine::autoScale(int maxNumSteps,
     if ( x1 > x2 )
         qSwap(x1, x2);
 
-    QwtDoubleInterval interval(x1 / pow(10.0, lowerMargin()), 
-        x2 * pow(10.0, upperMargin()) );
+    QwtDoubleInterval interval(x1 / qPow(10.0, lowerMargin()), 
+        x2 * qPow(10.0, upperMargin()) );
 
     double logRef = 1.0;
     if (reference() > LOG_MIN / 2)
@@ -756,7 +756,7 @@ QList<double> QwtLog10ScaleEngine::buildMajorTicks(
     ticks += interval.minValue();
 
     for (int i = 1; i < numTicks; i++)
-       ticks += exp(lxmin + double(i) * lstep);
+       ticks += qExp(lxmin + double(i) * lstep);
 
     ticks += interval.maxValue();
 
@@ -834,7 +834,7 @@ QList<double> QwtLog10ScaleEngine::buildMinorTicks(
             return QList<double>();      // no subticks
 
         // substep factor = 10^substeps
-        const double minFactor = qMax(pow(10.0, minStep), 10.0);
+        const double minFactor = qMax(qPow(10.0, minStep), 10.0);
 
         QList<double> minorTicks;
         for (int i = 0; i < (int)majorTicks.count(); i++)
@@ -889,6 +889,6 @@ QwtDoubleInterval QwtLog10ScaleEngine::log10(
 QwtDoubleInterval QwtLog10ScaleEngine::pow10(
     const QwtDoubleInterval &interval) const
 {
-    return QwtDoubleInterval(pow(10.0, interval.minValue()),
-            pow(10.0, interval.maxValue()));
+    return QwtDoubleInterval(qPow(10.0, interval.minValue()),
+            qPow(10.0, interval.maxValue()));
 }

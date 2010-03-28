@@ -9,7 +9,6 @@
 
 #include "qwt_magnifier.h"
 #include "qwt_math.h"
-#include <math.h>
 #include <qevent.h>
 #include <qwidget.h>
 
@@ -399,8 +398,7 @@ void QwtMagnifier::widgetWheelEvent(QWheelEvent *we)
            in which case the delta value is a multiple 
            of 120 (== 15 * 8).
         */
-        double f = ::pow(d_data->wheelFactor, 
-            qAbs(we->delta() / 120));
+        double f = qPow(d_data->wheelFactor, qAbs(we->delta() / 120));
         if ( we->delta() > 0 )
             f = 1 / f;
 

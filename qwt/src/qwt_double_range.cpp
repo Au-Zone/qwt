@@ -9,7 +9,6 @@
 
 #include "qwt_double_range.h"
 #include "qwt_math.h"
-#include <cfloat>
 
 static double MinRelStep = 1.0e-10;
 static double DefaultRelStep = 1.0e-2;
@@ -77,7 +76,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     if (x < vmin)
     {
         if ((d_periodic) && (vmin != vmax))
-           d_value = x + ::ceil( (vmin - x) / (vmax - vmin ) ) 
+           d_value = x + qCeil( (vmin - x) / (vmax - vmin ) ) 
               * (vmax - vmin);
         else
            d_value = vmin;
@@ -85,7 +84,7 @@ void QwtDoubleRange::setNewValue(double x, bool align)
     else if (x > vmax)
     {
         if ((d_periodic) && (vmin != vmax))
-           d_value = x - ::ceil( ( x - vmax) / (vmax - vmin )) 
+           d_value = x - qCeil( ( x - vmax) / (vmax - vmin )) 
               * (vmax - vmin);
         else
            d_value = vmax;
@@ -108,11 +107,11 @@ void QwtDoubleRange::setNewValue(double x, bool align)
             d_value = d_minValue;
         
         // correct rounding error at the border
-        if (fabs(d_value - d_maxValue) < MinEps * qAbs(d_step))
+        if (qFabs(d_value - d_maxValue) < MinEps * qAbs(d_step))
             d_value = d_maxValue;
 
         // correct rounding error if value = 0
-        if (::fabs(d_value) < MinEps * qAbs(d_step))
+        if (qFabs(d_value) < MinEps * qAbs(d_step))
             d_value = 0.0;
     }
 
@@ -222,7 +221,7 @@ void QwtDoubleRange::setStep(double vstep)
         else
            newStep = vstep;
         
-        if ( fabs(newStep) < fabs(MinRelStep * intv) )
+        if ( qFabs(newStep) < qFabs(MinRelStep * intv) )
            newStep = MinRelStep * intv;
     }
     

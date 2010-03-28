@@ -13,7 +13,6 @@
 #include "qwt_scale_div.h"
 #include "qwt_picker_machine.h"
 #include <qalgorithms.h>
-#include <math.h>
 
 class QwtPlotZoomer::PrivateData
 {

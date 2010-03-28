@@ -16,7 +16,6 @@
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qevent.h>
-#include <math.h>
 
 class QwtCompass::PrivateData
 {
@@ -279,11 +278,8 @@ void QwtCompass::setLabelMap(const QMap<double, QString> &map)
 
 QwtText QwtCompass::scaleLabel(double value) const
 {
-#if 0
-    // better solution ???
-    if ( value == -0 )
+    if ( qFuzzyCompare(value, 0.0) )
         value = 0.0;
-#endif
 
     if ( value < 0.0 )
         value += 360.0;

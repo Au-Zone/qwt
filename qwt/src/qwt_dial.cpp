@@ -969,7 +969,7 @@ static double line2Radians(const QPoint &p1, const QPoint &p2)
         angle = ( p.y() <= 0 ) ? M_PI_2 : 3 * M_PI_2;
     else
     {
-        angle = atan(double(-p.y()) / double(p.x()));
+        angle = qAtan(double(-p.y()) / double(p.x()));
         if ( p.x() < 0 )
             angle += M_PI;
         if ( angle < 0.0 )
