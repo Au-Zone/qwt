@@ -457,6 +457,8 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
                 identifier.fill(QColor(0, 0, 0, 0));
             
                 QPainter painter(&identifier);
+                painter.setRenderHint(QPainter::Antialiasing, 
+                    testRenderHint(QwtPlotItem::RenderAntialiased) );
                 drawLegendIdentifier(&painter, QRect(0, 0, w, h));
                 painter.end();
 
