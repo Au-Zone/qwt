@@ -127,6 +127,8 @@ public:
     void drawSymbol(QPainter *, const QPointF &) const; 
     void drawSymbols(QPainter *, const QPolygonF &) const;
 
+	virtual QSize boundingSize() const;
+
 protected:
     virtual void drawSymbols(QPainter *, 
         const QPointF *, int numPoints ) const;

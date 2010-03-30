@@ -35,38 +35,33 @@ static inline void qwtDrawEllipseSymbols(QPainter *painter,
 
     if ( QwtPainter::isAligning(painter) )
     {
-        int pw = 0;
-        if ( painter->pen().style() != Qt::NoPen )
-            pw = qMax(painter->pen().width(), 1);
+		const int sw = size.width();
+		const int sh = size.height();
+		const int sw2 = size.width() / 2;
+		const int sh2 = size.height() / 2;
 
         for ( int i = 0; i < numPoints; i++ )
         {
-            const QPointF &pos = points[i];
+            const int x = (int)qCeil(points[i].x());
+            const int y = (int)qCeil(points[i].y());
 
-            const int x = (int)qCeil(pos.x());
-            const int y = (int)qCeil(pos.y());
-
-            const int x1 = x - size.width() / 2;
-            const int y1 = y - size.height() / 2;
-        
-            QRectF r( x1 + 0.5 * pw, y1 + 0.5 * pw, 
-                size.width() - pw, size.height() - pw);
-
+            const QRectF r( x - sw2, y - sh2, sw, sh);
             QwtPainter::drawEllipse(painter, r);
         }
     }
     else
     {
-        double pw = 0.0;
-        if ( painter->pen().style() != Qt::NoPen )
-            pw = qMax(painter->pen().widthF(), 1.0);
-
-        QRectF r(0.5 * pw, 0.5 * pw, 
-            size.width() - pw, size.height() - pw);
+		const double sw = size.width();
+		const double sh = size.height();
+		const double sw2 = 0.5 * size.width();
+		const double sh2 = 0.5 * size.height();
 
         for ( int i = 0; i < numPoints; i++ )
         {
-            r.moveCenter(points[i]);
+            const double x = points[i].x();
+            const double y = points[i].y();
+
+        	const QRectF r(x - sw2, y - sh2, sw, sh);
             QwtPainter::drawEllipse(painter, r);
         }
     }
@@ -81,41 +76,37 @@ static inline void qwtDrawRectSymbols(QPainter *painter,
     pen.setJoinStyle(Qt::MiterJoin);
     painter->setPen(pen);
     painter->setBrush(symbol.brush());
+	painter->setRenderHint(QPainter::Antialiasing, false);
 
     if ( QwtPainter::isAligning(painter) )
     {
-        int pw = 0;
-        if ( painter->pen().style() != Qt::NoPen )
-            pw = qMax(painter->pen().width(), 1);
+		const int sw = size.width();
+		const int sh = size.height();
+		const int sw2 = size.width() / 2;
+		const int sh2 = size.height() / 2;
 
         for ( int i = 0; i < numPoints; i++ )
         {
-            const QPointF &pos = points[i];
+            const int x = (int)qCeil(points[i].x());
+            const int y = (int)qCeil(points[i].y());
 
-            const int x = (int)qCeil(pos.x());
-            const int y = (int)qCeil(pos.y());
-
-            const int x1 = x - size.width() / 2;
-            const int y1 = y - size.height() / 2;
-
-            QRectF r(x1 + pw / 2, y1 + pw / 2, 
-                size.width() - pw, size.height() - pw);
-        
-            QwtPainter::drawRect(painter, r.toRect());
+            const QRectF r(x - sw2, y - sh2, sw, sh);
+            QwtPainter::drawRect(painter, r);
         }
     }
     else
     {
-        double pw = 0.0;
-        if ( painter->pen().style() != Qt::NoPen )
-            pw = qMax(painter->pen().widthF(), 1.0);
-
-        QRectF r(0.5 * pw, 0.5 * pw, 
-            size.width() - pw, size.height() - pw);
+		const double sw = size.width();
+		const double sh = size.height();
+		const double sw2 = 0.5 * size.width();
+		const double sh2 = 0.5 * size.height();
 
         for ( int i = 0; i < numPoints; i++ )
         {
-            r.moveCenter(points[i]);
+            const double x = points[i].x();
+            const double y = points[i].y();
+
+        	const QRectF r(x - sw2, y - sh2, sw, sh);
             QwtPainter::drawRect(painter, r);
         }
     }
@@ -133,23 +124,15 @@ static inline void qwtDrawDiamondSymbols(QPainter *painter,
 
     if ( QwtPainter::isAligning(painter) )
     {
-        int pw = 0;
-        if ( painter->pen().style() != Qt::NoPen )
-            pw = qMax(painter->pen().width(), 1);
-
-        const int off2 = int(0.5 * qSqrt(2.0 * pw * pw));
-
         for ( int i = 0; i < numPoints; i++ )
         {
-            const QPointF &pos = points[i];
+            const int x = (int)qCeil(points[i].x());
+            const int y = (int)qCeil(points[i].y());
 
-            const int x = (int)qCeil(pos.x());
-            const int y = (int)qCeil(pos.y());
-
-            const int x1 = x - size.width() / 2 + off2;
-            const int y1 = y - size.height() / 2 + off2;
-            const int x2 = x1 + size.width() - 2 * off2;
-            const int y2 = y1 + size.height() - 2 * off2;
+            const int x1 = x - size.width() / 2;
+            const int y1 = y - size.height() / 2;
+            const int x2 = x1 + size.width();
+            const int y2 = y1 + size.height();
 
             QPolygonF polygon;
             polygon += QPointF(x, y1);
@@ -162,20 +145,14 @@ static inline void qwtDrawDiamondSymbols(QPainter *painter,
     }
     else
     {
-        double pw = 0.0;
-        if ( painter->pen().style() != Qt::NoPen )
-            pw = qMax(painter->pen().widthF(), 1.0);
-
-        const double off = qSqrt(2.0 * pw * pw);
-
         for ( int i = 0; i < numPoints; i++ )
         {
             const QPointF &pos = points[i];
 
-            const double x1 = pos.x() - 0.5 * (size.width() - off);
-            const double y1 = pos.y() - 0.5 * (size.height() - off);
-            const double x2 = x1 + size.width() - off;
-            const double y2 = y1 + size.height() - off;
+            const double x1 = pos.x() - 0.5 * size.width();
+            const double y1 = pos.y() - 0.5 * size.height();
+            const double x2 = x1 + size.width();
+            const double y2 = y1 + size.height();
 
             QPolygonF polygon;
             polygon += QPointF(pos.x(), y1);
@@ -301,48 +278,55 @@ static inline void qwtDrawLineSymbols(
     QPen pen = symbol.pen();
     pen.setCapStyle(Qt::FlatCap);
     painter->setPen(pen);
+	painter->setRenderHint(QPainter::Antialiasing, false);
 
     if ( QwtPainter::isAligning(painter) )
     {
+		const double sw = size.width();
+		const double sh = size.height();
+		const double sw2 = size.width() / 2;
+		const double sh2 = size.height() / 2;
+
         for ( int i = 0; i < numPoints; i++ )
         {
-            const QPointF &pos = points[i];
-
             if ( orientations & Qt::Horizontal )
             {
-                const int x = (int)qCeil(pos.x());
-                const int x1 = x - size.width() / 2;
+                const double x = qCeil(points[i].x()) - sw2;
+                const double y = points[i].y();
 
-                QwtPainter::drawLine(painter, x1, pos.y(), 
-                    x1 + size.width() - 1, pos.y());
+                QwtPainter::drawLine(painter, x, y, x + sw, y);
             }
             if ( orientations & Qt::Vertical )
             {
-                const int y = (int)qCeil(pos.y());
-                const int y1 = y - size.height() / 2;
+                const double x = points[i].x();
+                const double y = qCeil(points[i].y()) - sh2;
 
-                QwtPainter::drawLine(painter, pos.x(), y1, 
-                    pos.x(), y1 + size.height() - 1);
+                QwtPainter::drawLine(painter, x, y, x, y + sh );
             }
         }
     }
     else
     {
+		const double sw = size.width();
+		const double sh = size.height();
+		const double sw2 = 0.5 * size.width();
+		const double sh2 = 0.5 * size.height();
+
         for ( int i = 0; i < numPoints; i++ )
         {
-            const QPointF &pos = points[i];
-
             if ( orientations & Qt::Horizontal )
             {
-                const double x1 = pos.x() - 0.5 * size.width();
-                QwtPainter::drawLine(painter, x1, pos.y(), 
-                    x1 + size.width(), pos.y());
+                const double x = points[i].x() - sw2;
+                const double y = points[i].y();
+
+                QwtPainter::drawLine(painter, x, y, x + sw, y);
             }
             if ( orientations & Qt::Vertical )
             {
-                const double y1 = pos.y() - 0.5 * size.height();
-                QwtPainter::drawLine(painter, pos.x(), y1, 
-                    pos.x(), y1 + size.height());
+                const double y = points[i].y() - sh2;
+                const double x = points[i].x(); 
+
+                QwtPainter::drawLine(painter, x, y, x, y + sh);
             }
         }
     }
@@ -441,7 +425,7 @@ static inline void qwtDrawStar2Symbols(QPainter *painter,
     QPen pen = symbol.pen();
     pen.setCapStyle(Qt::FlatCap);
     pen.setJoinStyle(Qt::MiterJoin);
-    painter->setPen(symbol.pen());
+    painter->setPen(pen);
 
     painter->setBrush(symbol.brush());
 
@@ -879,6 +863,50 @@ void QwtSymbol::drawSymbols(QPainter *painter,
     }
 #endif
     painter->restore();
+}
+
+QSize QwtSymbol::boundingSize() const
+{
+	QSize size;
+
+    switch(d_data->style)
+	{
+        case QwtSymbol::Ellipse:
+        case QwtSymbol::Rect:
+        case QwtSymbol::Hexagon:
+        {
+			double pw = 0.0;
+			if ( d_data->pen.style() != Qt::NoPen )
+				pw = qMax(d_data->pen.widthF(), 1.0);
+
+			size = d_data->size + QSize(pw, pw);
+			
+            break;
+        }
+        case QwtSymbol::XCross:
+        case QwtSymbol::Diamond:
+        case QwtSymbol::Triangle:
+        case QwtSymbol::UTriangle:
+        case QwtSymbol::DTriangle:
+        case QwtSymbol::RTriangle:
+        case QwtSymbol::LTriangle:
+        case QwtSymbol::Star1:
+        case QwtSymbol::Star2:
+        {
+			double pw = 0.0;
+			if ( d_data->pen.style() != Qt::NoPen )
+				pw = qMax(d_data->pen.widthF(), 1.0);
+
+			size = d_data->size + QSize(2 * pw, 2 * pw);
+            break;
+        }
+        default:
+		{
+			size = d_data->size;
+		}
+    }
+
+	return size + QSize(1, 1); // for antialiasing
 }
 
 /*!
