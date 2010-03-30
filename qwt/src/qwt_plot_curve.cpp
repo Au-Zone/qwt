@@ -719,10 +719,9 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
         usePixmap = false;
     }
 
-    usePixmap = false;
     if ( usePixmap )
     {
-        QPixmap pm(symbol.size() + QSize(1, 1));
+        QPixmap pm(symbol.boundingSize());
         pm.fill(Qt::transparent);
 
         const double pw2 = 0.5 * pm.width();
@@ -742,8 +741,8 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
 
             if ( canvasRect.contains(xi, yi) )
             {
-                const int left = qCeil(xi - pw2);
-                const int top = qCeil(yi - ph2);
+                const int left = qCeil(xi) - pw2;
+                const int top = qCeil(yi) - ph2;
 
                 painter->drawPixmap(left, top, pm);
             }
@@ -898,6 +897,7 @@ void QwtPlotCurve::drawLegendIdentifier(
             ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
             QSize symbolSize = d_data->symbol->size();
+			const QSize off = d_data->symbol->boundingSize() - symbolSize;
 
             // scale the symbol size down if it doesn't fit into rect.
 
@@ -918,7 +918,7 @@ void QwtPlotCurve::drawLegendIdentifier(
 
             QwtSymbol *symbol = (QwtSymbol *)d_data->symbol;
             const QSize sz = symbol->size();
-            symbol->setSize(symbolSize);
+            symbol->setSize(symbolSize - off);
             symbol->drawSymbol(painter, rect.center());
             symbol->setSize(sz);
         }
