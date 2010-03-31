@@ -896,31 +896,33 @@ void QwtPlotCurve::drawLegendIdentifier(
         if ( d_data->symbol &&
             ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
-            QSize symbolSize = d_data->symbol->size();
-			const QSize off = d_data->symbol->boundingSize() - symbolSize;
+#if 1
+            painter->save();
+            painter->setPen(Qt::red);
+            painter->setBrush(Qt::NoBrush);
+            painter->drawRect(rect.adjusted(0, 0, -1, -1));
+            painter->restore();
+#endif
+            QSize symbolSize = d_data->symbol->boundingSize();
+            symbolSize -= QSize(2, 2);
 
             // scale the symbol size down if it doesn't fit into rect.
 
+            double xRatio = 1.0;
             if ( rect.width() < symbolSize.width() )
-            {
-                const double ratio =
-                    double(symbolSize.width()) / double(rect.width());
-                symbolSize.setWidth(rect.width());
-                symbolSize.setHeight(qRound(symbolSize.height() / ratio));
-            }
+                xRatio = rect.width() / symbolSize.width();
+            double yRatio = 1.0;
             if ( rect.height() < symbolSize.height() )
-            {
-                const double ratio =
-                    double(symbolSize.width()) / double(rect.width());
-                symbolSize.setHeight(rect.height());
-                symbolSize.setWidth(qRound(symbolSize.width() / ratio));
-            }
+                yRatio = rect.height() / symbolSize.height();
 
-            QwtSymbol *symbol = (QwtSymbol *)d_data->symbol;
-            const QSize sz = symbol->size();
-            symbol->setSize(symbolSize - off);
-            symbol->drawSymbol(painter, rect.center());
-            symbol->setSize(sz);
+            const double ratio = qMin(xRatio, yRatio);
+
+            painter->save();
+            painter->scale(ratio, ratio);
+
+            d_data->symbol->drawSymbol(painter, rect.center() / ratio);
+
+            painter->restore();
         }
     }
 }

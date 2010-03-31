@@ -450,8 +450,8 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
             if ( label )
             {
                 // paint the identifier
-                const int w = label->identifierWidth();
-                const int h = label->identifierWidth();
+                const int w = label->identifierWidth() + 2;
+                const int h = label->identifierWidth() + 2;
 
                 QPixmap identifier(w, h);
                 identifier.fill(QColor(0, 0, 0, 0));
@@ -459,7 +459,7 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
                 QPainter painter(&identifier);
                 painter.setRenderHint(QPainter::Antialiasing, 
                     testRenderHint(QwtPlotItem::RenderAntialiased) );
-                drawLegendIdentifier(&painter, QRect(0, 0, w, h));
+                drawLegendIdentifier(&painter, QRect(1, 1, w - 1, h - 1));
                 painter.end();
 
                 const bool doUpdate = label->updatesEnabled();
