@@ -399,7 +399,15 @@ QRectF QwtPlotItem::boundingRect() const
 */
 QWidget *QwtPlotItem::legendItem() const
 {
-    return new QwtLegendItem;
+    QwtLegendItem *item = new QwtLegendItem;
+    if ( d_data->plot )
+    {
+        QObject::connect(item, SIGNAL(clicked()),
+            d_data->plot, SLOT(legendItemClicked()));
+        QObject::connect(item, SIGNAL(checked(bool)),
+            d_data->plot, SLOT(legendItemChecked(bool)));
+    }
+    return item;
 }
 
 /*!
@@ -428,21 +436,7 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
         {
             lgdItem = legendItem();
             if ( lgdItem )
-            {
-                if ( lgdItem->inherits("QwtLegendItem") )
-                {
-                    QwtLegendItem *label = (QwtLegendItem *)lgdItem;
-
-                    if ( d_data->plot )
-                    {
-                        QObject::connect(label, SIGNAL(clicked()), 
-                            d_data->plot, SLOT(legendItemClicked()));
-                        QObject::connect(label, SIGNAL(checked(bool)), 
-                            d_data->plot, SLOT(legendItemChecked(bool)));
-                    }
-                }
                 legend->insert(this, lgdItem);
-            }
         }
         if ( lgdItem && lgdItem->inherits("QwtLegendItem") )
         {
@@ -450,16 +444,16 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
             if ( label )
             {
                 // paint the identifier
-                const int w = label->identifierWidth() + 2;
-                const int h = label->identifierWidth() + 2;
+                const QSize sz = label->identifierSize();
 
-                QPixmap identifier(w, h);
+                QPixmap identifier(sz.width(), sz.height());
                 identifier.fill(QColor(0, 0, 0, 0));
             
                 QPainter painter(&identifier);
                 painter.setRenderHint(QPainter::Antialiasing, 
                     testRenderHint(QwtPlotItem::RenderAntialiased) );
-                drawLegendIdentifier(&painter, QRect(1, 1, w - 1, h - 1));
+                drawLegendIdentifier(&painter, 
+                    QRect(0, 0, sz.width(), sz.height()));
                 painter.end();
 
                 const bool doUpdate = label->updatesEnabled();

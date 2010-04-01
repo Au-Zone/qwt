@@ -35,10 +35,10 @@ static inline void qwtDrawEllipseSymbols(QPainter *painter,
 
     if ( QwtPainter::isAligning(painter) )
     {
-		const int sw = size.width();
-		const int sh = size.height();
-		const int sw2 = size.width() / 2;
-		const int sh2 = size.height() / 2;
+        const int sw = size.width();
+        const int sh = size.height();
+        const int sw2 = size.width() / 2;
+        const int sh2 = size.height() / 2;
 
         for ( int i = 0; i < numPoints; i++ )
         {
@@ -51,17 +51,17 @@ static inline void qwtDrawEllipseSymbols(QPainter *painter,
     }
     else
     {
-		const double sw = size.width();
-		const double sh = size.height();
-		const double sw2 = 0.5 * size.width();
-		const double sh2 = 0.5 * size.height();
+        const double sw = size.width();
+        const double sh = size.height();
+        const double sw2 = 0.5 * size.width();
+        const double sh2 = 0.5 * size.height();
 
         for ( int i = 0; i < numPoints; i++ )
         {
             const double x = points[i].x();
             const double y = points[i].y();
 
-        	const QRectF r(x - sw2, y - sh2, sw, sh);
+            const QRectF r(x - sw2, y - sh2, sw, sh);
             QwtPainter::drawEllipse(painter, r);
         }
     }
@@ -76,14 +76,14 @@ static inline void qwtDrawRectSymbols(QPainter *painter,
     pen.setJoinStyle(Qt::MiterJoin);
     painter->setPen(pen);
     painter->setBrush(symbol.brush());
-	painter->setRenderHint(QPainter::Antialiasing, false);
+    painter->setRenderHint(QPainter::Antialiasing, false);
 
     if ( QwtPainter::isAligning(painter) )
     {
-		const int sw = size.width();
-		const int sh = size.height();
-		const int sw2 = size.width() / 2;
-		const int sh2 = size.height() / 2;
+        const int sw = size.width();
+        const int sh = size.height();
+        const int sw2 = size.width() / 2;
+        const int sh2 = size.height() / 2;
 
         for ( int i = 0; i < numPoints; i++ )
         {
@@ -96,17 +96,17 @@ static inline void qwtDrawRectSymbols(QPainter *painter,
     }
     else
     {
-		const double sw = size.width();
-		const double sh = size.height();
-		const double sw2 = 0.5 * size.width();
-		const double sh2 = 0.5 * size.height();
+        const double sw = size.width();
+        const double sh = size.height();
+        const double sw2 = 0.5 * size.width();
+        const double sh2 = 0.5 * size.height();
 
         for ( int i = 0; i < numPoints; i++ )
         {
             const double x = points[i].x();
             const double y = points[i].y();
 
-        	const QRectF r(x - sw2, y - sh2, sw, sh);
+            const QRectF r(x - sw2, y - sh2, sw, sh);
             QwtPainter::drawRect(painter, r);
         }
     }
@@ -278,14 +278,14 @@ static inline void qwtDrawLineSymbols(
     QPen pen = symbol.pen();
     pen.setCapStyle(Qt::FlatCap);
     painter->setPen(pen);
-	painter->setRenderHint(QPainter::Antialiasing, false);
+    painter->setRenderHint(QPainter::Antialiasing, false);
 
     if ( QwtPainter::isAligning(painter) )
     {
-		const double sw = size.width();
-		const double sh = size.height();
-		const double sw2 = size.width() / 2;
-		const double sh2 = size.height() / 2;
+        const double sw = size.width();
+        const double sh = size.height();
+        const double sw2 = size.width() / 2;
+        const double sh2 = size.height() / 2;
 
         for ( int i = 0; i < numPoints; i++ )
         {
@@ -307,10 +307,10 @@ static inline void qwtDrawLineSymbols(
     }
     else
     {
-		const double sw = size.width();
-		const double sh = size.height();
-		const double sw2 = 0.5 * size.width();
-		const double sh2 = 0.5 * size.height();
+        const double sw = size.width();
+        const double sh = size.height();
+        const double sw2 = 0.5 * size.width();
+        const double sh2 = 0.5 * size.height();
 
         for ( int i = 0; i < numPoints; i++ )
         {
@@ -867,20 +867,20 @@ void QwtSymbol::drawSymbols(QPainter *painter,
 
 QSize QwtSymbol::boundingSize() const
 {
-	QSize size;
+    QSize size;
 
     switch(d_data->style)
-	{
+    {
         case QwtSymbol::Ellipse:
         case QwtSymbol::Rect:
         case QwtSymbol::Hexagon:
         {
-			double pw = 0.0;
-			if ( d_data->pen.style() != Qt::NoPen )
-				pw = qMax(d_data->pen.widthF(), 1.0);
+            double pw = 0.0;
+            if ( d_data->pen.style() != Qt::NoPen )
+                pw = qMax(d_data->pen.widthF(), 1.0);
 
-			size = d_data->size + QSize(pw, pw);
-			
+            size = d_data->size + QSize(pw, pw);
+            
             break;
         }
         case QwtSymbol::XCross:
@@ -893,20 +893,20 @@ QSize QwtSymbol::boundingSize() const
         case QwtSymbol::Star1:
         case QwtSymbol::Star2:
         {
-			double pw = 0.0;
-			if ( d_data->pen.style() != Qt::NoPen )
-				pw = qMax(d_data->pen.widthF(), 1.0);
+            double pw = 0.0;
+            if ( d_data->pen.style() != Qt::NoPen )
+                pw = qMax(d_data->pen.widthF(), 1.0);
 
-			size = d_data->size + QSize(2 * pw, 2 * pw);
+            size = d_data->size + QSize(2 * pw, 2 * pw);
             break;
         }
         default:
-		{
-			size = d_data->size;
-		}
+        {
+            size = d_data->size;
+        }
     }
 
-	return size + QSize(1, 1); // for antialiasing
+    return size + QSize(1, 1); // for antialiasing
 }
 
 /*!

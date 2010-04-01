@@ -34,8 +34,8 @@ public:
     void setIdentifier(const QPixmap &);
     QPixmap identifier() const;
 
-    void setIdentifierWidth(int width);
-    int identifierWidth() const;
+    void setIdentifierSize(const QSize &);
+    QSize identifierSize() const;
 
     virtual QSize sizeHint() const;
 

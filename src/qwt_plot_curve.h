@@ -217,6 +217,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to) const;
 
+    virtual void updateLegend(QwtLegend *) const;
     virtual void drawLegendIdentifier(QPainter *, const QRectF &) const;
 
 protected:
