@@ -496,7 +496,7 @@ void QwtPlotRenderer::renderLegendItem(QPainter *painter,
 
         const QRect identifierRect(
             rect.x() + item->margin(), rect.y(),
-            item->identifierWidth(), rect.height());
+            item->identifierSize().width(), rect.height());
 
         QwtLegendItemManager *itemManger = plot->legend()->find(item);
         if ( itemManger )

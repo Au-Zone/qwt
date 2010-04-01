@@ -39,7 +39,7 @@ public:
     PrivateData():
         itemMode(QwtLegend::ReadOnlyItem),
         isDown(false),
-        identifierWidth(8),
+        identifierSize(8, 8),
         spacing(Margin)
     {
     }
@@ -47,7 +47,7 @@ public:
     QwtLegend::LegendItemMode itemMode;
     bool isDown;
 
-    int identifierWidth;
+    QSize identifierSize;
     QPixmap identifier;
 
     int spacing;
@@ -61,7 +61,7 @@ QwtLegendItem::QwtLegendItem(QWidget *parent):
 {
     d_data = new PrivateData;
     setMargin(Margin);
-    setIndent(Margin + d_data->identifierWidth + 2 * d_data->spacing);
+    setIndent(Margin + d_data->identifierSize.width() + 2 * d_data->spacing);
 }
 
 //! Destructor
@@ -143,31 +143,32 @@ QPixmap QwtLegendItem::identifier() const
 }
 
 /*!
-  Set the width for the identifier
-  Default is 8 pixels
+  Set the size for the identifier
+  Default is 8x8 pixels
 
-  \param width New width
+  \param size New size
 
-  \sa identifierWidth()
+  \sa identifierSize()
 */
-void QwtLegendItem::setIdentifierWidth(int width)
+void QwtLegendItem::setIdentifierSize(const QSize &size)
 {
-    width = qMax(width, 0);
-    if ( width != d_data->identifierWidth )
+    QSize sz = size.expandedTo(QSize(0, 0));
+    if ( sz != d_data->identifierSize )
     {
-        d_data->identifierWidth = width;
-        setIndent(margin() + d_data->identifierWidth 
+        d_data->identifierSize = sz;
+        setIndent(margin() + d_data->identifierSize.width() 
             + 2 * d_data->spacing);
+        updateGeometry();
     }
 }
 /*!
    Return the width of the identifier
 
-   \sa setIdentfierWidth()
+   \sa setIdentifierSize()
 */
-int QwtLegendItem::identifierWidth() const
+QSize QwtLegendItem::identifierSize() const
 {
-    return d_data->identifierWidth;
+    return d_data->identifierSize;
 }
 
 /*!
@@ -181,7 +182,7 @@ void QwtLegendItem::setSpacing(int spacing)
     if ( spacing != d_data->spacing )
     {
         d_data->spacing = spacing;
-        setIndent(margin() + d_data->identifierWidth 
+        setIndent(margin() + d_data->identifierSize.width() 
             + 2 * d_data->spacing);
     }
 }
@@ -254,7 +255,7 @@ bool QwtLegendItem::isDown() const
 QSize QwtLegendItem::sizeHint() const
 {
     QSize sz = QwtTextLabel::sizeHint();
-    sz.setHeight(qMax(sz.height(), d_data->identifier.height()));
+    sz.setHeight(qMax(sz.height(), d_data->identifier.height() + 4));
 
     if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
         sz += buttonShift(this);

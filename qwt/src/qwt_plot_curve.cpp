@@ -847,6 +847,30 @@ int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
     return index;
 }
 
+void QwtPlotCurve::updateLegend(QwtLegend *legend) const
+{
+    if ( legend && testItemAttribute(QwtPlotItem::Legend) 
+        && ( d_data->legendAttributes & QwtPlotCurve::LegendShowSymbol )
+        && d_data->symbol 
+        && d_data->symbol->style() != QwtSymbol::NoSymbol )
+    {
+        QWidget *lgdItem = legend->find(this);
+        if ( lgdItem == NULL )
+        {
+            lgdItem = legendItem();
+            if ( lgdItem )
+                legend->insert(this, lgdItem);
+        }
+        if ( lgdItem && lgdItem->inherits("QwtLegendItem") )
+        {
+            QwtLegendItem *l = (QwtLegendItem *)lgdItem;
+            l->setIdentifierSize(d_data->symbol->boundingSize());
+        }
+    }
+
+    QwtPlotItem::updateLegend(legend);
+}
+
 void QwtPlotCurve::drawLegendIdentifier(
     QPainter *painter, const QRectF &rect) const
 {
@@ -896,13 +920,6 @@ void QwtPlotCurve::drawLegendIdentifier(
         if ( d_data->symbol &&
             ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
-#if 1
-            painter->save();
-            painter->setPen(Qt::red);
-            painter->setBrush(Qt::NoBrush);
-            painter->drawRect(rect.adjusted(0, 0, -1, -1));
-            painter->restore();
-#endif
             QSize symbolSize = d_data->symbol->boundingSize();
             symbolSize -= QSize(2, 2);
 
