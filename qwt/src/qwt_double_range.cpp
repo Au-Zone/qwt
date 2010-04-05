@@ -10,6 +10,10 @@
 #include "qwt_double_range.h"
 #include "qwt_math.h"
 
+#if QT_VERSION < 0x040600
+#define qFabs(x) ::fabs(x)
+#endif
+
 static double MinRelStep = 1.0e-10;
 static double DefaultRelStep = 1.0e-2;
 static double MinEps = 1.0e-10;

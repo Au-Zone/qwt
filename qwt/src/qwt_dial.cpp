@@ -21,6 +21,10 @@
 #include <qalgorithms.h>
 #include <qmath.h>
 
+#if QT_VERSION < 0x040600
+#define qAtan(x) ::atan(x)
+#endif
+
 class QwtDial::PrivateData
 {
 public:

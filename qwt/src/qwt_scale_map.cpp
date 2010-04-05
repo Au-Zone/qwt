@@ -12,6 +12,10 @@
 #include <qalgorithms.h>
 #include <qmath.h>
 
+#if QT_VERSION < 0x040600
+#define qExp(x) ::exp(x)
+#endif
+
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
 

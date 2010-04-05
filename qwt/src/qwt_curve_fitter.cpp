@@ -13,6 +13,10 @@
 #include <qstack.h>
 #include <qvector.h>
 
+#if QT_VERSION < 0x040600
+#define qFabs(x) ::fabs(x)
+#endif          
+
 //! Constructor
 QwtCurveFitter::QwtCurveFitter()
 {

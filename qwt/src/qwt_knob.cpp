@@ -17,6 +17,13 @@
 #include <qevent.h>
 #include <qmath.h>
 
+#if QT_VERSION < 0x040600
+#define qAtan2(y, x) ::atan2(y, x)
+#define qFabs(x) ::fabs(x)
+#define qFastCos(x) ::cos(x)
+#define qFastSin(x) ::sin(x)
+#endif
+
 class QwtKnob::PrivateData
 {
 public:
