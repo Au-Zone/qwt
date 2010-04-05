@@ -18,6 +18,7 @@
 #include <qstring.h>
 
 class QPainter;
+class QPolygonF;
 class QwtScaleMap;
 class QwtSymbol;
 class QwtCurveFitter;

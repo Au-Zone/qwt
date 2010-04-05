@@ -16,6 +16,7 @@
 
 class QPainter;
 class QRect;
+class QPointF;
 
 //! A drawing primitive for bars
 class QWT_EXPORT QwtIntervalSymbol

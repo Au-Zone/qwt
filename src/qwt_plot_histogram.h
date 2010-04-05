@@ -18,6 +18,7 @@
 
 class QwtIntervalData;
 class QString;
+class QPolygonF;
 
 class QWT_EXPORT QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
 {
