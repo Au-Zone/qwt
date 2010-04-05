@@ -15,11 +15,16 @@
 #include <qpoint.h>
 #include <qrect.h>
 #include <qpen.h>
+#include <qline.h>
 
 class QPainter;
 class QBrush;
 class QColor;
 class QWidget;
+class QPolygonF;
+class QRectF;
+class QImage;
+class QPixmap;
 class QwtScaleMap;
 class QwtColorMap;
 class QwtDoubleInterval;
