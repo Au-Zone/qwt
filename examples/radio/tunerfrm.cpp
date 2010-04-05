@@ -6,6 +6,11 @@
 #include <qwt_math.h>
 #include "tunerfrm.h"
 
+#if QT_VERSION < 0x040600
+#define qFastSin(x) ::sin(x)
+#define qFastCos(x) ::cos(x)
+#endif
+
 class TuningThermo: public QWidget
 {
 public:

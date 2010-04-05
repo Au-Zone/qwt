@@ -11,6 +11,10 @@
 #include "qwt_math.h"
 #include <qrect.h>
 
+#if QT_VERSION < 0x040600
+#define qAtan(x) ::atan(x)
+#endif
+
 static inline QRectF boundingRect(const QPolygonF &polygon)
 {
     return polygon.boundingRect();

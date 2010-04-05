@@ -9,6 +9,11 @@
 #include <qpen.h>
 #include <qevent.h>
 
+#if QT_VERSION < 0x040600
+#define qFastSin(x) ::sin(x)
+#define qFastCos(x) ::cos(x)
+#endif
+
 class Knob: public QWidget
 {
 public:

@@ -12,6 +12,11 @@
 #include <qevent.h>
 #include <qdatetime.h>
 
+#if QT_VERSION < 0x040600
+#define qFabs(x) ::fabs(x)
+#define qExp(x) ::exp(x)
+#endif          
+
 class QwtAbstractSlider::PrivateData
 {
 public:

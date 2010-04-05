@@ -12,6 +12,10 @@
 #include <qpainter.h>
 #include <qmath.h>
 
+#if QT_VERSION < 0x040600
+#define qAtan2(y, x) ::atan2(y, x) 
+#endif  
+
 class QwtIntervalSymbol::PrivateData
 {
 public:

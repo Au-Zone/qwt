@@ -10,6 +10,11 @@
 #include "complexnumber.h"
 #include "plot.h"
 
+#if QT_VERSION < 0x040600
+#define qExp(x) ::exp(x)
+#define qAtan2(y, x) ::atan2(y, x)
+#endif
+
 static void logSpace(double *array, int size, double xmin, double xmax)
 { 
     if ((xmin <= 0.0) || (xmax <= 0.0) || (size <= 0))

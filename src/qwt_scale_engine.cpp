@@ -13,6 +13,11 @@
 #include <qalgorithms.h>
 #include <qmath.h>
 
+#if QT_VERSION < 0x040600
+#define qFabs(x) ::fabs(x)
+#define qExp(x) ::exp(x)
+#endif 
+
 static const double _eps = 1.0e-6;
 
 /*!
