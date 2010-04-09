@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh -x
 # 
 # Generates a Qwt package from sourceforge svn
 #
@@ -104,12 +104,11 @@ function createDocs {
 
     cp Doxyfile Doxyfile.doc
 
-    sed -i '/PROJECT_NUMBER/d' Doxyfile.doc
-    echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
+	sed -i -e 's/svn/$VERSION/' Doxyfile.doc
 
     if [ $GENERATE_MAN -ne 0 ]
     then
-        sed -i -e '/GENERATE_MAN/d' -e '/PROJECT_NUMBER/d' Doxyfile.doc
+        sed -i -e '/GENERATE_MAN/d' Doxyfile.doc
         echo 'GENERATE_MAN = YES' >> Doxyfile.doc
     fi
 
@@ -117,16 +116,15 @@ function createDocs {
     then
         # We need LateX for the qwtdoc.pdf
 
-        sed -i -e '/GENERATE_LATEX/d' -e '/GENERATE_MAN/d' -e '/PROJECT_NUMBER/d' Doxyfile.doc
+        sed -i -e '/GENERATE_LATEX/d' -e '/GENERATE_MAN/d' Doxyfile.doc
         echo 'GENERATE_LATEX = YES' >> Doxyfile.doc
         echo 'GENERATE_MAN = YES' >> Doxyfile.doc
-        echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
     fi
 
     if [ $GENERATE_QCH -ne 0 ]
     then
-        sed -i -e '/GENERATE_HTMLHELP/d' Doxyfile.doc
-        echo "GENERATE_HTMLHELP = YES" >> Doxyfile.doc
+        sed -i -e '/GENERATE_QHP/d' Doxyfile.doc
+        echo "GENERATE_QHP = YES" >> Doxyfile.doc
     fi
 
     cp ../INSTALL ../COPYING ./
@@ -135,12 +133,6 @@ function createDocs {
     if [ $? -ne 0 ]
     then
         exit $?
-    fi
-
-    if [ $GENERATE_QCH -ne 0 ]
-    then
-        doxygen2qthelp --namespace=net.sourceforge.qwt-$VERSION --folder=qwt-$VERSION html/index.hhp qwt-$VERSION.qch
-        rm html/index.hh*
     fi
 
     rm Doxyfile.doc Doxygen.log INSTALL COPYING 
@@ -162,6 +154,11 @@ function createDocs {
         rm -r latex 
     fi
     
+    if [ $GENERATE_QCH -ne 0 ]
+    then
+        mv html/qwtdoc-$VERSION.qch .
+    fi
+
     cd $ODIR
 }
 

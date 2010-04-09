@@ -21,6 +21,8 @@ Bug Fixes
    Calculation of the colorbar position fixed ( spacing/margin )
 8) QwtPlotCurve
    Wrong clipping rect fixed
+9) QwtPicker
+   Recursion on the Mac, when constructing the rubberband fixed
 
 Changes
 -------
