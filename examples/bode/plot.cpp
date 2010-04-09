@@ -10,7 +10,7 @@
 #include "complexnumber.h"
 #include "plot.h"
 
-#if QT_VERSION < 0x040600
+#if QT_VERSION < 0x040601
 #define qExp(x) ::exp(x)
 #define qAtan2(y, x) ::atan2(y, x)
 #endif

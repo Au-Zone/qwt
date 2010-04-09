@@ -13,7 +13,7 @@
 #include <qalgorithms.h>
 #include <qmath.h>
 
-#if QT_VERSION < 0x040600
+#if QT_VERSION < 0x040601
 #define qFabs(x) ::fabs(x)
 #define qExp(x) ::exp(x)
 #endif 
