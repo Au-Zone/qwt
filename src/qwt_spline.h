@@ -95,6 +95,7 @@ protected:
     bool buildNaturalSpline(const QPolygonF &);
     bool buildPeriodicSpline(const QPolygonF &);
 
+private:
     class PrivateData;
     PrivateData *d_data;
 };

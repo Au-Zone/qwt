@@ -291,7 +291,7 @@ void QwtScaleWidget::setLabelAlignment(Qt::Alignment alignment)
   \brief Change the rotation for the labels.
   See QwtScaleDraw::setLabelRotation().
 
-  \para, rotation Rotation
+  \param rotation Rotation
   \sa QwtScaleDraw::setLabelRotation(), setLabelFlags()
 */
 void QwtScaleWidget::setLabelRotation(double rotation)

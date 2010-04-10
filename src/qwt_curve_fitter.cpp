@@ -89,11 +89,21 @@ QwtSpline &QwtSplineCurveFitter::spline()
     return d_data->spline;
 }
 
+/*!
+   Assign a spline size ( has to be at least 10 points )
+
+   \param splineSize Spline size
+   \sa splineSize()
+*/
 void QwtSplineCurveFitter::setSplineSize(int splineSize)
 {
     d_data->splineSize = qMax(splineSize, 10);
 }
 
+/*! 
+  \return Spline size
+  \sa setSplineSize()
+*/
 int QwtSplineCurveFitter::splineSize() const
 {
     return d_data->splineSize;

@@ -118,13 +118,10 @@ QwtSpline::SplineType QwtSpline::splineType() const
   will determine the coefficients for a natural or a periodic
   spline and store them internally. 
   
-  \param x
-  \param y points
-  \param size number of points
-  \param periodic if true, calculate periodic spline
+  \param points Points
   \return true if successful
   \warning The sequence of x (but not y) values has to be strictly monotone
-           increasing, which means <code>x[0] < x[1] < .... < x[n-1]</code>.
+           increasing, which means <code>points[i].x() < points[i+1].x()</code>.
        If this is not the case, the function will return false
 */
 bool QwtSpline::setPoints(const QPolygonF& points)

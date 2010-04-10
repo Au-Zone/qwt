@@ -39,17 +39,17 @@ QwtScaleTransformation *QwtScaleTransformation::copy() const
 /*!
   \brief Transform a value between 2 linear intervals
 
-  \param x value related to the interval [x1, x2]
-  \param x1 first border of source interval
-  \param x2 first border of source interval
-  \param y1 first border of target interval
-  \param y2 first border of target interval
+  \param s value related to the interval [s1, s2]
+  \param s1 first border of scale interval
+  \param s2 second border of scale interval
+  \param p1 first border of target interval
+  \param p2 second border of target interval
   \return 
   <dl>
-  <dt>linear mapping:<dd>y1 + (y2 - y1) / (x2 - x1) * (x - x1)</dd>
+  <dt>linear mapping:<dd>p1 + (p2 - p1) / (s2 - s1) * (s - s1)</dd>
   </dl>
   <dl>
-  <dt>log10 mapping: <dd>p1 + (p2 - p1) / log(s2 / s1) * log(x / s1)</dd>
+  <dt>log10 mapping: <dd>p1 + (p2 - p1) / log(s2 / s1) * log(s / s1)</dd>
   </dl>
 */
 
@@ -65,14 +65,14 @@ double QwtScaleTransformation::xForm(
 /*!
   \brief Transform a value from a linear to a logarithmic interval
 
-  \param x value related to the linear interval [p1, p2]
+  \param p value related to the linear interval [p1, p2]
   \param p1 first border of linear interval
-  \param p2 first border of linear interval
+  \param p2 second border of linear interval
   \param s1 first border of logarithmic interval
-  \param s2 first border of logarithmic interval
+  \param s2 second border of logarithmic interval
   \return 
   <dl>
-  <dt>exp((x - p1) / (p2 - p1) * log(s2 / s1)) * s1;
+  <dt>exp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;
   </dl>
 */
 
