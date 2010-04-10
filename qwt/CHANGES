@@ -29,8 +29,32 @@ Changes
 Release 5.2.1
 ===================
 
-1. export declarations removed from qwt_valuelist.h to avoid
+Bug Fixes
+---------
+1) QwtScaleDraw
+   Wrong border dist hints for unregular scale divisions fixed
+2) QwtScaleDraw
+   Layout calculation for the tick labels fixed. 
+   The layout was wrong by 1 pixel for top/left/bottom axes. 
+   On a left axis without a title the labels ere sometimes cut off.
+3) qwt.pro 
+   CONFIG += ordered added for using make -j
+   CONFIG += silent added
+4) export declarations removed from qwt_valuelist.h to avoid
    compiler errors with Qt 4.6 + certain compilers on Windows.
+5) QwtPicker::setTrackerFont() fixed.
+6) QwtPainter now splits polylines for all pens to avoid a 
+   bottleneck of the raster paint engine.
+7) QwtScaleWidget
+   Calculation of the colorbar position fixed ( spacing/margin )
+8) QwtPlotCurve
+   Wrong clipping rect fixed
+9) QwtPicker
+   Recursion on the Mac, when constructing the rubberband fixed
+
+Changes
+-------
+1) Project files adopted for symbian
 
 Release 5.2.0
 ===================

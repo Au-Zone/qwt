@@ -57,8 +57,8 @@ function cleanQwt {
 
     find . -name .svn -print | xargs rm -r
 
-    rm TODO
-    rm admin/svn2package.sh
+    rm -f TODO
+    rm -f admin/svn2package.sh
 
     PROFILES="qwtconfig.pri"
     for PROFILE in $PROFILES
@@ -102,14 +102,12 @@ function createDocs {
         exit $?
     fi
 
-    cp Doxyfile Doxyfile.doc
-
-    sed -i '/PROJECT_NUMBER/d' Doxyfile.doc
-    echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
+	sed -i -e "s/svn/$VERSION/" Doxyfile
+	cp Doxyfile Doxyfile.doc
 
     if [ $GENERATE_MAN -ne 0 ]
     then
-        sed -i -e '/GENERATE_MAN/d' -e '/PROJECT_NUMBER/d' Doxyfile.doc
+        sed -i -e '/GENERATE_MAN/d' Doxyfile.doc
         echo 'GENERATE_MAN = YES' >> Doxyfile.doc
     fi
 
@@ -117,30 +115,23 @@ function createDocs {
     then
         # We need LateX for the qwtdoc.pdf
 
-        sed -i -e '/GENERATE_LATEX/d' -e '/GENERATE_MAN/d' -e '/PROJECT_NUMBER/d' Doxyfile.doc
+        sed -i -e '/GENERATE_LATEX/d' -e '/GENERATE_MAN/d' Doxyfile.doc
         echo 'GENERATE_LATEX = YES' >> Doxyfile.doc
         echo 'GENERATE_MAN = YES' >> Doxyfile.doc
-        echo "PROJECT_NUMBER = $VERSION" >> Doxyfile.doc
     fi
 
     if [ $GENERATE_QCH -ne 0 ]
     then
-        sed -i -e '/GENERATE_HTMLHELP/d' Doxyfile.doc
-        echo "GENERATE_HTMLHELP = YES" >> Doxyfile.doc
+        sed -i -e '/GENERATE_QHP/d' Doxyfile.doc
+        echo "GENERATE_QHP = YES" >> Doxyfile.doc
     fi
 
     cp ../INSTALL ../COPYING ./
 
-    doxygen Doxyfile.doc > /dev/null
+    doxygen Doxyfile.doc > /dev/null 2>&1
     if [ $? -ne 0 ]
     then
         exit $?
-    fi
-
-    if [ $GENERATE_QCH -ne 0 ]
-    then
-        doxygen2qthelp --namespace=net.sourceforge.qwt-$VERSION --folder=qwt-$VERSION html/index.hhp qwt-$VERSION.qch
-        rm html/index.hh*
     fi
 
     rm Doxyfile.doc Doxygen.log INSTALL COPYING 
@@ -157,7 +148,7 @@ function createDocs {
 
         cd ..
         mkdir pdf
-        mv latex/refman.pdf pdf/qwtdoc.pdf
+        mv latex/refman.pdf pdf/qwtdoc-$VERSION.pdf
 
         rm -r latex 
     fi
@@ -268,8 +259,13 @@ createDocs $TMPDIR/doc
 
 if [ $GENERATE_PDF -ne 0 ]
 then
-    mv $TMPDIR/doc/pdf/qwtdoc.pdf $QWTDIR.pdf
+    mv $TMPDIR/doc/pdf/qwtdoc-$VERSION.pdf $QWTDIR.pdf
     rmdir $TMPDIR/doc/pdf
+fi
+
+if [ $GENERATE_QCH -ne 0 ]
+then
+    mv $TMPDIR/doc/html/qwtdoc.qch $QWTDIR.qch
 fi
 
 echo done
@@ -283,7 +279,6 @@ cd /tmp
 rm -rf $QWTDIR
 cp -a $TMPDIR $QWTDIR
 prepare4Unix $QWTDIR
-tar cfz $QWTDIR.tgz $QWTDIR
 tar cfj $QWTDIR.tar.bz2 $QWTDIR
 
 rm -rf $QWTDIR
@@ -293,7 +288,7 @@ zip -r $QWTDIR.zip $QWTDIR > /dev/null
 
 rm -rf $TMPDIR $QWTDIR
 
-mv $QWTDIR.tgz $QWTDIR.tar.bz2 $QWTDIR.zip $DIR/
+mv $QWTDIR.tar.bz2 $QWTDIR.zip $DIR/
 echo done
 
 exit 0

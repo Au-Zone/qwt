@@ -16,8 +16,7 @@ needs.
 MathML Extension
 ================
 
-Qwt/Qt4 supports the MathML render engine from the Qt solutions package,
-that is only available with a commercial Qt license.
+Qwt supports the MathML render engine from the Qt solutions package.
 
 You need a release of qtmmlwidget >= 2.1.
 Copy the files qtmmlwidget.[cpp|h] to textengines/mathml.
@@ -29,10 +28,11 @@ Qwt includes a class documentation, that is available in various formats:
 
 - Html files
 - PDF document 
-- Qt Compressed Help (*.qch ) for the Qt assistant. 
+- Qt Compressed Help (*.qch ) for the Qt assistant or creator. 
+  You can load it "Edit Preferences" -> "Documentation" -> "Add..."
 - Man pages ( UNIX only )
 
-A) Unix Qt3/Qt4
+A) Unix 
 ==========================
 
 qmake
@@ -57,7 +57,7 @@ qmake
 make
 
 
-B) Win32/MSVC Qt3/Qt4
+B) Win32/MSVC 
 =====================
 
 Please read the qmake documentation how to convert 
@@ -90,12 +90,10 @@ of trying to load a Qwt debug library into a designer release
 executable.
 
 
-C) Win32/MinGW Qt4
+C) Win32/MinGW 
 ==================
 
-C1) Windows Shell
-
-Start a Windows Shell, where Qt4 is initialized. ( F.e. with
+Start a Shell, where Qt4 is initialized. ( F.e. with
 "Programs->Qt by Trolltech ...->Qt 4.x.x Command Prompt" ).
 
 qmake qwt.pro
@@ -108,35 +106,6 @@ cd examples
 qmake examples.pro
 make
 make install
-
-C2) MSYS Shell Qt >= 4.3.0
-
-Support for the MSYS Shell has been improved in Qt 4.3.0. 
-Now building Qwt from the MSYS Shell works exactly like in UNIX or in the 
-Windows Shell - or at least it should:
-because of a bug in Qt 4.3.0 you always have to do a "qmake -r".
-
-C3) MSYS Shell Qt < 4.3.0
-
-For Qt < 4.3.0 you have to set the MINGW_IN_SHELL variable. 
-make will run into errors with the subdirs target, that can be 
-ignored (make -i).
-
-export MINGW_IN_SHELL=1;
-
-qmake 
-make -i
-make -i install
-
-If you didn't enable autobuilding of the examples in qwtconfig.pri
-you have to build the examples this way:
-
-cd examples
-qmake examples.pro
-make -i
-make -i install
-
-C1-C3)
 
 When you have built a Qwt DLL you need to add QWT_DLL to your compiler 
 flags. If you are using qmake for your own builds this done by adding 
@@ -158,19 +127,17 @@ following:
 qmake -spec macx-g++
 ...
 
-D) Qtopia Core
+D) Qt Embedded
 
-I only tested Qwt with Qtopia Core in qvfb (Virtual Framebuffer Devivce)
+I only tested Qwt with Qt Embedded in qvfb (Virtual Framebuffer Devivce)
 Emulator on my Linux box. To build Qwt for the emulator was as simple as 
 for a regular Unix build.
 
 qmake
 make
 
-E) Qtopia (!= Qtopia Core)
+F) Symbian
 
-I once compiled the Qwt library against Qtopia 4.2.0 successfully - but
-not more. It should be possible to build and install Qwt, but it's
-not done yet.
+I never tried this platform myself.
 
 Good luck !
