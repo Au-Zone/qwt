@@ -29,7 +29,8 @@ Qwt includes a class documentation, that is available in various formats:
 
 - Html files
 - PDF document 
-- Qt Compressed Help (*.qch ) for the Qt assistant. 
+- Qt Compressed Help (*.qch ) for the Qt assistant or creator. 
+  You can load it "Edit Preferences" -> "Documentation" -> "Add..."
 - Man pages ( UNIX only )
 
 A) Unix Qt3/Qt4

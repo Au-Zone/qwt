@@ -1,4 +1,4 @@
-#! /bin/sh -x
+#! /bin/sh
 # 
 # Generates a Qwt package from sourceforge svn
 #
@@ -57,8 +57,8 @@ function cleanQwt {
 
     find . -name .svn -print | xargs rm -r
 
-    rm TODO
-    rm admin/svn2package.sh
+    rm -f TODO
+    rm -f admin/svn2package.sh
 
     PROFILES="qwtconfig.pri"
     for PROFILE in $PROFILES
@@ -102,9 +102,8 @@ function createDocs {
         exit $?
     fi
 
-    cp Doxyfile Doxyfile.doc
-
-	sed -i -e 's/svn/$VERSION/' Doxyfile.doc
+	sed -i -e "s/svn/$VERSION/" Doxyfile
+	cp Doxyfile Doxyfile.doc
 
     if [ $GENERATE_MAN -ne 0 ]
     then
@@ -129,7 +128,7 @@ function createDocs {
 
     cp ../INSTALL ../COPYING ./
 
-    doxygen Doxyfile.doc > /dev/null
+    doxygen Doxyfile.doc > /dev/null 2>&1
     if [ $? -ne 0 ]
     then
         exit $?
@@ -149,16 +148,11 @@ function createDocs {
 
         cd ..
         mkdir pdf
-        mv latex/refman.pdf pdf/qwtdoc.pdf
+        mv latex/refman.pdf pdf/qwtdoc-$VERSION.pdf
 
         rm -r latex 
     fi
     
-    if [ $GENERATE_QCH -ne 0 ]
-    then
-        mv html/qwtdoc-$VERSION.qch .
-    fi
-
     cd $ODIR
 }
 
@@ -265,8 +259,13 @@ createDocs $TMPDIR/doc
 
 if [ $GENERATE_PDF -ne 0 ]
 then
-    mv $TMPDIR/doc/pdf/qwtdoc.pdf $QWTDIR.pdf
+    mv $TMPDIR/doc/pdf/qwtdoc-$VERSION.pdf $QWTDIR.pdf
     rmdir $TMPDIR/doc/pdf
+fi
+
+if [ $GENERATE_QCH -ne 0 ]
+then
+    mv $TMPDIR/doc/html/qwtdoc.qch $QWTDIR.qch
 fi
 
 echo done
@@ -280,7 +279,6 @@ cd /tmp
 rm -rf $QWTDIR
 cp -a $TMPDIR $QWTDIR
 prepare4Unix $QWTDIR
-tar cfz $QWTDIR.tgz $QWTDIR
 tar cfj $QWTDIR.tar.bz2 $QWTDIR
 
 rm -rf $QWTDIR
@@ -290,7 +288,7 @@ zip -r $QWTDIR.zip $QWTDIR > /dev/null
 
 rm -rf $TMPDIR $QWTDIR
 
-mv $QWTDIR.tgz $QWTDIR.tar.bz2 $QWTDIR.zip $DIR/
+mv $QWTDIR.tar.bz2 $QWTDIR.zip $DIR/
 echo done
 
 exit 0
