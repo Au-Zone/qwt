@@ -75,7 +75,9 @@ public:
         const QSizeF &sizeMM, int resolution = 85);
         
 #ifdef QT_SVG_LIB
+#if QT_VERSION >= 0x040500
     void renderTo(QwtPlot *, QSvgGenerator &) const;
+#endif
 #endif
     void renderTo(QwtPlot *, QPrinter &) const;
     void renderTo(QwtPlot *, QPaintDevice &p) const;

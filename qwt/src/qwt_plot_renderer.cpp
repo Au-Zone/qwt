@@ -153,6 +153,8 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
     }
     else if ( format == "svg" )
     {
+#ifdef QT_SVG_LIB
+#if QT_VERSION >= 0x040500
         QSvgGenerator generator;
         generator.setTitle(title);
         generator.setFileName(fileName);
@@ -161,6 +163,8 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
 
         QPainter painter(&generator);
         render(plot, &painter, documentRect);
+#endif
+#endif
     }
     else
     {
@@ -237,7 +241,8 @@ void QwtPlotRenderer::renderTo(
   \param generator SVG generator
 */
 
-#ifdef QT_SVG_LIB
+#ifdef QT_SVG_LIB 
+#if QT_VERSION >= 0x040500
 void QwtPlotRenderer::renderTo(
     QwtPlot *plot, QSvgGenerator &generator) const
 {
@@ -251,6 +256,7 @@ void QwtPlotRenderer::renderTo(
     QPainter p(&generator);
     render(plot, &p, rect);
 }
+#endif
 #endif
 
 /*!
