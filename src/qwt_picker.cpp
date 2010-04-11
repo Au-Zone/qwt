@@ -173,6 +173,18 @@ void QwtPicker::PickerWidget::updateMask()
             d_picker->drawTracker(&painter);
 
             mask = QRegion(bm);
+#if QT_VERSION < 0x040000
+            const QRect tr = d_picker->trackerRect(font());
+            if ( mask.boundingRect().x() < tr.left() )
+            {
+                /*
+                    Qt Bug: When painting a text into a rectangle on a bitmap
+                    the x position of the rectangle seems to be ignored
+                    So we manually translate the mask into the rectangle.
+                */
+                mask.translate(tr.left(), 0);
+            }
+#endif
         }
         else
         {
