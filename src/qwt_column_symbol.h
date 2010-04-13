@@ -21,6 +21,10 @@ class QPalette;
 class QRect;
 class QwtText;
 
+/*!
+    Directed rectangle representing bounding rectangle und orientation
+    of a column.
+*/
 class QWT_EXPORT QwtColumnRect
 {
 public:

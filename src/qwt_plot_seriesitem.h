@@ -15,6 +15,9 @@
 #include "qwt_scale_div.h"
 #include "qwt_series_data.h"
 
+/*!
+  Base class for plot items reprsenting a series of samples
+*/
 class QWT_EXPORT QwtPlotAbstractSeriesItem: public QwtPlotItem
 {
 public:
@@ -39,6 +42,9 @@ private:
     PrivateData *d_data;
 };
 
+/*!
+  Class template for plot items reprsenting a series of samples
+*/
 template <typename T> 
 class QwtPlotSeriesItem: public QwtPlotAbstractSeriesItem
 {
