@@ -24,6 +24,10 @@ class QPaintDevice;
 class QSvgGenerator;
 #endif
 
+/*!
+    \brief Renderer for exporting a plot to a document, a printer
+           or anything else, that is supported by QPainter/QPaintDevice
+*/
 class QWT_EXPORT QwtPlotRenderer: public QObject
 {
     Q_OBJECT
@@ -99,9 +103,6 @@ protected:
         const QwtScaleMap* maps) const;
 
     virtual void renderLegend(QPainter *, const QRectF &) const;
-
-    const QwtPlot *plot() const;
-    QwtPlot *plot();
 
 private:
     class PrivateData;

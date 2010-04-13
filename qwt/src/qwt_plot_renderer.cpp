@@ -45,12 +45,14 @@ public:
     QwtPlot *plot;
 };
 
+//! Constructor
 QwtPlotRenderer::QwtPlotRenderer(QObject *parent):
     QObject(parent)
 {
     d_data = new PrivateData;
 }
 
+//! Destructor
 QwtPlotRenderer::~QwtPlotRenderer()
 {
     delete d_data;
@@ -100,16 +102,6 @@ void QwtPlotRenderer::setLayoutFlags(LayoutFlags flags)
 QwtPlotRenderer::LayoutFlags QwtPlotRenderer::layoutFlags() const
 {
     return d_data->layoutFlags;
-}
-
-const QwtPlot *QwtPlotRenderer::plot() const
-{
-    return d_data->plot;
-}
-
-QwtPlot *QwtPlotRenderer::plot() 
-{
-    return d_data->plot;
 }
 
 void QwtPlotRenderer::renderDocument(QwtPlot *plot, 

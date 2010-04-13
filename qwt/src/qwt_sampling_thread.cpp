@@ -20,6 +20,7 @@ public:
 };
 
 
+//! Constructor
 QwtSamplingThread::QwtSamplingThread(QObject *parent):
     QThread(parent)
 {
@@ -28,11 +29,19 @@ QwtSamplingThread::QwtSamplingThread(QObject *parent):
     d_data->isStopped = true;
 }
 
+//! Destructor
 QwtSamplingThread::~QwtSamplingThread()
 {
     delete d_data;
 }
 
+/*!
+   Change the interval (in ms), when sample() is called.
+   The default interval is 1000.0 ( = 1s )
+
+   \param interval Interval
+   \sa interval()
+*/
 void QwtSamplingThread::setInterval(double interval)
 {
     if ( interval < 0.0 )
@@ -41,11 +50,19 @@ void QwtSamplingThread::setInterval(double interval)
     d_data->interval = interval;
 }
 
+/*!
+   \return Interval (in ms), when sample is called
+   \sa setInterval()
+*/
 double QwtSamplingThread::interval() const
 {
     return d_data->interval;
 }
 
+/*!
+   \return Time (in ms) since the thread was started
+   \sa QThread::start(), run()
+*/
 double QwtSamplingThread::elapsed() const
 {
     if ( d_data->isStopped )
@@ -54,11 +71,19 @@ double QwtSamplingThread::elapsed() const
     return d_data->clock.elapsed();
 }
 
+/*!
+   Terminate the collecting thread
+   \sa QThread::start(), run()
+*/
 void QwtSamplingThread::stop()
 {
     d_data->isStopped = true;
 }
 
+/*!
+   Loop collecting samples started from QThread::start()
+   \sa stop()
+*/
 void QwtSamplingThread::run()
 {
     d_data->clock.start();

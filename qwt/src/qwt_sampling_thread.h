@@ -4,6 +4,14 @@
 #include "qwt_global.h"
 #include <qthread.h>
 
+/*!
+  \brief A thread for collecting samples in fixed intervals
+
+  Collecting samples in fixed intervals is a common requirement 
+  for applications dealing with hardware like sensors etc.
+  QwtSamplingThread starts a thread calling perodically sample(),
+  to collect and store ( or emit ) a single sample.
+*/
 class QWT_EXPORT QwtSamplingThread: public QThread
 {
     Q_OBJECT
@@ -22,6 +30,12 @@ protected:
     explicit QwtSamplingThread(QObject *parent = NULL);
 
     virtual void run();
+
+    /*!
+       Collect a sample
+ 
+       \param elapsed Time since the thread was started in miliseconds
+     */
     virtual void sample(double elapsed) = 0;
 
 private:
