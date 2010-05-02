@@ -51,7 +51,7 @@ void QwtSamplingThread::setInterval(double interval)
 }
 
 /*!
-   \return Interval (in ms), when sample is called
+   \return Interval (in ms), between 2 calls of sample()
    \sa setInterval()
 */
 double QwtSamplingThread::interval() const
