@@ -5,12 +5,16 @@
 #include <qthread.h>
 
 /*!
-  \brief A thread for collecting samples in fixed intervals
+  \brief A thread collecting samples at regular intervals.
 
-  Collecting samples in fixed intervals is a common requirement 
-  for applications dealing with hardware like sensors etc.
+  Contiounous signals are converted into a discrete signal by
+  collecting samples at regular intervals. A discrete signal
+  can be displayed by a QwtPlotSeriesItem on a QwtPlot widget.
+
   QwtSamplingThread starts a thread calling perodically sample(),
   to collect and store ( or emit ) a single sample.
+
+  \sa QwtPlotCurve, QwtPlotSeriesItem
 */
 class QWT_EXPORT QwtSamplingThread: public QThread
 {

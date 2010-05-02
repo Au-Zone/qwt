@@ -16,9 +16,9 @@
   \brief QwtSystemClock provides high resolution clock time functions.
 
   Sometimes the resolution offered by QTime ( millisecond ) is not accurate
-  enough for implementing time measurements. QwtSystemClock offers a
-  subset of the QTime functionality using higher resolution timers 
-  ( if possible ).
+  enough for implementing time measurements ( f.e. sampling ). 
+  QwtSystemClock offers a subset of the QTime functionality using higher 
+  resolution timers ( if possible ).
 
   Precision and time intervals are multiples of milliseconds (ms).  
 
