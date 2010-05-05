@@ -9,8 +9,8 @@
 
 #include "qwt_interval_symbol.h"
 #include "qwt_painter.h"
+#include "qwt_math.h"
 #include <qpainter.h>
-#include <qmath.h>
 
 #if QT_VERSION < 0x040601
 #define qAtan2(y, x) ::atan2(y, x) 
