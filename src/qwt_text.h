@@ -68,8 +68,7 @@ public:
       - MathMLText\n
         Use a MathML (http://en.wikipedia.org/wiki/MathML) render engine
         to display the text. The Qwt MathML extension offers such an engine
-        based on the MathML renderer of the Qt solutions package. Unfortunately
-        it is only available for owners of a commercial Qt license.
+        based on the MathML renderer of the Qt solutions package. 
       - TeXText\n
         Use a TeX (http://en.wikipedia.org/wiki/TeX) render engine
         to display the text. 
