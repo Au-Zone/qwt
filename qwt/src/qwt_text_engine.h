@@ -27,8 +27,7 @@ class QPainter;
   QwtPlainTextEngine and QwtRichTextEngine are part of the Qwt library. 
 
   QwtMathMLTextEngine can be found in Qwt MathML extension, that
-  needs the MathML renderer of the Qt solutions package. Unfortunately
-  it is only available with a commercial Qt license.
+  needs the MathML renderer of the Qt solutions package. 
 
   \sa QwtText::setTextEngine()
 */
