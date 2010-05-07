@@ -110,7 +110,7 @@ public:
     virtual bool operator==(const QwtSymbol &) const;
 
     void setSize(const QSize &);
-    void setSize(int width, int height = -1.0);
+    void setSize(int width, int height = -1);
     const QSize& size() const;
 
     virtual void setColor(const QColor &);

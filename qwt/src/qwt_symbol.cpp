@@ -628,7 +628,7 @@ QwtSymbol::~QwtSymbol()
   and the 'w' parameter is greater than or equal to 0,
   the symbol size will be set to (w,w).
   \param width Width
-  \param height Height (defaults to -1.0)
+  \param height Height (defaults to -1)
 
   \sa size()
 */
