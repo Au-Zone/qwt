@@ -340,7 +340,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         image = toRgba(image, d_data->alpha);
 
     painter->save();
-    painter->resetTransform();
+    painter->setWorldTransform(QTransform());
 
     QwtPainter::drawImage(painter, paintRect, image);
 
