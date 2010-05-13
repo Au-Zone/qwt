@@ -33,7 +33,7 @@ class QWT_EXPORT QwtPlotDict
 {
 public:
     explicit QwtPlotDict();
-    ~QwtPlotDict();
+    virtual ~QwtPlotDict();
 
     void setAutoDelete(bool);
     bool autoDelete() const;
