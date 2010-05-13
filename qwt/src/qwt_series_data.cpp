@@ -148,8 +148,7 @@ QRectF qwtBoundingRect(const QwtSeriesData<QwtSetSample>& series)
 */
 QwtPointSeriesData::QwtPointSeriesData(
         const QVector<QPointF> &samples):
-    QwtArraySeriesData<QPointF>(samples),
-    d_boundingRect(0.0, 0.0, -1.0, -1.0)
+    QwtArraySeriesData<QPointF>(samples)
 {
 }   
 
@@ -175,8 +174,7 @@ QRectF QwtPointSeriesData::boundingRect() const
 */
 QwtPoint3DSeriesData::QwtPoint3DSeriesData(
         const QVector<QwtDoublePoint3D> &samples):
-    QwtArraySeriesData<QwtDoublePoint3D>(samples),
-    d_boundingRect(0.0, 0.0, -1.0, -1.0)
+    QwtArraySeriesData<QwtDoublePoint3D>(samples)
 {
 }
 
@@ -202,8 +200,7 @@ QRectF QwtPoint3DSeriesData::boundingRect() const
 */
 QwtIntervalSeriesData::QwtIntervalSeriesData(
         const QVector<QwtIntervalSample> &samples):
-    QwtArraySeriesData<QwtIntervalSample>(samples),
-    d_boundingRect(0.0, 0.0, -1.0, -1.0)
+    QwtArraySeriesData<QwtIntervalSample>(samples)
 {
 }   
 
@@ -229,8 +226,7 @@ QRectF QwtIntervalSeriesData::boundingRect() const
 */
 QwtSetSeriesData::QwtSetSeriesData(
         const QVector<QwtSetSample> &samples):
-    QwtArraySeriesData<QwtSetSample>(samples),
-    d_boundingRect(0.0, 0.0, -1.0, -1.0)
+    QwtArraySeriesData<QwtSetSample>(samples)
 {
 }   
 
@@ -261,8 +257,7 @@ QRectF QwtSetSeriesData::boundingRect() const
 QwtPointArrayData::QwtPointArrayData(
         const QVector<double> &x, const QVector<double> &y): 
     d_x(x), 
-    d_y(y),
-    d_boundingRect(0.0, 0.0, -1.0, -1.0)
+    d_y(y)
 {
 }
 
@@ -275,8 +270,7 @@ QwtPointArrayData::QwtPointArrayData(
   \sa QwtPlotCurve::setData(), QwtPlotCurve::setSamples()
 */
 QwtPointArrayData::QwtPointArrayData(const double *x, 
-        const double *y, size_t size):
-    d_boundingRect(0.0, 0.0, -1.0, -1.0)
+        const double *y, size_t size)
 {
     d_x.resize(size);
     qMemCopy(d_x.data(), x, size * sizeof(double));
@@ -347,8 +341,7 @@ QwtCPointerData::QwtCPointerData(
     const double *x, const double *y, size_t size):
     d_x(x), 
     d_y(y), 
-    d_size(size),
-    d_boundingRect(0.0, 0.0, -1.0, -1.0)
+    d_size(size)
 {
 }
 

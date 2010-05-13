@@ -87,7 +87,8 @@ template <typename T>
 class QwtSeriesData
 {
 public:
-    virtual ~QwtSeriesData() {} 
+    QwtSeriesData();
+    virtual ~QwtSeriesData();
 
     //! \return Number of samples
     virtual size_t size() const = 0;
@@ -111,20 +112,43 @@ public:
      */
     virtual QRectF boundingRect() const = 0;
 
-    /*!
-       Set a the "rect of interest"
+    virtual void setRectOfInterest(const QRectF &);
 
-       QwtPlotSeriesItem defines the current area of the plot canvas
-       as "rect of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
-       It can be used to implement different levels of details.
-
-       The default implementation does nothing.
-     */
-    virtual void setRectOfInterest(const QRectF &) {};
+protected:
+    //! Can be used to cache a calculated bounding rectangle
+    mutable QRectF d_boundingRect;
 
 private:
     QwtSeriesData<T> &operator=(const QwtSeriesData<T> &);
 };
+
+//! Constructor
+template <typename T>
+QwtSeriesData<T>::QwtSeriesData():
+	d_boundingRect(0.0, 0.0, -1.0, -1.0)
+{
+} 
+
+//! Destructor
+template <typename T>
+QwtSeriesData<T>::~QwtSeriesData() 
+{
+} 
+
+/*!
+   Set a the "rect of interest"
+
+   QwtPlotSeriesItem defines the current area of the plot canvas
+   as "rect of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
+   It can be used to implement different levels of details.
+
+   The default implementation does nothing.
+*/
+template <typename T>
+void QwtSeriesData<T>::setRectOfInterest(const QRectF &) 
+{
+}
+
 
 /*!
   \brief Template class for data, that is organized as QVector
@@ -172,6 +196,7 @@ QwtArraySeriesData<T>::QwtArraySeriesData(const QVector<T> &samples):
 template <typename T>
 void QwtArraySeriesData<T>::setSamples(const QVector<T> &samples)
 {
+	QwtSeriesData<T>::d_boundingRect = QRectF(0.0, 0.0, -1.0, -1.0);
     d_samples = samples;
 }
 
@@ -208,9 +233,6 @@ public:
         const QVector<QPointF> & = QVector<QPointF>());
 
     virtual QRectF boundingRect() const;
-
-private:
-    mutable QRectF d_boundingRect;
 };
 
 //! Interface for iterating over an array of 3D points
@@ -220,9 +242,6 @@ public:
     QwtPoint3DSeriesData(
         const QVector<QwtDoublePoint3D> & = QVector<QwtDoublePoint3D>());
     virtual QRectF boundingRect() const;
-
-private:
-    mutable QRectF d_boundingRect;
 };
 
 //! Interface for iterating over an array of intervals
@@ -233,9 +252,6 @@ public:
         const QVector<QwtIntervalSample> & = QVector<QwtIntervalSample>());
 
     virtual QRectF boundingRect() const;
-
-private:
-    mutable QRectF d_boundingRect;
 };
 
 //! Interface for iterating over an array of samples
@@ -246,9 +262,6 @@ public:
         const QVector<QwtSetSample> & = QVector<QwtSetSample>());
 
     virtual QRectF boundingRect() const;
-
-private:
-    mutable QRectF d_boundingRect;
 };
 
 /*! 
@@ -271,7 +284,6 @@ public:
 private:
     QVector<double> d_x;
     QVector<double> d_y;
-    mutable QRectF d_boundingRect;
 };
 
 /*!
@@ -293,7 +305,6 @@ private:
     const double *d_x;
     const double *d_y;
     size_t d_size;
-    mutable QRectF d_boundingRect;
 };
 
 /*!
