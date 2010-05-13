@@ -124,12 +124,12 @@ QPalette CockpitGrid::colorTheme(const QColor &base) const
         QPalette::ColorGroup cg = (QPalette::ColorGroup)i;
 
         palette.setColor(cg, QPalette::Base, base);
-        palette.setColor(cg, QPalette::Background, background);
+        palette.setColor(cg, QPalette::Window, background);
         palette.setColor(cg, QPalette::Mid, mid);
         palette.setColor(cg, QPalette::Light, light);
         palette.setColor(cg, QPalette::Dark, dark);
         palette.setColor(cg, QPalette::Text, text);
-        palette.setColor(cg, QPalette::Foreground, foreground);
+        palette.setColor(cg, QPalette::WindowText, foreground);
     }
 
     return palette;

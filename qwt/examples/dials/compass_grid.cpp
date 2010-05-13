@@ -38,7 +38,7 @@ QwtCompass *CompassGrid::createCompass(int pos)
 
     colorGroup.setColor(QPalette::Base,
         palette().color(backgroundRole()).light(120));
-    colorGroup.setColor(QPalette::Foreground, 
+    colorGroup.setColor(QPalette::WindowText, 
         colorGroup.color(QPalette::Base));
 
     QwtCompass *compass = new QwtCompass(this);
@@ -91,7 +91,7 @@ QwtCompass *CompassGrid::createCompass(int pos)
              */
 
             colorGroup.setColor(QPalette::Base, Qt::darkBlue);
-            colorGroup.setColor(QPalette::Foreground, 
+            colorGroup.setColor(QPalette::WindowText, 
                 QColor(Qt::darkBlue).dark(120));
             colorGroup.setColor(QPalette::Text, Qt::white);
 
@@ -113,7 +113,7 @@ QwtCompass *CompassGrid::createCompass(int pos)
              */
             colorGroup.setColor(QPalette::Base, 
                 palette().color(backgroundRole()));
-            colorGroup.setColor(QPalette::Foreground, Qt::blue);
+            colorGroup.setColor(QPalette::WindowText, Qt::blue);
                 
             compass->setLineWidth(0);
 
@@ -155,7 +155,7 @@ QwtCompass *CompassGrid::createCompass(int pos)
             /*
              A compass with a yellow on black ray
              */
-            colorGroup.setColor(QPalette::Foreground, Qt::black);
+            colorGroup.setColor(QPalette::WindowText, Qt::black);
 
             compass->setNeedle(new QwtDialSimpleNeedle(QwtDialSimpleNeedle::Ray,
                 false, Qt::yellow));

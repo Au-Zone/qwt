@@ -252,7 +252,7 @@ void QwtPanner::paintEvent(QPaintEvent *pe)
     QPainter painter(&pm);
 
     const QColor bg = parentWidget()->palette().color(
-        QPalette::Normal, QPalette::Background);
+        QPalette::Normal, QPalette::Window);
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(QBrush(bg));

@@ -592,7 +592,7 @@ void QwtThermo::drawThermo(QPainter *painter)
     //
     // paint thermometer
     //
-    const QColor bgColor = palette().color(QPalette::Background);
+    const QColor bgColor = palette().color(QPalette::Window);
     painter->fillRect(bRect, bgColor);
 
     if (alarm)

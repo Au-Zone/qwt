@@ -599,7 +599,7 @@ int QwtPlot::margin() const
 /*!
   \brief Change the background of the plotting area
   
-  Sets c to QColorGroup::Background of all colorgroups of 
+  Sets c to QPalette::Window of all colorgroups of 
   the palette of the canvas. Using canvas()->setPalette()
   is a more powerful way to set these colors.
   \param c new background color
@@ -609,21 +609,21 @@ void QwtPlot::setCanvasBackground(const QColor &c)
     QPalette p = d_data->canvas->palette();
 
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
-        p.setColor((QPalette::ColorGroup)i, QPalette::Background, c);
+        p.setColor((QPalette::ColorGroup)i, QPalette::Window, c);
 
     canvas()->setPalette(p);
 }
 
 /*!
   Nothing else than: canvas()->palette().color(
-        QPalette::Normal, QColorGroup::Background);
+        QPalette::Normal, QPalette::Window);
   
   \return the background color of the plotting area.
 */
-const QColor & QwtPlot::canvasBackground() const
+const QColor &QwtPlot::canvasBackground() const
 {
     return canvas()->palette().color(
-        QPalette::Normal, QPalette::Background);
+        QPalette::Normal, QPalette::Window);
 }
 
 /*!
