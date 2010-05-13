@@ -199,7 +199,7 @@ void QwtArrowButton::drawButtonLabel(QPainter *painter)
     {
         QStyleOptionFocusRect option;
         option.init(this);
-        option.backgroundColor = palette().color(QPalette::Background);
+        option.backgroundColor = palette().color(QPalette::Window);
 
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, 
             &option, painter, this);

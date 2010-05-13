@@ -148,9 +148,9 @@ void QwtDial::initDial()
         const QPalette::ColorGroup cg = (QPalette::ColorGroup)i;
 
         // Base: background color of the circle inside the frame.
-        // Foreground: background color of the circle inside the scale
+        // WindowText: background color of the circle inside the scale
 
-        p.setColor(cg, QPalette::Foreground, 
+        p.setColor(cg, QPalette::WindowText, 
             p.color(cg, QPalette::Base));
     }
     setPalette(p);
@@ -515,9 +515,9 @@ void QwtDial::drawFrame(QPainter *painter)
 /*!
   \brief Draw the contents inside the frame
  
-  QColorGroup::Background is the background color outside of the frame.
-  QColorGroup::Base is the background color inside the frame.
-  QColorGroup::Foreground is the background color inside the scale.
+  QPalette::Window is the background color outside of the frame.
+  QPalette::Base is the background color inside the frame.
+  QPalette::WindowText is the background color inside the scale.
 
   \param painter Painter
   \sa boundingRect(), contentsRect(),
@@ -527,7 +527,7 @@ void QwtDial::drawContents(QPainter *painter) const
 {
     if ( testAttribute(Qt::WA_NoSystemBackground) ||
         palette().brush(QPalette::Base) != 
-            palette().brush(QPalette::Background) )
+            palette().brush(QPalette::Window) )
     {
 
         const QRect br = boundingRect();
@@ -541,12 +541,12 @@ void QwtDial::drawContents(QPainter *painter) const
 
 
     const QRect insideScaleRect = scaleContentsRect();
-    if ( palette().brush(QPalette::Foreground) !=
+    if ( palette().brush(QPalette::WindowText) !=
         palette().brush(QPalette::Base) )
     {
         painter->save();
         painter->setPen(Qt::NoPen);
-        painter->setBrush(palette().brush(QPalette::Foreground));
+        painter->setBrush(palette().brush(QPalette::WindowText));
         painter->drawEllipse(insideScaleRect.x() - 1, insideScaleRect.y() - 1,
             insideScaleRect.width(), insideScaleRect.height() );
         painter->restore();
@@ -675,7 +675,7 @@ void QwtDial::drawScale(QPainter *painter, const QPoint &center,
     QPalette pal = palette();
 
     const QColor textColor = pal.color(QPalette::Text);
-    pal.setColor(QPalette::Foreground, textColor); //ticks, backbone
+    pal.setColor(QPalette::WindowText, textColor); //ticks, backbone
     
     painter->setPen(QPen(textColor, d_data->scaleDraw->penWidth()));
 
