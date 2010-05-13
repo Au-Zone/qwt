@@ -31,16 +31,8 @@ class QWT_EXPORT QwtAbstractSlider : public QWidget, public QwtDoubleRange
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool valid READ isValid WRITE setValid )
     Q_PROPERTY( double mass READ mass WRITE setMass )
-#ifndef Q_MOC_RUN // Qt3 moc
-#define QWT_PROPERTY Q_PROPERTY
-    Q_PROPERTY( Orientation orientation 
-        READ orientation WRITE setOrientation )
-#else // Qt4 moc
-// MOC_SKIP_BEGIN
     Q_PROPERTY( Qt::Orientation orientation 
         READ orientation WRITE setOrientation )
-// MOC_SKIP_END
-#endif
 
 public:
     /*! 

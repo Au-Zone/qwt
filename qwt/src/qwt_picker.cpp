@@ -113,33 +113,22 @@ void QwtPicker::PickerWidget::updateMask()
     if ( d_type == Text )
     {
         d_hasTextMask = true;
-#if QT_VERSION >= 0x040300
         if ( !parentWidget()->testAttribute(Qt::WA_PaintOnScreen) )
-        {
-#if 0
-            if ( parentWidget()->paintEngine()->type() != QPaintEngine::OpenGL )
-#endif
-            {
-                // With Qt >= 4.3 drawing of the tracker can be implemented in an
-                // easier way, using the textRect as mask. 
-
-                d_hasTextMask = false;
-            }
-        }
-#endif
+            d_hasTextMask = false;
         
         if ( d_hasTextMask )
         {
             const QwtText label = d_picker->trackerText(
                 d_picker->trackerPosition());
+
             if ( label.testPaintAttribute(QwtText::PaintBackground)
                 && label.backgroundBrush().style() != Qt::NoBrush )
             {
-#if QT_VERSION >= 0x040300
                 if ( label.backgroundBrush().color().alpha() > 0 )
-#endif
-                // We don't need a text mask, when we have a background
-                d_hasTextMask = false;
+				{
+                	// We don't need a text mask, when we have a background
+                	d_hasTextMask = false;
+				}
             }
         }
 

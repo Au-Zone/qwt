@@ -229,11 +229,7 @@ void QwtTextLabel::drawContents(QPainter *painter)
         return;
 
     painter->setFont(font());
-#if QT_VERSION < 0x040000
-    painter->setPen(palette().color(QPalette::Active, QColorGroup::Text));
-#else
     painter->setPen(palette().color(QPalette::Active, QPalette::Text));
-#endif
 
     drawText(painter, r);
 
