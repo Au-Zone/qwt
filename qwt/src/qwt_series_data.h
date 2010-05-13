@@ -125,7 +125,7 @@ private:
 //! Constructor
 template <typename T>
 QwtSeriesData<T>::QwtSeriesData():
-	d_boundingRect(0.0, 0.0, -1.0, -1.0)
+    d_boundingRect(0.0, 0.0, -1.0, -1.0)
 {
 } 
 
@@ -196,7 +196,7 @@ QwtArraySeriesData<T>::QwtArraySeriesData(const QVector<T> &samples):
 template <typename T>
 void QwtArraySeriesData<T>::setSamples(const QVector<T> &samples)
 {
-	QwtSeriesData<T>::d_boundingRect = QRectF(0.0, 0.0, -1.0, -1.0);
+    QwtSeriesData<T>::d_boundingRect = QRectF(0.0, 0.0, -1.0, -1.0);
     d_samples = samples;
 }
 

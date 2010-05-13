@@ -414,7 +414,7 @@ void QwtPlot::setAxisAutoScale(int axisId)
   \param max minimum and maximum of the scale
   \param stepSize Major step size. If <code>step == 0</code>, the step size is
             calculated automatically using the maxMajor setting.
-  \sa setAxisMaxMajor(), setAxisAutoScale()
+  \sa setAxisMaxMajor(), setAxisAutoScale(), axisStepSize()
 */
 void QwtPlot::setAxisScale(int axisId, double min, double max, double stepSize)
 {

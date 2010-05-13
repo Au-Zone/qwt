@@ -82,7 +82,10 @@ void QwtPlotItem::attach(QwtPlot *plot)
         {
             QWidget *legendItem = d_data->plot->legend()->find(this);
             if ( legendItem )
-                delete legendItem; 
+            {
+                legendItem->hide();
+                legendItem->deleteLater();
+            }
         }
 
         d_data->plot->attachItem(this, false);
@@ -457,21 +460,27 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
                 painter.end();
 
                 const bool doUpdate = label->updatesEnabled();
-
-                label->setUpdatesEnabled(false);
+                if ( doUpdate )
+                    label->setUpdatesEnabled(false);
 
                 label->setText(title());
                 label->setIdentifier(identifier);
                 label->setItemMode(legend->itemMode());
 
-                label->setUpdatesEnabled(doUpdate);
+                if ( doUpdate )
+                    label->setUpdatesEnabled(true);
+
                 label->update();
             }
         }
     }
     else
     {
-        delete lgdItem;
+        if ( lgdItem )
+        {
+            lgdItem->hide();
+            lgdItem->deleteLater();
+        }
     }
 }
 

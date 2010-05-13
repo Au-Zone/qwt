@@ -310,10 +310,9 @@ void QwtLegend::insert(const QwtLegendItemManager *plotItem, QWidget *legendItem
         {
             QLayoutItem *item = contentsWidget->layout()->itemAt(i);
             if ( w && item->widget() )
-            {
                 QWidget::setTabOrder(w, item->widget());
-                w = item->widget();
-            }
+
+            w = item->widget();
         }
     }
     if ( parentWidget() && parentWidget()->layout() == NULL )
@@ -368,11 +367,14 @@ void QwtLegend::remove(const QwtLegendItemManager *plotItem)
 void QwtLegend::clear()
 {
     bool doUpdate = updatesEnabled();
-    setUpdatesEnabled(false);
+    if ( doUpdate )
+        setUpdatesEnabled(false);
 
     d_data->map.clear();
 
-    setUpdatesEnabled(doUpdate);
+    if ( doUpdate )
+        setUpdatesEnabled(true);
+
     update();
 }
 
