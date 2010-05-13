@@ -47,9 +47,7 @@ QwtPlotCanvas::QwtPlotCanvas(QwtPlot *plot):
 {
     d_data = new PrivateData;
 
-#if QT_VERSION >= 0x040100
     setAutoFillBackground(true);
-#endif
 
 #ifndef QT_NO_CURSOR
     setCursor(Qt::CrossCursor);

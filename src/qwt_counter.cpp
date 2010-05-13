@@ -79,13 +79,8 @@ void QwtCounter::initCounter()
     d_data->valueEdit->setValidator(new QDoubleValidator(d_data->valueEdit));
     layout->addWidget(d_data->valueEdit);
 
-#if QT_VERSION >= 0x040000
     connect( d_data->valueEdit, SIGNAL(editingFinished()), 
         SLOT(textChanged()) );
-#else
-    connect( d_data->valueEdit, SIGNAL(returnPressed()), SLOT(textChanged()) );
-    connect( d_data->valueEdit, SIGNAL(lostFocus()), SLOT(textChanged()) );
-#endif
 
     layout->setStretchFactor(d_data->valueEdit, 10);
 
@@ -206,21 +201,13 @@ void QwtCounter::keyPressEvent (QKeyEvent *e)
     switch ( e->key() )
     {
         case Qt::Key_Home:
-#if QT_VERSION >= 0x040000
             if ( e->modifiers() & Qt::ControlModifier )
-#else
-            if ( e->state() & Qt::ControlButton )
-#endif
                 setValue(minValue());
             else
                 accepted = false;
             break;
         case Qt::Key_End:
-#if QT_VERSION >= 0x040000
             if ( e->modifiers() & Qt::ControlModifier )
-#else
-            if ( e->state() & Qt::ControlButton )
-#endif
                 setValue(maxValue());
             else
                 accepted = false;
@@ -239,11 +226,7 @@ void QwtCounter::keyPressEvent (QKeyEvent *e)
                 increment = d_data->increment[1];
             if ( d_data->nButtons >= 3 )
             {
-#if QT_VERSION >= 0x040000
                 if ( e->modifiers() & Qt::ShiftModifier )
-#else
-                if ( e->state() & Qt::ShiftButton )
-#endif
                     increment = d_data->increment[2];
             }
             if ( e->key() == Qt::Key_PageDown )
@@ -278,20 +261,12 @@ void QwtCounter::wheelEvent(QWheelEvent *e)
     int increment = d_data->increment[0];
     if ( d_data->nButtons >= 2 )
     {
-#if QT_VERSION >= 0x040000
         if ( e->modifiers() & Qt::ControlModifier )
-#else
-        if ( e->state() & Qt::ControlButton )
-#endif
             increment = d_data->increment[1];
     }
     if ( d_data->nButtons >= 3 )
     {
-#if QT_VERSION >= 0x040000
         if ( e->modifiers() & Qt::ShiftModifier )
-#else
-        if ( e->state() & Qt::ShiftButton )
-#endif
             increment = d_data->increment[2];
     }
         
@@ -503,12 +478,8 @@ QSize QwtCounter::sizeHint() const
 
     QFontMetrics fm(d_data->valueEdit->font());
     w = fm.width(tmp) + 2;
-#if QT_VERSION >= 0x040000
     if ( d_data->valueEdit->hasFrame() )
         w += 2 * style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-#else
-    w += 2 * d_data->valueEdit->frameWidth(); 
-#endif
 
     // Now we replace default sizeHint contribution of d_data->valueEdit by
     // what we really need.

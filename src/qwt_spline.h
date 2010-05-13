@@ -74,13 +74,8 @@ public:
     void setSplineType(SplineType);
     SplineType splineType() const;
 
-#if QT_VERSION < 0x040000
-    bool setPoints(const QVector<QPointF>& points);
-    QVector<QPointF> points() const;
-#else
     bool setPoints(const QPolygonF& points);
     QPolygonF points() const;
-#endif
 
     void reset();
 
