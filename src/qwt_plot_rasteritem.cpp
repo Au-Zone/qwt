@@ -229,44 +229,47 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
 
-    QwtScaleMap xxMap = xMap;
-    QwtScaleMap yyMap = yMap;
-    QRectF scaledCanvasRect = canvasRect;
+    const QRectF br = boundingRect();
+
+    /*
+        Scaling a rastered image always results in a loss of
+        precision/quality. So we always render the image in
+        paint device resolution.
+     */
 
     const QTransform tr = painter->transform();
-    if ( tr.isScaling() )
-    {
-        /*
-            Scaling a rastered image always results in a loss of
-            precision/quality. So we always render the image in
-            paint device resolution.
-         */
+    const QRectF cRect = tr.mapRect(canvasRect);
 
-        scaledCanvasRect = tr.mapRect(scaledCanvasRect);
-        xxMap.setPaintInterval(tr.m11() * xxMap.p1(), tr.m11() * xxMap.p2());
-        yyMap.setPaintInterval(tr.m22() * yyMap.p1(), tr.m22() * yyMap.p2());
-    }
+    QRectF mapRect(xMap.p1(), yMap.p1(), 
+        xMap.p2() - xMap.p1(), yMap.p2() - yMap.p1());
+    mapRect = tr.mapRect(mapRect);
 
-    QRectF area = QwtScaleMap::invTransform(
-        xxMap, yyMap, scaledCanvasRect);
-    if ( boundingRect().isValid() )
-        area &= boundingRect();
+    QwtScaleMap xxMap = xMap;
+    xxMap.setPaintInterval(mapRect.left(), mapRect.right());
 
-    QRectF paintRect = QwtScaleMap::transform(
-        xxMap, yyMap, area);
+    QwtScaleMap yyMap = yMap;
+    yyMap.setPaintInterval(mapRect.top(), mapRect.bottom());
+
+    QRectF area = QwtScaleMap::invTransform(xxMap, yyMap, cRect);
+    if ( br.isValid() )
+        area &= br;
+
+    QRectF paintRect = QwtScaleMap::transform( xxMap, yyMap, area);
     if ( !paintRect.isValid() )
         return;
 
-    // after scaling the rectangle we also need to do the
-    // translation of the painter, when we want to use a
-    // painter without transformation later.
-
-    paintRect.translate(tr.m31(), tr.m32());
-
     // align the image to the raster of the paint device
     const QRect imageRect = paintRect.toAlignedRect();
-    const QRectF imageArea = QwtScaleMap::invTransform(
+
+    QRectF imageArea = QwtScaleMap::invTransform(
         xxMap, yyMap, imageRect);
+    if ( br.isValid() )
+    {
+        // RectF -> Rect -> RectF has some rounding errors
+        // we can't avoid. But at least we avoid, that
+        // these run around the bounding rect
+        imageArea &= br;
+    }
 
     QImage image;
 

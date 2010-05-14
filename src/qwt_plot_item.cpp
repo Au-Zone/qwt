@@ -508,7 +508,7 @@ void QwtPlotItem::updateScaleDiv(const QwtScaleDiv &,
    \param xMap X map
    \param yMap X map
 
-   \return Bounding rect of the scale maps
+   \return Bounding scale rect of the scale maps, normalized
 */
 QRectF QwtPlotItem::scaleRect(const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap) const
@@ -523,13 +523,13 @@ QRectF QwtPlotItem::scaleRect(const QwtScaleMap &xMap,
    \param xMap X map
    \param yMap X map
 
-   \return Bounding rect of the scale maps
+   \return Bounding paint rect of the scale maps, normalized
 */
 QRectF QwtPlotItem::paintRect(const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap) const
 {
-    const QRectF rect( qRound(xMap.p1()), qRound(yMap.p1()),
-        qRound(xMap.pDist()), qRound(yMap.pDist()) );
+    const QRectF rect( xMap.p1(), yMap.p1(),
+        xMap.pDist(), yMap.pDist() );
 
     return rect;
 }
