@@ -249,10 +249,21 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         paint device resolution.
      */
 
-    QwtScaleMap xxMap, yyMap;
-	transformMaps(painter->transform(), xMap, yMap, xxMap, yyMap);
+	QTransform tr = painter->transform();
 
-    const QRectF cRect = painter->transform().mapRect(canvasRect);
+    QwtScaleMap xxMap = xMap;
+	QwtScaleMap yyMap = yMap;
+	QRectF cRect = canvasRect;
+
+#if 0
+	if ( !tr.isRotating() )
+#endif
+	{
+		transformMaps(tr, xMap, yMap, xxMap, yyMap);
+    	cRect = tr.mapRect(canvasRect);
+		tr = QTransform();
+	}
+
     QRectF area = QwtScaleMap::invTransform(xxMap, yyMap, cRect);
 
     const QRectF br = boundingRect();
@@ -297,11 +308,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
         }
     }
 
-    if ( policy == QwtPlotRasterItem::NoCache )
-    {
-        image = renderImage(xxMap, yyMap, imageArea);
-    }
-    else if ( policy == QwtPlotRasterItem::PaintCache )
+    if ( policy == QwtPlotRasterItem::PaintCache )
     {
         if ( d_data->cache.image.isNull() || d_data->cache.area != imageArea
             || d_data->cache.size != imageRect.size() )
@@ -313,42 +320,16 @@ void QwtPlotRasterItem::draw(QPainter *painter,
 
         image = d_data->cache.image;
     }
-    else if ( policy == QwtPlotRasterItem::ScreenCache )
-    {
-        const QSize screenSize =
-            QApplication::desktop()->screenGeometry().size();
-
-        if ( imageArea.width() > screenSize.width() ||
-            imageArea.height() > screenSize.height() )
-        {
-            image = renderImage(xxMap, yyMap, imageArea);
-        }
-        else
-        {
-            if ( d_data->cache.image.isNull() || 
-                d_data->cache.area != imageArea )
-            {
-                QwtScaleMap cacheXMap = xxMap;
-                cacheXMap.setPaintInterval( 0, screenSize.width());
-
-                QwtScaleMap cacheYMap = yyMap;
-                cacheYMap.setPaintInterval(screenSize.height(), 0);
-
-                d_data->cache.image = renderImage(
-                    cacheXMap, cacheYMap, imageArea);
-                d_data->cache.area = imageArea;
-                d_data->cache.size = imageRect.size();
-            }
-
-            image = d_data->cache.image;
-        }
-    }
+	else
+	{
+        image = renderImage(xxMap, yyMap, imageArea);
+	}
 
     if ( d_data->alpha >= 0 && d_data->alpha < 255 )
         image = toRgba(image, d_data->alpha);
 
     painter->save();
-    painter->setWorldTransform(QTransform());
+    painter->setWorldTransform(tr);
 
     QwtPainter::drawImage(painter, paintRect, image);
 

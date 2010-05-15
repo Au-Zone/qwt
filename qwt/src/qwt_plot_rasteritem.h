@@ -45,19 +45,13 @@ public:
         of cache is only useful for improving the performance of hide/show
         operations. All other situations are already handled by the
         plot canvas cache.
-      - ScreenCache\n
-        The screen cache is an image in size of the screen. As long as
-        the scales don't change the target image is scaled from the cache.
-        This might improve the performance
-        when resizing the plot widget, but suffers from scaling effects.
 
       The default policy is NoCache
      */
     enum CachePolicy
     {
         NoCache,
-        PaintCache,
-        ScreenCache
+        PaintCache
     };
 
     explicit QwtPlotRasterItem(const QString& title = QString::null);
