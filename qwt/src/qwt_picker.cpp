@@ -125,10 +125,10 @@ void QwtPicker::PickerWidget::updateMask()
                 && label.backgroundBrush().style() != Qt::NoBrush )
             {
                 if ( label.backgroundBrush().color().alpha() > 0 )
-				{
-                	// We don't need a text mask, when we have a background
-                	d_hasTextMask = false;
-				}
+                {
+                    // We don't need a text mask, when we have a background
+                    d_hasTextMask = false;
+                }
             }
         }
 

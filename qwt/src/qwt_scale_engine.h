@@ -22,9 +22,6 @@ class QwtScaleTransformation;
 class QWT_EXPORT QwtScaleArithmetic
 {
 public:
-    static int compareEps(
-        double value1, double value2, double intervalSize);
-
     static double ceilEps(double value, double intervalSize);
     static double floorEps(double value, double intervalSize);
 

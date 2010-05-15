@@ -132,14 +132,18 @@ void Plot::showSpectrogram(bool on)
 
 void Plot::printPlot()
 {
+#if 1
     QPrinter printer;
+#else
+    QPrinter printer(QPrinter::HighResolution);
+#endif
     printer.setOrientation(QPrinter::Landscape);
-    printer.setOutputFileName("/tmp/spectrogram.pdf");
+    printer.setOutputFileName("spectrogram.pdf");
     QPrintDialog dialog(&printer);
     if ( dialog.exec() )
-	{
-		QwtPlotRenderer renderer;
-		renderer.renderTo(this, printer);
-	}
+    {
+        QwtPlotRenderer renderer;
+        renderer.renderTo(this, printer);
+    }
 }
 
