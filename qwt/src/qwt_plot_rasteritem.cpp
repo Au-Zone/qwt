@@ -17,6 +17,20 @@
 #include <qpainter.h>
 #include <qpaintengine.h>
 
+static void transformMaps(const QTransform &tr,
+	const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+	QwtScaleMap &xxMap, QwtScaleMap &yyMap)
+{
+	const QPointF p1 = tr.map( QPointF(xMap.p1(), yMap.p1()) );
+	const QPointF p2 = tr.map( QPointF(xMap.p2(), yMap.p2()) );
+
+    xxMap = xMap;
+    xxMap.setPaintInterval(p1.x(), p2.x());
+
+    yyMap = yMap;
+    yyMap.setPaintInterval(p1.y(), p2.y());
+}
+
 class QwtPlotRasterItem::PrivateData
 {
 public:
@@ -229,28 +243,19 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
 
-    const QRectF br = boundingRect();
-
     /*
         Scaling a rastered image always results in a loss of
         precision/quality. So we always render the image in
         paint device resolution.
      */
 
-    const QTransform tr = painter->transform();
-    const QRectF cRect = tr.mapRect(canvasRect);
+    QwtScaleMap xxMap, yyMap;
+	transformMaps(painter->transform(), xMap, yMap, xxMap, yyMap);
 
-    QRectF mapRect(xMap.p1(), yMap.p1(), 
-        xMap.p2() - xMap.p1(), yMap.p2() - yMap.p1());
-    mapRect = tr.mapRect(mapRect);
-
-    QwtScaleMap xxMap = xMap;
-    xxMap.setPaintInterval(mapRect.left(), mapRect.right());
-
-    QwtScaleMap yyMap = yMap;
-    yyMap.setPaintInterval(mapRect.top(), mapRect.bottom());
-
+    const QRectF cRect = painter->transform().mapRect(canvasRect);
     QRectF area = QwtScaleMap::invTransform(xxMap, yyMap, cRect);
+
+    const QRectF br = boundingRect();
     if ( br.isValid() )
         area &= br;
 
