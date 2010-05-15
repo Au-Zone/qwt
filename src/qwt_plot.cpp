@@ -551,7 +551,9 @@ QwtScaleMap QwtPlot::canvasMap(int axisId) const
     }
     else
     {
-        const int margin = plotLayout()->canvasMargin(axisId);
+        int margin = 0;
+        if ( !plotLayout()->alignCanvasToScales() )
+            margin = plotLayout()->canvasMargin(axisId);
 
         const QRect &canvasRect = d_data->canvas->contentsRect();
         if ( axisId == yLeft || axisId == yRight )
