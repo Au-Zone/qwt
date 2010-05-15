@@ -23,15 +23,6 @@
 #include <qtconcurrentrun.h>
 #endif
 
-static inline QRect toInnerRect(const QRectF &r)
-{
-    QRect rect;
-    rect.setCoords(qCeil(r.left()), qCeil(r.top()),
-        qFloor(r.right() - 1.0), qFloor(r.bottom() - 1.0) );
-
-    return rect;
-}
-
 class QwtPlotSpectrogram::PrivateData
 {
 public:
@@ -403,7 +394,7 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( area.isEmpty() )
         return QImage();
 
-    QRect rect = toInnerRect( QwtScaleMap::transform(xMap, yMap, area) );
+    QRect rect = innerRect( QwtScaleMap::transform(xMap, yMap, area) );
 
     QwtScaleMap xxMap = xMap;
     QwtScaleMap yyMap = yMap;

@@ -18,17 +18,43 @@
 #include <qpaintengine.h>
 
 static void transformMaps(const QTransform &tr,
-	const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-	QwtScaleMap &xxMap, QwtScaleMap &yyMap)
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    QwtScaleMap &xxMap, QwtScaleMap &yyMap)
 {
-	const QPointF p1 = tr.map( QPointF(xMap.p1(), yMap.p1()) );
-	const QPointF p2 = tr.map( QPointF(xMap.p2(), yMap.p2()) );
+    const QPointF p1 = tr.map( QPointF(xMap.p1(), yMap.p1()) );
+    const QPointF p2 = tr.map( QPointF(xMap.p2(), yMap.p2()) );
 
     xxMap = xMap;
     xxMap.setPaintInterval(p1.x(), p2.x());
 
     yyMap = yMap;
     yyMap.setPaintInterval(p1.y(), p2.y());
+}
+
+static bool useCache( QwtPlotRasterItem::CachePolicy policy, 
+    const QPainter *painter)
+{
+    bool doCache = false;
+
+    if ( policy == QwtPlotRasterItem::PaintCache )
+    {
+        // Caching doesn't make sense, when the item is
+        // not painted to screen
+
+        switch(painter->paintEngine()->type())
+        {
+            case QPaintEngine::SVG:
+            case QPaintEngine::Pdf:
+            case QPaintEngine::PostScript:
+            case QPaintEngine::MacPrinter:
+            case QPaintEngine::Picture:
+                break;
+            default:;
+                doCache = true;
+        }
+    }
+
+    return doCache;
 }
 
 class QwtPlotRasterItem::PrivateData
@@ -46,7 +72,7 @@ public:
     {
         QwtPlotRasterItem::CachePolicy policy;
         QRectF area;
-        QSize size;
+        QSizeF size;
         QImage image;
     } cache;
 };
@@ -243,95 +269,76 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
 
-    /*
-        Scaling a rastered image always results in a loss of
-        precision/quality. So we always render the image in
-        paint device resolution.
-     */
-
-	QTransform tr = painter->transform();
-
     QwtScaleMap xxMap = xMap;
-	QwtScaleMap yyMap = yMap;
-	QRectF cRect = canvasRect;
+    QwtScaleMap yyMap = yMap;
+    QRectF paintRect = canvasRect;
 
-#if 0
-	if ( !tr.isRotating() )
-#endif
-	{
-		transformMaps(tr, xMap, yMap, xxMap, yyMap);
-    	cRect = tr.mapRect(canvasRect);
-		tr = QTransform();
-	}
+    QTransform transform = painter->transform();
+    if ( !transform.isRotating() )
+    {
+        /*
+            Scaling a rastered image always results in a loss of
+            precision/quality. So we always render the image in
+            paint device resolution.
+        */
 
-    QRectF area = QwtScaleMap::invTransform(xxMap, yyMap, cRect);
+        transformMaps(transform, xMap, yMap, xxMap, yyMap);
+        paintRect = transform.mapRect(paintRect);
+        transform = QTransform();
+    }
+
+    QRectF area = QwtScaleMap::invTransform(xxMap, yyMap, paintRect);
 
     const QRectF br = boundingRect();
     if ( br.isValid() )
-        area &= br;
-
-    QRectF paintRect = QwtScaleMap::transform( xxMap, yyMap, area);
-    if ( !paintRect.isValid() )
-        return;
-
-    // align the image to the raster of the paint device
-    const QRect imageRect = paintRect.toAlignedRect();
-
-    QRectF imageArea = QwtScaleMap::invTransform(
-        xxMap, yyMap, imageRect);
-    if ( br.isValid() )
     {
-        // RectF -> Rect -> RectF has some rounding errors
-        // we can't avoid. But at least we avoid, that
-        // these run around the bounding rect
-        imageArea &= br;
+        area &= br;
+        if ( !area.isValid() )
+            return;
+
+        paintRect = QwtScaleMap::transform( xxMap, yyMap, area);
     }
 
     QImage image;
 
-    QwtPlotRasterItem::CachePolicy policy = d_data->cache.policy;
-    if ( policy != QwtPlotRasterItem::NoCache )
+    if ( useCache(d_data->cache.policy, painter) )
     {
-        // Caching doesn't make sense, when the item is
-        // not painted to screen
-
-        switch(painter->paintEngine()->type())
+        if ( d_data->cache.image.isNull() 
+            || d_data->cache.area != area
+            || d_data->cache.size != paintRect.size() )
         {
-            case QPaintEngine::SVG:
-            case QPaintEngine::Pdf:
-            case QPaintEngine::PostScript:
-            case QPaintEngine::MacPrinter:
-            case QPaintEngine::Picture:
-                policy = QwtPlotRasterItem::NoCache;
-                break;
-            default:;
-        }
-    }
-
-    if ( policy == QwtPlotRasterItem::PaintCache )
-    {
-        if ( d_data->cache.image.isNull() || d_data->cache.area != imageArea
-            || d_data->cache.size != imageRect.size() )
-        {
-            d_data->cache.image = renderImage(xxMap, yyMap, imageArea);
-            d_data->cache.area = imageArea;
-            d_data->cache.size = imageRect.size();
+            d_data->cache.area = area;
+            d_data->cache.size = paintRect.size();
+            d_data->cache.image = renderImage(xxMap, yyMap, area);
         }
 
         image = d_data->cache.image;
     }
-	else
-	{
-        image = renderImage(xxMap, yyMap, imageArea);
-	}
+    else
+    {
+        image = renderImage(xxMap, yyMap, area);
+    }
 
     if ( d_data->alpha >= 0 && d_data->alpha < 255 )
         image = toRgba(image, d_data->alpha);
 
     painter->save();
-    painter->setWorldTransform(tr);
+    painter->setWorldTransform(transform);
+
+    if ( QwtPainter::isAligning(painter) )
+        paintRect = innerRect(paintRect);
 
     QwtPainter::drawImage(painter, paintRect, image);
 
     painter->restore();
 }
+
+QRect QwtPlotRasterItem::innerRect(const QRectF &r) const
+{
+    QRect rect;
+    rect.setCoords(qCeil(r.left()), qCeil(r.top()),
+        qFloor(r.right()), qFloor(r.bottom()) );
+
+    return rect;
+}
+
