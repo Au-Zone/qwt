@@ -243,6 +243,15 @@ QRectF QwtScaleMap::transform(const QwtScaleMap &xMap,
     if ( y2 < y1 )
         qSwap(y1, y2);
 
+    if ( qwtFuzzyCompare( x1, 0.0, x2 - x1 ) == 0 )
+        x1 = 0.0; 
+    if ( qwtFuzzyCompare( x2, 0.0, x2 - x1 ) == 0 )
+        x2 = 0.0; 
+    if ( qwtFuzzyCompare( y1, 0.0, y2 - y1 ) == 0 )
+        y1 = 0.0; 
+    if ( qwtFuzzyCompare( y2, 0.0, y2 - y1 ) == 0 )
+        y2 = 0.0; 
+
     return QRectF(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
 }
 

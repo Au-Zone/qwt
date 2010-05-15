@@ -274,7 +274,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     QRectF paintRect = canvasRect;
 
     QTransform transform = painter->transform();
-    if ( !transform.isRotating() )
+    if ( !transform.isRotating() ) // Todo: allow n * 90° angles
     {
         /*
             Scaling a rastered image always results in a loss of
@@ -290,7 +290,7 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     QRectF area = QwtScaleMap::invTransform(xxMap, yyMap, paintRect);
 
     const QRectF br = boundingRect();
-    if ( br.isValid() )
+    if ( br.isValid() && !br.contains(area) )
     {
         area &= br;
         if ( !area.isValid() )
@@ -333,12 +333,14 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     painter->restore();
 }
 
-QRect QwtPlotRasterItem::innerRect(const QRectF &r) const
+QRect QwtPlotRasterItem::innerRect(const QRectF &rect) const
 {
-    QRect rect;
-    rect.setCoords(qCeil(r.left()), qCeil(r.top()),
-        qFloor(r.right()), qFloor(r.bottom()) );
+    const QRectF r = rect.normalized();
 
-    return rect;
+    const int left = qCeil(r.left());
+    const int top = qCeil(r.top());
+    const int right = qMax( qFloor(r.right()), left );
+    const int bottom = qMax( qFloor(r.bottom()), top );
+
+    return QRect(left, top, right - left, bottom - top);
 }
-

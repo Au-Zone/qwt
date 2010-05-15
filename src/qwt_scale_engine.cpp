@@ -21,32 +21,6 @@
 static const double _eps = 1.0e-6;
 
 /*!
-  \brief Compare 2 values, relative to an interval
-
-  Values are "equal", when :
-  \f$\cdot value2 - value1 <= abs(intervalSize * 10e^{-6})\f$
-
-  \param value1 First value to compare
-  \param value2 Second value to compare
-  \param intervalSize interval size
-
-  \return 0: if equal, -1: if value2 > value1, 1: if value1 > value2
-*/
-int QwtScaleArithmetic::compareEps(double value1, double value2, 
-    double intervalSize) 
-{
-    const double eps = qAbs(_eps * intervalSize);
-
-    if ( value2 - value1 > eps )
-        return -1;
-
-    if ( value1 - value2 > eps )
-        return 1;
-
-    return 0;
-}
-
-/*!
   Ceil a value, relative to an interval
 
   \param value Value to ceil
@@ -261,17 +235,11 @@ bool QwtScaleEngine::contains(
     if (!interval.isValid() )
         return false;
     
-    if ( QwtScaleArithmetic::compareEps(value, 
-        interval.minValue(), interval.width()) < 0 )
-    {
+    if ( qwtFuzzyCompare(value, interval.minValue(), interval.width()) < 0 )
         return false;
-    }
 
-    if ( QwtScaleArithmetic::compareEps(value, 
-        interval.maxValue(), interval.width()) > 0 )
-    {
+    if ( qwtFuzzyCompare(value, interval.maxValue(), interval.width()) > 0 )
         return false;
-    }
 
     return true;
 }
@@ -509,7 +477,7 @@ void QwtLinearScaleEngine::buildTicks(
 
         for ( int j = 0; j < (int)ticks[i].count(); j++ )
         {
-            if ( QwtScaleArithmetic::compareEps(ticks[i][j], 0.0, stepSize) == 0 )
+            if ( qwtFuzzyCompare(ticks[i][j], 0.0, stepSize) == 0 )
                 ticks[i][j] = 0.0;
         }
     }
@@ -546,7 +514,7 @@ void QwtLinearScaleEngine::buildMinorTicks(
     int numTicks = qCeil(qAbs(stepSize / minStep)) - 1;
     
     // Do the minor steps fit into the interval?
-    if ( QwtScaleArithmetic::compareEps((numTicks +  1) * qAbs(minStep), 
+    if ( qwtFuzzyCompare((numTicks +  1) * qAbs(minStep), 
         qAbs(stepSize), stepSize) > 0)
     {   
         numTicks = 1;
@@ -567,7 +535,7 @@ void QwtLinearScaleEngine::buildMinorTicks(
             val += minStep;
 
             double alignedValue = val;
-            if (QwtScaleArithmetic::compareEps(val, 0.0, stepSize) == 0) 
+            if ( qwtFuzzyCompare(val, 0.0, stepSize) == 0) 
                 alignedValue = 0.0;
 
             if ( k == medIndex )
@@ -829,7 +797,7 @@ QList<double> QwtLog10ScaleEngine::buildMinorTicks(
 
         // Do the minor steps fit into the interval?
 
-        if ( QwtScaleArithmetic::compareEps((nMin +  1) * minStep, 
+        if ( qwtFuzzyCompare((nMin +  1) * minStep, 
             qAbs(stepSize), stepSize) > 0)
         {
             nMin = 0;

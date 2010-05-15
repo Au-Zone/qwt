@@ -108,6 +108,31 @@
 QWT_EXPORT double qwtGetMin(const double *array, int size);
 QWT_EXPORT double qwtGetMax(const double *array, int size);
 
+/*!
+  \brief Compare 2 values, relative to an interval
+
+  Values are "equal", when :
+  \f$\cdot value2 - value1 <= abs(intervalSize * 10e^{-6})\f$
+
+  \param value1 First value to compare
+  \param value2 Second value to compare
+  \param intervalSize interval size
+
+  \return 0: if equal, -1: if value2 > value1, 1: if value1 > value2
+*/
+inline int qwtFuzzyCompare(double value1, double value2, double intervalSize)
+{
+    const double eps = qAbs(1.0e-6 * intervalSize);
+
+    if ( value2 - value1 > eps )
+        return -1;
+
+    if ( value1 - value2 > eps )
+        return 1;
+
+    return 0;
+}
+
 
 inline bool qwtFuzzyGreaterOrEqual(double d1, double d2)
 {
