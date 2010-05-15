@@ -88,6 +88,8 @@ protected:
         const QwtScaleMap &yMap, const QRectF &area
         ) const = 0;
 
+    QRect innerRect(const QRectF &r) const;
+
 private:
     QwtPlotRasterItem( const QwtPlotRasterItem & );
     QwtPlotRasterItem &operator=( const QwtPlotRasterItem & );
