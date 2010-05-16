@@ -11,6 +11,7 @@
 #include <qrect.h>
 #include <qalgorithms.h>
 #include <qmath.h>
+#include <qdebug.h>
 
 #if QT_VERSION < 0x040601
 #define qExp(x) ::exp(x)
@@ -275,3 +276,18 @@ QRectF QwtScaleMap::invTransform(const QwtScaleMap &xMap,
     const QRectF r(x1, y1, x2 - x1, y2 - y1);
     return r.normalized();
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+
+QDebug operator<<( QDebug debug, const QwtScaleMap &map)
+{
+    debug.nospace() << "QwtScaleMap(" 
+		<< map.transformation()->type()
+		<< ", s:" << map.s1() << "->" << map.s2()
+		<< ", p:" << map.p1() << "->" << map.p2()
+		<< ")";
+
+    return debug.space();
+}
+
+#endif
