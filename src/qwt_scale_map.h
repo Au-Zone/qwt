@@ -186,4 +186,8 @@ inline double QwtScaleMap::invTransform(double p) const
     return d_transformation->invXForm(p, d_p1, d_p2, d_s1, d_s2 );
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+QWT_EXPORT QDebug operator<<(QDebug, const QwtScaleMap &);
+#endif
+
 #endif
