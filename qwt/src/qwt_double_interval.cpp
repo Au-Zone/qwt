@@ -10,6 +10,7 @@
 #include "qwt_double_interval.h"
 #include "qwt_math.h"
 #include <qalgorithms.h>
+#include <qdebug.h>
 
 /*!
    \brief Normalize the limits of the interval
@@ -312,3 +313,20 @@ QwtDoubleInterval& QwtDoubleInterval::operator|=(double value)
     *this = *this | value;
     return *this;
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+
+QDebug operator<<( QDebug debug, const QwtDoubleInterval &interval)
+{
+    const int flags = interval.borderFlags();
+
+    debug.nospace() << "QwtDoubleInterval("
+        << ((flags & QwtDoubleInterval::ExcludeMinimum ) ? "]" : "[")
+        << interval.minValue() << "," << interval.maxValue()
+        << ((flags & QwtDoubleInterval::ExcludeMaximum ) ? "[" : "]")
+        << ")";
+
+    return debug.space();
+}
+
+#endif

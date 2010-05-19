@@ -595,6 +595,21 @@ void QwtLog10ScaleEngine::autoScale(int maxNumSteps,
     QwtDoubleInterval interval(x1 / qPow(10.0, lowerMargin()), 
         x2 * qPow(10.0, upperMargin()) );
 
+    if (interval.maxValue() / interval.minValue() < 10.0)
+    {
+        // scale width is less than one decade -> build linear scale
+
+        QwtLinearScaleEngine linearScaler;
+        linearScaler.setAttributes(attributes());
+        linearScaler.setReference(reference());
+        linearScaler.setMargins(lowerMargin(), upperMargin());
+
+        linearScaler.autoScale(maxNumSteps, x1, x2, stepSize);
+        stepSize = ::log10(stepSize);
+
+        return;
+    }
+
     double logRef = 1.0;
     if (reference() > LOG_MIN / 2)
         logRef = qMin(reference(), LOG_MAX / 2);
@@ -660,6 +675,9 @@ QwtScaleDiv QwtLog10ScaleEngine::divideScale(double x1, double x2,
         linearScaler.setAttributes(attributes());
         linearScaler.setReference(reference());
         linearScaler.setMargins(lowerMargin(), upperMargin());
+
+        if ( stepSize != 0.0 )
+            stepSize = qPow(10.0, stepSize);
 
         return linearScaler.divideScale(x1, x2, 
             maxMajSteps, maxMinSteps, stepSize);

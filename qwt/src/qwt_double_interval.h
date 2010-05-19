@@ -281,4 +281,8 @@ inline void QwtDoubleInterval::invalidate()
     d_maxValue = -1.0;
 }
 
+#ifndef QT_NO_DEBUG_STREAM
+QWT_EXPORT QDebug operator<<(QDebug, const QwtDoubleInterval &);
+#endif
+
 #endif
