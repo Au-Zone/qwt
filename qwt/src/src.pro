@@ -1,50 +1,29 @@
-# -*- mode: sh -*- ###########################
+################################################################
 # Qwt Widget Library
 # Copyright (C) 1997   Josef Wilgen
 # Copyright (C) 2002   Uwe Rathmann
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the Qwt License, Version 1.0
-##############################################
+################################################################
 
 # qmake project file for building the qwt libraries
 
 QWT_ROOT = ..
-
 include( $${QWT_ROOT}/qwtconfig.pri )
 
-SUFFIX_STR =
-
-CONFIG(debug, debug|release) {
-    SUFFIX_STR = $${DEBUG_SUFFIX}
-}
-else {
-    SUFFIX_STR = $${RELEASE_SUFFIX}
-}
-
-TARGET            = qwt$${SUFFIX_STR}
+TARGET            = $$qtLibraryTarget(qwt)
 TEMPLATE          = lib
 
-MOC_DIR           = moc
-OBJECTS_DIR       = obj$${SUFFIX_STR}
 DESTDIR           = $${QWT_ROOT}/lib
 
-CONFIG += no_keywords
-
-contains(CONFIG, QwtDll ) {
+QwtDll {
     CONFIG += dll
-} 
+	win32|symbian: DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+}
 else {
     CONFIG += staticlib
-}
-
-win32:QwtDll {
-    DEFINES    += QT_DLL QWT_DLL QWT_MAKEDLL
-}
-
-symbian:QwtDll {
-    DEFINES    += QT_DLL QWT_DLL QWT_MAKEDLL
-}
+} 
 
 HEADERS += \
     qwt.h \
@@ -223,5 +202,8 @@ unix {
     doc.files      += $${QWT_ROOT}/doc/man
 }
 
+target.path    = $${QWT_INSTALL_LIBS}
+headers.path   = $${QWT_INSTALL_HEADERS}
+doc.path       = $${QWT_INSTALL_DOCS}
+
 INSTALLS       = target headers doc
-CONFIG += no_keywords
