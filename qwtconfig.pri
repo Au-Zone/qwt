@@ -1,37 +1,49 @@
-######################################################################
-# Install paths
-######################################################################
+################################################################
+# Qwt Widget Library
+# Copyright (C) 1997   Josef Wilgen
+# Copyright (C) 2002   Uwe Rathmann
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the Qwt License, Version 1.0
+################################################################
 
 VER_MAJ      = 6
 VER_MIN      = 0
 VER_PAT      = 0
 VERSION      = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 
+######################################################################
+# Install paths
+######################################################################
+
+QWT_INSTALL_PREFIX = $$[QT_INSTALL_PREFIX]
+
 unix {
-    INSTALLBASE    = /usr/local/qwt-$$VERSION-svn
+    QWT_INSTALL_PREFIX    = /usr/local/qwt-$$VERSION-svn
 }
 
 win32 {
-    INSTALLBASE    = C:/Qwt-$$VERSION-svn
+    QWT_INSTALL_PREFIX    = C:/Qwt-$$VERSION-svn
 }
 
-target.path    = $$INSTALLBASE/lib
-headers.path   = $$INSTALLBASE/include
-doc.path       = $$INSTALLBASE/doc
+QWT_INSTALL_DOCS      = $${QWT_INSTALL_PREFIX}/doc
+QWT_INSTALL_HEADERS   = $${QWT_INSTALL_PREFIX}/include
+QWT_INSTALL_LIBS      = $${QWT_INSTALL_PREFIX}/lib
+QWT_INSTALL_PLUGINS   = $${QWT_INSTALL_PREFIX}/plugins/designer
+QWT_INSTALL_FEATURES  = $${QWT_INSTALL_PREFIX}/features
 
 ######################################################################
 # qmake internal options
 ######################################################################
 
-CONFIG           += qt     # Also for Qtopia Core!
+CONFIG           += qt     
 CONFIG           += warn_on
 CONFIG           += thread
+CONFIG           += no_keywords
 CONFIG           += silent
 
 ######################################################################
 # release/debug mode
-# If you want to build both DEBUG_SUFFIX and RELEASE_SUFFIX
-# have to differ to avoid, that they overwrite each other.
 ######################################################################
 
 win32 {
@@ -41,24 +53,26 @@ win32 {
 	# might need a debug version. 
 	# Enable debug_and_release + build_all if you want to build both.
 
-	CONFIG           += debug     # release/debug/debug_and_release
-	#CONFIG           += debug_and_release
-	#CONFIG           += build_all
+	CONFIG           += debug_and_release
+	CONFIG           += build_all
 }
 else {
-	CONFIG           += debug     # release/debug
+
+	CONFIG           += debug
+}
+
+linux-g++ {
+	# CONFIG           += separate_debug_info
 }
 
 ######################################################################
-# If you want to have different names for the debug and release 
-# versions you can add a suffix rule below.
+# paths for building qwt
 ######################################################################
 
-DEBUG_SUFFIX        = 
-RELEASE_SUFFIX      = 
-
-win32 {
-    DEBUG_SUFFIX      = d
+MOC_DIR      = moc
+RCC_DIR      = resources
+!debug_and_release {
+	OBJECTS_DIR       = obj
 }
 
 ######################################################################
@@ -113,4 +127,4 @@ CONFIG     += QwtDesigner
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-CONFIG     += QwtExamples
+#CONFIG     += QwtExamples

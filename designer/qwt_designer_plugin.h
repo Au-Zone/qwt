@@ -220,7 +220,7 @@ public:
     QAction *preferredEditAction() const;
     QList<QAction *> taskActions() const;
 
-private slots:
+private Q_SLOTS:
     void editProperties();
     void applyProperties(const QString &);
 
