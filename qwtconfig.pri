@@ -33,69 +33,26 @@ QWT_INSTALL_PLUGINS   = $${QWT_INSTALL_PREFIX}/plugins/designer
 QWT_INSTALL_FEATURES  = $${QWT_INSTALL_PREFIX}/features
 
 ######################################################################
-# qmake internal options
-######################################################################
-
-CONFIG           += qt     
-CONFIG           += warn_on
-CONFIG           += thread
-CONFIG           += no_keywords
-CONFIG           += silent
-
-######################################################################
-# release/debug mode
-######################################################################
-
-win32 {
-	# On Windows you can't mix release and debug libraries.
-	# The designer is built in release mode. If you like to use it
-	# you need a release version. For your own application development you
-	# might need a debug version. 
-	# Enable debug_and_release + build_all if you want to build both.
-
-	CONFIG           += debug_and_release
-	CONFIG           += build_all
-}
-else {
-
-	CONFIG           += debug
-}
-
-linux-g++ {
-	# CONFIG           += separate_debug_info
-}
-
-######################################################################
-# paths for building qwt
-######################################################################
-
-MOC_DIR      = moc
-RCC_DIR      = resources
-!debug_and_release {
-	OBJECTS_DIR       = obj
-}
-
-######################################################################
 # Build the static/shared libraries.
 # If QwtDll is enabled, a shared library is built, otherwise
 # it will be a static library.
 ######################################################################
 
-CONFIG           += QwtDll
+QWT_CONFIG           += QwtDll
 
 ######################################################################
 # QwtPlot enables all classes, that are needed to use the QwtPlot 
 # widget. 
 ######################################################################
 
-CONFIG       += QwtPlot
+QWT_CONFIG       += QwtPlot
 
 ######################################################################
 # QwtWidgets enables all classes, that are needed to use the all other
 # widgets (sliders, dials, ...), beside QwtPlot. 
 ######################################################################
 
-CONFIG     += QwtWidgets
+QWT_CONFIG     += QwtWidgets
 
 ######################################################################
 # If you want to display svg images on the plot canvas, enable the 
@@ -103,7 +60,7 @@ CONFIG     += QwtWidgets
 # QwtSVGItem.
 ######################################################################
 
-CONFIG     += QwtSVGItem
+QWT_CONFIG     += QwtSVGItem
 
 ######################################################################
 # You can use the MathML renderer of the Qt solutions package to 
@@ -112,7 +69,7 @@ CONFIG     += QwtSVGItem
 # the line below.
 ######################################################################
 
-#CONFIG     += QwtMathML
+#QWT_CONFIG     += QwtMathML
 
 ######################################################################
 # If you want to build the Qwt designer plugin, 
@@ -120,11 +77,11 @@ CONFIG     += QwtSVGItem
 # Otherwise you have to build it from the designer directory.
 ######################################################################
 
-CONFIG     += QwtDesigner
+QWT_CONFIG     += QwtDesigner
 
 ######################################################################
 # If you want to auto build the examples, enable the line below
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-#CONFIG     += QwtExamples
+#QWT_CONFIG     += QwtExamples

@@ -10,8 +10,9 @@
 QWT_ROOT = ..
 
 include ( $${QWT_ROOT}/qwtconfig.pri )
+include ( $${QWT_ROOT}/qwtbuild.pri )
 
-contains(CONFIG, QwtDesigner) {
+contains(QWT_CONFIG, QwtDesigner) {
 
 	CONFIG    += qt designer plugin 
 	CONFIG    += warn_on
@@ -27,24 +28,24 @@ contains(CONFIG, QwtDesigner) {
 	LIBS      += -L$${QWT_ROOT}/lib 
 	qtAddLibrary(qwt)
 
-	contains(CONFIG, QwtDll) {
+	contains(QWT_CONFIG, QwtDll) {
 		win32 {
 			DEFINES += QT_DLL QWT_DLL
 		}
 	}
 
-	!contains(CONFIG, QwtPlot) {
+	!contains(QWT_CONFIG, QwtPlot) {
 		DEFINES += NO_QWT_PLOT
 	}
 
-	!contains(CONFIG, QwtWidgets) {
+	!contains(QWT_CONFIG, QwtWidgets) {
 		DEFINES += NO_QWT_WIDGETS
 	}
 
 	HEADERS += qwt_designer_plugin.h
 	SOURCES += qwt_designer_plugin.cpp
 
-	contains(CONFIG, QwtPlot) {
+	contains(QWT_CONFIG, QwtPlot) {
 
 		HEADERS += qwt_designer_plotdialog.h
 		SOURCES += qwt_designer_plotdialog.cpp
