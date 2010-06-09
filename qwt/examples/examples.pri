@@ -9,6 +9,7 @@
 
 QWT_ROOT = ../..
 include( $${QWT_ROOT}/qwtconfig.pri )
+include( $${QWT_ROOT}/qwtbuild.pri )
 
 TEMPLATE     = app
 
@@ -20,7 +21,7 @@ LIBS      += -L$${QWT_ROOT}/lib
 qtAddLibrary(qwt)
 
 win32 {
-    contains(CONFIG, QwtDll) {
+    contains(QWT_CONFIG, QwtDll) {
         DEFINES    += QT_DLL QWT_DLL
     }
 }

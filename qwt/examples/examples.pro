@@ -11,7 +11,7 @@ include( ../qwtconfig.pri )
 
 TEMPLATE = subdirs
 
-contains(CONFIG, QwtPlot) {
+contains(QWT_CONFIG, QwtPlot) {
     
     SUBDIRS += \
         cpuplot \
@@ -26,7 +26,7 @@ contains(CONFIG, QwtPlot) {
         spectrogram \
         tvplot 
 
-    contains(CONFIG, QwtWidgets) {
+    contains(QWT_CONFIG, QwtWidgets) {
 
         SUBDIRS += \
             bode \
@@ -34,14 +34,14 @@ contains(CONFIG, QwtPlot) {
             oscilloscope  
     }
     
-    contains(CONFIG, QwtSVGItem) {
+    contains(QWT_CONFIG, QwtSVGItem) {
 
         SUBDIRS += \
             svgmap
     }
 }
 
-contains(CONFIG, QwtWidgets) {
+contains(QWT_CONFIG, QwtWidgets) {
 
     SUBDIRS += \
         sysinfo \

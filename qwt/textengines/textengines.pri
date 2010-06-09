@@ -9,6 +9,7 @@
 
 QWT_ROOT = ../..
 include( $${QWT_ROOT}/qwtconfig.pri )
+include( $${QWT_ROOT}/qwtbuild.pri )
 
 TEMPLATE  = lib
 
@@ -17,6 +18,7 @@ INCLUDEPATH    += $${QWT_ROOT}/src
 DEPENDPATH     += $${QWT_ROOT}/src
 
 QwtDll {
+contains(QWT_CONFIG, QwtDll) {
     CONFIG += dll
     win32|symbian: DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
 }   

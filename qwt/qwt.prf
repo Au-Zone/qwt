@@ -7,10 +7,13 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ################################################################
 
-include( ../qwtconfig.pri )
+#include ( ./qwtconfig.pri )
 
-TEMPLATE = subdirs
+INCLUDEPATH *= $${QWT_INSTALL_HEADERS}
+LIBS *= -L$${QWT_INSTALL_LIBS}" 
+qtAddLibrary(qwt)
 
-contains(QWT_CONFIG, QwtMathML) {
-    SUBDIRS += mathml 
+QwtDll {
+    DEFINES *= QWT_DLL
 }
+

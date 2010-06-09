@@ -24,4 +24,8 @@ contains(CONFIG, QwtExamples ) {
     SUBDIRS += examples 
 }
 
-SUBDIRS += features
+qwtspec.files  = qwtconfig.pri qwt.prf
+qwtspec.path  = $${QWT_INSTALL_FEATURES}
+
+INSTALLS += qwtspec
+

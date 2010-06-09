@@ -11,13 +11,15 @@
 
 QWT_ROOT = ..
 include( $${QWT_ROOT}/qwtconfig.pri )
+include( $${QWT_ROOT}/qwtbuild.pri )
 
 TARGET            = $$qtLibraryTarget(qwt)
 TEMPLATE          = lib
 
 DESTDIR           = $${QWT_ROOT}/lib
 
-QwtDll {
+contains(QWT_CONFIG, QwtDll) {
+
     CONFIG += dll
 	win32|symbian: DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
 }
@@ -83,7 +85,7 @@ SOURCES += \
     qwt_system_clock.cpp
 
  
-contains(CONFIG, QwtPlot) {
+contains(QWT_CONFIG, QwtPlot) {
 
     HEADERS += \
         qwt_curve_fitter.h \
@@ -152,14 +154,14 @@ contains(CONFIG, QwtPlot) {
         qwt_scale_widget.cpp 
 }
 
-contains(CONFIG, QwtSVGItem) {
+contains(QWT_CONFIG, QwtSVGItem) {
 
     QT += svg
     HEADERS += qwt_plot_svgitem.h
     SOURCES += qwt_plot_svgitem.cpp 
 }
 
-contains(CONFIG, QwtWidgets) {
+contains(QWT_CONFIG, QwtWidgets) {
 
     HEADERS += \
         qwt_abstract_slider.h \
