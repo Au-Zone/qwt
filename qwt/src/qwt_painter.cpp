@@ -301,24 +301,24 @@ void QwtPainter::drawText(QPainter *painter, const QRectF &rect,
 void QwtPainter::drawSimpleRichText(QPainter *painter, const QRectF &rect,
     int flags, QTextDocument &text)
 {
-    const QRectF scaledRect = rect;
-    text.setPageSize(QSizeF(scaledRect.width(), QWIDGETSIZE_MAX));
+    text.setPageSize(QSizeF(rect.width(), QWIDGETSIZE_MAX));
 
     QAbstractTextDocumentLayout* layout = text.documentLayout();
 
-    const double height = qRound(layout->documentSize().height());
-    double y = scaledRect.y();
+    const double height = layout->documentSize().height();
+    double y = rect.y();
     if (flags & Qt::AlignBottom)
-        y += (scaledRect.height() - height);
+        y += (rect.height() - height);
     else if (flags & Qt::AlignVCenter)
-        y += (scaledRect.height() - height)/2;
+        y += (rect.height() - height)/2;
 
     QAbstractTextDocumentLayout::PaintContext context;
     context.palette.setColor(QPalette::Text, painter->pen().color());
 
     painter->save();
 
-    painter->translate(scaledRect.x(), y);
+    unscaleFont(painter);
+    painter->translate(rect.x(), y);
     layout->draw(painter, context);
 
     painter->restore();
