@@ -16,11 +16,11 @@ SUBDIRS = \
     src \
     textengines
 
-contains(CONFIG, QwtDesigner ) {
+contains(QWT_CONFIG, QwtDesigner ) {
     SUBDIRS += designer 
 }
 
-contains(CONFIG, QwtExamples ) {
+contains(QWT_CONFIG, QwtExamples ) {
     SUBDIRS += examples 
 }
 

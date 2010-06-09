@@ -9,8 +9,8 @@ build a certain project. A project file ends with the suffix "*.pro".
 Files that end with the suffix "*.pri" are included by the project 
 files and contain definitions, that are common for several project files.
 
-qwtconfig.pri is read by all project files of the Qwt package.
-So the first step is to edit qwtconfig.pri to adjust it to your
+qwtconfig.pri/qwtbuild.pri are read by all project files of the Qwt package.
+So the first step is to edit qwtconfig.pri/qwtbuild.pri to adjust it to your
 needs.
 
 MathML Extension
@@ -32,8 +32,11 @@ Qwt includes a class documentation, that is available in various formats:
   You can load it "Edit Preferences" -> "Documentation" -> "Add..."
 - Man pages ( UNIX only )
 
-A) Unix 
+Building Qwt
 ==========================
+
+A) Unix 
+--------
 
 qmake
 make
@@ -58,7 +61,7 @@ make
 
 
 B) Win32/MSVC 
-=====================
+--------
 
 Please read the qmake documentation how to convert 
 your *.pro files into your development environment.
@@ -91,7 +94,7 @@ executable.
 
 
 C) Win32/MinGW 
-==================
+--------
 
 Start a Shell, where Qt4 is initialized. ( F.e. with
 "Programs->Qt by Trolltech ...->Qt 4.x.x Command Prompt" ).
@@ -117,6 +120,7 @@ of trying to load a Qwt debug library into a designer release
 executable.
 
 D) MacOSX
+--------
 
 Well, the Mac is only another Unix system. So read the instructions in A).
 
@@ -128,16 +132,31 @@ qmake -spec macx-g++
 ...
 
 D) Qt Embedded
+--------
 
 I only tested Qwt with Qt Embedded in qvfb (Virtual Framebuffer Devivce)
 Emulator on my Linux box. To build Qwt for the emulator was as simple as 
 for a regular Unix build.
 
-qmake
-make
-
 F) Symbian
+--------
 
 I never tried this platform myself.
+
+Using Qwt
+===========
+
+For building a Qwt application with qmake it might be enough adding
+"CONFIG += qwt" to your project file. This assignment will load 
+all compiler/linker flags, that are required for building a Qwt
+application into your Makefile. If it doesn't work check
+where you have installed qwt.prf and read 
+http://doc.qt.nokia.com/4.6/qmake-advanced-usage.html#adding-new-configuration-features
+
+If you don't use qmake you have to add the include path to find the Qwt 
+headers to your compiler flags and the qwt library to your linker list.
+Don't forget to add QWT_DLL to the compiler flags, when you work with a 
+Qwt-DLLs on Windows.
+
 
 Good luck !
