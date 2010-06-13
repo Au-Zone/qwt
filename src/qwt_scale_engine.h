@@ -151,18 +151,17 @@ protected:
     QwtDoubleInterval align(const QwtDoubleInterval&,
         double stepSize) const;
 
-private:
     void buildTicks(
         const QwtDoubleInterval &, double stepSize, int maxMinSteps,
         QList<double> ticks[QwtScaleDiv::NTickTypes]) const;
+
+    QList<double> buildMajorTicks(
+        const QwtDoubleInterval &interval, double stepSize) const;
 
     void buildMinorTicks(
         const QList<double>& majorTicks,
         int maxMinMark, double step,
         QList<double> &, QList<double> &) const;
-
-    QList<double> buildMajorTicks(
-        const QwtDoubleInterval &interval, double stepSize) const;
 };
 
 /*!
@@ -192,7 +191,6 @@ protected:
     QwtDoubleInterval log10(const QwtDoubleInterval&) const;
     QwtDoubleInterval pow10(const QwtDoubleInterval&) const;
 
-private:
     QwtDoubleInterval align(const QwtDoubleInterval&,
         double stepSize) const;
 
@@ -200,12 +198,12 @@ private:
         const QwtDoubleInterval &, double stepSize, int maxMinSteps,
         QList<double> ticks[QwtScaleDiv::NTickTypes]) const;
 
+    QList<double> buildMajorTicks(
+        const QwtDoubleInterval &interval, double stepSize) const;
+
     QList<double> buildMinorTicks(
         const QList<double>& majorTicks,
         int maxMinMark, double step) const;
-
-    QList<double> buildMajorTicks(
-        const QwtDoubleInterval &interval, double stepSize) const;
 };
 
 #endif

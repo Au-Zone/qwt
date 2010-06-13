@@ -82,7 +82,7 @@ double QwtScaleArithmetic::ceil125(double x)
         return 0.0;
 
     const double sign = (x > 0) ? 1.0 : -1.0;
-    const double lx = log10(qFabs(x));
+    const double lx = ::log10(qFabs(x));
     const double p10 = qFloor(lx);
     
     double fr = qPow(10.0, lx - p10);
@@ -110,7 +110,7 @@ double QwtScaleArithmetic::floor125(double x)
         return 0.0;
 
     double sign = (x > 0) ? 1.0 : -1.0;
-    const double lx = log10(qFabs(x));
+    const double lx = ::log10(qFabs(x));
     const double p10 = qFloor(lx);
 
     double fr = qPow(10.0, lx - p10);
@@ -452,6 +452,16 @@ QwtScaleDiv QwtLinearScaleEngine::divideScale(double x1, double x2,
     return scaleDiv;
 }
 
+/*!
+   \brief Calculate ticks for an interval
+
+   \param interval Interval 
+   \param maxMinSteps Maximum number of minor steps
+   \param stepSize Step size 
+   \param ticks Arrays to be filled with the calculated ticks
+
+   \sa buildMajorTicks(), buildMinorTicks
+*/
 void QwtLinearScaleEngine::buildTicks(
     const QwtDoubleInterval& interval, double stepSize, int maxMinSteps,
     QList<double> ticks[QwtScaleDiv::NTickTypes]) const
@@ -483,6 +493,14 @@ void QwtLinearScaleEngine::buildTicks(
     }
 }
 
+/*!
+   \brief Calculate major ticks for an interval
+
+   \param interval Interval 
+   \param stepSize Step size 
+
+   \return Calculated ticks
+*/
 QList<double> QwtLinearScaleEngine::buildMajorTicks(
     const QwtDoubleInterval &interval, double stepSize) const
 {
@@ -500,6 +518,16 @@ QList<double> QwtLinearScaleEngine::buildMajorTicks(
     return ticks;
 }
 
+/*!
+   \brief Calculate minor/medium ticks for major ticks
+
+   \param majorTicks Major ticks
+   \param maxMinSteps Maximum number of minor steps
+   \param stepSize Step size 
+   \param minorTicks Array to be filled with the calculated minor ticks
+   \param mediumTicks Array to be filled with the calculated medium ticks
+
+*/
 void QwtLinearScaleEngine::buildMinorTicks(
     const QList<double>& majorTicks,
     int maxMinSteps, double stepSize,
@@ -709,6 +737,16 @@ QwtScaleDiv QwtLog10ScaleEngine::divideScale(double x1, double x2,
     return scaleDiv;
 }
 
+/*!
+   \brief Calculate ticks for an interval
+
+   \param interval Interval 
+   \param maxMinSteps Maximum number of minor steps
+   \param stepSize Step size 
+   \param ticks Arrays to be filled with the calculated ticks
+
+   \sa buildMajorTicks(), buildMinorTicks
+*/
 void QwtLog10ScaleEngine::buildTicks(
     const QwtDoubleInterval& interval, double stepSize, int maxMinSteps,
     QList<double> ticks[QwtScaleDiv::NTickTypes]) const
@@ -729,6 +767,14 @@ void QwtLog10ScaleEngine::buildTicks(
         ticks[i] = strip(ticks[i], interval);
 }
 
+/*!
+   \brief Calculate major ticks for an interval
+
+   \param interval Interval 
+   \param stepSize Step size 
+
+   \return Calculated ticks
+*/
 QList<double> QwtLog10ScaleEngine::buildMajorTicks(
     const QwtDoubleInterval &interval, double stepSize) const
 {
@@ -738,8 +784,8 @@ QList<double> QwtLog10ScaleEngine::buildMajorTicks(
     if ( numTicks > 10000 )
         numTicks = 10000;
 
-    const double lxmin = log(interval.minValue());
-    const double lxmax = log(interval.maxValue());
+    const double lxmin = ::log(interval.minValue());
+    const double lxmax = ::log(interval.maxValue());
     const double lstep = (lxmax - lxmin) / double(numTicks - 1);
 
     QList<double> ticks;
@@ -754,6 +800,16 @@ QList<double> QwtLog10ScaleEngine::buildMajorTicks(
     return ticks;
 }
 
+/*!
+   \brief Calculate minor/medium ticks for major ticks
+
+   \param majorTicks Major ticks
+   \param maxMinSteps Maximum number of minor steps
+   \param stepSize Step size 
+   \param minorTicks Array to be filled with the calculated minor ticks
+   \param mediumTicks Array to be filled with the calculated medium ticks
+
+*/
 QList<double> QwtLog10ScaleEngine::buildMinorTicks(
     const QList<double> &majorTicks, 
     int maxMinSteps, double stepSize) const
