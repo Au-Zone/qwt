@@ -102,9 +102,6 @@ void QwtPlotDirectPainter::drawSeries(
 
     QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
 
-    const QwtScaleMap xMap = seriesItem->plot()->canvasMap(seriesItem->xAxis());
-    const QwtScaleMap yMap = seriesItem->plot()->canvasMap(seriesItem->yAxis());
-
     if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
         canvas->paintCache() && !canvas->paintCache()->isNull() )
     {

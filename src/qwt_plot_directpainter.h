@@ -26,7 +26,7 @@ class QwtPlotAbstractSeriesItem;
     the plot canvas.
 
     \warning Incremental painting will only help when no replot is triggered
-             by another operation ( like chnging scales ) and nothing needs
+             by another operation ( like changing scales ) and nothing needs
              to be erased.
 */
 class QWT_EXPORT QwtPlotDirectPainter: public QObject
