@@ -18,7 +18,7 @@ public:
 
         // adjust the bounding rectangle
 
-        if ( !boundingRect.isValid() )
+        if ( boundingRect.width() < 0 || boundingRect.height() < 0 )
         {
             boundingRect.setRect(sample.x(), sample.y(), 0.0, 0.0);
         }

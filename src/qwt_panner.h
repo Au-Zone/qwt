@@ -24,8 +24,8 @@ class QCursor;
    
   QwtPanner grabs the content of the widget into a pixmap and moves
   the pixmap around, without initiating any repaint events for the widget.
-  Areas, that are not part of content are not painted  while panning
-  in in process. This makes panning fast enough for widgets, where 
+  Areas, that are not part of content are not painted  while panning.
+  This makes panning fast enough for widgets, where 
   repaints are too slow for mouse movements. 
 
   For widgets, where repaints are very fast it might be better to
