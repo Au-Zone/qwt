@@ -450,7 +450,7 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
                 const QSize sz = label->identifierSize();
 
                 QPixmap identifier(sz.width(), sz.height());
-                identifier.fill(QColor(0, 0, 0, 0));
+                identifier.fill(Qt::transparent);
             
                 QPainter painter(&identifier);
                 painter.setRenderHint(QPainter::Antialiasing, 
