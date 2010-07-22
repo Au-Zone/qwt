@@ -588,10 +588,13 @@ void QwtLinearScaleEngine::buildMinorTicks(
 QwtDoubleInterval QwtLinearScaleEngine::align(
     const QwtDoubleInterval &interval, double stepSize) const
 {
-    const double x1 = 
-        QwtScaleArithmetic::floorEps(interval.minValue(), stepSize);
-    const double x2 = 
-        QwtScaleArithmetic::ceilEps(interval.maxValue(), stepSize);
+    double x1 = QwtScaleArithmetic::floorEps(interval.minValue(), stepSize);
+    if ( qwtFuzzyCompare(interval.minValue(), x1, stepSize) == 0 )
+        x1 = interval.minValue();
+
+    double x2 = QwtScaleArithmetic::ceilEps(interval.maxValue(), stepSize);
+    if ( qwtFuzzyCompare(interval.maxValue(), x2, stepSize) == 0 )
+        x2 = interval.maxValue();
 
     return QwtDoubleInterval(x1, x2);
 }
@@ -913,8 +916,13 @@ QwtDoubleInterval QwtLog10ScaleEngine::align(
 {
     const QwtDoubleInterval intv = log10(interval);
 
-    const double x1 = QwtScaleArithmetic::floorEps(intv.minValue(), stepSize);
-    const double x2 = QwtScaleArithmetic::ceilEps(intv.maxValue(), stepSize);
+    double x1 = QwtScaleArithmetic::floorEps(intv.minValue(), stepSize);
+    if ( qwtFuzzyCompare(interval.minValue(), x1, stepSize) == 0 )
+        x1 = interval.minValue();
+
+    double x2 = QwtScaleArithmetic::ceilEps(intv.maxValue(), stepSize);
+    if ( qwtFuzzyCompare(interval.maxValue(), x2, stepSize) == 0 )
+        x2 = interval.maxValue();
 
     return pow10(QwtDoubleInterval(x1, x2));
 }
