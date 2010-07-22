@@ -10,6 +10,7 @@
 #include "qwt_math.h"
 #include "qwt_scale_map.h"
 #include "qwt_scale_engine.h"
+#include "QDebug"
 
 static const double _eps = 1.0e-6;
 
@@ -481,8 +482,7 @@ void QwtLinearScaleEngine::buildTicks(
     const QwtDoubleInterval& interval, double stepSize, int maxMinSteps,
     QwtValueList ticks[QwtScaleDiv::NTickTypes]) const
 {
-    const QwtDoubleInterval boundingInterval =
-        align(interval, stepSize);
+    const QwtDoubleInterval boundingInterval = align(interval, stepSize);
     
     ticks[QwtScaleDiv::MajorTick] = 
         buildMajorTicks(boundingInterval, stepSize);
@@ -585,10 +585,13 @@ void QwtLinearScaleEngine::buildMinorTicks(
 QwtDoubleInterval QwtLinearScaleEngine::align(
     const QwtDoubleInterval &interval, double stepSize) const
 {
-    const double x1 = 
-        QwtScaleArithmetic::floorEps(interval.minValue(), stepSize);
-    const double x2 = 
-        QwtScaleArithmetic::ceilEps(interval.maxValue(), stepSize);
+    double x1 = QwtScaleArithmetic::floorEps(interval.minValue(), stepSize);
+    if ( QwtScaleArithmetic::compareEps(interval.minValue(), x1, stepSize) == 0 )
+        x1 = interval.minValue();
+
+    double x2 = QwtScaleArithmetic::ceilEps(interval.maxValue(), stepSize);
+    if ( QwtScaleArithmetic::compareEps(interval.maxValue(), x2, stepSize) == 0 )
+        x2 = interval.maxValue();
 
     return QwtDoubleInterval(x1, x2);
 }
@@ -738,8 +741,7 @@ void QwtLog10ScaleEngine::buildTicks(
     const QwtDoubleInterval& interval, double stepSize, int maxMinSteps,
     QwtValueList ticks[QwtScaleDiv::NTickTypes]) const
 {
-    const QwtDoubleInterval boundingInterval =
-        align(interval, stepSize);
+    const QwtDoubleInterval boundingInterval = align(interval, stepSize);
     
     ticks[QwtScaleDiv::MajorTick] = 
         buildMajorTicks(boundingInterval, stepSize);
@@ -882,8 +884,13 @@ QwtDoubleInterval QwtLog10ScaleEngine::align(
 {
     const QwtDoubleInterval intv = log10(interval);
 
-    const double x1 = QwtScaleArithmetic::floorEps(intv.minValue(), stepSize);
-    const double x2 = QwtScaleArithmetic::ceilEps(intv.maxValue(), stepSize);
+    double x1 = QwtScaleArithmetic::floorEps(intv.minValue(), stepSize);
+    if ( QwtScaleArithmetic::compareEps(interval.minValue(), x1, stepSize) == 0 )
+        x1 = interval.minValue();
+
+    double x2 = QwtScaleArithmetic::ceilEps(intv.maxValue(), stepSize);
+    if ( QwtScaleArithmetic::compareEps(interval.maxValue(), x2, stepSize) == 0 )
+        x2 = interval.maxValue();
 
     return pow10(QwtDoubleInterval(x1, x2));
 }
