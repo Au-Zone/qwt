@@ -342,55 +342,10 @@ void QwtPlotRenderer::render(QwtPlot *plot,
         }
     }
 
-    QRectF canvasRect = plot->plotLayout()->canvasRect();
-
-    QwtScaleMap map[QwtPlot::axisCnt];
-    for (axisId = 0; axisId < QwtPlot::axisCnt; axisId++)
-    {
-        map[axisId].setTransformation(
-            plot->axisScaleEngine(axisId)->transformation());
-
-        const QwtScaleDiv &scaleDiv = *plot->axisScaleDiv(axisId);
-        map[axisId].setScaleInterval(
-            scaleDiv.lowerBound(), scaleDiv.upperBound());
-
-        double from, to;
-        if ( plot->axisEnabled(axisId) )
-        {
-            const int sDist = plot->axisWidget(axisId)->startBorderDist();
-            const int eDist = plot->axisWidget(axisId)->endBorderDist();
-            const QRectF &scaleRect = plot->plotLayout()->scaleRect(axisId);
-
-            if ( axisId == QwtPlot::xTop || axisId == QwtPlot::xBottom )
-            {
-                from = scaleRect.left() + sDist;
-                to = scaleRect.right() - eDist;
-            }
-            else
-            {
-                from = scaleRect.bottom() - eDist;
-                to = scaleRect.top() + sDist;
-            }
-        }
-        else
-        {
-            int margin = plot->plotLayout()->canvasMargin(axisId);
-            if ( axisId == QwtPlot::yLeft || axisId == QwtPlot::yRight )
-            {
-                from = canvasRect.bottom() - margin;
-                to = canvasRect.top() + margin;
-            }
-            else
-            {
-                from = canvasRect.left() + margin;
-                to = canvasRect.right() - margin;
-            }
-        }
-        map[axisId].setPaintInterval(from, to);
-    }
-
     // canvas 
-    renderCanvas(painter, canvasRect, map);
+    QwtScaleMap maps[QwtPlot::axisCnt];
+    buildCanvasMaps(plot->plotLayout()->canvasRect(), maps);
+    renderCanvas(painter, plot->plotLayout()->canvasRect(), maps);
 
     plot->plotLayout()->invalidate();
 
@@ -652,3 +607,72 @@ void QwtPlotRenderer::renderCanvas(QPainter *painter,
     painter->setClipRect(canvasRect);
     d_data->plot->drawItems(painter, canvasRect, map);
 }
+
+/*!
+   Calculated the scale maps for rendering the canvas
+
+   \param canvasRect Target rectangle
+   \param maps Scale maps to be calculated
+*/
+void QwtPlotRenderer::buildCanvasMaps(
+    const QRectF &canvasRect, QwtScaleMap maps[]) const
+{
+    const QwtPlot *plot = d_data->plot;
+
+    for (int axisId = 0; axisId < QwtPlot::axisCnt; axisId++)
+    {
+        maps[axisId].setTransformation(
+            plot->axisScaleEngine(axisId)->transformation());
+
+        const QwtScaleDiv &scaleDiv = *plot->axisScaleDiv(axisId);
+        maps[axisId].setScaleInterval(
+            scaleDiv.lowerBound(), scaleDiv.upperBound());
+
+        double from, to;
+        if ( plot->axisEnabled(axisId) )
+        {
+            const int sDist = plot->axisWidget(axisId)->startBorderDist();
+            const int eDist = plot->axisWidget(axisId)->endBorderDist();
+            const QRectF &scaleRect = plot->plotLayout()->scaleRect(axisId);
+
+            if ( axisId == QwtPlot::xTop || axisId == QwtPlot::xBottom )
+            {
+                from = scaleRect.left() + sDist;
+                to = scaleRect.right() - eDist;
+            }
+            else
+            {
+                from = scaleRect.bottom() - eDist;
+                to = scaleRect.top() + sDist;
+            }
+        }
+        else
+        {
+            int margin = plot->plotLayout()->canvasMargin(axisId);
+            if ( axisId == QwtPlot::yLeft || axisId == QwtPlot::yRight )
+            {
+                from = canvasRect.bottom() - margin;
+                to = canvasRect.top() + margin;
+            }
+            else
+            {
+                from = canvasRect.left() + margin;
+                to = canvasRect.right() - margin;
+            }
+        }
+        maps[axisId].setPaintInterval(from, to);
+    }
+}
+
+//! \return plot widget, that is currently rendered
+QwtPlot *QwtPlotRenderer::plot()
+{
+    return d_data->plot;
+}
+
+//! \return plot widget, that is currently rendered
+const QwtPlot *QwtPlotRenderer::plot() const
+{
+    return d_data->plot;
+}
+
