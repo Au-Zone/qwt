@@ -315,6 +315,12 @@ void QwtPlotRenderer::render(QwtPlot *plot,
 
     painter->setWorldTransform(transform);
 
+    // canvas 
+
+    QwtScaleMap maps[QwtPlot::axisCnt];
+    buildCanvasMaps(plot->plotLayout()->canvasRect(), maps);
+    renderCanvas(painter, plot->plotLayout()->canvasRect(), maps);
+
     if ( !(d_data->discardFlags & DiscardTitle)
         && (!plot->titleLabel()->text().isEmpty()))
     {
@@ -342,10 +348,6 @@ void QwtPlotRenderer::render(QwtPlot *plot,
         }
     }
 
-    // canvas 
-    QwtScaleMap maps[QwtPlot::axisCnt];
-    buildCanvasMaps(plot->plotLayout()->canvasRect(), maps);
-    renderCanvas(painter, plot->plotLayout()->canvasRect(), maps);
 
     plot->plotLayout()->invalidate();
 
@@ -604,8 +606,12 @@ void QwtPlotRenderer::renderCanvas(QPainter *painter,
 
     painter->restore();
 
+    painter->save();
     painter->setClipRect(canvasRect);
+
     d_data->plot->drawItems(painter, canvasRect, map);
+
+    painter->restore();
 }
 
 /*!
