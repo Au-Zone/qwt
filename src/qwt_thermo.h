@@ -154,7 +154,7 @@ public:
     const QwtScaleDraw *scaleDraw() const;
 
 public Q_SLOTS:
-    void setValue(double val);
+    virtual void setValue(double val);
     
 protected:
     void draw(QPainter *p, const QRect& update_rect);
