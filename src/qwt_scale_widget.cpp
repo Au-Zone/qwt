@@ -483,10 +483,13 @@ void QwtScaleWidget::resizeEvent(QResizeEvent *)
     layoutScale(false);
 }
 
-//! Recalculate the scale's geometry and layout based on
-//  the current rect and fonts.
-//  \param update_geometry   notify the layout system and call update
-//         to redraw the scale
+/*! 
+  Recalculate the scale's geometry and layout based on
+  the current rect and fonts.
+
+  \param update_geometry notify the layout system and call update
+                         to redraw the scale
+*/
 
 void QwtScaleWidget::layoutScale( bool update_geometry )
 {
@@ -540,6 +543,14 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     }
 }
 
+/*!
+  Draw the color bar of the scale widget
+
+  \param painter Painter
+  \param rect Bounding rectangle for the color bar
+
+  \sa setColorBarEnabled()
+*/
 void QwtScaleWidget::drawColorBar(QPainter *painter, const QRectF& rect) const
 {
     if ( !d_data->colorBar.interval.isValid() )
@@ -554,6 +565,7 @@ void QwtScaleWidget::drawColorBar(QPainter *painter, const QRectF& rect) const
 
 /*!
   Rotate and paint a title according to its position into a given rectangle.
+
   \param painter Painter
   \param align Alignment
   \param rect Bounding rectangle
@@ -790,6 +802,10 @@ void QwtScaleWidget::setScaleDiv(
         delete transformation;
 }
 
+/*!
+  En/disable a color bar associated to the scale
+  \sa isColorBarEnabled(), setColorBarWidth()
+*/
 void QwtScaleWidget::setColorBarEnabled(bool on)
 {
     if ( on != d_data->colorBar.isEnabled )
@@ -799,12 +815,21 @@ void QwtScaleWidget::setColorBarEnabled(bool on)
     }
 }
 
+/*!
+  \return true, when the color bar is enabled
+  \sa setColorBarEnabled(), setColorBarWidth()
+*/
 bool QwtScaleWidget::isColorBarEnabled() const
 {
     return d_data->colorBar.isEnabled;
 }
 
+/*!
+  Set the width of the color bar
 
+  \param width Width
+  \sa colorBarWidth(), setColorBarEnabled()
+*/
 void QwtScaleWidget::setColorBarWidth(int width)
 {
     if ( width != d_data->colorBar.width )
@@ -815,6 +840,10 @@ void QwtScaleWidget::setColorBarWidth(int width)
     }
 }
 
+/*!
+  \return Width of the color bar
+  \sa setColorBarEnabled(), setColorBarEnabled()
+*/
 int QwtScaleWidget::colorBarWidth() const
 {
     return d_data->colorBar.width;

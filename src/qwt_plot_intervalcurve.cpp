@@ -18,7 +18,7 @@ class QwtPlotIntervalCurve::PrivateData
 {
 public:
     PrivateData():
-        curveStyle(Tube),
+        style(Tube),
         symbol(NULL),
         pen(Qt::black),
         brush(Qt::white)
@@ -31,7 +31,7 @@ public:
         delete symbol;
     }
 
-    CurveStyle curveStyle;
+    CurveStyle style;
     const QwtIntervalSymbol *symbol;
 
     QPen pen;
@@ -39,8 +39,8 @@ public:
 };
 
 /*!
-  \brief Ctor
-  \param title title of the curve   
+  Constructor
+  \param title Title of the curve   
 */
 QwtPlotIntervalCurve::QwtPlotIntervalCurve(const QwtText &title):
     QwtPlotSeriesItem<QwtIntervalSample>(title)
@@ -49,8 +49,8 @@ QwtPlotIntervalCurve::QwtPlotIntervalCurve(const QwtText &title):
 }
 
 /*!
-  \brief Ctor
-  \param title title of the curve   
+  Constructor
+  \param title Title of the curve   
 */
 QwtPlotIntervalCurve::QwtPlotIntervalCurve(const QString &title):
     QwtPlotSeriesItem<QwtIntervalSample>(QwtText(title))
@@ -58,15 +58,13 @@ QwtPlotIntervalCurve::QwtPlotIntervalCurve(const QString &title):
     init();
 }
 
-//! Dtor
+//! Destructor
 QwtPlotIntervalCurve::~QwtPlotIntervalCurve()
 {
     delete d_data;
 }
 
-/*!
-  \brief Initialize data members
-*/
+//! Initialize internal members
 void QwtPlotIntervalCurve::init()
 {
     setItemAttribute(QwtPlotItem::Legend, true);
@@ -78,24 +76,35 @@ void QwtPlotIntervalCurve::init()
     setZ(19.0);
 }
 
+//! \return QwtPlotItem::Rtti_PlotIntervalCurve
 int QwtPlotIntervalCurve::rtti() const
 {
     return QwtPlotIntervalCurve::Rtti_PlotIntervalCurve;
 }
 
+/*!
+  Initialize data with an array of samples. 
+  \param samples Vector of samples
+*/
 void QwtPlotIntervalCurve::setSamples(
-    const QVector<QwtIntervalSample> &data)
+    const QVector<QwtIntervalSample> &samples)
 {
     delete d_series;
-    d_series = new QwtIntervalSeriesData(data);
+    d_series = new QwtIntervalSeriesData(samples);
     itemChanged();
 }
 
-void QwtPlotIntervalCurve::setCurveStyle(CurveStyle style)
+/*!
+  Set the curve's drawing style
+
+  \param style Curve style
+  \sa CurveStyle, style()
+*/
+void QwtPlotIntervalCurve::setStyle(CurveStyle style)
 {
-    if ( style != d_data->curveStyle )
+    if ( style != d_data->style )
     {
-        d_data->curveStyle = style;
+        d_data->style = style;
         itemChanged();
     }
 }
@@ -104,11 +113,17 @@ void QwtPlotIntervalCurve::setCurveStyle(CurveStyle style)
     \brief Return the current style
     \sa setStyle()
 */
-QwtPlotIntervalCurve::CurveStyle QwtPlotIntervalCurve::curveStyle() const 
+QwtPlotIntervalCurve::CurveStyle QwtPlotIntervalCurve::style() const 
 { 
-    return d_data->curveStyle; 
+    return d_data->style; 
 }
 
+/*!
+  Assign a symbol.
+
+  \param symbol Symbol
+  \sa symbol()
+*/
 void QwtPlotIntervalCurve::setSymbol(const QwtIntervalSymbol *symbol)
 {
     if ( symbol != d_data->symbol )
@@ -119,6 +134,10 @@ void QwtPlotIntervalCurve::setSymbol(const QwtIntervalSymbol *symbol)
     }
 }
 
+/*!
+  \return Current symbol or NULL, when no symbol has been assigned
+  \sa setSymbol()
+*/
 const QwtIntervalSymbol *QwtPlotIntervalCurve::symbol() const 
 { 
     return d_data->symbol; 
@@ -126,14 +145,14 @@ const QwtIntervalSymbol *QwtPlotIntervalCurve::symbol() const
 
 /*!
   \brief Assign a pen
-  \param p New pen
+  \param pen New pen
   \sa pen(), brush()
 */
-void QwtPlotIntervalCurve::setPen(const QPen &p)
+void QwtPlotIntervalCurve::setPen(const QPen &pen)
 {
-    if ( p != d_data->pen )
+    if ( pen != d_data->pen )
     {
-        d_data->pen = p;
+        d_data->pen = pen;
         itemChanged();
     }
 }
@@ -147,6 +166,14 @@ const QPen& QwtPlotIntervalCurve::pen() const
     return d_data->pen; 
 }
 
+/*!
+  Assign a brush. 
+
+  The brush is used to fill the area in Tube style().
+
+  \param brush Brush
+  \sa brush(), pen(), setStyle(), CurveStyle
+*/
 void QwtPlotIntervalCurve::setBrush(const QBrush &brush)
 {
     if ( brush != d_data->brush )
@@ -156,25 +183,41 @@ void QwtPlotIntervalCurve::setBrush(const QBrush &brush)
     }
 }
 
+/*!
+  \return Brush used to fill the area in Tube style()
+  \sa setBrush(), setStyle(), CurveStyle
+*/
 const QBrush& QwtPlotIntervalCurve::brush() const 
 {
     return d_data->brush;
 }
 
+/*!
+  \return Bounding rectangle of all samples. 
+  For an empty series the rectangle is invalid.
+*/
 QRectF QwtPlotIntervalCurve::boundingRect() const
 {
-    QRectF br = QwtPlotSeriesItem<QwtIntervalSample>::boundingRect();
-    if ( br.isValid() )
-    {
-        if ( orientation() == Qt::Vertical )
-            br.setRect(br.y(), br.x(), br.height(), br.width());
-        else
-            br.setRect(br.x(), br.y(), br.width(), br.height());
-    }
+    QRectF rect = QwtPlotSeriesItem<QwtIntervalSample>::boundingRect();
+    if ( rect.isValid() && orientation() == Qt::Vertical )
+        rect.setRect(rect.y(), rect.x(), rect.height(), rect.width());
 
-    return br;
+    return rect;
 }
 
+/*!
+  Draw a subset of the samples
+
+  \param painter Painter
+  \param xMap Maps x-values into pixel coordinates.
+  \param yMap Maps y-values into pixel coordinates.
+  \param canvasRect Contents rect of the canvas
+  \param from Index of the first sample to be painted
+  \param to Index of the last sample to be painted. If to < 0 the 
+         series will be painted to its last sample.
+
+  \sa drawTube(), drawSymbols()
+*/
 void QwtPlotIntervalCurve::drawSeries(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     const QRectF &, int from, int to) const
@@ -188,11 +231,12 @@ void QwtPlotIntervalCurve::drawSeries(QPainter *painter,
     if ( from >= to )
         return;
         
-    switch(d_data->curveStyle)
+    switch(d_data->style)
     {
         case Tube:
             drawTube(painter, xMap, yMap, from, to);
             break;
+
         case NoCurve:
         default:
             break;
@@ -205,6 +249,22 @@ void QwtPlotIntervalCurve::drawSeries(QPainter *painter,
     }
 }
 
+/*!
+  Draw a tube
+
+  Builds 2 curves from the upper and lower limits of the intervals
+  and draws them with the pen(). The area between the curves is 
+  filled with the brush(). 
+
+  \param painter Painter
+  \param xMap Maps x-values into pixel coordinates.
+  \param yMap Maps y-values into pixel coordinates.
+  \param from Index of the first sample to be painted
+  \param to Index of the last sample to be painted. If to < 0 the 
+         series will be painted to its last sample.
+
+  \sa drawSeries(), drawSymbols()
+*/
 void QwtPlotIntervalCurve::drawTube(QPainter *painter, 
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
@@ -264,6 +324,18 @@ void QwtPlotIntervalCurve::drawTube(QPainter *painter,
     painter->restore();
 }
 
+/*!
+  Draw symbols for a subset of the samples
+
+  \param painter Painter
+  \param symbol Interval symbol
+  \param xMap x map
+  \param yMap y map
+  \param from Index of the first sample to be painted
+  \param to Index of the last sample to be painted
+
+  \sa setSymbol(), drawSeries(), drawTube()
+*/
 void QwtPlotIntervalCurve::drawSymbols(
     QPainter *painter, const QwtIntervalSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -302,6 +374,14 @@ void QwtPlotIntervalCurve::drawSymbols(
     painter->restore();
 }
 
+/*!
+  In case of Tibe stale() a plain rectangle is painted without a pen filled 
+  the brush(). If a symbol is assigned it is painted cebtered into rect.
+
+  \param painter Painter
+  \param rect Bounding rectangle for the identifier
+*/
+
 void QwtPlotIntervalCurve::drawLegendIdentifier(
     QPainter *painter, const QRectF &rect) const
 {
@@ -312,7 +392,7 @@ void QwtPlotIntervalCurve::drawLegendIdentifier(
     QRectF r(0, 0, size.width(), size.height());
     r.moveCenter(rect.center());
 
-    if (d_data->curveStyle == Tube)
+    if (d_data->style == Tube)
     {
         painter->fillRect(r, d_data->brush);
     }

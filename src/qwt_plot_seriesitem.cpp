@@ -46,6 +46,15 @@ QwtPlotAbstractSeriesItem::~QwtPlotAbstractSeriesItem()
     delete d_data;
 }
 
+/*!
+  Set the orientation of the item. 
+
+  The orientation() might be used in specific way by a plot item.
+  F.e. a QwtPlotCurve uses it to identify how to display the curve
+  int QwtPlotCurve::Steps or QwtPlotCurve::Sticks style.
+
+  \sa orientation()
+*/
 void QwtPlotAbstractSeriesItem::setOrientation(Qt::Orientation orientation)
 {
     if ( d_data->orientation != orientation )
@@ -55,6 +64,10 @@ void QwtPlotAbstractSeriesItem::setOrientation(Qt::Orientation orientation)
     }
 }
 
+/*!
+  \return Orientation of the plot item
+  \sa setOrientation()
+*/
 Qt::Orientation QwtPlotAbstractSeriesItem::orientation() const
 { 
     return d_data->orientation;

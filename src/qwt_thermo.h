@@ -87,9 +87,10 @@ class QWT_EXPORT QwtThermo: public QWidget, public QwtAbstractScale
     Q_PROPERTY( double value READ value WRITE setValue )
 
 public:
-    /*
+    /*!
       Scale position. QwtThermo tries to enforce valid combinations of its
       orientation and scale position:
+
       - Qt::Horizonal combines with NoScale, TopScale and BottomScale
       - Qt::Vertical combines with NoScale, LeftScale and RightScale
       

@@ -254,7 +254,6 @@ void QwtRoundScaleDraw::drawBackbone(QPainter *painter) const
    pixel of the scale draw. radius() + extent() is an upper limit 
    for the radius of the bounding circle.
 
-   \param pen Pen that is used for painting backbone and ticks
    \param font Font used for painting the labels
 
    \sa setMinimumExtent(), minimumExtent()

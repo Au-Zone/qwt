@@ -244,17 +244,17 @@ Q_SIGNALS:
       Together with setEnabled() it can be used to implement
       selections with more than one picker.
 
-      \param pa Selected points
+      \param on True, when the picker has been activated
     */
-    void activated(bool);
+    void activated(bool on);
 
     /*!
       A signal emitting the selected points, 
       at the end of a selection.
 
-      \param pa Selected points
+      \param polygon Selected points
     */
-    void selected(const QPolygon &pa);
+    void selected(const QPolygon &polygon);
 
     /*!
       A signal emitted when a point has been appended to the selection
@@ -284,10 +284,10 @@ Q_SIGNALS:
       A signal emitted when the active selection has been changed.
       This might happen when the observed widget is resized.
 
-      \param pa Changed selection
+      \param selection Changed selection
       \sa stretchSelection()
     */
-    void changed(const QPolygon &pa);
+    void changed(const QPolygon &selection);
 
 protected:
     virtual QPolygon adjustedPoints(const QPolygon &) const;

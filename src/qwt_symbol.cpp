@@ -696,7 +696,10 @@ void QwtSymbol::setPen(const QPen &pen)
     d_data->pen = pen;
 }
 
-//! Return Pen
+/*! 
+  \return Pen
+  \sa setPen(), brush()
+*/
 const QPen& QwtSymbol::pen() const
 { 
     return d_data->pen;
@@ -747,6 +750,17 @@ void QwtSymbol::setColor(const QColor &color)
     }
 }
 
+/*!
+  Draw an array of symbols
+
+  Painting several symbols is more effective than drawing symbols
+  one by one, as a couple of layout calculations and setting of pen/brush
+  can be done once for the complete array.
+  
+  \param painter Painter
+  \param points Array of points
+  \param numPoints Number of points
+*/
 void QwtSymbol::drawSymbols(QPainter *painter, 
     const QPointF *points, int numPoints) const
 {
@@ -837,31 +851,10 @@ void QwtSymbol::drawSymbols(QPainter *painter,
         }
         default:;
     }
-#if 0
-    painter->setBrush(Qt::NoBrush);
-    painter->setRenderHint(QPainter::Antialiasing, false);
-
-    for ( int i = 0; i < numPoints; i++ )
-    {
-        QPointF pos = points[i];
-        if ( QwtPainter::isAligning(painter) )
-            pos = QPointF(qCeil(pos.x()), qCeil(pos.y()));
-
-        painter->setPen(Qt::red);
-        painter->drawPoint( pos );
-
-#if 0
-        painter->setPen(Qt::blue);
-        QRectF r(0, 0, d_data->size.width(), d_data->size.height());
-        r.moveCenter(pos);
-
-        painter->drawRect(r.adjusted(0, 0, -1, -1));
-#endif
-    }
-#endif
     painter->restore();
 }
 
+//!  \return Size of the bounding rectangle of a symbol
 QSize QwtSymbol::boundingSize() const
 {
     QSize size;
@@ -918,22 +911,10 @@ void QwtSymbol::setStyle(QwtSymbol::Style style)
 }
 
 /*! 
-  \return Style
+  \return Current symbol style
   \sa setStyle()
 */
 QwtSymbol::Style QwtSymbol::style() const
 {
     return d_data->style;
-}
-
-//! == operator
-bool QwtSymbol::operator==(const QwtSymbol &other) const
-{
-    return *d_data == *other.d_data;
-}
-
-//! != operator
-bool QwtSymbol::operator!=(const QwtSymbol &other) const
-{
-    return !(*this == other);
 }

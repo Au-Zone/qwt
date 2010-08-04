@@ -456,8 +456,8 @@ QwtScaleDiv QwtLinearScaleEngine::divideScale(double x1, double x2,
    \brief Calculate ticks for an interval
 
    \param interval Interval 
-   \param maxMinSteps Maximum number of minor steps
    \param stepSize Step size 
+   \param maxMinSteps Maximum number of minor steps
    \param ticks Arrays to be filled with the calculated ticks
 
    \sa buildMajorTicks(), buildMinorTicks
@@ -809,9 +809,6 @@ QList<double> QwtLog10ScaleEngine::buildMajorTicks(
    \param majorTicks Major ticks
    \param maxMinSteps Maximum number of minor steps
    \param stepSize Step size 
-   \param minorTicks Array to be filled with the calculated minor ticks
-   \param mediumTicks Array to be filled with the calculated medium ticks
-
 */
 QList<double> QwtLog10ScaleEngine::buildMinorTicks(
     const QList<double> &majorTicks, 

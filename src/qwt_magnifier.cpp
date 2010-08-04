@@ -432,7 +432,7 @@ void QwtMagnifier::widgetKeyPressEvent(QKeyEvent *ke)
 /*!
   Handle a key release event for the observed widget.
 
-  \param ke Key event
+  \param keyEvent Key event
   \sa eventFilter(), widgetKeyReleaseEvent()
 */
 void QwtMagnifier::widgetKeyReleaseEvent(QKeyEvent *)

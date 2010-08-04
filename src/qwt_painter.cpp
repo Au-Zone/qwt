@@ -142,17 +142,13 @@ void QwtPainter::setPolylineSplitting(bool enable)
     d_polylineSplitting = enable;
 }
 
-/*!
-    Wrapper for QPainter::drawRect()
-*/
+//! Wrapper for QPainter::drawRect()
 void QwtPainter::drawRect(QPainter *painter, double x, double y, double w, double h) 
 {
     drawRect(painter, QRectF(x, y, w, h));
 }
 
-/*!
-    Wrapper for QPainter::drawRect()
-*/
+//! Wrapper for QPainter::drawRect()
 void QwtPainter::drawRect(QPainter *painter, const QRectF &rect) 
 {
     const QRectF r = rect;
@@ -181,9 +177,7 @@ void QwtPainter::drawRect(QPainter *painter, const QRectF &rect)
     painter->drawRect(r);
 }
 
-/*!
-    Wrapper for QPainter::fillRect()
-*/
+//! Wrapper for QPainter::fillRect()
 void QwtPainter::fillRect(QPainter *painter, 
     const QRectF &rect, const QBrush &brush)
 {
@@ -215,9 +209,7 @@ void QwtPainter::fillRect(QPainter *painter,
         painter->fillRect(r, brush);
 }
 
-/*!
-    Wrapper for QPainter::drawPie()
-*/
+//! Wrapper for QPainter::drawPie()
 void QwtPainter::drawPie(QPainter *painter, const QRectF &rect, 
     int a, int alen)
 {
@@ -229,9 +221,7 @@ void QwtPainter::drawPie(QPainter *painter, const QRectF &rect,
     painter->drawPie(rect, a, alen);
 }
 
-/*!
-    Wrapper for QPainter::drawEllipse()
-*/
+//! Wrapper for QPainter::drawEllipse()
 void QwtPainter::drawEllipse(QPainter *painter, const QRectF &rect)
 {
     QRectF clipRect;
@@ -243,18 +233,14 @@ void QwtPainter::drawEllipse(QPainter *painter, const QRectF &rect)
     painter->drawEllipse(rect);
 }
 
-/*!
-    Wrapper for QPainter::drawText()
-*/
+//! Wrapper for QPainter::drawText()
 void QwtPainter::drawText(QPainter *painter, double x, double y, 
         const QString &text)
 {
     drawText(painter, QPointF(x, y), text);
 }
 
-/*!
-    Wrapper for QPainter::drawText()
-*/
+//! Wrapper for QPainter::drawText()
 void QwtPainter::drawText(QPainter *painter, const QPointF &pos, 
         const QString &text)
 {
@@ -271,9 +257,7 @@ void QwtPainter::drawText(QPainter *painter, const QPointF &pos,
     painter->restore();
 }
 
-/*!
-    Wrapper for QPainter::drawText()
-*/
+//! Wrapper for QPainter::drawText()
 void QwtPainter::drawText(QPainter *painter, 
     double x, double y, double w, double h, 
     int flags, const QString &text)
@@ -281,9 +265,7 @@ void QwtPainter::drawText(QPainter *painter,
     drawText(painter, QRectF(x, y, w, h), flags, text);
 }
 
-/*!
-    Wrapper for QPainter::drawText()
-*/
+//! Wrapper for QPainter::drawText()
 void QwtPainter::drawText(QPainter *painter, const QRectF &rect, 
         int flags, const QString &text)
 {
@@ -355,9 +337,7 @@ void QwtPainter::drawLine(QPainter *painter,
     painter->drawLine(p1, p2);
 }
 
-/*!
-  Wrapper for QPainter::drawPolygon()
-*/
+//! Wrapper for QPainter::drawPolygon()
 void QwtPainter::drawPolygon(QPainter *painter, const QPolygonF &polygon)
 {
     QRectF clipRect;
@@ -376,9 +356,7 @@ void QwtPainter::drawPolygon(QPainter *painter, const QPolygonF &polygon)
     painter->drawPolygon(cpa);
 }
 
-/*!
-    Wrapper for QPainter::drawPolyline()
-*/
+//! Wrapper for QPainter::drawPolyline()
 void QwtPainter::drawPolyline(QPainter *painter, const QPolygonF &polygon)
 {
     QRectF clipRect;
@@ -392,6 +370,7 @@ void QwtPainter::drawPolyline(QPainter *painter, const QPolygonF &polygon)
         cpa.constData(), cpa.size(), d_polylineSplitting);
 }
 
+//! Wrapper for QPainter::drawPolyline()
 void QwtPainter::drawPolyline(QPainter *painter, 
     const QPointF *points, int pointCount)
 {
@@ -411,9 +390,7 @@ void QwtPainter::drawPolyline(QPainter *painter,
         ::drawPolyline(painter, points, pointCount, d_polylineSplitting);
 }
 
-/*!
-    Wrapper for QPainter::drawPoint()
-*/
+//! Wrapper for QPainter::drawPoint()
 void QwtPainter::drawPoint(QPainter *painter, const QPointF &pos)
 {
     QRectF clipRect;
@@ -425,6 +402,7 @@ void QwtPainter::drawPoint(QPainter *painter, const QPointF &pos)
     painter->drawPoint(pos);
 }
 
+//! Wrapper for QPainter::drawImage()
 void QwtPainter::drawImage(QPainter *painter, 
     const QRectF &rect, const QImage &image)
 {
@@ -445,6 +423,7 @@ void QwtPainter::drawImage(QPainter *painter,
     }
 }
 
+//! Wrapper for QPainter::drawPixmap()
 void QwtPainter::drawPixmap(QPainter *painter, 
     const QRectF &rect, const QPixmap &pixmap)
 {
@@ -511,7 +490,7 @@ void QwtPainter::drawFocusRect(QPainter *painter, QWidget *widget,
         &opt, painter, widget);
 }
 
-//!  Draw a round frame
+//! Draw a round frame
 void QwtPainter::drawRoundFrame(QPainter *painter, const QRect &rect,
     int width, const QPalette &palette, bool sunken)
 {

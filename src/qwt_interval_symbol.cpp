@@ -32,72 +32,116 @@ public:
     QBrush brush;
 };
 
+/*!
+  Constructor
+
+  \param style Style of the symbol
+  \sa setStyle(), style(), Style
+*/
 QwtIntervalSymbol::QwtIntervalSymbol(Style style) 
 {
     d_data = new PrivateData();
     d_data->style = style;
 }
 
+//! Destructor
 QwtIntervalSymbol::~QwtIntervalSymbol()
 {
     delete d_data;
 }
 
-//! == operator
-bool QwtIntervalSymbol::operator==(const QwtIntervalSymbol &other) const
-{
-    return d_data->style == other.d_data->style &&
-        d_data->width == other.d_data->width &&
-        d_data->pen == other.d_data->pen &&
-        d_data->brush == other.d_data->brush;
-}
+/*!
+  Specify the symbol style
 
-//! != operator
-bool QwtIntervalSymbol::operator!=(const QwtIntervalSymbol &other) const
-{
-    return !(*this == other);
-}
-
+  \param style Style
+  \sa style(), Style
+*/
 void QwtIntervalSymbol::setStyle(Style style)
 {
     d_data->style = style;
 }
 
+/*! 
+  \return Current symbol style
+  \sa setStyle()
+*/
 QwtIntervalSymbol::Style QwtIntervalSymbol::style() const
 {
     return d_data->style;
 }
 
+/*!
+  Specify the width of the symbol
+  It is used depending on the style.
+
+  \param width Width
+  \sa width(), setStyle()
+*/
 void QwtIntervalSymbol::setWidth(int width)
 {
     d_data->width = width;
 }
 
+/*!
+  \return Width of the symbol.
+  \sa setWidth(), setStyle()
+*/
 int QwtIntervalSymbol::width() const
 {
     return d_data->width;
 }
 
+/*!
+  \brief Assign a brush
+
+  The brush is used for the Box style.
+
+  \param brush Brush
+  \sa brush()
+*/
 void QwtIntervalSymbol::setBrush(const QBrush &brush)
 {
     d_data->brush = brush;
 }
 
+/*! 
+  \return Brush
+  \sa setBrush()
+*/
 const QBrush& QwtIntervalSymbol::brush() const
 {
     return d_data->brush;
 }
 
+/*!
+  Assign a pen
+
+  \param pen Pen
+  \sa pen(), setBrush()
+*/
 void QwtIntervalSymbol::setPen(const QPen &pen)
 {
     d_data->pen = pen;
 }
 
+/*! 
+  \return Pen
+  \sa setPen(), brush()
+*/
 const QPen& QwtIntervalSymbol::pen() const
 {
     return d_data->pen;
 }
 
+/*!
+  Draw a symbol depending on its style
+
+  \param painter Painter
+  \param from Start point of the interval in target device coordinates
+  \param to End point of the interval in target device coordinates
+
+  \sa setStyle()
+*/
 void QwtIntervalSymbol::draw(QPainter *painter, 
         const QPointF &from, const QPointF &to) const
 {
