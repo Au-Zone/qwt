@@ -148,9 +148,6 @@ void QwtPlotGrid::setYDiv(const QwtScaleDiv &scaleDiv)
 /*!
   Assign a pen for both major and minor gridlines
 
-  The width of non cosmetic pens is scaled according to the resolution
-  of the paint device.
-
   \param pen Pen
   \sa setMajPen(), setMinPen(), QwtPainter::scaledPen()
 */
@@ -167,9 +164,6 @@ void QwtPlotGrid::setPen(const QPen &pen)
 /*!
   Assign a pen for the major gridlines
 
-  The width of non cosmetic pens is scaled according to the resolution
-  of the paint device.
-
   \param pen Pen
   \sa majPen(), setMinPen(), setPen(), QwtPainter::scaledPen()
 */
@@ -184,9 +178,6 @@ void QwtPlotGrid::setMajPen(const QPen &pen)
 
 /*!
   Assign a pen for the minor gridlines
-
-  The width of non cosmetic pens is scaled according to the resolution
-  of the paint device.
 
   \param pen Pen
   \sa minPen(), setMajPen(), setPen(), QwtPainter::scaledPen()

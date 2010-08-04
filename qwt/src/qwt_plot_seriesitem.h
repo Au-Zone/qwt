@@ -147,8 +147,9 @@ size_t QwtPlotSeriesItem<T>::dataSize() const
 }
 
 /*!
-  Returns the bounding rectangle of the curve data. If there is
-  no bounding rect, like for empty data the rectangle is invalid.
+  \return Bounding rectangle of the data. 
+  If there is no bounding rect, like for empty data the rectangle is invalid.
+
   \sa QwtSeriesData<T>::boundingRect(), QRectF::isValid()
 */
 template <typename T> 
