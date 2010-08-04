@@ -148,7 +148,7 @@ void Plot::insertErrorBars(
     QColor bg(color);
     bg.setAlpha(150);
     d_intervalCurve->setBrush(QBrush(bg));
-    d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+    d_intervalCurve->setStyle(QwtPlotIntervalCurve::Tube);
 
     d_intervalCurve->setSamples(samples);
     d_intervalCurve->attach(this);
@@ -158,13 +158,13 @@ void Plot::setMode(int style)
 {
     if ( style == Tube )
     {
-        d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::Tube);
+        d_intervalCurve->setStyle(QwtPlotIntervalCurve::Tube);
         d_intervalCurve->setSymbol(NULL);
         d_intervalCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
     }
     else
     {
-        d_intervalCurve->setCurveStyle(QwtPlotIntervalCurve::NoCurve);
+        d_intervalCurve->setStyle(QwtPlotIntervalCurve::NoCurve);
 
         QColor c(d_intervalCurve->brush().color().rgb()); // skip alpha
 
