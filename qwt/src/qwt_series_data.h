@@ -26,15 +26,23 @@ public:
 
     bool operator==(const QwtIntervalSample &) const;
 
+    //! Value
     double value;
+
+    //! Interval
     QwtDoubleInterval interval;
 };
 
+/*! 
+  Constructor 
+  The value is set to 0.0, the interval is invalid
+*/
 inline QwtIntervalSample::QwtIntervalSample():
     value(0.0)
 {
 }
 
+//! Constructor
 inline QwtIntervalSample::QwtIntervalSample(
         double v, const QwtDoubleInterval &intv):
     value(v),
@@ -42,6 +50,7 @@ inline QwtIntervalSample::QwtIntervalSample(
 {
 }
 
+//! Constructor
 inline QwtIntervalSample::QwtIntervalSample(
         double v, double min, double max):
     value(v),
@@ -49,6 +58,7 @@ inline QwtIntervalSample::QwtIntervalSample(
 {
 }
 
+//! Compare operator
 inline bool QwtIntervalSample::operator==(const QwtIntervalSample &other) const
 {
     return value == other.value && interval == other.interval;
@@ -61,15 +71,23 @@ public:
     QwtSetSample();
     bool operator==(const QwtSetSample &other) const;
 
+    //! value
     double value;
+
+    //! Vector of values associated to value
     QVector<double> set;
 };
 
+/*! 
+  Constructor 
+  The value is set to 0.0
+*/
 inline QwtSetSample::QwtSetSample():
     value(0.0)
 {
 }
 
+//! Compare operator
 inline bool QwtSetSample::operator==(const QwtSetSample &other) const
 {
     return value == other.value && set == other.set;
@@ -149,7 +167,6 @@ void QwtSeriesData<T>::setRectOfInterest(const QRectF &)
 {
 }
 
-
 /*!
   \brief Template class for data, that is organized as QVector
 
@@ -170,6 +187,7 @@ public:
     virtual T sample(size_t) const;
 
 protected:
+    //! Vector of samples
     QVector<T> d_samples;
 };
 

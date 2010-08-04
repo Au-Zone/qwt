@@ -148,7 +148,7 @@ const QPen &QwtPlotHistogram::pen() const
 /*! 
   Assign a brush, that is used in a style() depending way.
 
-  \param pen New pen
+  \param brush New brush
   \sa pen(), brush()
 */
 void QwtPlotHistogram::setBrush(const QBrush &brush)
@@ -194,7 +194,7 @@ void QwtPlotHistogram::setSymbol(const QwtColumnSymbol *symbol)
 }
 
 /*!
-  \return Current symbol
+  \return Current symbol or NULL, when no symbol has been assigned
   \sa setSymbol()
 */
 const QwtColumnSymbol *QwtPlotHistogram::symbol() const
@@ -233,7 +233,7 @@ double QwtPlotHistogram::baseline() const
 
 /*!
   \return Bounding rectangle of all samples. 
-  For an empty series an the rectangle is invalid.
+  For an empty series the rectangle is invalid.
 */
 QRectF QwtPlotHistogram::boundingRect() const
 {
@@ -269,10 +269,8 @@ int QwtPlotHistogram::rtti() const
 }
 
 /*!
-  Initialize data with an array of QwtIntervalSamples.
-
+  Initialize data with an array of samples.
   \param samples Vector of points
-  \sa QwtPolygonFData
 */
 void QwtPlotHistogram::setSamples(
     const QVector<QwtIntervalSample> &samples)
@@ -283,7 +281,8 @@ void QwtPlotHistogram::setSamples(
 }
 
 /*!
-  \brief Draw an subset of the histogram samples
+  Draw a subset of the histogram samples
+
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.

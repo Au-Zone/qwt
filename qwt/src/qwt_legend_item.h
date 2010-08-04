@@ -16,6 +16,9 @@
 #include "qwt_text_label.h"
 #include <qpixmap.h>
 
+/*!
+  A widget representing something on a QwtLegend().
+*/
 class QWT_EXPORT QwtLegendItem: public QwtTextLabel
 {
     Q_OBJECT

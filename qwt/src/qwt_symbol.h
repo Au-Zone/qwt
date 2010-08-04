@@ -76,6 +76,11 @@ public:
          - Hexagon
            Hexagon
 
+         - UserSymbol
+           Styles >= UserSymbol are reserved for derived
+           classes of QwtSymbol that overload drawSymbols() with
+           additional application specific symbol types.
+
         \sa setStyle(), style()
      */
     enum Style 
@@ -106,9 +111,6 @@ public:
     QwtSymbol(Style, const QBrush &, const QPen &, const QSize &);
     virtual ~QwtSymbol();
     
-    bool operator!=(const QwtSymbol &) const;
-    virtual bool operator==(const QwtSymbol &) const;
-
     void setSize(const QSize &);
     void setSize(int width, int height = -1);
     const QSize& size() const;

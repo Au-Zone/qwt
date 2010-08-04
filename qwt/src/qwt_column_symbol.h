@@ -22,12 +22,13 @@ class QRect;
 class QwtText;
 
 /*!
-    Directed rectangle representing bounding rectangle und orientation
+    \brief Directed rectangle representing bounding rectangle und orientation
     of a column.
 */
 class QWT_EXPORT QwtColumnRect
 {
 public:
+    //! Direction of the column
     enum Direction
     {
         LeftToRight,
@@ -36,11 +37,13 @@ public:
         TopToBottom
     };
 
+    //! Build an rectangle with invalid intervals directed BottomToTop.
     QwtColumnRect():
         direction(BottomToTop)
     {
     }
 
+    //! \return A normalized QRect built from the intervals
     QRectF toRect() const
     {
         return QRectF(hInterval.minValue(), vInterval.minValue(),
@@ -48,6 +51,7 @@ public:
             vInterval.maxValue() - vInterval.minValue() ).normalized();
     }
 
+    //! \return Orientation 
     Qt::Orientation orientation() const
     {
         if ( direction == LeftToRight || direction == RightToLeft )
@@ -56,9 +60,13 @@ public:
         return Qt::Vertical;
     }
 
-    
+    //! Interval for the horizontal coordinates
     QwtDoubleInterval hInterval;
+
+    //! Interval for the vertical coordinates
     QwtDoubleInterval vInterval;
+
+    //! Direction
     Direction direction;
 };
 
@@ -66,20 +74,41 @@ public:
 class QWT_EXPORT QwtColumnSymbol
 {
 public:
-
     /*!
-        Style
-        \sa setStyle(), style()
-     */
+      Style
+
+      - NoSymbol\n
+        No Style. The symbol cannot be drawn.
+
+      - Box\n
+        The column is painted with a frame depending on the frameStyle()
+        and lineWidth() using the palette().
+
+      - UserSymbol\n
+        Styles >= UserSymbol are reserved for derived
+        classes of QwtColumnSymbol that overload draw() with
+        additional application specific symbol types.
+
+      \sa setStyle(), style()
+    */
     enum Style 
     { 
         NoSymbol = -1, 
 
         Box, 
 
-        StyleCnt 
+        UserSymbol = 1000 
     };
    
+    /*!
+      Frame Style used in Box style().
+
+      - NoFrame
+      - Plain
+      - Raised
+
+      \sa Style, setFrameStyle(), frameStyle(), setStyle(), setPalette()
+     */
     enum FrameStyle
     {
         NoFrame,
@@ -98,18 +127,12 @@ public:
     void setLineWidth(int width);
     int lineWidth() const;
     
-    bool operator!=(const QwtColumnSymbol &) const;
-    virtual bool operator==(const QwtColumnSymbol &) const;
-
     void setPalette(const QPalette &);
     const QPalette &palette() const;
 
     void setStyle(Style);
     Style style() const;
     
-    void setLabel(const QwtText&);
-    const QwtText &label() const;
-
     virtual void draw(QPainter *, const QwtColumnRect &) const;
 
 protected:

@@ -59,21 +59,26 @@ public:
 
          - NoCurve\n
            Don't draw a curve. Note: This doesn't affect the symbols.
+
          - Lines\n
            Connect the points with straight lines. The lines might
            be interpolated depending on the 'Fitted' attribute. Curve
            fitting can be configured using setCurveFitter().
+
          - Sticks\n
            Draw vertical(Yfx) or horizontal(Xfy) sticks from a baseline 
            which is defined by setBaseline().
+
          - Steps\n
            Connect the points with a step function. The step function
            is drawn from the left to the right or vice versa,
            depending on the 'Inverted' attribute.
+
          - Dots\n
            Draw dots at the locations of the data points. Note:
            This is different from a dotted line (see setPen()), and faster
            as a curve in NoStyle style and a symbol painting a point.
+
          - UserCurve\n
            Styles >= UserCurve are reserved for derived
            classes of QwtPlotCurve that overload drawCurve() with

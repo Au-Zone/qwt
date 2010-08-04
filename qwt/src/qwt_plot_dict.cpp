@@ -151,17 +151,24 @@ void QwtPlotDict::detachItems(int rtti, bool autoDelete)
     }
 }
 
-//! \brief A QwtPlotItemList of all attached plot items.
-///
-/// Use caution when iterating these lists, as removing/detaching an item will
-/// invalidate the iterator. Instead you can place pointers to objects to be
-/// removed in a removal list, and traverse that list later.
-//! \return List of all attached plot items.
+/*! 
+  \brief A QwtPlotItemList of all attached plot items.
+
+  Use caution when iterating these lists, as removing/detaching an item will
+  invalidate the iterator. Instead you can place pointers to objects to be
+  removed in a removal list, and traverse that list later.
+
+  \return List of all attached plot items.
+*/
 const QwtPlotItemList &QwtPlotDict::itemList() const
 {
     return d_data->itemList;
 }
 
+/*! 
+  \return List of all attached plot items of a specific type.
+  \sa QwtPlotItem::rtti()
+*/
 QwtPlotItemList QwtPlotDict::itemList(int rtti) const
 {
     if ( rtti == QwtPlotItem::Rtti_PlotItem )
@@ -179,4 +186,3 @@ QwtPlotItemList QwtPlotDict::itemList(int rtti) const
 
     return items;
 }
-

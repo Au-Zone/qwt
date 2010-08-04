@@ -34,7 +34,6 @@ class QPolygonF;
         is no applicable plot item for a "color histogram" yet.
 */
 
-
 class QWT_EXPORT QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:

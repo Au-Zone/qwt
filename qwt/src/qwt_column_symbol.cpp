@@ -130,84 +130,115 @@ public:
     int lineWidth;
 };
 
+/*!
+  Constructor
+
+  \param style Style of the symbol
+  \sa setStyle(), style(), Style
+*/
 QwtColumnSymbol::QwtColumnSymbol(Style style) 
 {
     d_data = new PrivateData();
     d_data->style = style;
 }
 
+//! Destructor
 QwtColumnSymbol::~QwtColumnSymbol()
 {
     delete d_data;
 }
 
-//! == operator
-bool QwtColumnSymbol::operator==(const QwtColumnSymbol &other) const
-{
-    return d_data->style == other.d_data->style &&
-        d_data->palette == other.d_data->palette &&
-        d_data->label == other.d_data->label &&
-        d_data->lineWidth == other.d_data->lineWidth &&
-        d_data->frameStyle == other.d_data->frameStyle;
-}
+/*!
+  Specify the symbol style
 
-//! != operator
-bool QwtColumnSymbol::operator!=(const QwtColumnSymbol &other) const
-{
-    return !(*this == other);
-}
-
+  \param style Style
+  \sa style(), setPalette()
+*/
 void QwtColumnSymbol::setStyle(Style style)
 {
     d_data->style = style;
 }
 
+/*! 
+  \return Current symbol style
+  \sa setStyle()
+*/
 QwtColumnSymbol::Style QwtColumnSymbol::style() const
 {
     return d_data->style;
 }
 
+/*!
+  Assign a palette for the symbol
+
+  \param palette Palette
+  \sa palette(), setStyle()
+*/
 void QwtColumnSymbol::setPalette(const QPalette &palette)
 {
     d_data->palette = palette;
 }
 
+/*! 
+  \return Current palette
+  \sa setPalette()
+*/
 const QPalette& QwtColumnSymbol::palette() const
 {
     return d_data->palette;
 }
 
-void QwtColumnSymbol::setFrameStyle(FrameStyle style)
+/*!
+   Set the frame, that is used for the Box style.
+
+   \param frameStyle Frame style
+   \sa frameStyle(), setLineWidth(), setStyle()
+*/
+void QwtColumnSymbol::setFrameStyle(FrameStyle frameStyle)
 {
-    d_data->frameStyle = style;
+    d_data->frameStyle = frameStyle;
 }
 
+/*! 
+  \return Current frame style, that is used for the Box style.
+  \sa setFrameStyle(), lineWidth(), setStyle()
+*/ 
 QwtColumnSymbol::FrameStyle QwtColumnSymbol::frameStyle() const
 {
     return d_data->frameStyle;
 }
 
+/*!
+   Set the line width of the frame, that is used for the Box style.
+
+   \param width Width
+   \sa lineWidth(), setFrameStyle()
+*/
 void QwtColumnSymbol::setLineWidth(int width)
 {
+    if ( width < 0 )
+        width = 0;
+
     d_data->lineWidth = width;
 }
 
+/*!
+  \return Line width of the frame, that is used for the Box style.
+  \sa setLineWidth(), frameStyle(), setStyle()
+*/
 int QwtColumnSymbol::lineWidth() const
 {
     return d_data->lineWidth;
 }
 
+/*!
+  Draw the symbol depending on its style.
 
-void QwtColumnSymbol::setLabel(const QwtText &label)
-{
-    d_data->label = label;
-}
+  \param painter Painter
+  \param rect Directed rectangle
 
-const QwtText& QwtColumnSymbol::label() const
-{
-    return d_data->label;
-}
-
+  \sa drawBox()
+*/
 void QwtColumnSymbol::draw(QPainter *painter, 
     const QwtColumnRect &rect) const
 {
@@ -226,6 +257,14 @@ void QwtColumnSymbol::draw(QPainter *painter,
     painter->restore();
 }
 
+/*!
+  Draw the symbol when it is in Box style.
+
+  \param painter Painter
+  \param rect Directed rectangle
+
+  \sa draw()
+*/
 void QwtColumnSymbol::drawBox(QPainter *painter, 
     const QwtColumnRect &rect) const
 {

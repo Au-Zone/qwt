@@ -22,7 +22,7 @@
 
   Precision and time intervals are multiples of milliseconds (ms).  
 
-  \hint The implementation uses POSIX timers or high-resolution performance 
+  \note The implementation uses POSIX timers or high-resolution performance 
         counter on Windows. If both are not available it falls back on QTimer.
 */
 

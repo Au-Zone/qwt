@@ -153,7 +153,7 @@ void QwtPlotSpectrogram::setRenderThreadCount(uint numThreads)
     d_data->renderThreadCount = numThreads;
 }
 
-/*
+/*!
    \return Number of threads to be used for rendering.
            If numThreads is set to 0, the system specific
            ideal thread count is used.
@@ -657,7 +657,6 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
   \sa setDisplayMode(), renderImage(), 
       QwtPlotRasterItem::draw(), drawContourLines()
 */
-
 void QwtPlotSpectrogram::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect) const

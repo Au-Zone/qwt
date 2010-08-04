@@ -243,6 +243,9 @@ inline int QwtDoubleInterval::operator!=(const QwtDoubleInterval &other) const
 
 /*!
    Extend an interval
+
+   \param value Value
+   \return Extended interval
    \sa extend()
 */
 inline QwtDoubleInterval QwtDoubleInterval::operator|(double value) const

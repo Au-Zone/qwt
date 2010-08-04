@@ -110,7 +110,6 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
     renderDocument(plot, fileName, 
         QFileInfo(fileName).suffix(), sizeMM, resolution);
 }
-        
 
 void QwtPlotRenderer::renderDocument(QwtPlot *plot, 
     const QString &fileName, const QString &format,
@@ -182,6 +181,7 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
   \c QPaintDevice object. The target rectangle is derived from 
   its device metrics.
 
+  \param plot Plot to be rendered
   \param paintDevice device to paint on, f.e a QImage
 */
 
@@ -202,6 +202,7 @@ void QwtPlotRenderer::renderTo(
   \c QPaintDevice object. The size is derived from the printer
   metrics.
 
+  \param plot Plot to be rendered
   \param printer Printer to paint on
 
   \sa QwtPlotPrintFilter
@@ -255,6 +256,7 @@ void QwtPlotRenderer::renderTo(
   \brief Paint the plot into a given rectangle.
   Paint the contents of a QwtPlot instance into a given rectangle.
 
+  \param plot Plot to be rendered
   \param painter Painter
   \param plotRect Bounding rectangle
 */

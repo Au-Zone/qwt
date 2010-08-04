@@ -308,6 +308,14 @@ QwtDoubleInterval QwtDoubleInterval::extend(double value) const
         qMax(value, d_maxValue), d_borderFlags );
 }
 
+/*!
+   Extend an interval
+
+   \param value Value
+   \return Reference of the extended interval
+
+   \sa extend()
+*/
 QwtDoubleInterval& QwtDoubleInterval::operator|=(double value)
 {
     *this = *this | value;

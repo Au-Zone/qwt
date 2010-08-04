@@ -99,7 +99,7 @@ QwtPlotCurve::~QwtPlotCurve()
     delete d_data;
 }
 
-//! Initialize data members
+//! Initialize internal members
 void QwtPlotCurve::init()
 {
     setItemAttribute(QwtPlotItem::Legend);
@@ -190,7 +190,8 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 }
 
 /*!
-  \brief Assign a symbol
+  Assign a symbol
+
   \param symbol Symbol
   \sa symbol()
 */
@@ -205,7 +206,7 @@ void QwtPlotCurve::setSymbol(const QwtSymbol *symbol )
 }
 
 /*!
-  \return Current symbol
+  \return Current symbol or NULL, when no symbol has been assigned
   \sa setSymbol()
 */
 const QwtSymbol *QwtPlotCurve::symbol() const 
@@ -262,7 +263,7 @@ void QwtPlotCurve::setBrush(const QBrush &brush)
 }
 
 /*!
-  \brief Return the brush used to fill the area between lines and the baseline
+  \return Brush used to fill the area between lines and the baseline
   \sa setBrush(), setBaseline(), baseline()
 */
 const QBrush& QwtPlotCurve::brush() const 
@@ -271,7 +272,8 @@ const QBrush& QwtPlotCurve::brush() const
 }
 
 /*!
-  \brief Draw an interval of the curve
+  Draw an interval of the curve
+
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
@@ -328,7 +330,6 @@ void QwtPlotCurve::drawSeries(QPainter *painter,
   \param to index of the last point to be painted
   \sa draw(), drawDots(), drawLines(), drawSteps(), drawSticks()
 */
-
 void QwtPlotCurve::drawCurve(QPainter *painter, int style,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     const QRectF &canvasRect, int from, int to) const
@@ -688,16 +689,17 @@ void QwtPlotCurve::closePolyline(
 }
 
 /*!
-  \brief Draw symbols
+  Draw symbols
+
   \param painter Painter
   \param symbol Curve symbol
   \param xMap x map
   \param yMap y map
   \param canvasRect Contents rect of the canvas
-  \param from index of the first point to be painted
-  \param to index of the last point to be painted
+  \param from Index of the first point to be painted
+  \param to Index of the last point to be painted
 
-  \sa setSymbol(), draw(), drawCurve()
+  \sa setSymbol(), drawSeries(), drawCurve()
 */
 void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -945,7 +947,6 @@ void QwtPlotCurve::drawLegendIdentifier(
   Initialize data with an array of points (explicitly shared).
 
   \param samples Vector of points
-  \sa QwtPolygonFData
 */
 void QwtPlotCurve::setSamples(const QVector<QPointF> &samples)
 {

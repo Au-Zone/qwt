@@ -16,12 +16,43 @@
 
 class QwtIntervalSymbol;
 
+/*!
+  \brief QwtPlotIntervalCurve represents a series of samples, where each value
+         is associated with an interval ( \f$[y1,y2] = f(x)\f$ ).
+
+  The representation depends on the style() and an optional symbol()
+  that is displayed for each interval. QwtPlotIntervalCurve might be used
+  to disply error bars or the area between 2 curves.
+*/
+
 class QWT_EXPORT QwtPlotIntervalCurve: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
+    /*! 
+        Curve styles. 
+
+         - NoCurve\n
+           Don't draw a curve. Note: This doesn't affect the symbols.
+
+         - Tube\n
+           Build 2 curves from the upper and lower limits of the intervals
+           and draw them with the pen(). The area between the curves is 
+           filled with the brush(). 
+
+         - UserCurve\n
+           Styles >= UserCurve are reserved for derived
+           classes of QwtPlotIntervalCurve that overload drawSeries() with
+           additional application specific curve types.
+
+        The default setting is Tube.
+
+        \sa setStyle(), style()
+    */
+
     enum CurveStyle
     {
         NoCurve,
+
         Tube,
 
         UserCurve = 100
@@ -42,8 +73,8 @@ public:
     void setBrush(const QBrush &);
     const QBrush &brush() const;
 
-    void setCurveStyle(CurveStyle style);
-    CurveStyle curveStyle() const;
+    void setStyle(CurveStyle style);
+    CurveStyle style() const;
 
     void setSymbol(const QwtIntervalSymbol *);
     const QwtIntervalSymbol *symbol() const;
