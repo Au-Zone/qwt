@@ -104,10 +104,10 @@ protected:
 
     virtual void renderLegend(QPainter *, const QRectF &) const;
 
-	QwtPlot *plot();
-	const QwtPlot *plot() const;
+    QwtPlot *plot();
+    const QwtPlot *plot() const;
 
-	void buildCanvasMaps(const QRectF &, QwtScaleMap maps[]) const;
+    void buildCanvasMaps(const QRectF &, QwtScaleMap maps[]) const;
 
 private:
     class PrivateData;

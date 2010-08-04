@@ -688,9 +688,6 @@ const QBrush& QwtSymbol::brush() const
 
   The pen is used to draw the symbol's outline.
 
-  The width of non cosmetic pens is scaled according to the resolution
-  of the paint device.
-
   \param pen Pen
   \sa pen(), setBrush()
 */

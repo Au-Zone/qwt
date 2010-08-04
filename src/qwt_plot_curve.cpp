@@ -42,7 +42,7 @@ class QwtPlotCurve::PrivateData
 public:
     PrivateData():
         style(QwtPlotCurve::Lines),
-        reference(0.0),
+        baseline(0.0),
         symbol(NULL),
         attributes(0),
         paintAttributes(QwtPlotCurve::ClipPolygons),
@@ -59,7 +59,7 @@ public:
     }
 
     QwtPlotCurve::CurveStyle style;
-    double reference;
+    double baseline;
 
     const QwtSymbol *symbol;
     QwtCurveFitter *curveFitter;
@@ -99,9 +99,7 @@ QwtPlotCurve::~QwtPlotCurve()
     delete d_data;
 }
 
-/*!
-  \brief Initialize data members
-*/
+//! Initialize data members
 void QwtPlotCurve::init()
 {
     setItemAttribute(QwtPlotItem::Legend);
@@ -207,8 +205,8 @@ void QwtPlotCurve::setSymbol(const QwtSymbol *symbol )
 }
 
 /*!
-    \brief Return the current symbol
-    \sa setSymbol()
+  \return Current symbol
+  \sa setSymbol()
 */
 const QwtSymbol *QwtPlotCurve::symbol() const 
 { 
@@ -217,9 +215,6 @@ const QwtSymbol *QwtPlotCurve::symbol() const
 
 /*!
   Assign a pen
-
-  The width of non cosmetic pens is scaled according to the resolution
-  of the paint device.
 
   \param pen New pen
   \sa pen(), brush()
@@ -234,8 +229,8 @@ void QwtPlotCurve::setPen(const QPen &pen)
 }
 
 /*!
-    \brief Return the pen used to draw the lines
-    \sa setPen(), brush()
+  \return Pen used to draw the lines
+  \sa setPen(), brush()
 */
 const QPen& QwtPlotCurve::pen() const 
 { 
@@ -430,8 +425,8 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, false);
 
-    const double x0 = xMap.transform(d_data->reference);
-    const double y0 = yMap.transform(d_data->reference);
+    const double x0 = xMap.transform(d_data->baseline);
+    const double y0 = yMap.transform(d_data->baseline);
     const Qt::Orientation o = orientation();
 
     for (int i = from; i <= to; i++)
@@ -680,13 +675,13 @@ void QwtPlotCurve::closePolyline(
 
     if ( orientation() == Qt::Vertical )
     {
-        const double refY = yMap.transform(d_data->reference);
+        const double refY = yMap.transform(d_data->baseline);
         polygon += QPointF(polygon.last().x(), refY);
         polygon += QPointF(polygon.first().x(), refY);
     }
     else
     {
-        const double refX = xMap.transform(d_data->reference);
+        const double refX = xMap.transform(d_data->baseline);
         polygon += QPointF(refX, polygon.last().y());
         polygon += QPointF(refX, polygon.first().y());
     }
@@ -779,30 +774,32 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
 
   The baseline is needed for filling the curve with a brush or
   the Sticks drawing style. 
-  The default value is 0.0. The interpretation
-  of the baseline depends on the CurveType. With QwtPlotCurve::Yfx,
-  the baseline is interpreted as a horizontal line at y = baseline(),
-  with QwtPlotCurve::Yfy, it is interpreted as a vertical line at
-  x = baseline().
-  \param reference baseline
+  The interpretation of the baseline depends on the CurveType. 
+  With QwtPlotCurve::Yfx, the baseline is interpreted as a horizontal line 
+  at y = baseline(), with QwtPlotCurve::Yfy, it is interpreted as a vertical 
+  line at x = baseline().
+
+  The default value is 0.0.
+
+  \param value Value of the baseline
   \sa baseline(), setBrush(), setStyle(), setCurveType()
 */
-void QwtPlotCurve::setBaseline(double reference)
+void QwtPlotCurve::setBaseline(double value)
 {
-    if ( d_data->reference != reference )
+    if ( d_data->baseline != value )
     {
-        d_data->reference = reference;
+        d_data->baseline = value;
         itemChanged();
     }
 }
 
 /*!
-    Return the value of the baseline
-    \sa setBaseline()
+  \return the value of the baseline
+  \sa setBaseline()
 */
 double QwtPlotCurve::baseline() const 
 { 
-    return d_data->reference; 
+    return d_data->baseline; 
 }
 
 /*!
@@ -947,13 +944,13 @@ void QwtPlotCurve::drawLegendIdentifier(
 /*!
   Initialize data with an array of points (explicitly shared).
 
-  \param data Data
+  \param samples Vector of points
   \sa QwtPolygonFData
 */
-void QwtPlotCurve::setSamples(const QVector<QPointF> &data)
+void QwtPlotCurve::setSamples(const QVector<QPointF> &samples)
 {
     delete d_series;
-    d_series = new QwtPointSeriesData(data);
+    d_series = new QwtPointSeriesData(samples);
     itemChanged();
 }
 

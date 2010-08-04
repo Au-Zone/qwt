@@ -465,9 +465,6 @@ int QwtPlotMarker::spacing() const
 /*!
   Specify a pen for the line.
 
-  The width of non cosmetic pens is scaled according to the resolution
-  of the paint device.
-
   \param pen New pen
   \sa linePen(), QwtPainter::scaledPen()
 */
