@@ -47,7 +47,7 @@ class QWT_EXPORT QwtAnalogClock: public QwtDial
     Q_OBJECT
 
 public:
-    /*! 
+    /*!
         Hand type
         \sa setHand(), hand()
     */
@@ -61,28 +61,28 @@ public:
         NHands
     };
 
-    explicit QwtAnalogClock(QWidget* parent = NULL);
+    explicit QwtAnalogClock( QWidget* parent = NULL );
     virtual ~QwtAnalogClock();
 
-    virtual void setHand(Hand, QwtDialNeedle *);
-    const QwtDialNeedle *hand(Hand) const;
-    QwtDialNeedle *hand(Hand);
+    virtual void setHand( Hand, QwtDialNeedle * );
+    const QwtDialNeedle *hand( Hand ) const;
+    QwtDialNeedle *hand( Hand );
 
 public Q_SLOTS:
     void setCurrentTime();
-    void setTime(const QTime & = QTime::currentTime());
+    void setTime( const QTime & = QTime::currentTime() );
 
 protected:
-    virtual QwtText scaleLabel(double) const;
+    virtual QwtText scaleLabel( double ) const;
 
-    virtual void drawNeedle(QPainter *, const QPoint &,
-        int radius, double direction, QPalette::ColorGroup) const;
+    virtual void drawNeedle( QPainter *, const QPoint &,
+        int radius, double direction, QPalette::ColorGroup ) const;
 
-    virtual void drawHand(QPainter *, Hand, const QPoint &,
-        int radius, double direction, QPalette::ColorGroup) const;
+    virtual void drawHand( QPainter *, Hand, const QPoint &,
+        int radius, double direction, QPalette::ColorGroup ) const;
 
 private:
-    virtual void setNeedle(QwtDialNeedle *);
+    virtual void setNeedle( QwtDialNeedle * );
     void initClock();
 
     QwtDialNeedle *d_hand[NHands];

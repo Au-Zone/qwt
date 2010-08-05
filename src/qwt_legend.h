@@ -57,38 +57,38 @@ public:
         CheckableItem
     };
 
-    explicit QwtLegend(QWidget *parent = NULL);
+    explicit QwtLegend( QWidget *parent = NULL );
     virtual ~QwtLegend();
-    
-    void setItemMode(LegendItemMode);
+
+    void setItemMode( LegendItemMode );
     LegendItemMode itemMode() const;
 
     QWidget *contentsWidget();
     const QWidget *contentsWidget() const;
 
-    void insert(const QwtLegendItemManager *, QWidget *);
-    void remove(const QwtLegendItemManager *);
+    void insert( const QwtLegendItemManager *, QWidget * );
+    void remove( const QwtLegendItemManager * );
 
-    QWidget *find(const QwtLegendItemManager *) const;
-    QwtLegendItemManager *find(const QWidget *) const;
+    QWidget *find( const QwtLegendItemManager * ) const;
+    QwtLegendItemManager *find( const QWidget * ) const;
 
     virtual QList<QWidget *> legendItems() const;
 
     void clear();
-    
+
     bool isEmpty() const;
     uint itemCount() const;
 
-    virtual bool eventFilter(QObject *, QEvent *);
+    virtual bool eventFilter( QObject *, QEvent * );
 
     virtual QSize sizeHint() const;
-    virtual int heightForWidth(int w) const;
+    virtual int heightForWidth( int w ) const;
 
     QScrollBar *horizontalScrollBar() const;
     QScrollBar *verticalScrollBar() const;
 
 protected:
-    virtual void resizeEvent(QResizeEvent *);
+    virtual void resizeEvent( QResizeEvent * );
     virtual void layoutContents();
 
 private:
@@ -96,4 +96,4 @@ private:
     PrivateData *d_data;
 };
 
-#endif // QWT_LEGEND_H
+#endif 

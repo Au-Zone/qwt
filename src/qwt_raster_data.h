@@ -21,8 +21,8 @@ class QwtScaleMap;
 /*!
   \brief QwtRasterData defines an interface to any type of raster data.
 
-  QwtRasterData is an abstract interface, that is used by 
-  QwtPlotRasterItem to find the values at the pixels of its raster. 
+  QwtRasterData is an abstract interface, that is used by
+  QwtPlotRasterItem to find the values at the pixels of its raster.
 
   Often a raster item is used to display values from a matrix. Then the
   derived raster data class needs to implement some sort of resampling,
@@ -34,7 +34,7 @@ class QWT_EXPORT QwtRasterData
 public:
     typedef QMap<double, QPolygonF> ContourLines;
 
-    //! Attribute to modify the contour algorithm 
+    //! Attribute to modify the contour algorithm
     enum ConrecAttribute
     {
         IgnoreAllVerticesOnLevel = 1,
@@ -42,30 +42,30 @@ public:
     };
 
     QwtRasterData();
-    QwtRasterData(const QRectF &);
+    QwtRasterData( const QRectF & );
     virtual ~QwtRasterData();
 
-    virtual void setBoundingRect(const QRectF &);
+    virtual void setBoundingRect( const QRectF & );
     QRectF boundingRect() const;
 
-    virtual QSize rasterHint(const QRectF &) const;
+    virtual QSize rasterHint( const QRectF & ) const;
 
-    virtual void initRaster(const QRectF &, const QSize& raster);
+    virtual void initRaster( const QRectF &, const QSize& raster );
     virtual void discardRaster();
 
-    /*! 
+    /*!
        \return the value at a raster position
        \param x X value in plot coordinates
        \param y Y value in plot coordinates
     */
-    virtual double value(double x, double y) const = 0;
+    virtual double value( double x, double y ) const = 0;
 
     //! \return the range of the values
     virtual QwtInterval range() const = 0;
 
-    virtual ContourLines contourLines(const QRectF &rect,
-        const QSize &raster, const QList<double> &levels, 
-        int flags) const;
+    virtual ContourLines contourLines( const QRectF &rect,
+        const QSize &raster, const QList<double> &levels,
+        int flags ) const;
 
     class Contour3DPoint;
     class ContourPlane;

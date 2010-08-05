@@ -33,8 +33,8 @@ class QwtRoundScaleDraw;
 
 class QWT_EXPORT QwtKnob : public QwtAbstractSlider, public QwtAbstractScale
 {
-    Q_OBJECT 
-    Q_ENUMS (Symbol)
+    Q_OBJECT
+    Q_ENUMS ( Symbol )
     Q_PROPERTY( int knobWidth READ knobWidth WRITE setKnobWidth )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( double totalAngle READ totalAngle WRITE setTotalAngle )
@@ -43,52 +43,55 @@ class QWT_EXPORT QwtKnob : public QwtAbstractSlider, public QwtAbstractScale
 public:
     /*!
         Symbol
-        \sa QwtKnob::QwtKnob()
+        \sa setSymbol()
     */
+    enum Symbol 
+    { 
+        Line, 
+        Dot 
+    };
 
-    enum Symbol { Line, Dot };
-
-    explicit QwtKnob(QWidget* parent = NULL);
+    explicit QwtKnob( QWidget* parent = NULL );
     virtual ~QwtKnob();
 
-    void setKnobWidth(int w);
+    void setKnobWidth( int w );
     int knobWidth() const;
 
-    void setTotalAngle (double angle);
+    void setTotalAngle ( double angle );
     double totalAngle() const;
 
-    void setBorderWidth(int bw);
+    void setBorderWidth( int bw );
     int borderWidth() const;
 
-    void setSymbol(Symbol);
+    void setSymbol( Symbol );
     Symbol symbol() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
-    
-    void setScaleDraw(QwtRoundScaleDraw *);
+
+    void setScaleDraw( QwtRoundScaleDraw * );
     const QwtRoundScaleDraw *scaleDraw() const;
     QwtRoundScaleDraw *scaleDraw();
 
 protected:
-    virtual void paintEvent(QPaintEvent *e);
-    virtual void resizeEvent(QResizeEvent *e);
+    virtual void paintEvent( QPaintEvent *e );
+    virtual void resizeEvent( QResizeEvent *e );
 
-    void draw(QPainter *p, const QRect& ur);
-    void drawKnob(QPainter *p, const QRect &r);
-    void drawMarker(QPainter *p, double arc, const QColor &c);
+    void draw( QPainter *p, const QRect& ur );
+    void drawKnob( QPainter *p, const QRect &r );
+    void drawMarker( QPainter *p, double arc, const QColor &c );
 
 private:
     void initKnob();
     void layoutKnob( bool update = true );
-    double getValue(const QPoint &p);
+    double getValue( const QPoint &p );
     void getScrollMode( const QPoint &p, int &scrollMode, int &direction );
     void recalcAngle();
-    
+
     virtual void valueChange();
     virtual void rangeChange();
     virtual void scaleChange();
-    virtual void fontChange(const QFont &oldFont);
+    virtual void fontChange( const QFont &oldFont );
 
     class PrivateData;
     PrivateData *d_data;

@@ -2,7 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
@@ -14,8 +14,8 @@
 
 // QWT_VERSION is (major << 16) + (minor << 8) + patch.
 
-#define QWT_VERSION       0x050300
-#define QWT_VERSION_STR   "5.3.0-svn"
+#define QWT_VERSION       0x060000
+#define QWT_VERSION_STR   "6.0.0-svn"
 
 #if defined(Q_WS_WIN) || defined(Q_WS_S60)
 
@@ -43,4 +43,4 @@
 
 // #define QWT_NO_COMPAT 1 // disable withdrawn functionality
 
-#endif // QWT_GLOBAL_H
+#endif 

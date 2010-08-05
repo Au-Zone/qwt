@@ -10,8 +10,8 @@
 #ifndef QWT_PLOT_RASTERITEM_H
 #define QWT_PLOT_RASTERITEM_H
 
-#include "qwt_global.h" 
-#include "qwt_plot_item.h" 
+#include "qwt_global.h"
+#include "qwt_plot_item.h"
 #include <qglobal.h>
 #include <qstring.h>
 #include <qimage.h>
@@ -54,41 +54,40 @@ public:
         PaintCache
     };
 
-    explicit QwtPlotRasterItem(const QString& title = QString::null);
-    explicit QwtPlotRasterItem(const QwtText& title);
+    explicit QwtPlotRasterItem( const QString& title = QString::null );
+    explicit QwtPlotRasterItem( const QwtText& title );
     virtual ~QwtPlotRasterItem();
 
-    void setAlpha(int alpha);
+    void setAlpha( int alpha );
     int alpha() const;
 
-    void setCachePolicy(CachePolicy);
+    void setCachePolicy( CachePolicy );
     CachePolicy cachePolicy() const;
 
     void invalidateCache();
 
-    virtual void draw(QPainter *p,
+    virtual void draw( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &rect) const;
+        const QRectF &rect ) const;
 
-    virtual QSize rasterHint(const QRectF &) const;
+    virtual QSize rasterHint( const QRectF & ) const;
 
 protected:
 
-     /*!
-      Renders an image for an area
+    /*!
+     Renders an image for an area
 
-      The format of the image must be QImage::Format_Indexed8,
-      QImage::Format_RGB32 or QImage::Format_ARGB32
-      
-      \param xMap Maps x-values into pixel coordinates.
-      \param yMap Maps y-values into pixel coordinates.
-      \param area Requested area for the image in scale coordinates
-     */
-    virtual QImage renderImage(const QwtScaleMap &xMap, 
-        const QwtScaleMap &yMap, const QRectF &area
-        ) const = 0;
+     The format of the image must be QImage::Format_Indexed8,
+     QImage::Format_RGB32 or QImage::Format_ARGB32
 
-    QRect innerRect(const QRectF &r) const;
+     \param xMap Maps x-values into pixel coordinates.
+     \param yMap Maps y-values into pixel coordinates.
+     \param area Requested area for the image in scale coordinates
+    */
+    virtual QImage renderImage( const QwtScaleMap &xMap,
+        const QwtScaleMap &yMap, const QRectF &area) const = 0;
+
+    QRect innerRect( const QRectF &r ) const;
 
 private:
     QwtPlotRasterItem( const QwtPlotRasterItem & );

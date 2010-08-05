@@ -10,9 +10,9 @@
 #ifndef QWT_PLOT_HISTOGRAM_H
 #define QWT_PLOT_HISTOGRAM_H
 
-#include "qwt_global.h" 
-#include "qwt_plot_seriesitem.h" 
-#include "qwt_column_symbol.h" 
+#include "qwt_global.h"
+#include "qwt_plot_seriesitem.h"
+#include "qwt_column_symbol.h"
 #include <qcolor.h>
 #include <qvector.h>
 
@@ -25,7 +25,7 @@ class QPolygonF;
          is associated with a value ( \f$y = f([x1,x2])\f$ ).
 
   The representation depends on the style() and an optional symbol()
-  that is displayed for each interval. 
+  that is displayed for each interval.
 
   \note The term "histogram" is used in a different way in the areas of
         digital image processing and statistics. Wikipedia introduces the
@@ -37,13 +37,13 @@ class QPolygonF;
 class QWT_EXPORT QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
-    /*! 
-        Histogram styles. 
+    /*!
+        Histogram styles.
 
          - Outline\n
            Draw an outline around the area, that is build by all intervals
            using the pen() and fill it with the brush(). The outline style
-           requires, that the intervals are in increasing order and 
+           requires, that the intervals are in increasing order and
            not overlapping.
 
          - Columns\n
@@ -73,59 +73,59 @@ public:
         UserStyle = 100
     };
 
-    explicit QwtPlotHistogram(const QString &title = QString::null);
-    explicit QwtPlotHistogram(const QwtText &title);
+    explicit QwtPlotHistogram( const QString &title = QString::null );
+    explicit QwtPlotHistogram( const QwtText &title );
     virtual ~QwtPlotHistogram();
 
     virtual int rtti() const;
 
-    void setPen(const QPen &);
+    void setPen( const QPen & );
     const QPen &pen() const;
 
-    void setBrush(const QBrush &);
+    void setBrush( const QBrush & );
     const QBrush &brush() const;
 
-    void setSamples(const QVector<QwtIntervalSample> &);
+    void setSamples( const QVector<QwtIntervalSample> & );
 
-    void setBaseline(double reference);
+    void setBaseline( double reference );
     double baseline() const;
 
-    void setStyle(HistogramStyle style);
+    void setStyle( HistogramStyle style );
     HistogramStyle style() const;
 
-    void setSymbol(const QwtColumnSymbol *);
+    void setSymbol( const QwtColumnSymbol * );
     const QwtColumnSymbol *symbol() const;
 
-    virtual void drawSeries(QPainter *p,
+    virtual void drawSeries( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, int from, int to) const;
+        const QRectF &canvasRect, int from, int to ) const;
 
     virtual QRectF boundingRect() const;
 
-    virtual void drawLegendIdentifier(QPainter *, const QRectF &) const;
+    virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
 
 protected:
-    virtual QwtColumnRect columnRect(const QwtIntervalSample &,
-        const QwtScaleMap &, const QwtScaleMap &) const;
+    virtual QwtColumnRect columnRect( const QwtIntervalSample &,
+        const QwtScaleMap &, const QwtScaleMap & ) const;
 
-    virtual void drawColumn(QPainter *, const QwtColumnRect &,
+    virtual void drawColumn( QPainter *, const QwtColumnRect &,
         const QwtIntervalSample & ) const;
 
-    void drawColumns(QPainter *,
+    void drawColumns( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        int from, int to ) const;
 
-    void drawOutline(QPainter *,
+    void drawOutline( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        int from, int to ) const;
 
-    void drawLines(QPainter *,
-        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+    void drawLines( QPainter *,
+         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+         int from, int to ) const;
 
 private:
     void init();
-    void flushPolygon(QPainter *, double baseLine, QPolygonF &) const;
+    void flushPolygon( QPainter *, double baseLine, QPolygonF & ) const;
 
     class PrivateData;
     PrivateData *d_data;

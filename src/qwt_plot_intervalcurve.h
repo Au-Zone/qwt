@@ -28,16 +28,16 @@ class QwtIntervalSymbol;
 class QWT_EXPORT QwtPlotIntervalCurve: public QwtPlotSeriesItem<QwtIntervalSample>
 {
 public:
-    /*! 
-        Curve styles. 
+    /*!
+        Curve styles.
 
          - NoCurve\n
            Don't draw a curve. Note: This doesn't affect the symbols.
 
          - Tube\n
            Build 2 curves from the upper and lower limits of the intervals
-           and draw them with the pen(). The area between the curves is 
-           filled with the brush(). 
+           and draw them with the pen(). The area between the curves is
+           filled with the brush().
 
          - UserCurve\n
            Styles >= UserCurve are reserved for derived
@@ -58,45 +58,45 @@ public:
         UserCurve = 100
     };
 
-    explicit QwtPlotIntervalCurve(const QString &title = QString::null);
-    explicit QwtPlotIntervalCurve(const QwtText &title);
+    explicit QwtPlotIntervalCurve( const QString &title = QString::null );
+    explicit QwtPlotIntervalCurve( const QwtText &title );
 
     virtual ~QwtPlotIntervalCurve();
 
     virtual int rtti() const;
 
-    void setSamples(const QVector<QwtIntervalSample> &);
+    void setSamples( const QVector<QwtIntervalSample> & );
 
-    void setPen(const QPen &);
+    void setPen( const QPen & );
     const QPen &pen() const;
 
-    void setBrush(const QBrush &);
+    void setBrush( const QBrush & );
     const QBrush &brush() const;
 
-    void setStyle(CurveStyle style);
+    void setStyle( CurveStyle style );
     CurveStyle style() const;
 
-    void setSymbol(const QwtIntervalSymbol *);
+    void setSymbol( const QwtIntervalSymbol * );
     const QwtIntervalSymbol *symbol() const;
 
-    virtual void drawSeries(QPainter *p, 
+    virtual void drawSeries( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, int from, int to) const;
+        const QRectF &canvasRect, int from, int to ) const;
 
     virtual QRectF boundingRect() const;
-    virtual void drawLegendIdentifier(QPainter *, const QRectF &) const;
+    virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
 
 protected:
 
     void init();
 
-    virtual void drawTube(QPainter *, 
+    virtual void drawTube( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        int from, int to ) const;
 
-    virtual void drawSymbols(QPainter *, const QwtIntervalSymbol &, 
+    virtual void drawSymbols( QPainter *, const QwtIntervalSymbol &,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to) const;
+        int from, int to ) const;
 
 private:
     class PrivateData;

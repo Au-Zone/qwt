@@ -2,7 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
@@ -25,11 +25,11 @@ class QRectF;
 class QWT_EXPORT QwtClipper
 {
 public:
-    static QPolygon clipPolygon(const QRect &, const QPolygon &);
-    static QPolygonF clipPolygonF(const QRectF &, const QPolygonF &);
+    static QPolygon clipPolygon( const QRect &, const QPolygon & );
+    static QPolygonF clipPolygonF( const QRectF &, const QPolygonF & );
 
     static QVector<QwtInterval> clipCircle(
-        const QRectF &, const QPointF &, double radius);
+        const QRectF &, const QPointF &, double radius );
 };
 
 #endif

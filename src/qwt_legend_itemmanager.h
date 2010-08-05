@@ -25,12 +25,12 @@ class QWT_EXPORT QwtLegendItemManager
 {
 public:
     //! Constructor
-    QwtLegendItemManager() 
+    QwtLegendItemManager()
     {
     }
 
     //! Destructor
-    virtual ~QwtLegendItemManager() 
+    virtual ~QwtLegendItemManager()
     {
     }
 
@@ -39,7 +39,7 @@ public:
       \param legend Legend
       \sa legendItem()
      */
-    virtual void updateLegend(QwtLegend *legend) const = 0;
+    virtual void updateLegend( QwtLegend *legend ) const = 0;
 
     /*!
       Allocate the widget that represents the item on the legend
@@ -57,7 +57,7 @@ public:
 
       The default implementation paints nothing.
      */
-    virtual void drawLegendIdentifier(QPainter *, const QRectF &) const
+    virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const
     {
     }
 };

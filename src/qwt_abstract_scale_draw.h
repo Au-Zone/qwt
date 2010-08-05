@@ -2,7 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
@@ -33,64 +33,64 @@ class QWT_EXPORT QwtAbstractScaleDraw
 {
 public:
 
-     /*!
-        Components of a scale
+    /*!
+       Components of a scale
 
-        - Backbone
-        - Ticks
-        - Labels
+       - Backbone
+       - Ticks
+       - Labels
 
-        \sa enableComponent(), hasComponent
+       \sa enableComponent(), hasComponent
     */
 
     enum ScaleComponent
-    { 
+    {
         Backbone = 1,
         Ticks = 2,
         Labels = 4
     };
- 
+
     QwtAbstractScaleDraw();
     QwtAbstractScaleDraw( const QwtAbstractScaleDraw & );
     virtual ~QwtAbstractScaleDraw();
 
-    QwtAbstractScaleDraw &operator=(const QwtAbstractScaleDraw &);
-    
-    void setScaleDiv(const QwtScaleDiv &s);
+    QwtAbstractScaleDraw &operator=( const QwtAbstractScaleDraw & );
+
+    void setScaleDiv( const QwtScaleDiv &s );
     const QwtScaleDiv& scaleDiv() const;
 
-    void setTransformation(QwtScaleTransformation *);
+    void setTransformation( QwtScaleTransformation * );
     const QwtScaleMap &map() const;
 
-    void enableComponent(ScaleComponent, bool enable = true);
-    bool hasComponent(ScaleComponent) const;
+    void enableComponent( ScaleComponent, bool enable = true );
+    bool hasComponent( ScaleComponent ) const;
 
-    void setTickLength(QwtScaleDiv::TickType, double length);
-    double tickLength(QwtScaleDiv::TickType) const;
+    void setTickLength( QwtScaleDiv::TickType, double length );
+    double tickLength( QwtScaleDiv::TickType ) const;
     double majTickLength() const;
 
-    void setSpacing(double margin);
+    void setSpacing( double margin );
     double spacing() const;
-        
-    void setPenWidth(int width);
+
+    void setPenWidth( int width );
     int penWidth() const;
 
-    virtual void draw(QPainter *, const QPalette &) const;
+    virtual void draw( QPainter *, const QPalette & ) const;
 
-    virtual QwtText label(double) const;
+    virtual QwtText label( double ) const;
 
-    /*!  
-      Calculate the extent 
+    /*!
+      Calculate the extent
 
       The extent is the distcance from the baseline to the outermost
       pixel of the scale draw in opposite to its orientation.
       It is at least minimumExtent() pixels.
- 
+
       \sa setMinimumExtent(), minimumExtent()
     */
-    virtual double extent(const QFont &) const = 0;
+    virtual double extent( const QFont & ) const = 0;
 
-    void setMinimumExtent(double);
+    void setMinimumExtent( double );
     double minimumExtent() const;
 
     QwtScaleMap &scaleMap();
@@ -98,14 +98,14 @@ public:
 protected:
     /*!
        Draw a tick
-  
+
        \param painter Painter
        \param value Value of the tick
        \param len Lenght of the tick
 
        \sa drawBackbone(), drawLabel()
-    */  
-    virtual void drawTick(QPainter *painter, double value, double len) const = 0;
+    */
+    virtual void drawTick( QPainter *painter, double value, double len ) const = 0;
 
     /*!
       Draws the baseline of the scale
@@ -113,24 +113,24 @@ protected:
 
       \sa drawTick(), drawLabel()
     */
-    virtual void drawBackbone(QPainter *painter) const = 0;
+    virtual void drawBackbone( QPainter *painter ) const = 0;
 
-    /*!  
+    /*!
         Draws the label for a major scale tick
-    
+
         \param painter Painter
         \param value Value
 
         \sa drawTick, drawBackbone
-    */ 
-    virtual void drawLabel(QPainter *painter, double value) const = 0;
+    */
+    virtual void drawLabel( QPainter *painter, double value ) const = 0;
 
     void invalidateCache();
-    const QwtText &tickLabel(const QFont &, double value) const;
+    const QwtText &tickLabel( const QFont &, double value ) const;
 
 private:
-    int operator==(const QwtAbstractScaleDraw &) const;
-    int operator!=(const QwtAbstractScaleDraw &) const;
+    int operator==( const QwtAbstractScaleDraw & ) const;
+    int operator!=( const QwtAbstractScaleDraw & ) const;
 
     class PrivateData;
     PrivateData *d_data;

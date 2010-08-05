@@ -23,21 +23,21 @@ class QWT_EXPORT QwtLegendItem: public QwtTextLabel
 {
     Q_OBJECT
 public:
-    explicit QwtLegendItem(QWidget *parent = 0);
+    explicit QwtLegendItem( QWidget *parent = 0 );
     virtual ~QwtLegendItem();
 
-    void setItemMode(QwtLegend::LegendItemMode);
+    void setItemMode( QwtLegend::LegendItemMode );
     QwtLegend::LegendItemMode itemMode() const;
 
-    void setSpacing(int spacing);
+    void setSpacing( int spacing );
     int spacing() const;
 
-    virtual void setText(const QwtText &);
+    virtual void setText( const QwtText & );
 
-    void setIdentifier(const QPixmap &);
+    void setIdentifier( const QPixmap & );
     QPixmap identifier() const;
 
-    void setIdentifierSize(const QSize &);
+    void setIdentifierSize( const QSize & );
     QSize identifierSize() const;
 
     virtual QSize sizeHint() const;
@@ -45,34 +45,34 @@ public:
     bool isChecked() const;
 
 public Q_SLOTS:
-    void setChecked(bool on);
+    void setChecked( bool on );
 
-Q_SIGNALS: 
+Q_SIGNALS:
     //! Signal, when the legend item has been clicked
     void clicked();
 
     //! Signal, when the legend item has been pressed
     void pressed();
-    
+
     //! Signal, when the legend item has been relased
     void released();
-    
+
     //! Signal, when the legend item has been toggled
-    void checked(bool);
+    void checked( bool );
 
 protected:
-    void setDown(bool);
+    void setDown( bool );
     bool isDown() const;
-    
-    virtual void paintEvent(QPaintEvent *);
-    virtual void mousePressEvent(QMouseEvent *);
-    virtual void mouseReleaseEvent(QMouseEvent *);
-    virtual void keyPressEvent(QKeyEvent *);
-    virtual void keyReleaseEvent(QKeyEvent *);
-    
+
+    virtual void paintEvent( QPaintEvent * );
+    virtual void mousePressEvent( QMouseEvent * );
+    virtual void mouseReleaseEvent( QMouseEvent * );
+    virtual void keyPressEvent( QKeyEvent * );
+    virtual void keyReleaseEvent( QKeyEvent * );
+
 private:
     class PrivateData;
     PrivateData *d_data;
 };
 
-#endif // QWT_LEGEND_ITEM_H
+#endif 
