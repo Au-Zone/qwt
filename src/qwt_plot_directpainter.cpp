@@ -17,26 +17,26 @@
 #include <qapplication.h>
 #include <qpixmap.h>
 
-static void renderItem(QPainter *painter,
-    QwtPlotAbstractSeriesItem *seriesItem, int from, int to)
+static void renderItem( QPainter *painter,
+    QwtPlotAbstractSeriesItem *seriesItem, int from, int to )
 {
     QwtPlot *plot = seriesItem->plot();
 
-    const QwtScaleMap xMap = plot->canvasMap(seriesItem->xAxis());
-    const QwtScaleMap yMap = plot->canvasMap(seriesItem->yAxis());
+    const QwtScaleMap xMap = plot->canvasMap( seriesItem->xAxis() );
+    const QwtScaleMap yMap = plot->canvasMap( seriesItem->yAxis() );
 
-    painter->setRenderHint(QPainter::Antialiasing,
-        seriesItem->testRenderHint(QwtPlotItem::RenderAntialiased) );
-    seriesItem->drawSeries(painter, xMap, yMap,
-        plot->canvas()->contentsRect(), from, to);
+    painter->setRenderHint( QPainter::Antialiasing,
+        seriesItem->testRenderHint( QwtPlotItem::RenderAntialiased ) );
+    seriesItem->drawSeries( painter, xMap, yMap,
+        plot->canvas()->contentsRect(), from, to );
 }
 
 class QwtPlotDirectPainter::PrivateData
 {
 public:
     PrivateData():
-        attributes(0),
-        seriesItem(NULL)
+        attributes( 0 ),
+        seriesItem( NULL )
     {
     }
 
@@ -50,8 +50,8 @@ public:
 };
 
 //! Constructor
-QwtPlotDirectPainter::QwtPlotDirectPainter(QObject *parent):
-    QObject(parent)
+QwtPlotDirectPainter::QwtPlotDirectPainter( QObject *parent ):
+    QObject( parent )
 {
     d_data = new PrivateData;
 }
@@ -70,9 +70,9 @@ QwtPlotDirectPainter::~QwtPlotDirectPainter()
 
   \sa Attribute, testAttribute()
 */
-void QwtPlotDirectPainter::setAttribute(Attribute attribute, bool on)
+void QwtPlotDirectPainter::setAttribute( Attribute attribute, bool on )
 {
-    if ( bool(d_data->attributes & attribute) != on )
+    if ( bool( d_data->attributes & attribute ) != on )
     {
         if ( on )
             d_data->attributes |= attribute;
@@ -90,7 +90,7 @@ void QwtPlotDirectPainter::setAttribute(Attribute attribute, bool on)
   \param attribute Attribute to be tested
   \sa Attribute, setAttribute()
 */
-bool QwtPlotDirectPainter::testAttribute(Attribute attribute) const
+bool QwtPlotDirectPainter::testAttribute( Attribute attribute ) const
 {
     return d_data->attributes & attribute;
 }
@@ -104,7 +104,7 @@ bool QwtPlotDirectPainter::testAttribute(Attribute attribute) const
 
   Setting plot()->canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
   will result in faster painting, if the paint engine of the canvas widget
-  supports this feature. 
+  supports this feature.
 
   \param seriesItem Item to be painted
   \param from Index of the first point to be painted
@@ -112,21 +112,21 @@ bool QwtPlotDirectPainter::testAttribute(Attribute attribute) const
          series will be painted to its last point.
 */
 void QwtPlotDirectPainter::drawSeries(
-    QwtPlotAbstractSeriesItem *seriesItem, int from, int to) 
+    QwtPlotAbstractSeriesItem *seriesItem, int from, int to )
 {
     if ( seriesItem == NULL || seriesItem->plot() == NULL )
         return;
 
     QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
 
-    if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
+    if ( canvas->testPaintAttribute( QwtPlotCanvas::PaintCached ) &&
         canvas->paintCache() && !canvas->paintCache()->isNull() )
     {
-        QPainter painter((QPixmap *)canvas->paintCache());
-        painter.translate(-canvas->contentsRect().x(),
-            -canvas->contentsRect().y());
+        QPainter painter( ( QPixmap * )canvas->paintCache() );
+        painter.translate( -canvas->contentsRect().x(),
+            -canvas->contentsRect().y() );
 
-        renderItem(&painter, seriesItem, from, to);
+        renderItem( &painter, seriesItem, from, to );
 
         if ( d_data->attributes & FullRepaint )
         {
@@ -136,8 +136,8 @@ void QwtPlotDirectPainter::drawSeries(
     }
 
     bool immediatePaint = true;
-    if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
-        !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
+    if ( !canvas->testAttribute( Qt::WA_WState_InPaintEvent ) &&
+        !canvas->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
     {
         immediatePaint = false;
     }
@@ -145,19 +145,19 @@ void QwtPlotDirectPainter::drawSeries(
     if ( immediatePaint )
     {
         QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
-        if ( !(d_data->painter.isActive() && 
-            d_data->painter.device() == canvas) )
+        if ( !( d_data->painter.isActive() &&
+            d_data->painter.device() == canvas ) )
         {
             reset();
 
-            d_data->painter.begin(canvas);
-            d_data->painter.setClipping(true);
-            d_data->painter.setClipRect(canvas->contentsRect());
+            d_data->painter.begin( canvas );
+            d_data->painter.setClipping( true );
+            d_data->painter.setClipRect( canvas->contentsRect() );
 
-            canvas->installEventFilter(this);
+            canvas->installEventFilter( this );
         }
 
-        renderItem(&d_data->painter, seriesItem, from, to);
+        renderItem( &d_data->painter, seriesItem, from, to );
 
         if ( d_data->attributes & AtomicPainter )
             reset();
@@ -170,9 +170,9 @@ void QwtPlotDirectPainter::drawSeries(
         d_data->from = from;
         d_data->to = to;
 
-        canvas->installEventFilter(this);
+        canvas->installEventFilter( this );
         canvas->repaint();
-        canvas->removeEventFilter(this);
+        canvas->removeEventFilter( this );
 
         d_data->seriesItem = NULL;
     }
@@ -183,16 +183,16 @@ void QwtPlotDirectPainter::reset()
 {
     if ( d_data->painter.isActive() )
     {
-        QWidget *w = (QWidget *)d_data->painter.device();
+        QWidget *w = ( QWidget * )d_data->painter.device();
         if ( w )
-            w->removeEventFilter(this);
+            w->removeEventFilter( this );
 
         d_data->painter.end();
     }
 }
 
-//! Event filter 
-bool QwtPlotDirectPainter::eventFilter(QObject *, QEvent *event)
+//! Event filter
+bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
 {
     if ( event->type() == QEvent::Paint )
     {
@@ -202,12 +202,12 @@ bool QwtPlotDirectPainter::eventFilter(QObject *, QEvent *event)
         {
             QwtPlotCanvas *canvas = d_data->seriesItem->plot()->canvas();
 
-            QPainter painter(canvas);
-            painter.setClipping(true);
-            painter.setClipRect(canvas->contentsRect());
+            QPainter painter( canvas );
+            painter.setClipping( true );
+            painter.setClipRect( canvas->contentsRect() );
 
-            renderItem(&painter, d_data->seriesItem,
-                d_data->from, d_data->to);
+            renderItem( &painter, d_data->seriesItem,
+                d_data->from, d_data->to );
 
             return true;
         }

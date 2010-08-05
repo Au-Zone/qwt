@@ -25,12 +25,12 @@ public:
     bool isAxisEnabled[QwtPlot::axisCnt];
 };
 
-/*! 
+/*!
    Constructor
    \param canvas Plot canvas to be magnified
 */
-QwtPlotMagnifier::QwtPlotMagnifier(QwtPlotCanvas *canvas):
-    QwtMagnifier(canvas)
+QwtPlotMagnifier::QwtPlotMagnifier( QwtPlotCanvas *canvas ):
+    QwtMagnifier( canvas )
 {
     d_data = new PrivateData();
 }
@@ -52,7 +52,7 @@ QwtPlotMagnifier::~QwtPlotMagnifier()
 
    \sa isAxisEnabled()
 */
-void QwtPlotMagnifier::setAxisEnabled(int axis, bool on)
+void QwtPlotMagnifier::setAxisEnabled( int axis, bool on )
 {
     if ( axis >= 0 && axis < QwtPlot::axisCnt )
         d_data->isAxisEnabled[axis] = on;
@@ -66,7 +66,7 @@ void QwtPlotMagnifier::setAxisEnabled(int axis, bool on)
 
    \sa setAxisEnabled()
 */
-bool QwtPlotMagnifier::isAxisEnabled(int axis) const
+bool QwtPlotMagnifier::isAxisEnabled( int axis ) const
 {
     if ( axis >= 0 && axis < QwtPlot::axisCnt )
         return d_data->isAxisEnabled[axis];
@@ -78,8 +78,8 @@ bool QwtPlotMagnifier::isAxisEnabled(int axis) const
 QwtPlotCanvas *QwtPlotMagnifier::canvas()
 {
     QObject *w = parent();
-    if ( w && w->inherits("QwtPlotCanvas") )
-        return (QwtPlotCanvas *)w;
+    if ( w && w->inherits( "QwtPlotCanvas" ) )
+        return ( QwtPlotCanvas * )w;
 
     return NULL;
 }
@@ -87,7 +87,7 @@ QwtPlotCanvas *QwtPlotMagnifier::canvas()
 //! Return Observed plot canvas
 const QwtPlotCanvas *QwtPlotMagnifier::canvas() const
 {
-    return ((QwtPlotMagnifier *)this)->canvas();
+    return ( ( QwtPlotMagnifier * )this )->canvas();
 }
 
 //! Return plot widget, containing the observed plot canvas
@@ -97,8 +97,8 @@ QwtPlot *QwtPlotMagnifier::plot()
     if ( w )
     {
         w = w->parent();
-        if ( w && w->inherits("QwtPlot") )
-            return (QwtPlot *)w;
+        if ( w && w->inherits( "QwtPlot" ) )
+            return ( QwtPlot * )w;
     }
 
     return NULL;
@@ -107,16 +107,16 @@ QwtPlot *QwtPlotMagnifier::plot()
 //! Return plot widget, containing the observed plot canvas
 const QwtPlot *QwtPlotMagnifier::plot() const
 {
-    return ((QwtPlotMagnifier *)this)->plot();
+    return ( ( QwtPlotMagnifier * )this )->plot();
 }
 
-/*! 
+/*!
    Zoom in/out the axes scales
    \param factor A value < 1.0 zooms in, a value > 1.0 zooms out.
 */
-void QwtPlotMagnifier::rescale(double factor)
+void QwtPlotMagnifier::rescale( double factor )
 {
-    factor = qAbs(factor);
+    factor = qAbs( factor );
     if ( factor == 1.0 || factor == 0.0 )
         return;
 
@@ -124,23 +124,23 @@ void QwtPlotMagnifier::rescale(double factor)
     QwtPlot* plt = plot();
 
     const bool autoReplot = plt->autoReplot();
-    plt->setAutoReplot(false);
+    plt->setAutoReplot( false );
 
     for ( int axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
     {
-        const QwtScaleDiv *scaleDiv = plt->axisScaleDiv(axisId);
-        if ( isAxisEnabled(axisId) && scaleDiv->isValid() )
+        const QwtScaleDiv *scaleDiv = plt->axisScaleDiv( axisId );
+        if ( isAxisEnabled( axisId ) && scaleDiv->isValid() )
         {
             const double center =
                 scaleDiv->lowerBound() + scaleDiv->range() / 2;
             const double width_2 = scaleDiv->range() / 2 * factor;
 
-            plt->setAxisScale(axisId, center - width_2, center + width_2);
+            plt->setAxisScale( axisId, center - width_2, center + width_2 );
             doReplot = true;
         }
     }
 
-    plt->setAutoReplot(autoReplot);
+    plt->setAutoReplot( autoReplot );
 
     if ( doReplot )
         plt->replot();

@@ -17,8 +17,8 @@ class QwtPlotSpectroCurve::PrivateData
 {
 public:
     PrivateData():
-        colorRange(0.0, 1000.0),
-        paintAttributes(QwtPlotSpectroCurve::ClipPoints)
+        colorRange( 0.0, 1000.0 ),
+        paintAttributes( QwtPlotSpectroCurve::ClipPoints )
     {
         colorMap = new QwtLinearColorMap();
     }
@@ -36,20 +36,20 @@ public:
 
 /*!
   Constructor
-  \param title Title of the curve   
+  \param title Title of the curve
 */
-QwtPlotSpectroCurve::QwtPlotSpectroCurve(const QwtText &title):
-    QwtPlotSeriesItem<QwtPoint3D>(title)
+QwtPlotSpectroCurve::QwtPlotSpectroCurve( const QwtText &title ):
+    QwtPlotSeriesItem<QwtPoint3D>( title )
 {
     init();
 }
 
 /*!
   Constructor
-  \param title Title of the curve   
+  \param title Title of the curve
 */
-QwtPlotSpectroCurve::QwtPlotSpectroCurve(const QString &title):
-    QwtPlotSeriesItem<QwtPoint3D>(QwtText(title))
+QwtPlotSpectroCurve::QwtPlotSpectroCurve( const QString &title ):
+    QwtPlotSeriesItem<QwtPoint3D>( QwtText( title ) )
 {
     init();
 }
@@ -65,13 +65,13 @@ QwtPlotSpectroCurve::~QwtPlotSpectroCurve()
 */
 void QwtPlotSpectroCurve::init()
 {
-    setItemAttribute(QwtPlotItem::Legend);
-    setItemAttribute(QwtPlotItem::AutoScale);
+    setItemAttribute( QwtPlotItem::Legend );
+    setItemAttribute( QwtPlotItem::AutoScale );
 
     d_data = new PrivateData;
     d_series = new QwtPoint3DSeriesData();
 
-    setZ(20.0);
+    setZ( 20.0 );
 }
 
 //! \return QwtPlotItem::Rtti_PlotCurve
@@ -87,7 +87,7 @@ int QwtPlotSpectroCurve::rtti() const
   \param on On/Off
   /sa PaintAttribute, testPaintAttribute()
 */
-void QwtPlotSpectroCurve::setPaintAttribute(PaintAttribute attribute, bool on)
+void QwtPlotSpectroCurve::setPaintAttribute( PaintAttribute attribute, bool on )
 {
     if ( on )
         d_data->paintAttributes |= attribute;
@@ -99,19 +99,19 @@ void QwtPlotSpectroCurve::setPaintAttribute(PaintAttribute attribute, bool on)
     \brief Return the current paint attributes
     \sa PaintAttribute, setPaintAttribute()
 */
-bool QwtPlotSpectroCurve::testPaintAttribute(PaintAttribute attribute) const
+bool QwtPlotSpectroCurve::testPaintAttribute( PaintAttribute attribute ) const
 {
-    return (d_data->paintAttributes & attribute);
+    return ( d_data->paintAttributes & attribute );
 }
 
 /*!
   Initialize data with an array of samples.
   \param samples Vector of points
 */
-void QwtPlotSpectroCurve::setSamples(const QVector<QwtPoint3D> &samples)
+void QwtPlotSpectroCurve::setSamples( const QVector<QwtPoint3D> &samples )
 {
     delete d_series;
-    d_series = new QwtPoint3DSeriesData(samples);
+    d_series = new QwtPoint3DSeriesData( samples );
     itemChanged();
 }
 
@@ -126,7 +126,7 @@ void QwtPlotSpectroCurve::setSamples(const QVector<QwtPoint3D> &samples)
   \sa colorMap(), setColorRange(), QwtColorMap::color(),
       QwtScaleWidget::setColorBarEnabled(), QwtScaleWidget::setColorMap()
 */
-void QwtPlotSpectroCurve::setColorMap(QwtColorMap *colorMap)
+void QwtPlotSpectroCurve::setColorMap( QwtColorMap *colorMap )
 {
     if ( colorMap != d_data->colorMap )
     {
@@ -149,12 +149,12 @@ const QwtColorMap *QwtPlotSpectroCurve::colorMap() const
 /*!
    Set the value interval, that corresponds to the color map
 
-   \param interval interval.minValue() corresponds to 0.0, 
+   \param interval interval.minValue() corresponds to 0.0,
                    interval.maxValue() to 1.0 on the color map.
 
    \sa colorRange(), setColorMap(), QwtColorMap::color()
 */
-void QwtPlotSpectroCurve::setColorRange(const QwtInterval &interval)
+void QwtPlotSpectroCurve::setColorRange( const QwtInterval &interval )
 {
     if ( interval != d_data->colorRange )
     {
@@ -180,19 +180,19 @@ QwtInterval &QwtPlotSpectroCurve::colorRange() const
   \param yMap Maps y-values into pixel coordinates.
   \param canvasRect Contents rect of the canvas
   \param from Index of the first sample to be painted
-  \param to Index of the last sample to be painted. If to < 0 the 
+  \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
 
   \sa drawDots()
 */
-void QwtPlotSpectroCurve::drawSeries(QPainter *painter, 
+void QwtPlotSpectroCurve::drawSeries( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRectF &canvasRect, int from, int to) const
+    const QRectF &canvasRect, int from, int to ) const
 {
     if ( !painter || dataSize() <= 0 )
         return;
 
-    if (to < 0)
+    if ( to < 0 )
         to = dataSize() - 1;
 
     if ( from < 0 )
@@ -201,7 +201,7 @@ void QwtPlotSpectroCurve::drawSeries(QPainter *painter,
     if ( from >= to )
         return;
 
-    drawDots(painter, xMap, yMap, canvasRect, from, to);
+    drawDots( painter, xMap, yMap, canvasRect, from, to );
 }
 
 /*!
@@ -212,52 +212,52 @@ void QwtPlotSpectroCurve::drawSeries(QPainter *painter,
   \param yMap Maps y-values into pixel coordinates.
   \param canvasRect Contents rect of the canvas
   \param from Index of the first sample to be painted
-  \param to Index of the last sample to be painted. If to < 0 the 
+  \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
 
   \sa drawSeries()
 */
-void QwtPlotSpectroCurve::drawDots(QPainter *painter,
+void QwtPlotSpectroCurve::drawDots( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRectF &canvasRect, int from, int to) const
+    const QRectF &canvasRect, int from, int to ) const
 {
     if ( !d_data->colorRange.isValid() )
         return;
 
     const QwtColorMap::Format format = d_data->colorMap->format();
     if ( format == QwtColorMap::Indexed )
-        d_data->colorTable = d_data->colorMap->colorTable(d_data->colorRange);
+        d_data->colorTable = d_data->colorMap->colorTable( d_data->colorRange );
 
-    for (int i = from; i <= to; i++)
-    {   
-        const QwtPoint3D sample = d_series->sample(i);
-    
-        const double xi = xMap.transform(sample.x());
-        const double yi = yMap.transform(sample.y());
+    for ( int i = from; i <= to; i++ )
+    {
+        const QwtPoint3D sample = d_series->sample( i );
+
+        const double xi = xMap.transform( sample.x() );
+        const double yi = yMap.transform( sample.y() );
 
         if ( d_data->paintAttributes & QwtPlotSpectroCurve::ClipPoints )
         {
-            if ( !canvasRect.contains(xi, yi ) )
+            if ( !canvasRect.contains( xi, yi ) )
                 continue;
-        } 
+        }
 
         if ( format == QwtColorMap::RGB )
         {
             const QRgb rgb = d_data->colorMap->rgb(
-                d_data->colorRange, sample.z());
+                d_data->colorRange, sample.z() );
 
-            painter->setPen(QPen(QColor(rgb)));
+            painter->setPen( QPen( QColor( rgb ) ) );
         }
         else
         {
             const unsigned char index = d_data->colorMap->colorIndex(
-                d_data->colorRange, sample.z());
+                d_data->colorRange, sample.z() );
 
-            painter->setPen(QPen(d_data->colorTable[index]));
+            painter->setPen( QPen( d_data->colorTable[index] ) );
         }
 
-        QwtPainter::drawPoint(painter, QPointF(xi, yi));
+        QwtPainter::drawPoint( painter, QPointF( xi, yi ) );
     }
-    
+
     d_data->colorTable.clear();
 }

@@ -30,18 +30,18 @@ public:
         Text
     };
 
-    PickerWidget(QwtPicker *, QWidget *, Type);
+    PickerWidget( QwtPicker *, QWidget *, Type );
     virtual void updateMask();
 
     /*
-       For a tracker text with a background we can use the background 
+       For a tracker text with a background we can use the background
        rect as mask. Also for "regular" Qt widgets >= 4.3.0 we
        don't need to mask the text anymore.
      */
     bool d_hasTextMask;
 
 protected:
-    virtual void paintEvent(QPaintEvent *);
+    virtual void paintEvent( QPaintEvent * );
 
     QwtPicker *d_picker;
     Type d_type;
@@ -75,21 +75,21 @@ public:
       In case of (f.e) a CrossRubberBand and a text this creates complete
       repaints of the widget. So we better use two different widgets.
      */
-     
+
     QPointer<PickerWidget> rubberBandWidget;
     QPointer<PickerWidget> trackerWidget;
 };
 
 QwtPicker::PickerWidget::PickerWidget(
-        QwtPicker *picker, QWidget *parent, Type type):
-    QWidget(parent),
-    d_hasTextMask(false),
-    d_picker(picker),
-    d_type(type)
+        QwtPicker *picker, QWidget *parent, Type type ):
+    QWidget( parent ),
+    d_hasTextMask( false ),
+    d_picker( picker ),
+    d_type( type )
 {
-    setAttribute(Qt::WA_TransparentForMouseEvents);
-    setAttribute(Qt::WA_NoSystemBackground);
-    setFocusPolicy(Qt::NoFocus);
+    setAttribute( Qt::WA_TransparentForMouseEvents );
+    setAttribute( Qt::WA_NoSystemBackground );
+    setFocusPolicy( Qt::NoFocus );
 }
 
 void QwtPicker::PickerWidget::updateMask()
@@ -98,30 +98,30 @@ void QwtPicker::PickerWidget::updateMask()
 
     if ( d_type == RubberBand )
     {
-        QBitmap bm(width(), height());
-        bm.fill(Qt::color0);
+        QBitmap bm( width(), height() );
+        bm.fill( Qt::color0 );
 
-        QPainter painter(&bm);
+        QPainter painter( &bm );
         QPen pen = d_picker->rubberBandPen();
-        pen.setColor(Qt::color1);
-        painter.setPen(pen);
+        pen.setColor( Qt::color1 );
+        painter.setPen( pen );
 
-        d_picker->drawRubberBand(&painter);
+        d_picker->drawRubberBand( &painter );
 
-        mask = QRegion(bm);
+        mask = QRegion( bm );
     }
     if ( d_type == Text )
     {
         d_hasTextMask = true;
-        if ( !parentWidget()->testAttribute(Qt::WA_PaintOnScreen) )
+        if ( !parentWidget()->testAttribute( Qt::WA_PaintOnScreen ) )
             d_hasTextMask = false;
-        
+
         if ( d_hasTextMask )
         {
             const QwtText label = d_picker->trackerText(
-                d_picker->trackerPosition());
+                d_picker->trackerPosition() );
 
-            if ( label.testPaintAttribute(QwtText::PaintBackground)
+            if ( label.testPaintAttribute( QwtText::PaintBackground )
                 && label.backgroundBrush().style() != Qt::NoBrush )
             {
                 if ( label.backgroundBrush().color().alpha() > 0 )
@@ -134,40 +134,40 @@ void QwtPicker::PickerWidget::updateMask()
 
         if ( d_hasTextMask )
         {
-            QBitmap bm(width(), height());
-            bm.fill(Qt::color0);
+            QBitmap bm( width(), height() );
+            bm.fill( Qt::color0 );
 
-            QPainter painter(&bm);
-            painter.setFont(font());
+            QPainter painter( &bm );
+            painter.setFont( font() );
 
             QPen pen = d_picker->trackerPen();
-            pen.setColor(Qt::color1);
-            painter.setPen(pen);
+            pen.setColor( Qt::color1 );
+            painter.setPen( pen );
 
-            d_picker->drawTracker(&painter);
+            d_picker->drawTracker( &painter );
 
-            mask = QRegion(bm);
+            mask = QRegion( bm );
         }
         else
         {
-            mask = d_picker->trackerRect(font());
+            mask = d_picker->trackerRect( font() );
         }
     }
 
-    setMask(mask);
+    setMask( mask );
 
-    setShown(!mask.isEmpty());
+    setShown( !mask.isEmpty() );
 }
 
-void QwtPicker::PickerWidget::paintEvent(QPaintEvent *e)
+void QwtPicker::PickerWidget::paintEvent( QPaintEvent *e )
 {
-    QPainter painter(this);
-    painter.setClipRegion(e->region());
+    QPainter painter( this );
+    painter.setClipRegion( e->region() );
 
     if ( d_type == RubberBand )
     {
-        painter.setPen(d_picker->rubberBandPen());
-        d_picker->drawRubberBand(&painter);
+        painter.setPen( d_picker->rubberBandPen() );
+        d_picker->drawRubberBand( &painter );
     }
 
     if ( d_type == Text )
@@ -179,11 +179,11 @@ void QwtPicker::PickerWidget::paintEvent(QPaintEvent *e)
         bool doDrawTracker = !d_hasTextMask;
         if ( doDrawTracker )
         {
-            painter.setPen(d_picker->trackerPen());
-            d_picker->drawTracker(&painter);
+            painter.setPen( d_picker->trackerPen() );
+            d_picker->drawTracker( &painter );
         }
         else
-            painter.fillRect(e->rect(), QBrush(d_picker->trackerPen().color()));
+            painter.fillRect( e->rect(), QBrush( d_picker->trackerPen().color() ) );
     }
 }
 
@@ -192,14 +192,14 @@ void QwtPicker::PickerWidget::paintEvent(QPaintEvent *e)
 
   Creates an picker that is enabled, but without a state machine.
   rubberband and tracker are disabled.
-  
+
   \param parent Parent widget, that will be observed
  */
 
-QwtPicker::QwtPicker(QWidget *parent):
-    QObject(parent)
+QwtPicker::QwtPicker( QWidget *parent ):
+    QObject( parent )
 {
-    init(parent, NoRubberBand, AlwaysOff);
+    init( parent, NoRubberBand, AlwaysOff );
 }
 
 /*!
@@ -209,17 +209,17 @@ QwtPicker::QwtPicker(QWidget *parent):
   \param trackerMode Tracker mode
   \param parent Parent widget, that will be observed
  */
-QwtPicker::QwtPicker(RubberBand rubberBand,
-        DisplayMode trackerMode, QWidget *parent):
-    QObject(parent)
+QwtPicker::QwtPicker( RubberBand rubberBand,
+        DisplayMode trackerMode, QWidget *parent ):
+    QObject( parent )
 {
-    init(parent, rubberBand, trackerMode);
+    init( parent, rubberBand, trackerMode );
 }
 
 //! Destructor
 QwtPicker::~QwtPicker()
 {
-    setMouseTracking(false);
+    setMouseTracking( false );
     delete d_data->stateMachine;
     delete d_data->rubberBandWidget;
     delete d_data->trackerWidget;
@@ -227,8 +227,8 @@ QwtPicker::~QwtPicker()
 }
 
 //! Init the picker, used by the constructors
-void QwtPicker::init(QWidget *parent, 
-    RubberBand rubberBand, DisplayMode trackerMode)
+void QwtPicker::init( QWidget *parent,
+    RubberBand rubberBand, DisplayMode trackerMode )
 {
     d_data = new PrivateData;
 
@@ -240,7 +240,7 @@ void QwtPicker::init(QWidget *parent,
     d_data->resizeMode = Stretch;
     d_data->trackerMode = AlwaysOff;
     d_data->isActive = false;
-    d_data->trackerPosition = QPoint(-1, -1);
+    d_data->trackerPosition = QPoint( -1, -1 );
     d_data->mouseTracking = false;
 
     d_data->stateMachine = NULL;
@@ -248,13 +248,13 @@ void QwtPicker::init(QWidget *parent,
     if ( parent )
     {
         if ( parent->focusPolicy() == Qt::NoFocus )
-            parent->setFocusPolicy(Qt::WheelFocus);
+            parent->setFocusPolicy( Qt::WheelFocus );
 
         d_data->trackerFont = parent->font();
         d_data->mouseTracking = parent->hasMouseTracking();
-        setEnabled(true);
+        setEnabled( true );
     }
-    setTrackerMode(trackerMode);
+    setTrackerMode( trackerMode );
 }
 
 /*!
@@ -263,7 +263,7 @@ void QwtPicker::init(QWidget *parent,
   \param stateMachine State machine
   \sa stateMachine()
 */
-void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
+void QwtPicker::setStateMachine( QwtPickerMachine *stateMachine )
 {
     if ( d_data->stateMachine != stateMachine )
     {
@@ -277,7 +277,7 @@ void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
     }
 }
 
-/*! 
+/*!
   \return Assigned state machine
   \sa setStateMachine()
 */
@@ -286,7 +286,7 @@ QwtPickerMachine *QwtPicker::stateMachine()
     return d_data->stateMachine;
 }
 
-/*! 
+/*!
   \return Assigned state machine
   \sa setStateMachine()
 */
@@ -300,7 +300,7 @@ QWidget *QwtPicker::parentWidget()
 {
     QObject *obj = parent();
     if ( obj && obj->isWidgetType() )
-        return (QWidget *)obj;
+        return ( QWidget * )obj;
 
     return NULL;
 }
@@ -310,20 +310,20 @@ const QWidget *QwtPicker::parentWidget() const
 {
     QObject *obj = parent();
     if ( obj && obj->isWidgetType() )
-        return (QWidget *)obj;
+        return ( QWidget * )obj;
 
     return NULL;
 }
 
 /*!
-  Set the rubberband style 
+  Set the rubberband style
 
   \param rubberBand Rubberband style
          The default value is NoRubberBand.
 
   \sa rubberBand(), RubberBand, setRubberBandPen()
 */
-void QwtPicker::setRubberBand(RubberBand rubberBand)
+void QwtPicker::setRubberBand( RubberBand rubberBand )
 {
     d_data->rubberBand = rubberBand;
 }
@@ -345,7 +345,7 @@ QwtPicker::RubberBand QwtPicker::rubberBand() const
   if the tracker has to be displayed whenever the observed
   widget has focus and cursor (AlwaysOn), never (AlwaysOff), or
   only when the selection is active (ActiveOnly).
-  
+
   \param mode Tracker display mode
 
   \warning In case of AlwaysOn, mouseTracking will be enabled
@@ -353,23 +353,23 @@ QwtPicker::RubberBand QwtPicker::rubberBand() const
   \sa trackerMode(), DisplayMode
 */
 
-void QwtPicker::setTrackerMode(DisplayMode mode)
-{   
+void QwtPicker::setTrackerMode( DisplayMode mode )
+{
     if ( d_data->trackerMode != mode )
     {
         d_data->trackerMode = mode;
-        setMouseTracking(d_data->trackerMode == AlwaysOn);
+        setMouseTracking( d_data->trackerMode == AlwaysOn );
     }
-}   
+}
 
 /*!
   \return Tracker display mode
   \sa setTrackerMode(), DisplayMode
 */
 QwtPicker::DisplayMode QwtPicker::trackerMode() const
-{   
+{
     return d_data->trackerMode;
-}   
+}
 
 /*!
   \brief Set the resize mode.
@@ -385,10 +385,10 @@ QwtPicker::DisplayMode QwtPicker::trackerMode() const
   \param mode Resize mode
   \sa resizeMode(), ResizeMode
 */
-void QwtPicker::setResizeMode(ResizeMode mode)
+void QwtPicker::setResizeMode( ResizeMode mode )
 {
     d_data->resizeMode = mode;
-}   
+}
 
 /*!
   \return Resize mode
@@ -396,7 +396,7 @@ void QwtPicker::setResizeMode(ResizeMode mode)
 */
 
 QwtPicker::ResizeMode QwtPicker::resizeMode() const
-{   
+{
     return d_data->resizeMode;
 }
 
@@ -409,7 +409,7 @@ QwtPicker::ResizeMode QwtPicker::resizeMode() const
   \param enabled true or false
   \sa isEnabled(), eventFilter()
 */
-void QwtPicker::setEnabled(bool enabled)
+void QwtPicker::setEnabled( bool enabled )
 {
     if ( d_data->enabled != enabled )
     {
@@ -419,9 +419,9 @@ void QwtPicker::setEnabled(bool enabled)
         if ( w )
         {
             if ( enabled )
-                w->installEventFilter(this);
+                w->installEventFilter( this );
             else
-                w->removeEventFilter(this);
+                w->removeEventFilter( this );
         }
 
         updateDisplay();
@@ -444,7 +444,7 @@ bool QwtPicker::isEnabled() const
   \param font Tracker font
   \sa trackerFont(), setTrackerMode(), setTrackerPen()
 */
-void QwtPicker::setTrackerFont(const QFont &font)
+void QwtPicker::setTrackerFont( const QFont &font )
 {
     if ( font != d_data->trackerFont )
     {
@@ -469,7 +469,7 @@ QFont QwtPicker::trackerFont() const
   \param pen Tracker pen
   \sa trackerPen(), setTrackerMode(), setTrackerFont()
 */
-void QwtPicker::setTrackerPen(const QPen &pen)
+void QwtPicker::setTrackerPen( const QPen &pen )
 {
     if ( pen != d_data->trackerPen )
     {
@@ -493,7 +493,7 @@ QPen QwtPicker::trackerPen() const
   \param pen Rubberband pen
   \sa rubberBandPen(), setRubberBand()
 */
-void QwtPicker::setRubberBandPen(const QPen &pen)
+void QwtPicker::setRubberBandPen( const QPen &pen )
 {
     if ( pen != d_data->rubberBandPen )
     {
@@ -524,50 +524,50 @@ QPen QwtPicker::rubberBandPen() const
    \return Converted position as string
 */
 
-QwtText QwtPicker::trackerText(const QPoint &pos) const
+QwtText QwtPicker::trackerText( const QPoint &pos ) const
 {
     QString label;
 
-    switch(rubberBand())
+    switch ( rubberBand() )
     {
         case HLineRubberBand:
-            label.sprintf("%d", pos.y());
+            label.sprintf( "%d", pos.y() );
             break;
         case VLineRubberBand:
-            label.sprintf("%d", pos.x());
+            label.sprintf( "%d", pos.x() );
             break;
         default:
-            label.sprintf("%d, %d", pos.x(), pos.y());
+            label.sprintf( "%d, %d", pos.x(), pos.y() );
     }
     return label;
 }
 
 /*!
-   Draw a rubberband, depending on rubberBand() 
+   Draw a rubberband, depending on rubberBand()
 
-   \param painter Painter, initialized with clip rect 
+   \param painter Painter, initialized with clip rect
 
    \sa rubberBand(), RubberBand
 */
 
-void QwtPicker::drawRubberBand(QPainter *painter) const
+void QwtPicker::drawRubberBand( QPainter *painter ) const
 {
-    if ( !isActive() || rubberBand() == NoRubberBand || 
+    if ( !isActive() || rubberBand() == NoRubberBand ||
         rubberBandPen().style() == Qt::NoPen )
     {
         return;
     }
 
     const QRect &pRect = pickRect();
-    const QPolygon pa = adjustedPoints(d_data->pickedPoints);
+    const QPolygon pa = adjustedPoints( d_data->pickedPoints );
 
-    QwtPickerMachine::SelectionType selectionType = 
+    QwtPickerMachine::SelectionType selectionType =
         QwtPickerMachine::NoSelection;
 
     if ( d_data->stateMachine )
         selectionType = d_data->stateMachine->selectionType();
 
-    switch(selectionType)
+    switch ( selectionType )
     {
         case QwtPickerMachine::NoSelection:
         case QwtPickerMachine::PointSelection:
@@ -577,23 +577,23 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
 
             const QPoint pos = pa[0];
 
-            switch(rubberBand())
+            switch ( rubberBand() )
             {
                 case VLineRubberBand:
-                    QwtPainter::drawLine(painter, pos.x(),
-                        pRect.top(), pos.x(), pRect.bottom());
+                    QwtPainter::drawLine( painter, pos.x(),
+                        pRect.top(), pos.x(), pRect.bottom() );
                     break;
 
                 case HLineRubberBand:
-                    QwtPainter::drawLine(painter, pRect.left(), 
-                        pos.y(), pRect.right(), pos.y());
+                    QwtPainter::drawLine( painter, pRect.left(),
+                        pos.y(), pRect.right(), pos.y() );
                     break;
 
                 case CrossRubberBand:
-                    QwtPainter::drawLine(painter, pos.x(),
-                        pRect.top(), pos.x(), pRect.bottom());
-                    QwtPainter::drawLine(painter, pRect.left(), 
-                        pos.y(), pRect.right(), pos.y());
+                    QwtPainter::drawLine( painter, pos.x(),
+                        pRect.top(), pos.x(), pRect.bottom() );
+                    QwtPainter::drawLine( painter, pRect.left(),
+                        pos.y(), pRect.right(), pos.y() );
                     break;
                 default:
                     break;
@@ -606,16 +606,16 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
                 return;
 
             const QPoint p1 = pa[0];
-            const QPoint p2 = pa[int(pa.count() - 1)];
+            const QPoint p2 = pa[int( pa.count() - 1 )];
 
-            const QRect rect = QRect(p1, p2).normalized();
-            switch(rubberBand())
+            const QRect rect = QRect( p1, p2 ).normalized();
+            switch ( rubberBand() )
             {
                 case EllipseRubberBand:
-                    QwtPainter::drawEllipse(painter, rect);
+                    QwtPainter::drawEllipse( painter, rect );
                     break;
                 case RectRubberBand:
-                    QwtPainter::drawRect(painter, rect);
+                    QwtPainter::drawRect( painter, rect );
                     break;
                 default:
                     break;
@@ -625,7 +625,7 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
         case QwtPickerMachine::PolygonSelection:
         {
             if ( rubberBand() == PolygonRubberBand )
-                painter->drawPolyline(pa);
+                painter->drawPolyline( pa );
             break;
         }
         default:
@@ -640,12 +640,12 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
    \sa trackerRect(), trackerText()
 */
 
-void QwtPicker::drawTracker(QPainter *painter) const
+void QwtPicker::drawTracker( QPainter *painter ) const
 {
-    const QRect textRect = trackerRect(painter->font());
+    const QRect textRect = trackerRect( painter->font() );
     if ( !textRect.isEmpty() )
     {
-        QwtText label = trackerText(d_data->trackerPosition);
+        QwtText label = trackerText( d_data->trackerPosition );
         if ( !label.isEmpty() )
         {
             painter->save();
@@ -653,10 +653,10 @@ void QwtPicker::drawTracker(QPainter *painter) const
 #if 0
 #if defined(Q_WS_MAC)
             // Antialiased fonts are broken on the Mac.
-            painter->setRenderHint(QPainter::TextAntialiasing, false);
+            painter->setRenderHint( QPainter::TextAntialiasing, false );
 #endif
 #endif
-            label.draw(painter, textRect);
+            label.draw( painter, textRect );
 
             painter->restore();
         }
@@ -670,14 +670,14 @@ void QwtPicker::drawTracker(QPainter *painter) const
    the parentWidget() into a selection(). The default implementation
    simply returns the points unmodified.
 
-   The reason, why a selection() differs from the picked points 
+   The reason, why a selection() differs from the picked points
    depends on the application requirements. F.e. :
 
    - A rectangular selection might need to have a specific aspect ratio only.\n
    - A selection could accept non intersecting polygons only.\n
    - ...\n
 
-   The example below is for a rectangular selection, where the first 
+   The example below is for a rectangular selection, where the first
    point is the center of the selected rectangle.
   \par Example
   \verbatim QPolygon MyPicker::adjustedPoints(const QPolygon &points) const
@@ -697,22 +697,22 @@ void QwtPicker::drawTracker(QPainter *painter) const
     return adjusted;
 }\endverbatim\n
 */
-QPolygon QwtPicker::adjustedPoints(const QPolygon &points) const
+QPolygon QwtPicker::adjustedPoints( const QPolygon &points ) const
 {
     return points;
 }
 
-/*! 
+/*!
   \return Selected points
   \sa pickedPoints(), adjustedPoints()
 */
 QPolygon QwtPicker::selection() const
 {
-    return adjustedPoints(d_data->pickedPoints);
+    return adjustedPoints( d_data->pickedPoints );
 }
 
 //! \return Current position of the tracker
-QPoint QwtPicker::trackerPosition() const 
+QPoint QwtPicker::trackerPosition() const
 {
     return d_data->trackerPosition;
 }
@@ -726,10 +726,10 @@ QPoint QwtPicker::trackerPosition() const
 
    \sa trackerPosition()
 */
-QRect QwtPicker::trackerRect(const QFont &font) const
+QRect QwtPicker::trackerRect( const QFont &font ) const
 {
-    if ( trackerMode() == AlwaysOff || 
-        (trackerMode() == ActiveOnly && !isActive() ) )
+    if ( trackerMode() == AlwaysOff ||
+        ( trackerMode() == ActiveOnly && !isActive() ) )
     {
         return QRect();
     }
@@ -737,24 +737,24 @@ QRect QwtPicker::trackerRect(const QFont &font) const
     if ( d_data->trackerPosition.x() < 0 || d_data->trackerPosition.y() < 0 )
         return QRect();
 
-    QwtText text = trackerText(d_data->trackerPosition);
+    QwtText text = trackerText( d_data->trackerPosition );
     if ( text.isEmpty() )
         return QRect();
 
-    const QSizeF textSize = text.textSize(font);
-    QRect textRect(0, 0, qCeil(textSize.width()), qCeil(textSize.height()) );
+    const QSizeF textSize = text.textSize( font );
+    QRect textRect( 0, 0, qCeil( textSize.width() ), qCeil( textSize.height() ) );
 
     const QPoint &pos = d_data->trackerPosition;
 
     int alignment = 0;
-    if ( isActive() && d_data->pickedPoints.count() > 1 
+    if ( isActive() && d_data->pickedPoints.count() > 1
         && rubberBand() != NoRubberBand )
     {
-        const QPoint last = 
-            d_data->pickedPoints[int(d_data->pickedPoints.count()) - 2];
+        const QPoint last =
+            d_data->pickedPoints[int( d_data->pickedPoints.count() ) - 2];
 
-        alignment |= (pos.x() >= last.x()) ? Qt::AlignRight : Qt::AlignLeft;
-        alignment |= (pos.y() > last.y()) ? Qt::AlignBottom : Qt::AlignTop;
+        alignment |= ( pos.x() >= last.x() ) ? Qt::AlignRight : Qt::AlignLeft;
+        alignment |= ( pos.y() > last.y() ) ? Qt::AlignBottom : Qt::AlignTop;
     }
     else
         alignment = Qt::AlignTop | Qt::AlignRight;
@@ -772,16 +772,16 @@ QRect QwtPicker::trackerRect(const QFont &font) const
         y += margin;
     else if ( alignment & Qt::AlignTop )
         y -= textRect.height() + margin;
-    
-    textRect.moveTopLeft(QPoint(x, y));
 
-    int right = qMin(textRect.right(), pickRect().right() - margin);
-    int bottom = qMin(textRect.bottom(), pickRect().bottom() - margin);
-    textRect.moveBottomRight(QPoint(right, bottom));
+    textRect.moveTopLeft( QPoint( x, y ) );
 
-    int left = qMax(textRect.left(), pickRect().left() + margin);
-    int top = qMax(textRect.top(), pickRect().top() + margin);
-    textRect.moveTopLeft(QPoint(left, top));
+    int right = qMin( textRect.right(), pickRect().right() - margin );
+    int bottom = qMin( textRect.bottom(), pickRect().bottom() - margin );
+    textRect.moveBottomRight( QPoint( right, bottom ) );
+
+    int left = qMax( textRect.left(), pickRect().left() + margin );
+    int top = qMax( textRect.top(), pickRect().top() + margin );
+    textRect.moveTopLeft( QPoint( left, top ) );
 
     return textRect;
 }
@@ -791,7 +791,7 @@ QRect QwtPicker::trackerRect(const QFont &font) const
 
   When isEnabled() == true all events of the observed widget are filtered.
   Mouse and keyboard events are translated into widgetMouse- and widgetKey-
-  and widgetWheel-events. Paint and Resize events are handled to keep 
+  and widgetWheel-events. Paint and Resize events are handled to keep
   rubberband and tracker up to date.
 
   \sa event(), widgetEnterEvent(), widgetLeaveEvent(),
@@ -799,51 +799,51 @@ QRect QwtPicker::trackerRect(const QFont &font) const
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-bool QwtPicker::eventFilter(QObject *o, QEvent *e)
+bool QwtPicker::eventFilter( QObject *o, QEvent *e )
 {
     if ( o && o == parentWidget() )
     {
-        switch(e->type())
+        switch ( e->type() )
         {
             case QEvent::Resize:
             {
-                const QResizeEvent *re = (QResizeEvent *)e;
+                const QResizeEvent *re = ( QResizeEvent * )e;
                 if ( d_data->resizeMode == Stretch )
-                    stretchSelection(re->oldSize(), re->size());
+                    stretchSelection( re->oldSize(), re->size() );
 
                 if ( d_data->rubberBandWidget )
-                    d_data->rubberBandWidget->resize(re->size());
-             
+                    d_data->rubberBandWidget->resize( re->size() );
+
                 if ( d_data->trackerWidget )
-                    d_data->trackerWidget->resize(re->size());
+                    d_data->trackerWidget->resize( re->size() );
                 break;
             }
             case QEvent::Enter:
-                widgetEnterEvent(e);
+                widgetEnterEvent( e );
                 break;
             case QEvent::Leave:
-                widgetLeaveEvent(e);
+                widgetLeaveEvent( e );
                 break;
             case QEvent::MouseButtonPress:
-                widgetMousePressEvent((QMouseEvent *)e);
+                widgetMousePressEvent( ( QMouseEvent * )e );
                 break;
             case QEvent::MouseButtonRelease:
-                widgetMouseReleaseEvent((QMouseEvent *)e);
+                widgetMouseReleaseEvent( ( QMouseEvent * )e );
                 break;
             case QEvent::MouseButtonDblClick:
-                widgetMouseDoubleClickEvent((QMouseEvent *)e);
+                widgetMouseDoubleClickEvent( ( QMouseEvent * )e );
                 break;
             case QEvent::MouseMove:
-                widgetMouseMoveEvent((QMouseEvent *)e);
+                widgetMouseMoveEvent( ( QMouseEvent * )e );
                 break;
             case QEvent::KeyPress:
-                widgetKeyPressEvent((QKeyEvent *)e);
+                widgetKeyPressEvent( ( QKeyEvent * )e );
                 break;
             case QEvent::KeyRelease:
-                widgetKeyReleaseEvent((QKeyEvent *)e);
+                widgetKeyReleaseEvent( ( QKeyEvent * )e );
                 break;
             case QEvent::Wheel:
-                widgetWheelEvent((QWheelEvent *)e);
+                widgetWheelEvent( ( QWheelEvent * )e );
                 break;
             default:
                 break;
@@ -859,9 +859,9 @@ bool QwtPicker::eventFilter(QObject *o, QEvent *e)
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetMousePressEvent(QMouseEvent *e)
+void QwtPicker::widgetMousePressEvent( QMouseEvent *e )
 {
-    transition(e);
+    transition( e );
 }
 
 /*!
@@ -871,17 +871,17 @@ void QwtPicker::widgetMousePressEvent(QMouseEvent *e)
       widgetMouseDoubleClickEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetMouseMoveEvent(QMouseEvent *e)
+void QwtPicker::widgetMouseMoveEvent( QMouseEvent *e )
 {
-    if ( pickRect().contains(e->pos()) )
+    if ( pickRect().contains( e->pos() ) )
         d_data->trackerPosition = e->pos();
     else
-        d_data->trackerPosition = QPoint(-1, -1);
+        d_data->trackerPosition = QPoint( -1, -1 );
 
     if ( !isActive() )
         updateDisplay();
 
-    transition(e);
+    transition( e );
 }
 
 /*!
@@ -891,9 +891,9 @@ void QwtPicker::widgetMouseMoveEvent(QMouseEvent *e)
       widgetMouseDoubleClickEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetEnterEvent(QEvent *event)   
+void QwtPicker::widgetEnterEvent( QEvent *event )
 {
-    transition(event);
+    transition( event );
 }
 
 /*!
@@ -903,11 +903,11 @@ void QwtPicker::widgetEnterEvent(QEvent *event)
       widgetMouseDoubleClickEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetLeaveEvent(QEvent *event)   
+void QwtPicker::widgetLeaveEvent( QEvent *event )
 {
-    transition(event);
+    transition( event );
 
-    d_data->trackerPosition = QPoint(-1, -1);
+    d_data->trackerPosition = QPoint( -1, -1 );
     if ( !isActive() )
         updateDisplay();
 }
@@ -915,13 +915,13 @@ void QwtPicker::widgetLeaveEvent(QEvent *event)
 /*!
   Handle a mouse relase event for the observed widget.
 
-  \sa eventFilter(), widgetMousePressEvent(), 
+  \sa eventFilter(), widgetMousePressEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetMouseReleaseEvent(QMouseEvent *e)
+void QwtPicker::widgetMouseReleaseEvent( QMouseEvent *e )
 {
-    transition(e);
+    transition( e );
 }
 
 /*!
@@ -933,11 +933,11 @@ void QwtPicker::widgetMouseReleaseEvent(QMouseEvent *e)
       widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetMouseDoubleClickEvent(QMouseEvent *me)
+void QwtPicker::widgetMouseDoubleClickEvent( QMouseEvent *me )
 {
-    transition(me);
+    transition( me );
 }
-    
+
 
 /*!
   Handle a wheel event for the observed widget.
@@ -948,16 +948,16 @@ void QwtPicker::widgetMouseDoubleClickEvent(QMouseEvent *me)
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetWheelEvent(QWheelEvent *e)
+void QwtPicker::widgetWheelEvent( QWheelEvent *e )
 {
-    if ( pickRect().contains(e->pos()) )
+    if ( pickRect().contains( e->pos() ) )
         d_data->trackerPosition = e->pos();
     else
-        d_data->trackerPosition = QPoint(-1, -1);
+        d_data->trackerPosition = QPoint( -1, -1 );
 
     updateDisplay();
 
-    transition(e);
+    transition( e );
 }
 
 /*!
@@ -972,7 +972,7 @@ void QwtPicker::widgetWheelEvent(QWheelEvent *e)
       widgetWheelEvent(), widgetKeyReleaseEvent(), stateMachine(),
       QwtEventPattern::KeyPatternCode
 */
-void QwtPicker::widgetKeyPressEvent(QKeyEvent *ke)
+void QwtPicker::widgetKeyPressEvent( QKeyEvent *ke )
 {
     int dx = 0;
     int dy = 0;
@@ -981,38 +981,38 @@ void QwtPicker::widgetKeyPressEvent(QKeyEvent *ke)
     if ( ke->isAutoRepeat() )
         offset = 5;
 
-    if ( keyMatch(KeyLeft, ke) )
+    if ( keyMatch( KeyLeft, ke ) )
         dx = -offset;
-    else if ( keyMatch(KeyRight, ke) )
+    else if ( keyMatch( KeyRight, ke ) )
         dx = offset;
-    else if ( keyMatch(KeyUp, ke) )
+    else if ( keyMatch( KeyUp, ke ) )
         dy = -offset;
-    else if ( keyMatch(KeyDown, ke) )
+    else if ( keyMatch( KeyDown, ke ) )
         dy = offset;
-    else if ( keyMatch(KeyAbort, ke) )
+    else if ( keyMatch( KeyAbort, ke ) )
     {
         reset();
     }
     else
-        transition(ke);
+        transition( ke );
 
     if ( dx != 0 || dy != 0 )
     {
         const QRect rect = pickRect();
-        const QPoint pos = parentWidget()->mapFromGlobal(QCursor::pos());
+        const QPoint pos = parentWidget()->mapFromGlobal( QCursor::pos() );
 
         int x = pos.x() + dx;
-        x = qMax(rect.left(), x);
-        x = qMin(rect.right(), x);
+        x = qMax( rect.left(), x );
+        x = qMin( rect.right(), x );
 
         int y = pos.y() + dy;
-        y = qMax(rect.top(), y);
-        y = qMin(rect.bottom(), y);
+        y = qMax( rect.top(), y );
+        y = qMin( rect.bottom(), y );
 
-        QCursor::setPos(parentWidget()->mapToGlobal(QPoint(x, y)));
+        QCursor::setPos( parentWidget()->mapToGlobal( QPoint( x, y ) ) );
     }
 }
- 
+
 /*!
   Handle a key release event for the observed widget.
 
@@ -1022,45 +1022,45 @@ void QwtPicker::widgetKeyPressEvent(QKeyEvent *ke)
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), stateMachine()
 */
-void QwtPicker::widgetKeyReleaseEvent(QKeyEvent *ke)
+void QwtPicker::widgetKeyReleaseEvent( QKeyEvent *ke )
 {
-    transition(ke);
+    transition( ke );
 }
 
 /*!
-  Passes an event to the state machine and executes the resulting 
+  Passes an event to the state machine and executes the resulting
   commands. Append and Move commands use the current position
   of the cursor (QCursor::pos()).
 
   \param e Event
 */
-void QwtPicker::transition(const QEvent *e)
+void QwtPicker::transition( const QEvent *e )
 {
     if ( !d_data->stateMachine )
         return;
 
     QwtPickerMachine::CommandList commandList =
-        d_data->stateMachine->transition(*this, e);
+        d_data->stateMachine->transition( *this, e );
 
     QPoint pos;
-    switch(e->type())
+    switch ( e->type() )
     {
         case QEvent::MouseButtonDblClick:
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonRelease:
         case QEvent::MouseMove:
         {
-            const QMouseEvent *me = (QMouseEvent *)e;
+            const QMouseEvent *me = ( QMouseEvent * )e;
             pos = me->pos();
             break;
         }
         default:
-            pos = parentWidget()->mapFromGlobal(QCursor::pos());
+            pos = parentWidget()->mapFromGlobal( QCursor::pos() );
     }
 
-    for ( uint i = 0; i < (uint)commandList.count(); i++ )
+    for ( uint i = 0; i < ( uint )commandList.count(); i++ )
     {
-        switch(commandList[i])
+        switch ( commandList[i] )
         {
             case QwtPickerMachine::Begin:
             {
@@ -1069,12 +1069,12 @@ void QwtPicker::transition(const QEvent *e)
             }
             case QwtPickerMachine::Append:
             {
-                append(pos);
+                append( pos );
                 break;
             }
             case QwtPickerMachine::Move:
             {
-                move(pos);
+                move( pos );
                 break;
             }
             case QwtPickerMachine::Remove:
@@ -1101,22 +1101,22 @@ void QwtPicker::begin()
     if ( d_data->isActive )
         return;
 
-    d_data->pickedPoints.resize(0);
+    d_data->pickedPoints.resize( 0 );
     d_data->isActive = true;
-    Q_EMIT activated(true);
+    Q_EMIT activated( true );
 
     if ( trackerMode() != AlwaysOff )
     {
-        if ( d_data->trackerPosition.x() < 0 || d_data->trackerPosition.y() < 0 ) 
+        if ( d_data->trackerPosition.x() < 0 || d_data->trackerPosition.y() < 0 )
         {
             QWidget *w = parentWidget();
             if ( w )
-                d_data->trackerPosition = w->mapFromGlobal(QCursor::pos());
+                d_data->trackerPosition = w->mapFromGlobal( QCursor::pos() );
         }
     }
 
     updateDisplay();
-    setMouseTracking(true);
+    setMouseTracking( true );
 }
 
 /*!
@@ -1129,25 +1129,25 @@ void QwtPicker::begin()
   \return true if the selection is accepted, false otherwise
   \sa isActive(), begin(), append(), move(), selected(), accept()
 */
-bool QwtPicker::end(bool ok)
+bool QwtPicker::end( bool ok )
 {
     if ( d_data->isActive )
     {
-        setMouseTracking(false);
+        setMouseTracking( false );
 
         d_data->isActive = false;
-        Q_EMIT activated(false);
+        Q_EMIT activated( false );
 
         if ( trackerMode() == ActiveOnly )
-            d_data->trackerPosition = QPoint(-1, -1);
+            d_data->trackerPosition = QPoint( -1, -1 );
 
         if ( ok )
-            ok = accept(d_data->pickedPoints);
+            ok = accept( d_data->pickedPoints );
 
         if ( ok )
-            Q_EMIT selected(d_data->pickedPoints);
+            Q_EMIT selected( d_data->pickedPoints );
         else
-            d_data->pickedPoints.resize(0);
+            d_data->pickedPoints.resize( 0 );
 
         updateDisplay();
     }
@@ -1165,8 +1165,8 @@ void QwtPicker::reset()
     if ( d_data->stateMachine )
         d_data->stateMachine->reset();
 
-    if (isActive())
-        end(false);
+    if ( isActive() )
+        end( false );
 }
 
 /*!
@@ -1177,16 +1177,16 @@ void QwtPicker::reset()
 
   \sa isActive(), begin(), end(), move(), appended()
 */
-void QwtPicker::append(const QPoint &pos)
+void QwtPicker::append( const QPoint &pos )
 {
     if ( d_data->isActive )
     {
         const int idx = d_data->pickedPoints.count();
-        d_data->pickedPoints.resize(idx + 1);
+        d_data->pickedPoints.resize( idx + 1 );
         d_data->pickedPoints[idx] = pos;
 
         updateDisplay();
-        Q_EMIT appended(pos);
+        Q_EMIT appended( pos );
     }
 }
 
@@ -1197,7 +1197,7 @@ void QwtPicker::append(const QPoint &pos)
   \param pos New position
   \sa isActive(), begin(), end(), append()
 */
-void QwtPicker::move(const QPoint &pos)
+void QwtPicker::move( const QPoint &pos )
 {
     if ( d_data->isActive )
     {
@@ -1209,7 +1209,7 @@ void QwtPicker::move(const QPoint &pos)
                 d_data->pickedPoints[idx] = pos;
 
                 updateDisplay();
-                Q_EMIT moved(pos);
+                Q_EMIT moved( pos );
             }
         }
     }
@@ -1231,10 +1231,10 @@ void QwtPicker::remove()
             const int idx = d_data->pickedPoints.count();
 
             const QPoint pos = d_data->pickedPoints[idx - 1];
-            d_data->pickedPoints.resize(idx - 1);
+            d_data->pickedPoints.resize( idx - 1 );
 
             updateDisplay();
-            Q_EMIT removed(pos);
+            Q_EMIT removed( pos );
         }
     }
 }
@@ -1246,7 +1246,7 @@ void QwtPicker::remove()
   \param selection Selection to validate and fixup
   \return true, when accepted, false otherwise
 */
-bool QwtPicker::accept(QPolygon &) const
+bool QwtPicker::accept( QPolygon & ) const
 {
     return true;
 }
@@ -1255,12 +1255,12 @@ bool QwtPicker::accept(QPolygon &) const
   A picker is active between begin() and end().
   \return true if the selection is active.
 */
-bool QwtPicker::isActive() const 
+bool QwtPicker::isActive() const
 {
     return d_data->isActive;
 }
 
-/*!  
+/*!
   Return the points, that have been collected so far. The selection()
   is calculated from the pickedPoints() in adjustedPoints().
   \return Picked points
@@ -1279,27 +1279,27 @@ const QPolygon &QwtPicker::pickedPoints() const
 
   \sa ResizeMode, setResizeMode(), resizeMode()
 */
-void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
+void QwtPicker::stretchSelection( const QSize &oldSize, const QSize &newSize )
 {
     if ( oldSize.isEmpty() )
     {
-        // avoid division by zero. But scaling for small sizes also 
+        // avoid division by zero. But scaling for small sizes also
         // doesn't make much sense, because of rounding losses. TODO ...
         return;
     }
 
     const double xRatio =
-        double(newSize.width()) / double(oldSize.width());
+        double( newSize.width() ) / double( oldSize.width() );
     const double yRatio =
-        double(newSize.height()) / double(oldSize.height());
+        double( newSize.height() ) / double( oldSize.height() );
 
-    for ( int i = 0; i < int(d_data->pickedPoints.count()); i++ )
+    for ( int i = 0; i < int( d_data->pickedPoints.count() ); i++ )
     {
         QPoint &p = d_data->pickedPoints[i];
-        p.setX(qRound(p.x() * xRatio));
-        p.setY(qRound(p.y() * yRatio));
+        p.setX( qRound( p.x() * xRatio ) );
+        p.setY( qRound( p.y() * yRatio ) );
 
-        Q_EMIT changed(d_data->pickedPoints);
+        Q_EMIT changed( d_data->pickedPoints );
     }
 }
 
@@ -1316,7 +1316,7 @@ void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
            be restored.
 */
 
-void QwtPicker::setMouseTracking(bool enable)
+void QwtPicker::setMouseTracking( bool enable )
 {
     QWidget *widget = parentWidget();
     if ( !widget )
@@ -1325,11 +1325,11 @@ void QwtPicker::setMouseTracking(bool enable)
     if ( enable )
     {
         d_data->mouseTracking = widget->hasMouseTracking();
-        widget->setMouseTracking(true);
+        widget->setMouseTracking( true );
     }
     else
     {
-        widget->setMouseTracking(d_data->mouseTracking);
+        widget->setMouseTracking( d_data->mouseTracking );
     }
 }
 
@@ -1346,8 +1346,8 @@ QRect QwtPicker::pickRect() const
     if ( !widget )
         return rect;
 
-    if ( widget->inherits("QFrame") )
-        rect = ((QFrame *)widget)->contentsRect();
+    if ( widget->inherits( "QFrame" ) )
+        rect = ( ( QFrame * )widget )->contentsRect();
     else
         rect = widget->rect();
 
@@ -1370,7 +1370,7 @@ void QwtPicker::updateDisplay()
         }
 
         if ( trackerMode() == AlwaysOn ||
-            (trackerMode() == ActiveOnly && isActive() ) )
+            ( trackerMode() == ActiveOnly && isActive() ) )
         {
             if ( trackerPen() != Qt::NoPen )
                 showTracker = true;
@@ -1382,9 +1382,9 @@ void QwtPicker::updateDisplay()
     {
         if ( rw.isNull() )
         {
-            rw = new PickerWidget( this, w, PickerWidget::RubberBand);
+            rw = new PickerWidget( this, w, PickerWidget::RubberBand );
             rw->hide();
-            rw->resize(w->size());
+            rw->resize( w->size() );
         }
         rw->updateMask();
         rw->update(); // Needed, when the mask doesn't change
@@ -1397,11 +1397,11 @@ void QwtPicker::updateDisplay()
     {
         if ( tw.isNull() )
         {
-            tw = new PickerWidget( this, w, PickerWidget::Text);
+            tw = new PickerWidget( this, w, PickerWidget::Text );
             tw->hide();
-            tw->resize(w->size());
+            tw->resize( w->size() );
         }
-        tw->setFont(d_data->trackerFont);
+        tw->setFont( d_data->trackerFont );
         tw->updateMask();
         tw->update(); // Needed, when the mask doesn't change
     }
