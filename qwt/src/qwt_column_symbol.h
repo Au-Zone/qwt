@@ -2,7 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
@@ -39,19 +39,19 @@ public:
 
     //! Build an rectangle with invalid intervals directed BottomToTop.
     QwtColumnRect():
-        direction(BottomToTop)
+        direction( BottomToTop )
     {
     }
 
     //! \return A normalized QRect built from the intervals
     QRectF toRect() const
     {
-        return QRectF(hInterval.minValue(), vInterval.minValue(),
+        return QRectF( hInterval.minValue(), vInterval.minValue(),
             hInterval.maxValue() - hInterval.minValue(),
             vInterval.maxValue() - vInterval.minValue() ).normalized();
     }
 
-    //! \return Orientation 
+    //! \return Orientation
     Qt::Orientation orientation() const
     {
         if ( direction == LeftToRight || direction == RightToLeft )
@@ -91,15 +91,15 @@ public:
 
       \sa setStyle(), style()
     */
-    enum Style 
-    { 
-        NoSymbol = -1, 
+    enum Style
+    {
+        NoSymbol = -1,
 
-        Box, 
+        Box,
 
-        UserSymbol = 1000 
+        UserSymbol = 1000
     };
-   
+
     /*!
       Frame Style used in Box style().
 
@@ -118,25 +118,25 @@ public:
     };
 
 public:
-    QwtColumnSymbol(Style = NoSymbol);
+    QwtColumnSymbol( Style = NoSymbol );
     virtual ~QwtColumnSymbol();
-    
-    void setFrameStyle(FrameStyle style);
+
+    void setFrameStyle( FrameStyle style );
     FrameStyle frameStyle() const;
 
-    void setLineWidth(int width);
+    void setLineWidth( int width );
     int lineWidth() const;
-    
-    void setPalette(const QPalette &);
+
+    void setPalette( const QPalette & );
     const QPalette &palette() const;
 
-    void setStyle(Style);
+    void setStyle( Style );
     Style style() const;
-    
-    virtual void draw(QPainter *, const QwtColumnRect &) const;
+
+    virtual void draw( QPainter *, const QwtColumnRect & ) const;
 
 protected:
-    void drawBox(QPainter *, const QwtColumnRect &) const;
+    void drawBox( QPainter *, const QwtColumnRect & ) const;
 
 private:
     class PrivateData;

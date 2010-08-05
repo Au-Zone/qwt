@@ -33,32 +33,32 @@ public:
         ClipPoints = 1
     };
 
-    explicit QwtPlotSpectroCurve(const QString &title = QString::null);
-    explicit QwtPlotSpectroCurve(const QwtText &title);
+    explicit QwtPlotSpectroCurve( const QString &title = QString::null );
+    explicit QwtPlotSpectroCurve( const QwtText &title );
 
     virtual ~QwtPlotSpectroCurve();
 
     virtual int rtti() const;
 
-    void setPaintAttribute(PaintAttribute, bool on = true);
-    bool testPaintAttribute(PaintAttribute) const;
+    void setPaintAttribute( PaintAttribute, bool on = true );
+    bool testPaintAttribute( PaintAttribute ) const;
 
-    void setSamples(const QVector<QwtPoint3D> &);
+    void setSamples( const QVector<QwtPoint3D> & );
 
-    void setColorMap(QwtColorMap *);
+    void setColorMap( QwtColorMap * );
     const QwtColorMap *colorMap() const;
 
-    void setColorRange(const QwtInterval &);
+    void setColorRange( const QwtInterval & );
     QwtInterval & colorRange() const;
 
-    virtual void drawSeries(QPainter *, 
+    virtual void drawSeries( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, int from, int to) const;
+        const QRectF &canvasRect, int from, int to ) const;
 
 protected:
-    virtual void drawDots(QPainter *, 
+    virtual void drawDots( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, int from, int to) const;
+        const QRectF &canvasRect, int from, int to ) const;
 
 private:
     void init();

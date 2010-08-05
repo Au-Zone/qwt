@@ -2,7 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
@@ -26,114 +26,114 @@ class QWT_EXPORT QwtSymbol
 {
 public:
     /*!
-        Symbol Style
+      Symbol Style
 
-         - NoSymbol\n
-           No Style. The symbol cannot be drawn.
+       - NoSymbol\n
+         No Style. The symbol cannot be drawn.
 
-         - Ellipse
-           Ellipse or circle
+       - Ellipse\n
+         Ellipse or circle
 
-         - Rect
-           Rectangle
+       - Rect\n
+         Rectangle
 
-         - Diamond
-           Diamond
+       - Diamond\n
+         Diamond
 
-         - Triangle
-           Triangle pointing upwards
+       - Triangle\n
+         Triangle pointing upwards
 
-         - DTriangle
-           Triangle pointing downwards
+       - DTriangle\n
+         Triangle pointing downwards
 
-         - UTriangle
-           Triangle pointing upwards
+       - UTriangle\n
+         Triangle pointing upwards
 
-         - LTriangle
-           Triangle pointing left
+       - LTriangle\n
+         Triangle pointing left
 
-         - RTriangle
-           Triangle pointing right
+       - RTriangle\n
+         Triangle pointing right
 
-         - Cross
-           Cross (+)
+       - Cross\n
+         Cross (+)
 
-         - XCross
-           Diagonal cross (X)
+       - XCross\n
+         Diagonal cross (X)
 
-         - HLine
-           Horizontal line
+       - HLine\n
+         Horizontal line
 
-         - VLine
-           Vertical line
+       - VLine\n
+         Vertical line
 
-         - Star1
-           X combined with +
+       - Star1\n
+         X combined with +
 
-         - Star2
-           Six-pointed star
+       - Star2\n
+         Six-pointed star
 
-         - Hexagon
-           Hexagon
+       - Hexagon\n
+         Hexagon
 
-         - UserSymbol
-           Styles >= UserSymbol are reserved for derived
-           classes of QwtSymbol that overload drawSymbols() with
-           additional application specific symbol types.
+       - UserSymbol\n
+         Styles >= UserSymbol are reserved for derived
+         classes of QwtSymbol that overload drawSymbols() with
+         additional application specific symbol types.
 
-        \sa setStyle(), style()
+      \sa setStyle(), style()
      */
-    enum Style 
-    { 
-        NoSymbol = -1, 
+    enum Style
+    {
+        NoSymbol = -1,
 
-        Ellipse, 
-        Rect, 
-        Diamond, 
-        Triangle, 
+        Ellipse,
+        Rect,
+        Diamond,
+        Triangle,
         DTriangle,
-        UTriangle, 
-        LTriangle, 
-        RTriangle, 
-        Cross, 
-        XCross, 
-        HLine, 
-        VLine, 
-        Star1, 
-        Star2, 
-        Hexagon, 
+        UTriangle,
+        LTriangle,
+        RTriangle,
+        Cross,
+        XCross,
+        HLine,
+        VLine,
+        Star1,
+        Star2,
+        Hexagon,
 
-        UserSymbol = 1000 
+        UserSymbol = 1000
     };
-   
+
 public:
-    QwtSymbol(Style = NoSymbol);
-    QwtSymbol(Style, const QBrush &, const QPen &, const QSize &);
+    QwtSymbol( Style = NoSymbol );
+    QwtSymbol( Style, const QBrush &, const QPen &, const QSize & );
     virtual ~QwtSymbol();
-    
-    void setSize(const QSize &);
-    void setSize(int width, int height = -1);
+
+    void setSize( const QSize & );
+    void setSize( int width, int height = -1 );
     const QSize& size() const;
 
-    virtual void setColor(const QColor &);
+    virtual void setColor( const QColor & );
 
-    void setBrush(const QBrush& b);
+    void setBrush( const QBrush& b );
     const QBrush& brush() const;
 
-    void setPen(const QPen &);
+    void setPen( const QPen & );
     const QPen& pen() const;
 
-    void setStyle(Style);
+    void setStyle( Style );
     Style style() const;
 
-    void drawSymbol(QPainter *, const QPointF &) const; 
-    void drawSymbols(QPainter *, const QPolygonF &) const;
+    void drawSymbol( QPainter *, const QPointF & ) const;
+    void drawSymbols( QPainter *, const QPolygonF & ) const;
 
     virtual QSize boundingSize() const;
 
 protected:
-    virtual void drawSymbols(QPainter *, 
-        const QPointF *, int numPoints ) const;
+    virtual void drawSymbols( QPainter *,
+                              const QPointF *, int numPoints ) const;
 
 private:
     // Disabled copy constructor and operator=
@@ -151,9 +151,9 @@ private:
   \param pos Position of the symbol in screen coordinates
 */
 inline void QwtSymbol::drawSymbol(
-    QPainter *painter, const QPointF &pos) const
+    QPainter *painter, const QPointF &pos ) const
 {
-    drawSymbols(painter, &pos, 1);
+    drawSymbols( painter, &pos, 1 );
 }
 
 /*!
@@ -164,9 +164,9 @@ inline void QwtSymbol::drawSymbol(
 */
 
 inline void QwtSymbol::drawSymbols(
-    QPainter *painter, const QPolygonF &points) const
+    QPainter *painter, const QPolygonF &points ) const
 {
-    drawSymbols(painter, points.data(), points.size());
+    drawSymbols( painter, points.data(), points.size() );
 }
 
 #endif

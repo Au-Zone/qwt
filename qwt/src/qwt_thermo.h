@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 }
 \endcode
 
-  \todo Improve the support for a logarithmic range and/or scale. 
+  \todo Improve the support for a logarithmic range and/or scale.
 */
 class QWT_EXPORT QwtThermo: public QWidget, public QwtAbstractScale
 {
@@ -93,86 +93,86 @@ public:
 
       - Qt::Horizonal combines with NoScale, TopScale and BottomScale
       - Qt::Vertical combines with NoScale, LeftScale and RightScale
-      
+
       \sa setOrientation(), setScalePosition()
     */
-    enum ScalePos 
+    enum ScalePos
     {
-        NoScale, 
-        LeftScale, 
-        RightScale, 
-        TopScale, 
+        NoScale,
+        LeftScale,
+        RightScale,
+        TopScale,
         BottomScale
     };
 
-    explicit QwtThermo(QWidget *parent = NULL);
+    explicit QwtThermo( QWidget *parent = NULL );
     virtual ~QwtThermo();
 
-    void setOrientation(Qt::Orientation o, ScalePos s);
+    void setOrientation( Qt::Orientation o, ScalePos s );
 
-    void setScalePosition(ScalePos s);
+    void setScalePosition( ScalePos s );
     ScalePos scalePosition() const;
 
-    void setBorderWidth(int w);
+    void setBorderWidth( int w );
     int borderWidth() const;
 
-    void setFillBrush(const QBrush &b);
+    void setFillBrush( const QBrush &b );
     const QBrush &fillBrush() const;
 
-    void setFillColor(const QColor &c);
+    void setFillColor( const QColor &c );
     const QColor &fillColor() const;
- 
-    void setAlarmBrush(const QBrush &b);
+
+    void setAlarmBrush( const QBrush &b );
     const QBrush &alarmBrush() const;
 
-    void setAlarmColor(const QColor &c);
+    void setAlarmColor( const QColor &c );
     const QColor &alarmColor() const;
 
-    void setAlarmLevel(double v);
+    void setAlarmLevel( double v );
     double alarmLevel() const;
 
-    void setAlarmEnabled(bool tf);
+    void setAlarmEnabled( bool tf );
     bool alarmEnabled() const;
 
-    void setPipeWidth(int w);
+    void setPipeWidth( int w );
     int pipeWidth() const;
 
-    void setMaxValue(double v);
+    void setMaxValue( double v );
     double maxValue() const;
 
-    void setMinValue(double v);
+    void setMinValue( double v );
     double minValue() const;
 
     double value() const;
 
-    void setRange(double vmin, double vmax, bool lg = false);
-    void setMargin(int m);
+    void setRange( double vmin, double vmax, bool lg = false );
+    void setMargin( int m );
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
-    void setScaleDraw(QwtScaleDraw *);
+    void setScaleDraw( QwtScaleDraw * );
     const QwtScaleDraw *scaleDraw() const;
 
 public Q_SLOTS:
-    virtual void setValue(double val);
-    
+    virtual void setValue( double val );
+
 protected:
-    void draw(QPainter *p, const QRect& update_rect);
-    void drawThermo(QPainter *p);
+    void draw( QPainter *p, const QRect& update_rect );
+    void drawThermo( QPainter *p );
     void layoutThermo( bool update = true );
     virtual void scaleChange();
-    virtual void fontChange(const QFont &oldFont);
+    virtual void fontChange( const QFont &oldFont );
 
-    virtual void paintEvent(QPaintEvent *e);
-    virtual void resizeEvent(QResizeEvent *e);
+    virtual void paintEvent( QPaintEvent *e );
+    virtual void resizeEvent( QResizeEvent *e );
 
     QwtScaleDraw *scaleDraw();
 
 private:
     void initThermo();
-    int transform(double v) const;
-    
+    int transform( double v ) const;
+
     class PrivateData;
     PrivateData *d_data;
 };

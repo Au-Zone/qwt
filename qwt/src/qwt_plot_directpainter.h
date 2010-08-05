@@ -22,7 +22,7 @@ class QwtPlotAbstractSeriesItem;
     collected. When there are too many samples complete replots
     will be expensive to be processed in a collection cycle.
 
-    QwtPlotDirectPainter offers an API to paint 
+    QwtPlotDirectPainter offers an API to paint
     subsets ( f.e all additions points ) without erasing/repainting
     the plot canvas.
 
@@ -41,7 +41,7 @@ public:
         use the same QPainter as long as possible.
 
       - FullRepaint\n
-        When FullRepaint is set the plot canvas is explicitely repainted 
+        When FullRepaint is set the plot canvas is explicitely repainted
         after the samples have been rendered.
 
       \sa setAttribute(), testAttribute(), drawSeries()
@@ -52,16 +52,16 @@ public:
         FullRepaint = 2
     };
 
-    QwtPlotDirectPainter(QObject *parent = NULL);
+    QwtPlotDirectPainter( QObject *parent = NULL );
     virtual ~QwtPlotDirectPainter();
 
-    void setAttribute(Attribute, bool on);
-    bool testAttribute(Attribute) const;
+    void setAttribute( Attribute, bool on );
+    bool testAttribute( Attribute ) const;
 
-    void drawSeries(QwtPlotAbstractSeriesItem *, int from, int to);
+    void drawSeries( QwtPlotAbstractSeriesItem *, int from, int to );
     void reset();
 
-    virtual bool eventFilter(QObject *, QEvent *);
+    virtual bool eventFilter( QObject *, QEvent * );
 
 private:
     class PrivateData;

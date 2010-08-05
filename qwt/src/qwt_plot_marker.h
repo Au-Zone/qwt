@@ -2,7 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
@@ -48,14 +48,14 @@ public:
         Line styles.
         \sa setLineStyle(), lineStyle()
     */
-    enum LineStyle 
+    enum LineStyle
     {
-        NoLine, 
-        HLine, 
-        VLine, 
+        NoLine,
+        HLine,
+        VLine,
         Cross
     };
-   
+
     explicit QwtPlotMarker();
     virtual ~QwtPlotMarker();
 
@@ -65,43 +65,43 @@ public:
     double yValue() const;
     QPointF value() const;
 
-    void setXValue(double);
-    void setYValue(double);
-    void setValue(double, double);
-    void setValue(const QPointF &);
+    void setXValue( double );
+    void setYValue( double );
+    void setValue( double, double );
+    void setValue( const QPointF & );
 
-    void setLineStyle(LineStyle st);
+    void setLineStyle( LineStyle st );
     LineStyle lineStyle() const;
 
-    void setLinePen(const QPen &p);
+    void setLinePen( const QPen &p );
     const QPen &linePen() const;
 
-    void setSymbol(const QwtSymbol *s);
+    void setSymbol( const QwtSymbol *s );
     const QwtSymbol &symbol() const;
 
-    void setLabel(const QwtText&);
+    void setLabel( const QwtText& );
     QwtText label() const;
 
-    void setLabelAlignment(Qt::Alignment);
+    void setLabelAlignment( Qt::Alignment );
     Qt::Alignment labelAlignment() const;
 
-    void setLabelOrientation(Qt::Orientation);
+    void setLabelOrientation( Qt::Orientation );
     Qt::Orientation labelOrientation() const;
 
-    void setSpacing(int);
+    void setSpacing( int );
     int spacing() const;
 
-    virtual void draw(QPainter *p, 
+    virtual void draw( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &) const;
-    
+        const QRectF & ) const;
+
     virtual QRectF boundingRect() const;
 
 protected:
-    void drawAt(QPainter *,const QRectF &, const QPointF &) const;
+    void drawAt( QPainter *, const QRectF &, const QPointF & ) const;
 
 private:
-    void drawLabel(QPainter *, const QRectF &, const QPointF &) const;
+    void drawLabel( QPainter *, const QRectF &, const QPointF & ) const;
 
     class PrivateData;
     PrivateData *d_data;

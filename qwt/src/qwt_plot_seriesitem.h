@@ -21,17 +21,17 @@
 class QWT_EXPORT QwtPlotAbstractSeriesItem: public QwtPlotItem
 {
 public:
-    explicit QwtPlotAbstractSeriesItem(const QString &title = QString::null);
-    explicit QwtPlotAbstractSeriesItem(const QwtText &title);
+    explicit QwtPlotAbstractSeriesItem( const QString &title = QString::null );
+    explicit QwtPlotAbstractSeriesItem( const QwtText &title );
 
     virtual ~QwtPlotAbstractSeriesItem();
 
-    void setOrientation(Qt::Orientation);
+    void setOrientation( Qt::Orientation );
     Qt::Orientation orientation() const;
 
-    virtual void draw(QPainter *p,
+    virtual void draw( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &) const;
+        const QRectF & ) const;
 
     /*!
       Draw a subset of the samples
@@ -41,12 +41,12 @@ public:
       \param yMap Maps y-values into pixel coordinates.
       \param canvasRect Contents rect of the canvas
       \param from Index of the first point to be painted
-      \param to Index of the last point to be painted. If to < 0 the 
+      \param to Index of the last point to be painted. If to < 0 the
              curve will be painted to its last point.
     */
-    virtual void drawSeries(QPainter *painter,
+    virtual void drawSeries( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, int from, int to) const = 0;
+        const QRectF &canvasRect, int from, int to ) const = 0;
 
 private:
     class PrivateData;
@@ -56,26 +56,26 @@ private:
 /*!
   Class template for plot items reprsenting a series of samples
 */
-template <typename T> 
+template <typename T>
 class QwtPlotSeriesItem: public QwtPlotAbstractSeriesItem
 {
 public:
-    explicit QwtPlotSeriesItem<T>(const QString &title = QString::null);
-    explicit QwtPlotSeriesItem<T>(const QwtText &title);
+    explicit QwtPlotSeriesItem<T>( const QString &title = QString::null );
+    explicit QwtPlotSeriesItem<T>( const QwtText &title );
 
     virtual ~QwtPlotSeriesItem<T>();
 
-    void setData(QwtSeriesData<T> *);
-    
+    void setData( QwtSeriesData<T> * );
+
     QwtSeriesData<T> *data();
     const QwtSeriesData<T> *data() const;
 
     size_t dataSize() const;
-    T sample(int i) const;
+    T sample( int i ) const;
 
     virtual QRectF boundingRect() const;
-    virtual void updateScaleDiv(const QwtScaleDiv &,
-        const QwtScaleDiv &);
+    virtual void updateScaleDiv( const QwtScaleDiv &,
+                                 const QwtScaleDiv & );
 
 protected:
     //! Series
@@ -86,10 +86,10 @@ protected:
   Constructor
   \param title Title of the series item
 */
-template <typename T> 
-QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QString &title):
-    QwtPlotAbstractSeriesItem(QwtText(title)),
-    d_series(NULL)
+template <typename T>
+QwtPlotSeriesItem<T>::QwtPlotSeriesItem( const QString &title ):
+    QwtPlotAbstractSeriesItem( QwtText( title ) ),
+    d_series( NULL )
 {
 }
 
@@ -97,29 +97,29 @@ QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QString &title):
   Constructor
   \param title Title of the series item
 */
-template <typename T> 
-QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QwtText &title):
-    QwtPlotAbstractSeriesItem(title),
-    d_series(NULL)
+template <typename T>
+QwtPlotSeriesItem<T>::QwtPlotSeriesItem( const QwtText &title ):
+    QwtPlotAbstractSeriesItem( title ),
+    d_series( NULL )
 {
 }
 
 //! Destructor
-template <typename T> 
+template <typename T>
 QwtPlotSeriesItem<T>::~QwtPlotSeriesItem()
 {
     delete d_series;
 }
 
 //! \return the the curve data
-template <typename T> 
+template <typename T>
 inline QwtSeriesData<T> *QwtPlotSeriesItem<T>::data()
 {
     return d_series;
 }
 
 //! \return the the curve data
-template <typename T> 
+template <typename T>
 inline const QwtSeriesData<T> *QwtPlotSeriesItem<T>::data() const
 {
     return d_series;
@@ -129,21 +129,21 @@ inline const QwtSeriesData<T> *QwtPlotSeriesItem<T>::data() const
     \param index Index
     \return Sample at position index
 */
-template <typename T> 
-inline T QwtPlotSeriesItem<T>::sample(int index) const 
-{ 
-    return d_series ? d_series->sample(index) : T(); 
+template <typename T>
+inline T QwtPlotSeriesItem<T>::sample( int index ) const
+{
+    return d_series ? d_series->sample( index ) : T();
 }
 
 /*!
-  Assign a series of samples 
-  
+  Assign a series of samples
+
   \param data Data
-  \warning The item takes ownership of the data object, deleting 
+  \warning The item takes ownership of the data object, deleting
            it when its not used anymore.
 */
-template <typename T> 
-void QwtPlotSeriesItem<T>::setData(QwtSeriesData<T> *data)
+template <typename T>
+void QwtPlotSeriesItem<T>::setData( QwtSeriesData<T> *data )
 {
     if ( d_series != data )
     {
@@ -157,7 +157,7 @@ void QwtPlotSeriesItem<T>::setData(QwtSeriesData<T> *data)
   Return the size of the data arrays
   \sa setData()
 */
-template <typename T> 
+template <typename T>
 size_t QwtPlotSeriesItem<T>::dataSize() const
 {
     if ( d_series == NULL )
@@ -167,16 +167,16 @@ size_t QwtPlotSeriesItem<T>::dataSize() const
 }
 
 /*!
-  \return Bounding rectangle of the data. 
+  \return Bounding rectangle of the data.
   If there is no bounding rect, like for empty data the rectangle is invalid.
 
   \sa QwtSeriesData<T>::boundingRect(), QRectF::isValid()
 */
-template <typename T> 
+template <typename T>
 QRectF QwtPlotSeriesItem<T>::boundingRect() const
 {
     if ( d_series == NULL )
-        return QRectF(1.0, 1.0, -2.0, -2.0); // invalid
+        return QRectF( 1.0, 1.0, -2.0, -2.0 ); // invalid
 
     return d_series->boundingRect();
 }
@@ -189,15 +189,15 @@ QRectF QwtPlotSeriesItem<T>::boundingRect() const
 
    \sa QwtSeriesData<T>::setRectOfInterest()
 */
-template <typename T> 
-void QwtPlotSeriesItem<T>::updateScaleDiv(const QwtScaleDiv &xScaleDiv,
-        const QwtScaleDiv &yScaleDiv)
-{   
-    const QRectF rect = QRectF( 
+template <typename T>
+void QwtPlotSeriesItem<T>::updateScaleDiv( 
+    const QwtScaleDiv &xScaleDiv, const QwtScaleDiv &yScaleDiv )
+{
+    const QRectF rect = QRectF(
         xScaleDiv.lowerBound(), yScaleDiv.lowerBound(),
-        xScaleDiv.range(), yScaleDiv.range());
+        xScaleDiv.range(), yScaleDiv.range() );
 
-    d_series->setRectOfInterest(rect);
-} 
+    d_series->setRectOfInterest( rect );
+}
 
 #endif

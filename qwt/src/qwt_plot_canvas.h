@@ -2,7 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
@@ -18,8 +18,8 @@ class QwtPlot;
 class QPixmap;
 
 /*!
-  \brief Canvas of a QwtPlot. 
-  \sa QwtPlot 
+  \brief Canvas of a QwtPlot.
+  \sa QwtPlot
 */
 class QWT_EXPORT QwtPlotCanvas : public QFrame
 {
@@ -29,16 +29,16 @@ public:
 
     /*!
       \brief Paint attributes
- 
+
       - PaintCached\n
-        Paint double buffered and reuse the content of the pixmap buffer 
-        for some spontaneous repaints that happen when a plot gets unhidden, 
+        Paint double buffered and reuse the content of the pixmap buffer
+        for some spontaneous repaints that happen when a plot gets unhidden,
         deiconified or changes the focus.
         Disabling the cache will improve the performance for
-        incremental paints (using QwtPlotCurve::draw). 
+        incremental paints (using QwtPlotCurve::draw).
 
       - PaintPacked\n
-        Suppress system background repaints and paint it together with 
+        Suppress system background repaints and paint it together with
         the canvas contents.
         Painting packed might avoid flickering for expensive repaints,
         when there is a notable gap between painting the background
@@ -79,17 +79,17 @@ public:
         ItemFocusIndicator
     };
 
-    explicit QwtPlotCanvas(QwtPlot *);
+    explicit QwtPlotCanvas( QwtPlot * );
     virtual ~QwtPlotCanvas();
 
     QwtPlot *plot();
     const QwtPlot *plot() const;
 
-    void setFocusIndicator(FocusIndicator);
+    void setFocusIndicator( FocusIndicator );
     FocusIndicator focusIndicator() const;
 
-    void setPaintAttribute(PaintAttribute, bool on = true);
-    bool testPaintAttribute(PaintAttribute) const;
+    void setPaintAttribute( PaintAttribute, bool on = true );
+    bool testPaintAttribute( PaintAttribute ) const;
 
     QPixmap *paintCache();
     const QPixmap *paintCache() const;
@@ -98,17 +98,17 @@ public:
     void replot();
 
 protected:
-    virtual void hideEvent(QHideEvent *);
+    virtual void hideEvent( QHideEvent * );
 
-    virtual void paintEvent(QPaintEvent *);
+    virtual void paintEvent( QPaintEvent * );
 
-    virtual void drawContents(QPainter *);
-    virtual void drawFocusIndicator(QPainter *);
+    virtual void drawContents( QPainter * );
+    virtual void drawFocusIndicator( QPainter * );
 
-    void drawCanvas(QPainter *painter = NULL);
+    void drawCanvas( QPainter *painter = NULL );
 
-private:    
-    void setSystemBackground(bool);
+private:
+    void setSystemBackground( bool );
 
     class PrivateData;
     PrivateData *d_data;

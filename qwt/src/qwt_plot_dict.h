@@ -35,19 +35,19 @@ public:
     explicit QwtPlotDict();
     virtual ~QwtPlotDict();
 
-    void setAutoDelete(bool);
+    void setAutoDelete( bool );
     bool autoDelete() const;
 
     const QwtPlotItemList& itemList() const;
-    QwtPlotItemList itemList(int rtti) const;
+    QwtPlotItemList itemList( int rtti ) const;
 
-    void detachItems(int rtti = QwtPlotItem::Rtti_PlotItem,
-        bool autoDelete = true);
+    void detachItems( int rtti = QwtPlotItem::Rtti_PlotItem,
+        bool autoDelete = true );
 
 private:
     friend class QwtPlotItem;
 
-    void attachItem(QwtPlotItem *, bool);
+    void attachItem( QwtPlotItem *, bool );
 
     class PrivateData;
     PrivateData *d_data;

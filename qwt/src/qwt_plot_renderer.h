@@ -59,7 +59,7 @@ public:
         DiscardCanvasBackground = 0x8
     };
 
-    Q_DECLARE_FLAGS(DiscardFlags, DiscardFlag)
+    Q_DECLARE_FLAGS( DiscardFlags, DiscardFlag )
 
     /*!
      - DefaultLayout\n
@@ -72,7 +72,7 @@ public:
        Render all frames of the plot
 
      - FrameWithScales\n
-       Instead of the scales a box is painted around the plot canvas, 
+       Instead of the scales a box is painted around the plot canvas,
        where the scale ticks are aligned.
      */
     enum LayoutFlag
@@ -84,67 +84,67 @@ public:
         FrameWithScales = 0x4
     };
 
-    Q_DECLARE_FLAGS(LayoutFlags, LayoutFlag)
-    
-    explicit QwtPlotRenderer(QObject * = NULL);
+    Q_DECLARE_FLAGS( LayoutFlags, LayoutFlag )
+
+    explicit QwtPlotRenderer( QObject * = NULL );
     virtual ~QwtPlotRenderer();
 
-    void setDiscardFlag(DiscardFlag flag, bool on = true);
-    bool testDiscardFlag(DiscardFlag flag) const;
+    void setDiscardFlag( DiscardFlag flag, bool on = true );
+    bool testDiscardFlag( DiscardFlag flag ) const;
 
-    void setDiscardFlags(DiscardFlags flags);
+    void setDiscardFlags( DiscardFlags flags );
     DiscardFlags discardFlags() const;
 
-    void setLayoutFlag(LayoutFlag flag, bool on = true);
-    bool testLayoutFlag(LayoutFlag flag) const;
+    void setLayoutFlag( LayoutFlag flag, bool on = true );
+    bool testLayoutFlag( LayoutFlag flag ) const;
 
-    void setLayoutFlags(LayoutFlags flags);
+    void setLayoutFlags( LayoutFlags flags );
     LayoutFlags layoutFlags() const;
 
-    void renderDocument(QwtPlot *, const QString &format,
-        const QSizeF &sizeMM, int resolution = 85);
+    void renderDocument( QwtPlot *, const QString &format,
+        const QSizeF &sizeMM, int resolution = 85 );
 
-    void renderDocument(QwtPlot *, 
+    void renderDocument( QwtPlot *,
         const QString &title, const QString &format,
-        const QSizeF &sizeMM, int resolution = 85);
-        
+        const QSizeF &sizeMM, int resolution = 85 );
+
 #ifdef QT_SVG_LIB
 #if QT_VERSION >= 0x040500
-    void renderTo(QwtPlot *, QSvgGenerator &) const;
+    void renderTo( QwtPlot *, QSvgGenerator & ) const;
 #endif
 #endif
-    void renderTo(QwtPlot *, QPrinter &) const;
-    void renderTo(QwtPlot *, QPaintDevice &p) const;
+    void renderTo( QwtPlot *, QPrinter & ) const;
+    void renderTo( QwtPlot *, QPaintDevice &p ) const;
 
-    virtual void render(QwtPlot *, 
-        QPainter *, const QRectF &rect) const;
+    virtual void render( QwtPlot *,
+                         QPainter *, const QRectF &rect ) const;
 
 protected:
-    virtual void renderLegendItem(QPainter *, 
-        const QWidget *, const QRectF &) const;
+    virtual void renderLegendItem( QPainter *,
+        const QWidget *, const QRectF & ) const;
 
-    virtual void renderTitle(QPainter *, const QRectF &) const;
+    virtual void renderTitle( QPainter *, const QRectF & ) const;
 
-    virtual void renderScale(QPainter *, 
+    virtual void renderScale( QPainter *,
         int axisId, int startDist, int endDist,
-        int baseDist, const QRectF &) const;
+        int baseDist, const QRectF & ) const;
 
-    virtual void renderCanvas(QPainter *, const QRectF &canvasRect,
-        const QwtScaleMap* maps) const;
+    virtual void renderCanvas( QPainter *, const QRectF &canvasRect,
+        const QwtScaleMap* maps ) const;
 
-    virtual void renderLegend(QPainter *, const QRectF &) const;
+    virtual void renderLegend( QPainter *, const QRectF & ) const;
 
     QwtPlot *plot();
     const QwtPlot *plot() const;
 
-    void buildCanvasMaps(const QRectF &, QwtScaleMap maps[]) const;
+    void buildCanvasMaps( const QRectF &, QwtScaleMap maps[] ) const;
 
 private:
     class PrivateData;
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QwtPlotRenderer::DiscardFlags);
-Q_DECLARE_OPERATORS_FOR_FLAGS(QwtPlotRenderer::LayoutFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotRenderer::DiscardFlags );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotRenderer::LayoutFlags );
 
 #endif
