@@ -23,15 +23,18 @@
 class QwtTextEngineDict
 {
 public:
-    QwtTextEngineDict();
-    ~QwtTextEngineDict();
+    static QwtTextEngineDict &dict();
 
     void setTextEngine(QwtText::TextFormat, QwtTextEngine *);
+
     const QwtTextEngine *textEngine(QwtText::TextFormat) const;
     const QwtTextEngine *textEngine(const QString &, 
         QwtText::TextFormat) const;
 
 private:
+    QwtTextEngineDict();
+    ~QwtTextEngineDict();
+
     typedef QMap<int, QwtTextEngine *> EngineMap;
 
     inline const QwtTextEngine *engine(EngineMap::const_iterator &it) const 
@@ -41,6 +44,12 @@ private:
 
     EngineMap d_map;
 };
+
+QwtTextEngineDict &QwtTextEngineDict::dict()
+{
+    static QwtTextEngineDict engineDict;
+    return engineDict;
+}
 
 QwtTextEngineDict::QwtTextEngineDict()
 {
@@ -123,8 +132,6 @@ const QwtTextEngine *QwtTextEngineDict::textEngine(
 
     return e;
 }
-
-static QwtTextEngineDict *engineDict = NULL;
 
 class QwtText::PrivateData
 {
@@ -599,18 +606,7 @@ void QwtText::draw(QPainter *painter, const QRectF &rect) const
 const QwtTextEngine *QwtText::textEngine(const QString &text,
     QwtText::TextFormat format)
 {
-    if ( engineDict == NULL )
-    {
-        /*
-          Note: engineDict is allocated, the first time it is used, 
-                but never deleted, because there is no known last access time.
-                So don't be irritated, if it is reported as a memory leak
-                from your memory profiler.
-         */
-        engineDict = new QwtTextEngineDict();
-    }
-
-    return engineDict->textEngine(text, format);
+    return QwtTextEngineDict::dict().textEngine(text, format);
 }
 
 /*!
@@ -634,10 +630,7 @@ const QwtTextEngine *QwtText::textEngine(const QString &text,
 void QwtText::setTextEngine(QwtText::TextFormat format, 
     QwtTextEngine *engine)
 {
-    if ( engineDict == NULL )
-        engineDict = new QwtTextEngineDict();
-
-    engineDict->setTextEngine(format, engine);
+     QwtTextEngineDict::dict().setTextEngine(format, engine);
 }
 
 /*!
@@ -653,8 +646,5 @@ void QwtText::setTextEngine(QwtText::TextFormat format,
 */
 const QwtTextEngine *QwtText::textEngine(QwtText::TextFormat format)
 {
-    if ( engineDict == NULL )
-        engineDict = new QwtTextEngineDict();
-
-    return engineDict->textEngine(format);
+    return  QwtTextEngineDict::dict().textEngine(format);
 }
