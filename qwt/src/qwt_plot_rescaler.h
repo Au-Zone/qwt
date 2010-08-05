@@ -11,7 +11,7 @@
 #define QWT_PLOT_RESCALER_H 1
 
 #include "qwt_global.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 #include "qwt_plot.h"
 #include <qobject.h>
 
@@ -101,8 +101,8 @@ public:
     void setAspectRatio(int axis, double ratio);
     double aspectRatio(int axis) const;
 
-    void setIntervalHint(int axis, const QwtDoubleInterval&);
-    QwtDoubleInterval intervalHint(int axis) const;
+    void setIntervalHint(int axis, const QwtInterval&);
+    QwtInterval intervalHint(int axis) const;
 
     QwtPlotCanvas *canvas();
     const QwtPlotCanvas *canvas() const;
@@ -118,19 +118,19 @@ protected:
     virtual void canvasResizeEvent(QResizeEvent *);
 
     virtual void rescale(const QSize &oldSize, const QSize &newSize) const;
-    virtual QwtDoubleInterval expandScale( int axis, 
+    virtual QwtInterval expandScale( int axis, 
         const QSize &oldSize, const QSize &newSize) const;
  
-    virtual QwtDoubleInterval syncScale(
-        int axis, const QwtDoubleInterval& reference,
+    virtual QwtInterval syncScale(
+        int axis, const QwtInterval& reference,
         const QSize &size) const; 
 
     virtual void updateScales(
-        QwtDoubleInterval intervals[QwtPlot::axisCnt]) const;
+        QwtInterval intervals[QwtPlot::axisCnt]) const;
 
     Qt::Orientation orientation(int axis) const;
-    QwtDoubleInterval interval(int axis) const;
-    QwtDoubleInterval expandInterval(const QwtDoubleInterval &, 
+    QwtInterval interval(int axis) const;
+    QwtInterval expandInterval(const QwtInterval &, 
         double width, ExpandingDirection) const;
 
 private:

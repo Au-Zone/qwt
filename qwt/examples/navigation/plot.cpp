@@ -3,7 +3,7 @@
 #include <qwt_plot_grid.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
-#include <qwt_double_interval.h>
+#include <qwt_interval.h>
 #include <qwt_painter.h>
 #include <qwt_plot_item.h>
 #include <stdlib.h>
@@ -76,7 +76,7 @@ private:
     Type d_type;
 };
 
-Plot::Plot(QWidget *parent, const QwtDoubleInterval &interval):
+Plot::Plot(QWidget *parent, const QwtInterval &interval):
     QwtPlot(parent)
 {
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis ++ )

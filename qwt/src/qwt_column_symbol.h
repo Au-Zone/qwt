@@ -11,7 +11,7 @@
 #define QWT_COLUMN_SYMBOL_H
 
 #include "qwt_global.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 #include <qpen.h>
 #include <qsize.h>
 #include <qrect.h>
@@ -61,10 +61,10 @@ public:
     }
 
     //! Interval for the horizontal coordinates
-    QwtDoubleInterval hInterval;
+    QwtInterval hInterval;
 
     //! Interval for the vertical coordinates
-    QwtDoubleInterval vInterval;
+    QwtInterval vInterval;
 
     //! Direction
     Direction direction;

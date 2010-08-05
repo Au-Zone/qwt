@@ -11,7 +11,7 @@
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_scale_map.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 #include <qpalette.h>
 #include <qpainter.h>
 
@@ -426,7 +426,7 @@ void QwtPlotScaleItem::updateBorders(const QRectF &canvasRect,
 {
     d_data->canvasRectCache = canvasRect;
 
-    QwtDoubleInterval interval;
+    QwtInterval interval;
     if ( d_data->scaleDraw->orientation() == Qt::Horizontal )
     {
         interval.setMinValue(xMap.invTransform(canvasRect.left()));

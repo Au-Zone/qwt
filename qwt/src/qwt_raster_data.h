@@ -11,7 +11,7 @@
 #define QWT_RASTER_DATA_H 1
 
 #include "qwt_global.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 #include <qmap.h>
 #include <qlist.h>
 #include <qpolygon.h>
@@ -61,7 +61,7 @@ public:
     virtual double value(double x, double y) const = 0;
 
     //! \return the range of the values
-    virtual QwtDoubleInterval range() const = 0;
+    virtual QwtInterval range() const = 0;
 
     virtual ContourLines contourLines(const QRectF &rect,
         const QSize &raster, const QList<double> &levels, 

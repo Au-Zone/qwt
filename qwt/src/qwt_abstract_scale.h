@@ -16,7 +16,7 @@ class QwtScaleEngine;
 class QwtAbstractScaleDraw;
 class QwtScaleDiv;
 class QwtScaleMap;
-class QwtDoubleInterval;
+class QwtInterval;
 
 /*!
   \brief An abstract base class for classes containing a scale 
@@ -33,7 +33,7 @@ public:
     virtual ~QwtAbstractScale();
     
     void setScale(double vmin, double vmax, double step = 0.0);
-    void setScale(const QwtDoubleInterval &, double step = 0.0);
+    void setScale(const QwtInterval &, double step = 0.0);
     void setScale(const QwtScaleDiv &s);
 
     void setAutoScale();

@@ -85,7 +85,7 @@ Plot::Plot(QWidget *parent):
         const Temperature &t = friedberg2007[i];
         averageData[i] = QPointF(double(i), t.averageValue);
         rangeData[i] = QwtIntervalSample( double(i),
-            QwtDoubleInterval(t.minValue, t.maxValue) );
+            QwtInterval(t.minValue, t.maxValue) );
     }
 
     insertCurve("Average", averageData, Qt::black);

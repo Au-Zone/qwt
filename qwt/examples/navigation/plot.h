@@ -4,14 +4,14 @@
 #include <qwt_plot.h>
 
 class RectItem;
-class QwtDoubleInterval;
+class QwtInterval;
 
 class Plot: public QwtPlot
 {
     Q_OBJECT
 
 public:
-    Plot(QWidget *parent, const QwtDoubleInterval &);
+    Plot(QWidget *parent, const QwtInterval &);
     virtual void updateLayout();
 
     void setRectOfInterest(const QRectF &);

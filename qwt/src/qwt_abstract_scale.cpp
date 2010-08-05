@@ -12,7 +12,7 @@
 #include "qwt_scale_draw.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_map.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 
 class QwtAbstractScale::PrivateData
 {
@@ -89,8 +89,7 @@ void QwtAbstractScale::setScale(double vmin, double vmax, double stepSize)
   \param stepSize major step size
   \sa setAutoScale()
 */
-void QwtAbstractScale::setScale(const QwtDoubleInterval &interval, 
-    double stepSize)
+void QwtAbstractScale::setScale(const QwtInterval &interval, double stepSize)
 {
     setScale(interval.minValue(), interval.maxValue(), stepSize);
 }

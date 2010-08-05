@@ -12,7 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_scale_div.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 
 class QwtScaleTransformation;
 
@@ -117,11 +117,11 @@ public:
     virtual QwtScaleTransformation *transformation() const = 0;
 
 protected:
-    bool contains(const QwtDoubleInterval &, double val) const;
-    QList<double> strip(const QList<double>&, const QwtDoubleInterval &) const;
+    bool contains(const QwtInterval &, double val) const;
+    QList<double> strip(const QList<double>&, const QwtInterval &) const;
     double divideInterval(double interval, int numSteps) const;
 
-    QwtDoubleInterval buildInterval(double v) const;
+    QwtInterval buildInterval(double v) const;
 
 private:
     class PrivateData;
@@ -148,15 +148,15 @@ public:
     virtual QwtScaleTransformation *transformation() const;
 
 protected:
-    QwtDoubleInterval align(const QwtDoubleInterval&,
+    QwtInterval align(const QwtInterval&,
         double stepSize) const;
 
     void buildTicks(
-        const QwtDoubleInterval &, double stepSize, int maxMinSteps,
+        const QwtInterval &, double stepSize, int maxMinSteps,
         QList<double> ticks[QwtScaleDiv::NTickTypes]) const;
 
     QList<double> buildMajorTicks(
-        const QwtDoubleInterval &interval, double stepSize) const;
+        const QwtInterval &interval, double stepSize) const;
 
     void buildMinorTicks(
         const QList<double>& majorTicks,
@@ -188,18 +188,17 @@ public:
     virtual QwtScaleTransformation *transformation() const;
 
 protected:
-    QwtDoubleInterval log10(const QwtDoubleInterval&) const;
-    QwtDoubleInterval pow10(const QwtDoubleInterval&) const;
+    QwtInterval log10(const QwtInterval&) const;
+    QwtInterval pow10(const QwtInterval&) const;
 
-    QwtDoubleInterval align(const QwtDoubleInterval&,
-        double stepSize) const;
+    QwtInterval align(const QwtInterval&, double stepSize) const;
 
     void buildTicks(
-        const QwtDoubleInterval &, double stepSize, int maxMinSteps,
+        const QwtInterval &, double stepSize, int maxMinSteps,
         QList<double> ticks[QwtScaleDiv::NTickTypes]) const;
 
     QList<double> buildMajorTicks(
-        const QwtDoubleInterval &interval, double stepSize) const;
+        const QwtInterval &interval, double stepSize) const;
 
     QList<double> buildMinorTicks(
         const QList<double>& majorTicks,

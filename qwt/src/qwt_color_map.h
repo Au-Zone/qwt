@@ -11,7 +11,7 @@
 #define QWT_COLOR_MAP_H
 
 #include "qwt_global.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 #include <qcolor.h>
 #include <qvector.h>
 
@@ -60,8 +60,8 @@ public:
        \param value Value
        \return rgb value, corresponding to value
     */
-    virtual QRgb rgb( 
-        const QwtDoubleInterval &interval, double value) const = 0;
+    virtual QRgb rgb( const QwtInterval &interval, 
+		double value) const = 0;
 
     /*!  
        Map a value of a given interval into a color index
@@ -70,10 +70,10 @@ public:
        \return color index, corresponding to value
      */
     virtual unsigned char colorIndex(
-        const QwtDoubleInterval &interval, double value) const = 0;
+        const QwtInterval &interval, double value) const = 0;
 
-    QColor color(const QwtDoubleInterval &, double value) const;
-    virtual QVector<QRgb> colorTable(const QwtDoubleInterval &) const;
+    QColor color(const QwtInterval &, double value) const;
+    virtual QVector<QRgb> colorTable(const QwtInterval &) const;
 
 private:
     Format d_format;
@@ -121,9 +121,9 @@ public:
     QColor color1() const;
     QColor color2() const;
 
-    virtual QRgb rgb(const QwtDoubleInterval &, double value) const;
+    virtual QRgb rgb(const QwtInterval &, double value) const;
     virtual unsigned char colorIndex(
-        const QwtDoubleInterval &, double value) const;
+        const QwtInterval &, double value) const;
 
     class ColorStops;
 
@@ -146,11 +146,11 @@ public:
     void setColor(const QColor &);
     QColor color() const;
 
-    virtual QRgb rgb(const QwtDoubleInterval &, double value) const;
+    virtual QRgb rgb(const QwtInterval &, double value) const;
 
 private:
     virtual unsigned char colorIndex(
-        const QwtDoubleInterval &, double value) const;
+        const QwtInterval &, double value) const;
 
     class PrivateData;
     PrivateData *d_data;
@@ -170,7 +170,7 @@ private:
             color table once and find the color using colorIndex().
 */
 inline QColor QwtColorMap::color(
-    const QwtDoubleInterval &interval, double value) const
+    const QwtInterval &interval, double value) const
 {
     if ( d_format == RGB )
     {

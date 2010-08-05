@@ -11,8 +11,8 @@
 #define QWT_SERIES_DATA_H 1
 
 #include "qwt_global.h"
-#include "qwt_double_interval.h"
-#include "qwt_double_point_3d.h"
+#include "qwt_interval.h"
+#include "qwt_point_3d.h"
 #include <qvector.h>
 #include <qrect.h>
 
@@ -21,7 +21,7 @@ class QWT_EXPORT QwtIntervalSample
 {
 public:
     QwtIntervalSample();
-    QwtIntervalSample(double, const QwtDoubleInterval &);
+    QwtIntervalSample(double, const QwtInterval &);
     QwtIntervalSample(double value, double min, double max);
 
     bool operator==(const QwtIntervalSample &) const;
@@ -30,7 +30,7 @@ public:
     double value;
 
     //! Interval
-    QwtDoubleInterval interval;
+    QwtInterval interval;
 };
 
 /*! 
@@ -44,7 +44,7 @@ inline QwtIntervalSample::QwtIntervalSample():
 
 //! Constructor
 inline QwtIntervalSample::QwtIntervalSample(
-        double v, const QwtDoubleInterval &intv):
+        double v, const QwtInterval &intv):
     value(v),
     interval(intv)
 {
@@ -254,11 +254,11 @@ public:
 };
 
 //! Interface for iterating over an array of 3D points
-class QWT_EXPORT QwtPoint3DSeriesData: public QwtArraySeriesData<QwtDoublePoint3D>
+class QWT_EXPORT QwtPoint3DSeriesData: public QwtArraySeriesData<QwtPoint3D>
 {
 public:
     QwtPoint3DSeriesData(
-        const QVector<QwtDoublePoint3D> & = QVector<QwtDoublePoint3D>());
+        const QVector<QwtPoint3D> & = QVector<QwtPoint3D>());
     virtual QRectF boundingRect() const;
 };
 
@@ -381,13 +381,13 @@ class QWT_EXPORT QwtSyntheticPointData: public QwtSeriesData<QPointF>
 {
 public:
     QwtSyntheticPointData(size_t size, 
-        const QwtDoubleInterval & = QwtDoubleInterval());
+        const QwtInterval & = QwtInterval());
 
     void setSize(size_t size);
     size_t size() const;
 
-    void setInterval(const QwtDoubleInterval& );
-    QwtDoubleInterval interval() const;
+    void setInterval(const QwtInterval& );
+    QwtInterval interval() const;
 
     virtual QRectF boundingRect() const;
     virtual QPointF sample(size_t i) const;
@@ -406,18 +406,14 @@ public:
 
 private:
     size_t d_size;
-    QwtDoubleInterval d_interval;
+    QwtInterval d_interval;
     QRectF d_rectOfInterest;
-    QwtDoubleInterval d_intervalOfInterest;
+    QwtInterval d_intervalOfInterest;
 };
 
-QWT_EXPORT QRectF qwtBoundingRect(
-    const QwtSeriesData<QPointF> &);
-QWT_EXPORT QRectF qwtBoundingRect(
-    const QwtSeriesData<QwtDoublePoint3D> &);
-QWT_EXPORT QRectF qwtBoundingRect(
-    const QwtSeriesData<QwtIntervalSample> &);
-QWT_EXPORT QRectF qwtBoundingRect(
-    const QwtSeriesData<QwtSetSample> &);
+QWT_EXPORT QRectF qwtBoundingRect(const QwtSeriesData<QPointF> &);
+QWT_EXPORT QRectF qwtBoundingRect(const QwtSeriesData<QwtPoint3D> &);
+QWT_EXPORT QRectF qwtBoundingRect(const QwtSeriesData<QwtIntervalSample> &);
+QWT_EXPORT QRectF qwtBoundingRect(const QwtSeriesData<QwtSetSample> &);
 
 #endif // !QWT_SERIES_DATA_H

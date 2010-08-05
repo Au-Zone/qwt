@@ -269,13 +269,13 @@ void QwtColumnSymbol::drawBox(QPainter *painter,
     const QwtColumnRect &rect) const
 {
     QRectF r = rect.toRect();
-    if ( rect.hInterval.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
+    if ( rect.hInterval.borderFlags() & QwtInterval::ExcludeMinimum )
         r.adjust(1, 0, 0, 0);
-    if ( rect.hInterval.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
+    if ( rect.hInterval.borderFlags() & QwtInterval::ExcludeMaximum )
         r.adjust(0, 0, -1, 0);
-    if ( rect.vInterval.borderFlags() & QwtDoubleInterval::ExcludeMinimum )
+    if ( rect.vInterval.borderFlags() & QwtInterval::ExcludeMinimum )
         r.adjust(0, 1, 0, 0);
-    if ( rect.vInterval.borderFlags() & QwtDoubleInterval::ExcludeMaximum )
+    if ( rect.vInterval.borderFlags() & QwtInterval::ExcludeMaximum )
         r.adjust(0, 0, 0, -1);
 
     switch(d_data->frameStyle) 

@@ -21,7 +21,7 @@ class QwtColorMap;
     \brief Curve that displays 3D points as dots, where the z coordinate is
            mapped to a color.
 */
-class QWT_EXPORT QwtPlotSpectroCurve: public QwtPlotSeriesItem<QwtDoublePoint3D>
+class QWT_EXPORT QwtPlotSpectroCurve: public QwtPlotSeriesItem<QwtPoint3D>
 {
 public:
     /*!
@@ -43,13 +43,13 @@ public:
     void setPaintAttribute(PaintAttribute, bool on = true);
     bool testPaintAttribute(PaintAttribute) const;
 
-    void setSamples(const QVector<QwtDoublePoint3D> &);
+    void setSamples(const QVector<QwtPoint3D> &);
 
     void setColorMap(QwtColorMap *);
     const QwtColorMap *colorMap() const;
 
-    void setColorRange(const QwtDoubleInterval &);
-    QwtDoubleInterval & colorRange() const;
+    void setColorRange(const QwtInterval &);
+    QwtInterval & colorRange() const;
 
     virtual void drawSeries(QPainter *, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,

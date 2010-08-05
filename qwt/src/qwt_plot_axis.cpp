@@ -582,7 +582,7 @@ void QwtPlot::updateAxes()
     // Find bounding interval of the item data
     // for all axes, where autoscaling is enabled
     
-    QwtDoubleInterval intv[axisCnt];
+    QwtInterval intv[axisCnt];
 
     const QwtPlotItemList& itmList = itemList();
 
@@ -597,8 +597,8 @@ void QwtPlot::updateAxes()
         if ( axisAutoScale(item->xAxis()) || axisAutoScale(item->yAxis()) )
         {
             const QRectF rect = item->boundingRect();
-            intv[item->xAxis()] |= QwtDoubleInterval(rect.left(), rect.right());
-            intv[item->yAxis()] |= QwtDoubleInterval(rect.top(), rect.bottom());
+            intv[item->xAxis()] |= QwtInterval(rect.left(), rect.right());
+            intv[item->yAxis()] |= QwtInterval(rect.top(), rect.bottom());
         }
     }
 

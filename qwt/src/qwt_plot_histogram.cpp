@@ -17,15 +17,15 @@
 #include <qstring.h>
 #include <qpainter.h>
 
-static inline bool isCombinable(const QwtDoubleInterval &d1, 
-    const QwtDoubleInterval &d2)
+static inline bool isCombinable(const QwtInterval &d1, 
+    const QwtInterval &d2)
 {
     if ( d1.isValid() && d2.isValid() )
     {
         if ( d1.maxValue() == d2.minValue() )
         {
-            if ( !( d1.borderFlags() & QwtDoubleInterval::ExcludeMaximum
-                && d2.borderFlags() & QwtDoubleInterval::ExcludeMinimum ) )
+            if ( !( d1.borderFlags() & QwtInterval::ExcludeMaximum
+                && d2.borderFlags() & QwtInterval::ExcludeMinimum ) )
             {
                 return true;
             }
@@ -531,7 +531,7 @@ QwtColumnRect QwtPlotHistogram::columnRect(const QwtIntervalSample &sample,
 {
     QwtColumnRect rect;
 
-    const QwtDoubleInterval &iv = sample.interval;
+    const QwtInterval &iv = sample.interval;
     if ( !iv.isValid() )
         return rect;
 

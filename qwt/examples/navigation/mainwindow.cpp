@@ -74,7 +74,7 @@ QWidget *MainWindow::createPanel(QWidget *parent)
 
 Plot *MainWindow::createPlot(QWidget *parent)
 {
-    Plot *plot = new Plot(parent, QwtDoubleInterval(0.0, 1000.0));
+    Plot *plot = new Plot(parent, QwtInterval(0.0, 1000.0));
     plot->replot();
 
     d_rescaler = new QwtPlotRescaler(plot->canvas());
@@ -84,7 +84,7 @@ Plot *MainWindow::createPlot(QWidget *parent)
     d_rescaler->setAspectRatio(QwtPlot::xTop, 0.0);
 
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
-        d_rescaler->setIntervalHint(axis, QwtDoubleInterval(0.0, 1000.0));
+        d_rescaler->setIntervalHint(axis, QwtInterval(0.0, 1000.0));
 
     connect(plot, SIGNAL(resized(double, double)), 
         SLOT(showRatio(double, double)));
@@ -149,9 +149,9 @@ void MainWindow::setRescaleMode(int mode)
         case Fitting:
         {
             d_rescaler->setRescalePolicy(QwtPlotRescaler::Fitting);
-            const QwtDoubleInterval xIntv = 
+            const QwtInterval xIntv = 
                 d_rescaler->intervalHint(QwtPlot::xBottom);
-            const QwtDoubleInterval yIntv = 
+            const QwtInterval yIntv = 
                 d_rescaler->intervalHint(QwtPlot::yLeft);
 
             rectOfInterest = QRectF( xIntv.minValue(), yIntv.minValue(),

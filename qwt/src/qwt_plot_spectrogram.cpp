@@ -9,7 +9,7 @@
 
 #include "qwt_plot_spectrogram.h"
 #include "qwt_painter.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 #include "qwt_scale_map.h"
 #include "qwt_color_map.h"
 #include <qimage.h>
@@ -34,9 +34,9 @@ public:
             return 0.0;
         }
 
-        virtual QwtDoubleInterval range() const
+        virtual QwtInterval range() const
         {
-            return QwtDoubleInterval(0.0, 1.0);
+            return QwtInterval(0.0, 1.0);
         }
     };
 
@@ -239,7 +239,7 @@ QPen QwtPlotSpectrogram::defaultContourPen() const
 */
 QPen QwtPlotSpectrogram::contourPen(double level) const
 {
-    const QwtDoubleInterval intensityRange = d_data->data->range();
+    const QwtInterval intensityRange = d_data->data->range();
     const QColor c(d_data->colorMap->rgb(intensityRange, level));
 
     return QPen(c);
@@ -444,7 +444,7 @@ QImage QwtPlotSpectrogram::renderImage(
 
     QImage image( rect.size(), format);
 
-    const QwtDoubleInterval intensityRange = d_data->data->range();
+    const QwtInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
         return image;
 
@@ -519,7 +519,7 @@ void QwtPlotSpectrogram::renderTile(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     const QRect &rect, const QRect &tile, QImage *image) const
 {
-    const QwtDoubleInterval intensityRange = d_data->data->range();
+    const QwtInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
         return;
 
@@ -620,7 +620,7 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QwtRasterData::ContourLines &contourLines) const
 {
-    const QwtDoubleInterval intensityRange = d_data->data->range();
+    const QwtInterval intensityRange = d_data->data->range();
 
     const int numLevels = (int)d_data->contourLevels.size();
     for (int l = 0; l < numLevels; l++)
