@@ -1,5 +1,5 @@
 #include <qwt_plot.h>
-#include <qwt_double_interval.h>
+#include <qwt_interval.h>
 #include <qwt_system_clock.h>
 
 class QwtPlotCurve;
@@ -34,7 +34,7 @@ private:
 
     QwtPlotDirectPainter *d_directPainter;
 
-    QwtDoubleInterval d_interval;
+    QwtInterval d_interval;
     int d_timerId;
 
     QwtSystemClock d_clock;

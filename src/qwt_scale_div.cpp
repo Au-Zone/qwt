@@ -9,7 +9,7 @@
 
 #include "qwt_scale_div.h"
 #include "qwt_math.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 #include <qalgorithms.h>
 
 //! Construct an invalid QwtScaleDiv instance.
@@ -26,8 +26,7 @@ QwtScaleDiv::QwtScaleDiv():
   \param interval Interval
   \param ticks List of major, medium and minor ticks
 */
-QwtScaleDiv::QwtScaleDiv(
-        const QwtDoubleInterval &interval, 
+QwtScaleDiv::QwtScaleDiv( const QwtInterval &interval, 
         QList<double> ticks[NTickTypes]):
     d_lowerBound(interval.minValue()),
     d_upperBound(interval.maxValue()),
@@ -59,7 +58,7 @@ QwtScaleDiv::QwtScaleDiv(
    Change the interval
    \param interval Interval
 */
-void QwtScaleDiv::setInterval(const QwtDoubleInterval &interval)
+void QwtScaleDiv::setInterval(const QwtInterval &interval)
 {
     setInterval(interval.minValue(), interval.maxValue());
 }

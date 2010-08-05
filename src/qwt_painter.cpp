@@ -536,7 +536,7 @@ void QwtPainter::drawRoundFrame(QPainter *painter, const QRect &rect,
   \param rect Traget rectangle
 */
 void QwtPainter::drawColorBar(QPainter *painter,
-        const QwtColorMap &colorMap, const QwtDoubleInterval &interval,
+        const QwtColorMap &colorMap, const QwtInterval &interval,
         const QwtScaleMap &scaleMap, Qt::Orientation orientation,
         const QRectF &rect)
 {

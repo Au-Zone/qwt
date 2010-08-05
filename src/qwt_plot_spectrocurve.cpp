@@ -29,7 +29,7 @@ public:
     }
 
     QwtColorMap *colorMap;
-    QwtDoubleInterval colorRange;
+    QwtInterval colorRange;
     QVector<QRgb> colorTable;
     int paintAttributes;
 };
@@ -39,7 +39,7 @@ public:
   \param title Title of the curve   
 */
 QwtPlotSpectroCurve::QwtPlotSpectroCurve(const QwtText &title):
-    QwtPlotSeriesItem<QwtDoublePoint3D>(title)
+    QwtPlotSeriesItem<QwtPoint3D>(title)
 {
     init();
 }
@@ -49,7 +49,7 @@ QwtPlotSpectroCurve::QwtPlotSpectroCurve(const QwtText &title):
   \param title Title of the curve   
 */
 QwtPlotSpectroCurve::QwtPlotSpectroCurve(const QString &title):
-    QwtPlotSeriesItem<QwtDoublePoint3D>(QwtText(title))
+    QwtPlotSeriesItem<QwtPoint3D>(QwtText(title))
 {
     init();
 }
@@ -108,7 +108,7 @@ bool QwtPlotSpectroCurve::testPaintAttribute(PaintAttribute attribute) const
   Initialize data with an array of samples.
   \param samples Vector of points
 */
-void QwtPlotSpectroCurve::setSamples(const QVector<QwtDoublePoint3D> &samples)
+void QwtPlotSpectroCurve::setSamples(const QVector<QwtPoint3D> &samples)
 {
     delete d_series;
     d_series = new QwtPoint3DSeriesData(samples);
@@ -154,7 +154,7 @@ const QwtColorMap *QwtPlotSpectroCurve::colorMap() const
 
    \sa colorRange(), setColorMap(), QwtColorMap::color()
 */
-void QwtPlotSpectroCurve::setColorRange(const QwtDoubleInterval &interval)
+void QwtPlotSpectroCurve::setColorRange(const QwtInterval &interval)
 {
     if ( interval != d_data->colorRange )
     {
@@ -167,7 +167,7 @@ void QwtPlotSpectroCurve::setColorRange(const QwtDoubleInterval &interval)
   \return Value interval, that corresponds to the color map
   \sa setColorRange(), setColorMap(), QwtColorMap::color()
 */
-QwtDoubleInterval &QwtPlotSpectroCurve::colorRange() const
+QwtInterval &QwtPlotSpectroCurve::colorRange() const
 {
     return d_data->colorRange;
 }
@@ -230,7 +230,7 @@ void QwtPlotSpectroCurve::drawDots(QPainter *painter,
 
     for (int i = from; i <= to; i++)
     {   
-        const QwtDoublePoint3D sample = d_series->sample(i);
+        const QwtPoint3D sample = d_series->sample(i);
     
         const double xi = xMap.transform(sample.x());
         const double yi = yMap.transform(sample.y());

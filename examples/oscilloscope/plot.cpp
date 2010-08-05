@@ -119,7 +119,7 @@ void Plot::updateCurve()
 
 void Plot::incrementInterval()
 {
-    d_interval = QwtDoubleInterval(d_interval.maxValue(),
+    d_interval = QwtInterval(d_interval.maxValue(),
         d_interval.maxValue() + d_interval.width());
 
     CurveData *data = (CurveData *)d_curve->data();

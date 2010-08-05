@@ -38,9 +38,9 @@ public:
     {
     }
 
-    virtual QwtDoubleInterval range() const
+    virtual QwtInterval range() const
     {
-        return QwtDoubleInterval(0.0, 10.0);
+        return QwtInterval(0.0, 10.0);
     }
 
     virtual double value(double x, double y) const

@@ -4,11 +4,24 @@ Release 6.0
 Changes
 -------
 1. Qt3 support dropped
-2. QwtPlot layout/render code using doubles
-3. QwtPlot::print moved to QwtPlotRenderer
-4. Template base classes introduced for curve and curve data
+2. QwtPlot layout/render code ported from int to double
+   Exported/printed documents in scalable formats like SVG or PDF
+   are 100% scalable now.
+3. Template base classes introduced for curve and curve data
    to be reusable in all plot items displaying series of samples.
-5. QwtPlotIntervalCurve introduced ( featuring error bars )
+4. New plot items
+   - QwtPlotHistogram
+   - QwtPlotIntervalCurve ( error bars or displaying the area between 2 curves )
+   - QwtPlotSpectroCurve ( mapping the z value to a color )
+5. QwtPlot::print moved to QwtPlotRenderer
+6. Other new classes
+   QwtColumnSymbol
+   QwtDoublePoint3D
+   QwtIntervalSymbol
+   QwtPlotDirectPainter
+   QwtSamplingThread
+   QwtSystemClock
+   
 6. QwtPicker and friends reorganized, 
    QwtPickerTrackerMachine added for displaying a rubberband for
    mouse moves. Enter/Leave added to events, that are handled

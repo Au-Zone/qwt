@@ -9,7 +9,7 @@
 
 #include "qwt_color_map.h"
 #include "qwt_math.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 
 typedef QVector<QRgb> QwtColorTable;
 
@@ -164,8 +164,7 @@ QwtColorMap::~QwtColorMap()
    \param interval Range for the values
    \return A color table, that can be used for a QImage
 */
-QwtColorTable QwtColorMap::colorTable(
-    const QwtDoubleInterval &interval) const
+QwtColorTable QwtColorMap::colorTable(const QwtInterval &interval) const
 {
     QwtColorTable table(256);
 
@@ -321,7 +320,7 @@ QColor QwtLinearColorMap::color2() const
   \param value Value to map into a rgb value
 */
 QRgb QwtLinearColorMap::rgb(
-    const QwtDoubleInterval &interval, double value) const
+    const QwtInterval &interval, double value) const
 {
     const double width = interval.width();
 
@@ -339,7 +338,7 @@ QRgb QwtLinearColorMap::rgb(
   \param value Value to map into a color index
 */
 unsigned char QwtLinearColorMap::colorIndex(
-    const QwtDoubleInterval &interval, double value) const
+    const QwtInterval &interval, double value) const
 {
     const double width = interval.width();
 
@@ -427,7 +426,7 @@ QColor QwtAlphaColorMap::color() const
   \param value Value to map into a rgb value
   \return rgb value, with an alpha value
 */
-QRgb QwtAlphaColorMap::rgb(const QwtDoubleInterval &interval,
+QRgb QwtAlphaColorMap::rgb(const QwtInterval &interval,
     double value) const
 {
     const double width = interval.width();
@@ -453,7 +452,7 @@ QRgb QwtAlphaColorMap::rgb(const QwtDoubleInterval &interval,
   \return Always 0
 */
 unsigned char QwtAlphaColorMap::colorIndex(
-    const QwtDoubleInterval &, double) const
+    const QwtInterval &, double) const
 {
     return 0;
 }

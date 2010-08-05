@@ -11,10 +11,10 @@
 #define QWT_SCALE_DIV_H
 
 #include "qwt_global.h"
-#include "qwt_double_interval.h"
+#include "qwt_interval.h"
 #include <qlist.h>
 
-class QwtDoubleInterval;
+class QwtInterval;
 
 /*!
   \brief A class representing a scale division
@@ -43,7 +43,7 @@ public:
     };
 
     explicit QwtScaleDiv();
-    explicit QwtScaleDiv(const QwtDoubleInterval &,
+    explicit QwtScaleDiv(const QwtInterval &,
         QList<double>[NTickTypes]);
     explicit QwtScaleDiv(double lowerBound, double upperBound,
         QList<double>[NTickTypes]);
@@ -52,8 +52,8 @@ public:
     int operator!=(const QwtScaleDiv &s) const;
     
     void setInterval(double lowerBound, double upperBound);
-    void setInterval(const QwtDoubleInterval &);
-    QwtDoubleInterval interval() const;
+    void setInterval(const QwtInterval &);
+    QwtInterval interval() const;
 
     double lowerBound() const;
     double upperBound() const;
@@ -91,9 +91,9 @@ inline void QwtScaleDiv::setInterval(double lowerBound, double upperBound)
 /*! 
   \return lowerBound -> upperBound
 */
-inline QwtDoubleInterval QwtScaleDiv::interval() const
+inline QwtInterval QwtScaleDiv::interval() const
 {
-    return QwtDoubleInterval(d_lowerBound, d_upperBound);
+    return QwtInterval(d_lowerBound, d_upperBound);
 }
 
 /*! 

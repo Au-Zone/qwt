@@ -27,7 +27,7 @@ class QImage;
 class QPixmap;
 class QwtScaleMap;
 class QwtColorMap;
-class QwtDoubleInterval;
+class QwtInterval;
 
 class QPalette;
 class QTextDocument;
@@ -83,7 +83,7 @@ public:
     static void drawFocusRect(QPainter *, QWidget *, const QRect &);
 
     static void drawColorBar(QPainter *painter, 
-        const QwtColorMap &, const QwtDoubleInterval &,
+        const QwtColorMap &, const QwtInterval &,
         const QwtScaleMap &, Qt::Orientation, const QRectF &);
 
     static bool isAligning(QPainter *painter);

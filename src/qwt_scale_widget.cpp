@@ -50,7 +50,7 @@ public:
     {
         bool isEnabled;
         int width;
-        QwtDoubleInterval interval;
+        QwtInterval interval;
         QwtColorMap *colorMap;
     } colorBar;
 };
@@ -860,7 +860,7 @@ int QwtScaleWidget::colorBarWidth() const
   \return Value interval for the color bar
   \sa setColorMap(), colorMap()
 */
-QwtDoubleInterval QwtScaleWidget::colorBarInterval() const
+QwtInterval QwtScaleWidget::colorBarInterval() const
 {
     return d_data->colorBar.interval;
 }
@@ -875,7 +875,7 @@ QwtDoubleInterval QwtScaleWidget::colorBarInterval() const
   \sa colorMap(), colorBarInterval()
 */
 void QwtScaleWidget::setColorMap(
-    const QwtDoubleInterval &interval, QwtColorMap *colorMap)
+    const QwtInterval &interval, QwtColorMap *colorMap)
 {
     d_data->colorBar.interval = interval;
 

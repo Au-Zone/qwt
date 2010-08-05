@@ -93,9 +93,9 @@ public:
     void setColorBarWidth(int);
     int colorBarWidth() const;
 
-    void setColorMap(const QwtDoubleInterval &, QwtColorMap *);
+    void setColorMap(const QwtInterval &, QwtColorMap *);
 
-    QwtDoubleInterval colorBarInterval() const;
+    QwtInterval colorBarInterval() const;
     const QwtColorMap *colorMap() const;
 
     virtual QSize sizeHint() const;

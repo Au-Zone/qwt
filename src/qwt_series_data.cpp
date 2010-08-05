@@ -15,7 +15,7 @@ static inline QRectF qwtBoundingRect(const QPointF &sample)
     return QRectF(sample.x(), sample.y(), 0.0, 0.0);
 }
 
-static inline QRectF qwtBoundingRect(const QwtDoublePoint3D &sample)
+static inline QRectF qwtBoundingRect(const QwtPoint3D &sample)
 {
     return QRectF(sample.x(), sample.y(), 0.0, 0.0);
 }
@@ -111,9 +111,9 @@ QRectF qwtBoundingRect(const QwtSeriesData<QPointF> &series)
   \param series Series
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect(const QwtSeriesData<QwtDoublePoint3D> &series)
+QRectF qwtBoundingRect(const QwtSeriesData<QwtPoint3D> &series)
 {
-    return qwtBoundingRectT<QwtDoublePoint3D>(series);
+    return qwtBoundingRectT<QwtPoint3D>(series);
 }
 
 /*!
@@ -173,8 +173,8 @@ QRectF QwtPointSeriesData::boundingRect() const
    \param samples Samples
 */
 QwtPoint3DSeriesData::QwtPoint3DSeriesData(
-        const QVector<QwtDoublePoint3D> &samples):
-    QwtArraySeriesData<QwtDoublePoint3D>(samples)
+        const QVector<QwtPoint3D> &samples):
+    QwtArraySeriesData<QwtPoint3D>(samples)
 {
 }
 
@@ -399,7 +399,7 @@ const double *QwtCPointerData::yData() const
    \sa setInterval(), setSize()
 */
 QwtSyntheticPointData::QwtSyntheticPointData(
-        size_t size, const QwtDoubleInterval &interval):
+        size_t size, const QwtInterval &interval):
     d_size(size),
     d_interval(interval)
 {
@@ -431,7 +431,7 @@ size_t QwtSyntheticPointData::size() const
    \param interval Interval
    \sa interval(), setSize()
 */
-void QwtSyntheticPointData::setInterval(const QwtDoubleInterval &interval)
+void QwtSyntheticPointData::setInterval(const QwtInterval &interval)
 {
     d_interval = interval.normalized();
 }
@@ -440,7 +440,7 @@ void QwtSyntheticPointData::setInterval(const QwtDoubleInterval &interval)
    \return Bounding interval
    \sa setInterval(), size()
 */
-QwtDoubleInterval QwtSyntheticPointData::interval() const
+QwtInterval QwtSyntheticPointData::interval() const
 {
     return d_interval;
 }
@@ -459,7 +459,7 @@ QwtDoubleInterval QwtSyntheticPointData::interval() const
 void QwtSyntheticPointData::setRectOfInterest(const QRectF &rect)
 {
     d_rectOfInterest = rect;
-    d_intervalOfInterest = QwtDoubleInterval(
+    d_intervalOfInterest = QwtInterval(
         rect.left(), rect.right()).normalized();
 }
 
@@ -522,7 +522,7 @@ QPointF QwtSyntheticPointData::sample(size_t index) const
 */
 double QwtSyntheticPointData::x(uint index) const
 {
-    const QwtDoubleInterval &interval = d_interval.isValid() ?
+    const QwtInterval &interval = d_interval.isValid() ?
         d_interval : d_intervalOfInterest;
 
     if ( !interval.isValid() || d_size == 0 || index >= d_size)

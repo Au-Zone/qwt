@@ -8,7 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_raster_data.h"
-#include "qwt_double_point_3d.h"
+#include "qwt_point_3d.h"
 
 class QwtRasterData::ContourPlane
 {
@@ -18,7 +18,7 @@ public:
     {
     }
 
-    inline bool intersect(const QwtDoublePoint3D vertex[3],
+    inline bool intersect(const QwtPoint3D vertex[3],
         QPointF line[2], bool ignoreOnPlane) const;
 
     inline double z() const { return d_z; }
@@ -26,13 +26,13 @@ public:
 private:
     inline int compare(double z) const;
     inline QPointF intersection(
-        const QwtDoublePoint3D& p1, const QwtDoublePoint3D &p2) const;
+        const QwtPoint3D& p1, const QwtPoint3D &p2) const;
 
     double d_z;
 };
 
 inline bool QwtRasterData::ContourPlane::intersect(
-    const QwtDoublePoint3D vertex[3], QPointF line[2],
+    const QwtPoint3D vertex[3], QPointF line[2],
     bool ignoreOnPlane) const
 {
     bool found = true;
@@ -143,7 +143,7 @@ inline int QwtRasterData::ContourPlane::compare(double z) const
 }
 
 inline QPointF QwtRasterData::ContourPlane::intersection(
-    const QwtDoublePoint3D& p1, const QwtDoublePoint3D &p2) const
+    const QwtPoint3D& p1, const QwtPoint3D &p2) const
 {
     const double h1 = p1.z() - d_z;
     const double h2 = p2.z() - d_z;
@@ -272,7 +272,7 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
     const bool ignoreOnPlane =
         flags & QwtRasterData::IgnoreAllVerticesOnLevel;
 
-    const QwtDoubleInterval range = this->range();
+    const QwtInterval range = this->range();
     bool ignoreOutOfRange = false;
     if ( range.isValid() )
         ignoreOutOfRange = flags & IgnoreOutOfRange;
@@ -293,7 +293,7 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
             NumPositions
         };
 
-        QwtDoublePoint3D xy[NumPositions];
+        QwtPoint3D xy[NumPositions];
 
         for ( int x = 0; x < raster.width() - 1; x++ )
         {
@@ -369,7 +369,7 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
                 const ContourPlane plane(level);
 
                 QPointF line[2];
-                QwtDoublePoint3D vertex[3];
+                QwtPoint3D vertex[3];
 
                 for (int m = TopLeft; m < NumPositions; m++)
                 {

@@ -64,8 +64,7 @@ class QwtCircleClipper: public QRectF
 {
 public:
     QwtCircleClipper(const QRectF &r);
-    QVector<QwtDoubleInterval> clipCircle(
-        const QPointF &, double radius) const;
+    QVector<QwtInterval> clipCircle(const QPointF &, double radius) const;
 
 private:
     QList<QPointF> cuttingPoints(
@@ -335,20 +334,20 @@ QwtCircleClipper::QwtCircleClipper(const QRectF &r):
 {
 }
 
-QVector<QwtDoubleInterval> QwtCircleClipper::clipCircle(
+QVector<QwtInterval> QwtCircleClipper::clipCircle(
     const QPointF &pos, double radius) const
 {
     QList<QPointF> points;
     for ( int edge = 0; edge < NEdges; edge++ )
         points += cuttingPoints((Edge)edge, pos, radius);
 
-    QVector<QwtDoubleInterval> intv;
+    QVector<QwtInterval> intv;
     if ( points.size() <= 0 )
     {
         QRectF cRect(0, 0, 2 * radius, 2* radius);
         cRect.moveCenter(pos);
         if ( contains(cRect) )
-            intv += QwtDoubleInterval(0.0, 2 * M_PI);
+            intv += QwtInterval(0.0, 2 * M_PI);
     }
     else
     {
@@ -362,13 +361,13 @@ QVector<QwtDoubleInterval> QwtCircleClipper::clipCircle(
         if ( in )
         {
             for ( int i = 0; i < angles.size() - 1; i += 2)
-                intv += QwtDoubleInterval(angles[i], angles[i+1]);
+                intv += QwtInterval(angles[i], angles[i+1]);
         }
         else
         {
             for ( int i = 1; i < angles.size() - 1; i += 2)
-                intv += QwtDoubleInterval(angles[i], angles[i+1]);
-            intv += QwtDoubleInterval(angles.last(), angles.first());
+                intv += QwtInterval(angles[i], angles[i+1]);
+            intv += QwtInterval(angles.last(), angles.first());
         }
     }
 
@@ -479,8 +478,7 @@ QPolygonF QwtClipper::clipPolygonF(
 
    \return Arcs of the circle
 */
-QVector<QwtDoubleInterval> QwtClipper::clipCircle(
-    const QRectF &clipRect, 
+QVector<QwtInterval> QwtClipper::clipCircle( const QRectF &clipRect, 
     const QPointF &center, double radius)
 {
     QwtCircleClipper clipper(clipRect);
