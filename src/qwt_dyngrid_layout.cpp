@@ -20,9 +20,7 @@ public:
     {
     }
 
-    typedef QList<QLayoutItem*> LayoutItemList;
-
-    mutable LayoutItemList itemList;
+    mutable QList<QLayoutItem*> itemList;
 
     uint maxCols;
     uint numRows;
@@ -75,6 +73,9 @@ void QwtDynGridLayout::init()
 
 QwtDynGridLayout::~QwtDynGridLayout()
 {
+    for ( int i = 0; i < d_data->itemList.size(); i++ )
+        delete d_data->itemList[i];
+
     delete d_data;
 }
 
@@ -91,7 +92,7 @@ void QwtDynGridLayout::updateLayoutCache()
 
     int index = 0;
 
-    for (PrivateData::LayoutItemList::iterator it = d_data->itemList.begin();
+    for (QList<QLayoutItem*>::iterator it = d_data->itemList.begin();
         it != d_data->itemList.end(); ++it, index++)
     {
         d_data->itemSizeHints[int(index)] = (*it)->sizeHint();
@@ -230,7 +231,7 @@ void QwtDynGridLayout::setGeometry(const QRect &rect)
     QList<QRect> itemGeometries = layoutItems(rect, d_data->numCols);
 
     int index = 0;
-    for (PrivateData::LayoutItemList::iterator it = d_data->itemList.begin();
+    for (QList<QLayoutItem*>::iterator it = d_data->itemList.begin();
         it != d_data->itemList.end(); ++it)
     {
         QWidget *w = (*it)->widget();
