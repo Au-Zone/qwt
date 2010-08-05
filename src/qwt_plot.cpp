@@ -488,7 +488,6 @@ void QwtPlot::drawCanvas(QPainter *painter)
   \param painter Painter used for drawing
   \param canvasRect Bounding rectangle where to paint
   \param map QwtPlot::axisCnt maps, mapping between plot and paint device coordinates
-  \param pfilter Plot print filter
 */
 
 void QwtPlot::drawItems(QPainter *painter, const QRectF &canvasRect, 

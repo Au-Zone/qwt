@@ -51,18 +51,36 @@ static QPoint cutPoint(QPoint p11, QPoint p12, QPoint p21, QPoint p22)
     return QPoint(qRound(x), qRound(y));
 }
 
+class QwtSimpleCompassRose::PrivateData
+{
+public:
+    PrivateData():
+        width(0.2),
+        numThorns(8),
+        numThornLevels(-1),
+        shrinkFactor(0.9)
+    {
+    }
+
+    double width;     
+    int numThorns;        
+    int numThornLevels; 
+    double shrinkFactor;
+};
+
 /*!
    Constructor
 
    \param numThorns Number of thorns
    \param numThornLevels Number of thorn levels
 */
-QwtSimpleCompassRose::QwtSimpleCompassRose(int numThorns, int numThornLevels):
-    d_width(0.2),
-    d_numThorns(numThorns),
-    d_numThornLevels(numThornLevels),
-    d_shrinkFactor(0.9)
+QwtSimpleCompassRose::QwtSimpleCompassRose(
+    int numThorns, int numThornLevels)
 {
+    d_data = new PrivateData();
+    d_data->numThorns = numThorns;
+    d_data->numThornLevels = numThornLevels;
+
     const QColor dark(128,128,255);
     const QColor light(192,255,255);
     
@@ -76,6 +94,32 @@ QwtSimpleCompassRose::QwtSimpleCompassRose(int numThorns, int numThornLevels):
     }
 
     setPalette(palette);
+}
+
+//! Destructor
+QwtSimpleCompassRose::~QwtSimpleCompassRose()
+{
+    delete d_data;
+}
+
+/*!
+  Set the Factor how to shrink the thorns with each level
+  The default value is 0.9.
+
+  \sa shrinkFactor()
+*/
+void QwtSimpleCompassRose::setShrinkFactor(double factor) 
+{ 
+    d_data->shrinkFactor = factor; 
+}
+
+/*!
+  \return Factor how to shrink the thorns with each level
+  \sa setShrinkFactor()
+*/
+double QwtSimpleCompassRose::shrinkFactor() const 
+{ 
+    return d_data->shrinkFactor; 
 }
 
 /*!
@@ -92,8 +136,8 @@ void QwtSimpleCompassRose::draw(QPainter *painter, const QPoint &center,
 {
     QPalette pal = palette();
     pal.setCurrentColorGroup(cg);
-    drawRose(painter, pal, center, radius, north, d_width, 
-        d_numThorns, d_numThornLevels, d_shrinkFactor);
+    drawRose(painter, pal, center, radius, north, d_data->width, 
+        d_data->numThorns, d_data->numThornLevels, d_data->shrinkFactor);
 }
 
 /*!
@@ -186,15 +230,20 @@ void QwtSimpleCompassRose::drawRose(
 
    \param width Width
 */
-
 void QwtSimpleCompassRose::setWidth(double width) 
 {
-   d_width = width;
-   if (d_width < 0.03) 
-        d_width = 0.03;
+   d_data->width = width;
+   if (d_data->width < 0.03) 
+        d_data->width = 0.03;
 
-   if (d_width > 0.4) 
-        d_width = 0.4;
+   if (d_data->width > 0.4) 
+        d_data->width = 0.4;
+}
+
+//! \sa setWidth()
+double QwtSimpleCompassRose::width() const 
+{ 
+    return d_data->width; 
 }
 
 /*!
@@ -212,7 +261,7 @@ void QwtSimpleCompassRose::setNumThorns(int numThorns)
     if ( numThorns % 4 )
         numThorns += 4 - numThorns % 4;
 
-    d_numThorns = numThorns;
+    d_data->numThorns = numThorns;
 }
 
 /*!
@@ -221,7 +270,7 @@ void QwtSimpleCompassRose::setNumThorns(int numThorns)
 */
 int QwtSimpleCompassRose::numThorns() const
 {
-   return d_numThorns;
+   return d_data->numThorns;
 }
 
 /*!
@@ -232,7 +281,7 @@ int QwtSimpleCompassRose::numThorns() const
 */
 void QwtSimpleCompassRose::setNumThornLevels(int numThornLevels) 
 {
-    d_numThornLevels = numThornLevels;
+    d_data->numThornLevels = numThornLevels;
 }
 
 /*!
@@ -241,5 +290,5 @@ void QwtSimpleCompassRose::setNumThornLevels(int numThornLevels)
 */
 int QwtSimpleCompassRose::numThornLevels() const
 {
-    return d_numThornLevels;
+    return d_data->numThornLevels;
 }

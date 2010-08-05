@@ -54,16 +54,13 @@ public:
 
     Format format() const;
 
-    //! Clone the color map
-    virtual QwtColorMap *copy() const = 0;
-
     /*!  
        Map a value of a given interval into a rgb value.
        \param interval Range for the values
        \param value Value
        \return rgb value, corresponding to value
     */
-    virtual QRgb rgb(
+    virtual QRgb rgb( 
         const QwtDoubleInterval &interval, double value) const = 0;
 
     /*!  
@@ -114,10 +111,6 @@ public:
 
     virtual ~QwtLinearColorMap();
 
-    QwtLinearColorMap &operator=(const QwtLinearColorMap &);
-
-    virtual QwtColorMap *copy() const;
-
     void setMode(Mode);
     Mode mode() const;
 
@@ -149,10 +142,6 @@ public:
     QwtAlphaColorMap(const QwtAlphaColorMap &);
 
     virtual ~QwtAlphaColorMap();
-
-    QwtAlphaColorMap &operator=(const QwtAlphaColorMap &);
-
-    virtual QwtColorMap *copy() const;
 
     void setColor(const QColor &);
     QColor color() const;

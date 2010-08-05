@@ -66,8 +66,8 @@ public:
     const QwtRasterData *data() const;
     QwtRasterData *data();
 
-    void setColorMap(const QwtColorMap &);
-    const QwtColorMap &colorMap() const;
+    void setColorMap(QwtColorMap *);
+    const QwtColorMap *colorMap() const;
 
     virtual QRectF boundingRect() const;
     virtual QSize rasterHint(const QRectF &) const;

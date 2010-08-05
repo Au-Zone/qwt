@@ -46,6 +46,22 @@ private:
 class QWT_EXPORT QwtSplineCurveFitter: public QwtCurveFitter
 {
 public:
+    /*!
+     - Spline\n
+       Use a default spline algorithm
+
+     - ParametricSpline\n
+       Use a parametric spline algorithm
+
+     - Auto\n
+       Use the default spline algorithm for polygons with
+       increasing x values ( p[i-1] < p[i] ), otherwise use
+       a parametric spline algorithm.
+
+     The default setting is Auto
+
+     \sa setFitMode(), FitMode()
+     */
     enum FitMode
     {
         Auto,

@@ -10,14 +10,14 @@ class QwtPlotIntervalCurve;
 
 class Plot: public QwtPlot
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	enum Mode
-	{
-		Bars,
-		Tube
-	};
+    enum Mode
+    {
+        Bars,
+        Tube
+    };
 
     Plot(QWidget * = NULL);
 

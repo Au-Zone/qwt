@@ -195,12 +195,12 @@ void CanvasPicker::moveBy(int dx, int dy)
         return;
 
     const QPointF sample = 
-		d_selectedCurve->sample(d_selectedPoint);
+        d_selectedCurve->sample(d_selectedPoint);
 
     const double x = plot()->transform(
-		d_selectedCurve->xAxis(), sample.x());
+        d_selectedCurve->xAxis(), sample.x());
     const double y = plot()->transform(
-		d_selectedCurve->yAxis(), sample.y());
+        d_selectedCurve->yAxis(), sample.y());
 
     move( QPoint(qRound(x + dx), qRound(y + dy)) );
 }
@@ -219,13 +219,13 @@ void CanvasPicker::move(const QPoint &pos)
         if ( i == d_selectedPoint )
         {
             xData[i] = plot()->invTransform(
-				d_selectedCurve->xAxis(), pos.x());
+                d_selectedCurve->xAxis(), pos.x());
             yData[i] = plot()->invTransform(
-				d_selectedCurve->yAxis(), pos.y());
+                d_selectedCurve->yAxis(), pos.y());
         }
         else
         {
-			const QPointF sample = d_selectedCurve->sample(i);
+            const QPointF sample = d_selectedCurve->sample(i);
             xData[i] = sample.x();
             yData[i] = sample.y();
         }
@@ -244,7 +244,7 @@ void CanvasPicker::showCursor(bool showIt)
 
     QwtSymbol *symbol = (QwtSymbol *)d_selectedCurve->symbol();
 
-	const QBrush brush = symbol->brush();
+    const QBrush brush = symbol->brush();
     if ( showIt )
         symbol->setBrush(symbol->brush().color().dark(150));
 
@@ -252,11 +252,11 @@ void CanvasPicker::showCursor(bool showIt)
 
     plot()->setAutoReplot(false);
 
-	QwtPlotDirectPainter directPainter;
+    QwtPlotDirectPainter directPainter;
     directPainter.drawSeries(d_selectedCurve, d_selectedPoint, d_selectedPoint);
 
     if ( showIt )
-		symbol->setBrush(brush); // reset brush
+        symbol->setBrush(brush); // reset brush
 
     plot()->setAutoReplot(doReplot);
 }

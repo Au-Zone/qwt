@@ -25,8 +25,8 @@
 
   Zoom rectangles can be selected depending on selectionFlags() using the
   mouse or keyboard (QwtEventPattern, QwtPickerMachine).
-  QwtEventPattern::MouseSelect3/QwtEventPattern::KeyUndo, 
-  or QwtEventPattern::MouseSelect6/QwtEventPattern::KeyRedo 
+  QwtEventPattern::MouseSelect3,QwtEventPattern::KeyUndo, 
+  or QwtEventPattern::MouseSelect6,QwtEventPattern::KeyRedo 
   walk up and down the zoom stack.
   QwtEventPattern::MouseSelect2 or QwtEventPattern::KeyHome unzoom to
   the initial size. 

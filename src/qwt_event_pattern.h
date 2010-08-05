@@ -138,13 +138,17 @@ public:
     class MousePattern
     {
     public:
+        //! Constructor
         MousePattern(int btn = Qt::NoButton, int st = Qt::NoButton) 
         { 
             button = btn;
             state = st;
         }
 
+        //! Button code
         int button;
+
+        //! State
         int state;
     };
 
@@ -152,13 +156,17 @@ public:
     class KeyPattern
     {
     public:
+        //! Constructor
         KeyPattern(int k = 0, int st = Qt::NoButton)    
         { 
             key = k; 
             state = st;
         }
 
+        //! Key code
         int key;
+
+        //! State
         int state;
     };
 
@@ -200,12 +208,14 @@ private:
 #endif
 };
 
+//! Compare operator
 inline bool operator==(QwtEventPattern::MousePattern b1, 
    QwtEventPattern::MousePattern  b2)
 { 
     return b1.button == b2.button && b1.state == b2.state; 
 }
 
+//! Compare operator
 inline bool operator==(QwtEventPattern::KeyPattern b1, 
    QwtEventPattern::KeyPattern  b2)
 { 

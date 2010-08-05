@@ -33,6 +33,22 @@ class QWT_EXPORT QwtPlotRenderer: public QObject
     Q_OBJECT
 
 public:
+    /*!
+     - DiscardNone\n
+       Render all components of the plot
+
+     - DiscardBackground\n
+       Don't render the background of the plot
+
+     - DiscardTitle\n
+       Don't render the title of the plot
+
+     - DiscardLegend\n
+       Don't render the legend of the plot
+
+     - DiscardCanvasBackground\n
+       Don't render the background of the canvas
+     */
     enum DiscardFlag
     {
         DiscardNone             = 0x0,
@@ -45,6 +61,20 @@ public:
 
     Q_DECLARE_FLAGS(DiscardFlags, DiscardFlag)
 
+    /*!
+     - DefaultLayout\n
+       Use the default layout without margins and frames
+
+     - KeepMargins\n
+       Render all margins that are set in the layout of the plot
+
+     - KeepFrames\n
+       Render all frames of the plot
+
+     - FrameWithScales\n
+       Instead of the scales a box is painted around the plot canvas, 
+       where the scale ticks are aligned.
+     */
     enum LayoutFlag
     {
         DefaultLayout   = 0x0,

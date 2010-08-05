@@ -178,7 +178,7 @@ void MainWindow::setRescaleMode(int mode)
 
 void MainWindow::showRatio(double xRatio, double yRatio)
 {
-	const QString msg = QString("%1, %2").arg(xRatio).arg(yRatio);
+    const QString msg = QString("%1, %2").arg(xRatio).arg(yRatio);
     statusBar()->showMessage(msg);
 }
 

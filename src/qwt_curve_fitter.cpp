@@ -73,17 +73,31 @@ QwtSplineCurveFitter::FitMode QwtSplineCurveFitter::fitMode() const
     return d_data->fitMode;
 }
 
+/*!
+  Assign a spline
+
+  \param spline Spline
+  \sa spline()
+*/
 void QwtSplineCurveFitter::setSpline(const QwtSpline &spline)
 {
     d_data->spline = spline;
     d_data->spline.reset();
 }
 
+/*!
+  \return Spline
+  \sa setSpline()
+*/
 const QwtSpline &QwtSplineCurveFitter::spline() const
 {
     return d_data->spline;
 }
 
+/*!
+  \return Spline
+  \sa setSpline()
+*/
 QwtSpline &QwtSplineCurveFitter::spline() 
 {
     return d_data->spline;

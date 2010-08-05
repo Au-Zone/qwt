@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent):
     btnContour->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolBar->addWidget(btnContour);
 
-	btnPrint->setText("Print");
+    btnPrint->setText("Print");
     btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolBar->addWidget(btnPrint);
 

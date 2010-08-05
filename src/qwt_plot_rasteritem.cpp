@@ -333,6 +333,14 @@ void QwtPlotRasterItem::draw(QPainter *painter,
     painter->restore();
 }
 
+/*!
+  Returns a QRect based on the values of this rectangle. The coordinates 
+  in the returned rectangle are rounded to the nearest integer, that
+  is inside rect.
+
+  \param rect Rectangle to be rounded
+  \return Rectangle rounded to integers
+*/
 QRect QwtPlotRasterItem::innerRect(const QRectF &rect) const
 {
     const QRectF r = rect.normalized();
