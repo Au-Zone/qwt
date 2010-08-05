@@ -43,7 +43,7 @@ public:
 /*!
    \brief Constructor for scale item at the position pos.
 
-   \param alignment In case of QwtScaleDraw::BottomScale/QwtScaleDraw::TopScale
+   \param alignment In case of QwtScaleDraw::BottomScale or QwtScaleDraw::TopScale
                     the scale item is corresponding to the xAxis(), 
                     otherwise it corresponds to the yAxis().
 

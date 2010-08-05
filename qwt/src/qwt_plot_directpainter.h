@@ -19,8 +19,9 @@ class QwtPlotAbstractSeriesItem;
     \brief Painter object trying to paint incrementally
 
     Often applications want to display samples while they are
-    collected. When there are many samples complete replots
-    will be expensive to be processed for each sample.
+    collected. When there are too many samples complete replots
+    will be expensive to be processed in a collection cycle.
+
     QwtPlotDirectPainter offers an API to paint 
     subsets ( f.e all additions points ) without erasing/repainting
     the plot canvas.
@@ -32,6 +33,19 @@ class QwtPlotAbstractSeriesItem;
 class QWT_EXPORT QwtPlotDirectPainter: public QObject
 {
 public:
+    /*!
+      - AtomicPainter\n
+        Initializing a QPainter is an expensive operation.
+        When AtomicPainter is set each call of drawSeries() opens/closes
+        a temporary QPainter. Otherwise QwtPlotDirectPainter tries to
+        use the same QPainter as long as possible.
+
+      - FullRepaint\n
+        When FullRepaint is set the plot canvas is explicitely repainted 
+        after the samples have been rendered.
+
+      \sa setAttribute(), testAttribute(), drawSeries()
+    */
     enum Attribute
     {
         AtomicPainter = 1,

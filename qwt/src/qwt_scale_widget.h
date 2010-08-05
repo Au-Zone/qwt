@@ -93,10 +93,10 @@ public:
     void setColorBarWidth(int);
     int colorBarWidth() const;
 
-    void setColorMap(const QwtDoubleInterval &, const QwtColorMap &);
+    void setColorMap(const QwtDoubleInterval &, QwtColorMap *);
 
     QwtDoubleInterval colorBarInterval() const;
-    const QwtColorMap &colorMap() const;
+    const QwtColorMap *colorMap() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -114,8 +114,8 @@ public:
     QRectF colorBarRect(const QRectF&) const;
 
 protected:
-    virtual void paintEvent(QPaintEvent *e);
-    virtual void resizeEvent(QResizeEvent *e);
+    virtual void paintEvent(QPaintEvent *);
+    virtual void resizeEvent(QResizeEvent *);
 
     void draw(QPainter *p) const;
 

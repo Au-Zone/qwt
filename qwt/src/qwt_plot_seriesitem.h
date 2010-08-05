@@ -33,9 +33,20 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &) const;
 
-    virtual void drawSeries(QPainter *,
+    /*!
+      Draw a subset of the samples
+
+      \param painter Painter
+      \param xMap Maps x-values into pixel coordinates.
+      \param yMap Maps y-values into pixel coordinates.
+      \param canvasRect Contents rect of the canvas
+      \param from Index of the first point to be painted
+      \param to Index of the last point to be painted. If to < 0 the 
+             curve will be painted to its last point.
+    */
+    virtual void drawSeries(QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &, int from, int to) const = 0;
+        const QRectF &canvasRect, int from, int to) const = 0;
 
 private:
     class PrivateData;
@@ -67,9 +78,14 @@ public:
         const QwtScaleDiv &);
 
 protected:
+    //! Series
     QwtSeriesData<T> *d_series;
 };
 
+/*!
+  Constructor
+  \param title Title of the series item
+*/
 template <typename T> 
 QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QString &title):
     QwtPlotAbstractSeriesItem(QwtText(title)),
@@ -77,14 +93,18 @@ QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QString &title):
 {
 }
 
+/*!
+  Constructor
+  \param title Title of the series item
+*/
 template <typename T> 
-QwtPlotSeriesItem<T>::QwtPlotSeriesItem(
-        const QwtText &title):
+QwtPlotSeriesItem<T>::QwtPlotSeriesItem(const QwtText &title):
     QwtPlotAbstractSeriesItem(title),
     d_series(NULL)
 {
 }
 
+//! Destructor
 template <typename T> 
 QwtPlotSeriesItem<T>::~QwtPlotSeriesItem()
 {
@@ -106,13 +126,13 @@ inline const QwtSeriesData<T> *QwtPlotSeriesItem<T>::data() const
 }
 
 /*!
-    \param i index
-    \return Sample at position i
+    \param index Index
+    \return Sample at position index
 */
 template <typename T> 
-inline T QwtPlotSeriesItem<T>::sample(int i) const 
+inline T QwtPlotSeriesItem<T>::sample(int index) const 
 { 
-    return d_series ? d_series->sample(i) : T(); 
+    return d_series ? d_series->sample(index) : T(); 
 }
 
 /*!
@@ -161,6 +181,14 @@ QRectF QwtPlotSeriesItem<T>::boundingRect() const
     return d_series->boundingRect();
 }
 
+/*!
+   Update the rect of interest according to the current scale ranges
+
+   \param xScaleDiv Scale division of the x-axis
+   \param yScaleDiv Scale division of the y-axis
+
+   \sa QwtSeriesData<T>::setRectOfInterest()
+*/
 template <typename T> 
 void QwtPlotSeriesItem<T>::updateScaleDiv(const QwtScaleDiv &xScaleDiv,
         const QwtScaleDiv &yScaleDiv)

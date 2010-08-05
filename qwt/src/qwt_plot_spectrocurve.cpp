@@ -104,10 +104,14 @@ bool QwtPlotSpectroCurve::testPaintAttribute(PaintAttribute attribute) const
     return (d_data->paintAttributes & attribute);
 }
 
-void QwtPlotSpectroCurve::setSamples(const QVector<QwtDoublePoint3D> &data)
+/*!
+  Initialize data with an array of samples.
+  \param samples Vector of points
+*/
+void QwtPlotSpectroCurve::setSamples(const QVector<QwtDoublePoint3D> &samples)
 {
     delete d_series;
-    d_series = new QwtPoint3DSeriesData(data);
+    d_series = new QwtPoint3DSeriesData(samples);
     itemChanged();
 }
 
@@ -119,26 +123,37 @@ void QwtPlotSpectroCurve::setSamples(const QVector<QwtDoublePoint3D> &data)
 
   \param colorMap Color Map
 
-  \sa colorMap(), QwtScaleWidget::setColorBarEnabled(),
-      QwtScaleWidget::setColorMap()
+  \sa colorMap(), setColorRange(), QwtColorMap::color(),
+      QwtScaleWidget::setColorBarEnabled(), QwtScaleWidget::setColorMap()
 */
-void QwtPlotSpectroCurve::setColorMap(const QwtColorMap &colorMap)
+void QwtPlotSpectroCurve::setColorMap(QwtColorMap *colorMap)
 {
-    delete d_data->colorMap;
-    d_data->colorMap = colorMap.copy();
+    if ( colorMap != d_data->colorMap )
+    {
+        delete d_data->colorMap;
+        d_data->colorMap = colorMap;
+    }
 
     itemChanged();
 }
 
 /*!
    \return Color Map used for mapping the intensity values to colors
-   \sa setColorMap()
+   \sa setColorMap(), setColorRange(), QwtColorMap::color()
 */
-const QwtColorMap &QwtPlotSpectroCurve::colorMap() const
+const QwtColorMap *QwtPlotSpectroCurve::colorMap() const
 {
-    return *d_data->colorMap;
+    return d_data->colorMap;
 }
 
+/*!
+   Set the value interval, that corresponds to the color map
+
+   \param interval interval.minValue() corresponds to 0.0, 
+                   interval.maxValue() to 1.0 on the color map.
+
+   \sa colorRange(), setColorMap(), QwtColorMap::color()
+*/
 void QwtPlotSpectroCurve::setColorRange(const QwtDoubleInterval &interval)
 {
     if ( interval != d_data->colorRange )
@@ -148,11 +163,28 @@ void QwtPlotSpectroCurve::setColorRange(const QwtDoubleInterval &interval)
     }
 }
 
+/*!
+  \return Value interval, that corresponds to the color map
+  \sa setColorRange(), setColorMap(), QwtColorMap::color()
+*/
 QwtDoubleInterval &QwtPlotSpectroCurve::colorRange() const
 {
     return d_data->colorRange;
 }
 
+/*!
+  Draw a subset of the points
+
+  \param painter Painter
+  \param xMap Maps x-values into pixel coordinates.
+  \param yMap Maps y-values into pixel coordinates.
+  \param canvasRect Contents rect of the canvas
+  \param from Index of the first sample to be painted
+  \param to Index of the last sample to be painted. If to < 0 the 
+         series will be painted to its last sample.
+
+  \sa drawDots()
+*/
 void QwtPlotSpectroCurve::drawSeries(QPainter *painter, 
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to) const
@@ -172,6 +204,19 @@ void QwtPlotSpectroCurve::drawSeries(QPainter *painter,
     drawDots(painter, xMap, yMap, canvasRect, from, to);
 }
 
+/*!
+  Draw a subset of the points
+
+  \param painter Painter
+  \param xMap Maps x-values into pixel coordinates.
+  \param yMap Maps y-values into pixel coordinates.
+  \param canvasRect Contents rect of the canvas
+  \param from Index of the first sample to be painted
+  \param to Index of the last sample to be painted. If to < 0 the 
+         series will be painted to its last sample.
+
+  \sa drawSeries()
+*/
 void QwtPlotSpectroCurve::drawDots(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to) const

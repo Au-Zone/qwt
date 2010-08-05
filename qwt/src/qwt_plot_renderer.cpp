@@ -58,6 +58,14 @@ QwtPlotRenderer::~QwtPlotRenderer()
     delete d_data;
 }
 
+/*!
+  Change a flag, indicating what to discard from rendering
+
+  \param flag Flag to change
+  \param on On/Off
+
+  \sa DiscardFlag, testDiscardFlag(), setDiscardFlags(), discardFlags()
+*/
 void QwtPlotRenderer::setDiscardFlag(DiscardFlag flag, bool on)
 {
     if ( on )
@@ -66,21 +74,45 @@ void QwtPlotRenderer::setDiscardFlag(DiscardFlag flag, bool on)
         d_data->discardFlags &= ~flag;
 }
 
+/*!
+  Check if a flag is set.
+
+  \param flag Flag to be tested
+  \sa DiscardFlag, setDiscardFlag(), setDiscardFlags(), discardFlags()
+*/
 bool QwtPlotRenderer::testDiscardFlag(DiscardFlag flag) const
 {
     return d_data->discardFlags & flag;
 }
 
+/*!
+  Set the flags, indicating what to discard from rendering
+
+  \param flags Flags
+  \sa DiscardFlag, setDiscardFlag(), testDiscardFlag(), discardFlags()
+*/
 void QwtPlotRenderer::setDiscardFlags(DiscardFlags flags)
 {
     d_data->discardFlags = flags;
 }
 
+/*!
+  \return Flags, indicating what to discard from rendering
+  \sa DiscardFlag, setDiscardFlags(), setDiscardFlag(), testDiscardFlag()
+*/
 QwtPlotRenderer::DiscardFlags QwtPlotRenderer::discardFlags() const
 {
     return d_data->discardFlags;
 }
 
+/*!
+  Change a layout flag
+
+  \param flag Flag to change
+  \param on On/Off
+
+  \sa LayoutFlag, testLayoutFlag(), setLayoutFlags(), layoutFlags()
+*/
 void QwtPlotRenderer::setLayoutFlag(LayoutFlag flag, bool on)
 {
     if ( on )
@@ -89,21 +121,48 @@ void QwtPlotRenderer::setLayoutFlag(LayoutFlag flag, bool on)
         d_data->layoutFlags &= ~flag;
 }
 
+/*!
+  Check if a flag is set.
+
+  \param flag Flag to be tested
+  \sa LayoutFlag, setLayoutFlag(), setLayoutFlags(), layoutFlags()
+*/
 bool QwtPlotRenderer::testLayoutFlag(LayoutFlag flag) const
 {
     return d_data->layoutFlags & flag;
 }   
 
+/*!
+  Set the layout flags
+
+  \param flags Flags
+  \sa LayoutFlag, setLayoutFlag(), testLayoutFlag(), layoutFlags()
+*/
 void QwtPlotRenderer::setLayoutFlags(LayoutFlags flags)
 {
     d_data->layoutFlags = flags;
 }
 
+/*!
+  \return Layout flags
+  \sa LayoutFlag, setLayoutFlags(), setLayoutFlag(), testLayoutFlag()
+*/
 QwtPlotRenderer::LayoutFlags QwtPlotRenderer::layoutFlags() const
 {
     return d_data->layoutFlags;
 }
 
+/*!
+  Render a plot to a file
+
+  The format of the document will be autodetected from the 
+  suffix of the filename.
+
+  \param plot Plot widget
+  \param fileName Path of the file, where the document will be stored
+  \param sizeMM Size for the document in millimeters.
+  \param resolution Resolution in dots per Inch (dpi)
+*/
 void QwtPlotRenderer::renderDocument(QwtPlot *plot, 
     const QString &fileName, const QSizeF &sizeMM, int resolution)
 {
@@ -111,6 +170,22 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
         QFileInfo(fileName).suffix(), sizeMM, resolution);
 }
 
+/*!
+  Render a plot to a file
+
+  Supported formats are:
+
+  - pdf\n
+  - ps\n
+  - svg\n
+  - all image formats supported by Qt, see QImageWriter::supportedImageFormats()
+
+  \param plot Plot widget
+  \param fileName Path of the file, where the document will be stored
+  \param format Format for the document
+  \param sizeMM Size for the document in millimeters.
+  \param resolution Resolution in dots per Inch (dpi)
+*/
 void QwtPlotRenderer::renderDocument(QwtPlot *plot, 
     const QString &fileName, const QString &format,
     const QSizeF &sizeMM, int resolution)
@@ -177,6 +252,7 @@ void QwtPlotRenderer::renderDocument(QwtPlot *plot,
 
 /*!
   \brief Render the plot to a \c QPaintDevice 
+
   This function renders the contents of a QwtPlot instance to
   \c QPaintDevice object. The target rectangle is derived from 
   its device metrics.
@@ -223,6 +299,9 @@ void QwtPlotRenderer::renderTo(
     render(plot, &p, rect);
 }
 
+#ifdef QT_SVG_LIB 
+#if QT_VERSION >= 0x040500
+
 /*!
   \brief Render the plot to a QSvgGenerator
 
@@ -231,11 +310,9 @@ void QwtPlotRenderer::renderTo(
   will be (0, 0, generator.width(), generator.height()). Otherwise
   the target rectangle will be QRectF(0, 0, 800, 600);
 
+  \param plot Plot to be rendered
   \param generator SVG generator
 */
-
-#ifdef QT_SVG_LIB 
-#if QT_VERSION >= 0x040500
 void QwtPlotRenderer::renderTo(
     QwtPlot *plot, QSvgGenerator &generator) const
 {
@@ -253,7 +330,6 @@ void QwtPlotRenderer::renderTo(
 #endif
 
 /*!
-  \brief Paint the plot into a given rectangle.
   Paint the contents of a QwtPlot instance into a given rectangle.
 
   \param plot Plot to be rendered
@@ -377,7 +453,6 @@ void QwtPlotRenderer::render(QwtPlot *plot,
   \param painter Painter
   \param rect Bounding rectangle
 */
-
 void QwtPlotRenderer::renderTitle(QPainter *painter, const QRectF &rect) const
 {
     const QwtPlot *plot = d_data->plot;
@@ -397,7 +472,6 @@ void QwtPlotRenderer::renderTitle(QPainter *painter, const QRectF &rect) const
   \param painter Painter
   \param rect Bounding rectangle
 */
-
 void QwtPlotRenderer::renderLegend(QPainter *painter, const QRectF &rect) const
 {
     const QwtPlot *plot = d_data->plot;
@@ -438,18 +512,20 @@ void QwtPlotRenderer::renderLegend(QPainter *painter, const QRectF &rect) const
   Print the legend item into a given rectangle.
 
   \param painter Painter
-  \param w Widget representing a legend item
+  \param widget Widget representing a legend item
   \param rect Bounding rectangle
-*/
 
+  \note When widget is not derived from QwtLegendItem renderLegendItem
+        does nothing and needs to be overloaded
+*/
 void QwtPlotRenderer::renderLegendItem(QPainter *painter, 
-    const QWidget *w, const QRectF &rect) const
+    const QWidget *widget, const QRectF &rect) const
 {
     const QwtPlot *plot = d_data->plot;
 
-    if ( w->inherits("QwtLegendItem") )
+    if ( widget->inherits("QwtLegendItem") )
     {
-        QwtLegendItem *item = (QwtLegendItem *)w;
+        QwtLegendItem *item = (QwtLegendItem *)widget;
 
         const QRect identifierRect(
             rect.x() + item->margin(), rect.y(),
@@ -484,7 +560,6 @@ void QwtPlotRenderer::renderLegendItem(QPainter *painter,
   \param baseDist Base distance
   \param rect Bounding rectangle
 */
-
 void QwtPlotRenderer::renderScale(QPainter *painter,
     int axisId, int startDist, int endDist, int baseDist, 
     const QRectF &rect) const
@@ -579,7 +654,6 @@ void QwtPlotRenderer::renderScale(QPainter *painter,
   \param map Maps mapping between plot and paint device coordinates
   \param canvasRect Canvas rectangle
 */
-
 void QwtPlotRenderer::renderCanvas(QPainter *painter, 
     const QRectF &canvasRect, const QwtScaleMap *map) const
 {

@@ -277,8 +277,13 @@ void QwtPainter::drawText(QPainter *painter, const QRectF &rect,
 
 #ifndef QT_NO_RICHTEXT
 
-/*!
-  Wrapper for QSimpleRichText::draw()
+/*! 
+  Draw a text document into a rectangle
+
+  \param painter Painter
+  \param rect Traget rectangle
+  \param flags Alignments/Text flags, see QPainter::drawText()
+  \param text Text document
 */
 void QwtPainter::drawSimpleRichText(QPainter *painter, const QRectF &rect,
     int flags, const QTextDocument &text)
@@ -315,9 +320,7 @@ void QwtPainter::drawSimpleRichText(QPainter *painter, const QRectF &rect,
 #endif // !QT_NO_RICHTEXT
 
 
-/*!
-  Wrapper for QPainter::drawLine()
-*/
+//! Wrapper for QPainter::drawLine()
 void QwtPainter::drawLine(QPainter *painter, 
     const QPointF &p1, const QPointF &p2)
 {
@@ -473,11 +476,13 @@ void QwtPainter::drawColoredArc(QPainter *painter, const QRect &rect,
     }
 }
 
+//! Draw a focus rectangle on a widget using its style.
 void QwtPainter::drawFocusRect(QPainter *painter, QWidget *widget)
 {
     drawFocusRect(painter, widget, widget->rect());
 }
 
+//! Draw a focus rectangle on a widget using its style.
 void QwtPainter::drawFocusRect(QPainter *painter, QWidget *widget,
     const QRect &rect)
 {
@@ -520,6 +525,16 @@ void QwtPainter::drawRoundFrame(QPainter *painter, const QRect &rect,
         drawColoredArc(painter, rect, peak + 180, 120, interval, c0, c2);
 }
 
+/*!
+  Draw a color bar into a rectangle
+
+  \param painter Painter
+  \param colorMap Color map
+  \param interval Value range
+  \param scaleMap Scale map
+  \param orientation Orientation
+  \param rect Traget rectangle
+*/
 void QwtPainter::drawColorBar(QPainter *painter,
         const QwtColorMap &colorMap, const QwtDoubleInterval &interval,
         const QwtScaleMap &scaleMap, Qt::Orientation orientation,

@@ -573,16 +573,23 @@ void QwtAbstractSlider::incValue(int steps)
     QwtDoubleRange::incValue(steps);
 }
 
+/*!
+  \sa mouseOffset()
+*/
 void QwtAbstractSlider::setMouseOffset(double offset)
 {
     d_data->mouseOffset = offset;
 } 
 
+/*!
+  \sa setMouseOffset()
+*/
 double QwtAbstractSlider::mouseOffset() const
 {
     return d_data->mouseOffset;
 }
 
+//! sa ScrollMode
 int QwtAbstractSlider::scrollMode() const
 {
     return d_data->scrollMode;

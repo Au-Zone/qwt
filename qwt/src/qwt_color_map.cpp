@@ -231,24 +231,6 @@ QwtLinearColorMap::~QwtLinearColorMap()
     delete d_data;
 }
 
-//! Assignment operator
-QwtLinearColorMap &QwtLinearColorMap::operator=(
-    const QwtLinearColorMap &other)
-{
-    QwtColorMap::operator=(other);
-    *d_data = *other.d_data;
-    return *this;
-}
-
-//! Clone the color map
-QwtColorMap *QwtLinearColorMap::copy() const
-{
-    QwtLinearColorMap* map = new QwtLinearColorMap();
-    *map = *this;
-
-    return map;
-}
-
 /*!
    \brief Set the mode of the color map
 
@@ -413,28 +395,6 @@ QwtAlphaColorMap::QwtAlphaColorMap(const QwtAlphaColorMap &other):
 QwtAlphaColorMap::~QwtAlphaColorMap()
 {
     delete d_data;
-}
-
-/*! 
-   Assignment operator
-   \param other Other color map
-   \return *this
-*/
-QwtAlphaColorMap &QwtAlphaColorMap::operator=(
-    const QwtAlphaColorMap &other)
-{
-    QwtColorMap::operator=(other);
-    *d_data = *other.d_data;
-    return *this;
-}
-
-//! Clone the color map
-QwtColorMap *QwtAlphaColorMap::copy() const
-{
-    QwtAlphaColorMap* map = new QwtAlphaColorMap();
-    *map = *this;
-
-    return map;
 }
 
 /*!

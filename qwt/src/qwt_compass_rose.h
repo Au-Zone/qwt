@@ -21,6 +21,7 @@ class QPainter;
 class QWT_EXPORT QwtCompassRose
 {
 public:
+    //! Destructor
     virtual ~QwtCompassRose() {};
 
     //! Assign a palette
@@ -53,11 +54,10 @@ class QWT_EXPORT QwtSimpleCompassRose: public QwtCompassRose
 {
 public:
     QwtSimpleCompassRose(int numThorns = 8, int numThornLevels = -1);
+    virtual ~QwtSimpleCompassRose();
 
     void setWidth(double w);
-
-    //! \sa setWidth()
-    double width() const { return d_width; }
+    double width() const;
 
     void setNumThorns(int count);
     int numThorns() const;
@@ -65,8 +65,8 @@ public:
     void setNumThornLevels(int count);
     int numThornLevels() const;
 
-    void setShrinkFactor(double factor) { d_shrinkFactor = factor; }
-    double shrinkFactor() const { return d_shrinkFactor; }
+    void setShrinkFactor(double factor);
+    double shrinkFactor() const;
 
     virtual void draw(QPainter *, const QPoint &center, int radius, 
         double north, QPalette::ColorGroup = QPalette::Active) const;
@@ -76,10 +76,8 @@ public:
         int numThorns, int numThornLevels, double shrinkFactor);
 
 private:
-    double d_width;     
-    int d_numThorns;        
-    int d_numThornLevels; 
-    double d_shrinkFactor;
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif // QWT_COMPASS_ROSE_H

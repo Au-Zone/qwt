@@ -24,6 +24,10 @@ class QwtColorMap;
 class QWT_EXPORT QwtPlotSpectroCurve: public QwtPlotSeriesItem<QwtDoublePoint3D>
 {
 public:
+    /*!
+     - ClipPoints\n
+       Clip points outside the canvas rectangle
+     */
     enum PaintAttribute
     {
         ClipPoints = 1
@@ -41,8 +45,8 @@ public:
 
     void setSamples(const QVector<QwtDoublePoint3D> &);
 
-    void setColorMap(const QwtColorMap &);
-    const QwtColorMap &colorMap() const;
+    void setColorMap(QwtColorMap *);
+    const QwtColorMap *colorMap() const;
 
     void setColorRange(const QwtDoubleInterval &);
     QwtDoubleInterval & colorRange() const;
@@ -56,6 +60,7 @@ protected:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to) const;
 
+private:
     void init();
 
     class PrivateData;

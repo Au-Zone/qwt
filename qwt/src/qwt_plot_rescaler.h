@@ -30,31 +30,27 @@ class QWT_EXPORT QwtPlotRescaler: public QObject
 {
 public:
     /*!
-        \brief Rescale Policy
+      The rescale policy defines how to rescale the reference axis and
+      their depending axes.
 
-        The rescale policy defines how to rescale the reference axis and
-        their depending axes.
+      - Fixed\n
+        The interval of the reference axis remains unchanged, when the
+        geometry of the canvas changes. All other axes 
+        will be adjusted according to their aspect ratio.
 
-        - Fixed
+      - Expanding\n
+        The interval of the reference axis will be shrinked/expanded,
+        when the geometry of the canvas changes. All other axes
+        will be adjusted according to their aspect ratio.
 
-          The interval of the reference axis remains unchanged, when the
-          geometry of the canvas changes. All other axes 
-          will be adjusted according to their aspect ratio.
+        The interval, that is represented by one pixel is fixed.
 
-        - Expanding
+      - Fitting\n
+        The intervals of the axes are calculated, so that all axes include
+        their interval hint.
 
-          The interval of the reference axis will be shrinked/expanded,
-          when the geometry of the canvas changes. All other axes
-          will be adjusted according to their aspect ratio.
-
-          The interval, that is represented by one pixel is fixed.
-
-        - Fitting
-
-          The intervals of the axes are calculated, so that all axes include
-          their minimal interval.
+      \sa ExpandingDirection, setIntervalHint()
     */
-
     enum RescalePolicy
     {
         Fixed,
@@ -62,6 +58,19 @@ public:
         Fitting
     };
 
+    /*!
+       When rescalePolicy() is set to Expanding its direction depends
+       on ExpandingDirection
+
+       - ExpandUp
+         The upper limit of the scale is adjusted
+
+       - ExpandDown
+         The lower limit of the scale is adjusted
+
+       - ExpandBoth
+         Both limits of the scale are adjusted
+     */
     enum ExpandingDirection
     {
         ExpandUp,

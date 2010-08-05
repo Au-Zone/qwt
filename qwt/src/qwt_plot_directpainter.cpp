@@ -49,17 +49,27 @@ public:
     int to;
 };
 
+//! Constructor
 QwtPlotDirectPainter::QwtPlotDirectPainter(QObject *parent):
     QObject(parent)
 {
     d_data = new PrivateData;
 }
 
+//! Destructor
 QwtPlotDirectPainter::~QwtPlotDirectPainter()
 {
     delete d_data;
 }
 
+/*!
+  Change an attribute
+
+  \param attribute Attribute to change
+  \param on On/Off
+
+  \sa Attribute, testAttribute()
+*/
 void QwtPlotDirectPainter::setAttribute(Attribute attribute, bool on)
 {
     if ( bool(d_data->attributes & attribute) != on )
@@ -74,6 +84,12 @@ void QwtPlotDirectPainter::setAttribute(Attribute attribute, bool on)
     }
 }
 
+/*!
+  Check if a attribute is set.
+
+  \param attribute Attribute to be tested
+  \sa Attribute, setAttribute()
+*/
 bool QwtPlotDirectPainter::testAttribute(Attribute attribute) const
 {
     return d_data->attributes & attribute;
@@ -90,6 +106,7 @@ bool QwtPlotDirectPainter::testAttribute(Attribute attribute) const
   will result in faster painting, if the paint engine of the canvas widget
   supports this feature. 
 
+  \param seriesItem Item to be painted
   \param from Index of the first point to be painted
   \param to Index of the last point to be painted. If to < 0 the
          series will be painted to its last point.
@@ -161,6 +178,7 @@ void QwtPlotDirectPainter::drawSeries(
     }
 }
 
+//! Close the internal QPainter
 void QwtPlotDirectPainter::reset()
 {
     if ( d_data->painter.isActive() )
@@ -173,6 +191,7 @@ void QwtPlotDirectPainter::reset()
     }
 }
 
+//! Event filter 
 bool QwtPlotDirectPainter::eventFilter(QObject *, QEvent *event)
 {
     if ( event->type() == QEvent::Paint )

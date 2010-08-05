@@ -145,7 +145,7 @@ void QwtScaleWidget::setLayoutFlag(LayoutFlag flag, bool on)
 /*!
    Test a layout flag
 
-   \param hint Layout flag
+   \param flag Layout flag
    \return true/false
    \sa setLayoutFlag(), LayoutFlag
 */
@@ -424,6 +424,12 @@ void QwtScaleWidget::draw(QPainter *painter) const
         drawTitle(painter, d_data->scaleDraw->alignment(), r);
 }
 
+/*!
+  Calculate the the rectangle for the color bar
+
+  \param rect Bounding rectangle for all components of the scale
+  \return Rectabgle for the color bar
+*/
 QRectF QwtScaleWidget::colorBarRect(const QRectF& rect) const
 {
     QRectF cr = rect;
@@ -476,7 +482,8 @@ QRectF QwtScaleWidget::colorBarRect(const QRectF& rect) const
 }
 
 /*!
-  \brief resizeEvent
+  Event handler for resize event
+  \param event Resize event
 */
 void QwtScaleWidget::resizeEvent(QResizeEvent *)
 {
@@ -487,7 +494,7 @@ void QwtScaleWidget::resizeEvent(QResizeEvent *)
   Recalculate the scale's geometry and layout based on
   the current rect and fonts.
 
-  \param update_geometry notify the layout system and call update
+  \param update_geometry Notify the layout system and call update
                          to redraw the scale
 */
 
@@ -849,24 +856,44 @@ int QwtScaleWidget::colorBarWidth() const
     return d_data->colorBar.width;
 }
 
+/*!
+  \return Value interval for the color bar
+  \sa setColorMap(), colorMap()
+*/
 QwtDoubleInterval QwtScaleWidget::colorBarInterval() const
 {
     return d_data->colorBar.interval;
 }
 
-void QwtScaleWidget::setColorMap(const QwtDoubleInterval &interval,
-    const QwtColorMap &colorMap)
+/*!
+  Set the color map and value interval, that are used for displaying
+  the color bar.
+
+  \param interval Value interval
+  \param colorMap Color map
+
+  \sa colorMap(), colorBarInterval()
+*/
+void QwtScaleWidget::setColorMap(
+    const QwtDoubleInterval &interval, QwtColorMap *colorMap)
 {
     d_data->colorBar.interval = interval;
 
-    delete d_data->colorBar.colorMap;
-    d_data->colorBar.colorMap = colorMap.copy();
+    if ( colorMap != d_data->colorBar.colorMap )
+    {
+        delete d_data->colorBar.colorMap;
+        d_data->colorBar.colorMap = colorMap;
+    }
 
     if ( isColorBarEnabled() )
         layoutScale();
 }
 
-const QwtColorMap &QwtScaleWidget::colorMap() const
+/*!
+  \return Color map
+  \sa setColorMap(), colorBarInterval()
+*/
+const QwtColorMap *QwtScaleWidget::colorMap() const
 {
-    return *d_data->colorBar.colorMap;
+    return d_data->colorBar.colorMap;
 }

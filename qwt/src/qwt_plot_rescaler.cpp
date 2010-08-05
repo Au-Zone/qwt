@@ -236,6 +236,16 @@ double QwtPlotRescaler::aspectRatio(int axis) const
     return 0.0;
 }
 
+/*!
+  Set an interval hint for an axis
+
+  In Fitting mode, the hint is used as minimal interval
+  taht always needs to be displayed.
+
+  \param axis Axis, see QwtPlot::Axis
+  \param interval Axis
+  \sa intervalHint(), RescalePolicy
+*/
 void QwtPlotRescaler::setIntervalHint(int axis, 
     const QwtDoubleInterval &interval)
 {
@@ -243,6 +253,11 @@ void QwtPlotRescaler::setIntervalHint(int axis,
         d_data->axisData[axis].intervalHint = interval;
 }
 
+/*!
+  \param axis Axis, see QwtPlot::Axis
+  \return Interval hint
+  \sa setIntervalHint(), RescalePolicy
+*/
 QwtDoubleInterval QwtPlotRescaler::intervalHint(int axis) const
 {
     if ( axis >= 0 && axis < QwtPlot::axisCnt )
@@ -307,11 +322,17 @@ bool QwtPlotRescaler::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
-void QwtPlotRescaler::canvasResizeEvent(QResizeEvent* e)
+/*!
+  Event handler for resize events of the plot canvas
+
+  \param event Resize event
+  \sa rescale()
+*/
+void QwtPlotRescaler::canvasResizeEvent(QResizeEvent* event)
 {
     const int fw = 2 * canvas()->frameWidth();
-    const QSize newSize = e->size() - QSize(fw, fw);
-    const QSize oldSize = e->oldSize() - QSize(fw, fw);
+    const QSize newSize = event->size() - QSize(fw, fw);
+    const QSize oldSize = event->oldSize() - QSize(fw, fw);
 
     rescale(oldSize, newSize);
 }
@@ -319,24 +340,6 @@ void QwtPlotRescaler::canvasResizeEvent(QResizeEvent* e)
 //! Adjust the plot axes scales
 void QwtPlotRescaler::rescale() const
 {
-#if 0
-    const int axis = referenceAxis();
-    if ( axis < 0 || axis >= QwtPlot::axisCnt )
-        return;
-
-    const QwtDoubleInterval hint = intervalHint(axis);
-    if ( !hint.isNull() )
-    {
-        QwtPlot *plt = (QwtPlot *)plot();
-
-        const bool doReplot = plt->autoReplot();
-        plt->setAutoReplot(false);
-        plt->setAxisScale(axis, hint.minValue(), hint.maxValue());
-        plt->setAutoReplot(doReplot);
-        plt->updateAxes();
-    }
-#endif
-
     const QSize size = canvas()->contentsRect().size();
     rescale(size, size);
 }
@@ -516,10 +519,12 @@ QwtDoubleInterval QwtPlotRescaler::expandInterval(
             expanded.setMinValue(interval.minValue());
             expanded.setMaxValue(interval.minValue() + width);
             break;
+
         case ExpandDown:
             expanded.setMaxValue(interval.maxValue());
             expanded.setMinValue(interval.maxValue() - width);
             break;
+
         case ExpandBoth:
         default:
             expanded.setMinValue(interval.minValue() +

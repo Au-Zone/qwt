@@ -54,18 +54,25 @@ public:
     }
 };
 
+class ColorMap: public QwtLinearColorMap
+{
+public:
+    ColorMap():
+        QwtLinearColorMap(Qt::darkCyan, Qt::red)
+    {
+        addColorStop(0.1, Qt::cyan);
+        addColorStop(0.6, Qt::green);
+        addColorStop(0.95, Qt::yellow);
+    }
+};
+
 Plot::Plot(QWidget *parent):
     QwtPlot(parent)
 {
     d_spectrogram = new QwtPlotSpectrogram();
     d_spectrogram->setRenderThreadCount(0); // use system specific thread count
 
-    QwtLinearColorMap colorMap(Qt::darkCyan, Qt::red);
-    colorMap.addColorStop(0.1, Qt::cyan);
-    colorMap.addColorStop(0.6, Qt::green);
-    colorMap.addColorStop(0.95, Qt::yellow);
-
-    d_spectrogram->setColorMap(colorMap);
+    d_spectrogram->setColorMap(new ColorMap());
 
     d_spectrogram->setData(new SpectrogramData());
     d_spectrogram->attach(this);
@@ -79,8 +86,7 @@ Plot::Plot(QWidget *parent):
     QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
     rightAxis->setTitle("Intensity");
     rightAxis->setColorBarEnabled(true);
-    rightAxis->setColorMap(d_spectrogram->data()->range(),
-        d_spectrogram->colorMap());
+    rightAxis->setColorMap(d_spectrogram->data()->range(), new ColorMap());
 
     setAxisScale(QwtPlot::yRight,
         d_spectrogram->data()->range().minValue(),

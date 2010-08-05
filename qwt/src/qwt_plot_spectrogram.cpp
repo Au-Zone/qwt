@@ -177,10 +177,13 @@ uint QwtPlotSpectrogram::renderThreadCount() const
   \sa colorMap(), QwtScaleWidget::setColorBarEnabled(),
       QwtScaleWidget::setColorMap()
 */
-void QwtPlotSpectrogram::setColorMap(const QwtColorMap &colorMap)
+void QwtPlotSpectrogram::setColorMap(QwtColorMap *colorMap)
 {
-    delete d_data->colorMap;
-    d_data->colorMap = colorMap.copy();
+    if ( d_data->colorMap != colorMap )
+    {
+        delete d_data->colorMap;
+        d_data->colorMap = colorMap;
+    }
 
     invalidateCache();
     itemChanged();
@@ -190,9 +193,9 @@ void QwtPlotSpectrogram::setColorMap(const QwtColorMap &colorMap)
    \return Color Map used for mapping the intensity values to colors
    \sa setColorMap()
 */
-const QwtColorMap &QwtPlotSpectrogram::colorMap() const
+const QwtColorMap *QwtPlotSpectrogram::colorMap() const
 {
-    return *d_data->colorMap;
+    return d_data->colorMap;
 }
 
 /*!
