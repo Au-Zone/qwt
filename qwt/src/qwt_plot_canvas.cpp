@@ -24,9 +24,9 @@ class QwtPlotCanvas::PrivateData
 {
 public:
     PrivateData():
-        focusIndicator(NoFocusIndicator),
-        paintAttributes(0),
-        cache(NULL)
+        focusIndicator( NoFocusIndicator ),
+        paintAttributes( 0 ),
+        cache( NULL )
     {
     }
 
@@ -42,19 +42,19 @@ public:
 
 //! Sets a cross cursor, enables QwtPlotCanvas::PaintCached
 
-QwtPlotCanvas::QwtPlotCanvas(QwtPlot *plot):
-    QFrame(plot)
+QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
+    QFrame( plot )
 {
     d_data = new PrivateData;
 
-    setAutoFillBackground(true);
+    setAutoFillBackground( true );
 
 #ifndef QT_NO_CURSOR
-    setCursor(Qt::CrossCursor);
+    setCursor( Qt::CrossCursor );
 #endif
 
-    setPaintAttribute(PaintCached, true);
-    setPaintAttribute(PaintPacked, true);
+    setPaintAttribute( PaintCached, true );
+    setPaintAttribute( PaintPacked, true );
 }
 
 //! Destructor
@@ -67,8 +67,8 @@ QwtPlotCanvas::~QwtPlotCanvas()
 QwtPlot *QwtPlotCanvas::plot()
 {
     QWidget *w = parentWidget();
-    if ( w && w->inherits("QwtPlot") )
-        return (QwtPlot *)w;
+    if ( w && w->inherits( "QwtPlot" ) )
+        return ( QwtPlot * )w;
 
     return NULL;
 }
@@ -77,8 +77,8 @@ QwtPlot *QwtPlotCanvas::plot()
 const QwtPlot *QwtPlotCanvas::plot() const
 {
     const QWidget *w = parentWidget();
-    if ( w && w->inherits("QwtPlot") )
-        return (QwtPlot *)w;
+    if ( w && w->inherits( "QwtPlot" ) )
+        return ( QwtPlot * )w;
 
     return NULL;
 }
@@ -93,9 +93,9 @@ const QwtPlot *QwtPlotCanvas::plot() const
 
   \sa testPaintAttribute(), drawCanvas(), drawContents(), paintCache()
 */
-void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
+void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 {
-    if ( bool(d_data->paintAttributes & attribute) == on )
+    if ( bool( d_data->paintAttributes & attribute ) == on )
         return;
 
     if ( on )
@@ -103,7 +103,7 @@ void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
     else
         d_data->paintAttributes &= ~attribute;
 
-    switch(attribute)
+    switch ( attribute )
     {
         case PaintCached:
         {
@@ -115,7 +115,7 @@ void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
                 if ( isVisible() )
                 {
                     const QRect cr = contentsRect();
-                    *d_data->cache = QPixmap::grabWidget(this,
+                    *d_data->cache = QPixmap::grabWidget( this,
                         cr.x(), cr.y(), cr.width(), cr.height() );
                 }
             }
@@ -130,13 +130,13 @@ void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
         {
             /*
               If not visible, changing of the background mode
-              is delayed until it becomes visible. This tries to avoid 
-              looking through the canvas when the canvas is shown the first 
+              is delayed until it becomes visible. This tries to avoid
+              looking through the canvas when the canvas is shown the first
               time.
              */
 
             if ( on == false || isVisible() )
-                QwtPlotCanvas::setSystemBackground(!on);
+                QwtPlotCanvas::setSystemBackground( !on );
 
             break;
         }
@@ -150,9 +150,9 @@ void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
   \return true if the attribute is enabled
   \sa setPaintAttribute()
 */
-bool QwtPlotCanvas::testPaintAttribute(PaintAttribute attribute) const
+bool QwtPlotCanvas::testPaintAttribute( PaintAttribute attribute ) const
 {
-    return (d_data->paintAttributes & attribute) != 0;
+    return ( d_data->paintAttributes & attribute ) != 0;
 }
 
 //! Return the paint cache, might be null
@@ -179,14 +179,14 @@ void QwtPlotCanvas::invalidatePaintCache()
 
   \sa FocusIndicator, focusIndicator()
 */
-void QwtPlotCanvas::setFocusIndicator(FocusIndicator focusIndicator)
+void QwtPlotCanvas::setFocusIndicator( FocusIndicator focusIndicator )
 {
     d_data->focusIndicator = focusIndicator;
 }
 
 /*!
   \return Focus indicator
-  
+
   \sa FocusIndicator, setFocusIndicator()
 */
 QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
@@ -198,16 +198,16 @@ QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
   Hide event
   \param event Hide event
 */
-void QwtPlotCanvas::hideEvent(QHideEvent *event)
+void QwtPlotCanvas::hideEvent( QHideEvent *event )
 {
-    QFrame::hideEvent(event);
+    QFrame::hideEvent( event );
 
     if ( d_data->paintAttributes & PaintPacked )
     {
         // enable system background to avoid the "looking through
         // the canvas" effect, for the next show
 
-        setSystemBackground(true);
+        setSystemBackground( true );
     }
 }
 
@@ -215,50 +215,50 @@ void QwtPlotCanvas::hideEvent(QHideEvent *event)
   Paint event
   \param event Paint event
 */
-void QwtPlotCanvas::paintEvent(QPaintEvent *event)
+void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 {
-    QPainter painter(this);
-    
-    if ( !contentsRect().contains( event->rect() ) ) 
+    QPainter painter( this );
+
+    if ( !contentsRect().contains( event->rect() ) )
     {
         painter.save();
         painter.setClipRegion( event->region() & frameRect() );
         drawFrame( &painter );
-        painter.restore(); 
+        painter.restore();
     }
 
-    painter.setClipRegion(event->region() & contentsRect());
+    painter.setClipRegion( event->region() & contentsRect() );
 
     drawContents( &painter );
 
     if ( d_data->paintAttributes & PaintPacked )
-        setSystemBackground(false);
+        setSystemBackground( false );
 }
 
-/*! 
+/*!
   Redraw the canvas, and focus rect
   \param painter Painter
 */
-void QwtPlotCanvas::drawContents(QPainter *painter)
+void QwtPlotCanvas::drawContents( QPainter *painter )
 {
-    if ( d_data->paintAttributes & PaintCached && d_data->cache 
+    if ( d_data->paintAttributes & PaintCached && d_data->cache
         && d_data->cache->size() == contentsRect().size() )
     {
-        painter->drawPixmap(contentsRect().topLeft(), *d_data->cache);
+        painter->drawPixmap( contentsRect().topLeft(), *d_data->cache );
     }
     else
     {
-        QwtPlot *plot = ((QwtPlot *)parent());
+        QwtPlot *plot = ( ( QwtPlot * )parent() );
         const bool doAutoReplot = plot->autoReplot();
-        plot->setAutoReplot(false);
+        plot->setAutoReplot( false );
 
-        drawCanvas(painter);
+        drawCanvas( painter );
 
-        plot->setAutoReplot(doAutoReplot);
+        plot->setAutoReplot( doAutoReplot );
     }
 
     if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
-        drawFocusIndicator(painter);
+        drawFocusIndicator( painter );
 }
 
 /*!
@@ -271,42 +271,42 @@ void QwtPlotCanvas::drawContents(QPainter *painter)
 
   \sa QwtPlot::drawCanvas(), setPaintAttributes(), testPaintAttributes()
 */
-void QwtPlotCanvas::drawCanvas(QPainter *painter)
+void QwtPlotCanvas::drawCanvas( QPainter *painter )
 {
     if ( !contentsRect().isValid() )
         return;
 
-    QBrush bgBrush = palette().brush(backgroundRole());
+    QBrush bgBrush = palette().brush( backgroundRole() );
 
     if ( d_data->paintAttributes & PaintCached && d_data->cache )
     {
-        *d_data->cache = QPixmap(contentsRect().size());
+        *d_data->cache = QPixmap( contentsRect().size() );
 
 #ifdef Q_WS_X11
         if ( d_data->cache->x11Info().screen() != x11Info().screen() )
-            d_data->cache->x11SetScreen(x11Info().screen());
+            d_data->cache->x11SetScreen( x11Info().screen() );
 #endif
 
         if ( d_data->paintAttributes & PaintPacked )
         {
-            QPainter bgPainter(d_data->cache);
-            bgPainter.setPen(Qt::NoPen);
+            QPainter bgPainter( d_data->cache );
+            bgPainter.setPen( Qt::NoPen );
 
-            bgPainter.setBrush(bgBrush);
-            bgPainter.drawRect(d_data->cache->rect());
+            bgPainter.setBrush( bgBrush );
+            bgPainter.drawRect( d_data->cache->rect() );
         }
         else
-            d_data->cache->fill(this, d_data->cache->rect().topLeft());
+            d_data->cache->fill( this, d_data->cache->rect().topLeft() );
 
-        QPainter cachePainter(d_data->cache);
-        cachePainter.translate(-contentsRect().x(),
-            -contentsRect().y());
+        QPainter cachePainter( d_data->cache );
+        cachePainter.translate( -contentsRect().x(),
+            -contentsRect().y() );
 
-        ((QwtPlot *)parent())->drawCanvas(&cachePainter);
+        ( ( QwtPlot * )parent() )->drawCanvas( &cachePainter );
 
         cachePainter.end();
 
-        painter->drawPixmap(contentsRect(), *d_data->cache);
+        painter->drawPixmap( contentsRect(), *d_data->cache );
     }
     else
     {
@@ -314,36 +314,36 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
         {
             painter->save();
 
-            painter->setPen(Qt::NoPen);
-            painter->setBrush(bgBrush);
-            painter->drawRect(contentsRect());
+            painter->setPen( Qt::NoPen );
+            painter->setBrush( bgBrush );
+            painter->drawRect( contentsRect() );
 
             painter->restore();
         }
 
-        ((QwtPlot *)parent())->drawCanvas(painter);
+        ( ( QwtPlot * )parent() )->drawCanvas( painter );
     }
 }
 
-/*! 
+/*!
   Draw the focus indication
   \param painter Painter
 */
-void QwtPlotCanvas::drawFocusIndicator(QPainter *painter)
+void QwtPlotCanvas::drawFocusIndicator( QPainter *painter )
 {
     const int margin = 1;
 
     QRect focusRect = contentsRect();
-    focusRect.setRect(focusRect.x() + margin, focusRect.y() + margin,
-        focusRect.width() - 2 * margin, focusRect.height() - 2 * margin);
+    focusRect.setRect( focusRect.x() + margin, focusRect.y() + margin,
+        focusRect.width() - 2 * margin, focusRect.height() - 2 * margin );
 
-    QwtPainter::drawFocusRect(painter, this, focusRect);
+    QwtPainter::drawFocusRect( painter, this, focusRect );
 }
 
-void QwtPlotCanvas::setSystemBackground(bool on)
+void QwtPlotCanvas::setSystemBackground( bool on )
 {
-    if ( testAttribute(Qt::WA_NoSystemBackground) == on )
-        setAttribute(Qt::WA_NoSystemBackground, !on);
+    if ( testAttribute( Qt::WA_NoSystemBackground ) == on )
+        setAttribute( Qt::WA_NoSystemBackground, !on );
 }
 
 /*!
@@ -359,15 +359,15 @@ void QwtPlotCanvas::replot()
       is repainted completely and doesn't need to be erased.
      */
     const bool erase =
-        !testPaintAttribute(QwtPlotCanvas::PaintPacked)
-        && !testPaintAttribute(QwtPlotCanvas::PaintCached);
+        !testPaintAttribute( QwtPlotCanvas::PaintPacked )
+        && !testPaintAttribute( QwtPlotCanvas::PaintCached );
 
-    const bool noBackgroundMode = testAttribute(Qt::WA_NoBackground);
+    const bool noBackgroundMode = testAttribute( Qt::WA_NoBackground );
     if ( !erase && !noBackgroundMode )
-        setAttribute(Qt::WA_NoBackground, true);
+        setAttribute( Qt::WA_NoBackground, true );
 
-    repaint(contentsRect());
+    repaint( contentsRect() );
 
     if ( !erase && !noBackgroundMode )
-        setAttribute(Qt::WA_NoBackground, false);
+        setAttribute( Qt::WA_NoBackground, false );
 }

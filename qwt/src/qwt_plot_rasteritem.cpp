@@ -17,22 +17,22 @@
 #include <qpainter.h>
 #include <qpaintengine.h>
 
-static void transformMaps(const QTransform &tr,
+static void transformMaps( const QTransform &tr,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    QwtScaleMap &xxMap, QwtScaleMap &yyMap)
+    QwtScaleMap &xxMap, QwtScaleMap &yyMap )
 {
-    const QPointF p1 = tr.map( QPointF(xMap.p1(), yMap.p1()) );
-    const QPointF p2 = tr.map( QPointF(xMap.p2(), yMap.p2()) );
+    const QPointF p1 = tr.map( QPointF( xMap.p1(), yMap.p1() ) );
+    const QPointF p2 = tr.map( QPointF( xMap.p2(), yMap.p2() ) );
 
     xxMap = xMap;
-    xxMap.setPaintInterval(p1.x(), p2.x());
+    xxMap.setPaintInterval( p1.x(), p2.x() );
 
     yyMap = yMap;
-    yyMap.setPaintInterval(p1.y(), p2.y());
+    yyMap.setPaintInterval( p1.y(), p2.y() );
 }
 
-static bool useCache( QwtPlotRasterItem::CachePolicy policy, 
-    const QPainter *painter)
+static bool useCache( QwtPlotRasterItem::CachePolicy policy,
+    const QPainter *painter )
 {
     bool doCache = false;
 
@@ -41,7 +41,7 @@ static bool useCache( QwtPlotRasterItem::CachePolicy policy,
         // Caching doesn't make sense, when the item is
         // not painted to screen
 
-        switch(painter->paintEngine()->type())
+        switch ( painter->paintEngine()->type() )
         {
             case QPaintEngine::SVG:
             case QPaintEngine::Pdf:
@@ -61,7 +61,7 @@ class QwtPlotRasterItem::PrivateData
 {
 public:
     PrivateData():
-        alpha(-1)
+        alpha( -1 )
     {
         cache.policy = QwtPlotRasterItem::NoCache;
     }
@@ -77,16 +77,16 @@ public:
     } cache;
 };
 
-static QImage toRgba(const QImage& image, int alpha)
+static QImage toRgba( const QImage& image, int alpha )
 {
-    if ( alpha < 0 || alpha >= 255 )  
+    if ( alpha < 0 || alpha >= 255 )
         return image;
 
-    QImage alphaImage(image.size(), QImage::Format_ARGB32);
+    QImage alphaImage( image.size(), QImage::Format_ARGB32 );
 
-    const QRgb mask1 = qRgba(0, 0, 0, alpha);
-    const QRgb mask2 = qRgba(255, 255, 255, 0);
-    const QRgb mask3 = qRgba(0, 0, 0, 255);
+    const QRgb mask1 = qRgba( 0, 0, 0, alpha );
+    const QRgb mask2 = qRgba( 255, 255, 255, 0 );
+    const QRgb mask3 = qRgba( 0, 0, 0, 255 );
 
     const int w = image.size().width();
     const int h = image.size().height();
@@ -95,25 +95,25 @@ static QImage toRgba(const QImage& image, int alpha)
     {
         for ( int y = 0; y < h; y++ )
         {
-            QRgb* alphaLine = (QRgb*)alphaImage.scanLine(y);
-            const unsigned char *line = image.scanLine(y);
+            QRgb* alphaLine = ( QRgb* )alphaImage.scanLine( y );
+            const unsigned char *line = image.scanLine( y );
 
             for ( int x = 0; x < w; x++ )
-                *alphaLine++ = (image.color(*line++) & mask2) | mask1;
+                *alphaLine++ = ( image.color( *line++ ) & mask2 ) | mask1;
         }
     }
     else if ( image.depth() == 32 )
     {
         for ( int y = 0; y < h; y++ )
         {
-            QRgb* alphaLine = (QRgb*)alphaImage.scanLine(y);
-            const QRgb* line = (const QRgb*) image.scanLine(y);
+            QRgb* alphaLine = ( QRgb* )alphaImage.scanLine( y );
+            const QRgb* line = ( const QRgb* ) image.scanLine( y );
 
             for ( int x = 0; x < w; x++ )
             {
                 const QRgb rgb = *line++;
                 if ( rgb & mask3 ) // alpha != 0
-                    *alphaLine++ = (rgb & mask2) | mask1;
+                    *alphaLine++ = ( rgb & mask2 ) | mask1;
                 else
                     *alphaLine++ = rgb;
             }
@@ -124,15 +124,15 @@ static QImage toRgba(const QImage& image, int alpha)
 }
 
 //! Constructor
-QwtPlotRasterItem::QwtPlotRasterItem(const QString& title):
-    QwtPlotItem(QwtText(title))
+QwtPlotRasterItem::QwtPlotRasterItem( const QString& title ):
+    QwtPlotItem( QwtText( title ) )
 {
     init();
 }
 
 //! Constructor
-QwtPlotRasterItem::QwtPlotRasterItem(const QwtText& title):
-    QwtPlotItem(title)
+QwtPlotRasterItem::QwtPlotRasterItem( const QwtText& title ):
+    QwtPlotItem( title )
 {
     init();
 }
@@ -147,10 +147,10 @@ void QwtPlotRasterItem::init()
 {
     d_data = new PrivateData();
 
-    setItemAttribute(QwtPlotItem::AutoScale, true);
-    setItemAttribute(QwtPlotItem::Legend, false);
+    setItemAttribute( QwtPlotItem::AutoScale, true );
+    setItemAttribute( QwtPlotItem::Legend, false );
 
-    setZ(8.0);
+    setZ( 8.0 );
 }
 
 /*!
@@ -161,14 +161,14 @@ void QwtPlotRasterItem::init()
    Using setAlpha() raster items can be stacked easily.
 
    The alpha value is a value [0, 255] to
-   control the transparency of the image. 0 represents a fully 
+   control the transparency of the image. 0 represents a fully
    transparent color, while 255 represents a fully opaque color.
-   
+
    \param alpha Alpha value
 
    - alpha >= 0\n
-     All alpha values of the pixels returned by renderImage() will be set to 
-     alpha, beside those with an alpha value of 0 (invalid pixels). 
+     All alpha values of the pixels returned by renderImage() will be set to
+     alpha, beside those with an alpha value of 0 (invalid pixels).
    - alpha < 0
      The alpha values returned by renderImage() are not changed.
 
@@ -176,7 +176,7 @@ void QwtPlotRasterItem::init()
 
    \sa alpha()
 */
-void QwtPlotRasterItem::setAlpha(int alpha)
+void QwtPlotRasterItem::setAlpha( int alpha )
 {
     if ( alpha < 0 )
         alpha = -1;
@@ -210,7 +210,7 @@ int QwtPlotRasterItem::alpha() const
   \sa CachePolicy, cachePolicy()
 */
 void QwtPlotRasterItem::setCachePolicy(
-    QwtPlotRasterItem::CachePolicy policy)
+    QwtPlotRasterItem::CachePolicy policy )
 {
     if ( d_data->cache.policy != policy )
     {
@@ -250,7 +250,7 @@ void QwtPlotRasterItem::invalidateCache()
    The default implementation returns an invalid size (QSize()),
    what means: no hint.
 */
-QSize QwtPlotRasterItem::rasterHint(const QRectF &) const
+QSize QwtPlotRasterItem::rasterHint( const QRectF & ) const
 {
     return QSize();
 }
@@ -262,9 +262,9 @@ QSize QwtPlotRasterItem::rasterHint(const QRectF &) const
   \param yMap Y-Scale Map
   \param canvasRect Contents rect of the plot canvas
 */
-void QwtPlotRasterItem::draw(QPainter *painter,
+void QwtPlotRasterItem::draw( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRectF &canvasRect) const
+    const QRectF &canvasRect ) const
 {
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
@@ -282,73 +282,73 @@ void QwtPlotRasterItem::draw(QPainter *painter,
             paint device resolution.
         */
 
-        transformMaps(transform, xMap, yMap, xxMap, yyMap);
-        paintRect = transform.mapRect(paintRect);
+        transformMaps( transform, xMap, yMap, xxMap, yyMap );
+        paintRect = transform.mapRect( paintRect );
         transform = QTransform();
     }
 
-    QRectF area = QwtScaleMap::invTransform(xxMap, yyMap, paintRect);
+    QRectF area = QwtScaleMap::invTransform( xxMap, yyMap, paintRect );
 
     const QRectF br = boundingRect();
-    if ( br.isValid() && !br.contains(area) )
+    if ( br.isValid() && !br.contains( area ) )
     {
         area &= br;
         if ( !area.isValid() )
             return;
 
-        paintRect = QwtScaleMap::transform( xxMap, yyMap, area);
+        paintRect = QwtScaleMap::transform( xxMap, yyMap, area );
     }
 
     QImage image;
 
-    if ( useCache(d_data->cache.policy, painter) )
+    if ( useCache( d_data->cache.policy, painter ) )
     {
-        if ( d_data->cache.image.isNull() 
+        if ( d_data->cache.image.isNull()
             || d_data->cache.area != area
             || d_data->cache.size != paintRect.size() )
         {
             d_data->cache.area = area;
             d_data->cache.size = paintRect.size();
-            d_data->cache.image = renderImage(xxMap, yyMap, area);
+            d_data->cache.image = renderImage( xxMap, yyMap, area );
         }
 
         image = d_data->cache.image;
     }
     else
     {
-        image = renderImage(xxMap, yyMap, area);
+        image = renderImage( xxMap, yyMap, area );
     }
 
     if ( d_data->alpha >= 0 && d_data->alpha < 255 )
-        image = toRgba(image, d_data->alpha);
+        image = toRgba( image, d_data->alpha );
 
     painter->save();
-    painter->setWorldTransform(transform);
+    painter->setWorldTransform( transform );
 
-    if ( QwtPainter::isAligning(painter) )
-        paintRect = innerRect(paintRect);
+    if ( QwtPainter::isAligning( painter ) )
+        paintRect = innerRect( paintRect );
 
-    QwtPainter::drawImage(painter, paintRect, image);
+    QwtPainter::drawImage( painter, paintRect, image );
 
     painter->restore();
 }
 
 /*!
-  Returns a QRect based on the values of this rectangle. The coordinates 
+  Returns a QRect based on the values of this rectangle. The coordinates
   in the returned rectangle are rounded to the nearest integer, that
   is inside rect.
 
   \param rect Rectangle to be rounded
   \return Rectangle rounded to integers
 */
-QRect QwtPlotRasterItem::innerRect(const QRectF &rect) const
+QRect QwtPlotRasterItem::innerRect( const QRectF &rect ) const
 {
     const QRectF r = rect.normalized();
 
-    const int left = qCeil(r.left());
-    const int top = qCeil(r.top());
-    const int right = qMax( qFloor(r.right()), left );
-    const int bottom = qMax( qFloor(r.bottom()), top );
+    const int left = qCeil( r.left() );
+    const int top = qCeil( r.top() );
+    const int right = qMax( qFloor( r.right() ), left );
+    const int bottom = qMax( qFloor( r.bottom() ), top );
 
-    return QRect(left, top, right - left, bottom - top);
+    return QRect( left, top, right - left, bottom - top );
 }

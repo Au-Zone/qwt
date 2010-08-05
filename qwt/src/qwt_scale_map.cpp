@@ -2,7 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
@@ -21,8 +21,8 @@ QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
 
 //! Constructor for a linear transformation
-QwtScaleTransformation::QwtScaleTransformation(Type type):
-    d_type(type)
+QwtScaleTransformation::QwtScaleTransformation( Type type ):
+    d_type( type )
 {
 }
 
@@ -34,7 +34,7 @@ QwtScaleTransformation::~QwtScaleTransformation()
 //! Create a clone of the transformation
 QwtScaleTransformation *QwtScaleTransformation::copy() const
 {
-    return new QwtScaleTransformation(d_type);
+    return new QwtScaleTransformation( d_type );
 }
 
 /*!
@@ -45,7 +45,7 @@ QwtScaleTransformation *QwtScaleTransformation::copy() const
   \param s2 second border of scale interval
   \param p1 first border of target interval
   \param p2 second border of target interval
-  \return 
+  \return
   <dl>
   <dt>linear mapping:<dd>p1 + (p2 - p1) / (s2 - s1) * (s - s1)</dd>
   </dl>
@@ -55,12 +55,12 @@ QwtScaleTransformation *QwtScaleTransformation::copy() const
 */
 
 double QwtScaleTransformation::xForm(
-    double s, double s1, double s2, double p1, double p2) const
+    double s, double s1, double s2, double p1, double p2 ) const
 {
-    if ( d_type == Log10 )  
-        return p1 + (p2 - p1) / log(s2 / s1) * log(s / s1);
-    else 
-        return p1 + (p2 - p1) / (s2 - s1) * (s - s1);
+    if ( d_type == Log10 )
+        return p1 + ( p2 - p1 ) / log( s2 / s1 ) * log( s / s1 );
+    else
+        return p1 + ( p2 - p1 ) / ( s2 - s1 ) * ( s - s1 );
 }
 
 /*!
@@ -71,19 +71,19 @@ double QwtScaleTransformation::xForm(
   \param p2 second border of linear interval
   \param s1 first border of logarithmic interval
   \param s2 second border of logarithmic interval
-  \return 
+  \return
   <dl>
   <dt>exp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;
   </dl>
 */
 
-double QwtScaleTransformation::invXForm(double p, double p1, double p2, 
-    double s1, double s2) const
+double QwtScaleTransformation::invXForm( double p, double p1, double p2,
+    double s1, double s2 ) const
 {
-    if ( d_type == Log10 )  
-        return qExp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;
+    if ( d_type == Log10 )
+        return qExp( ( p - p1 ) / ( p2 - p1 ) * log( s2 / s1 ) ) * s1;
     else
-        return s1 + (s2 - s1) / (p2 - p1) * (p - p1);
+        return s1 + ( s2 - s1 ) / ( p2 - p1 ) * ( p - p1 );
 }
 
 /*!
@@ -92,23 +92,23 @@ double QwtScaleTransformation::invXForm(double p, double p1, double p2,
   The scale and paint device intervals are both set to [0,1].
 */
 QwtScaleMap::QwtScaleMap():
-    d_s1(0.0),
-    d_s2(1.0),
-    d_p1(0.0),
-    d_p2(1.0),
-    d_cnv(1.0)
+    d_s1( 0.0 ),
+    d_s2( 1.0 ),
+    d_p1( 0.0 ),
+    d_p2( 1.0 ),
+    d_cnv( 1.0 )
 {
     d_transformation = new QwtScaleTransformation(
-        QwtScaleTransformation::Linear);
+        QwtScaleTransformation::Linear );
 }
 
 //! Copy constructor
-QwtScaleMap::QwtScaleMap(const QwtScaleMap& other):
-    d_s1(other.d_s1),
-    d_s2(other.d_s2),
-    d_p1(other.d_p1),
-    d_p2(other.d_p2),
-    d_cnv(other.d_cnv)
+QwtScaleMap::QwtScaleMap( const QwtScaleMap& other ):
+    d_s1( other.d_s1 ),
+    d_s2( other.d_s2 ),
+    d_p1( other.d_p1 ),
+    d_p2( other.d_p2 ),
+    d_cnv( other.d_cnv )
 {
     d_transformation = other.d_transformation->copy();
 }
@@ -122,7 +122,7 @@ QwtScaleMap::~QwtScaleMap()
 }
 
 //! Assignment operator
-QwtScaleMap &QwtScaleMap::operator=(const QwtScaleMap &other)
+QwtScaleMap &QwtScaleMap::operator=( const QwtScaleMap & other )
 {
     d_s1 = other.d_s1;
     d_s2 = other.d_s2;
@@ -140,14 +140,14 @@ QwtScaleMap &QwtScaleMap::operator=(const QwtScaleMap &other)
    Initialize the map with a transformation
 */
 void QwtScaleMap::setTransformation(
-    QwtScaleTransformation *transformation)
+    QwtScaleTransformation *transformation )
 {
     if ( transformation == NULL )
         return;
 
     delete d_transformation;
     d_transformation = transformation;
-    setScaleInterval(d_s1, d_s2);
+    setScaleInterval( d_s1, d_s2 );
 }
 
 //! Get the transformation
@@ -159,22 +159,22 @@ const QwtScaleTransformation *QwtScaleMap::transformation() const
 /*!
   \brief Specify the borders of the scale interval
   \param s1 first border
-  \param s2 second border 
+  \param s2 second border
   \warning logarithmic scales might be aligned to [LogMin, LogMax]
 */
-void QwtScaleMap::setScaleInterval(double s1, double s2)
+void QwtScaleMap::setScaleInterval( double s1, double s2 )
 {
-    if (d_transformation->type() == QwtScaleTransformation::Log10 )
+    if ( d_transformation->type() == QwtScaleTransformation::Log10 )
     {
-        if (s1 < LogMin) 
-           s1 = LogMin;
-        else if (s1 > LogMax) 
-           s1 = LogMax;
-        
-        if (s2 < LogMin) 
-           s2 = LogMin;
-        else if (s2 > LogMax) 
-           s2 = LogMax;
+        if ( s1 < LogMin )
+            s1 = LogMin;
+        else if ( s1 > LogMax )
+            s1 = LogMax;
+
+        if ( s2 < LogMin )
+            s2 = LogMin;
+        else if ( s2 > LogMax )
+            s2 = LogMax;
     }
 
     d_s1 = s1;
@@ -189,7 +189,7 @@ void QwtScaleMap::setScaleInterval(double s1, double s2)
   \param p1 first border
   \param p2 second border
 */
-void QwtScaleMap::setPaintInterval(double p1, double p2)
+void QwtScaleMap::setPaintInterval( double p1, double p2 )
 {
     d_p1 = p1;
     d_p2 = p2;
@@ -205,17 +205,17 @@ void QwtScaleMap::newFactor()
 {
     d_cnv = 0.0;
 #if 1
-    if (d_s2 == d_s1)
+    if ( d_s2 == d_s1 )
         return;
 #endif
 
-    switch( d_transformation->type() )
+    switch ( d_transformation->type() )
     {
         case QwtScaleTransformation::Linear:
-            d_cnv = (d_p2 - d_p1) / (d_s2 - d_s1); 
+            d_cnv = ( d_p2 - d_p1 ) / ( d_s2 - d_s1 );
             break;
         case QwtScaleTransformation::Log10:
-            d_cnv = (d_p2 - d_p1) / log(d_s2 / d_s1);
+            d_cnv = ( d_p2 - d_p1 ) / log( d_s2 / d_s1 );
             break;
         default:;
     }
@@ -228,32 +228,32 @@ void QwtScaleMap::newFactor()
    \param yMap Y map
    \param rect Rectangle in scale coordinates
    \return Rectangle in paint coordinates
- 
+
    \sa invTransform()
 */
-QRectF QwtScaleMap::transform(const QwtScaleMap &xMap,
-    const QwtScaleMap &yMap, const QRectF &rect) 
+QRectF QwtScaleMap::transform( const QwtScaleMap &xMap,
+    const QwtScaleMap &yMap, const QRectF &rect )
 {
-    double x1 = xMap.transform(rect.left());
-    double x2 = xMap.transform(rect.right());
-    double y1 = yMap.transform(rect.top());
-    double y2 = yMap.transform(rect.bottom());
+    double x1 = xMap.transform( rect.left() );
+    double x2 = xMap.transform( rect.right() );
+    double y1 = yMap.transform( rect.top() );
+    double y2 = yMap.transform( rect.bottom() );
 
     if ( x2 < x1 )
-        qSwap(x1, x2);
+        qSwap( x1, x2 );
     if ( y2 < y1 )
-        qSwap(y1, y2);
+        qSwap( y1, y2 );
 
     if ( qwtFuzzyCompare( x1, 0.0, x2 - x1 ) == 0 )
-        x1 = 0.0; 
+        x1 = 0.0;
     if ( qwtFuzzyCompare( x2, 0.0, x2 - x1 ) == 0 )
-        x2 = 0.0; 
+        x2 = 0.0;
     if ( qwtFuzzyCompare( y1, 0.0, y2 - y1 ) == 0 )
-        y1 = 0.0; 
+        y1 = 0.0;
     if ( qwtFuzzyCompare( y2, 0.0, y2 - y1 ) == 0 )
-        y2 = 0.0; 
+        y2 = 0.0;
 
-    return QRectF(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+    return QRectF( x1, y1, x2 - x1 + 1, y2 - y1 + 1 );
 }
 
 /*!
@@ -265,23 +265,23 @@ QRectF QwtScaleMap::transform(const QwtScaleMap &xMap,
    \return Rectangle in scale coordinates
    \sa transform()
 */
-QRectF QwtScaleMap::invTransform(const QwtScaleMap &xMap,
-    const QwtScaleMap &yMap, const QRectF &rect) 
+QRectF QwtScaleMap::invTransform( const QwtScaleMap &xMap,
+    const QwtScaleMap &yMap, const QRectF &rect )
 {
-    const double x1 = xMap.invTransform(rect.left());
-    const double x2 = xMap.invTransform(rect.right() - 1);
-    const double y1 = yMap.invTransform(rect.top());
-    const double y2 = yMap.invTransform(rect.bottom() - 1);
+    const double x1 = xMap.invTransform( rect.left() );
+    const double x2 = xMap.invTransform( rect.right() - 1 );
+    const double y1 = yMap.invTransform( rect.top() );
+    const double y2 = yMap.invTransform( rect.bottom() - 1 );
 
-    const QRectF r(x1, y1, x2 - x1, y2 - y1);
+    const QRectF r( x1, y1, x2 - x1, y2 - y1 );
     return r.normalized();
 }
 
 #ifndef QT_NO_DEBUG_STREAM
 
-QDebug operator<<( QDebug debug, const QwtScaleMap &map)
+QDebug operator<<( QDebug debug, const QwtScaleMap &map )
 {
-    debug.nospace() << "QwtScaleMap(" 
+    debug.nospace() << "QwtScaleMap("
         << map.transformation()->type()
         << ", s:" << map.s1() << "->" << map.s2()
         << ", p:" << map.p1() << "->" << map.p2()

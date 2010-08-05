@@ -13,7 +13,7 @@ class QwtPlotAbstractSeriesItem::PrivateData
 {
 public:
     PrivateData():
-        orientation(Qt::Vertical)
+        orientation( Qt::Vertical )
     {
     }
 
@@ -22,20 +22,20 @@ public:
 
 /*!
   Constructor
-  \param title Title of the curve   
+  \param title Title of the curve
 */
-QwtPlotAbstractSeriesItem::QwtPlotAbstractSeriesItem(const QwtText &title):
-    QwtPlotItem(title)
+QwtPlotAbstractSeriesItem::QwtPlotAbstractSeriesItem( const QwtText &title ):
+    QwtPlotItem( title )
 {
     d_data = new PrivateData();
 }
 
 /*!
   Constructor
-  \param title Title of the curve   
+  \param title Title of the curve
 */
-QwtPlotAbstractSeriesItem::QwtPlotAbstractSeriesItem(const QString &title):
-    QwtPlotItem(QwtText(title))
+QwtPlotAbstractSeriesItem::QwtPlotAbstractSeriesItem( const QString &title ):
+    QwtPlotItem( QwtText( title ) )
 {
     d_data = new PrivateData();
 }
@@ -47,7 +47,7 @@ QwtPlotAbstractSeriesItem::~QwtPlotAbstractSeriesItem()
 }
 
 /*!
-  Set the orientation of the item. 
+  Set the orientation of the item.
 
   The orientation() might be used in specific way by a plot item.
   F.e. a QwtPlotCurve uses it to identify how to display the curve
@@ -55,7 +55,7 @@ QwtPlotAbstractSeriesItem::~QwtPlotAbstractSeriesItem()
 
   \sa orientation()
 */
-void QwtPlotAbstractSeriesItem::setOrientation(Qt::Orientation orientation)
+void QwtPlotAbstractSeriesItem::setOrientation( Qt::Orientation orientation )
 {
     if ( d_data->orientation != orientation )
     {
@@ -69,9 +69,9 @@ void QwtPlotAbstractSeriesItem::setOrientation(Qt::Orientation orientation)
   \sa setOrientation()
 */
 Qt::Orientation QwtPlotAbstractSeriesItem::orientation() const
-{ 
+{
     return d_data->orientation;
-}   
+}
 
 /*!
   \brief Draw the complete series
@@ -81,10 +81,10 @@ Qt::Orientation QwtPlotAbstractSeriesItem::orientation() const
   \param yMap Maps y-values into pixel coordinates.
   \param canvasRect Contents rect of the canvas
 */
-void QwtPlotAbstractSeriesItem::draw(QPainter *painter,
+void QwtPlotAbstractSeriesItem::draw( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect) const
+        const QRectF &canvasRect ) const
 {
-    drawSeries(painter, xMap, yMap, canvasRect, 0, -1);
+    drawSeries( painter, xMap, yMap, canvasRect, 0, -1 );
 }
 

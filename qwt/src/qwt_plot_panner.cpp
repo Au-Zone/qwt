@@ -33,13 +33,13 @@ public:
 
   \sa setAxisEnabled()
 */
-QwtPlotPanner::QwtPlotPanner(QwtPlotCanvas *canvas):
-    QwtPanner(canvas)
+QwtPlotPanner::QwtPlotPanner( QwtPlotCanvas *canvas ):
+    QwtPanner( canvas )
 {
     d_data = new PrivateData();
 
-    connect(this, SIGNAL(panned(int, int)),
-        SLOT(moveCanvas(int, int)));
+    connect( this, SIGNAL( panned( int, int ) ),
+        SLOT( moveCanvas( int, int ) ) );
 }
 
 //! Destructor
@@ -59,7 +59,7 @@ QwtPlotPanner::~QwtPlotPanner()
 
    \sa isAxisEnabled(), moveCanvas()
 */
-void QwtPlotPanner::setAxisEnabled(int axis, bool on)
+void QwtPlotPanner::setAxisEnabled( int axis, bool on )
 {
     if ( axis >= 0 && axis < QwtPlot::axisCnt )
         d_data->isAxisEnabled[axis] = on;
@@ -70,10 +70,10 @@ void QwtPlotPanner::setAxisEnabled(int axis, bool on)
 
    \param axis Axis, see QwtPlot::Axis
    \return True, if the axis is enabled
-   
+
    \sa setAxisEnabled(), moveCanvas()
 */
-bool QwtPlotPanner::isAxisEnabled(int axis) const
+bool QwtPlotPanner::isAxisEnabled( int axis ) const
 {
     if ( axis >= 0 && axis < QwtPlot::axisCnt )
         return d_data->isAxisEnabled[axis];
@@ -85,8 +85,8 @@ bool QwtPlotPanner::isAxisEnabled(int axis) const
 QwtPlotCanvas *QwtPlotPanner::canvas()
 {
     QWidget *w = parentWidget();
-    if ( w && w->inherits("QwtPlotCanvas") )
-        return (QwtPlotCanvas *)w;
+    if ( w && w->inherits( "QwtPlotCanvas" ) )
+        return ( QwtPlotCanvas * )w;
 
     return NULL;
 }
@@ -94,7 +94,7 @@ QwtPlotCanvas *QwtPlotPanner::canvas()
 //! Return Observed plot canvas
 const QwtPlotCanvas *QwtPlotPanner::canvas() const
 {
-    return ((QwtPlotPanner *)this)->canvas();
+    return ( ( QwtPlotPanner * )this )->canvas();
 }
 
 //! Return plot widget, containing the observed plot canvas
@@ -104,8 +104,8 @@ QwtPlot *QwtPlotPanner::plot()
     if ( w )
     {
         w = w->parent();
-        if ( w && w->inherits("QwtPlot") )
-            return (QwtPlot *)w;
+        if ( w && w->inherits( "QwtPlot" ) )
+            return ( QwtPlot * )w;
     }
 
     return NULL;
@@ -114,7 +114,7 @@ QwtPlot *QwtPlotPanner::plot()
 //! Return plot widget, containing the observed plot canvas
 const QwtPlot *QwtPlotPanner::plot() const
 {
-    return ((QwtPlotPanner *)this)->plot();
+    return ( ( QwtPlotPanner * )this )->plot();
 }
 
 /*!
@@ -125,7 +125,7 @@ const QwtPlot *QwtPlotPanner::plot() const
 
    \sa QwtPanner::panned()
 */
-void QwtPlotPanner::moveCanvas(int dx, int dy)
+void QwtPlotPanner::moveCanvas( int dx, int dy )
 {
     if ( dx == 0 && dy == 0 )
         return;
@@ -133,35 +133,35 @@ void QwtPlotPanner::moveCanvas(int dx, int dy)
     QwtPlot *plot = QwtPlotPanner::plot();
     if ( plot == NULL )
         return;
-    
+
     const bool doAutoReplot = plot->autoReplot();
-    plot->setAutoReplot(false);
+    plot->setAutoReplot( false );
 
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
     {
         if ( !d_data->isAxisEnabled[axis] )
             continue;
 
-        const QwtScaleMap map = plot->canvasMap(axis);
+        const QwtScaleMap map = plot->canvasMap( axis );
 
-        const double p1 = map.transform(plot->axisScaleDiv(axis)->lowerBound());
-        const double p2 = map.transform(plot->axisScaleDiv(axis)->upperBound());
+        const double p1 = map.transform( plot->axisScaleDiv( axis )->lowerBound() );
+        const double p2 = map.transform( plot->axisScaleDiv( axis )->upperBound() );
 
         double d1, d2;
         if ( axis == QwtPlot::xBottom || axis == QwtPlot::xTop )
         {
-            d1 = map.invTransform(p1 - dx);
-            d2 = map.invTransform(p2 - dx);
+            d1 = map.invTransform( p1 - dx );
+            d2 = map.invTransform( p2 - dx );
         }
         else
         {
-            d1 = map.invTransform(p1 - dy);
-            d2 = map.invTransform(p2 - dy);
+            d1 = map.invTransform( p1 - dy );
+            d2 = map.invTransform( p2 - dy );
         }
 
-        plot->setAxisScale(axis, d1, d2);
+        plot->setAxisScale( axis, d1, d2 );
     }
 
-    plot->setAutoReplot(doAutoReplot);
+    plot->setAutoReplot( doAutoReplot );
     plot->replot();
 }
