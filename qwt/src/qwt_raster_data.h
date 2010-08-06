@@ -78,4 +78,35 @@ private:
     QRectF d_boundingRect;
 };
 
+class QWT_EXPORT QwtMatrixRasterData: public QwtRasterData
+{
+public:
+    QwtMatrixRasterData();
+
+    QwtMatrixRasterData( const QRectF &boundingRect, const QwtInterval &range,
+        const QVector<double> &values, size_t numColumns );
+
+    virtual ~QwtMatrixRasterData();
+
+    virtual void setBoundingRect( const QRectF & );
+    void setMatrix( const QVector<double> &values, size_t numColumns );
+    
+    const QVector<double> values() const;
+    size_t numColumns() const;
+    size_t numRows() const;
+
+    void setRange( const QwtInterval & );
+    virtual QwtInterval range() const;
+
+    virtual QSize rasterHint( const QRectF & ) const;
+
+    virtual double value( double x, double y ) const;
+
+private:
+    void update();
+
+    class PrivateData;
+    PrivateData *d_data;
+};
+
 #endif

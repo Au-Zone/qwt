@@ -393,3 +393,120 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
 
     return contourLines;
 }
+
+class QwtMatrixRasterData::PrivateData
+{
+public:
+    PrivateData():
+        numColumns(0)
+    {
+    }
+
+    QwtInterval range;
+
+    QVector<double> values;
+    size_t numColumns;
+    size_t numRows;
+
+    double dx;
+    double dy;
+};
+
+QwtMatrixRasterData::QwtMatrixRasterData()
+{
+    d_data = new PrivateData();
+    update();
+}
+
+QwtMatrixRasterData::QwtMatrixRasterData( 
+    const QRectF &boundingRect, const QwtInterval &range,
+    const QVector<double> &values, size_t numColumns )
+{
+    d_data = new PrivateData();
+    d_data->range = range;
+    d_data->values = values;
+    d_data->numColumns = numColumns;
+    
+    setBoundingRect(boundingRect);
+    update();
+}
+
+QwtMatrixRasterData::~QwtMatrixRasterData()
+{
+    delete d_data;
+}
+
+void QwtMatrixRasterData::setBoundingRect( const QRectF &rect )
+{
+    QwtRasterData::setBoundingRect( rect );
+    update();
+}
+
+void QwtMatrixRasterData::setMatrix( 
+    const QVector<double> &values, size_t numColumns )
+{
+    d_data->values = values;
+    d_data->numColumns = numColumns;
+    update();
+}
+
+const QVector<double> QwtMatrixRasterData::values() const
+{
+    return d_data->values;
+}
+
+size_t QwtMatrixRasterData::numColumns() const
+{
+    return d_data->numColumns;
+}
+
+size_t QwtMatrixRasterData::numRows() const
+{
+    return d_data->numRows;
+}
+
+void QwtMatrixRasterData::setRange( const QwtInterval &range )
+{
+    d_data->range = range;
+}
+
+QwtInterval QwtMatrixRasterData::range() const
+{
+    return d_data->range;
+}
+
+QSize QwtMatrixRasterData::rasterHint( const QRectF & ) const
+{
+    return QSize( int(d_data->dx), int(d_data->dy) );
+}
+
+double QwtMatrixRasterData::value( double x, double y ) const
+{
+    const QRectF br = boundingRect();
+    if ( br.contains( x, y ) )
+        return 0;
+
+    const int row = (y - br.y()) / d_data->dy;
+    const int col = (x - br.x()) / d_data->dx;
+
+    return d_data->values[ row * d_data->numColumns + col ];
+}
+
+void QwtMatrixRasterData::update()
+{
+    d_data->numRows = 0;
+    d_data->dx = 0.0;
+    d_data->dy = 0.0;
+
+    if ( d_data->numColumns > 0 )
+    {
+        d_data->numRows = d_data->values.size() / d_data->numColumns;
+
+        const QRectF br = boundingRect();
+        if ( !br.isEmpty() )
+        {
+            d_data->dx = br.width() / d_data->numColumns;
+            d_data->dy = br.width() / d_data->numRows;
+        }
+    }
+}
