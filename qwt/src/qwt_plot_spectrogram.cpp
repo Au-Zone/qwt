@@ -374,15 +374,15 @@ QSize QwtPlotSpectrogram::rasterHint( const QRectF &rect ) const
 }
 
 /*!
-   \brief Render an image from the data and color map.
+   \brief Render an image from data and color map.
 
-   The area is translated into a rect of the paint device.
-   For each pixel of this rect the intensity is mapped
+   For each pixel of rect the intensity is mapped
    into a color.
 
   \param xMap X-Scale Map
   \param yMap Y-Scale Map
-  \param area Area that should be rendered in scale coordinates.
+  \param area Requested area for the image in scale coordinates
+  \param imageRect Rectangle for the image in paint device coordinates
 
    \return A QImage::Format_Indexed8 or QImage::Format_ARGB32 depending
            on the color map.
@@ -390,59 +390,17 @@ QSize QwtPlotSpectrogram::rasterHint( const QRectF &rect ) const
    \sa QwtRasterData::intensity(), QwtColorMap::rgb(),
        QwtColorMap::colorIndex()
 */
-QImage QwtPlotSpectrogram::renderImage(
+QImage QwtPlotSpectrogram::render(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRectF &area ) const
+    const QRectF &area, const QRect &imageRect ) const
 {
-    if ( area.isEmpty() )
+    if ( imageRect.isEmpty() )
         return QImage();
-
-    QRect rect = innerRect( QwtScaleMap::transform( xMap, yMap, area ) );
-
-    QwtScaleMap xxMap = xMap;
-    QwtScaleMap yyMap = yMap;
-
-    const QSize res = d_data->data->rasterHint( area );
-    if ( res.isValid() )
-    {
-        /*
-          It is useless to render an image with a higher resolution
-          than the data offers. Of course someone will have to
-          scale this image later into the size of the given rect, but f.e.
-          in case of postscript this will done on the printer.
-         */
-        rect.setSize( rect.size().boundedTo( res ) );
-
-        double px1 = rect.left();
-        double px2 = rect.right();
-        if ( xMap.p1() > xMap.p2() )
-            qSwap( px1, px2 );
-
-        double sx1 = area.left();
-        double sx2 = area.right();
-        if ( xMap.s1() > xMap.s2() )
-            qSwap( sx1, sx2 );
-
-        double py1 = rect.top();
-        double py2 = rect.bottom();
-        if ( yMap.p1() > yMap.p2() )
-            qSwap( py1, py2 );
-
-        double sy1 = area.top();
-        double sy2 = area.bottom();
-        if ( yMap.s1() > yMap.s2() )
-            qSwap( sy1, sy2 );
-
-        xxMap.setPaintInterval( px1, px2 );
-        xxMap.setScaleInterval( sx1, sx2 );
-        yyMap.setPaintInterval( py1, py2 );
-        yyMap.setScaleInterval( sy1, sy2 );
-    }
 
     QImage::Format format = ( d_data->colorMap->format() == QwtColorMap::RGB )
         ? QImage::Format_ARGB32 : QImage::Format_Indexed8;
 
-    QImage image( rect.size(), format );
+    QImage image( imageRect.size(), format );
 
     const QwtInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
@@ -462,43 +420,33 @@ QImage QwtPlotSpectrogram::renderImage(
     if ( numThreads <= 0 )
         numThreads = 1;
 
-    const int numRows = rect.height() / numThreads;
+    const int numRows = imageRect.height() / numThreads;
 
     QList< QFuture<void> > futures;
     for ( uint i = 0; i < numThreads; i++ )
     {
-        QRect tile( rect.x(), rect.y() + i * numRows,
-            rect.width(), numRows );
+        QRect tile( imageRect.x(), imageRect.y() + i * numRows,
+            imageRect.width(), numRows );
         if ( i == numThreads - 1 )
         {
-            tile.setHeight( rect.height() - i * numRows );
-            renderTile( xxMap, yyMap, rect, tile, &image );
+            tile.setHeight( imageRect.height() - i * numRows );
+            renderTile( xMap, yMap, imageRect, tile, &image );
         }
         else
         {
             futures += QtConcurrent::run(
                 this, &QwtPlotSpectrogram::renderTile,
-                xxMap, yyMap, rect, tile, &image );
+                xMap, yMap, imageRect, tile, &image );
         }
     }
     for ( int i = 0; i < futures.size(); i++ )
         futures[i].waitForFinished();
 
 #else // QT_VERSION < 0x040400
-    renderTile( xxMap, yyMap, rect, rect, &image );
+    renderTile( xMap, imageRect, imageRect, rect, &image );
 #endif
 
     d_data->data->discardRaster();
-
-    // Mirror the image in case of inverted maps
-
-    const bool hInvert = xxMap.p1() > xxMap.p2();
-    const bool vInvert = yyMap.p1() < yyMap.p2();
-    if ( hInvert || vInvert )
-    {
-        // Better invert the image composition !
-        image = image.mirrored( hInvert, vInvert );
-    }
 
     return image;
 }
@@ -669,7 +617,7 @@ void QwtPlotSpectrogram::draw( QPainter *painter,
 
     if ( d_data->displayMode & ContourMode )
     {
-        // Add some pixels at the borders, so that
+        // Add some pixels at the borders
         const int margin = 2;
         QRectF rasterRect( canvasRect.x() - margin, canvasRect.y() - margin,
             canvasRect.width() + 2 * margin, canvasRect.height() + 2 * margin );
