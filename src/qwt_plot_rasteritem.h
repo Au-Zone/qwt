@@ -73,19 +73,28 @@ public:
     virtual QSize rasterHint( const QRectF & ) const;
 
 protected:
+    virtual QImage renderImage( const QwtScaleMap &xMap,
+        const QwtScaleMap &yMap, const QRectF &area ) const;
 
     /*!
-     Renders an image for an area
+      \brief Render an image 
 
-     The format of the image must be QImage::Format_Indexed8,
-     QImage::Format_RGB32 or QImage::Format_ARGB32
+      An implementation of render() might iterate over all
+      pixels of imageRect. Each pixel has to be translated into 
+      the corresponding position in scale coordinates using the maps.
+      This position can be used to look up a value in a implementation
+      specific way and to map it into a color.
 
-     \param xMap Maps x-values into pixel coordinates.
-     \param yMap Maps y-values into pixel coordinates.
-     \param area Requested area for the image in scale coordinates
-    */
-    virtual QImage renderImage( const QwtScaleMap &xMap,
-        const QwtScaleMap &yMap, const QRectF &area) const = 0;
+      \param xMap X-Scale Map
+      \param yMap Y-Scale Map
+      \param area Requested area for the image in scale coordinates
+      \param imageRect Rectangle of the image in paint device coordinates
+
+      \sa renderImage()
+     */
+    virtual QImage render( const QwtScaleMap &xMap,
+        const QwtScaleMap &yMap, const QRectF &area,
+        const QRect &imageRect ) const = 0;
 
     QRect innerRect( const QRectF &r ) const;
 

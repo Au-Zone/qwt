@@ -334,6 +334,83 @@ void QwtPlotRasterItem::draw( QPainter *painter,
 }
 
 /*!
+  Renders an image for an area
+
+  The format of the image must be QImage::Format_Indexed8,
+  QImage::Format_RGB32 or QImage::Format_ARGB32
+
+  \param xMap Maps x-values into pixel coordinates.
+  \param yMap Maps y-values into pixel coordinates.
+  \param area Requested area for the image in scale coordinates
+
+  \sa renderRect()
+*/
+QImage QwtPlotRasterItem::renderImage(
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QRectF &area ) const
+{
+    if ( area.isEmpty() )
+        return QImage();
+
+    QRect rect = innerRect( QwtScaleMap::transform( xMap, yMap, area ) );
+
+    QwtScaleMap xxMap = xMap;
+    QwtScaleMap yyMap = yMap;
+
+    const QSize res = rasterHint( area );
+    if ( res.isValid() )
+    {
+        /*
+          It is useless to render an image with a higher resolution
+          than the data offers. Of course someone will have to
+          scale this image later into the size of the given rect, but f.e.
+          in case of postscript this will done on the printer.
+         */
+        rect.setSize( rect.size().boundedTo( res ) );
+
+        double px1 = rect.left();
+        double px2 = rect.right();
+        if ( xMap.p1() > xMap.p2() )
+            qSwap( px1, px2 );
+
+        double sx1 = area.left();
+        double sx2 = area.right();
+        if ( xMap.s1() > xMap.s2() )
+            qSwap( sx1, sx2 );
+
+        double py1 = rect.top();
+        double py2 = rect.bottom();
+        if ( yMap.p1() > yMap.p2() )
+            qSwap( py1, py2 );
+
+        double sy1 = area.top();
+        double sy2 = area.bottom();
+        if ( yMap.s1() > yMap.s2() )
+            qSwap( sy1, sy2 );
+
+        xxMap.setPaintInterval( px1, px2 );
+        xxMap.setScaleInterval( sx1, sx2 );
+        yyMap.setPaintInterval( py1, py2 );
+        yyMap.setScaleInterval( sy1, sy2 );
+    }
+
+    QImage image = render( xxMap, yyMap, area, rect );
+
+    // Mirror the image in case of inverted maps
+
+    const bool hInvert = xxMap.p1() > xxMap.p2();
+    const bool vInvert = yyMap.p1() < yyMap.p2();
+    if ( hInvert || vInvert )
+    {
+        // Better invert the image composition !
+        image = image.mirrored( hInvert, vInvert );
+    }
+
+    return image;
+}
+
+
+/*!
   Returns a QRect based on the values of this rectangle. The coordinates
   in the returned rectangle are rounded to the nearest integer, that
   is inside rect.
