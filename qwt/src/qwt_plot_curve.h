@@ -66,8 +66,8 @@ public:
            fitting can be configured using setCurveFitter().
 
          - Sticks\n
-           Draw vertical(Yfx) or horizontal(Xfy) sticks from a baseline
-           which is defined by setBaseline().
+           Draw vertical or horizontal sticks ( depending on the 
+           orientation() ) from a baseline which is defined by setBaseline().
 
          - Steps\n
            Connect the points with a step function. The step function
