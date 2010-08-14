@@ -10,6 +10,7 @@
 #include "qwt_color_map.h"
 #include "qwt_math.h"
 #include "qwt_interval.h"
+#include <qnumeric.h>
 
 typedef QVector<QRgb> QwtColorTable;
 
@@ -322,6 +323,9 @@ QColor QwtLinearColorMap::color2() const
 QRgb QwtLinearColorMap::rgb(
     const QwtInterval &interval, double value ) const
 {
+	if ( qIsNaN(value) )
+		return qRgba(0, 0, 0, 0);
+
     const double width = interval.width();
 
     double ratio = 0.0;
@@ -342,7 +346,7 @@ unsigned char QwtLinearColorMap::colorIndex(
 {
     const double width = interval.width();
 
-    if ( width <= 0.0 || value <= interval.minValue() )
+    if ( qIsNaN(value) || width <= 0.0 || value <= interval.minValue() )
         return 0;
 
     if ( value >= interval.maxValue() )
@@ -426,11 +430,10 @@ QColor QwtAlphaColorMap::color() const
   \param value Value to map into a rgb value
   \return rgb value, with an alpha value
 */
-QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval,
-    double value ) const
+QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval, double value ) const
 {
     const double width = interval.width();
-    if ( width >= 0.0 )
+    if ( !qIsNaN(value) && width >= 0.0 )
     {
         const double ratio = ( value - interval.minValue() ) / width;
         int alpha = qRound( 255 * ratio );

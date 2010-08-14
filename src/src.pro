@@ -116,6 +116,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_magnifier.h \
         qwt_plot_rescaler.h \
         qwt_raster_data.h \
+        qwt_matrix_raster_data.h \
         qwt_sampling_thread.h \
         qwt_series_data.h \
         qwt_scale_widget.h 
@@ -149,6 +150,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_magnifier.cpp \
         qwt_plot_rescaler.cpp \
         qwt_raster_data.cpp \
+        qwt_matrix_raster_data.cpp \
         qwt_sampling_thread.cpp \
         qwt_series_data.cpp \
         qwt_scale_widget.cpp 
