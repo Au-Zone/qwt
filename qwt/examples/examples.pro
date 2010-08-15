@@ -24,6 +24,7 @@ contains(QWT_CONFIG, QwtPlot) {
         navigation \
         plotmatrix \
         spectrogram \
+        rasterview \
         tvplot 
 
     contains(QWT_CONFIG, QwtWidgets) {

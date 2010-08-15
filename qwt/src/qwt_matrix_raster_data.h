@@ -20,7 +20,7 @@ public:
     enum ResampleMode
     {
         NearestNeighbour,
-        BilinearInterpolation,
+        BilinearInterpolation
     };
 
     QwtMatrixRasterData();

@@ -20,6 +20,11 @@ public:
     {
     }
 
+    inline double value(size_t row, size_t col) const
+    {
+        return values.data()[ row * numColumns + col ];
+    }
+
     QwtMatrixRasterData::ResampleMode resampleMode;
     QwtInterval range;
 
@@ -53,6 +58,16 @@ QwtMatrixRasterData::QwtMatrixRasterData(
 QwtMatrixRasterData::~QwtMatrixRasterData()
 {
     delete d_data;
+}
+
+void QwtMatrixRasterData::setResampleMode(ResampleMode mode)
+{
+    d_data->resampleMode = mode;
+}
+
+QwtMatrixRasterData::ResampleMode QwtMatrixRasterData::resampleMode() const
+{
+    return d_data->resampleMode;
 }
 
 void QwtMatrixRasterData::setBoundingRect( const QRectF &rect )
@@ -94,8 +109,11 @@ QwtInterval QwtMatrixRasterData::range() const
     return d_data->range;
 }
 
-QSize QwtMatrixRasterData::rasterHint( const QRectF &rect ) const
+QSize QwtMatrixRasterData::rasterHint( const QRectF &) const
 {
+    QSize hint;
+
+#if 0
     if ( d_data->resampleMode == NearestNeighbour )
     {
         const QRectF br = boundingRect();
@@ -105,11 +123,13 @@ QSize QwtMatrixRasterData::rasterHint( const QRectF &rect ) const
             const double rx = rect.width() / br.width() * d_data->numColumns;
             const double ry = rect.height() / br.height() * d_data->numRows;
 
-            return QSize( qCeil( rx ), qCeil( ry ) );
+            hint.setWidth( 2 * qCeil( rx ) );
+            hint.setHeight( 2 * qCeil( ry ) );
         }
     }
+#endif
 
-    return QSize();
+    return hint;
 }
 
 double QwtMatrixRasterData::value( double x, double y ) const
@@ -120,36 +140,51 @@ double QwtMatrixRasterData::value( double x, double y ) const
 
     double value;
 
-    switch(d_data->resampleMode)
+    switch( d_data->resampleMode )
     {
         case BilinearInterpolation:
         {
-            const int col = int( (x - br.x() ) / d_data->dx );
-            const int row = int( (y - br.y() ) / d_data->dy );
+            int col1 = qRound( (x - br.x() ) / d_data->dx ) - 1;
+            int row1 = qRound( (y - br.y() ) / d_data->dy ) - 1;
+            int col2 = col1 + 1;
+            int row2 = row1 + 1;
 
-            const double *values = d_data->values.data();
+            if ( col1 < 0 )
+                col1 = col2;
+            else if ( col2 >= (int)d_data->numColumns )
+                col2 = col1;
 
-            const double v00 = values[ row * d_data->numColumns + col ];
-            const double v10 = values[ ( row + 1 ) * d_data->numColumns + col ];
-            const double v01 = values[ row * d_data->numColumns + col + 1 ];
-            const double v11 = values[ ( row + 1 ) * d_data->numColumns + col + 1 ];
+            if ( row1 < 0 )
+                row1 = row2;
+            else if ( row2 >= (int)d_data->numRows )
+                row2 = row1;
 
-            const double dx = ( br.x() + col * d_data->dx - x ) / d_data->dx;
-            const double dy = ( br.y() + row * d_data->dy - y ) / d_data->dy;
+            const double ddx = 
+                qAbs( ( br.x() + ( col1 + 0.5 ) * d_data->dx - x ) / d_data->dx );
+            const double ddy =  
+                qAbs( ( br.y() + ( row1 + 0.5 ) * d_data->dy - y ) / d_data->dy );
 
-            const double q0 = ( 1.0 - dx ) * v00 + dx * v10;
-            const double q1 = ( 1.0 - dx ) * v01 + dx * v11;
+            const double qx = ( d_data->dx - ddx ) / d_data->dx;
+            const double qy = ( d_data->dy - ddy ) / d_data->dy;
 
-            value = ( 1.0 - dy ) * q0 + dy * q1;
+            const double v11 = d_data->value( row1, col1 );
+            const double v21 = d_data->value( row1, col2 );
+            const double v12 = d_data->value( row2, col1 );
+            const double v22 = d_data->value( row2, col2 );
+
+            const double r1 = qx * v11 + ( 1.0 - qx ) * v21;
+            const double r2 = qx * v12 + ( 1.0 - qx ) * v22;
+
+            value = qy * r1 + ( 1.0 - qy ) * r2;
             break;
         }
         case NearestNeighbour:
         default:
         {
-            const int row = qRound( (y - br.y() ) / d_data->dy );
-            const int col = qRound( (x - br.x() ) / d_data->dx );
+            const int row = int( (y - br.y() ) / d_data->dy );
+            const int col = int( (x - br.x() ) / d_data->dx );
 
-            value = d_data->values[ row * d_data->numColumns + col ];
+            value = d_data->value( row, col );
         }
     }
 
