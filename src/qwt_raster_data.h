@@ -48,7 +48,7 @@ public:
     virtual void setBoundingRect( const QRectF & );
     QRectF boundingRect() const;
 
-    virtual QSize rasterHint( const QRectF & ) const;
+    virtual QRectF pixelRect( const QRectF & ) const;
 
     virtual void initRaster( const QRectF &, const QSize& raster );
     virtual void discardRaster();

@@ -242,17 +242,18 @@ void QwtPlotRasterItem::invalidateCache()
 }
 
 /*!
-   \brief Returns the recommended raster for a given rect.
+   \brief Returns the pixel size for a given rect.
 
-   F.e the raster hint can be used to limit the resolution of
+   F.e the pxel size can be used to limit the resolution of
    the image that is rendered.
 
-   The default implementation returns an invalid size (QSize()),
-   what means: no hint.
+   The default implementation returns an invalid size (QSizeF()),
+   what means: the data has values for all resolutions, thus
+               render the image in target device coordinates.
 */
-QSize QwtPlotRasterItem::rasterHint( const QRectF & ) const
+QRectF QwtPlotRasterItem::pixelRect( const QRectF & ) const
 {
-    return QSize();
+    return QRectF();
 }
 
 /*!
@@ -269,24 +270,16 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     if ( canvasRect.isEmpty() || d_data->alpha == 0 )
         return;
 
-    QwtScaleMap xxMap = xMap;
-    QwtScaleMap yyMap = yMap;
-    QRectF paintRect = canvasRect;
+    /*
+        Scaling a rastered image always results in a loss of
+        precision/quality. So we always render the image in
+        paint device resolution.
+    */
 
-    QTransform transform = painter->transform();
-    if ( !transform.isRotating() ) // Todo: allow n * 90° angles
-    {
-        /*
-            Scaling a rastered image always results in a loss of
-            precision/quality. So we always render the image in
-            paint device resolution.
-        */
+    QwtScaleMap xxMap, yyMap;
+    transformMaps( painter->transform(), xMap, yMap, xxMap, yyMap );
 
-        transformMaps( transform, xMap, yMap, xxMap, yyMap );
-        paintRect = transform.mapRect( paintRect );
-        transform = QTransform();
-    }
-
+    QRectF paintRect = painter->transform().mapRect( canvasRect );
     QRectF area = QwtScaleMap::invTransform( xxMap, yyMap, paintRect );
 
     const QRectF br = boundingRect();
@@ -323,7 +316,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
         image = toRgba( image, d_data->alpha );
 
     painter->save();
-    painter->setWorldTransform( transform );
+    painter->setWorldTransform( QTransform() );
 
     if ( QwtPainter::isAligning( painter ) )
         paintRect = innerRect( paintRect );
@@ -357,9 +350,13 @@ QImage QwtPlotRasterItem::renderImage(
     QwtScaleMap xxMap = xMap;
     QwtScaleMap yyMap = yMap;
 
-    const QSize res = rasterHint( area );
-    if ( res.isValid() )
+    const QRectF pixRect = pixelRect( area );
+    if ( !pixRect.isEmpty() )
     {
+        QSize res;
+        res.setWidth( qCeil( area.width() / pixRect.width() ) );
+        res.setHeight( qCeil( area.height() / pixRect.height() ) );
+
         /*
           It is useless to render an image with a higher resolution
           than the data offers. Of course someone will have to

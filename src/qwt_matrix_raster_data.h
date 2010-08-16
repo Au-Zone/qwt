@@ -42,7 +42,7 @@ public:
     void setRange( const QwtInterval & );
     virtual QwtInterval range() const;
 
-    virtual QSize rasterHint( const QRectF & ) const;
+    virtual QRectF pixelRect( const QRectF & ) const;
 
     virtual double value( double x, double y ) const;
 
