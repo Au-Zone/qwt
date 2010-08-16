@@ -360,19 +360,24 @@ QRectF QwtPlotSpectrogram::boundingRect() const
 }
 
 /*!
-   \brief Returns the pixel size
+   \brief Pixel hint
 
-   The pixel size is used to limit the resolution of
-   the image that is rendered.
+   The geometry of a pixel is used to calculated the resolution and
+   alignment of the rendered image. 
 
-   \param rect Request rectangle for the pixel size.
-               In most situations, the pixel size doesn't depend
-               on the rectangle.
-   \return data().pixelSize(rect)
+   The default implementation returns data()->pixelHint( rect );
+
+   \param area In most implementations the resolution of the data doesn't
+               depend on the requested area.
+
+   \return Bounding rectangle of a pixel
+
+   \sa QwtPlotRasterItem::pixelHint(), QwtRasterData::pixelHint(), 
+       render(), renderImage()
 */
-QRectF QwtPlotSpectrogram::pixelRect( const QRectF &rect ) const
+QRectF QwtPlotSpectrogram::pixelHint( const QRectF &area ) const
 {
-    return d_data->data->pixelRect( rect );
+    return d_data->data->pixelHint( area );
 }
 
 /*!
@@ -533,11 +538,11 @@ QSize QwtPlotSpectrogram::contourRasterSize(
 {
     QSize raster = rect.size() / 2;
 
-    const QRectF pixRect = pixelRect( area );
-    if ( !pixRect.isEmpty() )
+    const QRectF pixelRect = pixelHint( area );
+    if ( !pixelRect.isEmpty() )
     {
-        const QSize res( qCeil( rect.width() / pixRect.width() ),
-            qCeil( rect.height() / pixRect.height() ) );
+        const QSize res( qCeil( rect.width() / pixelRect.width() ),
+            qCeil( rect.height() / pixelRect.height() ) );
         raster = raster.boundedTo( res );
     }
 

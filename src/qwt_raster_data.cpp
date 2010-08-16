@@ -229,26 +229,33 @@ void QwtRasterData::discardRaster()
 }
 
 /*!
-   \brief Pixel size of the raster
+   \brief Pixel hint
 
-   The pixel size is the horizontal and vertical distance between 
-   2 neighboured points. An empty size indicates, that
-   that there are values for any detail level.
+   pixelHint() returns the geometry of a pixel, that can be used 
+   to calculate the resolution and alignment of the plot item, that is
+   representing the data. 
+   
+   Width and height of the hint need to be the horizontal  
+   and vertical distances between 2 neighboured points. 
+   The center of the hint has to be the position of any point 
+   ( it doesn't matter which one ).
 
-   The pixel size can be used to limit the resolution of the image that 
-   is rendered from the data. F.e. this might be important when 
-   printing a spectrogram to a A0 printer with 600 dpi.
+   An empty hint indicates, that there are values for any detail level.
 
-   The default implementation returns an empty pixel size.
+   Limiting the resolution of the image might significantly improve
+   the performance and heavily reduce the amount of memory when rendering
+   a QImage from the raster data. 
+
+   The default implementation returns an empty rectangle recommending
+   to render in target device ( f.e. screen ) resolution.
 
    \param area In most implementations the resolution of the data doesn't
                depend on the requested area.
 
-   \return Size of one pixel 
+   \return Bounding rectangle of a pixel 
 */
-QRectF QwtRasterData::pixelRect( const QRectF & ) const
+QRectF QwtRasterData::pixelHint( const QRectF & ) const
 {
-    // render image in target device ( f.e. screen) resolution
     return QRectF(); 
 }
 
