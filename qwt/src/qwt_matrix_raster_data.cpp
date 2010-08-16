@@ -109,34 +109,27 @@ QwtInterval QwtMatrixRasterData::range() const
     return d_data->range;
 }
 
-QSize QwtMatrixRasterData::rasterHint( const QRectF &) const
+QRectF QwtMatrixRasterData::pixelRect( const QRectF & ) const
 {
-    QSize hint;
-
-#if 0
+    QRectF rect;
     if ( d_data->resampleMode == NearestNeighbour )
-    {
-        const QRectF br = boundingRect();
-        if ( !rect.isEmpty() && !br.isEmpty() &&
-            d_data->numRows > 0 && d_data->numColumns > 0 )
-        {
-            const double rx = rect.width() / br.width() * d_data->numColumns;
-            const double ry = rect.height() / br.height() * d_data->numRows;
+	{
+		rect = QRectF( boundingRect().topLeft(), 
+			QSizeF(d_data->dx, d_data->dy) );
+	}
 
-            hint.setWidth( 2 * qCeil( rx ) );
-            hint.setHeight( 2 * qCeil( ry ) );
-        }
-    }
-#endif
-
-    return hint;
+    return rect;
 }
 
 double QwtMatrixRasterData::value( double x, double y ) const
 {
     const QRectF br = boundingRect();
-    if ( !br.contains( x, y ) )
+    if ( x < br.left() || y < br.top() 
+        || x >= br.right() || y >= br.bottom() )
+    {
+        // exluding the top + right borders !
         return qQNaN();
+    }
 
     double value;
 

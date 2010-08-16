@@ -229,26 +229,27 @@ void QwtRasterData::discardRaster()
 }
 
 /*!
-   \brief Find the raster of the data for an area
+   \brief Pixel size of the raster
 
-   The resolution is the number of horizontal and vertical pixels
-   that the data can return for an area. An invalid resolution
-   indicates that the data can return values for any detail level.
+   The pixel size is the horizontal and vertical distance between 
+   2 neighboured points. An empty size indicates, that
+   that there are values for any detail level.
 
-   The resolution will limit the size of the image that is rendered
-   from the data. F.e. this might be important when printing a spectrogram
-   to a A0 printer with 600 dpi.
+   The pixel size can be used to limit the resolution of the image that 
+   is rendered from the data. F.e. this might be important when 
+   printing a spectrogram to a A0 printer with 600 dpi.
 
-   The default implementation returns an invalid resolution (size)
+   The default implementation returns an empty pixel size.
 
-   \param rect In most implementations the resolution of the data doesn't
-               depend on the requested rectangle.
+   \param area In most implementations the resolution of the data doesn't
+               depend on the requested area.
 
-   \return Resolution, as number of horizontal and vertical pixels
+   \return Size of one pixel 
 */
-QSize QwtRasterData::rasterHint( const QRectF & ) const
+QRectF QwtRasterData::pixelRect( const QRectF & ) const
 {
-    return QSize(); // use screen resolution
+    // render image in target device ( f.e. screen) resolution
+    return QRectF(); 
 }
 
 /*!

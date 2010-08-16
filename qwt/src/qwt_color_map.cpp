@@ -323,8 +323,8 @@ QColor QwtLinearColorMap::color2() const
 QRgb QwtLinearColorMap::rgb(
     const QwtInterval &interval, double value ) const
 {
-	if ( qIsNaN(value) )
-		return qRgba(0, 0, 0, 0);
+    if ( qIsNaN(value) )
+        return qRgba(0, 0, 0, 0);
 
     const double width = interval.width();
 

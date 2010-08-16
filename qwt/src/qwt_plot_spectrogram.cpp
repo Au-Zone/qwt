@@ -360,17 +360,19 @@ QRectF QwtPlotSpectrogram::boundingRect() const
 }
 
 /*!
-   \brief Returns the recommended raster for a given rect.
+   \brief Returns the pixel size
 
-   F.e the raster hint is used to limit the resolution of
+   The pixel size is used to limit the resolution of
    the image that is rendered.
 
-   \param rect Rect for the raster hint
-   \return data().rasterHint(rect)
+   \param rect Request rectangle for the pixel size.
+               In most situations, the pixel size doesn't depend
+               on the rectangle.
+   \return data().pixelSize(rect)
 */
-QSize QwtPlotSpectrogram::rasterHint( const QRectF &rect ) const
+QRectF QwtPlotSpectrogram::pixelRect( const QRectF &rect ) const
 {
-    return d_data->data->rasterHint( rect );
+    return d_data->data->pixelRect( rect );
 }
 
 /*!
@@ -516,7 +518,7 @@ void QwtPlotSpectrogram::renderTile(
    but will slow down the time that is needed to calculate the lines.
 
    The default implementation returns rect.size() / 2 bounded to
-   data().rasterHint().
+   the resolution depending on pixelSize().
 
    \param area Rect, where to calculate the contour lines
    \param rect Rect in pixel coordinates, where to paint the contour lines
@@ -526,14 +528,18 @@ void QwtPlotSpectrogram::renderTile(
 
    \sa drawContourLines(), QwtRasterData::contourLines()
 */
-QSize QwtPlotSpectrogram::contourRasterSize( const QRectF &area,
-    const QRect &rect ) const
+QSize QwtPlotSpectrogram::contourRasterSize( 
+    const QRectF &area, const QRect &rect ) const
 {
     QSize raster = rect.size() / 2;
 
-    const QSize rasterHint = d_data->data->rasterHint( area );
-    if ( rasterHint.isValid() )
-        raster = raster.boundedTo( rasterHint );
+    const QRectF pixRect = pixelRect( area );
+    if ( !pixRect.isEmpty() )
+    {
+        const QSize res( qCeil( rect.width() / pixRect.width() ),
+            qCeil( rect.height() / pixRect.height() ) );
+        raster = raster.boundedTo( res );
+    }
 
     return raster;
 }
