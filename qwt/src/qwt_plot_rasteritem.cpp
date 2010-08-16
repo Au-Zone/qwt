@@ -242,16 +242,32 @@ void QwtPlotRasterItem::invalidateCache()
 }
 
 /*!
-   \brief Returns the pixel size for a given rect.
+   \brief Pixel hint
 
-   F.e the pxel size can be used to limit the resolution of
-   the image that is rendered.
+   The geometry of a pixel is used to calculated the resolution and
+   alignment of the rendered image. 
 
-   The default implementation returns an invalid size (QSizeF()),
-   what means: the data has values for all resolutions, thus
-               render the image in target device coordinates.
+   Width and height of the hint need to be the horizontal  
+   and vertical distances between 2 neighboured points. 
+   The center of the hint has to be the position of any point 
+   ( it doesn't matter which one ).
+
+   Limiting the resolution of the image might significantly improve
+   the performance and heavily reduce the amount of memory when rendering
+   a QImage from the raster data. 
+
+   The default implementation returns an empty rectangle (QRectF()),
+   meaning, that the image will be rendered in target device ( f.e screen )
+   resolution.
+
+   \param area In most implementations the resolution of the data doesn't
+               depend on the requested area.
+
+   \return Bounding rectangle of a pixel
+
+   \sa render(), renderImage()
 */
-QRectF QwtPlotRasterItem::pixelRect( const QRectF & ) const
+QRectF QwtPlotRasterItem::pixelHint( const QRectF & ) const
 {
     return QRectF();
 }
@@ -336,7 +352,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
   \param yMap Maps y-values into pixel coordinates.
   \param area Requested area for the image in scale coordinates
 
-  \sa renderRect()
+  \sa render()
 */
 QImage QwtPlotRasterItem::renderImage(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -350,12 +366,12 @@ QImage QwtPlotRasterItem::renderImage(
     QwtScaleMap xxMap = xMap;
     QwtScaleMap yyMap = yMap;
 
-    const QRectF pixRect = pixelRect( area );
-    if ( !pixRect.isEmpty() )
+    const QRectF pixelRect = pixelHint( area );
+    if ( !pixelRect.isEmpty() )
     {
         QSize res;
-        res.setWidth( qCeil( area.width() / pixRect.width() ) );
-        res.setHeight( qCeil( area.height() / pixRect.height() ) );
+        res.setWidth( qCeil( area.width() / pixelRect.width() ) );
+        res.setHeight( qCeil( area.height() / pixelRect.height() ) );
 
         /*
           It is useless to render an image with a higher resolution

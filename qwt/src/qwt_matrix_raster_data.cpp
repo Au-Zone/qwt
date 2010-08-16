@@ -109,14 +109,14 @@ QwtInterval QwtMatrixRasterData::range() const
     return d_data->range;
 }
 
-QRectF QwtMatrixRasterData::pixelRect( const QRectF & ) const
+QRectF QwtMatrixRasterData::pixelHint( const QRectF & ) const
 {
     QRectF rect;
     if ( d_data->resampleMode == NearestNeighbour )
-	{
-		rect = QRectF( boundingRect().topLeft(), 
-			QSizeF(d_data->dx, d_data->dy) );
-	}
+    {
+        rect = QRectF( boundingRect().topLeft(), 
+            QSizeF(d_data->dx, d_data->dy) );
+    }
 
     return rect;
 }

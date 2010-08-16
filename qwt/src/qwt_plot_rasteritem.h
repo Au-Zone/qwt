@@ -70,7 +70,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &rect ) const;
 
-    virtual QRectF pixelRect( const QRectF & ) const;
+    virtual QRectF pixelHint( const QRectF & ) const;
 
 protected:
     virtual QImage renderImage( const QwtScaleMap &xMap,

@@ -70,7 +70,7 @@ public:
     const QwtColorMap *colorMap() const;
 
     virtual QRectF boundingRect() const;
-    virtual QRectF pixelRect( const QRectF & ) const;
+    virtual QRectF pixelHint( const QRectF & ) const;
 
     void setDefaultContourPen( const QPen & );
     QPen defaultContourPen() const;
