@@ -389,7 +389,7 @@ QRectF QwtPlotSpectrogram::pixelHint( const QRectF &area ) const
   \param xMap X-Scale Map
   \param yMap Y-Scale Map
   \param area Requested area for the image in scale coordinates
-  \param imageRect Rectangle for the image in paint device coordinates
+  \param imageSize Size of the requested image
 
    \return A QImage::Format_Indexed8 or QImage::Format_ARGB32 depending
            on the color map.
@@ -399,15 +399,15 @@ QRectF QwtPlotSpectrogram::pixelHint( const QRectF &area ) const
 */
 QImage QwtPlotSpectrogram::render(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRectF &area, const QRect &imageRect ) const
+    const QRectF &area, const QSize &imageSize ) const
 {
-    if ( imageRect.isEmpty() )
+    if ( imageSize.isEmpty() )
         return QImage();
 
     QImage::Format format = ( d_data->colorMap->format() == QwtColorMap::RGB )
         ? QImage::Format_ARGB32 : QImage::Format_Indexed8;
 
-    QImage image( imageRect.size(), format );
+    QImage image( imageSize, format );
 
     const QwtInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
@@ -427,30 +427,30 @@ QImage QwtPlotSpectrogram::render(
     if ( numThreads <= 0 )
         numThreads = 1;
 
-    const int numRows = imageRect.height() / numThreads;
+    const int numRows = imageSize.height() / numThreads;
 
     QList< QFuture<void> > futures;
     for ( uint i = 0; i < numThreads; i++ )
     {
-        QRect tile( imageRect.x(), imageRect.y() + i * numRows,
-            imageRect.width(), numRows );
+        QRect tile( 0, i * numRows, image.width(), numRows );
         if ( i == numThreads - 1 )
         {
-            tile.setHeight( imageRect.height() - i * numRows );
-            renderTile( xMap, yMap, imageRect, tile, &image );
+            tile.setHeight( image.height() - i * numRows );
+            renderTile( xMap, yMap, tile, &image );
         }
         else
         {
             futures += QtConcurrent::run(
                 this, &QwtPlotSpectrogram::renderTile,
-                xMap, yMap, imageRect, tile, &image );
+                xMap, yMap, tile, &image );
         }
     }
     for ( int i = 0; i < futures.size(); i++ )
         futures[i].waitForFinished();
 
 #else // QT_VERSION < 0x040400
-    renderTile( xMap, imageRect, imageRect, rect, &image );
+    const QRect tile( 0, 0, image.width(), image.height() );
+    renderTile( xMap, yMap, tile, &image );
 #endif
 
     d_data->data->discardRaster();
@@ -466,30 +466,31 @@ QImage QwtPlotSpectrogram::render(
 
     \param xMap X-Scale Map
     \param yMap Y-Scale Map
-    \param rect Geometry of the image in screen coordinates
-    \param tile Geometry of the tile in screen coordinates
+    \param tile Geometry of the tile in image coordinates
     \param image Image to be rendered
 */
 void QwtPlotSpectrogram::renderTile(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &rect, const QRect &tile, QImage *image ) const
+    const QRect &tile, QImage *image ) const
 {
     const QwtInterval intensityRange = d_data->data->range();
     if ( !intensityRange.isValid() )
         return;
 
+    const double off = 0.5;
+
     if ( d_data->colorMap->format() == QwtColorMap::RGB )
     {
         for ( int y = tile.top(); y <= tile.bottom(); y++ )
         {
-            const double ty = yMap.invTransform( y );
+            const double ty = yMap.invTransform( y + off );
 
-            QRgb *line = ( QRgb * )image->scanLine( y - rect.top() );
-            line += tile.left() - rect.left();
+            QRgb *line = ( QRgb * )image->scanLine( y );
+            line += tile.left();
 
             for ( int x = tile.left(); x <= tile.right(); x++ )
             {
-                const double tx = xMap.invTransform( x );
+                const double tx = xMap.invTransform( x + off );
 
                 *line++ = d_data->colorMap->rgb( intensityRange,
                     d_data->data->value( tx, ty ) );
@@ -500,14 +501,14 @@ void QwtPlotSpectrogram::renderTile(
     {
         for ( int y = tile.top(); y <= tile.bottom(); y++ )
         {
-            const double ty = yMap.invTransform( y );
+            const double ty = yMap.invTransform( y + off );
 
-            unsigned char *line = image->scanLine( y - rect.top() );
-            line += tile.left() - rect.left();
+            unsigned char *line = image->scanLine( y );
+            line += tile.left();
 
             for ( int x = tile.left(); x <= tile.right(); x++ )
             {
-                const double tx = xMap.invTransform( x );
+                const double tx = xMap.invTransform( x + off );
 
                 *line++ = d_data->colorMap->colorIndex( intensityRange,
                     d_data->data->value( tx, ty ) );

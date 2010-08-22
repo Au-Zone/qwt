@@ -92,7 +92,7 @@ public:
 protected:
     virtual QImage render(
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &area, const QRect &imageRect ) const;
+        const QRectF &area, const QSize &imageSize ) const;
 
     virtual QSize contourRasterSize(
         const QRectF &, const QRect & ) const;
@@ -105,7 +105,7 @@ protected:
         const QwtRasterData::ContourLines& lines ) const;
 
     void renderTile( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &rect, const QRect &imageRect, QImage *image ) const;
+        const QRect &imageRect, QImage *image ) const;
 
 private:
     class PrivateData;
