@@ -12,17 +12,10 @@ public:
     {
         const double matrix[] =
         {
-#if 1
             1, 2, 4, 1,
             6, 3, 5, 2,
             4, 2, 1, 5,
             5, 4, 2, 3 
-#else
-            1, 1, 1, 1,
-            1, 1, 1, 1,
-            1, 1, 1, 1,
-            1, 1, 5, 1 
-#endif
         };
 
         QVector<double> values;
@@ -52,8 +45,7 @@ Plot::Plot(QWidget *parent):
     QwtPlot(parent)
 {
     d_spectrogram = new QwtPlotSpectrogram();
-    //d_spectrogram->setRenderThreadCount(0); // use system specific thread count
-    d_spectrogram->setRenderThreadCount(1); 
+    d_spectrogram->setRenderThreadCount(0); // use system specific thread count
 
     d_spectrogram->setColorMap( new ColorMap() );
 
