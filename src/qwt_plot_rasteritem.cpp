@@ -17,6 +17,25 @@
 #include <qpainter.h>
 #include <qpaintengine.h>
 
+static QRectF expandToPixels(const QRectF &rect, const QRectF &pixelRect)
+{
+    const double pw = pixelRect.width();
+    const double ph = pixelRect.height();
+
+    const double dx1 = pixelRect.left() - rect.left();
+    const double dx2 = pixelRect.right() - rect.right();
+    const double dy1 = pixelRect.top() - rect.top();
+    const double dy2 = pixelRect.bottom() - rect.bottom();
+
+    QRectF r;
+    r.setLeft( pixelRect.left() - qCeil( dx1 / pw ) * pw );
+    r.setTop( pixelRect.top() - qCeil( dy1 / ph ) * ph );
+    r.setRight( pixelRect.right() - qFloor( dx2 / pw ) * pw );
+    r.setBottom( pixelRect.bottom() - qFloor( dy2 / ph ) * ph );
+
+    return r;
+}
+
 static void transformMaps( const QTransform &tr,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     QwtScaleMap &xxMap, QwtScaleMap &yyMap )
@@ -308,24 +327,41 @@ void QwtPlotRasterItem::draw( QPainter *painter,
         paintRect = QwtScaleMap::transform( xxMap, yyMap, area );
     }
 
+    QRectF imageRect = paintRect;
+    QSize imageSize = QSize( qCeil( imageRect.width() ),
+            qCeil( imageRect.height() ) );
+            
+
+    const QRectF pixelRect = pixelHint(area);
+    if ( !pixelRect.isEmpty() )
+    {
+        // align the area to the data pixels
+        area = expandToPixels(area, pixelRect);
+        imageRect = QwtScaleMap::transform( xxMap, yyMap, area );
+
+        imageSize.setWidth( qRound( area.width() / pixelRect.width() ) );
+        imageSize.setHeight( qRound( area.height() / pixelRect.height() ) );
+    }
+
     QImage image;
 
     if ( useCache( d_data->cache.policy, painter ) )
     {
         if ( d_data->cache.image.isNull()
             || d_data->cache.area != area
-            || d_data->cache.size != paintRect.size() )
+            || d_data->cache.size != imageRect.size() )
         {
             d_data->cache.area = area;
-            d_data->cache.size = paintRect.size();
-            d_data->cache.image = renderImage( xxMap, yyMap, area );
+            d_data->cache.size = imageRect.size();
+            d_data->cache.image = renderImage( 
+                xxMap, yyMap, area, imageSize );
         }
 
         image = d_data->cache.image;
     }
     else
     {
-        image = renderImage( xxMap, yyMap, area );
+        image = renderImage( xxMap, yyMap, area, imageSize );
     }
 
     if ( d_data->alpha >= 0 && d_data->alpha < 255 )
@@ -335,9 +371,20 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     painter->setWorldTransform( QTransform() );
 
     if ( QwtPainter::isAligning( painter ) )
-        paintRect = innerRect( paintRect );
+    {
+        imageRect.setLeft( qFloor( imageRect.left() ) );
+        imageRect.setRight( qFloor( imageRect.right() ) );
+        imageRect.setTop( qFloor( imageRect.top() ) );
+        imageRect.setBottom( qFloor( imageRect.bottom() ) );
 
-    QwtPainter::drawImage( painter, paintRect, image );
+        paintRect.setLeft( qFloor( paintRect.left() ) );
+        paintRect.setRight( qFloor( paintRect.right() ) );
+        paintRect.setTop( qFloor( paintRect.top() ) );
+        paintRect.setBottom( qFloor( paintRect.bottom() ) );
+    }
+
+    painter->setClipRect(paintRect, Qt::IntersectClip);
+    QwtPainter::drawImage( painter, imageRect, image );
 
     painter->restore();
 }
@@ -356,58 +403,43 @@ void QwtPlotRasterItem::draw( QPainter *painter,
 */
 QImage QwtPlotRasterItem::renderImage(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRectF &area ) const
+    const QRectF &area, const QSize &imageSize ) const
 {
     if ( area.isEmpty() )
         return QImage();
 
-    QRect rect = innerRect( QwtScaleMap::transform( xMap, yMap, area ) );
+    const QSizeF pixelSize( area.width() / imageSize.width(), 
+        area.height() / imageSize.height() );
+
+    double px1 = 0.0;
+    double px2 = imageSize.width();
+    if ( xMap.p1() > xMap.p2() )
+        qSwap( px1, px2 );
+
+    double sx1 = area.left();
+    double sx2 = area.right();
+    if ( xMap.s1() > xMap.s2() )
+        qSwap( sx1, sx2 );
+
+    double py1 = 0.0;
+    double py2 = imageSize.height();
+    if ( yMap.p1() > yMap.p2() )
+        qSwap( py1, py2 );
+
+    double sy1 = area.top();
+    double sy2 = area.bottom();
+    if ( yMap.s1() > yMap.s2() )
+        qSwap( sy1, sy2 );
 
     QwtScaleMap xxMap = xMap;
+    xxMap.setPaintInterval( px1, px2 );
+    xxMap.setScaleInterval( sx1, sx2 );
+
     QwtScaleMap yyMap = yMap;
+    yyMap.setPaintInterval( py1, py2 );
+    yyMap.setScaleInterval( sy1, sy2 );
 
-    const QRectF pixelRect = pixelHint( area );
-    if ( !pixelRect.isEmpty() )
-    {
-        QSize res;
-        res.setWidth( qCeil( area.width() / pixelRect.width() ) );
-        res.setHeight( qCeil( area.height() / pixelRect.height() ) );
-
-        /*
-          It is useless to render an image with a higher resolution
-          than the data offers. Of course someone will have to
-          scale this image later into the size of the given rect, but f.e.
-          in case of postscript this will done on the printer.
-         */
-        rect.setSize( rect.size().boundedTo( res ) );
-
-        double px1 = rect.left();
-        double px2 = rect.right();
-        if ( xMap.p1() > xMap.p2() )
-            qSwap( px1, px2 );
-
-        double sx1 = area.left();
-        double sx2 = area.right();
-        if ( xMap.s1() > xMap.s2() )
-            qSwap( sx1, sx2 );
-
-        double py1 = rect.top();
-        double py2 = rect.bottom();
-        if ( yMap.p1() > yMap.p2() )
-            qSwap( py1, py2 );
-
-        double sy1 = area.top();
-        double sy2 = area.bottom();
-        if ( yMap.s1() > yMap.s2() )
-            qSwap( sy1, sy2 );
-
-        xxMap.setPaintInterval( px1, px2 );
-        xxMap.setScaleInterval( sx1, sx2 );
-        yyMap.setPaintInterval( py1, py2 );
-        yyMap.setScaleInterval( sy1, sy2 );
-    }
-
-    QImage image = render( xxMap, yyMap, area, rect );
+    QImage image = render( xxMap, yyMap, area, imageSize );
 
     // Mirror the image in case of inverted maps
 

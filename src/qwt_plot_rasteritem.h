@@ -74,7 +74,8 @@ public:
 
 protected:
     virtual QImage renderImage( const QwtScaleMap &xMap,
-        const QwtScaleMap &yMap, const QRectF &area ) const;
+        const QwtScaleMap &yMap, const QRectF &area,
+        const QSize &imageSize ) const;
 
     /*!
       \brief Render an image 
@@ -88,13 +89,13 @@ protected:
       \param xMap X-Scale Map
       \param yMap Y-Scale Map
       \param area Requested area for the image in scale coordinates
-      \param imageRect Rectangle of the image in paint device coordinates
+      \param imageSize Requested size of the image
 
       \sa renderImage()
      */
     virtual QImage render( const QwtScaleMap &xMap,
         const QwtScaleMap &yMap, const QRectF &area,
-        const QRect &imageRect ) const = 0;
+        const QSize &imageSize ) const = 0;
 
     QRect innerRect( const QRectF &r ) const;
 
