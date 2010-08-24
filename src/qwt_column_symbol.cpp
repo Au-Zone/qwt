@@ -57,23 +57,22 @@ static void drawBox( QPainter *p, const QRectF &rect,
         p->fillRect( windowRect, pal.window() );
 }
 
-static void drawPanel( QPainter *p, const QRectF &rect,
+static void drawPanel( QPainter *painter, const QRectF &rect,
     const QPalette &pal, double lw )
 {
-
     if ( lw > 0.0 )
     {
         if ( rect.width() == 0.0 )
         {
-            p->setPen( pal.window().color() );
-            p->drawLine( rect.topLeft(), rect.bottomLeft() );
+            painter->setPen( pal.window().color() );
+            painter->drawLine( rect.topLeft(), rect.bottomLeft() );
             return;
         }
 
         if ( rect.height() == 0.0 )
         {
-            p->setPen( pal.window().color() );
-            p->drawLine( rect.topLeft(), rect.topRight() );
+            painter->setPen( pal.window().color() );
+            painter->drawLine( rect.topLeft(), rect.topRight() );
             return;
         }
 
@@ -99,15 +98,15 @@ static void drawPanel( QPainter *p, const QRectF &rect,
         lines[1] += innerRect.bottomRight();
         lines[1] += innerRect.topRight();
 
-        p->setPen( Qt::NoPen );
+        painter->setPen( Qt::NoPen );
 
-        p->setBrush( pal.light() );
-        p->drawPolygon( lines[0] );
-        p->setBrush( pal.dark() );
-        p->drawPolygon( lines[1] );
+        painter->setBrush( pal.light() );
+        painter->drawPolygon( lines[0] );
+        painter->setBrush( pal.dark() );
+        painter->drawPolygon( lines[1] );
     }
 
-    p->fillRect( rect.adjusted( lw, lw, -lw + 1, -lw + 1 ), pal.window() );
+    painter->fillRect( rect.adjusted( lw, lw, -lw + 1, -lw + 1 ), pal.window() );
 }
 
 class QwtColumnSymbol::PrivateData
@@ -269,14 +268,13 @@ void QwtColumnSymbol::drawBox( QPainter *painter,
     const QwtColumnRect &rect ) const
 {
     QRectF r = rect.toRect();
-    if ( rect.hInterval.borderFlags() & QwtInterval::ExcludeMinimum )
-        r.adjust( 1, 0, 0, 0 );
-    if ( rect.hInterval.borderFlags() & QwtInterval::ExcludeMaximum )
-        r.adjust( 0, 0, -1, 0 );
-    if ( rect.vInterval.borderFlags() & QwtInterval::ExcludeMinimum )
-        r.adjust( 0, 1, 0, 0 );
-    if ( rect.vInterval.borderFlags() & QwtInterval::ExcludeMaximum )
-        r.adjust( 0, 0, 0, -1 );
+    if ( QwtPainter::isAligning( painter ) )
+    {
+        r.setLeft( qRound( r.left() ) );
+        r.setRight( qRound( r.right() ) );
+        r.setTop( qRound( r.top() ) );
+        r.setBottom( qRound( r.bottom() ) );
+    }
 
     switch ( d_data->frameStyle )
     {
@@ -292,8 +290,7 @@ void QwtColumnSymbol::drawBox( QPainter *painter,
         }
         default:
         {
-            painter->fillRect( r.adjusted( 0, 0, -1, -1 ),
-                d_data->palette.window() );
+            painter->fillRect( r, d_data->palette.window() );
         }
     }
 }

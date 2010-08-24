@@ -385,14 +385,25 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     if ( size <= 0 )
         return;
 
+    const bool doAlign = QwtPainter::isAligning( painter );
+
     QPolygonF polyline( size );
 
     QPointF *points = polyline.data();
     for ( int i = from; i <= to; i++ )
     {
         const QPointF sample = d_series->sample( i );
-        points[i - from].rx() = xMap.transform( sample.x() );
-        points[i - from].ry() = yMap.transform( sample.y() );
+
+        double x = xMap.transform( sample.x() );
+        double y = yMap.transform( sample.y() );
+        if ( doAlign )
+        {
+            x = qRound( x );
+            y = qRound( y );
+        }
+
+        points[i - from].rx() = x;
+        points[i - from].ry() = y;
     }
 
     if ( ( d_data->attributes & Fitted ) && d_data->curveFitter )
@@ -426,15 +437,28 @@ void QwtPlotCurve::drawSticks( QPainter *painter,
     painter->save();
     painter->setRenderHint( QPainter::Antialiasing, false );
 
-    const double x0 = xMap.transform( d_data->baseline );
-    const double y0 = yMap.transform( d_data->baseline );
+    const bool doAlign = QwtPainter::isAligning( painter );
+
+    double x0 = xMap.transform( d_data->baseline );
+    double y0 = yMap.transform( d_data->baseline );
+    if ( doAlign )
+    {
+        x0 = qRound( x0 );
+        y0 = qRound( y0 );
+    }
+
     const Qt::Orientation o = orientation();
 
     for ( int i = from; i <= to; i++ )
     {
         const QPointF sample = d_series->sample( i );
-        const double xi = xMap.transform( sample.x() );
-        const double yi = yMap.transform( sample.y() );
+        double xi = xMap.transform( sample.x() );
+        double yi = yMap.transform( sample.y() );
+        if ( doAlign )
+        {
+            xi = qRound( xi );
+            yi = qRound( yi );
+        }
 
         if ( o == Qt::Horizontal )
             QwtPainter::drawLine( painter, x0, yi, xi, yi );
@@ -462,6 +486,7 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     const QRectF &canvasRect, int from, int to ) const
 {
     const bool doFill = d_data->brush.style() != Qt::NoBrush;
+    const bool doAlign = QwtPainter::isAligning( painter );
 
     QPolygonF polyline;
     if ( doFill )
@@ -472,8 +497,13 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     for ( int i = from; i <= to; i++ )
     {
         const QPointF sample = d_series->sample( i );
-        const double xi = xMap.transform( sample.x() );
-        const double yi = yMap.transform( sample.y() );
+        double xi = xMap.transform( sample.x() );
+        double yi = yMap.transform( sample.y() );
+        if ( doAlign )
+        {
+            xi = qRound( xi );
+            yi = qRound( yi );
+        }
 
         QwtPainter::drawPoint( painter, QPointF( xi, yi ) );
 
@@ -512,6 +542,8 @@ void QwtPlotCurve::drawSteps( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
+    const bool doAlign = QwtPainter::isAligning( painter );
+
     QPolygonF polygon( 2 * ( to - from ) + 1 );
     QPointF *points = polygon.data();
 
@@ -523,8 +555,13 @@ void QwtPlotCurve::drawSteps( QPainter *painter,
     for ( i = from, ip = 0; i <= to; i++, ip += 2 )
     {
         const QPointF sample = d_series->sample( i );
-        const double xi = xMap.transform( sample.x() );
-        const double yi = yMap.transform( sample.y() );
+        double xi = xMap.transform( sample.x() );
+        double yi = yMap.transform( sample.y() );
+        if ( doAlign )
+        {
+            xi = qRound( xi );
+            yi = qRound( yi );
+        }
 
         if ( ip > 0 )
         {
@@ -641,7 +678,7 @@ void QwtPlotCurve::fillCurve( QPainter *painter,
     if ( d_data->brush.style() == Qt::NoBrush )
         return;
 
-    closePolyline( xMap, yMap, polygon );
+    closePolyline( painter, xMap, yMap, polygon );
     if ( polygon.count() <= 2 ) // a line can't be filled
         return;
 
@@ -663,26 +700,35 @@ void QwtPlotCurve::fillCurve( QPainter *painter,
   \brief Complete a polygon to be a closed polygon
          including the area between the original polygon
          and the baseline.
+  \param Painter painter
   \param xMap X map
   \param yMap Y map
   \param polygon Polygon to be completed
 */
-void QwtPlotCurve::closePolyline(
+void QwtPlotCurve::closePolyline( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     QPolygonF &polygon ) const
 {
     if ( polygon.size() < 2 )
         return;
 
+    const bool doAlign = QwtPainter::isAligning( painter );
+
     if ( orientation() == Qt::Vertical )
     {
-        const double refY = yMap.transform( d_data->baseline );
+        double refY = yMap.transform( d_data->baseline );
+        if ( doAlign )
+            refY = qRound( refY );
+
         polygon += QPointF( polygon.last().x(), refY );
         polygon += QPointF( polygon.first().x(), refY );
     }
     else
     {
-        const double refX = xMap.transform( d_data->baseline );
+        double refX = xMap.transform( d_data->baseline );
+        if ( doAlign )
+            refX = qRound( refX );
+
         polygon += QPointF( refX, polygon.last().y() );
         polygon += QPointF( refX, polygon.first().y() );
     }
@@ -705,10 +751,10 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
-    const bool isAligning = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::isAligning( painter );
 
     bool usePixmap = testPaintAttribute( CacheSymbols );
-    if ( usePixmap && !isAligning )
+    if ( usePixmap && !doAlign )
     {
         // Don't use the pixmap, when the paint device
         // could generate scalable vectors
@@ -733,8 +779,13 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
         {
             const QPointF sample = d_series->sample( i );
 
-            const double xi = xMap.transform( sample.x() );
-            const double yi = yMap.transform( sample.y() );
+            double xi = xMap.transform( sample.x() );
+            double yi = yMap.transform( sample.y() );
+            if ( doAlign )
+            {
+                xi = qRound( xi );
+                yi = qRound( yi );
+            }
 
             if ( canvasRect.contains( xi, yi ) )
             {

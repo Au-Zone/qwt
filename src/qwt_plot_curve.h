@@ -257,8 +257,8 @@ protected:
     void fillCurve( QPainter *,
         const QwtScaleMap &, const QwtScaleMap &, QPolygonF & ) const;
 
-    void closePolyline( const QwtScaleMap &, const QwtScaleMap &,
-        QPolygonF & ) const;
+    void closePolyline( QPainter *,
+        const QwtScaleMap &, const QwtScaleMap &, QPolygonF & ) const;
 
 private:
     class PrivateData;

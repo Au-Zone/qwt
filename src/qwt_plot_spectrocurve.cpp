@@ -224,6 +224,8 @@ void QwtPlotSpectroCurve::drawDots( QPainter *painter,
     if ( !d_data->colorRange.isValid() )
         return;
 
+    const bool doAlign = QwtPainter::isAligning( painter );
+
     const QwtColorMap::Format format = d_data->colorMap->format();
     if ( format == QwtColorMap::Indexed )
         d_data->colorTable = d_data->colorMap->colorTable( d_data->colorRange );
@@ -232,8 +234,13 @@ void QwtPlotSpectroCurve::drawDots( QPainter *painter,
     {
         const QwtPoint3D sample = d_series->sample( i );
 
-        const double xi = xMap.transform( sample.x() );
-        const double yi = yMap.transform( sample.y() );
+        double xi = xMap.transform( sample.x() );
+        double yi = yMap.transform( sample.y() );
+        if ( doAlign )
+        {
+            xi = qRound( xi );
+            yi = qRound( yi );
+        }
 
         if ( d_data->paintAttributes & QwtPlotSpectroCurve::ClipPoints )
         {

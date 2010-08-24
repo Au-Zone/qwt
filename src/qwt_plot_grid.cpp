@@ -257,9 +257,14 @@ void QwtPlotGrid::drawLines( QPainter *painter, const QRectF &canvasRect,
     const double y1 = canvasRect.top();
     const double y2 = canvasRect.bottom() - 1.0;
 
+    const bool doAlign = QwtPainter::isAligning( painter );
+
     for ( uint i = 0; i < ( uint )values.count(); i++ )
     {
-        const double value = scaleMap.transform( values[i] );
+        double value = scaleMap.transform( values[i] );
+        if ( doAlign )
+            value = qRound( value );
+
         if ( orientation == Qt::Horizontal )
         {
             if ( qwtFuzzyGreaterOrEqual( value, y1 ) &&

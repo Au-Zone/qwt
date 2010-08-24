@@ -12,7 +12,6 @@
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qmath.h>
-#include <qdebug.h>
 
 namespace QwtTriangle
 {
@@ -42,8 +41,8 @@ static inline void qwtDrawEllipseSymbols( QPainter *painter,
 
         for ( int i = 0; i < numPoints; i++ )
         {
-            const int x = ( int )qCeil( points[i].x() );
-            const int y = ( int )qCeil( points[i].y() );
+            const int x = qRound( points[i].x() );
+            const int y = qRound( points[i].y() );
 
             const QRectF r( x - sw2, y - sh2, sw, sh );
             QwtPainter::drawEllipse( painter, r );
@@ -68,7 +67,7 @@ static inline void qwtDrawEllipseSymbols( QPainter *painter,
 }
 
 static inline void qwtDrawRectSymbols( QPainter *painter,
-                                       const QPointF *points, int numPoints, const QwtSymbol &symbol )
+    const QPointF *points, int numPoints, const QwtSymbol &symbol )
 {
     const QSize size = symbol.size();
 
@@ -87,10 +86,10 @@ static inline void qwtDrawRectSymbols( QPainter *painter,
 
         for ( int i = 0; i < numPoints; i++ )
         {
-            const int x = ( int )qCeil( points[i].x() );
-            const int y = ( int )qCeil( points[i].y() );
+            const int x = qRound( points[i].x() );
+            const int y = qRound( points[i].y() );
 
-            const QRectF r( x - sw2, y - sh2, sw, sh );
+            const QRect r( x - sw2, y - sh2, sw, sh );
             QwtPainter::drawRect( painter, r );
         }
     }
@@ -126,8 +125,8 @@ static inline void qwtDrawDiamondSymbols( QPainter *painter,
     {
         for ( int i = 0; i < numPoints; i++ )
         {
-            const int x = ( int )qCeil( points[i].x() );
-            const int y = ( int )qCeil( points[i].y() );
+            const int x = qRound( points[i].x() );
+            const int y = qRound( points[i].y() );
 
             const int x1 = x - size.width() / 2;
             const int y1 = y - size.height() / 2;
@@ -201,8 +200,8 @@ static inline void qwtDrawTriangleSymbols(
 
         if ( doAlign )
         {
-            x = qCeil( x );
-            y = qCeil( y );
+            x = qRound( x );
+            y = qRound( y );
         }
 
         const double x1 = x - sw2;
@@ -282,24 +281,24 @@ static inline void qwtDrawLineSymbols(
 
     if ( QwtPainter::isAligning( painter ) )
     {
-        const double sw = size.width();
-        const double sh = size.height();
-        const double sw2 = size.width() / 2;
-        const double sh2 = size.height() / 2;
+        const int sw = qFloor( size.width() );
+        const int sh = qFloor( size.height() );
+        const int sw2 = size.width() / 2;
+        const int sh2 = size.height() / 2;
 
         for ( int i = 0; i < numPoints; i++ )
         {
             if ( orientations & Qt::Horizontal )
             {
-                const double x = qCeil( points[i].x() ) - sw2;
-                const double y = points[i].y();
+                const int x = qRound( points[i].x() ) - sw2;
+                const int y = qRound( points[i].y() );
 
                 QwtPainter::drawLine( painter, x, y, x + sw, y );
             }
             if ( orientations & Qt::Vertical )
             {
-                const double x = points[i].x();
-                const double y = qCeil( points[i].y() ) - sh2;
+                const int x = qRound( points[i].x() );
+                const int y = qRound( points[i].y() ) - sh2;
 
                 QwtPainter::drawLine( painter, x, y, x, y + sh );
             }
@@ -353,8 +352,8 @@ static inline void qwtDrawXCrossSymbols( QPainter *painter,
         {
             const QPointF &pos = points[i];
 
-            const int x = ( int )qCeil( pos.x() );
-            const int y = ( int )qCeil( pos.y() );
+            const int x = qRound( pos.x() );
+            const int y = qRound( pos.y() );
 
             const int x1 = x - sw2;
             const int x2 = x1 + sw;
@@ -391,31 +390,61 @@ static inline void qwtDrawStar1Symbols( QPainter *painter,
     const QPointF *points, int numPoints, const QwtSymbol &symbol )
 {
     const QSize size = symbol.size();
-
     painter->setPen( symbol.pen() );
-    QRectF r( 0, 0, size.width(), size.height() );
 
-    for ( int i = 0; i < numPoints; i++ )
+    if ( QwtPainter::isAligning( painter ) )
     {
-        r.moveCenter( points[i] );
+        QRect r( 0, 0, size.width(), size.height() );
 
-        const double sqrt1_2 = 0.70710678118654752440; /* 1/sqrt(2) */
+        for ( int i = 0; i < numPoints; i++ )
+        {
+            r.moveCenter( points[i].toPoint() );
 
-        const QPointF c = r.center();
-        const double d1  = r.width() / 2.0 * ( 1.0 - sqrt1_2 );
+            const double sqrt1_2 = 0.70710678118654752440; /* 1/sqrt(2) */
 
-        QwtPainter::drawLine( painter,
-            r.left() + d1, r.top() + d1,
-            r.right() - d1, r.bottom() - d1 );
-        QwtPainter::drawLine( painter,
-            r.left() + d1, r.bottom() - d1,
-            r.right() - d1, r.top() + d1 );
-        QwtPainter::drawLine( painter,
-            c.x(), r.top(),
-            c.x(), r.bottom() );
-        QwtPainter::drawLine( painter,
-            r.left(), c.y(),
-            r.right(), c.y() );
+            const double d1 = r.width() / 2.0 * ( 1.0 - sqrt1_2 );
+
+            QwtPainter::drawLine( painter,
+                qRound( r.left() + d1 ), qRound( r.top() + d1 ),
+                qRound( r.right() - d1 ), qRound( r.bottom() - d1 ) );
+            QwtPainter::drawLine( painter,
+                qRound( r.left() + d1 ), qRound( r.bottom() - d1 ),
+                qRound( r .right() - d1), qRound( r.top() + d1 ) );
+
+            const QPoint c = r.center();
+
+            QwtPainter::drawLine( painter,
+                c.x(), r.top(), c.x(), r.bottom() );
+            QwtPainter::drawLine( painter,
+                r.left(), c.y(), r.right(), c.y() );
+        }
+    }
+    else
+    {
+        QRectF r( 0, 0, size.width(), size.height() );
+
+        for ( int i = 0; i < numPoints; i++ )
+        {
+            r.moveCenter( points[i] );
+
+            const double sqrt1_2 = 0.70710678118654752440; /* 1/sqrt(2) */
+
+            const QPointF c = r.center();
+            const double d1  = r.width() / 2.0 * ( 1.0 - sqrt1_2 );
+
+            QwtPainter::drawLine( painter,
+                r.left() + d1, r.top() + d1,
+                r.right() - d1, r.bottom() - d1 );
+            QwtPainter::drawLine( painter,
+                r.left() + d1, r.bottom() - d1,
+                r.right() - d1, r.top() + d1 );
+            QwtPainter::drawLine( painter,
+                c.x(), r.top(),
+                c.x(), r.bottom() );
+            QwtPainter::drawLine( painter,
+                r.left(), c.y(),
+                r.right(), c.y() );
+        }
     }
 }
 
@@ -445,11 +474,18 @@ static inline void qwtDrawStar2Symbols( QPainter *painter,
         double y = points[i].y();
         if ( doAlign )
         {
-            x = qCeil( x );
-            y = qCeil( y );
+            x = qRound( x );
+            y = qRound( y );
         }
 
-        const double x1 = x - 3 * dx;
+        double x1 = x - 3 * dx;
+        double y1 = y - 2 * dy;
+        if ( doAlign )
+        {
+            x1 = qRound( x - 3 * dx );
+            y1 = qRound( y - 2 * dy );
+        }
+
         const double x2 = x1 + 1 * dx;
         const double x3 = x1 + 2 * dx;
         const double x4 = x1 + 3 * dx;
@@ -457,7 +493,6 @@ static inline void qwtDrawStar2Symbols( QPainter *painter,
         const double x6 = x1 + 5 * dx;
         const double x7 = x1 + 6 * dx;
 
-        const double y1 = y - 2 * dy;
         const double y2 = y1 + 1 * dy;
         const double y3 = y1 + 2 * dy;
         const double y4 = y1 + 3 * dy;
@@ -525,15 +560,21 @@ static inline void qwtDrawHexagonSymbols( QPainter *painter,
         double y = points[i].y();
         if ( doAlign )
         {
-            x = qCeil( x );
-            y = qCeil( y );
+            x = qRound( x );
+            y = qRound( y );
         }
 
-        const double x1 = x - dx;
+        double x1 = x - dx;
+        double y1 = y - 2 * dy;
+        if ( doAlign )
+        {
+            x1 = qCeil( x1 );
+            y1 = qCeil( y1 );
+        }
+
         const double x2 = x1 + 1 * dx;
         const double x3 = x1 + 2 * dx;
 
-        const double y1 = y - 2 * dy;
         const double y2 = y1 + 1 * dy;
         const double y3 = y1 + 3 * dy;
         const double y4 = y1 + 4 * dy;
