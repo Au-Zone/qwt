@@ -145,18 +145,28 @@ void QwtPlotMarker::drawAt( QPainter *painter,
     // draw lines
     if ( d_data->style != NoLine )
     {
+        const bool doAlign = QwtPainter::isAligning( painter );
+
         painter->setPen( d_data->pen );
         if ( d_data->style == QwtPlotMarker::HLine ||
             d_data->style == QwtPlotMarker::Cross )
         {
+            double y = pos.y();
+            if ( doAlign )
+                y = qRound( y );
+
             QwtPainter::drawLine( painter, canvasRect.left(),
-                pos.y(), canvasRect.right() - 1.0, pos.y() );
+                y, canvasRect.right() - 1.0, y );
         }
         if ( d_data->style == QwtPlotMarker::VLine ||
             d_data->style == QwtPlotMarker::Cross )
         {
-            QwtPainter::drawLine( painter, pos.x(),
-                canvasRect.top(), pos.x(), canvasRect.bottom() - 1.0 );
+            double x = pos.x();
+            if ( doAlign )
+                x = qRound( x );
+
+            QwtPainter::drawLine( painter, x,
+                canvasRect.top(), x, canvasRect.bottom() - 1.0 );
         }
     }
 

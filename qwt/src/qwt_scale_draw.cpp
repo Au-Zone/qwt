@@ -417,46 +417,74 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
     if ( len <= 0 )
         return;
 
+    const bool isAligning = QwtPainter::isAligning( painter );
+
     QwtScaleMap scaleMap = map();
     QPointF pos = d_data->pos;
 
-    const double tval = scaleMap.transform( value );
+    double tval = scaleMap.transform( value );
+    if ( isAligning )
+        tval = qRound( tval );
 
     const int pw = penWidth();
     int a = 0;
-    if ( pw > 1 && QwtPainter::isAligning( painter ) )
+    if ( pw > 1 && isAligning )
         a = 1;
 
     switch ( alignment() )
     {
         case LeftScale:
         {
-            const double x1 = pos.x() + a;
-            const double x2 = pos.x() + a - pw - len;
+            double x1 = pos.x() + a;
+            double x2 = pos.x() + a - pw - len;
+            if ( isAligning )
+            {
+                x1 = qRound( x1 );
+                x2 = qRound( x2 );
+            }
+
             QwtPainter::drawLine( painter, x1, tval, x2, tval );
             break;
         }
 
         case RightScale:
         {
-            const double x1 = pos.x();
-            const double x2 = pos.x() + pw + len;
+            double x1 = pos.x();
+            double x2 = pos.x() + pw + len;
+            if ( isAligning )
+            {
+                x1 = qRound( x1 );
+                x2 = qRound( x2 );
+            }
+
             QwtPainter::drawLine( painter, x1, tval, x2, tval );
             break;
         }
 
         case BottomScale:
         {
-            const double y1 = pos.y();
-            const double y2 = pos.y() + pw + len;
+            double y1 = pos.y();
+            double y2 = pos.y() + pw + len;
+            if ( isAligning )
+            {
+                y1 = qRound( y1 );
+                y2 = qRound( y2 );
+            }
+
             QwtPainter::drawLine( painter, tval, y1, tval, y2 );
             break;
         }
 
         case TopScale:
         {
-            const double y1 = pos.y() + a;
-            const double y2 = pos.y() - pw - len + a;
+            double y1 = pos.y() + a;
+            double y2 = pos.y() - pw - len + a;
+            if ( isAligning )
+            {
+                y1 = qRound( y1 );
+                y2 = qRound( y2 );
+            }
+
             QwtPainter::drawLine( painter, tval, y1, tval, y2 );
             break;
         }
@@ -471,6 +499,8 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
 */
 void QwtScaleDraw::drawBackbone( QPainter *painter ) const
 {
+    const bool doAlign = QwtPainter::isAligning( painter );
+
     const QPointF &pos = d_data->pos;
     const double len = d_data->len;
     const int pw = qMax( penWidth(), 1 );
@@ -480,7 +510,7 @@ void QwtScaleDraw::drawBackbone( QPainter *painter ) const
     // and the alignment of the scale
 
     double off;
-    if ( QwtPainter::isAligning( painter ) )
+    if ( doAlign )
     {
         if ( alignment() == LeftScale || alignment() == TopScale )
             off = ( pw - 1 ) / 2;
@@ -496,25 +526,37 @@ void QwtScaleDraw::drawBackbone( QPainter *painter ) const
     {
         case LeftScale:
         {
-            const double x = pos.x() - off;
+            double x = pos.x() - off;
+            if ( doAlign )
+                x = qRound( x );
+
             QwtPainter::drawLine( painter, x, pos.y(), x, pos.y() + len );
             break;
         }
         case RightScale:
         {
-            const double x = pos.x() + off;
+            double x = pos.x() + off;
+            if ( doAlign )
+                x = qRound( x );
+
             QwtPainter::drawLine( painter, x, pos.y(), x, pos.y() + len );
             break;
         }
         case TopScale:
         {
-            const double y = pos.y() - off;
+            double y = pos.y() - off;
+            if ( doAlign )
+                y = qRound( y );
+
             QwtPainter::drawLine( painter, pos.x(), y, pos.x() + len, y );
             break;
         }
         case BottomScale:
         {
-            const double y = pos.y() + off;
+            double y = pos.y() + off;
+            if ( doAlign )
+                y = qRound( y );
+
             QwtPainter::drawLine( painter, pos.x(), y, pos.x() + len, y );
             break;
         }

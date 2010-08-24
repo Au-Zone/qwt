@@ -46,9 +46,21 @@ public:
     //! \return A normalized QRect built from the intervals
     QRectF toRect() const
     {
-        return QRectF( hInterval.minValue(), vInterval.minValue(),
+        QRectF r( hInterval.minValue(), vInterval.minValue(),
             hInterval.maxValue() - hInterval.minValue(),
-            vInterval.maxValue() - vInterval.minValue() ).normalized();
+            vInterval.maxValue() - vInterval.minValue() );
+        r = r.normalized();
+
+        if ( hInterval.borderFlags() & QwtInterval::ExcludeMinimum )
+            r.adjust( 1, 0, 0, 0 );
+        if ( hInterval.borderFlags() & QwtInterval::ExcludeMaximum )
+            r.adjust( 0, 0, -1, 0 );
+        if ( vInterval.borderFlags() & QwtInterval::ExcludeMinimum )
+            r.adjust( 0, 1, 0, 0 );
+        if ( vInterval.borderFlags() & QwtInterval::ExcludeMaximum )
+            r.adjust( 0, 0, 0, -1 );
+
+        return r;
     }
 
     //! \return Orientation

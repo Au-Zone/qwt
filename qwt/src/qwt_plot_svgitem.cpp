@@ -11,6 +11,7 @@
 #include "qwt_scale_map.h"
 #include "qwt_legend.h"
 #include "qwt_legend_item.h"
+#include "qwt_painter.h"
 #include <qpainter.h>
 #include <qsvgrenderer.h>
 
@@ -168,8 +169,18 @@ void QwtPlotSvgItem::render( QPainter *painter,
     if ( !viewBox.isValid() )
         return;
 
+    QRectF r = rect;
+
+    if ( QwtPainter::isAligning( painter ) )
+    {
+        r.setLeft ( qRound( r.left() ) );
+        r.setRight ( qRound( r.right() ) );
+        r.setTop ( qRound( r.top() ) );
+        r.setBottom ( qRound( r.bottom() ) );
+    }
+
     d_data->renderer.setViewBox( viewBox );
-    d_data->renderer.render( painter, rect );
+    d_data->renderer.render( painter, r );
 }
 
 /*!

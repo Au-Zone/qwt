@@ -269,6 +269,8 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     int from, int to ) const
 {
+    const bool doAlign = QwtPainter::isAligning( painter );
+
     painter->save();
 
     const size_t size = to - from + 1;
@@ -283,9 +285,15 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
         const QwtIntervalSample intervalSample = sample( from + i );
         if ( orientation() == Qt::Vertical )
         {
-            const double x = xMap.transform( intervalSample.value );
-            const double y1 = yMap.transform( intervalSample.interval.minValue() );
-            const double y2 = yMap.transform( intervalSample.interval.maxValue() );
+            double x = xMap.transform( intervalSample.value );
+            double y1 = yMap.transform( intervalSample.interval.minValue() );
+            double y2 = yMap.transform( intervalSample.interval.maxValue() );
+            if ( doAlign )
+            {
+                x = qRound( x );
+                y1 = qRound( y1 );
+                y2 = qRound( y2 );
+            }
 
             minValue.rx() = x;
             minValue.ry() = y1;
@@ -294,9 +302,15 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
         }
         else
         {
-            const double y = yMap.transform( intervalSample.value );
-            const double x1 = xMap.transform( intervalSample.interval.minValue() );
-            const double x2 = xMap.transform( intervalSample.interval.maxValue() );
+            double y = yMap.transform( intervalSample.value );
+            double x1 = xMap.transform( intervalSample.interval.minValue() );
+            double x2 = xMap.transform( intervalSample.interval.maxValue() );
+            if ( doAlign )
+            {
+                y = qRound( y );
+                x1 = qRound( x1 );
+                x2 = qRound( x2 );
+            }
 
             minValue.rx() = x1;
             minValue.ry() = y;
