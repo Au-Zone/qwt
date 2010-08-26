@@ -35,13 +35,9 @@ class SpectrogramData: public QwtRasterData
 public:
     SpectrogramData()
     {
-        setInterval( Qt::Horizontal, QwtInterval( -1.5, 1.5 ) );
-        setInterval( Qt::Vertical, QwtInterval( -1.5, 1.5 ) );
-    }
-
-    virtual QwtInterval range() const
-    {
-        return QwtInterval(0.0, 10.0);
+        setInterval( Qt::XAxis, QwtInterval( -1.5, 1.5 ) );
+        setInterval( Qt::YAxis, QwtInterval( -1.5, 1.5 ) );
+        setInterval( Qt::ZAxis, QwtInterval( 0.0, 10.0 ) );
     }
 
     virtual double value(double x, double y) const
@@ -83,15 +79,14 @@ Plot::Plot(QWidget *parent):
         contourLevels += level;
     d_spectrogram->setContourLevels(contourLevels);
 
+	const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
     // A color bar on the right axis
     QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
     rightAxis->setTitle("Intensity");
     rightAxis->setColorBarEnabled(true);
-    rightAxis->setColorMap(d_spectrogram->data()->range(), new ColorMap());
+    rightAxis->setColorMap( zInterval, new ColorMap());
 
-    setAxisScale(QwtPlot::yRight,
-        d_spectrogram->data()->range().minValue(),
-        d_spectrogram->data()->range().maxValue() );
+    setAxisScale(QwtPlot::yRight, zInterval.minValue(), zInterval.maxValue() );
     enableAxis(QwtPlot::yRight);
 
     plotLayout()->setAlignCanvasToScales(true);

@@ -44,8 +44,8 @@ public:
     QwtRasterData();
     virtual ~QwtRasterData();
 
-    virtual void setInterval( Qt::Orientation, const QwtInterval & );
-	const QwtInterval &interval(Qt::Orientation) const;
+    virtual void setInterval( Qt::Axis, const QwtInterval & );
+	const QwtInterval &interval(Qt::Axis) const;
 
     virtual QRectF pixelHint( const QRectF & ) const;
 
@@ -59,9 +59,6 @@ public:
     */
     virtual double value( double x, double y ) const = 0;
 
-    //! \return the range of the values
-    virtual QwtInterval range() const = 0;
-
     virtual ContourLines contourLines( const QRectF &rect,
         const QSize &raster, const QList<double> &levels,
         int flags ) const;
@@ -74,13 +71,12 @@ private:
     QwtRasterData( const QwtRasterData & );
     QwtRasterData &operator=( const QwtRasterData & );
 
-    QwtInterval d_intervals[2];
+    QwtInterval d_intervals[3];
 };
 
-inline const QwtInterval &QwtRasterData::interval(
-	Qt::Orientation orientation) const
+inline const QwtInterval &QwtRasterData::interval( Qt::Axis axis) const
 {
-	return d_intervals[orientation - 1];
+	return d_intervals[axis];
 }
 
 #endif

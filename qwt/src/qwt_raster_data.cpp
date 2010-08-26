@@ -165,18 +165,16 @@ QwtRasterData::~QwtRasterData()
 }
 
 /*!
-   Set the bounding interval ( x/y plane in plot coordinates )
-   of the data.
+   Set the bounding interval for the x, y or z coordinates.
 
-   \param orientation Qt::Horizontal: x, Qt::Vertical: y
+   \param axis Axis
    \param interval Bounding interval
 
    \sa interval()
 */
-void QwtRasterData::setInterval( Qt::Orientation orientation,
-	const QwtInterval &interval )
+void QwtRasterData::setInterval( Qt::Axis axis, const QwtInterval &interval )
 {
-    d_intervals[orientation - 1] = interval;
+    d_intervals[axis] = interval;
 }
 
 /*!
@@ -264,7 +262,7 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
     const bool ignoreOnPlane =
         flags & QwtRasterData::IgnoreAllVerticesOnLevel;
 
-    const QwtInterval range = this->range();
+    const QwtInterval range = interval( Qt::ZAxis );
     bool ignoreOutOfRange = false;
     if ( range.isValid() )
         ignoreOutOfRange = flags & IgnoreOutOfRange;

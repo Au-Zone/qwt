@@ -10,7 +10,6 @@
 #include "qwt_interval.h"
 #include "qwt_math.h"
 #include <qalgorithms.h>
-#include <qdebug.h>
 
 /*!
    \brief Normalize the limits of the interval
