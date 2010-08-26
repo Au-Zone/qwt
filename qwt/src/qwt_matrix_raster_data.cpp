@@ -42,19 +42,6 @@ QwtMatrixRasterData::QwtMatrixRasterData()
     update();
 }
 
-QwtMatrixRasterData::QwtMatrixRasterData( 
-    const QRectF &boundingRect, const QwtInterval &range,
-    const QVector<double> &values, size_t numColumns )
-{
-    d_data = new PrivateData();
-    d_data->range = range;
-    d_data->values = values;
-    d_data->numColumns = numColumns;
-    
-    setBoundingRect(boundingRect);
-    update();
-}
-
 QwtMatrixRasterData::~QwtMatrixRasterData()
 {
     delete d_data;
@@ -70,9 +57,10 @@ QwtMatrixRasterData::ResampleMode QwtMatrixRasterData::resampleMode() const
     return d_data->resampleMode;
 }
 
-void QwtMatrixRasterData::setBoundingRect( const QRectF &rect )
+void QwtMatrixRasterData::setInterval( Qt::Orientation orientation,
+	const QwtInterval &interval )
 {
-    QwtRasterData::setBoundingRect( rect );
+    QwtRasterData::setInterval( orientation, interval );
     update();
 }
 
@@ -114,8 +102,13 @@ QRectF QwtMatrixRasterData::pixelHint( const QRectF & ) const
     QRectF rect;
     if ( d_data->resampleMode == NearestNeighbour )
     {
-        rect = QRectF( boundingRect().topLeft(), 
-            QSizeF(d_data->dx, d_data->dy) );
+	    const QwtInterval intervalX = interval( Qt::Horizontal );
+    	const QwtInterval intervalY = interval( Qt::Vertical );
+		if ( intervalX.isValid() && intervalY.isValid() )
+		{
+        	rect = QRectF( intervalX.minValue(), intervalY.minValue(),
+            	d_data->dx, d_data->dy );
+		}
     }
 
     return rect;
@@ -123,13 +116,11 @@ QRectF QwtMatrixRasterData::pixelHint( const QRectF & ) const
 
 double QwtMatrixRasterData::value( double x, double y ) const
 {
-    const QRectF br = boundingRect();
-    if ( x < br.left() || y < br.top() 
-        || x >= br.right() || y >= br.bottom() )
-    {
-        // exluding the top + right borders !
+	const QwtInterval xInterval = interval( Qt::Horizontal );
+	const QwtInterval yInterval = interval( Qt::Vertical );
+
+    if ( !( xInterval.contains(x) && yInterval.contains(y) ) )
         return qQNaN();
-    }
 
     double value;
 
@@ -137,8 +128,8 @@ double QwtMatrixRasterData::value( double x, double y ) const
     {
         case BilinearInterpolation:
         {
-            int col1 = qRound( (x - br.x() ) / d_data->dx ) - 1;
-            int row1 = qRound( (y - br.y() ) / d_data->dy ) - 1;
+            int col1 = qRound( (x - xInterval.minValue() ) / d_data->dx ) - 1;
+            int row1 = qRound( (y - yInterval.minValue() ) / d_data->dy ) - 1;
             int col2 = col1 + 1;
             int row2 = row1 + 1;
 
@@ -152,10 +143,10 @@ double QwtMatrixRasterData::value( double x, double y ) const
             else if ( row2 >= (int)d_data->numRows )
                 row2 = row1;
 
-            const double ddx = 
-                qAbs( ( br.x() + ( col1 + 0.5 ) * d_data->dx - x ) / d_data->dx );
-            const double ddy =  
-                qAbs( ( br.y() + ( row1 + 0.5 ) * d_data->dy - y ) / d_data->dy );
+            const double ddx = qAbs( ( xInterval.minValue() 
+				+ ( col1 + 0.5 ) * d_data->dx - x ) / d_data->dx );
+            const double ddy =  qAbs( ( yInterval.minValue() 
+				+ ( row1 + 0.5 ) * d_data->dy - y ) / d_data->dy );
 
             const double qx = ( d_data->dx - ddx ) / d_data->dx;
             const double qy = ( d_data->dy - ddy ) / d_data->dy;
@@ -174,8 +165,8 @@ double QwtMatrixRasterData::value( double x, double y ) const
         case NearestNeighbour:
         default:
         {
-            const int row = int( (y - br.y() ) / d_data->dy );
-            const int col = int( (x - br.x() ) / d_data->dx );
+            const int row = int( (y - yInterval.minValue() ) / d_data->dy );
+            const int col = int( (x - xInterval.minValue() ) / d_data->dx );
 
             value = d_data->value( row, col );
         }
@@ -194,11 +185,11 @@ void QwtMatrixRasterData::update()
     {
         d_data->numRows = d_data->values.size() / d_data->numColumns;
 
-        const QRectF br = boundingRect();
-        if ( !br.isEmpty() )
-        {
-            d_data->dx = br.width() / d_data->numColumns;
-            d_data->dy = br.width() / d_data->numRows;
-        }
+		const QwtInterval xInterval = interval( Qt::Horizontal );
+		const QwtInterval yInterval = interval( Qt::Vertical );
+        if ( xInterval.isValid() )
+            d_data->dx = xInterval.width() / d_data->numColumns;
+        if ( yInterval.isValid() )
+            d_data->dy = yInterval.width() / d_data->numRows;
     }
 }
