@@ -22,6 +22,7 @@
 #include <qfuture.h>
 #include <qtconcurrentrun.h>
 #endif
+#include <float.h>
 
 class QwtPlotSpectrogram::PrivateData
 {
@@ -356,7 +357,38 @@ QwtRasterData *QwtPlotSpectrogram::data()
 */
 QRectF QwtPlotSpectrogram::boundingRect() const
 {
-    return d_data->data->boundingRect();
+	const QwtInterval intervalX = d_data->data->interval( Qt::Horizontal );
+	const QwtInterval intervalY = d_data->data->interval( Qt::Vertical );
+
+    if ( !intervalX.isValid() && !intervalY.isValid() )
+        return QRectF(); // no bounding rect
+
+    QRectF r;
+
+    if ( intervalX.isValid() )
+    {
+        r.setLeft( intervalX.minValue() );
+        r.setRight( intervalX.maxValue() );
+    }
+	else
+	{
+    	r.setLeft(-0.5 * DBL_MAX);
+    	r.setWidth(DBL_MAX);
+	}
+
+    if ( intervalY.isValid() )
+    {
+        r.setTop( intervalY.minValue() );
+        r.setBottom( intervalY.maxValue() );
+    }
+	else
+	{
+    	r.setTop(-0.5 * DBL_MAX);
+    	r.setHeight(DBL_MAX);
+	}
+
+    return r.normalized();
+
 }
 
 /*!
@@ -477,7 +509,11 @@ void QwtPlotSpectrogram::renderTile(
     if ( !intensityRange.isValid() )
         return;
 
+#if 1
     const double off = 0.5;
+#else
+    const double off = 0.0;
+#endif
 
     if ( d_data->colorMap->format() == QwtColorMap::RGB )
     {

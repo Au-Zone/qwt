@@ -33,9 +33,10 @@ public:
 class SpectrogramData: public QwtRasterData
 {
 public:
-    SpectrogramData():
-        QwtRasterData(QRectF(-1.5, -1.5, 3.0, 3.0))
+    SpectrogramData()
     {
+        setInterval( Qt::Horizontal, QwtInterval( -1.5, 1.5 ) );
+        setInterval( Qt::Vertical, QwtInterval( -1.5, 1.5 ) );
     }
 
     virtual QwtInterval range() const

@@ -17,6 +17,77 @@
 #include <qpainter.h>
 #include <qpaintengine.h>
 
+static QImage expandImage(const QImage &image, const QSize &sz)
+{
+	if ( image.size() == sz )
+		return image;
+
+    const int w = image.width();
+    const int h = image.height();
+
+    const double pw = sz.width() / double(w);
+    const double ph = sz.height() / double(h);
+
+    QImage expanded(sz, image.format());
+
+	switch( image.depth() )
+	{
+		case 8:
+		{
+    		for ( int y1 = 0; y1 < h; y1++ )
+			{
+				const int yy1 = qRound( y1 * ph );
+				const int yy2 = qRound( ( y1 + 1 ) * ph );
+
+				const uchar *line1 = image.scanLine( y1 );
+
+				for ( int x1 = 0; x1 < w; x1++ )
+				{
+					const int xx1 = qRound( x1 * pw );
+					const int xx2 = qRound( ( x1 + 1 ) * pw );
+
+					for ( int y2 = yy1; y2 < yy2; y2++ )
+					{
+						uchar *line2 = expanded.scanLine( y2 );
+						memset( line2 + xx1, line1[x1], xx2 - xx1 );
+					}       
+				}   
+			}
+			break;
+		}
+		case 32:
+		{
+    		for ( int y1 = 0; y1 < h; y1++ )
+			{
+				const int yy1 = qRound( y1 * ph );
+				const int yy2 = qRound( ( y1 + 1 ) * ph );
+
+				const quint32 *line1 = (const quint32 *) image.scanLine( y1 );
+
+				for ( int x1 = 0; x1 < w; x1++ )
+				{
+					const quint32 rgb( line1[x1] );
+
+					const int xx1 = qRound( x1 * pw );
+					const int xx2 = qRound( ( x1 + 1 ) * pw );
+
+					for ( int y2 = yy1; y2 < yy2; y2++ )
+					{
+						quint32 *line2 = ( quint32 *) expanded.scanLine( y2 );
+						for ( int x2 = xx1; x2 < xx2; x2++ ) 
+							line2[x2] = rgb;
+					}       
+				}   
+			}   
+			break;
+		}
+		default:
+			expanded = image.scaled(sz);
+	}
+    
+    return expanded;
+}   
+
 static QRectF expandToPixels(const QRectF &rect, const QRectF &pixelRect)
 {
     const double pw = pixelRect.width();
@@ -327,13 +398,24 @@ void QwtPlotRasterItem::draw( QPainter *painter,
         paintRect = QwtScaleMap::transform( xxMap, yyMap, area );
     }
 
-    QRectF imageRect = paintRect;
-    QSize imageSize = QSize( qCeil( imageRect.width() ),
-            qCeil( imageRect.height() ) );
-            
+    QRectF imageRect;
+    QSize imageSize;
 
     const QRectF pixelRect = pixelHint(area);
-    if ( !pixelRect.isEmpty() )
+    if ( pixelRect.isEmpty() )
+	{
+    	if ( QwtPainter::isAligning( painter ) )
+		{
+			paintRect = paintRect.toRect();
+			area = QwtScaleMap::invTransform( xxMap, yyMap, paintRect );
+		}
+			
+
+		imageRect = paintRect;
+		imageSize.setWidth( qRound( imageRect.width() ) );
+		imageSize.setHeight( qRound( imageRect.height() ) );
+	}
+	else
     {
         // align the area to the data pixels
         area = expandToPixels(area, pixelRect);
@@ -342,6 +424,9 @@ void QwtPlotRasterItem::draw( QPainter *painter,
         imageSize.setWidth( qRound( area.width() / pixelRect.width() ) );
         imageSize.setHeight( qRound( area.height() / pixelRect.height() ) );
     }
+#if 1
+	imageRect.adjust(0, 0, -1, -1);
+#endif
 
     QImage image;
 
@@ -367,24 +452,43 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     if ( d_data->alpha >= 0 && d_data->alpha < 255 )
         image = toRgba( image, d_data->alpha );
 
-    painter->save();
-    painter->setWorldTransform( QTransform() );
-
+#if 1
     if ( QwtPainter::isAligning( painter ) )
     {
-        imageRect.setLeft( qFloor( imageRect.left() ) );
-        imageRect.setRight( qFloor( imageRect.right() ) );
+        imageRect.setLeft( qCeil( imageRect.left() ) );
+        imageRect.setRight( qCeil( imageRect.right() ) );
         imageRect.setTop( qFloor( imageRect.top() ) );
         imageRect.setBottom( qFloor( imageRect.bottom() ) );
 
-        paintRect.setLeft( qFloor( paintRect.left() ) );
-        paintRect.setRight( qFloor( paintRect.right() ) );
-        paintRect.setTop( qFloor( paintRect.top() ) );
-        paintRect.setBottom( qFloor( paintRect.bottom() ) );
+        paintRect.setLeft( qRound( paintRect.left() ) );
+        paintRect.setRight( qRound( paintRect.right() ) );
+        paintRect.setTop( qRound( paintRect.top() ) );
+        paintRect.setBottom( qRound( paintRect.bottom() ) );
     }
+#endif
+	image = expandImage(image, imageRect.size().toSize());
 
+
+    painter->save();
+    painter->setWorldTransform( QTransform() );
+#if 1
     painter->setClipRect(paintRect, Qt::IntersectClip);
+#endif
     QwtPainter::drawImage( painter, imageRect, image );
+
+#if 0
+	for ( int x = 0; x < image.width() - 1; x++ )
+	{
+		if ( image.pixel(x, 0) != image.pixel(x+1, 0) )
+			qDebug() << imageRect.x() + x + 1;
+	}
+
+	for ( int i = 0; i <= 4; i++ )
+	{
+		const double x = qRound(xxMap.transform(i));
+		qDebug() << i << x;
+	}
+#endif
 
     painter->restore();
 }

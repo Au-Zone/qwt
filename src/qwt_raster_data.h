@@ -42,11 +42,10 @@ public:
     };
 
     QwtRasterData();
-    QwtRasterData( const QRectF & );
     virtual ~QwtRasterData();
 
-    virtual void setBoundingRect( const QRectF & );
-    QRectF boundingRect() const;
+    virtual void setInterval( Qt::Orientation, const QwtInterval & );
+	const QwtInterval &interval(Qt::Orientation) const;
 
     virtual QRectF pixelHint( const QRectF & ) const;
 
@@ -75,7 +74,13 @@ private:
     QwtRasterData( const QwtRasterData & );
     QwtRasterData &operator=( const QwtRasterData & );
 
-    QRectF d_boundingRect;
+    QwtInterval d_intervals[2];
 };
+
+inline const QwtInterval &QwtRasterData::interval(
+	Qt::Orientation orientation) const
+{
+	return d_intervals[orientation - 1];
+}
 
 #endif

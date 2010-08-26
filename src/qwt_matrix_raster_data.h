@@ -24,15 +24,12 @@ public:
     };
 
     QwtMatrixRasterData();
-    QwtMatrixRasterData( const QRectF &boundingRect, const QwtInterval &range,
-        const QVector<double> &values, size_t numColumns );
-
     virtual ~QwtMatrixRasterData();
 
     void setResampleMode(ResampleMode mode);
     ResampleMode resampleMode() const;
 
-    virtual void setBoundingRect( const QRectF & );
+    virtual void setInterval( Qt::Orientation, const QwtInterval & );
     void setMatrix( const QVector<double> &values, size_t numColumns );
     
     const QVector<double> values() const;

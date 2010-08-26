@@ -159,40 +159,24 @@ QwtRasterData::QwtRasterData()
 {
 }
 
-/*!
-   Constructor
-
-   \param boundingRect Bounding rectangle
-   \sa setBoundingRect()
-*/
-QwtRasterData::QwtRasterData( const QRectF &boundingRect ):
-    d_boundingRect( boundingRect )
-{
-}
-
 //! Destructor
 QwtRasterData::~QwtRasterData()
 {
 }
 
 /*!
-   Set the bounding rect ( == area, un plot coordinates )
+   Set the bounding interval ( x/y plane in plot coordinates )
+   of the data.
 
-   \param boundingRect Bounding rectangle
-   \sa boundingRect()
-*/
-void QwtRasterData::setBoundingRect( const QRectF &boundingRect )
-{
-    d_boundingRect = boundingRect;
-}
+   \param orientation Qt::Horizontal: x, Qt::Vertical: y
+   \param interval Bounding interval
 
-/*!
-   \return Bounding rectangle
-   \sa boundingRect()
+   \sa interval()
 */
-QRectF QwtRasterData::boundingRect() const
+void QwtRasterData::setInterval( Qt::Orientation orientation,
+	const QwtInterval &interval )
 {
-    return d_boundingRect;
+    d_intervals[orientation - 1] = interval;
 }
 
 /*!

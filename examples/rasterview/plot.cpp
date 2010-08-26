@@ -23,7 +23,12 @@ public:
             values += matrix[i];
     
         setMatrix(values, 4);
-        setBoundingRect(QRectF(-0.5, -0.5, 4.0, 4.0));
+
+        setInterval(Qt::Horizontal, 
+            QwtInterval( -0.5, 3.5, QwtInterval::ExcludeMaximum ) );
+        setInterval(Qt::Vertical, 
+            QwtInterval( -0.5, 3.5, QwtInterval::ExcludeMaximum ) );
+
         setRange(QwtInterval(1.0, 6.0));
     }
 };
