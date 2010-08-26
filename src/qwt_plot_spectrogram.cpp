@@ -240,7 +240,7 @@ QPen QwtPlotSpectrogram::defaultContourPen() const
 */
 QPen QwtPlotSpectrogram::contourPen( double level ) const
 {
-    const QwtInterval intensityRange = d_data->data->range();
+    const QwtInterval intensityRange = d_data->data->interval(Qt::ZAxis);
     const QColor c( d_data->colorMap->rgb( intensityRange, level ) );
 
     return QPen( c );
@@ -357,8 +357,8 @@ QwtRasterData *QwtPlotSpectrogram::data()
 */
 QRectF QwtPlotSpectrogram::boundingRect() const
 {
-	const QwtInterval intervalX = d_data->data->interval( Qt::Horizontal );
-	const QwtInterval intervalY = d_data->data->interval( Qt::Vertical );
+	const QwtInterval intervalX = d_data->data->interval( Qt::XAxis );
+	const QwtInterval intervalY = d_data->data->interval( Qt::YAxis );
 
     if ( !intervalX.isValid() && !intervalY.isValid() )
         return QRectF(); // no bounding rect
@@ -441,7 +441,7 @@ QImage QwtPlotSpectrogram::render(
 
     QImage image( imageSize, format );
 
-    const QwtInterval intensityRange = d_data->data->range();
+    const QwtInterval intensityRange = d_data->data->interval( Qt::ZAxis );
     if ( !intensityRange.isValid() )
         return image;
 
@@ -505,7 +505,7 @@ void QwtPlotSpectrogram::renderTile(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &tile, QImage *image ) const
 {
-    const QwtInterval intensityRange = d_data->data->range();
+    const QwtInterval intensityRange = d_data->data->interval( Qt::ZAxis );
     if ( !intensityRange.isValid() )
         return;
 
@@ -616,7 +616,7 @@ void QwtPlotSpectrogram::drawContourLines( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QwtRasterData::ContourLines &contourLines ) const
 {
-    const QwtInterval intensityRange = d_data->data->range();
+    const QwtInterval intensityRange = d_data->data->interval( Qt::ZAxis );
 
     const int numLevels = ( int )d_data->contourLevels.size();
     for ( int l = 0; l < numLevels; l++ )

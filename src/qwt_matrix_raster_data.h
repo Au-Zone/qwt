@@ -29,15 +29,12 @@ public:
     void setResampleMode(ResampleMode mode);
     ResampleMode resampleMode() const;
 
-    virtual void setInterval( Qt::Orientation, const QwtInterval & );
+    virtual void setInterval( Qt::Axis, const QwtInterval & );
     void setMatrix( const QVector<double> &values, size_t numColumns );
     
     const QVector<double> values() const;
     size_t numColumns() const;
     size_t numRows() const;
-
-    void setRange( const QwtInterval & );
-    virtual QwtInterval range() const;
 
     virtual QRectF pixelHint( const QRectF & ) const;
 

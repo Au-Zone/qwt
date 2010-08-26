@@ -24,12 +24,11 @@ public:
     
         setMatrix(values, 4);
 
-        setInterval(Qt::Horizontal, 
+        setInterval( Qt::XAxis, 
             QwtInterval( -0.5, 3.5, QwtInterval::ExcludeMaximum ) );
-        setInterval(Qt::Vertical, 
+        setInterval( Qt::YAxis, 
             QwtInterval( -0.5, 3.5, QwtInterval::ExcludeMaximum ) );
-
-        setRange(QwtInterval(1.0, 6.0));
+        setInterval( Qt::ZAxis, QwtInterval(1.0, 6.0) );
     }
 };
 
@@ -57,15 +56,14 @@ Plot::Plot(QWidget *parent):
     d_spectrogram->setData(new RasterData());
     d_spectrogram->attach(this);
 
+	const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
     // A color bar on the right axis
     QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
     rightAxis->setColorBarEnabled(true);
     rightAxis->setColorBarWidth(40);
-    rightAxis->setColorMap(d_spectrogram->data()->range(), new ColorMap() );
+    rightAxis->setColorMap(zInterval, new ColorMap() );
 
-    setAxisScale(QwtPlot::yRight,
-        d_spectrogram->data()->range().minValue(),
-        d_spectrogram->data()->range().maxValue() );
+    setAxisScale(QwtPlot::yRight, zInterval.minValue(), zInterval.maxValue() );
     enableAxis(QwtPlot::yRight);
 
     plotLayout()->setAlignCanvasToScales(true);

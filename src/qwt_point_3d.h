@@ -13,6 +13,9 @@
 
 #include "qwt_global.h"
 #include <qpoint.h>
+#ifndef QT_NO_DEBUG_STREAM
+#include <qdebug.h>
+#endif
 
 /*!
   \brief QwtPoint3D class defines a 3D point in double coordinates
@@ -50,6 +53,10 @@ private:
     double d_y;
     double d_z;
 };
+
+#ifndef QT_NO_DEBUG_STREAM
+QWT_EXPORT QDebug operator<<( QDebug, const QwtPoint3D & );
+#endif
 
 /*!
     Constructs a null point.

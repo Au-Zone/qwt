@@ -80,6 +80,7 @@ SOURCES += \
     qwt_text.cpp \
     qwt_event_pattern.cpp \
     qwt_picker_machine.cpp \
+    qwt_point_3d.cpp \
     qwt_scale_engine.cpp \
     qwt_symbol.cpp \
     qwt_system_clock.cpp
