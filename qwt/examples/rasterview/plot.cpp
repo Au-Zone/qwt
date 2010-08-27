@@ -3,6 +3,8 @@
 #include <qwt_plot_layout.h>
 #include <qwt_matrix_raster_data.h>
 #include <qwt_scale_widget.h>
+#include <qwt_plot_magnifier.h>
+#include <qwt_plot_panner.h>
 #include "plot.h"
 
 class RasterData: public QwtMatrixRasterData
@@ -72,6 +74,12 @@ Plot::Plot(QWidget *parent):
     setAxisMaxMinor(QwtPlot::xBottom, 0);
     setAxisScale(QwtPlot::yLeft, 0.0, 3.0);
     setAxisMaxMinor(QwtPlot::yLeft, 0);
+
+	QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas() );
+	magnifier->setAxisEnabled( QwtPlot::yRight, false);
+
+	QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
+	panner->setAxisEnabled( QwtPlot::yRight, false);
 }
 
 void Plot::setResampleMode(int mode)

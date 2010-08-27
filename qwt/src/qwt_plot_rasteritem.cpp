@@ -466,7 +466,8 @@ void QwtPlotRasterItem::draw( QPainter *painter,
         paintRect.setBottom( qRound( paintRect.bottom() ) );
     }
 #endif
-	image = expandImage(image, imageRect.size().toSize());
+	if ( image.width() > 2 || image.height() > 2 )
+		image = expandImage(image, imageRect.size().toSize());
 
 
     painter->save();
@@ -512,16 +513,21 @@ QImage QwtPlotRasterItem::renderImage(
     if ( area.isEmpty() )
         return QImage();
 
-    const QSizeF pixelSize( area.width() / imageSize.width(), 
-        area.height() / imageSize.height() );
+	double xOff = 0.5 * area.width() / imageSize.width();
+	if ( ( xMap.p1() < xMap.p2() ) != ( xMap.s1() < xMap.s2() ) )
+		xOff = -xOff;
+
+	double yOff = 0.5 * area.height() / imageSize.height();
+	if ( ( yMap.p1() < yMap.p2() ) != ( yMap.s1() < yMap.s2() ) )
+		yOff = -yOff;
 
     double px1 = 0.0;
     double px2 = imageSize.width();
     if ( xMap.p1() > xMap.p2() )
         qSwap( px1, px2 );
 
-    double sx1 = area.left();
-    double sx2 = area.right();
+    double sx1 = area.left() + xOff;
+    double sx2 = area.right() + xOff;
     if ( xMap.s1() > xMap.s2() )
         qSwap( sx1, sx2 );
 
@@ -530,8 +536,8 @@ QImage QwtPlotRasterItem::renderImage(
     if ( yMap.p1() > yMap.p2() )
         qSwap( py1, py2 );
 
-    double sy1 = area.top();
-    double sy2 = area.bottom();
+    double sy1 = area.top() + yOff;
+    double sy2 = area.bottom() + yOff;
     if ( yMap.s1() > yMap.s2() )
         qSwap( sy1, sy2 );
 
