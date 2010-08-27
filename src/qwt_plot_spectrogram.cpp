@@ -509,24 +509,18 @@ void QwtPlotSpectrogram::renderTile(
     if ( !intensityRange.isValid() )
         return;
 
-#if 1
-    const double off = 0.5;
-#else
-    const double off = 0.0;
-#endif
-
     if ( d_data->colorMap->format() == QwtColorMap::RGB )
     {
         for ( int y = tile.top(); y <= tile.bottom(); y++ )
         {
-            const double ty = yMap.invTransform( y + off );
+            const double ty = yMap.invTransform( y );
 
             QRgb *line = ( QRgb * )image->scanLine( y );
             line += tile.left();
 
             for ( int x = tile.left(); x <= tile.right(); x++ )
             {
-                const double tx = xMap.invTransform( x + off );
+                const double tx = xMap.invTransform( x );
 
                 *line++ = d_data->colorMap->rgb( intensityRange,
                     d_data->data->value( tx, ty ) );
@@ -537,14 +531,14 @@ void QwtPlotSpectrogram::renderTile(
     {
         for ( int y = tile.top(); y <= tile.bottom(); y++ )
         {
-            const double ty = yMap.invTransform( y + off );
+            const double ty = yMap.invTransform( y );
 
             unsigned char *line = image->scanLine( y );
             line += tile.left();
 
             for ( int x = tile.left(); x <= tile.right(); x++ )
             {
-                const double tx = xMap.invTransform( x + off );
+                const double tx = xMap.invTransform( x );
 
                 *line++ = d_data->colorMap->colorIndex( intensityRange,
                     d_data->data->value( tx, ty ) );
