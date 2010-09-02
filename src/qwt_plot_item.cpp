@@ -67,7 +67,7 @@ QwtPlotItem::~QwtPlotItem()
   was attached to.
 
   \param plot Plot widget
-  \sa QwtPlotItem::detach()
+  \sa detach()
 */
 void QwtPlotItem::attach( QwtPlot *plot )
 {
@@ -79,14 +79,7 @@ void QwtPlotItem::attach( QwtPlot *plot )
     if ( d_data->plot )
     {
         if ( d_data->plot->legend() )
-        {
-            QWidget *legendItem = d_data->plot->legend()->find( this );
-            if ( legendItem )
-            {
-                legendItem->hide();
-                legendItem->deleteLater();
-            }
-        }
+            d_data->plot->legend()->remove( this );
 
         d_data->plot->attachItem( this, false );
 
