@@ -592,9 +592,13 @@ bool QwtPlotZoomer::end( bool ok )
 
     QRectF zoomRect = invTransform( rect ).normalized();
 
-    const QPointF center = zoomRect.center();
-    zoomRect.setSize( zoomRect.size().expandedTo( minZoomSize() ) );
-    zoomRect.moveCenter( center );
+    const QSizeF minSize = minZoomSize();
+    if ( minSize.isValid() )
+    {
+        const QPointF center = zoomRect.center();
+        zoomRect.setSize( zoomRect.size().expandedTo( minZoomSize() ) );
+        zoomRect.moveCenter( center );
+    }
 
     zoom( zoomRect );
 
