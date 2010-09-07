@@ -238,8 +238,7 @@ uint QwtPlotZoomer::zoomRectIndex() const
   \brief Zoom in
 
   Clears all rectangles above the current position of the
-  zoom stack and pushs the intersection of zoomRect() and
-  the normalized rect on it.
+  zoom stack and pushs the normalized rect on it.
 
   \note If the maximal stack depth is reached, zoom is ignored.
   \note The zoomed signal is emitted.
@@ -253,7 +252,7 @@ void QwtPlotZoomer::zoom( const QRectF &rect )
         return;
     }
 
-    const QRectF zoomRect = d_data->zoomStack[0] & rect.normalized();
+    const QRectF zoomRect = rect.normalized();
     if ( zoomRect != d_data->zoomStack[d_data->zoomRectIndex] )
     {
         for ( uint i = int( d_data->zoomStack.count() ) - 1;
