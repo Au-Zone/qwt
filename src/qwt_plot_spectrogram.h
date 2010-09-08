@@ -69,7 +69,7 @@ public:
     void setColorMap( QwtColorMap * );
     const QwtColorMap *colorMap() const;
 
-    virtual QRectF boundingRect() const;
+    virtual QwtInterval interval(Qt::Axis) const;
     virtual QRectF pixelHint( const QRectF & ) const;
 
     void setDefaultContourPen( const QPen & );
