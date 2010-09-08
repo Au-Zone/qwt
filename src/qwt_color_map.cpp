@@ -201,14 +201,6 @@ QwtLinearColorMap::QwtLinearColorMap( QwtColorMap::Format format ):
     setColorInterval( Qt::blue, Qt::yellow );
 }
 
-//! Copy constructor
-QwtLinearColorMap::QwtLinearColorMap( const QwtLinearColorMap &other ):
-    QwtColorMap( other )
-{
-    d_data = new PrivateData;
-    *this = other;
-}
-
 /*!
    Build a color map with two stops at 0.0 and 1.0.
 
@@ -381,17 +373,6 @@ QwtAlphaColorMap::QwtAlphaColorMap( const QColor &color ):
     d_data = new PrivateData;
     d_data->color = color;
     d_data->rgb = color.rgb() & qRgba( 255, 255, 255, 0 );
-}
-
-/*!
-   Copy constructor
-   \param other Other color map
-*/
-QwtAlphaColorMap::QwtAlphaColorMap( const QwtAlphaColorMap &other ):
-    QwtColorMap( other )
-{
-    d_data = new PrivateData;
-    *this = other;
 }
 
 //! Destructor

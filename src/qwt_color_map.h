@@ -106,8 +106,6 @@ public:
     QwtLinearColorMap( const QColor &from, const QColor &to,
         QwtColorMap::Format = QwtColorMap::RGB );
 
-    QwtLinearColorMap( const QwtLinearColorMap & );
-
     virtual ~QwtLinearColorMap();
 
     void setMode( Mode );
@@ -127,6 +125,10 @@ public:
     class ColorStops;
 
 private:
+    // Disabled copy constructor and operator=
+    QwtLinearColorMap( const QwtLinearColorMap & );
+    QwtLinearColorMap &operator=( const QwtLinearColorMap & );
+
     class PrivateData;
     PrivateData *d_data;
 };
@@ -138,8 +140,6 @@ class QWT_EXPORT QwtAlphaColorMap: public QwtColorMap
 {
 public:
     QwtAlphaColorMap( const QColor & = QColor( Qt::gray ) );
-    QwtAlphaColorMap( const QwtAlphaColorMap & );
-
     virtual ~QwtAlphaColorMap();
 
     void setColor( const QColor & );
@@ -148,6 +148,9 @@ public:
     virtual QRgb rgb( const QwtInterval &, double value ) const;
 
 private:
+    QwtAlphaColorMap( const QwtAlphaColorMap & );
+    QwtAlphaColorMap &operator=( const QwtAlphaColorMap & );
+
     virtual unsigned char colorIndex(
         const QwtInterval &, double value ) const;
 
