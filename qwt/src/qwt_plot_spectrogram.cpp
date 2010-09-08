@@ -22,7 +22,6 @@
 #include <qfuture.h>
 #include <qtconcurrentrun.h>
 #endif
-#include <float.h>
 
 class QwtPlotSpectrogram::PrivateData
 {
@@ -351,44 +350,9 @@ QwtRasterData *QwtPlotSpectrogram::data()
     return d_data->data;
 }
 
-/*!
-   \return Bounding rect of the data
-   \sa QwtRasterData::boundingRect()
-*/
-QRectF QwtPlotSpectrogram::boundingRect() const
+QwtInterval QwtPlotSpectrogram::interval(Qt::Axis axis) const
 {
-	const QwtInterval intervalX = d_data->data->interval( Qt::XAxis );
-	const QwtInterval intervalY = d_data->data->interval( Qt::YAxis );
-
-    if ( !intervalX.isValid() && !intervalY.isValid() )
-        return QRectF(); // no bounding rect
-
-    QRectF r;
-
-    if ( intervalX.isValid() )
-    {
-        r.setLeft( intervalX.minValue() );
-        r.setRight( intervalX.maxValue() );
-    }
-	else
-	{
-    	r.setLeft(-0.5 * DBL_MAX);
-    	r.setWidth(DBL_MAX);
-	}
-
-    if ( intervalY.isValid() )
-    {
-        r.setTop( intervalY.minValue() );
-        r.setBottom( intervalY.maxValue() );
-    }
-	else
-	{
-    	r.setTop(-0.5 * DBL_MAX);
-    	r.setHeight(DBL_MAX);
-	}
-
-    return r.normalized();
-
+    return d_data->data->interval( axis );
 }
 
 /*!

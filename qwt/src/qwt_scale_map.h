@@ -109,6 +109,8 @@ public:
     static QRectF invTransform( const QwtScaleMap &,
         const QwtScaleMap &, const QRectF & );
 
+    bool isInverting() const;
+
 private:
     void newFactor();
 
@@ -197,6 +199,12 @@ inline double QwtScaleMap::transform( double s ) const
 inline double QwtScaleMap::invTransform( double p ) const
 {
     return d_transformation->invXForm( p, d_p1, d_p2, d_s1, d_s2 );
+}
+
+//! \return True, when ( p1() < p2() ) != ( s1() < s2() )
+inline bool QwtScaleMap::isInverting() const
+{
+    return ( ( d_p1 < d_p2 ) != ( d_s1 < d_s2 ) );
 }
 
 #ifndef QT_NO_DEBUG_STREAM

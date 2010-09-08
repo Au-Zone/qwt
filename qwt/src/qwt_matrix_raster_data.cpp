@@ -91,13 +91,13 @@ QRectF QwtMatrixRasterData::pixelHint( const QRectF & ) const
     QRectF rect;
     if ( d_data->resampleMode == NearestNeighbour )
     {
-	    const QwtInterval intervalX = interval( Qt::XAxis );
-    	const QwtInterval intervalY = interval( Qt::YAxis );
-		if ( intervalX.isValid() && intervalY.isValid() )
-		{
-        	rect = QRectF( intervalX.minValue(), intervalY.minValue(),
-            	d_data->dx, d_data->dy );
-		}
+        const QwtInterval intervalX = interval( Qt::XAxis );
+        const QwtInterval intervalY = interval( Qt::YAxis );
+        if ( intervalX.isValid() && intervalY.isValid() )
+        {
+            rect = QRectF( intervalX.minValue(), intervalY.minValue(),
+                d_data->dx, d_data->dy );
+        }
     }
 
     return rect;
@@ -105,8 +105,8 @@ QRectF QwtMatrixRasterData::pixelHint( const QRectF & ) const
 
 double QwtMatrixRasterData::value( double x, double y ) const
 {
-	const QwtInterval xInterval = interval( Qt::XAxis );
-	const QwtInterval yInterval = interval( Qt::YAxis );
+    const QwtInterval xInterval = interval( Qt::XAxis );
+    const QwtInterval yInterval = interval( Qt::YAxis );
 
     if ( !( xInterval.contains(x) && yInterval.contains(y) ) )
         return qQNaN();
@@ -133,9 +133,9 @@ double QwtMatrixRasterData::value( double x, double y ) const
                 row2 = row1;
 
             const double ddx = qAbs( ( xInterval.minValue() 
-				+ ( col1 + 0.5 ) * d_data->dx - x ) / d_data->dx );
+                + ( col1 + 0.5 ) * d_data->dx - x ) / d_data->dx );
             const double ddy =  qAbs( ( yInterval.minValue() 
-				+ ( row1 + 0.5 ) * d_data->dy - y ) / d_data->dy );
+                + ( row1 + 0.5 ) * d_data->dy - y ) / d_data->dy );
 
             const double qx = ( d_data->dx - ddx ) / d_data->dx;
             const double qy = ( d_data->dy - ddy ) / d_data->dy;
@@ -174,8 +174,8 @@ void QwtMatrixRasterData::update()
     {
         d_data->numRows = d_data->values.size() / d_data->numColumns;
 
-		const QwtInterval xInterval = interval( Qt::XAxis );
-		const QwtInterval yInterval = interval( Qt::YAxis );
+        const QwtInterval xInterval = interval( Qt::XAxis );
+        const QwtInterval yInterval = interval( Qt::YAxis );
         if ( xInterval.isValid() )
             d_data->dx = xInterval.width() / d_data->numColumns;
         if ( yInterval.isValid() )

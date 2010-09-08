@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_plot_item.h"
+#include "qwt_interval.h"
 #include <qglobal.h>
 #include <qstring.h>
 #include <qimage.h>
@@ -72,10 +73,13 @@ public:
 
     virtual QRectF pixelHint( const QRectF & ) const;
 
+    virtual QwtInterval interval(Qt::Axis) const;
+    virtual QRectF boundingRect() const;
+
 protected:
     virtual QImage renderImage( const QwtScaleMap &xMap,
         const QwtScaleMap &yMap, const QRectF &area,
-        const QSize &imageSize ) const;
+        const QRectF &paintRect, const QSize &imageSize ) const;
 
     /*!
       \brief Render an image 

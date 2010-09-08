@@ -45,7 +45,7 @@ public:
     virtual ~QwtRasterData();
 
     virtual void setInterval( Qt::Axis, const QwtInterval & );
-	const QwtInterval &interval(Qt::Axis) const;
+    const QwtInterval &interval(Qt::Axis) const;
 
     virtual QRectF pixelHint( const QRectF & ) const;
 
@@ -76,7 +76,7 @@ private:
 
 inline const QwtInterval &QwtRasterData::interval( Qt::Axis axis) const
 {
-	return d_intervals[axis];
+    return d_intervals[axis];
 }
 
 #endif

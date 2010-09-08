@@ -262,8 +262,6 @@ Q_SIGNALS:
     void legendChecked( QwtPlotItem *plotItem, bool on );
 
 public Q_SLOTS:
-    virtual void clear();
-
     virtual void replot();
     void autoRefresh();
 
