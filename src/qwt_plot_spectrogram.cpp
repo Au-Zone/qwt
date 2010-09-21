@@ -393,7 +393,7 @@ QRectF QwtPlotSpectrogram::pixelHint( const QRectF &area ) const
    \sa QwtRasterData::intensity(), QwtColorMap::rgb(),
        QwtColorMap::colorIndex()
 */
-QImage QwtPlotSpectrogram::render(
+QImage QwtPlotSpectrogram::renderImage(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &area, const QSize &imageSize ) const
 {
