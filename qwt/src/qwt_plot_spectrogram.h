@@ -90,7 +90,7 @@ public:
         const QRectF &rect ) const;
 
 protected:
-    virtual QImage render(
+    virtual QImage renderImage(
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &area, const QSize &imageSize ) const;
 

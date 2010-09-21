@@ -55,9 +55,17 @@ public:
         PaintCache
     };
 
+    enum PaintAttribute
+    {
+        PaintInDeviceResolution = 1
+    };
+
     explicit QwtPlotRasterItem( const QString& title = QString::null );
     explicit QwtPlotRasterItem( const QwtText& title );
     virtual ~QwtPlotRasterItem();
+
+    void setPaintAttribute( PaintAttribute, bool on = true );
+    bool testPaintAttribute( PaintAttribute ) const;
 
     void setAlpha( int alpha );
     int alpha() const;
@@ -77,10 +85,6 @@ public:
     virtual QRectF boundingRect() const;
 
 protected:
-    virtual QImage renderImage( const QwtScaleMap &xMap,
-        const QwtScaleMap &yMap, const QRectF &area,
-        const QRectF &paintRect, const QSize &imageSize ) const;
-
     /*!
       \brief Render an image 
 
@@ -94,20 +98,25 @@ protected:
       \param yMap Y-Scale Map
       \param area Requested area for the image in scale coordinates
       \param imageSize Requested size of the image
-
-      \sa renderImage()
      */
-    virtual QImage render( const QwtScaleMap &xMap,
+    virtual QImage renderImage( const QwtScaleMap &xMap,
         const QwtScaleMap &yMap, const QRectF &area,
         const QSize &imageSize ) const = 0;
 
-    QRect innerRect( const QRectF &r ) const;
+    virtual QwtScaleMap imageMap( Qt::Orientation,
+        const QwtScaleMap &map, const QRectF &area,
+        const QSize &imageSize, double pixelSize) const;
 
 private:
     QwtPlotRasterItem( const QwtPlotRasterItem & );
     QwtPlotRasterItem &operator=( const QwtPlotRasterItem & );
 
     void init();
+
+    QImage compose( const QwtScaleMap &, const QwtScaleMap &,
+        const QRectF &imageArea, const QRectF &paintRect,
+        const QSize &imageSize, bool doCache) const;
+
 
     class PrivateData;
     PrivateData *d_data;
