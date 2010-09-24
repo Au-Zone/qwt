@@ -273,9 +273,6 @@ static void transformMaps( const QTransform &tr,
 static void adjustMaps( QwtScaleMap &xMap, QwtScaleMap &yMap,
     const QRectF &area, const QRectF &paintRect)
 {
-    xMap.setPaintInterval(paintRect.left(), paintRect.right());
-    yMap.setPaintInterval(paintRect.top(), paintRect.bottom());
-
     double sx1 = area.left();
     double sx2 = area.right();
     if ( xMap.isInverting() )
@@ -287,7 +284,10 @@ static void adjustMaps( QwtScaleMap &xMap, QwtScaleMap &yMap,
     if ( yMap.isInverting() )
         qSwap(sy1, sy2);
 
+    xMap.setPaintInterval(paintRect.left(), paintRect.right());
     xMap.setScaleInterval(sx1, sx2);
+
+    yMap.setPaintInterval(paintRect.top(), paintRect.bottom());
     yMap.setScaleInterval(sy1, sy2);
 }
 
