@@ -9,6 +9,7 @@ public:
     Plot(QWidget * = NULL);
 
 public Q_SLOTS:
+    void exportPlot();
     void setResampleMode(int);
 
 private:
