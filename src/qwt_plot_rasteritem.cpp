@@ -580,7 +580,24 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     QRectF imageRect;
     QImage image;
 
-    const QRectF pixelRect = pixelHint(area);
+    QRectF pixelRect = pixelHint(area);
+    if ( !pixelRect.isEmpty() )
+    {
+        const QRectF r = QwtScaleMap::invTransform( 
+            xxMap, yyMap, QRectF(0, 0, 1, 1) ).normalized();
+
+        if ( r.width() > pixelRect.width() &&
+            r.height() > pixelRect.height() )
+        {
+            /*
+              When the resolution of the data pixels is higher than
+              the resolution of the target device we render in
+              target device resolution.
+             */
+            pixelRect = QRectF();
+        }
+    }
+
     if ( pixelRect.isEmpty() )
     {
         if ( QwtPainter::isAligning( painter ) )
