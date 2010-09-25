@@ -1,6 +1,7 @@
 #include <qapplication.h>
 #include <qmainwindow.h>
 #include <qtoolbar.h>
+#include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qwindowsstyle.h>
@@ -20,17 +21,33 @@ MainWindow::MainWindow(QWidget *parent):
 
     QToolBar *toolBar = new QToolBar(this);
 
-    QComboBox *comboBox = new QComboBox(toolBar);
-    comboBox->setStyle(new QWindowsStyle() );
-    comboBox->addItem("Nearest Neighbour");
-    comboBox->addItem("Bilinear Interpolation");
-    connect(comboBox, SIGNAL(activated(int)), 
-        plot, SLOT(setResampleMode(int)));
+    QComboBox *rasterBox = new QComboBox(toolBar);
+    rasterBox->setStyle(new QWindowsStyle() );
+    rasterBox->addItem("Wikipedia");
 
-    toolBar->addWidget( new QLabel("Resampling: ") );
-    toolBar->addWidget(comboBox);
+    toolBar->addWidget(new QLabel("Data ", toolBar));
+    toolBar->addWidget(rasterBox);
+    toolBar->addSeparator();
 
+    QComboBox *modeBox = new QComboBox(toolBar);
+    modeBox->setStyle(new QWindowsStyle() );
+    modeBox->addItem("Nearest Neighbour");
+    modeBox->addItem("Bilinear Interpolation");
+
+    toolBar->addWidget(new QLabel("Resampling ", toolBar));
+    toolBar->addWidget(modeBox);
+
+    toolBar->addSeparator();
+
+    QToolButton *btnExport = new QToolButton(toolBar);
+    btnExport->setText("Export");
+    btnExport->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    toolBar->addWidget(btnExport);
+    
     addToolBar(toolBar);
+
+    connect(modeBox, SIGNAL(activated(int)), plot, SLOT(setResampleMode(int)));
+    connect(btnExport, SIGNAL(clicked()), plot, SLOT(exportPlot()) );
 }
 
 int main(int argc, char **argv)

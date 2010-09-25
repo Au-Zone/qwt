@@ -1,3 +1,4 @@
+#include "plot.h"
 #include <qwt_color_map.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_plot_layout.h>
@@ -5,7 +6,10 @@
 #include <qwt_scale_widget.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_panner.h>
-#include "plot.h"
+#include <qwt_plot_renderer.h>
+#include <qwt_plot_grid.h>
+#include <qfiledialog.h>
+#include <qimagewriter.h>
 
 class RasterData: public QwtMatrixRasterData
 {
@@ -50,6 +54,12 @@ public:
 Plot::Plot(QWidget *parent):
     QwtPlot(parent)
 {
+#if 0
+    QwtPlotGrid *grid = new QwtPlotGrid();
+    grid->setPen(QPen(Qt::DotLine));
+    grid->attach(this);
+#endif
+
     d_spectrogram = new QwtPlotSpectrogram();
     d_spectrogram->setRenderThreadCount(0); // use system specific thread count
 
@@ -58,7 +68,7 @@ Plot::Plot(QWidget *parent):
     d_spectrogram->setData(new RasterData());
     d_spectrogram->attach(this);
 
-	const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
+    const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
     // A color bar on the right axis
     QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
     rightAxis->setColorBarEnabled(true);
@@ -75,11 +85,60 @@ Plot::Plot(QWidget *parent):
     setAxisScale(QwtPlot::yLeft, 0.0, 3.0);
     setAxisMaxMinor(QwtPlot::yLeft, 0);
 
-	QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas() );
-	magnifier->setAxisEnabled( QwtPlot::yRight, false);
+    QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas() );
+    magnifier->setAxisEnabled( QwtPlot::yRight, false);
 
-	QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
-	panner->setAxisEnabled( QwtPlot::yRight, false);
+    QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
+    panner->setAxisEnabled( QwtPlot::yRight, false);
+}
+
+void Plot::exportPlot()
+{
+    QString fileName = "rasterview.pdf";
+
+#ifndef QT_NO_FILEDIALOG
+    const QList<QByteArray> imageFormats =
+        QImageWriter::supportedImageFormats();
+
+    QStringList filter;
+    filter += "PDF Documents (*.pdf)";
+    filter += "SVG Documents (*.svg)";
+    filter += "Postscript Documents (*.ps)";
+
+    if ( imageFormats.size() > 0 )
+    {
+        QString imageFilter("Images (");
+        for ( int i = 0; i < imageFormats.size(); i++ )
+        {
+            if ( i > 0 )
+                imageFilter += " ";
+            imageFilter += "*.";
+            imageFilter += imageFormats[i];
+        }
+        imageFilter += ")";
+
+        filter += imageFilter;
+    }
+
+    fileName = QFileDialog::getSaveFileName(
+        this, "Export File Name", fileName,
+        filter.join(";;"), NULL, QFileDialog::DontConfirmOverwrite);
+#endif
+    if ( !fileName.isEmpty() )
+    {
+#if 0
+        d_spectrogram->setPaintAttribute(
+            QwtPlotRasterItem::PaintInDeviceResolution, false);
+#endif
+        
+        QwtPlotRenderer renderer;
+        renderer.renderDocument(this, fileName, QSizeF(300, 200), 85);
+
+#if 0
+        d_spectrogram->setPaintAttribute(
+            QwtPlotRasterItem::PaintInDeviceResolution, true);
+#endif
+    }
 }
 
 void Plot::setResampleMode(int mode)
