@@ -206,13 +206,13 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
     if ( format == "pdf" || format == "ps" )
     {
         QPrinter printer;
-        printer.setResolution( resolution );
         printer.setFullPage( true );
         printer.setPaperSize( sizeMM, QPrinter::Millimeter );
         printer.setDocName( title );
         printer.setOutputFileName( fileName );
         printer.setOutputFormat( ( format == "pdf" )
             ? QPrinter::PdfFormat : QPrinter::PostScriptFormat );
+        printer.setResolution( resolution );
 
         QPainter painter( &printer );
         render( plot, &painter, documentRect );
