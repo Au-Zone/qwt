@@ -7,10 +7,10 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ################################################################
 
-VER_MAJ      = 6
-VER_MIN      = 0
-VER_PAT      = 0
-VERSION      = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
+QWT_VER_MAJ      = 6
+QWT_VER_MIN      = 0
+QWT_VER_PAT      = 0
+QWT_VERSION      = $${QWT_VER_MAJ}.$${QWT_VER_MIN}.$${QWT_VER_PAT}
 
 ######################################################################
 # Install paths
@@ -19,11 +19,11 @@ VERSION      = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 QWT_INSTALL_PREFIX = $$[QT_INSTALL_PREFIX]
 
 unix {
-    QWT_INSTALL_PREFIX    = /usr/local/qwt-$$VERSION-svn
+    QWT_INSTALL_PREFIX    = /usr/local/qwt-$$QWT_VERSION-svn
 }
 
 win32 {
-    QWT_INSTALL_PREFIX    = C:/Qwt-$$VERSION-svn
+    QWT_INSTALL_PREFIX    = C:/Qwt-$$QWT_VERSION-svn
 }
 
 QWT_INSTALL_DOCS      = $${QWT_INSTALL_PREFIX}/doc

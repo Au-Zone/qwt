@@ -22,22 +22,27 @@ CONFIG           += silent
 ######################################################################
 
 win32 {
-	# On Windows you can't mix release and debug libraries.
-	# The designer is built in release mode. If you like to use it
-	# you need a release version. For your own application development you
-	# might need a debug version. 
-	# Enable debug_and_release + build_all if you want to build both.
+    # On Windows you can't mix release and debug libraries.
+    # The designer is built in release mode. If you like to use it
+    # you need a release version. For your own application development you
+    # might need a debug version. 
+    # Enable debug_and_release + build_all if you want to build both.
 
-	CONFIG           += debug_and_release
-	CONFIG           += build_all
+    CONFIG           += debug_and_release
+    CONFIG           += build_all
 }
 else {
 
-	CONFIG           += debug
+    CONFIG           += debug
+
+    VER_MAJ           = $${QWT_VER_MAJ}
+    VER_MIN           = $${QWT_VER_MIN}
+    VER_PAT           = $${QWT_VER_PAT}
+    VERSION           = $${QWT_VERSION}
 }
 
 linux-g++ {
-	# CONFIG           += separate_debug_info
+    # CONFIG           += separate_debug_info
 }
 
 ######################################################################
@@ -47,5 +52,5 @@ linux-g++ {
 MOC_DIR      = moc
 RCC_DIR      = resources
 !debug_and_release {
-	OBJECTS_DIR       = obj
+    OBJECTS_DIR       = obj
 }
