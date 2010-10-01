@@ -13,8 +13,8 @@ QWT_ROOT = ..
 include( $${QWT_ROOT}/qwtconfig.pri )
 include( $${QWT_ROOT}/qwtbuild.pri )
 
-TARGET            = $$qtLibraryTarget(qwt)
 TEMPLATE          = lib
+TARGET            = $$qtLibraryTarget(qwt)
 
 DESTDIR           = $${QWT_ROOT}/lib
 
