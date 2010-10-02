@@ -41,7 +41,7 @@ public:
 };
 
 
-static QRectF alignRect(const QRectF &rect)
+static QRectF qwtAlignRect(const QRectF &rect)
 {
     QRectF r;
     r.setLeft( qRound( rect.left() ) );
@@ -52,7 +52,7 @@ static QRectF alignRect(const QRectF &rect)
     return r;
 }
 
-static QRectF stripRect(const QRectF &rect, const QRectF &area,
+static QRectF qwtStripRect(const QRectF &rect, const QRectF &area,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QwtInterval &xInterval, const QwtInterval &yInterval)
 {
@@ -104,12 +104,12 @@ static QRectF stripRect(const QRectF &rect, const QRectF &area,
     return r;
 }
 
-static QImage expandImage(const QImage &image,
+static QImage qwtExpandImage(const QImage &image,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &area, const QRectF &area2, const QRectF &paintRect,
     const QwtInterval &xInterval, const QwtInterval &yInterval )
 {
-    const QRectF strippedRect = stripRect(paintRect, area2,
+    const QRectF strippedRect = qwtStripRect(paintRect, area2,
         xMap, yMap, xInterval, yInterval);
     const QSize sz = strippedRect.toRect().size();
 
@@ -605,7 +605,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
             // we want to have maps, where the boundaries of
             // the aligned paint rectangle exactly match the area
 
-            paintRect = alignRect(paintRect);
+            paintRect = qwtAlignRect(paintRect);
             adjustMaps(xxMap, yyMap, area, paintRect);
         }
 
@@ -618,7 +618,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
         // Remove pixels at the boundaries, when explicitly
         // excluded in the intervals
 
-        imageRect = stripRect(paintRect, area, 
+        imageRect = qwtStripRect(paintRect, area, 
             xxMap, yyMap, xInterval, yInterval);
 
         if ( imageRect != paintRect )
@@ -635,7 +635,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     else
     {
         if ( QwtPainter::isAligning( painter ) )
-            paintRect = alignRect(paintRect);
+            paintRect = qwtAlignRect(paintRect);
 
         // align the area to the data pixels
         QRectF imageArea = expandToPixels(area, pixelRect);
@@ -657,7 +657,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
         image = compose(xxMap, yyMap, 
             imageArea, paintRect, imageSize, doCache );
 
-        imageRect = stripRect(paintRect, area, 
+        imageRect = qwtStripRect(paintRect, area, 
             xxMap, yyMap, xInterval, yInterval);
 
         if ( ( image.width() > 1 || image.height() > 1 ) &&
@@ -667,7 +667,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
             // need to be expanded manually to rectangles of 
             // different sizes
 
-            image = expandImage(image, xxMap, yyMap, 
+            image = qwtExpandImage(image, xxMap, yyMap, 
                 imageArea, area, paintRect, xInterval, yInterval );
         }
     }
