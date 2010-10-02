@@ -700,7 +700,7 @@ void QwtPlotCurve::fillCurve( QPainter *painter,
   \brief Complete a polygon to be a closed polygon
          including the area between the original polygon
          and the baseline.
-  \param Painter painter
+  \param painter Painter
   \param xMap X map
   \param yMap Y map
   \param polygon Polygon to be completed

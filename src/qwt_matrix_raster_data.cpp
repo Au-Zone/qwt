@@ -35,27 +35,55 @@ public:
     double dy;
 };
 
+//! Constructor
 QwtMatrixRasterData::QwtMatrixRasterData()
 {
     d_data = new PrivateData();
     update();
 }
 
+//! Destructor
 QwtMatrixRasterData::~QwtMatrixRasterData()
 {
     delete d_data;
 }
 
+/*!
+   \brief Set the resampling algorithm
+
+   \param mode Resampling mode
+   \sa resampleMode(), value()
+*/
 void QwtMatrixRasterData::setResampleMode(ResampleMode mode)
 {
     d_data->resampleMode = mode;
 }
 
+/*!
+   \return resampling algorithm
+   \sa setResampleMode(), value()
+*/
 QwtMatrixRasterData::ResampleMode QwtMatrixRasterData::resampleMode() const
 {
     return d_data->resampleMode;
 }
 
+/*!
+   \brief Assign the bounding interval for an axis
+
+   Setting the bounding intervals for the X/Y axis is mandatory
+   to define the positions for the values of the value matrix.
+   The interval in Z direction defines the possible range for
+   the values in the matrix, what is f.e used by QwtPlotSpectrogram
+   to map values to colors. The Z-interval might be the bounding
+   interval of the values in the matrix, but usually it isn't.
+   ( f.e a interval of 0.0-100.0 for values in percentage )
+
+   \param axis X, Y or Z axis
+   \param interval Interval
+   
+   \sa QwtRasterData::interval(), setValueMatrix()
+*/
 void QwtMatrixRasterData::setInterval( 
     Qt::Axis axis, const QwtInterval &interval )
 {
@@ -63,7 +91,20 @@ void QwtMatrixRasterData::setInterval(
     update();
 }
 
-void QwtMatrixRasterData::setMatrix( 
+/*!
+   \brief Assign a value matrix
+
+   The positions of the values are calculated by dividing
+   the bounding rectangle of the X/Y intervals into equidistant
+   rectangles ( pixels ). Each value corresponds to the center of 
+   a pixel.
+
+   \param values Vector of values
+   \param numColumns Number of columns
+
+   \sa valueMatrix(), numColumns(), numRows(), setInterval()()
+*/
+void QwtMatrixRasterData::setValueMatrix( 
     const QVector<double> &values, size_t numColumns )
 {
     d_data->values = values;
@@ -71,21 +112,46 @@ void QwtMatrixRasterData::setMatrix(
     update();
 }
 
-const QVector<double> QwtMatrixRasterData::values() const
+/*!
+   \return Value matrix
+   \sa setValueMatrix(), numColumns(), numRows(), setInterval()
+*/
+const QVector<double> QwtMatrixRasterData::valueMatrix() const
 {
     return d_data->values;
 }
 
+/*!
+   \return Number of columns of the value matrix
+   \sa valueMatrix(), numRows(), setValueMatrix()
+*/
 size_t QwtMatrixRasterData::numColumns() const
 {
     return d_data->numColumns;
 }
 
+/*!
+   \return Number of rows of the value matrix
+   \sa valueMatrix(), numColumns(), setValueMatrix()
+*/
 size_t QwtMatrixRasterData::numRows() const
 {
     return d_data->numRows;
 }
 
+/*!
+   \brief Pixel hint
+
+   - NearestNeighbour\n
+     pixelHint() returns the surrounding pixel of the top left value 
+     in the matrix.
+
+   - BilinearInterpolation\n
+     Returns an empty rectangle recommending
+     to render in target device ( f.e. screen ) resolution. 
+
+   \sa ResampleMode, setMatrix(), setInterval()
+*/
 QRectF QwtMatrixRasterData::pixelHint( const QRectF & ) const
 {
     QRectF rect;
@@ -103,6 +169,14 @@ QRectF QwtMatrixRasterData::pixelHint( const QRectF & ) const
     return rect;
 }
 
+/*!
+   \return the value at a raster position
+
+   \param x X value in plot coordinates
+   \param y Y value in plot coordinates
+
+   \sa ResampleMode
+*/
 double QwtMatrixRasterData::value( double x, double y ) const
 {
     const QwtInterval xInterval = interval( Qt::XAxis );

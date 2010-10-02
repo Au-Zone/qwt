@@ -350,6 +350,15 @@ QwtRasterData *QwtPlotSpectrogram::data()
     return d_data->data;
 }
 
+/*!
+   \return Bounding interval for an axis
+
+   The default implementation returns the interval of the
+   associated raster data object.
+
+   \param axis X, Y, or Z axis
+   \sa QwtRasterData::interval()
+*/
 QwtInterval QwtPlotSpectrogram::interval(Qt::Axis axis) const
 {
     return d_data->data->interval( axis );

@@ -74,6 +74,10 @@ private:
     QwtInterval d_intervals[3];
 };
 
+/*!
+   \return Bounding interval for a axis
+   \sa setInterval
+*/
 inline const QwtInterval &QwtRasterData::interval( Qt::Axis axis) const
 {
     return d_intervals[axis];

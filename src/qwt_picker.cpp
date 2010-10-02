@@ -1039,7 +1039,7 @@ void QwtPicker::transition( const QEvent *e )
     if ( !d_data->stateMachine )
         return;
 
-    QwtPickerMachine::CommandList commandList =
+    const QList<QwtPickerMachine::Command> commandList =
         d_data->stateMachine->transition( *this, e );
 
     QPoint pos;

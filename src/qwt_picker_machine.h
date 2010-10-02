@@ -61,13 +61,11 @@ public:
         End
     };
 
-    typedef QList<Command> CommandList;
-
     QwtPickerMachine( SelectionType );
     virtual ~QwtPickerMachine();
 
     //! Transition
-    virtual CommandList transition(
+    virtual QList<Command> transition(
         const QwtEventPattern &, const QEvent * ) = 0;
     void reset();
 
@@ -93,7 +91,7 @@ class QWT_EXPORT QwtPickerTrackerMachine: public QwtPickerMachine
 public:
     QwtPickerTrackerMachine();
 
-    virtual CommandList transition(
+    virtual QList<Command> transition(
         const QwtEventPattern &, const QEvent * );
 };
 
@@ -110,7 +108,7 @@ class QWT_EXPORT QwtPickerClickPointMachine: public QwtPickerMachine
 public:
     QwtPickerClickPointMachine();
 
-    virtual CommandList transition(
+    virtual QList<Command> transition(
         const QwtEventPattern &, const QEvent * );
 };
 
@@ -126,7 +124,7 @@ class QWT_EXPORT QwtPickerDragPointMachine: public QwtPickerMachine
 public:
     QwtPickerDragPointMachine();
 
-    virtual CommandList transition(
+    virtual QList<Command> transition(
         const QwtEventPattern &, const QEvent * );
 };
 
@@ -148,7 +146,7 @@ class QWT_EXPORT QwtPickerClickRectMachine: public QwtPickerMachine
 public:
     QwtPickerClickRectMachine();
 
-    virtual CommandList transition(
+    virtual QList<Command> transition(
         const QwtEventPattern &, const QEvent * );
 };
 
@@ -169,7 +167,7 @@ class QWT_EXPORT QwtPickerDragRectMachine: public QwtPickerMachine
 public:
     QwtPickerDragRectMachine();
 
-    virtual CommandList transition(
+    virtual QList<Command> transition(
         const QwtEventPattern &, const QEvent * );
 };
 
@@ -189,7 +187,7 @@ class QWT_EXPORT QwtPickerPolygonMachine: public QwtPickerMachine
 public:
     QwtPickerPolygonMachine();
 
-    virtual CommandList transition(
+    virtual QList<Command> transition(
         const QwtEventPattern &, const QEvent * );
 };
 
