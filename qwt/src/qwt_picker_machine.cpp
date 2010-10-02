@@ -54,10 +54,10 @@ QwtPickerTrackerMachine::QwtPickerTrackerMachine():
 }
 
 //! Transition
-QwtPickerMachine::CommandList QwtPickerTrackerMachine::transition(
+QList<QwtPickerMachine::Command> QwtPickerTrackerMachine::transition(
     const QwtEventPattern &, const QEvent *e )
 {
-    QwtPickerMachine::CommandList cmdList;
+    QList<QwtPickerMachine::Command> cmdList;
 
     switch ( e->type() )
     {
@@ -96,10 +96,10 @@ QwtPickerClickPointMachine::QwtPickerClickPointMachine():
 }
 
 //! Transition
-QwtPickerMachine::CommandList QwtPickerClickPointMachine::transition(
+QList<QwtPickerMachine::Command> QwtPickerClickPointMachine::transition(
     const QwtEventPattern &eventPattern, const QEvent *e )
 {
-    QwtPickerMachine::CommandList cmdList;
+    QList<QwtPickerMachine::Command> cmdList;
 
     switch ( e->type() )
     {
@@ -139,10 +139,10 @@ QwtPickerDragPointMachine::QwtPickerDragPointMachine():
 }
 
 //! Transition
-QwtPickerMachine::CommandList QwtPickerDragPointMachine::transition(
+QList<QwtPickerMachine::Command> QwtPickerDragPointMachine::transition(
     const QwtEventPattern &eventPattern, const QEvent *e )
 {
-    QwtPickerMachine::CommandList cmdList;
+    QList<QwtPickerMachine::Command> cmdList;
 
     switch ( e->type() )
     {
@@ -209,10 +209,10 @@ QwtPickerClickRectMachine::QwtPickerClickRectMachine():
 }
 
 //! Transition
-QwtPickerMachine::CommandList QwtPickerClickRectMachine::transition(
+QList<QwtPickerMachine::Command> QwtPickerClickRectMachine::transition(
     const QwtEventPattern &eventPattern, const QEvent *e )
 {
-    QwtPickerMachine::CommandList cmdList;
+    QList<QwtPickerMachine::Command> cmdList;
 
     switch ( e->type() )
     {
@@ -304,10 +304,10 @@ QwtPickerDragRectMachine::QwtPickerDragRectMachine():
 }
 
 //! Transition
-QwtPickerMachine::CommandList QwtPickerDragRectMachine::transition(
+QList<QwtPickerMachine::Command> QwtPickerDragRectMachine::transition(
     const QwtEventPattern &eventPattern, const QEvent *e )
 {
-    QwtPickerMachine::CommandList cmdList;
+    QList<QwtPickerMachine::Command> cmdList;
 
     switch ( e->type() )
     {
@@ -376,10 +376,10 @@ QwtPickerPolygonMachine::QwtPickerPolygonMachine():
 }
 
 //! Transition
-QwtPickerMachine::CommandList QwtPickerPolygonMachine::transition(
+QList<QwtPickerMachine::Command> QwtPickerPolygonMachine::transition(
     const QwtEventPattern &eventPattern, const QEvent *e )
 {
-    QwtPickerMachine::CommandList cmdList;
+    QList<QwtPickerMachine::Command> cmdList;
 
     switch ( e->type() )
     {

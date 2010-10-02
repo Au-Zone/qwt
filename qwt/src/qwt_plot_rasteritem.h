@@ -55,6 +55,24 @@ public:
         PaintCache
     };
 
+    /*!
+        Attributes to modify the drawing algorithm.
+
+        - PaintInDeviceResolution\n
+          When the image is rendered according to the data pixels
+          ( QwtRasterData::pixelHint() ) it can be expanded to paint
+          device resolution before it is passed to QPainter. 
+          The expansion algorithm rounds the pixel borders in the same 
+          way as the axis ticks, what is usually better than the
+          scaling algorithm implemented in Qt.
+          Disabling this flag might make sense, to reduce the size of a 
+          document/file. If this is possible for a document format
+          depends on the implementation of the specific QPaintEngine.
+
+        The default setting enables PaintInDeviceResolution
+
+        \sa setPaintAttribute(), testPaintAttribute()
+    */
     enum PaintAttribute
     {
         PaintInDeviceResolution = 1

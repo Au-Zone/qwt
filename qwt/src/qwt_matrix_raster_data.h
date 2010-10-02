@@ -14,9 +14,30 @@
 #include "qwt_raster_data.h"
 #include <qvector.h>
 
+/*!
+  \brief A class representing a matrix of values as raster data
+
+  QwtMatrixRasterData implements an interface for a matrix of
+  equidistant values, that can be used by a QwtPlotRasterItem. 
+  It implements a couple of resampling algorithms, to provide
+  values for positions, that or not on the value matrix.
+*/
 class QWT_EXPORT QwtMatrixRasterData: public QwtRasterData
 {
 public:
+    /*!
+      Resampling algorithm
+
+      - NearestNeighbour\n
+        Return the value from the matrix, that is nearest to the
+        the requested position.
+
+      - BilinearInterpolation\n
+        Interpolate the value from the distances and values of the 
+        4 surrounding in the matrix,
+
+     The default setting is NearestNeighbour;
+    */
     enum ResampleMode
     {
         NearestNeighbour,
@@ -30,9 +51,9 @@ public:
     ResampleMode resampleMode() const;
 
     virtual void setInterval( Qt::Axis, const QwtInterval & );
-    void setMatrix( const QVector<double> &values, size_t numColumns );
+    void setValueMatrix( const QVector<double> &values, size_t numColumns );
     
-    const QVector<double> values() const;
+    const QVector<double> valueMatrix() const;
     size_t numColumns() const;
     size_t numRows() const;
 

@@ -680,6 +680,14 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     painter->restore();
 }
 
+/*!
+   \return Bounding interval for an axis
+
+   This method is intended to be reimplemented by derived classes.
+   The default implementation returns an invalid interval.
+   
+   \param axis X, Y, or Z axis
+*/
 QwtInterval QwtPlotRasterItem::interval(Qt::Axis) const
 {
     return QwtInterval();
@@ -775,6 +783,15 @@ QImage QwtPlotRasterItem::compose(
     return image;
 }
 
+/*!
+   \brief Calculate a scale map for painting to an image
+
+   \param orientation Orientation, Qt::Horizontal means a X axis
+   \param map Scale map for rendering the plot item
+   \param area Area to be painted on the image
+   \param imageSize Image size
+   \param pixelSize Width/Height of a data pixel
+*/
 QwtScaleMap QwtPlotRasterItem::imageMap(
     Qt::Orientation orientation,
     const QwtScaleMap &map, const QRectF &area,
