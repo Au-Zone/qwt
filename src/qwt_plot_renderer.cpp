@@ -391,7 +391,7 @@ void QwtPlotRenderer::render( QwtPlot *plot,
     const QRectF layoutRect = transform.inverted().mapRect( plotRect );
     plot->plotLayout()->activate( plot, layoutRect, layoutOptions );
 
-    painter->setWorldTransform( transform );
+    painter->setWorldTransform( transform, true );
 
     // canvas
 
