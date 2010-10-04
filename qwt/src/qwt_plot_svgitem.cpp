@@ -171,7 +171,7 @@ void QwtPlotSvgItem::render( QPainter *painter,
 
     QRectF r = rect;
 
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         r.setLeft ( qRound( r.left() ) );
         r.setRight ( qRound( r.right() ) );

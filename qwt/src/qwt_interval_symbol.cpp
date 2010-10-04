@@ -149,7 +149,7 @@ void QwtIntervalSymbol::draw( QPainter *painter,
 
     QPointF p1 = from;
     QPointF p2 = to;
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         p1 = p1.toPoint();
         p2 = p2.toPoint();

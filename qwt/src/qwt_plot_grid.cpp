@@ -257,7 +257,7 @@ void QwtPlotGrid::drawLines( QPainter *painter, const QRectF &canvasRect,
     const double y1 = canvasRect.top();
     const double y2 = canvasRect.bottom() - 1.0;
 
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     for ( uint i = 0; i < ( uint )values.count(); i++ )
     {

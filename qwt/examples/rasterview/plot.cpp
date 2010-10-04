@@ -28,7 +28,8 @@ public:
         for ( uint i = 0; i < sizeof(matrix) / sizeof(double); i++ )
             values += matrix[i];
     
-        setMatrix(values, 4);
+		const int numColumns = 4;
+        setValueMatrix(values, numColumns);
 
         setInterval( Qt::XAxis, 
             QwtInterval( -0.5, 3.5, QwtInterval::ExcludeMaximum ) );
@@ -126,18 +127,8 @@ void Plot::exportPlot()
 #endif
     if ( !fileName.isEmpty() )
     {
-#if 0
-        d_spectrogram->setPaintAttribute(
-            QwtPlotRasterItem::PaintInDeviceResolution, false);
-#endif
-        
         QwtPlotRenderer renderer;
         renderer.renderDocument(this, fileName, QSizeF(300, 200), 85);
-
-#if 0
-        d_spectrogram->setPaintAttribute(
-            QwtPlotRasterItem::PaintInDeviceResolution, true);
-#endif
     }
 }
 

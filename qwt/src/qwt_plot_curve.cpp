@@ -385,7 +385,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     if ( size <= 0 )
         return;
 
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     QPolygonF polyline( size );
 
@@ -437,7 +437,7 @@ void QwtPlotCurve::drawSticks( QPainter *painter,
     painter->save();
     painter->setRenderHint( QPainter::Antialiasing, false );
 
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     double x0 = xMap.transform( d_data->baseline );
     double y0 = yMap.transform( d_data->baseline );
@@ -486,7 +486,7 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     const QRectF &canvasRect, int from, int to ) const
 {
     const bool doFill = d_data->brush.style() != Qt::NoBrush;
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     QPolygonF polyline;
     if ( doFill )
@@ -542,7 +542,7 @@ void QwtPlotCurve::drawSteps( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     QPolygonF polygon( 2 * ( to - from ) + 1 );
     QPointF *points = polygon.data();
@@ -712,7 +712,7 @@ void QwtPlotCurve::closePolyline( QPainter *painter,
     if ( polygon.size() < 2 )
         return;
 
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     if ( orientation() == Qt::Vertical )
     {
@@ -751,7 +751,7 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     bool usePixmap = testPaintAttribute( CacheSymbols );
     if ( usePixmap && !doAlign )

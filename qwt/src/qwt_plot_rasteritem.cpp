@@ -600,7 +600,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
 
     if ( pixelRect.isEmpty() )
     {
-        if ( QwtPainter::isAligning( painter ) )
+        if ( QwtPainter::roundingAlignment( painter ) )
         {
             // we want to have maps, where the boundaries of
             // the aligned paint rectangle exactly match the area
@@ -634,7 +634,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     }
     else
     {
-        if ( QwtPainter::isAligning( painter ) )
+        if ( QwtPainter::roundingAlignment( painter ) )
             paintRect = qwtAlignRect(paintRect);
 
         // align the area to the data pixels

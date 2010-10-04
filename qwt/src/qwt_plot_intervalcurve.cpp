@@ -269,7 +269,7 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     int from, int to ) const
 {
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     painter->save();
 

@@ -32,7 +32,7 @@ static inline void qwtDrawEllipseSymbols( QPainter *painter,
 
     const QSize size = symbol.size();
 
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         const int sw = size.width();
         const int sh = size.height();
@@ -77,7 +77,7 @@ static inline void qwtDrawRectSymbols( QPainter *painter,
     painter->setBrush( symbol.brush() );
     painter->setRenderHint( QPainter::Antialiasing, false );
 
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         const int sw = size.width();
         const int sh = size.height();
@@ -121,7 +121,7 @@ static inline void qwtDrawDiamondSymbols( QPainter *painter,
     painter->setPen( pen );
     painter->setBrush( symbol.brush() );
 
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         for ( int i = 0; i < numPoints; i++ )
         {
@@ -177,7 +177,7 @@ static inline void qwtDrawTriangleSymbols(
 
     painter->setBrush( symbol.brush() );
 
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     double sw2 = 0.5 * size.width();
     double sh2 = 0.5 * size.height();
@@ -279,7 +279,7 @@ static inline void qwtDrawLineSymbols(
     painter->setPen( pen );
     painter->setRenderHint( QPainter::Antialiasing, false );
 
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         const int sw = qFloor( size.width() );
         const int sh = qFloor( size.height() );
@@ -341,7 +341,7 @@ static inline void qwtDrawXCrossSymbols( QPainter *painter,
     painter->setPen( pen );
 
 
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         const int sw = size.width();
         const int sh = size.height();
@@ -392,7 +392,7 @@ static inline void qwtDrawStar1Symbols( QPainter *painter,
     const QSize size = symbol.size();
     painter->setPen( symbol.pen() );
 
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         QRect r( 0, 0, size.width(), size.height() );
 
@@ -466,7 +466,7 @@ static inline void qwtDrawStar2Symbols( QPainter *painter,
     QPolygonF star( 12 );
     QPointF *starPoints = star.data();
 
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     for ( int i = 0; i < numPoints; i++ )
     {
@@ -552,7 +552,7 @@ static inline void qwtDrawHexagonSymbols( QPainter *painter,
     QPolygonF hexaPolygon( 6 );
     QPointF *hexaPoints = hexaPolygon.data();
 
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     for ( int i = 0; i < numPoints; i++ )
     {
