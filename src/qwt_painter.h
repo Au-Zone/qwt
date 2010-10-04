@@ -41,6 +41,10 @@ public:
     static void setPolylineSplitting( bool );
     static bool polylineSplitting();
 
+    static void setRoundingAlignment( bool );
+    static bool roundingAlignment();
+	static bool roundingAlignment(QPainter *);
+
     static void drawText( QPainter *, double x, double y, const QString & );
     static void drawText( QPainter *, const QPointF &, const QString & );
     static void drawText( QPainter *, double x, double y, double w, double h,
@@ -90,6 +94,7 @@ private:
         int peak, int arc, int intervall, const QColor &c1, const QColor &c2 );
 
     static bool d_polylineSplitting;
+    static bool d_roundingAlignment;
 };
 
 //!  Wrapper for QPainter::drawPoint()
@@ -100,7 +105,7 @@ inline void QwtPainter::drawPoint( QPainter *painter, double x, double y )
 
 //!  Wrapper for QPainter::drawLine()
 inline void QwtPainter::drawLine( QPainter *painter,
-                                  double x1, double y1, double x2, double y2 )
+    double x1, double y1, double x2, double y2 )
 {
     QwtPainter::drawLine( painter, QPointF( x1, y1 ), QPointF( x2, y2 ) );
 }
@@ -120,4 +125,24 @@ inline bool QwtPainter::polylineSplitting()
     return d_polylineSplitting;
 }
 
+/*!
+  Returns whether coordinates should be rounded, before they are painted
+  to a paint engine that floors to integer values.  For other paint engines
+  this ( Pdf, SVG ), this flag has no effect.
+
+  \sa setRoundingAlignment(), isAligning()
+*/
+inline bool QwtPainter::roundingAlignment()
+{
+    return d_roundingAlignment;
+}
+
+/*!
+  \return roundingAlignment() && isAligning(painter);
+  \param painter Painter
+*/
+inline bool QwtPainter::roundingAlignment(QPainter *painter)
+{
+	return d_roundingAlignment && isAligning(painter);
+}
 #endif

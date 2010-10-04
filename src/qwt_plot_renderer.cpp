@@ -185,6 +185,8 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
   \param format Format for the document
   \param sizeMM Size for the document in millimeters.
   \param resolution Resolution in dots per Inch (dpi)
+
+  \sa renderTo(), render(), QwtPainter::setRoundingAlignment()
 */
 void QwtPlotRenderer::renderDocument( QwtPlot *plot,
     const QString &fileName, const QString &format,
@@ -197,8 +199,8 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
     if ( title.isEmpty() )
         title = "Plot Document";
 
-    const double toInch = 1.0 / 25.4;
-    const QSizeF size = sizeMM * toInch * resolution;
+    const double mmToInch = 1.0 / 25.4;
+    const QSizeF size = sizeMM * mmToInch * resolution;
 
     const QRectF documentRect( 0.0, 0.0, size.width(), size.height() );
 
@@ -238,7 +240,11 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
             format.toLatin1() ) >= 0 )
         {
             const QRect imageRect = documentRect.toRect();
+            const int dotsPerMeter = qRound( resolution * mmToInch * 1000.0 );
+
             QImage image( imageRect.size(), QImage::Format_ARGB32 );
+            image.setDotsPerMeterX( dotsPerMeter );
+            image.setDotsPerMeterY( dotsPerMeter );
             image.fill( QColor( Qt::white ).rgb() );
 
             QPainter painter( &image );
@@ -259,6 +265,8 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
 
   \param plot Plot to be rendered
   \param paintDevice device to paint on, f.e a QImage
+
+  \sa renderDocument(), render(), QwtPainter::setRoundingAlignment()
 */
 
 void QwtPlotRenderer::renderTo(
@@ -281,7 +289,7 @@ void QwtPlotRenderer::renderTo(
   \param plot Plot to be rendered
   \param printer Printer to paint on
 
-  \sa QwtPlotPrintFilter
+  \sa renderDocument(), render(), QwtPainter::setRoundingAlignment()
 */
 
 void QwtPlotRenderer::renderTo(
@@ -335,6 +343,8 @@ void QwtPlotRenderer::renderTo(
   \param plot Plot to be rendered
   \param painter Painter
   \param plotRect Bounding rectangle
+
+  \sa renderDocument(), renderTo(), QwtPainter::setRoundingAlignment()
 */
 void QwtPlotRenderer::render( QwtPlot *plot,
     QPainter *painter, const QRectF &plotRect ) const

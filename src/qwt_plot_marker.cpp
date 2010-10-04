@@ -145,7 +145,7 @@ void QwtPlotMarker::drawAt( QPainter *painter,
     // draw lines
     if ( d_data->style != NoLine )
     {
-        const bool doAlign = QwtPainter::isAligning( painter );
+        const bool doAlign = QwtPainter::roundingAlignment( painter );
 
         painter->setPen( d_data->pen );
         if ( d_data->style == QwtPlotMarker::HLine ||

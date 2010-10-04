@@ -337,7 +337,7 @@ void QwtPlotHistogram::drawOutline( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     int from, int to ) const
 {
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     double v0 = ( orientation() == Qt::Horizontal ) ?
         xMap.transform( baseline() ) : yMap.transform( baseline() );
@@ -452,7 +452,7 @@ void QwtPlotHistogram::drawLines( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     int from, int to ) const
 {
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     painter->setPen( d_data->pen );
     painter->setBrush( Qt::NoBrush );
@@ -614,7 +614,7 @@ void QwtPlotHistogram::drawColumn( QPainter *painter,
     else
     {
         QRectF r = rect.toRect();
-        if ( QwtPainter::isAligning( painter ) )
+        if ( QwtPainter::roundingAlignment( painter ) )
         {
             r.setLeft( qRound( r.left() ) );
             r.setRight( qRound( r.right() ) );

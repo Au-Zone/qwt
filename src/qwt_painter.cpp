@@ -28,6 +28,7 @@
 #include <qdesktopwidget.h>
 
 bool QwtPainter::d_polylineSplitting = true;
+bool QwtPainter::d_roundingAlignment = true;
 
 static inline bool isClippingNeeded( const QPainter *painter, QRectF &clipRect )
 {
@@ -108,10 +109,13 @@ static inline void unscaleFont( QPainter *painter )
 
 /*!
   Check if the painter is using a paint engine, that aligns
-  coordinates to integers,
+  coordinates to integers. Today these are all paint engines
+  beside QPaintEngine::Pdf and QPaintEngine::SVG.
 
   \param  painter Painter
   \return true, when the paint engine is aligning
+
+  \sa setRoundingAlignment()
 */
 bool QwtPainter::isAligning( QPainter *painter )
 {
@@ -122,11 +126,28 @@ bool QwtPainter::isAligning( QPainter *painter )
             case QPaintEngine::Pdf:
             case QPaintEngine::SVG:
                 return false;
+
             default:;
         }
     }
 
     return true;
+}
+
+/*!
+  Enable whether coordinates should be rounded, before they are painted
+  to a paint engine that floors to integer values. For other paint engines
+  this ( Pdf, SVG ), this flag has no effect.
+  QwtPainter stores this flag only, the rounding itsself is done in 
+  the painting code ( f.e the plot items ).
+
+  The default setting is true. 
+
+  \sa roundingAlignment(), isAligning()
+*/
+void QwtPainter::setRoundingAlignment( bool enable )
+{
+    d_roundingAlignment = enable;
 }
 
 /*!
@@ -348,14 +369,8 @@ void QwtPainter::drawPolygon( QPainter *painter, const QPolygonF &polygon )
 
     QPolygonF cpa = polygon;
     if ( deviceClipping )
-    {
-#if 0
-#ifdef __GNUC__
-#warning clipping ignores painter transformations
-#endif
-#endif
         cpa = QwtClipper::clipPolygonF( clipRect, polygon );
-    }
+
     painter->drawPolygon( cpa );
 }
 
@@ -447,6 +462,10 @@ void QwtPainter::drawPixmap( QPainter *painter,
     }
 }
 
+/*! 
+   Draw a arc with a linear gradient
+   \note This method needs to be replaced by using QGradient
+*/
 void QwtPainter::drawColoredArc( QPainter *painter, const QRect &rect,
     int peak, int arc, int interval, const QColor &c1, const QColor &c2 )
 {

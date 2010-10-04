@@ -268,7 +268,7 @@ void QwtColumnSymbol::drawBox( QPainter *painter,
     const QwtColumnRect &rect ) const
 {
     QRectF r = rect.toRect();
-    if ( QwtPainter::isAligning( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) )
     {
         r.setLeft( qRound( r.left() ) );
         r.setRight( qRound( r.right() ) );

@@ -417,18 +417,18 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
     if ( len <= 0 )
         return;
 
-    const bool isAligning = QwtPainter::isAligning( painter );
+    const bool roundingAlignment = QwtPainter::roundingAlignment( painter );
 
     QwtScaleMap scaleMap = map();
     QPointF pos = d_data->pos;
 
     double tval = scaleMap.transform( value );
-    if ( isAligning )
+    if ( roundingAlignment )
         tval = qRound( tval );
 
     const int pw = penWidth();
     int a = 0;
-    if ( pw > 1 && isAligning )
+    if ( pw > 1 && roundingAlignment )
         a = 1;
 
     switch ( alignment() )
@@ -437,7 +437,7 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
         {
             double x1 = pos.x() + a;
             double x2 = pos.x() + a - pw - len;
-            if ( isAligning )
+            if ( roundingAlignment )
             {
                 x1 = qRound( x1 );
                 x2 = qRound( x2 );
@@ -451,7 +451,7 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
         {
             double x1 = pos.x();
             double x2 = pos.x() + pw + len;
-            if ( isAligning )
+            if ( roundingAlignment )
             {
                 x1 = qRound( x1 );
                 x2 = qRound( x2 );
@@ -465,7 +465,7 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
         {
             double y1 = pos.y();
             double y2 = pos.y() + pw + len;
-            if ( isAligning )
+            if ( roundingAlignment )
             {
                 y1 = qRound( y1 );
                 y2 = qRound( y2 );
@@ -479,7 +479,7 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
         {
             double y1 = pos.y() + a;
             double y2 = pos.y() - pw - len + a;
-            if ( isAligning )
+            if ( roundingAlignment )
             {
                 y1 = qRound( y1 );
                 y2 = qRound( y2 );
@@ -499,7 +499,7 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
 */
 void QwtScaleDraw::drawBackbone( QPainter *painter ) const
 {
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     const QPointF &pos = d_data->pos;
     const double len = d_data->len;

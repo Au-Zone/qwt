@@ -224,7 +224,7 @@ void QwtPlotSpectroCurve::drawDots( QPainter *painter,
     if ( !d_data->colorRange.isValid() )
         return;
 
-    const bool doAlign = QwtPainter::isAligning( painter );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
 
     const QwtColorMap::Format format = d_data->colorMap->format();
     if ( format == QwtColorMap::Indexed )

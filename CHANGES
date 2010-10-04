@@ -3,40 +3,43 @@ Release 6.0
 
 Changes
 -------
-1. Qt3 support dropped
-2. QwtPlot layout/render code ported from int to double
+1) Qt3 support dropped
+2) QwtPlot layout/render code ported from int to double
    Exported/printed documents in scalable formats like SVG or PDF
    are 100% scalable now.
-3. Template base classes introduced for curve and curve data
+3) Template base classes introduced for curve and curve data
    to be reusable in all plot items displaying series of samples.
-4. New plot items
+4) New plot items
    - QwtPlotHistogram
    - QwtPlotIntervalCurve ( error bars or displaying the area between 2 curves )
    - QwtPlotSpectroCurve ( mapping the z value to a color )
-5. QwtPlot::print moved to QwtPlotRenderer
-6. Other new classes
+5) Raster items
+   - QwtMatrixRasterData introduced
+   - More accurate rendering
+   - Several API changes
+   - Thread support for rendering spectrograms
+6) QwtPlot::print moved to QwtPlotRenderer
+7) Other new classes
    QwtColumnSymbol
    QwtDoublePoint3D
    QwtIntervalSymbol
    QwtPlotDirectPainter
    QwtSamplingThread
    QwtSystemClock
-   
-6. QwtPicker and friends reorganized, 
+8) QwtPicker and friends reorganized, 
    QwtPickerTrackerMachine added for displaying a rubberband for
    mouse moves. Enter/Leave added to events, that are handled
    by the picker machines.
-7. QwtScaleWidget::LayoutFlag added
+9) QwtScaleWidget::LayoutFlag added
    Introduced to control the direction of vertical axis titles.
-8. QwtWeedingCurveFitter added
+10)QwtWeedingCurveFitter added
    QwtWeedingCurveFitter is an implementation of the Douglas/Peuker 
    algorithm, that can be used to reduce the number of curve points.
    It can be very useful to improve the performance of painting
    curves of many lines ( f.e. by implementing different level of details ).
-9. Legend code update for representing different pixmaps for different
+11)Legend code update for representing different pixmaps for different
    types of plot items.
-10)Thread support for rendering spectrograms
-11)Copy operators removed, using pointers instead
+12)Copy operators removed, using pointers instead
 
 
 Release 5.2.1
