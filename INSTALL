@@ -43,9 +43,6 @@ qmake
 make
 make install
 
-Don't forget to tell qmake where to find qwt.prf:
-qmake -set QMAKEFEATURES ...
-
 If you have installed a shared library it's path has to be known to 
 the run-time linker of your operating system. On Linux systems read
 "man ldconfig" ( or google for it ). Another option is to use
@@ -92,9 +89,6 @@ Windows doesn't like mixing of debug and release binaries. Most
 of the problems with using the Qwt designer plugin are because
 of trying to load a Qwt debug library into a designer release 
 executable.
-
-Don't forget to tell qmake where to find qwt.prf:
-qmake -set QMAKEFEATURES ...
 
 C) Win32/MinGW 
 --------
@@ -148,12 +142,10 @@ I never tried this platform myself.
 Using Qwt
 ===========
 
-For building a Qwt application with qmake it might be enough adding
-"CONFIG += qwt" to your project file. This assignment will load 
-all compiler/linker flags, that are required for building a Qwt
-application into your Makefile. If it doesn't work check
-where you have installed qwt.prf and read 
-http://doc.qt.nokia.com/4.6/qmake-advanced-usage.html#adding-new-configuration-features
+For building a Qwt application with qmake use the Qwt configuration features
+file, that has been installed by "make install". When qmake is able to find 
+it ( http://doc.qt.nokia.com/4.7/qmake-advanced-usage.html#adding-new-configuration-features )
+you can simply add "CONFIG += qwt" to your application project file.
 
 If you don't use qmake you have to add the include path to find the Qwt 
 headers to your compiler flags and the Qwt library to your linker list.

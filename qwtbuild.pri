@@ -13,7 +13,6 @@
 
 CONFIG           += qt     
 CONFIG           += warn_on
-CONFIG           += thread
 CONFIG           += no_keywords
 CONFIG           += silent
 
