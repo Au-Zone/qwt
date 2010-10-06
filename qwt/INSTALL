@@ -9,9 +9,10 @@ build a certain project. A project file ends with the suffix "*.pro".
 Files that end with the suffix "*.pri" are included by the project 
 files and contain definitions, that are common for several project files.
 
-qwtconfig.pri/qwtbuild.pri are read by all project files of the Qwt package.
-So the first step is to edit qwtconfig.pri/qwtbuild.pri to adjust it to your
-needs.
+qwtconfig.pri and qwtbuild.pri are read by all project files of the Qwt 
+package. qwtconfig.pri is also read by qwt.prf, when building your
+application. So the first step is to edit the *.pri files to adjust 
+them to your needs.
 
 MathML Extension
 ================
@@ -84,9 +85,6 @@ MSVC.NET) for Qwt.
 To generate makefiles, type: "admin\msvc-qmake"
 To generate project files, type: "admin\msvc-qmake vc"
 
-When you have built a Qwt DLL you need to add the following
-define to your compiler flags: QWT_DLL.
-
 Windows doesn't like mixing of debug and release binaries. Most
 of the problems with using the Qwt designer plugin are because
 of trying to load a Qwt debug library into a designer release 
@@ -109,10 +107,6 @@ cd examples
 qmake examples.pro
 make
 make install
-
-When you have built a Qwt DLL you need to add QWT_DLL to your compiler 
-flags. If you are using qmake for your own builds this done by adding 
-the following line to your profile: "DEFINES += QWT_DLL".
 
 Windows doesn't like mixing of debug and release binaries. Most
 of the problems with using the Qwt designer plugin are because
@@ -154,7 +148,7 @@ where you have installed qwt.prf and read
 http://doc.qt.nokia.com/4.6/qmake-advanced-usage.html#adding-new-configuration-features
 
 If you don't use qmake you have to add the include path to find the Qwt 
-headers to your compiler flags and the qwt library to your linker list.
+headers to your compiler flags and the Qwt library to your linker list.
 Don't forget to add QWT_DLL to the compiler flags, when you work with a 
 Qwt-DLLs on Windows.
 

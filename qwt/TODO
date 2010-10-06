@@ -1,46 +1,28 @@
 Qwt TODO list
 
-5.3.x)
+Ideas
 ------
-1) Histogram
-2) Interval Curve (including error bars)
-3) Curve with z value displayed as colors
-4) Curves for financial charts, box-whisker
-6) QwtData + functors
-7) QwtData/QwtPlotCurve + Level of details (Douglas Peucker)
-8) Include adopted MathML code
-9) Common zoom stack for all navigation objects
-10) Watermark Item
-
-6.0.x)
-------
-
-1) Drop Qt3 Compatibility
-
-6.1.x)
-------
-1) Using doubles for layout/paint calculations
-2) Improve Documention
-4) QAbstractModel -> QwtSeriesData
-5) Cleanup of all widgets using QGradient and friends
-
-Other ideas
------------
-1) OpenGL plot canvas
-2) Time/Date scale engine
-4) TeX texts
-5) Grid of QwtPlots
-6) Interval scale labels ( between 2 ticks )
-7) More than 4 axes
-8) QwtPlotLegendItem
-9) Qwt Jambi
-10) Qt 4.5 + reintroduced raster operations
-11) QwtSymbol/QwtIntervalSymbol + QPainterPath
+- Improve Documention
+- QAbstractModel -> QwtSeriesData
+- Cleanup of all widgets using QGradient and friends
+- Curves for financial charts, box-whisker
+- QwtSeiesData + functors
+- QwtSeriesData/QwtPlotCurve + Level of details (Douglas Peucker)
+- Common zoom stack for all navigation objects
+- Watermark Item
+- Contour algorithm for vectors: http://apptree.net/conrec.htm
+- OpenGL plot canvas
+- Time/Date scale engine
+- TeX texts
+- Grid of QwtPlots
+- Interval scale labels ( between 2 ticks )
+- More than 4 axes
+- QwtPlotLegendItem: legend item on the canvas
+- Qt 4.5 + reintroduced raster operations
+- QwtSymbol/QwtIntervalSymbol + QPainterPath
+- QwtPlotScene + breaking composite architecture
 
 Bugs/Change requests
 --------------------
-1) QwtScaleWidget: Aligned/Opposite modes for the title
-2) QwtPlotDict, performance of z sorting
-3) setAlignCanvasToScales(true) + 2 X-Axes layout bug
-4) Layout init of round scales too late.
-5) Pen width + symbols
+1) QwtPlotDict, performance of z sorting
+2) Layout init of round scales too late.

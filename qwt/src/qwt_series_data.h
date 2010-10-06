@@ -38,7 +38,7 @@ public:
   The value is set to 0.0, the interval is invalid
 */
 inline QwtIntervalSample::QwtIntervalSample():
-        value( 0.0 )
+    value( 0.0 )
 {
 }
 

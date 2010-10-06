@@ -82,8 +82,7 @@ function cleanQwt {
         sed -i -e '/#warning/d' $SRCFILE 
     done 
 
-    sed -i -e "s/\$\$VERSION-svn/$VERSION/" qwtconfig.pri 
-    sed -i -e "s/\$\${QwtVersion}-svn/\$\${QwtVersion}/" qwt.prf 
+    sed -i -e "s/\$\$QWT_VERSION-svn/$QWT_VERSION/" qwtconfig.pri 
 
     cd - > /dev/null
 }
@@ -188,8 +187,9 @@ function prepare4Win {
     SOURCES=`find . -type f -name '*.cpp' -print`
     PROFILES=`find . -type f -name '*.pro' -print`
     PRIFILES=`find . -type f -name '*.pri' -print`
+    PRFFILES=`find . -type f -name '*.prf' -print`
 
-    for FILE in $BATCHES $HEADERS $SOURCES $PROFILES $PRIFILES
+    for FILE in $BATCHES $HEADERS $SOURCES $PROFILES $PRIFILES $PRFFILES
     do
         posix2dos $FILE
     done
