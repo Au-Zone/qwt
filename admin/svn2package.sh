@@ -60,7 +60,7 @@ function cleanQwt {
     rm -f TODO
     rm -f admin/svn2package.sh
 
-    PROFILES="qwtconfig.pri"
+    PROFILES="qwtbuild.pri"
     for PROFILE in $PROFILES
     do
         sed -i -e 's/= debug /= release /' $PROFILE 
@@ -82,7 +82,7 @@ function cleanQwt {
         sed -i -e '/#warning/d' $SRCFILE 
     done 
 
-    sed -i -e "s/\$\$QWT_VERSION-svn/$QWT_VERSION/" qwtconfig.pri 
+    sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION/" qwtconfig.pri 
 
     cd - > /dev/null
 }
