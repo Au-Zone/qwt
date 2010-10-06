@@ -43,11 +43,10 @@ QWT_INSTALL_PLUGINS   = $${QWT_INSTALL_PREFIX}/plugins/designer
 # the compiler/linker flags, that are required to build a Qwt application
 # from qwt.prf. Therefore all you need to do is to add "CONFIG += qwt" 
 # to your project file and take care, that qwt.prf can be found by qmake.
-# ( see http://doc.trolltech.com/4.6/qmake-advanced-usage.html#adding-new-configuration-features )
+# ( see http://doc.trolltech.com/4.7/qmake-advanced-usage.html#adding-new-configuration-features )
 # I recommend not to install the Qwt features together with the
 # Qt features, because you will have to reinstall the Qwt features,
-# with every Qt upgrade. Better use a different directory and make it
-# known to Qt: "qmake -set QMAKEFEATURES ...".
+# with every Qt upgrade. 
 ######################################################################
 
 QWT_INSTALL_FEATURES  = $${QWT_INSTALL_PREFIX}/features
