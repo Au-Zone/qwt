@@ -31,20 +31,28 @@ cd ..\curvdemo1
 qmake -t %1app curvdemo1.pro
 cd ..\curvdemo2
 qmake -t %1app curvdemo2.pro
-cd ..\data_plot
-qmake -t %1app data_plot.pro
 cd ..\dials
 qmake -t %1app dials.pro
 cd ..\event_filter
 qmake -t %1app event_filter.pro
-cd ..\histogram
-qmake -t %1app histogram.pro
+cd ..\friedberg
+qmake -t %1app friedberg.pro
+cd ..\navigation
+qmake -t %1app navigation.pro
+cd ..\oscilloscope
+qmake -t %1app oscilloscope.pro
+cd ..\plotmatrix
+qmake -t %1app plotmatrix.pro
 cd ..\radio
 qmake -t %1app radio.pro
-cd ..\realtime_plot
-qmake -t %1app realtime_plot.pro
-cd ..\simple_plot
-qmake -t %1app simple_plot.pro
+cd ..\rasterview
+qmake -t %1app rasterview.pro
+cd ..\realtime
+qmake -t %1app realtime.pro
+cd ..\refreshtest
+qmake -t %1app refreshtest.pro
+cd ..\sinusplot
+qmake -t %1app sinusplot.pro
 cd ..\sliders
 qmake -t %1app sliders.pro
 cd ..\spectrogram
@@ -53,6 +61,8 @@ cd ..\svgmap
 qmake -t %1app svgmap.pro
 cd ..\sysinfo
 qmake -t %1app sysinfo.pro
+cd ..\tvplot
+qmake -t %1app tvplot.pro
 cd ..\..
 
 REM EOF
