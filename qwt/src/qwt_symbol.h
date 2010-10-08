@@ -133,7 +133,7 @@ public:
 
 protected:
     virtual void drawSymbols( QPainter *,
-                              const QPointF *, int numPoints ) const;
+        const QPointF *, int numPoints ) const;
 
 private:
     // Disabled copy constructor and operator=
