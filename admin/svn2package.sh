@@ -63,7 +63,8 @@ function cleanQwt {
     PROFILES="qwtbuild.pri"
     for PROFILE in $PROFILES
     do
-        sed -i -e 's/= debug /= release /' $PROFILE 
+        sed -i -e 's/= debug/= release/' $PROFILE 
+        sed -i -e 's/= release_and_release/= debug_and_release/' $PROFILE 
     done
 
     HEADERS=`find . -type f -name '*.h' -print`
@@ -82,7 +83,7 @@ function cleanQwt {
         sed -i -e '/#warning/d' $SRCFILE 
     done 
 
-    sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION/" qwtconfig.pri 
+    sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-rc1/" qwtconfig.pri 
 
     cd - > /dev/null
 }
@@ -223,7 +224,7 @@ SVNDIR=trunk
 BRANCH=qwt
 VERSION=
 GENERATE_PDF=0
-GENERATE_QCH=0
+GENERATE_QCH=1
 GENERATE_MAN=1
 
 while [ $# -gt 0 ] ; do
