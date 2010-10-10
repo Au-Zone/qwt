@@ -129,8 +129,8 @@ protected:
     const QwtText &tickLabel( const QFont &, double value ) const;
 
 private:
-    int operator==( const QwtAbstractScaleDraw & ) const;
-    int operator!=( const QwtAbstractScaleDraw & ) const;
+    bool operator==( const QwtAbstractScaleDraw & ) const;
+    bool operator!=( const QwtAbstractScaleDraw & ) const;
 
     class PrivateData;
     PrivateData *d_data;

@@ -656,10 +656,40 @@ QwtSymbol::QwtSymbol( QwtSymbol::Style style, const QBrush &brush,
     d_data = new PrivateData( style, brush, pen, size );
 }
 
+/*!
+  \brief Copy constructor
+
+  \param other Symbol
+*/
+QwtSymbol::QwtSymbol( const QwtSymbol &other )
+{
+    d_data = new PrivateData( other.style(), other.brush(),
+        other.pen(), other.size() );
+};
+
 //! Destructor
 QwtSymbol::~QwtSymbol()
 {
     delete d_data;
+}
+
+//! \brief Assignment operator
+QwtSymbol &QwtSymbol::operator=( const QwtSymbol &other )
+{
+    *d_data = *other.d_data;
+    return *this;
+}
+
+//! \brief Compare two symbols
+bool QwtSymbol::operator==( const QwtSymbol &other ) const
+{
+    return *d_data == *other.d_data;
+}
+
+//! \brief Compare two symbols
+bool QwtSymbol::operator!=( const QwtSymbol &other ) const
+{
+    return !( *d_data == *other.d_data );
 }
 
 /*!

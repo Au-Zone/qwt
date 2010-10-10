@@ -27,8 +27,8 @@ class QwtPlotSpectrogram::PrivateData
 {
 public:
     PrivateData():
-        renderThreadCount( 1 ),
-        data( NULL )
+        data( NULL ),
+        renderThreadCount( 1 )
     {
         colorMap = new QwtLinearColorMap();
         displayMode = ImageMode;

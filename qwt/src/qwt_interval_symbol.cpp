@@ -25,6 +25,14 @@ public:
     {
     }
 
+    bool operator==( const PrivateData &other ) const
+    {
+        return ( style == other.style )
+            && ( width == other.width )
+            && ( brush == other.brush )
+            && ( pen == other.pen );
+    }
+
     QwtIntervalSymbol::Style style;
     int width;
 
@@ -44,10 +52,38 @@ QwtIntervalSymbol::QwtIntervalSymbol( Style style )
     d_data->style = style;
 }
 
+QwtIntervalSymbol::QwtIntervalSymbol( const QwtIntervalSymbol &other )
+{
+    d_data = new PrivateData();
+    *d_data = *other.d_data;
+}
+
 //! Destructor
 QwtIntervalSymbol::~QwtIntervalSymbol()
 {
     delete d_data;
+}
+
+//! \brief Assignment operator
+QwtIntervalSymbol &QwtIntervalSymbol::operator=( 
+    const QwtIntervalSymbol &other )
+{
+    *d_data = *other.d_data;
+    return *this;
+}
+
+//! \brief Compare two symbols
+bool QwtIntervalSymbol::operator==( 
+    const QwtIntervalSymbol &other ) const
+{
+    return *d_data == *other.d_data;
+}
+
+//! \brief Compare two symbols
+bool QwtIntervalSymbol::operator!=( 
+    const QwtIntervalSymbol &other ) const
+{
+    return !( *d_data == *other.d_data );
 }
 
 /*!

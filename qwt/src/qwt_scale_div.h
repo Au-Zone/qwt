@@ -47,8 +47,8 @@ public:
     explicit QwtScaleDiv( 
         double lowerBound, double upperBound, QList<double>[NTickTypes] );
 
-    int operator==( const QwtScaleDiv &s ) const;
-    int operator!=( const QwtScaleDiv &s ) const;
+    bool operator==( const QwtScaleDiv &s ) const;
+    bool operator!=( const QwtScaleDiv &s ) const;
 
     void setInterval( double lowerBound, double upperBound );
     void setInterval( const QwtInterval & );

@@ -58,7 +58,12 @@ public:
 
 public:
     QwtIntervalSymbol( Style = NoSymbol );
+    QwtIntervalSymbol( const QwtIntervalSymbol & );
     virtual ~QwtIntervalSymbol();
+
+    QwtIntervalSymbol &operator=( const QwtIntervalSymbol & );
+    bool operator==( const QwtIntervalSymbol & ) const;
+    bool operator!=( const QwtIntervalSymbol & ) const;
 
     void setWidth( int );
     int width() const;
@@ -76,9 +81,6 @@ public:
         const QPointF& from, const QPointF& to ) const;
 
 private:
-    // Disabled copy constructor and operator=
-    QwtIntervalSymbol( const QwtIntervalSymbol & );
-    QwtIntervalSymbol &operator=( const QwtIntervalSymbol & );
 
     class PrivateData;
     PrivateData* d_data;
