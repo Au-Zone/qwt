@@ -17,11 +17,6 @@
 /*!
   \brief Text Engine for the MathML renderer of the Qt solutions package.
 
-  The Qt Solution package includes a renderer for MathML 
-  http://www.trolltech.com/products/qt/addon/solutions/catalog/4/Widgets/qtmmlwidget 
-  that is available for owners of a commercial Qt license.
-  You need a version >= 2.1, that is only available for Qt4.
-
   To enable MathML support the following code needs to be added to the
   application:
   \verbatim
