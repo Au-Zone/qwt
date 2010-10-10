@@ -7,14 +7,12 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ################################################################
 
-!exists( qtmmlwidget.cpp ) {
-	error( "qtmmlwidget.cpp is missing, see http://qt.nokia.com/products/appdev/add-on-products/catalog/4/Widgets/qtmmlwidget" )
-}
+message(The qwtmathml library contains code of the MML Widget from the Qt solutions package.)
+message(Beside the Qwt license you also have to take care of its license. )
 
 include( ../textengines.pri )
 
 TARGET    = $$qtLibraryTarget(qwtmathml)
-VERSION   = 1.0.0
 QT       += xml
 
 HEADERS = \
@@ -23,10 +21,18 @@ HEADERS = \
 SOURCES = \
 	qwt_mathml_text_engine.cpp
 
-# The files below can be found in the MathML addon of the Qt Solution 
-# package http://qt.nokia.com/products/appdev/add-on-products/catalog/4/Widgets/qtmmlwidget/
-# Copy them here, or modify the pro file for your installation.
+# qwt_mml_document.h/qwt_mml_document.cpp has been stripped down from
+# the mathml widgets offered in the Qt solutions package. 
 
-HEADERS += qtmmlwidget.h
-SOURCES += qtmmlwidget.cpp
+HEADERS += qwt_mml_document.h
+SOURCES += qwt_mml_document.cpp
 
+headers.files  = qwt_mathml_text_engine.h
+headers.path   = $${QWT_INSTALL_HEADERS}
+
+qwtmathmlspec.files  = qwtmathml.prf
+qwtmathmlspec.path  = $${QWT_INSTALL_FEATURES}
+
+target.path    = $${QWT_INSTALL_LIBS}
+
+INSTALLS = target headers qwtmathmlspec

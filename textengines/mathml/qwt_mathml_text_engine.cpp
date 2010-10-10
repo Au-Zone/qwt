@@ -12,8 +12,7 @@
 #include <qstring.h>
 #include <qpainter.h>
 #include "qwt_mathml_text_engine.h"
-
-#include <qtmmlwidget.h>
+#include "qwt_mml_document.h"
 
 //! Constructor
 QwtMathMLTextEngine::QwtMathMLTextEngine()
@@ -58,7 +57,7 @@ QSizeF QwtMathMLTextEngine::textSize(const QFont &font,
 
     if ( text != t )
     {
-        QtMmlDocument doc;
+        QwtMathMLDocument doc;
         doc.setContent(text);
         doc.setBaseFontPointSize(font.pointSize());
 
@@ -94,7 +93,7 @@ void QwtMathMLTextEngine::textMargins(const QFont &, const QString &,
 void QwtMathMLTextEngine::draw(QPainter *painter, const QRectF &rect,
     int flags, const QString& text) const
 {
-    QtMmlDocument doc;
+    QwtMathMLDocument doc;
     doc.setContent(text);
     doc.setBaseFontPointSize(painter->font().pointSize());
 
