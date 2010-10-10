@@ -135,8 +135,8 @@ public:
 
     QwtText &operator=( const QwtText & );
 
-    int operator==( const QwtText & ) const;
-    int operator!=( const QwtText & ) const;
+    bool operator==( const QwtText & ) const;
+    bool operator!=( const QwtText & ) const;
 
     void setText( const QString &,
         QwtText::TextFormat textFormat = AutoText );

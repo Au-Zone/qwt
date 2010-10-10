@@ -67,7 +67,7 @@ void QwtScaleDiv::setInterval( const QwtInterval &interval )
   \brief Equality operator
   \return true if this instance is equal to other
 */
-int QwtScaleDiv::operator==( const QwtScaleDiv &other ) const
+bool QwtScaleDiv::operator==( const QwtScaleDiv &other ) const
 {
     if ( d_lowerBound != other.d_lowerBound ||
         d_upperBound != other.d_upperBound ||
@@ -89,7 +89,7 @@ int QwtScaleDiv::operator==( const QwtScaleDiv &other ) const
   \brief Inequality
   \return true if this instance is not equal to s
 */
-int QwtScaleDiv::operator!=( const QwtScaleDiv &s ) const
+bool QwtScaleDiv::operator!=( const QwtScaleDiv &s ) const
 {
     return ( !( *this == s ) );
 }

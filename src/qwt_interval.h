@@ -59,8 +59,8 @@ public:
     QwtInterval inverted() const;
     QwtInterval limited( double minValue, double maxValue ) const;
 
-    int operator==( const QwtInterval & ) const;
-    int operator!=( const QwtInterval & ) const;
+    bool operator==( const QwtInterval & ) const;
+    bool operator!=( const QwtInterval & ) const;
 
     void setBorderFlags( int );
     int borderFlags() const;
@@ -231,7 +231,7 @@ inline QwtInterval QwtInterval::operator|(
 }
 
 //! Compare two intervals
-inline int QwtInterval::operator==( const QwtInterval &other ) const
+inline bool QwtInterval::operator==( const QwtInterval &other ) const
 {
     return ( d_minValue == other.d_minValue ) &&
            ( d_maxValue == other.d_maxValue ) &&
@@ -239,7 +239,7 @@ inline int QwtInterval::operator==( const QwtInterval &other ) const
 }
 
 //! Compare two intervals
-inline int QwtInterval::operator!=( const QwtInterval &other ) const
+inline bool QwtInterval::operator!=( const QwtInterval &other ) const
 {
     return ( !( *this == other ) );
 }

@@ -43,7 +43,7 @@ public:
 
     static void setRoundingAlignment( bool );
     static bool roundingAlignment();
-	static bool roundingAlignment(QPainter *);
+    static bool roundingAlignment(QPainter *);
 
     static void drawText( QPainter *, double x, double y, const QString & );
     static void drawText( QPainter *, const QPointF &, const QString & );
@@ -143,6 +143,6 @@ inline bool QwtPainter::roundingAlignment()
 */
 inline bool QwtPainter::roundingAlignment(QPainter *painter)
 {
-	return d_roundingAlignment && isAligning(painter);
+    return d_roundingAlignment && isAligning(painter);
 }
 #endif

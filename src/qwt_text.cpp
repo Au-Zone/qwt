@@ -212,7 +212,7 @@ QwtText &QwtText::operator=( const QwtText & other )
 }
 
 //! Relational operator
-int QwtText::operator==( const QwtText &other ) const
+bool QwtText::operator==( const QwtText &other ) const
 {
     return d_data->renderFlags == other.d_data->renderFlags &&
         d_data->text == other.d_data->text &&
@@ -225,7 +225,7 @@ int QwtText::operator==( const QwtText &other ) const
 }
 
 //! Relational operator
-int QwtText::operator!=( const QwtText &other ) const // invalidate
+bool QwtText::operator!=( const QwtText &other ) const // invalidate
 {
     return !( other == *this );
 }

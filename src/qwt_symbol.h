@@ -109,7 +109,12 @@ public:
 public:
     QwtSymbol( Style = NoSymbol );
     QwtSymbol( Style, const QBrush &, const QPen &, const QSize & );
+    QwtSymbol( const QwtSymbol & );
     virtual ~QwtSymbol();
+
+    QwtSymbol &operator=( const QwtSymbol & );
+    bool operator==( const QwtSymbol & ) const;
+    bool operator!=( const QwtSymbol & ) const;
 
     void setSize( const QSize & );
     void setSize( int width, int height = -1 );
@@ -136,10 +141,6 @@ protected:
         const QPointF *, int numPoints ) const;
 
 private:
-    // Disabled copy constructor and operator=
-    QwtSymbol( const QwtSymbol & );
-    QwtSymbol &operator=( const QwtSymbol & );
-
     class PrivateData;
     PrivateData *d_data;
 };
