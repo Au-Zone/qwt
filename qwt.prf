@@ -11,7 +11,7 @@ include ( ./qwtconfig.pri )
 
 INCLUDEPATH *= $${QWT_INSTALL_HEADERS}
 
-LIBS *= -L$${QWT_INSTALL_LIBS}" 
+LIBS *= -L$${QWT_INSTALL_LIBS}
 qtAddLibrary(qwt)
 
 QwtDll {
