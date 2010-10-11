@@ -83,7 +83,7 @@ function cleanQwt {
         sed -i -e '/#warning/d' $SRCFILE 
     done 
 
-    sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-rc1/" qwtconfig.pri 
+    sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-rc2/" qwtconfig.pri 
 
     cd - > /dev/null
 }
