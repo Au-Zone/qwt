@@ -17,7 +17,7 @@
 #include <qpixmap.h>
 
 /*!
-  A widget representing something on a QwtLegend().
+  \brief A widget representing something on a QwtLegend().
 */
 class QWT_EXPORT QwtLegendItem: public QwtTextLabel
 {

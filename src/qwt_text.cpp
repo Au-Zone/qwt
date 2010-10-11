@@ -615,10 +615,6 @@ const QwtTextEngine *QwtText::textEngine( const QString &text,
    With setTextEngine it is possible to extend Qwt with
    other types of text formats.
 
-   Owner of a commercial Qt license can build the qwtmathml library,
-   that is based on the MathML renderer, that is included in MML Widget
-   component of the Qt solutions package.
-
    For QwtText::PlainText it is not allowed to assign a engine == NULL.
 
    \param format Text format
@@ -637,9 +633,6 @@ void QwtText::setTextEngine( QwtText::TextFormat format,
    \brief Find the text engine for a text format
 
    textEngine can be used to find out if a text format is supported.
-   F.e, if one wants to use MathML labels, the MathML renderer from the
-   commercial Qt solutions package might be required, that is not
-   available in Qt Open Source Edition environments.
 
    \param format Text format
    \return The text engine, or NULL if no engine is available.
