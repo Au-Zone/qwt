@@ -78,13 +78,6 @@ cd examples
 qmake examples.pro
 nmake
 
-admin/msvc-qmake.bat helps users of Visual Studio users to
-generate makefiles or project files (.dsp for MSVC-6.0 or vcproj for 
-MSVC.NET) for Qwt.
-
-To generate makefiles, type: "admin\msvc-qmake"
-To generate project files, type: "admin\msvc-qmake vc"
-
 Windows doesn't like mixing of debug and release binaries. Most
 of the problems with using the Qwt designer plugin are because
 of trying to load a Qwt debug library into a designer release 

@@ -58,7 +58,7 @@ function cleanQwt {
     find . -name .svn -print | xargs rm -r
 
     rm -f TODO
-    rm -f admin/svn2package.sh
+    rm -rf admin
 
     PROFILES="qwtbuild.pri"
     for PROFILE in $PROFILES
@@ -209,8 +209,6 @@ function prepare4Unix {
     then
         exit $?
     fi
-
-    rm -rf admin
 
     cd - > /dev/null
 }
