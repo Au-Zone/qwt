@@ -22,8 +22,9 @@
 
   Precision and time intervals are multiples of milliseconds (ms).
 
-  \note The implementation uses POSIX timers or high-resolution performance
-        counter on Windows. If both are not available it falls back on QTimer.
+  \note The implementation uses high-resolution performance counter on Windows,
+        mach_absolute_time() on the Mac or POSIX timers on other systems. 
+        If none is available it falls back on QTimer.
 */
 
 class QWT_EXPORT QwtSystemClock

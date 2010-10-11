@@ -61,17 +61,25 @@ public:
         all available text engines in increasing order > PlainText.
         If none of the text engines can render the text is rendered
         like PlainText.
+
       - PlainText\n
         Draw the text as it is, using a QwtPlainTextEngine.
+
       - RichText\n
         Use the Scribe framework (Qt Rich Text) to render the text.
+
       - MathMLText\n
         Use a MathML (http://en.wikipedia.org/wiki/MathML) render engine
         to display the text. The Qwt MathML extension offers such an engine
-        based on the MathML renderer of the Qt solutions package.
+        based on the MathML renderer of the Qt solutions package. 
+        To enable MathML support the following code needs to be added to the
+        application:
+        \verbatimQwtText::setTextEngine(QwtText::MathMLText, new QwtMathMLTextEngine());\endverbatim
+
       - TeXText\n
         Use a TeX (http://en.wikipedia.org/wiki/TeX) render engine
-        to display the text.
+        to display the text ( not implemented yet ).
+
       - OtherFormat\n
         The number of text formats can be extended using setTextEngine.
         Formats >= OtherFormat are not used by Qwt.

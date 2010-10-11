@@ -16,7 +16,7 @@
 #include <qvector.h>
 #include <qrect.h>
 
-//! A sample of the types (x1-x2, y) or (x, y1-y2)
+//! \brief A sample of the types (x1-x2, y) or (x, y1-y2)
 class QWT_EXPORT QwtIntervalSample
 {
 public:
@@ -25,6 +25,7 @@ public:
     QwtIntervalSample( double value, double min, double max );
 
     bool operator==( const QwtIntervalSample & ) const;
+    bool operator!=( const QwtIntervalSample & ) const;
 
     //! Value
     double value;
@@ -65,12 +66,20 @@ inline bool QwtIntervalSample::operator==(
     return value == other.value && interval == other.interval;
 }
 
-//! A sample of the types (x1...xn, y) or (x, y1..yn)
+//! Compare operator
+inline bool QwtIntervalSample::operator!=( 
+    const QwtIntervalSample &other ) const
+{
+    return !( *this == other );
+}
+
+//! \brief A sample of the types (x1...xn, y) or (x, y1..yn)
 class QWT_EXPORT QwtSetSample
 {
 public:
     QwtSetSample();
     bool operator==( const QwtSetSample &other ) const;
+    bool operator!=( const QwtSetSample &other ) const;
 
     //! value
     double value;
@@ -94,8 +103,14 @@ inline bool QwtSetSample::operator==( const QwtSetSample &other ) const
     return value == other.value && set == other.set;
 }
 
+//! Compare operator
+inline bool QwtSetSample::operator!=( const QwtSetSample &other ) const
+{
+    return !( *this == other );
+}
+
 /*!
-   Abstract interface for iterating over samples
+   \brief Abstract interface for iterating over samples
 
    Qwt offers several implementations of the QwtSeriesData API,
    but in situations, where data of an application specific format
@@ -284,7 +299,7 @@ public:
 };
 
 /*!
-  Interface for iterating over two QVector<double> objects.
+  \brief Interface for iterating over two QVector<double> objects.
 */
 class QWT_EXPORT QwtPointArrayData: public QwtSeriesData<QPointF>
 {
