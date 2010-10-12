@@ -117,7 +117,7 @@ public:
     void renderTo( QwtPlot *, QPaintDevice &p ) const;
 
     virtual void render( QwtPlot *,
-                         QPainter *, const QRectF &rect ) const;
+        QPainter *, const QRectF &rect ) const;
 
 protected:
     virtual void renderLegendItem( QPainter *,

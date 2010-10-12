@@ -412,8 +412,8 @@ QWidget *QwtPlotItem::legendItem() const
    updateLegend() is called from itemChanged() to adopt the widget
    representing the item on the legend to its new configuration.
 
-   The default implementation is made for QwtPlotCurve and updates a
-   QwtLegendItem(), but an item could be represented by any type of widget,
+   The default implementation is updates a QwtLegendItem(), 
+   but an item could be represented by any type of widget,
    by overloading legendItem() and updateLegend().
 
    \param legend Legend

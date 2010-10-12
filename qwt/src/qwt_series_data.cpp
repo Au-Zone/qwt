@@ -20,6 +20,11 @@ static inline QRectF qwtBoundingRect( const QwtPoint3D &sample )
     return QRectF( sample.x(), sample.y(), 0.0, 0.0 );
 }
 
+static inline QRectF qwtBoundingRect( const QwtPointPolar &sample )
+{
+    return QRectF( sample.azimuth(), sample.radius(), 0.0, 0.0 );
+}
+
 static inline QRectF qwtBoundingRect( const QwtIntervalSample &sample )
 {
     return QRectF( sample.interval.minValue(), sample.value,
@@ -114,6 +119,22 @@ QRectF qwtBoundingRect( const QwtSeriesData<QPointF> &series )
 QRectF qwtBoundingRect( const QwtSeriesData<QwtPoint3D> &series )
 {
     return qwtBoundingRectT<QwtPoint3D>( series );
+}
+
+/*!
+  \brief Calculate the bounding rect of a series
+
+  The horizontal coordinates represent the azimuth, the
+  vertical coordinates the radius.
+
+  Slow implementation, that iterates over the series.
+
+  \param series Series
+  \return Bounding rectangle
+*/
+QRectF qwtBoundingRect( const QwtSeriesData<QwtPointPolar> &series )
+{
+    return qwtBoundingRectT<QwtPointPolar>( series );
 }
 
 /*!

@@ -896,7 +896,12 @@ int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
 
     return index;
 }
+/*!
+   \brief Update the widget that represents the item on the legend
 
+   \param legend Legend
+   \sa drawLegendIdentifier(), legendItem(), itemChanged(), QwtLegend()
+*/
 void QwtPlotCurve::updateLegend( QwtLegend *legend ) const
 {
     if ( legend && testItemAttribute( QwtPlotItem::Legend )
@@ -921,6 +926,14 @@ void QwtPlotCurve::updateLegend( QwtLegend *legend ) const
     QwtPlotItem::updateLegend( legend );
 }
 
+/*!
+  \brief Draw the identifier representing the curve on the legend
+
+  \param painter Üainter
+  \param rect Bounding rectangle for the identifier
+
+  \sa setLegendAttribute
+*/
 void QwtPlotCurve::drawLegendIdentifier(
     QPainter *painter, const QRectF &rect ) const
 {
@@ -930,7 +943,6 @@ void QwtPlotCurve::drawLegendIdentifier(
     const int dim = qMin( rect.width(), rect.height() );
 
     QSize size( dim, dim );
-    size = size;
 
     QRectF r( 0, 0, size.width(), size.height() );
     r.moveCenter( rect.center() );

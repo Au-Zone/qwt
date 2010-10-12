@@ -158,7 +158,7 @@ inline int qwtSign( double x )
 //! Return the square of a number
 inline double qwtSqr( const double x )
 {
-    return x*x;
+    return x * x;
 }
 
 /*!
