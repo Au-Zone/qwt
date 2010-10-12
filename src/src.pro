@@ -45,6 +45,7 @@ HEADERS += \
     qwt_picker.h \
     qwt_picker_machine.h \
     qwt_point_3d.h \
+    qwt_point_polar.h \
     qwt_round_scale_draw.h \
     qwt_scale_div.h \
     qwt_scale_draw.h \

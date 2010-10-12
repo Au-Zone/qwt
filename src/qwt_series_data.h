@@ -13,6 +13,7 @@
 #include "qwt_global.h"
 #include "qwt_interval.h"
 #include "qwt_point_3d.h"
+#include "qwt_point_polar.h"
 #include <qvector.h>
 #include <qrect.h>
 
@@ -429,6 +430,7 @@ private:
 
 QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QPointF> & );
 QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QwtPoint3D> & );
+QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QwtPointPolar> & );
 QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QwtIntervalSample> & );
 QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QwtSetSample> & );
 
