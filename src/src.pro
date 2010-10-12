@@ -21,7 +21,7 @@ DESTDIR           = $${QWT_ROOT}/lib
 contains(QWT_CONFIG, QwtDll) {
 
     CONFIG += dll
-	win32|symbian: DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+    win32|symbian: DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
 }
 else {
     CONFIG += staticlib
@@ -82,6 +82,7 @@ SOURCES += \
     qwt_event_pattern.cpp \
     qwt_picker_machine.cpp \
     qwt_point_3d.cpp \
+    qwt_point_polar.cpp \
     qwt_scale_engine.cpp \
     qwt_symbol.cpp \
     qwt_system_clock.cpp
