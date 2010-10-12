@@ -27,6 +27,11 @@ else {
     CONFIG += staticlib
 } 
 
+CONFIG(qt_framework, qt_framework|qt_no_framework) {
+
+	CONFIG += lib_bundle
+}
+
 HEADERS += \
     qwt.h \
     qwt_abstract_scale_draw.h \
