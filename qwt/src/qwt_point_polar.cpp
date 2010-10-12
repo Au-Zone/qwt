@@ -6,10 +6,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <cmath>
-#include <qglobal.h>
-#include "qwt_math.h"
 #include "qwt_point_polar.h"
+#include "qwt_math.h"
 
 /*!
    Convert and assign values from a point in Cartesian coordinates
