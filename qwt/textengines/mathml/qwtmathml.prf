@@ -9,9 +9,22 @@
 
 include ( ./qwtconfig.pri )
 
+contains(QWT_CONFIG, QwtDll) {
+
+    DEFINES *= QWT_DLL
+}
+
 QT       *= xml
 
-INCLUDEPATH *= $${QWT_INSTALL_HEADERS}
+contains(QWT_CONFIG, QwtFramework) {
 
-LIBS *= -L$${QWT_INSTALL_LIBS}
+    INCLUDEPATH *= $${QWT_INSTALL_LIBS}/qwtmathml.framework/Headers
+    LIBS        *= -F$${QWT_INSTALL_LIBS}
+}
+else {
+
+    INCLUDEPATH *= $${QWT_INSTALL_HEADERS}
+    LIBS        *= -L$${QWT_INSTALL_LIBS}
+}
+
 qtAddLibrary(qwtmathml)

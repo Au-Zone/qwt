@@ -107,3 +107,13 @@ QWT_CONFIG     += QwtDesigner
 ######################################################################
 
 QWT_CONFIG     += QwtExamples
+
+######################################################################
+# When Qt has been built as framework qmake ( qtAddLibrary ) wants 
+# to link frameworks instead of regular libs
+######################################################################
+
+macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
+
+    QWT_CONFIG += QwtFramework
+}  

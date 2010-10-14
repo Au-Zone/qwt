@@ -25,12 +25,23 @@ else {
     CONFIG += staticlib
 }
 
+contains(QWT_CONFIG, QwtFramework) {
+
+    CONFIG += lib_bundle
+    LIBS      += -F$${QWT_ROOT}/lib
+}
+
 LIBS      += -L$${QWT_ROOT}/lib
 qtAddLibrary(qwt)
 
 target.path    = $${QWT_INSTALL_LIBS}
-headers.path   = $${QWT_INSTALL_HEADERS}
 doc.path       = $${QWT_INSTALL_DOCS}
 
-headers.files  = $$HEADERS
-INSTALLS       = target headers
+INSTALLS       = target
+
+!CONFIG(lib_bundle) {
+
+    headers.files  = $$HEADERS
+    headers.path   = $${QWT_INSTALL_HEADERS}
+    INSTALLS       += headers
+}
