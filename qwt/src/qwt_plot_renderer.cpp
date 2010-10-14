@@ -26,8 +26,10 @@
 #include <qprinter.h>
 #include <qimagewriter.h>
 #include <qfileinfo.h>
+#ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB
 #include <qsvggenerator.h>
+#endif
 #endif
 
 class QwtPlotRenderer::PrivateData
@@ -222,10 +224,11 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
         QPainter painter( &printer );
         render( plot, &painter, documentRect );
     }
-    else if ( format == "svg" )
-    {
+#ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB
 #if QT_VERSION >= 0x040500
+    else if ( format == "svg" )
+    {
         QSvgGenerator generator;
         generator.setTitle( title );
         generator.setFileName( fileName );
@@ -234,9 +237,10 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
 
         QPainter painter( &generator );
         render( plot, &painter, documentRect );
-#endif
-#endif
     }
+#endif
+#endif
+#endif
     else
     {
         if ( QImageWriter::supportedImageFormats().indexOf(
@@ -310,6 +314,7 @@ void QwtPlotRenderer::renderTo(
     render( plot, &p, rect );
 }
 
+#ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB
 #if QT_VERSION >= 0x040500
 
@@ -337,6 +342,7 @@ void QwtPlotRenderer::renderTo(
     QPainter p( &generator );
     render( plot, &p, rect );
 }
+#endif
 #endif
 #endif
 

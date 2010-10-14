@@ -14,6 +14,15 @@ contains(QWT_CONFIG, QwtDll) {
     DEFINES *= QWT_DLL
 }
 
+contains(QWT_CONFIG, QwtSvg) {
+
+	QT      *= svg
+}
+else {
+
+	DEFINES *= QWT_NO_SVG
+}
+
 contains(QWT_CONFIG, QwtFramework) {
 
     INCLUDEPATH *= $${QWT_INSTALL_LIBS}/qwt.framework/Headers

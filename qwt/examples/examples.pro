@@ -35,7 +35,7 @@ contains(QWT_CONFIG, QwtPlot) {
             oscilloscope  
     }
     
-    contains(QWT_CONFIG, QwtSVGItem) {
+    contains(QWT_CONFIG, QwtSvg) {
 
         SUBDIRS += \
             svgmap

@@ -20,8 +20,10 @@ class QRectF;
 class QPainter;
 class QPrinter;
 class QPaintDevice;
+#ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB
 class QSvgGenerator;
+#endif
 #endif
 
 /*!
@@ -108,9 +110,11 @@ public:
         const QString &title, const QString &format,
         const QSizeF &sizeMM, int resolution = 85 );
 
+#ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB
 #if QT_VERSION >= 0x040500
     void renderTo( QwtPlot *, QSvgGenerator & ) const;
+#endif
 #endif
 #endif
     void renderTo( QwtPlot *, QPrinter & ) const;

@@ -9,6 +9,11 @@
 
 include( ../examples.pri )
 
+!contains(QWT_CONFIG, QwtSvg) {
+
+    error(Qwt is configured without SVG support)
+}
+
 TARGET   = svgmap
 QT      += svg
 
