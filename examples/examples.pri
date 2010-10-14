@@ -20,6 +20,18 @@ DESTDIR      = $${QWT_ROOT}/examples/bin
 LIBS      += -L$${QWT_ROOT}/lib
 qtAddLibrary(qwt)
 
+contains(QWT_CONFIG, QwtSvg) {
+
+	QT += svg
+message(svg)
+}
+else {
+
+message(No svg)
+	DEFINES += QWT_NO_SVG
+}
+
+
 win32 {
     contains(QWT_CONFIG, QwtDll) {
         DEFINES    += QT_DLL QWT_DLL

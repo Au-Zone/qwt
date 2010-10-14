@@ -75,12 +75,11 @@ QWT_CONFIG       += QwtPlot
 QWT_CONFIG     += QwtWidgets
 
 ######################################################################
-# If you want to display svg images on the plot canvas, enable the 
-# line below. Note that Qwt needs the svg+xml, when enabling 
-# QwtSVGItem.
+# If you want to display svg images on the plot canvas, or
+# export a plot to a SVG document
 ######################################################################
 
-QWT_CONFIG     += QwtSVGItem
+QWT_CONFIG     += QwtSvg
 
 ######################################################################
 # You can use the MathML renderer of the Qt solutions package to 

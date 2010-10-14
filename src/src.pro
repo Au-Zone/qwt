@@ -164,11 +164,15 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_scale_widget.cpp 
 }
 
-contains(QWT_CONFIG, QwtSVGItem) {
+contains(QWT_CONFIG, QwtSvg) {
 
-    QT *= svg
+	QT += svg
     HEADERS += qwt_plot_svgitem.h
     SOURCES += qwt_plot_svgitem.cpp 
+}
+else {
+
+	DEFINES += QWT_NO_SVG
 }
 
 contains(QWT_CONFIG, QwtWidgets) {

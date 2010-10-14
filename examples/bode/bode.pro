@@ -10,7 +10,6 @@
 include( ../examples.pri )
 
 TARGET       = bode
-QT          += svg
 
 HEADERS = \
     mainwindow.h \
