@@ -220,9 +220,16 @@ doc.path       = $${QWT_INSTALL_DOCS}
 
 INSTALLS       = target doc
 
-!CONFIG(lib_bundle) {
+CONFIG(lib_bundle) {
 
-    headers.files  = $$HEADERS
+	FRAMEWORK_HEADERS.version = Versions
+	FRAMEWORK_HEADERS.files = $${HEADERS}
+	FRAMEWORK_HEADERS.path = Headers
+	QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+}
+else {
+
+    headers.files  = $${HEADERS}
     headers.path   = $${QWT_INSTALL_HEADERS}
     INSTALLS += headers
 }

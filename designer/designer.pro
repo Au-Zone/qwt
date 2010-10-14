@@ -25,23 +25,19 @@ contains(QWT_CONFIG, QwtDesigner) {
     INCLUDEPATH    += $${QWT_ROOT}/src 
     DEPENDPATH     += $${QWT_ROOT}/src 
 
-    macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
+	contains(QWT_CONFIG, QwtFramework) {
 
-        QWT_FRAMEWORK = $${QWT_ROOT}/lib/qwt.framework
-    }
-
-    isEmpty( QWT_FRAMEWORK ) {
-
-        LIBS      += -L$${QWT_ROOT}/lib 
+        LIBS      += -F$${QWT_ROOT}/lib 
     }
     else {
 
-        LIBS      += -F$${QWT_ROOT}/lib
+        LIBS      += -L$${QWT_ROOT}/lib
     }
 
     qtAddLibrary(qwt)
 
     contains(QWT_CONFIG, QwtDll) {
+
         win32 {
             DEFINES += QT_DLL QWT_DLL
         }

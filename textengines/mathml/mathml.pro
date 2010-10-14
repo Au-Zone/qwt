@@ -27,12 +27,22 @@ SOURCES = \
 HEADERS += qwt_mml_document.h
 SOURCES += qwt_mml_document.cpp
 
-headers.files  = qwt_mathml_text_engine.h
-headers.path   = $${QWT_INSTALL_HEADERS}
-
 qwtmathmlspec.files  = qwtmathml.prf
 qwtmathmlspec.path  = $${QWT_INSTALL_FEATURES}
 
-target.path    = $${QWT_INSTALL_LIBS}
+INSTALLS += qwtmathmlspec
 
-INSTALLS = target headers qwtmathmlspec
+CONFIG(lib_bundle) {
+
+    FRAMEWORK_HEADERS.version = Versions
+    FRAMEWORK_HEADERS.files   = qwt_mathml_text_engine.h
+    FRAMEWORK_HEADERS.path    = Headers
+    QMAKE_BUNDLE_DATA        += FRAMEWORK_HEADERS
+}
+else {
+
+    headers.files  = qwt_mathml_text_engine.h
+    headers.path   = $${QWT_INSTALL_HEADERS}
+    INSTALLS       += headers
+}
+

@@ -17,17 +17,22 @@ INCLUDEPATH += $${QWT_ROOT}/src
 DEPENDPATH  += $${QWT_ROOT}/src
 DESTDIR      = $${QWT_ROOT}/examples/bin
 
-LIBS      += -L$${QWT_ROOT}/lib
+contains(QWT_CONFIG, QwtFramework) {
+
+	LIBS      += -F$${QWT_ROOT}/lib
+}
+else {
+
+	LIBS      += -L$${QWT_ROOT}/lib
+}
 qtAddLibrary(qwt)
 
 contains(QWT_CONFIG, QwtSvg) {
 
 	QT += svg
-message(svg)
 }
 else {
 
-message(No svg)
 	DEFINES += QWT_NO_SVG
 }
 
