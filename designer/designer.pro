@@ -14,48 +14,61 @@ include ( $${QWT_ROOT}/qwtbuild.pri )
 
 contains(QWT_CONFIG, QwtDesigner) {
 
-	CONFIG    += qt designer plugin 
-	CONFIG    += warn_on
+    CONFIG    += qt designer plugin 
+    CONFIG    += warn_on
 
-	TEMPLATE        = lib
-	TARGET          = qwt_designer_plugin
+    TEMPLATE        = lib
+    TARGET          = qwt_designer_plugin
 
-	DESTDIR         = plugins/designer
+    DESTDIR         = plugins/designer
 
-	INCLUDEPATH    += $${QWT_ROOT}/src 
-	DEPENDPATH     += $${QWT_ROOT}/src 
+    INCLUDEPATH    += $${QWT_ROOT}/src 
+    DEPENDPATH     += $${QWT_ROOT}/src 
 
-	LIBS      += -L$${QWT_ROOT}/lib 
-	qtAddLibrary(qwt)
+    macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
 
-	contains(QWT_CONFIG, QwtDll) {
-		win32 {
-			DEFINES += QT_DLL QWT_DLL
-		}
-	}
+        QWT_FRAMEWORK = $${QWT_ROOT}/lib/qwt.framework
+    }
 
-	!contains(QWT_CONFIG, QwtPlot) {
-		DEFINES += NO_QWT_PLOT
-	}
+    isEmpty( QWT_FRAMEWORK ) {
 
-	!contains(QWT_CONFIG, QwtWidgets) {
-		DEFINES += NO_QWT_WIDGETS
-	}
+        LIBS      += -L$${QWT_ROOT}/lib 
+    }
+    else {
 
-	HEADERS += qwt_designer_plugin.h
-	SOURCES += qwt_designer_plugin.cpp
+        LIBS      += -F$${QWT_ROOT}/lib
+    }
 
-	contains(QWT_CONFIG, QwtPlot) {
+    qtAddLibrary(qwt)
 
-		HEADERS += qwt_designer_plotdialog.h
-		SOURCES += qwt_designer_plotdialog.cpp
-	}
+    contains(QWT_CONFIG, QwtDll) {
+        win32 {
+            DEFINES += QT_DLL QWT_DLL
+        }
+    }
 
-	RESOURCES += qwt_designer_plugin.qrc
+    !contains(QWT_CONFIG, QwtPlot) {
+        DEFINES += NO_QWT_PLOT
+    }
 
-	target.path = $${QWT_INSTALL_PLUGINS}
-	INSTALLS += target
+    !contains(QWT_CONFIG, QwtWidgets) {
+        DEFINES += NO_QWT_WIDGETS
+    }
+
+    HEADERS += qwt_designer_plugin.h
+    SOURCES += qwt_designer_plugin.cpp
+
+    contains(QWT_CONFIG, QwtPlot) {
+
+        HEADERS += qwt_designer_plotdialog.h
+        SOURCES += qwt_designer_plotdialog.cpp
+    }
+
+    RESOURCES += qwt_designer_plugin.qrc
+
+    target.path = $${QWT_INSTALL_PLUGINS}
+    INSTALLS += target
 }
 else {
-	TEMPLATE        = subdirs # do nothing
+    TEMPLATE        = subdirs # do nothing
 }

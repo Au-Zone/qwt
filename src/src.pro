@@ -27,9 +27,9 @@ else {
     CONFIG += staticlib
 } 
 
-CONFIG(qt_framework, qt_framework|qt_no_framework) {
+contains(QWT_CONFIG, QwtFramework) {
 
-	CONFIG += lib_bundle
+    CONFIG += lib_bundle
 }
 
 HEADERS += \
@@ -166,7 +166,7 @@ contains(QWT_CONFIG, QwtPlot) {
 
 contains(QWT_CONFIG, QwtSVGItem) {
 
-    QT += svg
+    QT *= svg
     HEADERS += qwt_plot_svgitem.h
     SOURCES += qwt_plot_svgitem.cpp 
 }
@@ -208,14 +208,17 @@ contains(QWT_CONFIG, QwtWidgets) {
 
 # Install directives
 
-headers.files  = $$HEADERS
-doc.files      = $${QWT_ROOT}/doc/html 
-unix {
-    doc.files      += $${QWT_ROOT}/doc/man
-}
-
 target.path    = $${QWT_INSTALL_LIBS}
-headers.path   = $${QWT_INSTALL_HEADERS}
+
+doc.files      = $${QWT_ROOT}/doc/html 
+unix:doc.files += $${QWT_ROOT}/doc/man
 doc.path       = $${QWT_INSTALL_DOCS}
 
-INSTALLS       = target headers doc
+INSTALLS       = target doc
+
+!CONFIG(lib_bundle) {
+
+    headers.files  = $$HEADERS
+    headers.path   = $${QWT_INSTALL_HEADERS}
+    INSTALLS += headers
+}
