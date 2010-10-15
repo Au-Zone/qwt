@@ -32,9 +32,10 @@ contains(QWT_CONFIG, QwtFramework) {
 }
 else {
 
-	LIBS      += -L$${QWT_ROOT}/lib
+    LIBS      += -L$${QWT_ROOT}/lib
 }
 qtAddLibrary(qwt)
+INCLUDEPATH   -= /usr/include/qwt
 
 # Install directives
 

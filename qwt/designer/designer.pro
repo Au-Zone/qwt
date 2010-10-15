@@ -25,7 +25,7 @@ contains(QWT_CONFIG, QwtDesigner) {
     INCLUDEPATH    += $${QWT_ROOT}/src 
     DEPENDPATH     += $${QWT_ROOT}/src 
 
-	contains(QWT_CONFIG, QwtFramework) {
+    contains(QWT_CONFIG, QwtFramework) {
 
         LIBS      += -F$${QWT_ROOT}/lib 
     }
@@ -35,6 +35,7 @@ contains(QWT_CONFIG, QwtDesigner) {
     }
 
     qtAddLibrary(qwt)
+    INCLUDEPATH   -= /usr/include/qwt
 
     contains(QWT_CONFIG, QwtDll) {
 
