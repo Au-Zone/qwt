@@ -34,8 +34,10 @@ else {
 
     LIBS      += -L$${QWT_ROOT}/lib
 }
+
+IPATH       = $${INCLUDEPATH}
 qtAddLibrary(qwt)
-INCLUDEPATH   -= /usr/include/qwt
+INCLUDEPATH = $${IPATH}
 
 # Install directives
 

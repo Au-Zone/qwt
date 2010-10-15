@@ -34,5 +34,11 @@ else {
     LIBS        *= -L$${QWT_INSTALL_LIBS}
 }   
 
-
+INCLUDEPATH_QWT = $${INCLUDEPATH}
 qtAddLibrary(qwt)
+
+# we don't want qtAddLibrary to expand the 
+# include path, with directories, that might
+# conflict with other installations of qwt
+
+INCLUDEPATH      = $${INCLUDEPATH_QWT}
