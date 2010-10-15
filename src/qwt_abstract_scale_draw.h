@@ -51,10 +51,7 @@ public:
     };
 
     QwtAbstractScaleDraw();
-    QwtAbstractScaleDraw( const QwtAbstractScaleDraw & );
     virtual ~QwtAbstractScaleDraw();
-
-    QwtAbstractScaleDraw &operator=( const QwtAbstractScaleDraw & );
 
     void setScaleDiv( const QwtScaleDiv &s );
     const QwtScaleDiv& scaleDiv() const;
@@ -129,8 +126,8 @@ protected:
     const QwtText &tickLabel( const QFont &, double value ) const;
 
 private:
-    bool operator==( const QwtAbstractScaleDraw & ) const;
-    bool operator!=( const QwtAbstractScaleDraw & ) const;
+    QwtAbstractScaleDraw( const QwtAbstractScaleDraw & );
+    QwtAbstractScaleDraw &operator=( const QwtAbstractScaleDraw & );
 
     class PrivateData;
     PrivateData *d_data;

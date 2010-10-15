@@ -33,11 +33,7 @@ class QWT_EXPORT QwtRoundScaleDraw: public QwtAbstractScaleDraw
 {
 public:
     QwtRoundScaleDraw();
-    QwtRoundScaleDraw( const QwtRoundScaleDraw & );
-
     virtual ~QwtRoundScaleDraw();
-
-    QwtRoundScaleDraw &operator=( const QwtRoundScaleDraw &other );
 
     void setRadius( int radius );
     int radius() const;
@@ -56,6 +52,9 @@ protected:
     virtual void drawLabel( QPainter *p, double val ) const;
 
 private:
+    QwtRoundScaleDraw( const QwtRoundScaleDraw & );
+    QwtRoundScaleDraw &operator=( const QwtRoundScaleDraw &other );
+
     class PrivateData;
     PrivateData *d_data;
 };

@@ -39,11 +39,7 @@ public:
     enum Alignment { BottomScale, TopScale, LeftScale, RightScale };
 
     QwtScaleDraw();
-    QwtScaleDraw( const QwtScaleDraw & );
-
     virtual ~QwtScaleDraw();
-
-    QwtScaleDraw &operator=( const QwtScaleDraw &other );
 
     void getBorderDistHint( const QFont &, int &start, int &end ) const;
     int minLabelDist( const QFont & ) const;
@@ -87,6 +83,9 @@ protected:
     virtual void drawLabel( QPainter *, double val ) const;
 
 private:
+    QwtScaleDraw( const QwtScaleDraw & );
+    QwtScaleDraw &operator=( const QwtScaleDraw &other );
+
     void updateMap();
 
     class PrivateData;
