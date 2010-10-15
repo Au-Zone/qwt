@@ -718,7 +718,7 @@ int QwtScaleWidget::dimForLength( int length, const QFont &scaleFont ) const
 {
     const int extent = qCeil( d_data->scaleDraw->extent( scaleFont ) );
 
-    int dim = d_data->margin + extent;
+    int dim = d_data->margin + extent + 1;
 
     if ( !d_data->title.isEmpty() )
         dim += titleHeightForWidth( length ) + d_data->spacing;
