@@ -145,8 +145,12 @@ void QwtScaleMap::setTransformation(
     if ( transformation == NULL )
         return;
 
-    delete d_transformation;
-    d_transformation = transformation;
+    if ( transformation != d_transformation )
+    {
+        delete d_transformation;
+        d_transformation = transformation;
+    }
+
     setScaleInterval( d_s1, d_s2 );
 }
 
