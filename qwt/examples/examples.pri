@@ -19,21 +19,22 @@ DESTDIR      = $${QWT_ROOT}/examples/bin
 
 contains(QWT_CONFIG, QwtFramework) {
 
-	LIBS      += -F$${QWT_ROOT}/lib
+    LIBS      += -F$${QWT_ROOT}/lib
 }
 else {
 
-	LIBS      += -L$${QWT_ROOT}/lib
+    LIBS      += -L$${QWT_ROOT}/lib
 }
 qtAddLibrary(qwt)
+INCLUDEPATH  -= /usr/include/qwt
 
 contains(QWT_CONFIG, QwtSvg) {
 
-	QT += svg
+    QT += svg
 }
 else {
 
-	DEFINES += QWT_NO_SVG
+    DEFINES += QWT_NO_SVG
 }
 
 
