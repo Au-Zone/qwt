@@ -49,26 +49,10 @@ QwtRoundScaleDraw::QwtRoundScaleDraw()
     scaleMap().setPaintInterval( d_data->startAngle, d_data->endAngle );
 }
 
-//! Copy constructor
-QwtRoundScaleDraw::QwtRoundScaleDraw( const QwtRoundScaleDraw &other ):
-    QwtAbstractScaleDraw( other )
-{
-    d_data = new QwtRoundScaleDraw::PrivateData( *other.d_data );
-}
-
-
 //! Destructor
 QwtRoundScaleDraw::~QwtRoundScaleDraw()
 {
     delete d_data;
-}
-
-//! Assignment operator
-QwtRoundScaleDraw &QwtRoundScaleDraw::operator=( const QwtRoundScaleDraw & other )
-{
-    *( QwtAbstractScaleDraw* )this = ( const QwtAbstractScaleDraw & )other;
-    *d_data = *other.d_data;
-    return *this;
 }
 
 /*!

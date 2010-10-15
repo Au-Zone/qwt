@@ -49,25 +49,10 @@ QwtScaleDraw::QwtScaleDraw()
     setLength( 100 );
 }
 
-//! Copy constructor
-QwtScaleDraw::QwtScaleDraw( const QwtScaleDraw &other ):
-    QwtAbstractScaleDraw( other )
-{
-    d_data = new QwtScaleDraw::PrivateData( *other.d_data );
-}
-
 //! Destructor
 QwtScaleDraw::~QwtScaleDraw()
 {
     delete d_data;
-}
-
-//! Assignment operator
-QwtScaleDraw &QwtScaleDraw::operator=( const QwtScaleDraw & other )
-{
-    *( QwtAbstractScaleDraw* )this = ( const QwtAbstractScaleDraw & )other;
-    *d_data = *other.d_data;
-    return *this;
 }
 
 /*!
