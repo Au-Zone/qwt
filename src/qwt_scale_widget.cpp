@@ -806,7 +806,15 @@ void QwtScaleWidget::setScaleDiv(
         Q_EMIT scaleDivChanged();
     }
     else
+    {
+        /*
+          The transformation doesn't anything different as the 
+          previous one. So we better throw it silently away instead of 
+          initiating heavy updates
+         */
+
         delete transformation;
+    }
 }
 
 /*!
