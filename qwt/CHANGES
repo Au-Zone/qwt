@@ -40,6 +40,7 @@ Changes
 11)Legend code update for representing different pixmaps for different
    types of plot items.
 12)Copy operators removed, using pointers instead
+13)QwtPolarPoint from qwtpolar added
 
 
 Release 5.2.1

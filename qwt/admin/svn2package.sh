@@ -83,7 +83,12 @@ function cleanQwt {
         sed -i -e '/#warning/d' $SRCFILE 
     done 
 
-    sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-$SUFFIX/" qwtconfig.pri 
+	if [ "$SUFFIX" != "" ]
+	then
+    	sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-$SUFFIX/" qwtconfig.pri 
+	else
+    	sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION/" qwtconfig.pri 
+	fi
 
     cd - > /dev/null
 }
@@ -102,7 +107,12 @@ function createDocs {
         exit $?
     fi
 
-	sed -i -e "s/svn/$VERSION/" Doxyfile
+	if [ "$SUFFIX" != "" ]
+	then
+		sed -i -e "s/svn/$VERSION-$SUFFIX/" Doxyfile
+	else
+		sed -i -e "s/svn/$VERSION/" Doxyfile
+	fi
 	cp Doxyfile Doxyfile.doc
 
     if [ $GENERATE_MAN -ne 0 ]
@@ -252,6 +262,7 @@ then
     exit 2 
 fi
 
+QWTNAME=$QWTDIR
 if [ "$SUFFIX" != "" ]
 then
     QWTDIR=$QWTDIR-$SUFFIX
