@@ -386,8 +386,8 @@ QRectF QwtPlotItem::boundingRect() const
 /*!
    \brief Allocate the widget that represents the item on the legend
 
-   The default implementation is made for QwtPlotCurve and returns a
-   QwtLegendItem(), but an item could be represented by any type of widget,
+   The default implementation returns a QwtLegendItem(), but an item 
+   could be represented by any type of widget,
    by overloading legendItem() and updateLegend().
 
    \return QwtLegendItem()
@@ -412,7 +412,7 @@ QWidget *QwtPlotItem::legendItem() const
    updateLegend() is called from itemChanged() to adopt the widget
    representing the item on the legend to its new configuration.
 
-   The default implementation is updates a QwtLegendItem(), 
+   The default implementation updates a QwtLegendItem(), 
    but an item could be represented by any type of widget,
    by overloading legendItem() and updateLegend().
 
