@@ -10,7 +10,6 @@
 include( ../examples.pri )
 
 TARGET   = spectrogram
-QT      += svg
 
 HEADERS = \
 	 plot.h 
