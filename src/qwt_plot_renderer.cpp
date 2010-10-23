@@ -37,14 +37,12 @@ class QwtPlotRenderer::PrivateData
 public:
     PrivateData():
         discardFlags( QwtPlotRenderer::DiscardBackground ),
-        layoutFlags( QwtPlotRenderer::DefaultLayout ),
-        plot( NULL )
+        layoutFlags( QwtPlotRenderer::DefaultLayout )
     {
     }
 
     QwtPlotRenderer::DiscardFlags discardFlags;
     QwtPlotRenderer::LayoutFlags layoutFlags;
-    QwtPlot *plot;
 };
 
 /*! 
@@ -380,8 +378,6 @@ void QwtPlotRenderer::render( QwtPlot *plot,
         double( painter->device()->logicalDpiX() ) / plot->logicalDpiX(),
         double( painter->device()->logicalDpiY() ) / plot->logicalDpiY() );
 
-    d_data->plot = plot;
-
     painter->save();
 
     int baseLineDists[QwtPlot::axisCnt];
@@ -415,19 +411,19 @@ void QwtPlotRenderer::render( QwtPlot *plot,
     // canvas
 
     QwtScaleMap maps[QwtPlot::axisCnt];
-    buildCanvasMaps( plot->plotLayout()->canvasRect(), maps );
-    renderCanvas( painter, plot->plotLayout()->canvasRect(), maps );
+    buildCanvasMaps( plot, plot->plotLayout()->canvasRect(), maps );
+    renderCanvas( plot, painter, plot->plotLayout()->canvasRect(), maps );
 
     if ( !( d_data->discardFlags & DiscardTitle )
         && ( !plot->titleLabel()->text().isEmpty() ) )
     {
-        renderTitle( painter, plot->plotLayout()->titleRect() );
+        renderTitle( plot, painter, plot->plotLayout()->titleRect() );
     }
 
     if ( !( d_data->discardFlags & DiscardLegend )
         && plot->legend() && !plot->legend()->isEmpty() )
     {
-        renderLegend( painter, plot->plotLayout()->legendRect() );
+        renderLegend( plot, painter, plot->plotLayout()->legendRect() );
     }
 
     for ( axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
@@ -440,7 +436,7 @@ void QwtPlotRenderer::render( QwtPlot *plot,
             int startDist, endDist;
             scaleWidget->getBorderDistHint( startDist, endDist );
 
-            renderScale( painter, axisId, startDist, endDist,
+            renderScale( plot, painter, axisId, startDist, endDist,
                 baseDist, plot->plotLayout()->scaleRect( axisId ) );
         }
     }
@@ -462,20 +458,18 @@ void QwtPlotRenderer::render( QwtPlot *plot,
     }
 
     painter->restore();
-
-    d_data->plot = NULL;
 }
 
 /*!
   Print the title into a given rectangle.
 
+  \param plot Plot widget
   \param painter Painter
   \param rect Bounding rectangle
 */
-void QwtPlotRenderer::renderTitle( QPainter *painter, const QRectF &rect ) const
+void QwtPlotRenderer::renderTitle( const QwtPlot *plot,
+    QPainter *painter, const QRectF &rect ) const
 {
-    const QwtPlot *plot = d_data->plot;
-
     painter->setFont( plot->titleLabel()->font() );
 
     const QColor color = plot->titleLabel()->palette().color(
@@ -488,13 +482,13 @@ void QwtPlotRenderer::renderTitle( QPainter *painter, const QRectF &rect ) const
 /*!
   Print the legend into a given rectangle.
 
+  \param plot Plot widget
   \param painter Painter
   \param rect Bounding rectangle
 */
-void QwtPlotRenderer::renderLegend( QPainter *painter, const QRectF &rect ) const
+void QwtPlotRenderer::renderLegend( const QwtPlot *plot,
+    QPainter *painter, const QRectF &rect ) const
 {
-    const QwtPlot *plot = d_data->plot;
-
     if ( !plot->legend() || plot->legend()->isEmpty() )
         return;
 
@@ -519,7 +513,7 @@ void QwtPlotRenderer::renderLegend( QPainter *painter, const QRectF &rect ) cons
             painter->save();
 
             painter->setClipRect( itemRects[index] );
-            renderLegendItem( painter, w, itemRects[index] );
+            renderLegendItem( plot, painter, w, itemRects[index] );
 
             index++;
             painter->restore();
@@ -530,6 +524,7 @@ void QwtPlotRenderer::renderLegend( QPainter *painter, const QRectF &rect ) cons
 /*!
   Print the legend item into a given rectangle.
 
+  \param plot Plot widget
   \param painter Painter
   \param widget Widget representing a legend item
   \param rect Bounding rectangle
@@ -537,11 +532,9 @@ void QwtPlotRenderer::renderLegend( QPainter *painter, const QRectF &rect ) cons
   \note When widget is not derived from QwtLegendItem renderLegendItem
         does nothing and needs to be overloaded
 */
-void QwtPlotRenderer::renderLegendItem( QPainter *painter,
-    const QWidget *widget, const QRectF &rect ) const
+void QwtPlotRenderer::renderLegendItem( const QwtPlot *plot,
+    QPainter *painter, const QWidget *widget, const QRectF &rect ) const
 {
-    const QwtPlot *plot = d_data->plot;
-
     if ( widget->inherits( "QwtLegendItem" ) )
     {
         QwtLegendItem *item = ( QwtLegendItem * )widget;
@@ -572,6 +565,7 @@ void QwtPlotRenderer::renderLegendItem( QPainter *painter,
   \brief Paint a scale into a given rectangle.
   Paint the scale into a given rectangle.
 
+  \param plot Plot widget
   \param painter Painter
   \param axisId Axis
   \param startDist Start border distance
@@ -579,12 +573,11 @@ void QwtPlotRenderer::renderLegendItem( QPainter *painter,
   \param baseDist Base distance
   \param rect Bounding rectangle
 */
-void QwtPlotRenderer::renderScale( QPainter *painter,
+void QwtPlotRenderer::renderScale( const QwtPlot *plot,
+    QPainter *painter,
     int axisId, int startDist, int endDist, int baseDist,
     const QRectF &rect ) const
 {
-    const QwtPlot *plot = d_data->plot;
-
     if ( !plot->axisEnabled( axisId ) )
         return;
 
@@ -669,15 +662,15 @@ void QwtPlotRenderer::renderScale( QPainter *painter,
 /*!
   Print the canvas into a given rectangle.
 
+  \param plot Plot widget
   \param painter Painter
   \param map Maps mapping between plot and paint device coordinates
   \param canvasRect Canvas rectangle
 */
-void QwtPlotRenderer::renderCanvas( QPainter *painter,
-    const QRectF &canvasRect, const QwtScaleMap *map ) const
+void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
+    QPainter *painter, const QRectF &canvasRect, 
+    const QwtScaleMap *map ) const
 {
-    const QwtPlot *plot = d_data->plot;
-
     painter->save();
 
     QRectF r = canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 );
@@ -704,7 +697,7 @@ void QwtPlotRenderer::renderCanvas( QPainter *painter,
     painter->save();
     painter->setClipRect( canvasRect );
 
-    d_data->plot->drawItems( painter, canvasRect, map );
+    plot->drawItems( painter, canvasRect, map );
 
     painter->restore();
 }
@@ -712,14 +705,13 @@ void QwtPlotRenderer::renderCanvas( QPainter *painter,
 /*!
    Calculated the scale maps for rendering the canvas
 
+   \param plot Plot widget
    \param canvasRect Target rectangle
    \param maps Scale maps to be calculated
 */
-void QwtPlotRenderer::buildCanvasMaps(
+void QwtPlotRenderer::buildCanvasMaps( const QwtPlot *plot,
     const QRectF &canvasRect, QwtScaleMap maps[] ) const
 {
-    const QwtPlot *plot = d_data->plot;
-
     for ( int axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
     {
         maps[axisId].setTransformation(
@@ -764,16 +756,3 @@ void QwtPlotRenderer::buildCanvasMaps(
         maps[axisId].setPaintInterval( from, to );
     }
 }
-
-//! \return plot widget, that is currently rendered
-QwtPlot *QwtPlotRenderer::plot()
-{
-    return d_data->plot;
-}
-
-//! \return plot widget, that is currently rendered
-const QwtPlot *QwtPlotRenderer::plot() const
-{
-    return d_data->plot;
-}
-

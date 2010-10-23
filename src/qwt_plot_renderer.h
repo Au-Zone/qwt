@@ -124,24 +124,25 @@ public:
         QPainter *, const QRectF &rect ) const;
 
 protected:
-    virtual void renderLegendItem( QPainter *,
-        const QWidget *, const QRectF & ) const;
+    virtual void renderLegendItem( const QwtPlot *, 
+        QPainter *, const QWidget *, const QRectF & ) const;
 
-    virtual void renderTitle( QPainter *, const QRectF & ) const;
+    virtual void renderTitle( const QwtPlot *,
+        QPainter *, const QRectF & ) const;
 
-    virtual void renderScale( QPainter *,
+    virtual void renderScale( const QwtPlot *, QPainter *,
         int axisId, int startDist, int endDist,
         int baseDist, const QRectF & ) const;
 
-    virtual void renderCanvas( QPainter *, const QRectF &canvasRect,
+    virtual void renderCanvas( const QwtPlot *,
+        QPainter *, const QRectF &canvasRect,
         const QwtScaleMap* maps ) const;
 
-    virtual void renderLegend( QPainter *, const QRectF & ) const;
+    virtual void renderLegend( 
+        const QwtPlot *, QPainter *, const QRectF & ) const;
 
-    QwtPlot *plot();
-    const QwtPlot *plot() const;
-
-    void buildCanvasMaps( const QRectF &, QwtScaleMap maps[] ) const;
+    void buildCanvasMaps( const QwtPlot *,
+        const QRectF &, QwtScaleMap maps[] ) const;
 
 private:
     class PrivateData;
