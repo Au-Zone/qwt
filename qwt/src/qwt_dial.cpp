@@ -914,9 +914,9 @@ double QwtDial::origin() const
 void QwtDial::setScaleArc( double minArc, double maxArc )
 {
     if ( minArc != 360.0 && minArc != -360.0 )
-        minArc = fmod( minArc, 360.0 );
+        minArc = ::fmod( minArc, 360.0 );
     if ( maxArc != 360.0 && maxArc != -360.0 )
-        maxArc = fmod( maxArc, 360.0 );
+        maxArc = ::fmod( maxArc, 360.0 );
 
     d_data->minScaleArc = qMin( minArc, maxArc );
     d_data->maxScaleArc = qMax( minArc, maxArc );

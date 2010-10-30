@@ -149,7 +149,7 @@ public:
     virtual void setVisible( bool );
     bool isVisible () const;
 
-    void setAxis( int xAxis, int yAxis );
+    void setAxes( int xAxis, int yAxis );
 
     void setXAxis( int axis );
     int xAxis() const;
