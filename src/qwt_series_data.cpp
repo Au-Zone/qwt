@@ -506,8 +506,11 @@ QRectF QwtSyntheticPointData::rectOfInterest() const
 */
 QRectF QwtSyntheticPointData::boundingRect() const
 {
-    if ( d_size == 0 || !d_interval.isValid() )
-        return QRectF();
+    if ( d_size == 0 || 
+        !( d_interval.isValid() || d_intervalOfInterest.isValid() ) )
+    {
+        return QRectF(1.0, 1.0, -2.0, -2.0); // something invalid
+    }
 
     return qwtBoundingRect( *this );
 }
