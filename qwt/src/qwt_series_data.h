@@ -345,12 +345,12 @@ private:
 /*!
   \brief Synthetic point data
 
-  QwtSyntheticPointData provides a fixed number of points in an interval.
+  QwtSyntheticPointData provides a fixed number of points for an interval.
   The points are calculated in equidistant steps in x-direction.
 
   If the interval is invalid, the points are calculated for
   the "rect of interest", what normally is the displayed area on the
-  plot canvas. In this mode you get different level of details, when
+  plot canvas. In this mode you get different levels of detail, when
   zooming in/out.
 
   \par Example
