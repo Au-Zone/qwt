@@ -318,7 +318,7 @@ void QwtPlotItem::itemChanged()
 
    \sa setXAxis(), setYAxis(), xAxis(), yAxis()
 */
-void QwtPlotItem::setAxis( int xAxis, int yAxis )
+void QwtPlotItem::setAxes( int xAxis, int yAxis )
 {
     if ( xAxis == QwtPlot::xBottom || xAxis == QwtPlot::xTop )
         d_data->xAxis = xAxis;
@@ -335,7 +335,7 @@ void QwtPlotItem::setAxis( int xAxis, int yAxis )
    The item will painted according to the coordinates its Axes.
 
    \param axis X Axis
-   \sa setAxis(), setYAxis(), xAxis()
+   \sa setAxes(), setYAxis(), xAxis()
 */
 void QwtPlotItem::setXAxis( int axis )
 {
@@ -352,7 +352,7 @@ void QwtPlotItem::setXAxis( int axis )
    The item will painted according to the coordinates its Axes.
 
    \param axis Y Axis
-   \sa setAxis(), setXAxis(), yAxis()
+   \sa setAxes(), setXAxis(), yAxis()
 */
 void QwtPlotItem::setYAxis( int axis )
 {

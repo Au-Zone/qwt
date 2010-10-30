@@ -9,6 +9,10 @@
 #include "qwt_point_polar.h"
 #include "qwt_math.h"
 
+#if QT_VERSION < 0x040601
+#define qAtan2(y, x) ::atan2(y, x)
+#endif
+
 /*!
    Convert and assign values from a point in Cartesian coordinates
 
