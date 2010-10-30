@@ -410,7 +410,11 @@ void QwtPlotCurve::drawLines( QPainter *painter,
         polyline = d_data->curveFitter->fitCurve( polyline );
 
     if ( d_data->paintAttributes & ClipPolygons )
-        polyline = QwtClipper::clipPolygonF( canvasRect, polyline );
+    {
+        double pw = qMax(1.0, painter->pen().widthF());
+        polyline = QwtClipper::clipPolygonF( 
+            canvasRect.adjusted(-pw, -pw, pw, pw), polyline );
+    }
 
     QwtPainter::drawPolyline( painter, polyline );
 
