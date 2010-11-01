@@ -613,7 +613,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
             if ( d_data->legendRatio < 1.0 )
                 legendW = qMin( legendW, int( w / ( 1.0 - d_data->legendRatio ) ) );
 
-            w += legendW;
+            w += legendW + d_data->spacing;
         }
         else // QwtPlot::Top, QwtPlot::Bottom
         {
@@ -626,7 +626,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
             if ( d_data->legendRatio < 1.0 )
                 legendH = qMin( legendH, int( h / ( 1.0 - d_data->legendRatio ) ) );
 
-            h += legendH;
+            h += legendH + d_data->spacing;
         }
     }
 
@@ -1133,30 +1133,22 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
         const QRegion region( rect.toRect() );
         rect = region.subtract( d_data->legendRect.toRect() ).boundingRect();
 
-        if ( d_data->layoutData.legend.frameWidth &&
-            !( options & IgnoreFrames ) )
+        switch ( d_data->legendPos )
         {
-            // In case of a frame we have to insert a spacing.
-            // Otherwise the leading of the font separates
-            // legend and scale/canvas
-
-            switch ( d_data->legendPos )
-            {
-                case QwtPlot::LeftLegend:
-                    rect.setLeft( rect.left() + d_data->spacing );
-                    break;
-                case QwtPlot::RightLegend:
-                    rect.setRight( rect.right() - d_data->spacing );
-                    break;
-                case QwtPlot::TopLegend:
-                    rect.setTop( rect.top() + d_data->spacing );
-                    break;
-                case QwtPlot::BottomLegend:
-                    rect.setBottom( rect.bottom() - d_data->spacing );
-                    break;
-                case QwtPlot::ExternalLegend:
-                    break; // suppress compiler warning
-            }
+            case QwtPlot::LeftLegend:
+                rect.setLeft( rect.left() + d_data->spacing );
+                break;
+            case QwtPlot::RightLegend:
+                rect.setRight( rect.right() - d_data->spacing );
+                break;
+            case QwtPlot::TopLegend:
+                rect.setTop( rect.top() + d_data->spacing );
+                break;
+            case QwtPlot::BottomLegend:
+                rect.setBottom( rect.bottom() - d_data->spacing );
+                break;
+            case QwtPlot::ExternalLegend:
+                break; // suppress compiler warning
         }
     }
 
