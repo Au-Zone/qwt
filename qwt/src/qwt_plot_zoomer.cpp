@@ -53,7 +53,7 @@ QwtPlotZoomer::QwtPlotZoomer( QwtPlotCanvas *canvas, bool doReplot ):
   \brief Create a zoomer for a plot canvas.
 
   The selectionFlags() are set to
-  QwtPicker::RectSelection & QwtPicker::ClickSelection, the
+  QwtPicker::RectSelection | QwtPicker::DragSelection, the
   tracker mode to QwtPicker::ActiveOnly.
 
   \param xAxis X axis of the zoomer
