@@ -5,26 +5,20 @@
 \usepackage{amssymb}
 \usepackage{makeidx}
 \usepackage{pdfpages}
-\usepackage{fullpage}
+%\usepackage{fullpage}
+\usepackage[left=1cm,right=2cm,top=2cm,footskip=1.5cm,bottom=1cm]{geometry}
 \usepackage{listings}
 \usepackage{color}
 
+%\setlength{\parskip}{\baselineskip}  
+\setlength{\parindent}{0pt} 
+
 \definecolor{lightgray}{gray}{0.97}
-%\lstset{frame=trBL}
 \lstset{frame=single}
-%\lstset{frameround=tttt}
 \lstset{framesep=5pt}
-
-%\lstset{rulecolor=\color{yellow}}
-%\lstset{rulesepcolor=\color{green}}
-%\lstset{fillcolor=\color{blue}}
-
 \lstset{language=C++}
-%\lstset{numbers=left, numberstyle=\tiny, stepnumber=2, numbersep=5pt}
 \lstset{keywordstyle=\color{black}\bfseries\emph}
 \lstset{backgroundcolor=\color{lightgray}}
-%\lstset{emph={QwtPlot}}
-%\lstset{emphstyle=\color{red}}
 
 \author{Uwe Rathmann}
 \title{Qwt Plot Framework}
@@ -43,39 +37,63 @@ Introduction bla bla
 
 \chapter{Plot Widget}
 
-Plot widget bla bla.
+\section{Composite Widget Architecture}
 
-\section{Composite Architecture}
-
-Composite bla bla
-
+QwtPlot is a composite widget, that contains a QwtPlotCanvas, 
+4 QwtScaleWidgets, a QwtTextWidget for the title and an optional QwtLegend. All widgets might be hidden or visible depending on the current configuration of the plot widget. Many attributes of a plot are in fact attributes of the internal child widgets,
+\\
+\\
+QwtPlot has its own layout engine, that is implemented as QwtPlotLayout. The following picture shows a layout of a plot widget, where all internal widgets are visible.
+\\
+\\
 \includegraphics[scale=1.0]{plotlayout.pdf}
+\\
+\\
+The composite widget architecture\footnote{Subject of redesign} of QwtPlot has some consequences for the programming interface:
 
-\section{Layout}
+\begin{itemize}
 
-Bla Bla 
+\item Attributes\\
+Most attributes of child widgets or the layout object can't be changed using QwtPlot methods. Instead the application code has to use a getter method for the child and access it directly. Beside making the programming interface less obvious it has the effect, that the plot can't be configured in the designer ( or creator )\footnote{A proof of concept has been made how to embed a special editor for QwtPlot into the designer and how to pass the edited properties using QwtPlot::applyProperties() - but it was never implemented.}.
+
+\item Events\\
+Overloading event callbacks of QwtPlot has no effect when an event is posted to a child widget. When the application wants to implement a specific event handling it needs to use a technique called event filtering.
+
+\end{itemize}
 
 \begin{lstlisting}
 #include <qwt_plot.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_scale_widget.h>
 
-class MyPlot : public QwtPlot
+class MyPlot: public QwtPlot
 {
 public:
-    ...
-	
-protected:
-    virtual void doIt()
+    MyPlot(QWidget *parent = NULL);
+    
+    virtual bool eventFilter(QObject *obj, QEvent *event)
+};
+
+MyPlot::MyPlot(QWidget *parent):
+   QwtPlot(parent)
+{
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+    	axisWidget(axis)->setFont( QFont( ... ) );
+
+	canvas()->setPalette( QPalette( Qt::darkBlue ) );
+    canvas()->installEventFilter(this);
+} 
+
+bool MyPlot::eventFilter(QObject *object, QEvent *event)
+{
+    if ( object == canvas() )
     {
-        for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
         ...
     }
-};
+    return QwtPlot::eventFilter(object, event);
+}
 \end{lstlisting}
 
-
-
-
-Bla Bla
 
 \section{Scale Widget}
 \section{Legend}
@@ -124,6 +142,32 @@ Decorations + items representing some sort of data.
 
 \chapter{Exporting and Printing}
 
+\chapter{Text Engines}
+
+All Qwt widgets use QwtText objects to specify text labels. Their format attribute specifies the text engine, that is responsible for interpreting and rendering the string. Today there are 3 different text engines available.\footnote{A text engine for TeX documents would be a great solution to display labels in mathematical notation. There are a couple Qt/KDE applications available, that can display TeX documents. Most of them simply write the TeX document to a file generate an image from it using the TeX tools and load the image then - but maybe there is somewhere an "real" implementation inside, that translates a TeX document into QPainter calls, or a QPainterPath }
+
+\begin{itemize}
+
+\item Plain Text\\
+Bla
+
+\item Rich Text\\
+Bla
+
+\item Mathematical Markup Language (MathML)\\
+Bla
+
+\end{itemize}
+
+QwtText might also have a couple of additional properties, controlling how to display a text.
+
+\begin{itemize}
+\item Font
+\item Color
+\item Background color and border pen
+\end{itemize}
+
+
 \chapter{Advanced Topics}
 
 \section{Incremental Painting}
@@ -131,5 +175,7 @@ Decorations + items representing some sort of data.
 \section{Building Plot Grids}
 
 \section{Controlling the Aspect Ratio}
+
+\section{Levels of Detail}
 
 \end{document}
