@@ -48,11 +48,11 @@ attributes of the internal child widgets,
 \\
 QwtPlot has its own layout engine, that is implemented as QwtPlotLayout. 
 The following picture shows a layout of a plot widget, where all internal widgets are visible.
-\\
-\\
+
+\bigskip
 \includegraphics[scale=1.0]{plotlayout.pdf}
-\\
-\\
+\bigskip
+
 The composite widget architecture\footnote{Subject of redesign} 
 of QwtPlot has some consequences for the programming interface:
 
@@ -197,12 +197,13 @@ The text engines for plain and rich texts are always available.
 The MathML text engine ( like any other homebrew text engine ) has to be
 registered by the application code:
 
+\bigskip 
 \begin{lstlisting}
 #include <qwt_mathml_text_engine.h>
 
 QwtText::setTextEngine(QwtText::MathMLText, new QwtMathMLTextEngine());
 \end{lstlisting}
-
+\bigskip 
 
 QwtText might also have a couple of additional properties, controlling how to display a text.
 
