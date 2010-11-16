@@ -59,6 +59,7 @@ function cleanQwt {
 
     rm -f TODO
     rm -rf admin
+    rm -rf doc/tex
 
     PROFILES="qwtbuild.pri"
     for PROFILE in $PROFILES
