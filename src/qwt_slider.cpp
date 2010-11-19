@@ -311,7 +311,7 @@ void QwtSlider::setScaleDraw( QwtScaleDraw *scaleDraw )
 */
 const QwtScaleDraw *QwtSlider::scaleDraw() const
 {
-    return ( QwtScaleDraw * )abstractScaleDraw();
+    return static_cast<const QwtScaleDraw *>( abstractScaleDraw() );
 }
 
 /*!
@@ -320,7 +320,7 @@ const QwtScaleDraw *QwtSlider::scaleDraw() const
 */
 QwtScaleDraw *QwtSlider::scaleDraw()
 {
-    return ( QwtScaleDraw * )abstractScaleDraw();
+    return static_cast<QwtScaleDraw *>( abstractScaleDraw() );
 }
 
 //! Notify changed scale
