@@ -365,23 +365,25 @@ void QwtPlotIntervalCurve::drawSymbols(
 
     for ( int i = from; i <= to; i++ )
     {
-        const QwtIntervalSample intervalSample = sample( i );
+        const QwtIntervalSample sample = this->sample( i );
 
         if ( orientation() == Qt::Vertical )
         {
-            const double x = xMap.transform( intervalSample.value );
-            const double y1 = yMap.transform( intervalSample.interval.minValue() );
-            const double y2 = yMap.transform( intervalSample.interval.maxValue() );
+            const double x = xMap.transform( sample.value );
+            const double y1 = yMap.transform( sample.interval.minValue() );
+            const double y2 = yMap.transform( sample.interval.maxValue() );
 
-            symbol.draw( painter, QPointF( x, y1 ), QPointF( x, y2 ) );
+            symbol.draw( painter, orientation(),
+                QPointF( x, y1 ), QPointF( x, y2 ) );
         }
         else
         {
-            const double y = yMap.transform( intervalSample.value );
-            const double x1 = xMap.transform( intervalSample.interval.minValue() );
-            const double x2 = xMap.transform( intervalSample.interval.maxValue() );
+            const double y = yMap.transform( sample.value );
+            const double x1 = xMap.transform( sample.interval.minValue() );
+            const double x2 = xMap.transform( sample.interval.maxValue() );
 
-            symbol.draw( painter, QPointF( x1, y ), QPointF( x2, y ) );
+            symbol.draw( painter, orientation(),
+                QPointF( x1, y ), QPointF( x2, y ) );
         }
     }
 
@@ -423,15 +425,15 @@ void QwtPlotIntervalCurve::drawLegendIdentifier(
 
         if ( orientation() == Qt::Vertical )
         {
-            d_data->symbol->draw( painter,
+            d_data->symbol->draw( painter, orientation(),
                 QPointF( r.center().x(), r.top() ),
-                QPointF( r.center().x(), r.bottom() ) );
+                QPointF( r.center().x(), r.bottom() - 1 ) );
         }
         else
         {
-            d_data->symbol->draw( painter,
+            d_data->symbol->draw( painter, orientation(),
                 QPointF( r.left(), r.center().y() ),
-                QPointF( r.right(), r.center().y() ) );
+                QPointF( r.right() - 1, r.center().y() ) );
         }
     }
 }
