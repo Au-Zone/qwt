@@ -4059,7 +4059,7 @@ QString QwtMmlTokenNode::text() const
         if ( child->nodeType() != TextNode ) continue;
         if ( !result.isEmpty() )
             result += ' ';
-        result += ( ( QwtMmlTextNode* )child )->text();
+        result += static_cast<const QwtMmlTextNode *>( child )->text();
     }
 
     return result;

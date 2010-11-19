@@ -242,7 +242,7 @@ void CanvasPicker::showCursor(bool showIt)
     if ( !d_selectedCurve )
         return;
 
-    QwtSymbol *symbol = (QwtSymbol *)d_selectedCurve->symbol();
+    QwtSymbol *symbol = const_cast<QwtSymbol *>( d_selectedCurve->symbol() );
 
     const QBrush brush = symbol->brush();
     if ( showIt )

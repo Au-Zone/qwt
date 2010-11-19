@@ -284,7 +284,7 @@ QRectF QwtScaleMap::invTransform( const QwtScaleMap &xMap,
 QDebug operator<<( QDebug debug, const QwtScaleMap &map )
 {
     debug.nospace() << "QwtScaleMap("
-        << map.transformation()->type()
+        << static_cast<int>( map.transformation()->type() )
         << ", s:" << map.s1() << "->" << map.s2()
         << ", p:" << map.p1() << "->" << map.p2()
         << ")";

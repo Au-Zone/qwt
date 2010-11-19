@@ -267,7 +267,8 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
     if ( range.isValid() )
         ignoreOutOfRange = flags & IgnoreOutOfRange;
 
-    ( ( QwtRasterData* )this )->initRaster( rect, raster );
+    QwtRasterData *that = const_cast<QwtRasterData *>( this );
+    that->initRaster( rect, raster );
 
     for ( int y = 0; y < raster.height() - 1; y++ )
     {
@@ -379,7 +380,7 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
         }
     }
 
-    ( ( QwtRasterData* )this )->discardRaster();
+    that->discardRaster();
 
     return contourLines;
 }

@@ -112,7 +112,7 @@ QwtDialNeedle *QwtAnalogClock::hand( Hand hd )
 */
 const QwtDialNeedle *QwtAnalogClock::hand( Hand hd ) const
 {
-    return ( ( QwtAnalogClock * )this )->hand( hd );
+    return const_cast<QwtAnalogClock *>( this )->hand( hd );
 }
 
 /*!

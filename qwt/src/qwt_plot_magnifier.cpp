@@ -77,29 +77,21 @@ bool QwtPlotMagnifier::isAxisEnabled( int axis ) const
 //! Return observed plot canvas
 QwtPlotCanvas *QwtPlotMagnifier::canvas()
 {
-    QObject *w = parent();
-    if ( w && w->inherits( "QwtPlotCanvas" ) )
-        return ( QwtPlotCanvas * )w;
-
-    return NULL;
+    return qobject_cast<QwtPlotCanvas *>( parent() );
 }
 
 //! Return Observed plot canvas
 const QwtPlotCanvas *QwtPlotMagnifier::canvas() const
 {
-    return ( ( QwtPlotMagnifier * )this )->canvas();
+    return qobject_cast<const QwtPlotCanvas *>( parent() );
 }
 
 //! Return plot widget, containing the observed plot canvas
 QwtPlot *QwtPlotMagnifier::plot()
 {
-    QObject *w = canvas();
+    QwtPlotCanvas *w = canvas();
     if ( w )
-    {
-        w = w->parent();
-        if ( w && w->inherits( "QwtPlot" ) )
-            return ( QwtPlot * )w;
-    }
+        return w->plot();
 
     return NULL;
 }
@@ -107,7 +99,11 @@ QwtPlot *QwtPlotMagnifier::plot()
 //! Return plot widget, containing the observed plot canvas
 const QwtPlot *QwtPlotMagnifier::plot() const
 {
-    return ( ( QwtPlotMagnifier * )this )->plot();
+    const QwtPlotCanvas *w = canvas();
+    if ( w )
+        return w->plot();
+
+    return NULL;
 }
 
 /*!

@@ -66,21 +66,13 @@ QwtPlotCanvas::~QwtPlotCanvas()
 //! Return parent plot widget
 QwtPlot *QwtPlotCanvas::plot()
 {
-    QWidget *w = parentWidget();
-    if ( w && w->inherits( "QwtPlot" ) )
-        return ( QwtPlot * )w;
-
-    return NULL;
+    return qobject_cast<QwtPlot *>( parentWidget() );
 }
 
 //! Return parent plot widget
 const QwtPlot *QwtPlotCanvas::plot() const
 {
-    const QWidget *w = parentWidget();
-    if ( w && w->inherits( "QwtPlot" ) )
-        return ( QwtPlot * )w;
-
-    return NULL;
+    return qobject_cast<const QwtPlot *>( parentWidget() );
 }
 
 /*!
