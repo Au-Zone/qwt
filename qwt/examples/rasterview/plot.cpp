@@ -28,7 +28,7 @@ public:
         for ( uint i = 0; i < sizeof(matrix) / sizeof(double); i++ )
             values += matrix[i];
     
-		const int numColumns = 4;
+        const int numColumns = 4;
         setValueMatrix(values, numColumns);
 
         setInterval( Qt::XAxis, 

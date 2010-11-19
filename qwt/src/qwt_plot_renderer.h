@@ -18,8 +18,12 @@ class QwtScaleMap;
 class QSizeF;
 class QRectF;
 class QPainter;
-class QPrinter;
 class QPaintDevice;
+
+#ifndef QT_NO_PRINTER
+class QPrinter;
+#endif
+
 #ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB
 class QSvgGenerator;
@@ -117,7 +121,11 @@ public:
 #endif
 #endif
 #endif
+
+#ifndef QT_NO_PRINTER
     void renderTo( QwtPlot *, QPrinter & ) const;
+#endif
+
     void renderTo( QwtPlot *, QPaintDevice &p ) const;
 
     virtual void render( QwtPlot *,

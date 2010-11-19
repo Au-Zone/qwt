@@ -41,6 +41,8 @@ Plot::Plot(QWidget *parent):
     rescale();
 }
 
+#ifndef QT_NO_FILEDIALOG
+
 void Plot::loadSVG()
 {
     QString dir;
@@ -51,6 +53,8 @@ void Plot::loadSVG()
     if ( !fileName.isEmpty() )
         loadSVG(fileName);
 }
+
+#endif
 
 void Plot::loadSVG(const QString &fileName)
 {

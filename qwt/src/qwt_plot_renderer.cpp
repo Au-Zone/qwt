@@ -208,8 +208,9 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
     const QRectF documentRect( 0.0, 0.0, size.width(), size.height() );
 
     const QString fmt = format.toLower();
-    if ( format == "pdf" || format == "ps" )
+    if ( fmt == "pdf" || fmt == "ps" )
     {
+#ifndef QT_NO_PRINTER
         QPrinter printer;
         printer.setFullPage( true );
         printer.setPaperSize( sizeMM, QPrinter::Millimeter );
@@ -221,12 +222,13 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
 
         QPainter painter( &printer );
         render( plot, &painter, documentRect );
+#endif
     }
+    else if ( fmt == "svg" )
+    {
 #ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB
 #if QT_VERSION >= 0x040500
-    else if ( format == "svg" )
-    {
         QSvgGenerator generator;
         generator.setTitle( title );
         generator.setFileName( fileName );
@@ -235,10 +237,10 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
 
         QPainter painter( &generator );
         render( plot, &painter, documentRect );
+#endif
+#endif
+#endif
     }
-#endif
-#endif
-#endif
     else
     {
         if ( QImageWriter::supportedImageFormats().indexOf(
@@ -297,6 +299,8 @@ void QwtPlotRenderer::renderTo(
   \sa renderDocument(), render(), QwtPainter::setRoundingAlignment()
 */
 
+#ifndef QT_NO_PRINTER
+
 void QwtPlotRenderer::renderTo(
     QwtPlot *plot, QPrinter &printer ) const
 {
@@ -311,6 +315,8 @@ void QwtPlotRenderer::renderTo(
     QPainter p( &printer );
     render( plot, &p, rect );
 }
+
+#endif
 
 #ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB

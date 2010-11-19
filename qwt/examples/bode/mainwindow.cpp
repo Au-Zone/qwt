@@ -89,20 +89,25 @@ MainWindow::MainWindow(QWidget *parent):
     btnZoom->setIcon(QIcon(zoom_xpm));
     btnZoom->setCheckable(true);
     btnZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    toolBar->addWidget(btnZoom);
+    connect(btnZoom, SIGNAL(toggled(bool)), SLOT(enableZoomMode(bool)));
 
+#ifndef QT_NO_PRINTER
     QToolButton *btnPrint = new QToolButton(toolBar);
     btnPrint->setText("Print");
     btnPrint->setIcon(QIcon(print_xpm));
     btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    toolBar->addWidget(btnPrint);
+    connect(btnPrint, SIGNAL(clicked()), SLOT(print()));
+#endif
 
     QToolButton *btnExport = new QToolButton(toolBar);
     btnExport->setText("Export");
     btnExport->setIcon(QIcon(print_xpm));
     btnExport->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-
-    toolBar->addWidget(btnZoom);
-    toolBar->addWidget(btnPrint);
     toolBar->addWidget(btnExport);
+    connect(btnExport, SIGNAL(clicked()), SLOT(exportDocument()));
+
     toolBar->addSeparator();
 
     QWidget *hBox = new QWidget(toolBar);
@@ -132,15 +137,13 @@ MainWindow::MainWindow(QWidget *parent):
     connect(cntDamp, SIGNAL(valueChanged(double)), 
         d_plot, SLOT(setDamp(double))); 
 
-    connect(btnPrint, SIGNAL(clicked()), SLOT(print()));
-    connect(btnExport, SIGNAL(clicked()), SLOT(exportDocument()));
-    connect(btnZoom, SIGNAL(toggled(bool)), SLOT(enableZoomMode(bool)));
-
     connect(d_picker, SIGNAL(moved(const QPoint &)),
             SLOT(moved(const QPoint &)));
     connect(d_picker, SIGNAL(selected(const QPolygon &)),
             SLOT(selected(const QPolygon &)));
 }
+
+#ifndef QT_NO_PRINTER
 
 void MainWindow::print()
 {
@@ -171,9 +174,15 @@ void MainWindow::print()
     }
 }
 
+#endif
+
 void MainWindow::exportDocument()
 {
+#ifndef QT_NO_PRINTER
     QString fileName = "bode.pdf";
+#else
+    QString fileName = "bode.png";
+#endif
 
 #ifndef QT_NO_FILEDIALOG
     const QList<QByteArray> imageFormats = 

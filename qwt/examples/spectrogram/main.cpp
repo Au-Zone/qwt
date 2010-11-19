@@ -23,31 +23,31 @@ MainWindow::MainWindow(QWidget *parent):
     QToolBar *toolBar = new QToolBar(this);
 
     QToolButton *btnSpectrogram = new QToolButton(toolBar);
-    QToolButton *btnContour = new QToolButton(toolBar);
-    QToolButton *btnPrint = new QToolButton(toolBar);
-
     btnSpectrogram->setText("Spectrogram");
     btnSpectrogram->setCheckable(true);
     btnSpectrogram->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolBar->addWidget(btnSpectrogram);
+    connect(btnSpectrogram, SIGNAL(toggled(bool)), 
+        d_plot, SLOT(showSpectrogram(bool)));
 
+    QToolButton *btnContour = new QToolButton(toolBar);
     btnContour->setText("Contour");
     btnContour->setCheckable(true);
     btnContour->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolBar->addWidget(btnContour);
+    connect(btnContour, SIGNAL(toggled(bool)), 
+        d_plot, SLOT(showContour(bool)));
 
+#ifndef QT_NO_PRINTER
+    QToolButton *btnPrint = new QToolButton(toolBar);
     btnPrint->setText("Print");
     btnPrint->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     toolBar->addWidget(btnPrint);
-
-    addToolBar(toolBar);
-
-    connect(btnSpectrogram, SIGNAL(toggled(bool)), 
-        d_plot, SLOT(showSpectrogram(bool)));
-    connect(btnContour, SIGNAL(toggled(bool)), 
-        d_plot, SLOT(showContour(bool)));
     connect(btnPrint, SIGNAL(clicked()), 
         d_plot, SLOT(printPlot()) );
+#endif
+
+    addToolBar(toolBar);
 
     btnSpectrogram->setChecked(true);
     btnContour->setChecked(false);

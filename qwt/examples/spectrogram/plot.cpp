@@ -79,7 +79,7 @@ Plot::Plot(QWidget *parent):
         contourLevels += level;
     d_spectrogram->setContourLevels(contourLevels);
 
-	const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
+    const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
     // A color bar on the right axis
     QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
     rightAxis->setTitle("Intensity");
@@ -132,6 +132,8 @@ void Plot::showSpectrogram(bool on)
     replot();
 }
 
+#ifndef QT_NO_PRINTER
+
 void Plot::printPlot()
 {
 #if 1
@@ -149,3 +151,4 @@ void Plot::printPlot()
     }
 }
 
+#endif

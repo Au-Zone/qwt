@@ -17,7 +17,10 @@ private Q_SLOTS:
     void moved(const QPoint &);
     void selected(const QPolygon &);
     
+#ifndef QT_NO_PRINTER
     void print();
+#endif
+
     void exportDocument();
     void enableZoomMode(bool);
 
