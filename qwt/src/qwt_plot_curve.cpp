@@ -718,9 +718,17 @@ void QwtPlotCurve::closePolyline( QPainter *painter,
 
     const bool doAlign = QwtPainter::roundingAlignment( painter );
 
+    double baseline = d_data->baseline;
+    
     if ( orientation() == Qt::Vertical )
     {
-        double refY = yMap.transform( d_data->baseline );
+        if ( yMap.transformation()->type() == QwtScaleTransformation::Log10 )
+        {
+            if ( baseline < QwtScaleMap::LogMin )
+                baseline = QwtScaleMap::LogMin;
+        }
+
+        double refY = yMap.transform( baseline );
         if ( doAlign )
             refY = qRound( refY );
 
@@ -729,7 +737,13 @@ void QwtPlotCurve::closePolyline( QPainter *painter,
     }
     else
     {
-        double refX = xMap.transform( d_data->baseline );
+        if ( xMap.transformation()->type() == QwtScaleTransformation::Log10 )
+        {
+            if ( baseline < QwtScaleMap::LogMin )
+                baseline = QwtScaleMap::LogMin;
+        }
+
+        double refX = xMap.transform( baseline );
         if ( doAlign )
             refX = qRound( refX );
 
