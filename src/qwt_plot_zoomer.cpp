@@ -472,8 +472,8 @@ void QwtPlotZoomer::moveBy( double dx, double dy )
 */
 void QwtPlotZoomer::moveTo( const QPointF &pos )
 {
-	double x = pos.x();
-	double y = pos.y();
+    double x = pos.x();
+    double y = pos.y();
 
     if ( x < zoomBase().left() )
         x = zoomBase().left();

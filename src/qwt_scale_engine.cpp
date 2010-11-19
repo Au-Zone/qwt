@@ -879,7 +879,7 @@ QList<double> QwtLog10ScaleEngine::buildMinorTicks(
             return QList<double>();      // no subticks
 
         // substep factor = 10^substeps
-        const double minFactor = qMax( qPow( 10.0, minStep ), 10.0 );
+        const qreal minFactor = qMax( qPow( 10.0, minStep ), qreal( 10.0 ) );
 
         QList<double> minorTicks;
         for ( int i = 0; i < ( int )majorTicks.count(); i++ )

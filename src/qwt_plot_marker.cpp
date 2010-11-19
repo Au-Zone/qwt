@@ -250,14 +250,14 @@ void QwtPlotMarker::drawLabel( QPainter *painter,
         }
     }
 
-    double pw2 = d_data->pen.widthF() / 2.0;
+    qreal pw2 = d_data->pen.widthF() / 2.0;
     if ( pw2 == 0.0 )
         pw2 = 0.5;
 
     const int spacing = d_data->spacing;
 
-    const double xOff = qMax( pw2, symbolOff.width() );
-    const double yOff = qMax( pw2, symbolOff.height() );
+    const qreal xOff = qMax( pw2, symbolOff.width() );
+    const qreal yOff = qMax( pw2, symbolOff.height() );
 
     const QSizeF textSize = d_data->label.textSize( painter->font() );
 

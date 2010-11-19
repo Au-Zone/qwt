@@ -936,9 +936,9 @@ QSize QwtSymbol::boundingSize() const
         case QwtSymbol::Rect:
         case QwtSymbol::Hexagon:
         {
-            double pw = 0.0;
+            qreal pw = 0.0;
             if ( d_data->pen.style() != Qt::NoPen )
-                pw = qMax( d_data->pen.widthF(), 1.0 );
+                pw = qMax( d_data->pen.widthF(), qreal( 1.0 ) );
 
             size = d_data->size + QSize( pw, pw );
 
@@ -954,9 +954,9 @@ QSize QwtSymbol::boundingSize() const
         case QwtSymbol::Star1:
         case QwtSymbol::Star2:
         {
-            double pw = 0.0;
+            qreal pw = 0.0;
             if ( d_data->pen.style() != Qt::NoPen )
-                pw = qMax( d_data->pen.widthF(), 1.0 );
+                pw = qMax( d_data->pen.widthF(), qreal( 1.0 ) );
 
             size = d_data->size + QSize( 2 * pw, 2 * pw );
             break;
