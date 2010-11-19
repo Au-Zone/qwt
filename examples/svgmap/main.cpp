@@ -15,6 +15,8 @@ public:
             
         setCentralWidget(plot);
 
+#ifndef QT_NO_FILEDIALOG
+
         QToolBar *toolBar = new QToolBar(this);
 
         QToolButton *btnLoad = new QToolButton(toolBar);
@@ -26,6 +28,7 @@ public:
         addToolBar(toolBar);
 
         connect(btnLoad, SIGNAL(clicked()), plot, SLOT(loadSVG())); 
+#endif
     }
 };
 

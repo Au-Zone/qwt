@@ -11,7 +11,11 @@ public:
     Plot(QWidget * = NULL);
 
 public Q_SLOTS:
+
+#ifndef QT_NO_FILEDIALOG
     void loadSVG();
+#endif
+
     void loadSVG(const QString &);
 
 private:
