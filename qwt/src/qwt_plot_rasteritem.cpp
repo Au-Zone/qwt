@@ -714,8 +714,8 @@ QRectF QwtPlotRasterItem::boundingRect() const
     }
     else
     {
-        r.setLeft(-0.5 * DBL_MAX);
-        r.setWidth(DBL_MAX);
+        r.setLeft(-0.5 * FLT_MAX);
+        r.setWidth(FLT_MAX);
     }
 
     if ( intervalY.isValid() )
@@ -725,8 +725,8 @@ QRectF QwtPlotRasterItem::boundingRect() const
     }
     else
     {
-        r.setTop(-0.5 * DBL_MAX);
-        r.setHeight(DBL_MAX);
+        r.setTop(-0.5 * FLT_MAX);
+        r.setHeight(FLT_MAX);
     }
 
     return r.normalized();
