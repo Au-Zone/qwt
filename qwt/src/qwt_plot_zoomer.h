@@ -67,7 +67,7 @@ public:
 
 public Q_SLOTS:
     void moveBy( double x, double y );
-    virtual void move( double x, double y );
+    virtual void moveTo( const QPointF & );
 
     virtual void zoom( const QRectF & );
     virtual void zoom( int up );

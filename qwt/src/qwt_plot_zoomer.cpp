@@ -458,7 +458,7 @@ void QwtPlotZoomer::widgetKeyPressEvent( QKeyEvent *ke )
 void QwtPlotZoomer::moveBy( double dx, double dy )
 {
     const QRectF &rect = d_data->zoomStack[d_data->zoomRectIndex];
-    move( rect.left() + dx, rect.top() + dy );
+    moveTo( QPointF( rect.left() + dx, rect.top() + dy ) );
 }
 
 /*!
@@ -467,11 +467,14 @@ void QwtPlotZoomer::moveBy( double dx, double dy )
   \param x X value
   \param y Y value
 
-  \sa QRectF::move()
+  \sa QRectF::moveTo()
   \note The changed rectangle is limited by the zoom base
 */
-void QwtPlotZoomer::move( double x, double y )
+void QwtPlotZoomer::moveTo( const QPointF &pos )
 {
+	double x = pos.x();
+	double y = pos.y();
+
     if ( x < zoomBase().left() )
         x = zoomBase().left();
     if ( x > zoomBase().right() - zoomRect().width() )
