@@ -269,29 +269,21 @@ QwtInterval QwtPlotRescaler::intervalHint( int axis ) const
 //! \return plot canvas
 QwtPlotCanvas *QwtPlotRescaler::canvas()
 {
-    QObject *o = parent();
-    if ( o && o->inherits( "QwtPlotCanvas" ) )
-        return ( QwtPlotCanvas * )o;
-
-    return NULL;
+    return qobject_cast<QwtPlotCanvas *>( parent() );
 }
 
 //! \return plot canvas
 const QwtPlotCanvas *QwtPlotRescaler::canvas() const
 {
-    return ( ( QwtPlotRescaler * )this )->canvas();
+    return qobject_cast<const QwtPlotCanvas *>( parent() );
 }
 
 //! \return plot widget
 QwtPlot *QwtPlotRescaler::plot()
 {
-    QObject *w = canvas();
+    QwtPlotCanvas *w = canvas();
     if ( w )
-    {
-        w = w->parent();
-        if ( w && w->inherits( "QwtPlot" ) )
-            return ( QwtPlot * )w;
-    }
+        return w->plot();
 
     return NULL;
 }
@@ -299,7 +291,11 @@ QwtPlot *QwtPlotRescaler::plot()
 //! \return plot widget
 const QwtPlot *QwtPlotRescaler::plot() const
 {
-    return ( ( QwtPlotRescaler * )this )->plot();
+    const QwtPlotCanvas *w = canvas();
+    if ( w )
+        return w->plot();
+
+    return NULL;
 }
 
 //!  Event filter for the plot canvas
@@ -575,7 +571,7 @@ void QwtPlotRescaler::updateScales(
         return;
     }
 
-    QwtPlot *plt = ( QwtPlot * )plot();
+    QwtPlot *plt = const_cast<QwtPlot *>( plot() );
 
     const bool doReplot = plt->autoReplot();
     plt->setAutoReplot( false );

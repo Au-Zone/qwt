@@ -84,29 +84,21 @@ bool QwtPlotPanner::isAxisEnabled( int axis ) const
 //! Return observed plot canvas
 QwtPlotCanvas *QwtPlotPanner::canvas()
 {
-    QWidget *w = parentWidget();
-    if ( w && w->inherits( "QwtPlotCanvas" ) )
-        return ( QwtPlotCanvas * )w;
-
-    return NULL;
+    return qobject_cast<QwtPlotCanvas *>( parentWidget() );
 }
 
 //! Return Observed plot canvas
 const QwtPlotCanvas *QwtPlotPanner::canvas() const
 {
-    return ( ( QwtPlotPanner * )this )->canvas();
+    return qobject_cast<const QwtPlotCanvas *>( parentWidget() );
 }
 
 //! Return plot widget, containing the observed plot canvas
 QwtPlot *QwtPlotPanner::plot()
 {
-    QObject *w = canvas();
+    QwtPlotCanvas *w = canvas();
     if ( w )
-    {
-        w = w->parent();
-        if ( w && w->inherits( "QwtPlot" ) )
-            return ( QwtPlot * )w;
-    }
+        return w->plot();
 
     return NULL;
 }
@@ -114,7 +106,11 @@ QwtPlot *QwtPlotPanner::plot()
 //! Return plot widget, containing the observed plot canvas
 const QwtPlot *QwtPlotPanner::plot() const
 {
-    return ( ( QwtPlotPanner * )this )->plot();
+    const QwtPlotCanvas *w = canvas();
+    if ( w )
+        return w->plot();
+
+    return NULL;
 }
 
 /*!
@@ -130,7 +126,7 @@ void QwtPlotPanner::moveCanvas( int dx, int dy )
     if ( dx == 0 && dy == 0 )
         return;
 
-    QwtPlot *plot = QwtPlotPanner::plot();
+    QwtPlot *plot = this->plot();
     if ( plot == NULL )
         return;
 
