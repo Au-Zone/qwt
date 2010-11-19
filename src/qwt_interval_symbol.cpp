@@ -178,8 +178,8 @@ const QPen& QwtIntervalSymbol::pen() const
 
   \sa setStyle()
 */
-void QwtIntervalSymbol::draw( QPainter *painter,
-        const QPointF &from, const QPointF &to ) const
+void QwtIntervalSymbol::draw( QPainter *painter, Qt::Orientation orientation,
+    const QPointF &from, const QPointF &to ) const
 {
     const double pw = qMax( painter->pen().widthF(), 1.0 );
 
@@ -198,7 +198,8 @@ void QwtIntervalSymbol::draw( QPainter *painter,
             QwtPainter::drawLine( painter, p1, p2 );
             if ( d_data->width > pw )
             {
-                if ( p1.y() == p2.y() )
+                if ( ( orientation == Qt::Horizontal ) 
+                    && ( p1.y() == p2.y() ) )
                 {
                     const double sw = d_data->width;
 
@@ -208,7 +209,8 @@ void QwtIntervalSymbol::draw( QPainter *painter,
                     QwtPainter::drawLine( painter,
                         p2.x(), y, p2.x(), y + sw );
                 }
-                else if ( p1.x() == p2.x() )
+                else if ( ( orientation == Qt::Vertical ) 
+                    && ( p1.x() == p2.x() ) )
                 {
                     const double sw = d_data->width;
 
@@ -248,7 +250,8 @@ void QwtIntervalSymbol::draw( QPainter *painter,
             }
             else
             {
-                if ( p1.y() == p2.y() )
+                if ( ( orientation == Qt::Horizontal ) 
+                    && ( p1.y() == p2.y() ) )
                 {
                     const double sw = d_data->width;
 
@@ -256,7 +259,8 @@ void QwtIntervalSymbol::draw( QPainter *painter,
                     QwtPainter::drawRect( painter,
                         p1.x(), y, p2.x() - p1.x(),  sw );
                 }
-                else if ( p1.x() == p2.x() )
+                else if ( ( orientation == Qt::Vertical )
+                    && ( p1.x() == p2.x() ) )
                 {
                     const double sw = d_data->width;
 

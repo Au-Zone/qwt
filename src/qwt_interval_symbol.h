@@ -77,7 +77,7 @@ public:
     void setStyle( Style );
     Style style() const;
 
-    virtual void draw( QPainter *,
+    virtual void draw( QPainter *, Qt::Orientation,
         const QPointF& from, const QPointF& to ) const;
 
 private:
