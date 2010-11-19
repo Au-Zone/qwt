@@ -156,7 +156,7 @@ void QwtKnob::setScaleDraw( QwtRoundScaleDraw *scaleDraw )
 */
 const QwtRoundScaleDraw *QwtKnob::scaleDraw() const
 {
-    return ( QwtRoundScaleDraw * )abstractScaleDraw();
+    return static_cast<const QwtRoundScaleDraw *>( abstractScaleDraw() );
 }
 
 /*!
@@ -165,7 +165,7 @@ const QwtRoundScaleDraw *QwtKnob::scaleDraw() const
 */
 QwtRoundScaleDraw *QwtKnob::scaleDraw()
 {
-    return ( QwtRoundScaleDraw * )abstractScaleDraw();
+    return static_cast<QwtRoundScaleDraw *>( abstractScaleDraw() );
 }
 
 /*!

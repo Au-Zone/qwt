@@ -1043,7 +1043,7 @@ void QwtPicker::transition( const QEvent *e )
         case QEvent::MouseButtonRelease:
         case QEvent::MouseMove:
         {
-            const QMouseEvent *me = ( QMouseEvent * )e;
+            const QMouseEvent *me = static_cast< const QMouseEvent * >( e );
             pos = me->pos();
             break;
         }
@@ -1333,18 +1333,11 @@ void QwtPicker::setMouseTracking( bool enable )
 */
 QRect QwtPicker::pickRect() const
 {
-    QRect rect;
-
     const QWidget *widget = parentWidget();
-    if ( !widget )
-        return rect;
+    if ( widget )
+        return widget->contentsRect();
 
-    if ( widget->inherits( "QFrame" ) )
-        rect = ( ( QFrame * )widget )->contentsRect();
-    else
-        rect = widget->rect();
-
-    return rect;
+    return QRect();
 }
 
 //! Update the state of rubberband and tracker label

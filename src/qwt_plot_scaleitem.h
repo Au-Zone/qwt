@@ -87,9 +87,6 @@ public:
     virtual void updateScaleDiv( const QwtScaleDiv &, const QwtScaleDiv & );
 
 private:
-    void updateBorders( const QRectF &,
-        const QwtScaleMap &, const QwtScaleMap & );
-
     class PrivateData;
     PrivateData *d_data;
 };

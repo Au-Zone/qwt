@@ -535,10 +535,9 @@ void QwtPlotRenderer::renderLegend( const QwtPlot *plot,
 void QwtPlotRenderer::renderLegendItem( const QwtPlot *plot,
     QPainter *painter, const QWidget *widget, const QRectF &rect ) const
 {
-    if ( widget->inherits( "QwtLegendItem" ) )
+    const QwtLegendItem *item = qobject_cast<const QwtLegendItem *>( widget );
+    if ( item )
     {
-        QwtLegendItem *item = ( QwtLegendItem * )widget;
-
         const QRect identifierRect(
             rect.x() + item->margin(), rect.y(),
             item->identifierSize().width(), rect.height() );
@@ -641,7 +640,7 @@ void QwtPlotRenderer::renderScale( const QwtPlot *plot,
 
     painter->setFont( scaleWidget->font() );
 
-    QwtScaleDraw *sd = ( QwtScaleDraw * )scaleWidget->scaleDraw();
+    QwtScaleDraw *sd = const_cast<QwtScaleDraw *>( scaleWidget->scaleDraw() );
     const QPointF sdPos = sd->pos();
     const double sdLength = sd->length();
 

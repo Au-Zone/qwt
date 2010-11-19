@@ -75,11 +75,8 @@ protected:
 private:
     void init();
     int maxRowWidth( int numCols ) const;
-    void updateLayoutCache();
 
     class PrivateData;
-
-private:
     PrivateData *d_data;
 };
 

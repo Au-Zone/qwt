@@ -103,29 +103,21 @@ QwtPlotPicker::~QwtPlotPicker()
 //! Return observed plot canvas
 QwtPlotCanvas *QwtPlotPicker::canvas()
 {
-    QWidget *w = parentWidget();
-    if ( w && w->inherits( "QwtPlotCanvas" ) )
-        return ( QwtPlotCanvas * )w;
-
-    return NULL;
+    return qobject_cast<QwtPlotCanvas *>( parentWidget() );
 }
 
 //! Return Observed plot canvas
 const QwtPlotCanvas *QwtPlotPicker::canvas() const
 {
-    return ( ( QwtPlotPicker * )this )->canvas();
+    return qobject_cast<const QwtPlotCanvas *>( parentWidget() );
 }
 
 //! Return plot widget, containing the observed plot canvas
 QwtPlot *QwtPlotPicker::plot()
 {
-    QObject *w = canvas();
+    QwtPlotCanvas *w = canvas();
     if ( w )
-    {
-        w = w->parent();
-        if ( w && w->inherits( "QwtPlot" ) )
-            return ( QwtPlot * )w;
-    }
+        return w->plot();
 
     return NULL;
 }
@@ -133,7 +125,11 @@ QwtPlot *QwtPlotPicker::plot()
 //! Return plot widget, containing the observed plot canvas
 const QwtPlot *QwtPlotPicker::plot() const
 {
-    return ( ( QwtPlotPicker * )this )->plot();
+    const QwtPlotCanvas *w = canvas();
+    if ( w )
+        return w->plot();
+
+    return NULL;
 }
 
 /*!

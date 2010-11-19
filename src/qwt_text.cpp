@@ -64,7 +64,7 @@ QwtTextEngineDict::~QwtTextEngineDict()
     for ( EngineMap::const_iterator it = d_map.begin();
         it != d_map.end(); ++it )
     {
-        QwtTextEngine *textEngine = ( QwtTextEngine * )engine( it );
+        const QwtTextEngine *textEngine = engine( it );
         delete textEngine;
     }
 }
@@ -81,7 +81,7 @@ const QwtTextEngine *QwtTextEngineDict::textEngine( const QString& text,
             {
                 const QwtTextEngine *e = engine( it );
                 if ( e && e->mightRender( text ) )
-                    return ( QwtTextEngine * )e;
+                    return e;
             }
         }
     }

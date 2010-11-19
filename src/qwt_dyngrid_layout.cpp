@@ -20,6 +20,8 @@ public:
     {
     }
 
+    void updateLayoutCache();
+
     mutable QList<QLayoutItem*> itemList;
 
     uint maxCols;
@@ -32,6 +34,20 @@ public:
     QVector<QSize> itemSizeHints;
 };
 
+void QwtDynGridLayout::PrivateData::updateLayoutCache()
+{
+    itemSizeHints.resize( itemList.count() );
+
+    int index = 0;
+
+    for ( QList<QLayoutItem*>::iterator it = itemList.begin();
+        it != itemList.end(); ++it, index++ )
+    {
+        itemSizeHints[ index ] = ( *it )->sizeHint();
+    }
+
+    isDirty = false;
+}
 
 /*!
   \param parent Parent widget
@@ -84,21 +100,6 @@ void QwtDynGridLayout::invalidate()
 {
     d_data->isDirty = true;
     QLayout::invalidate();
-}
-
-void QwtDynGridLayout::updateLayoutCache()
-{
-    d_data->itemSizeHints.resize( itemCount() );
-
-    int index = 0;
-
-    for ( QList<QLayoutItem*>::iterator it = d_data->itemList.begin();
-        it != d_data->itemList.end(); ++it, index++ )
-    {
-        d_data->itemSizeHints[int( index )] = ( *it )->sizeHint();
-    }
-
-    d_data->isDirty = false;
 }
 
 /*!
@@ -285,7 +286,7 @@ int QwtDynGridLayout::maxRowWidth( int numCols ) const
         colWidth[col] = 0;
 
     if ( d_data->isDirty )
-        ( ( QwtDynGridLayout* )this )->updateLayoutCache();
+        d_data->updateLayoutCache();
 
     for ( uint index = 0;
         index < ( uint )d_data->itemSizeHints.count(); index++ )
@@ -311,7 +312,7 @@ int QwtDynGridLayout::maxItemWidth() const
         return 0;
 
     if ( d_data->isDirty )
-        ( ( QwtDynGridLayout* )this )->updateLayoutCache();
+        d_data->updateLayoutCache();
 
     int w = 0;
     for ( uint i = 0; i < ( uint )d_data->itemSizeHints.count(); i++ )
@@ -356,11 +357,10 @@ QList<QRect> QwtDynGridLayout::layoutItems( const QRect &rect,
     if ( expandH || expandV )
         stretchGrid( rect, numCols, rowHeight, colWidth );
 
-    QwtDynGridLayout *that = ( QwtDynGridLayout * )this;
     const int maxCols = d_data->maxCols;
-    that->d_data->maxCols = numCols;
+    d_data->maxCols = numCols;
     const QRect alignedRect = alignmentRect( rect );
-    that->d_data->maxCols = maxCols;
+    d_data->maxCols = maxCols;
 
     const int xOffset = expandH ? 0 : alignedRect.x();
     const int yOffset = expandV ? 0 : alignedRect.y();
@@ -409,7 +409,7 @@ void QwtDynGridLayout::layoutGrid( uint numCols,
         return;
 
     if ( d_data->isDirty )
-        ( ( QwtDynGridLayout* )this )->updateLayoutCache();
+        d_data->updateLayoutCache();
 
     for ( uint index = 0;
         index < ( uint )d_data->itemSizeHints.count(); index++ )

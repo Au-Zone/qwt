@@ -31,6 +31,9 @@ public:
         delete scaleDraw;
     }
 
+    void updateBorders( const QRectF &,
+        const QwtScaleMap &, const QwtScaleMap & );
+
     QPalette palette;
     QFont font;
     double position;
@@ -40,6 +43,27 @@ public:
     QRectF canvasRectCache;
 };
 
+void QwtPlotScaleItem::PrivateData::updateBorders( const QRectF &canvasRect,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap )
+{
+    canvasRectCache = canvasRect;
+
+    QwtInterval interval;
+    if ( scaleDraw->orientation() == Qt::Horizontal )
+    {
+        interval.setMinValue( xMap.invTransform( canvasRect.left() ) );
+        interval.setMaxValue( xMap.invTransform( canvasRect.right() - 1 ) );
+    }
+    else
+    {
+        interval.setMinValue( yMap.invTransform( canvasRect.bottom() - 1 ) );
+        interval.setMaxValue( yMap.invTransform( canvasRect.top() ) );
+    }
+
+    QwtScaleDiv scaleDiv = scaleDraw->scaleDiv();
+    scaleDiv.setInterval( interval );
+    scaleDraw->setScaleDiv( scaleDiv );
+}
 /*!
    \brief Constructor for scale item at the position pos.
 
@@ -326,10 +350,7 @@ void QwtPlotScaleItem::draw( QPainter *painter,
     if ( d_data->scaleDivFromAxis )
     {
         if ( canvasRect != d_data->canvasRectCache )
-        {
-            QwtPlotScaleItem* that = ( QwtPlotScaleItem* )this;
-            that->updateBorders( canvasRect, xMap, yMap );
-        }
+            d_data->updateBorders( canvasRect, xMap, yMap );
     }
 
     QPen pen = painter->pen();
@@ -415,30 +436,8 @@ void QwtPlotScaleItem::updateScaleDiv( const QwtScaleDiv& xScaleDiv,
         const QwtPlot *plt = plot();
         if ( plt != NULL )
         {
-            updateBorders( plt->canvas()->contentsRect(),
+            d_data->updateBorders( plt->canvas()->contentsRect(),
                 plt->canvasMap( xAxis() ), plt->canvasMap( yAxis() ) );
         }
     }
-}
-
-void QwtPlotScaleItem::updateBorders( const QRectF &canvasRect,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap )
-{
-    d_data->canvasRectCache = canvasRect;
-
-    QwtInterval interval;
-    if ( d_data->scaleDraw->orientation() == Qt::Horizontal )
-    {
-        interval.setMinValue( xMap.invTransform( canvasRect.left() ) );
-        interval.setMaxValue( xMap.invTransform( canvasRect.right() - 1 ) );
-    }
-    else
-    {
-        interval.setMinValue( yMap.invTransform( canvasRect.bottom() - 1 ) );
-        interval.setMaxValue( yMap.invTransform( canvasRect.top() ) );
-    }
-
-    QwtScaleDiv scaleDiv = d_data->scaleDraw->scaleDiv();
-    scaleDiv.setInterval( interval );
-    d_data->scaleDraw->setScaleDiv( scaleDiv );
 }

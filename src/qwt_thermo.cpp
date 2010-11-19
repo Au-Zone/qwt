@@ -165,7 +165,7 @@ void QwtThermo::setScaleDraw( QwtScaleDraw *scaleDraw )
 */
 const QwtScaleDraw *QwtThermo::scaleDraw() const
 {
-    return ( QwtScaleDraw * )abstractScaleDraw();
+    return static_cast<const QwtScaleDraw *>( abstractScaleDraw() );
 }
 
 /*!
@@ -174,7 +174,7 @@ const QwtScaleDraw *QwtThermo::scaleDraw() const
 */
 QwtScaleDraw *QwtThermo::scaleDraw()
 {
-    return ( QwtScaleDraw * )abstractScaleDraw();
+    return static_cast<QwtScaleDraw *>( abstractScaleDraw() );
 }
 
 /*!

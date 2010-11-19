@@ -135,7 +135,7 @@ void QwtLegend::PrivateData::LegendMap::clear()
        we are iterating.
      */
 
-    QList<QWidget *> widgets;
+    QList<const QWidget *> widgets;
 
     QMap<const QwtLegendItemManager *, QWidget *>::const_iterator it;
     for ( it = d_itemMap.begin(); it != d_itemMap.end(); ++it )
@@ -153,38 +153,42 @@ uint QwtLegend::PrivateData::LegendMap::count() const
     return d_itemMap.count();
 }
 
-inline const QWidget *QwtLegend::PrivateData::LegendMap::find( const QwtLegendItemManager *item ) const
+inline const QWidget *QwtLegend::PrivateData::LegendMap::find( 
+    const QwtLegendItemManager *item ) const
 {
-    if ( !d_itemMap.contains( ( QwtLegendItemManager * )item ) )
+    if ( !d_itemMap.contains( item ) )
         return NULL;
 
-    return d_itemMap[( QwtLegendItemManager * )item];
+    return d_itemMap[item];
 }
 
-inline QWidget *QwtLegend::PrivateData::LegendMap::find( const QwtLegendItemManager *item )
+inline QWidget *QwtLegend::PrivateData::LegendMap::find( 
+    const QwtLegendItemManager *item )
 {
-    if ( !d_itemMap.contains( ( QwtLegendItemManager * )item ) )
+    if ( !d_itemMap.contains( item ) )
         return NULL;
 
-    return d_itemMap[( QwtLegendItemManager * )item];
+    return d_itemMap[item];
 }
 
 inline const QwtLegendItemManager *QwtLegend::PrivateData::LegendMap::find(
     const QWidget *widget ) const
 {
-    if ( !d_widgetMap.contains( ( QWidget * )widget ) )
+    QWidget *w = const_cast<QWidget *>( widget );
+    if ( !d_widgetMap.contains( w ) )
         return NULL;
 
-    return d_widgetMap[( QWidget * )widget];
+    return d_widgetMap[w];
 }
 
 inline QwtLegendItemManager *QwtLegend::PrivateData::LegendMap::find(
     const QWidget *widget )
 {
-    if ( !d_widgetMap.contains( ( QWidget * )widget ) )
+    QWidget *w = const_cast<QWidget *>( widget );
+    if ( !d_widgetMap.contains( w ) )
         return NULL;
 
-    return ( QwtLegendItemManager * )d_widgetMap[( QWidget * )widget];
+    return const_cast<QwtLegendItemManager *>( d_widgetMap[w] );
 }
 
 inline const QMap<QWidget *, const QwtLegendItemManager *> &
