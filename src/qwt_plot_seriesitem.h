@@ -54,7 +54,7 @@ private:
 };
 
 /*!
-  \brief Class template for plot items reprsenting a series of samples
+  \brief Class template for plot items representing a series of samples
 */
 template <typename T>
 class QwtPlotSeriesItem: public QwtPlotAbstractSeriesItem
@@ -71,7 +71,7 @@ public:
     const QwtSeriesData<T> *data() const;
 
     size_t dataSize() const;
-    T sample( int i ) const;
+    T sample( int index ) const;
 
     virtual QRectF boundingRect() const;
     virtual void updateScaleDiv( const QwtScaleDiv &,
