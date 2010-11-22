@@ -31,9 +31,9 @@ public:
   is set to QwtPlot::xBottom. If both or no y-axis are
   enabled, it is set to QwtPlot::yLeft.
 
-  The selectionFlags() are set to
-  QwtPicker::RectSelection & QwtPicker::ClickSelection, the
-  tracker mode to QwtPicker::ActiveOnly.
+  The zoomer is initialized with a QwtPickerDragRectMachine,
+  the tracker mode is set to QwtPicker::ActiveOnly and the rubberband
+  is set to QwtPicker;;RectRubberBand
 
   \param canvas Plot canvas to observe, also the parent object
   \param doReplot Call replot for the attached plot before initializing
@@ -52,9 +52,9 @@ QwtPlotZoomer::QwtPlotZoomer( QwtPlotCanvas *canvas, bool doReplot ):
 /*!
   \brief Create a zoomer for a plot canvas.
 
-  The selectionFlags() are set to
-  QwtPicker::RectSelection | QwtPicker::DragSelection, the
-  tracker mode to QwtPicker::ActiveOnly.
+  The zoomer is initialized with a QwtPickerDragRectMachine,
+  the tracker mode is set to QwtPicker::ActiveOnly and the rubberband
+  is set to QwtPicker;;RectRubberBand
 
   \param xAxis X axis of the zoomer
   \param yAxis Y axis of the zoomer

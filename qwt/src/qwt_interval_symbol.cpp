@@ -173,6 +173,7 @@ const QPen& QwtIntervalSymbol::pen() const
   Draw a symbol depending on its style
 
   \param painter Painter
+  \param orientation Orientation
   \param from Start point of the interval in target device coordinates
   \param to End point of the interval in target device coordinates
 
