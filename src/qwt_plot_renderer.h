@@ -131,7 +131,6 @@ public:
     virtual void render( QwtPlot *,
         QPainter *, const QRectF &rect ) const;
 
-protected:
     virtual void renderLegendItem( const QwtPlot *, 
         QPainter *, const QWidget *, const QRectF & ) const;
 
@@ -149,6 +148,7 @@ protected:
     virtual void renderLegend( 
         const QwtPlot *, QPainter *, const QRectF & ) const;
 
+protected:
     void buildCanvasMaps( const QwtPlot *,
         const QRectF &, QwtScaleMap maps[] ) const;
 
