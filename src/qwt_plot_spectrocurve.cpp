@@ -18,6 +18,7 @@ class QwtPlotSpectroCurve::PrivateData
 public:
     PrivateData():
         colorRange( 0.0, 1000.0 ),
+        penWidth(0.0),
         paintAttributes( QwtPlotSpectroCurve::ClipPoints )
     {
         colorMap = new QwtLinearColorMap();
@@ -31,6 +32,7 @@ public:
     QwtColorMap *colorMap;
     QwtInterval colorRange;
     QVector<QRgb> colorTable;
+    double penWidth;
     int paintAttributes;
 };
 
@@ -173,6 +175,33 @@ QwtInterval &QwtPlotSpectroCurve::colorRange() const
 }
 
 /*!
+  Assign a pen width
+
+  \param penWidth New pen width
+  \sa penWidth()
+*/
+void QwtPlotSpectroCurve::setPenWidth(double penWidth)
+{
+    if ( penWidth < 0.0 )
+        penWidth = 0.0;
+
+    if ( d_data->penWidth != penWidth )
+    {
+        d_data->penWidth = penWidth;
+        itemChanged();
+    }
+}
+
+/*!
+  \return Pen width used to draw a dot
+  \sa setPenWidth()
+*/
+double QwtPlotSpectroCurve::penWidth() const
+{
+    return d_data->penWidth;
+}
+
+/*!
   Draw a subset of the points
 
   \param painter Painter
@@ -253,14 +282,15 @@ void QwtPlotSpectroCurve::drawDots( QPainter *painter,
             const QRgb rgb = d_data->colorMap->rgb(
                 d_data->colorRange, sample.z() );
 
-            painter->setPen( QPen( QColor( rgb ) ) );
+            painter->setPen( QPen( QColor( rgb ), d_data->penWidth ) );
         }
         else
         {
             const unsigned char index = d_data->colorMap->colorIndex(
                 d_data->colorRange, sample.z() );
 
-            painter->setPen( QPen( d_data->colorTable[index] ) );
+            painter->setPen( QPen( QColor( d_data->colorTable[index] ), 
+                d_data->penWidth ) );
         }
 
         QwtPainter::drawPoint( painter, QPointF( xi, yi ) );
