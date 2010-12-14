@@ -231,7 +231,7 @@ public:
 
     virtual QwtText trackerText( const QPoint &pos ) const;
     QPoint trackerPosition() const;
-    QRect trackerRect( const QFont & ) const;
+    virtual QRect trackerRect( const QFont & ) const;
 
     QPolygon selection() const;
 

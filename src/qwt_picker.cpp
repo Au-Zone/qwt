@@ -645,14 +645,9 @@ void QwtPicker::drawTracker( QPainter *painter ) const
     const QRect textRect = trackerRect( painter->font() );
     if ( !textRect.isEmpty() )
     {
-        QwtText label = trackerText( d_data->trackerPosition );
+        const QwtText label = trackerText( d_data->trackerPosition );
         if ( !label.isEmpty() )
-        {
-            painter->save();
             label.draw( painter, textRect );
-
-            painter->restore();
-        }
     }
 }
 
