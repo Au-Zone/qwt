@@ -206,23 +206,24 @@ double QwtMatrixRasterData::value( double x, double y ) const
             else if ( row2 >= (int)d_data->numRows )
                 row2 = row1;
 
-            const double ddx = qAbs( ( xInterval.minValue() 
-                + ( col1 + 0.5 ) * d_data->dx - x ) / d_data->dx );
-            const double ddy =  qAbs( ( yInterval.minValue() 
-                + ( row1 + 0.5 ) * d_data->dy - y ) / d_data->dy );
-
-            const double qx = ( d_data->dx - ddx ) / d_data->dx;
-            const double qy = ( d_data->dy - ddy ) / d_data->dy;
-
             const double v11 = d_data->value( row1, col1 );
             const double v21 = d_data->value( row1, col2 );
             const double v12 = d_data->value( row2, col1 );
             const double v22 = d_data->value( row2, col2 );
 
-            const double r1 = qx * v11 + ( 1.0 - qx ) * v21;
-            const double r2 = qx * v12 + ( 1.0 - qx ) * v22;
+            const double x2 = xInterval.minValue() + 
+                ( col2 + 0.5 ) * d_data->dx;
+            const double y2 = yInterval.minValue() + 
+                ( row2 + 0.5 ) * d_data->dy;
+                
+            const double rx = ( x2 - x ) / d_data->dx;
+            const double ry = ( y2 - y ) / d_data->dy;
 
-            value = qy * r1 + ( 1.0 - qy ) * r2;
+            const double vr1 = rx * v11 + ( 1.0 - rx ) * v21;
+            const double vr2 = rx * v12 + ( 1.0 - rx ) * v22;
+
+            value = ry * vr1 + ( 1.0 - ry ) * vr2;
+
             break;
         }
         case NearestNeighbour:
