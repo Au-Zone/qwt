@@ -67,9 +67,10 @@ MainWindow::MainWindow()
 
     setCentralWidget(d_plot);
 
-    connect(d_startAction, SIGNAL(toggled(bool)), this, SLOT(appendPoints(bool)));
-    connect(d_clearAction, SIGNAL(triggered()), d_plot, SLOT(clear()));
-    connect(d_plot, SIGNAL(running(bool)), this, SLOT(showRunning(bool)));
+    connect(d_startAction, SIGNAL( toggled(bool) ), this, SLOT( appendPoints(bool) ) );
+    connect(d_clearAction, SIGNAL( triggered() ), d_plot, SLOT( clear() ) );
+    connect(d_plot, SIGNAL( running(bool) ), this, SLOT( showRunning(bool) ) );
+    connect(d_plot, SIGNAL( elapsed(int) ), this, SLOT( showElapsed( int ) ) );
 
     initWhatsThis();
 
@@ -135,6 +136,15 @@ void MainWindow::showRunning(bool running)
     d_timerCount->setEnabled(!running);
     d_startAction->setChecked(running);
     d_startAction->setText(running ? "Stop" : "Start");
+}
+
+void MainWindow::showElapsed(int ms)
+{
+    QString text;
+    text.setNum(ms);
+    text += " ms";
+
+    statusBar()->showMessage( text );
 }
 
 void MainWindow::initWhatsThis()

@@ -101,6 +101,7 @@ void RandomPlot::append(int timeout, int count)
     d_timerCount = count;
 
     Q_EMIT running(true);
+    d_timeStamp.start();
 
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
     d_timer->start(timeout);
@@ -108,6 +109,8 @@ void RandomPlot::append(int timeout, int count)
 
 void RandomPlot::stop()
 {
+    Q_EMIT elapsed( d_timeStamp.elapsed() );
+
     if ( d_timer )
     {
         d_timer->stop();
