@@ -75,9 +75,13 @@ void IncrementalPlot::appendData(double x, double y)
 
 void IncrementalPlot::appendData(double *x, double *y, int size)
 {
+    if ( size == 0 )
+        return;
+
     if ( d_data == NULL )
         d_data = new CurveData;
 
+    const QSize symbolSize( 6, 6 );
     if ( d_curve == NULL )
     {
         d_curve = new QwtPlotCurve("Test Curve");
@@ -85,7 +89,7 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
     
         const QColor &c = Qt::white;
         d_curve->setSymbol(new QwtSymbol(QwtSymbol::XCross,
-            QBrush(c), QPen(c), QSize(5, 5)) );
+            QBrush(c), QPen(c), symbolSize) );
 
         d_curve->attach(this);
     }
@@ -96,6 +100,32 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
 #warning better use QwtData
 #endif
 
+    const bool doClip = !canvas()->testAttribute( Qt::WA_PaintOutsidePaintEvent );
+    if ( doClip )
+    {
+        /*
+           Depending on the platform setting a clip might be an important
+           performance issue. F.e. for Qt Embedded this reduces the
+           part of the backing store that has to be copied out - maybe
+           to an unaccelerated frame buffer device.
+         */
+        const QwtScaleMap xMap = canvasMap( d_curve->xAxis() );
+        const QwtScaleMap yMap = canvasMap( d_curve->yAxis() );
+
+        QRegion clipRegion;
+
+        QRect r( 0, 0, symbolSize.width() + 2, symbolSize.height() + 2 );
+
+        for ( int i = 0; i < size; i++ )
+        {
+            QPointF center( xMap.transform( x[i] ), yMap.transform( y[i] ) );
+            r.moveCenter( center.toPoint() );
+            clipRegion += r;
+        }
+
+        d_directPainter->setClipRegion( clipRegion );
+    }
+    
     d_directPainter->drawSeries(d_curve, 
         d_curve->dataSize() - size, d_curve->dataSize() - 1);
 }

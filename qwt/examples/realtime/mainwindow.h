@@ -16,8 +16,9 @@ public:
     MainWindow();
 
 private Q_SLOTS:
-    void showRunning(bool);
-    void appendPoints(bool);
+    void showRunning( bool );
+    void appendPoints( bool );
+    void showElapsed( int );
 
 private:
     QToolBar *toolBar();
