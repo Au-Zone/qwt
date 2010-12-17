@@ -467,7 +467,7 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 }
 
 /*!
-  Print the title into a given rectangle.
+  Render the title into a given rectangle.
 
   \param plot Plot widget
   \param painter Painter
@@ -486,7 +486,7 @@ void QwtPlotRenderer::renderTitle( const QwtPlot *plot,
 }
 
 /*!
-  Print the legend into a given rectangle.
+  Render the legend into a given rectangle.
 
   \param plot Plot widget
   \param painter Painter
@@ -528,7 +528,7 @@ void QwtPlotRenderer::renderLegend( const QwtPlot *plot,
 }
 
 /*!
-  Print the legend item into a given rectangle.
+  Render the legend item into a given rectangle.
 
   \param plot Plot widget
   \param painter Painter
@@ -665,7 +665,7 @@ void QwtPlotRenderer::renderScale( const QwtPlot *plot,
 }
 
 /*!
-  Print the canvas into a given rectangle.
+  Render the canvas into a given rectangle.
 
   \param plot Plot widget
   \param painter Painter
