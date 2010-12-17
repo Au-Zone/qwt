@@ -13,6 +13,7 @@
 #include "qwt_global.h"
 #include <qobject.h>
 
+class QRegion;
 class QwtPlotAbstractSeriesItem;
 
 /*!
@@ -25,6 +26,11 @@ class QwtPlotAbstractSeriesItem;
     QwtPlotDirectPainter offers an API to paint
     subsets ( f.e all additions points ) without erasing/repainting
     the plot canvas.
+
+    On certain environments it might be important to calculate a proper
+    clip region before painting. F.e. for Qt Embedded only the clipped part
+    of the backing store will be copied to a ( maybe unaccelerated ) 
+    frame buffer.
 
     \warning Incremental painting will only help when no replot is triggered
              by another operation ( like changing scales ) and nothing needs
@@ -57,6 +63,12 @@ public:
 
     void setAttribute( Attribute, bool on );
     bool testAttribute( Attribute ) const;
+
+    void setClipping( bool );
+    bool hasClipping() const;
+
+    void setClipRegion( const QRegion & );
+    QRegion clipRegion() const;
 
     void drawSeries( QwtPlotAbstractSeriesItem *, int from, int to );
     void reset();

@@ -36,11 +36,15 @@ class QwtPlotDirectPainter::PrivateData
 public:
     PrivateData():
         attributes( 0 ),
+        hasClipping(false),
         seriesItem( NULL )
     {
     }
 
     int attributes;
+
+    bool hasClipping;
+    QRegion clipRegion;
 
     QPainter painter;
 
@@ -96,6 +100,52 @@ bool QwtPlotDirectPainter::testAttribute( Attribute attribute ) const
 }
 
 /*!
+  En/Disables clipping 
+
+  \param enable Enables clipping is true, disable it otherwise
+  \sa hasClipping(), clipRegion(), setClipRegion()
+*/
+void QwtPlotDirectPainter::setClipping( bool enable )
+{
+    d_data->hasClipping = enable;
+}
+
+/*!
+  \return true, when clipping is enabled
+  \sa setClipping(), clipRegion(), setClipRegion()
+*/
+bool QwtPlotDirectPainter::hasClipping() const
+{
+    return d_data->hasClipping;
+}
+
+/*!
+   \brief Assign a clip region and enable clipping
+
+   Depending on the environment setting a proper clip region might improve 
+   the performance heavily. F.e. on Qt embedded only the clipped part of
+   the backing store will be copied to a ( maybe unaccelerated ) frame buffer
+   device.
+   
+   \param region Clip region
+   \sa clipRegion(), hasClipping(), setClipping()
+*/
+void QwtPlotDirectPainter::setClipRegion( const QRegion &region )
+{
+    d_data->clipRegion = region;
+    d_data->hasClipping = true;
+}
+
+/*!
+   \return Currently set clip region.
+   \sa setClipRegion(), setClipping(), hasClipping()
+*/
+QRegion QwtPlotDirectPainter::clipRegion() const
+{
+    return d_data->clipRegion;
+}
+
+/*!
   \brief Draw a set of points of a seriesItem.
 
   When observing an measurement while it is running, new points have to be
@@ -126,6 +176,9 @@ void QwtPlotDirectPainter::drawSeries(
         painter.translate( -canvas->contentsRect().x(),
             -canvas->contentsRect().y() );
 
+        if ( d_data->hasClipping )
+            painter.setClipRegion( d_data->clipRegion );
+
         renderItem( &painter, seriesItem, from, to );
 
         if ( d_data->attributes & FullRepaint )
@@ -151,11 +204,15 @@ void QwtPlotDirectPainter::drawSeries(
             reset();
 
             d_data->painter.begin( canvas );
-            d_data->painter.setClipping( true );
-            d_data->painter.setClipRect( canvas->contentsRect() );
-
             canvas->installEventFilter( this );
         }
+
+        QRegion clipRegion = canvas->contentsRect();
+        if ( d_data->hasClipping )
+            clipRegion &= d_data->clipRegion;
+
+        d_data->painter.setClipping( true );
+        d_data->painter.setClipRegion( clipRegion );
 
         renderItem( &d_data->painter, seriesItem, from, to );
 
@@ -170,8 +227,12 @@ void QwtPlotDirectPainter::drawSeries(
         d_data->from = from;
         d_data->to = to;
 
+        QRegion clipRegion = canvas->contentsRect();
+        if ( d_data->hasClipping )
+            clipRegion &= d_data->clipRegion;
+
         canvas->installEventFilter( this );
-        canvas->repaint();
+        canvas->repaint(clipRegion);
         canvas->removeEventFilter( this );
 
         d_data->seriesItem = NULL;
@@ -200,11 +261,12 @@ bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
 
         if ( d_data->seriesItem )
         {
+            const QPaintEvent *pe = static_cast< QPaintEvent *>( event );
+
             QwtPlotCanvas *canvas = d_data->seriesItem->plot()->canvas();
 
             QPainter painter( canvas );
-            painter.setClipping( true );
-            painter.setClipRect( canvas->contentsRect() );
+            painter.setClipRegion( pe->region() );
 
             renderItem( &painter, d_data->seriesItem,
                 d_data->from, d_data->to );
