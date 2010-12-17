@@ -51,25 +51,34 @@ static inline QRectF qwtBoundingRect( const QwtSetSample &sample )
 }
 
 /*!
-  \brief Calculate the bounding rect of a series
+  \brief Calculate the bounding rect of a series subset
 
   Slow implementation, that iterates over the series.
 
   \param series Series
+  \param from Index of the first sample, <= 0 means from the beginning
+  \param to Index of the last sample, < 0 means to the end
+
   \return Bounding rectangle
 */
 
 template <class T>
-QRectF qwtBoundingRectT( const QwtSeriesData<T>& series )
+QRectF qwtBoundingRectT( 
+    const QwtSeriesData<T>& series, int from, int to )
 {
     QRectF boundingRect( 1.0, 1.0, -2.0, -2.0 ); // invalid;
 
-    const size_t sz = series.size();
-    if ( sz <= 0 )
+    if ( from < 0 )
+        from = 0;
+
+    if ( to < 0 )
+        to = series.size() - 1;
+
+    if ( to < from )
         return boundingRect;
 
-    size_t i;
-    for ( i = 0; i < sz; i++ )
+    int i;
+    for ( i = from; i <= to; i++ )
     {
         const QRectF rect = qwtBoundingRect( series.sample( i ) );
         if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
@@ -80,7 +89,7 @@ QRectF qwtBoundingRectT( const QwtSeriesData<T>& series )
         }
     }
 
-    for ( ; i < sz; i++ )
+    for ( ; i <= to; i++ )
     {
         const QRectF rect = qwtBoundingRect( series.sample( i ) );
         if ( rect.width() >= 0.0 && rect.height() >= 0.0 )
@@ -96,33 +105,41 @@ QRectF qwtBoundingRectT( const QwtSeriesData<T>& series )
 }
 
 /*!
-  \brief Calculate the bounding rect of a series
+  \brief Calculate the bounding rect of a series subset
 
   Slow implementation, that iterates over the series.
 
   \param series Series
+  \param from Index of the first sample, <= 0 means from the beginning
+  \param to Index of the last sample, < 0 means to the end
+
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( const QwtSeriesData<QPointF> &series )
+QRectF qwtBoundingRect( 
+    const QwtSeriesData<QPointF> &series, int from, int to )
 {
-    return qwtBoundingRectT<QPointF>( series );
+    return qwtBoundingRectT<QPointF>( series, from, to );
 }
 
 /*!
-  \brief Calculate the bounding rect of a series
+  \brief Calculate the bounding rect of a series subset
 
   Slow implementation, that iterates over the series.
 
   \param series Series
+  \param from Index of the first sample, <= 0 means from the beginning
+  \param to Index of the last sample, < 0 means to the end
+
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( const QwtSeriesData<QwtPoint3D> &series )
+QRectF qwtBoundingRect( 
+    const QwtSeriesData<QwtPoint3D> &series, int from, int to )
 {
-    return qwtBoundingRectT<QwtPoint3D>( series );
+    return qwtBoundingRectT<QwtPoint3D>( series, from, to );
 }
 
 /*!
-  \brief Calculate the bounding rect of a series
+  \brief Calculate the bounding rect of a series subset
 
   The horizontal coordinates represent the azimuth, the
   vertical coordinates the radius.
@@ -130,37 +147,49 @@ QRectF qwtBoundingRect( const QwtSeriesData<QwtPoint3D> &series )
   Slow implementation, that iterates over the series.
 
   \param series Series
+  \param from Index of the first sample, <= 0 means from the beginning
+  \param to Index of the last sample, < 0 means to the end
+
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( const QwtSeriesData<QwtPointPolar> &series )
+QRectF qwtBoundingRect( 
+    const QwtSeriesData<QwtPointPolar> &series, int from, int to )
 {
-    return qwtBoundingRectT<QwtPointPolar>( series );
+    return qwtBoundingRectT<QwtPointPolar>( series, from, to );
 }
 
 /*!
-  \brief Calculate the bounding rect of a series
+  \brief Calculate the bounding rect of a series subset
 
   Slow implementation, that iterates over the series.
 
   \param series Series
+  \param from Index of the first sample, <= 0 means from the beginning
+  \param to Index of the last sample, < 0 means to the end
+
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( const QwtSeriesData<QwtIntervalSample>& series )
+QRectF qwtBoundingRect( 
+    const QwtSeriesData<QwtIntervalSample>& series, int from, int to )
 {
-    return qwtBoundingRectT<QwtIntervalSample>( series );
+    return qwtBoundingRectT<QwtIntervalSample>( series, from, to );
 }
 
 /*!
-  \brief Calculate the bounding rect of a series
+  \brief Calculate the bounding rect of a series subset
 
   Slow implementation, that iterates over the series.
 
   \param series Series
+  \param from Index of the first sample, <= 0 means from the beginning
+  \param to Index of the last sample, < 0 means to the end
+
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( const QwtSeriesData<QwtSetSample>& series )
+QRectF qwtBoundingRect( 
+    const QwtSeriesData<QwtSetSample>& series, int from, int to )
 {
-    return qwtBoundingRectT<QwtSetSample>( series );
+    return qwtBoundingRectT<QwtSetSample>( series, from, to );
 }
 
 /*!

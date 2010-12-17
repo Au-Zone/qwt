@@ -100,7 +100,7 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
 #warning better use QwtData
 #endif
 
-    const bool doClip = !canvas()->testAttribute( Qt::WA_PaintOutsidePaintEvent );
+    const bool doClip = !canvas()->testAttribute( Qt::WA_PaintOnScreen );
     if ( doClip )
     {
         /*
