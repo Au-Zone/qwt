@@ -428,10 +428,15 @@ private:
     QwtInterval d_intervalOfInterest;
 };
 
-QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QPointF> & );
-QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QwtPoint3D> & );
-QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QwtPointPolar> & );
-QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QwtIntervalSample> & );
-QWT_EXPORT QRectF qwtBoundingRect( const QwtSeriesData<QwtSetSample> & );
+QWT_EXPORT QRectF qwtBoundingRect(
+    const QwtSeriesData<QPointF> &, int from = 0, int to = -1 );
+QWT_EXPORT QRectF qwtBoundingRect(
+    const QwtSeriesData<QwtPoint3D> &, int from = 0, int to = -1 );
+QWT_EXPORT QRectF qwtBoundingRect(
+    const QwtSeriesData<QwtPointPolar> &, int from = 0, int to = -1 );
+QWT_EXPORT QRectF qwtBoundingRect(
+    const QwtSeriesData<QwtIntervalSample> &, int from = 0, int to = -1 );
+QWT_EXPORT QRectF qwtBoundingRect(
+    const QwtSeriesData<QwtSetSample> &, int from = 0, int to = -1 );
 
 #endif 

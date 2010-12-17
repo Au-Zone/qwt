@@ -106,9 +106,29 @@ void Plot::updateCurve()
     CurveData *data = (CurveData *)d_curve->data();
     data->values().lock();
 
-    const int numPoints = d_curve->data()->size();
+    const int numPoints = data->size();
     if ( numPoints > d_paintedPoints )
     {
+        const bool doClip = !canvas()->testAttribute( Qt::WA_PaintOnScreen );
+        if ( doClip )
+        {
+            /*
+                Depending on the platform setting a clip might be an important
+                performance issue. F.e. for Qt Embedded this reduces the
+                part of the backing store that has to be copied out - maybe
+                to an unaccelerated frame buffer device.
+            */
+
+            const QwtScaleMap xMap = canvasMap( d_curve->xAxis() );
+            const QwtScaleMap yMap = canvasMap( d_curve->yAxis() );
+
+            QRectF br = qwtBoundingRect( *data, 
+                d_paintedPoints - 1, numPoints - 1 );
+
+            const QRect clipRect = QwtScaleMap::transform( xMap, yMap, br ).toRect();
+            d_directPainter->setClipRegion( clipRect );
+        }
+
         d_directPainter->drawSeries(d_curve, 
             d_paintedPoints - 1, numPoints - 1);
         d_paintedPoints = numPoints;
