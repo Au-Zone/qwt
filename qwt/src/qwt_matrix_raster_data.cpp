@@ -229,8 +229,19 @@ double QwtMatrixRasterData::value( double x, double y ) const
         case NearestNeighbour:
         default:
         {
-            const int row = int( (y - yInterval.minValue() ) / d_data->dy );
-            const int col = int( (x - xInterval.minValue() ) / d_data->dx );
+            uint row = uint( (y - yInterval.minValue() ) / d_data->dy );
+            uint col = uint( (x - xInterval.minValue() ) / d_data->dx );
+
+            // In case of intervals, where the maximum is included
+            // we get out of bound for row/col, when the value for the
+            // maximum is requested. Instead we return the value
+            // from the last row/col
+
+            if ( row >= d_data->numRows )
+                row = d_data->numRows - 1;
+
+            if ( col >= d_data->numColumns )
+                col = d_data->numColumns - 1;
 
             value = d_data->value( row, col );
         }
