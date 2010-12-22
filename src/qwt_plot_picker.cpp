@@ -24,7 +24,7 @@
 
   \param canvas Plot canvas to observe, also the parent object
 
-  \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::scaleRect()
+  \sa QwtPlot::autoReplot(), QwtPlot::replot(), scaleRect()
 */
 
 QwtPlotPicker::QwtPlotPicker( QwtPlotCanvas *canvas ):
@@ -63,7 +63,7 @@ QwtPlotPicker::QwtPlotPicker( QwtPlotCanvas *canvas ):
   \param yAxis Set the y axis of the picker
   \param canvas Plot canvas to observe, also the parent object
 
-  \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::scaleRect()
+  \sa QwtPlot::autoReplot(), QwtPlot::replot(), scaleRect()
 */
 QwtPlotPicker::QwtPlotPicker( int xAxis, int yAxis, QwtPlotCanvas *canvas ):
     QwtPicker( canvas ),
@@ -84,7 +84,7 @@ QwtPlotPicker::QwtPlotPicker( int xAxis, int yAxis, QwtPlotCanvas *canvas ):
   \sa QwtPicker, QwtPicker::setSelectionFlags(), QwtPicker::setRubberBand(),
       QwtPicker::setTrackerMode
 
-  \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::scaleRect()
+  \sa QwtPlot::autoReplot(), QwtPlot::replot(), scaleRect()
 */
 QwtPlotPicker::QwtPlotPicker( int xAxis, int yAxis,
         RubberBand rubberBand, DisplayMode trackerMode,
