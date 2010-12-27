@@ -15,11 +15,6 @@
 #define qAtan(x) ::atan(x)
 #endif
 
-static inline QRectF boundingRect( const QPolygonF &polygon )
-{
-    return polygon.boundingRect();
-}
-
 enum Edge
 {
     Left,
@@ -29,35 +24,22 @@ enum Edge
     NEdges
 };
 
-class QwtPolygonClipper: public QRect
+template< class Point, class Rect, class Polygon >
+class QwtPolygonClipper: public Rect
 {
 public:
-    QwtPolygonClipper( const QRect &r );
-
-    QPolygon clipPolygon( const QPolygon & ) const;
-
-private:
-    void clipEdge( Edge, const QPolygon &, QPolygon & ) const;
-    bool insideEdge( const QPoint &, Edge edge ) const;
-    QPoint intersectEdge( const QPoint &p1,
-        const QPoint &p2, Edge edge ) const;
-
-    void addPoint( QPolygon &, uint pos, const QPoint &point ) const;
-};
-
-class QwtPolygonClipperF: public QRectF
-{
-public:
-    QwtPolygonClipperF( const QRectF &r );
-    QPolygonF clipPolygon( const QPolygonF & ) const;
+    QwtPolygonClipper( const Rect &r );
+    Polygon clipPolygon( const Polygon & ) const;
 
 private:
-    void clipEdge( Edge, const QPolygonF &, QPolygonF & ) const;
-    bool insideEdge( const QPointF &, Edge edge ) const;
-    QPointF intersectEdge( const QPointF &p1,
-        const QPointF &p2, Edge edge ) const;
+    void clipEdge( Edge, const Polygon &, Polygon & ) const;
+    bool insideEdge( const Point &, Edge edge ) const;
+    Point intersectEdge( const Point &p1,
+        const Point &p2, Edge edge ) const;
 
-    void addPoint( QPolygonF &, uint pos, const QPointF &point ) const;
+    void addPoint( Polygon &, uint pos, const Point &point ) const;
+
+    const Rect d_rect;
 };
 
 class QwtCircleClipper: public QRectF
@@ -72,51 +54,55 @@ private:
     double toAngle( const QPointF &, const QPointF & ) const;
 };
 
-QwtPolygonClipper::QwtPolygonClipper( const QRect &r ):
-    QRect( r )
+template< class Point, class Rect, class Polygon >
+QwtPolygonClipper<Point, Rect, Polygon>::QwtPolygonClipper( const Rect &r ):
+    d_rect( r )
 {
 }
 
-inline void QwtPolygonClipper::addPoint(
-    QPolygon &pa, uint pos, const QPoint &point ) const
+template< class Point, class Rect, class Polygon >
+inline void QwtPolygonClipper<Point, Rect, Polygon>::addPoint( 
+    Polygon &pa, uint pos, const Point &point ) const
 {
     if ( uint( pa.size() ) <= pos )
         pa.resize( pos + 5 );
 
-    pa.setPoint( pos, point );
+    pa.data()[pos] = point;
 }
 
-//! Sutherland-Hodgman polygon clipping
-QPolygon QwtPolygonClipper::clipPolygon( const QPolygon &pa ) const
+template< class Point, class Rect, class Polygon >
+Polygon QwtPolygonClipper<Point, Rect, Polygon>::clipPolygon( const Polygon &pa ) const
 {
     if ( contains( pa.boundingRect() ) )
         return pa;
 
-    QPolygon cpa( pa.size() );
+    Polygon cpa( pa.size() );
 
     clipEdge( ( Edge )0, pa, cpa );
 
     for ( uint edge = 1; edge < NEdges; edge++ )
     {
-        const QPolygon rpa = cpa;
+        const Polygon rpa = cpa;
         clipEdge( ( Edge )edge, rpa, cpa );
     }
 
     return cpa;
 }
 
-bool QwtPolygonClipper::insideEdge( const QPoint &p, Edge edge ) const
+template< class Point, class Rect, class Polygon >
+bool QwtPolygonClipper<Point, Rect, Polygon>::insideEdge( 
+    const Point &p, Edge edge ) const
 {
     switch ( edge )
     {
         case Left:
-            return p.x() > left();
+            return p.x() > d_rect.left();
         case Top:
-            return p.y() > top();
+            return p.y() > d_rect.top();
         case Right:
-            return p.x() < right();
+            return p.x() < d_rect.right();
         case Bottom:
-            return p.y() < bottom();
+            return p.y() < d_rect.bottom();
         default:
             break;
     }
@@ -124,136 +110,9 @@ bool QwtPolygonClipper::insideEdge( const QPoint &p, Edge edge ) const
     return false;
 }
 
-QPoint QwtPolygonClipper::intersectEdge( const QPoint &p1,
-        const QPoint &p2, Edge edge ) const
-{
-    int x = 0, y = 0;
-    double m = 0;
-
-    const double dy = p2.y() - p1.y();
-    const double dx = p2.x() - p1.x();
-
-    switch ( edge )
-    {
-        case Left:
-            x = left();
-            m = double( qAbs( p1.x() - x ) ) / qAbs( dx );
-            y = p1.y() + int( dy * m );
-            break;
-        case Top:
-            y = top();
-            m = double( qAbs( p1.y() - y ) ) / qAbs( dy );
-            x = p1.x() + int( dx * m );
-            break;
-        case Right:
-            x = right();
-            m = double( qAbs( p1.x() - x ) ) / qAbs( dx );
-            y = p1.y() + int( dy * m );
-            break;
-        case Bottom:
-            y = bottom();
-            m = double( qAbs( p1.y() - y ) ) / qAbs( dy );
-            x = p1.x() + int( dx * m );
-            break;
-        default:
-            break;
-    }
-
-    return QPoint( x, y );
-}
-
-void QwtPolygonClipper::clipEdge( Edge edge,
-    const QPolygon &pa, QPolygon &cpa ) const
-{
-    if ( pa.count() == 0 )
-    {
-        cpa.resize( 0 );
-        return;
-    }
-
-    unsigned int count = 0;
-
-    QPoint p1 = pa.point( 0 );
-    if ( insideEdge( p1, edge ) )
-        addPoint( cpa, count++, p1 );
-
-    const uint nPoints = pa.size();
-    for ( uint i = 1; i < nPoints; i++ )
-    {
-        const QPoint p2 = pa.point( i );
-        if ( insideEdge( p2, edge ) )
-        {
-            if ( insideEdge( p1, edge ) )
-                addPoint( cpa, count++, p2 );
-            else
-            {
-                addPoint( cpa, count++, intersectEdge( p1, p2, edge ) );
-                addPoint( cpa, count++, p2 );
-            }
-        }
-        else
-        {
-            if ( insideEdge( p1, edge ) )
-                addPoint( cpa, count++, intersectEdge( p1, p2, edge ) );
-        }
-        p1 = p2;
-    }
-    cpa.resize( count );
-}
-
-QwtPolygonClipperF::QwtPolygonClipperF( const QRectF &r ):
-    QRectF( r )
-{
-}
-
-inline void QwtPolygonClipperF::addPoint( QPolygonF &pa, uint pos, const QPointF &point ) const
-{
-    if ( uint( pa.size() ) <= pos )
-        pa.resize( pos + 5 );
-
-    pa[( int )pos] = point;
-}
-
-//! Sutherland-Hodgman polygon clipping
-QPolygonF QwtPolygonClipperF::clipPolygon( const QPolygonF &pa ) const
-{
-    if ( contains( ::boundingRect( pa ) ) )
-        return pa;
-
-    QPolygonF cpa( pa.size() );
-
-    clipEdge( ( Edge )0, pa, cpa );
-
-    for ( uint edge = 1; edge < NEdges; edge++ )
-    {
-        const QPolygonF rpa = cpa;
-        clipEdge( ( Edge )edge, rpa, cpa );
-    }
-
-    return cpa;
-}
-
-bool QwtPolygonClipperF::insideEdge( const QPointF &p, Edge edge ) const
-{
-    switch ( edge )
-    {
-        case Left:
-            return p.x() > left();
-        case Top:
-            return p.y() > top();
-        case Right:
-            return p.x() < right();
-        case Bottom:
-            return p.y() < bottom();
-        default:
-            break;
-    }
-
-    return false;
-}
-
-QPointF QwtPolygonClipperF::intersectEdge( const QPointF &p1,
-    const QPointF &p2, Edge edge ) const
+template< class Point, class Rect, class Polygon >
+Point QwtPolygonClipper<Point, Rect, Polygon>::intersectEdge( 
+    const Point &p1, const Point &p2, Edge edge ) const
 {
     double x = 0.0, y = 0.0;
     double m = 0;
@@ -264,34 +123,43 @@ QPointF QwtPolygonClipperF::intersectEdge( const QPointF &p1,
     switch ( edge )
     {
         case Left:
-            x = left();
+        {
+            x = d_rect.left();
             m = double( qAbs( p1.x() - x ) ) / qAbs( dx );
             y = p1.y() + int( dy * m );
             break;
+        }
         case Top:
-            y = top();
+        {
+            y = d_rect.top();
             m = double( qAbs( p1.y() - y ) ) / qAbs( dy );
             x = p1.x() + int( dx * m );
             break;
+        }
         case Right:
-            x = right();
+        {
+            x = d_rect.right();
             m = double( qAbs( p1.x() - x ) ) / qAbs( dx );
             y = p1.y() + int( dy * m );
             break;
+        }
         case Bottom:
-            y = bottom();
+        {
+            y = d_rect.bottom();
             m = double( qAbs( p1.y() - y ) ) / qAbs( dy );
             x = p1.x() + int( dx * m );
             break;
+        }
         default:
             break;
     }
 
-    return QPointF( x, y );
+    return Point( x, y );
 }
 
-void QwtPolygonClipperF::clipEdge( Edge edge,
-    const QPolygonF &pa, QPolygonF &cpa ) const
+template< class Point, class Rect, class Polygon >
+void QwtPolygonClipper<Point, Rect, Polygon>::clipEdge( Edge edge,
+    const Polygon &pa, Polygon &cpa ) const
 {
     if ( pa.count() == 0 )
     {
@@ -301,14 +169,14 @@ void QwtPolygonClipperF::clipEdge( Edge edge,
 
     unsigned int count = 0;
 
-    QPointF p1 = pa[0];
+    Point p1 = pa[0];
     if ( insideEdge( p1, edge ) )
         addPoint( cpa, count++, p1 );
 
     const uint nPoints = pa.size();
     for ( uint i = 1; i < nPoints; i++ )
     {
-        const QPointF p2 = pa[( int )i];
+        const Point p2 = pa[( int )i];
         if ( insideEdge( p2, edge ) )
         {
             if ( insideEdge( p1, edge ) )
@@ -357,7 +225,7 @@ QVector<QwtInterval> QwtCircleClipper::clipCircle(
         qSort( angles );
 
         const int in = contains( qwtPolar2Pos( pos, radius,
-                                               angles[0] + ( angles[1] - angles[0] ) / 2 ) );
+            angles[0] + ( angles[1] - angles[0] ) / 2 ) );
         if ( in )
         {
             for ( int i = 0; i < angles.size() - 1; i += 2 )
@@ -446,7 +314,7 @@ QList<QPointF> QwtCircleClipper::cuttingPoints(
 QPolygon QwtClipper::clipPolygon(
     const QRect &clipRect, const QPolygon &polygon )
 {
-    QwtPolygonClipper clipper( clipRect );
+    QwtPolygonClipper<QPoint, QRect, QPolygon> clipper( clipRect );
     return clipper.clipPolygon( polygon );
 }
 
@@ -461,7 +329,7 @@ QPolygon QwtClipper::clipPolygon(
 QPolygonF QwtClipper::clipPolygonF(
     const QRectF &clipRect, const QPolygonF &polygon )
 {
-    QwtPolygonClipperF clipper( clipRect );
+    QwtPolygonClipper<QPointF, QRectF, QPolygonF> clipper( clipRect );
     return clipper.clipPolygon( polygon );
 }
 
