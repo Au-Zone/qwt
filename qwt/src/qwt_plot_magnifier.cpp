@@ -44,8 +44,8 @@ QwtPlotMagnifier::~QwtPlotMagnifier()
 /*!
    \brief En/Disable an axis
 
-   Axes that are enabled will be synchronized to the
-   result of panning. All other axes will remain unchanged.
+   Only Axes that are enabled will be zoomed.
+   All other axes will remain unchanged.
 
    \param axis Axis, see QwtPlot::Axis
    \param on On/Off
