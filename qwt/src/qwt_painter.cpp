@@ -163,6 +163,12 @@ void QwtPainter::setPolylineSplitting( bool enable )
     d_polylineSplitting = enable;
 }
 
+//! Wrapper for QPainter::drawPath()
+void QwtPainter::drawPath( QPainter *painter, const QPainterPath &path )
+{
+    painter->drawPath( path );
+}
+
 //! Wrapper for QPainter::drawRect()
 void QwtPainter::drawRect( QPainter *painter, double x, double y, double w, double h )
 {
