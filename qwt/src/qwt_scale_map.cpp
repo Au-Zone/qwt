@@ -224,7 +224,7 @@ void QwtScaleMap::newFactor()
 }
 
 /*!
-   Transform a rectangle
+   Transform a rectangle from scale to paint coordinates
 
    \param xMap X map
    \param yMap Y map
@@ -256,6 +256,43 @@ QRectF QwtScaleMap::transform( const QwtScaleMap &xMap,
         y2 = 0.0;
 
     return QRectF( x1, y1, x2 - x1 + 1, y2 - y1 + 1 );
+}
+
+/*!
+   Transform a rectangle from paint to scale coordinates
+
+   \param xMap X map
+   \param yMap Y map
+   \param pos Position in paint coordinates
+   \return Position in scale coordinates
+   \sa transform()
+*/
+QPointF QwtScaleMap::invTransform( const QwtScaleMap &xMap,
+    const QwtScaleMap &yMap, const QPointF &pos )
+{
+    return QPointF( 
+		xMap.invTransform( pos.x() ), 
+        yMap.invTransform( pos.y() ) 
+	);
+}
+
+/*!
+   Transform a point from scale to paint coordinates
+
+   \param xMap X map
+   \param yMap Y map
+   \param pos Position in scale coordinates
+   \return Position in paint coordinates
+
+   \sa invTransform()
+*/
+QPointF QwtScaleMap::transform( const QwtScaleMap &xMap,
+    const QwtScaleMap &yMap, const QPointF &pos )
+{
+    return QPointF( 
+		xMap.transform( pos.x() ), 
+        yMap.transform( pos.y() )
+	);
 }
 
 /*!

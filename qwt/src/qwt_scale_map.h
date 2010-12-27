@@ -109,6 +109,11 @@ public:
     static QRectF invTransform( const QwtScaleMap &,
         const QwtScaleMap &, const QRectF & );
 
+    static QPointF transform( const QwtScaleMap &,
+        const QwtScaleMap &, const QPointF & );
+    static QPointF invTransform( const QwtScaleMap &,
+        const QwtScaleMap &, const QPointF & );
+
     bool isInverting() const;
 
 private:
