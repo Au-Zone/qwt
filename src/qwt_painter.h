@@ -31,6 +31,7 @@ class QwtInterval;
 
 class QPalette;
 class QTextDocument;
+class QPainterPath;
 
 /*!
   \brief A collection of QPainter workarounds
@@ -75,6 +76,7 @@ public:
     static void drawPoint( QPainter *, double x, double y );
     static void drawPoint( QPainter *, const QPointF & );
 
+    static void drawPath( QPainter *, const QPainterPath & );
     static void drawImage( QPainter *, const QRectF &, const QImage & );
     static void drawPixmap( QPainter *, const QRectF &, const QPixmap & );
 
