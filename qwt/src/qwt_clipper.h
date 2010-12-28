@@ -25,8 +25,10 @@ class QRectF;
 class QWT_EXPORT QwtClipper
 {
 public:
-    static QPolygon clipPolygon( const QRect &, const QPolygon & );
-    static QPolygonF clipPolygonF( const QRectF &, const QPolygonF & );
+    static QPolygon clipPolygon( const QRect &, 
+		const QPolygon &, bool closePolygon = false );
+    static QPolygonF clipPolygonF( const QRectF &, 
+		const QPolygonF &, bool closePolygon = false );
 
     static QVector<QwtInterval> clipCircle(
         const QRectF &, const QPointF &, double radius );
