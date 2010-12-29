@@ -255,7 +255,8 @@ protected:
         const QRectF &canvasRect, int from, int to ) const;
 
     virtual void fillCurve( QPainter *,
-        const QwtScaleMap &, const QwtScaleMap &, QPolygonF & ) const;
+        const QwtScaleMap &, const QwtScaleMap &, 
+        const QRectF &canvasRect, QPolygonF & ) const;
 
     void closePolyline( QPainter *,
         const QwtScaleMap &, const QwtScaleMap &, QPolygonF & ) const;

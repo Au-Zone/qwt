@@ -412,14 +412,18 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     if ( d_data->paintAttributes & ClipPolygons )
     {
         qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
-        polyline = QwtClipper::clipPolygonF( 
-            canvasRect.adjusted(-pw, -pw, pw, pw), polyline );
+        const QPolygonF clipped = QwtClipper::clipPolygonF( 
+            canvasRect.adjusted(-pw, -pw, pw, pw), polyline, false );
+
+        QwtPainter::drawPolyline( painter, clipped );
+    }
+    else
+    {
+        QwtPainter::drawPolyline( painter, polyline );
     }
 
-    QwtPainter::drawPolyline( painter, polyline );
-
     if ( d_data->brush.style() != Qt::NoBrush )
-        fillCurve( painter, xMap, yMap, polyline );
+        fillCurve( painter, xMap, yMap, canvasRect, polyline );
 }
 
 /*!
@@ -519,12 +523,7 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     }
 
     if ( doFill )
-    {
-        if ( d_data->paintAttributes & ClipPolygons )
-            polyline = QwtClipper::clipPolygonF( canvasRect, polyline );
-
-        fillCurve( painter, xMap, yMap, polyline );
-    }
+        fillCurve( painter, xMap, yMap, canvasRect, polyline );
 }
 
 /*!
@@ -589,12 +588,19 @@ void QwtPlotCurve::drawSteps( QPainter *painter,
     }
 
     if ( d_data->paintAttributes & ClipPolygons )
-        polygon = QwtClipper::clipPolygonF( canvasRect, polygon );
+    {
+        const QPolygonF clipped = QwtClipper::clipPolygonF( 
+            canvasRect, polygon, false );
 
-    QwtPainter::drawPolyline( painter, polygon );
+        QwtPainter::drawPolyline( painter, clipped );
+    }
+    else
+    {
+        QwtPainter::drawPolyline( painter, polygon );
+    }
 
     if ( d_data->brush.style() != Qt::NoBrush )
-        fillCurve( painter, xMap, yMap, polygon );
+        fillCurve( painter, xMap, yMap, canvasRect, polygon );
 }
 
 
@@ -671,13 +677,14 @@ QwtCurveFitter *QwtPlotCurve::curveFitter() const
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param polygon Polygon
+  \param canvasRect Contents rect of the canvas
+  \param polygon Polygon - will be modified !
 
   \sa setBrush(), setBaseline(), setCurveType()
 */
 void QwtPlotCurve::fillCurve( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    QPolygonF &polygon ) const
+    const QRectF &canvasRect, QPolygonF &polygon ) const
 {
     if ( d_data->brush.style() == Qt::NoBrush )
         return;
@@ -686,14 +693,17 @@ void QwtPlotCurve::fillCurve( QPainter *painter,
     if ( polygon.count() <= 2 ) // a line can't be filled
         return;
 
-    QBrush b = d_data->brush;
-    if ( !b.color().isValid() )
-        b.setColor( d_data->pen.color() );
+    QBrush brush = d_data->brush;
+    if ( !brush.color().isValid() )
+        brush.setColor( d_data->pen.color() );
+
+    if ( d_data->paintAttributes & ClipPolygons )
+        polygon = QwtClipper::clipPolygonF( canvasRect, polygon, true );
 
     painter->save();
 
-    painter->setPen( QPen( Qt::NoPen ) );
-    painter->setBrush( b );
+    painter->setPen( Qt::NoPen );
+    painter->setBrush( brush );
 
     QwtPainter::drawPolygon( painter, polygon );
 
