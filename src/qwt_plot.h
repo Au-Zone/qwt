@@ -173,7 +173,7 @@ public:
     const QwtScaleEngine *axisScaleEngine( int axisId ) const;
     void setAxisScaleEngine( int axisId, QwtScaleEngine * );
 
-    void setAxisAutoScale( int axisId );
+    void setAxisAutoScale( int axisId, bool on = true );
     bool axisAutoScale( int axisId ) const;
 
     void enableAxis( int axisId, bool tf = true );

@@ -396,13 +396,17 @@ void QwtPlot::setAxisFont( int axisId, const QFont &f )
   after a fixed scale has been set. Autoscaling is enabled by default.
 
   \param axisId axis index
-  \sa setAxisScale(), setAxisScaleDiv()
+  \param on On/Off
+  \sa setAxisScale(), setAxisScaleDiv(), updateAxes()
+
+  \note The autoscaling flag has no effect until updateAxes() is executed
+        ( called by replot() ).
 */
-void QwtPlot::setAxisAutoScale( int axisId )
+void QwtPlot::setAxisAutoScale( int axisId, bool on )
 {
-    if ( axisValid( axisId ) && !d_axisData[axisId]->doAutoScale )
+    if ( axisValid( axisId ) && ( d_axisData[axisId]->doAutoScale != on ) )
     {
-        d_axisData[axisId]->doAutoScale = true;
+        d_axisData[axisId]->doAutoScale = on;
         autoRefresh();
     }
 }
