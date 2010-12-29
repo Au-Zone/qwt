@@ -10,9 +10,36 @@
 #include "qwt_plot_intervalcurve.h"
 #include "qwt_interval_symbol.h"
 #include "qwt_scale_map.h"
+#include "qwt_clipper.h"
 #include "qwt_painter.h"
 
 #include <qpainter.h>
+
+static inline bool qwtIsHSampleInside( const QwtIntervalSample &sample,
+    double xMin, double xMax, double yMin, double yMax )
+{
+    const double y = sample.value;
+    const double x1 = sample.interval.minValue();
+    const double x2 = sample.interval.maxValue();
+
+    const bool isOffScreen = ( y < yMin ) || ( y > yMax )
+        || ( x1 < xMin && x2 < xMin ) || ( x1 > yMax && x2 > xMax );
+
+    return !isOffScreen;
+}
+
+static inline bool qwtIsVSampleInside( const QwtIntervalSample &sample,
+    double xMin, double xMax, double yMin, double yMax )
+{
+    const double x = sample.value;
+    const double y1 = sample.interval.minValue();
+    const double y2 = sample.interval.maxValue();
+
+    const bool isOffScreen = ( x < xMin ) || ( x > xMax )
+        || ( y1 < yMin && y2 < yMin ) || ( y1 > yMax && y2 > yMax );
+
+    return !isOffScreen;
+}
 
 class QwtPlotIntervalCurve::PrivateData
 {
@@ -23,6 +50,9 @@ public:
         pen( Qt::black ),
         brush( Qt::white )
     {
+        paintAttributes = QwtPlotIntervalCurve::ClipPolygons;
+        paintAttributes |= QwtPlotIntervalCurve::ClipSymbol;
+    
         pen.setCapStyle( Qt::FlatCap );
     }
 
@@ -36,6 +66,8 @@ public:
 
     QPen pen;
     QBrush brush;
+
+    int paintAttributes;
 };
 
 /*!
@@ -80,6 +112,32 @@ void QwtPlotIntervalCurve::init()
 int QwtPlotIntervalCurve::rtti() const
 {
     return QwtPlotIntervalCurve::Rtti_PlotIntervalCurve;
+}
+
+/*!
+  Specify an attribute how to draw the curve
+
+  \param attribute Paint attribute
+  \param on On/Off
+  /sa PaintAttribute, testPaintAttribute()
+*/
+void QwtPlotIntervalCurve::setPaintAttribute( 
+    PaintAttribute attribute, bool on )
+{
+    if ( on )
+        d_data->paintAttributes |= attribute;
+    else
+        d_data->paintAttributes &= ~attribute;
+}
+
+/*!
+    \brief Return the current paint attributes
+    \sa PaintAttribute, setPaintAttribute()
+*/
+bool QwtPlotIntervalCurve::testPaintAttribute( 
+    PaintAttribute attribute ) const
+{
+    return ( d_data->paintAttributes & attribute );
 }
 
 /*!
@@ -220,7 +278,7 @@ QRectF QwtPlotIntervalCurve::boundingRect() const
 */
 void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRectF &, int from, int to ) const
+    const QRectF &canvasRect, int from, int to ) const
 {
     if ( to < 0 )
         to = dataSize() - 1;
@@ -234,7 +292,7 @@ void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
     switch ( d_data->style )
     {
         case Tube:
-            drawTube( painter, xMap, yMap, from, to );
+            drawTube( painter, xMap, yMap, canvasRect, from, to );
             break;
 
         case NoCurve:
@@ -245,7 +303,8 @@ void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
     if ( d_data->symbol &&
         ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol ) )
     {
-        drawSymbols( painter, *d_data->symbol, xMap, yMap, from, to );
+        drawSymbols( painter, *d_data->symbol, 
+            xMap, yMap, canvasRect, from, to );
     }
 }
 
@@ -259,6 +318,7 @@ void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
+  \param canvasRect Contents rect of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
@@ -267,7 +327,7 @@ void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
 */
 void QwtPlotIntervalCurve::drawTube( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to ) const
+    const QRectF &canvasRect, int from, int to ) const
 {
     const bool doAlign = QwtPainter::roundingAlignment( painter );
 
@@ -323,7 +383,19 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
     {
         painter->setPen( QPen( Qt::NoPen ) );
         painter->setBrush( d_data->brush );
-        QwtPainter::drawPolygon( painter, polygon );
+
+        if ( d_data->paintAttributes & ClipPolygons )
+        {
+            const qreal m = 1.0;
+            const QPolygonF p = QwtClipper::clipPolygonF( 
+                canvasRect.adjusted(-m, -m, m, m), polygon, true );
+
+            QwtPainter::drawPolygon( painter, p );
+        }
+        else
+        {
+            QwtPainter::drawPolygon( painter, polygon );
+        }
     }
 
     if ( d_data->pen.style() != Qt::NoPen )
@@ -331,8 +403,28 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
         painter->setPen( d_data->pen );
         painter->setBrush( Qt::NoBrush );
 
-        QwtPainter::drawPolyline( painter, points, size );
-        QwtPainter::drawPolyline( painter, points + size, size );
+        if ( d_data->paintAttributes & ClipPolygons )
+        {
+            qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
+            const QRectF clipRect = canvasRect.adjusted(-pw, -pw, pw, pw);
+
+            QPolygonF p;
+
+            p.resize( size );
+            qMemCopy( p.data(), points, size * sizeof( QPointF ) );
+            p = QwtClipper::clipPolygonF( canvasRect, p );
+            QwtPainter::drawPolyline( painter, p );
+
+            p.resize( size );
+            qMemCopy( p.data(), points + size, size * sizeof( QPointF ) );
+            p = QwtClipper::clipPolygonF( canvasRect, p );
+            QwtPainter::drawPolyline( painter, p );
+        }
+        else
+        {
+            QwtPainter::drawPolyline( painter, points, size );
+            QwtPainter::drawPolyline( painter, points + size, size );
+        }
     }
 
     painter->restore();
@@ -345,6 +437,7 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
   \param symbol Interval symbol
   \param xMap x map
   \param yMap y map
+  \param canvasRect Contents rect of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted
 
@@ -353,7 +446,7 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
 void QwtPlotIntervalCurve::drawSymbols(
     QPainter *painter, const QwtIntervalSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    int from, int to ) const
+    const QRectF &canvasRect, int from, int to ) const
 {
     painter->save();
 
@@ -363,27 +456,42 @@ void QwtPlotIntervalCurve::drawSymbols(
     painter->setPen( pen );
     painter->setBrush( symbol.brush() );
 
+    const QRectF &tr = QwtScaleMap::invTransform( xMap, yMap, canvasRect);
+
+    const double xMin = tr.left();
+    const double xMax = tr.right();
+    const double yMin = tr.top();
+    const double yMax = tr.bottom();
+
+    const bool doClip = d_data->paintAttributes & ClipPolygons;
+
     for ( int i = from; i <= to; i++ )
     {
-        const QwtIntervalSample sample = this->sample( i );
+        const QwtIntervalSample s = sample( i );
 
         if ( orientation() == Qt::Vertical )
         {
-            const double x = xMap.transform( sample.value );
-            const double y1 = yMap.transform( sample.interval.minValue() );
-            const double y2 = yMap.transform( sample.interval.maxValue() );
+            if ( !doClip || qwtIsVSampleInside( s, xMin, xMax, yMin, yMax ) )
+            {
+                const double x = xMap.transform( s.value );
+                const double y1 = yMap.transform( s.interval.minValue() );
+                const double y2 = yMap.transform( s.interval.maxValue() );
 
-            symbol.draw( painter, orientation(),
-                QPointF( x, y1 ), QPointF( x, y2 ) );
+                symbol.draw( painter, orientation(),
+                    QPointF( x, y1 ), QPointF( x, y2 ) );
+            }
         }
         else
         {
-            const double y = yMap.transform( sample.value );
-            const double x1 = xMap.transform( sample.interval.minValue() );
-            const double x2 = xMap.transform( sample.interval.maxValue() );
+            if ( !doClip || qwtIsHSampleInside( s, xMin, xMax, yMin, yMax ) )
+            {
+                const double y = yMap.transform( s.value );
+                const double x1 = xMap.transform( s.interval.minValue() );
+                const double x2 = xMap.transform( s.interval.maxValue() );
 
-            symbol.draw( painter, orientation(),
-                QPointF( x1, y ), QPointF( x2, y ) );
+                symbol.draw( painter, orientation(),
+                    QPointF( x1, y ), QPointF( x2, y ) );
+            }
         }
     }
 

@@ -58,12 +58,34 @@ public:
         UserCurve = 100
     };
 
+    /*!
+        Attributes to modify the drawing algorithm.
+
+        - ClipPolygons\n
+          Clip polygons before painting them. In situations, where points
+          are far outside the visible area (f.e when zooming deep) this
+          might be a substantial improvement for the painting performance
+          ( especially on Windows ).
+        - ClipSymbols\n
+          Check if a symbol is on the plot canvas before painting it.
+
+        \sa setPaintAttribute(), testPaintAttribute()
+    */
+    enum PaintAttribute
+    {
+        ClipPolygons = 1,
+        ClipSymbol   = 2
+    };
+
     explicit QwtPlotIntervalCurve( const QString &title = QString::null );
     explicit QwtPlotIntervalCurve( const QwtText &title );
 
     virtual ~QwtPlotIntervalCurve();
 
     virtual int rtti() const;
+
+    void setPaintAttribute( PaintAttribute, bool on = true );
+    bool testPaintAttribute( PaintAttribute ) const;
 
     void setSamples( const QVector<QwtIntervalSample> & );
 
@@ -92,11 +114,11 @@ protected:
 
     virtual void drawTube( QPainter *,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to ) const;
+        const QRectF &canvasRect, int from, int to ) const;
 
     virtual void drawSymbols( QPainter *, const QwtIntervalSymbol &,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        int from, int to ) const;
+        const QRectF &canvasRect, int from, int to ) const;
 
 private:
     class PrivateData;
