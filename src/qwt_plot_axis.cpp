@@ -312,6 +312,24 @@ double QwtPlot::axisStepSize( int axisId ) const
 }
 
 /*!
+  \brief Return the current interval of the specified axis
+
+  This is only a convenience function for axisScaleDiv( axisId )->interval();
+  
+  \param axisId axis index
+  \return Scale interval
+
+  \sa QwtScaleDiv, axisScaleDiv()
+*/
+QwtInterval QwtPlot::axisInterval( int axisId ) const
+{
+    if ( !axisValid( axisId ) )
+        return QwtInterval();
+
+    return d_axisData[axisId]->scaleDiv.interval();
+}
+
+/*!
   \return the title of a specified axis
   \param axisId axis index
 */
@@ -596,6 +614,9 @@ void QwtPlot::updateAxes()
         const QwtPlotItem *item = *it;
 
         if ( !item->testItemAttribute( QwtPlotItem::AutoScale ) )
+            continue;
+
+        if ( !item->isVisible() )
             continue;
 
         if ( axisAutoScale( item->xAxis() ) || axisAutoScale( item->yAxis() ) )
