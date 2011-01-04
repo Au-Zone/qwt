@@ -50,12 +50,21 @@ public:
         When FullRepaint is set the plot canvas is explicitely repainted
         after the samples have been rendered.
 
+      - CopyCanvasCache\n
+        When QwtPlotCanvas::PaintCached is enabled the painter
+        has to paint to the cache and the widget. In certain 
+        situations/environments it might be faster to paint to 
+        the cache only and then copy the cache to the canvas.
+        This flag can also be useful for settings, where Qt fills the
+        the clip region with the widget background.
+
       \sa setAttribute(), testAttribute(), drawSeries()
     */
     enum Attribute
     {
         AtomicPainter = 1,
-        FullRepaint = 2
+        FullRepaint = 2,
+        CopyCanvasCache = 4
     };
 
     QwtPlotDirectPainter( QObject *parent = NULL );

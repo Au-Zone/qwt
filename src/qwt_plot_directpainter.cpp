@@ -169,8 +169,11 @@ void QwtPlotDirectPainter::drawSeries(
 
     QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
 
-    if ( canvas->testPaintAttribute( QwtPlotCanvas::PaintCached ) &&
-        canvas->paintCache() && !canvas->paintCache()->isNull() )
+    const bool hasCanvasCache = 
+        canvas->testPaintAttribute( QwtPlotCanvas::PaintCached ) 
+        && canvas->paintCache() && !canvas->paintCache()->isNull();
+
+    if ( hasCanvasCache )
     {
         QPainter painter( ( QPixmap * )canvas->paintCache() );
         painter.translate( -canvas->contentsRect().x(),
@@ -268,10 +271,25 @@ bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
             QPainter painter( canvas );
             painter.setClipRegion( pe->region() );
 
-            renderItem( &painter, d_data->seriesItem,
-                d_data->from, d_data->to );
+            bool copyCache = ( d_data->attributes & CopyCanvasCache );
+            if ( copyCache )
+            {
+                copyCache = canvas->testPaintAttribute( QwtPlotCanvas::PaintCached ) 
+                    && canvas->paintCache() && !canvas->paintCache()->isNull();
+            }
 
-            return true;
+            if ( copyCache )
+            {
+                painter.drawPixmap( 
+                    canvas->contentsRect().topLeft(), *canvas->paintCache() );
+            }
+            else
+            {
+                renderItem( &painter, d_data->seriesItem,
+                    d_data->from, d_data->to );
+            }
+
+            return true; // don't call QwtPlotCanvas::paintEvent()
         }
     }
 
