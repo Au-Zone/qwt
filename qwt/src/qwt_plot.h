@@ -14,6 +14,7 @@
 #include "qwt_text.h"
 #include "qwt_plot_dict.h"
 #include "qwt_scale_map.h"
+#include "qwt_interval.h"
 #include <qframe.h>
 
 class QwtPlotLayout;
@@ -187,6 +188,7 @@ public:
     void setAxisScaleDraw( int axisId, QwtScaleDraw * );
 
     double axisStepSize( int axisId ) const;
+    QwtInterval axisInterval( int axisId ) const;
 
     const QwtScaleDiv *axisScaleDiv( int axisId ) const;
     QwtScaleDiv *axisScaleDiv( int axisId );
