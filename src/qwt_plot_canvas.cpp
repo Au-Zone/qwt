@@ -279,16 +279,31 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
             d_data->cache->x11SetScreen( x11Info().screen() );
 #endif
 
-        if ( d_data->paintAttributes & PaintPacked )
+        if ( testAttribute(Qt::WA_StyledBackground) ) 
         {
             QPainter bgPainter( d_data->cache );
-            bgPainter.setPen( Qt::NoPen );
-
-            bgPainter.setBrush( bgBrush );
-            bgPainter.drawRect( d_data->cache->rect() );
+            bgPainter.translate( -contentsRect().topLeft() );
+            
+            QStyleOption opt;
+            opt.initFrom(this);
+            style()->drawPrimitive(QStyle::PE_Widget, &opt, &bgPainter, this);
+            bgPainter.end();
         }
         else
-            d_data->cache->fill( this, d_data->cache->rect().topLeft() );
+        {
+            if ( d_data->paintAttributes & PaintPacked )
+            {
+                QPainter bgPainter( d_data->cache );
+                bgPainter.setPen( Qt::NoPen );
+
+                bgPainter.setBrush( bgBrush );
+                bgPainter.drawRect( d_data->cache->rect() );
+            }
+            else
+            {
+                d_data->cache->fill( this, d_data->cache->rect().topLeft() );
+            }
+        }
 
         QPainter cachePainter( d_data->cache );
         cachePainter.translate( -contentsRect().x(),
@@ -306,9 +321,18 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
         {
             painter->save();
 
-            painter->setPen( Qt::NoPen );
-            painter->setBrush( bgBrush );
-            painter->drawRect( contentsRect() );
+            if ( testAttribute(Qt::WA_StyledBackground) )
+            {
+                QStyleOption opt;
+                opt.initFrom(this);
+                style()->drawPrimitive(QStyle::PE_Widget, &opt, painter, this);
+            }
+            else
+            {
+                painter->setPen( Qt::NoPen );
+                painter->setBrush( bgBrush );
+                painter->drawRect( contentsRect() );
+            }
 
             painter->restore();
         }
