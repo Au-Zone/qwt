@@ -25,19 +25,20 @@ class QwtPlotCanvas::PrivateData
 public:
     PrivateData():
         focusIndicator( NoFocusIndicator ),
-        paintAttributes( 0 ),
-        cache( NULL )
+        paintAttributes( 0 )
     {
-    }
-
-    ~PrivateData()
-    {
-        delete cache;
+        cache.isValid = false;
     }
 
     FocusIndicator focusIndicator;
     int paintAttributes;
-    QPixmap *cache;
+
+    struct
+    {
+        QPixmap pixmap;
+        bool isValid;
+
+    } cache;
 };
 
 //! Sets a cross cursor, enables QwtPlotCanvas::PaintCached
@@ -101,20 +102,17 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
         {
             if ( on )
             {
-                if ( d_data->cache == NULL )
-                    d_data->cache = new QPixmap();
-
                 if ( isVisible() )
                 {
                     const QRect cr = contentsRect();
-                    *d_data->cache = QPixmap::grabWidget( this,
+                    d_data->cache.pixmap = QPixmap::grabWidget( this,
                         cr.x(), cr.y(), cr.width(), cr.height() );
+                    d_data->cache.isValid = true;
                 }
             }
             else
             {
-                delete d_data->cache;
-                d_data->cache = NULL;
+                d_data->cache.isValid = false;
             }
             break;
         }
@@ -150,20 +148,25 @@ bool QwtPlotCanvas::testPaintAttribute( PaintAttribute attribute ) const
 //! Return the paint cache, might be null
 QPixmap *QwtPlotCanvas::paintCache()
 {
-    return d_data->cache;
+    if ( !( d_data->paintAttributes & PaintCached ) )
+        return NULL;
+
+    return &d_data->cache.pixmap;
 }
 
 //! Return the paint cache, might be null
 const QPixmap *QwtPlotCanvas::paintCache() const
 {
-    return d_data->cache;
+    if ( !( d_data->paintAttributes & PaintCached ) )
+        return NULL;
+
+    return &d_data->cache.pixmap;
 }
 
 //! Invalidate the internal paint cache
 void QwtPlotCanvas::invalidatePaintCache()
 {
-    if ( d_data->cache )
-        *d_data->cache = QPixmap();
+    d_data->cache.isValid = false;
 }
 
 /*!
@@ -233,10 +236,10 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 */
 void QwtPlotCanvas::drawContents( QPainter *painter )
 {
-    if ( d_data->paintAttributes & PaintCached && d_data->cache
-        && d_data->cache->size() == contentsRect().size() )
+    if ( d_data->paintAttributes & PaintCached && d_data->cache.isValid
+        && d_data->cache.pixmap.size() == contentsRect().size() )
     {
-        painter->drawPixmap( contentsRect().topLeft(), *d_data->cache );
+        painter->drawPixmap( contentsRect().topLeft(), d_data->cache.pixmap );
     }
     else
     {
@@ -270,18 +273,21 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
 
     QBrush bgBrush = palette().brush( backgroundRole() );
 
-    if ( d_data->paintAttributes & PaintCached && d_data->cache )
+    if ( d_data->paintAttributes & PaintCached )
     {
-        *d_data->cache = QPixmap( contentsRect().size() );
+        if ( d_data->cache.pixmap.size() != contentsRect().size() )
+        {
+            d_data->cache.pixmap = QPixmap( contentsRect().size() );
 
 #ifdef Q_WS_X11
-        if ( d_data->cache->x11Info().screen() != x11Info().screen() )
-            d_data->cache->x11SetScreen( x11Info().screen() );
+            if ( d_data->cache.pixmap.x11Info().screen() != x11Info().screen() )
+                d_data->cache.pixmap.x11SetScreen( x11Info().screen() );
 #endif
+        }
 
         if ( testAttribute(Qt::WA_StyledBackground) ) 
         {
-            QPainter bgPainter( d_data->cache );
+            QPainter bgPainter( &d_data->cache.pixmap );
             bgPainter.translate( -contentsRect().topLeft() );
             
             QStyleOption opt;
@@ -293,19 +299,20 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
         {
             if ( d_data->paintAttributes & PaintPacked )
             {
-                QPainter bgPainter( d_data->cache );
+                QPainter bgPainter( &d_data->cache.pixmap );
                 bgPainter.setPen( Qt::NoPen );
 
                 bgPainter.setBrush( bgBrush );
-                bgPainter.drawRect( d_data->cache->rect() );
+                bgPainter.drawRect( d_data->cache.pixmap.rect() );
             }
             else
             {
-                d_data->cache->fill( this, d_data->cache->rect().topLeft() );
+                d_data->cache.pixmap.fill( this, 
+                    d_data->cache.pixmap.rect().topLeft() );
             }
         }
 
-        QPainter cachePainter( d_data->cache );
+        QPainter cachePainter( &d_data->cache.pixmap );
         cachePainter.translate( -contentsRect().x(),
             -contentsRect().y() );
 
@@ -313,7 +320,8 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
 
         cachePainter.end();
 
-        painter->drawPixmap( contentsRect(), *d_data->cache );
+        d_data->cache.isValid = true;
+        painter->drawPixmap( contentsRect(), d_data->cache.pixmap );
     }
     else
     {
