@@ -12,11 +12,11 @@ include( ../examples.pri )
 TARGET       = navigation
 
 HEADERS = \
-	mainwindow.h \
-	plot.h 
+    mainwindow.h \
+    plot.h 
 
 SOURCES = \
-	mainwindow.cpp \
-	plot.cpp \
-	main.cpp
+    mainwindow.cpp \
+    plot.cpp \
+    main.cpp
 

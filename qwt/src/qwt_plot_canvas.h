@@ -37,21 +37,11 @@ public:
         Disabling the cache will improve the performance for
         incremental paints (using QwtPlotCurve::draw).
 
-      - PaintPacked\n
-        Suppress system background repaints and paint it together with
-        the canvas contents.
-        Painting packed might avoid flickering for expensive repaints,
-        when there is a notable gap between painting the background
-        and the plot contents.
-
-      The default setting enables PaintCached and PaintPacked
-
       \sa setPaintAttribute(), testPaintAttribute(), paintCache()
      */
     enum PaintAttribute
     {
         PaintCached = 1,
-        PaintPacked = 2
     };
 
     /*!
@@ -98,18 +88,15 @@ public:
     void replot();
 
 protected:
-    virtual void hideEvent( QHideEvent * );
-
     virtual void paintEvent( QPaintEvent * );
 
+    virtual void drawBackground( QPainter * );
     virtual void drawContents( QPainter * );
     virtual void drawFocusIndicator( QPainter * );
 
     void drawCanvas( QPainter *painter = NULL );
 
 private:
-    void setSystemBackground( bool );
-
     class PrivateData;
     PrivateData *d_data;
 };

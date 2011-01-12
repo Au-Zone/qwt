@@ -12,17 +12,17 @@ include( ../examples.pri )
 TARGET       = realtime
 
 HEADERS = \
-	mainwindow.h \
-	scrollzoomer.h \
-	scrollbar.h \
-	incrementalplot.h \
-	randomplot.h
+    mainwindow.h \
+    scrollzoomer.h \
+    scrollbar.h \
+    incrementalplot.h \
+    randomplot.h
 
 SOURCES = \
-	main.cpp \
-	mainwindow.cpp \
-	scrollzoomer.cpp \
-	scrollbar.cpp \
-	incrementalplot.cpp \
-	randomplot.cpp
+    main.cpp \
+    mainwindow.cpp \
+    scrollzoomer.cpp \
+    scrollbar.cpp \
+    incrementalplot.cpp \
+    randomplot.cpp
 

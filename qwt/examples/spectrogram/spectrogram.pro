@@ -12,8 +12,8 @@ include( ../examples.pri )
 TARGET   = spectrogram
 
 HEADERS = \
-	 plot.h 
+     plot.h 
 
 SOURCES = \
-	plot.cpp \
-	main.cpp
+    plot.cpp \
+    main.cpp

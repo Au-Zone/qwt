@@ -12,8 +12,8 @@ include( ../examples.pri )
 TARGET  = sliders
 
 HEADERS = \
-	sliders.h
+    sliders.h
 
 SOURCES = \
-	sliders.cpp
+    sliders.cpp
 

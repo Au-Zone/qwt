@@ -12,8 +12,7 @@ public:
     virtual void drawCanvas( QPainter * );
     virtual bool eventFilter( QObject* object, QEvent* event );
 
-protected:
-    virtual void childEvent ( QChildEvent * );
+    virtual bool event( QEvent * );
 
 private:
     void initStyleSheets();
