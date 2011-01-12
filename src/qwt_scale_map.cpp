@@ -271,9 +271,9 @@ QPointF QwtScaleMap::invTransform( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap, const QPointF &pos )
 {
     return QPointF( 
-		xMap.invTransform( pos.x() ), 
+        xMap.invTransform( pos.x() ), 
         yMap.invTransform( pos.y() ) 
-	);
+    );
 }
 
 /*!
@@ -290,9 +290,9 @@ QPointF QwtScaleMap::transform( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap, const QPointF &pos )
 {
     return QPointF( 
-		xMap.transform( pos.x() ), 
+        xMap.transform( pos.x() ), 
         yMap.transform( pos.y() )
-	);
+    );
 }
 
 /*!

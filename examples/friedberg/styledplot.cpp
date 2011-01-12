@@ -13,9 +13,6 @@ StyledPlot::StyledPlot( QWidget *parent ):
     QwtPlot( parent )
 {
     canvas()->installEventFilter( this );
-#if 1
-    canvas()->setPalette( Qt::red );
-#endif
 }
 
 void StyledPlot::drawCanvas( QPainter *painter )
@@ -40,10 +37,10 @@ void StyledPlot::updateCanvasClip()
     // Let the style paint the styled background
     // to an image
 
-    QImage image( contentsRect().size(), QImage::Format_ARGB32 );
+    QImage image( size(), QImage::Format_ARGB32 );
+    image.fill( Qt::transparent );
 
     QPainter painter( &image );
-    painter.translate( -contentsRect().topLeft() );
 
     QStyleOption opt;
     opt.initFrom( canvas() );
@@ -62,13 +59,8 @@ void StyledPlot::updateCanvasClip()
 
 void StyledPlot::initStyleSheets()
 {
-#if 0
     const QColor baseColor( 231, 239, 247 );
     const QColor borderColor( 133, 190, 232 );
-#else
-    const QColor baseColor( 231, 239, 247 );
-    const QColor borderColor( 133, 190, 232 );
-#endif
     const QColor canvasColor( Qt::lightGray );
 
     QString styleSheet;
@@ -88,17 +80,12 @@ void StyledPlot::initStyleSheets()
     styleSheet = QString(
         "border: 3px solid %1;"
         "border-radius: 10px;"
-        "padding: 0px;"
         "background-color: %2;"
     );
 
     styleSheet = styleSheet.arg( borderColor.name() ).arg( canvasColor.name() );
 
     canvas()->setStyleSheet( styleSheet );
-#if 1
-    canvas()->setFrameStyle( QFrame::NoFrame );
-    canvas()->setContentsMargins( 0, 0, 0, 0 );
-#endif
 
     styleSheet = QString(
         "border: 0px;"

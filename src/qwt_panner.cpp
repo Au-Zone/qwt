@@ -12,7 +12,6 @@
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qevent.h>
-#include <qframe.h>
 #include <qcursor.h>
 
 static QVector<QwtPicker *> activePickers( QWidget *w )
@@ -352,21 +351,15 @@ void QwtPanner::widgetMousePressEvent( QMouseEvent *me )
 
     d_data->initialPos = d_data->pos = me->pos();
 
-    QRect cr = parentWidget()->rect();
-    if ( parentWidget()->inherits( "QFrame" ) )
-    {
-        const QFrame* frame = ( QFrame* )parentWidget();
-        cr = frame->contentsRect();
-    }
-    setGeometry( cr );
+    QRect grabRect = parentWidget()->contentsRect();
+    setGeometry( grabRect );
 
     // We don't want to grab the picker !
     QVector<QwtPicker *> pickers = activePickers( parentWidget() );
     for ( int i = 0; i < ( int )pickers.size(); i++ )
         pickers[i]->setEnabled( false );
 
-    d_data->pixmap = QPixmap::grabWidget( parentWidget(),
-        cr.x(), cr.y(), cr.width(), cr.height() );
+    d_data->pixmap = QPixmap::grabWidget( parentWidget(), grabRect );
 
     for ( int i = 0; i < ( int )pickers.size(); i++ )
         pickers[i]->setEnabled( true );

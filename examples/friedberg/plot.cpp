@@ -1,4 +1,5 @@
 #include <qwt_plot_zoomer.h>
+#include <qwt_plot_panner.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
@@ -90,9 +91,21 @@ Plot::Plot(QWidget *parent):
     insertCurve("Average", averageData, Qt::black);
     insertErrorBars("Range", rangeData, Qt::blue);
 
+    // LeftButton for the zooming
+    // MidButton for the panning
+    // RightButton: zoom out by 1
+    // Ctrl+RighButton: zoom out to full size
+
     QwtPlotZoomer* zoomer = new QwtPlotZoomer(canvas());
     zoomer->setRubberBandPen(QColor(Qt::black));
     zoomer->setTrackerPen(QColor(Qt::black));
+    zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+        Qt::RightButton, Qt::ControlModifier);
+    zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
+        Qt::RightButton);
+
+    QwtPlotPanner *panner = new QwtPlotPanner(canvas());
+    panner->setMouseButton(Qt::MidButton);
 }
 
 QwtScaleDiv Plot::yearScaleDiv() const
