@@ -128,7 +128,6 @@ void Plot::setSettings(const Settings &s)
 
     canvas()->setAttribute(Qt::WA_PaintOnScreen, s.canvas.paintOnScreen);
     canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, s.canvas.cached);
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, s.canvas.cached);
 
     QwtPainter::setPolylineSplitting(s.curve.lineSplitting);
 

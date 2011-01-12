@@ -13,6 +13,7 @@ StyledPlot::StyledPlot( QWidget *parent ):
     QwtPlot( parent )
 {
     canvas()->installEventFilter( this );
+    initStyleSheets();
 }
 
 void StyledPlot::drawCanvas( QPainter *painter )
@@ -98,12 +99,23 @@ void StyledPlot::initStyleSheets()
     titleLabel()->setStyleSheet( styleSheet );
 }
 
-void StyledPlot::childEvent ( QChildEvent * event )
+bool StyledPlot::event( QEvent * event )
 {
-    if ( event->type() == QEvent::ChildAdded )
+    switch( event->type() )
     {
-        initStyleSheets(); // when the legend has been inserted
+        case QEvent::ChildPolished:
+        {
+            QChildEvent *childEvent = static_cast<QChildEvent *>( event );
+            if ( qobject_cast<const QwtLegend *>( childEvent->child() ) )
+                initStyleSheets(); 
+
+            break;
+        }
+        default:
+            break;
     }
+
+    return QwtPlot::event( event );
 }
 
 bool StyledPlot::eventFilter( QObject* object, QEvent* event )
@@ -118,11 +130,6 @@ bool StyledPlot::eventFilter( QObject* object, QEvent* event )
             // for every paint event.
 
             updateCanvasClip();
-        }
-
-        if ( event->type() == QEvent::PolishRequest )
-        {
-            initStyleSheets();
         }
     }
 

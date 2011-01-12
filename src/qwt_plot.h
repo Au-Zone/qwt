@@ -222,7 +222,6 @@ public:
 
     // Misc
 
-    virtual void polish();
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 

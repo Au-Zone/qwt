@@ -12,8 +12,8 @@ include( ../examples.pri )
 TARGET   = plotmatrix
 
 HEADERS = \
-	 plotmatrix.h 
+     plotmatrix.h 
 
 SOURCES = \
-	plotmatrix.cpp \
-	main.cpp
+    plotmatrix.cpp \
+    main.cpp

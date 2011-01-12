@@ -99,17 +99,18 @@ void QwtPlot::initPlot( const QwtText &title )
 
 /*!
   \brief Adds handling of layout requests
+  \param event Event
 */
-bool QwtPlot::event( QEvent *e )
+bool QwtPlot::event( QEvent *event )
 {
-    bool ok = QFrame::event( e );
-    switch ( e->type() )
+    bool ok = QFrame::event( event );
+    switch ( event->type() )
     {
         case QEvent::LayoutRequest:
             updateLayout();
             break;
         case QEvent::PolishRequest:
-            polish();
+            replot();
             break;
         default:;
     }
@@ -240,12 +241,6 @@ QwtPlotCanvas *QwtPlot::canvas()
 const QwtPlotCanvas *QwtPlot::canvas() const
 {
     return d_data->canvas;
-}
-
-//! Polish
-void QwtPlot::polish()
-{
-    replot();
 }
 
 /*!

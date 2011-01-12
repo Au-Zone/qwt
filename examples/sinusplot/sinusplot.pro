@@ -12,5 +12,5 @@ include( ../examples.pri )
 TARGET       = sinusplot
 
 SOURCES = \
-	sinusplot.cpp
+    sinusplot.cpp
 
