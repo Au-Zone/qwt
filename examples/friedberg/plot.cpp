@@ -59,10 +59,9 @@ public:
 };
 
 Plot::Plot(QWidget *parent):
-    QwtPlot(parent)
+    StyledPlot(parent)
 {
     setTitle("Temperature of Friedberg/Germany");
-    setCanvasBackground(QColor(Qt::darkGray));
 
     setAxisTitle(QwtPlot::xBottom, "2007");
     setAxisScaleDiv(QwtPlot::xBottom, yearScaleDiv());
