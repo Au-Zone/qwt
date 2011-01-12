@@ -20,6 +20,13 @@
 #endif
 #include <qevent.h>
 
+static inline void drawStyledBackground( QWidget *w, QPainter *painter )
+{
+    QStyleOption opt;
+    opt.initFrom(w);
+    w->style()->drawPrimitive( QStyle::PE_Widget, &opt, painter, w);
+}
+
 class QwtPlotCanvas::PrivateData
 {
 public:
@@ -211,12 +218,27 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 {
     QPainter painter( this );
 
-    if ( !contentsRect().contains( event->rect() ) )
+    if ( testAttribute(Qt::WA_StyledBackground ) )
     {
-        painter.save();
-        painter.setClipRegion( event->region() & frameRect() );
-        drawFrame( &painter );
-        painter.restore();
+        if ( d_data->paintAttributes & PaintPacked )
+        {
+            painter.save();
+            painter.setClipRegion( event->region() );
+
+            drawStyledBackground( this, &painter );
+
+            painter.restore();
+        }
+    }
+    else
+    {
+        if ( !contentsRect().contains( event->rect() ) )
+        {
+            painter.save();
+            painter.setClipRegion( event->region() & frameRect() );
+            drawFrame( &painter );
+            painter.restore();
+        }
     }
 
     painter.setClipRegion( event->region() & contentsRect() );
@@ -265,14 +287,16 @@ void QwtPlotCanvas::drawContents( QPainter *painter )
 */
 void QwtPlotCanvas::drawCanvas( QPainter *painter )
 {
-    if ( !contentsRect().isValid() )
+    const QRect cr = contentsRect();
+
+    if ( !cr.isValid() )
         return;
 
     QBrush bgBrush = palette().brush( backgroundRole() );
 
     if ( d_data->paintAttributes & PaintCached && d_data->cache )
     {
-        *d_data->cache = QPixmap( contentsRect().size() );
+        *d_data->cache = QPixmap( cr.size() );
 
 #ifdef Q_WS_X11
         if ( d_data->cache->x11Info().screen() != x11Info().screen() )
@@ -281,33 +305,36 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
 
         if ( testAttribute(Qt::WA_StyledBackground) ) 
         {
+            // when having a border-radius, the style doesn't fill
+            // the complete widget rectangle.
+
+            d_data->cache->fill( this, cr.topLeft() );
+
             QPainter bgPainter( d_data->cache );
-            bgPainter.translate( -contentsRect().topLeft() );
+            bgPainter.translate( -cr.topLeft() );
             
-            QStyleOption opt;
-            opt.initFrom(this);
-            style()->drawPrimitive(QStyle::PE_Widget, &opt, &bgPainter, this);
-            bgPainter.end();
+            drawStyledBackground( this, &bgPainter );
         }
         else
         {
             if ( d_data->paintAttributes & PaintPacked )
             {
                 QPainter bgPainter( d_data->cache );
+                bgPainter.translate( -cr.topLeft() );
                 bgPainter.setPen( Qt::NoPen );
+                bgPainter.setClipRect( cr );
 
                 bgPainter.setBrush( bgBrush );
-                bgPainter.drawRect( d_data->cache->rect() );
+                bgPainter.drawRect( rect() );
             }
             else
             {
-                d_data->cache->fill( this, d_data->cache->rect().topLeft() );
+                d_data->cache->fill( this, cr.topLeft() );
             }
         }
 
         QPainter cachePainter( d_data->cache );
-        cachePainter.translate( -contentsRect().x(),
-            -contentsRect().y() );
+        cachePainter.translate( -cr.topLeft() );
 
         ( ( QwtPlot * )parent() )->drawCanvas( &cachePainter );
 
@@ -323,9 +350,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
 
             if ( testAttribute(Qt::WA_StyledBackground) )
             {
-                QStyleOption opt;
-                opt.initFrom(this);
-                style()->drawPrimitive(QStyle::PE_Widget, &opt, painter, this);
+                drawStyledBackground( this, painter );
             }
             else
             {

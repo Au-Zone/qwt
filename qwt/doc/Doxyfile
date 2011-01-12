@@ -1249,13 +1249,11 @@ INCLUDE_FILE_PATTERNS  = *.h
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             = QwtArray=QwtArray \
-                         QwtMatrix=QMatrix \
-                         Q_ENUMS(x)= \
+PREDEFINED             = Q_ENUMS(x)= \
                          Q_EXPORT= \
                          Q_OBJECT= \
                          Q_PROPERTY(x)= \
-                         QT_VERSION=0x040000
+                         QT_VERSION=0x040700
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 
