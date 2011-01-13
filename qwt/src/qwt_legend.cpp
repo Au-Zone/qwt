@@ -60,12 +60,20 @@ public:
     LegendView( QWidget *parent ):
         QScrollArea( parent )
     {
+        setFocusPolicy( Qt::NoFocus );
+
         contentsWidget = new QWidget( this );
         contentsWidget->setObjectName( "QwtLegendViewContents" );
 
         setWidget( contentsWidget );
         setWidgetResizable( false );
-        setFocusPolicy( Qt::NoFocus );
+
+        viewport()->setObjectName( "QwtLegendViewport" );
+
+        // QScrollArea::setWidget internally sets autoFillBackground to true
+        // But we don't want a background.
+        contentsWidget->setAutoFillBackground( false );
+        viewport()->setAutoFillBackground( false );
     }
 
     virtual bool viewportEvent( QEvent *e )
