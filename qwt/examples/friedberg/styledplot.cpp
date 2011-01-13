@@ -60,62 +60,50 @@ void StyledPlot::updateCanvasClip()
 
 void StyledPlot::initStyleSheets()
 {
-    const QColor baseColor( 231, 239, 247 );
-    const QColor borderColor( 133, 190, 232 );
-    const QColor canvasColor( Qt::lightGray );
-
-    QString styleSheet;
-
-    styleSheet = QString(
-        "border: 1px solid white;"
-        "border-radius: 10px;"
-        "padding: 0px;"
-        "background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, "
-        "stop: 0 %1, stop: 0.5 white, stop: 1 %2 );"
+    const QString styleSheet (
+        "QwtPlot"
+        "{"
+            "border: 1px solid white;"
+            "border-radius: 10px;"
+            "padding: 10px;"
+            "background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, "
+            "stop: 0 Brown, stop: 0.5 Chocolate, stop: 1 Brown );"
+        "}"
+        "QwtPlotCanvas"
+        "{"
+            "border: 1px solid White;"
+            "border-radius: 10px;"
+            "background-color: Tan;"
+        "}"
+        "QwtTextLabel#QwtPlotTitle"
+        "{"
+            "color: palette(light);"
+        "}"
+        "QwtLegendItem"
+        "{"
+            "color: palette(light);"
+        "}"
+        "QwtLegend"
+        "{"
+            "border: 1px solid white;"
+            "border-radius: 10px;"
+            "padding: 10px;"
+            "background: brown;"
+        "}"
+        "QScrollArea#QwtLegendView"
+        "{"
+            "background-color: dark brown;"
+        "}"
+        "QWidget#QwtLegendViewContents"
+        "{"
+            "border: 1px solid black;"
+        "}"
+        "QwtScaleWidget"
+        "{"
+            "color: palette(light);"
+        "}"
     );
-
-    styleSheet = styleSheet.arg( baseColor.name() ).arg( baseColor.name() );
-
     setStyleSheet( styleSheet );
-
-    styleSheet = QString(
-        "border: 3px solid %1;"
-        "border-radius: 10px;"
-        "background-color: %2;"
-    );
-
-    styleSheet = styleSheet.arg( borderColor.name() ).arg( canvasColor.name() );
-
-    canvas()->setStyleSheet( styleSheet );
-
-    styleSheet = QString(
-        "border: 0px;"
-        "background-color: transparent;"
-    );
-
-    if ( legend() )
-        legend()->setStyleSheet( styleSheet );
-
-    titleLabel()->setStyleSheet( styleSheet );
-}
-
-bool StyledPlot::event( QEvent * event )
-{
-    switch( event->type() )
-    {
-        case QEvent::ChildPolished:
-        {
-            QChildEvent *childEvent = static_cast<QChildEvent *>( event );
-            if ( qobject_cast<const QwtLegend *>( childEvent->child() ) )
-                initStyleSheets(); 
-
-            break;
-        }
-        default:
-            break;
-    }
-
-    return QwtPlot::event( event );
 }
 
 bool StyledPlot::eventFilter( QObject* object, QEvent* event )

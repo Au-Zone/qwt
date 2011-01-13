@@ -88,7 +88,6 @@ public:
     QScrollBar *verticalScrollBar() const;
 
 protected:
-    virtual void resizeEvent( QResizeEvent * );
     virtual void layoutContents();
 
 private:

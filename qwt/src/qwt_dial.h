@@ -163,8 +163,8 @@ public:
     QwtDialNeedle *needle();
 
     QRect boundingRect() const;
-    QRect contentsRect() const;
-    virtual QRect scaleContentsRect() const;
+    QRect innerRect() const;
+    virtual QRect scaleInnerRect() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;

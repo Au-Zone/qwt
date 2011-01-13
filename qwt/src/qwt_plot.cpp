@@ -76,6 +76,7 @@ void QwtPlot::initPlot( const QwtText &title )
     d_data->autoReplot = false;
 
     d_data->lblTitle = new QwtTextLabel( title, this );
+    d_data->lblTitle->setObjectName( "QwtPlotTitle" );
 
     d_data->lblTitle->setFont( QFont( fontInfo().family(), 14, QFont::Bold ) );
 
@@ -88,6 +89,7 @@ void QwtPlot::initPlot( const QwtText &title )
     initAxesData();
 
     d_data->canvas = new QwtPlotCanvas( this );
+    d_data->canvas->setObjectName( "QwtPlotCanvas" );
     d_data->canvas->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     d_data->canvas->setLineWidth( 2 );
 

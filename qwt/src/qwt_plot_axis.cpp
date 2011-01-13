@@ -48,6 +48,10 @@ void QwtPlot::initAxesData()
     d_axisData[xBottom]->scaleWidget =
         new QwtScaleWidget( QwtScaleDraw::BottomScale, this );
 
+    d_axisData[yLeft]->scaleWidget->setObjectName( "QwtPlotAxisYLeft" );
+    d_axisData[yRight]->scaleWidget->setObjectName( "QwtPlotAxisYRight" );
+    d_axisData[xTop]->scaleWidget->setObjectName( "QwtPlotAxisXTop" );
+    d_axisData[xBottom]->scaleWidget->setObjectName( "QwtPlotAxisXBottom" );
 
     QFont fscl( fontInfo().family(), 10 );
     QFont fttl( fontInfo().family(), 12, QFont::Bold );
