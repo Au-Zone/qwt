@@ -12,8 +12,6 @@ public:
     virtual void drawCanvas( QPainter * );
     virtual bool eventFilter( QObject* object, QEvent* event );
 
-    virtual bool event( QEvent * );
-
 private:
     void initStyleSheets();
     void updateCanvasClip();

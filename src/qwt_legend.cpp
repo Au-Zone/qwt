@@ -61,6 +61,7 @@ public:
         QScrollArea( parent )
     {
         contentsWidget = new QWidget( this );
+        contentsWidget->setObjectName( "QwtLegendViewContents" );
 
         setWidget( contentsWidget );
         setWidgetResizable( false );
@@ -217,13 +218,18 @@ QwtLegend::QwtLegend( QWidget *parent ):
     d_data->itemMode = QwtLegend::ReadOnlyItem;
 
     d_data->view = new QwtLegend::PrivateData::LegendView( this );
+    d_data->view->setObjectName( "QwtLegendView" );
     d_data->view->setFrameStyle( NoFrame );
 
-    QwtDynGridLayout *layout = new QwtDynGridLayout(
+    QwtDynGridLayout *gridLayout = new QwtDynGridLayout(
         d_data->view->contentsWidget );
-    layout->setAlignment( Qt::AlignHCenter | Qt::AlignTop );
+    gridLayout->setAlignment( Qt::AlignHCenter | Qt::AlignTop );
 
     d_data->view->contentsWidget->installEventFilter( this );
+
+    QVBoxLayout *layout = new QVBoxLayout( this );
+    layout->setContentsMargins( 0, 0, 0, 0 );
+    layout->addWidget( d_data->view );
 }
 
 //! Destructor
@@ -411,7 +417,8 @@ int QwtLegend::heightForWidth( int width ) const
 */
 void QwtLegend::layoutContents()
 {
-    const QSize visibleSize = d_data->view->viewport()->size();
+    const QSize visibleSize = 
+        d_data->view->viewport()->contentsRect().size();
 
     const QLayout *l = d_data->view->contentsWidget->layout();
     if ( l && l->inherits( "QwtDynGridLayout" ) )
@@ -492,14 +499,4 @@ QList<QWidget *> QwtLegend::legendItems() const
         list += it.key();
 
     return list;
-}
-
-/*!
-   Resize event
-   \param e Resize event
-*/
-void QwtLegend::resizeEvent( QResizeEvent *e )
-{
-    QFrame::resizeEvent( e );
-    d_data->view->setGeometry( contentsRect() );
 }

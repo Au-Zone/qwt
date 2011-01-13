@@ -166,13 +166,13 @@ contains(QWT_CONFIG, QwtPlot) {
 
 contains(QWT_CONFIG, QwtSvg) {
 
-	QT += svg
+    QT += svg
     HEADERS += qwt_plot_svgitem.h
     SOURCES += qwt_plot_svgitem.cpp 
 }
 else {
 
-	DEFINES += QWT_NO_SVG
+    DEFINES += QWT_NO_SVG
 }
 
 contains(QWT_CONFIG, QwtWidgets) {
@@ -222,10 +222,10 @@ INSTALLS       = target doc
 
 CONFIG(lib_bundle) {
 
-	FRAMEWORK_HEADERS.version = Versions
-	FRAMEWORK_HEADERS.files = $${HEADERS}
-	FRAMEWORK_HEADERS.path = Headers
-	QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+    FRAMEWORK_HEADERS.version = Versions
+    FRAMEWORK_HEADERS.files = $${HEADERS}
+    FRAMEWORK_HEADERS.path = Headers
+    QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
 }
 else {
 

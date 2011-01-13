@@ -17,6 +17,8 @@
 #include <qpainter.h>
 #include <qevent.h>
 #include <qmath.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
 
 class QwtScaleWidget::PrivateData
 {
@@ -392,6 +394,11 @@ void QwtScaleWidget::paintEvent( QPaintEvent *event )
 {
     QPainter painter( this );
     painter.setClipRegion( event->region() );
+
+    QStyleOption opt;
+    opt.init(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+
     draw( &painter );
 }
 
@@ -405,10 +412,10 @@ void QwtScaleWidget::draw( QPainter *painter ) const
     if ( d_data->colorBar.isEnabled && d_data->colorBar.width > 0 &&
         d_data->colorBar.interval.isValid() )
     {
-        drawColorBar( painter, colorBarRect( rect() ) );
+        drawColorBar( painter, colorBarRect( contentsRect() ) );
     }
 
-    QRect r = rect();
+    QRect r = contentsRect();
     if ( d_data->scaleDraw->orientation() == Qt::Horizontal )
     {
         r.setLeft( r.left() + d_data->borderDist[0] );
@@ -511,7 +518,7 @@ void QwtScaleWidget::layoutScale( bool update_geometry )
     if ( d_data->colorBar.isEnabled && d_data->colorBar.interval.isValid() )
         colorBarWidth = d_data->colorBar.width + d_data->spacing;
 
-    const QRectF r = rect();
+    const QRectF r = contentsRect();
     double x, y, length;
 
     if ( d_data->scaleDraw->orientation() == Qt::Vertical )
@@ -691,7 +698,9 @@ QSize QwtScaleWidget::minimumSizeHint() const
     if ( o == Qt::Vertical )
         size.transpose();
 
-    return size;
+    int left, right, top, bottom;
+    getContentsMargins( &left, &top, &right, &bottom );
+    return size + QSize( left + right, top + bottom );
 }
 
 /*!

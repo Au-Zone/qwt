@@ -83,7 +83,7 @@ void AttitudeIndicator::drawScale(QPainter *painter, const QPoint &center,
     
     const QPoint p0 = qwtPolar2Pos(center, offset, dir + M_PI);
 
-    const int w = contentsRect().width();
+    const int w = innerRect().width();
 
     QPolygon pa(4);
     pa.setPoint(0, qwtPolar2Pos(p0, w, dir - M_PI_2));
@@ -110,7 +110,7 @@ void AttitudeIndicator::drawScaleContents(QPainter *painter,
 
     painter->save();
     painter->setBrush(skyColor);
-    painter->drawChord(scaleContentsRect(), 
+    painter->drawChord(scaleInnerRect(), 
         (dir - arc) * 16, 2 * arc * 16 ); 
     painter->restore();
 }
