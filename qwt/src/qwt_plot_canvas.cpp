@@ -21,6 +21,11 @@
 #include <qx11info_x11.h>
 #endif
 
+#define DEBUG_BACKGROUND 0
+#if DEBUG_BACKGROUND
+#include <qdatetime.h>
+#endif
+
 class QwtClipLogger: public QwtNullPaintDevice
 {
 public:
@@ -165,7 +170,7 @@ QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
 
     // Otherwise we have a lot of perfomance issues with
     // styled backgrounds
-    setAttribute( Qt::WA_OpaquePaintEvent );
+    setAttribute( Qt::WA_OpaquePaintEvent, true );
 
 #ifndef QT_NO_CURSOR
     setCursor( Qt::CrossCursor );
@@ -288,6 +293,24 @@ QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
     return d_data->focusIndicator;
 }
 
+bool QwtPlotCanvas::event( QEvent *event )
+{
+    if ( event->type() == QEvent::PolishRequest ) 
+    {
+        if ( testAttribute( Qt::WA_StyledBackground ) )
+        {
+            // Setting a style sheet changes the 
+            // Qt::WA_OpaquePaintEvent attribute, but we insist
+            // on painting the background - simply because
+            // we can do this much faster because of clipping
+            
+            setAttribute( Qt::WA_OpaquePaintEvent, true );
+        }
+    }
+
+    return QFrame::event( event );
+}
+
 /*!
   Paint event
   \param event Paint event
@@ -320,11 +343,24 @@ void QwtPlotCanvas::drawBackground( QPainter *painter )
 {
     if ( testAttribute(Qt::WA_StyledBackground ) )
     {
+#if DEBUG_BACKGROUND
+        QTime time;
+        time.start();
+
+        int d1 = 0;
+        int d2 = 0;
+#endif
+
+        
         QwtClipLogger clipLogger( size() );
 
         QPainter p( &clipLogger );
         drawStyledBackground( this, &p );
         p.end();
+
+#if DEBUG_BACKGROUND
+        d1 = time.elapsed();
+#endif
 
         QRegion clipRegion;
         for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
@@ -360,9 +396,17 @@ void QwtPlotCanvas::drawBackground( QPainter *painter )
 #endif
 
             painter->restore();
+#if DEBUG_BACKGROUND
+            d2 = time.elapsed();
+#endif
         }
     
         drawStyledBackground( this, painter );
+
+#if DEBUG_BACKGROUND
+        qDebug() << d1 << d2 << time.elapsed();
+#endif
+
     }
     else if ( autoFillBackground() )
     {
