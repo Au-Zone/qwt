@@ -87,6 +87,8 @@ public:
 
     void replot();
 
+    virtual bool event( QEvent * );
+
 protected:
     virtual void paintEvent( QPaintEvent * );
 
