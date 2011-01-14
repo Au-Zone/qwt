@@ -62,6 +62,7 @@ public:
 Plot::Plot(QWidget *parent):
     StyledPlot(parent)
 {
+    setObjectName("FriedbergPlot");
     setTitle("Temperature of Friedberg/Germany");
 
     setAxisTitle(QwtPlot::xBottom, "2007");
