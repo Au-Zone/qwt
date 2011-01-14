@@ -9,6 +9,7 @@
 
 #include "qwt_plot_canvas.h"
 #include "qwt_painter.h"
+#include "qwt_null_paintdevice.h"
 #include "qwt_math.h"
 #include "qwt_plot.h"
 #include <qpainter.h>
@@ -19,6 +20,95 @@
 #ifdef Q_WS_X11
 #include <qx11info_x11.h>
 #endif
+
+class QwtClipLogger: public QwtNullPaintDevice
+{
+public:
+    QwtClipLogger( const QSize &size ):
+        QwtNullPaintDevice( QPaintEngine::AllFeatures )
+    {
+        setSize( size );
+        d_pathCount = 0;
+    }
+
+    virtual void drawPath( const QPainterPath &path )
+    {
+        if ( d_pathCount == 0 )
+        {
+            setCornerRects( path );
+
+            const QRectF rect( QPointF( 0.0, 0.0 ) , size() );
+
+            for ( int i = 0; i < clipRects.size(); i++ )
+            {
+                QRectF &r = clipRects[i];
+                if ( r.center().x() < rect.center().x() )
+                    r.setLeft( rect.left() );
+                else
+                    r.setRight( rect.right() );
+
+                if ( r.center().y() < rect.center().y() )
+                    r.setTop( rect.top() );
+                else
+                    r.setBottom( rect.bottom() );
+            }
+
+        }
+
+        d_pathCount++;
+    }
+
+    void setCornerRects( const QPainterPath &path )
+    {
+        QPointF pos( 0.0, 0.0 );
+
+        for (int i = 0; i < path.elementCount(); i++ )
+        {
+            QPainterPath::Element el = path.elementAt(i); 
+            switch( el.type )
+            {
+                case QPainterPath::MoveToElement:
+                case QPainterPath::LineToElement:
+                {
+                    pos.setX( el.x );
+                    pos.setY( el.y );
+                    break;
+                }
+                case QPainterPath::CurveToElement:
+                {
+                    QRectF r( pos, QPointF( el.x, el.y ) );
+                    clipRects += r.normalized();
+
+                    pos.setX( el.x );
+                    pos.setY( el.y );
+
+                    break;
+                }
+                case QPainterPath::CurveToDataElement:
+                {
+                    if ( clipRects.size() > 0 )
+                    {
+                        QRectF r = clipRects.last();
+                        r.setCoords( 
+                            qMin( r.left(), el.x ),
+                            qMin( r.top(), el.y ),
+                            qMax( r.right(), el.x ),
+                            qMax( r.bottom(), el.y )
+                        );
+                        clipRects.last() = r.normalized();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+public:
+    QVector<QRectF> clipRects;
+
+private:
+    bool d_pathCount;
+};
 
 static inline void drawStyledBackground( QWidget *w, QPainter *painter )
 {
@@ -72,6 +162,10 @@ QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
     d_data = new PrivateData;
 
     setAutoFillBackground( true );
+
+    // Otherwise we have a lot of perfomance issues with
+    // styled backgrounds
+    setAttribute( Qt::WA_OpaquePaintEvent );
 
 #ifndef QT_NO_CURSOR
     setCursor( Qt::CrossCursor );
@@ -226,18 +320,49 @@ void QwtPlotCanvas::drawBackground( QPainter *painter )
 {
     if ( testAttribute(Qt::WA_StyledBackground ) )
     {
-        QRegion clipRegion = contentsRect();
+        QwtClipLogger clipLogger( size() );
+
+        QPainter p( &clipLogger );
+        drawStyledBackground( this, &p );
+        p.end();
+
+        QRegion clipRegion;
+        for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
+            clipRegion += clipLogger.clipRects[i].toAlignedRect();
+
         if ( painter->hasClipping() )
             clipRegion &= painter->clipRegion();
 
         if ( !clipRegion.isEmpty() )
         {
-            QPixmap pm( size() );
-            fillPixmap( parentWidget(), pos(), pm );
-        
-            painter->setClipRegion( clipRegion  );
-            drawStyledBackground( this, painter );
+            painter->save();
+
+            QTransform transform;
+            transform.translate( -x(), -y() );
+            painter->setTransform( transform, true );
+
+            clipRegion.translate( x(), y() );
+#if 1
+            // For some reason this code is significantly
+            // faster than setting the clip region and painting once
+            // Additionally using the region seems to set something
+            // internal for the canvas itsself making the following
+            // repaint also horrible slow.
+
+            for ( int i = 0; i < clipRegion.rects().size(); i++ )
+            {
+                painter->setClipRect( clipRegion.rects()[i] );
+                drawStyledBackground( parentWidget(), painter );
+            }
+#else
+            painter->setClipRegion( clipRegion );
+            drawStyledBackground( parentWidget(), painter );
+#endif
+
+            painter->restore();
         }
+    
+        drawStyledBackground( this, painter );
     }
     else if ( autoFillBackground() )
     {
@@ -317,15 +442,9 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
 
         if ( testAttribute(Qt::WA_StyledBackground) ) 
         {
-            // when having a border-radius, the style might not fill
-            // the complete contents rectangle.
-
-            fillPixmap( parentWidget(), pos() + cr.topLeft(), *d_data->cache );
-
             QPainter bgPainter( d_data->cache );
             bgPainter.translate( -cr.topLeft() );
-            
-            drawStyledBackground( this, &bgPainter );
+            drawBackground( &bgPainter );
         }
         else
         {
@@ -369,16 +488,5 @@ void QwtPlotCanvas::drawFocusIndicator( QPainter *painter )
 void QwtPlotCanvas::replot()
 {
     invalidatePaintCache();
-
-    // A small optimization, when we don't need to erase the canvas
-
-    const bool paintOpaque = !testAttribute( Qt::WA_StyledBackground )
-        && ( d_data->paintAttributes & PaintCached );
-
-    const bool opaquePaintEvent = testAttribute( Qt::WA_OpaquePaintEvent );
-
-    setAttribute( Qt::WA_OpaquePaintEvent, paintOpaque );
     repaint( contentsRect() );
-
-    setAttribute( Qt::WA_OpaquePaintEvent, opaquePaintEvent );
 }
