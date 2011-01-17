@@ -17,6 +17,7 @@
 #include <qstyleoption.h>
 #include <qpaintengine.h>
 #include <qevent.h>
+#include <qbitmap.h>
 #ifdef Q_WS_X11
 #include <qx11info_x11.h>
 #endif
@@ -36,29 +37,23 @@ public:
         d_pathCount = 0;
     }
 
+    virtual void updateState( const QPaintEngineState &state )
+    {
+        if ( state.state() == QPaintEngine::DirtyPen )
+            d_pen = state.pen();
+    }
+
     virtual void drawPath( const QPainterPath &path )
     {
         if ( d_pathCount == 0 )
         {
             setCornerRects( path );
+            alignCornerRects( QRectF( QPointF( 0.0, 0.0 ) , size() ) );
 
-            const QRectF rect( QPointF( 0.0, 0.0 ) , size() );
-
-            for ( int i = 0; i < clipRects.size(); i++ )
-            {
-                QRectF &r = clipRects[i];
-                if ( r.center().x() < rect.center().x() )
-                    r.setLeft( rect.left() );
-                else
-                    r.setRight( rect.right() );
-
-                if ( r.center().y() < rect.center().y() )
-                    r.setTop( rect.top() );
-                else
-                    r.setBottom( rect.bottom() );
-            }
-
+            borderPath = path;
         }
+        if ( d_pathCount == 1 )
+            borderPen = d_pen;
 
         d_pathCount++;
     }
@@ -108,11 +103,32 @@ public:
         }
     }
 
+    void alignCornerRects( const QRectF &rect )
+    {
+        for ( int i = 0; i < clipRects.size(); i++ )
+        {
+            QRectF &r = clipRects[i];
+            if ( r.center().x() < rect.center().x() )
+                r.setLeft( rect.left() );
+            else
+                r.setRight( rect.right() );
+
+            if ( r.center().y() < rect.center().y() )
+                r.setTop( rect.top() );
+            else
+                r.setBottom( rect.bottom() );
+        }
+    }
+
+
 public:
     QVector<QRectF> clipRects;
+    QPainterPath borderPath;
+    QPen borderPen;
 
 private:
-    bool d_pathCount;
+    uint d_pathCount;
+    QPen d_pen;
 };
 
 static inline void qwtDrawStyledBackground( 
@@ -152,6 +168,62 @@ static QWidget *qwtBackgroundWidget( QWidget *w )
     return qwtBackgroundWidget( w->parentWidget() );
 }
 
+static QRegion qwtBorderClipRegion( const QWidget *w ) 
+{
+    const QRect cRect = w->contentsRect();
+
+    if ( !w->testAttribute(Qt::WA_StyledBackground ) )
+        return cRect;
+
+#if DEBUG_BACKGROUND
+    QTime time;
+    time.start();
+#endif
+
+    QwtClipLogger clipLogger( w->size() );
+
+    QPainter painter( &clipLogger );
+    qwtDrawStyledBackground( const_cast<QWidget *>( w ), &painter );
+    painter.end();
+
+    if ( clipLogger.clipRects.size() == 0 )
+    {
+        // No rounded border
+        return cRect;
+    }
+
+    // The algorithm below doesn't take care of the pixels filled by
+    // antialiasing - but int the end this is not important as
+    // the only way to get a perferct soltion is to paint the border
+    // at last.
+
+    QBitmap bitmap( cRect.size() );
+    bitmap.fill( Qt::color0 );
+
+    QPen pen( clipLogger.borderPen );
+    if ( pen.style() != Qt::NoPen )
+    {
+        pen.setStyle( Qt::SolidLine );
+        pen.setColor( Qt::color0 );
+    }
+
+    painter.begin( &bitmap );
+    painter.translate( -cRect.topLeft() );
+    painter.setPen( pen );
+    painter.setBrush( Qt::color1 );
+    painter.drawPath( clipLogger.borderPath );
+    painter.end();
+
+    QRegion region = bitmap;
+    region.translate( cRect.topLeft() );
+
+#if DEBUG_BACKGROUND
+    qDebug() << "QwtPlotCanvas::canvasClipRegion: " << time.elapsed();
+#endif
+
+    return region;
+}
+
 class QwtPlotCanvas::PrivateData
 {
 public:
@@ -170,6 +242,8 @@ public:
     FocusIndicator focusIndicator;
     int paintAttributes;
     QPixmap *backingStore;
+
+    QRegion canvasClip;
 };
 
 //! Sets a cross cursor, enables QwtPlotCanvas::BackingStore
@@ -311,7 +385,7 @@ bool QwtPlotCanvas::event( QEvent *event )
 {
     if ( event->type() == QEvent::PolishRequest ) 
     {
-        if ( d_data->paintAttributes & QwtPlotCanvas::Opaque )
+        if ( testPaintAttribute( QwtPlotCanvas::Opaque ) )
         {
             // Setting a style sheet changes the 
             // Qt::WA_OpaquePaintEvent attribute, but we insist
@@ -350,6 +424,28 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
     painter.setClipRegion( contentsRect(), Qt::IntersectClip );
 
     drawContents( &painter );
+}
+
+/*!
+  Resize event
+  \param event Resize event
+*/
+void QwtPlotCanvas::resizeEvent( QResizeEvent *event )
+{
+    updateCanvasClip();
+    QFrame::resizeEvent( event );
+}
+
+/*!
+  Change event
+  \param event Change event
+*/
+void QwtPlotCanvas::changeEvent( QEvent *event )
+{
+    if ( event->type() == QEvent::StyleChange ) 
+        updateCanvasClip();
+
+    QFrame::changeEvent( event );
 }
 
 void QwtPlotCanvas::drawBackground( QPainter *painter )
@@ -409,7 +505,8 @@ void QwtPlotCanvas::drawBackground( QPainter *painter )
 
 #if DEBUG_BACKGROUND
         int d3 = time.elapsed();
-        qDebug() << d2 - d1 << d3 - d2 << " -> " << d3;
+        qDebug() << "QwtPlotCanvas::drawBackground: "
+            << d2 - d1 << d3 - d2 << " -> " << d3;
 #endif
 
     }
@@ -481,7 +578,8 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
     if ( !cr.isValid() )
         return;
 
-    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) && d_data->backingStore )
+    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) 
+        && d_data->backingStore )
     {
         *d_data->backingStore = QPixmap( cr.size() );
 
@@ -504,6 +602,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
         QPainter cachePainter( d_data->backingStore );
         cachePainter.translate( -cr.topLeft() );
 
+        cachePainter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
         ( ( QwtPlot * )parent() )->drawCanvas( &cachePainter );
 
         cachePainter.end();
@@ -512,6 +611,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
     }
     else
     {
+        painter->setClipRegion( d_data->canvasClip, Qt::IntersectClip );
         ( ( QwtPlot * )parent() )->drawCanvas( painter );
     }
 }
@@ -539,4 +639,9 @@ void QwtPlotCanvas::replot()
 {
     invalidateBackingStore();
     repaint( contentsRect() );
+}
+
+void QwtPlotCanvas::updateCanvasClip()
+{
+    d_data->canvasClip = qwtBorderClipRegion( this );
 }

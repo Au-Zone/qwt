@@ -1,14 +1,14 @@
 #ifndef _PLOT_H_
 #define _PLOT_H_
 
-#include "styledplot.h"
+#include <qwt_plot.h>
 #include <qwt_scale_div.h>
 #include <qwt_series_data.h>
 
 class QwtPlotCurve;
 class QwtPlotIntervalCurve;
 
-class Plot: public StyledPlot
+class Plot: public QwtPlot
 {
     Q_OBJECT
 
