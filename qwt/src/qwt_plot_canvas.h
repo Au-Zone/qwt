@@ -30,18 +30,41 @@ public:
     /*!
       \brief Paint attributes
 
-      - PaintCached\n
-        Paint double buffered and reuse the content of the pixmap buffer
-        for some spontaneous repaints that happen when a plot gets unhidden,
-        deiconified or changes the focus.
-        Disabling the cache will improve the performance for
-        incremental paints (using QwtPlotCurve::draw).
+      The default setting enables BackingStore and Opaque.
 
-      \sa setPaintAttribute(), testPaintAttribute(), paintCache()
+      \sa setPaintAttribute(), testPaintAttribute()
      */
     enum PaintAttribute
     {
-        PaintCached = 1,
+        /*!
+          \brief Paint double buffered reusing the content 
+                 of the pixmap buffer when possible. 
+
+          Using a backing store might improve the performance
+          significantly, when workin with widget overlays ( like rubberbands ).
+          Disabling the cache might improve the performance for
+          incremental paints (using QwtPlotDirectPainter ).
+
+          \sa backingStore(), invalidateBackingStore()
+         */
+        BackingStore = 1,
+
+        /*!
+          \brief Try to fill the complete contents rectangle
+                 of the plot canvas
+
+          When using styled backgrounds Qt assumes, that the
+          canvas doesn't fill its area completely 
+          ( f.e because of rounded borders ) and fills the area
+          below the canvas. When this is done with gradients it might
+          result in a serious performance bottleneck - depending on the size.
+
+          When the Opaque attribute is enabled the canvas tries to
+          identify the gaps with some heuristics and to fill those only. 
+
+          \warning Will not work for semitransparent backgrounds 
+         */
+        Opaque       = 2
     };
 
     /*!
@@ -81,9 +104,9 @@ public:
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
 
-    QPixmap *paintCache();
-    const QPixmap *paintCache() const;
-    void invalidatePaintCache();
+    QPixmap *backingStore();
+    const QPixmap *backingStore() const;
+    void invalidateBackingStore();
 
     void replot();
 

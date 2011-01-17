@@ -13,7 +13,6 @@ public:
     virtual bool eventFilter( QObject* object, QEvent* event );
 
 private:
-    void initStyleSheets();
     void updateCanvasClip();
 
 private:
