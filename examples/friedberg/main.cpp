@@ -19,14 +19,21 @@ static const QString styleSheet (
         "border-radius: 10px;"
         "padding: 10px;"
         "background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, "
-        "stop: 0 Brown, stop: 0.5 Chocolate, stop: 1 Brown );"
+            "stop: 0 Brown, stop: 0.5 Chocolate, stop: 1 Brown );"
     "}"
 #endif
     "QwtPlotCanvas"
     "{"
+#if 1
         "border: 1px solid White;"
         "border-radius: 10px;"
+#endif
+#if 1
         "background-color: Tan;"
+#else
+        "background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, "
+            "stop: 0 Tan, stop: 1 RosyBrown );"
+#endif
     "}"
     "QwtTextLabel#QwtPlotTitle"
     "{"

@@ -12,12 +12,10 @@ include( ../examples.pri )
 TARGET       = friedberg
 
 HEADERS = \
-    styledplot.h \
     plot.h \
     friedberg2007.h
 
 SOURCES = \
-    styledplot.cpp \
     friedberg2007.cpp \
     plot.cpp \
     main.cpp
