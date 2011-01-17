@@ -115,28 +115,41 @@ private:
     bool d_pathCount;
 };
 
-static inline void drawStyledBackground( QWidget *w, QPainter *painter )
+static inline void qwtDrawStyledBackground( 
+    QWidget *w, QPainter *painter )
 {
     QStyleOption opt;
     opt.initFrom(w);
     w->style()->drawPrimitive( QStyle::PE_Widget, &opt, painter, w);
 }
 
-static inline void fillPixmap( QWidget *w, const QPoint &pos, QPixmap &pm )
+static QWidget *qwtBackgroundWidget( QWidget *w )
 {
-    if ( w->testAttribute(Qt::WA_StyledBackground) &&
-        w->contentsRect().contains( QRect( pos, pm.size() ) ) )
-    {
-        QPainter painter( &pm );
-        painter.translate( -pos );
+    if ( w->parentWidget() == NULL )
+        return w;
 
-        drawStyledBackground( w, &painter );
-        painter.end();
-    }
-    else
+    if ( w->autoFillBackground() )
     {
-        pm.fill( w, pos );
+        const QBrush brush = w->palette().brush( w->backgroundRole() );
+        if ( brush.color().alpha() > 0 )
+            return w;
     }
+
+    if ( w->testAttribute( Qt::WA_StyledBackground ) )
+    {
+        QImage image( 1, 1, QImage::Format_ARGB32 );
+        image.fill( Qt::transparent );
+
+        QPainter painter( &image );
+        painter.translate( -w->rect().center() );
+        qwtDrawStyledBackground( w, &painter );
+        painter.end();
+
+        if ( qAlpha( image.pixel( 0, 0 ) ) != 0 )
+            return w;
+    }
+
+    return qwtBackgroundWidget( w->parentWidget() );
 }
 
 class QwtPlotCanvas::PrivateData
@@ -350,12 +363,11 @@ void QwtPlotCanvas::drawBackground( QPainter *painter )
         int d1 = 0;
         int d2 = 0;
 #endif
-
         
         QwtClipLogger clipLogger( size() );
 
         QPainter p( &clipLogger );
-        drawStyledBackground( this, &p );
+        qwtDrawStyledBackground( this, &p );
         p.end();
 
 #if DEBUG_BACKGROUND
@@ -363,48 +375,41 @@ void QwtPlotCanvas::drawBackground( QPainter *painter )
 #endif
 
         QRegion clipRegion;
-        for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
-            clipRegion += clipLogger.clipRects[i].toAlignedRect();
-
         if ( painter->hasClipping() )
-            clipRegion &= painter->clipRegion();
+            clipRegion = painter->transform().map( painter->clipRegion() );
+        else
+            clipRegion = contentsRect();
 
-        if ( !clipRegion.isEmpty() )
+        QWidget *bgWidget = NULL;
+
+        for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
         {
-            painter->save();
-
-            QTransform transform;
-            transform.translate( -x(), -y() );
-            painter->setTransform( transform, true );
-
-            clipRegion.translate( x(), y() );
-#if 1
-            // For some reason this code is significantly
-            // faster than setting the clip region and painting once
-            // Additionally using the region seems to set something
-            // internal for the canvas itsself making the following
-            // repaint also horrible slow.
-
-            for ( int i = 0; i < clipRegion.rects().size(); i++ )
+            const QRect rect = clipLogger.clipRects[i].toAlignedRect();
+            if ( clipRegion.intersects( rect ) )
             {
-                painter->setClipRect( clipRegion.rects()[i] );
-                drawStyledBackground( parentWidget(), painter );
+                if ( bgWidget == NULL )
+                {
+                    // Try to find out which widget fills
+                    // the unfilled areas of the styled background
+
+                    bgWidget = qwtBackgroundWidget( parentWidget() );
+                }
+
+                QPixmap pm( rect.size() );
+                pm.fill( bgWidget, mapTo( bgWidget, rect.topLeft() ) );
+                painter->drawPixmap( rect, pm );
             }
-#else
-            painter->setClipRegion( clipRegion );
-            drawStyledBackground( parentWidget(), painter );
-#endif
-
-            painter->restore();
-#if DEBUG_BACKGROUND
-            d2 = time.elapsed();
-#endif
         }
-    
-        drawStyledBackground( this, painter );
 
 #if DEBUG_BACKGROUND
-        qDebug() << d1 << d2 << time.elapsed();
+        d2 = time.elapsed();
+#endif
+    
+        qwtDrawStyledBackground( this, painter );
+
+#if DEBUG_BACKGROUND
+        int d3 = time.elapsed();
+        qDebug() << d2 - d1 << d3 - d2 << " -> " << d3;
 #endif
 
     }
