@@ -127,7 +127,7 @@ void Plot::setSettings(const Settings &s)
         s.curve.renderHint & QwtPlotCurve::RenderAntialiased);
 
     canvas()->setAttribute(Qt::WA_PaintOnScreen, s.canvas.paintOnScreen);
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, s.canvas.cached);
+    canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, s.canvas.cached);
 
     QwtPainter::setPolylineSplitting(s.curve.lineSplitting);
 
@@ -147,13 +147,13 @@ void Plot::timerEvent(QTimerEvent *)
     {
         case Settings::UpdateCanvas:
         {
-            canvas()->invalidatePaintCache();
+            canvas()->invalidateBackingStore();
             canvas()->update(canvas()->contentsRect());
             break;
         }
         case Settings::RepaintCanvas:
         {
-            canvas()->invalidatePaintCache();
+            canvas()->invalidateBackingStore();
             canvas()->repaint(canvas()->contentsRect());
             break;
         }

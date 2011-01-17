@@ -169,13 +169,13 @@ void QwtPlotDirectPainter::drawSeries(
 
     QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
 
-    const bool hasCanvasCache = 
-        canvas->testPaintAttribute( QwtPlotCanvas::PaintCached ) 
-        && canvas->paintCache() && !canvas->paintCache()->isNull();
+    const bool hasBackingStore = 
+        canvas->testPaintAttribute( QwtPlotCanvas::BackingStore ) 
+        && canvas->backingStore() && !canvas->backingStore()->isNull();
 
-    if ( hasCanvasCache )
+    if ( hasBackingStore )
     {
-        QPainter painter( ( QPixmap * )canvas->paintCache() );
+        QPainter painter( ( QPixmap * )canvas->backingStore() );
         painter.translate( -canvas->contentsRect().x(),
             -canvas->contentsRect().y() );
 
@@ -184,7 +184,7 @@ void QwtPlotDirectPainter::drawSeries(
 
         renderItem( &painter, seriesItem, from, to );
 
-        if ( d_data->attributes & FullRepaint )
+        if ( testAttribute( FullRepaint ) )
         {
             canvas->repaint();
             return;
@@ -219,7 +219,7 @@ void QwtPlotDirectPainter::drawSeries(
 
         renderItem( &d_data->painter, seriesItem, from, to );
 
-        if ( d_data->attributes & AtomicPainter )
+        if ( testAttribute( AtomicPainter ) )
             reset();
     }
     else
@@ -271,17 +271,21 @@ bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
             QPainter painter( canvas );
             painter.setClipRegion( pe->region() );
 
-            bool copyCache = ( d_data->attributes & CopyCanvasCache );
+            bool copyCache = testAttribute( CopyBackingStore )
+                && canvas->testPaintAttribute( QwtPlotCanvas::BackingStore );
+
             if ( copyCache )
             {
-                copyCache = canvas->testPaintAttribute( QwtPlotCanvas::PaintCached ) 
-                    && canvas->paintCache() && !canvas->paintCache()->isNull();
+                // is something valid in the cache ?
+                copyCache = ( canvas->backingStore() != NULL )
+                    && !canvas->backingStore()->isNull();
             }
 
             if ( copyCache )
             {
                 painter.drawPixmap( 
-                    canvas->contentsRect().topLeft(), *canvas->paintCache() );
+                    canvas->contentsRect().topLeft(), 
+                    *canvas->backingStore() );
             }
             else
             {

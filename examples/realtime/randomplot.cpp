@@ -103,7 +103,7 @@ void RandomPlot::append(int timeout, int count)
     Q_EMIT running(true);
     d_timeStamp.start();
 
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
+    canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, false);
     d_timer->start(timeout);
 }
 
@@ -117,7 +117,7 @@ void RandomPlot::stop()
         Q_EMIT running(false);
     }
 
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, true);
+    canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, true);
 }
 
 void RandomPlot::clear()

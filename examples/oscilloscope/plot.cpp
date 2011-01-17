@@ -21,9 +21,8 @@ Plot::Plot(QWidget *parent):
 
     setAutoReplot(false);
 
-    // We don't need the cache here
-    canvas()->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
-    //canvas()->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
+    // We don't need the backing store here
+    canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, false);
 
 
 #if defined(Q_WS_X11)

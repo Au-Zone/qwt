@@ -158,38 +158,34 @@ public:
     PrivateData():
         focusIndicator( NoFocusIndicator ),
         paintAttributes( 0 ),
-        cache( NULL )
+        backingStore( NULL )
     {
     }
 
     ~PrivateData()
     {
-        delete cache;
+        delete backingStore;
     }
 
     FocusIndicator focusIndicator;
     int paintAttributes;
-    QPixmap *cache;
+    QPixmap *backingStore;
 };
 
-//! Sets a cross cursor, enables QwtPlotCanvas::PaintCached
+//! Sets a cross cursor, enables QwtPlotCanvas::BackingStore
 
 QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
     QFrame( plot )
 {
     d_data = new PrivateData;
 
-    setAutoFillBackground( true );
-
-    // Otherwise we have a lot of perfomance issues with
-    // styled backgrounds
-    setAttribute( Qt::WA_OpaquePaintEvent, true );
-
 #ifndef QT_NO_CURSOR
     setCursor( Qt::CrossCursor );
 #endif
 
-    setPaintAttribute( PaintCached, true );
+    setAutoFillBackground( true );
+    setPaintAttribute( QwtPlotCanvas::BackingStore, true );
+    setPaintAttribute( QwtPlotCanvas::Opaque, true );
 }
 
 //! Destructor
@@ -216,8 +212,6 @@ const QwtPlot *QwtPlotCanvas::plot() const
   \param attribute Paint attribute
   \param on On/Off
 
-  The default setting enables PaintCached
-
   \sa testPaintAttribute(), drawCanvas(), drawContents(), paintCache()
 */
 void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
@@ -232,24 +226,31 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 
     switch ( attribute )
     {
-        case PaintCached:
+        case BackingStore:
         {
             if ( on )
             {
-                if ( d_data->cache == NULL )
-                    d_data->cache = new QPixmap();
+                if ( d_data->backingStore == NULL )
+                    d_data->backingStore = new QPixmap();
 
                 if ( isVisible() )
                 {
-                    *d_data->cache = 
+                    *d_data->backingStore = 
                         QPixmap::grabWidget( this, contentsRect() );
                 }
             }
             else
             {
-                delete d_data->cache;
-                d_data->cache = NULL;
+                delete d_data->backingStore;
+                d_data->backingStore = NULL;
             }
+            break;
+        }
+        case Opaque:
+        {
+            if ( on )
+                setAttribute( Qt::WA_OpaquePaintEvent, true );
+
             break;
         }
     }
@@ -267,23 +268,23 @@ bool QwtPlotCanvas::testPaintAttribute( PaintAttribute attribute ) const
     return ( d_data->paintAttributes & attribute ) != 0;
 }
 
-//! Return the paint cache, might be null
-QPixmap *QwtPlotCanvas::paintCache()
+//! Return the backing store, might be null
+QPixmap *QwtPlotCanvas::backingStore()
 {
-    return d_data->cache;
+    return d_data->backingStore;
 }
 
-//! Return the paint cache, might be null
-const QPixmap *QwtPlotCanvas::paintCache() const
+//! Return the backing store, might be null
+const QPixmap *QwtPlotCanvas::backingStore() const
 {
-    return d_data->cache;
+    return d_data->backingStore;
 }
 
-//! Invalidate the internal paint cache
-void QwtPlotCanvas::invalidatePaintCache()
+//! Invalidate the internal backing store
+void QwtPlotCanvas::invalidateBackingStore()
 {
-    if ( d_data->cache )
-        *d_data->cache = QPixmap();
+    if ( d_data->backingStore )
+        *d_data->backingStore = QPixmap();
 }
 
 /*!
@@ -310,12 +311,11 @@ bool QwtPlotCanvas::event( QEvent *event )
 {
     if ( event->type() == QEvent::PolishRequest ) 
     {
-        if ( testAttribute( Qt::WA_StyledBackground ) )
+        if ( d_data->paintAttributes & QwtPlotCanvas::Opaque )
         {
             // Setting a style sheet changes the 
             // Qt::WA_OpaquePaintEvent attribute, but we insist
-            // on painting the background - simply because
-            // we can do this much faster because of clipping
+            // on painting the background.
             
             setAttribute( Qt::WA_OpaquePaintEvent, true );
         }
@@ -418,7 +418,7 @@ void QwtPlotCanvas::drawBackground( QPainter *painter )
         const int fw = frameWidth();
         
         QRegion clipRegion = rect().adjusted( fw, fw, -fw, -fw );
-        if ( d_data->paintAttributes & PaintCached )
+        if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) )
             clipRegion -= contentsRect();
 
         if ( painter->hasClipping() )
@@ -443,10 +443,11 @@ void QwtPlotCanvas::drawBackground( QPainter *painter )
 */
 void QwtPlotCanvas::drawContents( QPainter *painter )
 {
-    if ( d_data->paintAttributes & PaintCached && d_data->cache
-        && d_data->cache->size() == contentsRect().size() )
+    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) 
+        && d_data->backingStore
+        && d_data->backingStore->size() == contentsRect().size() )
     {
-        painter->drawPixmap( contentsRect().topLeft(), *d_data->cache );
+        painter->drawPixmap( contentsRect().topLeft(), *d_data->backingStore );
     }
     else
     {
@@ -480,34 +481,34 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter )
     if ( !cr.isValid() )
         return;
 
-    if ( ( d_data->paintAttributes & PaintCached ) && d_data->cache )
+    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) && d_data->backingStore )
     {
-        *d_data->cache = QPixmap( cr.size() );
+        *d_data->backingStore = QPixmap( cr.size() );
 
 #ifdef Q_WS_X11
-        if ( d_data->cache->x11Info().screen() != x11Info().screen() )
-            d_data->cache->x11SetScreen( x11Info().screen() );
+        if ( d_data->backingStore->x11Info().screen() != x11Info().screen() )
+            d_data->backingStore->x11SetScreen( x11Info().screen() );
 #endif
 
         if ( testAttribute(Qt::WA_StyledBackground) ) 
         {
-            QPainter bgPainter( d_data->cache );
+            QPainter bgPainter( d_data->backingStore );
             bgPainter.translate( -cr.topLeft() );
             drawBackground( &bgPainter );
         }
         else
         {
-            d_data->cache->fill( this, cr.topLeft() );
+            d_data->backingStore->fill( this, cr.topLeft() );
         }
 
-        QPainter cachePainter( d_data->cache );
+        QPainter cachePainter( d_data->backingStore );
         cachePainter.translate( -cr.topLeft() );
 
         ( ( QwtPlot * )parent() )->drawCanvas( &cachePainter );
 
         cachePainter.end();
 
-        painter->drawPixmap( contentsRect(), *d_data->cache );
+        painter->drawPixmap( contentsRect(), *d_data->backingStore );
     }
     else
     {
@@ -536,6 +537,6 @@ void QwtPlotCanvas::drawFocusIndicator( QPainter *painter )
 */
 void QwtPlotCanvas::replot()
 {
-    invalidatePaintCache();
+    invalidateBackingStore();
     repaint( contentsRect() );
 }
