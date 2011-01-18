@@ -1,65 +1,22 @@
 #include <qapplication.h>
 #include <qcombobox.h>
 #include <qlayout.h>
+#include <qtextstream.h>
+#include <qfile.h>
 #include "plot.h"
-
-static const QString styleSheet (
-#if 0
-    "QWidget#MainWindow"
-    "{"
-        "border-radius: 10px;"
-        "background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, "
-        "stop: 0 CornflowerBlue, stop: 0.5 Gainsboro, stop: 1 CornflowerBlue );"
-    "}"
-#endif
-#if 1
-    "QwtPlot"
-    "{"
-        "border: 1px solid white;"
-        "border-radius: 10px;"
-        "padding: 10px;"
-        "background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, "
-            "stop: 0 Brown, stop: 0.5 Chocolate, stop: 1 Brown );"
-    "}"
-#endif
-    "QwtPlotCanvas"
-    "{"
-#if 1
-        "border: 1px solid White;"
-        "border-radius: 10px;"
-#endif
-#if 1
-        "background-color: Tan;"
-#else
-        "background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, "
-            "stop: 0 Tan, stop: 1 RosyBrown );"
-#endif
-    "}"
-    "QwtTextLabel#QwtPlotTitle"
-    "{"
-        "color: palette(light);"
-    "}"
-    "QwtLegendItem"
-    "{"
-        "color: palette(light);"
-    "}"
-    "QwtLegend"
-    "{"
-        "border: 1px solid white;"
-        "border-radius: 10px;"
-        "padding: 10px;"
-        "background: brown;"
-    "}"
-    "QwtScaleWidget"
-    "{"
-        "color: palette(light);"
-    "}"
-);
 
 int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
-    a.setStyleSheet( styleSheet );
+
+    // the style sheet is compiled into a resource file
+
+    QFile file( ":friedberg.css" );
+    if ( file.open(QIODevice::ReadOnly | QIODevice::Text) )
+    {
+        const QString styleSheet = QTextStream( &file ).readAll();
+        a.setStyleSheet( styleSheet );
+    }
 
     QWidget w;
     w.setObjectName("MainWindow");

@@ -20,3 +20,4 @@ SOURCES = \
     plot.cpp \
     main.cpp
 
+RESOURCES = friedberg.qrc
