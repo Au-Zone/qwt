@@ -24,6 +24,8 @@
 #include <qpaintengine.h>
 #include <qtransform.h>
 #include <qprinter.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
 #include <qimagewriter.h>
 #include <qfileinfo.h>
 #ifndef QWT_NO_SVG
@@ -44,6 +46,27 @@ public:
     QwtPlotRenderer::DiscardFlags discardFlags;
     QwtPlotRenderer::LayoutFlags layoutFlags;
 };
+
+static void qwtRenderBackground( QPainter *painter,
+    const QRectF &rect, const QWidget *widget )
+{
+    if ( widget->testAttribute( Qt::WA_StyledBackground ) )
+    {
+        QStyleOption opt;
+        opt.initFrom( widget );
+        opt.rect = rect.toAlignedRect();
+
+        widget->style()->drawPrimitive(
+            QStyle::PE_Widget, &opt, painter, widget);
+    }
+    else
+    {
+        const QBrush brush = 
+            widget->palette().brush( widget->backgroundRole() );
+
+        painter->fillRect( rect, brush );
+    }
+}
 
 /*! 
    Constructor
@@ -369,10 +392,7 @@ void QwtPlotRenderer::render( QwtPlot *plot,
         return;
 
     if ( !( d_data->discardFlags & DiscardBackground ) )
-    {
-        const QBrush brush = plot->palette().brush( plot->backgroundRole() );
-        painter->fillRect( plotRect, brush );
-    }
+        qwtRenderBackground( painter, plotRect, plot );
 
     /*
       The layout engine uses the same methods as they are used
@@ -498,6 +518,15 @@ void QwtPlotRenderer::renderLegend( const QwtPlot *plot,
     if ( !plot->legend() || plot->legend()->isEmpty() )
         return;
 
+    if ( !( d_data->discardFlags & DiscardBackground ) )
+    {
+        if ( plot->legend()->autoFillBackground() ||
+            plot->legend()->testAttribute( Qt::WA_StyledBackground ) )
+        {
+            qwtRenderBackground( painter, rect, plot->legend() );
+        }
+    }
+
     QLayout *l = plot->legend()->contentsWidget()->layout();
     if ( l == 0 || !l->inherits( "QwtDynGridLayout" ) )
         return;
@@ -541,6 +570,15 @@ void QwtPlotRenderer::renderLegend( const QwtPlot *plot,
 void QwtPlotRenderer::renderLegendItem( const QwtPlot *plot,
     QPainter *painter, const QWidget *widget, const QRectF &rect ) const
 {
+    if ( !( d_data->discardFlags & DiscardBackground ) )
+    {
+        if ( widget->autoFillBackground() ||
+            widget->testAttribute( Qt::WA_StyledBackground ) )
+        {
+            qwtRenderBackground( painter, rect, widget );
+        }
+    }
+
     const QwtLegendItem *item = qobject_cast<const QwtLegendItem *>( widget );
     if ( item )
     {
@@ -684,18 +722,22 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
     {
         r.adjust( -1.0, -1.0, 1.0, 1.0 );
         painter->setPen( QPen( Qt::black ) );
+
+        if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
+        {
+            const QBrush bgBrush =
+                plot->canvas()->palette().brush( plot->backgroundRole() );
+            painter->setBrush( bgBrush );
+        }
+
+        QwtPainter::drawRect( painter, r );
     }
     else
-        painter->setPen( Qt::NoPen );
-
-    if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
     {
-        const QBrush bgBrush =
-            plot->canvas()->palette().brush( plot->backgroundRole() );
-        painter->setBrush( bgBrush );
+        if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
+            qwtRenderBackground( painter, r, plot->canvas() );
     }
 
-    QwtPainter::drawRect( painter, r );
 
     painter->restore();
 

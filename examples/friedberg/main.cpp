@@ -1,45 +1,67 @@
 #include <qapplication.h>
+#include <qmainwindow.h>
 #include <qcombobox.h>
 #include <qlayout.h>
 #include <qtextstream.h>
+#include <qtoolbar.h>
+#include <qtoolbutton.h>
 #include <qfile.h>
 #include "plot.h"
 
-int main(int argc, char **argv)
+class MainWindow: public QMainWindow
 {
-    QApplication a(argc, argv);
+public:
+    MainWindow( QWidget * = NULL );
+
+private:
+    Plot *d_plot;
+};
+
+MainWindow::MainWindow( QWidget *parent ):
+    QMainWindow( parent )
+{
+    d_plot = new Plot( this );
+    setCentralWidget( d_plot );
+
+    QToolBar *toolBar = new QToolBar( this );
+
+    QComboBox *typeBox = new QComboBox( toolBar );
+    typeBox->addItem( "Bars" );
+    typeBox->addItem( "Tube" );
+    typeBox->setCurrentIndex( 1 );
+    typeBox->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+
+    QToolButton *btnExport = new QToolButton( toolBar );
+    btnExport->setText( "Export" );
+    btnExport->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
+    connect( btnExport, SIGNAL( clicked() ), d_plot, SLOT( exportPlot() ) );
+
+    toolBar->addWidget( typeBox );
+    toolBar->addWidget( btnExport );
+    addToolBar( toolBar );
+
+    d_plot->setMode( typeBox->currentIndex() );
+    connect( typeBox, SIGNAL( currentIndexChanged( int ) ),
+             d_plot, SLOT( setMode( int ) ) );
+}
+
+int main( int argc, char **argv )
+{
+    QApplication a( argc, argv );
 
     // the style sheet is compiled into a resource file
 
     QFile file( ":friedberg.css" );
-    if ( file.open(QIODevice::ReadOnly | QIODevice::Text) )
+    if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
         const QString styleSheet = QTextStream( &file ).readAll();
         a.setStyleSheet( styleSheet );
     }
 
-    QWidget w;
-    w.setObjectName("MainWindow");
-    
-    QComboBox *typeBox = new QComboBox(&w);
-    typeBox->addItem("Bars");
-    typeBox->addItem("Tube");
-    typeBox->setCurrentIndex(1);
-
-    typeBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-    Plot *plot = new Plot(&w);
-    plot->setMode(typeBox->currentIndex());
-
-    QVBoxLayout *layout = new QVBoxLayout(&w);
-    layout->addWidget(typeBox);
-    layout->addWidget(plot);
-
-    w.resize(600,400);
+    MainWindow w;
+    w.setObjectName( "MainWindow" );
+    w.resize( 600, 400 );
     w.show();
 
-    QObject::connect(typeBox, SIGNAL(currentIndexChanged(int)),
-        plot, SLOT(setMode(int)));
-
-    return a.exec(); 
+    return a.exec();
 }
