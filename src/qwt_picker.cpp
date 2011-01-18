@@ -31,7 +31,7 @@ public:
     };
 
     PickerWidget( QwtPicker *, QWidget *, Type );
-    virtual void updateMask();
+    void updateMask();
 
     /*
        For a tracker text with a background we can use the background
@@ -152,9 +152,14 @@ void QwtPicker::PickerWidget::updateMask()
         }
     }
 
-    setMask( mask );
+    // The parent widget gets an update for its complete rectangle
+    // when the mask is changed in visible state.
+    // With this hide/show we only get an update for the
+    // previous mask.
 
-    setShown( !mask.isEmpty() );
+    hide();
+    setMask( mask );
+    setVisible( !mask.isEmpty() );
 }
 
 void QwtPicker::PickerWidget::paintEvent( QPaintEvent *e )
@@ -1364,7 +1369,6 @@ void QwtPicker::updateDisplay()
         if ( rw.isNull() )
         {
             rw = new PickerWidget( this, w, PickerWidget::RubberBand );
-            rw->hide();
             rw->resize( w->size() );
         }
         rw->updateMask();
@@ -1379,7 +1383,6 @@ void QwtPicker::updateDisplay()
         if ( tw.isNull() )
         {
             tw = new PickerWidget( this, w, PickerWidget::Text );
-            tw->hide();
             tw->resize( w->size() );
         }
         tw->setFont( d_data->trackerFont );
