@@ -355,7 +355,7 @@ double QwtAbstractScaleDraw::majTickLength() const
 */
 QwtText QwtAbstractScaleDraw::label( double value ) const
 {
-    return QLocale::system().toString( value );
+    return QLocale().toString( value );
 }
 
 /*!
