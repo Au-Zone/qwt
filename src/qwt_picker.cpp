@@ -112,9 +112,7 @@ void QwtPicker::PickerWidget::updateMask()
     }
     if ( d_type == Text )
     {
-        d_hasTextMask = true;
-        if ( !parentWidget()->testAttribute( Qt::WA_PaintOnScreen ) )
-            d_hasTextMask = false;
+        d_hasTextMask = parentWidget()->testAttribute( Qt::WA_PaintOnScreen );
 
         if ( d_hasTextMask )
         {
@@ -176,14 +174,16 @@ void QwtPicker::PickerWidget::paintEvent( QPaintEvent *e )
            If we have a text mask we simply fill the region of
            the mask. This gives better results for antialiased fonts.
          */
-        bool doDrawTracker = !d_hasTextMask;
-        if ( doDrawTracker )
+        if ( d_hasTextMask )
+        {
+            painter.fillRect( e->rect(), 
+                QBrush( d_picker->trackerPen().color() ) );
+        }
+        else
         {
             painter.setPen( d_picker->trackerPen() );
             d_picker->drawTracker( &painter );
         }
-        else
-            painter.fillRect( e->rect(), QBrush( d_picker->trackerPen().color() ) );
     }
 }
 
