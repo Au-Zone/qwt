@@ -409,9 +409,20 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 
     if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
     {
-        painter.save();
-        drawBackground( &painter );
-        painter.restore();
+        if ( testPaintAttribute( QwtPlotCanvas::BackingStore )
+            && contentsRect().contains( event->rect() ) )
+        {
+            // When we have a backingstore and the update region
+            // is completely inside the contents rectangle
+            // we can update completely update from the backingstore
+            // and don't need to paint a background
+        }
+        else
+        {
+            painter.save();
+            drawBackground( &painter );
+            painter.restore();
+        }
     }
     
     if ( frameWidth() > 0 && !contentsRect().contains( event->rect() ) )
