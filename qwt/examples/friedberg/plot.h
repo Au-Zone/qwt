@@ -19,18 +19,19 @@ public:
         Tube
     };
 
-    Plot(QWidget * = NULL);
+    Plot( QWidget * = NULL );
 
 public Q_SLOTS:
-    void setMode(int);
+    void setMode( int );
+    void exportPlot();
 
 private:
-    void insertCurve(const QString &title,
-        const QVector<QPointF> &, const QColor &);
+    void insertCurve( const QString &title,
+        const QVector<QPointF> &, const QColor & );
 
-    void insertErrorBars(const QString &title,
+    void insertErrorBars( const QString &title,
         const QVector<QwtIntervalSample> &,
-        const QColor &color);
+        const QColor &color );
 
 
     QwtScaleDiv yearScaleDiv() const;
