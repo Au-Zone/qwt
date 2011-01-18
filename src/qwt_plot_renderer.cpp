@@ -716,6 +716,8 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
 {
     painter->save();
 
+    QRegion clipRegion;
+
     QRectF r = canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 );
 
     if ( d_data->layoutFlags & FrameWithScales )
@@ -735,14 +737,35 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
     else
     {
         if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
+        {
             qwtRenderBackground( painter, r, plot->canvas() );
-    }
 
+            if ( plot->canvas()->testAttribute( Qt::WA_StyledBackground ) )
+            {
+                // The clip region is calculated in integers
+                // To avoid too much rounding errors better
+                // calculate it in target device resolution
+                // TODO ...
+
+                int x1 = qCeil( canvasRect.left() );
+                int x2 = qFloor( canvasRect.right() );
+                int y1 = qCeil( canvasRect.top() );
+                int y2 = qFloor( canvasRect.bottom() );
+
+                clipRegion = plot->canvas()->borderClip( 
+                    QRect( x1, y1, x2 - x1 - 1, y2 - y1 - 1 ) );
+            }
+        }
+    }
 
     painter->restore();
 
     painter->save();
-    painter->setClipRect( canvasRect );
+
+    if ( clipRegion.isEmpty() )
+        painter->setClipRect( canvasRect );
+    else
+        painter->setClipRegion( clipRegion );
 
     plot->drawItems( painter, canvasRect, map );
 

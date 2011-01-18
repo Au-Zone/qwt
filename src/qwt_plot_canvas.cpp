@@ -168,9 +168,12 @@ static QWidget *qwtBackgroundWidget( QWidget *w )
     return qwtBackgroundWidget( w->parentWidget() );
 }
 
-static QRegion qwtBorderClipRegion( const QWidget *w ) 
+static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect ) 
 {
-    const QRect cRect = w->contentsRect();
+    int left, top, right, bottom;
+    w->getContentsMargins( &left, &top, &right, &bottom );
+
+    const QRect cRect = rect.adjusted( left, top, -right, -bottom );
 
     if ( !w->testAttribute(Qt::WA_StyledBackground ) )
         return cRect;
@@ -183,7 +186,12 @@ static QRegion qwtBorderClipRegion( const QWidget *w )
     QwtClipLogger clipLogger( w->size() );
 
     QPainter painter( &clipLogger );
-    qwtDrawStyledBackground( const_cast<QWidget *>( w ), &painter );
+
+    QStyleOption opt;
+    opt.initFrom(w);
+    opt.rect = rect;
+    w->style()->drawPrimitive( QStyle::PE_Widget, &opt, &painter, w);
+
     painter.end();
 
     if ( clipLogger.clipRects.size() == 0 )
@@ -654,5 +662,11 @@ void QwtPlotCanvas::replot()
 
 void QwtPlotCanvas::updateCanvasClip()
 {
-    d_data->canvasClip = qwtBorderClipRegion( this );
+    d_data->canvasClip = qwtBorderClipRegion( this, rect() );
 }
+
+QRegion QwtPlotCanvas::borderClip( const QRect &rect ) const
+{
+    return qwtBorderClipRegion( this, rect );
+}
+

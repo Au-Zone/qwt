@@ -112,6 +112,8 @@ public:
 
     virtual bool event( QEvent * );
 
+    QRegion borderClip( const QRect &rect ) const;
+
 protected:
     virtual void paintEvent( QPaintEvent * );
     virtual void resizeEvent( QResizeEvent * );
