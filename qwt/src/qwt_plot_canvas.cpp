@@ -183,7 +183,7 @@ static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect )
     time.start();
 #endif
 
-    QwtClipLogger clipLogger( w->size() );
+    QwtClipLogger clipLogger( rect.size() );
 
     QPainter painter( &clipLogger );
 
@@ -669,4 +669,3 @@ QRegion QwtPlotCanvas::borderClip( const QRect &rect ) const
 {
     return qwtBorderClipRegion( this, rect );
 }
-
