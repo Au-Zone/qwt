@@ -80,7 +80,7 @@ void QwtDoubleRange::setNewValue( double x, bool align )
     if ( x < vmin )
     {
         if ( ( d_periodic ) && ( vmin != vmax ) )
-            d_value = x + qCeil( ( vmin - x ) / ( vmax - vmin ) )
+            d_value = x + qwtCeilF( ( vmin - x ) / ( vmax - vmin ) )
                       * ( vmax - vmin );
         else
             d_value = vmin;
@@ -88,7 +88,7 @@ void QwtDoubleRange::setNewValue( double x, bool align )
     else if ( x > vmax )
     {
         if ( ( d_periodic ) && ( vmin != vmax ) )
-            d_value = x - qCeil( ( x - vmax ) / ( vmax - vmin ) )
+            d_value = x - qwtCeilF( ( x - vmax ) / ( vmax - vmin ) )
                       * ( vmax - vmin );
         else
             d_value = vmax;

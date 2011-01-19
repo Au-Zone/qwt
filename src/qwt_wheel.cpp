@@ -389,7 +389,7 @@ void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
         //
         // draw tick marks
         //
-        for ( double tickValue = qCeil( loValue / tickWidth ) * tickWidth;
+        for ( double tickValue = qwtCeilF( loValue / tickWidth ) * tickWidth;
             tickValue < hiValue; tickValue += tickWidth )
         {
             //
@@ -430,7 +430,7 @@ void QwtWheel::drawWheel( QPainter *painter, const QRect &r )
         //
         // draw tick marks
         //
-        for ( double tickValue = qCeil( loValue / tickWidth ) * tickWidth;
+        for ( double tickValue = qwtCeilF( loValue / tickWidth ) * tickWidth;
             tickValue < hiValue; tickValue += tickWidth )
         {
 

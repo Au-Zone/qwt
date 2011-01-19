@@ -156,9 +156,27 @@ inline int qwtSign( double x )
 }
 
 //! Return the square of a number
-inline double qwtSqr( const double x )
+inline double qwtSqr( double x )
 {
     return x * x;
+}
+
+//! Like qRound, but without converting the result to an int
+inline double qwtRoundF(double d)
+{ 
+    return ::round( d );
+}
+
+//! Like qFloor, but without converting the result to an int
+inline double qwtFloorF(double d)
+{ 
+    return ::floor( d );
+}
+
+//! Like qCeil, but without converting the result to an int
+inline double qwtCeilF(double d)
+{ 
+    return ::ceil( d );
 }
 
 /*!
