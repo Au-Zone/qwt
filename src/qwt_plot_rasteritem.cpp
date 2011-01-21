@@ -161,30 +161,35 @@ static QImage qwtExpandImage(const QImage &image,
         {
             for ( int y1 = 0; y1 < h; y1++ )
             {
-                int yy1 = qRound( y1 * ph - py0 );
-                int yy2 = qRound( ( y1 + 1 ) * ph - py0 );
-
-                if ( yy1 < 0 )
+                int yy1;
+                if ( y1 == 0 )
                     yy1 = 0;
+                else
+                    yy1 = qRound( y1 * ph - py0 );
 
-                if ( yy2 > sz.height() )
+                int yy2;
+                if ( y1 == h - 1 )
                     yy2 = sz.height();
+                else
+                    yy2 = qRound( ( y1 + 1 ) * ph - py0 );
 
                 const quint32 *line1 = (const quint32 *) image.scanLine( y1 );
 
                 for ( int x1 = 0; x1 < w; x1++ )
                 {
-                    const quint32 rgb( line1[x1] );
-
-                    int xx1 = qRound( x1 * pw - px0 );
-                    int xx2 = qRound( ( x1 + 1 ) * pw - px0 );
-
-                    if ( xx1 < 0 )
+                    int xx1;
+                    if ( x1 == 0 )
                         xx1 = 0;
+                    else
+                        xx1 = qRound( x1 * pw - px0 );
 
-                    if ( xx2 > sz.width() )
+                    int xx2;
+                    if ( x1 == w - 1 )
                         xx2 = sz.width();
+                    else
+                        xx2 = qRound( ( x1 + 1 ) * pw - px0 );
 
+                    const quint32 rgb( line1[x1] );
                     for ( int y2 = yy1; y2 < yy2; y2++ )
                     {
                         quint32 *line2 = ( quint32 *) expanded.scanLine( y2 );
@@ -199,27 +204,33 @@ static QImage qwtExpandImage(const QImage &image,
         {
             for ( int y1 = 0; y1 < h; y1++ )
             {
-                int yy1 = qRound( y1 * ph - py0 );
-                int yy2 = qRound( ( y1 + 1 ) * ph - py0 );
-
-                if ( yy1 < 0 )
+                int yy1;
+                if ( y1 == 0 )
                     yy1 = 0;
+                else
+                    yy1 = qRound( y1 * ph - py0 );
 
-                if ( yy2 > sz.height() )
+                int yy2;
+                if ( y1 == h - 1 )
                     yy2 = sz.height();
+                else
+                    yy2 = qRound( ( y1 + 1 ) * ph - py0 );
 
                 const uchar *line1 = image.scanLine( y1 );
 
                 for ( int x1 = 0; x1 < w; x1++ )
                 {
-                    int xx1 = qRound( x1 * pw - px0 );
-                    int xx2 = qRound( ( x1 + 1 ) * pw - px0 );
-
-                    if ( xx1 < 0 )
+                    int xx1;
+                    if ( x1 == 0 )
                         xx1 = 0;
+                    else
+                        xx1 = qRound( x1 * pw - px0 );
 
-                    if ( xx2 > sz.width() )
+                    int xx2;
+                    if ( x1 == w - 1 )
                         xx2 = sz.width();
+                    else
+                        xx2 = qRound( ( x1 + 1 ) * pw - px0 );
 
                     for ( int y2 = yy1; y2 < yy2; y2++ )
                     {
