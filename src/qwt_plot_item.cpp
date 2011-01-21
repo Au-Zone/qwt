@@ -150,13 +150,14 @@ void QwtPlotItem::setZ(double z)
 { 
     if ( d_data->z != z )
     {
-        d_data->z = z; 
+        if ( d_data->plot ) // update the z order
+            d_data->plot->attachItem( this, false );
+
+        d_data->z = z;
+
         if ( d_data->plot )
-        {
-            // update the z order
-            d_data->plot->attachItem(this, false);
-            d_data->plot->attachItem(this, true);
-        }
+            d_data->plot->attachItem( this, true );
+
         itemChanged();
     }
 }
