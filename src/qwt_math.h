@@ -164,7 +164,7 @@ inline double qwtSqr( double x )
 //! Like qRound, but without converting the result to an int
 inline double qwtRoundF(double d)
 { 
-    return ::round( d );
+    return ::floor( d + 0.5 );
 }
 
 //! Like qFloor, but without converting the result to an int
