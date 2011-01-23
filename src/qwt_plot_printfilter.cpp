@@ -19,6 +19,7 @@
 #include "qwt_legend_item.h"
 #include "qwt_scale_widget.h"
 #include "qwt_text_label.h"
+#include "qwt_plot_canvas.h"
 #include "qwt_plot_printfilter.h"
 
 #if QT_VERSION < 0x040000
@@ -26,6 +27,17 @@ typedef QColorGroup Palette;
 #else
 typedef QPalette Palette;
 #endif
+
+static bool hasBackgroundColor( const QWidget *widget )
+{
+#if QT_VERSION < 0x040000
+    return ( widget->backgroundMode() != Qt::FixedPixmap );
+#else
+    const QBrush brush = 
+        widget->palette().brush( widget->backgroundRole() );
+    return ( brush.style() <= Qt::DiagCrossPattern );
+#endif
+}
 
 class QwtPlotPrintFilter::PrivateData
 {
@@ -254,16 +266,21 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
         }
     }
 
+    if ( hasBackgroundColor(plot) )
+    {
+        QPalette p = plot->palette();
+        cache.widgetBackground = plot->palette().color(
+            QPalette::Active, Palette::Background);
+        p.setColor(QPalette::Active, Palette::Background, 
+            color(cache.widgetBackground, WidgetBackground));
+        plot->setPalette(p);
+    }
 
-    QPalette p = plot->palette();
-    cache.widgetBackground = plot->palette().color(
-        QPalette::Active, Palette::Background);
-    p.setColor(QPalette::Active, Palette::Background, 
-        color(cache.widgetBackground, WidgetBackground));
-    plot->setPalette(p);
-
-    cache.canvasBackground = plot->canvasBackground();
-    plot->setCanvasBackground(color(cache.canvasBackground, CanvasBackground));
+    if ( hasBackgroundColor(plot->canvas()))
+    {
+        cache.canvasBackground = plot->canvasBackground();
+        plot->setCanvasBackground(color(cache.canvasBackground, CanvasBackground));
+    }
 
     const QwtPlotItemList& itmList = plot->itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
@@ -469,11 +486,17 @@ void QwtPlotPrintFilter::reset(QwtPlot *plot) const
         }
     }
 
-    QPalette p = plot->palette();
-    p.setColor(QPalette::Active, Palette::Background, cache.widgetBackground);
-    plot->setPalette(p);
+    if ( hasBackgroundColor(plot) )
+    {
+        QPalette p = plot->palette();
+        p.setColor(QPalette::Active, Palette::Background, cache.widgetBackground);
+        plot->setPalette(p);
+    }
 
-    plot->setCanvasBackground(cache.canvasBackground);
+    if ( hasBackgroundColor(plot->canvas()) )
+    {
+        plot->setCanvasBackground(cache.canvasBackground);
+    }
    
     const QwtPlotItemList& itmList = plot->itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
