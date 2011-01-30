@@ -14,13 +14,9 @@ package. qwtconfig.pri is also read by qwt.prf, when building your
 application. So the first step is to edit the *.pri files to adjust 
 them to your needs.
 
-MathML Extension
-================
-
-Qwt supports the MathML render engine from the Qt solutions package.
-
-You need a release of qtmmlwidget >= 2.1.
-Copy the files qtmmlwidget.[cpp|h] to textengines/mathml.
+The subdirs template of qmake is known to be buggy when using spaces 
+in path names. So better don't build Qwt below a path name with spaces. 
+( Otherwise you might have to run qmake in all subdirs manually ).
 
 Documentation
 ==========================
@@ -35,6 +31,15 @@ Qwt includes a class documentation, that is available in various formats:
 
 Building Qwt
 ==========================
+
+The easiest way to build Qwt is from the command line. Using an IDE 
+for building Qwt might introduce problems without offering any benefits.
+Of course this doesn't mean, that you shouldn't use your favourite IDE 
+to develop your application with Qwt.
+
+When you insist on using an IDE you have to take care, that it
+builds Qwt in its source directory. F.e in the Qt Creator you might have
+to disable the "Shadow Build" option on the "Build Settings" tab.
 
 A) Unix 
 --------
@@ -64,6 +69,8 @@ make
 B) Win32/MSVC 
 --------
 
+Check that your Qt version has been built with MSVC - not with MinGW !
+
 Please read the qmake documentation how to convert 
 your *.pro files into your development environment.
 
@@ -86,8 +93,11 @@ executable.
 C) Win32/MinGW 
 --------
 
+Check that your Qt version has been built with MinGW - not with MSVC !
+
 Start a Shell, where Qt4 is initialized. ( F.e. with
 "Programs->Qt by Trolltech ...->Qt 4.x.x Command Prompt" ).
+Check if you can execute "make" or something like "mingw32-make".
 
 qmake qwt.pro
 make
