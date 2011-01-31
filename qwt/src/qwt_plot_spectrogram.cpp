@@ -407,14 +407,14 @@ QImage QwtPlotSpectrogram::renderImage(
         return QImage();
     }
 
+    const QwtInterval intensityRange = d_data->data->interval( Qt::ZAxis );
+    if ( !intensityRange.isValid() )
+        return QImage();
+
     QImage::Format format = ( d_data->colorMap->format() == QwtColorMap::RGB )
         ? QImage::Format_ARGB32 : QImage::Format_Indexed8;
 
     QImage image( imageSize, format );
-
-    const QwtInterval intensityRange = d_data->data->interval( Qt::ZAxis );
-    if ( !intensityRange.isValid() )
-        return image;
 
     if ( d_data->colorMap->format() == QwtColorMap::Indexed )
         image.setColorTable( d_data->colorMap->colorTable( intensityRange ) );
