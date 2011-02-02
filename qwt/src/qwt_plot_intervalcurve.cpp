@@ -286,7 +286,7 @@ void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
     if ( from < 0 )
         from = 0;
 
-    if ( from >= to )
+    if ( from > to )
         return;
 
     switch ( d_data->style )
