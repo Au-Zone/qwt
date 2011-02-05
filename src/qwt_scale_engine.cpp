@@ -772,7 +772,7 @@ QwtValueList QwtLog10ScaleEngine::buildMajorTicks(
 
     ticks += interval.minValue();
 
-    for (int i = 1; i < numTicks; i++)
+    for (int i = 1; i < numTicks - 1; i++)
        ticks += exp(lxmin + double(i) * lstep);
 
     ticks += interval.maxValue();
