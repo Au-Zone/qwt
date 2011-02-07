@@ -54,7 +54,8 @@ public:
          Build a scale which is symmetric to the reference() value.
        - Floating\n
          The endpoints of the scale are supposed to be equal the
-         outmost included values plus the specified margins (see setMargins()).          If this attribute is *not* set, the endpoints of the scale will
+         outmost included values plus the specified margins (see setMargins()).
+         If this attribute is *not* set, the endpoints of the scale will
          be integer multiples of the step size.
        - Inverted\n
          Turn the scale upside down.

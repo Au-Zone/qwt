@@ -234,7 +234,7 @@ void QwtRoundScaleDraw::drawBackbone( QPainter *painter ) const
 /*!
    Calculate the extent of the scale
 
-   The extent is the distcance between the baseline to the outermost
+   The extent is the distance between the baseline to the outermost
    pixel of the scale draw. radius() + extent() is an upper limit
    for the radius of the bounding circle.
 
