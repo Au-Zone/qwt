@@ -204,12 +204,14 @@ void QwtNullPaintDevice::PaintEngine::updateState(
         d_device->updateState( state );
 }
 
+//! Constructor
 QwtNullPaintDevice::QwtNullPaintDevice( 
     QPaintEngine::PaintEngineFeatures features )
 {
     init( features );
 }
 
+//! Constructor
 QwtNullPaintDevice::QwtNullPaintDevice( const QSize &size,
     QPaintEngine::PaintEngineFeatures features )
 {
@@ -224,27 +226,43 @@ void QwtNullPaintDevice::init(
     d_data = new PrivateData;
 }
 
+//! Destructor
 QwtNullPaintDevice::~QwtNullPaintDevice()
 {
     delete d_engine;
     delete d_data;
 }
 
+/*!
+   Set the size of the paint device
+
+   \param size Size
+   \sa size()
+*/
 void QwtNullPaintDevice::setSize( const QSize & size )
 {
     d_data->size = size;
 }
 
+/*! 
+    \return Size of the paint device
+    \sa setSize()
+*/
 QSize QwtNullPaintDevice::size() const
 {
     return d_data->size;
 }
 
+//! See QPaintDevice::paintEngine()
 QPaintEngine *QwtNullPaintDevice::paintEngine() const
 {
     return d_engine;
 }
 
+/*! 
+    See QPaintDevice::metric()
+    \sa setSize()
+*/
 int QwtNullPaintDevice::metric( PaintDeviceMetric metric ) const
 {
     static QPixmap pm;
@@ -278,6 +296,7 @@ int QwtNullPaintDevice::metric( PaintDeviceMetric metric ) const
 
 }
 
+//! See QPaintEngine::drawRects()
 void QwtNullPaintDevice::drawRects(
     const QRect *rects, int rectCount)
 {
@@ -285,6 +304,7 @@ void QwtNullPaintDevice::drawRects(
     Q_UNUSED(rectCount);
 }
 
+//! See QPaintEngine::drawRects()
 void QwtNullPaintDevice::drawRects(
     const QRectF *rects, int rectCount)
 {
@@ -292,6 +312,7 @@ void QwtNullPaintDevice::drawRects(
     Q_UNUSED(rectCount);
 }
 
+//! See QPaintEngine::drawLines()
 void QwtNullPaintDevice::drawLines(
     const QLine *lines, int lineCount)
 {
@@ -299,6 +320,7 @@ void QwtNullPaintDevice::drawLines(
     Q_UNUSED(lineCount);
 }
 
+//! See QPaintEngine::drawLines()
 void QwtNullPaintDevice::drawLines(
     const QLineF *lines, int lineCount)
 {
@@ -306,21 +328,25 @@ void QwtNullPaintDevice::drawLines(
     Q_UNUSED(lineCount);
 }
 
+//! See QPaintEngine::drawEllipse()
 void QwtNullPaintDevice::drawEllipse( const QRectF &rect )
 {
     Q_UNUSED(rect);
 }
 
+//! See QPaintEngine::drawEllipse()
 void QwtNullPaintDevice::drawEllipse( const QRect &rect )
 {
     Q_UNUSED(rect);
 }
 
+//! See QPaintEngine::drawPath()
 void QwtNullPaintDevice::drawPath( const QPainterPath &path )
 {
     Q_UNUSED(path);
 }
 
+//! See QPaintEngine::drawPoints()
 void QwtNullPaintDevice::drawPoints(
     const QPointF *points, int pointCount)
 {
@@ -328,6 +354,7 @@ void QwtNullPaintDevice::drawPoints(
     Q_UNUSED(pointCount);
 }
 
+//! See QPaintEngine::drawPoints()
 void QwtNullPaintDevice::drawPoints(
     const QPoint *points, int pointCount)
 {
@@ -335,6 +362,7 @@ void QwtNullPaintDevice::drawPoints(
     Q_UNUSED(pointCount);
 }
 
+//! See QPaintEngine::drawPolygon()
 void QwtNullPaintDevice::drawPolygon(
     const QPointF *points, int pointCount, 
     QPaintEngine::PolygonDrawMode mode)
@@ -344,6 +372,7 @@ void QwtNullPaintDevice::drawPolygon(
     Q_UNUSED(mode);
 }
 
+//! See QPaintEngine::drawPolygon()
 void QwtNullPaintDevice::drawPolygon(
     const QPoint *points, int pointCount, 
     QPaintEngine::PolygonDrawMode mode)
@@ -353,6 +382,7 @@ void QwtNullPaintDevice::drawPolygon(
     Q_UNUSED(mode);
 }
 
+//! See QPaintEngine::drawPixmap()
 void QwtNullPaintDevice::drawPixmap( const QRectF &rect, 
     const QPixmap &pm, const QRectF &subRect )
 {
@@ -361,6 +391,7 @@ void QwtNullPaintDevice::drawPixmap( const QRectF &rect,
     Q_UNUSED(subRect);
 }
 
+//! See QPaintEngine::drawTextItem()
 void QwtNullPaintDevice::drawTextItem(
     const QPointF &pos, const QTextItem &textItem)
 {
@@ -368,6 +399,7 @@ void QwtNullPaintDevice::drawTextItem(
     Q_UNUSED(textItem);
 }
 
+//! See QPaintEngine::drawTiledPixmap()
 void QwtNullPaintDevice::drawTiledPixmap(
     const QRectF &rect, const QPixmap &pixmap, 
     const QPointF &subRect)
@@ -377,6 +409,7 @@ void QwtNullPaintDevice::drawTiledPixmap(
     Q_UNUSED(subRect);
 }
 
+//! See QPaintEngine::drawImage()
 void QwtNullPaintDevice::drawImage(
     const QRectF &rect, const QImage &image, 
     const QRectF &subRect, Qt::ImageConversionFlags flags)
@@ -387,6 +420,7 @@ void QwtNullPaintDevice::drawImage(
     Q_UNUSED(flags);
 }
 
+//! See QPaintEngine::updateState()
 void QwtNullPaintDevice::updateState( 
     const QPaintEngineState &state )
 {
