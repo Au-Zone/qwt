@@ -353,7 +353,7 @@ void QwtPlot::updateLayout()
     if ( !d_data->lblTitle->text().isEmpty() )
     {
         d_data->lblTitle->setGeometry( titleRect );
-        if ( !d_data->lblTitle->isVisible() )
+        if ( !d_data->lblTitle->isVisibleTo( this ) )
             d_data->lblTitle->show();
     }
     else
@@ -377,7 +377,7 @@ void QwtPlot::updateLayout()
 
                 axisWidget( axisId )->setMask( r );
             }
-            if ( !axisWidget( axisId )->isVisible() )
+            if ( !axisWidget( axisId )->isVisibleTo( this ) )
                 axisWidget( axisId )->show();
         }
         else

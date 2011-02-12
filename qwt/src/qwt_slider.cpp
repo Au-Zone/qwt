@@ -480,7 +480,7 @@ void QwtSlider::getScrollMode( const QPoint &p,
     scrollMode = ScrPage;
     direction = ( pos > markerPos ) ? 1 : -1;
 
-    if ( scaleDraw()->map().p1() > scaleDraw()->map().p2() )
+    if ( scaleDraw()->scaleMap().p1() > scaleDraw()->scaleMap().p2() )
         direction = -direction;
 }
 
@@ -648,8 +648,8 @@ void QwtSlider::layoutSlider( bool update_geometry )
     scaleDraw()->move( x, y );
     scaleDraw()->setLength( length );
 
-    d_data->map.setPaintInterval( scaleDraw()->map().p1(),
-        scaleDraw()->map().p2() );
+    d_data->map.setPaintInterval( scaleDraw()->scaleMap().p1(),
+        scaleDraw()->scaleMap().p2() );
 
     if ( update_geometry )
     {

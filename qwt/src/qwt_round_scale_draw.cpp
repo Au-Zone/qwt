@@ -145,7 +145,7 @@ void QwtRoundScaleDraw::drawLabel( QPainter *painter, double value ) const
     if ( label.isEmpty() )
         return;
 
-    const double tval = map().transform( value );
+    const double tval = scaleMap().transform( value );
     if ( ( tval > d_data->startAngle + 359 * 16 )
         || ( tval < d_data->startAngle - 359 * 16 ) )
     {
@@ -189,7 +189,7 @@ void QwtRoundScaleDraw::drawTick( QPainter *painter, double value, double len ) 
     if ( len <= 0 )
         return;
 
-    const double tval = map().transform( value );
+    const double tval = scaleMap().transform( value );
 
     const double cx = d_data->center.x();
     const double cy = d_data->center.y();
@@ -220,8 +220,8 @@ void QwtRoundScaleDraw::drawTick( QPainter *painter, double value, double len ) 
 */
 void QwtRoundScaleDraw::drawBackbone( QPainter *painter ) const
 {
-    const double a1 = qMin( map().p1(), map().p2() ) - 90 * 16;
-    const double a2 = qMax( map().p1(), map().p2() ) - 90 * 16;
+    const double a1 = qMin( scaleMap().p1(), scaleMap().p2() ) - 90 * 16;
+    const double a2 = qMax( scaleMap().p1(), scaleMap().p2() ) - 90 * 16;
 
     const double radius = d_data->radius;
     const double x = d_data->center.x() - radius;
@@ -263,7 +263,7 @@ double QwtRoundScaleDraw::extent( const QFont &font ) const
             if ( label.isEmpty() )
                 continue;
 
-            const double tval = map().transform( value );
+            const double tval = scaleMap().transform( value );
             if ( ( tval < d_data->startAngle + 360 * 16 )
                 && ( tval > d_data->startAngle - 360 * 16 ) )
             {

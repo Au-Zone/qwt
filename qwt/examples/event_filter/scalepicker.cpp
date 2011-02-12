@@ -47,25 +47,25 @@ void ScalePicker::mouseClicked(const QwtScaleWidget *scale, const QPoint &pos)
         {
             case QwtScaleDraw::LeftScale:
             {
-                value = sd->map().invTransform(pos.y());
+                value = sd->scaleMap().invTransform(pos.y());
                 axis = QwtPlot::yLeft;
                 break;
             }
             case QwtScaleDraw::RightScale:
             {
-                value = sd->map().invTransform(pos.y());
+                value = sd->scaleMap().invTransform(pos.y());
                 axis = QwtPlot::yRight;
                 break;
             }
             case QwtScaleDraw::BottomScale:
             {
-                value = sd->map().invTransform(pos.x());
+                value = sd->scaleMap().invTransform(pos.x());
                 axis = QwtPlot::xBottom;
                 break;
             }
             case QwtScaleDraw::TopScale:
             {
-                value = sd->map().invTransform(pos.x());
+                value = sd->scaleMap().invTransform(pos.x());
                 axis = QwtPlot::xTop;
                 break;
             }

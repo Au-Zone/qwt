@@ -125,19 +125,19 @@ void QwtScaleDraw::getBorderDistHint( const QFont &font,
     // in widget coordinates.
 
     double minTick = ticks[0];
-    double minPos = map().transform( minTick );
+    double minPos = scaleMap().transform( minTick );
     double maxTick = minTick;
     double maxPos = minPos;
 
     for ( uint i = 1; i < ( uint )ticks.count(); i++ )
     {
-        const double tickPos = map().transform( ticks[i] );
+        const double tickPos = scaleMap().transform( ticks[i] );
         if ( tickPos < minPos )
         {
             minTick = ticks[i];
             minPos = tickPos;
         }
-        if ( tickPos > map().transform( maxTick ) )
+        if ( tickPos > scaleMap().transform( maxTick ) )
         {
             maxTick = ticks[i];
             maxPos = tickPos;
@@ -149,18 +149,18 @@ void QwtScaleDraw::getBorderDistHint( const QFont &font,
     if ( orientation() == Qt::Vertical )
     {
         s = -labelRect( font, minTick ).top();
-        s -= qAbs( minPos - qRound( map().p2() ) );
+        s -= qAbs( minPos - qRound( scaleMap().p2() ) );
 
         e = labelRect( font, maxTick ).bottom();
-        e -= qAbs( maxPos - map().p1() );
+        e -= qAbs( maxPos - scaleMap().p1() );
     }
     else
     {
         s = -labelRect( font, minTick ).left();
-        s -= qAbs( minPos - map().p1() );
+        s -= qAbs( minPos - scaleMap().p1() );
 
         e = labelRect( font, maxTick ).right();
-        e -= qAbs( maxPos - map().p2() );
+        e -= qAbs( maxPos - scaleMap().p2() );
     }
 
     if ( s < 0.0 )
@@ -346,7 +346,7 @@ int QwtScaleDraw::minLength( const QFont &font ) const
 */
 QPointF QwtScaleDraw::labelPosition( double value ) const
 {
-    const double tval = map().transform( value );
+    const double tval = scaleMap().transform( value );
     double dist = spacing();
     if ( hasComponent( QwtAbstractScaleDraw::Backbone ) )
         dist += qMax( 1, penWidth() );
@@ -404,10 +404,9 @@ void QwtScaleDraw::drawTick( QPainter *painter, double value, double len ) const
 
     const bool roundingAlignment = QwtPainter::roundingAlignment( painter );
 
-    QwtScaleMap scaleMap = map();
     QPointF pos = d_data->pos;
 
-    double tval = scaleMap.transform( value );
+    double tval = scaleMap().transform( value );
     if ( roundingAlignment )
         tval = qRound( tval );
 
