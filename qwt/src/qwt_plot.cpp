@@ -97,6 +97,8 @@ void QwtPlot::initPlot( const QwtText &title )
 
     setSizePolicy( QSizePolicy::MinimumExpanding,
         QSizePolicy::MinimumExpanding );
+
+    resize( 200, 200 );
 }
 
 /*!
