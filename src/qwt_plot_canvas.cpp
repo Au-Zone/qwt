@@ -41,6 +41,10 @@ public:
     {
         if ( state.state() == QPaintEngine::DirtyPen )
             d_pen = state.pen();
+        if ( state.state() == QPaintEngine::DirtyBrush )
+            d_brush = state.brush();
+        if ( state.state() == QPaintEngine::DirtyBrushOrigin )
+            d_origin = state.brushOrigin();
     }
 
     virtual void drawPath( const QPainterPath &path )
@@ -50,10 +54,18 @@ public:
             setCornerRects( path );
             alignCornerRects( QRectF( QPointF( 0.0, 0.0 ) , size() ) );
 
-            borderPath = path;
+            background.path = path;
+			background.brush = d_brush;
+			background.origin = d_origin;
         }
-        if ( d_pathCount == 1 )
-            borderPen = d_pen;
+		else
+		{
+			border.pathList += path;
+			
+        	if ( d_pathCount == 1 )
+            	border.pen = d_pen;
+			
+		}
 
         d_pathCount++;
     }
@@ -123,12 +135,25 @@ public:
 
 public:
     QVector<QRectF> clipRects;
-    QPainterPath borderPath;
-    QPen borderPen;
+
+	struct
+	{
+		QList<QPainterPath> pathList;
+		QPen pen;
+	} border;
+
+	struct
+	{
+    	QPainterPath path;
+		QBrush brush;
+		QPointF origin;
+	} background;
 
 private:
     uint d_pathCount;
     QPen d_pen;
+    QBrush d_brush;
+	QPointF d_origin;
 };
 
 static inline void qwtDrawStyledBackground( 
@@ -202,13 +227,13 @@ static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect )
 
     // The algorithm below doesn't take care of the pixels filled by
     // antialiasing - but int the end this is not important as
-    // the only way to get a perferct soltion is to paint the border
-    // at last.
+    // the only way to get a perfect solution is to paint the border
+    // last.
 
     QBitmap bitmap( cRect.size() );
     bitmap.fill( Qt::color0 );
 
-    QPen pen( clipLogger.borderPen );
+    QPen pen( clipLogger.border.pen );
     if ( pen.style() != Qt::NoPen )
     {
         pen.setStyle( Qt::SolidLine );
@@ -219,7 +244,7 @@ static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect )
     painter.translate( -cRect.topLeft() );
     painter.setPen( pen );
     painter.setBrush( Qt::color1 );
-    painter.drawPath( clipLogger.borderPath );
+    painter.drawPath( clipLogger.background.path );
     painter.end();
 
     QRegion region = bitmap;

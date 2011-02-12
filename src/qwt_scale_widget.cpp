@@ -392,6 +392,20 @@ int QwtScaleWidget::spacing() const
 */
 void QwtScaleWidget::paintEvent( QPaintEvent *event )
 {
+#if 1
+    /*
+       The layout engine needs its own results to work properly.
+       Usually it is called twice ( and more ) - at least for polish
+       an resize events, but in certain situations ( f.e. when the
+       the plot widget is on a hidden tab of a tab widget ) the
+       events are delivered in a different order and the layout is 
+       not calculated properly.
+
+       As workaround we explicitely calculate it once more here -
+       but of course the layout engine needs to be fixed ( done in Qwt 6.x ).
+     */
+    layoutScale( false );
+#endif
     QPainter painter( this );
     painter.setClipRegion( event->region() );
 
@@ -573,7 +587,7 @@ void QwtScaleWidget::drawColorBar( QPainter *painter, const QRectF& rect ) const
     const QwtScaleDraw* sd = d_data->scaleDraw;
 
     QwtPainter::drawColorBar( painter, *d_data->colorBar.colorMap,
-        d_data->colorBar.interval.normalized(), sd->map(),
+        d_data->colorBar.interval.normalized(), sd->scaleMap(),
         sd->orientation(), rect );
 }
 
@@ -806,7 +820,7 @@ void QwtScaleWidget::setScaleDiv(
 {
     QwtScaleDraw *sd = d_data->scaleDraw;
     if ( sd->scaleDiv() != scaleDiv ||
-        sd->map().transformation()->type() != transformation->type() )
+        sd->scaleMap().transformation()->type() != transformation->type() )
     {
         sd->setTransformation( transformation );
         sd->setScaleDiv( scaleDiv );

@@ -57,7 +57,8 @@ public:
     const QwtScaleDiv& scaleDiv() const;
 
     void setTransformation( QwtScaleTransformation * );
-    const QwtScaleMap &map() const;
+    const QwtScaleMap &scaleMap() const;
+    QwtScaleMap &scaleMap();
 
     void enableComponent( ScaleComponent, bool enable = true );
     bool hasComponent( ScaleComponent ) const;
@@ -89,8 +90,6 @@ public:
 
     void setMinimumExtent( double );
     double minimumExtent() const;
-
-    QwtScaleMap &scaleMap();
 
 protected:
     /*!

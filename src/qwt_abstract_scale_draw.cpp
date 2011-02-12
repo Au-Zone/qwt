@@ -111,7 +111,7 @@ void QwtAbstractScaleDraw::setTransformation(
 }
 
 //! \return Map how to translate between scale and pixel values
-const QwtScaleMap &QwtAbstractScaleDraw::map() const
+const QwtScaleMap &QwtAbstractScaleDraw::scaleMap() const
 {
     return d_data->map;
 }
