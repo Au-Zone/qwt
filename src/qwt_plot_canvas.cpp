@@ -55,17 +55,17 @@ public:
             alignCornerRects( QRectF( QPointF( 0.0, 0.0 ) , size() ) );
 
             background.path = path;
-			background.brush = d_brush;
-			background.origin = d_origin;
+            background.brush = d_brush;
+            background.origin = d_origin;
         }
-		else
-		{
-			border.pathList += path;
-			
-        	if ( d_pathCount == 1 )
-            	border.pen = d_pen;
-			
-		}
+        else
+        {
+            border.pathList += path;
+            
+            if ( d_pathCount == 1 )
+                border.pen = d_pen;
+            
+        }
 
         d_pathCount++;
     }
@@ -136,24 +136,24 @@ public:
 public:
     QVector<QRectF> clipRects;
 
-	struct
-	{
-		QList<QPainterPath> pathList;
-		QPen pen;
-	} border;
+    struct
+    {
+        QList<QPainterPath> pathList;
+        QPen pen;
+    } border;
 
-	struct
-	{
-    	QPainterPath path;
-		QBrush brush;
-		QPointF origin;
-	} background;
+    struct
+    {
+        QPainterPath path;
+        QBrush brush;
+        QPointF origin;
+    } background;
 
 private:
     uint d_pathCount;
     QPen d_pen;
     QBrush d_brush;
-	QPointF d_origin;
+    QPointF d_origin;
 };
 
 static inline void qwtDrawStyledBackground( 
