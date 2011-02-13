@@ -152,12 +152,16 @@ void QwtPicker::PickerWidget::updateMask()
         }
     }
 
-    // The parent widget gets an update for its complete rectangle
-    // when the mask is changed in visible state.
-    // With this hide/show we only get an update for the
-    // previous mask.
+    QWidget *w = parentWidget();
+    if ( w && !w->testAttribute( Qt::WA_PaintOnScreen ) )
+    {
+        // The parent widget gets an update for its complete rectangle
+        // when the mask is changed in visible state.
+        // With this hide/show we only get an update for the
+        // previous mask.
 
-    hide();
+        hide();
+    }
     setMask( mask );
     setVisible( !mask.isEmpty() );
 }

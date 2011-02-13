@@ -16,6 +16,20 @@ public:
     Zoomer(QwtPlotCanvas *canvas):
         ScrollZoomer(canvas)
     {
+#if 0
+        setRubberBandPen(QPen(Qt::red, 2, Qt::DotLine));
+#else
+        setRubberBandPen(QPen(Qt::red));
+#endif
+    }
+
+    virtual QwtText trackerTextF(const QPointF &pos) const
+    {
+        QColor bg(Qt::white);
+
+        QwtText text = QwtPlotZoomer::trackerTextF(pos);
+        text.setBackgroundBrush( QBrush( bg ));
+        return text;
     }
 
     virtual void rescale()
@@ -66,9 +80,7 @@ RandomPlot::RandomPlot(QWidget *parent):
 
     // enable zooming
 
-    Zoomer *zoomer = new Zoomer(canvas());
-    zoomer->setRubberBandPen(QPen(Qt::red, 2, Qt::DotLine));
-    zoomer->setTrackerPen(QPen(Qt::red));
+    (void) new Zoomer(canvas());
 }
 
 QSize RandomPlot::sizeHint() const
