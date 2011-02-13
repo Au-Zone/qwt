@@ -274,8 +274,15 @@ static inline void qwtDrawLineSymbols(
 {
     const QSize size = symbol.size();
 
+    int off = 0;
+
     QPen pen = symbol.pen();
-    pen.setCapStyle( Qt::FlatCap );
+    if ( pen.width() > 1 )
+    {
+        pen.setCapStyle( Qt::FlatCap );
+        off = 1;
+    }
+
     painter->setPen( pen );
     painter->setRenderHint( QPainter::Antialiasing, false );
 
@@ -293,14 +300,14 @@ static inline void qwtDrawLineSymbols(
                 const int x = qRound( points[i].x() ) - sw2;
                 const int y = qRound( points[i].y() );
 
-                QwtPainter::drawLine( painter, x, y, x + sw, y );
+                QwtPainter::drawLine( painter, x, y, x + sw + off, y );
             }
             if ( orientations & Qt::Vertical )
             {
                 const int x = qRound( points[i].x() );
                 const int y = qRound( points[i].y() ) - sh2;
 
-                QwtPainter::drawLine( painter, x, y, x, y + sh );
+                QwtPainter::drawLine( painter, x, y, x, y + sh + off );
             }
         }
     }
@@ -335,9 +342,14 @@ static inline void qwtDrawXCrossSymbols( QPainter *painter,
     const QPointF *points, int numPoints, const QwtSymbol &symbol )
 {
     const QSize size = symbol.size();
+    int off = 0;
 
     QPen pen = symbol.pen();
-    pen.setCapStyle( Qt::FlatCap );
+    if ( pen.width() > 1 )
+    {
+        pen.setCapStyle( Qt::FlatCap );
+        off = 1;
+    }
     painter->setPen( pen );
 
 
@@ -356,9 +368,9 @@ static inline void qwtDrawXCrossSymbols( QPainter *painter,
             const int y = qRound( pos.y() );
 
             const int x1 = x - sw2;
-            const int x2 = x1 + sw;
+            const int x2 = x1 + sw + off;
             const int y1 = y - sh2;
-            const int y2 = y1 + sh;
+            const int y2 = y1 + sh + off;
 
             QwtPainter::drawLine( painter, x1, y1, x2, y2 );
             QwtPainter::drawLine( painter, x2, y1, x1, y2 );
@@ -452,7 +464,8 @@ static inline void qwtDrawStar2Symbols( QPainter *painter,
     const QPointF *points, int numPoints, const QwtSymbol &symbol )
 {
     QPen pen = symbol.pen();
-    pen.setCapStyle( Qt::FlatCap );
+    if ( pen.width() > 1 )
+        pen.setCapStyle( Qt::FlatCap );
     pen.setJoinStyle( Qt::MiterJoin );
     painter->setPen( pen );
 
