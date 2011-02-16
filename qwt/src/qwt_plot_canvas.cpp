@@ -319,7 +319,7 @@ const QwtPlot *QwtPlotCanvas::plot() const
   \param attribute Paint attribute
   \param on On/Off
 
-  \sa testPaintAttribute(), drawCanvas(), drawContents(), paintCache()
+  \sa testPaintAttribute(), backingStore()
 */
 void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 {
@@ -437,37 +437,105 @@ bool QwtPlotCanvas::event( QEvent *event )
 */
 void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 {
+    const QRect cr = contentsRect();
+
     QPainter painter( this );
     painter.setClipRegion( event->region() );
 
     if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
     {
-        if ( testPaintAttribute( QwtPlotCanvas::BackingStore )
-            && contentsRect().contains( event->rect() ) )
-        {
-            // When we have a backingstore and the update region
-            // is completely inside the contents rectangle
-            // we can update completely update from the backingstore
-            // and don't need to paint a background
-        }
-        else
-        {
-            painter.save();
-            drawBackground( &painter );
-            painter.restore();
-        }
-    }
-    
-    if ( frameWidth() > 0 && !contentsRect().contains( event->rect() ) )
-    {
-        painter.save();
-        drawFrame( &painter );
-        painter.restore();
-    }
-    
-    painter.setClipRegion( contentsRect(), Qt::IntersectClip );
+        bool drawBackground = true;
 
-    drawContents( &painter );
+        if ( testPaintAttribute( QwtPlotCanvas::BackingStore )
+            && d_data->backingStore )
+        {
+            // When we have a backingstore, we can update
+            // completely from the backingstore in certain
+            // situations.
+
+            if ( cr.contains( event->rect() ) )
+            {
+                // the update region is completely inside the 
+                // cached contents rectangle
+                drawBackground = false;
+            }
+            else if ( !testAttribute(Qt::WA_StyledBackground ) )
+            {
+                // The widget might be covered completely by frame
+                // and the cached contents rect
+
+                if ( frameRect() == rect() && frameWidth() > 0 )
+                {
+                    int fw = frameWidth();
+                    QRect innerRect = frameRect().adjusted( fw, fw, -fw, -fw );
+                    if ( cr.contains( innerRect ) )
+                        drawBackground = false;
+                }
+            }
+        }
+
+        if ( drawBackground )
+        {
+            if ( testAttribute(Qt::WA_StyledBackground ) )
+            {
+                drawStyledBackground( &painter );
+            }
+            else if ( autoFillBackground() )
+            {
+                painter.fillRect( rect(), palette().brush( backgroundRole() ) );
+            }   
+        }
+    }
+    
+    if ( frameWidth() > 0 && !cr.contains( event->rect() ) )
+        drawFrame( &painter );
+    
+    painter.save();
+    painter.setClipRegion( cr, Qt::IntersectClip );
+
+    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) 
+        && d_data->backingStore )
+    {
+        QPixmap &bs = *d_data->backingStore;
+        if ( bs.size() != cr.size() )
+        {
+            bs = QPixmap( cr.size() );
+
+#ifdef Q_WS_X11
+            if ( bs.x11Info().screen() != x11Info().screen() )
+                bs.x11SetScreen( x11Info().screen() );
+#endif
+
+            if ( testAttribute(Qt::WA_StyledBackground) )
+            {
+                QPainter bgPainter( &bs );
+                bgPainter.translate( -cr.topLeft() );
+                drawStyledBackground( &bgPainter );
+            }
+            else
+            {
+                bs.fill( this, cr.topLeft() );
+            }
+
+            QPainter cachePainter( &bs );
+            cachePainter.translate( -cr.topLeft() );
+
+            cachePainter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
+            plot()->drawCanvas( &cachePainter );
+        }
+
+        painter.drawPixmap( contentsRect().topLeft(), *d_data->backingStore );
+    }
+    else
+    {
+        painter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
+        plot()->drawCanvas( &painter );
+    }
+
+    painter.restore();
+
+    if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
+        drawFocusIndicator( &painter );
 }
 
 /*!
@@ -492,172 +560,64 @@ void QwtPlotCanvas::changeEvent( QEvent *event )
     QFrame::changeEvent( event );
 }
 
-void QwtPlotCanvas::drawBackground( QPainter *painter )
+void QwtPlotCanvas::drawStyledBackground( QPainter *painter )
 {
-    if ( testAttribute(Qt::WA_StyledBackground ) )
-    {
 #if DEBUG_BACKGROUND
-        QTime time;
-        time.start();
+    QTime time;
+    time.start();
 
-        int d1 = 0;
-        int d2 = 0;
-#endif
-        
-        QwtClipLogger clipLogger( size() );
-
-        QPainter p( &clipLogger );
-        qwtDrawStyledBackground( this, &p );
-        p.end();
-
-#if DEBUG_BACKGROUND
-        d1 = time.elapsed();
-#endif
-
-        QRegion clipRegion;
-        if ( painter->hasClipping() )
-            clipRegion = painter->transform().map( painter->clipRegion() );
-        else
-            clipRegion = contentsRect();
-
-        QWidget *bgWidget = NULL;
-
-        for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
-        {
-            const QRect rect = clipLogger.clipRects[i].toAlignedRect();
-            if ( clipRegion.intersects( rect ) )
-            {
-                if ( bgWidget == NULL )
-                {
-                    // Try to find out which widget fills
-                    // the unfilled areas of the styled background
-
-                    bgWidget = qwtBackgroundWidget( parentWidget() );
-                }
-
-                QPixmap pm( rect.size() );
-                pm.fill( bgWidget, mapTo( bgWidget, rect.topLeft() ) );
-                painter->drawPixmap( rect, pm );
-            }
-        }
-
-#if DEBUG_BACKGROUND
-        d2 = time.elapsed();
+    int d1 = 0;
+    int d2 = 0;
 #endif
     
-        qwtDrawStyledBackground( this, painter );
+    QwtClipLogger clipLogger( size() );
+
+    QPainter p( &clipLogger );
+    qwtDrawStyledBackground( this, &p );
+    p.end();
 
 #if DEBUG_BACKGROUND
-        int d3 = time.elapsed();
-        qDebug() << "QwtPlotCanvas::drawBackground: "
-            << d2 - d1 << d3 - d2 << " -> " << d3;
+    d1 = time.elapsed();
 #endif
 
-    }
-    else if ( autoFillBackground() )
-    {
-        const int fw = frameWidth();
-        
-        QRegion clipRegion = rect().adjusted( fw, fw, -fw, -fw );
-        if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) )
-            clipRegion -= contentsRect();
-
-        if ( painter->hasClipping() )
-            clipRegion &= painter->clipRegion();
-
-        if ( !clipRegion.isEmpty() )
-        {   
-            const QBrush autoFillBrush = 
-                palette().brush(backgroundRole());
-            
-            painter->setClipRegion( clipRegion );
-            painter->setPen( Qt::NoPen );
-            painter->setBrush( autoFillBrush );
-            painter->drawRect( rect() );
-        }   
-    }   
-}
-
-/*!
-  Redraw the canvas, and focus rect
-  \param painter Painter
-*/
-void QwtPlotCanvas::drawContents( QPainter *painter )
-{
-    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) 
-        && d_data->backingStore
-        && d_data->backingStore->size() == contentsRect().size() )
-    {
-        painter->drawPixmap( contentsRect().topLeft(), *d_data->backingStore );
-    }
+    QRegion clipRegion;
+    if ( painter->hasClipping() )
+        clipRegion = painter->transform().map( painter->clipRegion() );
     else
+        clipRegion = contentsRect();
+
+    QWidget *bgWidget = NULL;
+
+    for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
     {
-        QwtPlot *plot = ( ( QwtPlot * )parent() );
-        const bool doAutoReplot = plot->autoReplot();
-        plot->setAutoReplot( false );
+        const QRect rect = clipLogger.clipRects[i].toAlignedRect();
+        if ( clipRegion.intersects( rect ) )
+        {
+            if ( bgWidget == NULL )
+            {
+                // Try to find out which widget fills
+                // the unfilled areas of the styled background
 
-        drawCanvas( painter );
+                bgWidget = qwtBackgroundWidget( parentWidget() );
+            }
 
-        plot->setAutoReplot( doAutoReplot );
+            QPixmap pm( rect.size() );
+            pm.fill( bgWidget, mapTo( bgWidget, rect.topLeft() ) );
+            painter->drawPixmap( rect, pm );
+        }
     }
 
-    if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
-        drawFocusIndicator( painter );
-}
-
-/*!
-  Draw the the canvas
-
-  Paints all plot items to the contentsRect(), using QwtPlot::drawCanvas
-  and updates the paint cache.
-
-  \param painter Painter
-
-  \sa QwtPlot::drawCanvas(), setPaintAttributes(), testPaintAttributes()
-*/
-void QwtPlotCanvas::drawCanvas( QPainter *painter )
-{
-    const QRect cr = contentsRect();
-
-    if ( !cr.isValid() )
-        return;
-
-    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) 
-        && d_data->backingStore )
-    {
-        *d_data->backingStore = QPixmap( cr.size() );
-
-#ifdef Q_WS_X11
-        if ( d_data->backingStore->x11Info().screen() != x11Info().screen() )
-            d_data->backingStore->x11SetScreen( x11Info().screen() );
+#if DEBUG_BACKGROUND
+    d2 = time.elapsed();
 #endif
 
-        if ( testAttribute(Qt::WA_StyledBackground) ) 
-        {
-            QPainter bgPainter( d_data->backingStore );
-            bgPainter.translate( -cr.topLeft() );
-            drawBackground( &bgPainter );
-        }
-        else
-        {
-            d_data->backingStore->fill( this, cr.topLeft() );
-        }
+    qwtDrawStyledBackground( this, painter );
 
-        QPainter cachePainter( d_data->backingStore );
-        cachePainter.translate( -cr.topLeft() );
-
-        cachePainter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
-        ( ( QwtPlot * )parent() )->drawCanvas( &cachePainter );
-
-        cachePainter.end();
-
-        painter->drawPixmap( contentsRect(), *d_data->backingStore );
-    }
-    else
-    {
-        painter->setClipRegion( d_data->canvasClip, Qt::IntersectClip );
-        ( ( QwtPlot * )parent() )->drawCanvas( painter );
-    }
+#if DEBUG_BACKGROUND
+    int d3 = time.elapsed();
+    qDebug() << "QwtPlotCanvas::drawStyledBackground: "
+        << d2 - d1 << d3 - d2 << " -> " << d3;
+#endif
 }
 
 /*!
