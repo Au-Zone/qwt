@@ -119,14 +119,13 @@ protected:
     virtual void resizeEvent( QResizeEvent * );
     virtual void changeEvent( QEvent * );
 
-    virtual void drawBackground( QPainter * );
-    virtual void drawContents( QPainter * );
     virtual void drawFocusIndicator( QPainter * );
 
-    void drawCanvas( QPainter *painter = NULL );
     void updateCanvasClip();
 
 private:
+	void drawStyledBackground( QPainter * );
+
     class PrivateData;
     PrivateData *d_data;
 };
