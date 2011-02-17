@@ -21,7 +21,11 @@ Plot::Plot(QWidget *parent):
 
     setAutoReplot(false);
 
-    // We don't need the backing store here
+    // The backing store is important, when working with widget
+    // overlays ( f.e rubberbands for zooming ). 
+    // Here we don't have them and the internal 
+    // backing store of QWidget is good enough.
+
     canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, false);
 
 
@@ -30,8 +34,24 @@ Plot::Plot(QWidget *parent):
     // works on X11. This has a nice effect on the performance.
     
     canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
-    canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
+
+    // Disabling the backing store of Qt improves the performance
+    // for the direct painter even more, but the canvas becomes
+    // a native window of the window system, receiving paint events
+    // for resize and expose operations. Those might be expensive
+    // when there are many points and the backing store of
+    // the canvas is disabled. So in this application
+    // we better don't both backing stores.
+
+    if ( canvas()->testPaintAttribute( QwtPlotCanvas::BackingStore ) )
+    {
+        canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
+        canvas()->setAttribute(Qt::WA_NoSystemBackground, true);
+    }
+
 #endif
+
+    initGradient();
 
     plotLayout()->setAlignCanvasToScales(true);
 
@@ -69,6 +89,24 @@ Plot::Plot(QWidget *parent):
 Plot::~Plot()
 {
     delete d_directPainter;
+}
+
+void Plot::initGradient()
+{
+    QPalette pal = canvas()->palette();
+
+#if QT_VERSION >= 0x040400
+    QLinearGradient gradient( 0.0, 0.0, 1.0, 0.0 );
+    gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
+    gradient.setColorAt(0.0, QColor( 0, 49, 110 ) );
+    gradient.setColorAt(1.0, QColor( 0, 87, 174 ) );
+
+    pal.setBrush(QPalette::Window, QBrush(gradient));
+#else
+    pal.setBrush(QPalette::Window, QBrush( color ));
+#endif
+
+    canvas()->setPalette(pal);
 }
 
 void Plot::start()
@@ -186,16 +224,4 @@ void Plot::resizeEvent(QResizeEvent *event)
 {
     d_directPainter->reset();
     QwtPlot::resizeEvent(event);
-
-    const QColor color(46, 74, 95);
-    const QRect cr = canvas()->contentsRect();
-    QLinearGradient gradient(cr.topLeft(), cr.topRight());
-    gradient.setColorAt(0.0, color.light(130));
-    gradient.setColorAt(0.2, color.dark(110));
-    gradient.setColorAt(0.7, color);
-    gradient.setColorAt(1.0, color.dark(150));
-
-    QPalette pal = canvas()->palette();
-    pal.setBrush(QPalette::Window, QBrush(gradient));
-    canvas()->setPalette(pal);
 }

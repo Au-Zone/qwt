@@ -25,6 +25,8 @@ protected:
     virtual void timerEvent(QTimerEvent *);
 
 private:
+    void initGradient();
+
     void updateCurve();
     void incrementInterval();
 
