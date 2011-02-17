@@ -33,7 +33,7 @@ public:
 
   The zoomer is initialized with a QwtPickerDragRectMachine,
   the tracker mode is set to QwtPicker::ActiveOnly and the rubberband
-  is set to QwtPicker;;RectRubberBand
+  is set to QwtPicker::RectRubberBand
 
   \param canvas Plot canvas to observe, also the parent object
   \param doReplot Call replot for the attached plot before initializing

@@ -16,7 +16,7 @@
 #include "qwt_series_data.h"
 
 /*!
-  \brief Base class for plot items reprsenting a series of samples
+  \brief Base class for plot items representing a series of samples
 */
 class QWT_EXPORT QwtPlotAbstractSeriesItem: public QwtPlotItem
 {
