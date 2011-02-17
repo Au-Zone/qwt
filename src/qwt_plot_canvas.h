@@ -104,7 +104,6 @@ public:
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
 
-    QPixmap *backingStore();
     const QPixmap *backingStore() const;
     void invalidateBackingStore();
 
@@ -124,7 +123,7 @@ protected:
     void updateCanvasClip();
 
 private:
-	void drawStyledBackground( QPainter * );
+    void drawStyledBackground( QPainter * );
 
     class PrivateData;
     PrivateData *d_data;

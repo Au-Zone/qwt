@@ -156,6 +156,99 @@ private:
     QPointF d_origin;
 };
 
+static void qwtDrawBackground( QPainter *painter, QWidget *widget )
+{
+    const QBrush &brush = 
+        widget->palette().brush( widget->backgroundRole() );
+
+    if ( brush.style() == Qt::TexturePattern )
+    {
+        QPixmap pm( widget->size() );
+        pm.fill( widget, 0, 0 );
+        painter->drawPixmap( 0, 0, pm );
+    }
+    else if ( brush.gradient() )
+    {
+        QVector<QRect> rects;
+
+        if ( brush.gradient()->coordinateMode() == QGradient::ObjectBoundingMode )
+        {
+            rects += widget->rect();
+        } 
+        else 
+        {
+            rects = painter->clipRegion().rects();
+        }
+
+#if 1
+        bool useRaster = false;
+
+        if ( painter->paintEngine()->type() == QPaintEngine::X11 )
+        {
+            // Qt 4.7.1: gradients on X11 are broken ( subrects + 
+            // QGradient::StretchToDeviceMode ) and horrible slow.
+            // As workaround we have to use the raster paintengine.
+            // Even if the QImage -> QPixmap translation is slow
+            // it is three times faster, than using X11 directly
+
+            useRaster = true;
+        }
+#endif
+        if ( useRaster )
+        {
+            QImage::Format format = QImage::Format_RGB32;
+
+            const QGradientStops stops = brush.gradient()->stops();
+            for ( int i = 0; i < stops.size(); i++ )
+            {
+                if ( stops[i].second.alpha() != 255 )
+                {
+                    // don't use Format_ARGB32_Premultiplied. It's
+                    // recommended by the Qt docs, but QPainter::drawImage()
+                    // is horrible slow on X11.
+
+                    format = QImage::Format_ARGB32;
+                    break;
+                }
+            }
+            
+            QImage image( widget->size(), format );
+
+            QPainter p( &image );
+            p.setPen( Qt::NoPen );
+            p.setBrush( brush );
+
+            p.drawRects( rects );
+
+            p.end();
+
+            painter->drawImage( 0, 0, image );
+        }
+        else
+        {
+            painter->save();
+
+            painter->setPen( Qt::NoPen );
+            painter->setBrush( brush );
+
+            painter->drawRects( rects );
+
+            painter->restore();
+        }
+    }
+    else
+    {
+        painter->save();
+
+        painter->setPen( Qt::NoPen );
+        painter->setBrush( brush );
+
+        painter->drawRects( painter->clipRegion().rects() );
+
+        painter->restore();
+    }
+}
+
 static inline void qwtDrawStyledBackground( 
     QWidget *w, QPainter *painter )
 {
@@ -343,7 +436,7 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
                 if ( isVisible() )
                 {
                     *d_data->backingStore = 
-                        QPixmap::grabWidget( this, contentsRect() );
+                        QPixmap::grabWidget( this, rect() );
                 }
             }
             else
@@ -373,12 +466,6 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 bool QwtPlotCanvas::testPaintAttribute( PaintAttribute attribute ) const
 {
     return ( d_data->paintAttributes & attribute ) != 0;
-}
-
-//! Return the backing store, might be null
-QPixmap *QwtPlotCanvas::backingStore()
-{
-    return d_data->backingStore;
 }
 
 //! Return the backing store, might be null
@@ -437,44 +524,46 @@ bool QwtPlotCanvas::event( QEvent *event )
 */
 void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 {
-    const QRect cr = contentsRect();
-
     QPainter painter( this );
     painter.setClipRegion( event->region() );
 
-    if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
+    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) &&
+        d_data->backingStore != NULL )
     {
-        bool drawBackground = true;
-
-        if ( testPaintAttribute( QwtPlotCanvas::BackingStore )
-            && d_data->backingStore )
+        QPixmap &bs = *d_data->backingStore;
+        if ( bs.size() != size() )
         {
-            // When we have a backingstore, we can update
-            // completely from the backingstore in certain
-            // situations.
+            bs = QPixmap( size() );
 
-            if ( cr.contains( event->rect() ) )
-            {
-                // the update region is completely inside the 
-                // cached contents rectangle
-                drawBackground = false;
-            }
-            else if ( !testAttribute(Qt::WA_StyledBackground ) )
-            {
-                // The widget might be covered completely by frame
-                // and the cached contents rect
+#ifdef Q_WS_X11
+            if ( bs.x11Info().screen() != x11Info().screen() )
+                bs.x11SetScreen( x11Info().screen() );
+#endif
 
-                if ( frameRect() == rect() && frameWidth() > 0 )
-                {
-                    int fw = frameWidth();
-                    QRect innerRect = frameRect().adjusted( fw, fw, -fw, -fw );
-                    if ( cr.contains( innerRect ) )
-                        drawBackground = false;
-                }
+            QPainter bsPainter;
+            if ( testAttribute(Qt::WA_StyledBackground) )
+            {
+                bsPainter.begin( &bs );
+                drawStyledBackground( &bsPainter );
             }
+            else
+            {
+                bs.fill( this, 0, 0 );
+
+                bsPainter.begin( &bs );
+                if ( frameWidth() > 0 )
+                    drawFrame( &bsPainter );
+            }
+
+            bsPainter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
+            plot()->drawCanvas( &bsPainter );
         }
 
-        if ( drawBackground )
+        painter.drawPixmap( 0, 0, *d_data->backingStore );
+    }
+    else
+    {
+        if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
         {
             if ( testAttribute(Qt::WA_StyledBackground ) )
             {
@@ -482,57 +571,26 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
             }
             else if ( autoFillBackground() )
             {
-                painter.fillRect( rect(), palette().brush( backgroundRole() ) );
-            }   
+                qwtDrawBackground( &painter, this );
+            }
         }
-    }
     
-    if ( frameWidth() > 0 && !cr.contains( event->rect() ) )
-        drawFrame( &painter );
-    
-    painter.save();
-    painter.setClipRegion( cr, Qt::IntersectClip );
-
-    if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) 
-        && d_data->backingStore )
-    {
-        QPixmap &bs = *d_data->backingStore;
-        if ( bs.size() != cr.size() )
+        if ( !testAttribute(Qt::WA_StyledBackground) )
         {
-            bs = QPixmap( cr.size() );
-
-#ifdef Q_WS_X11
-            if ( bs.x11Info().screen() != x11Info().screen() )
-                bs.x11SetScreen( x11Info().screen() );
-#endif
-
-            if ( testAttribute(Qt::WA_StyledBackground) )
+            if ( ( frameWidth() > 0 ) 
+                && !contentsRect().contains( event->rect() ) )
             {
-                QPainter bgPainter( &bs );
-                bgPainter.translate( -cr.topLeft() );
-                drawStyledBackground( &bgPainter );
+                drawFrame( &painter );
             }
-            else
-            {
-                bs.fill( this, cr.topLeft() );
-            }
-
-            QPainter cachePainter( &bs );
-            cachePainter.translate( -cr.topLeft() );
-
-            cachePainter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
-            plot()->drawCanvas( &cachePainter );
         }
-
-        painter.drawPixmap( contentsRect().topLeft(), *d_data->backingStore );
-    }
-    else
-    {
+    
+        painter.save();
         painter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
-        plot()->drawCanvas( &painter );
-    }
 
-    painter.restore();
+        plot()->drawCanvas( &painter );
+
+        painter.restore();
+    }
 
     if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
         drawFocusIndicator( &painter );
