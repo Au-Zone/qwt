@@ -22,11 +22,6 @@
 #include <qx11info_x11.h>
 #endif
 
-#define DEBUG_BACKGROUND 0
-#if DEBUG_BACKGROUND
-#include <qdatetime.h>
-#endif
-
 class QwtClipLogger: public QwtNullPaintDevice
 {
 public:
@@ -40,9 +35,13 @@ public:
     virtual void updateState( const QPaintEngineState &state )
     {
         if ( state.state() == QPaintEngine::DirtyPen )
+        {
             d_pen = state.pen();
+        }
         if ( state.state() == QPaintEngine::DirtyBrush )
+        {
             d_brush = state.brush();
+        }
         if ( state.state() == QPaintEngine::DirtyBrushOrigin )
             d_origin = state.brushOrigin();
     }
@@ -64,7 +63,6 @@ public:
             
             if ( d_pathCount == 1 )
                 border.pen = d_pen;
-            
         }
 
         d_pathCount++;
@@ -74,7 +72,7 @@ public:
     {
         QPointF pos( 0.0, 0.0 );
 
-        for (int i = 0; i < path.elementCount(); i++ )
+        for ( int i = 0; i < path.elementCount(); i++ )
         {
             QPainterPath::Element el = path.elementAt(i); 
             switch( el.type )
@@ -115,6 +113,44 @@ public:
         }
     }
 
+    void debugPaths() const
+    {
+        for ( int i = 0; i < border.pathList.count(); i++ )
+        {
+            qDebug() << "Path: " << i;
+
+            const QPainterPath &path = border.pathList[i];
+            for (int j = 0; j < path.elementCount(); j++ )
+            {
+                QPainterPath::Element el = path.elementAt(j);
+                switch( el.type )
+                {
+                    case QPainterPath::MoveToElement:
+                    {
+                        qDebug() << j << "MoveTo: " << QPointF( el.x, el.y );
+                        break;
+                    }
+                    case QPainterPath::LineToElement:
+                    {
+                        qDebug() << j << "LineTo: " << QPointF( el.x, el.y );
+                        break;
+                    }
+                    case QPainterPath::CurveToElement:
+                    {
+                        qDebug() << j << "CurveTo: " << QPointF( el.x, el.y );
+                        break;
+                    }
+                    case QPainterPath::CurveToDataElement:
+                    {
+                        qDebug() << j << "CurveToData: " << QPointF( el.x, el.y );
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+private:
     void alignCornerRects( const QRectF &rect )
     {
         for ( int i = 0; i < clipRects.size(); i++ )
@@ -286,6 +322,42 @@ static QWidget *qwtBackgroundWidget( QWidget *w )
     return qwtBackgroundWidget( w->parentWidget() );
 }
 
+static void qwtFillBackground( QPainter *painter, QWidget *widget )
+{
+    QwtClipLogger clipLogger( widget->size() );
+
+    QPainter p( &clipLogger );
+    qwtDrawStyledBackground( widget, &p );
+    p.end();
+
+    QRegion clipRegion;
+    if ( painter->hasClipping() )
+        clipRegion = painter->transform().map( painter->clipRegion() );
+    else
+        clipRegion = widget->contentsRect();
+
+    QWidget *bgWidget = NULL;
+
+    for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
+    {
+        const QRect rect = clipLogger.clipRects[i].toAlignedRect();
+        if ( clipRegion.intersects( rect ) )
+        {
+            if ( bgWidget == NULL )
+            {
+                // Try to find out which widget fills
+                // the unfilled areas of the styled background
+
+                bgWidget = qwtBackgroundWidget( widget->parentWidget() );
+            }
+
+            QPixmap pm( rect.size() );
+            pm.fill( bgWidget, widget->mapTo( bgWidget, rect.topLeft() ) );
+            painter->drawPixmap( rect, pm );
+        }
+    }
+}
+
 static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect ) 
 {
     int left, top, right, bottom;
@@ -295,11 +367,6 @@ static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect )
 
     if ( !w->testAttribute(Qt::WA_StyledBackground ) )
         return cRect;
-
-#if DEBUG_BACKGROUND
-    QTime time;
-    time.start();
-#endif
 
     QwtClipLogger clipLogger( rect.size() );
 
@@ -319,7 +386,7 @@ static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect )
     }
 
     // The algorithm below doesn't take care of the pixels filled by
-    // antialiasing - but int the end this is not important as
+    // antialiasing - but in the end this is not important as
     // the only way to get a perfect solution is to paint the border
     // last.
 
@@ -342,10 +409,6 @@ static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect )
 
     QRegion region = bitmap;
     region.translate( cRect.topLeft() );
-
-#if DEBUG_BACKGROUND
-    qDebug() << "QwtPlotCanvas::canvasClipRegion: " << time.elapsed();
-#endif
 
     return region;
 }
@@ -540,60 +603,73 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
                 bs.x11SetScreen( x11Info().screen() );
 #endif
 
-            QPainter bsPainter;
             if ( testAttribute(Qt::WA_StyledBackground) )
             {
-                bsPainter.begin( &bs );
-                drawStyledBackground( &bsPainter );
+                QPainter p( &bs );
+                qwtFillBackground( &p, this );
+                drawCanvas( &p, true );
             }
             else
             {
                 bs.fill( this, 0, 0 );
 
-                bsPainter.begin( &bs );
-                if ( frameWidth() > 0 )
-                    drawFrame( &bsPainter );
-            }
+                QPainter p( &bs );
+                drawCanvas( &p, false );
 
-            bsPainter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
-            plot()->drawCanvas( &bsPainter );
+                if ( frameWidth() > 0 )
+                    drawFrame( &p );
+            }
         }
 
         painter.drawPixmap( 0, 0, *d_data->backingStore );
     }
     else
     {
-        if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
+        if ( testAttribute(Qt::WA_StyledBackground ) )
         {
-            if ( testAttribute(Qt::WA_StyledBackground ) )
+            if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
             {
-                drawStyledBackground( &painter );
+                qwtFillBackground( &painter, this );
+                drawCanvas( &painter, true );
             }
-            else if ( autoFillBackground() )
+            else
             {
-                qwtDrawBackground( &painter, this );
+                drawCanvas( &painter, false );
             }
         }
-    
-        if ( !testAttribute(Qt::WA_StyledBackground) )
+        else
         {
+            if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
+            {
+                if ( autoFillBackground() )
+                    qwtDrawBackground( &painter, this );
+            }
+
+            drawCanvas( &painter, false );
+
             if ( ( frameWidth() > 0 ) 
                 && !contentsRect().contains( event->rect() ) )
             {
                 drawFrame( &painter );
             }
         }
-    
-        painter.save();
-        painter.setClipRegion( d_data->canvasClip, Qt::IntersectClip );
-
-        plot()->drawCanvas( &painter );
-
-        painter.restore();
     }
 
     if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
         drawFocusIndicator( &painter );
+}
+
+void QwtPlotCanvas::drawCanvas( QPainter *painter, bool styled ) 
+{
+    if ( styled )
+        qwtDrawStyledBackground( this, painter );
+
+    painter->save();
+    painter->setClipRegion( d_data->canvasClip, Qt::IntersectClip );
+
+    plot()->drawCanvas( painter );
+
+    painter->restore();
 }
 
 /*!
@@ -616,66 +692,6 @@ void QwtPlotCanvas::changeEvent( QEvent *event )
         updateCanvasClip();
 
     QFrame::changeEvent( event );
-}
-
-void QwtPlotCanvas::drawStyledBackground( QPainter *painter )
-{
-#if DEBUG_BACKGROUND
-    QTime time;
-    time.start();
-
-    int d1 = 0;
-    int d2 = 0;
-#endif
-    
-    QwtClipLogger clipLogger( size() );
-
-    QPainter p( &clipLogger );
-    qwtDrawStyledBackground( this, &p );
-    p.end();
-
-#if DEBUG_BACKGROUND
-    d1 = time.elapsed();
-#endif
-
-    QRegion clipRegion;
-    if ( painter->hasClipping() )
-        clipRegion = painter->transform().map( painter->clipRegion() );
-    else
-        clipRegion = contentsRect();
-
-    QWidget *bgWidget = NULL;
-
-    for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
-    {
-        const QRect rect = clipLogger.clipRects[i].toAlignedRect();
-        if ( clipRegion.intersects( rect ) )
-        {
-            if ( bgWidget == NULL )
-            {
-                // Try to find out which widget fills
-                // the unfilled areas of the styled background
-
-                bgWidget = qwtBackgroundWidget( parentWidget() );
-            }
-
-            QPixmap pm( rect.size() );
-            pm.fill( bgWidget, mapTo( bgWidget, rect.topLeft() ) );
-            painter->drawPixmap( rect, pm );
-        }
-    }
-
-#if DEBUG_BACKGROUND
-    d2 = time.elapsed();
-#endif
-
-    qwtDrawStyledBackground( this, painter );
-
-#if DEBUG_BACKGROUND
-    int d3 = time.elapsed();
-    qDebug() << "QwtPlotCanvas::drawStyledBackground: "
-        << d2 - d1 << d3 - d2 << " -> " << d3;
-#endif
 }
 
 /*!
