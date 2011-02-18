@@ -123,7 +123,7 @@ protected:
     void updateCanvasClip();
 
 private:
-    void drawStyledBackground( QPainter * );
+	void drawCanvas( QPainter *, bool styled );
 
     class PrivateData;
     PrivateData *d_data;
