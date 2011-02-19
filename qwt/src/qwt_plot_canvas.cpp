@@ -22,36 +22,44 @@
 #include <qx11info_x11.h>
 #endif
 
-class QwtClipLogger: public QwtNullPaintDevice
+class QwtStyleSheetRecorder: public QwtNullPaintDevice
 {
 public:
-    QwtClipLogger( const QSize &size ):
+    QwtStyleSheetRecorder( const QSize &size ):
         QwtNullPaintDevice( QPaintEngine::AllFeatures )
     {
         setSize( size );
-        d_pathCount = 0;
     }
 
     virtual void updateState( const QPaintEngineState &state )
     {
-        if ( state.state() == QPaintEngine::DirtyPen )
+        if ( state.state() & QPaintEngine::DirtyPen )
         {
             d_pen = state.pen();
         }
-        if ( state.state() == QPaintEngine::DirtyBrush )
+        if ( state.state() & QPaintEngine::DirtyBrush )
         {
             d_brush = state.brush();
         }
-        if ( state.state() == QPaintEngine::DirtyBrushOrigin )
+        if ( state.state() & QPaintEngine::DirtyBrushOrigin )
+        {
             d_origin = state.brushOrigin();
+        }
+    }
+
+    virtual void drawRects(const QRectF *rects, int count )
+    {
+        for ( int i = 0; i < count; i++ )
+            border.rectList += rects[i];
     }
 
     virtual void drawPath( const QPainterPath &path )
     {
-        if ( d_pathCount == 0 )
+        const QRectF rect( QPointF( 0.0, 0.0 ) , size() );
+        if ( path.boundingRect().contains( rect.center() ) )
         {
             setCornerRects( path );
-            alignCornerRects( QRectF( QPointF( 0.0, 0.0 ) , size() ) );
+            alignCornerRects( rect );
 
             background.path = path;
             background.brush = d_brush;
@@ -60,12 +68,7 @@ public:
         else
         {
             border.pathList += path;
-            
-            if ( d_pathCount == 1 )
-                border.pen = d_pen;
         }
-
-        d_pathCount++;
     }
 
     void setCornerRects( const QPainterPath &path )
@@ -113,43 +116,6 @@ public:
         }
     }
 
-    void debugPaths() const
-    {
-        for ( int i = 0; i < border.pathList.count(); i++ )
-        {
-            qDebug() << "Path: " << i;
-
-            const QPainterPath &path = border.pathList[i];
-            for (int j = 0; j < path.elementCount(); j++ )
-            {
-                QPainterPath::Element el = path.elementAt(j);
-                switch( el.type )
-                {
-                    case QPainterPath::MoveToElement:
-                    {
-                        qDebug() << j << "MoveTo: " << QPointF( el.x, el.y );
-                        break;
-                    }
-                    case QPainterPath::LineToElement:
-                    {
-                        qDebug() << j << "LineTo: " << QPointF( el.x, el.y );
-                        break;
-                    }
-                    case QPainterPath::CurveToElement:
-                    {
-                        qDebug() << j << "CurveTo: " << QPointF( el.x, el.y );
-                        break;
-                    }
-                    case QPainterPath::CurveToDataElement:
-                    {
-                        qDebug() << j << "CurveToData: " << QPointF( el.x, el.y );
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
 private:
     void alignCornerRects( const QRectF &rect )
     {
@@ -175,7 +141,7 @@ public:
     struct
     {
         QList<QPainterPath> pathList;
-        QPen pen;
+        QList<QRectF> rectList;
     } border;
 
     struct
@@ -186,7 +152,6 @@ public:
     } background;
 
 private:
-    uint d_pathCount;
     QPen d_pen;
     QBrush d_brush;
     QPointF d_origin;
@@ -324,9 +289,9 @@ static QWidget *qwtBackgroundWidget( QWidget *w )
 
 static void qwtFillBackground( QPainter *painter, QWidget *widget )
 {
-    QwtClipLogger clipLogger( widget->size() );
+    QwtStyleSheetRecorder recorder( widget->size() );
 
-    QPainter p( &clipLogger );
+    QPainter p( &recorder );
     qwtDrawStyledBackground( widget, &p );
     p.end();
 
@@ -338,9 +303,19 @@ static void qwtFillBackground( QPainter *painter, QWidget *widget )
 
     QWidget *bgWidget = NULL;
 
-    for ( int i = 0; i < clipLogger.clipRects.size(); i++ )
+    QVector<QRectF> fillRects;
+    if ( recorder.background.brush.isOpaque() )
     {
-        const QRect rect = clipLogger.clipRects[i].toAlignedRect();
+        fillRects = recorder.clipRects;
+    }
+    else
+    {
+        fillRects += widget->rect();
+    }
+
+    for ( int i = 0; i < fillRects.size(); i++ )
+    {
+        const QRect rect = fillRects[i].toAlignedRect();
         if ( clipRegion.intersects( rect ) )
         {
             if ( bgWidget == NULL )
@@ -358,61 +333,6 @@ static void qwtFillBackground( QPainter *painter, QWidget *widget )
     }
 }
 
-static QRegion qwtBorderClipRegion( const QWidget *w, const QRect &rect ) 
-{
-    int left, top, right, bottom;
-    w->getContentsMargins( &left, &top, &right, &bottom );
-
-    const QRect cRect = rect.adjusted( left, top, -right, -bottom );
-
-    if ( !w->testAttribute(Qt::WA_StyledBackground ) )
-        return cRect;
-
-    QwtClipLogger clipLogger( rect.size() );
-
-    QPainter painter( &clipLogger );
-
-    QStyleOption opt;
-    opt.initFrom(w);
-    opt.rect = rect;
-    w->style()->drawPrimitive( QStyle::PE_Widget, &opt, &painter, w);
-
-    painter.end();
-
-    if ( clipLogger.clipRects.size() == 0 )
-    {
-        // No rounded border
-        return cRect;
-    }
-
-    // The algorithm below doesn't take care of the pixels filled by
-    // antialiasing - but in the end this is not important as
-    // the only way to get a perfect solution is to paint the border
-    // last.
-
-    QBitmap bitmap( cRect.size() );
-    bitmap.fill( Qt::color0 );
-
-    QPen pen( clipLogger.border.pen );
-    if ( pen.style() != Qt::NoPen )
-    {
-        pen.setStyle( Qt::SolidLine );
-        pen.setColor( Qt::color0 );
-    }
-
-    painter.begin( &bitmap );
-    painter.translate( -cRect.topLeft() );
-    painter.setPen( pen );
-    painter.setBrush( Qt::color1 );
-    painter.drawPath( clipLogger.background.path );
-    painter.end();
-
-    QRegion region = bitmap;
-    region.translate( cRect.topLeft() );
-
-    return region;
-}
-
 class QwtPlotCanvas::PrivateData
 {
 public:
@@ -421,6 +341,7 @@ public:
         paintAttributes( 0 ),
         backingStore( NULL )
     {
+        styleSheet.hasBorder = false;
     }
 
     ~PrivateData()
@@ -432,7 +353,21 @@ public:
     int paintAttributes;
     QPixmap *backingStore;
 
-    QRegion canvasClip;
+    struct
+    {
+        bool hasBorder;
+        QPainterPath borderPath;
+        QVector<QRectF> cornerRects;
+
+        struct
+        {
+            QPainterPath path;
+            QBrush brush;
+            QPointF origin;
+        } background;
+
+    } styleSheet;
+
 };
 
 //! Sets a cross cursor, enables QwtPlotCanvas::BackingStore
@@ -449,6 +384,7 @@ QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
     setAutoFillBackground( true );
     setPaintAttribute( QwtPlotCanvas::BackingStore, true );
     setPaintAttribute( QwtPlotCanvas::Opaque, true );
+    setPaintAttribute( QwtPlotCanvas::HackStyledBackground, true );
 }
 
 //! Destructor
@@ -516,6 +452,10 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 
             break;
         }
+        case HackStyledBackground:
+        {
+            break;
+        }
     }
 }
 
@@ -576,6 +516,12 @@ bool QwtPlotCanvas::event( QEvent *event )
             
             setAttribute( Qt::WA_OpaquePaintEvent, true );
         }
+    }
+
+    if ( event->type() == QEvent::PolishRequest || 
+        event->type() == QEvent::StyleChange )
+    {
+        updateStyleSheetInfo();
     }
 
     return QFrame::event( event );
@@ -661,15 +607,76 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 
 void QwtPlotCanvas::drawCanvas( QPainter *painter, bool styled ) 
 {
-    if ( styled )
-        qwtDrawStyledBackground( this, painter );
+    bool hackStyledBackground = false;
+
+    if ( styled && testPaintAttribute( HackStyledBackground ) )
+    {
+        // Antialiasing rounded borders is done by
+        // inserting pixels with colors between the 
+        // border color and the color on the canvas,
+        // When the border is painted before the plot items
+        // these colors are interpolated for the canvas
+        // and the plot items need to be clipped excluding
+        // the anialiased pixels. In situations, where
+        // the plot items fill the area at the rounded
+        // borders this is noticeable.
+        // The only way to avoid these annoying "artefacts"
+        // is to paint the border on top of the plot items.
+
+        if ( d_data->styleSheet.hasBorder &&
+            !d_data->styleSheet.borderPath.isEmpty() )
+        {
+            // We have a border with at least one rounded corner
+            hackStyledBackground = true;
+        }
+
+        if ( hackStyledBackground )
+        {
+            // paint background without border
+
+            painter->save();
+
+            painter->setPen( Qt::NoPen );
+            painter->setBrush( d_data->styleSheet.background.brush ); 
+            painter->setBrushOrigin( d_data->styleSheet.background.origin );
+#if 0
+            painter->drawPath( clipLogger.background.path );
+#else
+            painter->setClipPath( d_data->styleSheet.background.path );
+            painter->drawRect( contentsRect() );
+#endif
+
+            painter->restore();
+        }
+        else
+        {
+            qwtDrawStyledBackground( this, painter );
+        }
+    }
 
     painter->save();
-    painter->setClipRegion( d_data->canvasClip, Qt::IntersectClip );
+
+    if ( !d_data->styleSheet.background.path.isEmpty() )
+    {
+        painter->setClipPath( 
+            d_data->styleSheet.background.path, Qt::IntersectClip );
+    }
+    else
+    {
+        painter->setClipRect( contentsRect(), Qt::IntersectClip );
+    }
 
     plot()->drawCanvas( painter );
 
     painter->restore();
+
+    if ( hackStyledBackground )
+    {
+        // Now paint the border on top
+        QStyleOptionFrame opt;
+        opt.initFrom(this);
+        style()->drawPrimitive( QStyle::PE_Frame, &opt, painter, this);
+    }
 }
 
 /*!
@@ -678,20 +685,8 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool styled )
 */
 void QwtPlotCanvas::resizeEvent( QResizeEvent *event )
 {
-    updateCanvasClip();
     QFrame::resizeEvent( event );
-}
-
-/*!
-  Change event
-  \param event Change event
-*/
-void QwtPlotCanvas::changeEvent( QEvent *event )
-{
-    if ( event->type() == QEvent::StyleChange ) 
-        updateCanvasClip();
-
-    QFrame::changeEvent( event );
+    updateStyleSheetInfo();
 }
 
 /*!
@@ -719,12 +714,59 @@ void QwtPlotCanvas::replot()
     repaint( contentsRect() );
 }
 
-void QwtPlotCanvas::updateCanvasClip()
+void QwtPlotCanvas::updateStyleSheetInfo()
 {
-    d_data->canvasClip = qwtBorderClipRegion( this, rect() );
+    if ( !testAttribute(Qt::WA_StyledBackground ) )
+        return;
+
+    QwtStyleSheetRecorder recorder( size() );
+    
+    QPainter painter( &recorder );
+    
+    QStyleOption opt;
+    opt.initFrom(this);
+    style()->drawPrimitive( QStyle::PE_Widget, &opt, &painter, this);
+    
+    painter.end();
+
+    d_data->styleSheet.hasBorder = !recorder.border.rectList.isEmpty();
+    d_data->styleSheet.borderPath = recorder.background.path;
+    if ( d_data->styleSheet.hasBorder 
+        && d_data->styleSheet.borderPath.isEmpty() )
+    {
+#if 1
+        // TODO ...
+        d_data->styleSheet.borderPath.addRect( contentsRect() );
+#endif
+    }
+
+    d_data->styleSheet.cornerRects = recorder.clipRects;
+    d_data->styleSheet.background.path = recorder.background.path;
+    d_data->styleSheet.background.brush = recorder.background.brush;
+    d_data->styleSheet.background.origin = recorder.background.origin;
+
 }
 
-QRegion QwtPlotCanvas::borderClip( const QRect &rect ) const
+QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
 {
-    return qwtBorderClipRegion( this, rect );
+    if ( testAttribute(Qt::WA_StyledBackground ) )
+    {
+        QwtStyleSheetRecorder recorder( rect.size() );
+
+        QPainter painter( &recorder );
+
+        QStyleOption opt;
+        opt.initFrom(this);
+        opt.rect = rect;
+        style()->drawPrimitive( QStyle::PE_Widget, &opt, &painter, this);
+
+        painter.end();
+
+        if ( !recorder.background.path.isEmpty() )
+            return recorder.background.path;
+
+        // border without background ...
+    }
+
+    return QPainterPath();
 }

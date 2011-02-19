@@ -13,6 +13,7 @@
 #include "qwt_global.h"
 #include <qframe.h>
 #include <qpen.h>
+#include <qpainterpath.h>
 
 class QwtPlot;
 class QPixmap;
@@ -64,7 +65,24 @@ public:
 
           \warning Will not work for semitransparent backgrounds 
          */
-        Opaque       = 2
+        Opaque       = 2,
+
+        /*!
+          \brief Try to improve painting of styled backgrounds
+
+          QwtPlotCanvas supports the box model attributes for
+          customizing the layout with style sheets. Unfortunately
+          the design of Qt style sheets has no concept how to
+          handle backgrounds with rounded corners - beside of padding.
+
+          When HackStyledBackground is enabled the plot canvas tries
+          to seperate the background from the background border
+          by reverse engeneering to paint the background before and
+          the border after the plot items. In this order the border
+          gets prefectly antialiased and you can avoid some pixel
+          artifacts in the corners.
+         */
+        HackStyledBackground = 4
     };
 
     /*!
@@ -109,21 +127,20 @@ public:
 
     void replot();
 
-    virtual bool event( QEvent * );
+    QPainterPath borderPath( const QRect &rect ) const;
 
-    QRegion borderClip( const QRect &rect ) const;
+    virtual bool event( QEvent * );
 
 protected:
     virtual void paintEvent( QPaintEvent * );
     virtual void resizeEvent( QResizeEvent * );
-    virtual void changeEvent( QEvent * );
 
     virtual void drawFocusIndicator( QPainter * );
 
-    void updateCanvasClip();
+    void updateStyleSheetInfo();
 
 private:
-	void drawCanvas( QPainter *, bool styled );
+    void drawCanvas( QPainter *, bool styled );
 
     class PrivateData;
     PrivateData *d_data;
