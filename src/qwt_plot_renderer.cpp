@@ -716,7 +716,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
 {
     painter->save();
 
-    QRegion clipRegion;
+    QPainterPath clipPath;
 
     QRectF r = canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 );
 
@@ -752,7 +752,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 int y1 = qCeil( canvasRect.top() );
                 int y2 = qFloor( canvasRect.bottom() );
 
-                clipRegion = plot->canvas()->borderClip( 
+                clipPath = plot->canvas()->borderPath( 
                     QRect( x1, y1, x2 - x1 - 1, y2 - y1 - 1 ) );
             }
         }
@@ -762,10 +762,10 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
 
     painter->save();
 
-    if ( clipRegion.isEmpty() )
+    if ( clipPath.isEmpty() )
         painter->setClipRect( canvasRect );
     else
-        painter->setClipRegion( clipRegion );
+        painter->setClipPath( clipPath );
 
     plot->drawItems( painter, canvasRect, map );
 
