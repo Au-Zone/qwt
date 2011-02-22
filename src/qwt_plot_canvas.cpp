@@ -56,7 +56,7 @@ public:
     virtual void drawPath( const QPainterPath &path )
     {
         const QRectF rect( QPointF( 0.0, 0.0 ) , size() );
-        if ( path.boundingRect().contains( rect.center() ) )
+        if ( path.controlPointRect().contains( rect.center() ) )
         {
             setCornerRects( path );
             alignCornerRects( rect );
@@ -142,6 +142,7 @@ public:
     {
         QList<QPainterPath> pathList;
         QList<QRectF> rectList;
+        QRegion clipRegion;
     } border;
 
     struct
@@ -248,6 +249,103 @@ static void qwtDrawBackground( QPainter *painter, QWidget *widget )
 
         painter->restore();
     }
+}
+
+static inline void qwtRevertPath( QPainterPath &path )
+{
+    if ( path.elementCount() == 4 )
+    {
+        QPainterPath::Element &el0 = 
+            const_cast<QPainterPath::Element &>( path.elementAt(0) );
+        QPainterPath::Element &el2 = 
+            const_cast<QPainterPath::Element &>( path.elementAt(3) );
+
+        qSwap( el0.x, el2.x );
+        qSwap( el0.y, el2.y );
+    }
+}
+
+static QPainterPath qwtCombinePathList( const QRectF &rect, 
+    const QList<QPainterPath> &pathList )
+{
+    if ( pathList.isEmpty() )
+        return QPainterPath();
+
+    QPainterPath ordered[8]; // starting top left
+
+    for ( int i = 0; i < pathList.size(); i++ )
+    {
+        int index = -1;
+        QPainterPath subPath = pathList[i];
+
+        const QRectF br = pathList[i].controlPointRect();
+        if ( br.center().x() < rect.center().x() )
+        {
+            if ( br.center().y() < rect.center().y() )
+            {
+                if ( qAbs( br.top() - rect.top() ) < 
+                    qAbs( br.left() - rect.left() ) )
+                {
+                    index = 0;
+                }
+                else
+                {
+                    index = 7;
+                }
+            }
+            else
+            {
+                if ( qAbs( br.bottom() - rect.bottom() ) < 
+                    qAbs( br.left() - rect.left() ) )
+                {
+                    index = 5;
+                }
+                else
+                {
+                    index = 6;
+                }
+            }
+
+            if ( subPath.currentPosition().y() > br.center().y() )
+                qwtRevertPath( subPath );
+        }
+        else
+        {
+            if ( br.center().y() < rect.center().y() )
+            {
+                if ( qAbs( br.top() - rect.top() ) < 
+                    qAbs( br.right() - rect.right() ) )
+                {
+                    index = 1;
+                }
+                else
+                {
+                    index = 2;
+                }
+            }
+            else
+            {
+                if ( qAbs( br.bottom() - rect.bottom() ) < 
+                    qAbs( br.right() - rect.right() ) )
+                {
+                    index = 4;
+                }
+                else
+                {
+                    index = 3;
+                }
+            }
+            if ( subPath.currentPosition().y() < br.center().y() )
+                qwtRevertPath( subPath );
+        }   
+        ordered[index] = subPath;
+    }
+
+    QPainterPath path = ordered[0];
+    for ( int i = 1; i < 8; i++ )
+        path.connectPath( ordered[i] );
+
+    return path.simplified();
 }
 
 static inline void qwtDrawStyledBackground( 
@@ -640,9 +738,9 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool styled )
             painter->setBrush( d_data->styleSheet.background.brush ); 
             painter->setBrushOrigin( d_data->styleSheet.background.origin );
 #if 0
-            painter->drawPath( clipLogger.background.path );
+            painter->drawPath( d_data->styleSheet.borderPath );
 #else
-            painter->setClipPath( d_data->styleSheet.background.path );
+            painter->setClipPath( d_data->styleSheet.borderPath );
             painter->drawRect( contentsRect() );
 #endif
 
@@ -656,10 +754,10 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool styled )
 
     painter->save();
 
-    if ( !d_data->styleSheet.background.path.isEmpty() )
+    if ( !d_data->styleSheet.borderPath.isEmpty() )
     {
         painter->setClipPath( 
-            d_data->styleSheet.background.path, Qt::IntersectClip );
+            d_data->styleSheet.borderPath, Qt::IntersectClip );
     }
     else
     {
@@ -734,17 +832,13 @@ void QwtPlotCanvas::updateStyleSheetInfo()
     if ( d_data->styleSheet.hasBorder 
         && d_data->styleSheet.borderPath.isEmpty() )
     {
-#if 1
-        // TODO ...
-        d_data->styleSheet.borderPath.addRect( contentsRect() );
-#endif
+        d_data->styleSheet.borderPath = 
+            qwtCombinePathList( rect(), recorder.border.pathList );
     }
 
     d_data->styleSheet.cornerRects = recorder.clipRects;
-    d_data->styleSheet.background.path = recorder.background.path;
     d_data->styleSheet.background.brush = recorder.background.brush;
     d_data->styleSheet.background.origin = recorder.background.origin;
-
 }
 
 QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
@@ -765,7 +859,8 @@ QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
         if ( !recorder.background.path.isEmpty() )
             return recorder.background.path;
 
-        // border without background ...
+        if ( !recorder.border.rectList.isEmpty() )
+            return qwtCombinePathList( rect, recorder.border.pathList );
     }
 
     return QPainterPath();
