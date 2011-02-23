@@ -286,11 +286,11 @@ static QPainterPath qwtCombinePathList( const QRectF &rect,
                 if ( qAbs( br.top() - rect.top() ) < 
                     qAbs( br.left() - rect.left() ) )
                 {
-                    index = 0;
+                    index = 1;
                 }
                 else
                 {
-                    index = 7;
+                    index = 0;
                 }
             }
             else
@@ -298,11 +298,11 @@ static QPainterPath qwtCombinePathList( const QRectF &rect,
                 if ( qAbs( br.bottom() - rect.bottom() ) < 
                     qAbs( br.left() - rect.left() ) )
                 {
-                    index = 5;
+                    index = 6;
                 }
                 else
                 {
-                    index = 6;
+                    index = 7;
                 }
             }
 
@@ -316,11 +316,11 @@ static QPainterPath qwtCombinePathList( const QRectF &rect,
                 if ( qAbs( br.top() - rect.top() ) < 
                     qAbs( br.right() - rect.right() ) )
                 {
-                    index = 1;
+                    index = 2;
                 }
                 else
                 {
-                    index = 2;
+                    index = 3;
                 }
             }
             else
@@ -328,11 +328,11 @@ static QPainterPath qwtCombinePathList( const QRectF &rect,
                 if ( qAbs( br.bottom() - rect.bottom() ) < 
                     qAbs( br.right() - rect.right() ) )
                 {
-                    index = 4;
+                    index = 5;
                 }
                 else
                 {
-                    index = 3;
+                    index = 4;
                 }
             }
             if ( subPath.currentPosition().y() < br.center().y() )
@@ -341,11 +341,41 @@ static QPainterPath qwtCombinePathList( const QRectF &rect,
         ordered[index] = subPath;
     }
 
-    QPainterPath path = ordered[0];
-    for ( int i = 1; i < 8; i++ )
-        path.connectPath( ordered[i] );
+    for ( int i = 0; i < 4; i++ )
+    {
+        if ( ordered[ 2 * i].isEmpty() != ordered[2 * i + 1].isEmpty() )
+        {
+            // we don't accept incomplete rounded borders
+            return QPainterPath();
+        }
+    }
 
+
+    const QPolygonF corners( rect );
+
+    QPainterPath path;
+    //path.moveTo( rect.topLeft() );
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        if ( ordered[2 * i].isEmpty() )
+        {
+            path.lineTo( corners[i] );
+        }
+        else
+        {
+            path.connectPath( ordered[2 * i] );
+            path.connectPath( ordered[2 * i + 1] );
+        }
+    }
+
+    path.closeSubpath();
+
+#if 0
     return path.simplified();
+#else
+    return path;
+#endif
 }
 
 static inline void qwtDrawStyledBackground( 
@@ -459,7 +489,6 @@ public:
 
         struct
         {
-            QPainterPath path;
             QBrush brush;
             QPointF origin;
         } background;
@@ -828,17 +857,22 @@ void QwtPlotCanvas::updateStyleSheetInfo()
     painter.end();
 
     d_data->styleSheet.hasBorder = !recorder.border.rectList.isEmpty();
-    d_data->styleSheet.borderPath = recorder.background.path;
-    if ( d_data->styleSheet.hasBorder 
-        && d_data->styleSheet.borderPath.isEmpty() )
-    {
-        d_data->styleSheet.borderPath = 
-            qwtCombinePathList( rect(), recorder.border.pathList );
-    }
-
     d_data->styleSheet.cornerRects = recorder.clipRects;
-    d_data->styleSheet.background.brush = recorder.background.brush;
-    d_data->styleSheet.background.origin = recorder.background.origin;
+
+    if ( recorder.background.path.isEmpty() )
+    {
+        if ( !recorder.border.rectList.isEmpty() )
+        {
+            d_data->styleSheet.borderPath = 
+                qwtCombinePathList( rect(), recorder.border.pathList );
+        }
+    }
+    else
+    {
+        d_data->styleSheet.borderPath = recorder.background.path;
+        d_data->styleSheet.background.brush = recorder.background.brush;
+        d_data->styleSheet.background.origin = recorder.background.origin;
+    }
 }
 
 QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
