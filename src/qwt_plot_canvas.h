@@ -119,6 +119,11 @@ public:
     void setFocusIndicator( FocusIndicator );
     FocusIndicator focusIndicator() const;
 
+    void setBorderRadius( double );
+    double borderRadius() const;
+
+    QPainterPath borderPath( const QRect &rect ) const;
+
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
 
@@ -127,8 +132,6 @@ public:
 
     void replot();
 
-    QPainterPath borderPath( const QRect &rect ) const;
-
     virtual bool event( QEvent * );
 
 protected:
@@ -136,11 +139,12 @@ protected:
     virtual void resizeEvent( QResizeEvent * );
 
     virtual void drawFocusIndicator( QPainter * );
+    virtual void drawBorder( QPainter * );
 
     void updateStyleSheetInfo();
 
 private:
-    void drawCanvas( QPainter *, bool styled );
+    void drawCanvas( QPainter *, bool withBackground );
 
     class PrivateData;
     PrivateData *d_data;
