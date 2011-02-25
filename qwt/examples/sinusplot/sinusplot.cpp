@@ -1,9 +1,11 @@
 #include <qapplication.h>
+#include <qlayout.h>
 #include <qwt_plot.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 #include <qwt_legend.h>
 #include <qwt_series_data.h>
+#include <qwt_plot_canvas.h>
 #include <qwt_text.h>
 #include <qwt_math.h>
 #include <math.h>
@@ -37,22 +39,50 @@ private:
 class Plot : public QwtPlot
 {
 public:
-    Plot();
+    Plot( QWidget *parent = NULL);
+
+protected:
+    virtual void resizeEvent( QResizeEvent * );
+
+private:
+    void populate();
+    void updateGradient();
 };
 
 
-Plot::Plot()
+Plot::Plot(QWidget *parent):
+    QwtPlot( parent )
 {
+    setAutoFillBackground( true );
+    setPalette( QPalette( QColor( 165, 193, 228 ) ) );
+    updateGradient();
+
     setTitle("A Simple QwtPlot Demonstration");
     insertLegend(new QwtLegend(), QwtPlot::RightLegend);
 
-    // Set axes 
-    setAxisTitle(xBottom, "x -->");
+    // axes 
+    QwtText text( "name2", QwtText::RichText );
+    text.setRenderFlags(Qt::AlignRight);
+    setAxisTitle(xBottom, text );
     setAxisScale(xBottom, 0.0, 10.0);
 
     setAxisTitle(yLeft, "y -->");
     setAxisScale(yLeft, -1.0, 1.0);
-    
+
+    // canvas
+    canvas()->setLineWidth( 1 );
+    canvas()->setFrameStyle( QFrame::Box | QFrame::Plain );
+    canvas()->setBorderRadius( 15 );
+
+    QPalette canvasPalette( Qt::white );
+    canvasPalette.setColor( QPalette::Foreground, QColor( 133, 190, 232 ) );
+    canvas()->setPalette( canvasPalette );
+
+    populate();
+}
+
+void Plot::populate()
+{
     // Insert new curves
     QwtPlotCurve *cSin = new QwtPlotCurve("y = sin(x)");
     cSin->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -91,13 +121,56 @@ Plot::Plot()
     mX->attach(this);
 }
 
+void Plot::updateGradient()
+{
+    QPalette pal = palette();
+
+    const QColor buttonColor = pal.color( QPalette::Button );
+
+#ifdef Q_WS_X11
+    // Qt 4.7.1: QGradient::StretchToDeviceMode is buggy on X11
+
+    QLinearGradient gradient( rect().topLeft(), rect().bottomLeft() );
+    gradient.setColorAt( 0.0, Qt::white );
+    gradient.setColorAt( 0.7, buttonColor );
+    gradient.setColorAt( 1.0, buttonColor );
+#else
+    QLinearGradient gradient( 0, 0, 0, 1 );
+    gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
+    gradient.setColorAt( 0.0, Qt::white );
+    gradient.setColorAt( 0.7, buttonColor );
+    gradient.setColorAt( 1.0, buttonColor );
+#endif
+
+    pal.setBrush( QPalette::Window, gradient );
+    setPalette( pal );
+}
+
+void Plot::resizeEvent( QResizeEvent *event )
+{
+    QwtPlot::resizeEvent( event );
+#ifdef Q_WS_X11
+    updateGradient();
+#endif
+}
+
 int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
 
-    Plot plot;
-    plot.resize(600,400);
-    plot.show();
+    Plot *plot = new Plot();
+
+    // We put a dummy widget around to have 
+    // so that Qt paints a widget background
+    // when resizing
+
+    QWidget window;
+    QHBoxLayout *layout = new QHBoxLayout( &window );
+    layout->setContentsMargins( 0, 0, 0, 0 );
+    layout->addWidget( plot );
+
+    window.resize(600,400);
+    window.show();
 
     return a.exec(); 
 }
