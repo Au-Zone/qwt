@@ -9,7 +9,7 @@
 
 # qmake project file for building the qwt libraries
 
-QWT_ROOT = ..
+QWT_ROOT = $${PWD}/..
 include( $${QWT_ROOT}/qwtconfig.pri )
 include( $${QWT_ROOT}/qwtbuild.pri )
 

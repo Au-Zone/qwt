@@ -218,12 +218,12 @@ void MainWindow::exportDocument()
     if ( !fileName.isEmpty() )
     {
         QwtPlotRenderer renderer;
-#if 0
+
         // flags to make the document look like the widget
         renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
         renderer.setLayoutFlag(QwtPlotRenderer::KeepMargins, true);
         renderer.setLayoutFlag(QwtPlotRenderer::KeepFrames, true);
-#endif
+
         renderer.renderDocument(d_plot, fileName, QSizeF(300, 200), 85);
     }
 }

@@ -10,7 +10,7 @@
 message(The qwtmathml library contains code of the MML Widget from the Qt solutions package.)
 message(Beside the Qwt license you also have to take care of its license. )
 
-include( ../textengines.pri )
+include( $${PWD}/../textengines.pri )
 
 TARGET    = $$qtLibraryTarget(qwtmathml)
 QT       += xml
