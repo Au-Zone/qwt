@@ -7,7 +7,7 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ###################################################################
 
-QWT_ROOT = ../..
+QWT_ROOT = $${PWD}/..
 include( $${QWT_ROOT}/qwtconfig.pri )
 include( $${QWT_ROOT}/qwtbuild.pri )
 
