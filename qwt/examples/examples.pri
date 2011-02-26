@@ -17,6 +17,8 @@ INCLUDEPATH += $${QWT_ROOT}/src
 DEPENDPATH  += $${QWT_ROOT}/src
 DESTDIR      = $${QWT_ROOT}/examples/bin
 
+QMAKE_RPATHDIR *= $${QWT_ROOT}/lib
+
 contains(QWT_CONFIG, QwtFramework) {
 
     LIBS      += -F$${QWT_ROOT}/lib
