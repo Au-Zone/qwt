@@ -127,7 +127,11 @@ void Plot::setSettings(const Settings &s)
         s.curve.renderHint & QwtPlotCurve::RenderAntialiased);
 
     canvas()->setAttribute(Qt::WA_PaintOnScreen, s.canvas.paintOnScreen);
-    canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, s.canvas.cached);
+
+    canvas()->setPaintAttribute(
+        QwtPlotCanvas::BackingStore, s.canvas.useBackingStore);
+    canvas()->setPaintAttribute(
+        QwtPlotCanvas::ImmediatePaint, s.canvas.immediatePaint);
 
     QwtPainter::setPolylineSplitting(s.curve.lineSplitting);
 
@@ -139,22 +143,14 @@ void Plot::timerEvent(QTimerEvent *)
     CircularBuffer *buffer = (CircularBuffer *)d_curve->data();
     buffer->setReferenceTime(d_clock.elapsed() / 1000.0);
 
-    // the axes are unchanged. So all we need to do
-    // is to erase and repaint the content of the canvas 
-    // ( without the frame )
-
     switch(d_settings.updateType)
     {
-        case Settings::UpdateCanvas:
-        {
-            canvas()->invalidateBackingStore();
-            canvas()->update(canvas()->contentsRect());
-            break;
-        }
         case Settings::RepaintCanvas:
         {
-            canvas()->invalidateBackingStore();
-            canvas()->repaint(canvas()->contentsRect());
+            // the axes in this example doesn't change. So all we need to do
+            // is to repaint the canvas.
+
+            canvas()->replot();
             break;
         }
         default:

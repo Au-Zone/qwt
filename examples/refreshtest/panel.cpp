@@ -52,6 +52,7 @@ Panel::Panel(QWidget *parent):
     connect(d_curveWidth, SIGNAL(valueChanged(int)), SLOT(edited()) );
     connect(d_paintCache, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_paintOnScreen, SIGNAL(stateChanged(int)), SLOT(edited()) );
+    connect(d_immediatePaint, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveAntialiasing, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_curveClipping, SIGNAL(stateChanged(int)), SLOT(edited()) );
     connect(d_lineSplitting, SIGNAL(stateChanged(int)), SLOT(edited()) );
@@ -71,7 +72,6 @@ QWidget *Panel::createPlotTab(QWidget *parent)
     d_numPoints = new SpinBox(10, 1000000, 1000, page);
 
     d_updateType = new QComboBox(page);
-    d_updateType->addItem("Update");
     d_updateType->addItem("Repaint");
     d_updateType->addItem("Replot");
 
@@ -108,6 +108,7 @@ QWidget *Panel::createCanvasTab(QWidget *parent)
 
     d_paintCache = new CheckBox("Paint Cache", page);
     d_paintOnScreen = new CheckBox("Paint On Screen", page);
+    d_immediatePaint = new CheckBox("Immediate Paint", page);
 
     int row = 0;
 
@@ -117,6 +118,7 @@ QWidget *Panel::createCanvasTab(QWidget *parent)
 
     layout->addWidget(d_paintCache, row++, 0, 1, -1);
     layout->addWidget(d_paintOnScreen, row++, 0, 1, -1);
+    layout->addWidget(d_immediatePaint, row++, 0, 1, -1);
 
     layout->addLayout(new QHBoxLayout(), row++, 0);
 
@@ -214,8 +216,9 @@ Settings Panel::settings() const
 
     s.curve.lineSplitting = (d_lineSplitting->isChecked() );
 
-    s.canvas.cached = (d_paintCache->isChecked() );
+    s.canvas.useBackingStore = (d_paintCache->isChecked() );
     s.canvas.paintOnScreen = (d_paintOnScreen->isChecked() );
+    s.canvas.immediatePaint = (d_immediatePaint->isChecked() );
 
     s.updateInterval = d_updateInterval->value();
     s.updateType = (Settings::UpdateType)d_updateType->currentIndex();
@@ -241,8 +244,9 @@ void Panel::setSettings(const Settings &s)
             d_gridStyle->setCurrentIndex(1); // Solid
     }
 
-    d_paintCache->setChecked(s.canvas.cached );
+    d_paintCache->setChecked(s.canvas.useBackingStore );
     d_paintOnScreen->setChecked(s.canvas.paintOnScreen);
+    d_immediatePaint->setChecked(s.canvas.immediatePaint);
 
     d_curveType->setCurrentIndex(s.curve.functionType);
     d_curveAntialiasing->setChecked(

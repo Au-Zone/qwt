@@ -17,7 +17,6 @@ public:
 
     enum UpdateType
     {
-        UpdateCanvas,
         RepaintCanvas,
         Replot
     };
@@ -33,8 +32,9 @@ public:
         curve.renderHint = 0;
         curve.lineSplitting = true;
         
-        canvas.cached = false;
+        canvas.useBackingStore = false;
         canvas.paintOnScreen = false;
+        canvas.immediatePaint = true;
 
         updateType = RepaintCanvas;
         updateInterval = 20;
@@ -58,8 +58,9 @@ public:
 
     struct canvasSettings
     {
-        bool cached;
+        bool useBackingStore;
         bool paintOnScreen;
+        bool immediatePaint;
     } canvas;
 
     UpdateType updateType;
