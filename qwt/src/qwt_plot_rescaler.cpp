@@ -609,9 +609,16 @@ void QwtPlotRescaler::updateScales(
         }
     }
 
+    const bool immediatePaint = 
+        plt->canvas()->testPaintAttribute( QwtPlotCanvas::ImmediatePaint );
+    plt->canvas()->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, false );
+
     plt->setAutoReplot( doReplot );
 
     d_data->inReplot++;
     plt->replot();
     d_data->inReplot--;
+
+    plt->canvas()->setPaintAttribute( 
+        QwtPlotCanvas::ImmediatePaint, immediatePaint );
 }

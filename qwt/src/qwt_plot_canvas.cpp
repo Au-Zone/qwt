@@ -601,6 +601,7 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
             break;
         }
         case HackStyledBackground:
+        case ImmediatePaint:
         {
             break;
         }
@@ -928,7 +929,11 @@ void QwtPlotCanvas::drawFocusIndicator( QPainter *painter )
 void QwtPlotCanvas::replot()
 {
     invalidateBackingStore();
-    repaint( contentsRect() );
+
+    if ( testPaintAttribute( QwtPlotCanvas::ImmediatePaint ) )
+        repaint( contentsRect() );
+    else
+        update( contentsRect() );
 }
 
 void QwtPlotCanvas::updateStyleSheetInfo()
