@@ -82,7 +82,15 @@ public:
           gets prefectly antialiased and you can avoid some pixel
           artifacts in the corners.
          */
-        HackStyledBackground = 4
+        HackStyledBackground = 4,
+
+        /*!
+          When ImmediatePaint is set replot() calls repaint()
+          instead of update().
+
+          \sa replot(), QWidget::repaint(), QWidget::update()
+         */
+		ImmediatePaint = 8
     };
 
     /*!
