@@ -36,6 +36,7 @@ private:
     QComboBox *d_gridStyle;
     CheckBox *d_paintCache;
     CheckBox *d_paintOnScreen;
+    CheckBox *d_immediatePaint;
 
     QComboBox *d_curveType;
     CheckBox *d_curveAntialiasing;
