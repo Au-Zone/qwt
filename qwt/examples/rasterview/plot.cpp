@@ -8,6 +8,7 @@
 #include <qwt_plot_panner.h>
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_grid.h>
+#include <qwt_plot_canvas.h>
 #include <qfiledialog.h>
 #include <qimagewriter.h>
 
@@ -91,6 +92,8 @@ Plot::Plot(QWidget *parent):
 
     QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
     panner->setAxisEnabled( QwtPlot::yRight, false);
+
+    canvas()->setBorderRadius( 10 );
 }
 
 void Plot::exportPlot()
