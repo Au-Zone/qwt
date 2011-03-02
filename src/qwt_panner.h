@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include <qwidget.h>
+#include <qpixmap.h>
 
 class QCursor;
 
@@ -83,6 +84,9 @@ protected:
     virtual void widgetKeyReleaseEvent( QKeyEvent * );
 
     virtual void paintEvent( QPaintEvent * );
+
+    virtual QBitmap contentsMask() const;
+    virtual QPixmap grab() const;
 
 private:
 #ifndef QT_NO_CURSOR

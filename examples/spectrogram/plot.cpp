@@ -147,6 +147,11 @@ void Plot::printPlot()
     if ( dialog.exec() )
     {
         QwtPlotRenderer renderer;
+
+        renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
+        renderer.setLayoutFlag(QwtPlotRenderer::KeepMargins, true);
+        renderer.setLayoutFlag(QwtPlotRenderer::KeepFrames, true);
+
         renderer.renderTo(this, printer);
     }
 }

@@ -6,6 +6,8 @@
 #include <qwt_legend.h>
 #include <qwt_series_data.h>
 #include <qwt_plot_canvas.h>
+#include <qwt_plot_panner.h>
+#include <qwt_plot_magnifier.h>
 #include <qwt_text.h>
 #include <qwt_math.h>
 #include <math.h>
@@ -53,6 +55,12 @@ private:
 Plot::Plot(QWidget *parent):
     QwtPlot( parent )
 {
+    // panning with the left mouse button
+    (void) new QwtPlotPanner( canvas() );
+
+    // zoom in/out with the wheel
+    (void) new QwtPlotMagnifier( canvas() );
+
     setAutoFillBackground( true );
     setPalette( QPalette( QColor( 165, 193, 228 ) ) );
     updateGradient();
@@ -61,9 +69,7 @@ Plot::Plot(QWidget *parent):
     insertLegend(new QwtLegend(), QwtPlot::RightLegend);
 
     // axes 
-    QwtText text( "name2", QwtText::RichText );
-    text.setRenderFlags(Qt::AlignRight);
-    setAxisTitle(xBottom, text );
+    setAxisTitle(xBottom, "x -->" );
     setAxisScale(xBottom, 0.0, 10.0);
 
     setAxisTitle(yLeft, "y -->");
