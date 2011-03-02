@@ -551,6 +551,149 @@ void QwtPainter::drawRoundFrame( QPainter *painter, const QRect &rect,
 }
 
 /*!
+  Draw a frame with rounded borders
+
+  \param painter Painter
+  \param rect Frame rectangle
+  \param xRadius x-radius of the ellipses defining the corners
+  \param yRadius y-radius of the ellipses defining the corners
+  \param palette QPalette::Foreground is used for plain borders
+                 QPalette::Dark and QPalette::Light for raised
+                 or sunken borders
+  \param lineWidth Line width
+  \param frameStyle bitwise OR´ed value of QFrame::Shape and QFrame::Shadow
+*/
+
+void QwtPainter::drawRoundedFrame( QPainter *painter, 
+    const QRectF &rect, double xRadius, double yRadius, 
+    const QPalette &palette, int lineWidth, int frameStyle )
+{
+    painter->save();
+    painter->setRenderHint( QPainter::Antialiasing, true );
+    painter->setBrush( Qt::NoBrush );
+
+    double lw2 = lineWidth * 0.5;
+    QRectF r = rect.adjusted( lw2, lw2, -lw2, -lw2 );
+
+    QPainterPath path;
+    path.addRoundedRect( r, xRadius, yRadius );
+
+    enum Style
+    {
+        Plain,
+        Sunken,
+        Raised
+
+    };
+
+    Style style = Plain;
+    if ( (frameStyle & QFrame::Sunken) == QFrame::Sunken )
+        style = Sunken;
+    else if ( (frameStyle & QFrame::Raised) == QFrame::Raised )
+        style = Raised;
+
+    if ( style != Plain && path.elementCount() == 17 )
+    {
+        // move + 4 * ( cubicTo + lineTo )
+        QPainterPath pathList[8];
+        
+        for ( int i = 0; i < 4; i++ )
+        {
+            const int j = i * 4 + 1;
+            
+            pathList[ 2 * i ].moveTo(
+                path.elementAt(j - 1).x, path.elementAt( j - 1 ).y
+            );  
+            
+            pathList[ 2 * i ].cubicTo(
+                path.elementAt(j + 0).x, path.elementAt(j + 0).y,
+                path.elementAt(j + 1).x, path.elementAt(j + 1).y,
+                path.elementAt(j + 2).x, path.elementAt(j + 2).y );
+                
+            pathList[ 2 * i + 1 ].moveTo(
+                path.elementAt(j + 2).x, path.elementAt(j + 2).y
+            );  
+            pathList[ 2 * i + 1 ].lineTo(
+                path.elementAt(j + 3).x, path.elementAt(j + 3).y
+            );  
+        }   
+
+        QColor c1( palette.color( QPalette::Dark ) );
+        QColor c2( palette.color( QPalette::Light ) );
+
+        if ( style == Raised )
+            qSwap( c1, c2 );
+
+        for ( int i = 0; i < 4; i++ )
+        {
+            QRectF r = pathList[2 * i].controlPointRect();
+
+            QPen arcPen;
+            arcPen.setWidth( lineWidth );
+
+            QPen linePen;
+            linePen.setWidth( lineWidth );
+
+            switch( i )
+            {
+                case 0:
+                {
+                    arcPen.setColor( c1 );
+                    linePen.setColor( c1 );
+                    break;
+                }
+                case 1:
+                {
+                    QLinearGradient gradient;
+                    gradient.setStart( r.topLeft() );
+                    gradient.setFinalStop( r.bottomRight() );
+                    gradient.setColorAt( 0.0, c1 );
+                    gradient.setColorAt( 1.0, c2 );
+
+                    arcPen.setBrush( gradient );
+                    linePen.setColor( c2 );
+                    break;
+                }
+                case 2:
+                {
+                    arcPen.setColor( c2 );
+                    linePen.setColor( c2 );
+                    break;
+                }
+                case 3:
+                {
+                    QLinearGradient gradient;
+
+                    gradient.setStart( r.bottomRight() );
+                    gradient.setFinalStop( r.topLeft() );
+                    gradient.setColorAt( 0.0, c2 );
+                    gradient.setColorAt( 1.0, c1 );
+
+                    arcPen.setBrush( gradient );
+                    linePen.setColor( c1 );
+                    break;
+                }
+            }
+
+
+            painter->setPen( arcPen );
+            painter->drawPath( pathList[ 2 * i] );
+
+            painter->setPen( linePen );
+            painter->drawPath( pathList[ 2 * i + 1] );
+        }
+    }
+    else
+    {
+        QPen pen( palette.color( QPalette::Foreground ), lineWidth );
+        painter->setPen( pen );
+        painter->drawPath( path );
+    }
+
+    painter->restore();
+}
+
+/*!
   Draw a color bar into a rectangle
 
   \param painter Painter
