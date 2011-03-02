@@ -14,6 +14,7 @@
 #include <qframe.h>
 #include <qpen.h>
 #include <qpainterpath.h>
+#include <qbitmap.h>
 
 class QwtPlot;
 class QPixmap;
@@ -131,6 +132,7 @@ public:
     double borderRadius() const;
 
     QPainterPath borderPath( const QRect &rect ) const;
+	QBitmap borderMask( const QSize & ) const;
 
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;

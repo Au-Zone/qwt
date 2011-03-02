@@ -161,3 +161,15 @@ void QwtPlotPanner::moveCanvas( int dx, int dy )
     plot->setAutoReplot( doAutoReplot );
     plot->replot();
 }
+
+/*!
+    Calculate a mask from the border mask of the canvas
+    \sa QwtPlotCanvas::borderMask()
+*/
+QBitmap QwtPlotPanner::contentsMask() const
+{
+    if ( canvas() )
+        canvas()->borderMask( size() );
+
+    return QwtPanner::contentsMask();
+}

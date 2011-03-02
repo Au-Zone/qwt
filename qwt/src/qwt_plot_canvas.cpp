@@ -1000,7 +1000,52 @@ QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
         path.addRoundedRect( r, d_data->borderRadius, d_data->borderRadius );
         return path;
     }
-
     
     return QPainterPath();
+}
+
+QBitmap QwtPlotCanvas::borderMask( const QSize &size ) const
+{
+	const QRect r( 0, 0, size.width(), size.height() );
+
+    const QPainterPath path = borderPath( r );
+    if ( path.isEmpty() )
+        return QBitmap();
+
+    QImage image( size, QImage::Format_ARGB32_Premultiplied );
+    image.fill( Qt::color0 );
+
+    QPainter painter( &image );
+    painter.setClipPath( path );
+    painter.fillRect( r, Qt::color1 );
+
+	// now erase the frame
+
+    painter.setCompositionMode( QPainter::CompositionMode_DestinationOut );
+
+	if ( testAttribute(Qt::WA_StyledBackground ) )
+	{
+    	QStyleOptionFrame opt;
+    	opt.initFrom(this);
+    	opt.rect = r;
+    	style()->drawPrimitive( QStyle::PE_Frame, &opt, &painter, this );
+	}
+	else
+	{
+	    if ( d_data->borderRadius > 0 && frameWidth() > 0 )
+		{
+            painter.setPen( QPen( Qt::color1, frameWidth() ) );
+            painter.setBrush( Qt::NoBrush );
+            painter.setRenderHint( QPainter::Antialiasing, true );
+
+            painter.drawPath( path );
+		}
+	}
+
+    painter.end();
+
+    const QImage mask = image.createMaskFromColor(
+        QColor( Qt::color1 ).rgb(), Qt::MaskOutColor );
+
+    return QBitmap::fromImage( mask );
 }

@@ -32,14 +32,8 @@ Qwt includes a class documentation, that is available in various formats:
 Building Qwt
 ==========================
 
-The easiest way to build Qwt is from the command line. Using an IDE 
-for building Qwt might introduce problems without offering any benefits.
-Of course this doesn't mean, that you shouldn't use your favourite IDE 
-to develop your application with Qwt.
-
-When you insist on using an IDE you have to take care, that it
-builds Qwt in its source directory. F.e in the Qt Creator you might have
-to disable the "Shadow Build" option on the "Build Settings" tab.
+The easiest way to build Qwt is from the command line - but you insist on 
+using an IDE don't forget the "make install" step.
 
 A) Unix 
 --------

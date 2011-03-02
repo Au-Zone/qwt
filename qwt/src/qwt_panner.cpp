@@ -13,8 +13,9 @@
 #include <qpixmap.h>
 #include <qevent.h>
 #include <qcursor.h>
+#include <qbitmap.h>
 
-static QVector<QwtPicker *> activePickers( QWidget *w )
+static QVector<QwtPicker *> qwtActivePickers( QWidget *w )
 {
     QVector<QwtPicker *> pickers;
 
@@ -68,6 +69,8 @@ public:
     QPoint pos;
 
     QPixmap pixmap;
+    QBitmap contentsMask;
+
 #ifndef QT_NO_CURSOR
     QCursor *cursor;
     QCursor *restoreCursor;
@@ -246,29 +249,58 @@ bool QwtPanner::isEnabled() const
 */
 void QwtPanner::paintEvent( QPaintEvent *pe )
 {
-    QPixmap pm( size() );
-
-    QPainter painter( &pm );
-
-    const QColor bg = parentWidget()->palette().color(
-                          QPalette::Normal, QPalette::Window );
-
-    painter.setPen( Qt::NoPen );
-    painter.setBrush( QBrush( bg ) );
-    painter.drawRect( 0, 0, pm.width(), pm.height() );
-
     int dx = d_data->pos.x() - d_data->initialPos.x();
     int dy = d_data->pos.y() - d_data->initialPos.y();
 
     QRect r( 0, 0, d_data->pixmap.width(), d_data->pixmap.height() );
     r.moveCenter( QPoint( r.center().x() + dx, r.center().y() + dy ) );
 
-    painter.drawPixmap( r, d_data->pixmap );
-    painter.end();
+    QPixmap pm( size() );
+    pm.fill( parentWidget(), 0, 0 );
+
+    QPainter painter( &pm );
+
+	if ( !d_data->contentsMask.isNull() )
+	{
+		QPixmap masked = d_data->pixmap;
+		masked.setMask( d_data->contentsMask );
+    	painter.drawPixmap( r, masked );
+	}
+	else
+	{
+    	painter.drawPixmap( r, d_data->pixmap );
+	}
+
+	painter.end();
+
+    if ( !d_data->contentsMask.isNull() )
+		pm.setMask( d_data->contentsMask );
 
     painter.begin( this );
     painter.setClipRegion( pe->region() );
     painter.drawPixmap( 0, 0, pm );
+}
+
+/*!
+  \brief Calculate a mask for the contents of the panned widget
+
+  Sometimes only parts of the contents of a widget should be
+  panned. F.e. for a widget with a styled background with rounded borders
+  only the area inside of the border should be panned.
+
+  \return An empty bitmap, indicating no mask
+*/
+QBitmap QwtPanner::contentsMask() const
+{
+    return QBitmap();
+}
+
+/*!
+  Grab the widget into a pixmap.
+*/
+QPixmap QwtPanner::grab() const
+{
+    return QPixmap::grabWidget( parentWidget() );
 }
 
 /*!
@@ -351,15 +383,15 @@ void QwtPanner::widgetMousePressEvent( QMouseEvent *me )
 
     d_data->initialPos = d_data->pos = me->pos();
 
-    QRect grabRect = parentWidget()->contentsRect();
-    setGeometry( grabRect );
+    setGeometry( parentWidget()->rect() );
 
     // We don't want to grab the picker !
-    QVector<QwtPicker *> pickers = activePickers( parentWidget() );
+    QVector<QwtPicker *> pickers = qwtActivePickers( parentWidget() );
     for ( int i = 0; i < ( int )pickers.size(); i++ )
         pickers[i]->setEnabled( false );
 
-    d_data->pixmap = QPixmap::grabWidget( parentWidget(), grabRect );
+    d_data->pixmap = grab();
+    d_data->contentsMask = contentsMask();
 
     for ( int i = 0; i < ( int )pickers.size(); i++ )
         pickers[i]->setEnabled( true );
@@ -417,6 +449,7 @@ void QwtPanner::widgetMouseReleaseEvent( QMouseEvent *me )
             pos.setY( d_data->initialPos.y() );
 
         d_data->pixmap = QPixmap();
+        d_data->contentsMask = QBitmap();
         d_data->pos = pos;
 
         if ( d_data->pos != d_data->initialPos )

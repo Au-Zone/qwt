@@ -6,7 +6,7 @@ Ideas
 - QAbstractModel -> QwtSeriesData
 - Cleanup of all widgets using QGradient and friends
 - Curves for financial charts, box-whisker
-- QwtSeiesData + functors
+- QwtSeriesData + functors
 - QwtSeriesData/QwtPlotCurve + Level of details (Douglas Peucker)
 - Common zoom stack for all navigation objects
 - Watermark Item
@@ -18,7 +18,6 @@ Ideas
 - Interval scale labels ( between 2 ticks )
 - More than 4 axes
 - QwtPlotLegendItem: legend item on the canvas
-- Qt 4.5 + reintroduced raster operations
 - QwtSymbol/QwtIntervalSymbol + QPainterPath
 - QwtPlotScene + breaking composite architecture
 
