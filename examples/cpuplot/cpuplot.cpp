@@ -8,6 +8,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_legend.h>
 #include <qwt_legend_item.h>
+#include <qwt_plot_canvas.h>
 #include "cpupiemarker.h"
 #include "cpuplot.h"
 
@@ -82,6 +83,8 @@ CpuPlot::CpuPlot(QWidget *parent):
     dataCount(0)
 {
     setAutoReplot(false);
+
+	canvas()->setBorderRadius( 10 );
 
     plotLayout()->setAlignCanvasToScales(true);
 

@@ -879,16 +879,9 @@ void QwtPlotCanvas::drawBorder( QPainter *painter )
     {
         if ( frameWidth() > 0 )
         {
-            painter->save();
-
-            painter->setPen( 
-                QPen( palette().color( QPalette::Foreground ), frameWidth() ) );
-            painter->setBrush( Qt::NoBrush );
-            painter->setRenderHint( QPainter::Antialiasing, true );
-
-            painter->drawPath( borderPath( rect() ) );
-
-            painter->restore();
+            QwtPainter::drawRoundedFrame( painter, QRectF( rect() ), 
+                d_data->borderRadius, d_data->borderRadius,
+                palette(), frameWidth(), frameStyle() );
         }
     }
     else
@@ -1006,7 +999,7 @@ QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
 
 QBitmap QwtPlotCanvas::borderMask( const QSize &size ) const
 {
-	const QRect r( 0, 0, size.width(), size.height() );
+    const QRect r( 0, 0, size.width(), size.height() );
 
     const QPainterPath path = borderPath( r );
     if ( path.isEmpty() )
@@ -1019,28 +1012,28 @@ QBitmap QwtPlotCanvas::borderMask( const QSize &size ) const
     painter.setClipPath( path );
     painter.fillRect( r, Qt::color1 );
 
-	// now erase the frame
+    // now erase the frame
 
     painter.setCompositionMode( QPainter::CompositionMode_DestinationOut );
 
-	if ( testAttribute(Qt::WA_StyledBackground ) )
-	{
-    	QStyleOptionFrame opt;
-    	opt.initFrom(this);
-    	opt.rect = r;
-    	style()->drawPrimitive( QStyle::PE_Frame, &opt, &painter, this );
-	}
-	else
-	{
-	    if ( d_data->borderRadius > 0 && frameWidth() > 0 )
-		{
+    if ( testAttribute(Qt::WA_StyledBackground ) )
+    {
+        QStyleOptionFrame opt;
+        opt.initFrom(this);
+        opt.rect = r;
+        style()->drawPrimitive( QStyle::PE_Frame, &opt, &painter, this );
+    }
+    else
+    {
+        if ( d_data->borderRadius > 0 && frameWidth() > 0 )
+        {
             painter.setPen( QPen( Qt::color1, frameWidth() ) );
             painter.setBrush( Qt::NoBrush );
             painter.setRenderHint( QPainter::Antialiasing, true );
 
             painter.drawPath( path );
-		}
-	}
+        }
+    }
 
     painter.end();
 

@@ -169,7 +169,7 @@ void QwtPlotPanner::moveCanvas( int dx, int dy )
 QBitmap QwtPlotPanner::contentsMask() const
 {
     if ( canvas() )
-        canvas()->borderMask( size() );
+        return canvas()->borderMask( size() );
 
     return QwtPanner::contentsMask();
 }

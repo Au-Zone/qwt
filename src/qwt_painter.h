@@ -80,6 +80,10 @@ public:
     static void drawImage( QPainter *, const QRectF &, const QImage & );
     static void drawPixmap( QPainter *, const QRectF &, const QPixmap & );
 
+    static void drawRoundedFrame( QPainter *, 
+        const QRectF &, double xRadius, double yRadius,
+        const QPalette &, int lineWidth, int frameStyle );
+
     static void drawRoundFrame( QPainter *, const QRect &,
         int width, const QPalette &, bool sunken );
     static void drawFocusRect( QPainter *, QWidget * );
