@@ -5,7 +5,6 @@
 #include <qtextstream.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
-#include <qfile.h>
 #include "plot.h"
 
 class MainWindow: public QMainWindow
@@ -48,15 +47,6 @@ MainWindow::MainWindow( QWidget *parent ):
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
-
-    // the style sheet is compiled into a resource file
-
-    QFile file( ":friedberg.css" );
-    if ( file.open( QIODevice::ReadOnly | QIODevice::Text ) )
-    {
-        const QString styleSheet = QTextStream( &file ).readAll();
-        a.setStyleSheet( styleSheet );
-    }
 
     MainWindow w;
     w.setObjectName( "MainWindow" );
