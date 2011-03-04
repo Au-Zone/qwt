@@ -19,5 +19,3 @@ SOURCES = \
     friedberg2007.cpp \
     plot.cpp \
     main.cpp
-
-RESOURCES = friedberg.qrc
