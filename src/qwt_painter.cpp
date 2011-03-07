@@ -557,7 +557,7 @@ void QwtPainter::drawRoundFrame( QPainter *painter, const QRect &rect,
   \param rect Frame rectangle
   \param xRadius x-radius of the ellipses defining the corners
   \param yRadius y-radius of the ellipses defining the corners
-  \param palette QPalette::Foreground is used for plain borders
+  \param palette QPalette::WindowText is used for plain borders
                  QPalette::Dark and QPalette::Light for raised
                  or sunken borders
   \param lineWidth Line width
@@ -685,7 +685,7 @@ void QwtPainter::drawRoundedFrame( QPainter *painter,
     }
     else
     {
-        QPen pen( palette.color( QPalette::Foreground ), lineWidth );
+        QPen pen( palette.color( QPalette::WindowText ), lineWidth );
         painter->setPen( pen );
         painter->drawPath( path );
     }

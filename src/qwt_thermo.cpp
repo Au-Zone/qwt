@@ -203,21 +203,22 @@ void QwtThermo::paintEvent( QPaintEvent *event )
 */
 void QwtThermo::draw( QPainter *painter )
 {
+	const QRect &thermoRect = d_data->thermoRect;
+
     if ( !painter->hasClipping() ||
-        !d_data->thermoRect.contains( painter->clipRegion().boundingRect() ) )
+        !thermoRect.contains( painter->clipRegion().boundingRect() ) )
     {
         if ( d_data->scalePos != NoScale )
             scaleDraw()->draw( painter, palette() );
+	}
 
-        qDrawShadePanel( painter,
-            d_data->thermoRect.x() - d_data->borderWidth,
-            d_data->thermoRect.y() - d_data->borderWidth,
-            d_data->thermoRect.width() + 2 * d_data->borderWidth,
-            d_data->thermoRect.height() + 2 * d_data->borderWidth,
-            palette(), true, d_data->borderWidth, 0 );
-    }
+	const int bw = d_data->borderWidth;
 
-    drawThermo( painter );
+    qDrawShadePanel( painter, 
+		thermoRect.adjusted( -bw, -bw, bw, bw ),
+        palette(), true, bw, NULL );
+
+    drawThermo( painter, thermoRect );
 }
 
 //! Qt resize event handler
@@ -455,7 +456,7 @@ void QwtThermo::scaleChange()
    Redraw the liquid in thermometer pipe.
    \param painter Painter
 */
-void QwtThermo::drawThermo( QPainter *painter )
+void QwtThermo::drawThermo( QPainter *painter, const QRect &thermoRect )
 {
     int alarm  = 0, taval = 0;
 
@@ -502,101 +503,96 @@ void QwtThermo::drawThermo( QPainter *painter )
     {
         if ( inverted )
         {
-            bRect.setRect( d_data->thermoRect.x(), d_data->thermoRect.y(),
-                  tval - d_data->thermoRect.x(),
-                  d_data->thermoRect.height() );
+            bRect.setRect( thermoRect.x(), thermoRect.y(),
+                  tval - thermoRect.x(), thermoRect.height() );
 
             if ( alarm )
             {
-                aRect.setRect( tval, d_data->thermoRect.y(),
-                      taval - tval + 1,
-                      d_data->thermoRect.height() );
-                fRect.setRect( taval + 1, d_data->thermoRect.y(),
-                      d_data->thermoRect.x() + d_data->thermoRect.width() - ( taval + 1 ),
-                      d_data->thermoRect.height() );
+                aRect.setRect( tval, thermoRect.y(),
+                      taval - tval + 1, thermoRect.height() );
+                fRect.setRect( taval + 1, thermoRect.y(),
+                      thermoRect.x() + thermoRect.width() - ( taval + 1 ),
+                      thermoRect.height() );
             }
             else
             {
-                fRect.setRect( tval, d_data->thermoRect.y(),
-                      d_data->thermoRect.x() + d_data->thermoRect.width() - tval,
-                      d_data->thermoRect.height() );
+                fRect.setRect( tval, thermoRect.y(),
+                      thermoRect.x() + thermoRect.width() - tval,
+                      thermoRect.height() );
             }
         }
         else
         {
-            bRect.setRect( tval + 1, d_data->thermoRect.y(),
-                  d_data->thermoRect.width() - ( tval + 1 - d_data->thermoRect.x() ),
-                  d_data->thermoRect.height() );
+            bRect.setRect( tval + 1, thermoRect.y(),
+                  thermoRect.width() - ( tval + 1 - thermoRect.x() ),
+                  thermoRect.height() );
 
             if ( alarm )
             {
-                aRect.setRect( taval, d_data->thermoRect.y(),
+                aRect.setRect( taval, thermoRect.y(),
                       tval - taval + 1,
-                      d_data->thermoRect.height() );
-                fRect.setRect( d_data->thermoRect.x(), d_data->thermoRect.y(),
-                      taval - d_data->thermoRect.x(),
-                      d_data->thermoRect.height() );
+                      thermoRect.height() );
+                fRect.setRect( thermoRect.x(), thermoRect.y(),
+                      taval - thermoRect.x(),
+                      thermoRect.height() );
             }
             else
             {
-                fRect.setRect( d_data->thermoRect.x(), d_data->thermoRect.y(),
-                      tval - d_data->thermoRect.x() + 1,
-                      d_data->thermoRect.height() );
+                fRect.setRect( thermoRect.x(), thermoRect.y(),
+                      tval - thermoRect.x() + 1,
+                      thermoRect.height() );
             }
 
         }
     }
     else // Qt::Vertical
     {
-        if ( tval < d_data->thermoRect.y() )
-            tval = d_data->thermoRect.y();
+        if ( tval < thermoRect.y() )
+            tval = thermoRect.y();
         else
         {
-            if ( tval > d_data->thermoRect.y() + d_data->thermoRect.height() )
-                tval = d_data->thermoRect.y() + d_data->thermoRect.height();
+            if ( tval > thermoRect.y() + thermoRect.height() )
+                tval = thermoRect.y() + thermoRect.height();
         }
 
         if ( inverted )
         {
-            bRect.setRect( d_data->thermoRect.x(), tval + 1,
-                d_data->thermoRect.width(),
-                d_data->thermoRect.height() - ( tval + 1 - d_data->thermoRect.y() ) );
+            bRect.setRect( thermoRect.x(), tval + 1,
+                thermoRect.width(),
+                thermoRect.height() - ( tval + 1 - thermoRect.y() ) );
 
             if ( alarm )
             {
-                aRect.setRect( d_data->thermoRect.x(), taval,
-                    d_data->thermoRect.width(),
-                    tval - taval + 1 );
-                fRect.setRect( d_data->thermoRect.x(), d_data->thermoRect.y(),
-                    d_data->thermoRect.width(),
-                    taval - d_data->thermoRect.y() );
+                aRect.setRect( thermoRect.x(), taval,
+                    thermoRect.width(), tval - taval + 1 );
+                fRect.setRect( thermoRect.x(), thermoRect.y(),
+                    thermoRect.width(),
+                    taval - thermoRect.y() );
             }
             else
             {
-                fRect.setRect( d_data->thermoRect.x(), d_data->thermoRect.y(),
-                    d_data->thermoRect.width(),
-                    tval - d_data->thermoRect.y() + 1 );
+                fRect.setRect( thermoRect.x(), thermoRect.y(),
+                    thermoRect.width(), tval - thermoRect.y() + 1 );
             }
         }
         else
         {
-            bRect.setRect( d_data->thermoRect.x(), d_data->thermoRect.y(),
-                d_data->thermoRect.width(),
-                tval - d_data->thermoRect.y() );
+            bRect.setRect( thermoRect.x(), thermoRect.y(),
+                thermoRect.width(), tval - thermoRect.y() );
             if ( alarm )
             {
-                aRect.setRect( d_data->thermoRect.x(), tval,
-                    d_data->thermoRect.width(),
+                aRect.setRect( thermoRect.x(), tval,
+                    thermoRect.width(),
                     taval - tval + 1 );
-                fRect.setRect( d_data->thermoRect.x(), taval + 1,
-                    d_data->thermoRect.width(),
-                    d_data->thermoRect.y() + d_data->thermoRect.height() - ( taval + 1 ) );
+                fRect.setRect( thermoRect.x(), taval + 1,
+                    thermoRect.width(),
+                    thermoRect.y() + thermoRect.height() - ( taval + 1 ) );
             }
             else
             {
-                fRect.setRect( d_data->thermoRect.x(), tval,
-                    d_data->thermoRect.width(),
-                    d_data->thermoRect.y() + d_data->thermoRect.height() - tval );
+                fRect.setRect( thermoRect.x(), tval,
+                    thermoRect.width(),
+                    thermoRect.y() + thermoRect.height() - tval );
             }
         }
     }
@@ -604,8 +600,7 @@ void QwtThermo::drawThermo( QPainter *painter )
     //
     // paint thermometer
     //
-    const QColor bgColor = palette().color( QPalette::Window );
-    painter->fillRect( bRect, bgColor );
+    painter->fillRect( bRect, palette().brush( QPalette::Base ) );
 
     if ( alarm )
         painter->fillRect( aRect, d_data->alarmBrush );

@@ -159,7 +159,7 @@ public Q_SLOTS:
 
 protected:
     void draw( QPainter *p );
-    void drawThermo( QPainter * );
+    void drawThermo( QPainter *, const QRect & );
     void layoutThermo( bool update = true );
     virtual void scaleChange();
 

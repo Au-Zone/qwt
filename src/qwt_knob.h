@@ -63,6 +63,9 @@ public:
     void setBorderWidth( int bw );
     int borderWidth() const;
 
+    void setDotWidth( int );
+    int dotWidth() const;
+
     void setSymbol( Symbol );
     Symbol symbol() const;
 
@@ -78,13 +81,13 @@ protected:
     virtual void resizeEvent( QResizeEvent * );
     virtual void changeEvent( QEvent * );
 
-    void draw( QPainter * );
-    void drawKnob( QPainter *, const QRect & );
-    void drawMarker( QPainter *, double arc, const QColor &c );
+    virtual void draw( QPainter * );
+    virtual void drawKnob( QPainter *, const QRect & );
+    virtual void drawMarker( QPainter *, const QRectF &, double arc );
 
 private:
     void initKnob();
-    void layoutKnob( bool update = true );
+    void layoutKnob( bool update );
     double getValue( const QPoint &p );
     virtual void getScrollMode( const QPoint &, int &scrollMode, int &direction );
     void recalcAngle();
