@@ -106,17 +106,17 @@ protected:
     virtual void getScrollMode( const QPoint &p,
         int &scrollMode, int &direction );
 
-    void draw( QPainter *p, const QRect& update_rect );
-    virtual void drawSlider ( QPainter *p, const QRect &r );
-    virtual void drawThumb( QPainter *p, const QRect &, int pos );
+    void draw( QPainter * );
+    virtual void drawSlider ( QPainter *, const QRect & );
+    virtual void drawThumb( QPainter *, const QRect &, int pos );
 
-    virtual void resizeEvent( QResizeEvent *e );
-    virtual void paintEvent ( QPaintEvent *e );
+    virtual void resizeEvent( QResizeEvent * );
+    virtual void paintEvent ( QPaintEvent * );
+    virtual void changeEvent( QEvent * );
 
     virtual void valueChange();
     virtual void rangeChange();
     virtual void scaleChange();
-    virtual void fontChange( const QFont &oldFont );
 
     void layoutSlider( bool update = true );
     int xyPosition( double v ) const;

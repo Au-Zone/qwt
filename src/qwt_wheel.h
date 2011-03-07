@@ -25,6 +25,7 @@
 class QWT_EXPORT QwtWheel : public QwtAbstractSlider
 {
     Q_OBJECT
+
     Q_PROPERTY( double totalAngle READ totalAngle WRITE setTotalAngle )
     Q_PROPERTY( double viewAngle READ viewAngle WRITE setViewAngle )
     Q_PROPERTY( int    tickCnt READ tickCnt WRITE setTickCnt )
@@ -55,11 +56,11 @@ public:
     virtual QSize minimumSizeHint() const;
 
 protected:
-    virtual void resizeEvent( QResizeEvent *e );
-    virtual void paintEvent( QPaintEvent *e );
+    virtual void paintEvent( QPaintEvent * );
+    virtual void resizeEvent( QResizeEvent * );
 
     void layoutWheel( bool update = true );
-    void draw( QPainter *, const QRect & );
+    void draw( QPainter * );
     void drawWheel( QPainter *, const QRect & );
     void drawWheelBackground( QPainter *, const QRect & );
     void setColorArray();

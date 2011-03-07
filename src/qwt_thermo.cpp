@@ -19,6 +19,8 @@
 #include <qdrawutil.h>
 #include <qalgorithms.h>
 #include <qmath.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
 
 class QwtThermo::PrivateData
 {
@@ -183,13 +185,14 @@ QwtScaleDraw *QwtThermo::scaleDraw()
 */
 void QwtThermo::paintEvent( QPaintEvent *event )
 {
-    // Use double-buffering
-    const QRect &ur = event->rect();
-    if ( ur.isValid() )
-    {
-        QPainter painter( this );
-        draw( &painter, ur );
-    }
+    QPainter painter( this );
+    painter.setClipRegion( event->region() );
+
+    QStyleOption opt;
+    opt.init(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+
+    draw( &painter );
 }
 
 /*!
@@ -198,9 +201,10 @@ void QwtThermo::paintEvent( QPaintEvent *event )
   \param painter Painter
   \param rect Update rectangle
 */
-void QwtThermo::draw( QPainter *painter, const QRect& rect )
+void QwtThermo::draw( QPainter *painter )
 {
-    if ( !d_data->thermoRect.contains( rect ) )
+    if ( !painter->hasClipping() ||
+        !d_data->thermoRect.contains( painter->clipRegion().boundingRect() ) )
     {
         if ( d_data->scalePos != NoScale )
             scaleDraw()->draw( painter, palette() );
@@ -212,6 +216,7 @@ void QwtThermo::draw( QPainter *painter, const QRect& rect )
             d_data->thermoRect.height() + 2 * d_data->borderWidth,
             palette(), true, d_data->borderWidth, 0 );
     }
+
     drawThermo( painter );
 }
 
@@ -219,6 +224,20 @@ void QwtThermo::draw( QPainter *painter, const QRect& rect )
 void QwtThermo::resizeEvent( QResizeEvent * )
 {
     layoutThermo( false );
+}
+
+//! Qt change event handler
+void QwtThermo::changeEvent( QEvent *event )
+{
+    switch( event->type() )
+    {
+        case QEvent::StyleChange:
+        case QEvent::FontChange:
+            layoutThermo();
+            break;
+        default:
+            break;
+    }
 }
 
 /*!
@@ -423,13 +442,6 @@ void QwtThermo::setScalePosition( ScalePos scalePos )
 QwtThermo::ScalePos QwtThermo::scalePosition() const
 {
     return d_data->scalePos;
-}
-
-//! Notify a font change.
-void QwtThermo::fontChange( const QFont &f )
-{
-    QWidget::fontChange( f );
-    layoutThermo();
 }
 
 //! Notify a scale change.

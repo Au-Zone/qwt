@@ -50,7 +50,7 @@ protected Q_SLOTS:
     virtual void moveCanvas( int dx, int dy );
 
 protected:
-	virtual QBitmap contentsMask() const;
+    virtual QBitmap contentsMask() const;
 
 private:
     class PrivateData;

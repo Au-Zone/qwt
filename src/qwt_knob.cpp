@@ -14,6 +14,7 @@
 #include <qpainter.h>
 #include <qpalette.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 #include <qevent.h>
 #include <qmath.h>
 
@@ -313,6 +314,20 @@ void QwtKnob::resizeEvent( QResizeEvent * )
     layoutKnob( false );
 }
 
+//! Qt change event handler
+void QwtKnob::changeEvent( QEvent *event )
+{
+    switch( event->type() )
+    {
+        case QEvent::StyleChange:
+        case QEvent::FontChange:
+            layoutKnob();
+            break;
+        default:
+            break;
+    }
+}
+
 /*!
    Recalculate the knob's geometry and layout based on
    the current rect and fonts.
@@ -342,34 +357,38 @@ void QwtKnob::layoutKnob( bool update_geometry )
 /*!
   Repaint the knob
 
-  \param e Paint event
+  \param event Paint event
 */
-void QwtKnob::paintEvent( QPaintEvent *e )
+void QwtKnob::paintEvent( QPaintEvent *event )
 {
-    const QRect &ur = e->rect();
-    if ( ur.isValid() )
-    {
-        QPainter painter( this );
-        painter.setRenderHint( QPainter::Antialiasing );
-        draw( &painter, ur );
-    }
+    QPainter painter( this );
+    painter.setClipRegion( event->region() );
+
+    QStyleOption opt;
+    opt.init(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+
+    painter.setRenderHint( QPainter::Antialiasing );
+    draw( &painter );
 }
 
 /*!
   Repaint the knob
 
   \param painter Painter
-  \param rect Update rectangle
 */
-void QwtKnob::draw( QPainter *painter, const QRect& rect )
+void QwtKnob::draw( QPainter *painter )
 {
-    if ( !d_data->knobRect.contains( rect ) ) // event from valueChange()
+    if ( !painter->hasClipping() || 
+        !d_data->knobRect.contains( painter->clipRegion().boundingRect() ) )
+    {
         scaleDraw()->draw( painter, palette() );
+    }
 
     drawKnob( painter, d_data->knobRect );
 
     if ( hasFocus() )
-        QwtPainter::drawFocusRect( painter, this, rect );
+        QwtPainter::drawFocusRect( painter, this );
 }
 
 /*!
@@ -483,16 +502,6 @@ void QwtKnob::recalcAngle()
 */
 void QwtKnob::scaleChange()
 {
-    layoutKnob();
-}
-
-/*!
-    Recalculates the layout
-    \sa layoutKnob()
-*/
-void QwtKnob::fontChange( const QFont &f )
-{
-    QwtAbstractSlider::fontChange( f );
     layoutKnob();
 }
 

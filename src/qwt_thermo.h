@@ -158,14 +158,14 @@ public Q_SLOTS:
     virtual void setValue( double val );
 
 protected:
-    void draw( QPainter *p, const QRect& update_rect );
-    void drawThermo( QPainter *p );
+    void draw( QPainter *p );
+    void drawThermo( QPainter * );
     void layoutThermo( bool update = true );
     virtual void scaleChange();
-    virtual void fontChange( const QFont &oldFont );
 
-    virtual void paintEvent( QPaintEvent *e );
-    virtual void resizeEvent( QResizeEvent *e );
+    virtual void paintEvent( QPaintEvent * );
+    virtual void resizeEvent( QResizeEvent * );
+    virtual void changeEvent( QEvent * );
 
     QwtScaleDraw *scaleDraw();
 

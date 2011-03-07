@@ -14,6 +14,7 @@
 #include <qdrawutil.h>
 #include <qpainter.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 
 #define NUM_COLORS 30
 
@@ -486,21 +487,27 @@ double QwtWheel::getValue( const QPoint &p )
     return val;
 }
 
-//! Qt Resize Event
+/*! 
+   \brief Qt Resize Event
+   \param event Resize event
+*/
 void QwtWheel::resizeEvent( QResizeEvent * )
 {
+    // ContentsRectChange ???
     layoutWheel( false );
 }
 
-//! Recalculate the slider's geometry and layout based on
-//  the current rect and fonts.
-//  \param update_geometry  notify the layout system and call update
-//         to redraw the scale
+/*! 
+  Recalculate the slider's geometry and layout based on
+  the current rect and fonts.
+
+  \param update_geometry  notify the layout system and call update
+         to redraw the scale
+*/
 void QwtWheel::layoutWheel( bool update_geometry )
 {
-    const QRect r = this->rect();
-    d_data->sliderRect.setRect( r.x() + d_data->borderWidth, r.y() + d_data->borderWidth,
-                                r.width() - 2*d_data->borderWidth, r.height() - 2*d_data->borderWidth );
+    const int bw = d_data->borderWidth;
+    d_data->sliderRect = contentsRect().adjusted( bw, bw, -bw, -bw );
 
     if ( update_geometry )
     {
@@ -509,27 +516,30 @@ void QwtWheel::layoutWheel( bool update_geometry )
     }
 }
 
-//! Qt Paint Event
-void QwtWheel::paintEvent( QPaintEvent *e )
+/*! 
+   \brief Qt Paint Event
+   \param event Paint event
+*/
+void QwtWheel::paintEvent( QPaintEvent *event )
 {
-    // Use double-buffering
-    const QRect &ur = e->rect();
-    if ( ur.isValid() )
-    {
-        QPainter painter( this );
-        draw( &painter, ur );
-    }
+    QPainter painter( this );
+    painter.setClipRegion( event->region() );
+
+    QStyleOption opt;
+    opt.init(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+
+    draw( &painter );
 }
 
 /*!
    Redraw panel and wheel
    \param painter Painter
 */
-void QwtWheel::draw( QPainter *painter, const QRect& )
+void QwtWheel::draw( QPainter *painter )
 {
-    qDrawShadePanel( painter, rect().x(), rect().y(),
-        rect().width(), rect().height(),
-        palette(), true, d_data->borderWidth );
+    qDrawShadePanel( painter, 
+        contentsRect(), palette(), true, d_data->borderWidth );
 
     drawWheel( painter, d_data->sliderRect );
 

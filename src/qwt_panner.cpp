@@ -260,21 +260,21 @@ void QwtPanner::paintEvent( QPaintEvent *pe )
 
     QPainter painter( &pm );
 
-	if ( !d_data->contentsMask.isNull() )
-	{
-		QPixmap masked = d_data->pixmap;
-		masked.setMask( d_data->contentsMask );
-    	painter.drawPixmap( r, masked );
-	}
-	else
-	{
-    	painter.drawPixmap( r, d_data->pixmap );
-	}
+    if ( !d_data->contentsMask.isNull() )
+    {
+        QPixmap masked = d_data->pixmap;
+        masked.setMask( d_data->contentsMask );
+        painter.drawPixmap( r, masked );
+    }
+    else
+    {
+        painter.drawPixmap( r, d_data->pixmap );
+    }
 
-	painter.end();
+    painter.end();
 
     if ( !d_data->contentsMask.isNull() )
-		pm.setMask( d_data->contentsMask );
+        pm.setMask( d_data->contentsMask );
 
     painter.begin( this );
     painter.setClipRegion( pe->region() );

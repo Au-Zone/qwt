@@ -91,7 +91,7 @@ public:
 
           \sa replot(), QWidget::repaint(), QWidget::update()
          */
-		ImmediatePaint = 8
+        ImmediatePaint = 8
     };
 
     /*!
@@ -132,7 +132,7 @@ public:
     double borderRadius() const;
 
     QPainterPath borderPath( const QRect &rect ) const;
-	QBitmap borderMask( const QSize & ) const;
+    QBitmap borderMask( const QSize & ) const;
 
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
