@@ -16,6 +16,8 @@
 #include <qpainter.h>
 #include <qalgorithms.h>
 #include <qmath.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
 
 class QwtSlider::PrivateData
 {
@@ -329,14 +331,6 @@ void QwtSlider::scaleChange()
     layoutSlider();
 }
 
-
-//! Notify change in font
-void QwtSlider::fontChange( const QFont &f )
-{
-    QwtAbstractSlider::fontChange( f );
-    layoutSlider();
-}
-
 /*!
    Draw the slider into the specified rectangle.
 
@@ -490,19 +484,27 @@ void QwtSlider::getScrollMode( const QPoint &p,
 */
 void QwtSlider::paintEvent( QPaintEvent *event )
 {
-    const QRect &ur = event->rect();
-    if ( ur.isValid() )
-    {
-        QPainter painter( this );
-        draw( &painter, ur );
-    }
+    QPainter painter( this );
+    painter.setClipRegion( event->region() );
+
+    QStyleOption opt;
+    opt.init(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+
+    draw( &painter );
 }
 
 //! Draw the QwtSlider
-void QwtSlider::draw( QPainter *painter, const QRect& )
+void QwtSlider::draw( QPainter *painter )
 {
     if ( d_data->scalePos != NoScale )
-        scaleDraw()->draw( painter, palette() );
+    {
+        if ( !painter->hasClipping() ||
+            !d_data->sliderRect.contains( painter->clipRegion().boundingRect() ) )
+        {
+            scaleDraw()->draw( painter, palette() );
+        }
+	}
 
     drawSlider( painter, d_data->sliderRect );
 
@@ -514,6 +516,20 @@ void QwtSlider::draw( QPainter *painter, const QRect& )
 void QwtSlider::resizeEvent( QResizeEvent * )
 {
     layoutSlider( false );
+}
+
+//! Qt change event handler
+void QwtSlider::changeEvent( QEvent *event )
+{
+    switch( event->type() )
+    {
+        case QEvent::StyleChange:
+        case QEvent::FontChange:
+            layoutSlider();
+            break;
+        default: 
+            break;
+    }
 }
 
 /*!

@@ -74,24 +74,24 @@ public:
     QwtRoundScaleDraw *scaleDraw();
 
 protected:
-    virtual void paintEvent( QPaintEvent *e );
-    virtual void resizeEvent( QResizeEvent *e );
+    virtual void paintEvent( QPaintEvent * );
+    virtual void resizeEvent( QResizeEvent * );
+    virtual void changeEvent( QEvent * );
 
-    void draw( QPainter *p, const QRect& ur );
-    void drawKnob( QPainter *p, const QRect &r );
-    void drawMarker( QPainter *p, double arc, const QColor &c );
+    void draw( QPainter * );
+    void drawKnob( QPainter *, const QRect & );
+    void drawMarker( QPainter *, double arc, const QColor &c );
 
 private:
     void initKnob();
     void layoutKnob( bool update = true );
     double getValue( const QPoint &p );
-    void getScrollMode( const QPoint &p, int &scrollMode, int &direction );
+    virtual void getScrollMode( const QPoint &, int &scrollMode, int &direction );
     void recalcAngle();
 
     virtual void valueChange();
     virtual void rangeChange();
     virtual void scaleChange();
-    virtual void fontChange( const QFont &oldFont );
 
     class PrivateData;
     PrivateData *d_data;
