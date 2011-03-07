@@ -352,9 +352,9 @@ void QwtPlotMarker::setSymbol( const QwtSymbol *symbol )
   \return the symbol
   \sa setSymbol(), QwtSymbol
 */
-const QwtSymbol &QwtPlotMarker::symbol() const
+const QwtSymbol *QwtPlotMarker::symbol() const
 {
-    return *d_data->symbol;
+    return d_data->symbol;
 }
 
 /*!
