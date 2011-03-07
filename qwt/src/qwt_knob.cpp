@@ -127,7 +127,7 @@ void QwtKnob::setTotalAngle ( double angle )
 
     scaleDraw()->setAngleRange( -0.5 * d_data->totalAngle,
         0.5 * d_data->totalAngle );
-    layoutKnob();
+    layoutKnob( true );
 }
 
 //! Return the total angle
@@ -172,48 +172,37 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 /*!
   \brief Draw the knob
   \param painter painter
-  \param r Bounding rectangle of the knob (without scale)
+  \param knobRect Bounding rectangle of the knob (without scale)
 */
-void QwtKnob::drawKnob( QPainter *painter, const QRect &r )
+void QwtKnob::drawKnob( QPainter *painter, const QRect &knobRect )
 {
-    const QBrush buttonBrush = palette().brush( QPalette::Button );
-    const QColor buttonTextColor = palette().color( QPalette::ButtonText );
+    double dim = qMin( knobRect.width(), knobRect.height() );
+    dim -= d_data->borderWidth * 0.5;
+
+    QRectF aRect( 0, 0, dim, dim );
+    aRect.moveCenter( knobRect.center() );
+
+    //
+    // draw knob face
+    //
     const QColor lightColor = palette().color( QPalette::Light );
     const QColor darkColor = palette().color( QPalette::Dark );
 
-    const int bw2 = d_data->borderWidth / 2;
+    QLinearGradient gradient( aRect.topLeft(), aRect.bottomRight() );
+    gradient.setColorAt( 0.0, lightColor );
+    gradient.setColorAt( 0.3, lightColor );
+    gradient.setColorAt( 0.7, darkColor );
+    gradient.setColorAt( 1.0, darkColor );
 
-    const int radius = ( qMin( r.width(), r.height() ) - bw2 ) / 2;
-
-    const QRect aRect(
-        r.center().x() - radius, r.center().y() - radius,
-        2 * radius, 2 * radius );
-
-    //
-    // draw button face
-    //
-    painter->setBrush( buttonBrush );
+    painter->setPen( QPen( gradient, d_data->borderWidth ) );
+    painter->setBrush( palette().brush( QPalette::Button ) );
     painter->drawEllipse( aRect );
-
-    //
-    // draw button shades
-    //
-    QPen pn;
-    pn.setWidth( d_data->borderWidth );
-
-    pn.setColor( lightColor );
-    painter->setPen( pn );
-    painter->drawArc( aRect, 45*16, 180*16 );
-
-    pn.setColor( darkColor );
-    painter->setPen( pn );
-    painter->drawArc( aRect, 225*16, 180*16 );
 
     //
     // draw marker
     //
     if ( isValid() )
-        drawMarker( painter, d_data->angle, buttonTextColor );
+        drawMarker( painter, aRect, d_data->angle );
 }
 
 /*!
@@ -302,7 +291,7 @@ void QwtKnob::rangeChange()
     if ( autoScale() )
         rescale( minValue(), maxValue() );
 
-    layoutKnob();
+    layoutKnob( true );
     recalcAngle();
 }
 
@@ -321,7 +310,7 @@ void QwtKnob::changeEvent( QEvent *event )
     {
         case QEvent::StyleChange:
         case QEvent::FontChange:
-            layoutKnob();
+            layoutKnob( true );
             break;
         default:
             break;
@@ -394,44 +383,65 @@ void QwtKnob::draw( QPainter *painter )
 /*!
   \brief Draw the marker at the knob's front
   \param p Painter
-  \param arc Angle of the marker
+  \param angle Angle of the marker
   \param c Marker color
 */
-void QwtKnob::drawMarker( QPainter *p, double arc, const QColor &c )
+void QwtKnob::drawMarker( QPainter *p, const QRectF &rect, double angle )
 {
-    const double rarc = arc * M_PI / 180.0;
-    const double ca = qFastCos( rarc );
-    const double sa = - qFastSin( rarc );
+    const double radians = angle * M_PI / 180.0;
+    const double sinA = -qFastSin( radians );
+    const double cosA = qFastCos( radians );
 
-    int radius = d_data->knobRect.width() / 2 - d_data->borderWidth;
-    if ( radius < 3 )
-        radius = 3;
+    const double xm = rect.center().x();
+    const double ym = rect.center().y();
+    const double margin = 4.0;
 
-    const int ym = d_data->knobRect.y() + radius + d_data->borderWidth;
-    const int xm = d_data->knobRect.x() + radius + d_data->borderWidth;
+    double radius = 0.5 * ( rect.width() - d_data->borderWidth ) - margin;
+    if ( radius < 1.0 )
+        radius = 1.0;
 
     switch ( d_data->symbol )
     {
         case Dot:
         {
-            p->setBrush( c );
-            p->setPen( Qt::NoPen );
+            const double dotWidth = 
+                qMin( double( d_data->dotWidth ), radius);
 
-            const double rb = double( qMax( radius - 4 - d_data->dotWidth / 2, 0 ) );
-            p->drawEllipse( xm - qRound( sa * rb ) - d_data->dotWidth / 2,
-                ym - qRound( ca * rb ) - d_data->dotWidth / 2,
-                d_data->dotWidth, d_data->dotWidth );
+            const double dotCenterDist = radius - 0.5 * dotWidth;
+            if ( dotCenterDist > 0.0 )
+            {
+                const QPointF center( xm - sinA * dotCenterDist, 
+                    ym - cosA * dotCenterDist );
+
+                QRectF ellipse( 0.0, 0.0, dotWidth, dotWidth );
+                ellipse.moveCenter( center );
+
+                const QColor lightColor = palette().color( QPalette::Light );
+                const QColor darkColor = palette().color( QPalette::Dark );
+
+                QLinearGradient gradient( 
+                    ellipse.topLeft(), ellipse.bottomRight() );
+                gradient.setColorAt( 0.0, darkColor );
+                gradient.setColorAt( 1.0, lightColor );
+
+                p->setPen( Qt::NoPen );
+                p->setBrush( gradient );
+
+                p->drawEllipse( ellipse );
+            }
             break;
         }
         case Line:
         {
+            const QColor c = palette().color( QPalette::Text );
+
             p->setPen( QPen( c, 2 ) );
 
-            const double rb = qMax( double( ( radius - 4 ) / 3.0 ), 0.0 );
-            const double re = qMax( double( radius - 4 ), 0.0 );
+            const double rb = radius / 3.0;
+            const double re = radius;
 
-            p->drawLine ( xm - qRound( sa * rb ), ym - qRound( ca * rb ),
-                xm - qRound( sa * re ), ym - qRound( ca * re ) );
+            p->drawLine ( xm - sinA * rb, ym - cosA * rb,
+                xm - sinA * re, ym - cosA * re );
 
             break;
         }
@@ -447,7 +457,7 @@ void QwtKnob::drawMarker( QPainter *p, double arc, const QColor &c )
 void QwtKnob::setKnobWidth( int w )
 {
     d_data->knobWidth = qMax( w, 5 );
-    layoutKnob();
+    layoutKnob( true );
 }
 
 //! Return the width of the knob
@@ -458,18 +468,28 @@ int QwtKnob::knobWidth() const
 
 /*!
   \brief Set the knob's border width
-  \param bw new border width
+  \param borderWidth new border width
 */
-void QwtKnob::setBorderWidth( int bw )
+void QwtKnob::setBorderWidth( int borderWidth )
 {
-    d_data->borderWidth = qMax( bw, 0 );
-    layoutKnob();
+    d_data->borderWidth = qMax( borderWidth, 0 );
+    layoutKnob( true );
 }
 
 //! Return the border width
 int QwtKnob::borderWidth() const
 {
     return d_data->borderWidth;
+}
+
+void QwtKnob::setDotWidth( int width )
+{
+    d_data->dotWidth = width;
+}
+
+int QwtKnob::dotWidth() const
+{
+    return d_data->dotWidth;
 }
 
 /*!
@@ -502,7 +522,7 @@ void QwtKnob::recalcAngle()
 */
 void QwtKnob::scaleChange()
 {
-    layoutKnob();
+    layoutKnob( true );
 }
 
 /*!
