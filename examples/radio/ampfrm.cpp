@@ -25,12 +25,24 @@ public:
         d_knob->setScaleMaxMajor(10);
 
         d_knob->setKnobWidth(50);
+        d_knob->setSymbol(QwtKnob::Dot);
+        d_knob->setDotWidth( 8 );
+
+        d_knob->scaleDraw()->setTickLength( QwtScaleDiv::MinorTick, 4 );
+        d_knob->scaleDraw()->setTickLength( QwtScaleDiv::MediumTick, 4 );
+        d_knob->scaleDraw()->setTickLength( QwtScaleDiv::MajorTick, 6 );
+
+        QFont font = d_knob->font();
+        font.setPointSize( 10 );
+        d_knob->setFont( font );
 
         d_label = new QLabel(title, this);
         d_label->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 
         setSizePolicy(QSizePolicy::MinimumExpanding, 
             QSizePolicy::MinimumExpanding);
+
+        updateGradient();
     }
 
     virtual QSize sizeHint() const
@@ -68,6 +80,29 @@ protected:
 
         d_knob->setGeometry(0, d_label->pos().y() - h + off,
             sz.width(), h);
+
+        updateGradient();
+    }
+
+    void updateGradient()
+    {
+        QPalette pal = palette();
+
+        const QColor buttonColor = pal.color( QPalette::Button );
+        const QColor midLightColor = pal.color( QPalette::Midlight );
+        const QColor darkColor = pal.color( QPalette::Dark );
+
+        QRect knobRect( 0, 0, d_knob->knobWidth(), d_knob->knobWidth() );
+        knobRect.moveCenter( rect().center() );
+
+        QLinearGradient gradient( knobRect.topLeft(), knobRect.bottomRight() );
+        gradient.setColorAt( 0.0, midLightColor );
+        gradient.setColorAt( 0.1, midLightColor );
+        gradient.setColorAt( 0.5, buttonColor );
+        gradient.setColorAt( 1.0, buttonColor );
+
+        pal.setBrush( QPalette::Button, gradient );
+        d_knob->setPalette( pal );
     }
 
 private:

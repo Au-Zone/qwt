@@ -12,11 +12,12 @@ include( $${PWD}/../examples.pri )
 TARGET       = radio
 
 HEADERS = \
-     radio.h \
+     mainwindow.h \
      ampfrm.h \
      tunerfrm.h
 
 SOURCES = \
-    radio.cpp \
+    mainwindow.cpp \ 
     ampfrm.cpp \ 
-    tunerfrm.cpp
+    tunerfrm.cpp \
+    radio.cpp 
