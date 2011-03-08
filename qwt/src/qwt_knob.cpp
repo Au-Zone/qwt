@@ -36,11 +36,15 @@ public:
         borderDist = 4;
         totalAngle = 270.0;
         scaleDist = 4;
-        markerType = Notch;
+        markerStyle = QwtKnob::Notch;
         maxScaleTicks = 11;
+        knobStyle = QwtKnob::Raised;
         knobWidth = 50;
         markerSize = 8;
     }
+
+    QwtKnob::KnobStyle knobStyle;
+    QwtKnob::MarkerStyle markerStyle;
 
     int borderWidth;
     int borderDist;
@@ -49,12 +53,11 @@ public:
     int knobWidth;
     int markerSize;
 
-    MarkerType markerType;
     double angle;
     double totalAngle;
     double nTurns;
 
-    QRect knobRect; // bounding rect of the knob without scale
+    mutable QRectF knobRect; // bounding rect of the knob without scale
 };
 
 /*!
@@ -89,27 +92,51 @@ QwtKnob::~QwtKnob()
 }
 
 /*!
-  \brief Set the marker type of the knob
+  \brief Set the knob type 
 
-  \param markerType Marker type
-  \sa markerType(), setMarkerSize()
+  \param knobStyle Knob type
+  \sa knobStyle(), setBorderWidth()
 */
-void QwtKnob::setMarkerType( MarkerType markerType )
+void QwtKnob::setKnobStyle( KnobStyle knobStyle )
 {
-    if ( d_data->markerType != markerType )
+    if ( d_data->knobStyle != knobStyle )
     {
-        d_data->markerType = markerType;
+        d_data->knobStyle = knobStyle;
         update();
     }
 }
 
 /*!
     \return Marker type of the knob
-    \sa setMarkerType(), setMarkerSize()
+    \sa setKnobStyle(), setBorderWidth()
 */
-QwtKnob::MarkerType QwtKnob::markerType() const
+QwtKnob::KnobStyle QwtKnob::knobStyle() const
 {
-    return d_data->markerType;
+    return d_data->knobStyle;
+}
+
+/*!
+  \brief Set the marker type of the knob
+
+  \param markerStyle Marker type
+  \sa markerStyle(), setMarkerSize()
+*/
+void QwtKnob::setMarkerStyle( MarkerStyle markerStyle )
+{
+    if ( d_data->markerStyle != markerStyle )
+    {
+        d_data->markerStyle = markerStyle;
+        update();
+    }
+}
+
+/*!
+    \return Marker type of the knob
+    \sa setMarkerStyle(), setMarkerSize()
+*/
+QwtKnob::MarkerStyle QwtKnob::markerStyle() const
+{
+    return d_data->markerStyle;
 }
 
 /*!
@@ -292,15 +319,14 @@ void QwtKnob::changeEvent( QEvent *event )
 */
 void QwtKnob::layoutKnob( bool update_geometry )
 {
-    const QRect r = rect();
-    const int radius = d_data->knobWidth / 2;
+    const double d = d_data->knobWidth;
 
-    d_data->knobRect.setWidth( 2 * radius );
-    d_data->knobRect.setHeight( 2 * radius );
-    d_data->knobRect.moveCenter( r.center() );
+    d_data->knobRect.setWidth( d );
+    d_data->knobRect.setHeight( d );
+    d_data->knobRect.moveCenter( rect().center() );
 
-    scaleDraw()->setRadius( radius + d_data->scaleDist );
-    scaleDraw()->moveCenter( r.center() );
+    scaleDraw()->setRadius( 0.5 * d + d_data->scaleDist );
+    scaleDraw()->moveCenter( rect().center() );
 
     if ( update_geometry )
     {
@@ -350,16 +376,6 @@ void QwtKnob::drawKnob( QPainter *painter,
     QRectF aRect( 0, 0, dim, dim );
     aRect.moveCenter( knobRect.center() );
 
-    // draw knob 
-    enum Style
-    {
-        NoStyle,
-        Raised,
-        Sunken
-    };
-
-    Style style = Raised;
-
     QPen pen( Qt::NoPen );
     if ( d_data->borderWidth > 0 )
     {
@@ -376,9 +392,9 @@ void QwtKnob::drawKnob( QPainter *painter,
     }
 
     QBrush brush;
-    switch( style )
+    switch( d_data->knobStyle )
     {
-        case Raised:
+        case QwtKnob::Raised:
         {
             double off = 0.3 * knobRect.width();
             QRadialGradient gradient( knobRect.center(),
@@ -391,7 +407,7 @@ void QwtKnob::drawKnob( QPainter *painter,
 
             break;
         }
-        case Sunken:
+        case QwtKnob::Sunken:
         {
             QLinearGradient gradient( 
                 knobRect.topLeft(), knobRect.bottomRight() );
@@ -421,7 +437,7 @@ void QwtKnob::drawKnob( QPainter *painter,
 void QwtKnob::drawMarker( QPainter *painter, 
     const QRectF &rect, double angle ) const
 {
-    if ( d_data->markerType == NoMarker || !isValid() )
+    if ( d_data->markerStyle == NoMarker || !isValid() )
         return;
 
     const double radians = angle * M_PI / 180.0;
@@ -436,7 +452,7 @@ void QwtKnob::drawMarker( QPainter *painter,
     if ( radius < 1.0 )
         radius = 1.0;
 
-    switch ( d_data->markerType )
+    switch ( d_data->markerStyle )
     {
         case Notch:
         case Nub:
@@ -456,7 +472,7 @@ void QwtKnob::drawMarker( QPainter *painter,
                 QColor c1 = palette().color( QPalette::Light );
                 QColor c2 = palette().color( QPalette::Mid );
 
-                if ( d_data->markerType == Notch )
+                if ( d_data->markerStyle == Notch )
                     qSwap( c1, c2 );
 
                 QLinearGradient gradient( 
@@ -568,7 +584,7 @@ int QwtKnob::borderWidth() const
 
 /*!
   \brief Set the size of the marker
-  \sa markerSize(), markerType()
+  \sa markerSize(), markerStyle()
 */
 void QwtKnob::setMarkerSize( int size )
 {
