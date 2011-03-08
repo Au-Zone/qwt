@@ -34,21 +34,28 @@ class QwtRoundScaleDraw;
 class QWT_EXPORT QwtKnob : public QwtAbstractSlider, public QwtAbstractScale
 {
     Q_OBJECT
-    Q_ENUMS ( Symbol )
+
+    Q_ENUMS ( MarkerType )
+
     Q_PROPERTY( int knobWidth READ knobWidth WRITE setKnobWidth )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( double totalAngle READ totalAngle WRITE setTotalAngle )
-    Q_PROPERTY( Symbol symbol READ symbol WRITE setSymbol )
+    Q_PROPERTY( MarkerType markerType READ markerType WRITE setMarkerType )
+    Q_PROPERTY( int markerSize READ markerSize WRITE setMarkerSize )
+    Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
 
 public:
     /*!
-        Symbol
+        Marker
         \sa setSymbol()
     */
-    enum Symbol 
+    enum MarkerType 
     { 
-        Line, 
-        Dot 
+        NoMarker = -1,
+
+        Tick, 
+        Nub, 
+        Notch 
     };
 
     explicit QwtKnob( QWidget* parent = NULL );
@@ -63,11 +70,11 @@ public:
     void setBorderWidth( int bw );
     int borderWidth() const;
 
-    void setDotWidth( int );
-    int dotWidth() const;
+    void setMarkerSize( int );
+    int markerSize() const;
 
-    void setSymbol( Symbol );
-    Symbol symbol() const;
+    void setMarkerType( MarkerType );
+    MarkerType markerType() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -81,9 +88,9 @@ protected:
     virtual void resizeEvent( QResizeEvent * );
     virtual void changeEvent( QEvent * );
 
-    virtual void draw( QPainter * );
-    virtual void drawKnob( QPainter *, const QRect & );
-    virtual void drawMarker( QPainter *, const QRectF &, double arc );
+    virtual void drawKnob( QPainter *, const QRectF & ) const;
+    virtual void drawMarker( QPainter *, 
+        const QRectF &, double arc ) const;
 
 private:
     void initKnob();

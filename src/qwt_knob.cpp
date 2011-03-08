@@ -36,10 +36,10 @@ public:
         borderDist = 4;
         totalAngle = 270.0;
         scaleDist = 4;
-        symbol = Line;
+        markerType = Notch;
         maxScaleTicks = 11;
         knobWidth = 50;
-        dotWidth = 8;
+        markerSize = 8;
     }
 
     int borderWidth;
@@ -47,9 +47,9 @@ public:
     int scaleDist;
     int maxScaleTicks;
     int knobWidth;
-    int dotWidth;
+    int markerSize;
 
-    Symbol symbol;
+    MarkerType markerType;
     double angle;
     double totalAngle;
     double nTurns;
@@ -89,25 +89,27 @@ QwtKnob::~QwtKnob()
 }
 
 /*!
-  \brief Set the symbol of the knob
-  \sa symbol()
+  \brief Set the marker type of the knob
+
+  \param markerType Marker type
+  \sa markerType(), setMarkerSize()
 */
-void QwtKnob::setSymbol( QwtKnob::Symbol s )
+void QwtKnob::setMarkerType( MarkerType markerType )
 {
-    if ( d_data->symbol != s )
+    if ( d_data->markerType != markerType )
     {
-        d_data->symbol = s;
+        d_data->markerType = markerType;
         update();
     }
 }
 
 /*!
-    \return symbol of the knob
-    \sa setSymbol()
+    \return Marker type of the knob
+    \sa setMarkerType(), setMarkerSize()
 */
-QwtKnob::Symbol QwtKnob::symbol() const
+QwtKnob::MarkerType QwtKnob::markerType() const
 {
-    return d_data->symbol;
+    return d_data->markerType;
 }
 
 /*!
@@ -167,42 +169,6 @@ const QwtRoundScaleDraw *QwtKnob::scaleDraw() const
 QwtRoundScaleDraw *QwtKnob::scaleDraw()
 {
     return static_cast<QwtRoundScaleDraw *>( abstractScaleDraw() );
-}
-
-/*!
-  \brief Draw the knob
-  \param painter painter
-  \param knobRect Bounding rectangle of the knob (without scale)
-*/
-void QwtKnob::drawKnob( QPainter *painter, const QRect &knobRect )
-{
-    double dim = qMin( knobRect.width(), knobRect.height() );
-    dim -= d_data->borderWidth * 0.5;
-
-    QRectF aRect( 0, 0, dim, dim );
-    aRect.moveCenter( knobRect.center() );
-
-    //
-    // draw knob face
-    //
-    const QColor lightColor = palette().color( QPalette::Light );
-    const QColor darkColor = palette().color( QPalette::Dark );
-
-    QLinearGradient gradient( aRect.topLeft(), aRect.bottomRight() );
-    gradient.setColorAt( 0.0, lightColor );
-    gradient.setColorAt( 0.3, lightColor );
-    gradient.setColorAt( 0.7, darkColor );
-    gradient.setColorAt( 1.0, darkColor );
-
-    painter->setPen( QPen( gradient, d_data->borderWidth ) );
-    painter->setBrush( palette().brush( QPalette::Button ) );
-    painter->drawEllipse( aRect );
-
-    //
-    // draw marker
-    //
-    if ( isValid() )
-        drawMarker( painter, aRect, d_data->angle );
 }
 
 /*!
@@ -345,7 +311,6 @@ void QwtKnob::layoutKnob( bool update_geometry )
 
 /*!
   Repaint the knob
-
   \param event Paint event
 */
 void QwtKnob::paintEvent( QPaintEvent *event )
@@ -357,37 +322,108 @@ void QwtKnob::paintEvent( QPaintEvent *event )
     opt.init(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
 
-    painter.setRenderHint( QPainter::Antialiasing );
-    draw( &painter );
+    painter.setRenderHint( QPainter::Antialiasing, true );
+
+    if ( !d_data->knobRect.contains( event->region().boundingRect() ) )
+        scaleDraw()->draw( &painter, palette() );
+
+    drawKnob( &painter, d_data->knobRect );
+    drawMarker( &painter, d_data->knobRect, d_data->angle );
+
+    painter.setRenderHint( QPainter::Antialiasing, false );
+
+    if ( hasFocus() )
+        QwtPainter::drawFocusRect( &painter, this );
 }
 
 /*!
-  Repaint the knob
-
-  \param painter Painter
+  \brief Draw the knob
+  \param painter painter
+  \param knobRect Bounding rectangle of the knob (without scale)
 */
-void QwtKnob::draw( QPainter *painter )
+void QwtKnob::drawKnob( QPainter *painter, 
+    const QRectF &knobRect ) const
 {
-    if ( !painter->hasClipping() || 
-        !d_data->knobRect.contains( painter->clipRegion().boundingRect() ) )
+    double dim = qMin( knobRect.width(), knobRect.height() );
+    dim -= d_data->borderWidth * 0.5;
+
+    QRectF aRect( 0, 0, dim, dim );
+    aRect.moveCenter( knobRect.center() );
+
+    // draw knob 
+    enum Style
     {
-        scaleDraw()->draw( painter, palette() );
+        NoStyle,
+        Raised,
+        Sunken
+    };
+
+    Style style = Raised;
+
+    QPen pen( Qt::NoPen );
+    if ( d_data->borderWidth > 0 )
+    {
+        QColor c1 = palette().color( QPalette::Light );
+        QColor c2 = palette().color( QPalette::Dark );
+
+        QLinearGradient gradient( aRect.topLeft(), aRect.bottomRight() );
+        gradient.setColorAt( 0.0, c1 );
+        gradient.setColorAt( 0.3, c1 );
+        gradient.setColorAt( 0.7, c2 );
+        gradient.setColorAt( 1.0, c2 );
+
+        pen = QPen( gradient, d_data->borderWidth ); 
     }
 
-    drawKnob( painter, d_data->knobRect );
+    QBrush brush;
+    switch( style )
+    {
+        case Raised:
+        {
+            double off = 0.3 * knobRect.width();
+            QRadialGradient gradient( knobRect.center(),
+                knobRect.width(), knobRect.topLeft() + QPoint( off, off ) );
+            
+            gradient.setColorAt( 0.0, palette().color( QPalette::Midlight ) );
+            gradient.setColorAt( 1.0, palette().color( QPalette::Button ) );
 
-    if ( hasFocus() )
-        QwtPainter::drawFocusRect( painter, this );
+            brush = QBrush( gradient );
+
+            break;
+        }
+        case Sunken:
+        {
+            QLinearGradient gradient( 
+                knobRect.topLeft(), knobRect.bottomRight() );
+            gradient.setColorAt( 0.0, palette().color( QPalette::Mid ) );
+            gradient.setColorAt( 0.5, palette().color( QPalette::Button ) );
+            gradient.setColorAt( 1.0, palette().color( QPalette::Midlight ) );
+            brush = QBrush( gradient );
+
+            break;
+        }
+        default:
+            brush = palette().brush( QPalette::Button );
+    }
+
+    painter->setPen( pen );
+    painter->setBrush( brush );
+    painter->drawEllipse( aRect );
 }
+
 
 /*!
   \brief Draw the marker at the knob's front
-  \param p Painter
-  \param angle Angle of the marker
+  \param painter Painter
+  \param angle Angle of the marker in degrees
   \param c Marker color
 */
-void QwtKnob::drawMarker( QPainter *p, const QRectF &rect, double angle )
+void QwtKnob::drawMarker( QPainter *painter, 
+    const QRectF &rect, double angle ) const
 {
+    if ( d_data->markerType == NoMarker || !isValid() )
+        return;
+
     const double radians = angle * M_PI / 180.0;
     const double sinA = -qFastSin( radians );
     const double cosA = qFastCos( radians );
@@ -400,12 +436,13 @@ void QwtKnob::drawMarker( QPainter *p, const QRectF &rect, double angle )
     if ( radius < 1.0 )
         radius = 1.0;
 
-    switch ( d_data->symbol )
+    switch ( d_data->markerType )
     {
-        case Dot:
+        case Notch:
+        case Nub:
         {
             const double dotWidth = 
-                qMin( double( d_data->dotWidth ), radius);
+                qMin( double( d_data->markerSize ), radius);
 
             const double dotCenterDist = radius - 0.5 * dotWidth;
             if ( dotCenterDist > 0.0 )
@@ -416,35 +453,61 @@ void QwtKnob::drawMarker( QPainter *p, const QRectF &rect, double angle )
                 QRectF ellipse( 0.0, 0.0, dotWidth, dotWidth );
                 ellipse.moveCenter( center );
 
-                const QColor lightColor = palette().color( QPalette::Light );
-                const QColor darkColor = palette().color( QPalette::Dark );
+                QColor c1 = palette().color( QPalette::Light );
+                QColor c2 = palette().color( QPalette::Mid );
+
+                if ( d_data->markerType == Notch )
+                    qSwap( c1, c2 );
 
                 QLinearGradient gradient( 
                     ellipse.topLeft(), ellipse.bottomRight() );
-                gradient.setColorAt( 0.0, darkColor );
-                gradient.setColorAt( 1.0, lightColor );
+                gradient.setColorAt( 0.0, c1 );
+                gradient.setColorAt( 1.0, c2 );
 
-                p->setPen( Qt::NoPen );
-                p->setBrush( gradient );
+                painter->setPen( Qt::NoPen );
+                painter->setBrush( gradient );
 
-                p->drawEllipse( ellipse );
+                painter->drawEllipse( ellipse );
             }
             break;
         }
-        case Line:
+        case Tick:
         {
-            const QColor c = palette().color( QPalette::Text );
-
-            p->setPen( QPen( c, 2 ) );
-
-            const double rb = radius / 3.0;
+            const double rb = qMax( radius - d_data->markerSize, 1.0 );
             const double re = radius;
 
-            p->drawLine ( xm - sinA * rb, ym - cosA * rb,
+            const QLine line( xm - sinA * rb, ym - cosA * rb,
                 xm - sinA * re, ym - cosA * re );
+
+            QPen pen( palette().color( QPalette::Text ), 0 );
+            pen.setCapStyle( Qt::FlatCap );
+            painter->setPen( pen );
+            painter->drawLine ( line );
 
             break;
         }
+#if 0
+        case Triangle:
+        {
+            const double rb = qMax( radius - d_data->markerSize, 1.0 );
+            const double re = radius;
+
+            painter->translate( rect.center() );
+            painter->rotate( angle - 90.0 );
+            
+            QPolygonF polygon;
+            polygon += QPointF( re, 0.0 );
+            polygon += QPointF( rb, 0.5 * ( re - rb ) );
+            polygon += QPointF( rb, -0.5 * ( re - rb ) );
+
+            painter->setPen( Qt::NoPen );
+            painter->setBrush( palette().color( QPalette::Text ) );
+            painter->drawPolygon( polygon );
+            break;
+        }
+#endif
+        default:
+            break;
     }
 }
 
@@ -482,14 +545,23 @@ int QwtKnob::borderWidth() const
     return d_data->borderWidth;
 }
 
-void QwtKnob::setDotWidth( int width )
+/*!
+  \brief Set the size of the marker
+  \sa markerSize(), markerType()
+*/
+void QwtKnob::setMarkerSize( int size )
 {
-    d_data->dotWidth = width;
+    if ( d_data->markerSize != size )
+    {
+        d_data->markerSize = size;
+        update();
+    }
 }
 
-int QwtKnob::dotWidth() const
+//! Return the marker size
+int QwtKnob::markerSize() const
 {
-    return d_data->dotWidth;
+    return d_data->markerSize;
 }
 
 /*!
