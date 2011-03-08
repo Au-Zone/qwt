@@ -468,39 +468,6 @@ void QwtPainter::drawPixmap( QPainter *painter,
     }
 }
 
-/*! 
-   Draw a arc with a linear gradient
-   \note This method needs to be replaced by using QGradient
-*/
-void QwtPainter::drawColoredArc( QPainter *painter, const QRect &rect,
-    int peak, int arc, int interval, const QColor &c1, const QColor &c2 )
-{
-    int h1, s1, v1;
-    int h2, s2, v2;
-
-    c1.getHsv( &h1, &s1, &v1 );
-    c2.getHsv( &h2, &s2, &v2 );
-
-    arc /= 2;
-    for ( int angle = -arc; angle < arc; angle += interval )
-    {
-        double ratio;
-        if ( angle >= 0 )
-            ratio = 1.0 - angle / double( arc );
-        else
-            ratio = 1.0 + angle / double( arc );
-
-
-        QColor c;
-        c.setHsv( h1 + qRound( ratio * ( h2 - h1 ) ),
-            s1 + qRound( ratio * ( s2 - s1 ) ),
-            v1 + qRound( ratio * ( v2 - v1 ) ) );
-
-        painter->setPen( QPen( c, painter->pen().width() ) );
-        painter->drawArc( rect, ( peak + angle ) * 16, interval * 16 );
-    }
-}
-
 //! Draw a focus rectangle on a widget using its style.
 void QwtPainter::drawFocusRect( QPainter *painter, QWidget *widget )
 {
@@ -518,36 +485,6 @@ void QwtPainter::drawFocusRect( QPainter *painter, QWidget *widget,
 
     widget->style()->drawPrimitive( QStyle::PE_FrameFocusRect,
         &opt, painter, widget );
-}
-
-//! Draw a round frame
-void QwtPainter::drawRoundFrame( QPainter *painter, const QRect &rect,
-    int width, const QPalette &palette, bool sunken )
-{
-
-    QColor c0 = palette.color( QPalette::Mid );
-    QColor c1, c2;
-    if ( sunken )
-    {
-        c1 = palette.color( QPalette::Dark );
-        c2 = palette.color( QPalette::Light );
-    }
-    else
-    {
-        c1 = palette.color( QPalette::Light );
-        c2 = palette.color( QPalette::Dark );
-    }
-
-    painter->setPen( QPen( c0, width ) );
-    painter->drawArc( rect, 0, 360 * 16 ); // full
-
-    const int peak = 150;
-    const int interval = 2;
-
-    if ( c0 != c1 )
-        drawColoredArc( painter, rect, peak, 160, interval, c0, c1 );
-    if ( c0 != c2 )
-        drawColoredArc( painter, rect, peak + 180, 120, interval, c0, c2 );
 }
 
 /*!
@@ -583,7 +520,6 @@ void QwtPainter::drawRoundedFrame( QPainter *painter,
         Plain,
         Sunken,
         Raised
-
     };
 
     Style style = Plain;

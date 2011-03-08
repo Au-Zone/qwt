@@ -165,14 +165,16 @@ QwtText QwtAnalogClock::scaleLabel( double value ) const
   \param painter Painter
   \param center Center of the clock
   \param radius Maximum length for the hands
-  \param direction Dummy, not used.
-  \param cg ColorGroup
+  \param dir Dummy, not used.
+  \param colorGroup ColorGroup
 
   \sa drawHand()
 */
-void QwtAnalogClock::drawNeedle( QPainter *painter, const QPoint &center,
-    int radius, double, QPalette::ColorGroup cg ) const
+void QwtAnalogClock::drawNeedle( QPainter *painter, const QPointF &center,
+    double radius, double dir, QPalette::ColorGroup colorGroup ) const
 {
+    Q_UNUSED( dir );
+
     if ( isValid() )
     {
         const double hours = value() / ( 60.0 * 60.0 );
@@ -193,7 +195,7 @@ void QwtAnalogClock::drawNeedle( QPainter *painter, const QPoint &center,
 
             d -= origin();
 
-            drawHand( painter, ( Hand )hand, center, radius, d, cg );
+            drawHand( painter, ( Hand )hand, center, radius, d, colorGroup );
         }
     }
 }
@@ -209,7 +211,7 @@ void QwtAnalogClock::drawNeedle( QPainter *painter, const QPoint &center,
   \param cg ColorGroup
 */
 void QwtAnalogClock::drawHand( QPainter *painter, Hand hd,
-    const QPoint &center, int radius, double direction,
+    const QPointF &center, double radius, double direction,
     QPalette::ColorGroup cg ) const
 {
     const QwtDialNeedle *needle = hand( hd );

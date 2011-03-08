@@ -12,28 +12,31 @@
 #include "qwt_painter.h"
 #include <qpainter.h>
 
-static QPoint cutPoint( QPoint p11, QPoint p12, QPoint p21, QPoint p22 )
+static QPointF cuttingPoint( 
+    QPointF p11, QPointF p12, QPointF p21, QPointF p22 )
 {
+    // QLineF ???
+
     double dx1 = p12.x() - p11.x();
     double dy1 = p12.y() - p11.y();
     double dx2 = p22.x() - p21.x();
     double dy2 = p22.y() - p21.y();
 
     if ( dx1 == 0.0 && dx2 == 0.0 )
-        return QPoint();
+        return QPointF();
 
     if ( dx1 == 0.0 )
     {
         const double m = dy2 / dx2;
         const double t = p21.y() - m * p21.x();
-        return QPoint( p11.x(), qRound( m * p11.x() + t ) );
+        return QPointF( p11.x(), m * p11.x() + t );
     }
 
     if ( dx2 == 0 )
     {
         const double m = dy1 / dx1;
         const double t = p11.y() - m * p11.x();
-        return QPoint( p21.x(), qRound( m * p21.x() + t ) );
+        return QPointF( p21.x(), m * p21.x() + t );
     }
 
     const double m1 = dy1 / dx1;
@@ -43,12 +46,12 @@ static QPoint cutPoint( QPoint p11, QPoint p12, QPoint p21, QPoint p22 )
     const double t2 = p21.y() - m2 * p21.x();
 
     if ( m1 == m2 )
-        return QPoint();
+        return QPointF();
 
     const double x = ( t2 - t1 ) / ( m1 - m2 );
     const double y = t1 + m1 * x;
 
-    return QPoint( qRound( x ), qRound( y ) );
+    return QPointF( x, y );
 }
 
 class QwtSimpleCompassRose::PrivateData
@@ -131,11 +134,12 @@ double QwtSimpleCompassRose::shrinkFactor() const
    \param north Position
    \param cg Color group
 */
-void QwtSimpleCompassRose::draw( QPainter *painter, const QPoint &center,
-    int radius, double north, QPalette::ColorGroup cg ) const
+void QwtSimpleCompassRose::draw( QPainter *painter, const QPointF &center,
+    double radius, double north, QPalette::ColorGroup cg ) const
 {
     QPalette pal = palette();
     pal.setCurrentColorGroup( cg );
+
     drawRose( painter, pal, center, radius, north, d_data->width,
         d_data->numThorns, d_data->numThornLevels, d_data->shrinkFactor );
 }
@@ -156,7 +160,7 @@ void QwtSimpleCompassRose::draw( QPainter *painter, const QPoint &center,
 void QwtSimpleCompassRose::drawRose(
     QPainter *painter,
     const QPalette &palette,
-    const QPoint &center, int radius, double north, double width,
+    const QPointF &center, double radius, double north, double width,
     int numThorns, int numThornLevels, double shrinkFactor )
 {
     if ( numThorns < 4 )
@@ -199,24 +203,24 @@ void QwtSimpleCompassRose::drawRose(
         for ( double angle = origin;
             angle < 2.0 * M_PI + origin; angle += step )
         {
-            const QPoint p = qwtPolar2Pos( center, r, angle );
-            QPoint p1 = qwtPolar2Pos( center, leafWidth, angle + M_PI_2 );
-            QPoint p2 = qwtPolar2Pos( center, leafWidth, angle - M_PI_2 );
+            const QPointF p = qwtPolar2Pos( center, r, angle );
+            QPointF p1 = qwtPolar2Pos( center, leafWidth, angle + M_PI_2 );
+            QPointF p2 = qwtPolar2Pos( center, leafWidth, angle - M_PI_2 );
 
-            QPolygon pa( 3 );
-            pa.setPoint( 0, center );
-            pa.setPoint( 1, p );
+            QPolygonF pa( 3 );
+            pa[0] = center;
+            pa[1] = p;
 
-            QPoint p3 = qwtPolar2Pos( center, r, angle + step / 2.0 );
-            p1 = cutPoint( center, p3, p1, p );
-            pa.setPoint( 2, p1 );
+            QPointF p3 = qwtPolar2Pos( center, r, angle + step / 2.0 );
+            p1 = cuttingPoint( center, p3, p1, p );
+            pa[2] = p1;
             painter->setBrush( palette.brush( QPalette::Dark ) );
             painter->drawPolygon( pa );
 
-            QPoint p4 = qwtPolar2Pos( center, r, angle - step / 2.0 );
-            p2 = cutPoint( center, p4, p2, p );
+            QPointF p4 = qwtPolar2Pos( center, r, angle - step / 2.0 );
+            p2 = cuttingPoint( center, p4, p2, p );
 
-            pa.setPoint( 2, p2 );
+            pa[2] = p2;
             painter->setBrush( palette.brush( QPalette::Light ) );
             painter->drawPolygon( pa );
         }

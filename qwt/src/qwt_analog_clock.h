@@ -75,11 +75,11 @@ public Q_SLOTS:
 protected:
     virtual QwtText scaleLabel( double ) const;
 
-    virtual void drawNeedle( QPainter *, const QPoint &,
-        int radius, double direction, QPalette::ColorGroup ) const;
+    virtual void drawNeedle( QPainter *, const QPointF &,
+        double radius, double direction, QPalette::ColorGroup ) const;
 
-    virtual void drawHand( QPainter *, Hand, const QPoint &,
-        int radius, double direction, QPalette::ColorGroup ) const;
+    virtual void drawHand( QPainter *, Hand, const QPointF &,
+        double radius, double direction, QPalette::ColorGroup ) const;
 
 private:
     virtual void setNeedle( QwtDialNeedle * );

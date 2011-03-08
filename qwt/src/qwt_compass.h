@@ -47,11 +47,11 @@ public:
 protected:
     virtual QwtText scaleLabel( double value ) const;
 
-    virtual void drawRose( QPainter *, const QPoint &center,
-        int radius, double north, QPalette::ColorGroup ) const;
+    virtual void drawRose( QPainter *, const QPointF &center,
+        double radius, double north, QPalette::ColorGroup ) const;
 
     virtual void drawScaleContents( QPainter *,
-        const QPoint &center, int radius ) const;
+        const QPointF &center, double radius ) const;
 
     virtual void keyPressEvent( QKeyEvent * );
 
