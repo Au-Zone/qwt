@@ -24,13 +24,18 @@ public:
         d_knob->setRange(min, max, 0,1);
         d_knob->setScaleMaxMajor(10);
 
+#if 1
+        d_knob->setKnobStyle(QwtKnob::Raised);
+#else
+        d_knob->setKnobStyle(QwtKnob::Sunken);
+#endif
         d_knob->setKnobWidth(50);
         d_knob->setBorderWidth(2);
 #if 1
-        d_knob->setMarkerType(QwtKnob::Notch);
+        d_knob->setMarkerStyle(QwtKnob::Notch);
         d_knob->setMarkerSize( 8 );
 #else
-        d_knob->setMarkerType(QwtKnob::Tick);
+        d_knob->setMarkerStyle(QwtKnob::Tick);
         d_knob->setMarkerSize( 12 );
 #endif
 

@@ -35,16 +35,26 @@ class QWT_EXPORT QwtKnob : public QwtAbstractSlider, public QwtAbstractScale
 {
     Q_OBJECT
 
-    Q_ENUMS ( MarkerType )
+    Q_ENUMS ( KnobStyle )
+    Q_ENUMS ( MarkerStyle )
 
+    Q_PROPERTY( KnobStyle knobStyle READ knobStyle WRITE setKnobStyle )
+    Q_PROPERTY( MarkerStyle markerStyle READ markerStyle WRITE setMarkerStyle )
     Q_PROPERTY( int knobWidth READ knobWidth WRITE setKnobWidth )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( double totalAngle READ totalAngle WRITE setTotalAngle )
-    Q_PROPERTY( MarkerType markerType READ markerType WRITE setMarkerType )
     Q_PROPERTY( int markerSize READ markerSize WRITE setMarkerSize )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
 
 public:
+    //! KnobStyle
+    enum KnobStyle
+    {
+        NoStyle,
+        Raised,
+        Sunken
+    };
+
     /*!
         \brief Marker type
  
@@ -53,7 +63,7 @@ public:
 
         \sa setMarkerType(), setMarkerSize()
     */
-    enum MarkerType 
+    enum MarkerStyle 
     { 
         //! Don't paint any marker
         NoMarker = -1,
@@ -86,14 +96,17 @@ public:
     void setTotalAngle ( double angle );
     double totalAngle() const;
 
+    void setKnobStyle( KnobStyle );
+    KnobStyle knobStyle() const;
+
     void setBorderWidth( int bw );
     int borderWidth() const;
 
+    void setMarkerStyle( MarkerStyle );
+    MarkerStyle markerStyle() const;
+
     void setMarkerSize( int );
     int markerSize() const;
-
-    void setMarkerType( MarkerType );
-    MarkerType markerType() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
