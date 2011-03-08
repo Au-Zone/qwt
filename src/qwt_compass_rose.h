@@ -45,8 +45,8 @@ public:
         \param north Position
         \param colorGroup Color group
      */
-    virtual void draw( QPainter *painter, const QPoint &center,
-        int radius, double north,
+    virtual void draw( QPainter *painter, 
+        const QPointF &center, double radius, double north,
         QPalette::ColorGroup colorGroup = QPalette::Active ) const = 0;
 
 private:
@@ -74,11 +74,11 @@ public:
     void setShrinkFactor( double factor );
     double shrinkFactor() const;
 
-    virtual void draw( QPainter *, const QPoint &center, int radius,
+    virtual void draw( QPainter *, const QPointF &center, double radius,
         double north, QPalette::ColorGroup = QPalette::Active ) const;
 
     static void drawRose( QPainter *, const QPalette &,
-        const QPoint &center, int radius, double origin, double width,
+        const QPointF &center, double radius, double origin, double width,
         int numThorns, int numThornLevels, double shrinkFactor );
 
 private:

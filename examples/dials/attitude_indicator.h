@@ -6,7 +6,7 @@ class AttitudeIndicatorNeedle: public QwtDialNeedle
 public:
     AttitudeIndicatorNeedle(const QColor &);
 
-    virtual void draw(QPainter *, const QPoint &, int length,
+    virtual void draw(QPainter *, const QPointF &, double length,
         double direction, QPalette::ColorGroup) const;
 };
 
@@ -27,11 +27,11 @@ public Q_SLOTS:
 protected:
     virtual void keyPressEvent(QKeyEvent *);
 
-    virtual void drawScale(QPainter *, const QPoint &center,
-        int radius, double origin, double arcMin, double arcMax) const;
+    virtual void drawScale(QPainter *, const QPointF &center,
+        double radius, double origin, double arcMin, double arcMax) const;
 
     virtual void drawScaleContents(QPainter *painter,
-        const QPoint &center, int radius) const;
+        const QPointF &center, double radius) const;
 
 private:
     double d_gradient;

@@ -504,7 +504,7 @@ void QwtSlider::draw( QPainter *painter )
         {
             scaleDraw()->draw( painter, palette() );
         }
-	}
+    }
 
     drawSlider( painter, d_data->sliderRect );
 

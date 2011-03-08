@@ -203,19 +203,19 @@ void QwtThermo::paintEvent( QPaintEvent *event )
 */
 void QwtThermo::draw( QPainter *painter )
 {
-	const QRect &thermoRect = d_data->thermoRect;
+    const QRect &thermoRect = d_data->thermoRect;
 
     if ( !painter->hasClipping() ||
         !thermoRect.contains( painter->clipRegion().boundingRect() ) )
     {
         if ( d_data->scalePos != NoScale )
             scaleDraw()->draw( painter, palette() );
-	}
+    }
 
-	const int bw = d_data->borderWidth;
+    const int bw = d_data->borderWidth;
 
     qDrawShadePanel( painter, 
-		thermoRect.adjusted( -bw, -bw, bw, bw ),
+        thermoRect.adjusted( -bw, -bw, bw, bw ),
         palette(), true, bw, NULL );
 
     drawThermo( painter, thermoRect );

@@ -15,31 +15,29 @@ AttitudeIndicatorNeedle::AttitudeIndicatorNeedle(const QColor &c)
     setPalette(palette);
 }
 
-void AttitudeIndicatorNeedle::draw(QPainter *painter, const QPoint &center,
-    int length, double direction, QPalette::ColorGroup cg) const
+void AttitudeIndicatorNeedle::draw(QPainter *painter, const QPointF &center,
+    double length, double direction, QPalette::ColorGroup cg) const
 {
     direction *= M_PI / 180.0;
-    int triangleSize = qRound(length * 0.1);
+    double triangleSize = length * 0.1;
 
     painter->save();
 
-    const QPoint p0(QPoint(center.x() + 1, center.y() + 1));
-
-    const QPoint p1 = qwtPolar2Pos(p0,
+    const QPointF p1 = qwtPolar2Pos( center,
         length - 2 * triangleSize - 2, direction);
 
-    QPolygon pa(3);
-    pa.setPoint(0, qwtPolar2Pos(p1, 2 * triangleSize, direction));
-    pa.setPoint(1, qwtPolar2Pos(p1, triangleSize, direction + M_PI_2));
-    pa.setPoint(2, qwtPolar2Pos(p1, triangleSize, direction - M_PI_2));
+    QPolygonF pa;
+    pa += qwtPolar2Pos( p1, 2 * triangleSize, direction );
+    pa += qwtPolar2Pos( p1, triangleSize, direction + M_PI_2 );
+    pa += qwtPolar2Pos( p1, triangleSize, direction - M_PI_2 );
 
     const QColor color = palette().color(cg, QPalette::Text);
     painter->setBrush(color);
     painter->drawPolygon(pa);
 
-    painter->setPen(QPen(color, 3));
-    painter->drawLine(qwtPolar2Pos(p0, length - 2, direction + M_PI_2),
-        qwtPolar2Pos(p0, length - 2, direction - M_PI_2));
+    painter->setPen( QPen(color, 3) );
+    painter->drawLine( qwtPolar2Pos(center, length - 2, direction + M_PI_2),
+        qwtPolar2Pos(center, length - 2, direction - M_PI_2));
 
     painter->restore();
 }
@@ -74,34 +72,35 @@ void AttitudeIndicator::setGradient(double gradient)
     }
 }
 
-void AttitudeIndicator::drawScale(QPainter *painter, const QPoint &center,
-    int radius, double origin, double minArc, double maxArc) const
+void AttitudeIndicator::drawScale(QPainter *painter, const QPointF &center,
+    double radius, double origin, double minArc, double maxArc) const
 {
-    double dir = (360.0 - origin) * M_PI / 180.0; // counter clockwise, radian
+    // counter clockwise, radian
 
-    int offset = 4;
+    const double dir = (360.0 - origin) * M_PI / 180.0; 
+    const double offset = 4.0;
     
-    const QPoint p0 = qwtPolar2Pos(center, offset, dir + M_PI);
+    const QPointF p0 = qwtPolar2Pos( center, offset, dir + M_PI );
 
-    const int w = innerRect().width();
+    const double w = innerRect().width();
 
-    QPolygon pa(4);
-    pa.setPoint(0, qwtPolar2Pos(p0, w, dir - M_PI_2));
-    pa.setPoint(1, qwtPolar2Pos(pa.point(0), 2 * w, dir + M_PI_2));
-    pa.setPoint(2, qwtPolar2Pos(pa.point(1), w, dir));
-    pa.setPoint(3, qwtPolar2Pos(pa.point(2), 2 * w, dir - M_PI_2));
+    QPainterPath path;
+    path.moveTo( qwtPolar2Pos( p0, w, dir - M_PI_2 ) );
+    path.lineTo( qwtPolar2Pos( path.currentPosition(), 2 * w, dir + M_PI_2 ) );
+    path.lineTo( qwtPolar2Pos( path.currentPosition(), w, dir ) );
+    path.lineTo( qwtPolar2Pos( path.currentPosition(), w, dir - M_PI_2 ) );
 
     painter->save();
-    painter->setClipRegion(pa); // swallow 180 - 360 degrees
+    painter->setClipPath( path ); // swallow 180 - 360 degrees
 
-    QwtDial::drawScale(painter, center, radius, origin,
-        minArc, maxArc);
+    QwtDial::drawScale(painter, 
+        center, radius, origin, minArc, maxArc);
 
     painter->restore();
 }
 
 void AttitudeIndicator::drawScaleContents(QPainter *painter,
-    const QPoint &, int) const
+    const QPointF &, double) const
 {
     int dir = 360 - qRound(origin() - value()); // counter clockwise
     int arc = 90 + qRound(gradient() * 90);

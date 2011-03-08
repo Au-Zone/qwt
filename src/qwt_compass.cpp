@@ -94,7 +94,7 @@ void QwtCompass::initCompass()
    \param radius Radius of the content circle
 */
 void QwtCompass::drawScaleContents( QPainter *painter,
-                                    const QPoint &center, int radius ) const
+    const QPointF &center, double radius ) const
 {
     QPalette::ColorGroup cg;
     if ( isEnabled() )
@@ -122,8 +122,8 @@ void QwtCompass::drawScaleContents( QPainter *painter,
   \param north Direction pointing north, in degrees counter clockwise
   \param cg Color group
 */
-void QwtCompass::drawRose( QPainter *painter, const QPoint &center,
-    int radius, double north, QPalette::ColorGroup cg ) const
+void QwtCompass::drawRose( QPainter *painter, const QPointF &center,
+    double radius, double north, QPalette::ColorGroup cg ) const
 {
     if ( d_data->rose )
         d_data->rose->draw( painter, center, radius, north,  cg );

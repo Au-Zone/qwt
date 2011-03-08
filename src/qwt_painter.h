@@ -84,8 +84,6 @@ public:
         const QRectF &, double xRadius, double yRadius,
         const QPalette &, int lineWidth, int frameStyle );
 
-    static void drawRoundFrame( QPainter *, const QRect &,
-        int width, const QPalette &, bool sunken );
     static void drawFocusRect( QPainter *, QWidget * );
     static void drawFocusRect( QPainter *, QWidget *, const QRect & );
 
@@ -96,9 +94,6 @@ public:
     static bool isAligning( QPainter *painter );
 
 private:
-    static void drawColoredArc( QPainter *, const QRect &,
-        int peak, int arc, int intervall, const QColor &c1, const QColor &c2 );
-
     static bool d_polylineSplitting;
     static bool d_roundingAlignment;
 };

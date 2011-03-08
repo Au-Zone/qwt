@@ -162,9 +162,9 @@ public:
     const QwtDialNeedle *needle() const;
     QwtDialNeedle *needle();
 
-    QRect boundingRect() const;
-    QRect innerRect() const;
-    virtual QRect scaleInnerRect() const;
+    QRectF boundingRect() const;
+    QRectF innerRect() const;
+    virtual QRectF scaleInnerRect() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -185,8 +185,10 @@ protected:
     virtual void drawContents( QPainter * ) const;
     virtual void drawFocusIndicator( QPainter * ) const;
 
-    virtual void drawScale( QPainter *, const QPoint &center,
-        int radius, double origin, double arcMin, double arcMax ) const;
+    virtual void drawScale( 
+        QPainter *, const QPointF &center,
+        double radius, double origin, 
+        double arcMin, double arcMax ) const;
 
     /*!
       Draw the contents inside the scale
@@ -198,10 +200,10 @@ protected:
       \param radius Radius of the contents circle
     */
     virtual void drawScaleContents( QPainter *painter, 
-        const QPoint &center, int radius ) const;
+        const QPointF &center, double radius ) const;
 
-    virtual void drawNeedle( QPainter *, const QPoint &,
-        int radius, double direction, QPalette::ColorGroup ) const;
+    virtual void drawNeedle( QPainter *, const QPointF &,
+        double radius, double direction, QPalette::ColorGroup ) const;
 
     virtual QwtText scaleLabel( double ) const;
     void updateScale();

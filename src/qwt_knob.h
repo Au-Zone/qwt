@@ -46,15 +46,34 @@ class QWT_EXPORT QwtKnob : public QwtAbstractSlider, public QwtAbstractScale
 
 public:
     /*!
-        Marker
-        \sa setSymbol()
+        \brief Marker type
+ 
+        The marker indicates the current value on the knob
+        The default setting is a Notch marker.
+
+        \sa setMarkerType(), setMarkerSize()
     */
     enum MarkerType 
     { 
+        //! Don't paint any marker
         NoMarker = -1,
 
+        //! Paint a single tick in QPalette::ButtonText color
         Tick, 
+
+        //! Paint a circle in QPalette::ButtonText color
+        Dot, 
+
+        /*! 
+          Draw a raised ellipse with a gradient build from
+          QPalette::Light and QPalette::Mid
+         */ 
         Nub, 
+
+        /*! 
+          Draw a sunken ellipse with a gradient build from
+          QPalette::Light and QPalette::Mid
+         */ 
         Notch 
     };
 
@@ -92,11 +111,13 @@ protected:
     virtual void drawMarker( QPainter *, 
         const QRectF &, double arc ) const;
 
+    virtual double getValue( const QPoint &p );
+    virtual void getScrollMode( const QPoint &, 
+        int &scrollMode, int &direction );
+
 private:
     void initKnob();
     void layoutKnob( bool update );
-    double getValue( const QPoint &p );
-    virtual void getScrollMode( const QPoint &, int &scrollMode, int &direction );
     void recalcAngle();
 
     virtual void valueChange();

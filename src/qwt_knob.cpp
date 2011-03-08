@@ -471,6 +471,27 @@ void QwtKnob::drawMarker( QPainter *painter,
             }
             break;
         }
+        case Dot:
+        {
+            const double dotWidth = 
+                qMin( double( d_data->markerSize ), radius);
+
+            const double dotCenterDist = radius - 0.5 * dotWidth;
+            if ( dotCenterDist > 0.0 )
+            {
+                const QPointF center( xm - sinA * dotCenterDist, 
+                    ym - cosA * dotCenterDist );
+
+                QRectF ellipse( 0.0, 0.0, dotWidth, dotWidth );
+                ellipse.moveCenter( center );
+
+                painter->setPen( Qt::NoPen );
+                painter->setBrush( palette().color( QPalette::ButtonText ) );
+                painter->drawEllipse( ellipse );
+            }
+
+            break;
+        }
         case Tick:
         {
             const double rb = qMax( radius - d_data->markerSize, 1.0 );
@@ -479,7 +500,7 @@ void QwtKnob::drawMarker( QPainter *painter,
             const QLine line( xm - sinA * rb, ym - cosA * rb,
                 xm - sinA * re, ym - cosA * re );
 
-            QPen pen( palette().color( QPalette::Text ), 0 );
+            QPen pen( palette().color( QPalette::ButtonText ), 0 );
             pen.setCapStyle( Qt::FlatCap );
             painter->setPen( pen );
             painter->drawLine ( line );

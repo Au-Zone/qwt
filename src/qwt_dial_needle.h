@@ -43,16 +43,16 @@ public:
       \param direction Direction of the needle, in degrees counter clockwise
       \param colorGroup Color group, used for painting
     */
-    virtual void draw( QPainter *painter, const QPoint &center,
-        int length, double direction,
+    virtual void draw( QPainter *painter, const QPointF &center,
+        double length, double direction,
         QPalette::ColorGroup colorGroup = QPalette::Active ) const = 0;
 
     virtual void setPalette( const QPalette & );
     const QPalette &palette() const;
 
 protected:
-    static void drawKnob( QPainter *, const QPoint &pos,
-        int width, const QBrush &, bool sunken );
+    static void drawKnob( QPainter *, const QPointF &pos,
+        double width, const QBrush &, bool sunken );
 
 private:
     QPalette d_palette;
@@ -84,22 +84,26 @@ public:
     QwtDialSimpleNeedle( Style, bool hasKnob = true,
         const QColor &mid = Qt::gray, const QColor &base = Qt::darkGray );
 
-    virtual void draw( QPainter *, const QPoint &, int length,
+    virtual void draw( QPainter *, const QPointF &, double length,
         double direction, QPalette::ColorGroup = QPalette::Active ) const;
 
-    static void drawArrowNeedle( QPainter *, const QPalette &, QPalette::ColorGroup,
-        const QPoint &, int length, int width, double direction, bool hasKnob );
+    static void drawArrowNeedle( QPainter *, 
+        const QPalette &, QPalette::ColorGroup,
+        const QPointF &, double length, double width, 
+        double direction, bool hasKnob );
 
-    static void drawRayNeedle( QPainter *, const QPalette &, QPalette::ColorGroup,
-        const QPoint &, int length, int width, double direction, bool hasKnob );
+    static void drawRayNeedle( QPainter *, 
+        const QPalette &, QPalette::ColorGroup,
+        const QPointF &, double length, double width, 
+        double direction, bool hasKnob );
 
-    void setWidth( int width );
-    int width() const;
+    void setWidth( double width );
+    double width() const;
 
 private:
     Style d_style;
     bool d_hasKnob;
-    int d_width;
+    double d_width;
 };
 
 /*!
@@ -132,21 +136,21 @@ public:
     QwtCompassMagnetNeedle( Style = TriangleStyle,
         const QColor &light = Qt::white, const QColor &dark = Qt::red );
 
-    virtual void draw( QPainter *, const QPoint &, int length,
+    virtual void draw( QPainter *, const QPointF &, double length,
         double direction, QPalette::ColorGroup = QPalette::Active ) const;
 
     static void drawTriangleNeedle( QPainter *,
         const QPalette &, QPalette::ColorGroup,
-        const QPoint &, int length, double direction );
+        const QPointF &, double length, double direction );
 
     static void drawThinNeedle( QPainter *,
         const QPalette &, QPalette::ColorGroup,
-        const QPoint &, int length, double direction );
+        const QPointF &, double length, double direction );
 
 protected:
     static void drawPointer( QPainter *painter, const QBrush &brush,
-        int colorOffset, const QPoint &center,
-        int length, int width, double direction );
+        int colorOffset, const QPointF &center,
+        double length, double width, double direction );
 
 private:
     Style d_style;
@@ -178,16 +182,16 @@ public:
     QwtCompassWindArrow( Style, const QColor &light = Qt::white,
         const QColor &dark = Qt::gray );
 
-    virtual void draw( QPainter *, const QPoint &, int length,
+    virtual void draw( QPainter *, const QPointF &, double length,
         double direction, QPalette::ColorGroup = QPalette::Active ) const;
 
     static void drawStyle1Needle( QPainter *,
         const QPalette &, QPalette::ColorGroup,
-        const QPoint &, int length, double direction );
+        const QPointF &, double length, double direction );
 
     static void drawStyle2Needle( QPainter *,
         const QPalette &, QPalette::ColorGroup,
-        const QPoint &, int length, double direction );
+        const QPointF &, double length, double direction );
 
 private:
     Style d_style;
