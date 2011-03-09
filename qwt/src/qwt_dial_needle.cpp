@@ -47,33 +47,28 @@ const QPalette &QwtDialNeedle::palette() const
 void QwtDialNeedle::drawKnob( QPainter *painter,
     const QPointF &pos, double width, const QBrush &brush, bool sunken )
 {
-    painter->save();
+    QPalette palette( brush.color() );
+
+    QColor c1 = palette.color( QPalette::Light );
+    QColor c2 = palette.color( QPalette::Dark );
+
+    if ( sunken )
+        qSwap( c1, c2 );
 
     QRectF rect( 0, 0, width, width );
     rect.moveCenter( pos );
 
-    painter->setPen( Qt::NoPen );
+    QLinearGradient gradient( rect.topLeft(), rect.bottomRight() );
+    gradient.setColorAt( 0.0, c1 );
+    gradient.setColorAt( 0.3, c1 );
+    gradient.setColorAt( 0.7, c2 );
+    gradient.setColorAt( 1.0, c2 );
+
+    painter->save();
+
+    painter->setPen( QPen( gradient, 1 ) );
     painter->setBrush( brush );
     painter->drawEllipse( rect );
-
-    painter->setBrush( Qt::NoBrush );
-
-    const int colorOffset = 20;
-
-    int startAngle = 45;
-    if ( sunken )
-        startAngle += 180;
-
-    QPen pen;
-    pen.setWidth( 1 );
-
-    pen.setColor( brush.color().dark( 100 - colorOffset ) );
-    painter->setPen( pen );
-    painter->drawArc( rect, startAngle * 16, 180 * 16 );
-
-    pen.setColor( brush.color().dark( 100 + colorOffset ) );
-    painter->setPen( pen );
-    painter->drawArc( rect, ( startAngle + 180 ) * 16, 180 * 16 );
 
     painter->restore();
 }
@@ -164,39 +159,27 @@ void QwtDialSimpleNeedle::drawRayNeedle( QPainter *painter,
     const QPointF &center, double length, double width, double direction,
     bool hasKnob )
 {
-    if ( width <= 0 )
-        width = 5;
+    if ( width <= 0.0 )
+        width = 5.0;
 
     direction *= M_PI / 180.0;
 
     painter->save();
 
-    const QPointF p1( center.x() + 1, center.y() + 2 );
-    const QPointF p2 = qwtPolar2Pos( p1, length, direction );
+    const QPointF pos = qwtPolar2Pos( center, length, direction );
 
-    if ( width == 1 )
-    {
-        const QColor midColor =
-            palette.color( colorGroup, QPalette::Mid );
+    QPen pen;
+    pen.setCapStyle( Qt::FlatCap );
+    pen.setWidthF( width );
 
-        painter->setPen( QPen( midColor, 1 ) );
-        painter->drawLine( p1, p2 );
-    }
-    else
-    {
-        QPolygonF pa;
-        pa += qwtPolar2Pos( p1, width / 2, direction + M_PI_2 );
-        pa += qwtPolar2Pos( p2, width / 2, direction + M_PI_2 );
-        pa += qwtPolar2Pos( p2, width / 2, direction - M_PI_2 );
-        pa += qwtPolar2Pos( p1, width / 2, direction - M_PI_2 );
+    pen.setBrush( palette.brush( colorGroup, QPalette::Mid ) );
 
-        painter->setPen( Qt::NoPen );
-        painter->setBrush( palette.brush( colorGroup, QPalette::Mid ) );
-        painter->drawPolygon( pa );
-    }
+    painter->setPen( pen );
+    painter->drawLine( center, pos );
+
     if ( hasKnob )
     {
-        const double knobWidth = qMax( qRound( width * 0.7 ), 5 );
+        const double knobWidth = qMax( width * 0.7, 5.0 );
         drawKnob( painter, center, knobWidth,
             palette.brush( colorGroup, QPalette::Base ),
             false );
@@ -222,38 +205,47 @@ void QwtDialSimpleNeedle::drawArrowNeedle( QPainter *painter,
     const QPointF &center, double length, double width,
     double direction, bool hasKnob )
 {
-    direction *= M_PI / 180.0;
 
     painter->save();
 
     if ( width <= 0 )
         width = qMax( length * 0.06, 9.0 );
 
-    const int peak = 3;
-    const QPointF p1( center.x() + 1, center.y() + 1 );
-    const QPointF p2 = qwtPolar2Pos( p1, length - peak, direction );
-    const QPointF p3 = qwtPolar2Pos( p1, length, direction );
+    const double peak = qMax( 2.0, 0.4 * width );
 
-    QPolygonF pa;
-    pa += qwtPolar2Pos( p1, width / 2, direction - M_PI_2 ) ;
-    pa += qwtPolar2Pos( p2, 1, direction - M_PI_2 );
-    pa += p3;
-    pa += qwtPolar2Pos( p2, 1, direction + M_PI_2 );
-    pa += qwtPolar2Pos( p1, width / 2, direction + M_PI_2 );
+    QPainterPath path;
+    path.moveTo( 0.0, 0.5 * width );
+    path.lineTo( length - peak, 0.3 * width );
+    path.lineTo( length, 0.0 );
+    path.lineTo( length - peak, -0.3 * width );
+    path.lineTo( 0.0, -0.5 * width );
 
-    painter->setPen( Qt::NoPen );
+    painter->save();
+
+    painter->translate( center );
+    painter->rotate( -direction );
+
+    QRectF br = path.boundingRect();
+
+    QPalette pal( palette.color( QPalette::Mid ) );
+    QColor c1 = pal.color( QPalette::Light );
+    QColor c2 = pal.color( QPalette::Dark );
+
+    QLinearGradient gradient( br.topLeft(), br.bottomLeft() );
+    gradient.setColorAt( 0.0, c1 );
+    gradient.setColorAt( 0.5, c1 );
+    gradient.setColorAt( 0.5001, c2 );
+    gradient.setColorAt( 1.0, c2 );
+
+    QPen pen( gradient, 1 );
+    pen.setJoinStyle( Qt::MiterJoin );
+
+    painter->setPen( pen );
     painter->setBrush( palette.brush( colorGroup, QPalette::Mid ) );
-    painter->drawPolygon( pa );
 
-    const int colorOffset = 10;
+    painter->drawPath( path );
 
-    const QColor midColor = palette.color( colorGroup, QPalette::Mid );
-
-    painter->setPen( midColor.dark( 100 + colorOffset ) );
-    painter->drawPolyline( pa.data(), 3 );
-
-    painter->setPen( midColor.dark( 100 - colorOffset ) );
-    painter->drawPolyline( pa.data() + 2, 3 );
+    painter->restore();
 
     if ( hasKnob )
     {
@@ -279,7 +271,7 @@ QwtCompassMagnetNeedle::QwtCompassMagnetNeedle( Style style,
         palette.setColor( ( QPalette::ColorGroup )i,
             QPalette::Dark, dark );
         palette.setColor( ( QPalette::ColorGroup )i,
-            QPalette::Base, Qt::darkGray );
+            QPalette::Base, Qt::gray );
     }
 
     setPalette( palette );
@@ -323,53 +315,43 @@ void QwtCompassMagnetNeedle::drawTriangleNeedle( QPainter *painter,
     const QPalette &palette, QPalette::ColorGroup colorGroup,
     const QPointF &center, double length, double direction )
 {
-    const QBrush darkBrush = palette.brush( colorGroup, QPalette::Dark );
-    const QBrush lightBrush = palette.brush( colorGroup, QPalette::Light );
-
-    QBrush brush;
-
     const double width = qRound( length / 3.0 );
+
+    QPainterPath path[4];
+
+    path[0].lineTo( length, 0.0 );
+    path[0].lineTo( 0.0, width / 2 );
+
+    path[1].lineTo( length, 0.0 );
+    path[1].lineTo( 0.0, -width / 2 );
+
+    path[2].lineTo( -length, 0.0 );
+    path[2].lineTo( 0.0, width / 2 );
+
+    path[3].lineTo( -length, 0.0 );
+    path[3].lineTo( 0.0, -width / 2 );
+
+
     const int colorOffset =  10;
+    const QColor darkColor = palette.color( colorGroup, QPalette::Dark );
+    const QColor lightColor = palette.color( colorGroup, QPalette::Light );
+
+    QColor color[4];
+    color[0] = darkColor.light( 100 + colorOffset );
+    color[1] = darkColor.dark( 100 + colorOffset );
+    color[2] = lightColor.light( 100 + colorOffset );
+    color[3] = lightColor.dark( 100 + colorOffset );
 
     painter->save();
     painter->setPen( Qt::NoPen );
+    painter->translate( center );
+    painter->rotate( -direction );
 
-    const QPoint arrowCenter( center.x() + 1, center.y() + 1 );
-
-    QPolygonF pa;
-    pa += arrowCenter;
-    pa += qwtDegree2Pos( arrowCenter, length, direction );
-
-    pa += qwtDegree2Pos( arrowCenter, width / 2, direction + 90.0 );
-
-    brush = darkBrush;
-    brush.setColor( brush.color().dark( 100 + colorOffset ) );
-    painter->setBrush( brush );
-    painter->drawPolygon( pa );
-
-    pa[2] = qwtDegree2Pos( arrowCenter, width / 2, direction - 90.0 );
-
-    brush = darkBrush;
-    brush.setColor( brush.color().dark( 100 - colorOffset ) );
-    painter->setBrush( brush );
-    painter->drawPolygon( pa );
-
-    // --
-
-    pa[1] = qwtDegree2Pos( arrowCenter, length, direction + 180.0 );
-    pa[2] = qwtDegree2Pos( arrowCenter, width / 2, direction + 90.0 );
-
-    brush = lightBrush;
-    brush.setColor( brush.color().dark( 100 + colorOffset ) );
-    painter->setBrush( brush );
-    painter->drawPolygon( pa );
-
-    pa[2] = qwtDegree2Pos( arrowCenter, width / 2, direction - 90.0 );
-
-    brush = lightBrush;
-    brush.setColor( brush.color().dark( 100 - colorOffset ) );
-    painter->setBrush( brush );
-    painter->drawPolygon( pa );
+    for ( int i = 0; i < 4; i++ )
+    {
+        painter->setBrush( color[i] );
+        painter->drawPath( path[i] );
+    }
 
     painter->restore();
 }
@@ -425,38 +407,46 @@ void QwtCompassMagnetNeedle::drawPointer(
     int colorOffset, const QPointF &center, double length,
     double width, double direction )
 {
-    painter->save();
-
     const double peak = qMax( length / 10.0, 5.0 );
 
     const double knobWidth = width + 8;
     QRectF knobRect( 0, 0, knobWidth, knobWidth );
-    knobRect.moveCenter( center );
+    knobRect.moveCenter( QPointF(0, 0) );
 
-    QPolygonF pa;
+    QPainterPath path1;
+    path1.lineTo( 0.0, 0.5 * width );
+    path1.lineTo( length - peak, 0.5 * width );
+    path1.lineTo( length, 0.0 );
+    path1.lineTo( 0.0, 0.0 );
 
-    pa += qwtDegree2Pos( center, width / 2, direction + 90.0 );
-    pa += center;
-    pa += qwtDegree2Pos( pa[1], length - peak, direction );
-    pa += qwtDegree2Pos( center, length, direction );
-    pa += qwtDegree2Pos( pa[0], length - peak, direction );
+    QPainterPath arcPath1;
+    arcPath1.arcTo( knobRect, 0.0, -90.0 );
+
+    path1 = path1.united( arcPath1 );
+
+    QPainterPath path2;
+    path2.lineTo( 0.0, -0.5 * width );
+    path2.lineTo( length - peak, -0.5 * width );
+    path2.lineTo( length, 0.0 );
+    path2.lineTo( 0.0, 0.0 );
+
+    QPainterPath arcPath2;
+    arcPath2.arcTo( knobRect, 0.0, 90.0 );
+
+    path2 = path2.united( arcPath2 );
+
+    painter->save();
+
+    painter->translate( center );
+    painter->rotate( -direction );
 
     painter->setPen( Qt::NoPen );
 
-    QBrush darkBrush = brush;
-    darkBrush.setColor( darkBrush.color().dark( 100 + colorOffset ) );
-    painter->setBrush( darkBrush );
-    painter->drawPolygon( pa );
-    painter->drawPie( knobRect, qRound( direction * 16 ), 90 * 16 );
+    painter->setBrush( brush.color().light( 100 + colorOffset ) );
+    painter->drawPath( path1 );
 
-    pa[0] = qwtDegree2Pos( center, 0.5 * width, direction - 90.0 );
-    pa[4] = qwtDegree2Pos( pa[0], length - peak, direction );
-
-    QBrush lightBrush = brush;
-    lightBrush.setColor( lightBrush.color().dark( 100 - colorOffset ) );
-    painter->setBrush( lightBrush );
-    painter->drawPolygon( pa );
-    painter->drawPie( knobRect, qRound( direction * 16 ), -90 * 16 );
+    painter->setBrush( brush.color().dark( 100 + colorOffset ) );
+    painter->drawPath( path2 );
 
     painter->restore();
 }
@@ -522,20 +512,30 @@ void QwtCompassWindArrow::drawStyle1Needle( QPainter *painter,
     const QPalette &palette, QPalette::ColorGroup colorGroup,
     const QPointF &center, double length, double direction )
 {
-    const double AR1[] = {0, 0.4, 0.3, 1, 0.8, 1, 0.3, 0.4};
-    const double AW1[] = {0, -45, -20, -15, 0, 15, 20, 45};
+    const double r[] = { 0.4, 0.3, 1, 0.8, 1, 0.3, 0.4 };
+    const double a[] = { -45, -20, -15, 0, 15, 20, 45 };
 
-    const QPointF arrowCenter( center.x() + 1, center.y() + 1 );
+    QPainterPath path;
+    for ( int i = 0; i < 7; i++ )
+    {
+        const double angle = a[i] / 180.0 * M_PI;
+        const double radius = r[i] * length;
 
-    QPolygonF pa;
-    pa += arrowCenter;
-    for ( int i = 1; i < 8; i++ )
-        pa += qwtDegree2Pos( center, AR1[i] * length, direction + AW1[i] );
+        const double x = radius * qCos( angle );
+        const double y = radius * qSin( angle );
+
+        path.lineTo( x, -y );
+    }
 
     painter->save();
+
+    painter->translate( center );
+    painter->rotate( -direction );
+
     painter->setPen( Qt::NoPen );
     painter->setBrush( palette.brush( colorGroup, QPalette::Light ) );
-    painter->drawPolygon( pa );
+    painter->drawPath( path );
+
     painter->restore();
 }
 
@@ -553,29 +553,28 @@ void QwtCompassWindArrow::drawStyle2Needle( QPainter *painter,
     const QPalette &palette, QPalette::ColorGroup colorGroup,
     const QPointF &center, double length, double direction )
 {
-    const QBrush lightBrush = palette.brush( colorGroup, QPalette::Light );
-    const QBrush darkBrush = palette.brush( colorGroup, QPalette::Dark );
+    const double ratioX = 0.7;
+    const double ratioY = 0.3;
+
+    QPainterPath path1;
+    path1.lineTo( ratioX * length, 0.0 );
+    path1.lineTo( length, ratioY * length );
+
+    QPainterPath path2;
+    path2.lineTo( ratioX * length, 0.0 );
+    path2.lineTo( length, -ratioY * length );
 
     painter->save();
     painter->setPen( Qt::NoPen );
 
-    const double angle = 12.0;
-    const double ratio = 0.7;
+    painter->translate( center );
+    painter->rotate( -direction );
 
-    const QPointF arrowCenter( center.x() + 1, center.y() + 1 );
+    painter->setBrush( palette.brush( colorGroup, QPalette::Light ) );
+    painter->drawPath( path1 );
 
-    QPolygonF pa;
-
-    pa += center;
-    pa += qwtDegree2Pos( arrowCenter, length, direction + angle );
-    pa += qwtDegree2Pos( arrowCenter, ratio * length, direction );
-
-    painter->setBrush( darkBrush );
-    painter->drawPolygon( pa );
-
-    pa[1] = qwtDegree2Pos( arrowCenter, length, direction - angle );
-    painter->setBrush( lightBrush );
-    painter->drawPolygon( pa );
+    painter->setBrush( palette.brush( colorGroup, QPalette::Dark ) );
+    painter->drawPath( path2 );
 
     painter->restore();
 }

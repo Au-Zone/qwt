@@ -71,7 +71,6 @@ class QWT_EXPORT QwtDial: public QwtAbstractSlider
     Q_ENUMS( Mode )
     Q_ENUMS( Direction )
 
-    Q_PROPERTY( bool visibleBackground READ hasVisibleBackground WRITE showBackground )
     Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
     Q_PROPERTY( Shadow frameShadow READ frameShadow WRITE setFrameShadow )
     Q_PROPERTY( Mode mode READ mode WRITE setMode )
@@ -131,9 +130,6 @@ public:
     void setFrameShadow( Shadow );
     Shadow frameShadow() const;
 
-    bool hasVisibleBackground() const;
-    void showBackground( bool );
-
     void setLineWidth( int );
     int lineWidth() const;
 
@@ -176,10 +172,7 @@ public:
 
 protected:
     virtual void paintEvent( QPaintEvent * );
-    virtual void resizeEvent( QResizeEvent * );
     virtual void keyPressEvent( QKeyEvent * );
-
-    virtual void updateMask();
 
     virtual void drawFrame( QPainter *p );
     virtual void drawContents( QPainter * ) const;

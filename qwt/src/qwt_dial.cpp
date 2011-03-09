@@ -31,7 +31,6 @@ class QwtDial::PrivateData
 {
 public:
     PrivateData():
-        visibleBackground( true ),
         frameShadow( Sunken ),
         lineWidth( 0 ),
         mode( RotateNeedle ),
@@ -52,7 +51,6 @@ public:
         delete scaleDraw;
         delete needle;
     }
-    bool visibleBackground;
     Shadow frameShadow;
     int lineWidth;
 
@@ -167,33 +165,6 @@ void QwtDial::initDial()
 QwtDial::~QwtDial()
 {
     delete d_data;
-}
-
-/*!
-  Show/Hide the area outside of the frame
-  \param show Show if true, hide if false
-
-  \sa hasVisibleBackground(), setMask()
-  \warning When QwtDial is a toplevel widget the window
-           border might disappear too.
-*/
-void QwtDial::showBackground( bool show )
-{
-    if ( d_data->visibleBackground != show )
-    {
-        d_data->visibleBackground = show;
-        updateMask();
-    }
-}
-
-/*!
-  true when the area outside of the frame is visible
-
-  \sa showBackground(), setMask()
-*/
-bool QwtDial::hasVisibleBackground() const
-{
-    return d_data->visibleBackground;
 }
 
 /*!
@@ -391,18 +362,6 @@ QwtDial::Direction QwtDial::direction() const
 }
 
 /*!
-   Resize the dial widget
-   \param e Resize event
-*/
-void QwtDial::resizeEvent( QResizeEvent *e )
-{
-    QWidget::resizeEvent( e );
-
-    if ( !hasVisibleBackground() )
-        updateMask();
-}
-
-/*!
    Paint the dial
    \param e Paint event
 */
@@ -550,16 +509,12 @@ void QwtDial::drawContents( QPainter *painter ) const
         painter->save();
         painter->setPen( Qt::NoPen );
         painter->setBrush( palette().brush( QPalette::WindowText ) );
-        painter->drawEllipse( insideScaleRect.adjusted( -1, -1, -1, -1 ) );
+        painter->drawEllipse( insideScaleRect );
         painter->restore();
     }
 
     const QPointF center = insideScaleRect.center();
     const double radius = 0.5 * insideScaleRect.width();
-
-    painter->save();
-    drawScaleContents( painter, center, radius );
-    painter->restore();
 
     double direction = d_data->origin;
 
@@ -594,6 +549,10 @@ void QwtDial::drawContents( QPainter *painter ) const
     painter->save();
     drawScale( painter, center, radius, origin,
         d_data->minScaleArc, d_data->maxScaleArc );
+    painter->restore();
+
+    painter->save();
+    drawScaleContents( painter, center, radius );
     painter->restore();
 
     if ( isValid() )
@@ -682,6 +641,7 @@ void QwtDial::drawScale( QPainter *painter, const QPointF &center,
 
     painter->setPen( QPen( textColor, d_data->scaleDraw->penWidth() ) );
 
+	painter->setBrush( Qt::red );
     d_data->scaleDraw->draw( painter, pal );
 }
 
@@ -1187,20 +1147,4 @@ void QwtDial::keyPressEvent( QKeyEvent *event )
 
     if ( value() != previous )
         Q_EMIT sliderMoved( value() );
-}
-
-/*!
-   \brief Update the mask of the dial
-
-   In case of "hasVisibleBackground() == false", the backgound is
-   transparent by a mask.
-
-   \sa showBackground(), hasVisibleBackground()
-*/
-void QwtDial::updateMask()
-{
-    if ( d_data->visibleBackground )
-        clearMask();
-    else
-        setMask( QRegion( boundingRect().toRect(), QRegion::Ellipse ) );
 }
