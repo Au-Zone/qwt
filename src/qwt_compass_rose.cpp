@@ -12,46 +12,17 @@
 #include "qwt_painter.h"
 #include <qpainter.h>
 
-static QPointF cuttingPoint( 
+static QPointF qwtIntersection( 
     QPointF p11, QPointF p12, QPointF p21, QPointF p22 )
 {
-    // QLineF ???
+	const QLineF line1( p11, p12 );
+	const QLineF line2( p21, p22 );
 
-    double dx1 = p12.x() - p11.x();
-    double dy1 = p12.y() - p11.y();
-    double dx2 = p22.x() - p21.x();
-    double dy2 = p22.y() - p21.y();
+	QPointF pos;
+	if ( line1.intersect( line2, &pos ) == QLineF::NoIntersection )
+		return QPointF();
 
-    if ( dx1 == 0.0 && dx2 == 0.0 )
-        return QPointF();
-
-    if ( dx1 == 0.0 )
-    {
-        const double m = dy2 / dx2;
-        const double t = p21.y() - m * p21.x();
-        return QPointF( p11.x(), m * p11.x() + t );
-    }
-
-    if ( dx2 == 0 )
-    {
-        const double m = dy1 / dx1;
-        const double t = p11.y() - m * p11.x();
-        return QPointF( p21.x(), m * p21.x() + t );
-    }
-
-    const double m1 = dy1 / dx1;
-    const double t1 = p11.y() - m1 * p11.x();
-
-    const double m2 = dy2 / dx2;
-    const double t2 = p21.y() - m2 * p21.x();
-
-    if ( m1 == m2 )
-        return QPointF();
-
-    const double x = ( t2 - t1 ) / ( m1 - m2 );
-    const double y = t1 + m1 * x;
-
-    return QPointF( x, y );
+	return pos;
 }
 
 class QwtSimpleCompassRose::PrivateData
@@ -204,25 +175,26 @@ void QwtSimpleCompassRose::drawRose(
             angle < 2.0 * M_PI + origin; angle += step )
         {
             const QPointF p = qwtPolar2Pos( center, r, angle );
-            QPointF p1 = qwtPolar2Pos( center, leafWidth, angle + M_PI_2 );
-            QPointF p2 = qwtPolar2Pos( center, leafWidth, angle - M_PI_2 );
+            const QPointF p1 = qwtPolar2Pos( center, leafWidth, angle + M_PI_2 );
+            const QPointF p2 = qwtPolar2Pos( center, leafWidth, angle - M_PI_2 );
+            const QPointF p3 = qwtPolar2Pos( center, r, angle + step / 2.0 );
+            const QPointF p4 = qwtPolar2Pos( center, r, angle - step / 2.0 );
 
-            QPolygonF pa( 3 );
-            pa[0] = center;
-            pa[1] = p;
+			QPainterPath darkPath;
+			darkPath.moveTo( center );
+			darkPath.lineTo( p );
+			darkPath.lineTo( qwtIntersection( center, p3, p1, p ) );
 
-            QPointF p3 = qwtPolar2Pos( center, r, angle + step / 2.0 );
-            p1 = cuttingPoint( center, p3, p1, p );
-            pa[2] = p1;
-            painter->setBrush( palette.brush( QPalette::Dark ) );
-            painter->drawPolygon( pa );
+			painter->setBrush( palette.brush( QPalette::Dark ) );
+			painter->drawPath( darkPath );
 
-            QPointF p4 = qwtPolar2Pos( center, r, angle - step / 2.0 );
-            p2 = cuttingPoint( center, p4, p2, p );
+			QPainterPath lightPath;
+			lightPath.moveTo( center );
+			lightPath.lineTo( p );
+			lightPath.lineTo( qwtIntersection( center, p4, p2, p ) );
 
-            pa[2] = p2;
-            painter->setBrush( palette.brush( QPalette::Light ) );
-            painter->drawPolygon( pa );
+			painter->setBrush( palette.brush( QPalette::Light ) );
+			painter->drawPath( lightPath );
         }
     }
     painter->restore();

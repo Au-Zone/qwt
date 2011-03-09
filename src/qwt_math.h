@@ -225,7 +225,7 @@ inline QPointF qwtPolar2Pos( const QPointF &pole,
     const double x = pole.x() + radius * qCos( angle );
     const double y = pole.y() - radius * qSin( angle );
 
-    return QPoint( qRound( x ), qRound( y ) );
+    return QPointF( x, y);
 }
 
 inline QPointF qwtDegree2Pos( const QPointF &pole,
@@ -233,5 +233,20 @@ inline QPointF qwtDegree2Pos( const QPointF &pole,
 {
     return qwtPolar2Pos( pole, radius, angle / 180.0 * M_PI );
 }
+
+inline QPointF qwtFastPolar2Pos( const QPointF &pole,
+    double radius, double angle )
+{
+    const double x = pole.x() + radius * qFastCos( angle );
+    const double y = pole.y() - radius * qFastSin( angle );
+
+    return QPointF( x, y);
+}
+
+inline QPointF qwtFastDegree2Pos( const QPointF &pole,
+    double radius, double angle )
+{   
+    return qwtFastPolar2Pos( pole, radius, angle / 180.0 * M_PI );
+} 
 
 #endif
