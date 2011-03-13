@@ -115,6 +115,9 @@ Plot::Plot( QWidget *parent ):
 
     QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
     panner->setMouseButton( Qt::MidButton );
+
+    canvas()->setPalette( Qt::darkGray );
+    canvas()->setBorderRadius( 10 );
 }
 
 QwtScaleDiv Plot::yearScaleDiv() const
