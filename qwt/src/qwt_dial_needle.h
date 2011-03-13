@@ -34,25 +34,32 @@ public:
     QwtDialNeedle();
     virtual ~QwtDialNeedle();
 
-    /*!
-      Draw the needle
-
-      \param painter Painter
-      \param center Center of the dial, start position for the needle
-      \param length Length of the needle
-      \param direction Direction of the needle, in degrees counter clockwise
-      \param colorGroup Color group, used for painting
-    */
-    virtual void draw( QPainter *painter, const QPointF &center,
-        double length, double direction,
-        QPalette::ColorGroup colorGroup = QPalette::Active ) const = 0;
-
     virtual void setPalette( const QPalette & );
     const QPalette &palette() const;
 
+    virtual void draw( QPainter *painter, const QPointF &center,
+        double length, double direction, 
+        QPalette::ColorGroup = QPalette::Active ) const;
+
 protected:
-    static void drawKnob( QPainter *, const QPointF &pos,
-        double width, const QBrush &, bool sunken );
+    /*!
+      \brief Draw the needle
+
+      The origin of the needle is at position (0.0, 0.0 )
+      pointing in direction 0.0 ( = east ). 
+
+      The painter is already setup with translation and 
+      rotation.
+
+      \param painter Painter
+      \param length Length of the needle
+      \param colorGroup Color group, used for painting
+    */
+    virtual void drawNeedle( QPainter *painter, 
+        double length, QPalette::ColorGroup ) const = 0;
+
+    virtual void drawKnob( QPainter *, double width, 
+        const QBrush &, bool sunken ) const;
 
 private:
     QPalette d_palette;
@@ -84,21 +91,12 @@ public:
     QwtDialSimpleNeedle( Style, bool hasKnob = true,
         const QColor &mid = Qt::gray, const QColor &base = Qt::darkGray );
 
-    virtual void draw( QPainter *, const QPointF &, double length,
-        double direction, QPalette::ColorGroup = QPalette::Active ) const;
-
-    static void drawArrowNeedle( QPainter *, 
-        const QPalette &, QPalette::ColorGroup,
-        const QPointF &, double length, double width, 
-        double direction, bool hasKnob );
-
-    static void drawRayNeedle( QPainter *, 
-        const QPalette &, QPalette::ColorGroup,
-        const QPointF &, double length, double width, 
-        double direction, bool hasKnob );
-
     void setWidth( double width );
     double width() const;
+
+protected:
+    virtual void drawNeedle( QPainter *, double length,
+        QPalette::ColorGroup ) const;
 
 private:
     Style d_style;
@@ -136,21 +134,9 @@ public:
     QwtCompassMagnetNeedle( Style = TriangleStyle,
         const QColor &light = Qt::white, const QColor &dark = Qt::red );
 
-    virtual void draw( QPainter *, const QPointF &, double length,
-        double direction, QPalette::ColorGroup = QPalette::Active ) const;
-
-    static void drawTriangleNeedle( QPainter *,
-        const QPalette &, QPalette::ColorGroup,
-        const QPointF &, double length, double direction );
-
-    static void drawThinNeedle( QPainter *,
-        const QPalette &, QPalette::ColorGroup,
-        const QPointF &, double length, double direction );
-
 protected:
-    static void drawPointer( QPainter *painter, const QBrush &brush,
-        int colorOffset, const QPointF &center,
-        double length, double width, double direction );
+    virtual void drawNeedle( QPainter *, 
+        double length, QPalette::ColorGroup ) const;
 
 private:
     Style d_style;
@@ -182,16 +168,9 @@ public:
     QwtCompassWindArrow( Style, const QColor &light = Qt::white,
         const QColor &dark = Qt::gray );
 
-    virtual void draw( QPainter *, const QPointF &, double length,
-        double direction, QPalette::ColorGroup = QPalette::Active ) const;
-
-    static void drawStyle1Needle( QPainter *,
-        const QPalette &, QPalette::ColorGroup,
-        const QPointF &, double length, double direction );
-
-    static void drawStyle2Needle( QPainter *,
-        const QPalette &, QPalette::ColorGroup,
-        const QPointF &, double length, double direction );
+protected:
+    virtual void drawNeedle( QPainter *, 
+        double length, QPalette::ColorGroup ) const;
 
 private:
     Style d_style;

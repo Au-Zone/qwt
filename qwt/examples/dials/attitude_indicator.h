@@ -6,8 +6,9 @@ class AttitudeIndicatorNeedle: public QwtDialNeedle
 public:
     AttitudeIndicatorNeedle(const QColor &);
 
-    virtual void draw(QPainter *, const QPointF &, double length,
-        double direction, QPalette::ColorGroup) const;
+protected:
+    virtual void drawNeedle(QPainter *, 
+        double length, QPalette::ColorGroup) const;
 };
 
 class AttitudeIndicator: public QwtDial

@@ -15,31 +15,24 @@ AttitudeIndicatorNeedle::AttitudeIndicatorNeedle(const QColor &c)
     setPalette(palette);
 }
 
-void AttitudeIndicatorNeedle::draw(QPainter *painter, const QPointF &center,
-    double length, double direction, QPalette::ColorGroup cg) const
+void AttitudeIndicatorNeedle::drawNeedle(QPainter *painter, 
+    double length, QPalette::ColorGroup colorGroup) const
 {
-    direction *= M_PI / 180.0;
     double triangleSize = length * 0.1;
+    double pos = length - 2.0;
 
-    painter->save();
+    QPainterPath path;
+    path.moveTo( pos, 0 );
+    path.lineTo( pos - 2 * triangleSize, triangleSize );
+    path.lineTo( pos - 2 * triangleSize, -triangleSize );
+    path.closeSubpath();
 
-    const QPointF p1 = qwtPolar2Pos( center,
-        length - 2 * triangleSize - 2, direction);
+    painter->setBrush( palette().brush(colorGroup, QPalette::Text ) );
+    painter->drawPath( path );
 
-    QPolygonF pa;
-    pa += qwtPolar2Pos( p1, 2 * triangleSize, direction );
-    pa += qwtPolar2Pos( p1, triangleSize, direction + M_PI_2 );
-    pa += qwtPolar2Pos( p1, triangleSize, direction - M_PI_2 );
-
-    const QColor color = palette().color(cg, QPalette::Text);
-    painter->setBrush(color);
-    painter->drawPolygon(pa);
-
-    painter->setPen( QPen(color, 3) );
-    painter->drawLine( qwtPolar2Pos(center, length - 2, direction + M_PI_2),
-        qwtPolar2Pos(center, length - 2, direction - M_PI_2));
-
-    painter->restore();
+    double l = length - 2;
+    painter->setPen( QPen(palette().color( colorGroup, QPalette::Text ), 3) );
+    painter->drawLine( 0, -l, 0, l );
 }
 
 AttitudeIndicator::AttitudeIndicator(
