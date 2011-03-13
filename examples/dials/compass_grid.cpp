@@ -132,7 +132,7 @@ QwtCompass *CompassGrid::createCompass(int pos)
             compass->setScale(36, 5, 0);
 
             compass->setNeedle(new QwtDialSimpleNeedle(QwtDialSimpleNeedle::Ray,
-                false, Qt::white));
+                true, Qt::white));
             compass->setOrigin(220.0);
             compass->setValue(20.0);
             break;
