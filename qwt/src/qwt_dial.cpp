@@ -453,8 +453,10 @@ void QwtDial::drawFrame( QPainter *painter )
 
             QLinearGradient gradient( r.topLeft(), r.bottomRight() );
             gradient.setColorAt( 0.0, c1 );
+#if 0
             gradient.setColorAt( 0.3, c1 );
             gradient.setColorAt( 0.7, c2 );
+#endif
             gradient.setColorAt( 1.0, c2 );
 
             pen = QPen( gradient, lineWidth() );
