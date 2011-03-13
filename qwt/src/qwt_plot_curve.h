@@ -36,11 +36,11 @@ class QwtCurveFitter;
   with in Lines style and no symbols. You can change this by calling
   setPen(), setStyle() and setSymbol().</dd>
   <dt>b) Connect/Assign data.</dt>
-  <dd>QwtPlotCurve gets its points using a QwtData object offering
+  <dd>QwtPlotCurve gets its points using a QwtSeriesData object offering
   a bridge to the real storage of the points ( like QAbstractItemModel ).
-  There are several convenience classes derived from QwtData, that also store
+  There are several convenience classes derived from QwtSeriesData, that also store
   the points inside ( like QStandardItemModel ). QwtPlotCurve also offers
-  a couple of variations of setData(), that build QwtData objects from
+  a couple of variations of setSamples(), that build QwtSeriesData objects from
   arrays internally.</dd>
   <dt>c) Attach the curve to a plot</dt>
   <dd>See QwtPlotItem::attach()
