@@ -20,7 +20,7 @@ public:
         d_thermo = new QwtThermo(this);
         d_thermo->setOrientation(Qt::Horizontal, QwtThermo::NoScale);
         d_thermo->setRange(0.0, 1.0);
-        d_thermo->setFillColor(Qt::green);
+        d_thermo->setFillBrush( Qt::green );
 
         QLabel *label = new QLabel("Tuning", this);
         label->setAlignment(Qt::AlignCenter);

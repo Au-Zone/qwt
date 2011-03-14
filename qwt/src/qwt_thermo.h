@@ -73,14 +73,12 @@ class QWT_EXPORT QwtThermo: public QWidget, public QwtAbstractScale
     Q_ENUMS( ScalePos )
 
     Q_PROPERTY( QBrush alarmBrush READ alarmBrush WRITE setAlarmBrush )
-    Q_PROPERTY( QColor alarmColor READ alarmColor WRITE setAlarmColor )
     Q_PROPERTY( bool alarmEnabled READ alarmEnabled WRITE setAlarmEnabled )
     Q_PROPERTY( double alarmLevel READ alarmLevel WRITE setAlarmLevel )
     Q_PROPERTY( ScalePos scalePosition READ scalePosition
         WRITE setScalePosition )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( QBrush fillBrush READ fillBrush WRITE setFillBrush )
-    Q_PROPERTY( QColor fillColor READ fillColor WRITE setFillColor )
     Q_PROPERTY( double maxValue READ maxValue WRITE setMaxValue )
     Q_PROPERTY( double minValue READ minValue WRITE setMinValue )
     Q_PROPERTY( int pipeWidth READ pipeWidth WRITE setPipeWidth )
@@ -119,14 +117,8 @@ public:
     void setFillBrush( const QBrush &b );
     const QBrush &fillBrush() const;
 
-    void setFillColor( const QColor &c );
-    const QColor &fillColor() const;
-
     void setAlarmBrush( const QBrush &b );
     const QBrush &alarmBrush() const;
-
-    void setAlarmColor( const QColor &c );
-    const QColor &alarmColor() const;
 
     void setAlarmLevel( double v );
     double alarmLevel() const;
@@ -146,7 +138,6 @@ public:
     double value() const;
 
     void setRange( double vmin, double vmax, bool lg = false );
-    void setMargin( int m );
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -158,9 +149,7 @@ public Q_SLOTS:
     virtual void setValue( double val );
 
 protected:
-    void draw( QPainter *p );
     void drawThermo( QPainter *, const QRect & );
-    void layoutThermo( bool update = true );
     virtual void scaleChange();
 
     virtual void paintEvent( QPaintEvent * );
@@ -169,8 +158,10 @@ protected:
 
     QwtScaleDraw *scaleDraw();
 
+    QRect pipeRect() const;
+
 private:
-    void initThermo();
+    void layoutThermo( bool );
     int transform( double v ) const;
 
     class PrivateData;

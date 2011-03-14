@@ -23,8 +23,7 @@ public:
         d_thermo->setPipeWidth(6);
         d_thermo->setScaleMaxMajor(6);
         d_thermo->setScaleMaxMinor(5);
-        d_thermo->setMargin(10);
-        d_thermo->setFillColor(QColor("DarkMagenta"));
+        d_thermo->setFillBrush( Qt::darkMagenta );
 
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setMargin(0);
