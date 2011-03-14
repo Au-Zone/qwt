@@ -108,13 +108,13 @@ public:
     Thermo(const QString &title, QWidget *parent):
         QWidget(parent)
     {
-        d_thermo = new QwtThermo(this);
-        d_thermo->setPipeWidth(6);
-        d_thermo->setRange(-40,10);
-        d_thermo->setFillColor(Qt::green);
-        d_thermo->setAlarmColor(Qt::red);
-        d_thermo->setAlarmLevel(0.0);
-        d_thermo->setAlarmEnabled(true);
+        d_thermo = new QwtThermo( this );
+        d_thermo->setPipeWidth( 6 );
+        d_thermo->setRange( -40, 10 );
+        d_thermo->setFillBrush( Qt::green );
+        d_thermo->setAlarmBrush( Qt::red );
+        d_thermo->setAlarmLevel( 0.0 );
+        d_thermo->setAlarmEnabled( true );
 
         QLabel *label = new QLabel(title, this);
         label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
