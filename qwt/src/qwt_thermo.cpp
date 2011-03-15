@@ -8,17 +8,12 @@
  *****************************************************************************/
 
 #include "qwt_thermo.h"
-#include "qwt_math.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_map.h"
 #include <qpainter.h>
 #include <qevent.h>
-#include <qstyle.h>
-#include <qpixmap.h>
 #include <qdrawutil.h>
-#include <qalgorithms.h>
-#include <qmath.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 
@@ -196,11 +191,12 @@ void QwtThermo::paintEvent( QPaintEvent *event )
 
     const int bw = d_data->borderWidth;
 
+    const QBrush brush = palette().brush( QPalette::Base );
     qDrawShadePanel( &painter, 
         tRect.adjusted( -bw, -bw, bw, bw ),
-        palette(), true, bw, NULL );
+        palette(), true, bw, &brush );
 
-    drawThermo( &painter, tRect );
+    drawLiquid( &painter, tRect );
 }
 
 //! Qt resize event handler
@@ -227,17 +223,16 @@ void QwtThermo::changeEvent( QEvent *event )
 
 /*!
   Recalculate the QwtThermo geometry and layout based on
-  the QwtThermo::rect() and the fonts.
+  the QwtThermo::contentsRect() and the fonts.
 
   \param update_geometry notify the layout system and call update
          to redraw the scale
 */
 void QwtThermo::layoutThermo( bool update_geometry )
 {
-    const QRect tRect = pipeRect();
+    const QRectF tRect = pipeRect();
 
-    const int bw = d_data->borderWidth;
-    const int sd = d_data->scaleDist;
+    const double bw = d_data->borderWidth + d_data->scaleDist;
 
     if ( d_data->orientation == Qt::Horizontal )
     {
@@ -246,7 +241,7 @@ void QwtThermo::layoutThermo( bool update_geometry )
             case TopScale:
             {
                 scaleDraw()->setAlignment( QwtScaleDraw::TopScale );
-                scaleDraw()->move( tRect.x(), tRect.y() - bw - sd );
+                scaleDraw()->move( tRect.x(), tRect.y() - bw );
                 scaleDraw()->setLength( tRect.width() );
                 break;
             }
@@ -256,7 +251,7 @@ void QwtThermo::layoutThermo( bool update_geometry )
             default:
             {
                 scaleDraw()->setAlignment( QwtScaleDraw::BottomScale );
-                scaleDraw()->move( tRect.left(), tRect.bottom() + bw + sd );
+                scaleDraw()->move( tRect.left(), tRect.bottom() + bw );
                 scaleDraw()->setLength( tRect.width() );
                 break;
             }
@@ -270,7 +265,7 @@ void QwtThermo::layoutThermo( bool update_geometry )
             case RightScale:
             {
                 scaleDraw()->setAlignment( QwtScaleDraw::RightScale );
-                scaleDraw()->move( tRect.right() + bw + sd, tRect.top() );
+                scaleDraw()->move( tRect.right() + bw, tRect.top() );
                 scaleDraw()->setLength( tRect.height() );
                 break;
             }
@@ -280,12 +275,12 @@ void QwtThermo::layoutThermo( bool update_geometry )
             default:
             {
                 scaleDraw()->setAlignment( QwtScaleDraw::LeftScale );
-                scaleDraw()->move( tRect.x() - sd - bw, tRect.top() );
+                scaleDraw()->move( tRect.x() - bw, tRect.top() );
                 scaleDraw()->setLength( tRect.height() );
                 break;
             }
         }
-        d_data->map.setPaintInterval( tRect.bottom() - 1, tRect.top() );
+        d_data->map.setPaintInterval( tRect.bottom() - 1.0, tRect.top() );
     }
 
     if ( update_geometry )
@@ -297,7 +292,7 @@ void QwtThermo::layoutThermo( bool update_geometry )
 
 QRect QwtThermo::pipeRect() const
 {
-    const QRect r = rect();
+    const QRect cr = contentsRect();
 
     int mbd = 0;
     if ( d_data->scalePos != NoScale )
@@ -316,9 +311,9 @@ QRect QwtThermo::pipeRect() const
             case TopScale:
             {
                 tRect.setRect(
-                    r.x() + mbd + bw,
-                    r.y() + r.height() - d_data->pipeWidth - 2 * bw,
-                    r.width() - 2 * ( bw + mbd ),
+                    cr.x() + mbd + bw,
+                    cr.y() + cr.height() - d_data->pipeWidth - 2 * bw,
+                    cr.width() - 2 * ( bw + mbd ),
                     d_data->pipeWidth 
                 );
                 break;
@@ -329,9 +324,9 @@ QRect QwtThermo::pipeRect() const
             default:   
             {
                 tRect.setRect(
-                    r.x() + mbd + bw,
-                    r.y() + d_data->borderWidth,
-                    r.width() - 2 * ( bw + mbd ),
+                    cr.x() + mbd + bw,
+                    cr.y() + d_data->borderWidth,
+                    cr.width() - 2 * ( bw + mbd ),
                     d_data->pipeWidth 
                 );
                 break;
@@ -345,24 +340,22 @@ QRect QwtThermo::pipeRect() const
             case RightScale:
             {
                 tRect.setRect(
-                    r.x() + bw,
-                    r.y() + mbd + bw,
+                    cr.x() + bw,
+                    cr.y() + mbd + bw,
                     d_data->pipeWidth,
-                    r.height() - 2 * ( bw + mbd ) 
+                    cr.height() - 2 * ( bw + mbd ) 
                 );
                 break;
             }
             case LeftScale:
-            case NoScale: // like Left but without scale
-            default:   // inconsistent orientation and scale position
-                // Mapping between values and pixels requires
-                // initialization of the scale geometry
+            case NoScale: 
+            default:   
             {
                 tRect.setRect(
-                    r.x() + r.width() - 2 * bw - d_data->pipeWidth,
-                    r.y() + mbd + bw,
+                    cr.x() + cr.width() - 2 * bw - d_data->pipeWidth,
+                    cr.y() + mbd + bw,
                     d_data->pipeWidth,
-                    r.height() - 2 * ( bw + mbd ) );
+                    cr.height() - 2 * ( bw + mbd ) );
                 break;
             }
         }
@@ -473,14 +466,13 @@ void QwtThermo::scaleChange()
    Redraw the liquid in thermometer pipe.
    \param painter Painter
 */
-void QwtThermo::drawThermo( QPainter *painter, const QRect &thermoRect )
+void QwtThermo::drawLiquid( QPainter *painter, const QRect &pipeRect )
 {
     double alarm = 0.0; 
     double taval = 0.0;
 
-    QRectF fRect;
-    QRectF aRect;
-    QRectF bRect;
+    QRectF fillRect;
+    QRectF alarmRect;
 
     const bool inverted = ( d_data->maxValue < d_data->minValue );
 
@@ -505,7 +497,7 @@ void QwtThermo::drawThermo( QPainter *painter, const QRect &thermoRect )
     }
 
     //  transform values
-    int tval = transform( d_data->value );
+    double tval = transform( d_data->value );
 
     if ( alarm )
         taval = transform( d_data->alarmLevel );
@@ -515,107 +507,83 @@ void QwtThermo::drawThermo( QPainter *painter, const QRect &thermoRect )
     {
         if ( inverted )
         {
-            bRect.setRect( thermoRect.x(), thermoRect.y(),
-                  tval - thermoRect.x(), thermoRect.height() );
-
             if ( alarm )
             {
-                aRect.setRect( tval, thermoRect.y(),
-                      taval - tval + 1, thermoRect.height() );
-                fRect.setRect( taval + 1, thermoRect.y(),
-                      thermoRect.x() + thermoRect.width() - ( taval + 1 ),
-                      thermoRect.height() );
+                alarmRect.setRect( tval, pipeRect.top(),
+                      taval - tval + 1, pipeRect.height() );
+                fillRect.setRect( taval + 1, pipeRect.top(),
+                      pipeRect.right() - ( taval + 1 ), pipeRect.height() );
             }
             else
             {
-                fRect.setRect( tval, thermoRect.y(),
-                      thermoRect.x() + thermoRect.width() - tval,
-                      thermoRect.height() );
+                fillRect.setRect( tval, pipeRect.top(),
+                      pipeRect.right() - tval, pipeRect.height() );
             }
         }
         else
         {
-            bRect.setRect( tval + 1, thermoRect.y(),
-                  thermoRect.width() - ( tval + 1 - thermoRect.x() ),
-                  thermoRect.height() );
-
             if ( alarm )
             {
-                aRect.setRect( taval, thermoRect.y(),
-                      tval - taval + 1,
-                      thermoRect.height() );
-                fRect.setRect( thermoRect.x(), thermoRect.y(),
-                      taval - thermoRect.x(),
-                      thermoRect.height() );
+                alarmRect.setRect( taval, pipeRect.top(),
+                      tval - taval + 1, pipeRect.height() );
+                fillRect.setRect( pipeRect.x(), pipeRect.top(),
+                      taval - pipeRect.x(), pipeRect.height() );
             }
             else
             {
-                fRect.setRect( thermoRect.x(), thermoRect.y(),
-                      tval - thermoRect.x() + 1,
-                      thermoRect.height() );
+                fillRect.setRect( pipeRect.left(), pipeRect.top(),
+                      tval - pipeRect.left() + 1, pipeRect.height() );
             }
 
         }
     }
     else // Qt::Vertical
     {
-        if ( tval < thermoRect.y() )
-            tval = thermoRect.y();
+        if ( tval < pipeRect.y() )
+            tval = pipeRect.y();
         else
         {
-            if ( tval > thermoRect.y() + thermoRect.height() )
-                tval = thermoRect.y() + thermoRect.height();
+            if ( tval > pipeRect.y() + pipeRect.height() )
+                tval = pipeRect.y() + pipeRect.height();
         }
 
         if ( inverted )
         {
-            bRect.setRect( thermoRect.x(), tval + 1,
-                thermoRect.width(),
-                thermoRect.height() - ( tval + 1 - thermoRect.y() ) );
-
             if ( alarm )
             {
-                aRect.setRect( thermoRect.x(), taval,
-                    thermoRect.width(), tval - taval + 1 );
-                fRect.setRect( thermoRect.x(), thermoRect.y(),
-                    thermoRect.width(),
-                    taval - thermoRect.y() );
+                alarmRect.setRect( pipeRect.x(), taval,
+                    pipeRect.width(), tval - taval + 1 );
+                fillRect.setRect( pipeRect.x(), pipeRect.y(),
+                    pipeRect.width(),
+                    taval - pipeRect.y() );
             }
             else
             {
-                fRect.setRect( thermoRect.x(), thermoRect.y(),
-                    thermoRect.width(), tval - thermoRect.y() + 1 );
+                fillRect.setRect( pipeRect.x(), pipeRect.y(),
+                    pipeRect.width(), tval - pipeRect.y() + 1 );
             }
         }
         else
         {
-            bRect.setRect( thermoRect.x(), thermoRect.y(),
-                thermoRect.width(), tval - thermoRect.y() );
             if ( alarm )
             {
-                aRect.setRect( thermoRect.x(), tval,
-                    thermoRect.width(),
-                    taval - tval + 1 );
-                fRect.setRect( thermoRect.x(), taval + 1,
-                    thermoRect.width(),
-                    thermoRect.y() + thermoRect.height() - ( taval + 1 ) );
+                alarmRect.setRect( pipeRect.left(), tval,
+                    pipeRect.width(), taval - tval + 1 );
+                fillRect.setRect( pipeRect.left(), taval + 1,
+                    pipeRect.width(), pipeRect.bottom() - ( taval + 1 ) );
             }
             else
             {
-                fRect.setRect( thermoRect.x(), tval,
-                    thermoRect.width(),
-                    thermoRect.y() + thermoRect.height() - tval );
+                fillRect.setRect( pipeRect.left(), tval,
+                    pipeRect.width(), pipeRect.bottom() - tval );
             }
         }
     }
 
-    // paint thermometer
-    painter->fillRect( bRect, palette().brush( QPalette::Base ) );
-
     if ( alarm )
-        painter->fillRect( aRect, d_data->alarmBrush );
+        painter->fillRect( alarmRect, d_data->alarmBrush );
 
-    painter->fillRect( fRect, d_data->fillBrush );
+    painter->fillRect( fillRect, d_data->fillBrush );
 }
 
 /*!
@@ -820,10 +788,15 @@ QSize QwtThermo::minimumSizeHint() const
     w += 2 * d_data->borderWidth;
     h += 2 * d_data->borderWidth;
 
+    int left, right, top, bottom;
+    getContentsMargins( &left, &top, &right, &bottom );
+    w += left + right;
+    h += top + bottom;
+
     return QSize( w, h );
 }
 
-int QwtThermo::transform( double value ) const
+double QwtThermo::transform( double value ) const
 {
     const double min = qMin( d_data->map.s1(), d_data->map.s2() );
     const double max = qMax( d_data->map.s1(), d_data->map.s2() );
@@ -833,5 +806,5 @@ int QwtThermo::transform( double value ) const
     if ( value < min )
         value = min;
 
-    return qRound( d_data->map.transform( value ) );
+    return d_data->map.transform( value );
 }
