@@ -149,7 +149,7 @@ public Q_SLOTS:
     virtual void setValue( double val );
 
 protected:
-    void drawThermo( QPainter *, const QRect & );
+    virtual void drawLiquid( QPainter *, const QRect & );
     virtual void scaleChange();
 
     virtual void paintEvent( QPaintEvent * );
@@ -162,7 +162,7 @@ protected:
 
 private:
     void layoutThermo( bool );
-    int transform( double v ) const;
+    double transform( double v ) const;
 
     class PrivateData;
     PrivateData *d_data;
