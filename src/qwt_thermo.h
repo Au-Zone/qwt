@@ -13,9 +13,6 @@
 #include "qwt_global.h"
 #include "qwt_abstract_scale.h"
 #include <qwidget.h>
-#include <qcolor.h>
-#include <qfont.h>
-#include <qrect.h>
 
 class QwtScaleDraw;
 
@@ -120,6 +117,9 @@ public:
     void setAlarmBrush( const QBrush &b );
     const QBrush &alarmBrush() const;
 
+    void setAutoFillPipeBackground( bool );
+    bool autoFillPipeBackground() const;
+
     void setAlarmLevel( double v );
     double alarmLevel() const;
 
@@ -128,6 +128,9 @@ public:
 
     void setPipeWidth( int w );
     int pipeWidth() const;
+
+    void setRangeFlags( int );
+    int rangeFlags() const;
 
     void setMaxValue( double v );
     double maxValue() const;
@@ -162,7 +165,6 @@ protected:
 
 private:
     void layoutThermo( bool );
-    double transform( double v ) const;
 
     class PrivateData;
     PrivateData *d_data;
