@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_abstract_scale.h"
+#include "qwt_interval.h"
 #include <qwidget.h>
 
 class QwtScaleDraw;
@@ -26,6 +27,19 @@ class QwtScaleDraw;
   - an alarm level.
 
   \image html sysinfo.png
+
+  QwtThermo uses the following colors/brushes from the widget palette:
+
+  - QPalette::Base
+    Background of the pipe
+  - QPalette::ButtonText
+    Fill brush below the alarm level
+  - QPalette::Highlight
+    Fill brush for the values above the alarm level
+  - QPalette::WindowText
+    For the axis of the scale
+  - QPalette::Text
+    For the labels of the scale
 
   By default, the scale and range run over the same interval of values.
   QwtAbstractScale::setScale() changes the interval of the scale and allows
@@ -69,13 +83,12 @@ class QWT_EXPORT QwtThermo: public QWidget, public QwtAbstractScale
 
     Q_ENUMS( ScalePos )
 
-    Q_PROPERTY( QBrush alarmBrush READ alarmBrush WRITE setAlarmBrush )
     Q_PROPERTY( bool alarmEnabled READ alarmEnabled WRITE setAlarmEnabled )
     Q_PROPERTY( double alarmLevel READ alarmLevel WRITE setAlarmLevel )
     Q_PROPERTY( ScalePos scalePosition READ scalePosition
         WRITE setScalePosition )
+    Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
-    Q_PROPERTY( QBrush fillBrush READ fillBrush WRITE setFillBrush )
     Q_PROPERTY( double maxValue READ maxValue WRITE setMaxValue )
     Q_PROPERTY( double minValue READ minValue WRITE setMinValue )
     Q_PROPERTY( int pipeWidth READ pipeWidth WRITE setPipeWidth )
@@ -108,6 +121,9 @@ public:
     void setScalePosition( ScalePos s );
     ScalePos scalePosition() const;
 
+    void setSpacing( int );
+    int spacing() const;
+
     void setBorderWidth( int w );
     int borderWidth() const;
 
@@ -129,8 +145,8 @@ public:
     void setPipeWidth( int w );
     int pipeWidth() const;
 
-    void setRangeFlags( int );
-    int rangeFlags() const;
+    void setRangeFlags( QwtInterval::BorderFlags );
+    QwtInterval::BorderFlags rangeFlags() const;
 
     void setMaxValue( double v );
     double maxValue() const;
