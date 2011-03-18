@@ -29,12 +29,10 @@ class QwtThermo::PrivateData
 {
 public:
     PrivateData():
-        fillBrush( Qt::blue ),
-        alarmBrush( Qt::red ),
         orientation( Qt::Vertical ),
         scalePos( QwtThermo::LeftScale ),
+        spacing( 3 ),
         borderWidth( 2 ),
-        scaleDist( 3 ),
         pipeWidth( 10 ),
         minValue( 0.0 ),
         maxValue( 0.0 ),
@@ -47,18 +45,16 @@ public:
     }
 
     QwtScaleMap map;
-    QBrush fillBrush;
-    QBrush alarmBrush;
 
     Qt::Orientation orientation;
     ScalePos scalePos;
+    int spacing;
     int borderWidth;
-    int scaleDist;
     int pipeWidth;
 
     double minValue;
     double maxValue;
-    int rangeFlags;
+    QwtInterval::BorderFlags rangeFlags;
     double value;
     double alarmLevel;
     bool alarmEnabled;
@@ -90,7 +86,22 @@ QwtThermo::~QwtThermo()
     delete d_data;
 }
 
-void QwtThermo::setRangeFlags( int flags )
+/*!
+  \brief Exclude/Include min/max values
+
+  According to the flags minValue() and maxValue()
+  are included/excluded from the pipe. In case of an
+  excluded value the corresponding tick is painted
+  1 pixel off of the pipeRect().
+
+  F.e. when a minimum
+  of 0.0 has to be displayed as an empty pipe the minValue()
+  needs to be excluded.
+
+  \param flags Range flags
+  \sa rangeFlags()
+*/
+void QwtThermo::setRangeFlags( QwtInterval::BorderFlags flags )
 {
     if ( d_data->rangeFlags != flags )
     {
@@ -99,7 +110,11 @@ void QwtThermo::setRangeFlags( int flags )
     }
 }
 
-int QwtThermo::rangeFlags() const
+/*!
+  \return Range flags
+  \sa setRangeFlags()
+*/
+QwtInterval::BorderFlags QwtThermo::rangeFlags() const
 {
     return d_data->rangeFlags;
 }
@@ -195,7 +210,7 @@ QwtScaleDraw *QwtThermo::scaleDraw()
 
 /*!
   Qt paint event.
-  event Paint event
+  \param event Paint event
 */
 void QwtThermo::paintEvent( QPaintEvent *event )
 {
@@ -225,13 +240,20 @@ void QwtThermo::paintEvent( QPaintEvent *event )
     drawLiquid( &painter, tRect );
 }
 
-//! Qt resize event handler
-void QwtThermo::resizeEvent( QResizeEvent * )
+/*! 
+  Qt resize event handler
+  \param event Resize event
+*/
+void QwtThermo::resizeEvent( QResizeEvent *event )
 {
+    Q_UNUSED( event );
     layoutThermo( false );
 }
 
-//! Qt change event handler
+/*! 
+  Qt change event handler
+  \param event Event
+*/
 void QwtThermo::changeEvent( QEvent *event )
 {
     switch( event->type() )
@@ -257,7 +279,7 @@ void QwtThermo::changeEvent( QEvent *event )
 void QwtThermo::layoutThermo( bool update_geometry )
 {
     const QRect tRect = pipeRect();
-    const int bw = d_data->borderWidth + d_data->scaleDist;
+    const int bw = d_data->borderWidth + d_data->spacing;
     const bool inverted = ( maxValue() < minValue() );
 
     int from, to;
@@ -348,8 +370,6 @@ void QwtThermo::layoutThermo( bool update_geometry )
         d_data->map.setPaintInterval( to, from );
     }
 
-
-
     if ( update_geometry )
     {
         updateGeometry();
@@ -357,6 +377,10 @@ void QwtThermo::layoutThermo( bool update_geometry )
     }
 }
 
+/*!
+  \return Bounding rectangle of the pipe ( without borders )
+          in widget coordinates
+*/
 QRect QwtThermo::pipeRect() const
 {
     const QRect cr = contentsRect();
@@ -500,7 +524,8 @@ void QwtThermo::setOrientation( Qt::Orientation o, ScalePos s )
     scale orientation will become Qt::Vertical;
   - if the new scale position is BottomScale or TopScale, the scale
     orientation will become Qt::Horizontal;
-  - if the new scale position is NoScale, the scale orientation will not change.
+  - if the new scale position is NoScale, the scale orientation 
+    will not change.
 
   \sa setOrientation(), scalePosition()
 */
@@ -532,6 +557,7 @@ void QwtThermo::scaleChange()
 /*!
    Redraw the liquid in thermometer pipe.
    \param painter Painter
+   \param pipeRect Bounding rectangle of the pipe without borders
 */
 void QwtThermo::drawLiquid( QPainter *painter, const QRect &pipeRect )
 {
@@ -580,12 +606,44 @@ void QwtThermo::drawLiquid( QPainter *painter, const QRect &pipeRect )
 
         fillRect = QRegion( fillRect ).subtracted( alarmRect ).boundingRect();
 
-        painter->fillRect( alarmRect, d_data->alarmBrush );
+        painter->fillRect( alarmRect, palette().brush( QPalette::Highlight ) );
     }
 
-    painter->fillRect( fillRect, d_data->fillBrush );
+    painter->fillRect( fillRect, palette().brush( QPalette::ButtonText ) );
 
     painter->restore();
+}
+
+/*!
+  \brief Change the spacing between pipe and scale
+
+  A spacing of 0 means, that the backbone of the scale is below
+  the pipe.
+
+  The default setting is 3 pixels.
+
+  \param spacing Number of pixels
+  \sa spacing();
+*/
+void QwtThermo::setSpacing( int spacing )
+{
+    if ( spacing <= 0 )
+        spacing = 0;
+
+    if ( spacing != d_data->spacing  )
+    {
+        d_data->spacing = spacing;
+        layoutThermo( true );
+    }
+}
+
+/*!
+  \return Number of pixels between pipe and scale
+  \sa setSpacing()
+*/
+int QwtThermo::spacing() const
+{
+    return d_data->spacing;
 }
 
 /*!
@@ -616,8 +674,11 @@ int QwtThermo::borderWidth() const
 
 /*!
   \brief Set the range
-  \param minValue value corresponding lower or left end of the thermometer
-  \param maxValue value corresponding to the upper or right end of the thermometer
+
+  \param minValue value corresponding lower or left end 
+                  of the thermometer
+  \param maxValue value corresponding to the upper or 
+                  right end of the thermometer
   \param logarithmic logarithmic mapping, true or false
 */
 void QwtThermo::setRange( 
@@ -657,42 +718,50 @@ void QwtThermo::setRange(
 
 /*!
   \brief Change the brush of the liquid.
-  \param brush New brush. The default brush is solid black.
-  \sa fillBrush()
+ 
+  Changes the QPalette::ButtonText brush of the palette.
+
+  \param brush New brush. 
+  \sa fillBrush(), QWidget::setPalette()
 */
 void QwtThermo::setFillBrush( const QBrush& brush )
 {
-    d_data->fillBrush = brush;
-    update();
+    QPalette pal = palette();
+    pal.setBrush( QPalette::ButtonText, brush );
+    setPalette( pal );
 }
 
 /*!
-  Return the liquid brush.
-  \sa setFillBrush()
+  Return the liquid ( QPalette::ButtonText ) brush. 
+  \sa setFillBrush(), QWidget::palette()
 */
 const QBrush& QwtThermo::fillBrush() const
 {
-    return d_data->fillBrush;
+    return palette().brush( QPalette::ButtonText );
 }
 
 /*!
   \brief Specify the liquid brush above the alarm threshold
-  \param brush New brush. The default is solid white.
-  \sa alarmBrush()
+
+  Changes the QPalette::Highlight brush of the palette.
+
+  \param brush New brush. 
+  \sa alarmBrush(), QWidget::setPalette()
 */
 void QwtThermo::setAlarmBrush( const QBrush& brush )
 {
-    d_data->alarmBrush = brush;
-    update();
+    QPalette pal = palette();
+    pal.setBrush( QPalette::Highlight, brush );
+    setPalette( pal );
 }
 
 /*!
-  Return the liquid brush above the alarm threshold.
-  \sa setAlarmBrush()
+  Return the liquid brush ( QPalette::Highlight ) above the alarm threshold.
+  \sa setAlarmBrush(), QWidget::palette()
 */
 const QBrush& QwtThermo::alarmBrush() const
 {
-    return d_data->alarmBrush;
+    return palette().brush( QPalette::Highlight );
 }
 
 /*!
@@ -782,7 +851,7 @@ QSize QwtThermo::minimumSizeHint() const
 
         w = sdLength;
         h = d_data->pipeWidth + sdExtent +
-            d_data->borderWidth + d_data->scaleDist;
+            d_data->borderWidth + d_data->spacing;
 
     }
     else // no scale

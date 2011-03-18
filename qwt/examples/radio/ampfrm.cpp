@@ -24,34 +24,15 @@ public:
         d_knob->setRange(min, max, 0,1);
         d_knob->setScaleMaxMajor(10);
 
-#if 1
         d_knob->setKnobStyle(QwtKnob::Raised);
-#else
-        d_knob->setKnobStyle(QwtKnob::Sunken);
-#endif
         d_knob->setKnobWidth(50);
         d_knob->setBorderWidth(2);
-#if 1
         d_knob->setMarkerStyle(QwtKnob::Notch);
         d_knob->setMarkerSize( 8 );
-#else
-        d_knob->setMarkerStyle(QwtKnob::Tick);
-        d_knob->setMarkerSize( 12 );
-#endif
 
         d_knob->scaleDraw()->setTickLength( QwtScaleDiv::MinorTick, 4 );
         d_knob->scaleDraw()->setTickLength( QwtScaleDiv::MediumTick, 4 );
         d_knob->scaleDraw()->setTickLength( QwtScaleDiv::MajorTick, 6 );
-
-#if 0
-        QPalette pal = d_knob->palette();
-
-        QColor c = pal.color( QPalette::Button );
-        pal.setColor( QPalette::Mid, c.darker( 130 ) );
-        pal.setColor( QPalette::Midlight, c.lighter( 130 ) );
-
-        d_knob->setPalette( pal );
-#endif
 
         d_label = new QLabel(title, this);
         d_label->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
@@ -72,6 +53,11 @@ public:
         off -= 10; // spacing
 
         return QSize(w, h - off);
+    }
+
+    void setValue( double value )
+    {
+        d_knob->setValue( value );
     }
 
     double value() const
@@ -159,6 +145,7 @@ AmpFrame::AmpFrame(QWidget *p):
     layout->addSpacing(10);
     layout->addWidget(d_thmRight);
 
+    d_knbVolume->setValue( 7.0 );
     (void)startTimer(50);    
 }
 
