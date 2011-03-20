@@ -34,12 +34,15 @@ class QWT_EXPORT QwtRasterData
 public:
     typedef QMap<double, QPolygonF> ContourLines;
 
-    //! Attribute to modify the contour algorithm
-    enum ConrecAttribute
+    //! Flags to modify the contour algorithm
+    enum ConrecFlag
     {
         IgnoreAllVerticesOnLevel = 1,
         IgnoreOutOfRange = 2
     };
+
+    //! Flags to modify the contour algorithm
+    typedef QFlags<ConrecFlag> ConrecFlags;
 
     QwtRasterData();
     virtual ~QwtRasterData();
@@ -61,7 +64,7 @@ public:
 
     virtual ContourLines contourLines( const QRectF &rect,
         const QSize &raster, const QList<double> &levels,
-        int flags ) const;
+        ConrecFlags ) const;
 
     class Contour3DPoint;
     class ContourPlane;
@@ -82,5 +85,7 @@ inline const QwtInterval &QwtRasterData::interval( Qt::Axis axis) const
 {
     return d_intervals[axis];
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtRasterData::ConrecFlags );
 
 #endif

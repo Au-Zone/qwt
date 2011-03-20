@@ -29,53 +29,53 @@ class QWT_EXPORT QwtPlotIntervalCurve: public QwtPlotSeriesItem<QwtIntervalSampl
 {
 public:
     /*!
-        Curve styles.
-
-         - NoCurve\n
-           Don't draw a curve. Note: This doesn't affect the symbols.
-
-         - Tube\n
-           Build 2 curves from the upper and lower limits of the intervals
-           and draw them with the pen(). The area between the curves is
-           filled with the brush().
-
-         - UserCurve\n
-           Styles >= UserCurve are reserved for derived
-           classes of QwtPlotIntervalCurve that overload drawSeries() with
-           additional application specific curve types.
-
-        The default setting is Tube.
+        \brief Curve styles.
+        The default setting is QwtPlotIntervalCurve::Tube.
 
         \sa setStyle(), style()
     */
 
     enum CurveStyle
     {
+        /*!
+           Don't draw a curve. Note: This doesn't affect the symbols.
+         */
         NoCurve,
 
+        /*!
+           Build 2 curves from the upper and lower limits of the intervals
+           and draw them with the pen(). The area between the curves is
+           filled with the brush().
+         */
         Tube,
 
+        /*!
+           Styles >= QwtPlotIntervalCurve::UserCurve are reserved for derived
+           classes that overload drawSeries() with
+           additional application specific curve types.
+         */
         UserCurve = 100
     };
 
     /*!
         Attributes to modify the drawing algorithm.
-
-        - ClipPolygons\n
-          Clip polygons before painting them. In situations, where points
-          are far outside the visible area (f.e when zooming deep) this
-          might be a substantial improvement for the painting performance
-          ( especially on Windows ).
-        - ClipSymbols\n
-          Check if a symbol is on the plot canvas before painting it.
-
         \sa setPaintAttribute(), testPaintAttribute()
     */
     enum PaintAttribute
     {
-        ClipPolygons = 1,
-        ClipSymbol   = 2
+        /*!
+          Clip polygons before painting them. In situations, where points
+          are far outside the visible area (f.e when zooming deep) this
+          might be a substantial improvement for the painting performance.
+         */
+        ClipPolygons = 0x01,
+
+        //! Check if a symbol is on the plot canvas before painting it.
+        ClipSymbol   = 0x02
     };
+
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
 
     explicit QwtPlotIntervalCurve( const QString &title = QString::null );
     explicit QwtPlotIntervalCurve( const QwtText &title );
@@ -124,5 +124,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotIntervalCurve::PaintAttributes );
 
 #endif

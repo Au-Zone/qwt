@@ -202,9 +202,16 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
   Supported formats are:
 
   - pdf\n
+    Portable Document Format PDF
   - ps\n
+    Postcript
   - svg\n
-  - all image formats supported by Qt, see QImageWriter::supportedImageFormats()
+    Scalable Vector Graphics SVG
+  - all image formats supported by Qt\n
+    see QImageWriter::supportedImageFormats()
+
+  Scalable vector graphic formats like PDF or SVG are superior to
+  raster graphics formats.
 
   \param plot Plot widget
   \param fileName Path of the file, where the document will be stored
@@ -422,8 +429,8 @@ void QwtPlotRenderer::render( QwtPlot *plot,
     }
     // Calculate the layout for the print.
 
-    int layoutOptions = QwtPlotLayout::IgnoreScrollbars
-        | QwtPlotLayout::IgnoreFrames;
+    QwtPlotLayout::Options layoutOptions = 
+        QwtPlotLayout::IgnoreScrollbars | QwtPlotLayout::IgnoreFrames;
     if ( !d_data->layoutFlags & KeepMargins )
         layoutOptions |= QwtPlotLayout::IgnoreMargin;
     if ( d_data->discardFlags & DiscardLegend )

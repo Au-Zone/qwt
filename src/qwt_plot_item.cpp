@@ -31,8 +31,8 @@ public:
     mutable QwtPlot *plot;
 
     bool isVisible;
-    int attributes;
-    int renderHints;
+    QwtPlotItem::ItemAttributes attributes;
+    QwtPlotItem::RenderHints renderHints;
     double z;
 
     int xAxis;
@@ -96,6 +96,18 @@ void QwtPlotItem::attach( QwtPlot *plot )
         d_data->plot->attachItem( this, true );
         itemChanged();
     }
+}
+
+/*!
+   \brief This method detaches a QwtPlotItem from any 
+          QwtPlot it has been associated with.
+
+   detach() is equivalent to calling attach( NULL )
+   \sa attach()
+*/
+void QwtPlotItem::detach()
+{
+    attach( NULL );
 }
 
 /*!
@@ -220,7 +232,7 @@ void QwtPlotItem::setItemAttribute( ItemAttribute attribute, bool on )
 */
 bool QwtPlotItem::testItemAttribute( ItemAttribute attribute ) const
 {
-    return d_data->attributes & attribute;
+    return ( d_data->attributes & attribute );
 }
 
 /*!

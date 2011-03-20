@@ -32,7 +32,7 @@ public:
     int yMargin;
 
     QwtSlider::ScalePos scalePos;
-    QwtSlider::BGSTYLE bgStyle;
+    QwtSlider::BackgroundStyles bgStyle;
 
     /*
       Scale and values might have different maps. This is
@@ -50,10 +50,10 @@ public:
          or Qt::Vertical. Defaults to Qt::Horizontal.
   \param scalePos Position of the scale.
          Defaults to QwtSlider::NoScale.
-  \param bgStyle Background style. QwtSlider::BgTrough draws the
-         slider button in a trough, QwtSlider::BgSlot draws
+  \param bgStyle Background style. QwtSlider::Trough draws the
+         slider button in a trough, QwtSlider::Slot draws
          a slot underneath the button. An or-combination of both
-         may also be used. The default is QwtSlider::BgTrough.
+         may also be used. The default is QwtSlider::Trough.
 
   QwtSlider enforces valid combinations of its orientation and scale position.
   If the combination is invalid, the scale position will be set to NoScale.
@@ -62,14 +62,15 @@ public:
   - Qt::Vertical with NoScale, LeftScale, or RightScale.
 */
 QwtSlider::QwtSlider( QWidget *parent,
-        Qt::Orientation orientation, ScalePos scalePos, BGSTYLE bgStyle ):
+        Qt::Orientation orientation, ScalePos scalePos, 
+        BackgroundStyles bgStyle ):
     QwtAbstractSlider( orientation, parent )
 {
     initSlider( orientation, scalePos, bgStyle );
 }
 
 void QwtSlider::initSlider( Qt::Orientation orientation,
-    ScalePos scalePos, BGSTYLE bgStyle )
+    ScalePos scalePos, BackgroundStyles bgStyle )
 {
     if ( orientation == Qt::Vertical )
         setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
@@ -77,7 +78,6 @@ void QwtSlider::initSlider( Qt::Orientation orientation,
         setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 
     setAttribute( Qt::WA_WState_OwnSizePolicy, false );
-
 
     d_data = new QwtSlider::PrivateData;
 
@@ -88,7 +88,7 @@ void QwtSlider::initSlider( Qt::Orientation orientation,
     d_data->yMargin = 0;
     d_data->bgStyle = bgStyle;
 
-    if ( bgStyle == BgSlot )
+    if ( !bgStyle & QwtSlider::Trough )
     {
         d_data->thumbLength = 16;
         d_data->thumbWidth = 30;
@@ -341,7 +341,7 @@ void QwtSlider::drawSlider( QPainter *painter, const QRect &r )
 {
     QRect cr( r );
 
-    if ( d_data->bgStyle & BgTrough )
+    if ( d_data->bgStyle & QwtSlider::Trough )
     {
         qDrawShadePanel( painter, r.x(), r.y(),
             r.width(), r.height(), palette(),
@@ -356,7 +356,7 @@ void QwtSlider::drawSlider( QPainter *painter, const QRect &r )
             palette().brush( QPalette::Mid ) );
     }
 
-    if ( d_data->bgStyle & BgSlot )
+    if ( d_data->bgStyle & QwtSlider::Slot )
     {
         int ws = 4;
         int ds = d_data->thumbLength / 2 - 4;
@@ -543,7 +543,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
     int sliderWidth = d_data->thumbWidth;
     int sld1 = d_data->thumbLength / 2 - 1;
     int sld2 = d_data->thumbLength / 2 + d_data->thumbLength % 2;
-    if ( d_data->bgStyle & BgTrough )
+    if ( d_data->bgStyle & QwtSlider::Trough )
     {
         sliderWidth += 2 * d_data->borderWidth;
         sld1 += d_data->borderWidth;
@@ -551,7 +551,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
     }
 
     int scd = 0;
-    if ( d_data->scalePos != NoScale )
+    if ( d_data->scalePos != QwtSlider::NoScale )
     {
         int d1, d2;
         scaleDraw()->getBorderDistHint( font(), d1, d2 );
@@ -569,7 +569,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
     {
         switch ( d_data->scalePos )
         {
-            case TopScale:
+            case QwtSlider::TopScale:
             {
                 d_data->sliderRect.setRect(
                     r.x() + d_data->xMargin + slo,
@@ -584,7 +584,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
                 break;
             }
 
-            case BottomScale:
+            case QwtSlider::BottomScale:
             {
                 d_data->sliderRect.setRect(
                     r.x() + d_data->xMargin + slo,
@@ -599,7 +599,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
                 break;
             }
 
-            case NoScale: // like Bottom, but no scale. See QwtSlider().
+            case QwtSlider::NoScale: // like Bottom, but no scale. 
             default:   // inconsistent orientation and scale position
             {
                 d_data->sliderRect.setRect(
@@ -620,7 +620,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
     {
         switch ( d_data->scalePos )
         {
-            case RightScale:
+            case QwtSlider::RightScale:
                 d_data->sliderRect.setRect(
                     r.x() + d_data->xMargin,
                     r.y() + d_data->yMargin + slo,
@@ -633,7 +633,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
 
                 break;
 
-            case LeftScale:
+            case QwtSlider::LeftScale:
                 d_data->sliderRect.setRect(
                     r.x() + r.width() - sliderWidth - d_data->xMargin,
                     r.y() + d_data->yMargin + slo,
@@ -645,7 +645,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
 
                 break;
 
-            case NoScale: // like Left, but no scale. See QwtSlider().
+            case QwtSlider::NoScale: // like Left, but no scale. 
             default:   // inconsistent orientation and scale position
                 d_data->sliderRect.setRect(
                     r.x() + r.width() - sliderWidth - d_data->xMargin,
@@ -718,16 +718,16 @@ void QwtSlider::setMargins( int xMargin, int yMargin )
 /*!
   Set the background style.
 */
-void QwtSlider::setBgStyle( BGSTYLE st )
+void QwtSlider::setBackgroundStyle( BackgroundStyles style )
 {
-    d_data->bgStyle = st;
+    d_data->bgStyle = style;
     layoutSlider();
 }
 
 /*!
   \return the background style.
 */
-QwtSlider::BGSTYLE QwtSlider::bgStyle() const
+QwtSlider::BackgroundStyles QwtSlider::backgroundStyle() const
 {
     return d_data->bgStyle;
 }
@@ -775,7 +775,7 @@ QSize QwtSlider::minimumSizeHint() const
         return d_data->sizeHintCache;
 
     int sliderWidth = d_data->thumbWidth;
-    if ( d_data->bgStyle & BgTrough )
+    if ( d_data->bgStyle & QwtSlider::Trough )
         sliderWidth += 2 * d_data->borderWidth;
 
     int w = 0, h = 0;
@@ -786,7 +786,7 @@ QSize QwtSlider::minimumSizeHint() const
         int msMbd = qMax( d1, d2 );
 
         int mbd = d_data->thumbLength / 2;
-        if ( d_data->bgStyle & BgTrough )
+        if ( d_data->bgStyle & QwtSlider::Trough )
             mbd += d_data->borderWidth;
 
         if ( mbd < msMbd )

@@ -67,7 +67,7 @@ public:
     QPen pen;
     QBrush brush;
 
-    int paintAttributes;
+    QwtPlotIntervalCurve::PaintAttributes paintAttributes;
 };
 
 /*!
@@ -119,7 +119,7 @@ int QwtPlotIntervalCurve::rtti() const
 
   \param attribute Paint attribute
   \param on On/Off
-  /sa PaintAttribute, testPaintAttribute()
+  \sa testPaintAttribute()
 */
 void QwtPlotIntervalCurve::setPaintAttribute( 
     PaintAttribute attribute, bool on )

@@ -47,31 +47,38 @@ public:
 class QWT_EXPORT QwtScaleEngine
 {
 public:
-    /*!
-       - IncludeReference\n
-         Build a scale which includes the reference() value.
-       - Symmetric\n
-         Build a scale which is symmetric to the reference() value.
-       - Floating\n
-         The endpoints of the scale are supposed to be equal the
-         outmost included values plus the specified margins (see setMargins()).
-         If this attribute is *not* set, the endpoints of the scale will
-         be integer multiples of the step size.
-       - Inverted\n
-         Turn the scale upside down.
-
+    /*! 
+       Layout attributes
        \sa setAttribute(), testAttribute(), reference(),
            lowerMargin(), upperMargin()
      */
 
     enum Attribute
     {
-        NoAttribute = 0,
-        IncludeReference = 1,
-        Symmetric = 2,
-        Floating = 4,
-        Inverted = 8
+        //! No attributes
+        NoAttribute = 0x00,
+
+        //! Build a scale which includes the reference() value.
+        IncludeReference = 0x01,
+
+        //! Build a scale which is symmetric to the reference() value.
+        Symmetric = 0x02,
+
+        /*!
+           The endpoints of the scale are supposed to be equal the
+           outmost included values plus the specified margins 
+           (see setMargins()).
+           If this attribute is *not* set, the endpoints of the scale will
+           be integer multiples of the step size.
+         */
+        Floating = 0x04,
+
+        //! Turn the scale upside down.
+        Inverted = 0x08
     };
+
+    //! Layout attributes
+    typedef QFlags<Attribute> Attributes;
 
     explicit QwtScaleEngine();
     virtual ~QwtScaleEngine();
@@ -79,8 +86,8 @@ public:
     void setAttribute( Attribute, bool on = true );
     bool testAttribute( Attribute ) const;
 
-    void setAttributes( int );
-    int attributes() const;
+    void setAttributes( Attributes );
+    Attributes attributes() const;
 
     void setReference( double reference );
     double reference() const;
@@ -204,5 +211,7 @@ protected:
         const QList<double>& majorTicks,
         int maxMinMark, double step ) const;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtScaleEngine::Attributes );
 
 #endif

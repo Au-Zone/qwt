@@ -33,8 +33,8 @@ public:
         colorMap = new QwtLinearColorMap();
         displayMode = ImageMode;
 
-        conrecAttributes = QwtRasterData::IgnoreAllVerticesOnLevel;
-        conrecAttributes |= QwtRasterData::IgnoreOutOfRange;
+        conrecFlags = QwtRasterData::IgnoreAllVerticesOnLevel;
+        conrecFlags |= QwtRasterData::IgnoreOutOfRange;
     }
     ~PrivateData()
     {
@@ -44,13 +44,13 @@ public:
 
     QwtRasterData *data;
     QwtColorMap *colorMap;
-    int displayMode;
+    DisplayModes displayMode;
 
     uint renderThreadCount;
 
     QList<double> contourLevels;
     QPen defaultContourPen;
-    int conrecAttributes;
+    QwtRasterData::ConrecFlags conrecFlags;
 };
 
 /*!
@@ -238,22 +238,22 @@ QPen QwtPlotSpectrogram::contourPen( double level ) const
    Modify an attribute of the CONREC algorithm, used to calculate
    the contour lines.
 
-   \param attribute CONREC attribute
+   \param flag CONREC flag
    \param on On/Off
 
-   \sa testConrecAttribute(), renderContourLines(),
+   \sa testConrecFlag(), renderContourLines(),
        QwtRasterData::contourLines()
 */
-void QwtPlotSpectrogram::setConrecAttribute(
-    QwtRasterData::ConrecAttribute attribute, bool on )
+void QwtPlotSpectrogram::setConrecFlag(
+    QwtRasterData::ConrecFlag flag, bool on )
 {
-    if ( bool( d_data->conrecAttributes & attribute ) == on )
+    if ( bool( d_data->conrecFlags & flag ) == on )
         return;
 
     if ( on )
-        d_data->conrecAttributes |= attribute;
+        d_data->conrecFlags |= flag;
     else
-        d_data->conrecAttributes &= ~attribute;
+        d_data->conrecFlags &= ~flag;
 
     itemChanged();
 }
@@ -262,16 +262,16 @@ void QwtPlotSpectrogram::setConrecAttribute(
    Test an attribute of the CONREC algorithm, used to calculate
    the contour lines.
 
-   \param attribute CONREC attribute
+   \param flag CONREC flag
    \return true, is enabled
 
-   \sa setConrecAttribute(), renderContourLines(),
+   \sa setConrecClag(), renderContourLines(),
        QwtRasterData::contourLines()
 */
-bool QwtPlotSpectrogram::testConrecAttribute(
-    QwtRasterData::ConrecAttribute attribute ) const
+bool QwtPlotSpectrogram::testConrecFlag(
+    QwtRasterData::ConrecFlag flag ) const
 {
-    return d_data->conrecAttributes & attribute;
+    return d_data->conrecFlags & flag;
 }
 
 /*!
@@ -383,8 +383,7 @@ QRectF QwtPlotSpectrogram::pixelHint( const QRectF &area ) const
 /*!
    \brief Render an image from data and color map.
 
-   For each pixel of rect the intensity is mapped
-   into a color.
+   For each pixel of rect the value is mapped into a color.
 
   \param xMap X-Scale Map
   \param yMap Y-Scale Map
@@ -394,7 +393,7 @@ QRectF QwtPlotSpectrogram::pixelHint( const QRectF &area ) const
    \return A QImage::Format_Indexed8 or QImage::Format_ARGB32 depending
            on the color map.
 
-   \sa QwtRasterData::intensity(), QwtColorMap::rgb(),
+   \sa QwtRasterData::value(), QwtColorMap::rgb(),
        QwtColorMap::colorIndex()
 */
 QImage QwtPlotSpectrogram::renderImage(
@@ -476,8 +475,8 @@ void QwtPlotSpectrogram::renderTile(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &tile, QImage *image ) const
 {
-    const QwtInterval intensityRange = d_data->data->interval( Qt::ZAxis );
-    if ( !intensityRange.isValid() )
+    const QwtInterval range = d_data->data->interval( Qt::ZAxis );
+    if ( !range.isValid() )
         return;
 
     if ( d_data->colorMap->format() == QwtColorMap::RGB )
@@ -493,7 +492,7 @@ void QwtPlotSpectrogram::renderTile(
             {
                 const double tx = xMap.invTransform( x );
 
-                *line++ = d_data->colorMap->rgb( intensityRange,
+                *line++ = d_data->colorMap->rgb( range,
                     d_data->data->value( tx, ty ) );
             }
         }
@@ -511,7 +510,7 @@ void QwtPlotSpectrogram::renderTile(
             {
                 const double tx = xMap.invTransform( x );
 
-                *line++ = d_data->colorMap->colorIndex( intensityRange,
+                *line++ = d_data->colorMap->colorIndex( range,
                     d_data->data->value( tx, ty ) );
             }
         }
@@ -557,7 +556,7 @@ QSize QwtPlotSpectrogram::contourRasterSize(
    \param rect Rectangle, where to calculate the contour lines
    \param raster Raster, used by the CONREC algorithm
 
-   \sa contourLevels(), setConrecAttribute(),
+   \sa contourLevels(), setConrecFlag(),
        QwtRasterData::contourLines()
 */
 QwtRasterData::ContourLines QwtPlotSpectrogram::renderContourLines(
@@ -567,7 +566,7 @@ QwtRasterData::ContourLines QwtPlotSpectrogram::renderContourLines(
         return QwtRasterData::ContourLines();
 
     return d_data->data->contourLines( rect, raster,
-        d_data->contourLevels, d_data->conrecAttributes );
+        d_data->contourLevels, d_data->conrecFlags );
 }
 
 /*!

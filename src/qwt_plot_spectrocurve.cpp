@@ -33,7 +33,7 @@ public:
     QwtInterval colorRange;
     QVector<QRgb> colorTable;
     double penWidth;
-    int paintAttributes;
+    QwtPlotSpectroCurve::PaintAttributes paintAttributes;
 };
 
 /*!

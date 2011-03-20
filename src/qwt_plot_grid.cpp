@@ -149,7 +149,7 @@ void QwtPlotGrid::setYDiv( const QwtScaleDiv &scaleDiv )
   Assign a pen for both major and minor gridlines
 
   \param pen Pen
-  \sa setMajPen(), setMinPen(), QwtPainter::scaledPen()
+  \sa setMajPen(), setMinPen()
 */
 void QwtPlotGrid::setPen( const QPen &pen )
 {
@@ -165,7 +165,7 @@ void QwtPlotGrid::setPen( const QPen &pen )
   Assign a pen for the major gridlines
 
   \param pen Pen
-  \sa majPen(), setMinPen(), setPen(), QwtPainter::scaledPen()
+  \sa majPen(), setMinPen(), setPen()
 */
 void QwtPlotGrid::setMajPen( const QPen &pen )
 {
@@ -180,7 +180,7 @@ void QwtPlotGrid::setMajPen( const QPen &pen )
   Assign a pen for the minor gridlines
 
   \param pen Pen
-  \sa minPen(), setMajPen(), setPen(), QwtPainter::scaledPen()
+  \sa minPen(), setMajPen(), setPen()
 */
 void QwtPlotGrid::setMinPen( const QPen &pen )
 {

@@ -160,7 +160,7 @@ void QwtRoundScaleDraw::drawLabel( QPainter *painter, double value ) const
     }
 
     if ( hasComponent( QwtAbstractScaleDraw::Ticks ) )
-        radius += majTickLength();
+        radius += tickLength( QwtScaleDiv::MajorTick );
 
     const QSizeF sz = label.textSize( painter->font() );
     const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
@@ -284,7 +284,7 @@ double QwtRoundScaleDraw::extent( const QFont &font ) const
 
     if ( hasComponent( QwtAbstractScaleDraw::Ticks ) )
     {
-        d += majTickLength();
+        d += maxTickLength();
     }
 
     if ( hasComponent( QwtAbstractScaleDraw::Backbone ) )

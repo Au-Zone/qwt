@@ -59,7 +59,8 @@ void QwtCompass::initCompass()
 {
     d_data = new PrivateData;
 
-    setScaleOptions( ScaleLabel ); // Only labels, no backbone, no ticks
+    // Only labels, no backbone, no ticks
+    setScaleComponents( QwtAbstractScaleDraw::Labels ); 
 
     setOrigin( 270.0 );
     setWrapping( true );

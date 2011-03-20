@@ -111,80 +111,71 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
 public:
     /*!
       Rubberband style
-      - NoRubberBand\n
-        No rubberband.
-      - HLineRubberBand & PointSelection\n
-        A horizontal line.
-      - VLineRubberBand & PointSelection\n
-        A vertical line.
-      - CrossRubberBand & PointSelection\n
-        A horizontal and a vertical line.
-      - RectRubberBand & RectSelection\n
-        A rectangle.
-      - EllipseRubberBand & RectSelection\n
-        An ellipse.
-      - PolygonRubberBand &PolygonSelection\n
-        A polygon.
-      - UserRubberBand\n
-        Values >= UserRubberBand can be used to define additional
-        rubber bands.
 
-      The default value is NoRubberBand.
+      The default value is QwtPicker::NoRubberBand.
       \sa setRubberBand(), rubberBand()
     */
 
     enum RubberBand
     {
+        //! No rubberband.
         NoRubberBand = 0,
 
-        // Point
+        //! A horizontal line ( only for QwtPicker::PointSelection )
         HLineRubberBand,
+
+        //! A vertical line ( only for QwtPicker::PointSelection )
         VLineRubberBand,
+
+        //! A crosshair ( only for QwtPicker::PointSelection )
         CrossRubberBand,
 
-        // Rect
+        //! A rectangle ( only for QwtPicker::RectSelection )
         RectRubberBand,
+
+        //! An ellipse ( only for QwtPicker::RectSelection )
         EllipseRubberBand,
 
-        // Polygon
+        //! A polygon ( only for QwtPicker::&PolygonSelection )
         PolygonRubberBand,
 
+        /*!
+          Values >= UserRubberBand can be used to define additional
+          rubber bands.
+         */
         UserRubberBand = 100
     };
 
     /*!
-      Display mode
-      - AlwaysOff\n
-        Display never.
-      - AlwaysOn\n
-        Display always.
-      - ActiveOnly\n
-        Display only when the selection is active.
-
+      \brief Display mode
       \sa setTrackerMode(), trackerMode(), isActive()
     */
     enum DisplayMode
     {
+        //! Display never
         AlwaysOff,
+
+        //! Display always
         AlwaysOn,
+
+        //! Display only when the selection is active
         ActiveOnly
     };
 
     /*!
       Controls what to do with the selected points of an active
          selection when the observed widget is resized.
-      - Stretch\n
-         All points are scaled according to the new size,
-      - KeepSize\n
-         All points remain unchanged.
 
-      The default value is Stretch.
-      \sa QwtPicker::setResizeMode(), QwtPicker::resize()
+      The default value is QwtPicker::Stretch.
+      \sa setResizeMode()
     */
 
     enum ResizeMode
     {
+        //! All points are scaled according to the new size,
         Stretch,
+
+        //! All points remain unchanged.
         KeepSize
     };
 

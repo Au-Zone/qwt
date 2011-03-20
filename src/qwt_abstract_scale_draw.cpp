@@ -21,17 +21,20 @@ class QwtAbstractScaleDraw::PrivateData
 {
 public:
     PrivateData():
-        components( Backbone | Ticks | Labels ),
         spacing( 4.0 ),
         penWidth( 0 ),
         minExtent( 0.0 )
     {
+        components = QwtAbstractScaleDraw::Backbone 
+            | QwtAbstractScaleDraw::Ticks 
+            | QwtAbstractScaleDraw::Labels;
+
         tickLength[QwtScaleDiv::MinorTick] = 4.0;
         tickLength[QwtScaleDiv::MediumTick] = 6.0;
         tickLength[QwtScaleDiv::MajorTick] = 8.0;
     }
 
-    int components;
+    ScaleComponents components;
 
     QwtScaleMap map;
     QwtScaleDiv scldiv;
@@ -321,7 +324,7 @@ void QwtAbstractScaleDraw::setTickLength(
 /*!
     Return the length of the ticks
 
-    \sa setTickLength(), majTickLength()
+    \sa setTickLength(), maxTickLength()
 */
 double QwtAbstractScaleDraw::tickLength( QwtScaleDiv::TickType tickType ) const
 {
@@ -335,11 +338,18 @@ double QwtAbstractScaleDraw::tickLength( QwtScaleDiv::TickType tickType ) const
 }
 
 /*!
-   The same as QwtAbstractScaleDraw::tickLength(QwtScaleDiv::MajorTick).
+   \return Length of the longest tick
+
+   Useful for layout calculations
+   \sa tickLength(), setTickLength()
 */
-double QwtAbstractScaleDraw::majTickLength() const
+double QwtAbstractScaleDraw::maxTickLength() const
 {
-    return d_data->tickLength[QwtScaleDiv::MajorTick];
+    double length = 0.0;
+    for ( int i = 0; i < QwtScaleDiv::NTickTypes; i++ )
+        length = qMax( length, d_data->tickLength[i] );
+
+    return length;
 }
 
 /*!
@@ -394,7 +404,7 @@ const QwtText &QwtAbstractScaleDraw::tickLabel(
 
    The cache is invalidated, when a new QwtScaleDiv is set. If
    the labels need to be changed. while the same QwtScaleDiv is set,
-   QwtAbstractScaleDraw::invalidateCache needs to be called manually.
+   invalidateCache() needs to be called manually.
 */
 void QwtAbstractScaleDraw::invalidateCache()
 {

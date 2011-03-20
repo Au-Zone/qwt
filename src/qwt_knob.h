@@ -47,11 +47,26 @@ class QWT_EXPORT QwtKnob : public QwtAbstractSlider, public QwtAbstractScale
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
 
 public:
-    //! KnobStyle
+    /*! 
+       \brief Style of the knob surface
+
+       Depending on the KnobStyle the surface of the knob is
+       filled from the brushes of the widget palette().
+
+       \sa setKnobStyle(), knobStyle()
+     */
     enum KnobStyle
     {
-        NoStyle,
+        //! Fill the knob with a brush from QPalette::Button.
+        NoStyle = -1,
+
+        //! Build a gradient from QPalette::Midlight and QPalette::Button
         Raised,
+
+        /*! 
+          Build a gradient from QPalette::Midlight, QPalette::Button
+          and QPalette::Midlight
+         */
         Sunken
     };
 
@@ -61,7 +76,7 @@ public:
         The marker indicates the current value on the knob
         The default setting is a Notch marker.
 
-        \sa setMarkerType(), setMarkerSize()
+        \sa setMarkerStyle(), setMarkerSize()
     */
     enum MarkerStyle 
     { 

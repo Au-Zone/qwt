@@ -56,47 +56,45 @@ public:
       The text format defines the QwtTextEngine, that is used to render
       the text.
 
-      - AutoText\n
-        The text format is determined using QwtTextEngine::mightRender for
-        all available text engines in increasing order > PlainText.
-        If none of the text engines can render the text is rendered
-        like PlainText.
-
-      - PlainText\n
-        Draw the text as it is, using a QwtPlainTextEngine.
-
-      - RichText\n
-        Use the Scribe framework (Qt Rich Text) to render the text.
-
-      - MathMLText\n
-        Use a MathML (http://en.wikipedia.org/wiki/MathML) render engine
-        to display the text. The Qwt MathML extension offers such an engine
-        based on the MathML renderer of the Qt solutions package. 
-        To enable MathML support the following code needs to be added to the
-        application:
-        \verbatimQwtText::setTextEngine(QwtText::MathMLText, new QwtMathMLTextEngine());\endverbatim
-
-      - TeXText\n
-        Use a TeX (http://en.wikipedia.org/wiki/TeX) render engine
-        to display the text ( not implemented yet ).
-
-      - OtherFormat\n
-        The number of text formats can be extended using setTextEngine.
-        Formats >= OtherFormat are not used by Qwt.
-
       \sa QwtTextEngine, setTextEngine()
     */
 
     enum TextFormat
     {
+        /*!
+          The text format is determined using QwtTextEngine::mightRender for
+          all available text engines in increasing order > PlainText.
+          If none of the text engines can render the text is rendered
+          like QwtText::PlainText.
+         */
         AutoText = 0,
 
+        //! Draw the text as it is, using a QwtPlainTextEngine.
         PlainText,
+
+        //! Use the Scribe framework (Qt Rich Text) to render the text.
         RichText,
 
+        /*!
+          Use a MathML (http://en.wikipedia.org/wiki/MathML) render engine
+          to display the text. The Qwt MathML extension offers such an engine
+          based on the MathML renderer of the Qt solutions package. 
+          To enable MathML support the following code needs to be added to the
+          application:
+          \verbatimQwtText::setTextEngine(QwtText::MathMLText, new QwtMathMLTextEngine());\endverbatim
+         */
         MathMLText,
+
+        /*!
+          Use a TeX (http://en.wikipedia.org/wiki/TeX) render engine
+          to display the text ( not implemented yet ).
+         */
         TeXText,
 
+        /*!
+          The number of text formats can be extended using setTextEngine.
+          Formats >= QwtText::OtherFormat are not used by Qwt.
+         */
         OtherFormat = 100
     };
 
@@ -105,36 +103,39 @@ public:
 
       Font and color and background are optional attributes of a QwtText.
       The paint attributes hold the information, if they are set.
-
-      - PaintUsingTextFont\n
-        The text has an individual font.
-      - PaintUsingTextColor\n
-        The text has an individual color.
-      - PaintBackground\n
-        The text has an individual background.
     */
     enum PaintAttribute
     {
-        PaintUsingTextFont = 1,
-        PaintUsingTextColor = 2,
-        PaintBackground = 4
+        //! The text has an individual font.
+        PaintUsingTextFont = 0x01,
+
+        //! The text has an individual color.
+        PaintUsingTextColor = 0x02,
+
+        //! The text has an individual background.
+        PaintBackground = 0x04
     };
+
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
 
     /*!
       \brief Layout Attributes
-
       The layout attributes affects some aspects of the layout of the text.
-
-      - MinimumLayout\n
-        Layout the text without its margins. This mode is useful if a
-        text needs to be aligned accurately, like the tick labels of a scale.
-        If QwtTextEngine::textMargins is not implemented for the format
-        of the text, MinimumLayout has no effect.
     */
     enum LayoutAttribute
     {
-        MinimumLayout = 1
+        /*!
+          Layout the text without its margins. This mode is useful if a
+          text needs to be aligned accurately, like the tick labels of a scale.
+          If QwtTextEngine::textMargins is not implemented for the format
+          of the text, MinimumLayout has no effect.
+         */
+        MinimumLayout = 0x01
     };
+
+    //! Layout attributes
+    typedef QFlags<LayoutAttribute> LayoutAttributes;
 
     QwtText( const QString & = QString::null,
              TextFormat textFormat = AutoText );
@@ -208,5 +209,8 @@ inline bool QwtText::isEmpty() const
 {
     return text().isEmpty();
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtText::PaintAttributes );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtText::LayoutAttributes );
 
 #endif

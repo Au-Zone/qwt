@@ -29,7 +29,7 @@ public:
     }
 
     int alpha;
-    int paintAttributes;
+    QwtPlotRasterItem::PaintAttributes paintAttributes;
 
     struct ImageCache
     {

@@ -130,7 +130,7 @@ int QwtWheel::wheelBorderWidth() const
 */
 void QwtWheel::setBorderWidth( int width )
 {
-	d_data->borderWidth = qMax( width, 0 );
+    d_data->borderWidth = qMax( width, 0 );
     update();
 }
 
@@ -140,7 +140,7 @@ void QwtWheel::setBorderWidth( int width )
 */
 int QwtWheel::borderWidth() const
 {
-	return d_data->borderWidth;
+    return d_data->borderWidth;
 }
 
 /*!
@@ -508,7 +508,7 @@ void QwtWheel::setWheelWidth( int width )
 */
 int QwtWheel::wheelWidth() const
 {
-	return d_data->wheelWidth;
+    return d_data->wheelWidth;
 }
 
 /*!

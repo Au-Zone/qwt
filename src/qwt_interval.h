@@ -25,35 +25,33 @@ class QWT_EXPORT QwtInterval
 {
 public:
     /*!
-      Flag indicating if a border is included/excluded from an interval
-
-      - IncludeBorders\n
-        min/max values are inside the interval
-      - ExcludeMinimum\n
-        min value is not included in the interval
-      - ExcludeMaximum\n
-        max value is not included in the interval
-      - ExcludeBorders\n
-        min/max values are not included in the interval
-
-      \sa setBorderMode(), testBorderMode()
+      Flag indicating if a border is included or excluded 
+      \sa setBorderFlags(), borderFlags()
     */
-    enum BorderMode
+    enum BorderFlag
     {
-        IncludeBorders = 0,
+        //! Min/Max values are inside the interval
+        IncludeBorders = 0x00,
 
-        ExcludeMinimum = 1,
-        ExcludeMaximum = 2,
+        //! Min value is not included in the interval
+        ExcludeMinimum = 0x01,
 
+        //! Max value is not included in the interval
+        ExcludeMaximum = 0x02,
+
+        //! Min/Max values are not included in the interval
         ExcludeBorders = ExcludeMinimum | ExcludeMaximum
     };
 
+    //! Border flags
+    typedef QFlags<BorderFlag> BorderFlags;
+
     QwtInterval();
     QwtInterval( double minValue, double maxValue,
-        int borderFlags = IncludeBorders );
+        BorderFlags = IncludeBorders );
 
     void setInterval( double minValue, double maxValue,
-        int borderFlags = IncludeBorders );
+        BorderFlags = IncludeBorders );
 
     QwtInterval normalized() const;
     QwtInterval inverted() const;
@@ -62,8 +60,8 @@ public:
     bool operator==( const QwtInterval & ) const;
     bool operator!=( const QwtInterval & ) const;
 
-    void setBorderFlags( int );
-    int borderFlags() const;
+    void setBorderFlags( BorderFlags );
+    BorderFlags borderFlags() const;
 
     double minValue() const;
     double maxValue() const;
@@ -98,7 +96,7 @@ public:
 private:
     double d_minValue;
     double d_maxValue;
-    int d_borderFlags;
+    BorderFlags d_borderFlags;
 };
 
 /*!
@@ -124,7 +122,7 @@ inline QwtInterval::QwtInterval():
    \param borderFlags Include/Exclude borders
 */
 inline QwtInterval::QwtInterval(
-        double minValue, double maxValue, int borderFlags ):
+        double minValue, double maxValue, BorderFlags borderFlags ):
     d_minValue( minValue ),
     d_maxValue( maxValue ),
     d_borderFlags( borderFlags )
@@ -139,7 +137,7 @@ inline QwtInterval::QwtInterval(
    \param borderFlags Include/Exclude borders
 */
 inline void QwtInterval::setInterval(
-    double minValue, double maxValue, int borderFlags )
+    double minValue, double maxValue, BorderFlags borderFlags )
 {
     d_minValue = minValue;
     d_maxValue = maxValue;
@@ -152,7 +150,7 @@ inline void QwtInterval::setInterval(
    \param borderFlags Or'd BorderMode flags
    \sa borderFlags()
 */
-inline void QwtInterval::setBorderFlags( int borderFlags )
+inline void QwtInterval::setBorderFlags( BorderFlags borderFlags )
 {
     d_borderFlags = borderFlags;
 }
@@ -161,7 +159,7 @@ inline void QwtInterval::setBorderFlags( int borderFlags )
    \return Border flags
    \sa setBorderFlags()
 */
-inline int QwtInterval::borderFlags() const
+inline QwtInterval::BorderFlags QwtInterval::borderFlags() const
 {
     return d_borderFlags;
 }
@@ -286,6 +284,8 @@ inline void QwtInterval::invalidate()
     d_minValue = 0.0;
     d_maxValue = -1.0;
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtInterval::BorderFlags );
 
 #ifndef QT_NO_DEBUG_STREAM
 QWT_EXPORT QDebug operator<<( QDebug, const QwtInterval & );

@@ -33,10 +33,11 @@ class QWT_EXPORT QwtSlider : public QwtAbstractSlider, public QwtAbstractScale
 {
     Q_OBJECT
     Q_ENUMS( ScalePos )
-    Q_ENUMS( BGSTYLE )
+    Q_ENUMS( BackgroundStyle )
     Q_PROPERTY( ScalePos scalePosition READ scalePosition
         WRITE setScalePosition )
-    Q_PROPERTY( BGSTYLE bgStyle READ bgStyle WRITE setBgStyle )
+    Q_PROPERTY( BackgroundStyles backgroundStyle 
+        READ backgroundStyle WRITE setBackgroundStyle )
     Q_PROPERTY( int thumbLength READ thumbLength WRITE setThumbLength )
     Q_PROPERTY( int thumbWidth READ thumbWidth WRITE setThumbWidth )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
@@ -46,6 +47,7 @@ public:
     /*!
       Scale position. QwtSlider tries to enforce valid combinations of its
       orientation and scale position:
+
       - Qt::Horizonal combines with NoScale, TopScale and BottomScale
       - Qt::Vertical combines with NoScale, LeftScale and RightScale
 
@@ -53,11 +55,19 @@ public:
      */
     enum ScalePos
     {
+        //! The slider has no scale
         NoScale,
 
+        //! The scale is left of the slider
         LeftScale,
+
+        //! The scale is right of the slider
         RightScale,
+
+        //! The scale is above of the slider
         TopScale,
+
+        //! The scale is below of the slider
         BottomScale
     };
 
@@ -65,23 +75,28 @@ public:
       Background style.
       \sa QwtSlider()
      */
-    enum BGSTYLE
+    enum BackgroundStyle
     {
-        BgTrough = 0x1,
-        BgSlot = 0x2,
-        BgBoth = BgTrough | BgSlot
+        //! Trough background
+        Trough = 0x01,
+
+        //! Slot
+        Slot = 0x02,
     };
+
+    //! Background styles
+    typedef QFlags<BackgroundStyle> BackgroundStyles;
 
     explicit QwtSlider( QWidget *parent,
         Qt::Orientation = Qt::Horizontal,
-        ScalePos = NoScale, BGSTYLE bgStyle = BgTrough );
+        ScalePos = NoScale, BackgroundStyles = Trough );
 
     virtual ~QwtSlider();
 
     virtual void setOrientation( Qt::Orientation );
 
-    void setBgStyle( BGSTYLE );
-    BGSTYLE bgStyle() const;
+    void setBackgroundStyle( BackgroundStyles );
+    BackgroundStyles backgroundStyle() const;
 
     void setScalePosition( ScalePos s );
     ScalePos scalePosition() const;
@@ -124,10 +139,12 @@ protected:
     QwtScaleDraw *scaleDraw();
 
 private:
-    void initSlider( Qt::Orientation, ScalePos scalePos, BGSTYLE bgStyle );
+    void initSlider( Qt::Orientation, ScalePos, BackgroundStyles );
 
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtSlider::BackgroundStyles );
 
 #endif

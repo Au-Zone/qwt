@@ -57,8 +57,11 @@ public:
 
     /*!
         Attributes to modify the drawing algorithm.
-
-        - PaintInDeviceResolution\n
+        \sa setPaintAttribute(), testPaintAttribute()
+    */
+    enum PaintAttribute
+    {
+        /*!
           When the image is rendered according to the data pixels
           ( QwtRasterData::pixelHint() ) it can be expanded to paint
           device resolution before it is passed to QPainter. 
@@ -68,15 +71,13 @@ public:
           Disabling this flag might make sense, to reduce the size of a 
           document/file. If this is possible for a document format
           depends on the implementation of the specific QPaintEngine.
+         */
 
-        The default setting enables PaintInDeviceResolution
-
-        \sa setPaintAttribute(), testPaintAttribute()
-    */
-    enum PaintAttribute
-    {
         PaintInDeviceResolution = 1
     };
+
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
 
     explicit QwtPlotRasterItem( const QString& title = QString::null );
     explicit QwtPlotRasterItem( const QwtText& title );
@@ -139,5 +140,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotRasterItem::PaintAttributes );
 
 #endif

@@ -20,6 +20,7 @@ Ideas
 - QwtPlotLegendItem: legend item on the canvas
 - QwtSymbol/QwtIntervalSymbol + QPainterPath
 - QwtPlotScene + breaking composite architecture
+- Using QStaticText for markers ( and scales ? )
 
 Bugs/Change requests
 --------------------

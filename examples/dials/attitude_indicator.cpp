@@ -44,7 +44,7 @@ AttitudeIndicator::AttitudeIndicator(
     setWrapping(true);
 
     setOrigin(270.0);
-    setScaleOptions(ScaleTicks);
+    setScaleComponents( QwtAbstractScaleDraw::Ticks );
     setScale(0, 0, 30.0);
 
     const QColor color = palette().color(QPalette::Text);

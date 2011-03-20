@@ -33,12 +33,19 @@ public:
     //! Scale tick types
     enum TickType
     {
+        //! No ticks
         NoTick = -1,
 
+        //! Minor ticks
         MinorTick,
+
+        //! Medium ticks
         MediumTick,
+
+        //! Major ticks
         MajorTick,
 
+        //! Number of valid tick types
         NTickTypes
     };
 

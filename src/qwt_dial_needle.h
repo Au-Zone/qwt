@@ -84,7 +84,10 @@ public:
     //! Style of the needle
     enum Style
     {
+        //! Arrow
         Arrow,
+
+        //! A straight line from the center
         Ray
     };
 
@@ -127,7 +130,10 @@ public:
     //! Style of the needle
     enum Style
     {
+        //! A needle with a triangular shape
         TriangleStyle,
+
+        //! A thin needle 
         ThinStyle
     };
 
@@ -161,7 +167,10 @@ public:
     //! Style of the arrow
     enum Style
     {
+        //! A needle pointing to the center
         Style1,
+
+        //! A needle pointing to the center
         Style2
     };
 

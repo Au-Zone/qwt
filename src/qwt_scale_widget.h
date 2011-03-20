@@ -35,17 +35,18 @@ class QWT_EXPORT QwtScaleWidget : public QWidget
     Q_OBJECT
 
 public:
-    /*!
-     Layout flags of the title
-
-     - TitleInverted\n
-       The title of vertical scales is painted from top to bottom. Otherwise
-       it is painted from bottom to top.
-     */
+    //! Layout flags of the title
     enum LayoutFlag
     {
+        /*!
+          The title of vertical scales is painted from top to bottom. 
+          Otherwise it is painted from bottom to top.
+         */
         TitleInverted = 1
     };
+
+    //! Layout flags of the title
+    typedef QFlags<LayoutFlag> LayoutFlags;
 
     explicit QwtScaleWidget( QWidget *parent = NULL );
     explicit QwtScaleWidget( QwtScaleDraw::Alignment, QWidget *parent = NULL );
@@ -128,5 +129,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtScaleWidget::LayoutFlags );
 
 #endif

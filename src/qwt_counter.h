@@ -70,15 +70,19 @@ class QWT_EXPORT QwtCounter : public QWidget, public QwtDoubleRange
     Q_PROPERTY( bool editable READ editable WRITE setEditable )
 
 public:
-    /*!
-        Button index
-    */
-
+    //! Button index
     enum Button
     {
+        //! Button intended for minor steps
         Button1,
+
+        //! Button intended for medium steps
         Button2,
+
+        //! Button intended for large steps
         Button3,
+
+        //! Number of buttons
         ButtonCnt
     };
 
@@ -96,8 +100,6 @@ public:
 
     virtual void setValue( double );
     virtual QSize sizeHint() const;
-
-    virtual void polish();
 
     // a set of dummies to help the designer
 

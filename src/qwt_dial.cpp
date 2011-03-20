@@ -337,7 +337,7 @@ bool QwtDial::wrapping() const
 /*!
     Set the direction of the dial (clockwise/counterclockwise)
 
-    Direction direction
+    \param direction Direction
     \sa direction()
 */
 void QwtDial::setDirection( Direction direction )
@@ -363,7 +363,7 @@ QwtDial::Direction QwtDial::direction() const
 
 /*!
    Paint the dial
-   \param e Paint event
+   \param event Paint event
 */
 void QwtDial::paintEvent( QPaintEvent *event )
 {
@@ -600,7 +600,7 @@ void QwtDial::drawNeedle( QPainter *painter, const QPointF &center,
   \param minArc Minimum of the arc
   \param maxArc Minimum of the arc
 
-  \sa QwtAbstractScaleDraw::setAngleRange()
+  \sa QwtRoundScaleDraw::setAngleRange()
 */
 void QwtDial::drawScale( QPainter *painter, const QPointF &center,
     double radius, double origin, double minArc, double maxArc ) const
@@ -621,7 +621,7 @@ void QwtDial::drawScale( QPainter *painter, const QPointF &center,
     maxArc = minArc + angle;
     if ( maxArc > 360.0 )
     {
-        // QwtAbstractScaleDraw::setAngleRange accepts only values
+        // QwtRoundScaleDraw::setAngleRange accepts only values
         // in the range [-360.0..360.0]
         minArc -= 360.0;
         maxArc -= 360.0;
@@ -643,7 +643,7 @@ void QwtDial::drawScale( QPainter *painter, const QPointF &center,
 
     painter->setPen( QPen( textColor, d_data->scaleDraw->penWidth() ) );
 
-	painter->setBrush( Qt::red );
+    painter->setBrush( Qt::red );
     d_data->scaleDraw->draw( painter, pal );
 }
 
@@ -763,7 +763,12 @@ void QwtDial::setScaleDraw( QwtDialScaleDraw *scaleDraw )
 
 /*!
   Change the intervals of the scale
-  \sa QwtAbstractScaleDraw::setScale()
+
+  \param maxMajIntv Maximum for the number of major steps
+  \param maxMinIntv Maximum number of minor steps
+  \param step Step size
+
+  \sa QwtScaleEngine::divideScale()
 */
 void QwtDial::setScale( int maxMajIntv, int maxMinIntv, double step )
 {
@@ -777,20 +782,13 @@ void QwtDial::setScale( int maxMajIntv, int maxMinIntv, double step )
 /*!
   A wrapper method for accessing the scale draw.
 
-  - options == 0\n
-    No visible scale: setScaleDraw(NULL)
-  - options & ScaleBackbone\n
-    En/disable the backbone of the scale.
-  - options & ScaleTicks\n
-    En/disable the ticks of the scale.
-  - options & ScaleLabel\n
-    En/disable scale labels
-
+  \param components Scale components
   \sa QwtAbstractScaleDraw::enableComponent()
 */
-void QwtDial::setScaleOptions( int options )
+void QwtDial::setScaleComponents( 
+    QwtAbstractScaleDraw::ScaleComponents components )
 {
-    if ( options == 0 )
+    if ( components == 0 )
         setScaleDraw( NULL );
 
     QwtDialScaleDraw *sd = d_data->scaleDraw;
@@ -798,13 +796,13 @@ void QwtDial::setScaleOptions( int options )
         return;
 
     sd->enableComponent( QwtAbstractScaleDraw::Backbone,
-        options & ScaleBackbone );
+        components & QwtAbstractScaleDraw::Backbone );
 
     sd->enableComponent( QwtAbstractScaleDraw::Ticks,
-        options & ScaleTicks );
+        components & QwtAbstractScaleDraw::Ticks );
 
     sd->enableComponent( QwtAbstractScaleDraw::Labels,
-        options & ScaleLabel );
+        components & QwtAbstractScaleDraw::Labels );
 }
 
 /*!

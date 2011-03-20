@@ -499,7 +499,7 @@ public:
 
     FocusIndicator focusIndicator;
     double borderRadius;
-    int paintAttributes;
+    QwtPlotCanvas::PaintAttributes paintAttributes;
     QPixmap *backingStore;
 
     struct
@@ -617,7 +617,7 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 */
 bool QwtPlotCanvas::testPaintAttribute( PaintAttribute attribute ) const
 {
-    return ( d_data->paintAttributes & attribute ) != 0;
+    return d_data->paintAttributes & attribute;
 }
 
 //! Return the backing store, might be null

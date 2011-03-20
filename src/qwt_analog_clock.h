@@ -51,13 +51,18 @@ public:
         Hand type
         \sa setHand(), hand()
     */
-
     enum Hand
     {
+        //! Needle displaying the seconds
         SecondHand,
+
+        //! Needle displaying the minutes
         MinuteHand,
+
+        //! Needle displaying the hours
         HourHand,
 
+        //! Number of needles
         NHands
     };
 

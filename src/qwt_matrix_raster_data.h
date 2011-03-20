@@ -26,21 +26,21 @@ class QWT_EXPORT QwtMatrixRasterData: public QwtRasterData
 {
 public:
     /*!
-      Resampling algorithm
-
-      - NearestNeighbour\n
-        Return the value from the matrix, that is nearest to the
-        the requested position.
-
-      - BilinearInterpolation\n
-        Interpolate the value from the distances and values of the 
-        4 surrounding in the matrix,
-
-     The default setting is NearestNeighbour;
+      \brief Resampling algorithm
+      The default setting is NearestNeighbour;
     */
     enum ResampleMode
     {
+        /*!
+          Return the value from the matrix, that is nearest to the
+          the requested position.
+         */
         NearestNeighbour,
+
+        /*!
+          Interpolate the value from the distances and values of the 
+          4 surrounding values in the matrix,
+         */
         BilinearInterpolation
     };
 

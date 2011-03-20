@@ -26,30 +26,31 @@ class QWT_EXPORT QwtPlotLayout
 public:
     /*!
       Options to configure the plot layout engine
-
-      - AlignScales\n
-        Unused
-      - IgnoreScrollbars\n
-        Ignore the dimension of the scrollbars. There are no
-        scrollbars, when the plot is rendered to a paint device
-        (QwtPlot::print() ).
-      - IgnoreFrames\n
-        Ignore all frames. QwtPlot::print() doesn't paint them.
-      - IgnoreMargin\n
-        Ignore the margin().
-      - IgnoreLegend\n
-        Ignore the legend.
-
-      \sa activate()
+      \sa activate(), QwtPlotRenderer
      */
-    enum Options
+    enum Option
     {
-        AlignScales = 1,
-        IgnoreScrollbars = 2,
-        IgnoreFrames = 4,
-        IgnoreMargin = 8,
-        IgnoreLegend = 16
+        //! Unused
+        AlignScales = 0x01,
+
+        /*!
+          Ignore the dimension of the scrollbars. There are no
+          scrollbars, when the plot is not rendered to widgets.
+         */
+        IgnoreScrollbars = 0x02,
+
+        //! Ignore all frames. 
+        IgnoreFrames = 0x04,
+
+        //! Ignore the margin().
+        IgnoreMargin = 0x08,
+
+        //! Ignore the legend.
+        IgnoreLegend = 0x10
     };
+
+    //! Layout options
+    typedef QFlags<Option> Options;
 
     explicit QwtPlotLayout();
     virtual ~QwtPlotLayout();
@@ -76,7 +77,7 @@ public:
     virtual QSize minimumSizeHint( const QwtPlot * ) const;
 
     virtual void activate( const QwtPlot *,
-        const QRectF &rect, int options = 0 );
+        const QRectF &rect, Options options = 0x00 );
 
     virtual void invalidate();
 
@@ -89,7 +90,7 @@ public:
 
 protected:
 
-    QRectF layoutLegend( int options, const QRectF & ) const;
+    QRectF layoutLegend( Options options, const QRectF & ) const;
     QRectF alignLegend( const QRectF &canvasRect,
         const QRectF &legendRect ) const;
 
@@ -104,5 +105,7 @@ private:
 
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotLayout::Options );
 
 #endif

@@ -94,6 +94,9 @@ public:
         ImmediatePaint = 8
     };
 
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
+
     /*!
       \brief Focus indicator
 
@@ -159,5 +162,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCanvas::PaintAttributes );
 
 #endif

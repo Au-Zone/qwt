@@ -40,7 +40,7 @@ QwtInterval QwtInterval::normalized() const
 */
 QwtInterval QwtInterval::inverted() const
 {
-    int borderFlags = 0;
+    BorderFlags borderFlags = IncludeBorders;
     if ( d_borderFlags & ExcludeMinimum )
         borderFlags |= ExcludeMaximum;
     if ( d_borderFlags & ExcludeMaximum )
@@ -90,7 +90,7 @@ QwtInterval QwtInterval::unite( const QwtInterval &other ) const
         return *this;
 
     QwtInterval united;
-    int flags = 0;
+    BorderFlags flags = IncludeBorders;
 
     // minimum
     if ( d_minValue < other.minValue() )
@@ -167,7 +167,7 @@ QwtInterval QwtInterval::intersect( const QwtInterval &other ) const
     }
 
     QwtInterval intersected;
-    int flags = 0;
+    BorderFlags flags = IncludeBorders;
 
     intersected.setMinValue( i2.minValue() );
     flags |= i2.borderFlags() & ExcludeMinimum;

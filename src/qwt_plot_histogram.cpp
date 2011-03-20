@@ -607,7 +607,7 @@ void QwtPlotHistogram::drawColumn( QPainter *painter,
     const QwtColumnRect &rect, const QwtIntervalSample & ) const
 {
     if ( d_data->symbol &&
-        ( d_data->symbol->style() != QwtColumnSymbol::NoSymbol ) )
+        ( d_data->symbol->style() != QwtColumnSymbol::NoStyle ) )
     {
         d_data->symbol->draw( painter, rect );
     }
