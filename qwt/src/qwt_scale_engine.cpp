@@ -137,7 +137,7 @@ public:
     {
     }
 
-    int attributes;       // scale attributes
+    QwtScaleEngine::Attributes attributes;       // scale attributes
 
     double lowerMargin;      // margins
     double upperMargin;
@@ -299,7 +299,7 @@ void QwtScaleEngine::setAttribute( Attribute attribute, bool on )
     if ( on )
         d_data->attributes |= attribute;
     else
-        d_data->attributes &= ( ~attribute );
+        d_data->attributes &= ~attribute;
 }
 
 /*!
@@ -310,7 +310,7 @@ void QwtScaleEngine::setAttribute( Attribute attribute, bool on )
 */
 bool QwtScaleEngine::testAttribute( Attribute attribute ) const
 {
-    return bool( d_data->attributes & attribute );
+    return ( d_data->attributes & attribute );
 }
 
 /*!
@@ -319,7 +319,7 @@ bool QwtScaleEngine::testAttribute( Attribute attribute ) const
   \param attributes Set scale attributes
   \sa Attribute, attributes()
 */
-void QwtScaleEngine::setAttributes( int attributes )
+void QwtScaleEngine::setAttributes( Attributes attributes )
 {
     d_data->attributes = attributes;
 }
@@ -328,7 +328,7 @@ void QwtScaleEngine::setAttributes( int attributes )
   Return the scale attributes
   \sa Attribute, setAttributes(), testAttribute()
 */
-int QwtScaleEngine::attributes() const
+QwtScaleEngine::Attributes QwtScaleEngine::attributes() const
 {
     return d_data->attributes;
 }

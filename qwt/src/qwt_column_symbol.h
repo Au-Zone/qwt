@@ -31,9 +31,16 @@ public:
     //! Direction of the column
     enum Direction
     {
+        //! From left to right
         LeftToRight,
+
+        //! From right to left
         RightToLeft,
+
+        //! From bottom to top
         BottomToTop,
+
+        //! From top to bottom
         TopToBottom
     };
 
@@ -88,49 +95,45 @@ class QWT_EXPORT QwtColumnSymbol
 public:
     /*!
       Style
-
-      - NoSymbol\n
-        No Style. The symbol cannot be drawn.
-
-      - Box\n
-        The column is painted with a frame depending on the frameStyle()
-        and lineWidth() using the palette().
-
-      - UserSymbol\n
-        Styles >= UserSymbol are reserved for derived
-        classes of QwtColumnSymbol that overload draw() with
-        additional application specific symbol types.
-
       \sa setStyle(), style()
     */
     enum Style
     {
-        NoSymbol = -1,
+        //! No Style, the symbol draws nothing
+        NoStyle = -1,
 
+        /*!
+          The column is painted with a frame depending on the frameStyle()
+          and lineWidth() using the palette().
+         */
         Box,
 
-        UserSymbol = 1000
+        /*!
+          Styles >= QwtColumnSymbol::UserStyle are reserved for derived
+          classes of QwtColumnSymbol that overload draw() with
+          additional application specific symbol types.
+         */
+        UserStyle = 1000
     };
 
     /*!
       Frame Style used in Box style().
-
-      - NoFrame
-      - Plain
-      - Raised
-
       \sa Style, setFrameStyle(), frameStyle(), setStyle(), setPalette()
      */
     enum FrameStyle
     {
+        //! No frame
         NoFrame,
 
+        //! A plain frame style
         Plain,
+
+        //! A raised frame style
         Raised
     };
 
 public:
-    QwtColumnSymbol( Style = NoSymbol );
+    QwtColumnSymbol( Style = NoStyle );
     virtual ~QwtColumnSymbol();
 
     void setFrameStyle( FrameStyle style );

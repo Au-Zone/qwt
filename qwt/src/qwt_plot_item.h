@@ -89,43 +89,38 @@ public:
 
     /*!
        Plot Item Attributes
-
-       - Legend\n
-         The item is represented on the legend.
-       - AutoScale \n
-         The boundingRect() of the item is included in the
-         autoscaling calculation.
-
        \sa setItemAttribute(), testItemAttribute()
      */
     enum ItemAttribute
     {
-        Legend = 1,
-        AutoScale = 2
+        //! The item is represented on the legend.
+        Legend = 0x01,
+
+        /*!
+         The boundingRect() of the item is included in the
+         autoscaling calculation.
+         */
+        AutoScale = 0x02
     };
+
+    //! Plot Item Attributes
+    typedef QFlags<ItemAttribute> ItemAttributes;
 
     //! Render hints
     enum RenderHint
     {
+        //! Enable antialiasing
         RenderAntialiased = 1
     };
+
+    //! Render hints
+    typedef QFlags<RenderHint> RenderHints;
 
     explicit QwtPlotItem( const QwtText &title = QwtText() );
     virtual ~QwtPlotItem();
 
     void attach( QwtPlot *plot );
-
-    /*!
-       \brief This method detaches a QwtPlotItem from any QwtPlot it has been
-              associated with.
-
-       detach() is equivalent to calling attach( NULL )
-       \sa attach( QwtPlot* plot )
-    */
-    void detach()
-    {
-        attach( NULL );
-    }
+    void detach();
 
     QwtPlot *plot() const;
 
@@ -190,5 +185,8 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemAttributes );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::RenderHints );
 
 #endif

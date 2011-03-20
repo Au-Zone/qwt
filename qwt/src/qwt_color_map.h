@@ -34,18 +34,19 @@ class QWT_EXPORT QwtColorMap
 {
 public:
     /*!
-        - RGB\n
-        The map is intended to map into QRgb values.
-        - Indexed\n
-        The map is intended to map into 8 bit values, that
-        are indices into the color table.
-
+        Format for color mapping
         \sa rgb(), colorIndex(), colorTable()
     */
 
     enum Format
     {
+        //! The map is intended to map into QRgb values.
         RGB,
+
+        /*!
+          The map is intended to map into 8 bit values, that
+          are indices into the color table.
+         */
         Indexed
     };
 
@@ -84,10 +85,7 @@ private:
 
   A color stop is a color at a specific position. The valid
   range for the positions is [0.0, 1.0]. When mapping a value
-  into a color it is translated into this interval. If
-  mode() == FixedColors the color is calculated from the next lower
-  color stop. If mode() == ScaledColors the color is calculated
-  by interpolating the colors of the adjacent stops.
+  into a color it is translated into this interval according to mode().
 */
 class QWT_EXPORT QwtLinearColorMap: public QwtColorMap
 {
@@ -98,7 +96,10 @@ public:
     */
     enum Mode
     {
+        //! Return the color from the next lower color stop
         FixedColors,
+
+        //! Interpolating the colors of the adjacent stops.
         ScaledColors
     };
 

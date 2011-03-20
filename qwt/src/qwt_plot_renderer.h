@@ -39,58 +39,52 @@ class QWT_EXPORT QwtPlotRenderer: public QObject
     Q_OBJECT
 
 public:
-    /*!
-     - DiscardNone\n
-       Render all components of the plot
-
-     - DiscardBackground\n
-       Don't render the background of the plot
-
-     - DiscardTitle\n
-       Don't render the title of the plot
-
-     - DiscardLegend\n
-       Don't render the legend of the plot
-
-     - DiscardCanvasBackground\n
-       Don't render the background of the canvas
-     */
+    //! Disard flags
     enum DiscardFlag
     {
-        DiscardNone             = 0x0,
+        //! Render all components of the plot
+        DiscardNone             = 0x00,
 
-        DiscardBackground       = 0x1,
-        DiscardTitle            = 0x2,
-        DiscardLegend           = 0x4,
-        DiscardCanvasBackground = 0x8
+        //! Don't render the background of the plot
+        DiscardBackground       = 0x01,
+
+        //! Don't render the title of the plot
+        DiscardTitle            = 0x02,
+
+        //! Don't render the legend of the plot
+        DiscardLegend           = 0x04,
+
+        //! Don't render the background of the canvas
+        DiscardCanvasBackground = 0x08
     };
 
-    Q_DECLARE_FLAGS( DiscardFlags, DiscardFlag )
+    //! Disard flags
+    typedef QFlags<DiscardFlag> DiscardFlags;
 
     /*!
-     - DefaultLayout\n
-       Use the default layout without margins and frames
-
-     - KeepMargins\n
-       Render all margins that are set in the layout of the plot
-
-     - KeepFrames\n
-       Render all frames of the plot
-
-     - FrameWithScales\n
-       Instead of the scales a box is painted around the plot canvas,
-       where the scale ticks are aligned.
+       \brief Layout flags
+       \sa setLayoutFlag(), testLayoutFlag()
      */
     enum LayoutFlag
     {
-        DefaultLayout   = 0x0,
+        //! Use the default layout without margins and frames
+        DefaultLayout   = 0x00,
 
-        KeepMargins     = 0x1,
-        KeepFrames      = 0x2,
-        FrameWithScales = 0x4
+        //! Render all margins that are set in the layout of the plot
+        KeepMargins     = 0x01,
+
+        //! Render all frames of the plot
+        KeepFrames      = 0x02,
+
+        /*!
+          Instead of the scales a box is painted around the plot canvas,
+          where the scale ticks are aligned to.
+         */
+        FrameWithScales = 0x04
     };
 
-    Q_DECLARE_FLAGS( LayoutFlags, LayoutFlag )
+    //! Layout flags
+    typedef QFlags<LayoutFlag> LayoutFlags;
 
     explicit QwtPlotRenderer( QObject * = NULL );
     virtual ~QwtPlotRenderer();

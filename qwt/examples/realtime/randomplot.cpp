@@ -45,7 +45,7 @@ public:
             // because of the different widths of the labels
             // So we better use a fixed extent.
 
-            minExtent = sd->spacing() + sd->majTickLength() + 1;
+            minExtent = sd->spacing() + sd->maxTickLength() + 1;
             minExtent += sd->labelSize(
                 scaleWidget->font(), c_rangeMax).width();
         }

@@ -35,16 +35,8 @@ public:
     /*!
       \brief Interaction mode for the legend items
 
-       - ReadOnlyItem\n
-         The legend item is not interactive, like a label
+       The default is QwtLegend::ReadOnlyItem.
 
-       - ClickableItem\n
-         The legend item is clickable, like a push button
-
-       - CheckableItem\n
-         The legend item is checkable, like a checkable button
-
-       Default is ReadOnlyItem.
        \sa setItemMode(), itemMode(), QwtLegendItem::IdentifierMode
            QwtLegendItem::clicked(), QwtLegendItem::checked(),
            QwtPlot::legendClicked(), QwtPlot::legendChecked()
@@ -52,8 +44,13 @@ public:
 
     enum LegendItemMode
     {
+        //! The legend item is not interactive, like a label
         ReadOnlyItem,
+
+        //! The legend item is clickable, like a push button
         ClickableItem,
+
+        //! The legend item is checkable, like a checkable button
         CheckableItem
     };
 

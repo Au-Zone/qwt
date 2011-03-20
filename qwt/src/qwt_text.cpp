@@ -153,8 +153,8 @@ public:
     QPen backgroundPen;
     QBrush backgroundBrush;
 
-    int paintAttributes;
-    int layoutAttributes;
+    QwtText::PaintAttributes paintAttributes;
+    QwtText::LayoutAttributes layoutAttributes;
 
     const QwtTextEngine *textEngine;
 };

@@ -28,7 +28,8 @@ void QwtAnalogClock::initClock()
     setRange( 0.0, 60.0 * 60.0 * 12.0 ); // seconds
     setScale( -1, 5, 60.0 * 60.0 );
 
-    setScaleOptions( ScaleTicks | ScaleLabel );
+    setScaleComponents( 
+        QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels );
     setScaleTicks( 1, 0, 8 );
     scaleDraw()->setSpacing( 8 );
 

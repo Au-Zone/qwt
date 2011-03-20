@@ -27,83 +27,64 @@ class QWT_EXPORT QwtSymbol
 public:
     /*!
       Symbol Style
-
-       - NoSymbol\n
-         No Style. The symbol cannot be drawn.
-
-       - Ellipse\n
-         Ellipse or circle
-
-       - Rect\n
-         Rectangle
-
-       - Diamond\n
-         Diamond
-
-       - Triangle\n
-         Triangle pointing upwards
-
-       - DTriangle\n
-         Triangle pointing downwards
-
-       - UTriangle\n
-         Triangle pointing upwards
-
-       - LTriangle\n
-         Triangle pointing left
-
-       - RTriangle\n
-         Triangle pointing right
-
-       - Cross\n
-         Cross (+)
-
-       - XCross\n
-         Diagonal cross (X)
-
-       - HLine\n
-         Horizontal line
-
-       - VLine\n
-         Vertical line
-
-       - Star1\n
-         X combined with +
-
-       - Star2\n
-         Six-pointed star
-
-       - Hexagon\n
-         Hexagon
-
-       - UserSymbol\n
-         Styles >= UserSymbol are reserved for derived
-         classes of QwtSymbol that overload drawSymbols() with
-         additional application specific symbol types.
-
       \sa setStyle(), style()
      */
     enum Style
     {
+        //! No Style. The symbol cannot be drawn.
         NoSymbol = -1,
 
+        //! Ellipse or circle
         Ellipse,
+
+        //! Rectangle
         Rect,
+
+        //!  Diamond
         Diamond,
+
+        //! Triangle pointing upwards
         Triangle,
+
+        //! Triangle pointing downwards
         DTriangle,
+
+        //! Triangle pointing upwards
         UTriangle,
+
+        //! Triangle pointing left
         LTriangle,
+
+        //! Triangle pointing right
         RTriangle,
+
+        //! Cross (+)
         Cross,
+
+        //! Diagonal cross (X)
         XCross,
+
+        //! Horizontal line
         HLine,
+
+        //! Vertical line
         VLine,
+
+        //! X combined with +
         Star1,
+
+        //! Six-pointed star
         Star2,
+
+        //! Hexagon
         Hexagon,
 
-        UserSymbol = 1000
+        /*!
+         Styles >= QwtSymbol::UserSymbol are reserved for derived
+         classes of QwtSymbol that overload drawSymbols() with
+         additional application specific symbol types.
+         */
+        UserStyle = 1000
     };
 
 public:

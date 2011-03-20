@@ -39,37 +39,37 @@ class QWT_EXPORT QwtPlotHistogram: public QwtPlotSeriesItem<QwtIntervalSample>
 public:
     /*!
         Histogram styles.
-
-         - Outline\n
-           Draw an outline around the area, that is build by all intervals
-           using the pen() and fill it with the brush(). The outline style
-           requires, that the intervals are in increasing order and
-           not overlapping.
-
-         - Columns\n
-           Draw a column for each interval. When a symbol() has been set
-           the symbol is used otherwise the column is displayed as plain rectangle
-           using pen() and brush().
-
-         - Lines\n
-           Draw a simple line using the pen() for each interval.
-
-         - UserStyle\n
-           Styles >= UserStyle are reserved for derived
-           classes that overload drawSeries() with
-           additional application specific ways to display a histogram.
-
-        The default style is Columns.
+        The default style is QwtPlotHistogram::Columns.
 
         \sa setStyle(), style(), setSymbol(), symbol(), setBaseline()
     */
     enum HistogramStyle
     {
+        /*!
+           Draw an outline around the area, that is build by all intervals
+           using the pen() and fill it with the brush(). The outline style
+           requires, that the intervals are in increasing order and
+           not overlapping.
+         */
         Outline,
 
+        /*!
+           Draw a column for each interval. When a symbol() has been set
+           the symbol is used otherwise the column is displayed as 
+           plain rectangle using pen() and brush().
+         */
         Columns,
+
+        /*!
+           Draw a simple line using the pen() for each interval.
+         */
         Lines,
 
+        /*!
+           Styles >= UserStyle are reserved for derived
+           classes that overload drawSeries() with
+           additional application specific ways to display a histogram.
+         */
         UserStyle = 100
     };
 

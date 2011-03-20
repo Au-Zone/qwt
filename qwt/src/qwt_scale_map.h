@@ -24,21 +24,16 @@ class QRectF;
 class QWT_EXPORT QwtScaleTransformation
 {
 public:
-    /*!
-     - Linear\n
-       Transformation between 2 linear scales
-
-     - Log10
-       Transformation between a linear and a logarithmic ( base 10 ) scale
-
-     - Other
-       Any other type of transformation
-     */
+    //! Transformation type
     enum Type
     {
+        //! Transformation between 2 linear scales
         Linear,
+
+        //! Transformation between a linear and a logarithmic ( base 10 ) scale
         Log10,
 
+        //! Any other type of transformation
         Other
     };
 

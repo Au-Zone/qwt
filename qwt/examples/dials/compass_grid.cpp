@@ -95,7 +95,8 @@ QwtCompass *CompassGrid::createCompass(int pos)
                 QColor(Qt::darkBlue).dark(120));
             colorGroup.setColor(QPalette::Text, Qt::white);
 
-            compass->setScaleOptions(QwtDial::ScaleTicks | QwtDial::ScaleLabel);
+            compass->setScaleComponents(
+                QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels);
             compass->setScaleTicks(1, 1, 3);
             compass->setScale(36, 5, 0);
 
@@ -117,8 +118,8 @@ QwtCompass *CompassGrid::createCompass(int pos)
                 
             compass->setLineWidth(0);
 
-            compass->setScaleOptions(QwtDial::ScaleBackbone | 
-                QwtDial::ScaleTicks | QwtDial::ScaleLabel);
+            compass->setScaleComponents( QwtAbstractScaleDraw::Backbone | 
+                QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels );
             compass->setScaleTicks(0, 0, 3);
 
             QMap<double, QString> map;
@@ -142,7 +143,8 @@ QwtCompass *CompassGrid::createCompass(int pos)
             /*
              A compass showing another needle
              */
-            compass->setScaleOptions(QwtDial::ScaleTicks | QwtDial::ScaleLabel);
+            compass->setScaleComponents(
+                QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels );
             compass->setScaleTicks(0, 0, 3);
 
             compass->setNeedle(new QwtCompassMagnetNeedle(

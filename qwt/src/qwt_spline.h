@@ -60,7 +60,10 @@ public:
     //! Spline type
     enum SplineType
     {
+        //! A natural spline
         Natural,
+
+        //! A periodic spline
         Periodic
     };
 

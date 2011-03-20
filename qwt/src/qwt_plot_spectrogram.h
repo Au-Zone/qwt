@@ -36,22 +36,20 @@ class QWT_EXPORT QwtPlotSpectrogram: public QwtPlotRasterItem
 public:
     /*!
       The display mode controls how the raster data will be represented.
-      - ImageMode\n
-        The values are mapped to colors using a color map.
-      - ContourMode\n
-        The data is displayed using contour lines
-
-      When both modes are enabled the contour lines are painted on
-      top of the spectrogram. The default setting enables ImageMode.
-
       \sa setDisplayMode(), testDisplayMode()
     */
 
     enum DisplayMode
     {
-        ImageMode = 1,
-        ContourMode = 2
+        //! The values are mapped to colors using a color map.
+        ImageMode = 0x01,
+
+        //! The data is displayed using contour lines
+        ContourMode = 0x02
     };
+
+    //! Display modes
+    typedef QFlags<DisplayMode> DisplayModes;
 
     explicit QwtPlotSpectrogram( const QString &title = QString::null );
     virtual ~QwtPlotSpectrogram();
@@ -77,8 +75,8 @@ public:
 
     virtual QPen contourPen( double level ) const;
 
-    void setConrecAttribute( QwtRasterData::ConrecAttribute, bool on );
-    bool testConrecAttribute( QwtRasterData::ConrecAttribute ) const;
+    void setConrecFlag( QwtRasterData::ConrecFlag, bool on );
+    bool testConrecFlag( QwtRasterData::ConrecFlag ) const;
 
     void setContourLevels( const QList<double> & );
     QList<double> contourLevels() const;
@@ -111,5 +109,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotSpectrogram::DisplayModes );
 
 #endif

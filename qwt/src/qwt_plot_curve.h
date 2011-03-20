@@ -33,7 +33,8 @@ class QwtCurveFitter;
   \par Usage
   <dl><dt>a) Assign curve properties</dt>
   <dd>When a curve is created, it is configured to draw black solid lines
-  with in Lines style and no symbols. You can change this by calling
+  with in QwtPlotCurve::Lines style and no symbols. 
+  You can change this by calling
   setPen(), setStyle() and setSymbol().</dd>
   <dt>b) Connect/Assign data.</dt>
   <dd>QwtPlotCurve gets its points using a QwtSeriesData object offering
@@ -56,85 +57,81 @@ class QWT_EXPORT QwtPlotCurve: public QwtPlotSeriesItem<QPointF>
 public:
     /*!
         Curve styles.
-
-         - NoCurve\n
-           Don't draw a curve. Note: This doesn't affect the symbols.
-
-         - Lines\n
-           Connect the points with straight lines. The lines might
-           be interpolated depending on the 'Fitted' attribute. Curve
-           fitting can be configured using setCurveFitter().
-
-         - Sticks\n
-           Draw vertical or horizontal sticks ( depending on the 
-           orientation() ) from a baseline which is defined by setBaseline().
-
-         - Steps\n
-           Connect the points with a step function. The step function
-           is drawn from the left to the right or vice versa,
-           depending on the 'Inverted' attribute.
-
-         - Dots\n
-           Draw dots at the locations of the data points. Note:
-           This is different from a dotted line (see setPen()), and faster
-           as a curve in NoStyle style and a symbol painting a point.
-
-         - UserCurve\n
-           Styles >= UserCurve are reserved for derived
-           classes of QwtPlotCurve that overload drawCurve() with
-           additional application specific curve types.
-
         \sa setStyle(), style()
     */
     enum CurveStyle
     {
-        NoCurve,
+        /*!
+           Don't draw a curve. Note: This doesn't affect the symbols.
+        */
+        NoCurve = -1,
 
+        /*!
+           Connect the points with straight lines. The lines might
+           be interpolated depending on the 'Fitted' attribute. Curve
+           fitting can be configured using setCurveFitter().
+        */
         Lines,
+
+        /*!
+           Draw vertical or horizontal sticks ( depending on the 
+           orientation() ) from a baseline which is defined by setBaseline().
+        */
         Sticks,
+
+        /*!
+           Connect the points with a step function. The step function
+           is drawn from the left to the right or vice versa,
+           depending on the QwtPlotCurve::Inverted attribute.
+        */
         Steps,
+
+        /*!
+           Draw dots at the locations of the data points. Note:
+           This is different from a dotted line (see setPen()), and faster
+           as a curve in QwtPlotCurve::NoStyle style and a symbol 
+           painting a point.
+        */
         Dots,
 
+        /*!
+           Styles >= QwtPlotCurve::UserCurve are reserved for derived
+           classes of QwtPlotCurve that overload drawCurve() with
+           additional application specific curve types.
+        */
         UserCurve = 100
     };
 
     /*!
       Attribute for drawing the curve
-
-      - Fitted ( in combination with the Lines QwtPlotCurve::CurveStyle only )\n
-        A QwtCurveFitter tries to
-        interpolate/smooth the curve, before it is painted.
-        Note that curve fitting requires temorary memory
-        for calculating coefficients and additional points.
-        If painting in Fitted mode is slow it might be better
-        to fit the points, before they are passed to QwtPlotCurve.
-      - Inverted\n
-        For Steps only. Draws a step function
-        from the right to the left.
-
-        \sa setCurveAttribute(), testCurveAttribute(), curveFitter()
+      \sa setCurveAttribute(), testCurveAttribute(), curveFitter()
     */
     enum CurveAttribute
     {
-        Inverted = 1,
-        Fitted = 2
+        /*!
+           For QwtPlotCurve::Steps only. 
+           Draws a step function from the right to the left.
+         */
+        Inverted = 0x01,
+
+        /*!
+          Only in combination with QwtPlotCurve::Lines
+          A QwtCurveFitter tries to
+          interpolate/smooth the curve, before it is painted.
+
+          \note Curve fitting requires temorary memory
+          for calculating coefficients and additional points.
+          If painting in QwtPlotCurve::Fitted mode is slow it might be better
+          to fit the points, before they are passed to QwtPlotCurve.
+         */
+        Fitted = 0x02
     };
+
+    //! Curve attributes
+    typedef QFlags<CurveAttribute> CurveAttributes;
 
     /*!
         Attributes how to represent the curve on the legend
-
-        - LegendShowLine
-          If the curveStyle() is not NoCurve a line is painted with the
-          curvePen().
-        - LegendShowSymbol
-          If the curve has a valid symbol it is painted.
-        - LegendShowBrush
-          If the curve has a brush a rectangle filled with this brush
-          is painted
-
-        If none of the flags is activated QwtPlotCurve tries to find
-        a color representing the curve and paints a rectangle with it.
-        In the default setting all attributes are off.
 
         \sa setLegendAttribute(), testLegendAttribute(),
             drawLegendIdentifier()
@@ -142,34 +139,59 @@ public:
 
     enum LegendAttribute
     {
-        LegendShowLine = 1,
-        LegendShowSymbol = 2,
-        LegendShowBrush = 4
+        /*!
+          QwtPlotCurve tries to find a color representing the curve 
+          and paints a rectangle with it.
+         */
+        LegendNoAttribute = 0x00,
+
+        /*!
+          If the style() is not QwtPlotCurve::NoCurve a line 
+          is painted with the curve pen().
+         */
+        LegendShowLine = 0x01,
+
+        /*!
+          If the curve has a valid symbol it is painted.
+         */
+        LegendShowSymbol = 0x02,
+
+        /*!
+          If the curve has a brush a rectangle filled with the
+          curve brush() is painted.
+         */
+        LegendShowBrush = 0x04
     };
+
+    //! Legend attributes
+    typedef QFlags<LegendAttribute> LegendAttributes;
 
     /*!
         Attributes to modify the drawing algorithm.
-
-        - ClipPolygons\n
-          Clip polygons before painting them. In situations, where points
-          are far outside the visible area (f.e when zooming deep) this
-          might be a substantial improvement for the painting performance
-          ( especially on Windows ).
-        - CacheSymbols\n
-          Paint the symbol to a QPixmap and paint the pixmap
-          instead rendering the symbol for each point. The flag has
-          no effect, when the curve is not painted to the canvas
-          ( or its cache )
-
         The default setting enables ClipPolygons
 
         \sa setPaintAttribute(), testPaintAttribute()
     */
     enum PaintAttribute
     {
-        ClipPolygons = 1,
-        CacheSymbols = 2
+        /*!
+          Clip polygons before painting them. In situations, where points
+          are far outside the visible area (f.e when zooming deep) this
+          might be a substantial improvement for the painting performance
+         */
+        ClipPolygons = 0x01,
+
+        /*!
+          Paint the symbol to a QPixmap and paint the pixmap
+          instead rendering the symbol for each point. The flag has
+          no effect, when the curve is not painted to the canvas
+          ( f.e when exporting the plot to a PDF document ).
+         */
+        CacheSymbols = 0x02
     };
+
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
 
     explicit QwtPlotCurve( const QString &title = QString::null );
     explicit QwtPlotCurve( const QwtText &title );
@@ -289,5 +311,9 @@ inline double QwtPlotCurve::maxYValue() const
 {
     return boundingRect().bottom();
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::PaintAttributes );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::LegendAttributes );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::CurveAttributes );
 
 #endif

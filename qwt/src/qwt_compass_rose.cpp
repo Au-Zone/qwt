@@ -15,14 +15,14 @@
 static QPointF qwtIntersection( 
     QPointF p11, QPointF p12, QPointF p21, QPointF p22 )
 {
-	const QLineF line1( p11, p12 );
-	const QLineF line2( p21, p22 );
+    const QLineF line1( p11, p12 );
+    const QLineF line2( p21, p22 );
 
-	QPointF pos;
-	if ( line1.intersect( line2, &pos ) == QLineF::NoIntersection )
-		return QPointF();
+    QPointF pos;
+    if ( line1.intersect( line2, &pos ) == QLineF::NoIntersection )
+        return QPointF();
 
-	return pos;
+    return pos;
 }
 
 class QwtSimpleCompassRose::PrivateData
@@ -180,21 +180,21 @@ void QwtSimpleCompassRose::drawRose(
             const QPointF p3 = qwtPolar2Pos( center, r, angle + step / 2.0 );
             const QPointF p4 = qwtPolar2Pos( center, r, angle - step / 2.0 );
 
-			QPainterPath darkPath;
-			darkPath.moveTo( center );
-			darkPath.lineTo( p );
-			darkPath.lineTo( qwtIntersection( center, p3, p1, p ) );
+            QPainterPath darkPath;
+            darkPath.moveTo( center );
+            darkPath.lineTo( p );
+            darkPath.lineTo( qwtIntersection( center, p3, p1, p ) );
 
-			painter->setBrush( palette.brush( QPalette::Dark ) );
-			painter->drawPath( darkPath );
+            painter->setBrush( palette.brush( QPalette::Dark ) );
+            painter->drawPath( darkPath );
 
-			QPainterPath lightPath;
-			lightPath.moveTo( center );
-			lightPath.lineTo( p );
-			lightPath.lineTo( qwtIntersection( center, p4, p2, p ) );
+            QPainterPath lightPath;
+            lightPath.moveTo( center );
+            lightPath.lineTo( p );
+            lightPath.lineTo( qwtIntersection( center, p4, p2, p ) );
 
-			painter->setBrush( palette.brush( QPalette::Light ) );
-			painter->drawPath( lightPath );
+            painter->setBrush( palette.brush( QPalette::Light ) );
+            painter->drawPath( lightPath );
         }
     }
     painter->restore();

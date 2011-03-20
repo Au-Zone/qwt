@@ -68,27 +68,27 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
 {
     QwtSlider *slider = NULL;
 
-    switch(sliderType)
+    switch( sliderType )
     {
         case 0:
         {
-            slider = new QwtSlider(parent, 
-                Qt::Horizontal, QwtSlider::TopScale, QwtSlider::BgTrough);
+            slider = new QwtSlider(parent, Qt::Horizontal, 
+                QwtSlider::TopScale, QwtSlider::Trough);
             slider->setThumbWidth(10);
             slider->setRange(-10.0, 10.0, 1.0, 0); // paging disabled
             break;
         }
         case 1:
         {
-            slider = new QwtSlider(parent, 
-                Qt::Horizontal, QwtSlider::NoScale, QwtSlider::BgBoth);
+            slider = new QwtSlider(parent, Qt::Horizontal, 
+                QwtSlider::NoScale, QwtSlider::Trough | QwtSlider::Slot );
             slider->setRange(0.0, 1.0, 0.01, 5);
             break;
         }
         case 2:
         {
-            slider = new QwtSlider(parent, 
-                Qt::Horizontal, QwtSlider::BottomScale, QwtSlider::BgSlot);
+            slider = new QwtSlider(parent, Qt::Horizontal, 
+                QwtSlider::BottomScale, QwtSlider::Slot);
             slider->setThumbWidth(25);
             slider->setThumbLength(12);
             slider->setRange(1000.0, 3000.0, 10.0, 10);
@@ -96,23 +96,23 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         }
         case 3:
         {
-            slider = new QwtSlider(parent, 
-                Qt::Vertical, QwtSlider::LeftScale, QwtSlider::BgSlot);
+            slider = new QwtSlider(parent, Qt::Vertical, 
+                QwtSlider::LeftScale, QwtSlider::Slot);
             slider->setRange(0.0, 100.0, 1.0, 5);
             slider->setScaleMaxMinor(5);
             break;
         }
         case 4:
         {
-            slider = new QwtSlider(parent, 
-                Qt::Vertical, QwtSlider::NoScale, QwtSlider::BgTrough);
+            slider = new QwtSlider(parent, Qt::Vertical, 
+                QwtSlider::NoScale, QwtSlider::Trough);
             slider->setRange(0.0,100.0,1.0, 10);
             break;
         }
         case 5:
         {
-            slider = new QwtSlider(parent, 
-                Qt::Vertical, QwtSlider::RightScale, QwtSlider::BgBoth);
+            slider = new QwtSlider(parent, Qt::Vertical, 
+                QwtSlider::RightScale, QwtSlider::Trough | QwtSlider::Slot);
             slider->setScaleEngine(new QwtLog10ScaleEngine);
             slider->setThumbWidth(20);
             slider->setBorderWidth(1);

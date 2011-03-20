@@ -259,8 +259,10 @@ QwtLegend::LegendItemMode QwtLegend::itemMode() const
 }
 
 /*!
-  The contents widget is the only child of the viewport() and
-  the parent widget of all legend items.
+  The contents widget is the only child of the viewport of 
+  the internal QScrollArea  and the parent widget of all legend items.
+
+  \return Container widget of the legend items
 */
 QWidget *QwtLegend::contentsWidget()
 {
@@ -286,8 +288,11 @@ QScrollBar *QwtLegend::verticalScrollBar() const
 }
 
 /*!
-  The contents widget is the only child of the viewport() and
-  the parent widget of all legend items.
+  The contents widget is the only child of the viewport of 
+  the internal QScrollArea  and the parent widget of all legend items.
+
+  \return Container widget of the legend items
+
 */
 const QWidget *QwtLegend::contentsWidget() const
 {
@@ -298,7 +303,7 @@ const QWidget *QwtLegend::contentsWidget() const
   Insert a new item for a plot item
   \param plotItem Plot item
   \param legendItem New legend item
-  \note The parent of item will be changed to QwtLegend::contentsWidget()
+  \note The parent of item will be changed to contentsWidget()
 */
 void QwtLegend::insert( const QwtLegendItemManager *plotItem, QWidget *legendItem )
 {
@@ -450,22 +455,27 @@ void QwtLegend::layoutContents()
 }
 
 /*!
-  Filter layout related events of QwtLegend::contentsWidget().
+  Handle QEvent::ChildRemoved andQEvent::LayoutRequest events 
+  for the contentsWidget().
 
-  \param o Object to be filtered
-  \param e Event
+  \param object Object to be filtered
+  \param event Event
 */
-bool QwtLegend::eventFilter( QObject *o, QEvent *e )
+bool QwtLegend::eventFilter( QObject *object, QEvent *event )
 {
-    if ( o == d_data->view->contentsWidget )
+    if ( object == d_data->view->contentsWidget )
     {
-        switch ( e->type() )
+        switch ( event->type() )
         {
             case QEvent::ChildRemoved:
             {
-                const QChildEvent *ce = ( const QChildEvent * )e;
+                const QChildEvent *ce = 
+                    static_cast<const QChildEvent *>(event);
                 if ( ce->child()->isWidgetType() )
-                    d_data->map.remove( ( QWidget * )ce->child() );
+                {
+                    QWidget *w = static_cast< QWidget * >( ce->child() );
+                    d_data->map.remove( w );
+                }
                 break;
             }
             case QEvent::LayoutRequest:
@@ -478,7 +488,7 @@ bool QwtLegend::eventFilter( QObject *o, QEvent *e )
         }
     }
 
-    return QFrame::eventFilter( o, e );
+    return QFrame::eventFilter( object, event );
 }
 
 

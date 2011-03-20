@@ -35,20 +35,22 @@ public:
 
     /*!
        Components of a scale
-
-       - Backbone
-       - Ticks
-       - Labels
-
        \sa enableComponent(), hasComponent
     */
-
     enum ScaleComponent
     {
-        Backbone = 1,
-        Ticks = 2,
-        Labels = 4
+        //! Backbone = the line where the ticks are located
+        Backbone = 0x01,
+
+        //! Ticks
+        Ticks = 0x02,
+
+        //! Labels
+        Labels = 0x04
     };
+
+    //! Scale components
+    typedef QFlags<ScaleComponent> ScaleComponents;
 
     QwtAbstractScaleDraw();
     virtual ~QwtAbstractScaleDraw();
@@ -65,7 +67,7 @@ public:
 
     void setTickLength( QwtScaleDiv::TickType, double length );
     double tickLength( QwtScaleDiv::TickType ) const;
-    double majTickLength() const;
+    double maxTickLength() const;
 
     void setSpacing( double margin );
     double spacing() const;
@@ -117,7 +119,7 @@ protected:
         \param painter Painter
         \param value Value
 
-        \sa drawTick, drawBackbone
+        \sa drawTick(), drawBackbone()
     */
     virtual void drawLabel( QPainter *painter, double value ) const = 0;
 
@@ -131,5 +133,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtAbstractScaleDraw::ScaleComponents );
 
 #endif

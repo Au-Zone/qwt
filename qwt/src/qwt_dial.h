@@ -91,36 +91,33 @@ public:
      */
     enum Shadow
     {
+        //! QFrame::Plain
         Plain = QFrame::Plain,
+
+        //! QFrame::Raised
         Raised = QFrame::Raised,
+
+        //! QFrame::Sunken
         Sunken = QFrame::Sunken
     };
 
-    //! see QwtDial::setScaleOptions
-    enum ScaleOptions
-    {
-        ScaleBackbone = 1,
-        ScaleTicks = 2,
-        ScaleLabel = 4
-    };
-
-    /*!
-        In case of RotateNeedle the needle is rotating, in case of
-        RotateScale, the needle points to origin()
-        and the scale is rotating.
-    */
+    //! Mode controlling wether the needle or the scale is rotating
     enum Mode
     {
+        //! The needle is rotating
         RotateNeedle,
+
+        //! The needle is fixed, the scales are rotating
         RotateScale
     };
 
-    /*!
-      Direction of the dial
-    */
+    //! Direction of the dial
     enum Direction
     {
+        //! Clockwise
         Clockwise,
+
+        //! Counter clockwise
         CounterClockwise
     };
 
@@ -142,7 +139,7 @@ public:
     virtual void setScale( int maxMajIntv, int maxMinIntv, double step = 0.0 );
 
     void setScaleArc( double min, double max );
-    void setScaleOptions( int );
+    void setScaleComponents( QwtAbstractScaleDraw::ScaleComponents );
     void setScaleTicks( int minLen, int medLen, int majLen, int penWidth = 1 );
 
     double minScaleArc() const;

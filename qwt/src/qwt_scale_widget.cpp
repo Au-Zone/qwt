@@ -46,7 +46,7 @@ public:
     int spacing;
     QwtText title;
 
-    int layoutFlags;
+    QwtScaleWidget::LayoutFlags layoutFlags;
 
     struct t_colorBar
     {

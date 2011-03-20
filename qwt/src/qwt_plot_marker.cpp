@@ -23,7 +23,7 @@ public:
         labelOrientation( Qt::Horizontal ),
         spacing( 2 ),
         symbol( NULL ),
-        style( NoLine ),
+        style( QwtPlotMarker::NoLine ),
         xValue( 0.0 ),
         yValue( 0.0 )
     {
@@ -47,7 +47,7 @@ public:
     double yValue;
 };
 
-//! Sets alignment to Qt::AlignCenter, and style to NoLine
+//! Sets alignment to Qt::AlignCenter, and style to QwtPlotMarker::NoLine
 QwtPlotMarker::QwtPlotMarker():
     QwtPlotItem( QwtText( "Marker" ) )
 {
@@ -311,22 +311,21 @@ void QwtPlotMarker::drawLabel( QPainter *painter,
 
 /*!
   \brief Set the line style
-  \param st Line style. Can be one of QwtPlotMarker::NoLine,
-    HLine, VLine or Cross
+  \param style Line style. 
   \sa lineStyle()
 */
-void QwtPlotMarker::setLineStyle( QwtPlotMarker::LineStyle st )
+void QwtPlotMarker::setLineStyle( LineStyle style )
 {
-    if ( st != d_data->style )
+    if ( style != d_data->style )
     {
-        d_data->style = st;
+        d_data->style = style;
         itemChanged();
     }
 }
 
 /*!
   \return the line style
-  \sa For a description of line styles, see QwtPlotMarker::setLineStyle()
+  \sa setLineStyle()
 */
 QwtPlotMarker::LineStyle QwtPlotMarker::lineStyle() const
 {
@@ -391,9 +390,9 @@ QwtText QwtPlotMarker::label() const
 
   In all other styles the alignment is relative to the marker's position.
 
-  \param align Alignment. A combination of AlignTop, AlignBottom,
-    AlignLeft, AlignRight, AlignCenter, AlgnHCenter,
-    AlignVCenter.
+  \param align Alignment. A combination of Qt::AlignTop, Qt::AlignBottom,
+    Qt::AlignLeft, Qt::AlignRight, Qt::AlignCenter, Qt::AlignHCenter,
+    Qt::AlignVCenter.
   \sa labelAlignment(), labelOrientation()
 */
 void QwtPlotMarker::setLabelAlignment( Qt::Alignment align )
@@ -476,7 +475,7 @@ int QwtPlotMarker::spacing() const
   Specify a pen for the line.
 
   \param pen New pen
-  \sa linePen(), QwtPainter::scaledPen()
+  \sa linePen()
 */
 void QwtPlotMarker::setLinePen( const QPen &pen )
 {

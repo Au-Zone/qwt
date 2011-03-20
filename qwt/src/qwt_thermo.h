@@ -106,17 +106,26 @@ public:
     */
     enum ScalePos
     {
+        //! No scale
         NoScale,
+
+        //! The scale is left of the pipe
         LeftScale,
+
+        //! The scale is right of the pipe
         RightScale,
+
+        //! The scale is above the pipe
         TopScale,
+
+        //! The scale is below the pipe
         BottomScale
     };
 
     explicit QwtThermo( QWidget *parent = NULL );
     virtual ~QwtThermo();
 
-    void setOrientation( Qt::Orientation o, ScalePos s );
+    void setOrientation( Qt::Orientation, ScalePos );
 
     void setScalePosition( ScalePos s );
     ScalePos scalePosition() const;

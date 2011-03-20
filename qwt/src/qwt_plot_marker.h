@@ -31,13 +31,14 @@ class QwtSymbol;
   The QwtPlotMarker::setSymbol() member assigns a symbol to the marker.
   The symbol is drawn at the specified point.
 
-  With QwtPlotMarker::setLabel(), a label can be assigned to the marker.
-  The QwtPlotMarker::setLabelAlignment() member specifies where the label is
+  With setLabel(), a label can be assigned to the marker.
+  The setLabelAlignment() member specifies where the label is
   drawn. All the Align*-constants in Qt::AlignmentFlags (see Qt documentation)
   are valid. The interpretation of the alignment depends on the marker's
   line style. The alignment refers to the center point of
   the marker, which means, for example, that the label would be printed
-  left above the center point if the alignment was set to AlignLeft|AlignTop.
+  left above the center point if the alignment was set to 
+  Qt::AlignLeft | Qt::AlignTop.
 */
 
 class QWT_EXPORT QwtPlotMarker: public QwtPlotItem
@@ -50,9 +51,16 @@ public:
     */
     enum LineStyle
     {
+        //! No line
         NoLine,
+
+        //! A horizontal line
         HLine,
+
+        //! A vertical line
         VLine,
+
+        //! A crosshair
         Cross
     };
 

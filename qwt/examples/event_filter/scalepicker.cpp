@@ -78,7 +78,7 @@ void ScalePicker::mouseClicked(const QwtScaleWidget *scale, const QPoint &pos)
 QRect ScalePicker::scaleRect(const QwtScaleWidget *scale) const
 {
     const int bld = scale->margin();
-    const int mjt = scale->scaleDraw()->majTickLength();
+    const int mjt = scale->scaleDraw()->maxTickLength();
     const int sbd = scale->startBorderDist();
     const int ebd = scale->endBorderDist();
 

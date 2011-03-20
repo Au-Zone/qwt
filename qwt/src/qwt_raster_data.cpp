@@ -249,7 +249,7 @@ QRectF QwtRasterData::pixelHint( const QRectF & ) const
 */
 QwtRasterData::ContourLines QwtRasterData::contourLines(
     const QRectF &rect, const QSize &raster,
-    const QList<double> &levels, int flags ) const
+    const QList<double> &levels, ConrecFlags flags ) const
 {
     ContourLines contourLines;
 

@@ -115,20 +115,6 @@ QwtCounter::~QwtCounter()
     delete d_data;
 }
 
-/*!
-  Sets the minimum width for the buttons
-*/
-void QwtCounter::polish()
-{
-    const int w = d_data->valueEdit->fontMetrics().width( "W" ) + 8;
-
-    for ( int i = 0; i < ButtonCnt; i++ )
-    {
-        d_data->buttonDown[i]->setMinimumWidth( w );
-        d_data->buttonUp[i]->setMinimumWidth( w );
-    }
-}
-
 //! Set from lineedit
 void QwtCounter::textChanged()
 {
@@ -165,13 +151,22 @@ bool QwtCounter::editable() const
 
 /*!
    Handle PolishRequest events
+   \param event Event
 */
-bool QwtCounter::event ( QEvent * e )
+bool QwtCounter::event( QEvent *event )
 {
-    if ( e->type() == QEvent::PolishRequest )
-        polish();
+    if ( event->type() == QEvent::PolishRequest )
+    {
+        const int w = d_data->valueEdit->fontMetrics().width( "W" ) + 8;
 
-    return QWidget::event( e );
+        for ( int i = 0; i < ButtonCnt; i++ )
+        {
+            d_data->buttonDown[i]->setMinimumWidth( w );
+            d_data->buttonUp[i]->setMinimumWidth( w );
+        }
+    }
+
+    return QWidget::event( event );
 }
 
 /*!

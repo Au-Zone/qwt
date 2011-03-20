@@ -52,6 +52,7 @@ QwtIntervalSymbol::QwtIntervalSymbol( Style style )
     d_data->style = style;
 }
 
+//! Copy constructor
 QwtIntervalSymbol::QwtIntervalSymbol( const QwtIntervalSymbol &other )
 {
     d_data = new PrivateData();

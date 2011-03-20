@@ -24,14 +24,15 @@ class QwtColorMap;
 class QWT_EXPORT QwtPlotSpectroCurve: public QwtPlotSeriesItem<QwtPoint3D>
 {
 public:
-    /*!
-     - ClipPoints\n
-       Clip points outside the canvas rectangle
-     */
+    //! Paint attributes
     enum PaintAttribute
     {
+        //! Clip points outside the canvas rectangle
         ClipPoints = 1
     };
+
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
 
     explicit QwtPlotSpectroCurve( const QString &title = QString::null );
     explicit QwtPlotSpectroCurve( const QwtText &title );
@@ -69,5 +70,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotSpectroCurve::PaintAttributes );
 
 #endif

@@ -67,10 +67,10 @@ public:
     QPen pen;
     QBrush brush;
 
-    int attributes;
-    int paintAttributes;
+    QwtPlotCurve::CurveAttributes attributes;
+    QwtPlotCurve::PaintAttributes paintAttributes;
 
-    int legendAttributes;
+    QwtPlotCurve::LegendAttributes legendAttributes;
 };
 
 /*!
@@ -122,7 +122,7 @@ int QwtPlotCurve::rtti() const
 
   \param attribute Paint attribute
   \param on On/Off
-  /sa PaintAttribute, testPaintAttribute()
+  \sa testPaintAttribute()
 */
 void QwtPlotCurve::setPaintAttribute( PaintAttribute attribute, bool on )
 {
@@ -134,7 +134,7 @@ void QwtPlotCurve::setPaintAttribute( PaintAttribute attribute, bool on )
 
 /*!
     \brief Return the current paint attributes
-    \sa PaintAttribute, setPaintAttribute()
+    \sa setPaintAttribute()
 */
 bool QwtPlotCurve::testPaintAttribute( PaintAttribute attribute ) const
 {
@@ -146,7 +146,7 @@ bool QwtPlotCurve::testPaintAttribute( PaintAttribute attribute ) const
 
   \param attribute Attribute
   \param on On/Off
-  /sa LegendAttribute, testLegendAttribute()
+  /sa testLegendAttribute()
 */
 void QwtPlotCurve::setLegendAttribute( LegendAttribute attribute, bool on )
 {
@@ -158,7 +158,7 @@ void QwtPlotCurve::setLegendAttribute( LegendAttribute attribute, bool on )
 
 /*!
     \brief Return the current paint attributes
-    \sa LegendAttribute, setLegendAttribute()
+    \sa setLegendAttribute()
 */
 bool QwtPlotCurve::testLegendAttribute( LegendAttribute attribute ) const
 {
@@ -169,7 +169,7 @@ bool QwtPlotCurve::testLegendAttribute( LegendAttribute attribute ) const
   Set the curve's drawing style
 
   \param style Curve style
-  \sa CurveStyle, style()
+  \sa style()
 */
 void QwtPlotCurve::setStyle( CurveStyle style )
 {
@@ -182,7 +182,7 @@ void QwtPlotCurve::setStyle( CurveStyle style )
 
 /*!
     Return the current style
-    \sa CurveStyle, setStyle()
+    \sa setStyle()
 */
 QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 {
@@ -610,7 +610,7 @@ void QwtPlotCurve::drawSteps( QPainter *painter,
   \param attribute Curve attribute
   \param on On/Off
 
-  /sa CurveAttribute, testCurveAttribute(), setCurveFitter()
+  /sa testCurveAttribute(), setCurveFitter()
 */
 void QwtPlotCurve::setCurveAttribute( CurveAttribute attribute, bool on )
 {
@@ -627,7 +627,7 @@ void QwtPlotCurve::setCurveAttribute( CurveAttribute attribute, bool on )
 
 /*!
     \return true, if attribute is enabled
-    \sa CurveAttribute, setCurveAttribute()
+    \sa setCurveAttribute()
 */
 bool QwtPlotCurve::testCurveAttribute( CurveAttribute attribute ) const
 {
@@ -680,7 +680,7 @@ QwtCurveFitter *QwtPlotCurve::curveFitter() const
   \param canvasRect Contents rect of the canvas
   \param polygon Polygon - will be modified !
 
-  \sa setBrush(), setBaseline(), setCurveType()
+  \sa setBrush(), setBaseline(), setStyle()
 */
 void QwtPlotCurve::fillCurve( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -863,7 +863,7 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
   The default value is 0.0.
 
   \param value Value of the baseline
-  \sa baseline(), setBrush(), setStyle(), setCurveType()
+  \sa baseline(), setBrush(), setStyle(), setStyle()
 */
 void QwtPlotCurve::setBaseline( double value )
 {
@@ -875,7 +875,7 @@ void QwtPlotCurve::setBaseline( double value )
 }
 
 /*!
-  \return the value of the baseline
+  \return Value of the baseline
   \sa setBaseline()
 */
 double QwtPlotCurve::baseline() const
@@ -957,7 +957,7 @@ void QwtPlotCurve::updateLegend( QwtLegend *legend ) const
 /*!
   \brief Draw the identifier representing the curve on the legend
 
-  \param painter Üainter
+  \param painter Painter
   \param rect Bounding rectangle for the identifier
 
   \sa setLegendAttribute
@@ -1049,19 +1049,21 @@ void QwtPlotCurve::setSamples( const QVector<QPointF> &samples )
 #ifndef QWT_NO_COMPAT
 
 /*!
-  \brief Initialize the data by pointing to memory blocks which are not managed
-  by QwtPlotCurve.
+  \brief Initialize the data by pointing to memory blocks which 
+         are not managed by QwtPlotCurve.
 
-  setRawSamples is provided for efficiency. It is important to keep the pointers
+  setRawSamples is provided for efficiency. 
+  It is important to keep the pointers
   during the lifetime of the underlying QwtCPointerData class.
 
   \param xData pointer to x data
   \param yData pointer to y data
   \param size size of x and y
 
-  \sa QwtCPointerData::setSamples()
+  \sa QwtCPointerData
 */
-void QwtPlotCurve::setRawSamples( const double *xData, const double *yData, int size )
+void QwtPlotCurve::setRawSamples( 
+    const double *xData, const double *yData, int size )
 {
     delete d_series;
     d_series = new QwtCPointerData( xData, yData, size );
@@ -1077,9 +1079,10 @@ void QwtPlotCurve::setRawSamples( const double *xData, const double *yData, int 
   \param yData pointer to y values
   \param size size of xData and yData
 
-  \sa QwtCPointerData
+  \sa QwtPointArrayData
 */
-void QwtPlotCurve::setSamples( const double *xData, const double *yData, int size )
+void QwtPlotCurve::setSamples( 
+    const double *xData, const double *yData, int size )
 {
     delete d_series;
     d_series = new QwtPointArrayData( xData, yData, size );
@@ -1092,7 +1095,7 @@ void QwtPlotCurve::setSamples( const double *xData, const double *yData, int siz
   \param xData x data
   \param yData y data
 
-  \sa QwtArrayData
+  \sa QwtPointArrayData
 */
 void QwtPlotCurve::setSamples( const QVector<double> &xData,
     const QVector<double> &yData )

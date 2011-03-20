@@ -55,7 +55,7 @@ public:
     double mass() const;
 
     void setWheelWidth( int );
-	int wheelWidth() const;
+    int wheelWidth() const;
 
     void setWheelBorderWidth( int );
     int wheelBorderWidth() const;

@@ -286,7 +286,7 @@ double QwtScaleDraw::extent( const QFont &font ) const
 
     if ( hasComponent( QwtAbstractScaleDraw::Ticks ) )
     {
-        d += majTickLength();
+        d += maxTickLength();
     }
 
     if ( hasComponent( QwtAbstractScaleDraw::Backbone ) )
@@ -352,7 +352,7 @@ QPointF QwtScaleDraw::labelPosition( double value ) const
         dist += qMax( 1, penWidth() );
 
     if ( hasComponent( QwtAbstractScaleDraw::Ticks ) )
-        dist += majTickLength();
+        dist += tickLength( QwtScaleDiv::MajorTick );
 
     double px = 0;
     double py = 0;

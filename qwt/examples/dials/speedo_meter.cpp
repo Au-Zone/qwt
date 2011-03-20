@@ -18,7 +18,8 @@ SpeedoMeter::SpeedoMeter(QWidget *parent):
             QColor(Qt::gray).light(130));
     setNeedle(needle);
 
-    setScaleOptions(ScaleTicks | ScaleLabel);
+    setScaleComponents( 
+        QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels);
     setScaleTicks(0, 4, 8);
 }
 

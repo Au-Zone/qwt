@@ -74,53 +74,52 @@ class QWT_EXPORT QwtPlot: public QFrame, public QwtPlotDict
         READ grabProperties WRITE applyProperties )
 
 public:
-    /*!
-      Axis index
-
-      - yLeft\n
-      - yRight\n
-      - xBottom\n
-      - xTop\n
-     */
+    //! \brief Axis index
     enum Axis
     {
+        //! Y axis left of the canvas
         yLeft,
+
+        //! Y axis right of the canvas
         yRight,
+
+        //! X axis below the canvas
         xBottom,
+
+        //! X axis above the canvas
         xTop,
 
+        //! Number of axes
         axisCnt
     };
 
     /*!
         Position of the legend, relative to the canvas.
 
-        - LeftLegend\n
-          The legend will be left from the yLeft axis.
-        - RightLegend\n
-          The legend will be right from the yLeft axis.
-        - BottomLegend\n
-          The legend will be right below the xBottom axis.
-        - TopLegend\n
-          The legend will be between xTop axis and the title.
-        - ExternalLegend\n
-          External means that only the content of the legend
-          will be handled by QwtPlot, but not its geometry.
-          This might be interesting if an application wants to
-          have a legend in an external window ( or on the canvas ).
-
+        \sa insertLegend()
         \note In case of ExternalLegend, the legend is not
               handled by QwtPlotRenderer
-
-        \sa insertLegend()
      */
     enum LegendPosition
     {
+        //! The legend will be left from the QwtPlot::yLeft axis.
         LeftLegend,
+
+        //! The legend will be right from the QwtPlot::yLeft axis.
         RightLegend,
+
+        //! The legend will be below QwtPlot::xBottom axis.
         BottomLegend,
+
+        //! The legend will be between QwtPlot::xTop axis and the title.
         TopLegend,
 
+        /*!
+          External means that only the content of the legend
+          will be handled by QwtPlot, but not its geometry.
+          This type can be used to have a legend in an 
+          external window ( or on the canvas ).
+         */
         ExternalLegend
     };
 
@@ -157,8 +156,8 @@ public:
     QwtPlotCanvas *canvas();
     const QwtPlotCanvas *canvas() const;
 
-    void setCanvasBackground ( const QColor &c );
-    const QColor& canvasBackground() const;
+    void setCanvasBackground( const QBrush & );
+    QBrush canvasBackground() const;
 
     void setCanvasLineWidth( int w );
     int canvasLineWidth() const;

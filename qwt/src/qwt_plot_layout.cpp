@@ -121,7 +121,7 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
                 QwtAbstractScaleDraw::Ticks ) )
             {
                 scale[axis].tickOffset +=
-                    ( int )scaleWidget->scaleDraw()->majTickLength();
+                    ( int )scaleWidget->scaleDraw()->maxTickLength();
             }
 
             scale[axis].dimWithoutTitle = scaleWidget->dimForLength(
@@ -492,7 +492,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
             scl->getBorderDistHint( sd.minLeft, sd.minRight );
             sd.tickOffset = scl->margin();
             if ( scl->scaleDraw()->hasComponent( QwtAbstractScaleDraw::Ticks ) )
-                sd.tickOffset += scl->scaleDraw()->majTickLength();
+                sd.tickOffset += scl->scaleDraw()->maxTickLength();
         }
 
         canvasBorder[axis] = plot->canvas()->frameWidth() +
@@ -644,7 +644,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
   \sa Options
 */
 
-QRectF QwtPlotLayout::layoutLegend( int options,
+QRectF QwtPlotLayout::layoutLegend( Options options,
     const QRectF &rect ) const
 {
     const QSize hint( d_data->layoutData.legend.hint );
@@ -1093,13 +1093,13 @@ void QwtPlotLayout::alignScales( int options,
 
   \param plot Plot to be layout
   \param plotRect Rect where to place the components
-  \param options Options
+  \param options Layout options
 
-  \sa invalidate(), Options, titleRect(),
+  \sa invalidate(), titleRect(),
       legendRect(), scaleRect(), canvasRect()
 */
 void QwtPlotLayout::activate( const QwtPlot *plot,
-    const QRectF &plotRect, int options )
+    const QRectF &plotRect, Options options )
 {
     invalidate();
 

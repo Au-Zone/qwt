@@ -121,7 +121,7 @@ bool QwtPlot::event( QEvent *event )
     return ok;
 }
 
-//! Replots the plot if QwtPlot::autoReplot() is \c true.
+//! Replots the plot if autoReplot() is \c true.
 void QwtPlot::autoRefresh()
 {
     if ( d_data->autoReplot )
@@ -148,7 +148,10 @@ void QwtPlot::setAutoReplot( bool tf )
     d_data->autoReplot = tf;
 }
 
-//! \return true if the autoReplot option is set.
+/*! 
+  \return true if the autoReplot option is set.
+  \sa setAutoReplot()
+*/
 bool QwtPlot::autoReplot() const
 {
     return d_data->autoReplot;
@@ -599,48 +602,54 @@ int QwtPlot::margin() const
 /*!
   \brief Change the background of the plotting area
 
-  Sets c to QPalette::Window of all colorgroups of
+  Sets brush to QPalette::Window of all colorgroups of
   the palette of the canvas. Using canvas()->setPalette()
   is a more powerful way to set these colors.
-  \param c new background color
+
+  \param brush New background brush
+  \sa canvasBackground()
 */
-void QwtPlot::setCanvasBackground( const QColor &c )
+void QwtPlot::setCanvasBackground( const QBrush &brush )
 {
-    QPalette p = d_data->canvas->palette();
+    QPalette pal = d_data->canvas->palette();
 
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
-        p.setColor( ( QPalette::ColorGroup )i, QPalette::Window, c );
+        pal.setBrush( ( QPalette::ColorGroup )i, QPalette::Window, brush );
 
-    canvas()->setPalette( p );
+    canvas()->setPalette( pal );
 }
 
 /*!
-  Nothing else than: canvas()->palette().color(
+  Nothing else than: canvas()->palette().brush(
         QPalette::Normal, QPalette::Window);
 
-  \return the background color of the plotting area.
+  \return Background brush of the plotting area.
+  \sa setCanvasBackground()
 */
-const QColor &QwtPlot::canvasBackground() const
+QBrush QwtPlot::canvasBackground() const
 {
-    return canvas()->palette().color(
+    return canvas()->palette().brush(
         QPalette::Normal, QPalette::Window );
 }
 
 /*!
   \brief Change the border width of the plotting area
+
   Nothing else than canvas()->setLineWidth(w),
   left for compatibility only.
-  \param w new border width
+
+  \param width New border width
 */
-void QwtPlot::setCanvasLineWidth( int w )
+void QwtPlot::setCanvasLineWidth( int width )
 {
-    canvas()->setLineWidth( w );
+    canvas()->setLineWidth( width );
     updateLayout();
 }
 
 /*!
   Nothing else than: canvas()->lineWidth(),
   left for compatibility only.
+
   \return the border width of the plotting area
 */
 int QwtPlot::canvasLineWidth() const

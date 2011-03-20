@@ -41,7 +41,7 @@ public:
     {
     }
 
-    int attributes;
+    QwtPlotDirectPainter::Attributes attributes;
 
     bool hasClipping;
     QRegion clipRegion;
@@ -83,7 +83,7 @@ void QwtPlotDirectPainter::setAttribute( Attribute attribute, bool on )
         else
             d_data->attributes &= ~attribute;
 
-        if ( attribute == AtomicPainter && on )
+        if ( ( attribute == AtomicPainter ) && on )
             reset();
     }
 }

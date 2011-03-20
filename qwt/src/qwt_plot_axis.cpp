@@ -208,7 +208,7 @@ QFont QwtPlot::axisFont( int axisId ) const
 /*!
   \return the maximum number of major ticks for a specified axis
   \param axisId axis index
-  sa setAxisMaxMajor()
+  \sa setAxisMaxMajor()
 */
 int QwtPlot::axisMaxMajor( int axisId ) const
 {
@@ -221,7 +221,7 @@ int QwtPlot::axisMaxMajor( int axisId ) const
 /*!
   \return the maximum number of minor ticks for a specified axis
   \param axisId axis index
-  sa setAxisMaxMinor()
+  \sa setAxisMaxMinor()
 */
 int QwtPlot::axisMaxMinor( int axisId ) const
 {

@@ -30,24 +30,20 @@ class QWT_EXPORT QwtPickerMachine
 public:
     /*!
       Type of a selection.
-
-      - NoSelection\n
-        The state machine not usable for any type of selection.
-      - PointSelection\n
-        The state machine is for selecting a single point.
-      - RectSelection\n
-        The state machine is for selecting a rectangle (2 points).
-      - PolygonSelection\n
-        The state machine is for selecting a polygon (many points).
-
       \sa selectionType()
     */
     enum SelectionType
     {
+        //! The state machine not usable for any type of selection.
         NoSelection = -1,
 
+        //! The state machine is for selecting a single point.
         PointSelection,
+
+        //! The state machine is for selecting a rectangle (2 points).
         RectSelection,
+
+        //! The state machine is for selecting a polygon (many points).
         PolygonSelection
     };
 

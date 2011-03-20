@@ -215,12 +215,12 @@ void QwtKnob::valueChange()
   \brief Determine the value corresponding to a specified position
 
   Called by QwtAbstractSlider
-  \param p point
+  \param pos point
 */
-double QwtKnob::getValue( const QPoint &p )
+double QwtKnob::getValue( const QPoint &pos )
 {
-    const double dx = double( ( rect().x() + rect().width() / 2 ) - p.x() );
-    const double dy = double( ( rect().y() + rect().height() / 2 ) - p.y() );
+    const double dx = rect().center().x() - pos.x();
+    const double dy = rect().center().y() - pos.y();
 
     const double arc = qAtan2( -dx, dy ) * 180.0 / M_PI;
 
@@ -246,14 +246,15 @@ double QwtKnob::getValue( const QPoint &p )
   \brief Set the scrolling mode and direction
 
   Called by QwtAbstractSlider
-  \param p Point in question
+  \param pos Point in question
 */
-void QwtKnob::getScrollMode( const QPoint &p, int &scrollMode, int &direction )
+void QwtKnob::getScrollMode( 
+    const QPoint &pos, int &scrollMode, int &direction )
 {
     const int r = d_data->knobRect.width() / 2;
 
-    const int dx = d_data->knobRect.x() + r - p.x();
-    const int dy = d_data->knobRect.y() + r - p.y();
+    const int dx = d_data->knobRect.x() + r - pos.x();
+    const int dy = d_data->knobRect.y() + r - pos.y();
 
     if ( ( dx * dx ) + ( dy * dy ) <= ( r * r ) ) // point is inside the knob
     {
@@ -273,7 +274,6 @@ void QwtKnob::getScrollMode( const QPoint &p, int &scrollMode, int &direction )
     }
 }
 
-
 /*!
   \brief Notify a change of the range
 
@@ -290,13 +290,18 @@ void QwtKnob::rangeChange()
 
 /*!
   Qt Resize Event
+  \param event Resize event
 */
-void QwtKnob::resizeEvent( QResizeEvent * )
+void QwtKnob::resizeEvent( QResizeEvent *event )
 {
+    Q_UNUSED( event );
     layoutKnob( false );
 }
 
-//! Qt change event handler
+/*! 
+  Handle QEvent::StyleChange and QEvent::FontChange;
+  \param event Change event
+*/
 void QwtKnob::changeEvent( QEvent *event )
 {
     switch( event->type() )
@@ -431,8 +436,8 @@ void QwtKnob::drawKnob( QPainter *painter,
 /*!
   \brief Draw the marker at the knob's front
   \param painter Painter
+  \param rect Bounding rectangle of the knob without scale
   \param angle Angle of the marker in degrees
-  \param c Marker color
 */
 void QwtKnob::drawMarker( QPainter *painter, 
     const QRectF &rect, double angle ) const
@@ -552,11 +557,11 @@ void QwtKnob::drawMarker( QPainter *painter,
   \brief Change the knob's width.
 
   The specified width must be >= 5, or it will be clipped.
-  \param w New width
+  \param width New width
 */
-void QwtKnob::setKnobWidth( int w )
+void QwtKnob::setKnobWidth( int width )
 {
-    d_data->knobWidth = qMax( w, 5 );
+    d_data->knobWidth = qMax( width, 5 );
     layoutKnob( true );
 }
 
