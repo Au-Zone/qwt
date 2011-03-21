@@ -69,20 +69,10 @@ protected:
     virtual void rangeChange();
 
 private:
-    void setNewValue( double x, bool align = false );
+    void setNewValue( double value, bool align = false );
 
-    double d_minValue;
-    double d_maxValue;
-    double d_step;
-    int d_pageSize;
-
-    bool d_isValid;
-    double d_value;
-    double d_exactValue;
-    double d_exactPrevValue;
-    double d_prevValue;
-
-    bool d_periodic;
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif
