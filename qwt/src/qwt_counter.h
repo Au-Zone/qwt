@@ -61,8 +61,8 @@ class QWT_EXPORT QwtCounter : public QWidget, public QwtDoubleRange
 
     Q_PROPERTY( int numButtons READ numButtons WRITE setNumButtons )
     Q_PROPERTY( double basicstep READ step WRITE setStep )
-    Q_PROPERTY( double minValue READ minVal WRITE setMinValue )
-    Q_PROPERTY( double maxValue READ maxVal WRITE setMaxValue )
+    Q_PROPERTY( double minValue READ minValue WRITE setMinValue )
+    Q_PROPERTY( double maxValue READ maxValue WRITE setMaxValue )
     Q_PROPERTY( int stepButton1 READ stepButton1 WRITE setStepButton1 )
     Q_PROPERTY( int stepButton2 READ stepButton2 WRITE setStepButton2 )
     Q_PROPERTY( int stepButton3 READ stepButton3 WRITE setStepButton3 )
@@ -106,10 +106,10 @@ public:
     double step() const;
     void setStep( double s );
 
-    double minVal() const;
+    double minValue() const;
     void setMinValue( double m );
 
-    double maxVal() const;
+    double maxValue() const;
     void setMaxValue( double m );
 
     void setStepButton1( int nSteps );
