@@ -11,6 +11,7 @@
 #include "qwt_scale_engine.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_map.h"
+#include "qwt_color_map.h"
 #include <qpainter.h>
 #include <qevent.h>
 #include <qdrawutil.h>
@@ -39,9 +40,15 @@ public:
         value( 0.0 ),
         alarmLevel( 0.0 ),
         alarmEnabled( false ),
-        autoFillPipe( true )
+        autoFillPipe( true ),
+        colorMap( NULL )
     {
         rangeFlags = QwtInterval::IncludeBorders;
+    }
+
+    ~PrivateData()
+    {
+        delete colorMap;
     }
 
     QwtScaleMap map;
@@ -59,6 +66,8 @@ public:
     double alarmLevel;
     bool alarmEnabled;
     bool autoFillPipe;
+
+    QwtColorMap *colorMap;
 };
 
 /*!
@@ -559,7 +568,8 @@ void QwtThermo::scaleChange()
    \param painter Painter
    \param pipeRect Bounding rectangle of the pipe without borders
 */
-void QwtThermo::drawLiquid( QPainter *painter, const QRect &pipeRect )
+void QwtThermo::drawLiquid( 
+    QPainter *painter, const QRect &pipeRect ) const
 {
     painter->save();
     painter->setClipRect( pipeRect, Qt::IntersectClip );
@@ -583,33 +593,60 @@ void QwtThermo::drawLiquid( QPainter *painter, const QRect &pipeRect )
             fillRect.setTop( tval );
     }
 
-    if ( d_data->alarmEnabled &&
-        d_data->value >= d_data->alarmLevel )
+    if ( d_data->colorMap != NULL )
     {
-        QRect alarmRect = fillRect;
+        QwtInterval interval( d_data->minValue, d_data->maxValue );
+        interval = interval.normalized();
 
-        const int taval = qRound( d_data->map.transform( d_data->alarmLevel ) );
         if ( d_data->orientation == Qt::Horizontal )
         {
-            if ( inverted )
-                alarmRect.setRight( taval );
-            else
-                alarmRect.setLeft( taval );
+            for ( int x = fillRect.left(); x <= fillRect.right(); x++ )
+            {
+                const double value = d_data->map.invTransform( x );
+                painter->setPen( d_data->colorMap->color( interval, value ) );
+                painter->drawLine( x, fillRect.top(), x, fillRect.bottom() );
+            }
         }
         else
         {
-            if ( inverted )
-                alarmRect.setTop( taval );
+            for ( int y = fillRect.top(); y <= fillRect.bottom(); y++ )
+            {
+                const double value = d_data->map.invTransform( y );
+                painter->setPen( d_data->colorMap->color( interval, value ) );
+                painter->drawLine( fillRect.left(), y, fillRect.right(), y );
+            }
+        }
+    }
+    else
+    {
+        if ( d_data->alarmEnabled &&
+            d_data->value >= d_data->alarmLevel )
+        {
+            QRect alarmRect = fillRect;
+
+            const int taval = qRound( d_data->map.transform( d_data->alarmLevel ) );
+            if ( d_data->orientation == Qt::Horizontal )
+            {
+                if ( inverted )
+                    alarmRect.setRight( taval );
+                else
+                    alarmRect.setLeft( taval );
+            }
             else
-                alarmRect.setBottom( taval );
+            {
+                if ( inverted )
+                    alarmRect.setTop( taval );
+                else
+                    alarmRect.setBottom( taval );
+            }
+
+            fillRect = QRegion( fillRect ).subtracted( alarmRect ).boundingRect();
+
+            painter->fillRect( alarmRect, palette().brush( QPalette::Highlight ) );
         }
 
-        fillRect = QRegion( fillRect ).subtracted( alarmRect ).boundingRect();
-
-        painter->fillRect( alarmRect, palette().brush( QPalette::Highlight ) );
+        painter->fillRect( fillRect, palette().brush( QPalette::ButtonText ) );
     }
-
-    painter->fillRect( fillRect, palette().brush( QPalette::ButtonText ) );
 
     painter->restore();
 }
@@ -717,6 +754,42 @@ void QwtThermo::setRange(
 }
 
 /*!
+  \brief Assign a color map for the fill color
+
+  \param colorMap Color map
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
+*/
+void QwtThermo::setColorMap( QwtColorMap *colorMap )
+{
+    if ( colorMap != d_data->colorMap )
+    {
+        delete d_data->colorMap;
+        d_data->colorMap = colorMap;
+    }
+}
+
+/*!
+  \return Color map for the fill color
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
+*/
+QwtColorMap *QwtThermo::colorMap()
+{
+    return d_data->colorMap;
+}
+
+/*!
+  \return Color map for the fill color
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
+*/
+const QwtColorMap *QwtThermo::colorMap() const
+{
+    return d_data->colorMap;
+}
+
+/*!
   \brief Change the brush of the liquid.
  
   Changes the QPalette::ButtonText brush of the palette.
@@ -747,6 +820,9 @@ const QBrush& QwtThermo::fillBrush() const
 
   \param brush New brush. 
   \sa alarmBrush(), QWidget::setPalette()
+
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
 */
 void QwtThermo::setAlarmBrush( const QBrush& brush )
 {
@@ -758,6 +834,9 @@ void QwtThermo::setAlarmBrush( const QBrush& brush )
 /*!
   Return the liquid brush ( QPalette::Highlight ) above the alarm threshold.
   \sa setAlarmBrush(), QWidget::palette()
+
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
 */
 const QBrush& QwtThermo::alarmBrush() const
 {
@@ -769,6 +848,9 @@ const QBrush& QwtThermo::alarmBrush() const
 
   \param level Alarm threshold
   \sa alarmLevel()
+
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
 */
 void QwtThermo::setAlarmLevel( double level )
 {
@@ -780,6 +862,9 @@ void QwtThermo::setAlarmLevel( double level )
 /*!
   Return the alarm threshold.
   \sa setAlarmLevel()
+
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
 */
 double QwtThermo::alarmLevel() const
 {
@@ -813,6 +898,9 @@ int QwtThermo::pipeWidth() const
 /*!
   \brief Enable or disable the alarm threshold
   \param tf true (disabled) or false (enabled)
+
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
 */
 void QwtThermo::setAlarmEnabled( bool tf )
 {
@@ -820,7 +908,12 @@ void QwtThermo::setAlarmEnabled( bool tf )
     update();
 }
 
-//! Return if the alarm threshold is enabled or disabled.
+/*! 
+  \return True, when the alarm threshold is enabled.
+
+  \warning The alarm threshold has no effect, when
+           a color map has been assigned
+*/
 bool QwtThermo::alarmEnabled() const
 {
     return d_data->alarmEnabled;

@@ -27,7 +27,7 @@ public:
 
     QSize handleSize;
     int borderWidth;
-    int scaleDist;
+    int spacing;
 
     QwtSlider::ScalePos scalePos;
     QwtSlider::BackgroundStyles bgStyle;
@@ -80,7 +80,7 @@ void QwtSlider::initSlider( Qt::Orientation orientation,
     d_data = new QwtSlider::PrivateData;
 
     d_data->borderWidth = 2;
-    d_data->scaleDist = 4;
+    d_data->spacing = 4;
     d_data->scalePos = scalePos;
     d_data->bgStyle = bgStyle;
 
@@ -267,6 +267,38 @@ void QwtSlider::setBorderWidth( int width )
 int QwtSlider::borderWidth() const
 {
     return d_data->borderWidth;
+}
+
+/*!
+  \brief Change the spacing between pipe and scale
+
+  A spacing of 0 means, that the backbone of the scale is below
+  the trough.
+
+  The default setting is 4 pixels.
+
+  \param spacing Number of pixels
+  \sa spacing();
+*/
+void QwtSlider::setSpacing( int spacing )
+{
+    if ( spacing <= 0 )
+        spacing = 0;
+
+    if ( spacing != d_data->spacing  )
+    {
+        d_data->spacing = spacing;
+        layoutSlider( true );
+    }
+}
+
+/*!
+  \return Number of pixels between slider and scale
+  \sa setSpacing()
+*/
+int QwtSlider::spacing() const
+{
+    return d_data->spacing;
 }
 
 /*!
@@ -613,14 +645,14 @@ void QwtSlider::layoutSlider( bool update_geometry )
 
         if ( d_data->scalePos == QwtSlider::BottomScale )
         {
-            y = sliderRect.bottom() + d_data->scaleDist;
+            y = sliderRect.bottom() + d_data->spacing;
         }
         else if ( d_data->scalePos == QwtSlider::TopScale )
         {
             sliderRect.setTop( cr.bottom() - sh + 1 );
             sliderRect.setBottom( cr.bottom() );
 
-            y = sliderRect.top() - d_data->scaleDist;
+            y = sliderRect.top() - d_data->spacing;
         }
 
         x = sliderRect.left() + sld1;
@@ -639,14 +671,14 @@ void QwtSlider::layoutSlider( bool update_geometry )
 
         if ( d_data->scalePos == QwtSlider::LeftScale )
         {
-            x = sliderRect.left() - d_data->scaleDist;
+            x = sliderRect.left() - d_data->spacing;
         }
         else if ( d_data->scalePos == QwtSlider::RightScale )
         {
             sliderRect.setLeft( cr.left() );
             sliderRect.setRight( cr.left() + sw - 1);
 
-            x = sliderRect.right() + d_data->scaleDist;
+            x = sliderRect.right() + d_data->spacing;
         }
 
         y = sliderRect.top() + sld1;
@@ -753,7 +785,7 @@ QSize QwtSlider::minimumSizeHint() const
         }
 
         w = qMax( l, w );
-        h += sdExtent + d_data->scaleDist;
+        h += sdExtent + d_data->spacing;
     }
 
     if ( d_data->bgStyle & QwtSlider::Trough )
