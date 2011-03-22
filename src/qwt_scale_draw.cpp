@@ -321,10 +321,7 @@ int QwtScaleDraw::minLength( const QFont &font ) const
 
     int lengthForLabels = 0;
     if ( hasComponent( QwtAbstractScaleDraw::Labels ) )
-    {
-        if ( majorCount >= 2 )
-            lengthForLabels = minLabelDist( font ) * ( majorCount - 1 );
-    }
+        lengthForLabels = minLabelDist( font ) * majorCount;
 
     int lengthForTicks = 0;
     if ( hasComponent( QwtAbstractScaleDraw::Ticks ) )
