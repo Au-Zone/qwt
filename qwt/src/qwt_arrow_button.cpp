@@ -11,7 +11,9 @@
 #include "qwt_math.h"
 #include <qpainter.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 #include <qevent.h>
+#include <qapplication.h>
 
 static const int MaxNum = 3;
 static const int Margin = 2;
@@ -24,8 +26,6 @@ public:
     Qt::ArrowType arrowType;
 };
 
-
-#include <qstyleoption.h>
 static QStyleOptionButton styleOpt( const QwtArrowButton* btn )
 {
     QStyleOptionButton option;
@@ -258,7 +258,8 @@ void QwtArrowButton::drawArrow( QPainter *painter,
 */
 QSize QwtArrowButton::sizeHint() const
 {
-    return minimumSizeHint();
+	const QSize hint = minimumSizeHint();
+    return hint.expandedTo( QApplication::globalStrut() );
 }
 
 /*!

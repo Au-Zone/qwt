@@ -21,7 +21,7 @@ class QwtAbstractSlider::PrivateData
 {
 public:
     PrivateData():
-        scrollMode( ScrNone ),
+        scrollMode( QwtAbstractSlider::ScrNone ),
         mouseOffset( 0.0 ),
         tracking( true ),
         tmrID( 0 ),
@@ -31,7 +31,7 @@ public:
     {
     }
 
-    int scrollMode;
+    QwtAbstractSlider::ScrollMode scrollMode;
     double mouseOffset;
     int direction;
     int tracking;
@@ -348,11 +348,12 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *e )
     if ( !isValid() )
         return;
 
-    int mode = ScrNone, direction = 0;
+    QwtAbstractSlider::ScrollMode mode = ScrNone; 
+	int direction = 0;
 
     // Give derived classes a chance to say ScrNone
     getScrollMode( e->pos(), mode, direction );
-    if ( mode != ScrNone )
+    if ( mode != QwtAbstractSlider::ScrNone )
     {
         // Most mouse types work in steps of 15 degrees, in which case
         // the delta value is a multiple of 120

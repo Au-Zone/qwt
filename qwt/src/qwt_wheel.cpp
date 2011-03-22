@@ -15,6 +15,8 @@
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
+#include <qapplication.h>
+
 #if QT_VERSION < 0x040601
 #define qFastSin(x) ::sin(x)
 #endif
@@ -466,12 +468,13 @@ void QwtWheel::valueChange()
   \param scrollMode scrolling mode
   \param direction direction
 */
-void QwtWheel::getScrollMode( const QPoint &p, int &scrollMode, int &direction )
+void QwtWheel::getScrollMode( const QPoint &p, 
+	QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
 {
     if ( wheelRect().contains( p ) )
-        scrollMode = ScrMouse;
+        scrollMode = QwtAbstractSlider::ScrMouse;
     else
-        scrollMode = ScrNone;
+        scrollMode = QwtAbstractSlider::ScrNone;
 
     direction = 0;
 }
@@ -516,7 +519,8 @@ int QwtWheel::wheelWidth() const
 */
 QSize QwtWheel::sizeHint() const
 {
-    return minimumSizeHint();
+	const QSize hint = minimumSizeHint();
+	return hint.expandedTo( QApplication::globalStrut() );
 }
 
 /*!

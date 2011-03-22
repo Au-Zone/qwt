@@ -422,6 +422,8 @@ void QwtSlider::drawSlider(
 void QwtSlider::drawHandle( QPainter *painter, 
     const QRect &sliderRect, int pos ) const
 {
+	const int bw = d_data->borderWidth;
+
     pos++; // shade line points one pixel below
     if ( orientation() == Qt::Horizontal )
     {
@@ -433,11 +435,11 @@ void QwtSlider::drawHandle( QPainter *painter,
         );
 
         qDrawShadePanel( painter, 
-            handleRect, palette(), false, d_data->borderWidth,
+            handleRect, palette(), false, bw,
             &palette().brush( QPalette::Button ) );
 
-        qDrawShadeLine( painter, pos, sliderRect.y(),
-            pos, sliderRect.y() + sliderRect.height() - 2,
+        qDrawShadeLine( painter, pos, sliderRect.top() + bw,
+            pos, sliderRect.bottom() - bw,
             palette(), true, 1 );
     }
     else // Vertical
@@ -450,11 +452,11 @@ void QwtSlider::drawHandle( QPainter *painter,
         );
 
         qDrawShadePanel( painter, 
-            handleRect, palette(), false, d_data->borderWidth,
+            handleRect, palette(), false, bw,
             &palette().brush( QPalette::Button ) );
 
-        qDrawShadeLine( painter, sliderRect.x(), pos,
-            sliderRect.x() + sliderRect.width() - 2, pos,
+        qDrawShadeLine( painter, sliderRect.left() + bw, pos,
+            sliderRect.right() - bw, pos,
             palette(), true, 1 );
     }
 }
@@ -485,11 +487,11 @@ double QwtSlider::getValue( const QPoint &pos )
   \param direction Direction
 */
 void QwtSlider::getScrollMode( const QPoint &p,
-    int &scrollMode, int &direction )
+    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
 {
     if ( !d_data->sliderRect.contains( p ) )
     {
-        scrollMode = ScrNone;
+        scrollMode = QwtAbstractSlider::ScrNone;
         direction = 0;
         return;
     }
@@ -500,12 +502,12 @@ void QwtSlider::getScrollMode( const QPoint &p,
     if ( ( pos > markerPos - d_data->handleSize.width() / 2 )
         && ( pos < markerPos + d_data->handleSize.width() / 2 ) )
     {
-        scrollMode = ScrMouse;
+        scrollMode = QwtAbstractSlider::ScrMouse;
         direction = 0;
         return;
     }
 
-    scrollMode = ScrPage;
+    scrollMode = QwtAbstractSlider::ScrPage;
     direction = ( pos > markerPos ) ? 1 : -1;
 
     if ( scaleDraw()->scaleMap().p1() > scaleDraw()->scaleMap().p2() )
@@ -709,7 +711,7 @@ QwtSlider::BackgroundStyles QwtSlider::backgroundStyle() const
 */
 QSize QwtSlider::sizeHint() const
 {
-    QSize hint = minimumSizeHint();
+    const QSize hint = minimumSizeHint();
     return hint.expandedTo( QApplication::globalStrut() );
 }
 
