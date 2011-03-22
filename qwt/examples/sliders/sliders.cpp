@@ -74,30 +74,29 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         {
             slider = new QwtSlider(parent, Qt::Horizontal, 
                 QwtSlider::TopScale, QwtSlider::Trough);
-            slider->setThumbWidth(10);
+            slider->setHandleSize( 30, 10 );
             slider->setRange(-10.0, 10.0, 1.0, 0); // paging disabled
             break;
         }
         case 1:
         {
             slider = new QwtSlider(parent, Qt::Horizontal, 
-                QwtSlider::NoScale, QwtSlider::Trough | QwtSlider::Slot );
+                QwtSlider::NoScale, QwtSlider::Trough | QwtSlider::Groove );
             slider->setRange(0.0, 1.0, 0.01, 5);
             break;
         }
         case 2:
         {
             slider = new QwtSlider(parent, Qt::Horizontal, 
-                QwtSlider::BottomScale, QwtSlider::Slot);
-            slider->setThumbWidth(25);
-            slider->setThumbLength(12);
+                QwtSlider::BottomScale, QwtSlider::Groove);
+            slider->setHandleSize( 12, 25 );
             slider->setRange(1000.0, 3000.0, 10.0, 10);
             break;
         }
         case 3:
         {
             slider = new QwtSlider(parent, Qt::Vertical, 
-                QwtSlider::LeftScale, QwtSlider::Slot);
+                QwtSlider::LeftScale, QwtSlider::Groove);
             slider->setRange(0.0, 100.0, 1.0, 5);
             slider->setScaleMaxMinor(5);
             break;
@@ -112,9 +111,9 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         case 5:
         {
             slider = new QwtSlider(parent, Qt::Vertical, 
-                QwtSlider::RightScale, QwtSlider::Trough | QwtSlider::Slot);
+                QwtSlider::RightScale, QwtSlider::Trough | QwtSlider::Groove);
             slider->setScaleEngine(new QwtLog10ScaleEngine);
-            slider->setThumbWidth(20);
+            slider->setHandleSize( 20, 32 );
             slider->setBorderWidth(1);
             slider->setRange(0.0, 4.0, 0.01);
             slider->setScale(1.0, 1.0e4);
@@ -123,10 +122,16 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         }
     }
 
+    if ( slider )
+    {
+        QString name( "Slider %1" );
+        slider->setObjectName( name.arg( sliderType ) );
+    }
+
     return slider;
 }
 
-void Slider::setNum(double v)
+void Slider::setNum( double v )
 {
     if ( d_slider->scaleMap().transformation()->type() ==
         QwtScaleTransformation::Log10 )

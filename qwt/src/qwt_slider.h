@@ -38,8 +38,7 @@ class QWT_EXPORT QwtSlider : public QwtAbstractSlider, public QwtAbstractScale
         WRITE setScalePosition )
     Q_PROPERTY( BackgroundStyles backgroundStyle 
         READ backgroundStyle WRITE setBackgroundStyle )
-    Q_PROPERTY( int thumbLength READ thumbLength WRITE setThumbLength )
-    Q_PROPERTY( int thumbWidth READ thumbWidth WRITE setThumbWidth )
+    Q_PROPERTY( QSize handleSize READ handleSize WRITE setHandleSize )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
 
 public:
@@ -80,8 +79,8 @@ public:
         //! Trough background
         Trough = 0x01,
 
-        //! Slot
-        Slot = 0x02,
+        //! Groove
+        Groove = 0x02,
     };
 
     //! Background styles
@@ -101,14 +100,12 @@ public:
     void setScalePosition( ScalePos s );
     ScalePos scalePosition() const;
 
-    int thumbLength() const;
-    int thumbWidth() const;
-    int borderWidth() const;
+    void setHandleSize( int width, int height );
+    void setHandleSize( const QSize & );
+    QSize handleSize() const;
 
-    void setThumbLength( int l );
-    void setThumbWidth( int w );
     void setBorderWidth( int bw );
-    void setMargins( int x, int y );
+    int borderWidth() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -121,9 +118,8 @@ protected:
     virtual void getScrollMode( const QPoint &p,
         int &scrollMode, int &direction );
 
-    void draw( QPainter * );
-    virtual void drawSlider ( QPainter *, const QRect & );
-    virtual void drawThumb( QPainter *, const QRect &, int pos );
+    virtual void drawSlider ( QPainter *, const QRect & ) const;
+    virtual void drawHandle( QPainter *, const QRect &, int pos ) const;
 
     virtual void resizeEvent( QResizeEvent * );
     virtual void paintEvent ( QPaintEvent * );
@@ -133,12 +129,12 @@ protected:
     virtual void rangeChange();
     virtual void scaleChange();
 
-    void layoutSlider( bool update = true );
-    int xyPosition( double v ) const;
+    int transform( double v ) const;
 
     QwtScaleDraw *scaleDraw();
 
 private:
+    void layoutSlider( bool );
     void initSlider( Qt::Orientation, ScalePos, BackgroundStyles );
 
     class PrivateData;
