@@ -74,7 +74,7 @@ QwtSlider *Slider::createSlider(QWidget *parent, int sliderType) const
         {
             slider = new QwtSlider(parent, Qt::Horizontal, 
                 QwtSlider::TopScale, QwtSlider::Trough);
-            slider->setHandleSize( 30, 10 );
+            slider->setHandleSize( 30, 16 );
             slider->setRange(-10.0, 10.0, 1.0, 0); // paging disabled
             break;
         }

@@ -41,10 +41,24 @@ public:
      */
     enum ScrollMode
     {
+        //! Scrolling switched off. Don't change the value.
         ScrNone,
+
+        /*!
+          Change the value while the user keeps the
+          button pressed and moves the mouse.
+         */
         ScrMouse,
+
+        /*!
+          Automatic scrolling. Increment the value in the specified direction 
+          as long as the user keeps the button pressed.
+         */
         ScrTimer,
+
         ScrDirect,
+
+        //! Automatic scrolling. Same as ScrTimer, but increment by page size.
         ScrPage
     };
 
@@ -150,29 +164,14 @@ protected:
       This function is abstract and has to be implemented by derived classes.
       It is called on a mousePress event. The derived class can determine
       what should happen next in dependence of the position where the mouse
-      was pressed by returning scrolling mode and direction. QwtAbstractSlider
-      knows the following modes:
+      was pressed by returning scrolling mode and direction. 
 
-      - ScrNone\n
-        Scrolling switched off. Don't change the value.
-
-      - ScrMouse
-        Change the value while the user keeps the
-        button pressed and moves the mouse.
-
-      - ScrTimer
-        Automatic scrolling. Increment the value in the specified direction 
-        as long as the user keeps the button pressed.
-
-      - ScrPage
-        Automatic scrolling. Same as ScrTimer, but increment by page size.
-
-      \param p point where the mouse was pressed
+      \param pos point where the mouse was pressed
       \retval scrollMode The scrolling mode
       \retval direction  direction: 1, 0, or -1.
     */
-    virtual void getScrollMode( const QPoint &p,
-        int &scrollMode, int &direction ) = 0;
+    virtual void getScrollMode( const QPoint &pos,
+        ScrollMode &scrollMode, int &direction ) const = 0;
 
     void setMouseOffset( double );
     double mouseOffset() const;

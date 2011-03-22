@@ -17,6 +17,7 @@
 #include <qpen.h>
 #include <qevent.h>
 #include <qstyleoption.h>
+#include <qapplication.h>
 
 static const int ButtonFrame = 2;
 static const int Margin = 2;
@@ -258,7 +259,10 @@ QSize QwtLegendItem::sizeHint() const
     sz.setHeight( qMax( sz.height(), d_data->identifier.height() + 4 ) );
 
     if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
+    {
         sz += buttonShift( this );
+        sz = sz.expandedTo( QApplication::globalStrut() );
+    }
 
     return sz;
 }

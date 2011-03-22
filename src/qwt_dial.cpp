@@ -22,6 +22,7 @@
 #include <qmath.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
+#include <qapplication.h>
 
 #if QT_VERSION < 0x040601
 #define qAtan(x) ::atan(x)
@@ -920,7 +921,11 @@ QSize QwtDial::sizeHint() const
 
     const int d = 6 * sh + 2 * lineWidth();
 
-    return QSize( d, d );
+    QSize hint( d, d ); 
+    if ( !isReadOnly() )
+        hint = hint.expandedTo( QApplication::globalStrut() );
+
+    return hint;
 }
 
 /*!
@@ -1073,15 +1078,15 @@ double QwtDial::getValue( const QPoint &pos )
   \sa QwtAbstractSlider::getScrollMode()
 */
 void QwtDial::getScrollMode( const QPoint &pos, 
-    int &scrollMode, int &direction )
+    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
 {
     direction = 0;
-    scrollMode = ScrNone;
+    scrollMode = QwtAbstractSlider::ScrNone;
 
     const QRegion region( innerRect().toRect(), QRegion::Ellipse );
     if ( region.contains( pos ) && pos != innerRect().center() )
     {
-        scrollMode = ScrMouse;
+        scrollMode = QwtAbstractSlider::ScrMouse;
         d_data->previousDir = -1.0;
     }
 }

@@ -17,6 +17,7 @@
 #include <qstyleoption.h>
 #include <qevent.h>
 #include <qmath.h>
+#include <qapplication.h>
 
 #if QT_VERSION < 0x040601
 #define qAtan2(y, x) ::atan2(y, x)
@@ -248,8 +249,8 @@ double QwtKnob::getValue( const QPoint &pos )
   Called by QwtAbstractSlider
   \param pos Point in question
 */
-void QwtKnob::getScrollMode( 
-    const QPoint &pos, int &scrollMode, int &direction )
+void QwtKnob::getScrollMode( const QPoint &pos, 
+	QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
 {
     const int r = d_data->knobRect.width() / 2;
 
@@ -258,12 +259,12 @@ void QwtKnob::getScrollMode(
 
     if ( ( dx * dx ) + ( dy * dy ) <= ( r * r ) ) // point is inside the knob
     {
-        scrollMode = ScrMouse;
+        scrollMode = QwtAbstractSlider::ScrMouse;
         direction = 0;
     }
     else                                // point lies outside
     {
-        scrollMode = ScrTimer;
+        scrollMode = QwtAbstractSlider::ScrTimer;
         double arc = qAtan2( double( -dx ), double( dy ) ) * 180.0 / M_PI;
         if ( arc < d_data->angle )
             direction = -1;
@@ -644,7 +645,8 @@ void QwtKnob::scaleChange()
 */
 QSize QwtKnob::sizeHint() const
 {
-    return minimumSizeHint();
+    const QSize hint = minimumSizeHint();
+    return hint.expandedTo( QApplication::globalStrut() );
 }
 
 /*!

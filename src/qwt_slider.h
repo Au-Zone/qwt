@@ -116,7 +116,7 @@ public:
 protected:
     virtual double getValue( const QPoint &p );
     virtual void getScrollMode( const QPoint &p,
-        int &scrollMode, int &direction );
+        QwtAbstractSlider::ScrollMode &, int &direction ) const;
 
     virtual void drawSlider ( QPainter *, const QRect & ) const;
     virtual void drawHandle( QPainter *, const QRect &, int pos ) const;

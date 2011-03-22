@@ -141,7 +141,7 @@ protected:
 
     virtual double getValue( const QPoint &p );
     virtual void getScrollMode( const QPoint &, 
-        int &scrollMode, int &direction );
+        QwtAbstractSlider::ScrollMode &, int &direction ) const;
 
 private:
     void initKnob();
