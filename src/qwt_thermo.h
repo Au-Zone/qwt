@@ -16,6 +16,7 @@
 #include <qwidget.h>
 
 class QwtScaleDraw;
+class QwtColorMap;
 
 /*!
   \brief The Thermometer Widget
@@ -28,7 +29,9 @@ class QwtScaleDraw;
 
   \image html sysinfo.png
 
-  QwtThermo uses the following colors/brushes from the widget palette:
+  The fill colors might be calculated from an optional color map
+  If no color map has been assigned QwtThermo uses the 
+  following colors/brushes from the widget palette:
 
   - QPalette::Base
     Background of the pipe
@@ -151,6 +154,10 @@ public:
     void setAlarmEnabled( bool tf );
     bool alarmEnabled() const;
 
+    void setColorMap( QwtColorMap * );
+    QwtColorMap *colorMap();
+    const QwtColorMap *colorMap() const;
+
     void setPipeWidth( int w );
     int pipeWidth() const;
 
@@ -177,7 +184,7 @@ public Q_SLOTS:
     virtual void setValue( double val );
 
 protected:
-    virtual void drawLiquid( QPainter *, const QRect & );
+    virtual void drawLiquid( QPainter *, const QRect & ) const;
     virtual void scaleChange();
 
     virtual void paintEvent( QPaintEvent * );

@@ -40,6 +40,7 @@ class QWT_EXPORT QwtSlider : public QwtAbstractSlider, public QwtAbstractScale
         READ backgroundStyle WRITE setBackgroundStyle )
     Q_PROPERTY( QSize handleSize READ handleSize WRITE setHandleSize )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
+    Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
 
 public:
 
@@ -106,6 +107,9 @@ public:
 
     void setBorderWidth( int bw );
     int borderWidth() const;
+
+    void setSpacing( int );
+    int spacing() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
