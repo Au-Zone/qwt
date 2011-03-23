@@ -26,6 +26,54 @@ static inline bool qwtIsLogarithmic( const QwtThermo *thermo )
     return ( scaleType == QwtScaleTransformation::Log10 );
 }
 
+static inline void qwtDrawLine( 
+    QPainter *painter, int pos, 
+    const QColor &color, const QRect pipeRect, 
+    Qt::Orientation orientation )
+{
+    painter->setPen( color );
+    if ( orientation == Qt::Horizontal )
+        painter->drawLine( pos, pipeRect.top(), pos, pipeRect.bottom() );
+    else
+        painter->drawLine( pipeRect.left(), pos, pipeRect.right(), pos );
+}
+
+QVector<double> qwtTickList( const QwtScaleDiv &scaleDiv, double value )
+{
+    QVector<double> values;
+
+    double lowerLimit = scaleDiv.interval().minValue();
+    double upperLimit = scaleDiv.interval().maxValue();
+
+    if ( upperLimit < lowerLimit )
+        qSwap( lowerLimit, upperLimit );
+
+    if ( value < lowerLimit )
+        return values;
+
+    if ( value < upperLimit )
+        upperLimit = value;
+
+    values += lowerLimit;
+
+    for ( int tickType = QwtScaleDiv::MinorTick;
+        tickType < QwtScaleDiv::NTickTypes; tickType++ )
+    {
+        const QList<double> ticks = scaleDiv.ticks( tickType );
+
+        for ( int i = 0; i < ( int )ticks.count(); i++ )
+        {
+            const double v = ticks[i];
+            if ( v > lowerLimit && v < upperLimit )
+                values += v;
+        }       
+    }   
+
+    values += upperLimit;
+    
+    return values;
+}
+
 class QwtThermo::PrivateData
 {
 public:
@@ -575,50 +623,70 @@ void QwtThermo::drawLiquid(
     painter->setClipRect( pipeRect, Qt::IntersectClip );
 
     const bool inverted = ( maxValue() < minValue() );
-    const int tval = qRound( d_data->map.transform( d_data->value ) );
-
-    QRect fillRect = pipeRect;
-    if ( d_data->orientation == Qt::Horizontal )
-    {
-        if ( inverted )
-            fillRect.setLeft( tval );
-        else
-            fillRect.setRight( tval );
-    }
-    else // Qt::Vertical
-    {
-        if ( inverted )
-            fillRect.setBottom( tval );
-        else
-            fillRect.setTop( tval );
-    }
-
     if ( d_data->colorMap != NULL )
     {
         QwtInterval interval( d_data->minValue, d_data->maxValue );
         interval = interval.normalized();
 
-        if ( d_data->orientation == Qt::Horizontal )
-        {
-            for ( int x = fillRect.left(); x <= fillRect.right(); x++ )
-            {
-                const double value = d_data->map.invTransform( x );
-                painter->setPen( d_data->colorMap->color( interval, value ) );
-                painter->drawLine( x, fillRect.top(), x, fillRect.bottom() );
-            }
-        }
+        // Because the positions of the ticks are rounded
+        // we calculate the colors for the rounded tick values
+
+        QVector<double> values = qwtTickList(
+            scaleDraw()->scaleDiv(), d_data->value );
+
+        if ( d_data->map.isInverting() )
+            qSort( values.begin(), values.end(), qGreater<double>() );
         else
+            qSort( values.begin(), values.end(), qLess<double>() );
+
+        int from;
+        if ( !values.isEmpty() )
         {
-            for ( int y = fillRect.top(); y <= fillRect.bottom(); y++ )
+            from = qRound( d_data->map.transform( values[0] ) );
+            qwtDrawLine( painter, from,
+                d_data->colorMap->color( interval, values[0] ),
+                pipeRect, d_data->orientation );
+        }
+
+        for ( int i = 1; i < values.size(); i++ )
+        {
+            const int to = qRound( d_data->map.transform( values[i] ) );
+
+            for ( int pos = from + 1; pos < to; pos++ )
             {
-                const double value = d_data->map.invTransform( y );
-                painter->setPen( d_data->colorMap->color( interval, value ) );
-                painter->drawLine( fillRect.left(), y, fillRect.right(), y );
+                const double v = d_data->map.invTransform( pos );
+
+                qwtDrawLine( painter, pos, 
+                    d_data->colorMap->color( interval, v ),
+                    pipeRect, d_data->orientation );
             }
+            qwtDrawLine( painter, to,
+                d_data->colorMap->color( interval, values[i] ),
+                pipeRect, d_data->orientation );
+
+            from = to;
         }
     }
     else
     {
+        const int tval = qRound( d_data->map.transform( d_data->value ) );
+
+        QRect fillRect = pipeRect;
+        if ( d_data->orientation == Qt::Horizontal )
+        {
+            if ( inverted )
+                fillRect.setLeft( tval );
+            else
+                fillRect.setRight( tval );
+        }
+        else // Qt::Vertical
+        {
+            if ( inverted )
+                fillRect.setBottom( tval );
+            else
+                fillRect.setTop( tval );
+        }
+
         if ( d_data->alarmEnabled &&
             d_data->value >= d_data->alarmLevel )
         {

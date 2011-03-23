@@ -41,6 +41,10 @@ Changes
    types of plot items.
 12)Copy operators removed, using pointers instead
 13)QwtPolarPoint from qwtpolar added
+14)QwtThermo
+   Optional QwtColorMaps added
+15)Interfaces and code of all sliders/dials cleaned up.
+   QApplication::globalStrut(), styled backgrounds ...
 
 
 Release 5.2.1
