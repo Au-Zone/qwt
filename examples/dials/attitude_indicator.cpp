@@ -1,5 +1,5 @@
 #include "attitude_indicator.h"
-#include <qwt_math.h>
+#include <qwt_point_polar.h>
 #include <qevent.h>
 #include <qpainter.h>
 #include <qpolygon.h>

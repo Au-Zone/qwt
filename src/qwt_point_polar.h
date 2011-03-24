@@ -12,6 +12,7 @@
 #define _QWT_POINT_POLAR_H_ 1
 
 #include "qwt_global.h"
+#include "qwt_math.h"
 #include <qpoint.h>
 #ifndef QT_NO_DEBUG_STREAM
 #include <qdebug.h>
@@ -140,5 +141,50 @@ inline void QwtPointPolar::setAzimuth( double azimuth )
 #ifndef QT_NO_DEBUG_STREAM
 QWT_EXPORT QDebug operator<<( QDebug, const QwtPointPolar & );
 #endif
+
+inline QPoint qwtPolar2Pos( const QPoint &pole,
+    double radius, double angle )
+{
+    const double x = pole.x() + radius * qCos( angle );
+    const double y = pole.y() - radius * qSin( angle );
+
+    return QPoint( qRound( x ), qRound( y ) );
+}
+
+inline QPoint qwtDegree2Pos( const QPoint &pole,
+    double radius, double angle )
+{
+    return qwtPolar2Pos( pole, radius, angle / 180.0 * M_PI );
+}
+
+inline QPointF qwtPolar2Pos( const QPointF &pole,
+    double radius, double angle )
+{
+    const double x = pole.x() + radius * qCos( angle );
+    const double y = pole.y() - radius * qSin( angle );
+
+    return QPointF( x, y);
+}
+
+inline QPointF qwtDegree2Pos( const QPointF &pole,
+    double radius, double angle )
+{
+    return qwtPolar2Pos( pole, radius, angle / 180.0 * M_PI );
+}
+
+inline QPointF qwtFastPolar2Pos( const QPointF &pole,
+    double radius, double angle )
+{
+    const double x = pole.x() + radius * qFastCos( angle );
+    const double y = pole.y() - radius * qFastSin( angle );
+
+    return QPointF( x, y);
+}
+
+inline QPointF qwtFastDegree2Pos( const QPointF &pole,
+    double radius, double angle )
+{   
+    return qwtFastPolar2Pos( pole, radius, angle / 180.0 * M_PI );
+} 
 
 #endif 

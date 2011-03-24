@@ -8,7 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_clipper.h"
-#include "qwt_math.h"
+#include "qwt_point_polar.h"
 #include <qrect.h>
 
 #if QT_VERSION < 0x040601
