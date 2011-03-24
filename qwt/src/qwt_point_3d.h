@@ -54,6 +54,8 @@ private:
     double d_z;
 };
 
+Q_DECLARE_TYPEINFO(QwtPoint3D, Q_MOVABLE_TYPE);
+
 #ifndef QT_NO_DEBUG_STREAM
 QWT_EXPORT QDebug operator<<( QDebug, const QwtPoint3D & );
 #endif

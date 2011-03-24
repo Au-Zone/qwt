@@ -179,31 +179,6 @@ inline double qwtCeilF(double d)
     return ::ceil( d );
 }
 
-/*!
-  \brief Limit a value to fit into a specified interval
-  \param x Input value
-  \param x1 First interval boundary
-  \param x2 Second interval boundary
-*/
-template <class T>
-T qwtLim( const T& x, const T& x1, const T& x2 )
-{
-    T rv;
-    T xmin, xmax;
-
-    xmin = qMin( x1, x2 );
-    xmax = qMax( x1, x2 );
-
-    if ( x < xmin )
-        rv = xmin;
-    else if ( x > xmax )
-        rv = xmax;
-    else
-        rv = x;
-
-    return rv;
-}
-
 inline QPoint qwtPolar2Pos( const QPoint &pole,
     double radius, double angle )
 {

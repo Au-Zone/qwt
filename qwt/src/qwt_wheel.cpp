@@ -72,7 +72,7 @@ QwtWheel::~QwtWheel()
 */
 void QwtWheel::setTickCnt( int cnt )
 {
-    d_data->tickCnt = qwtLim( cnt, 6, 50 );
+    d_data->tickCnt = qBound( 6, cnt, 50 );
     update();
 }
 
@@ -222,7 +222,7 @@ void QwtWheel::setOrientation( Qt::Orientation o )
 */
 void QwtWheel::setViewAngle( double angle )
 {
-    d_data->viewAngle = qwtLim( angle, 10.0, 175.0 );
+    d_data->viewAngle = qBound( 10.0, angle, 175.0 );
     update();
 }
 
