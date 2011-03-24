@@ -8,7 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_compass_rose.h"
-#include "qwt_math.h"
+#include "qwt_point_polar.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
 
