@@ -28,8 +28,8 @@ static int verifyRange( int size, int &i1, int &i2 )
     if ( size < 1 )
         return 0;
 
-    i1 = qwtLim( i1, 0, size - 1 );
-    i2 = qwtLim( i2, 0, size - 1 );
+    i1 = qBound( 0, i1, size - 1 );
+    i2 = qBound( 0, i2, size - 1 );
 
     if ( i1 > i2 )
         qSwap( i1, i2 );

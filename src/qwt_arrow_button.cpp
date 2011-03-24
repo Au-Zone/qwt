@@ -57,7 +57,7 @@ QwtArrowButton::QwtArrowButton( int num,
     QPushButton( parent )
 {
     d_data = new PrivateData;
-    d_data->num = qwtLim( num, 1, MaxNum );
+    d_data->num = qBound( 1, num, MaxNum );
     d_data->arrowType = arrowType;
 
     setAutoRepeat( true );

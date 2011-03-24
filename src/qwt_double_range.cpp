@@ -184,7 +184,8 @@ void QwtDoubleRange::setValue( double x )
   \li If the step size has an absurd value, it will be corrected
       to a better one.
 */
-void QwtDoubleRange::setRange( double vmin, double vmax, double vstep, int pageSize )
+void QwtDoubleRange::setRange( 
+	double vmin, double vmax, double vstep, int pageSize )
 {
     const bool rchg = ( d_data->maxValue != vmax || d_data->minValue != vmin );
 
@@ -199,8 +200,9 @@ void QwtDoubleRange::setRange( double vmin, double vmax, double vstep, int pageS
     setStep( vstep );
 
     // limit page size
-    d_data->pageSize = qwtLim( pageSize, 0,
-        int( qAbs( ( d_data->maxValue - d_data->minValue ) / d_data->step ) ) );
+	const int max = 
+        int( qAbs( ( d_data->maxValue - d_data->minValue ) / d_data->step ) );
+    d_data->pageSize = qBound( 0, pageSize, max );
 
     // If the value lies out of the range, it
     // will be changed. Note that it will not be adjusted to

@@ -99,6 +99,8 @@ private:
     BorderFlags d_borderFlags;
 };
 
+Q_DECLARE_TYPEINFO(QwtInterval, Q_MOVABLE_TYPE);
+
 /*!
   \brief Default Constructor
 

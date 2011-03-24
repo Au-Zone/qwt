@@ -83,6 +83,8 @@ private:
     bool d_isValid;
 };
 
+Q_DECLARE_TYPEINFO(QwtScaleDiv, Q_MOVABLE_TYPE);
+
 /*!
    Change the interval
    \param lowerBound lower bound
