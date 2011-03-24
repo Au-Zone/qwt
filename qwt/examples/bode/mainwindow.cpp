@@ -55,7 +55,9 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent)
 {
     d_plot = new Plot(this);
-    d_plot->setMargin(5);
+   
+    const int margin = 5;
+	d_plot->setContentsMargins( margin, margin, margin, 0 );
 
     setContextMenuPolicy(Qt::NoContextMenu);
 
@@ -221,7 +223,6 @@ void MainWindow::exportDocument()
 
         // flags to make the document look like the widget
         renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
-        renderer.setLayoutFlag(QwtPlotRenderer::KeepMargins, true);
         renderer.setLayoutFlag(QwtPlotRenderer::KeepFrames, true);
 
         renderer.renderDocument(d_plot, fileName, QSizeF(300, 200), 85);

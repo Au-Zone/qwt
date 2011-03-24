@@ -139,9 +139,6 @@ public:
     QwtPlotLayout *plotLayout();
     const QwtPlotLayout *plotLayout() const;
 
-    void setMargin( int margin );
-    int margin() const;
-
     // Title
 
     void setTitle( const QString & );

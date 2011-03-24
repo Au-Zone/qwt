@@ -246,7 +246,6 @@ void Plot::exportPlot()
     {
         QwtPlotRenderer renderer;
         renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
-        renderer.setLayoutFlag(QwtPlotRenderer::KeepMargins, true);
 
         renderer.renderDocument(this, fileName, QSizeF(300, 200), 85);
     }

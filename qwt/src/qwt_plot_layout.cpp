@@ -153,7 +153,6 @@ class QwtPlotLayout::PrivateData
 {
 public:
     PrivateData():
-        margin( 0 ),
         spacing( 5 ),
         alignCanvasToScales( false )
     {
@@ -168,7 +167,6 @@ public:
 
     QwtPlot::LegendPosition legendPos;
     double legendRatio;
-    unsigned int margin;
     unsigned int spacing;
     unsigned int canvasMargin[QwtPlot::axisCnt];
     bool alignCanvasToScales;
@@ -192,30 +190,6 @@ QwtPlotLayout::QwtPlotLayout()
 QwtPlotLayout::~QwtPlotLayout()
 {
     delete d_data;
-}
-
-/*!
-  Change the margin of the plot. The margin is the space
-  around all components.
-
-  \param margin new margin
-  \sa margin(), setSpacing(),
-      QwtPlot::setMargin()
-*/
-void QwtPlotLayout::setMargin( int margin )
-{
-    if ( margin < 0 )
-        margin = 0;
-    d_data->margin = margin;
-}
-
-/*!
-    \return margin
-    \sa setMargin(), spacing(), QwtPlot::margin()
-*/
-int QwtPlotLayout::margin() const
-{
-    return d_data->margin;
 }
 
 /*!
@@ -629,9 +603,6 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
             h += legendH + d_data->spacing;
         }
     }
-
-    w += 2 * d_data->margin;
-    h += 2 * d_data->margin;
 
     return QSize( w, h );
 }
@@ -1104,18 +1075,6 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
     invalidate();
 
     QRectF rect( plotRect );  // undistributed rest of the plot rect
-
-    if ( !( options & IgnoreMargin ) )
-    {
-        // subtract the margin
-
-        rect.setRect(
-            rect.x() + d_data->margin,
-            rect.y() + d_data->margin,
-            rect.width() - 2 * d_data->margin,
-            rect.height() - 2 * d_data->margin
-        );
-    }
 
     // We extract all layout relevant data from the widgets,
     // filter them through pfilter and save them to d_data->layoutData.

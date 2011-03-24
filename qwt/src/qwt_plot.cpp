@@ -572,34 +572,6 @@ QwtScaleMap QwtPlot::canvasMap( int axisId ) const
 }
 
 /*!
-  Change the margin of the plot. The margin is the space
-  around all components.
-
-  \param margin new margin
-  \sa QwtPlotLayout::setMargin(), margin(), plotLayout()
-*/
-void QwtPlot::setMargin( int margin )
-{
-    if ( margin < 0 )
-        margin = 0;
-
-    if ( margin != d_data->layout->margin() )
-    {
-        d_data->layout->setMargin( margin );
-        updateLayout();
-    }
-}
-
-/*!
-    \return margin
-    \sa setMargin(), QwtPlotLayout::margin(), plotLayout()
-*/
-int QwtPlot::margin() const
-{
-    return d_data->layout->margin();
-}
-
-/*!
   \brief Change the background of the plotting area
 
   Sets brush to QPalette::Window of all colorgroups of

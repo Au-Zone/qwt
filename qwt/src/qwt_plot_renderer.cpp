@@ -431,8 +431,6 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 
     QwtPlotLayout::Options layoutOptions = 
         QwtPlotLayout::IgnoreScrollbars | QwtPlotLayout::IgnoreFrames;
-    if ( !d_data->layoutFlags & KeepMargins )
-        layoutOptions |= QwtPlotLayout::IgnoreMargin;
     if ( d_data->discardFlags & DiscardLegend )
         layoutOptions |= QwtPlotLayout::IgnoreLegend;
 
