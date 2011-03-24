@@ -70,17 +70,14 @@ public:
         //! Use the default layout without margins and frames
         DefaultLayout   = 0x00,
 
-        //! Render all margins that are set in the layout of the plot
-        KeepMargins     = 0x01,
-
         //! Render all frames of the plot
-        KeepFrames      = 0x02,
+        KeepFrames      = 0x01,
 
         /*!
           Instead of the scales a box is painted around the plot canvas,
           where the scale ticks are aligned to.
          */
-        FrameWithScales = 0x04
+        FrameWithScales = 0x02
     };
 
     //! Layout flags

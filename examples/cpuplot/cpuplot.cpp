@@ -214,7 +214,9 @@ int main(int argc, char **argv)
 
     CpuPlot *plot = new CpuPlot(&vBox);
     plot->setTitle("History");
-    plot->setMargin(5);
+
+	const int margin = 5;
+    plot->setContentsMargins(margin, margin, margin, margin);
 
     QString info("Press the legend to en/disable a curve");
 

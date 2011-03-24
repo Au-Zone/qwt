@@ -42,11 +42,8 @@ public:
         //! Ignore all frames. 
         IgnoreFrames = 0x04,
 
-        //! Ignore the margin().
-        IgnoreMargin = 0x08,
-
         //! Ignore the legend.
-        IgnoreLegend = 0x10
+        IgnoreLegend = 0x08
     };
 
     //! Layout options
@@ -54,9 +51,6 @@ public:
 
     explicit QwtPlotLayout();
     virtual ~QwtPlotLayout();
-
-    void setMargin( int );
-    int margin() const;
 
     void setCanvasMargin( int margin, int axis = -1 );
     int canvasMargin( int axis ) const;
