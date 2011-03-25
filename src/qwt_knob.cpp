@@ -250,7 +250,7 @@ double QwtKnob::getValue( const QPoint &pos )
   \param pos Point in question
 */
 void QwtKnob::getScrollMode( const QPoint &pos, 
-	QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
+    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
 {
     const int r = d_data->knobRect.width() / 2;
 

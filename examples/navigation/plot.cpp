@@ -1,4 +1,5 @@
 #include "plot.h"
+#include <qglobal.h>
 #include <qpainter.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_canvas.h>
@@ -6,7 +7,6 @@
 #include <qwt_interval.h>
 #include <qwt_painter.h>
 #include <qwt_plot_item.h>
-#include <stdlib.h>
 
 class RectItem: public QwtPlotItem
 {
@@ -97,11 +97,11 @@ Plot::Plot(QWidget *parent, const QwtInterval &interval):
     for ( int i = 0; i < numEllipses; i++ )
     {
         const double x = interval.minValue() + 
-            rand() % qRound(interval.width());
+            qrand() % qRound(interval.width());
         const double y = interval.minValue() + 
-            rand() % qRound(interval.width());
+            qrand() % qRound(interval.width());
         const double r = interval.minValue() + 
-            rand() % qRound(interval.width() / 6);
+            qrand() % qRound(interval.width() / 6);
 
         const QRectF area(x - r, y - r , 2 * r, 2 * r);
 

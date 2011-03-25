@@ -4,7 +4,6 @@ Ideas
 ------
 - Improve Documention
 - QAbstractModel -> QwtSeriesData
-- Cleanup of all widgets using QGradient and friends
 - Curves for financial charts, box-whisker
 - QwtSeriesData + functors
 - QwtSeriesData/QwtPlotCurve + Level of details (Douglas Peucker)

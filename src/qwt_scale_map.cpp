@@ -212,13 +212,17 @@ void QwtScaleMap::newFactor()
     switch ( d_transformation->type() )
     {
         case QwtScaleTransformation::Linear:
+        {
             if ( d_s2 != d_s1 )
                 d_cnv = ( d_p2 - d_p1 ) / ( d_s2 - d_s1 );
             break;
+        }
         case QwtScaleTransformation::Log10:
+        {
             if ( d_s1 != 0 )
                 d_cnv = ( d_p2 - d_p1 ) / log( d_s2 / d_s1 );
             break;
+        }
         default:;
     }
 }

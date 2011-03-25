@@ -185,7 +185,7 @@ void QwtDoubleRange::setValue( double x )
       to a better one.
 */
 void QwtDoubleRange::setRange( 
-	double vmin, double vmax, double vstep, int pageSize )
+    double vmin, double vmax, double vstep, int pageSize )
 {
     const bool rchg = ( d_data->maxValue != vmax || d_data->minValue != vmin );
 
@@ -200,7 +200,7 @@ void QwtDoubleRange::setRange(
     setStep( vstep );
 
     // limit page size
-	const int max = 
+    const int max = 
         int( qAbs( ( d_data->maxValue - d_data->minValue ) / d_data->step ) );
     d_data->pageSize = qBound( 0, pageSize, max );
 

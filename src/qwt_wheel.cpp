@@ -469,7 +469,7 @@ void QwtWheel::valueChange()
   \param direction direction
 */
 void QwtWheel::getScrollMode( const QPoint &p, 
-	QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
+    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
 {
     if ( wheelRect().contains( p ) )
         scrollMode = QwtAbstractSlider::ScrMouse;
@@ -519,8 +519,8 @@ int QwtWheel::wheelWidth() const
 */
 QSize QwtWheel::sizeHint() const
 {
-	const QSize hint = minimumSizeHint();
-	return hint.expandedTo( QApplication::globalStrut() );
+    const QSize hint = minimumSizeHint();
+    return hint.expandedTo( QApplication::globalStrut() );
 }
 
 /*!
