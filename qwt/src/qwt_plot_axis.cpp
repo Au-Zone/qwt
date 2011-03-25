@@ -538,7 +538,7 @@ void QwtPlot::setAxisMaxMinor( int axisId, int maxMinor )
 {
     if ( axisValid( axisId ) )
     {
-		maxMinor = qBound( 0, maxMinor, 100 );
+        maxMinor = qBound( 0, maxMinor, 100 );
 
         AxisData &d = *d_axisData[axisId];
         if ( maxMinor != d.maxMinor )
@@ -561,7 +561,7 @@ void QwtPlot::setAxisMaxMajor( int axisId, int maxMajor )
 {
     if ( axisValid( axisId ) )
     {
-		maxMajor = qBound( 1, maxMajor, 10000 );
+        maxMajor = qBound( 1, maxMajor, 10000 );
 
         AxisData &d = *d_axisData[axisId];
         if ( maxMajor != d.maxMajor )

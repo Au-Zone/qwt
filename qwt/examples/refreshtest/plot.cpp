@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <qglobal.h>
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
@@ -25,7 +25,7 @@ static double wave(double x)
 
 static double noise(double)
 {
-    return 2.0 * ( rand() / ((double)RAND_MAX + 1) ) - 1.0;
+    return 2.0 * ( qrand() / ((double)RAND_MAX + 1) ) - 1.0;
 }
 
 Plot::Plot(QWidget *parent):

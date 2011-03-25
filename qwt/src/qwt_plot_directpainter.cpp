@@ -17,18 +17,20 @@
 #include <qapplication.h>
 #include <qpixmap.h>
 
-static void renderItem( QPainter *painter,
+static inline void renderItem( 
+    QPainter *painter, const QRect &canvasRect,
     QwtPlotAbstractSeriesItem *seriesItem, int from, int to )
 {
-    QwtPlot *plot = seriesItem->plot();
+    // A minor performance improvement is possible
+    // with caching the maps. TODO ...
 
+    QwtPlot *plot = seriesItem->plot();
     const QwtScaleMap xMap = plot->canvasMap( seriesItem->xAxis() );
     const QwtScaleMap yMap = plot->canvasMap( seriesItem->yAxis() );
 
     painter->setRenderHint( QPainter::Antialiasing,
         seriesItem->testRenderHint( QwtPlotItem::RenderAntialiased ) );
-    seriesItem->drawSeries( painter, xMap, yMap,
-        plot->canvas()->contentsRect(), from, to );
+    seriesItem->drawSeries( painter, xMap, yMap, canvasRect, from, to );
 }
 
 class QwtPlotDirectPainter::PrivateData
@@ -168,6 +170,7 @@ void QwtPlotDirectPainter::drawSeries(
         return;
 
     QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
+    const QRect canvasRect = canvas->contentsRect();
 
     const bool hasBackingStore = 
         canvas->testPaintAttribute( QwtPlotCanvas::BackingStore ) 
@@ -176,13 +179,12 @@ void QwtPlotDirectPainter::drawSeries(
     if ( hasBackingStore )
     {
         QPainter painter( ( QPixmap * )canvas->backingStore() );
-        painter.translate( -canvas->contentsRect().x(),
-            -canvas->contentsRect().y() );
+        painter.translate( -canvasRect.x(), -canvasRect.y() );
 
         if ( d_data->hasClipping )
             painter.setClipRegion( d_data->clipRegion );
 
-        renderItem( &painter, seriesItem, from, to );
+        renderItem( &painter, canvasRect, seriesItem, from, to );
 
         if ( testAttribute( FullRepaint ) )
         {
@@ -201,8 +203,7 @@ void QwtPlotDirectPainter::drawSeries(
     if ( immediatePaint )
     {
         QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
-        if ( !( d_data->painter.isActive() &&
-            d_data->painter.device() == canvas ) )
+        if ( !d_data->painter.isActive() )
         {
             reset();
 
@@ -210,17 +211,28 @@ void QwtPlotDirectPainter::drawSeries(
             canvas->installEventFilter( this );
         }
 
-        QRegion clipRegion = canvas->contentsRect();
         if ( d_data->hasClipping )
-            clipRegion &= d_data->clipRegion;
+        {
+            d_data->painter.setClipRegion( 
+                QRegion( canvasRect ) & d_data->clipRegion );
+        }
+        else
+        {
+            if ( !d_data->painter.hasClipping() )
+                d_data->painter.setClipRect( canvasRect );
+        }
 
-        d_data->painter.setClipping( true );
-        d_data->painter.setClipRegion( clipRegion );
+        renderItem( &d_data->painter, canvasRect, seriesItem, from, to );
 
-        renderItem( &d_data->painter, seriesItem, from, to );
-
-        if ( testAttribute( AtomicPainter ) )
+        if ( d_data->attributes & AtomicPainter )
+        {
             reset();
+        }
+        else
+        {
+            if ( d_data->hasClipping )
+                d_data->painter.setClipping( false );
+        }
     }
     else
     {
@@ -230,7 +242,7 @@ void QwtPlotDirectPainter::drawSeries(
         d_data->from = from;
         d_data->to = to;
 
-        QRegion clipRegion = canvas->contentsRect();
+        QRegion clipRegion = canvasRect;
         if ( d_data->hasClipping )
             clipRegion &= d_data->clipRegion;
 
@@ -289,8 +301,8 @@ bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
             }
             else
             {
-                renderItem( &painter, d_data->seriesItem,
-                    d_data->from, d_data->to );
+                renderItem( &painter, canvas->contentsRect(),
+                    d_data->seriesItem, d_data->from, d_data->to );
             }
 
             return true; // don't call QwtPlotCanvas::paintEvent()

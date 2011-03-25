@@ -63,7 +63,7 @@ MainWindow::MainWindow()
 #endif
 
     d_plot = new RandomPlot(this);
-	const int margin = 4;
+    const int margin = 4;
     d_plot->setContentsMargins( margin, margin, margin, margin);
 
     setCentralWidget(d_plot);

@@ -349,7 +349,7 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *e )
         return;
 
     QwtAbstractSlider::ScrollMode mode = ScrNone; 
-	int direction = 0;
+    int direction = 0;
 
     // Give derived classes a chance to say ScrNone
     getScrollMode( e->pos(), mode, direction );

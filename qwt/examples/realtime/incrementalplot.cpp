@@ -6,51 +6,36 @@
 #include "incrementalplot.h"
 #include <qpaintengine.h>
 
-CurveData::CurveData():
-    d_count(0)
+class CurveData: public QwtArraySeriesData<QPointF>
 {
-}
-
-void CurveData::append(double *x, double *y, int count)
-{
-    int newSize = ( (d_count + count) / 1000 + 1 ) * 1000;
-    if ( newSize > size() )
+public:
+    CurveData()
     {
-        d_x.resize(newSize);
-        d_y.resize(newSize);
     }
 
-    for ( register int i = 0; i < count; i++ )
+    virtual QRectF boundingRect() const
     {
-        d_x[d_count + i] = x[i];
-        d_y[d_count + i] = y[i];
+        if ( d_boundingRect.width() < 0.0 )
+            d_boundingRect = qwtBoundingRect( *this );
+
+        return d_boundingRect;
     }
-    d_count += count;
-}
 
-int CurveData::count() const
-{
-    return d_count;
-}
+    inline void append( const QPointF &point )
+    {
+        d_samples += point;
+    }
 
-int CurveData::size() const
-{
-    return d_x.size();
-}
-
-const double *CurveData::x() const
-{
-    return d_x.data();
-}
-
-const double *CurveData::y() const
-{
-    return d_y.data();
-}
+    void clear()
+    {
+        d_samples.clear();
+        d_samples.squeeze();
+        d_boundingRect = QRectF( 0.0, 0.0, -1.0, -1.0 );
+    }
+};
 
 IncrementalPlot::IncrementalPlot(QWidget *parent): 
     QwtPlot(parent),
-    d_data(NULL),
     d_curve(NULL)
 {
     d_directPainter = new QwtPlotDirectPainter(this);
@@ -60,45 +45,27 @@ IncrementalPlot::IncrementalPlot(QWidget *parent):
     canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
 #endif
 
+    d_curve = new QwtPlotCurve("Test Curve");
+    d_curve->setStyle(QwtPlotCurve::NoCurve);
+    d_curve->setData( new CurveData() );
+
+    d_curve->setSymbol(new QwtSymbol(QwtSymbol::XCross,
+        Qt::NoBrush, QPen(Qt::white), QSize( 4, 4 ) ) );
+
+    d_curve->attach(this);
+
     setAutoReplot(false);
 }
 
 IncrementalPlot::~IncrementalPlot()
 {
-    delete d_data;
+    delete d_curve;
 }
 
-void IncrementalPlot::appendData(double x, double y)
+void IncrementalPlot::appendPoint( const QPointF &point )
 {
-    appendData(&x, &y, 1);
-}
-
-void IncrementalPlot::appendData(double *x, double *y, int size)
-{
-    if ( size == 0 )
-        return;
-
-    if ( d_data == NULL )
-        d_data = new CurveData;
-
-    const QSize symbolSize( 6, 6 );
-    if ( d_curve == NULL )
-    {
-        d_curve = new QwtPlotCurve("Test Curve");
-        d_curve->setStyle(QwtPlotCurve::NoCurve);
-    
-        const QColor &c = Qt::white;
-        d_curve->setSymbol(new QwtSymbol(QwtSymbol::XCross,
-            QBrush(c), QPen(c), symbolSize) );
-
-        d_curve->attach(this);
-    }
-
-    d_data->append(x, y, size);
-    d_curve->setRawSamples(d_data->x(), d_data->y(), d_data->count());
-#ifdef __GNUC__
-#warning better use QwtData
-#endif
+    CurveData *data = static_cast<CurveData *>( d_curve->data() );
+    data->append(point);
 
     const bool doClip = !canvas()->testAttribute( Qt::WA_PaintOnScreen );
     if ( doClip )
@@ -114,29 +81,25 @@ void IncrementalPlot::appendData(double *x, double *y, int size)
 
         QRegion clipRegion;
 
+        const QSize symbolSize = d_curve->symbol()->size();
         QRect r( 0, 0, symbolSize.width() + 2, symbolSize.height() + 2 );
 
-        for ( int i = 0; i < size; i++ )
-        {
-            QPointF center( xMap.transform( x[i] ), yMap.transform( y[i] ) );
-            r.moveCenter( center.toPoint() );
-            clipRegion += r;
-        }
+        const QPointF center = 
+            QwtScaleMap::transform( xMap, yMap, point );
+        r.moveCenter( center.toPoint() );
+        clipRegion += r;
 
         d_directPainter->setClipRegion( clipRegion );
     }
     
     d_directPainter->drawSeries(d_curve, 
-        d_curve->dataSize() - size, d_curve->dataSize() - 1);
+        data->size() - 1, data->size() - 1);
 }
 
-void IncrementalPlot::removeData()
+void IncrementalPlot::clearPoints()
 {
-    delete d_curve;
-    d_curve = NULL;
-
-    delete d_data;
-    d_data = NULL;
+    CurveData *data = static_cast<CurveData *>( d_curve->data() );
+    data->clear();
 
     replot();
 }

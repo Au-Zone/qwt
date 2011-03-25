@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <qglobal.h>
 #include <qtimer.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_canvas.h>
@@ -90,13 +90,13 @@ QSize RandomPlot::sizeHint() const
 
 void RandomPlot::appendPoint()
 {
-    double x = rand() % c_rangeMax;
-    x += ( rand() % 100 ) / 100;
+    double x = qrand() % c_rangeMax;
+    x += ( qrand() % 100 ) / 100;
 
-    double y = rand() % c_rangeMax;
-    y += ( rand() % 100 ) / 100;
+    double y = qrand() % c_rangeMax;
+    y += ( qrand() % 100 ) / 100;
 
-    appendData(x, y);
+    IncrementalPlot::appendPoint( QPointF( x, y ) );
 
     if ( --d_timerCount <= 0 )
         stop();
@@ -134,6 +134,6 @@ void RandomPlot::stop()
 
 void RandomPlot::clear()
 {
-    removeData();
+    clearPoints();
     replot();
 }

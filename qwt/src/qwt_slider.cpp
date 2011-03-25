@@ -454,7 +454,7 @@ void QwtSlider::drawSlider(
 void QwtSlider::drawHandle( QPainter *painter, 
     const QRect &sliderRect, int pos ) const
 {
-	const int bw = d_data->borderWidth;
+    const int bw = d_data->borderWidth;
 
     pos++; // shade line points one pixel below
     if ( orientation() == Qt::Horizontal )
