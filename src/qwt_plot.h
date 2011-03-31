@@ -105,7 +105,7 @@ public:
         //! The legend will be left from the QwtPlot::yLeft axis.
         LeftLegend,
 
-        //! The legend will be right from the QwtPlot::yLeft axis.
+        //! The legend will be right from the QwtPlot::yRight axis.
         RightLegend,
 
         //! The legend will be below QwtPlot::xBottom axis.
