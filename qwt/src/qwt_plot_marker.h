@@ -105,11 +105,17 @@ public:
 
     virtual QRectF boundingRect() const;
 
+    virtual void updateLegend( QwtLegend * ) const;
+    virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
+
 protected:
-    void drawAt( QPainter *, const QRectF &, const QPointF & ) const;
+    virtual void drawLines( QPainter *, 
+        const QRectF &, const QPointF & ) const;
+
+    virtual void drawLabel( QPainter *, 
+        const QRectF &, const QPointF & ) const;
 
 private:
-    void drawLabel( QPainter *, const QRectF &, const QPointF & ) const;
 
     class PrivateData;
     PrivateData *d_data;

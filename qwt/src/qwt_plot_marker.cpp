@@ -13,6 +13,8 @@
 #include "qwt_symbol.h"
 #include "qwt_text.h"
 #include "qwt_math.h"
+#include "qwt_legend.h"
+#include "qwt_legend_item.h"
 #include <qpainter.h>
 
 class QwtPlotMarker::PrivateData
@@ -126,49 +128,12 @@ void QwtPlotMarker::draw( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect ) const
 {
-    const double x = xMap.transform( d_data->xValue );
-    const double y = yMap.transform( d_data->yValue );
+    const QPointF pos( xMap.transform( d_data->xValue ), 
+        yMap.transform( d_data->yValue ) );
 
-    drawAt( painter, canvasRect, QPointF( x, y ) );
-}
-
-/*!
-  Draw the marker at a specific position
-
-  \param painter Painter
-  \param canvasRect Contents rect of the canvas in painter coordinates
-  \param pos Position of the marker in painter coordinates
-*/
-void QwtPlotMarker::drawAt( QPainter *painter,
-    const QRectF &canvasRect, const QPointF &pos ) const
-{
     // draw lines
-    if ( d_data->style != NoLine )
-    {
-        const bool doAlign = QwtPainter::roundingAlignment( painter );
 
-        painter->setPen( d_data->pen );
-        if ( d_data->style == QwtPlotMarker::HLine ||
-            d_data->style == QwtPlotMarker::Cross )
-        {
-            double y = pos.y();
-            if ( doAlign )
-                y = qRound( y );
-
-            QwtPainter::drawLine( painter, canvasRect.left(),
-                y, canvasRect.right() - 1.0, y );
-        }
-        if ( d_data->style == QwtPlotMarker::VLine ||
-            d_data->style == QwtPlotMarker::Cross )
-        {
-            double x = pos.x();
-            if ( doAlign )
-                x = qRound( x );
-
-            QwtPainter::drawLine( painter, x,
-                canvasRect.top(), x, canvasRect.bottom() - 1.0 );
-        }
-    }
+    drawLines( painter, canvasRect, pos );
 
     // draw symbol
     if ( d_data->symbol &&
@@ -180,13 +145,62 @@ void QwtPlotMarker::drawAt( QPainter *painter,
     drawLabel( painter, canvasRect, pos );
 }
 
+/*!
+  Draw the lines marker
+
+  \param painter Painter
+  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param pos Position of the marker, translated into widget coordinates
+
+  \sa drawLabel(), QwtSymbol::drawSymbol()
+*/
+void QwtPlotMarker::drawLines( QPainter *painter,
+    const QRectF &canvasRect, const QPointF &pos ) const
+{
+    if ( d_data->style == NoLine )
+        return;
+
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
+
+    painter->setPen( d_data->pen );
+    if ( d_data->style == QwtPlotMarker::HLine ||
+        d_data->style == QwtPlotMarker::Cross )
+    {
+        double y = pos.y();
+        if ( doAlign )
+            y = qRound( y );
+
+        QwtPainter::drawLine( painter, canvasRect.left(),
+            y, canvasRect.right() - 1.0, y );
+    }
+    if ( d_data->style == QwtPlotMarker::VLine ||
+        d_data->style == QwtPlotMarker::Cross )
+    {
+        double x = pos.x();
+        if ( doAlign )
+            x = qRound( x );
+
+        QwtPainter::drawLine( painter, x,
+            canvasRect.top(), x, canvasRect.bottom() - 1.0 );
+    }
+}
+
+/*!
+  Align and draw the text label of the marker
+
+  \param painter Painter
+  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param pos Position of the marker, translated into widget coordinates
+
+  \sa drawLabel(), QwtSymbol::drawSymbol()
+*/
 void QwtPlotMarker::drawLabel( QPainter *painter,
     const QRectF &canvasRect, const QPointF &pos ) const
 {
     if ( d_data->label.isEmpty() )
         return;
 
-    int align = d_data->labelAlignment;
+    Qt::Alignment align = d_data->labelAlignment;
     QPointF alignPos = pos;
 
     QSizeF symbolOff( 0, 0 );
@@ -198,13 +212,13 @@ void QwtPlotMarker::drawLabel( QPainter *painter,
             // In VLine-style the y-position is pointless and
             // the alignment flags are relative to the canvas
 
-            if ( d_data->labelAlignment & ( int ) Qt::AlignTop )
+            if ( d_data->labelAlignment & Qt::AlignTop )
             {
                 alignPos.setY( canvasRect.top() );
                 align &= ~Qt::AlignTop;
                 align |= Qt::AlignBottom;
             }
-            else if ( d_data->labelAlignment & ( int ) Qt::AlignBottom )
+            else if ( d_data->labelAlignment & Qt::AlignBottom )
             {
                 // In HLine-style the x-position is pointless and
                 // the alignment flags are relative to the canvas
@@ -221,13 +235,13 @@ void QwtPlotMarker::drawLabel( QPainter *painter,
         }
         case QwtPlotMarker::HLine:
         {
-            if ( d_data->labelAlignment & ( int ) Qt::AlignLeft )
+            if ( d_data->labelAlignment & Qt::AlignLeft )
             {
                 alignPos.setX( canvasRect.left() );
                 align &= ~Qt::AlignLeft;
                 align |= Qt::AlignRight;
             }
-            else if ( d_data->labelAlignment & ( int ) Qt::AlignRight )
+            else if ( d_data->labelAlignment & Qt::AlignRight )
             {
                 alignPos.setX( canvasRect.right() - 1 );
                 align &= ~Qt::AlignRight;
@@ -281,13 +295,13 @@ void QwtPlotMarker::drawLabel( QPainter *painter,
             alignPos.rx() -= textSize.width() / 2;
     }
 
-    if ( align & ( int ) Qt::AlignTop )
+    if ( align & Qt::AlignTop )
     {
         alignPos.ry() -= yOff + spacing;
         if ( d_data->labelOrientation != Qt::Vertical )
             alignPos.ry() -= textSize.height();
     }
-    else if ( align & ( int ) Qt::AlignBottom )
+    else if ( align & Qt::AlignBottom )
     {
         alignPos.ry() += yOff + spacing;
         if ( d_data->labelOrientation == Qt::Vertical )
@@ -390,9 +404,7 @@ QwtText QwtPlotMarker::label() const
 
   In all other styles the alignment is relative to the marker's position.
 
-  \param align Alignment. A combination of Qt::AlignTop, Qt::AlignBottom,
-    Qt::AlignLeft, Qt::AlignRight, Qt::AlignCenter, Qt::AlignHCenter,
-    Qt::AlignVCenter.
+  \param align Alignment. 
   \sa labelAlignment(), labelOrientation()
 */
 void QwtPlotMarker::setLabelAlignment( Qt::Alignment align )
@@ -499,3 +511,93 @@ QRectF QwtPlotMarker::boundingRect() const
 {
     return QRectF( d_data->xValue, d_data->yValue, 0.0, 0.0 );
 }
+
+/*!
+   \brief Update the widget that represents the item on the legend
+
+   \param legend Legend
+   \sa drawLegendIdentifier(), legendItem(), itemChanged(), QwtLegend()
+
+   \note In the default setting QwtPlotItem::Legend is disabled 
+*/
+void QwtPlotMarker::updateLegend( QwtLegend *legend ) const
+{
+    if ( legend && testItemAttribute( QwtPlotItem::Legend )
+        && d_data->symbol && d_data->symbol->style() != QwtSymbol::NoSymbol )
+    {
+        QWidget *lgdItem = legend->find( this );
+        if ( lgdItem == NULL )
+        {
+            lgdItem = legendItem();
+            if ( lgdItem )
+                legend->insert( this, lgdItem );
+        }
+        if ( lgdItem && lgdItem->inherits( "QwtLegendItem" ) )
+        {
+            QwtLegendItem *l = ( QwtLegendItem * )lgdItem;
+            l->setIdentifierSize( d_data->symbol->boundingSize() );
+        }
+    }
+
+    QwtPlotItem::updateLegend( legend );
+}
+
+/*!
+  \brief Draw the identifier representing the marker on the legend
+
+  \param painter Painter
+  \param rect Bounding rectangle for the identifier
+
+  \sa updateLegend(), QwtPlotItem::Legend
+*/
+void QwtPlotMarker::drawLegendIdentifier(
+    QPainter *painter, const QRectF &rect ) const
+{
+    if ( rect.isEmpty() )
+        return;
+
+    painter->save();
+    painter->setClipRect( rect, Qt::IntersectClip );
+
+    if ( d_data->style != QwtPlotMarker::NoLine )
+    {
+        painter->setPen( d_data->pen );
+
+        if ( d_data->style == QwtPlotMarker::HLine ||
+            d_data->style == QwtPlotMarker::Cross )
+        {
+            QwtPainter::drawLine( painter, rect.left(), rect.center().y(),
+                rect.right(), rect.center().y() );
+        }
+
+        if ( d_data->style == QwtPlotMarker::VLine ||
+            d_data->style == QwtPlotMarker::Cross )
+        {
+            QwtPainter::drawLine( painter, rect.center().x(), rect.top(),
+                rect.center().x(), rect.bottom() );
+        }
+    }
+
+    if ( d_data->symbol && d_data->symbol->style() != QwtSymbol::NoSymbol )
+    {
+        QSize symbolSize = d_data->symbol->boundingSize();
+        symbolSize -= QSize( 2, 2 );
+
+        // scale the symbol size down if it doesn't fit into rect.
+
+        double xRatio = 1.0;
+        if ( rect.width() < symbolSize.width() )
+            xRatio = rect.width() / symbolSize.width();
+        double yRatio = 1.0;
+        if ( rect.height() < symbolSize.height() )
+            yRatio = rect.height() / symbolSize.height();
+
+        const double ratio = qMin( xRatio, yRatio );
+
+        painter->scale( ratio, ratio );
+        d_data->symbol->drawSymbol( painter, rect.center() / ratio );
+    }
+
+    painter->restore();
+}
+
