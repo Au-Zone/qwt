@@ -58,7 +58,7 @@ unix {
 
     exists( $${QMAKE_LIBDIR_QT}/libqwt.* ) {
 
-        # On some Linux distributions the the Qwt libraries are installed 
+        # On some Linux distributions the Qwt libraries are installed 
         # in the same directory as the Qt libraries. Unfortunately
         # qmake always adds QMAKE_LIBDIR_QT at the beginning of the 
         # linker path, so that the installed libraries will be

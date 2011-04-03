@@ -711,9 +711,9 @@ void QwtPlotCurve::fillCurve( QPainter *painter,
 }
 
 /*!
-  \brief Complete a polygon to be a closed polygon
-         including the area between the original polygon
-         and the baseline.
+  \brief Complete a polygon to be a closed polygon including the 
+         area between the original polygon and the baseline.
+
   \param painter Painter
   \param xMap X map
   \param yMap Y map
@@ -924,11 +924,12 @@ int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
 
     return index;
 }
+
 /*!
    \brief Update the widget that represents the item on the legend
 
    \param legend Legend
-   \sa drawLegendIdentifier(), legendItem(), itemChanged(), QwtLegend()
+   \sa drawLegendIdentifier(), legendItem(), QwtPlotItem::Legend
 */
 void QwtPlotCurve::updateLegend( QwtLegend *legend ) const
 {
@@ -960,7 +961,7 @@ void QwtPlotCurve::updateLegend( QwtLegend *legend ) const
   \param painter Painter
   \param rect Bounding rectangle for the identifier
 
-  \sa setLegendAttribute
+  \sa setLegendAttribute(), QwtPlotItem::Legend
 */
 void QwtPlotCurve::drawLegendIdentifier(
     QPainter *painter, const QRectF &rect ) const
