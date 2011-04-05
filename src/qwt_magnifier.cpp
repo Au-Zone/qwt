@@ -376,12 +376,12 @@ void QwtMagnifier::widgetMouseMoveEvent( QMouseEvent *me )
 /*!
   Handle a wheel event for the observed widget.
 
-  \param we Wheel event
+  \param wheelEvent Wheel event
   \sa eventFilter()
 */
-void QwtMagnifier::widgetWheelEvent( QWheelEvent *we )
+void QwtMagnifier::widgetWheelEvent( QWheelEvent *wheelEvent )
 {
-    if ( ( we->modifiers() & Qt::KeyboardModifierMask ) !=
+    if ( ( wheelEvent->modifiers() & Qt::KeyboardModifierMask ) !=
         ( int )( d_data->wheelButtonState & Qt::KeyboardModifierMask ) )
     {
         return;
@@ -398,8 +398,10 @@ void QwtMagnifier::widgetWheelEvent( QWheelEvent *we )
             in which case the delta value is a multiple
             of 120 (== 15 * 8).
          */
-        double f = qPow( d_data->wheelFactor, qAbs( we->delta() / 120 ) );
-        if ( we->delta() > 0 )
+        double f = qPow( d_data->wheelFactor, 
+            qAbs( wheelEvent->delta() / 120 ) );
+
+        if ( wheelEvent->delta() > 0 )
             f = 1 / f;
 
         rescale( f );
@@ -409,13 +411,13 @@ void QwtMagnifier::widgetWheelEvent( QWheelEvent *we )
 /*!
   Handle a key press event for the observed widget.
 
-  \param ke Key event
+  \param keyEvent Key event
   \sa eventFilter(), widgetKeyReleaseEvent()
 */
-void QwtMagnifier::widgetKeyPressEvent( QKeyEvent *ke )
+void QwtMagnifier::widgetKeyPressEvent( QKeyEvent *keyEvent )
 {
-    const int key = ke->key();
-    const int state = ke->modifiers();
+    const int key = keyEvent->key();
+    const int state = keyEvent->modifiers();
 
     if ( key == d_data->zoomInKey &&
         state == d_data->zoomInKeyModifiers )
@@ -435,8 +437,9 @@ void QwtMagnifier::widgetKeyPressEvent( QKeyEvent *ke )
   \param keyEvent Key event
   \sa eventFilter(), widgetKeyReleaseEvent()
 */
-void QwtMagnifier::widgetKeyReleaseEvent( QKeyEvent * )
+void QwtMagnifier::widgetKeyReleaseEvent( QKeyEvent *keyEvent )
 {
+    Q_UNUSED( keyEvent );
 }
 
 //! \return Parent widget, where the rescaling happens

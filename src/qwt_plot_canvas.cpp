@@ -653,16 +653,30 @@ QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
     return d_data->focusIndicator;
 }
 
+/*!
+  Set the radius for the corners of the border frame
+
+  \param radius Radius of a rounded corner
+  \sa borderRadius()
+*/
 void QwtPlotCanvas::setBorderRadius( double radius )
 {
     d_data->borderRadius = qMax( 0.0, radius );
 }
 
+/*!
+  \return Radius for the corners of the border frame
+  \sa setBorderRadius()
+*/
 double QwtPlotCanvas::borderRadius() const
 {
     return d_data->borderRadius;
 }
 
+/*!
+  Qt event handler for QEvent::PolishRequest and QEvent::StyleChange
+  \param event Qt Event
+*/
 bool QwtPlotCanvas::event( QEvent *event )
 {
     if ( event->type() == QEvent::PolishRequest ) 
@@ -873,6 +887,12 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
     }
 }
 
+/*!
+  Draw the border of the plot canvas
+
+  \param painter Painter
+  \sa setBorderRadius(), QFrame::drawFrame()
+*/
 void QwtPlotCanvas::drawBorder( QPainter *painter )
 {
     if ( d_data->borderRadius > 0 )
@@ -929,6 +949,7 @@ void QwtPlotCanvas::replot()
         update( contentsRect() );
 }
 
+//! Update the cached informations about the current style sheet
 void QwtPlotCanvas::updateStyleSheetInfo()
 {
     if ( !testAttribute(Qt::WA_StyledBackground ) )
@@ -963,6 +984,15 @@ void QwtPlotCanvas::updateStyleSheetInfo()
     }
 }
 
+/*!
+   Calculate the painter path for a styled or rounded border
+
+   When the canvas has no styled background or rounded borders
+   the painter path is empty.
+
+   \param rect Bounding rectangle of the canvas
+   \return Painter path, that can be used for clipping
+*/
 QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
 {
     if ( testAttribute(Qt::WA_StyledBackground ) )
@@ -997,6 +1027,11 @@ QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
     return QPainterPath();
 }
 
+/*!
+   Calculate a mask, that can be used to clip away the border frame
+
+   \param size Size including the frame
+*/
 QBitmap QwtPlotCanvas::borderMask( const QSize &size ) const
 {
     const QRect r( 0, 0, size.width(), size.height() );

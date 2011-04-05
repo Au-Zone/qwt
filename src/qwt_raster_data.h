@@ -32,13 +32,17 @@ class QwtScaleMap;
 class QWT_EXPORT QwtRasterData
 {
 public:
+    //! Contour lines
     typedef QMap<double, QPolygonF> ContourLines;
 
     //! Flags to modify the contour algorithm
     enum ConrecFlag
     {
-        IgnoreAllVerticesOnLevel = 1,
-        IgnoreOutOfRange = 2
+        //! Ignore all verices on the same level
+        IgnoreAllVerticesOnLevel = 0x01,
+
+        //! Ignore all values, that are out of range
+        IgnoreOutOfRange = 0x02
     };
 
     //! Flags to modify the contour algorithm

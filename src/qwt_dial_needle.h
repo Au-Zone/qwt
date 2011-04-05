@@ -48,15 +48,17 @@ protected:
       The origin of the needle is at position (0.0, 0.0 )
       pointing in direction 0.0 ( = east ). 
 
-      The painter is already setup with translation and 
+      The painter is already initilaized with translation and 
       rotation.
 
       \param painter Painter
       \param length Length of the needle
       \param colorGroup Color group, used for painting
+
+      \sa setPalette(), palette()
     */
     virtual void drawNeedle( QPainter *painter, 
-        double length, QPalette::ColorGroup ) const = 0;
+        double length, QPalette::ColorGroup colorGroup ) const = 0;
 
     virtual void drawKnob( QPainter *, double width, 
         const QBrush &, bool sunken ) const;

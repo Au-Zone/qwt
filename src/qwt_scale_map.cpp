@@ -17,7 +17,10 @@
 #define qExp(x) ::exp(x)
 #endif
 
+//! Smallest allowed value for logarithmic scales: 1.0e-150
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
+
+//! Largest allowed value for logarithmic scales: 1.0e150
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
 
 //! Constructor for a linear transformation
