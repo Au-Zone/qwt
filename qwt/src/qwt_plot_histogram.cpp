@@ -604,8 +604,10 @@ QwtColumnRect QwtPlotHistogram::columnRect( const QwtIntervalSample &sample,
         it is recommended to overload drawColumn().
 */
 void QwtPlotHistogram::drawColumn( QPainter *painter,
-    const QwtColumnRect &rect, const QwtIntervalSample & ) const
+    const QwtColumnRect &rect, const QwtIntervalSample &sample ) const
 {
+    Q_UNUSED( sample );
+
     if ( d_data->symbol &&
         ( d_data->symbol->style() != QwtColumnSymbol::NoStyle ) )
     {

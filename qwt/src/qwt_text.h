@@ -81,7 +81,7 @@ public:
           based on the MathML renderer of the Qt solutions package. 
           To enable MathML support the following code needs to be added to the
           application:
-          \verbatimQwtText::setTextEngine(QwtText::MathMLText, new QwtMathMLTextEngine());\endverbatim
+\verbatim QwtText::setTextEngine(QwtText::MathMLText, new QwtMathMLTextEngine()); \endverbatim
          */
         MathMLText,
 

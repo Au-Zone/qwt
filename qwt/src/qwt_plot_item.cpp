@@ -503,9 +503,11 @@ void QwtPlotItem::updateLegend( QwtLegend *legend ) const
 
    \sa QwtPlot::updateAxes()
 */
-void QwtPlotItem::updateScaleDiv( const QwtScaleDiv &,
-    const QwtScaleDiv & )
+void QwtPlotItem::updateScaleDiv( const QwtScaleDiv &xScaleDiv,
+    const QwtScaleDiv &yScaleDiv )
 {
+    Q_UNUSED( xScaleDiv );
+    Q_UNUSED( yScaleDiv );
 }
 
 /*!

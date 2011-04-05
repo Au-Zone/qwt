@@ -187,13 +187,15 @@ void QwtRasterData::setInterval( Qt::Axis axis, const QwtInterval &interval )
   are stored in files, it might be good idea to reimplement initRaster,
   where the data is resampled and loaded into memory.
 
-  \param rect Area of the raster
+  \param area Area of the raster
   \param raster Number of horizontal and vertical pixels
 
   \sa initRaster(), value()
 */
-void QwtRasterData::initRaster( const QRectF &, const QSize& )
+void QwtRasterData::initRaster( const QRectF &area, const QSize &raster )
 {
+    Q_UNUSED( area );
+    Q_UNUSED( raster );
 }
 
 /*!
@@ -236,8 +238,9 @@ void QwtRasterData::discardRaster()
 
    \return Bounding rectangle of a pixel 
 */
-QRectF QwtRasterData::pixelHint( const QRectF & ) const
+QRectF QwtRasterData::pixelHint( const QRectF &area ) const
 {
+    Q_UNUSED( area );
     return QRectF(); 
 }
 

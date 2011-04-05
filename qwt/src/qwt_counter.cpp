@@ -390,7 +390,7 @@ void QwtCounter::updateButtons()
 
 /*!
   \brief Specify the number of buttons on each side of the label
-  \param n Number of buttons
+  \param numButtons Number of buttons
 */
 void QwtCounter::setNumButtons( int numButtons )
 {

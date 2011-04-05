@@ -464,8 +464,7 @@ void QwtPlotZoomer::moveBy( double dx, double dy )
 /*!
   Move the the current zoom rectangle.
 
-  \param x X value
-  \param y Y value
+  \param pos New position
 
   \sa QRectF::moveTo()
   \note The changed rectangle is limited by the zoom base

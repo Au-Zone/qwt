@@ -248,6 +248,8 @@ double QwtKnob::getValue( const QPoint &pos )
 
   Called by QwtAbstractSlider
   \param pos Point in question
+  \param scrollMode Scrolling mode
+  \param direction Direction
 */
 void QwtKnob::getScrollMode( const QPoint &pos, 
     QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const

@@ -1235,6 +1235,7 @@ void QwtPicker::remove()
         }
     }
 }
+
 /*!
   \brief Validate and fixup the selection
 
@@ -1243,8 +1244,9 @@ void QwtPicker::remove()
   \param selection Selection to validate and fixup
   \return true, when accepted, false otherwise
 */
-bool QwtPicker::accept( QPolygon & ) const
+bool QwtPicker::accept( QPolygon &selection ) const
 {
+    Q_UNUSED( selection );
     return true;
 }
 

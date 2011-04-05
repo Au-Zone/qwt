@@ -145,9 +145,6 @@ public:
     void setAlarmBrush( const QBrush &b );
     const QBrush &alarmBrush() const;
 
-    void setAutoFillPipeBackground( bool );
-    bool autoFillPipeBackground() const;
-
     void setAlarmLevel( double v );
     double alarmLevel() const;
 

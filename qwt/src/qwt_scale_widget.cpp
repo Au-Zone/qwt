@@ -492,8 +492,9 @@ QRectF QwtScaleWidget::colorBarRect( const QRectF& rect ) const
   Event handler for resize event
   \param event Resize event
 */
-void QwtScaleWidget::resizeEvent( QResizeEvent * )
+void QwtScaleWidget::resizeEvent( QResizeEvent *event )
 {
+    Q_UNUSED( event );
     layoutScale( false );
 }
 

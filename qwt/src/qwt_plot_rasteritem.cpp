@@ -590,8 +590,9 @@ void QwtPlotRasterItem::invalidateCache()
 
    \sa render(), renderImage()
 */
-QRectF QwtPlotRasterItem::pixelHint( const QRectF & ) const
+QRectF QwtPlotRasterItem::pixelHint( const QRectF &area ) const
 {
+    Q_UNUSED( area );
     return QRectF();
 }
 
@@ -751,8 +752,9 @@ void QwtPlotRasterItem::draw( QPainter *painter,
    
    \param axis X, Y, or Z axis
 */
-QwtInterval QwtPlotRasterItem::interval(Qt::Axis) const
+QwtInterval QwtPlotRasterItem::interval(Qt::Axis axis) const
 {
+    Q_UNUSED( axis );
     return QwtInterval();
 }
 
