@@ -76,7 +76,7 @@ void QwtPlotSpectroCurve::init()
     setZ( 20.0 );
 }
 
-//! \return QwtPlotItem::Rtti_PlotCurve
+//! \return QwtPlotItem::Rtti_PlotSpectroCurve
 int QwtPlotSpectroCurve::rtti() const
 {
     return QwtPlotItem::Rtti_PlotSpectroCurve;
