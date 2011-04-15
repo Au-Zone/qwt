@@ -26,3 +26,4 @@ Bugs/Change requests
 1) QwtPlotDict, performance of z sorting
 2) Layout init of round scales too late.
 3) Remove QwtScaleTransformation::copy()
+4) Remove valid flag of QwtScaleDiv
