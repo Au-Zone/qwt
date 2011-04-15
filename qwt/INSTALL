@@ -71,6 +71,7 @@ your *.pro files into your development environment.
 F.e MSVC with nmake:
 qmake qwt.pro
 nmake
+nmake install
 
 If you didn't enable autobuilding of the examples in qwtconfig.pri
 you have to build the examples this way:
@@ -83,6 +84,11 @@ Windows doesn't like mixing of debug and release binaries. Most
 of the problems with using the Qwt designer plugin are because
 of trying to load a Qwt debug library into a designer release 
 executable.
+
+It's not possible to load a plugin, that has been built with MinGW
+into a Qt Designer/Creator, that has been built with MSVC ( and v.v ).
+This is a common reason for problems, when working with prebuild
+binaries of the Qt Creator.
 
 C) Win32/MinGW 
 --------
@@ -149,5 +155,10 @@ headers to your compiler flags and the Qwt library to your linker list.
 Don't forget to add QWT_DLL to the compiler flags, when you work with a 
 Qwt-DLLs on Windows.
 
+For using the designer plugin you have to configure the Qt designer/creator 
+where to look for plugins. This can be done by setting the QT_PLUGIN_PATH or
+using a qt.conf file ( see http://doc.qt.nokia.com/4.7/deployment-plugins.html ).
+Beside the plugin the Qwt library itsself also needs to be known to the Designer/Creator
+( see LD_LIBRARY_PATH, PATH ... above ).
 
 Good luck !
