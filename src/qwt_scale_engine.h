@@ -212,6 +212,6 @@ protected:
         int maxMinMark, double step ) const;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtScaleEngine::Attributes );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtScaleEngine::Attributes )
 
 #endif

@@ -90,6 +90,6 @@ inline const QwtInterval &QwtRasterData::interval( Qt::Axis axis) const
     return d_intervals[axis];
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtRasterData::ConrecFlags );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtRasterData::ConrecFlags )
 
 #endif

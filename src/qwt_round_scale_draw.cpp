@@ -253,7 +253,7 @@ double QwtRoundScaleDraw::extent( const QFont &font ) const
     {
         const QwtScaleDiv &sd = scaleDiv();
         const QList<double> &ticks = sd.ticks( QwtScaleDiv::MajorTick );
-        for ( uint i = 0; i < ( uint )ticks.count(); i++ )
+        for ( int i = 0; i < ticks.count(); i++ )
         {
             const double value = ticks[i];
             if ( !sd.contains( value ) )

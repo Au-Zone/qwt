@@ -353,7 +353,8 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
             xy[Center].setX( pos.x() + 0.5 * dx );
             xy[Center].setY( pos.y() + 0.5 * dy );
             xy[Center].setZ( 0.25 * zSum );
-            const int numLevels = ( int )levels.size();
+
+            const int numLevels = levels.size();
             for ( int l = 0; l < numLevels; l++ )
             {
                 const double level = levels[l];

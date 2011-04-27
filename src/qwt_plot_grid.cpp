@@ -259,7 +259,7 @@ void QwtPlotGrid::drawLines( QPainter *painter, const QRectF &canvasRect,
 
     const bool doAlign = QwtPainter::roundingAlignment( painter );
 
-    for ( uint i = 0; i < ( uint )values.count(); i++ )
+    for ( int i = 0; i < values.count(); i++ )
     {
         double value = scaleMap.transform( values[i] );
         if ( doAlign )

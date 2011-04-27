@@ -180,7 +180,7 @@ void QwtAbstractScaleDraw::draw( QPainter *painter,
         const QList<double> &majorTicks =
             d_data->scldiv.ticks( QwtScaleDiv::MajorTick );
 
-        for ( int i = 0; i < ( int )majorTicks.count(); i++ )
+        for ( int i = 0; i < majorTicks.count(); i++ )
         {
             const double v = majorTicks[i];
             if ( d_data->scldiv.contains( v ) )
@@ -204,7 +204,7 @@ void QwtAbstractScaleDraw::draw( QPainter *painter,
             tickType < QwtScaleDiv::NTickTypes; tickType++ )
         {
             const QList<double> &ticks = d_data->scldiv.ticks( tickType );
-            for ( int i = 0; i < ( int )ticks.count(); i++ )
+            for ( int i = 0; i < ticks.count(); i++ )
             {
                 const double v = ticks[i];
                 if ( d_data->scldiv.contains( v ) )

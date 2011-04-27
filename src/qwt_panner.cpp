@@ -308,39 +308,42 @@ QPixmap QwtPanner::grab() const
 
   When isEnabled() the mouse events of the observed widget are filtered.
 
+  \param object Object to be filtered
+  \param event Event
+
   \sa widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseMoveEvent()
 */
-bool QwtPanner::eventFilter( QObject *o, QEvent *e )
+bool QwtPanner::eventFilter( QObject *object, QEvent *event )
 {
-    if ( o == NULL || o != parentWidget() )
+    if ( object == NULL || object != parentWidget() )
         return false;
 
-    switch ( e->type() )
+    switch ( event->type() )
     {
         case QEvent::MouseButtonPress:
         {
-            widgetMousePressEvent( ( QMouseEvent * )e );
+            widgetMousePressEvent( ( QMouseEvent * )event );
             break;
         }
         case QEvent::MouseMove:
         {
-            widgetMouseMoveEvent( ( QMouseEvent * )e );
+            widgetMouseMoveEvent( ( QMouseEvent * )event );
             break;
         }
         case QEvent::MouseButtonRelease:
         {
-            widgetMouseReleaseEvent( ( QMouseEvent * )e );
+            widgetMouseReleaseEvent( ( QMouseEvent * )event );
             break;
         }
         case QEvent::KeyPress:
         {
-            widgetKeyPressEvent( ( QKeyEvent * )e );
+            widgetKeyPressEvent( ( QKeyEvent * )event );
             break;
         }
         case QEvent::KeyRelease:
         {
-            widgetKeyReleaseEvent( ( QKeyEvent * )e );
+            widgetKeyReleaseEvent( ( QKeyEvent * )event );
             break;
         }
         case QEvent::Paint:
@@ -358,20 +361,20 @@ bool QwtPanner::eventFilter( QObject *o, QEvent *e )
 /*!
   Handle a mouse press event for the observed widget.
 
-  \param me Mouse event
+  \param mouseEvent Mouse event
   \sa eventFilter(), widgetMouseReleaseEvent(),
       widgetMouseMoveEvent(),
 */
-void QwtPanner::widgetMousePressEvent( QMouseEvent *me )
+void QwtPanner::widgetMousePressEvent( QMouseEvent *mouseEvent )
 {
-    if ( me->button() != d_data->button )
+    if ( mouseEvent->button() != d_data->button )
         return;
 
     QWidget *w = parentWidget();
     if ( w == NULL )
         return;
 
-    if ( ( me->modifiers() & Qt::KeyboardModifierMask ) !=
+    if ( ( mouseEvent->modifiers() & Qt::KeyboardModifierMask ) !=
         ( int )( d_data->buttonState & Qt::KeyboardModifierMask ) )
     {
         return;
@@ -381,7 +384,7 @@ void QwtPanner::widgetMousePressEvent( QMouseEvent *me )
     showCursor( true );
 #endif
 
-    d_data->initialPos = d_data->pos = me->pos();
+    d_data->initialPos = d_data->pos = mouseEvent->pos();
 
     setGeometry( parentWidget()->rect() );
 
@@ -402,15 +405,15 @@ void QwtPanner::widgetMousePressEvent( QMouseEvent *me )
 /*!
   Handle a mouse move event for the observed widget.
 
-  \param me Mouse event
+  \param mouseEvent Mouse event
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent()
 */
-void QwtPanner::widgetMouseMoveEvent( QMouseEvent *me )
+void QwtPanner::widgetMouseMoveEvent( QMouseEvent *mouseEvent )
 {
     if ( !isVisible() )
         return;
 
-    QPoint pos = me->pos();
+    QPoint pos = mouseEvent->pos();
     if ( !isOrientationEnabled( Qt::Horizontal ) )
         pos.setX( d_data->initialPos.x() );
     if ( !isOrientationEnabled( Qt::Vertical ) )
@@ -429,11 +432,11 @@ void QwtPanner::widgetMouseMoveEvent( QMouseEvent *me )
 /*!
   Handle a mouse release event for the observed widget.
 
-  \param me Mouse event
+  \param mouseEvent Mouse event
   \sa eventFilter(), widgetMousePressEvent(),
       widgetMouseMoveEvent(),
 */
-void QwtPanner::widgetMouseReleaseEvent( QMouseEvent *me )
+void QwtPanner::widgetMouseReleaseEvent( QMouseEvent *mouseEvent )
 {
     if ( isVisible() )
     {
@@ -442,7 +445,7 @@ void QwtPanner::widgetMouseReleaseEvent( QMouseEvent *me )
         showCursor( false );
 #endif
 
-        QPoint pos = me->pos();
+        QPoint pos = mouseEvent->pos();
         if ( !isOrientationEnabled( Qt::Horizontal ) )
             pos.setX( d_data->initialPos.x() );
         if ( !isOrientationEnabled( Qt::Vertical ) )
@@ -463,15 +466,15 @@ void QwtPanner::widgetMouseReleaseEvent( QMouseEvent *me )
 /*!
   Handle a key press event for the observed widget.
 
-  \param ke Key event
+  \param keyEvent Key event
   \sa eventFilter(), widgetKeyReleaseEvent()
 */
-void QwtPanner::widgetKeyPressEvent( QKeyEvent *ke )
+void QwtPanner::widgetKeyPressEvent( QKeyEvent *keyEvent )
 {
-    if ( ke->key() == d_data->abortKey )
+    if ( keyEvent->key() == d_data->abortKey )
     {
         const bool matched =
-            ( ke->modifiers() & Qt::KeyboardModifierMask ) ==
+            ( keyEvent->modifiers() & Qt::KeyboardModifierMask ) ==
                 ( int )( d_data->abortKeyState & Qt::KeyboardModifierMask );
         if ( matched )
         {
@@ -486,10 +489,13 @@ void QwtPanner::widgetKeyPressEvent( QKeyEvent *ke )
 
 /*!
   Handle a key release event for the observed widget.
+
+  \param keyEvent Key event
   \sa eventFilter(), widgetKeyReleaseEvent()
 */
-void QwtPanner::widgetKeyReleaseEvent( QKeyEvent * )
+void QwtPanner::widgetKeyReleaseEvent( QKeyEvent *keyEvent )
 {
+    Q_UNUSED( keyEvent );
 }
 
 #ifndef QT_NO_CURSOR

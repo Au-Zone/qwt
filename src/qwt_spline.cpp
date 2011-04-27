@@ -35,7 +35,7 @@ static int lookup( double x, const QPolygonF &values )
 //qLowerBound/qHigherBound ???
 #endif
     int i1;
-    const int size = ( int )values.size();
+    const int size = values.size();
 
     if ( x <= values[0].x() )
         i1 = 0;

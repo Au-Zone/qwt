@@ -309,7 +309,7 @@ QWidget *QwtPicker::parentWidget()
 {
     QObject *obj = parent();
     if ( obj && obj->isWidgetType() )
-        return ( QWidget * )obj;
+        return static_cast<QWidget *>( obj );
 
     return NULL;
 }
@@ -319,7 +319,7 @@ const QWidget *QwtPicker::parentWidget() const
 {
     QObject *obj = parent();
     if ( obj && obj->isWidgetType() )
-        return ( QWidget * )obj;
+        return static_cast< const QWidget *>( obj );
 
     return NULL;
 }
@@ -791,20 +791,24 @@ QRect QwtPicker::trackerRect( const QFont &font ) const
   and widgetWheel-events. Paint and Resize events are handled to keep
   rubberband and tracker up to date.
 
-  \sa event(), widgetEnterEvent(), widgetLeaveEvent(),
+  \param object Object to be filtered
+  \param event Event
+
+  \sa widgetEnterEvent(), widgetLeaveEvent(),
       widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
-      widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
+      widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent(),
+      QObject::installEventFilter(), QObject::event()
 */
-bool QwtPicker::eventFilter( QObject *o, QEvent *e )
+bool QwtPicker::eventFilter( QObject *object, QEvent *event )
 {
-    if ( o && o == parentWidget() )
+    if ( object && object == parentWidget() )
     {
-        switch ( e->type() )
+        switch ( event->type() )
         {
             case QEvent::Resize:
             {
-                const QResizeEvent *re = ( QResizeEvent * )e;
+                const QResizeEvent *re = ( QResizeEvent * )event;
                 if ( d_data->resizeMode == Stretch )
                     stretchSelection( re->oldSize(), re->size() );
 
@@ -816,31 +820,31 @@ bool QwtPicker::eventFilter( QObject *o, QEvent *e )
                 break;
             }
             case QEvent::Enter:
-                widgetEnterEvent( e );
+                widgetEnterEvent( event );
                 break;
             case QEvent::Leave:
-                widgetLeaveEvent( e );
+                widgetLeaveEvent( event );
                 break;
             case QEvent::MouseButtonPress:
-                widgetMousePressEvent( ( QMouseEvent * )e );
+                widgetMousePressEvent( ( QMouseEvent * )event );
                 break;
             case QEvent::MouseButtonRelease:
-                widgetMouseReleaseEvent( ( QMouseEvent * )e );
+                widgetMouseReleaseEvent( ( QMouseEvent * )event );
                 break;
             case QEvent::MouseButtonDblClick:
-                widgetMouseDoubleClickEvent( ( QMouseEvent * )e );
+                widgetMouseDoubleClickEvent( ( QMouseEvent * )event );
                 break;
             case QEvent::MouseMove:
-                widgetMouseMoveEvent( ( QMouseEvent * )e );
+                widgetMouseMoveEvent( ( QMouseEvent * )event );
                 break;
             case QEvent::KeyPress:
-                widgetKeyPressEvent( ( QKeyEvent * )e );
+                widgetKeyPressEvent( ( QKeyEvent * )event );
                 break;
             case QEvent::KeyRelease:
-                widgetKeyReleaseEvent( ( QKeyEvent * )e );
+                widgetKeyReleaseEvent( ( QKeyEvent * )event );
                 break;
             case QEvent::Wheel:
-                widgetWheelEvent( ( QWheelEvent * )e );
+                widgetWheelEvent( ( QWheelEvent * )event );
                 break;
             default:
                 break;
@@ -852,37 +856,43 @@ bool QwtPicker::eventFilter( QObject *o, QEvent *e )
 /*!
   Handle a mouse press event for the observed widget.
 
+  \param mouseEvent Mouse event
+
   \sa eventFilter(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetMousePressEvent( QMouseEvent *e )
+void QwtPicker::widgetMousePressEvent( QMouseEvent *mouseEvent )
 {
-    transition( e );
+    transition( mouseEvent );
 }
 
 /*!
   Handle a mouse move event for the observed widget.
 
+  \param mouseEvent Mouse event
+
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetMouseMoveEvent( QMouseEvent *e )
+void QwtPicker::widgetMouseMoveEvent( QMouseEvent *mouseEvent )
 {
-    if ( pickRect().contains( e->pos() ) )
-        d_data->trackerPosition = e->pos();
+    if ( pickRect().contains( mouseEvent->pos() ) )
+        d_data->trackerPosition = mouseEvent->pos();
     else
         d_data->trackerPosition = QPoint( -1, -1 );
 
     if ( !isActive() )
         updateDisplay();
 
-    transition( e );
+    transition( mouseEvent );
 }
 
 /*!
   Handle a enter event for the observed widget.
+
+  \param event Qt event
 
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(),
@@ -895,6 +905,8 @@ void QwtPicker::widgetEnterEvent( QEvent *event )
 
 /*!
   Handle a leave event for the observed widget.
+
+  \param event Qt event
 
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(),
@@ -912,27 +924,29 @@ void QwtPicker::widgetLeaveEvent( QEvent *event )
 /*!
   Handle a mouse relase event for the observed widget.
 
+  \param mouseEvent Mouse event
+
   \sa eventFilter(), widgetMousePressEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetMouseReleaseEvent( QMouseEvent *e )
+void QwtPicker::widgetMouseReleaseEvent( QMouseEvent *mouseEvent )
 {
-    transition( e );
+    transition( mouseEvent );
 }
 
 /*!
   Handle mouse double click event for the observed widget.
 
-  Empty implementation, does nothing.
+  \param mouseEvent Mouse event
 
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetMouseDoubleClickEvent( QMouseEvent *me )
+void QwtPicker::widgetMouseDoubleClickEvent( QMouseEvent *mouseEvent )
 {
-    transition( me );
+    transition( mouseEvent );
 }
 
 
@@ -941,20 +955,22 @@ void QwtPicker::widgetMouseDoubleClickEvent( QMouseEvent *me )
 
   Move the last point of the selection in case of isActive() == true
 
+  \param wheelEvent Wheel event
+
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetKeyPressEvent(), widgetKeyReleaseEvent()
 */
-void QwtPicker::widgetWheelEvent( QWheelEvent *e )
+void QwtPicker::widgetWheelEvent( QWheelEvent *wheelEvent )
 {
-    if ( pickRect().contains( e->pos() ) )
-        d_data->trackerPosition = e->pos();
+    if ( pickRect().contains( wheelEvent->pos() ) )
+        d_data->trackerPosition = wheelEvent->pos();
     else
         d_data->trackerPosition = QPoint( -1, -1 );
 
     updateDisplay();
 
-    transition( e );
+    transition( wheelEvent );
 }
 
 /*!
@@ -964,34 +980,36 @@ void QwtPicker::widgetWheelEvent( QWheelEvent *e )
   move the cursor, the abort key aborts a selection. All other keys
   are handled by the current state machine.
 
+  \param keyEvent Key event
+
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyReleaseEvent(), stateMachine(),
       QwtEventPattern::KeyPatternCode
 */
-void QwtPicker::widgetKeyPressEvent( QKeyEvent *ke )
+void QwtPicker::widgetKeyPressEvent( QKeyEvent *keyEvent )
 {
     int dx = 0;
     int dy = 0;
 
     int offset = 1;
-    if ( ke->isAutoRepeat() )
+    if ( keyEvent->isAutoRepeat() )
         offset = 5;
 
-    if ( keyMatch( KeyLeft, ke ) )
+    if ( keyMatch( KeyLeft, keyEvent ) )
         dx = -offset;
-    else if ( keyMatch( KeyRight, ke ) )
+    else if ( keyMatch( KeyRight, keyEvent ) )
         dx = offset;
-    else if ( keyMatch( KeyUp, ke ) )
+    else if ( keyMatch( KeyUp, keyEvent ) )
         dy = -offset;
-    else if ( keyMatch( KeyDown, ke ) )
+    else if ( keyMatch( KeyDown, keyEvent ) )
         dy = offset;
-    else if ( keyMatch( KeyAbort, ke ) )
+    else if ( keyMatch( KeyAbort, keyEvent ) )
     {
         reset();
     }
     else
-        transition( ke );
+        transition( keyEvent );
 
     if ( dx != 0 || dy != 0 )
     {
@@ -1015,13 +1033,15 @@ void QwtPicker::widgetKeyPressEvent( QKeyEvent *ke )
 
   Passes the event to the state machine.
 
+  \param keyEvent Key event
+
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
       widgetWheelEvent(), widgetKeyPressEvent(), stateMachine()
 */
-void QwtPicker::widgetKeyReleaseEvent( QKeyEvent *ke )
+void QwtPicker::widgetKeyReleaseEvent( QKeyEvent *keyEvent )
 {
-    transition( ke );
+    transition( keyEvent );
 }
 
 /*!
@@ -1029,25 +1049,26 @@ void QwtPicker::widgetKeyReleaseEvent( QKeyEvent *ke )
   commands. Append and Move commands use the current position
   of the cursor (QCursor::pos()).
 
-  \param e Event
+  \param event Event
 */
-void QwtPicker::transition( const QEvent *e )
+void QwtPicker::transition( const QEvent *event )
 {
     if ( !d_data->stateMachine )
         return;
 
     const QList<QwtPickerMachine::Command> commandList =
-        d_data->stateMachine->transition( *this, e );
+        d_data->stateMachine->transition( *this, event );
 
     QPoint pos;
-    switch ( e->type() )
+    switch ( event->type() )
     {
         case QEvent::MouseButtonDblClick:
         case QEvent::MouseButtonPress:
         case QEvent::MouseButtonRelease:
         case QEvent::MouseMove:
         {
-            const QMouseEvent *me = static_cast< const QMouseEvent * >( e );
+            const QMouseEvent *me = 
+                static_cast< const QMouseEvent * >( event );
             pos = me->pos();
             break;
         }
@@ -1055,7 +1076,7 @@ void QwtPicker::transition( const QEvent *e )
             pos = parentWidget()->mapFromGlobal( QCursor::pos() );
     }
 
-    for ( uint i = 0; i < ( uint )commandList.count(); i++ )
+    for ( int i = 0; i < commandList.count(); i++ )
     {
         switch ( commandList[i] )
         {

@@ -8,6 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_analog_clock.h"
+#include <qmath.h>
 
 /*!
   Constructor
@@ -179,9 +180,10 @@ void QwtAnalogClock::drawNeedle( QPainter *painter, const QPointF &center,
     if ( isValid() )
     {
         const double hours = value() / ( 60.0 * 60.0 );
-        const double minutes = ( value() - ( int )hours * 60.0 * 60.0 ) / 60.0;
-        const double seconds = value() - ( int )hours * 60.0 * 60.0
-            - ( int )minutes * 60.0;
+        const double minutes = 
+            ( value() - qFloor(hours) * 60.0 * 60.0 ) / 60.0;
+        const double seconds = value() - qFloor(hours) * 60.0 * 60.0
+            - qFloor(minutes) * 60.0;
 
         double angle[NHands];
         angle[HourHand] = 360.0 * hours / 12.0;

@@ -61,7 +61,7 @@ QVector<double> qwtTickList( const QwtScaleDiv &scaleDiv, double value )
     {
         const QList<double> ticks = scaleDiv.ticks( tickType );
 
-        for ( int i = 0; i < ( int )ticks.count(); i++ )
+        for ( int i = 0; i < ticks.count(); i++ )
         {
             const double v = ticks[i];
             if ( v > lowerLimit && v < upperLimit )

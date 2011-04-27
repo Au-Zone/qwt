@@ -312,8 +312,8 @@ inline double QwtPlotCurve::maxYValue() const
     return boundingRect().bottom();
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::PaintAttributes );
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::LegendAttributes );
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::CurveAttributes );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::PaintAttributes )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::LegendAttributes )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCurve::CurveAttributes )
 
 #endif

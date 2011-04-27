@@ -72,7 +72,7 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
 
         const QSize hint = plot->legend()->sizeHint();
 
-        int w = qMin( hint.width(), ( int )rect.width() );
+        int w = qMin( hint.width(), qFloor( rect.width() ) );
         int h = plot->legend()->heightForWidth( w );
         if ( h == 0 )
             h = hint.height();
@@ -121,7 +121,7 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
                 QwtAbstractScaleDraw::Ticks ) )
             {
                 scale[axis].tickOffset +=
-                    ( int )scaleWidget->scaleDraw()->maxTickLength();
+                    scaleWidget->scaleDraw()->maxTickLength();
             }
 
             scale[axis].dimWithoutTitle = scaleWidget->dimForLength(

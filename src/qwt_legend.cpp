@@ -153,7 +153,7 @@ void QwtLegend::PrivateData::LegendMap::clear()
     d_itemMap.clear();
     d_widgetMap.clear();
 
-    for ( int i = 0; i < ( int )widgets.size(); i++ )
+    for ( int i = 0; i < widgets.size(); i++ )
         delete widgets[i];
 }
 
@@ -433,11 +433,10 @@ void QwtLegend::layoutContents()
     const QSize visibleSize = 
         d_data->view->viewport()->contentsRect().size();
 
-    const QLayout *l = d_data->view->contentsWidget->layout();
-    if ( l && l->inherits( "QwtDynGridLayout" ) )
+    const QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
+        d_data->view->contentsWidget->layout() );
+    if ( tl )
     {
-        const QwtDynGridLayout *tl = ( const QwtDynGridLayout * )l;
-
         const int minW = int( tl->maxItemWidth() ) + 2 * tl->margin();
 
         int w = qMax( visibleSize.width(), minW );

@@ -588,7 +588,7 @@ void QwtPlotSpectrogram::drawContourLines( QPainter *painter,
 
     const QwtInterval intensityRange = d_data->data->interval( Qt::ZAxis );
 
-    const int numLevels = ( int )d_data->contourLevels.size();
+    const int numLevels = d_data->contourLevels.size();
     for ( int l = 0; l < numLevels; l++ )
     {
         const double level = d_data->contourLevels[l];
@@ -603,7 +603,7 @@ void QwtPlotSpectrogram::drawContourLines( QPainter *painter,
         painter->setPen( pen );
 
         const QPolygonF &lines = contourLines[level];
-        for ( int i = 0; i < ( int )lines.size(); i += 2 )
+        for ( int i = 0; i < lines.size(); i += 2 )
         {
             const QPointF p1( xMap.transform( lines[i].x() ),
                 yMap.transform( lines[i].y() ) );
