@@ -287,7 +287,7 @@ inline void QwtInterval::invalidate()
     d_maxValue = -1.0;
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtInterval::BorderFlags );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtInterval::BorderFlags )
 
 #ifndef QT_NO_DEBUG_STREAM
 QWT_EXPORT QDebug operator<<( QDebug, const QwtInterval & );

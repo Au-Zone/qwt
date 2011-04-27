@@ -210,7 +210,7 @@ inline bool QwtText::isEmpty() const
     return text().isEmpty();
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtText::PaintAttributes );
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtText::LayoutAttributes );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtText::PaintAttributes )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtText::LayoutAttributes )
 
 #endif

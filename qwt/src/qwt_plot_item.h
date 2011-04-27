@@ -186,7 +186,7 @@ private:
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemAttributes );
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::RenderHints );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemAttributes )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::RenderHints )
 
 #endif

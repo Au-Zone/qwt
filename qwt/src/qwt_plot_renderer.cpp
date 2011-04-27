@@ -418,8 +418,7 @@ void QwtPlotRenderer::render( QwtPlot *plot,
     {
         for ( axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
         {
-            QwtScaleWidget *scaleWidget =
-                ( QwtScaleWidget * )plot->axisWidget( axisId );
+            QwtScaleWidget *scaleWidget = plot->axisWidget( axisId );
             if ( scaleWidget )
             {
                 baseLineDists[axisId] = scaleWidget->margin();
@@ -532,11 +531,10 @@ void QwtPlotRenderer::renderLegend( const QwtPlot *plot,
         }
     }
 
-    QLayout *l = plot->legend()->contentsWidget()->layout();
-    if ( l == 0 || !l->inherits( "QwtDynGridLayout" ) )
+    const QwtDynGridLayout *legendLayout = qobject_cast<QwtDynGridLayout *>( 
+        plot->legend()->contentsWidget()->layout() );
+    if ( legendLayout == NULL )
         return;
-
-    QwtDynGridLayout *legendLayout = ( QwtDynGridLayout * )l;
 
     uint numCols = legendLayout->columnsForWidth( rect.width() );
     QList<QRect> itemRects =

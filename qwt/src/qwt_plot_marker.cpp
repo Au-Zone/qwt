@@ -532,11 +532,10 @@ void QwtPlotMarker::updateLegend( QwtLegend *legend ) const
             if ( lgdItem )
                 legend->insert( this, lgdItem );
         }
-        if ( lgdItem && lgdItem->inherits( "QwtLegendItem" ) )
-        {
-            QwtLegendItem *l = ( QwtLegendItem * )lgdItem;
+
+        QwtLegendItem *l = qobject_cast<QwtLegendItem *>( lgdItem );
+        if ( l )
             l->setIdentifierSize( d_data->symbol->boundingSize() );
-        }
     }
 
     QwtPlotItem::updateLegend( legend );

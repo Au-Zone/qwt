@@ -145,6 +145,6 @@ private:
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtSlider::BackgroundStyles );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtSlider::BackgroundStyles )
 
 #endif

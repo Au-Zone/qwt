@@ -163,6 +163,6 @@ private:
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCanvas::PaintAttributes );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotCanvas::PaintAttributes )
 
 #endif

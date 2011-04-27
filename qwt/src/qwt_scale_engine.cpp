@@ -265,7 +265,7 @@ QList<double> QwtScaleEngine::strip( const QList<double>& ticks,
     }
 
     QList<double> strippedTicks;
-    for ( int i = 0; i < ( int )ticks.count(); i++ )
+    for ( int i = 0; i < ticks.count(); i++ )
     {
         if ( contains( interval, ticks[i] ) )
             strippedTicks += ticks[i];
@@ -484,7 +484,7 @@ void QwtLinearScaleEngine::buildTicks(
         // ticks very close to 0.0 are
         // explicitely set to 0.0
 
-        for ( int j = 0; j < ( int )ticks[i].count(); j++ )
+        for ( int j = 0; j < ticks[i].count(); j++ )
         {
             if ( qwtFuzzyCompare( ticks[i][j], 0.0, stepSize ) == 0 )
                 ticks[i][j] = 0.0;
@@ -554,7 +554,7 @@ void QwtLinearScaleEngine::buildMinorTicks(
 
     // calculate minor ticks
 
-    for ( int i = 0; i < ( int )majorTicks.count(); i++ )
+    for ( int i = 0; i < majorTicks.count(); i++ )
     {
         double val = majorTicks[i];
         for ( int k = 0; k < numTicks; k++ )
@@ -846,7 +846,7 @@ QList<double> QwtLog10ScaleEngine::buildMinorTicks(
 
         QList<double> minorTicks;
 
-        for ( int i = 0; i < ( int )majorTicks.count(); i++ )
+        for ( int i = 0; i < majorTicks.count(); i++ )
         {
             const double v = majorTicks[i];
             for ( int k = k0; k <= kmax; k += kstep )
@@ -882,7 +882,7 @@ QList<double> QwtLog10ScaleEngine::buildMinorTicks(
         const qreal minFactor = qMax( qPow( 10.0, minStep ), qreal( 10.0 ) );
 
         QList<double> minorTicks;
-        for ( int i = 0; i < ( int )majorTicks.count(); i++ )
+        for ( int i = 0; i < majorTicks.count(); i++ )
         {
             double val = majorTicks[i];
             for ( int k = 0; k < nMin; k++ )

@@ -129,7 +129,7 @@ void QwtScaleDraw::getBorderDistHint( const QFont &font,
     double maxTick = minTick;
     double maxPos = minPos;
 
-    for ( uint i = 1; i < ( uint )ticks.count(); i++ )
+    for ( int i = 1; i < ticks.count(); i++ )
     {
         const double tickPos = scaleMap().transform( ticks[i] );
         if ( tickPos < minPos )
@@ -203,7 +203,7 @@ int QwtScaleDraw::minLabelDist( const QFont &font ) const
     }
     int maxDist = 0;
 
-    for ( uint i = 1; i < ( uint )ticks.count(); i++ )
+    for ( int i = 1; i < ticks.count(); i++ )
     {
         bRect1 = bRect2;
         bRect2 = labelRect( font, ticks[i] );
@@ -236,7 +236,7 @@ int QwtScaleDraw::minLabelDist( const QFont &font ) const
     // the height of the label font. This height is needed
     // for the neighbour labal.
 
-    int labelDist = ( int )( fmHeight / qSin( angle ) * qCos( angle ) );
+    int labelDist = qFloor( fmHeight / qSin( angle ) * qCos( angle ) );
     if ( labelDist < 0 )
         labelDist = -labelDist;
 
@@ -849,7 +849,7 @@ int QwtScaleDraw::maxLabelWidth( const QFont &font ) const
     int maxWidth = 0;
 
     const QList<double> &ticks = scaleDiv().ticks( QwtScaleDiv::MajorTick );
-    for ( uint i = 0; i < ( uint )ticks.count(); i++ )
+    for ( int i = 0; i < ticks.count(); i++ )
     {
         const double v = ticks[i];
         if ( scaleDiv().contains( v ) )
@@ -872,7 +872,7 @@ int QwtScaleDraw::maxLabelHeight( const QFont &font ) const
     int maxHeight = 0;
 
     const QList<double> &ticks = scaleDiv().ticks( QwtScaleDiv::MajorTick );
-    for ( uint i = 0; i < ( uint )ticks.count(); i++ )
+    for ( int i = 0; i < ticks.count(); i++ )
     {
         const double v = ticks[i];
         if ( scaleDiv().contains( v ) )

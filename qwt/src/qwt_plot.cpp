@@ -722,10 +722,10 @@ void QwtPlot::insertLegend( QwtLegend *legend,
                 ( *it )->updateLegend( d_data->legend );
             }
 
-            QLayout *l = d_data->legend->contentsWidget()->layout();
-            if ( l && l->inherits( "QwtDynGridLayout" ) )
+            QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
+                d_data->legend->contentsWidget()->layout() );
+            if ( tl )
             {
-                QwtDynGridLayout *tl = ( QwtDynGridLayout * )l;
                 switch ( d_data->layout->legendPosition() )
                 {
                     case LeftLegend:

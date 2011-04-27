@@ -148,7 +148,7 @@ private:
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotRenderer::DiscardFlags );
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotRenderer::LayoutFlags );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotRenderer::DiscardFlags )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotRenderer::LayoutFlags )
 
 #endif
