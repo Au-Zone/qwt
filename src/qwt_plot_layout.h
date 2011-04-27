@@ -100,6 +100,6 @@ private:
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotLayout::Options );
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotLayout::Options )
 
 #endif

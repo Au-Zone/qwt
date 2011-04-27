@@ -1,4 +1,11 @@
-Release 6.0
+Release 6.0.1
+===================
+
+Changes
+-------
+1) Reduce warnings with pedantic compiler options
+
+Release 6.0.0
 ===================
 
 Changes

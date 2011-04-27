@@ -178,7 +178,7 @@ void QwtPlotDirectPainter::drawSeries(
 
     if ( hasBackingStore )
     {
-        QPainter painter( ( QPixmap * )canvas->backingStore() );
+        QPainter painter( const_cast<QPixmap *>( canvas->backingStore() ) );
         painter.translate( -canvasRect.x(), -canvasRect.y() );
 
         if ( d_data->hasClipping )
@@ -186,7 +186,7 @@ void QwtPlotDirectPainter::drawSeries(
 
         renderItem( &painter, canvasRect, seriesItem, from, to );
 
-        if ( testAttribute( FullRepaint ) )
+        if ( testAttribute( QwtPlotDirectPainter::FullRepaint ) )
         {
             canvas->repaint();
             return;
@@ -224,7 +224,7 @@ void QwtPlotDirectPainter::drawSeries(
 
         renderItem( &d_data->painter, canvasRect, seriesItem, from, to );
 
-        if ( d_data->attributes & AtomicPainter )
+        if ( d_data->attributes & QwtPlotDirectPainter::AtomicPainter )
         {
             reset();
         }

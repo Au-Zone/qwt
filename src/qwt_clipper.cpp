@@ -24,7 +24,7 @@ namespace QwtClip
     template <class Point, typename T> class BottomEdge;
 
     template <class Point> class PointBuffer;
-};
+}
 
 template <class Point, typename Value>
 class QwtClip::LeftEdge
@@ -190,8 +190,8 @@ private:
         while ( m_capacity < size )
             m_capacity *= 2;
 
-        m_buffer = ( Point * ) qRealloc( m_buffer,
-                                         m_capacity * sizeof( Point ) );
+        m_buffer = ( Point * ) qRealloc( 
+            m_buffer, m_capacity * sizeof( Point ) );
     }
 
     int m_capacity;

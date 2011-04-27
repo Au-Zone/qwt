@@ -12,8 +12,6 @@
 #include "qwt_interval.h"
 #include <qnumeric.h>
 
-typedef QVector<QRgb> QwtColorTable;
-
 class QwtLinearColorMap::ColorStops
 {
 public:
@@ -73,7 +71,7 @@ void QwtLinearColorMap::ColorStops::insert( double pos, const QColor &color )
     else
     {
         index = findUpper( pos );
-        if ( index == ( int )_stops.size() ||
+        if ( index == _stops.size() ||
                 qAbs( _stops[index].pos - pos ) >= 0.001 )
         {
             _stops.resize( _stops.size() + 1 );
@@ -88,7 +86,7 @@ void QwtLinearColorMap::ColorStops::insert( double pos, const QColor &color )
 inline QVector<double> QwtLinearColorMap::ColorStops::stops() const
 {
     QVector<double> positions( _stops.size() );
-    for ( int i = 0; i < ( int )_stops.size(); i++ )
+    for ( int i = 0; i < _stops.size(); i++ )
         positions[i] = _stops[i].pos;
     return positions;
 }
@@ -123,7 +121,7 @@ inline QRgb QwtLinearColorMap::ColorStops::rgb(
     if ( pos <= 0.0 )
         return _stops[0].rgb;
     if ( pos >= 1.0 )
-        return _stops[( int )( _stops.size() - 1 )].rgb;
+        return _stops[ _stops.size() - 1 ].rgb;
 
     const int index = findUpper( pos );
     if ( mode == FixedColors )
@@ -165,14 +163,14 @@ QwtColorMap::~QwtColorMap()
    \param interval Range for the values
    \return A color table, that can be used for a QImage
 */
-QwtColorTable QwtColorMap::colorTable( const QwtInterval &interval ) const
+QVector<QRgb> QwtColorMap::colorTable( const QwtInterval &interval ) const
 {
-    QwtColorTable table( 256 );
+    QVector<QRgb> table( 256 );
 
     if ( interval.isValid() )
     {
         const double step = interval.width() / ( table.size() - 1 );
-        for ( int i = 0; i < ( int ) table.size(); i++ )
+        for ( int i = 0; i < table.size(); i++ )
             table[i] = rgb( interval, interval.minValue() + step * i );
     }
 

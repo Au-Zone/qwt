@@ -282,14 +282,14 @@ int QwtDynGridLayout::maxRowWidth( int numCols ) const
     int col;
 
     QVector<int> colWidth( numCols );
-    for ( col = 0; col < ( int )numCols; col++ )
+    for ( col = 0; col < numCols; col++ )
         colWidth[col] = 0;
 
     if ( d_data->isDirty )
         d_data->updateLayoutCache();
 
-    for ( uint index = 0;
-        index < ( uint )d_data->itemSizeHints.count(); index++ )
+    for ( int index = 0;
+        index < d_data->itemSizeHints.count(); index++ )
     {
         col = index % numCols;
         colWidth[col] = qMax( colWidth[col],
@@ -297,7 +297,7 @@ int QwtDynGridLayout::maxRowWidth( int numCols ) const
     }
 
     int rowWidth = 2 * margin() + ( numCols - 1 ) * spacing();
-    for ( col = 0; col < ( int )numCols; col++ )
+    for ( col = 0; col < numCols; col++ )
         rowWidth += colWidth[col];
 
     return rowWidth;
@@ -315,9 +315,9 @@ int QwtDynGridLayout::maxItemWidth() const
         d_data->updateLayoutCache();
 
     int w = 0;
-    for ( uint i = 0; i < ( uint )d_data->itemSizeHints.count(); i++ )
+    for ( int i = 0; i < d_data->itemSizeHints.count(); i++ )
     {
-        const int itemW = d_data->itemSizeHints[int( i )].width();
+        const int itemW = d_data->itemSizeHints[i].width();
         if ( itemW > w )
             w = itemW;
     }

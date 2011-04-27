@@ -448,37 +448,35 @@ void QwtPlotItem::updateLegend( QwtLegend *legend ) const
             if ( lgdItem )
                 legend->insert( this, lgdItem );
         }
-        if ( lgdItem && lgdItem->inherits( "QwtLegendItem" ) )
+
+        QwtLegendItem *label = qobject_cast<QwtLegendItem *>( lgdItem );
+        if ( label )
         {
-            QwtLegendItem* label = ( QwtLegendItem* )lgdItem;
-            if ( label )
-            {
-                // paint the identifier
-                const QSize sz = label->identifierSize();
+            // paint the identifier
+            const QSize sz = label->identifierSize();
 
-                QPixmap identifier( sz.width(), sz.height() );
-                identifier.fill( Qt::transparent );
+            QPixmap identifier( sz.width(), sz.height() );
+            identifier.fill( Qt::transparent );
 
-                QPainter painter( &identifier );
-                painter.setRenderHint( QPainter::Antialiasing,
-                    testRenderHint( QwtPlotItem::RenderAntialiased ) );
-                drawLegendIdentifier( &painter,
-                    QRect( 0, 0, sz.width(), sz.height() ) );
-                painter.end();
+            QPainter painter( &identifier );
+            painter.setRenderHint( QPainter::Antialiasing,
+                testRenderHint( QwtPlotItem::RenderAntialiased ) );
+            drawLegendIdentifier( &painter,
+                QRect( 0, 0, sz.width(), sz.height() ) );
+            painter.end();
 
-                const bool doUpdate = label->updatesEnabled();
-                if ( doUpdate )
-                    label->setUpdatesEnabled( false );
+            const bool doUpdate = label->updatesEnabled();
+            if ( doUpdate )
+                label->setUpdatesEnabled( false );
 
-                label->setText( title() );
-                label->setIdentifier( identifier );
-                label->setItemMode( legend->itemMode() );
+            label->setText( title() );
+            label->setIdentifier( identifier );
+            label->setItemMode( legend->itemMode() );
 
-                if ( doUpdate )
-                    label->setUpdatesEnabled( true );
+            if ( doUpdate )
+                label->setUpdatesEnabled( true );
 
-                label->update();
-            }
+            label->update();
         }
     }
     else

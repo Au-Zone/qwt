@@ -131,7 +131,7 @@ int QwtSplineCurveFitter::splineSize() const
 */
 QPolygonF QwtSplineCurveFitter::fitCurve( const QPolygonF &points ) const
 {
-    const int size = ( int )points.size();
+    const int size = points.size();
     if ( size <= 2 )
         return points;
 
