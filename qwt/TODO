@@ -20,6 +20,7 @@ Ideas
 - QwtSymbol/QwtIntervalSymbol + QPainterPath
 - QwtPlotScene + breaking composite architecture
 - Using QStaticText for markers ( and scales ? )
+- Using QAbstractSlider as baseclass of QwtAbstractSlider
 
 Bugs/Change requests
 --------------------
@@ -27,3 +28,6 @@ Bugs/Change requests
 2) Layout init of round scales too late.
 3) Remove QwtScaleTransformation::copy()
 4) Remove valid flag of QwtScaleDiv
+5) Reference value for QwtThermo
+6) Transparent canvas background + backingstore
+7) Conflicts of qtAddLibrary with installed versions

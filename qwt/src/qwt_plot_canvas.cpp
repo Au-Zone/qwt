@@ -620,7 +620,7 @@ bool QwtPlotCanvas::testPaintAttribute( PaintAttribute attribute ) const
     return d_data->paintAttributes & attribute;
 }
 
-//! Return the backing store, might be null
+//! \return Backing store, might be null
 const QPixmap *QwtPlotCanvas::backingStore() const
 {
     return d_data->backingStore;
