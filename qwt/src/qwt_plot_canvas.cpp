@@ -138,14 +138,14 @@ private:
 public:
     QVector<QRectF> clipRects;
 
-    struct
+    struct Border
     {
         QList<QPainterPath> pathList;
         QList<QRectF> rectList;
         QRegion clipRegion;
     } border;
 
-    struct
+    struct Background
     {
         QPainterPath path;
         QBrush brush;
@@ -502,13 +502,13 @@ public:
     QwtPlotCanvas::PaintAttributes paintAttributes;
     QPixmap *backingStore;
 
-    struct
+    struct StyleSheet
     {
         bool hasBorder;
         QPainterPath borderPath;
         QVector<QRectF> cornerRects;
 
-        struct
+        struct StyleSheetBackground
         {
             QBrush brush;
             QPointF origin;
