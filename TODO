@@ -21,6 +21,7 @@ Ideas
 - QwtPlotScene + breaking composite architecture
 - Using QStaticText for markers ( and scales ? )
 - Using QAbstractSlider as baseclass of QwtAbstractSlider
+- Scales/Grid item like in QwtPolatGrid
 
 Bugs/Change requests
 --------------------

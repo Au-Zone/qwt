@@ -1,13 +1,19 @@
-#include <stdlib.h>
-#include <qpen.h>
+#include "tvplot.h"
 #include <qwt_plot_layout.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_plot_renderer.h>
 #include <qwt_legend.h>
 #include <qwt_legend_item.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_histogram.h>
 #include <qwt_column_symbol.h>
 #include <qwt_series_data.h>
-#include "tvplot.h"
+#include <qpen.h>
+#include <qfiledialog.h>
+#include <qimagewriter.h>
+#include <qprintdialog.h>
+#include <qfileinfo.h>
+#include <stdlib.h>
 
 class Histogram: public QwtPlotHistogram
 {
@@ -26,19 +32,11 @@ Histogram::Histogram(const QString &title, const QColor &symbolColor):
     setColor(symbolColor);
 }
 
-void Histogram::setColor(const QColor &symbolColor)
+void Histogram::setColor(const QColor &color)
 {
-    QColor color = symbolColor;
-    color.setAlpha(180);
-
-    setPen(QPen(Qt::black));
-    setBrush(QBrush(color));
-
-    QwtColumnSymbol *symbol = new QwtColumnSymbol(QwtColumnSymbol::Box);
-    symbol->setFrameStyle(QwtColumnSymbol::Raised);
-    symbol->setLineWidth(2);
-    symbol->setPalette(QPalette(color));
-    setSymbol(symbol);
+    QColor c = color;
+    c.setAlpha(180);
+    setBrush( QBrush(c) );
 }
 
 void Histogram::setValues(uint numValues, const double *values)
@@ -60,7 +58,8 @@ TVPlot::TVPlot(QWidget *parent):
 {
     setTitle("Watching TV during a weekend");
 
-    setCanvasBackground(QColor(Qt::gray));
+    canvas()->setPalette( Qt::gray );
+    canvas()->setBorderRadius( 10 );
     plotLayout()->setAlignCanvasToScales(true);
 
     setAxisTitle(QwtPlot::yLeft, "Number of People");
@@ -116,6 +115,85 @@ void TVPlot::populate()
     histogramNovember->setValues(
         sizeof(novemberValues) / sizeof(double), novemberValues);
     histogramNovember->attach(this);
+}
+
+void TVPlot::exportPlot()
+{
+#ifndef QT_NO_PRINTER
+    QString fileName = "tvplot.pdf";
+#else
+    QString fileName = "tvplot.png";
+#endif
+
+#ifndef QT_NO_FILEDIALOG
+    const QList<QByteArray> imageFormats =
+        QImageWriter::supportedImageFormats();
+
+    QStringList filter;
+    filter += "PDF Documents (*.pdf)";
+#ifndef QWT_NO_SVG
+    filter += "SVG Documents (*.svg)";
+#endif
+    filter += "Postscript Documents (*.ps)";
+
+    if ( imageFormats.size() > 0 )
+    {
+        QString imageFilter("Images (");
+        for ( int i = 0; i < imageFormats.size(); i++ )
+        {
+            if ( i > 0 )
+                imageFilter += " ";
+            imageFilter += "*.";
+            imageFilter += imageFormats[i];
+        }
+        imageFilter += ")";
+
+        filter += imageFilter;
+    }
+
+    fileName = QFileDialog::getSaveFileName(
+        this, "Export File Name", fileName,
+        filter.join(";;"), NULL, QFileDialog::DontConfirmOverwrite);
+#endif
+    if ( !fileName.isEmpty() )
+    {
+        QwtPlotRenderer renderer;
+        renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
+
+        renderer.renderDocument(this, fileName, QSizeF(300, 200), 85);
+    }
+}
+
+void TVPlot::setMode( int mode )
+{
+    QwtPlotItemList items = itemList( QwtPlotItem::Rtti_PlotHistogram );
+
+    for ( int i = 0; i < items.size(); i++ )
+    {
+        QwtPlotHistogram *histogram = static_cast<QwtPlotHistogram *>( items[i] );
+        if ( mode < 3 )
+        {
+            histogram->setStyle( static_cast<QwtPlotHistogram::HistogramStyle>( mode ) );
+            histogram->setSymbol(NULL);
+
+            QPen pen( Qt::black );
+            if ( mode == QwtPlotHistogram::Lines )
+                pen.setBrush( histogram->brush() );
+
+            histogram->setPen( pen );
+        }
+        else
+        {
+            histogram->setStyle( QwtPlotHistogram::Columns );
+
+            QwtColumnSymbol *symbol = new QwtColumnSymbol(QwtColumnSymbol::Box);
+            symbol->setFrameStyle(QwtColumnSymbol::Raised);
+            symbol->setLineWidth(2);
+            symbol->setPalette( QPalette( histogram->brush().color() ) );
+
+            histogram->setSymbol(symbol);
+        }
+    }
 }
 
 void TVPlot::showItem(QwtPlotItem *item, bool on)

@@ -9,6 +9,10 @@ class TVPlot: public QwtPlot
 public:
     TVPlot(QWidget * = NULL);
 
+public Q_SLOTS:
+    void setMode( int );
+    void exportPlot();
+
 private:
     void populate();
 
