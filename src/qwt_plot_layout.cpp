@@ -153,6 +153,7 @@ class QwtPlotLayout::PrivateData
 {
 public:
     PrivateData():
+        titlePos( QwtPlotLayout::TopTitle ),
         spacing( 5 ),
         alignCanvasToScales( false )
     {
@@ -165,6 +166,7 @@ public:
 
     QwtPlotLayout::LayoutData layoutData;
 
+    QwtPlotLayout::TitlePosition titlePos;
     QwtPlot::LegendPosition legendPos;
     double legendRatio;
     unsigned int spacing;
@@ -281,6 +283,25 @@ void QwtPlotLayout::setSpacing( int spacing )
 int QwtPlotLayout::spacing() const
 {
     return d_data->spacing;
+}
+
+/*!
+  \brief Specify the position of the title
+  \param pos The title's position.
+  \sa titlePosition()
+*/
+void QwtPlotLayout::setTitlePosition( TitlePosition pos)
+{
+    d_data->titlePos = pos;
+}
+
+/*!
+  \return Position of the title
+  \sa setTitlePosition()
+*/
+QwtPlotLayout::TitlePosition QwtPlotLayout::titlePosition() const
+{
+    return d_data->titlePos;
 }
 
 /*!
@@ -1138,8 +1159,19 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
 
     if ( dimTitle > 0 )
     {
-        d_data->titleRect = QRect( rect.x(), rect.y(),
-            rect.width(), dimTitle );
+        d_data->titleRect.setRect( 
+            rect.left(), 0, rect.width(), dimTitle );
+
+        if ( d_data->titlePos == QwtPlotLayout::BottomTitle )
+        {
+            d_data->titleRect.moveTop( rect.bottom() - dimTitle );
+            rect.setBottom( d_data->titleRect.top() - d_data->spacing );
+        }
+        else
+        {
+            d_data->titleRect.moveTop( rect.top() );
+            rect.setTop( d_data->titleRect.bottom() + d_data->spacing );
+        }
 
         if ( d_data->layoutData.scale[QwtPlot::yLeft].isEnabled !=
             d_data->layoutData.scale[QwtPlot::yRight].isEnabled )
@@ -1152,8 +1184,6 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
                 - dimAxes[QwtPlot::yLeft] - dimAxes[QwtPlot::yRight] );
         }
 
-        // subtract title
-        rect.setTop( rect.top() + dimTitle + d_data->spacing );
     }
 
     d_data->canvasRect.setRect(

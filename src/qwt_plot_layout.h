@@ -49,6 +49,19 @@ public:
     //! Layout options
     typedef QFlags<Option> Options;
 
+    /*!
+        Position of the title, relative to the canvas.
+        \sa setTitlePosition(), titlePosition()
+     */
+    enum TitlePosition
+    {
+        //! The title will be above the QwtPlot::xTop axis 
+        TopTitle,
+
+        //! The title will be below QwtPlot::xBottom axis.
+        BottomTitle,
+    };
+
     explicit QwtPlotLayout();
     virtual ~QwtPlotLayout();
 
@@ -67,6 +80,9 @@ public:
 
     void setLegendRatio( double ratio );
     double legendRatio() const;
+
+    void setTitlePosition( TitlePosition );
+    TitlePosition titlePosition() const;
 
     virtual QSize minimumSizeHint( const QwtPlot * ) const;
 
