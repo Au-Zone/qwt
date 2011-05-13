@@ -232,7 +232,14 @@ void CanvasPicker::move(const QPoint &pos)
     }
     d_selectedCurve->setSamples(xData, yData);
 
+    /*
+       Enable QwtPlotCanvas::ImmediatePaint, so that the canvas has been
+       updated before we paint the cursor on it.
+     */
+    plot()->canvas()->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, true);
     plot()->replot();
+    plot()->canvas()->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, false);
+
     showCursor(true);
 }
 
@@ -246,19 +253,13 @@ void CanvasPicker::showCursor(bool showIt)
 
     const QBrush brush = symbol->brush();
     if ( showIt )
-        symbol->setBrush(symbol->brush().color().dark(150));
-
-    const bool doReplot = plot()->autoReplot();
-
-    plot()->setAutoReplot(false);
+        symbol->setBrush(symbol->brush().color().dark(180));
 
     QwtPlotDirectPainter directPainter;
     directPainter.drawSeries(d_selectedCurve, d_selectedPoint, d_selectedPoint);
 
     if ( showIt )
         symbol->setBrush(brush); // reset brush
-
-    plot()->setAutoReplot(doReplot);
 }
 
 // Select the next/previous curve 
