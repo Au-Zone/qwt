@@ -35,9 +35,9 @@ QString SpeedoMeter::label() const
 }
 
 void SpeedoMeter::drawScaleContents(QPainter *painter,
-    const QPoint &center, int radius) const
+    const QPointF &center, double radius) const
 {
-    QRect rect(0, 0, 2 * radius, 2 * radius - 10);
+    QRectF rect( 0.0, 0.0, 2.0 * radius, 2.0 * radius - 10.0);
     rect.moveCenter(center);
 
     const QColor color = palette().color(QPalette::Text);
