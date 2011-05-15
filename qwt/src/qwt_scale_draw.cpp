@@ -817,7 +817,7 @@ double QwtScaleDraw::labelRotation() const
 
   Changing the alignment is often necessary for rotated labels.
 
-  \param alignment Or'd Qt::AlignmentFlags <see qnamespace.h>
+  \param alignment Or'd Qt::AlignmentFlags see <qnamespace.h>
 
   \sa setLabelRotation(), labelRotation(), labelAlignment()
   \warning The various alignments might be confusing.

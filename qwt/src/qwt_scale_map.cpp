@@ -41,19 +41,20 @@ QwtScaleTransformation *QwtScaleTransformation::copy() const
 }
 
 /*!
-  \brief Transform a value between 2 linear intervals
+  \brief Transform a value from the coordinate system of a scale
+         into the coordinate system of the paint device
 
-  \param s value related to the interval [s1, s2]
-  \param s1 first border of scale interval
-  \param s2 second border of scale interval
-  \param p1 first border of target interval
-  \param p2 second border of target interval
+  \param s  Value related to the coordinate system of the scale
+  \param s1 First border of the coordinate system of the scale
+  \param s2 Second border of the coordinate system of the scale
+  \param p1 First border of the coordinate system of the paint device
+  \param p2 Second border of the coordinate system of the paint device
   \return
   <dl>
-  <dt>linear mapping:<dd>p1 + (p2 - p1) / (s2 - s1) * (s - s1)</dd>
+  <dt>linear mapping:<dd>p1 + (p2 - p1) / (s2 - s1) * (s - s1);</dd>
   </dl>
   <dl>
-  <dt>log10 mapping: <dd>p1 + (p2 - p1) / log(s2 / s1) * log(s / s1)</dd>
+  <dt>log10 mapping: <dd>p1 + (p2 - p1) / log(s2 / s1) * log(s / s1);</dd>
   </dl>
 */
 
@@ -67,16 +68,20 @@ double QwtScaleTransformation::xForm(
 }
 
 /*!
-  \brief Transform a value from a linear to a logarithmic interval
+  \brief Transform a value from the coordinate system of the paint device
+         into the coordinate system of a scale.
 
-  \param p value related to the linear interval [p1, p2]
-  \param p1 first border of linear interval
-  \param p2 second border of linear interval
-  \param s1 first border of logarithmic interval
-  \param s2 second border of logarithmic interval
+  \param p Value related to the coordinate system of the paint device 
+  \param p1 First border of the coordinate system of the paint device
+  \param p2 Second border of the coordinate system of the paint device
+  \param s1 First border of the coordinate system of the scale
+  \param s2 Second border of the coordinate system of the scale
   \return
   <dl>
-  <dt>exp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;
+  <dt>linear mapping:<dd>s1 + ( s2 - s1 ) / ( p2 - p1 ) * ( p - p1 );</dd>
+  </dl>
+  <dl>
+  <dt>log10 mapping:<dd>exp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;</dd>
   </dl>
 */
 
