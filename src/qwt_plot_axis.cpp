@@ -505,7 +505,7 @@ void QwtPlot::setAxisScaleDraw( int axisId, QwtScaleDraw *scaleDraw )
 /*!
   Change the alignment of the tick labels
   \param axisId axis index
-  \param alignment Or'd Qt::AlignmentFlags <see qnamespace.h>
+  \param alignment Or'd Qt::AlignmentFlags see <qnamespace.h>
   \sa QwtScaleDraw::setLabelAlignment()
 */
 void QwtPlot::setAxisLabelAlignment( int axisId, Qt::Alignment alignment )

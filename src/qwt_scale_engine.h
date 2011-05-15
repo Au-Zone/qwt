@@ -34,7 +34,7 @@ public:
 /*!
   \brief Base class for scale engines.
 
-  A scale engine trys to find "reasonable" ranges and step sizes
+  A scale engine tries to find "reasonable" ranges and step sizes
   for scales.
 
   The layout of the scale can be varied with setAttribute().

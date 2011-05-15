@@ -19,7 +19,11 @@
 class QRectF;
 
 /*!
-   \brief Operations for linear or logarithmic (base 10) transformations
+   \brief A transformation between coordinate systems
+
+   QwtScaleTransformation offers transformations from the coordinate system
+   of a scale into the linear coordinate system of a paint device 
+   and vice versa.
 */
 class QWT_EXPORT QwtScaleTransformation
 {
@@ -42,8 +46,8 @@ public:
 
     virtual double xForm( double x, double s1, double s2,
         double p1, double p2 ) const;
-    virtual double invXForm( double x, double s1, double s2,
-        double p1, double p2 ) const;
+    virtual double invXForm( double x, double p1, double p2,
+        double s1, double s2 ) const;
 
     Type type() const;
 
@@ -65,8 +69,9 @@ inline QwtScaleTransformation::Type QwtScaleTransformation::type() const
 /*!
    \brief A scale map
 
-   QwtScaleMap offers transformations from a scale
-   into a paint interval and vice versa.
+   QwtScaleMap offers transformations from the coordinate system
+   of a scale into the linear coordinate system of a paint device 
+   and vice versa.
 */
 class QWT_EXPORT QwtScaleMap
 {
