@@ -18,6 +18,7 @@ contains(QWT_CONFIG, QwtPlot) {
         curvdemo1   \
         curvdemo2 \
         friedberg \
+        simpleplot \
         sinusplot \
         realtime \
         refreshtest \
