@@ -55,7 +55,11 @@ public:
         DiscardLegend           = 0x04,
 
         //! Don't render the background of the canvas
-        DiscardCanvasBackground = 0x08
+        DiscardCanvasBackground = 0x08,
+
+        //! Don't render the title of the plot
+        DiscardFooter           = 0x10
+
     };
 
     //! Disard flags
@@ -126,6 +130,9 @@ public:
         QPainter *, const QWidget *, const QRectF & ) const;
 
     virtual void renderTitle( const QwtPlot *,
+        QPainter *, const QRectF & ) const;
+
+    virtual void renderFooter( const QwtPlot *,
         QPainter *, const QRectF & ) const;
 
     virtual void renderScale( const QwtPlot *, QPainter *,

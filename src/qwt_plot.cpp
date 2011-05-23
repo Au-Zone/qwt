@@ -25,7 +25,8 @@
 class QwtPlot::PrivateData
 {
 public:
-    QPointer<QwtTextLabel> lblTitle;
+    QPointer<QwtTextLabel> titleLabel;
+    QPointer<QwtTextLabel> footerLabel;
     QPointer<QwtPlotCanvas> canvas;
     QPointer<QwtLegend> legend;
     QwtPlotLayout *layout;
@@ -75,19 +76,30 @@ void QwtPlot::initPlot( const QwtText &title )
     d_data->layout = new QwtPlotLayout;
     d_data->autoReplot = false;
 
-    d_data->lblTitle = new QwtTextLabel( title, this );
-    d_data->lblTitle->setObjectName( "QwtPlotTitle" );
-
-    d_data->lblTitle->setFont( QFont( fontInfo().family(), 14, QFont::Bold ) );
+    // title
+    d_data->titleLabel = new QwtTextLabel( this );
+    d_data->titleLabel->setObjectName( "QwtPlotTitle" );
+    d_data->titleLabel->setFont( QFont( fontInfo().family(), 14, QFont::Bold ) );
 
     QwtText text( title );
     text.setRenderFlags( Qt::AlignCenter | Qt::TextWordWrap );
-    d_data->lblTitle->setText( text );
+    d_data->titleLabel->setText( text );
 
+    // footer
+    d_data->footerLabel = new QwtTextLabel( this );
+    d_data->footerLabel->setObjectName( "QwtPlotFooter" );
+
+    QwtText footer;
+    footer.setRenderFlags( Qt::AlignCenter | Qt::TextWordWrap );
+    d_data->footerLabel->setText( footer );
+
+    // legend
     d_data->legend = NULL;
 
+    // axis
     initAxesData();
 
+    // canvas
     d_data->canvas = new QwtPlotCanvas( this );
     d_data->canvas->setObjectName( "QwtPlotCanvas" );
     d_data->canvas->setFrameStyle( QFrame::Panel | QFrame::Sunken );
@@ -163,9 +175,9 @@ bool QwtPlot::autoReplot() const
 */
 void QwtPlot::setTitle( const QString &title )
 {
-    if ( title != d_data->lblTitle->text().text() )
+    if ( title != d_data->titleLabel->text().text() )
     {
-        d_data->lblTitle->setText( title );
+        d_data->titleLabel->setText( title );
         updateLayout();
     }
 }
@@ -176,43 +188,85 @@ void QwtPlot::setTitle( const QString &title )
 */
 void QwtPlot::setTitle( const QwtText &title )
 {
-    if ( title != d_data->lblTitle->text() )
+    if ( title != d_data->titleLabel->text() )
     {
-        d_data->lblTitle->setText( title );
+        d_data->titleLabel->setText( title );
         updateLayout();
     }
 }
 
-//! \return the plot's title
+//! \return Title of the plot
 QwtText QwtPlot::title() const
 {
-    return d_data->lblTitle->text();
+    return d_data->titleLabel->text();
 }
 
-//! \return the plot's title
+//! \return Titel label widget.
+QwtTextLabel *QwtPlot::titleLabel()
+{
+    return d_data->titleLabel;
+}
+
+//! \return Titel label widget.
+const QwtTextLabel *QwtPlot::titleLabel() const
+{
+    return d_data->titleLabel;
+}
+
+/*!
+  Change the text the footer 
+  \param text New text of the footer
+*/
+void QwtPlot::setFooter( const QString &text )
+{
+    if ( text != d_data->footerLabel->text().text() )
+    {
+        d_data->footerLabel->setText( text );
+        updateLayout();
+    }
+}
+
+/*!
+  Change the text the footer 
+  \param text New text of the footer
+*/
+void QwtPlot::setFooter( const QwtText &text )
+{
+    if ( text != d_data->footerLabel->text() )
+    {
+        d_data->footerLabel->setText( text );
+        updateLayout();
+    }
+}
+
+//! \return Text of the footer
+QwtText QwtPlot::footer() const
+{
+    return d_data->footerLabel->text();
+}
+
+//! \return Footer label widget.
+QwtTextLabel *QwtPlot::footerLabel()
+{
+    return d_data->footerLabel;
+}
+
+//! \return Footer label widget.
+const QwtTextLabel *QwtPlot::footerLabel() const
+{
+    return d_data->footerLabel;
+}
+
+//! \return the plot's layout
 QwtPlotLayout *QwtPlot::plotLayout()
 {
     return d_data->layout;
 }
 
-//! \return the plot's titel label.
+//! \return the plot's layout
 const QwtPlotLayout *QwtPlot::plotLayout() const
 {
     return d_data->layout;
-}
-
-//! \return the plot's titel label.
-QwtTextLabel *QwtPlot::titleLabel()
-{
-    return d_data->lblTitle;
-}
-
-/*!
-  \return the plot's titel label.
-*/
-const QwtTextLabel *QwtPlot::titleLabel() const
-{
-    return d_data->lblTitle;
 }
 
 /*!
@@ -346,23 +400,32 @@ void QwtPlot::updateLayout()
     d_data->layout->activate( this, contentsRect() );
 
     QRect titleRect = d_data->layout->titleRect().toRect();
+    QRect footerRect = d_data->layout->footerRect().toRect();
     QRect scaleRect[QwtPlot::axisCnt];
     for ( int axisId = 0; axisId < axisCnt; axisId++ )
         scaleRect[axisId] = d_data->layout->scaleRect( axisId ).toRect();
     QRect legendRect = d_data->layout->legendRect().toRect();
     QRect canvasRect = d_data->layout->canvasRect().toRect();
 
-    //
     // resize and show the visible widgets
-    //
-    if ( !d_data->lblTitle->text().isEmpty() )
+
+    if ( !d_data->titleLabel->text().isEmpty() )
     {
-        d_data->lblTitle->setGeometry( titleRect );
-        if ( !d_data->lblTitle->isVisibleTo( this ) )
-            d_data->lblTitle->show();
+        d_data->titleLabel->setGeometry( titleRect );
+        if ( !d_data->titleLabel->isVisibleTo( this ) )
+            d_data->titleLabel->show();
     }
     else
-        d_data->lblTitle->hide();
+        d_data->titleLabel->hide();
+
+    if ( !d_data->footerLabel->text().isEmpty() )
+    {
+        d_data->footerLabel->setGeometry( footerRect );
+        if ( !d_data->footerLabel->isVisibleTo( this ) )
+            d_data->footerLabel->show();
+    }
+    else
+        d_data->footerLabel->hide();
 
     for ( int axisId = 0; axisId < axisCnt; axisId++ )
     {

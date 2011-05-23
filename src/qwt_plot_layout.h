@@ -49,19 +49,6 @@ public:
     //! Layout options
     typedef QFlags<Option> Options;
 
-    /*!
-        Position of the title, relative to the canvas.
-        \sa setTitlePosition(), titlePosition()
-     */
-    enum TitlePosition
-    {
-        //! The title will be above the QwtPlot::xTop axis 
-        TopTitle,
-
-        //! The title will be below QwtPlot::xBottom axis.
-        BottomTitle,
-    };
-
     explicit QwtPlotLayout();
     virtual ~QwtPlotLayout();
 
@@ -81,9 +68,6 @@ public:
     void setLegendRatio( double ratio );
     double legendRatio() const;
 
-    void setTitlePosition( TitlePosition );
-    TitlePosition titlePosition() const;
-
     virtual QSize minimumSizeHint( const QwtPlot * ) const;
 
     virtual void activate( const QwtPlot *,
@@ -92,6 +76,7 @@ public:
     virtual void invalidate();
 
     const QRectF &titleRect() const;
+    const QRectF &footerRect() const;
     const QRectF &legendRect() const;
     const QRectF &scaleRect( int axis ) const;
     const QRectF &canvasRect() const;
@@ -105,7 +90,7 @@ protected:
         const QRectF &legendRect ) const;
 
     void expandLineBreaks( int options, const QRectF &rect,
-        int &dimTitle, int dimAxes[QwtPlot::axisCnt] ) const;
+        int &dimTitle, int &dimFooter, int dimAxes[QwtPlot::axisCnt] ) const;
 
     void alignScales( int options, QRectF &canvasRect,
         QRectF scaleRect[QwtPlot::axisCnt] ) const;

@@ -55,7 +55,7 @@ QwtPlot *myPlot = new QwtPlot("Two Curves", parent);
 QwtPlotCurve *curve1 = new QwtPlotCurve("Curve 1");
 QwtPlotCurve *curve2 = new QwtPlotCurve("Curve 2");
 
-// copy the data into the curves
+// connect or copy the data to the curves
 curve1->setData(...);
 curve2->setData(...);
 
@@ -108,10 +108,10 @@ public:
         //! The legend will be right from the QwtPlot::yRight axis.
         RightLegend,
 
-        //! The legend will be below QwtPlot::xBottom axis.
+        //! The legend will be below the footer 
         BottomLegend,
 
-        //! The legend will be between QwtPlot::xTop axis and the title.
+        //! The legend will be above the title
         TopLegend,
 
         /*!
@@ -148,6 +148,14 @@ public:
     QwtTextLabel *titleLabel();
     const QwtTextLabel *titleLabel() const;
 
+    // Footer
+
+    void setFooter( const QString & );
+    void setFooter( const QwtText &t );
+    QwtText footer() const;
+
+    QwtTextLabel *footerLabel();
+    const QwtTextLabel *footerLabel() const;
     // Canvas
 
     QwtPlotCanvas *canvas();

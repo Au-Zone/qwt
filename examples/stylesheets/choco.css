@@ -24,6 +24,11 @@ QwtTextLabel#QwtPlotTitle
     color: palette(light);
 }
 
+QwtTextLabel#QwtPlotFooter
+{
+    color: palette(light);
+}
+
 QwtLegend
 {
     border: 1px solid white;
