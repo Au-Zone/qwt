@@ -450,6 +450,12 @@ void QwtPlotRenderer::render( QwtPlot *plot,
         renderTitle( plot, painter, plot->plotLayout()->titleRect() );
     }
 
+    if ( !( d_data->discardFlags & DiscardFooter )
+        && ( !plot->footerLabel()->text().isEmpty() ) )
+    {
+        renderFooter( plot, painter, plot->plotLayout()->footerRect() );
+    }
+
     if ( !( d_data->discardFlags & DiscardLegend )
         && plot->legend() && !plot->legend()->isEmpty() )
     {
@@ -508,6 +514,26 @@ void QwtPlotRenderer::renderTitle( const QwtPlot *plot,
     painter->setPen( color );
     plot->titleLabel()->text().draw( painter, rect );
 }
+
+/*!
+  Render the footer into a given rectangle.
+
+  \param plot Plot widget
+  \param painter Painter
+  \param rect Bounding rectangle
+*/
+void QwtPlotRenderer::renderFooter( const QwtPlot *plot,
+    QPainter *painter, const QRectF &rect ) const
+{
+    painter->setFont( plot->footerLabel()->font() );
+
+    const QColor color = plot->footerLabel()->palette().color(
+            QPalette::Active, QPalette::Text );
+
+    painter->setPen( color );
+    plot->footerLabel()->text().draw( painter, rect );
+}
+
 
 /*!
   Render the legend into a given rectangle.

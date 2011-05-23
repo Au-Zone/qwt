@@ -35,6 +35,12 @@ public:
         int frameWidth;
     } title;
 
+    struct t_footerData
+    {
+        QwtText text;
+        int frameWidth;
+    } footer;
+
     struct t_scaleData
     {
         bool isEnabled;
@@ -98,6 +104,21 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
         title.frameWidth = plot->titleLabel()->frameWidth();
     }
 
+    // footer
+
+    footer.frameWidth = 0;
+    footer.text = QwtText();
+
+    if ( plot->footerLabel() )
+    {
+        const QwtTextLabel *label = plot->footerLabel();
+        footer.text = label->text();
+        if ( !( footer.text.testPaintAttribute( QwtText::PaintUsingTextFont ) ) )
+            footer.text.setFont( label->font() );
+
+        footer.frameWidth = plot->footerLabel()->frameWidth();
+    }
+
     // scales
 
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
@@ -153,20 +174,19 @@ class QwtPlotLayout::PrivateData
 {
 public:
     PrivateData():
-        titlePos( QwtPlotLayout::TopTitle ),
         spacing( 5 ),
         alignCanvasToScales( false )
     {
     }
 
     QRectF titleRect;
+    QRectF footerRect;
     QRectF legendRect;
     QRectF scaleRect[QwtPlot::axisCnt];
     QRectF canvasRect;
 
     QwtPlotLayout::LayoutData layoutData;
 
-    QwtPlotLayout::TitlePosition titlePos;
     QwtPlot::LegendPosition legendPos;
     double legendRatio;
     unsigned int spacing;
@@ -286,29 +306,10 @@ int QwtPlotLayout::spacing() const
 }
 
 /*!
-  \brief Specify the position of the title
-  \param pos The title's position.
-  \sa titlePosition()
-*/
-void QwtPlotLayout::setTitlePosition( TitlePosition pos)
-{
-    d_data->titlePos = pos;
-}
-
-/*!
-  \return Position of the title
-  \sa setTitlePosition()
-*/
-QwtPlotLayout::TitlePosition QwtPlotLayout::titlePosition() const
-{
-    return d_data->titlePos;
-}
-
-/*!
   \brief Specify the position of the legend
   \param pos The legend's position.
   \param ratio Ratio between legend and the bounding rect
-               of title, canvas and axes. The legend will be shrinked
+               of title, footer, canvas and axes. The legend will be shrinked
                if it would need more space than the given ratio.
                The ratio is limited to ]0.0 .. 1.0]. In case of <= 0.0
                it will be reset to the default ratio.
@@ -372,7 +373,7 @@ QwtPlot::LegendPosition QwtPlotLayout::legendPosition() const
 /*!
   Specify the relative size of the legend in the plot
   \param ratio Ratio between legend and the bounding rect
-               of title, canvas and axes. The legend will be shrinked
+               of title, footer, canvas and axes. The legend will be shrinked
                if it would need more space than the given ratio.
                The ratio is limited to ]0.0 .. 1.0]. In case of <= 0.0
                it will be reset to the default ratio.
@@ -396,17 +397,24 @@ double QwtPlotLayout::legendRatio() const
   \return Geometry for the title
   \sa activate(), invalidate()
 */
-
 const QRectF &QwtPlotLayout::titleRect() const
 {
     return d_data->titleRect;
 }
 
 /*!
+  \return Geometry for the footer
+  \sa activate(), invalidate()
+*/
+const QRectF &QwtPlotLayout::footerRect() const
+{
+    return d_data->footerRect;
+}
+
+/*!
   \return Geometry for the legend
   \sa activate(), invalidate()
 */
-
 const QRectF &QwtPlotLayout::legendRect() const
 {
     return d_data->legendRect;
@@ -417,7 +425,6 @@ const QRectF &QwtPlotLayout::legendRect() const
   \return Geometry for the scale
   \sa activate(), invalidate()
 */
-
 const QRectF &QwtPlotLayout::scaleRect( int axis ) const
 {
     if ( axis < 0 || axis >= QwtPlot::axisCnt )
@@ -432,7 +439,6 @@ const QRectF &QwtPlotLayout::scaleRect( int axis ) const
   \return Geometry for the canvas
   \sa activate(), invalidate()
 */
-
 const QRectF &QwtPlotLayout::canvasRect() const
 {
     return d_data->canvasRect;
@@ -444,7 +450,9 @@ const QRectF &QwtPlotLayout::canvasRect() const
 */
 void QwtPlotLayout::invalidate()
 {
-    d_data->titleRect = d_data->legendRect = d_data->canvasRect = QRect();
+    d_data->titleRect = d_data->footerRect 
+        = d_data->legendRect = d_data->canvasRect = QRect();
+
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
         d_data->scaleRect[axis] = QRect();
 }
@@ -557,35 +565,42 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
         + 2 * ( canvas->frameWidth() + 1 );
     h += qMax( ch, minCanvasSize.height() );
 
-    const QwtTextLabel *title = plot->titleLabel();
-    if ( title && !title->text().isEmpty() )
-    {
-        // If only QwtPlot::yLeft or QwtPlot::yRight is showing,
-        // we center on the plot canvas.
-        const bool centerOnCanvas = !( plot->axisEnabled( QwtPlot::yLeft )
-            && plot->axisEnabled( QwtPlot::yRight ) );
+    const QwtTextLabel *labels[2];
+    labels[0] = plot->titleLabel();
+    labels[1] = plot->footerLabel();
 
-        int titleW = w;
-        if ( centerOnCanvas )
-        {
-            titleW -= scaleData[QwtPlot::yLeft].w
-                + scaleData[QwtPlot::yRight].w;
-        }
+	for ( int i = 0; i < 2; i++ )
+	{
+        const QwtTextLabel *label 	= labels[i];
+		if ( label && !label->text().isEmpty() )
+		{
+			// If only QwtPlot::yLeft or QwtPlot::yRight is showing,
+			// we center on the plot canvas.
+			const bool centerOnCanvas = !( plot->axisEnabled( QwtPlot::yLeft )
+				&& plot->axisEnabled( QwtPlot::yRight ) );
 
-        int titleH = title->heightForWidth( titleW );
-        if ( titleH > titleW ) // Compensate for a long title
-        {
-            w = titleW = titleH;
-            if ( centerOnCanvas )
-            {
-                w += scaleData[QwtPlot::yLeft].w
-                    + scaleData[QwtPlot::yRight].w;
-            }
+			int labelW = w;
+			if ( centerOnCanvas )
+			{
+				labelW -= scaleData[QwtPlot::yLeft].w
+					+ scaleData[QwtPlot::yRight].w;
+			}
 
-            titleH = title->heightForWidth( titleW );
-        }
-        h += titleH + d_data->spacing;
-    }
+			int labelH = label->heightForWidth( labelW );
+			if ( labelH > labelW ) // Compensate for a long title
+			{
+				w = labelW = labelH;
+				if ( centerOnCanvas )
+				{
+					w += scaleData[QwtPlot::yLeft].w
+						+ scaleData[QwtPlot::yRight].w;
+				}
+
+				labelH = label->heightForWidth( labelW );
+			}
+			h += labelH + d_data->spacing;
+		}
+	}
 
     // Compute the legend contribution
 
@@ -728,16 +743,17 @@ QRectF QwtPlotLayout::alignLegend( const QRectF &canvasRect,
   of their widgets in orientation of the text.
 
   \param options Options how to layout the legend
-  \param rect Bounding rect for title, axes and canvas.
+  \param rect Bounding rect for title, footer, axes and canvas.
   \param dimTitle Expanded height of the title widget
+  \param dimfooter Expanded height of the footer widget
   \param dimAxis Expanded heights of the axis in axis orientation.
 
   \sa Options
 */
 void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
-    int &dimTitle, int dimAxis[QwtPlot::axisCnt] ) const
+    int &dimTitle, int &dimFooter, int dimAxis[QwtPlot::axisCnt] ) const
 {
-    dimTitle = 0;
+    dimTitle = dimFooter = 0;
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
         dimAxis[axis] = 0;
 
@@ -782,6 +798,28 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
             if ( d > dimTitle )
             {
                 dimTitle = d;
+                done = false;
+            }
+        }
+
+        if ( !d_data->layoutData.footer.text.isEmpty() )
+        {
+            int w = rect.width();
+
+            if ( d_data->layoutData.scale[QwtPlot::yLeft].isEnabled
+                != d_data->layoutData.scale[QwtPlot::yRight].isEnabled )
+            {
+                // center to the canvas
+                w -= dimAxis[QwtPlot::yLeft] + dimAxis[QwtPlot::yRight];
+            }
+
+            int d = qCeil( d_data->layoutData.footer.text.heightForWidth( w ) );
+            if ( !( options & IgnoreFrames ) )
+                d += 2 * d_data->layoutData.footer.frameWidth;
+
+            if ( d > dimFooter )
+            {
+                dimFooter = d;
                 done = false;
             }
         }
@@ -1087,7 +1125,7 @@ void QwtPlotLayout::alignScales( int options,
   \param plotRect Rect where to place the components
   \param options Layout options
 
-  \sa invalidate(), titleRect(),
+  \sa invalidate(), titleRect(), footerRect()
       legendRect(), scaleRect(), canvasRect()
 */
 void QwtPlotLayout::activate( const QwtPlot *plot,
@@ -1145,33 +1183,26 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
      +---+-----------+---+
      |   |   Axis    |   |
      +---+-----------+---+
+     |      Footer       |
+     +---+-----------+---+
     */
 
-    // axes and title include text labels. The height of each
+    // title, footer and axes include text labels. The height of each
     // label depends on its line breaks, that depend on the width
     // for the label. A line break in a horizontal text will reduce
     // the available width for vertical texts and vice versa.
-    // expandLineBreaks finds the height/width for title and axes
+    // expandLineBreaks finds the height/width for title, footer and axes
     // including all line breaks.
 
-    int dimTitle, dimAxes[QwtPlot::axisCnt];
-    expandLineBreaks( options, rect, dimTitle, dimAxes );
+    int dimTitle, dimFooter, dimAxes[QwtPlot::axisCnt];
+    expandLineBreaks( options, rect, dimTitle, dimFooter, dimAxes );
 
     if ( dimTitle > 0 )
     {
         d_data->titleRect.setRect( 
-            rect.left(), 0, rect.width(), dimTitle );
+            rect.left(), rect.top(), rect.width(), dimTitle );
 
-        if ( d_data->titlePos == QwtPlotLayout::BottomTitle )
-        {
-            d_data->titleRect.moveTop( rect.bottom() - dimTitle );
-            rect.setBottom( d_data->titleRect.top() - d_data->spacing );
-        }
-        else
-        {
-            d_data->titleRect.moveTop( rect.top() );
-            rect.setTop( d_data->titleRect.bottom() + d_data->spacing );
-        }
+		rect.setTop( d_data->titleRect.bottom() + d_data->spacing );
 
         if ( d_data->layoutData.scale[QwtPlot::yLeft].isEnabled !=
             d_data->layoutData.scale[QwtPlot::yRight].isEnabled )
@@ -1179,11 +1210,29 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
             // if only one of the y axes is missing we align
             // the title centered to the canvas
 
-            d_data->titleRect.setX( rect.x() + dimAxes[QwtPlot::yLeft] );
+            d_data->titleRect.setX( rect.left() + dimAxes[QwtPlot::yLeft] );
             d_data->titleRect.setWidth( rect.width()
                 - dimAxes[QwtPlot::yLeft] - dimAxes[QwtPlot::yRight] );
         }
+    }
 
+    if ( dimFooter > 0 )
+    {
+        d_data->footerRect.setRect( 
+            rect.left(), rect.bottom() - dimFooter, rect.width(), dimFooter );
+
+		rect.setBottom( d_data->footerRect.top() - d_data->spacing );
+
+        if ( d_data->layoutData.scale[QwtPlot::yLeft].isEnabled !=
+            d_data->layoutData.scale[QwtPlot::yRight].isEnabled )
+        {
+            // if only one of the y axes is missing we align
+            // the footer centered to the canvas
+
+            d_data->footerRect.setX( rect.left() + dimAxes[QwtPlot::yLeft] );
+            d_data->footerRect.setWidth( rect.width()
+                - dimAxes[QwtPlot::yLeft] - dimAxes[QwtPlot::yRight] );
+        }
     }
 
     d_data->canvasRect.setRect(
