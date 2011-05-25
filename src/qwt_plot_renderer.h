@@ -57,7 +57,7 @@ public:
         //! Don't render the background of the canvas
         DiscardCanvasBackground = 0x08,
 
-        //! Don't render the title of the plot
+        //! Don't render the footer of the plot
         DiscardFooter           = 0x10
 
     };

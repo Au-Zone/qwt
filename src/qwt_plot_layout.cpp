@@ -780,7 +780,8 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
         // axis what might result in a line break of a horizontal
         // axis ... . So we loop as long until no size changes.
 
-        if ( !d_data->layoutData.title.text.isEmpty() )
+        if ( !( ( options & IgnoreTitle ) || 
+            d_data->layoutData.title.text.isEmpty() ) )
         {
             int w = rect.width();
 
@@ -802,7 +803,8 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
             }
         }
 
-        if ( !d_data->layoutData.footer.text.isEmpty() )
+        if ( !( ( options & IgnoreFooter ) ||
+            d_data->layoutData.footer.text.isEmpty() ) )
         {
             int w = rect.width();
 
