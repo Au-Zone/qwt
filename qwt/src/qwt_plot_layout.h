@@ -43,7 +43,13 @@ public:
         IgnoreFrames = 0x04,
 
         //! Ignore the legend.
-        IgnoreLegend = 0x08
+        IgnoreLegend = 0x08,
+
+        //! Ignore the title.
+        IgnoreTitle = 0x10,
+
+        //! Ignore the footer.
+        IgnoreFooter = 0x20
     };
 
     //! Layout options

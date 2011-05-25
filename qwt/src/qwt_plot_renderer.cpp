@@ -426,12 +426,19 @@ void QwtPlotRenderer::render( QwtPlot *plot,
             }
         }
     }
-    // Calculate the layout for the print.
+    // Calculate the layout for the document.
 
     QwtPlotLayout::Options layoutOptions = 
         QwtPlotLayout::IgnoreScrollbars | QwtPlotLayout::IgnoreFrames;
+
     if ( d_data->discardFlags & DiscardLegend )
         layoutOptions |= QwtPlotLayout::IgnoreLegend;
+
+    if ( d_data->discardFlags & DiscardTitle )
+        layoutOptions |= QwtPlotLayout::IgnoreTitle;
+
+    if ( d_data->discardFlags & DiscardFooter )
+        layoutOptions |= QwtPlotLayout::IgnoreFooter;
 
     const QRectF layoutRect = transform.inverted().mapRect( plotRect );
     plot->plotLayout()->activate( plot, layoutRect, layoutOptions );
