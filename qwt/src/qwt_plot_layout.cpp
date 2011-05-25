@@ -569,38 +569,38 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
     labels[0] = plot->titleLabel();
     labels[1] = plot->footerLabel();
 
-	for ( int i = 0; i < 2; i++ )
-	{
-        const QwtTextLabel *label 	= labels[i];
-		if ( label && !label->text().isEmpty() )
-		{
-			// If only QwtPlot::yLeft or QwtPlot::yRight is showing,
-			// we center on the plot canvas.
-			const bool centerOnCanvas = !( plot->axisEnabled( QwtPlot::yLeft )
-				&& plot->axisEnabled( QwtPlot::yRight ) );
+    for ( int i = 0; i < 2; i++ )
+    {
+        const QwtTextLabel *label   = labels[i];
+        if ( label && !label->text().isEmpty() )
+        {
+            // If only QwtPlot::yLeft or QwtPlot::yRight is showing,
+            // we center on the plot canvas.
+            const bool centerOnCanvas = !( plot->axisEnabled( QwtPlot::yLeft )
+                && plot->axisEnabled( QwtPlot::yRight ) );
 
-			int labelW = w;
-			if ( centerOnCanvas )
-			{
-				labelW -= scaleData[QwtPlot::yLeft].w
-					+ scaleData[QwtPlot::yRight].w;
-			}
+            int labelW = w;
+            if ( centerOnCanvas )
+            {
+                labelW -= scaleData[QwtPlot::yLeft].w
+                    + scaleData[QwtPlot::yRight].w;
+            }
 
-			int labelH = label->heightForWidth( labelW );
-			if ( labelH > labelW ) // Compensate for a long title
-			{
-				w = labelW = labelH;
-				if ( centerOnCanvas )
-				{
-					w += scaleData[QwtPlot::yLeft].w
-						+ scaleData[QwtPlot::yRight].w;
-				}
+            int labelH = label->heightForWidth( labelW );
+            if ( labelH > labelW ) // Compensate for a long title
+            {
+                w = labelW = labelH;
+                if ( centerOnCanvas )
+                {
+                    w += scaleData[QwtPlot::yLeft].w
+                        + scaleData[QwtPlot::yRight].w;
+                }
 
-				labelH = label->heightForWidth( labelW );
-			}
-			h += labelH + d_data->spacing;
-		}
-	}
+                labelH = label->heightForWidth( labelW );
+            }
+            h += labelH + d_data->spacing;
+        }
+    }
 
     // Compute the legend contribution
 
@@ -1202,7 +1202,7 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
         d_data->titleRect.setRect( 
             rect.left(), rect.top(), rect.width(), dimTitle );
 
-		rect.setTop( d_data->titleRect.bottom() + d_data->spacing );
+        rect.setTop( d_data->titleRect.bottom() + d_data->spacing );
 
         if ( d_data->layoutData.scale[QwtPlot::yLeft].isEnabled !=
             d_data->layoutData.scale[QwtPlot::yRight].isEnabled )
@@ -1221,7 +1221,7 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
         d_data->footerRect.setRect( 
             rect.left(), rect.bottom() - dimFooter, rect.width(), dimFooter );
 
-		rect.setBottom( d_data->footerRect.top() - d_data->spacing );
+        rect.setBottom( d_data->footerRect.top() - d_data->spacing );
 
         if ( d_data->layoutData.scale[QwtPlot::yLeft].isEnabled !=
             d_data->layoutData.scale[QwtPlot::yRight].isEnabled )
