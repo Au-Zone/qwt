@@ -14,6 +14,7 @@
 #include "qwt_scale_map.h"
 #include <qwindowdefs.h>
 #include <qwidget.h>
+#include <qframe.h>
 #include <qrect.h>
 #include <qpainter.h>
 #include <qpalette.h>
