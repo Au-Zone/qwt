@@ -98,7 +98,6 @@ public:
     void setIncSteps( QwtCounter::Button btn, int nSteps );
     int incSteps( QwtCounter::Button btn ) const;
 
-    virtual void setValue( double );
     virtual QSize sizeHint() const;
 
     // a set of dummies to help the designer
@@ -122,6 +121,10 @@ public:
     int stepButton3() const;
 
     virtual double value() const;
+
+public Q_SLOTS:
+    virtual void setValue( double );
+
 
 Q_SIGNALS:
     /*!
