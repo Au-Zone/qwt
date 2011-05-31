@@ -9,6 +9,7 @@
 #include <qwt_plot_directpainter.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_painter.h>
+#include <qpaintengine.h>
 #include <qevent.h>
 
 Plot::Plot(QWidget *parent):
@@ -28,8 +29,13 @@ Plot::Plot(QWidget *parent):
 
     canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, false);
 
-
 #if defined(Q_WS_X11)
+
+    // Unfortunately there is no clean way to find out if we are on X11
+    // and we use the native graphics system. So we better disable the code
+    // below as the raster graphicssystem is the default on X11 since Qt 4.8
+
+#if 0 
     // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent
     // works on X11. This has a nice effect on the performance.
     
@@ -48,7 +54,7 @@ Plot::Plot(QWidget *parent):
         canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
         canvas()->setAttribute(Qt::WA_NoSystemBackground, true);
     }
-
+#endif
 #endif
 
     initGradient();
