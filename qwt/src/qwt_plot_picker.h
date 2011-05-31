@@ -11,11 +11,11 @@
 #define QWT_PLOT_PICKER_H
 
 #include "qwt_global.h"
-#include "qwt_plot_canvas.h"
 #include "qwt_picker.h"
 #include <qvector.h>
 
 class QwtPlot;
+class QwtPlotCanvas;
 
 /*!
   \brief QwtPlotPicker provides selections on a plot canvas

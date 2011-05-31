@@ -3,6 +3,7 @@
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
 #include <qwt_plot_directpainter.h>
+#include <qwt_painter.h>
 #include "incrementalplot.h"
 #include <qpaintengine.h>
 
@@ -40,16 +41,11 @@ IncrementalPlot::IncrementalPlot(QWidget *parent):
 {
     d_directPainter = new QwtPlotDirectPainter(this);
 
-#if defined(Q_WS_X11)
-#if 0
-    // Unfortunately there is no clean way to find out if we are on X11
-    // and we use the native graphics system. So we better disable the code
-    // below as the raster graphicssystem is the default on X11 since Qt 4.8
-
-    canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
-    canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
-#endif
-#endif
+    if ( QwtPainter::isX11GraphicsSystem() )
+    {
+        canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
+        canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
+    }
 
     d_curve = new QwtPlotCurve("Test Curve");
     d_curve->setStyle(QwtPlotCurve::NoCurve);

@@ -109,6 +109,29 @@ static inline void unscaleFont( QPainter *painter )
 }
 
 /*!
+  Check is the application is running with the X11 graphics system
+  that has some special capabilities that can be used for incremental
+  painting to a widget.
+
+  \return True, when the graphicssystem is X11
+*/
+bool QwtPainter::isX11GraphicsSystem()
+{
+#if defined(Q_WS_X11)
+    static int onX11 = -1;
+    if ( onX11 < 0 )
+    {
+        QPixmap pm( 1, 1 );
+        onX11 = ( pm.paintEngine()->type() == QPaintEngine::X11 ) ? 1 : 0;
+    }
+
+    return onX11 == 1;
+#else
+    return false;
+#endif
+}
+
+/*!
   Check if the painter is using a paint engine, that aligns
   coordinates to integers. Today these are all paint engines
   beside QPaintEngine::Pdf and QPaintEngine::SVG.
