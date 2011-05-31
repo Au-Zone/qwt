@@ -92,6 +92,7 @@ public:
         const QwtScaleMap &, Qt::Orientation, const QRectF & );
 
     static bool isAligning( QPainter *painter );
+    static bool isX11GraphicsSystem();
 
 private:
     static bool d_polylineSplitting;
