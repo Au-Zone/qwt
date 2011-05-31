@@ -179,4 +179,37 @@ inline double qwtCeilF(double d)
     return ::ceil( d );
 }
 
+//! Approximation of arc tangent ( error below 0,005 radians )
+inline double qwtFastAtan( double x )
+{
+    if ( x < -1.0 )
+        return -M_PI_2 - x / ( x * x + 0.28 );
+
+    if ( x > 1.0 )
+        return M_PI_2 - x / ( x * x + 0.28 );
+
+    return x / ( 1.0 + x * x * 0.28 );
+}
+
+//! Approximation of arc tangent ( error below 0,005 radians )
+inline double qwtFastAtan2( double y, double x )
+{
+    if ( x > 0 )
+        return qwtFastAtan( y / x );
+
+    if ( x < 0 )
+    {
+        const double d = qwtFastAtan( y / x );
+        return ( y >= 0 ) ? d + M_PI : d - M_PI;
+    }
+
+    if ( y < 0.0 )
+        return -M_PI_2;
+
+    if ( y > 0.0 )
+        return M_PI_2;
+
+    return 0.0;
+}
+
 #endif
