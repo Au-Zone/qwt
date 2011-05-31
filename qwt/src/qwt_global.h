@@ -14,8 +14,8 @@
 
 // QWT_VERSION is (major << 16) + (minor << 8) + patch.
 
-#define QWT_VERSION       0x060000
-#define QWT_VERSION_STR   "6.0.0-svn"
+#define QWT_VERSION       0x060100
+#define QWT_VERSION_STR   "6.1.0-svn"
 
 #if defined(Q_WS_WIN) || defined(Q_WS_S60)
 
@@ -40,7 +40,5 @@
 #ifndef QWT_EXPORT
 #define QWT_EXPORT
 #endif
-
-// #define QWT_NO_COMPAT 1 // disable withdrawn functionality
 
 #endif 
