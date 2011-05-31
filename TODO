@@ -32,3 +32,4 @@ Bugs/Change requests
 5) Reference value for QwtThermo
 6) Transparent canvas background + backingstore
 7) Conflicts of qtAddLibrary with installed versions
+8) Runtime detection of the X11 graphicssystem - for Qt::WA_PaintOutsidePaintEvent
