@@ -123,6 +123,7 @@ private:
     double d_p1, d_p2;     // paint device interval boundaries
 
     double d_cnv;       // conversion factor
+    double d_cnvInv;    // conversion factor
 
     QwtScaleTransformation *d_transformation;
 };
@@ -203,7 +204,13 @@ inline double QwtScaleMap::transform( double s ) const
 */
 inline double QwtScaleMap::invTransform( double p ) const
 {
-    return d_transformation->invXForm( p, d_p1, d_p2, d_s1, d_s2 );
+	if ( d_transformation->type() == QwtScaleTransformation::Linear )
+		return d_s1 + ( p - d_p1 ) * d_cnvInv;
+
+    if ( d_transformation->type() == QwtScaleTransformation::Log10 )
+		return qExp( ( p - d_p1 ) / d_cnv ) * d_s1;
+
+	return d_transformation->invXForm( p, d_p1, d_p2, d_s1, d_s2 );
 }
 
 //! \return True, when ( p1() < p2() ) != ( s1() < s2() )

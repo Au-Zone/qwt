@@ -104,7 +104,8 @@ QwtScaleMap::QwtScaleMap():
     d_s2( 1.0 ),
     d_p1( 0.0 ),
     d_p2( 1.0 ),
-    d_cnv( 1.0 )
+    d_cnv( 1.0 ),
+	d_cnvInv( 1.0 )
 {
     d_transformation = new QwtScaleTransformation(
         QwtScaleTransformation::Linear );
@@ -116,7 +117,8 @@ QwtScaleMap::QwtScaleMap( const QwtScaleMap& other ):
     d_s2( other.d_s2 ),
     d_p1( other.d_p1 ),
     d_p2( other.d_p2 ),
-    d_cnv( other.d_cnv )
+    d_cnv( other.d_cnv ),
+    d_cnvInv( other.d_cnvInv )
 {
     d_transformation = other.d_transformation->copy();
 }
@@ -137,6 +139,7 @@ QwtScaleMap &QwtScaleMap::operator=( const QwtScaleMap & other )
     d_p1 = other.d_p1;
     d_p2 = other.d_p2;
     d_cnv = other.d_cnv;
+    d_cnvInv = other.d_cnvInv;
 
     delete d_transformation;
     d_transformation = other.d_transformation->copy();
@@ -216,6 +219,7 @@ void QwtScaleMap::setPaintInterval( double p1, double p2 )
 void QwtScaleMap::newFactor()
 {
     d_cnv = 0.0;
+    d_cnvInv = 0.0;
 
     switch ( d_transformation->type() )
     {
@@ -223,6 +227,12 @@ void QwtScaleMap::newFactor()
         {
             if ( d_s2 != d_s1 )
                 d_cnv = ( d_p2 - d_p1 ) / ( d_s2 - d_s1 );
+
+			if ( d_p2 != d_p1 )
+			{
+				d_cnvInv = ( d_s2 - d_s1 ) / ( d_p2 - d_p1 );
+			}
+
             break;
         }
         case QwtScaleTransformation::Log10:
