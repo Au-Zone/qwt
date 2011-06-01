@@ -122,7 +122,9 @@ bool QwtPainter::isX11GraphicsSystem()
     if ( onX11 < 0 )
     {
         QPixmap pm( 1, 1 );
-        onX11 = ( pm.paintEngine()->type() == QPaintEngine::X11 ) ? 1 : 0;
+        QPainter painter( &pm );
+
+        onX11 = ( painter.paintEngine()->type() == QPaintEngine::X11 ) ? 1 : 0;
     }
 
     return onX11 == 1;
