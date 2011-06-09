@@ -21,6 +21,7 @@ public Q_SLOTS:
     void setIntervalLength(double);
 
 protected:
+    virtual void showEvent(QShowEvent *);
     virtual void resizeEvent(QResizeEvent *);
     virtual void timerEvent(QTimerEvent *);
 
