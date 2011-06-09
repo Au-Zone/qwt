@@ -225,3 +225,8 @@ void Plot::resizeEvent(QResizeEvent *event)
     d_directPainter->reset();
     QwtPlot::resizeEvent(event);
 }
+
+void Plot::showEvent( QShowEvent * )
+{
+    replot();
+}
