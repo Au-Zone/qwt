@@ -567,7 +567,6 @@ void QwtPicker::drawRubberBand( QPainter *painter ) const
         return;
     }
 
-    const QRect &pRect = pickRect();
     const QPolygon pa = adjustedPoints( d_data->pickedPoints );
 
     QwtPickerMachine::SelectionType selectionType =
@@ -586,6 +585,7 @@ void QwtPicker::drawRubberBand( QPainter *painter ) const
 
             const QPoint pos = pa[0];
 
+            const QRect pRect = pickArea().boundingRect().toRect();
             switch ( rubberBand() )
             {
                 case VLineRubberBand:
@@ -772,12 +772,14 @@ QRect QwtPicker::trackerRect( const QFont &font ) const
 
     textRect.moveTopLeft( QPoint( x, y ) );
 
-    int right = qMin( textRect.right(), pickRect().right() - margin );
-    int bottom = qMin( textRect.bottom(), pickRect().bottom() - margin );
+    const QRect pickRect = pickArea().boundingRect().toRect();
+
+    int right = qMin( textRect.right(), pickRect.right() - margin );
+    int bottom = qMin( textRect.bottom(), pickRect.bottom() - margin );
     textRect.moveBottomRight( QPoint( right, bottom ) );
 
-    int left = qMax( textRect.left(), pickRect().left() + margin );
-    int top = qMax( textRect.top(), pickRect().top() + margin );
+    int left = qMax( textRect.left(), pickRect.left() + margin );
+    int top = qMax( textRect.top(), pickRect.top() + margin );
     textRect.moveTopLeft( QPoint( left, top ) );
 
     return textRect;
@@ -878,7 +880,7 @@ void QwtPicker::widgetMousePressEvent( QMouseEvent *mouseEvent )
 */
 void QwtPicker::widgetMouseMoveEvent( QMouseEvent *mouseEvent )
 {
-    if ( pickRect().contains( mouseEvent->pos() ) )
+    if ( pickArea().contains( mouseEvent->pos() ) )
         d_data->trackerPosition = mouseEvent->pos();
     else
         d_data->trackerPosition = QPoint( -1, -1 );
@@ -963,7 +965,7 @@ void QwtPicker::widgetMouseDoubleClickEvent( QMouseEvent *mouseEvent )
 */
 void QwtPicker::widgetWheelEvent( QWheelEvent *wheelEvent )
 {
-    if ( pickRect().contains( wheelEvent->pos() ) )
+    if ( pickArea().contains( wheelEvent->pos() ) )
         d_data->trackerPosition = wheelEvent->pos();
     else
         d_data->trackerPosition = QPoint( -1, -1 );
@@ -1013,7 +1015,7 @@ void QwtPicker::widgetKeyPressEvent( QKeyEvent *keyEvent )
 
     if ( dx != 0 || dy != 0 )
     {
-        const QRect rect = pickRect();
+        const QRect rect = pickArea().boundingRect().toRect();
         const QPoint pos = parentWidget()->mapFromGlobal( QCursor::pos() );
 
         int x = pos.x() + dx;
@@ -1356,15 +1358,17 @@ void QwtPicker::setMouseTracking( bool enable )
 /*!
   Find the area of the observed widget, where selection might happen.
 
-  \return QFrame::contentsRect() if it is a QFrame, QWidget::rect() otherwise.
+  \return parentWidget()->contentsRect() 
 */
-QRect QwtPicker::pickRect() const
+QPainterPath QwtPicker::pickArea() const
 {
+    QPainterPath path;
+
     const QWidget *widget = parentWidget();
     if ( widget )
-        return widget->contentsRect();
+        path.addRect( widget->contentsRect() );
 
-    return QRect();
+    return path;
 }
 
 //! Update the state of rubberband and tracker label
