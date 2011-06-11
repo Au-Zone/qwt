@@ -158,8 +158,6 @@ void TVPlot::exportPlot()
     if ( !fileName.isEmpty() )
     {
         QwtPlotRenderer renderer;
-        renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
-
         renderer.renderDocument(this, fileName, QSizeF(300, 200), 85);
     }
 }
