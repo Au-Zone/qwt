@@ -204,13 +204,17 @@ inline double QwtScaleMap::transform( double s ) const
 */
 inline double QwtScaleMap::invTransform( double p ) const
 {
-	if ( d_transformation->type() == QwtScaleTransformation::Linear )
-		return d_s1 + ( p - d_p1 ) * d_cnvInv;
+    if ( d_transformation->type() == QwtScaleTransformation::Linear )
+        return d_s1 + ( p - d_p1 ) * d_cnvInv;
 
     if ( d_transformation->type() == QwtScaleTransformation::Log10 )
-		return qExp( ( p - d_p1 ) / d_cnv ) * d_s1;
+#if QT_VERSION < 0x040601
+        return ::exp( ( p - d_p1 ) / d_cnv ) * d_s1;
+#else
+        return qExp( ( p - d_p1 ) / d_cnv ) * d_s1;
+#endif
 
-	return d_transformation->invXForm( p, d_p1, d_p2, d_s1, d_s2 );
+    return d_transformation->invXForm( p, d_p1, d_p2, d_s1, d_s2 );
 }
 
 //! \return True, when ( p1() < p2() ) != ( s1() < s2() )
