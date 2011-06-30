@@ -1356,7 +1356,7 @@ void QwtPicker::setMouseTracking( bool enable )
 /*!
   Find the area of the observed widget, where selection might happen.
 
-  \return QFrame::contentsRect() if it is a QFrame, QWidget::rect() otherwise.
+  \return parentWidget()->contentsRect() 
 */
 QRect QwtPicker::pickRect() const
 {
