@@ -105,7 +105,7 @@ QwtScaleMap::QwtScaleMap():
     d_p1( 0.0 ),
     d_p2( 1.0 ),
     d_cnv( 1.0 ),
-	d_cnvInv( 1.0 )
+    d_cnvInv( 1.0 )
 {
     d_transformation = new QwtScaleTransformation(
         QwtScaleTransformation::Linear );
@@ -228,10 +228,10 @@ void QwtScaleMap::newFactor()
             if ( d_s2 != d_s1 )
                 d_cnv = ( d_p2 - d_p1 ) / ( d_s2 - d_s1 );
 
-			if ( d_p2 != d_p1 )
-			{
-				d_cnvInv = ( d_s2 - d_s1 ) / ( d_p2 - d_p1 );
-			}
+            if ( d_p2 != d_p1 )
+            {
+                d_cnvInv = ( d_s2 - d_s1 ) / ( d_p2 - d_p1 );
+            }
 
             break;
         }

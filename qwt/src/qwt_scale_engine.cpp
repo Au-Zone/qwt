@@ -12,6 +12,7 @@
 #include "qwt_scale_map.h"
 #include <qalgorithms.h>
 #include <qmath.h>
+#include <float.h>
 
 #if QT_VERSION < 0x040601
 #define qFabs(x) ::fabs(x)
@@ -283,6 +284,13 @@ QList<double> QwtScaleEngine::strip( const QList<double>& ticks,
 QwtInterval QwtScaleEngine::buildInterval( double v ) const
 {
     const double delta = ( v == 0.0 ) ? 0.5 : qAbs( 0.5 * v );
+
+    if ( DBL_MAX - delta < v )
+        return QwtInterval( DBL_MAX - delta, DBL_MAX );
+
+    if ( -DBL_MAX + delta > v )
+        return QwtInterval( -DBL_MAX, -DBL_MAX + delta );
+
     return QwtInterval( v - delta, v + delta );
 }
 
@@ -465,8 +473,7 @@ void QwtLinearScaleEngine::buildTicks(
     const QwtInterval& interval, double stepSize, int maxMinSteps,
     QList<double> ticks[QwtScaleDiv::NTickTypes] ) const
 {
-    const QwtInterval boundingInterval =
-        align( interval, stepSize );
+    const QwtInterval boundingInterval = align( interval, stepSize );
 
     ticks[QwtScaleDiv::MajorTick] =
         buildMajorTicks( boundingInterval, stepSize );
@@ -587,13 +594,22 @@ void QwtLinearScaleEngine::buildMinorTicks(
 QwtInterval QwtLinearScaleEngine::align(
     const QwtInterval &interval, double stepSize ) const
 {
-    double x1 = QwtScaleArithmetic::floorEps( interval.minValue(), stepSize );
-    if ( qwtFuzzyCompare( interval.minValue(), x1, stepSize ) == 0 )
-        x1 = interval.minValue();
+    double x1 = interval.minValue();
+    double x2 = interval.maxValue();
 
-    double x2 = QwtScaleArithmetic::ceilEps( interval.maxValue(), stepSize );
-    if ( qwtFuzzyCompare( interval.maxValue(), x2, stepSize ) == 0 )
-        x2 = interval.maxValue();
+    if ( -DBL_MAX + stepSize <= x1 )
+    {
+        const double x = QwtScaleArithmetic::floorEps( x1, stepSize );
+        if ( qwtFuzzyCompare( x1, x, stepSize ) != 0 )
+            x1 = x;
+    }
+
+    if ( DBL_MAX - stepSize >= x2 )
+    {
+        const double x = QwtScaleArithmetic::ceilEps( x2, stepSize );
+        if ( qwtFuzzyCompare( x2, x, stepSize ) != 0 )
+            x2 = x;
+    }
 
     return QwtInterval( x1, x2 );
 }
@@ -617,7 +633,7 @@ QwtScaleTransformation *QwtLog10ScaleEngine::transformation() const
    \sa QwtScaleEngine::setAttribute()
 */
 void QwtLog10ScaleEngine::autoScale( int maxNumSteps,
-                                     double &x1, double &x2, double &stepSize ) const
+    double &x1, double &x2, double &stepSize ) const
 {
     if ( x1 > x2 )
         qSwap( x1, x2 );
