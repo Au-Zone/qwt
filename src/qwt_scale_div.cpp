@@ -171,3 +171,25 @@ const QList<double> &QwtScaleDiv::ticks( int type ) const
     static QList<double> noTicks;
     return noTicks;
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+
+QDebug operator<<( QDebug debug, const QwtScaleDiv &scaleDiv )
+{
+    debug << scaleDiv.interval();
+    if ( scaleDiv.isValid() )
+    {
+        debug << "Major: " << scaleDiv.ticks( QwtScaleDiv::MajorTick );
+        debug << "Medium: " << scaleDiv.ticks( QwtScaleDiv::MediumTick );
+        debug << "Minor: " << scaleDiv.ticks( QwtScaleDiv::MinorTick );
+    }
+    else
+    {
+        debug << "invalid";
+    }
+
+    return debug;
+}
+
+#endif
+

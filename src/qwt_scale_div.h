@@ -13,8 +13,9 @@
 #include "qwt_global.h"
 #include "qwt_interval.h"
 #include <qlist.h>
-
-class QwtInterval;
+#ifndef QT_NO_DEBUG_STREAM
+#include <qdebug.h>
+#endif
 
 /*!
   \brief A class representing a scale division
@@ -84,6 +85,10 @@ private:
 };
 
 Q_DECLARE_TYPEINFO(QwtScaleDiv, Q_MOVABLE_TYPE);
+
+#ifndef QT_NO_DEBUG_STREAM
+QWT_EXPORT QDebug operator<<( QDebug, const QwtScaleDiv & );
+#endif
 
 /*!
    Change the interval
