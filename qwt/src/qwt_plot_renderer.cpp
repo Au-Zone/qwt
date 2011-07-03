@@ -618,14 +618,16 @@ void QwtPlotRenderer::renderLegendItem( const QwtPlot *plot,
     const QwtLegendItem *item = qobject_cast<const QwtLegendItem *>( widget );
     if ( item )
     {
-        const QRect identifierRect(
-            rect.x() + item->margin(), rect.y(),
-            item->identifierSize().width(), rect.height() );
+        const QSize sz = item->identifierSize();
+
+        const QRectF identifierRect( rect.x() + item->margin(), 
+            rect.center().y() - 0.5 * sz.height(), sz.width(), sz.height() );
 
         QwtLegendItemManager *itemManger = plot->legend()->find( item );
         if ( itemManger )
         {
             painter->save();
+            painter->setClipRect( identifierRect, Qt::IntersectClip );
             itemManger->drawLegendIdentifier( painter, identifierRect );
             painter->restore();
         }
