@@ -948,7 +948,23 @@ void QwtPlotCurve::updateLegend( QwtLegend *legend ) const
 
         QwtLegendItem *l = qobject_cast<QwtLegendItem *>( lgdItem );
         if ( l )
-            l->setIdentifierSize( d_data->symbol->boundingSize() );
+        {
+            QSize sz = d_data->symbol->boundingSize();
+            sz += QSize( 2, 2 ); // margin
+
+            if ( d_data->legendAttributes & QwtPlotCurve::LegendShowLine )
+            {
+                // Avoid, that the line is completely covered by the symbol
+
+                int w = qCeil( 1.5 * sz.width() );
+                if ( w % 2 )
+                    w++;
+
+                sz.setWidth( qMax( 8, w ) );
+            }
+
+            l->setIdentifierSize( sz );
+        }
     }
 
     QwtPlotItem::updateLegend( legend );
