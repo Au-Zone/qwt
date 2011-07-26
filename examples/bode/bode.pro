@@ -13,11 +13,11 @@ TARGET       = bode
 QT          += svg
 
 HEADERS = \
-	bode.h \
-	bode_plot.h \
-	cplx.h \ 
-	pixmaps.h
+    bode.h \
+    bode_plot.h \
+    cplx.h \ 
+    pixmaps.h
 
 SOURCES = \
-	bode.cpp \
-	bode_plot.cpp
+    bode.cpp \
+    bode_plot.cpp

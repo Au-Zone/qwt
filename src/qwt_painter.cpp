@@ -492,9 +492,7 @@ void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
     QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
     if ( deviceClipping )
     {
-#ifdef __GNUC__
-#warning clipping ignores painter transformations
-#endif
+
         cpa = QwtClipper::clipPolygon(clipRect, cpa);
     }
     painter->drawPolygon(cpa);

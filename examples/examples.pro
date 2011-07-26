@@ -12,38 +12,38 @@ include( ../qwtconfig.pri )
 TEMPLATE = subdirs
 
 contains(CONFIG, QwtPlot) {
-	
-	SUBDIRS += \
-    	cpuplot \
-    	curvdemo1   \
-    	curvdemo2 \
-    	simple_plot \
-    	realtime_plot \
-    	spectrogram \
-    	histogram 
+    
+    SUBDIRS += \
+        cpuplot \
+        curvdemo1   \
+        curvdemo2 \
+        simple_plot \
+        realtime_plot \
+        spectrogram \
+        histogram 
 
-	contains(CONFIG, QwtWidgets) {
+    contains(CONFIG, QwtWidgets) {
 
-		SUBDIRS += \
-    		bode \
-    		data_plot \
-    		event_filter
-	}
-	
-	contains(CONFIG, QwtSVGItem) {
+        SUBDIRS += \
+            bode \
+            data_plot \
+            event_filter
+    }
+    
+    contains(CONFIG, QwtSVGItem) {
 
-		SUBDIRS += \
-			svgmap
-	}
+        SUBDIRS += \
+            svgmap
+    }
 }
 
 contains(CONFIG, QwtWidgets) {
 
-	SUBDIRS += \
-    	sysinfo \
-    	radio \
-    	dials \
-    	sliders
+    SUBDIRS += \
+        sysinfo \
+        radio \
+        dials \
+        sliders
 }
 
 

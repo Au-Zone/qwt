@@ -12,8 +12,8 @@ include( ../examples.pri )
 TARGET   = histogram
 
 SOURCES = \
-	main.cpp \
-	histogram_item.cpp
+    main.cpp \
+    histogram_item.cpp
 
 INCLUDES = \
-	histogram_item.h
+    histogram_item.h
