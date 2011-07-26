@@ -36,7 +36,7 @@ contains(QWT_CONFIG, QwtDesigner) {
 
     IPATH       = $${INCLUDEPATH}
     qtAddLibrary(qwt)
-	INCLUDEPATH = $${IPATH}
+    INCLUDEPATH = $${IPATH}
 
     contains(QWT_CONFIG, QwtDll) {
 
