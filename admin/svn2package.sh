@@ -240,7 +240,7 @@ VERSION=
 GENERATE_DOC=0
 GENERATE_PDF=0
 GENERATE_QCH=0
-GENERATE_MAN=0
+GENERATE_MAN=1
 
 while [ $# -gt 0 ] ; do
     case "$1" in
