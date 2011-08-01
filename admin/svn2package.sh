@@ -10,7 +10,7 @@
 ##########################
 
 function usage() {
-    echo "Usage: $0 [-b|--branch <svn-branch>] [-pdf] [-qch] [packagename]"
+    echo "Usage: $0 [-b|--branch <svn-branch>] [-s|--suffix <suffix>] [-html] [-pdf] [-qch] [packagename]"
     exit 1
 }
 
@@ -59,11 +59,13 @@ function cleanQwt {
 
     rm -f TODO
     rm -f admin/svn2package.sh
+    rm -rf doc/tex
 
     PROFILES="qwtconfig.pri"
     for PROFILE in $PROFILES
     do
-        sed -i -e 's/= debug /= release /' $PROFILE 
+        sed -i -e 's/= debug/= release/' $PROFILE 
+        sed -i -e 's/= release_and_release/= debug_and_release/' $PROFILE 
     done
 
     HEADERS=`find . -type f -name '*.h' -print`
@@ -82,8 +84,14 @@ function cleanQwt {
         sed -i -e '/#warning/d' $SRCFILE 
     done 
 
-    sed -i -e "s/\$\$VERSION-svn/$VERSION/" qwtconfig.pri 
-    sed -i -e "s/\$\${QwtVersion}-svn/\$\${QwtVersion}/" qwt.prf 
+    if [ "$SUFFIX" != "" ]
+    then
+        sed -i -e "s/\$\$VERSION-svn/\$\$VERSION-$SUFFIX/" qwtconfig.pri 
+        sed -i -e "s/\$\${QwtVersion}-svn/\$\${QwtVersion}/" qwt.prf 
+    else
+        sed -i -e "s/\$\$VERSION-svn/\$\$VERSION/" qwtconfig.pri
+        sed -i -e "s/\$\${QwtVersion}-svn/\$\${QwtVersion}/" qwt.prf  
+    fi
 
     cd - > /dev/null
 }
@@ -102,8 +110,13 @@ function createDocs {
         exit $?
     fi
 
-	sed -i -e "s/svn/$VERSION/" Doxyfile
-	cp Doxyfile Doxyfile.doc
+    if [ "$SUFFIX" != "" ]
+    then
+        sed -i -e "s/svn/$VERSION-$SUFFIX/" Doxyfile
+    else
+        sed -i -e "s/svn/$VERSION/" Doxyfile
+    fi
+    cp Doxyfile Doxyfile.doc
 
     if [ $GENERATE_MAN -ne 0 ]
     then
@@ -179,7 +192,7 @@ function prepare4Win {
         exit $?
     fi
 
-    rm -r doc/man 
+    rm -rf doc/man 2> /dev/null
 
     # win files, but not uptodate
 
@@ -188,8 +201,9 @@ function prepare4Win {
     SOURCES=`find . -type f -name '*.cpp' -print`
     PROFILES=`find . -type f -name '*.pro' -print`
     PRIFILES=`find . -type f -name '*.pri' -print`
+    PRFFILES=`find . -type f -name '*.prf' -print`
 
-    for FILE in $BATCHES $HEADERS $SOURCES $PROFILES $PRIFILES
+    for FILE in $BATCHES $HEADERS $SOURCES $PROFILES $PRIFILES $PRFFILES
     do
         posix2dos $FILE
     done
@@ -209,7 +223,7 @@ function prepare4Unix {
         exit $?
     fi
 
-    rm -rf admin
+    rm -rf admin/msvc-qmake.bat
 
     cd - > /dev/null
 }
@@ -221,10 +235,12 @@ function prepare4Unix {
 QWTDIR=
 SVNDIR=trunk
 BRANCH=qwt
+SUFFIX=
 VERSION=
+GENERATE_DOC=0
 GENERATE_PDF=0
 GENERATE_QCH=0
-GENERATE_MAN=1
+GENERATE_MAN=0
 
 while [ $# -gt 0 ] ; do
     case "$1" in
@@ -232,10 +248,14 @@ while [ $# -gt 0 ] ; do
             usage; exit 1 ;;
         -b|--branch)
             shift; SVNDIR=branches; BRANCH=$1; shift;;
+        -s|--suffix)
+            shift; SUFFIX=$1; shift;;
+        -html)
+            GENERATE_DOC=1; shift;;
         -pdf)
-            GENERATE_PDF=1; shift;;
+            GENERATE_DOC=1; GENERATE_PDF=1; shift;;
         -qch)
-            GENERATE_QCH=1; shift;;
+            GENERATE_DOC=1; GENERATE_QCH=1; shift;;
         *) 
             QWTDIR=qwt-$1 ; VERSION=$1; shift;;
     esac
@@ -247,6 +267,12 @@ then
     exit 2 
 fi
 
+QWTNAME=$QWTDIR
+if [ "$SUFFIX" != "" ]
+then
+    QWTDIR=$QWTDIR-$SUFFIX
+fi
+
 TMPDIR=/tmp/$QWTDIR-tmp
 
 echo -n "checkout to $TMPDIR ... "
@@ -254,18 +280,21 @@ checkoutQwt $SVNDIR $BRANCH $TMPDIR
 cleanQwt $TMPDIR
 echo done
 
-echo -n "generate documentation ... "
-createDocs $TMPDIR/doc
-
-if [ $GENERATE_PDF -ne 0 ]
+if [ $GENERATE_DOC -ne 0 ]
 then
-    mv $TMPDIR/doc/pdf/qwtdoc-$VERSION.pdf $QWTDIR.pdf
-    rmdir $TMPDIR/doc/pdf
-fi
+    echo -n "generate documentation ... "
+    createDocs $TMPDIR/doc
 
-if [ $GENERATE_QCH -ne 0 ]
-then
-    mv $TMPDIR/doc/html/qwtdoc.qch $QWTDIR.qch
+    if [ $GENERATE_PDF -ne 0 ]
+    then
+        mv $TMPDIR/doc/pdf/qwtdoc-$VERSION.pdf $QWTDIR.pdf
+        rmdir $TMPDIR/doc/pdf
+    fi
+
+    if [ $GENERATE_QCH -ne 0 ]
+    then
+        mv $TMPDIR/doc/html/qwtdoc.qch $QWTDIR.qch
+    fi
 fi
 
 echo done
