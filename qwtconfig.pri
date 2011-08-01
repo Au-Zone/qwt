@@ -4,7 +4,7 @@
 
 VER_MAJ      = 5
 VER_MIN      = 2
-VER_PAT      = 2
+VER_PAT      = 3
 VERSION      = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 
 unix {
