@@ -89,7 +89,7 @@ function cleanQwt {
 	then
     	sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-$SUFFIX/" qwtconfig.pri 
 	else
-    	sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION/" qwtconfig.pri 
+    	sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION/" qwtconfig.pri
 	fi
 
     cd - > /dev/null

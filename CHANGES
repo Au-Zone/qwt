@@ -10,7 +10,11 @@ Release 6.0.1
 
 Changes
 -------
-1) Reduce warnings with pedantic compiler options
+1) Incompatibilities with Qt < 4.6.1 fixed
+2) Reduce warnings with pedantic compiler options
+3) Examples fixed
+4) Legend identifiers of with symbol and line fixed
+
 
 Release 6.0.0
 ===================
