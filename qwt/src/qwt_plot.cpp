@@ -647,9 +647,7 @@ QwtScaleMap QwtPlot::canvasMap( int axisId ) const
 void QwtPlot::setCanvasBackground( const QBrush &brush )
 {
     QPalette pal = d_data->canvas->palette();
-
-    for ( int i = 0; i < QPalette::NColorGroups; i++ )
-        pal.setBrush( ( QPalette::ColorGroup )i, QPalette::Window, brush );
+    pal.setBrush( QPalette::Window, brush );
 
     canvas()->setPalette( pal );
 }
@@ -709,8 +707,9 @@ void QwtPlot::legendItemClicked()
 {
     if ( d_data->legend && sender()->isWidgetType() )
     {
-        QwtPlotItem *plotItem =
-            ( QwtPlotItem* )d_data->legend->find( ( QWidget * )sender() );
+        QwtPlotItem *plotItem = static_cast< QwtPlotItem* >(
+            d_data->legend->find( qobject_cast<const QWidget *>( sender() ) ) );
+
         if ( plotItem )
             Q_EMIT legendClicked( plotItem );
     }
@@ -724,8 +723,8 @@ void QwtPlot::legendItemChecked( bool on )
 {
     if ( d_data->legend && sender()->isWidgetType() )
     {
-        QwtPlotItem *plotItem =
-            ( QwtPlotItem* )d_data->legend->find( ( QWidget * )sender() );
+        QwtPlotItem *plotItem = static_cast< QwtPlotItem* >(
+            d_data->legend->find( qobject_cast<const QWidget *>( sender() ) ) );
         if ( plotItem )
             Q_EMIT legendChecked( plotItem, on );
     }

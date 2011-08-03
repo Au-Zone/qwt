@@ -485,7 +485,7 @@ void QwtPlotSpectrogram::renderTile(
         {
             const double ty = yMap.invTransform( y );
 
-            QRgb *line = ( QRgb * )image->scanLine( y );
+            QRgb *line = reinterpret_cast<QRgb *>( image->scanLine( y ) );
             line += tile.left();
 
             for ( int x = tile.left(); x <= tile.right(); x++ )

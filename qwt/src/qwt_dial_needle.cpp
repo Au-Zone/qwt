@@ -278,13 +278,8 @@ QwtDialSimpleNeedle::QwtDialSimpleNeedle( Style style, bool hasKnob,
     d_width( -1 )
 {
     QPalette palette;
-    for ( int i = 0; i < QPalette::NColorGroups; i++ )
-    {
-        palette.setColor( ( QPalette::ColorGroup )i,
-            QPalette::Mid, mid );
-        palette.setColor( ( QPalette::ColorGroup )i,
-            QPalette::Base, base );
-    }
+    palette.setColor( QPalette::Mid, mid );
+    palette.setColor( QPalette::Base, base );
 
     setPalette( palette );
 }
@@ -359,15 +354,9 @@ QwtCompassMagnetNeedle::QwtCompassMagnetNeedle( Style style,
     d_style( style )
 {
     QPalette palette;
-    for ( int i = 0; i < QPalette::NColorGroups; i++ )
-    {
-        palette.setColor( ( QPalette::ColorGroup )i,
-            QPalette::Light, light );
-        palette.setColor( ( QPalette::ColorGroup )i,
-            QPalette::Dark, dark );
-        palette.setColor( ( QPalette::ColorGroup )i,
-            QPalette::Base, Qt::gray );
-    }
+    palette.setColor( QPalette::Light, light );
+    palette.setColor( QPalette::Dark, dark );
+    palette.setColor( QPalette::Base, Qt::gray );
 
     setPalette( palette );
 }
@@ -424,13 +413,8 @@ QwtCompassWindArrow::QwtCompassWindArrow( Style style,
     d_style( style )
 {
     QPalette palette;
-    for ( int i = 0; i < QPalette::NColorGroups; i++ )
-    {
-        palette.setColor( ( QPalette::ColorGroup )i,
-            QPalette::Light, light );
-        palette.setColor( ( QPalette::ColorGroup )i,
-            QPalette::Dark, dark );
-    }
+    palette.setColor( QPalette::Light, light );
+    palette.setColor( QPalette::Dark, dark );
 
     setPalette( palette );
 }

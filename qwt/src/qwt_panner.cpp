@@ -22,13 +22,9 @@ static QVector<QwtPicker *> qwtActivePickers( QWidget *w )
     QObjectList children = w->children();
     for ( int i = 0; i < children.size(); i++ )
     {
-        QObject *obj = children[i];
-        if ( obj->inherits( "QwtPicker" ) )
-        {
-            QwtPicker *picker = ( QwtPicker * )obj;
-            if ( picker->isEnabled() )
-                pickers += picker;
-        }
+        QwtPicker *picker = qobject_cast<QwtPicker *>( children[i] );
+        if ( picker && picker->isEnabled() )
+            pickers += picker;
     }
 
     return pickers;
@@ -323,27 +319,27 @@ bool QwtPanner::eventFilter( QObject *object, QEvent *event )
     {
         case QEvent::MouseButtonPress:
         {
-            widgetMousePressEvent( ( QMouseEvent * )event );
+            widgetMousePressEvent( static_cast<QMouseEvent *>( event ) );
             break;
         }
         case QEvent::MouseMove:
         {
-            widgetMouseMoveEvent( ( QMouseEvent * )event );
+            widgetMouseMoveEvent( static_cast<QMouseEvent *>( event ) );
             break;
         }
         case QEvent::MouseButtonRelease:
         {
-            widgetMouseReleaseEvent( ( QMouseEvent * )event );
+            widgetMouseReleaseEvent( static_cast<QMouseEvent *>( event ) );
             break;
         }
         case QEvent::KeyPress:
         {
-            widgetKeyPressEvent( ( QKeyEvent * )event );
+            widgetKeyPressEvent( static_cast<QKeyEvent *>( event ) );
             break;
         }
         case QEvent::KeyRelease:
         {
-            widgetKeyReleaseEvent( ( QKeyEvent * )event );
+            widgetKeyReleaseEvent( static_cast<QKeyEvent *>( event ) );
             break;
         }
         case QEvent::Paint:
@@ -390,13 +386,13 @@ void QwtPanner::widgetMousePressEvent( QMouseEvent *mouseEvent )
 
     // We don't want to grab the picker !
     QVector<QwtPicker *> pickers = qwtActivePickers( parentWidget() );
-    for ( int i = 0; i < ( int )pickers.size(); i++ )
+    for ( int i = 0; i < pickers.size(); i++ )
         pickers[i]->setEnabled( false );
 
     d_data->pixmap = grab();
     d_data->contentsMask = contentsMask();
 
-    for ( int i = 0; i < ( int )pickers.size(); i++ )
+    for ( int i = 0; i < pickers.size(); i++ )
         pickers[i]->setEnabled( true );
 
     show();

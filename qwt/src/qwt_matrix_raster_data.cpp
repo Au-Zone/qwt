@@ -198,12 +198,12 @@ double QwtMatrixRasterData::value( double x, double y ) const
 
             if ( col1 < 0 )
                 col1 = col2;
-            else if ( col2 >= (int)d_data->numColumns )
+            else if ( col2 >= static_cast<int>( d_data->numColumns ) )
                 col2 = col1;
 
             if ( row1 < 0 )
                 row1 = row2;
-            else if ( row2 >= (int)d_data->numRows )
+            else if ( row2 >= static_cast<int>( d_data->numRows ) )
                 row2 = row1;
 
             const double v11 = d_data->value( row1, col1 );

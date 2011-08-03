@@ -185,7 +185,8 @@ static QImage qwtExpandImage(const QImage &image,
                         yy2 = sz.height();
                 }
 
-                const quint32 *line1 = (const quint32 *) image.scanLine( y1 );
+                const quint32 *line1 = 
+                    reinterpret_cast<const quint32 *>( image.scanLine( y1 ) );
 
                 for ( int x1 = 0; x1 < w; x1++ )
                 {
@@ -216,7 +217,9 @@ static QImage qwtExpandImage(const QImage &image,
                     const quint32 rgb( line1[x1] );
                     for ( int y2 = yy1; y2 < yy2; y2++ )
                     {
-                        quint32 *line2 = ( quint32 *) expanded.scanLine( y2 );
+                        quint32 *line2 = reinterpret_cast<quint32 *>( 
+                            expanded.scanLine( y2 ) );
+
                         for ( int x2 = xx1; x2 < xx2; x2++ ) 
                             line2[x2] = rgb;
                     }       
@@ -394,7 +397,7 @@ static QImage toRgba( const QImage& image, int alpha )
     {
         for ( int y = 0; y < h; y++ )
         {
-            QRgb* alphaLine = ( QRgb* )alphaImage.scanLine( y );
+            QRgb *alphaLine = reinterpret_cast<QRgb *>( alphaImage.scanLine( y ) );
             const unsigned char *line = image.scanLine( y );
 
             for ( int x = 0; x < w; x++ )
@@ -405,8 +408,8 @@ static QImage toRgba( const QImage& image, int alpha )
     {
         for ( int y = 0; y < h; y++ )
         {
-            QRgb* alphaLine = ( QRgb* )alphaImage.scanLine( y );
-            const QRgb* line = ( const QRgb* ) image.scanLine( y );
+            QRgb *alphaLine = reinterpret_cast<QRgb *>( alphaImage.scanLine( y ) );
+            const QRgb *line = reinterpret_cast<const QRgb *>( image.scanLine( y ) );
 
             for ( int x = 0; x < w; x++ )
             {

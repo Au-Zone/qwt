@@ -544,13 +544,13 @@ QwtPlotCanvas::~QwtPlotCanvas()
 //! Return parent plot widget
 QwtPlot *QwtPlotCanvas::plot()
 {
-    return qobject_cast<QwtPlot *>( parentWidget() );
+    return qobject_cast<QwtPlot *>( parent() );
 }
 
 //! Return parent plot widget
 const QwtPlot *QwtPlotCanvas::plot() const
 {
-    return qobject_cast<const QwtPlot *>( parentWidget() );
+    return qobject_cast<const QwtPlot *>( parent() );
 }
 
 /*!
