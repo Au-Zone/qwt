@@ -145,13 +145,14 @@ void QwtDial::initDial()
     QPalette p = palette();
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
     {
-        const QPalette::ColorGroup cg = ( QPalette::ColorGroup )i;
+        const QPalette::ColorGroup colorGroup =
+            static_cast<QPalette::ColorGroup>( i );
 
         // Base: background color of the circle inside the frame.
         // WindowText: background color of the circle inside the scale
 
-        p.setColor( cg, QPalette::WindowText,
-            p.color( cg, QPalette::Base ) );
+        p.setColor( colorGroup, QPalette::WindowText,
+            p.color( colorGroup, QPalette::Base ) );
     }
     setPalette( p );
 

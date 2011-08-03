@@ -810,7 +810,7 @@ bool QwtPicker::eventFilter( QObject *object, QEvent *event )
         {
             case QEvent::Resize:
             {
-                const QResizeEvent *re = ( QResizeEvent * )event;
+                const QResizeEvent *re = static_cast<QResizeEvent *>( event );
                 if ( d_data->resizeMode == Stretch )
                     stretchSelection( re->oldSize(), re->size() );
 
@@ -822,32 +822,50 @@ bool QwtPicker::eventFilter( QObject *object, QEvent *event )
                 break;
             }
             case QEvent::Enter:
+            {
                 widgetEnterEvent( event );
                 break;
+            }
             case QEvent::Leave:
+            {
                 widgetLeaveEvent( event );
                 break;
+            }
             case QEvent::MouseButtonPress:
-                widgetMousePressEvent( ( QMouseEvent * )event );
+            {
+                widgetMousePressEvent( static_cast<QMouseEvent *>( event ) );
                 break;
+            }
             case QEvent::MouseButtonRelease:
-                widgetMouseReleaseEvent( ( QMouseEvent * )event );
+            {
+                widgetMouseReleaseEvent( static_cast<QMouseEvent *>( event ) );
                 break;
+            }
             case QEvent::MouseButtonDblClick:
-                widgetMouseDoubleClickEvent( ( QMouseEvent * )event );
+            {
+                widgetMouseDoubleClickEvent( static_cast<QMouseEvent *>( event ) );
                 break;
+            }
             case QEvent::MouseMove:
-                widgetMouseMoveEvent( ( QMouseEvent * )event );
+            {
+                widgetMouseMoveEvent( static_cast<QMouseEvent *>( event ) );
                 break;
+            }
             case QEvent::KeyPress:
-                widgetKeyPressEvent( ( QKeyEvent * )event );
+            {
+                widgetKeyPressEvent( static_cast<QKeyEvent *>( event ) );
                 break;
+            }
             case QEvent::KeyRelease:
-                widgetKeyReleaseEvent( ( QKeyEvent * )event );
+            {
+                widgetKeyReleaseEvent( static_cast<QKeyEvent *>( event ) );
                 break;
+            }
             case QEvent::Wheel:
-                widgetWheelEvent( ( QWheelEvent * )event );
+            {
+                widgetWheelEvent( static_cast<QWheelEvent *>( event ) );
                 break;
+            }
             default:
                 break;
         }

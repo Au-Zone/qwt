@@ -58,7 +58,7 @@ void QwtAnalogClock::initClock()
         hand->setWidth( width );
 
         d_hand[i] = NULL;
-        setHand( ( Hand )i, hand );
+        setHand( static_cast<Hand>( i ), hand );
     }
 }
 
@@ -198,7 +198,8 @@ void QwtAnalogClock::drawNeedle( QPainter *painter, const QPointF &center,
 
             d -= origin();
 
-            drawHand( painter, ( Hand )hand, center, radius, d, colorGroup );
+            drawHand( painter, static_cast<Hand>( hand ), 
+                center, radius, d, colorGroup );
         }
     }
 }

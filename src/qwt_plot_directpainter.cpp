@@ -259,7 +259,7 @@ void QwtPlotDirectPainter::reset()
 {
     if ( d_data->painter.isActive() )
     {
-        QWidget *w = ( QWidget * )d_data->painter.device();
+        QWidget *w = static_cast<QWidget *>( d_data->painter.device() );
         if ( w )
             w->removeEventFilter( this );
 

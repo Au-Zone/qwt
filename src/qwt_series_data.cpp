@@ -36,7 +36,7 @@ static inline QRectF qwtBoundingRect( const QwtSetSample &sample )
     double minX = sample.set[0];
     double maxX = sample.set[0];
 
-    for ( int i = 1; i < ( int )sample.set.size(); i++ )
+    for ( int i = 1; i < sample.set.size(); i++ )
     {
         if ( sample.set[i] < minX )
             minX = sample.set[i];
