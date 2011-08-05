@@ -10,7 +10,6 @@ public:
 protected:
     virtual void timerEvent( QTimerEvent * );
     virtual void paintEvent( QPaintEvent * );
-    virtual void drawContents( QPainter * );
 
 private:
     void newValues();
