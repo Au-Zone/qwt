@@ -76,11 +76,11 @@ void Plot::alignScales()
 
     for ( int i = 0; i < QwtPlot::axisCnt; i++ )
     {
-        QwtScaleWidget *scaleWidget = (QwtScaleWidget *)axisWidget(i);
+        QwtScaleWidget *scaleWidget = axisWidget(i);
         if ( scaleWidget )
             scaleWidget->setMargin(0);
 
-        QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axisScaleDraw(i);
+        QwtScaleDraw *scaleDraw = axisScaleDraw(i);
         if ( scaleDraw )
             scaleDraw->enableComponent(QwtAbstractScaleDraw::Backbone, false);
     }
@@ -102,7 +102,6 @@ void Plot::setSettings(const Settings &s)
     if ( s.curve.numPoints != buffer->size() ||
         s.curve.functionType != d_settings.curve.functionType )
     {
-
         switch(s.curve.functionType)
         {
             case Settings::Wave:

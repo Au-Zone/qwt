@@ -42,28 +42,43 @@ CanvasPicker::CanvasPicker(QwtPlot *plot):
     shiftCurveCursor(true);
 }
 
-bool CanvasPicker::event(QEvent *e)
+QwtPlot *CanvasPicker::plot() 
+{ 
+    return qobject_cast<QwtPlot *>( parent() ); 
+}
+
+const QwtPlot *CanvasPicker::plot() const 
+{ 
+    return qobject_cast<const QwtPlot *>( parent() ); 
+}
+
+bool CanvasPicker::event(QEvent *ev)
 {
-    if ( e->type() == QEvent::User )
+    if ( ev->type() == QEvent::User )
     {
         showCursor(true);
         return true;
     }
-    return QObject::event(e);
+    return QObject::event(ev);
 }
 
-bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
+bool CanvasPicker::eventFilter(QObject *object, QEvent *event)
 {
-    if ( object != (QObject *)plot()->canvas() )
+    if ( plot() == NULL || object != plot()->canvas() )
         return false;
 
-    switch(e->type())
+    switch(event->type())
     {
         case QEvent::FocusIn:
+        {
             showCursor(true);
+            break;
+        }
         case QEvent::FocusOut:
+        {
             showCursor(false);
-
+            break;
+        }
         case QEvent::Paint:
         {   
             QApplication::postEvent(this, new QEvent(QEvent::User));
@@ -71,70 +86,91 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
         }
         case QEvent::MouseButtonPress:
         {
-            select(((QMouseEvent *)e)->pos());
+            select(((QMouseEvent *)event)->pos());
             return true; 
         }
         case QEvent::MouseMove:
         {
-            move(((QMouseEvent *)e)->pos());
+            move(((QMouseEvent *)event)->pos());
             return true; 
         }
         case QEvent::KeyPress:
         {
             const int delta = 5;
-            switch(((const QKeyEvent *)e)->key())
+            switch(((const QKeyEvent *)event)->key())
             {
                 case Qt::Key_Up:
+                {
                     shiftCurveCursor(true);
                     return true;
-                    
+                }
                 case Qt::Key_Down:
+                {
                     shiftCurveCursor(false);
                     return true;
-
+                }
                 case Qt::Key_Right:
                 case Qt::Key_Plus:
+                {
                     if ( d_selectedCurve )
                         shiftPointCursor(true);
                     else
                         shiftCurveCursor(true);
                     return true;
-
+                }
                 case Qt::Key_Left:
                 case Qt::Key_Minus:
+                {
                     if ( d_selectedCurve )
                         shiftPointCursor(false);
                     else
                         shiftCurveCursor(true);
                     return true;
+                }
 
                 // The following keys represent a direction, they are
                 // organized on the keyboard.
  
                 case Qt::Key_1: 
+                {
                     moveBy(-delta, delta);
                     break;
+                }
                 case Qt::Key_2:
+                {
                     moveBy(0, delta);
                     break;
+                }
                 case Qt::Key_3: 
+                {
                     moveBy(delta, delta);
                     break;
+                }
                 case Qt::Key_4:
+                {
                     moveBy(-delta, 0);
                     break;
+                }
                 case Qt::Key_6: 
+                {
                     moveBy(delta, 0);
                     break;
+                }
                 case Qt::Key_7:
+                {
                     moveBy(-delta, -delta);
                     break;
+                }
                 case Qt::Key_8:
+                {
                     moveBy(0, -delta);
                     break;
+                }
                 case Qt::Key_9:
+                {
                     moveBy(delta, -delta);
                     break;
+                }
                 default:
                     break;
             }
@@ -142,7 +178,8 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
         default:
             break;
     }
-    return QObject::eventFilter(object, e);
+
+    return QObject::eventFilter(object, event);
 }
 
 // Select the point at a position. If there is no point

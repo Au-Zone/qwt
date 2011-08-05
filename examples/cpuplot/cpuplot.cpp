@@ -198,9 +198,12 @@ void CpuPlot::timerEvent(QTimerEvent *)
 void CpuPlot::showCurve(QwtPlotItem *item, bool on)
 {
     item->setVisible(on);
-    QWidget *w = legend()->find(item);
-    if ( w && w->inherits("QwtLegendItem") )
-        ((QwtLegendItem *)w)->setChecked(on);
+
+    QwtLegendItem *legendItem = 
+        qobject_cast<QwtLegendItem *>( legend()->find( item ) );
+
+    if ( legendItem )
+        legendItem->setChecked(on);
     
     replot();
 }

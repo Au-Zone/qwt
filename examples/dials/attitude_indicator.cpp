@@ -4,14 +4,10 @@
 #include <qpainter.h>
 #include <qpolygon.h>
 
-AttitudeIndicatorNeedle::AttitudeIndicatorNeedle(const QColor &c)
+AttitudeIndicatorNeedle::AttitudeIndicatorNeedle(const QColor &color)
 {
     QPalette palette;
-    for ( int i = 0; i < QPalette::NColorGroups; i++ )
-    {
-        palette.setColor((QPalette::ColorGroup)i,
-            QPalette::Text, c);
-    }
+    palette.setColor( QPalette::Text, color);
     setPalette(palette);
 }
 

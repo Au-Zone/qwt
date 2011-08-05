@@ -45,7 +45,7 @@ Plot::Plot(QWidget *parent):
     // We add a color bar to the left axis
     // ------------------------------------
 
-    QwtScaleWidget *scaleWidget = (QwtScaleWidget *)axisWidget(yLeft);
+    QwtScaleWidget *scaleWidget = axisWidget(yLeft);
     scaleWidget->setMargin(10); // area for the color bar
     d_colorBar = new ColorBar(Qt::Vertical, scaleWidget);
     d_colorBar->setRange(Qt::red, Qt::darkBlue);
@@ -100,8 +100,8 @@ bool Plot::eventFilter(QObject *object, QEvent *e)
 {
     if ( e->type() == QEvent::Resize )
     {
-        const QSize &size = ((QResizeEvent *)e)->size();
-        if ( object == (QObject *)axisWidget(yLeft) )
+        const QSize size = ((QResizeEvent *)e)->size();
+        if ( object == axisWidget(yLeft) )
         {
             const QwtScaleWidget *scaleWidget = axisWidget(yLeft);
 
