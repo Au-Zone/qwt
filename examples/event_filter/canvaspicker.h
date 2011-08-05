@@ -25,8 +25,8 @@ private:
     void shiftPointCursor(bool up);
     void shiftCurveCursor(bool up);
 
-    QwtPlot *plot() { return (QwtPlot *)parent(); }
-    const QwtPlot *plot() const { return (QwtPlot *)parent(); }
+    QwtPlot *plot();
+    const QwtPlot *plot() const;
 
     QwtPlotCurve *d_selectedCurve;
     int d_selectedPoint;

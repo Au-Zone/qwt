@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent):
     d_plot = new Plot(this);
    
     const int margin = 5;
-	d_plot->setContentsMargins( margin, margin, margin, 0 );
+    d_plot->setContentsMargins( margin, margin, margin, 0 );
 
     setContextMenuPolicy(Qt::NoContextMenu);
 

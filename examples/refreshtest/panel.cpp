@@ -203,7 +203,8 @@ Settings Panel::settings() const
     s.curve.brush.setStyle((d_curveFilled->isChecked()) ?
         Qt::SolidPattern : Qt::NoBrush);
     s.curve.numPoints = d_numPoints->value();
-    s.curve.functionType = (Settings::FunctionType)d_curveType->currentIndex();
+    s.curve.functionType = static_cast<Settings::FunctionType>(
+        d_curveType->currentIndex() );
     if ( d_curveClipping->isChecked() )
         s.curve.paintAttributes |= QwtPlotCurve::ClipPolygons;
     else
@@ -221,7 +222,7 @@ Settings Panel::settings() const
     s.canvas.immediatePaint = (d_immediatePaint->isChecked() );
 
     s.updateInterval = d_updateInterval->value();
-    s.updateType = (Settings::UpdateType)d_updateType->currentIndex();
+    s.updateType = static_cast<Settings::UpdateType>(d_updateType->currentIndex());
 
     return s;
 }

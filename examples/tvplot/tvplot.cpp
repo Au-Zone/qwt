@@ -81,9 +81,11 @@ TVPlot::TVPlot(QWidget *parent):
     {
         if ( i == 0 )
         {
-            QwtLegendItem *legendItem = (QwtLegendItem *)legend->find(items[i]);
+            QwtLegendItem *legendItem = 
+                qobject_cast<QwtLegendItem *>( legend->find(items[i]) );
             if ( legendItem )
                 legendItem->setChecked(true);
+
             items[i]->setVisible(true);
         }
         else

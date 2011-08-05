@@ -116,7 +116,7 @@ void Plot::start()
 
 void Plot::replot()
 {
-    CurveData *data = (CurveData *)d_curve->data();
+    CurveData *data = static_cast<CurveData *>( d_curve->data() );
     data->values().lock();
 
     QwtPlot::replot();
@@ -139,7 +139,7 @@ void Plot::setIntervalLength(double interval)
 
 void Plot::updateCurve()
 {
-    CurveData *data = (CurveData *)d_curve->data();
+    CurveData *data = static_cast<CurveData *>( d_curve->data() );
     data->values().lock();
 
     const int numPoints = data->size();
@@ -178,7 +178,7 @@ void Plot::incrementInterval()
     d_interval = QwtInterval(d_interval.maxValue(),
         d_interval.maxValue() + d_interval.width());
 
-    CurveData *data = (CurveData *)d_curve->data();
+    CurveData *data = static_cast<CurveData *>( d_curve->data() );
     data->values().clearStaleValues(d_interval.minValue());
 
     // To avoid, that the grid is jumping, we disable 

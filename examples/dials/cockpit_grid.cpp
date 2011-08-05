@@ -53,7 +53,7 @@ QwtDial *CockpitGrid::createDial(int pos)
                     QwtDialSimpleNeedle::Arrow, true, handColor, knobColor);
                 hand->setWidth(width);
 
-                d_clock->setHand((QwtAnalogClock::Hand)i, hand);
+                d_clock->setHand( static_cast<QwtAnalogClock::Hand>( i ), hand);
             }
 
             QTimer *timer = new QTimer(d_clock);
@@ -110,27 +110,14 @@ QwtDial *CockpitGrid::createDial(int pos)
 
 QPalette CockpitGrid::colorTheme(const QColor &base) const
 {
-    const QColor background = base.dark(150);
-    const QColor foreground = base.dark(200);
-
-    const QColor mid = base.dark(110);
-    const QColor dark = base.dark(170);
-    const QColor light = base.light(170);
-    const QColor text = foreground.light(800);
-
     QPalette palette;
-    for ( int i = 0; i < QPalette::NColorGroups; i++ )
-    {
-        QPalette::ColorGroup cg = (QPalette::ColorGroup)i;
-
-        palette.setColor(cg, QPalette::Base, base);
-        palette.setColor(cg, QPalette::Window, background);
-        palette.setColor(cg, QPalette::Mid, mid);
-        palette.setColor(cg, QPalette::Light, light);
-        palette.setColor(cg, QPalette::Dark, dark);
-        palette.setColor(cg, QPalette::Text, text);
-        palette.setColor(cg, QPalette::WindowText, foreground);
-    }
+    palette.setColor( QPalette::Base, base);
+    palette.setColor( QPalette::Window, base.dark(150) );
+    palette.setColor( QPalette::Mid, base.dark(110) );
+    palette.setColor( QPalette::Light, base.light(170) );
+    palette.setColor( QPalette::Dark, base.dark(170) );
+    palette.setColor( QPalette::Text, base.dark(200).light(800) );
+    palette.setColor( QPalette::WindowText, base.dark(200) );
 
     return palette;
 }

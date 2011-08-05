@@ -21,7 +21,7 @@ public:
     }
     virtual QwtText label(double v) const
     {
-        QTime upTime = baseTime.addSecs((int)v);
+        QTime upTime = baseTime.addSecs( static_cast<int>( v ) );
         return upTime.toString();
     }
 private:
@@ -198,9 +198,12 @@ void CpuPlot::timerEvent(QTimerEvent *)
 void CpuPlot::showCurve(QwtPlotItem *item, bool on)
 {
     item->setVisible(on);
-    QWidget *w = legend()->find(item);
-    if ( w && w->inherits("QwtLegendItem") )
-        ((QwtLegendItem *)w)->setChecked(on);
+
+    QwtLegendItem *legendItem = 
+        qobject_cast<QwtLegendItem *>( legend()->find( item ) );
+
+    if ( legendItem )
+        legendItem->setChecked(on);
     
     replot();
 }
@@ -215,7 +218,7 @@ int main(int argc, char **argv)
     CpuPlot *plot = new CpuPlot(&vBox);
     plot->setTitle("History");
 
-	const int margin = 5;
+    const int margin = 5;
     plot->setContentsMargins(margin, margin, margin, margin);
 
     QString info("Press the legend to en/disable a curve");

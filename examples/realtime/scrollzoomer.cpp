@@ -201,18 +201,18 @@ QWidget *ScrollZoomer::cornerWidget() const
     return d_cornerWidget;
 }
 
-bool ScrollZoomer::eventFilter(QObject *o, QEvent *e)
+bool ScrollZoomer::eventFilter(QObject *object, QEvent *event)
 {
-    if (  o == canvas() )
+    if ( object == canvas() )
     {
-        switch(e->type())
+        switch(event->type())
         {
             case QEvent::Resize:
             {
-                const int fw = ((QwtPlotCanvas *)canvas())->frameWidth();
+                const int fw = canvas()->frameWidth();
 
                 QRect rect;
-                rect.setSize(((QResizeEvent *)e)->size());
+                rect.setSize( static_cast<QResizeEvent *>( event )->size());
                 rect.setRect(rect.x() + fw, rect.y() + fw,
                     rect.width() - 2 * fw, rect.height() - 2 * fw);
 
@@ -221,7 +221,9 @@ bool ScrollZoomer::eventFilter(QObject *o, QEvent *e)
             }
             case QEvent::ChildRemoved:
             {
-                const QObject *child = ((QChildEvent *)e)->child();
+                const QObject *child = 
+                    static_cast<QChildEvent *>( event )->child();
+
                 if ( child == d_cornerWidget )
                     d_cornerWidget = NULL;
                 else if ( child == d_hScrollData->scrollBar )
@@ -234,15 +236,15 @@ bool ScrollZoomer::eventFilter(QObject *o, QEvent *e)
                 break;
         }
     }
-    return QwtPlotZoomer::eventFilter(o, e);
+    return QwtPlotZoomer::eventFilter(object, event);
 }
 
-bool ScrollZoomer::needScrollBar(Qt::Orientation o) const
+bool ScrollZoomer::needScrollBar(Qt::Orientation orientation) const
 {
     Qt::ScrollBarPolicy mode;
     double zoomMin, zoomMax, baseMin, baseMax;
 
-    if ( o == Qt::Horizontal )
+    if ( orientation == Qt::Horizontal )
     {
         mode = d_hScrollData->mode;
         baseMin = zoomBase().left();
@@ -373,7 +375,7 @@ void ScrollZoomer::updateScrollBars()
             d_cornerWidget->hide();
     }
 
-    layoutScrollBars(((QwtPlotCanvas *)canvas())->contentsRect());
+    layoutScrollBars( canvas()->contentsRect() );
     plot()->updateLayout();
 }
 

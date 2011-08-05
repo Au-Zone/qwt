@@ -84,7 +84,7 @@ int PlotMatrix::numColumns() const
 QwtPlot* PlotMatrix::plot(int row, int column)
 {
     const int index = row * numColumns() + column;
-    if ( index < (int)d_data->plotWidgets.size() )
+    if ( index < d_data->plotWidgets.size() )
         return d_data->plotWidgets[index];
 
     return NULL;
@@ -93,7 +93,7 @@ QwtPlot* PlotMatrix::plot(int row, int column)
 const QwtPlot* PlotMatrix::plot(int row, int column) const
 {
     const int index = row * numColumns() + column;
-    if ( index < (int)d_data->plotWidgets.size() )
+    if ( index < d_data->plotWidgets.size() )
         return d_data->plotWidgets[index];
 
     return NULL;

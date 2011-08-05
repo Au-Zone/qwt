@@ -77,13 +77,13 @@ void ColorBar::drawColorBar(QPainter *painter, const QRect &rect) const
 
     const int sectionSize = 2;
     
-    int numIntervalls;
+    int numIntervals;
     if ( d_orientation == Qt::Horizontal )
-        numIntervalls = rect.width() / sectionSize;
+        numIntervals = rect.width() / sectionSize;
     else
-        numIntervalls = rect.height() / sectionSize;
+        numIntervals = rect.height() / sectionSize;
 
-    for ( int i = 0; i < numIntervalls; i++ )
+    for ( int i = 0; i < numIntervals; i++ )
     {
         QRect section;
         if ( d_orientation == Qt::Horizontal )
@@ -97,7 +97,7 @@ void ColorBar::drawColorBar(QPainter *painter, const QRect &rect) const
                 rect.width(), sectionSize);
         }
 
-        const double ratio = i / (double)numIntervalls;
+        const double ratio = i / static_cast<double>( numIntervals );
 
         QColor c;
         c.setHsv( h1 + qRound(ratio * (h2 - h1)),
