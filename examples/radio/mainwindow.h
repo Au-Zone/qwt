@@ -1,6 +1,6 @@
 #include <qwidget.h>
 
-class MainWindow : public QWidget 
+class MainWindow : public QWidget
 {
 public:
     MainWindow();

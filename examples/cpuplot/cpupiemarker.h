@@ -12,7 +12,6 @@ public:
 
     virtual int rtti() const;
 
-    virtual void draw(QPainter *p,
-        const QwtScaleMap &, const QwtScaleMap &,
-        const QRectF &rect) const;
+    virtual void draw( QPainter *,
+        const QwtScaleMap &, const QwtScaleMap &, const QRectF & ) const;
 };

@@ -27,175 +27,175 @@ const int CurvCnt = 6;
 //
 double xval[Size];
 double yval[Size];
-QwtScaleMap xMap; 
+QwtScaleMap xMap;
 QwtScaleMap yMap;
 
-class MainWin : public QFrame 
+class MainWin : public QFrame
 {
 public:
     MainWin();
-    
+
 protected:
-    virtual void paintEvent(QPaintEvent *);
-    void drawContents(QPainter *p);
+    virtual void paintEvent( QPaintEvent * );
+    void drawContents( QPainter *p );
 
 private:
-    void shiftDown(QRect &rect, int offset) const;
+    void shiftDown( QRect &rect, int offset ) const;
 
     QwtPlotCurve d_curves[CurvCnt];
 };
 
-MainWin::MainWin() 
+MainWin::MainWin()
 {
     int i;
 
-    xMap.setScaleInterval(-0.5, 10.5);
-    yMap.setScaleInterval(-1.1, 1.1);
+    xMap.setScaleInterval( -0.5, 10.5 );
+    yMap.setScaleInterval( -1.1, 1.1 );
 
     //
     //  Frame style
-    //  
-    setFrameStyle(QFrame::Box|QFrame::Raised);
-    setLineWidth(2);
-    setMidLineWidth(3);
+    //
+    setFrameStyle( QFrame::Box | QFrame::Raised );
+    setLineWidth( 2 );
+    setMidLineWidth( 3 );
 
     //
     // Calculate values
     //
-    for(i=0; i<Size;i++)
-    {   
-        xval[i] = double(i) * 10.0 / double(Size - 1);
-        yval[i] = qSin(xval[i]) * qCos(2.0 * xval[i]);
+    for( i = 0; i < Size; i++ )
+    {
+        xval[i] = double( i ) * 10.0 / double( Size - 1 );
+        yval[i] = qSin( xval[i] ) * qCos( 2.0 * xval[i] );
     }
-    
+
     //
     //  define curve styles
-    // 
+    //
     i = 0;
 
-    d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::Cross, Qt::NoBrush,
-        QPen(Qt::black), QSize(5, 5) ) );
-    d_curves[i].setPen(QColor(Qt::darkGreen));
-    d_curves[i].setStyle(QwtPlotCurve::Lines);
-    d_curves[i].setCurveAttribute(QwtPlotCurve::Fitted);
+    d_curves[i].setSymbol( new QwtSymbol( QwtSymbol::Cross, Qt::NoBrush,
+        QPen( Qt::black ), QSize( 5, 5 ) ) );
+    d_curves[i].setPen( QColor( Qt::darkGreen ) );
+    d_curves[i].setStyle( QwtPlotCurve::Lines );
+    d_curves[i].setCurveAttribute( QwtPlotCurve::Fitted );
     i++;
 
-    d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::Ellipse, Qt::yellow,
-        QPen(Qt::blue), QSize(5, 5) ) );
-    d_curves[i].setPen(QColor(Qt::red));
-    d_curves[i].setStyle(QwtPlotCurve::Sticks);
+    d_curves[i].setSymbol( new QwtSymbol( QwtSymbol::Ellipse, Qt::yellow,
+        QPen( Qt::blue ), QSize( 5, 5 ) ) );
+    d_curves[i].setPen( QColor( Qt::red ) );
+    d_curves[i].setStyle( QwtPlotCurve::Sticks );
     i++;
 
-    d_curves[i].setPen(QColor(Qt::darkBlue));
-    d_curves[i].setStyle(QwtPlotCurve::Lines);
+    d_curves[i].setPen( QColor( Qt::darkBlue ) );
+    d_curves[i].setStyle( QwtPlotCurve::Lines );
     i++;
 
-    d_curves[i].setPen(QColor(Qt::darkBlue));
-    d_curves[i].setStyle(QwtPlotCurve::Lines);
-    d_curves[i].setRenderHint(QwtPlotItem::RenderAntialiased);
+    d_curves[i].setPen( QColor( Qt::darkBlue ) );
+    d_curves[i].setStyle( QwtPlotCurve::Lines );
+    d_curves[i].setRenderHint( QwtPlotItem::RenderAntialiased );
     i++;
 
-    d_curves[i].setPen(QColor(Qt::darkCyan));
-    d_curves[i].setStyle(QwtPlotCurve::Steps);
+    d_curves[i].setPen( QColor( Qt::darkCyan ) );
+    d_curves[i].setStyle( QwtPlotCurve::Steps );
     i++;
 
-    d_curves[i].setSymbol(new QwtSymbol(QwtSymbol::XCross, Qt::NoBrush,
-        QPen(Qt::darkMagenta), QSize(5, 5) ) );
-    d_curves[i].setStyle(QwtPlotCurve::NoCurve);
+    d_curves[i].setSymbol( new QwtSymbol( QwtSymbol::XCross, Qt::NoBrush,
+        QPen( Qt::darkMagenta ), QSize( 5, 5 ) ) );
+    d_curves[i].setStyle( QwtPlotCurve::NoCurve );
     i++;
 
 
     //
     // attach data
     //
-    for(i=0;i<CurvCnt;i++)
-        d_curves[i].setRawSamples(xval, yval, Size);
+    for( i = 0; i < CurvCnt; i++ )
+        d_curves[i].setRawSamples( xval, yval, Size );
 }
 
-void MainWin::shiftDown(QRect &rect, int offset) const
+void MainWin::shiftDown( QRect &rect, int offset ) const
 {
-    rect.translate(0, offset);     
+    rect.translate( 0, offset );
 }
 
-void MainWin::paintEvent(QPaintEvent *event)
+void MainWin::paintEvent( QPaintEvent *event )
 {
-    QFrame::paintEvent(event);
+    QFrame::paintEvent( event );
 
-    QPainter painter(this);
-    painter.setClipRect(contentsRect());
-    drawContents(&painter);
+    QPainter painter( this );
+    painter.setClipRect( contentsRect() );
+    drawContents( &painter );
 }
 
 
 //
 //  REDRAW CONTENTS
 //
-void MainWin::drawContents(QPainter *painter)
+void MainWin::drawContents( QPainter *painter )
 {
-    int deltay,i;
+    int deltay, i;
 
     QRect r = contentsRect();
 
     deltay = r.height() / CurvCnt - 1;
 
-    r.setHeight(deltay);
+    r.setHeight( deltay );
 
     //
     //  draw curves
     //
-    for (i=0;i<CurvCnt;i++)
+    for ( i = 0; i < CurvCnt; i++ )
     {
-        xMap.setPaintInterval(r.left(), r.right());
-        yMap.setPaintInterval(r.top(), r.bottom());
+        xMap.setPaintInterval( r.left(), r.right() );
+        yMap.setPaintInterval( r.top(), r.bottom() );
 
-        painter->setRenderHint(QPainter::Antialiasing,
-            d_curves[i].testRenderHint(QwtPlotItem::RenderAntialiased) );
-        d_curves[i].draw(painter, xMap, yMap, r);
+        painter->setRenderHint( QPainter::Antialiasing,
+            d_curves[i].testRenderHint( QwtPlotItem::RenderAntialiased ) );
+        d_curves[i].draw( painter, xMap, yMap, r );
 
-        shiftDown(r, deltay);
+        shiftDown( r, deltay );
     }
 
     //
     // draw titles
     //
     r = contentsRect();     // reset r
-    painter->setFont(QFont("Helvetica", 8));
-    
-    const int alignment = Qt::AlignTop|Qt::AlignHCenter;
+    painter->setFont( QFont( "Helvetica", 8 ) );
 
-    painter->setPen(Qt::black);
+    const int alignment = Qt::AlignTop | Qt::AlignHCenter;
 
-    painter->drawText(0,r.top(),r.width(), painter->fontMetrics().height(),
-        alignment, "Style: Line/Fitted, Symbol: Cross");
-    shiftDown(r, deltay);
+    painter->setPen( Qt::black );
 
-    painter->drawText(0,r.top(),r.width(), painter->fontMetrics().height(),
-        alignment, "Style: Sticks, Symbol: Ellipse");
-    shiftDown(r, deltay);
-    
-    painter->drawText(0 ,r.top(),r.width(), painter->fontMetrics().height(),
-        alignment, "Style: Lines, Symbol: None");
-    shiftDown(r, deltay);
+    painter->drawText( 0, r.top(), r.width(), painter->fontMetrics().height(),
+        alignment, "Style: Line/Fitted, Symbol: Cross" );
+    shiftDown( r, deltay );
 
-    painter->drawText(0 ,r.top(),r.width(), painter->fontMetrics().height(),
-        alignment, "Style: Lines, Symbol: None, Antialiased");
-    shiftDown(r, deltay);
-    
-    painter->drawText(0, r.top(),r.width(), painter->fontMetrics().height(),
-        alignment, "Style: Steps, Symbol: None");
-    shiftDown(r, deltay);
-    
-    painter->drawText(0,r.top(),r.width(), painter->fontMetrics().height(),
-        alignment, "Style: NoCurve, Symbol: XCross");
+    painter->drawText( 0, r.top(), r.width(), painter->fontMetrics().height(),
+        alignment, "Style: Sticks, Symbol: Ellipse" );
+    shiftDown( r, deltay );
+
+    painter->drawText( 0 , r.top(), r.width(), painter->fontMetrics().height(),
+        alignment, "Style: Lines, Symbol: None" );
+    shiftDown( r, deltay );
+
+    painter->drawText( 0 , r.top(), r.width(), painter->fontMetrics().height(),
+        alignment, "Style: Lines, Symbol: None, Antialiased" );
+    shiftDown( r, deltay );
+
+    painter->drawText( 0, r.top(), r.width(), painter->fontMetrics().height(),
+        alignment, "Style: Steps, Symbol: None" );
+    shiftDown( r, deltay );
+
+    painter->drawText( 0, r.top(), r.width(), painter->fontMetrics().height(),
+        alignment, "Style: NoCurve, Symbol: XCross" );
 }
 
-int main (int argc, char **argv)
+int main ( int argc, char **argv )
 {
-    QApplication a(argc, argv);
+    QApplication a( argc, argv );
 
     MainWin w;
 
-    w.resize(300,600);
+    w.resize( 300, 600 );
     w.show();
 
     return a.exec();

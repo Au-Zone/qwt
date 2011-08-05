@@ -7,7 +7,7 @@ class TVPlot: public QwtPlot
     Q_OBJECT
 
 public:
-    TVPlot(QWidget * = NULL);
+    TVPlot( QWidget * = NULL );
 
 public Q_SLOTS:
     void setMode( int );
@@ -17,7 +17,7 @@ private:
     void populate();
 
 private Q_SLOTS:
-    void showItem(QwtPlotItem *, bool on);
+    void showItem( QwtPlotItem *, bool on );
 };
 
 #endif

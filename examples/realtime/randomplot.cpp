@@ -13,28 +13,28 @@ const unsigned int c_rangeMax = 1000;
 class Zoomer: public ScrollZoomer
 {
 public:
-    Zoomer(QwtPlotCanvas *canvas):
-        ScrollZoomer(canvas)
+    Zoomer( QwtPlotCanvas *canvas ):
+        ScrollZoomer( canvas )
     {
 #if 0
-        setRubberBandPen(QPen(Qt::red, 2, Qt::DotLine));
+        setRubberBandPen( QPen( Qt::red, 2, Qt::DotLine ) );
 #else
-        setRubberBandPen(QPen(Qt::red));
+        setRubberBandPen( QPen( Qt::red ) );
 #endif
     }
 
-    virtual QwtText trackerTextF(const QPointF &pos) const
+    virtual QwtText trackerTextF( const QPointF &pos ) const
     {
-        QColor bg(Qt::white);
+        QColor bg( Qt::white );
 
-        QwtText text = QwtPlotZoomer::trackerTextF(pos);
-        text.setBackgroundBrush( QBrush( bg ));
+        QwtText text = QwtPlotZoomer::trackerTextF( pos );
+        text.setBackgroundBrush( QBrush( bg ) );
         return text;
     }
 
     virtual void rescale()
     {
-        QwtScaleWidget *scaleWidget = plot()->axisWidget(yAxis());
+        QwtScaleWidget *scaleWidget = plot()->axisWidget( yAxis() );
         QwtScaleDraw *sd = scaleWidget->scaleDraw();
 
         int minExtent = 0;
@@ -47,45 +47,45 @@ public:
 
             minExtent = sd->spacing() + sd->maxTickLength() + 1;
             minExtent += sd->labelSize(
-                scaleWidget->font(), c_rangeMax).width();
+                scaleWidget->font(), c_rangeMax ).width();
         }
 
-        sd->setMinimumExtent(minExtent);
+        sd->setMinimumExtent( minExtent );
 
         ScrollZoomer::rescale();
     }
 };
 
-RandomPlot::RandomPlot(QWidget *parent):
-    IncrementalPlot(parent),
-    d_timer(0),
-    d_timerCount(0)
+RandomPlot::RandomPlot( QWidget *parent ):
+    IncrementalPlot( parent ),
+    d_timer( 0 ),
+    d_timerCount( 0 )
 {
-    setFrameStyle(QFrame::NoFrame);
-    setLineWidth(0);
-    setCanvasLineWidth(2);
+    setFrameStyle( QFrame::NoFrame );
+    setLineWidth( 0 );
+    setCanvasLineWidth( 2 );
 
-    plotLayout()->setAlignCanvasToScales(true);
+    plotLayout()->setAlignCanvasToScales( true );
 
     QwtPlotGrid *grid = new QwtPlotGrid;
-    grid->setMajPen(QPen(Qt::gray, 0, Qt::DotLine));
-    grid->attach(this);
+    grid->setMajPen( QPen( Qt::gray, 0, Qt::DotLine ) );
+    grid->attach( this );
 
-    setCanvasBackground(QColor(29, 100, 141)); // nice blue
+    setCanvasBackground( QColor( 29, 100, 141 ) ); // nice blue
 
-    setAxisScale(xBottom, 0, c_rangeMax);
-    setAxisScale(yLeft, 0, c_rangeMax);
-    
+    setAxisScale( xBottom, 0, c_rangeMax );
+    setAxisScale( yLeft, 0, c_rangeMax );
+
     replot();
 
     // enable zooming
 
-    (void) new Zoomer(canvas());
+    ( void ) new Zoomer( canvas() );
 }
 
 QSize RandomPlot::sizeHint() const
 {
-    return QSize(540,400);
+    return QSize( 540, 400 );
 }
 
 void RandomPlot::appendPoint()
@@ -102,21 +102,21 @@ void RandomPlot::appendPoint()
         stop();
 }
 
-void RandomPlot::append(int timeout, int count)
+void RandomPlot::append( int timeout, int count )
 {
     if ( !d_timer )
     {
-        d_timer = new QTimer(this);
-        connect(d_timer, SIGNAL(timeout()), SLOT(appendPoint()));
+        d_timer = new QTimer( this );
+        connect( d_timer, SIGNAL( timeout() ), SLOT( appendPoint() ) );
     }
 
     d_timerCount = count;
 
-    Q_EMIT running(true);
+    Q_EMIT running( true );
     d_timeStamp.start();
 
-    canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, false);
-    d_timer->start(timeout);
+    canvas()->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+    d_timer->start( timeout );
 }
 
 void RandomPlot::stop()
@@ -126,10 +126,10 @@ void RandomPlot::stop()
     if ( d_timer )
     {
         d_timer->stop();
-        Q_EMIT running(false);
+        Q_EMIT running( false );
     }
 
-    canvas()->setPaintAttribute(QwtPlotCanvas::BackingStore, true);
+    canvas()->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
 }
 
 void RandomPlot::clear()

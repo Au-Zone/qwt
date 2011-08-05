@@ -27,13 +27,12 @@ Qwt includes a class documentation, that is available in various formats:
 - PDF document 
 - Qt Compressed Help (*.qch ) for the Qt assistant or creator. 
   You can load it "Edit Preferences" -> "Documentation" -> "Add..."
-- Man pages ( UNIX only )
 
 Building Qwt
 ==========================
 
-The easiest way to build Qwt is from the command line - but you insist on 
-using an IDE don't forget the "make install" step.
+The easiest way to build Qwt is from the command line - but when you
+insist on using an IDE don't forget the "make install" step.
 
 A) Unix 
 --------
@@ -130,7 +129,7 @@ following:
 qmake -spec macx-g++
 ...
 
-D) Qt Embedded
+E) Qt Embedded
 --------
 
 I only tested Qwt with Qt Embedded in qvfb (Virtual Framebuffer Devivce)

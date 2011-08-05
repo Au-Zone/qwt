@@ -18,105 +18,105 @@
 class Histogram: public QwtPlotHistogram
 {
 public:
-    Histogram(const QString &, const QColor &);
+    Histogram( const QString &, const QColor & );
 
-    void setColor(const QColor &);
-    void setValues(uint numValues, const double *);
+    void setColor( const QColor & );
+    void setValues( uint numValues, const double * );
 };
 
-Histogram::Histogram(const QString &title, const QColor &symbolColor):
-    QwtPlotHistogram(title)
+Histogram::Histogram( const QString &title, const QColor &symbolColor ):
+    QwtPlotHistogram( title )
 {
-    setStyle(QwtPlotHistogram::Columns);
+    setStyle( QwtPlotHistogram::Columns );
 
-    setColor(symbolColor);
+    setColor( symbolColor );
 }
 
-void Histogram::setColor(const QColor &color)
+void Histogram::setColor( const QColor &color )
 {
     QColor c = color;
-    c.setAlpha(180);
-    setBrush( QBrush(c) );
+    c.setAlpha( 180 );
+    setBrush( QBrush( c ) );
 }
 
-void Histogram::setValues(uint numValues, const double *values)
+void Histogram::setValues( uint numValues, const double *values )
 {
-    QVector<QwtIntervalSample> samples(numValues);
+    QVector<QwtIntervalSample> samples( numValues );
     for ( uint i = 0; i < numValues; i++ )
     {
-        QwtInterval interval(double(i), i + 1.0);
-        interval.setBorderFlags(QwtInterval::ExcludeMaximum);
-        
-        samples[i] = QwtIntervalSample(values[i], interval);
+        QwtInterval interval( double( i ), i + 1.0 );
+        interval.setBorderFlags( QwtInterval::ExcludeMaximum );
+
+        samples[i] = QwtIntervalSample( values[i], interval );
     }
 
-    setData(new QwtIntervalSeriesData(samples));
+    setData( new QwtIntervalSeriesData( samples ) );
 }
 
-TVPlot::TVPlot(QWidget *parent):
-    QwtPlot(parent)
+TVPlot::TVPlot( QWidget *parent ):
+    QwtPlot( parent )
 {
-    setTitle("Watching TV during a weekend");
+    setTitle( "Watching TV during a weekend" );
 
     canvas()->setPalette( Qt::gray );
     canvas()->setBorderRadius( 10 );
-    plotLayout()->setAlignCanvasToScales(true);
+    plotLayout()->setAlignCanvasToScales( true );
 
-    setAxisTitle(QwtPlot::yLeft, "Number of People");
-    setAxisTitle(QwtPlot::xBottom, "Number of Hours");
+    setAxisTitle( QwtPlot::yLeft, "Number of People" );
+    setAxisTitle( QwtPlot::xBottom, "Number of Hours" );
 
     QwtLegend *legend = new QwtLegend;
-    legend->setItemMode(QwtLegend::CheckableItem);
-    insertLegend(legend, QwtPlot::RightLegend);
+    legend->setItemMode( QwtLegend::CheckableItem );
+    insertLegend( legend, QwtPlot::RightLegend );
 
     populate();
 
-    connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
-        SLOT(showItem(QwtPlotItem *, bool)));
+    connect( this, SIGNAL( legendChecked( QwtPlotItem *, bool ) ),
+        SLOT( showItem( QwtPlotItem *, bool ) ) );
 
     replot(); // creating the legend items
 
-    QwtPlotItemList items = itemList(QwtPlotItem::Rtti_PlotHistogram);
+    QwtPlotItemList items = itemList( QwtPlotItem::Rtti_PlotHistogram );
     for ( int i = 0; i < items.size(); i++ )
     {
         if ( i == 0 )
         {
-            QwtLegendItem *legendItem = 
-                qobject_cast<QwtLegendItem *>( legend->find(items[i]) );
+            QwtLegendItem *legendItem =
+                qobject_cast<QwtLegendItem *>( legend->find( items[i] ) );
             if ( legendItem )
-                legendItem->setChecked(true);
+                legendItem->setChecked( true );
 
-            items[i]->setVisible(true);
+            items[i]->setVisible( true );
         }
         else
-            items[i]->setVisible(false);
+            items[i]->setVisible( false );
     }
 
-    setAutoReplot(true);
+    setAutoReplot( true );
 }
 
 void TVPlot::populate()
 {
     QwtPlotGrid *grid = new QwtPlotGrid;
-    grid->enableX(false);
-    grid->enableY(true);
-    grid->enableXMin(false);
-    grid->enableYMin(false);
-    grid->setMajPen(QPen(Qt::black, 0, Qt::DotLine));
-    grid->attach(this);
+    grid->enableX( false );
+    grid->enableY( true );
+    grid->enableXMin( false );
+    grid->enableYMin( false );
+    grid->setMajPen( QPen( Qt::black, 0, Qt::DotLine ) );
+    grid->attach( this );
 
     const double juneValues[] = { 7, 19, 24, 32, 10, 5, 3 };
     const double novemberValues[] = { 4, 15, 22, 34, 13, 8, 4 };
 
-    Histogram *histogramJune = new Histogram("Summer", Qt::red);
+    Histogram *histogramJune = new Histogram( "Summer", Qt::red );
     histogramJune->setValues(
-        sizeof(juneValues) / sizeof(double), juneValues);
-    histogramJune->attach(this);
+        sizeof( juneValues ) / sizeof( double ), juneValues );
+    histogramJune->attach( this );
 
-    Histogram *histogramNovember = new Histogram("Winter", Qt::blue);
+    Histogram *histogramNovember = new Histogram( "Winter", Qt::blue );
     histogramNovember->setValues(
-        sizeof(novemberValues) / sizeof(double), novemberValues);
-    histogramNovember->attach(this);
+        sizeof( novemberValues ) / sizeof( double ), novemberValues );
+    histogramNovember->attach( this );
 }
 
 void TVPlot::exportPlot()
@@ -140,7 +140,7 @@ void TVPlot::exportPlot()
 
     if ( imageFormats.size() > 0 )
     {
-        QString imageFilter("Images (");
+        QString imageFilter( "Images (" );
         for ( int i = 0; i < imageFormats.size(); i++ )
         {
             if ( i > 0 )
@@ -155,12 +155,12 @@ void TVPlot::exportPlot()
 
     fileName = QFileDialog::getSaveFileName(
         this, "Export File Name", fileName,
-        filter.join(";;"), NULL, QFileDialog::DontConfirmOverwrite);
+        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
 #endif
     if ( !fileName.isEmpty() )
     {
         QwtPlotRenderer renderer;
-        renderer.renderDocument(this, fileName, QSizeF(300, 200), 85);
+        renderer.renderDocument( this, fileName, QSizeF( 300, 200 ), 85 );
     }
 }
 
@@ -174,7 +174,7 @@ void TVPlot::setMode( int mode )
         if ( mode < 3 )
         {
             histogram->setStyle( static_cast<QwtPlotHistogram::HistogramStyle>( mode ) );
-            histogram->setSymbol(NULL);
+            histogram->setSymbol( NULL );
 
             QPen pen( Qt::black );
             if ( mode == QwtPlotHistogram::Lines )
@@ -186,18 +186,18 @@ void TVPlot::setMode( int mode )
         {
             histogram->setStyle( QwtPlotHistogram::Columns );
 
-            QwtColumnSymbol *symbol = new QwtColumnSymbol(QwtColumnSymbol::Box);
-            symbol->setFrameStyle(QwtColumnSymbol::Raised);
-            symbol->setLineWidth(2);
+            QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
+            symbol->setFrameStyle( QwtColumnSymbol::Raised );
+            symbol->setLineWidth( 2 );
             symbol->setPalette( QPalette( histogram->brush().color() ) );
 
-            histogram->setSymbol(symbol);
+            histogram->setSymbol( symbol );
         }
     }
 }
 
-void TVPlot::showItem(QwtPlotItem *item, bool on)
+void TVPlot::showItem( QwtPlotItem *item, bool on )
 {
-    item->setVisible(on);
+    item->setVisible( on );
 }
 

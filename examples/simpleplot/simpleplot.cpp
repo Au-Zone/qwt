@@ -6,25 +6,25 @@
 #include <qwt_symbol.h>
 #include <qwt_legend.h>
 
-int main(int argc, char **argv)
+int main( int argc, char **argv )
 {
-    QApplication a(argc, argv);
+    QApplication a( argc, argv );
 
     QwtPlot plot;
     plot.setTitle( "Plot Demo" );
     plot.setCanvasBackground( Qt::white );
-    plot.setAxisScale(QwtPlot::yLeft, 0.0, 10.0 );
+    plot.setAxisScale( QwtPlot::yLeft, 0.0, 10.0 );
     plot.insertLegend( new QwtLegend() );
 
     QwtPlotGrid *grid = new QwtPlotGrid();
-    grid->attach(&plot);
+    grid->attach( &plot );
 
     QwtPlotCurve *curve = new QwtPlotCurve();
-    curve->setTitle("Some Points");
+    curve->setTitle( "Some Points" );
     curve->setPen( QPen( Qt::blue, 4 ) ),
     curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
-    QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse, 
+    QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,
         QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
     curve->setSymbol( symbol );
 
@@ -36,8 +36,8 @@ int main(int argc, char **argv)
 
     curve->attach( &plot );
 
-    plot.resize(600,400);
+    plot.resize( 600, 400 );
     plot.show();
 
-    return a.exec(); 
+    return a.exec();
 }

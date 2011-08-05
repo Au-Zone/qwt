@@ -31,13 +31,13 @@ public:
     MainWindow();
 
 private Q_SLOTS:
-    void setMouseMode(int);
-    void setRescaleMode(int);
-    void showRatio(double, double);
+    void setMouseMode( int );
+    void setRescaleMode( int );
+    void showRatio( double, double );
 
 private:
-    QWidget *createPanel(QWidget *);
-    Plot *createPlot(QWidget *);
+    QWidget *createPanel( QWidget * );
+    Plot *createPlot( QWidget * );
 
     QwtPlotRescaler *d_rescaler;
     QLabel *d_navigationInfo;

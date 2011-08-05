@@ -21,7 +21,11 @@ Ideas
 - QwtPlotScene + breaking composite architecture
 - Using QStaticText for markers ( and scales ? )
 - Using QAbstractSlider as baseclass of QwtAbstractSlider
-- Scales/Grid item like in QwtPolatGrid
+- Scales/Grid item like in QwtPolarGrid
+- Container for a 2D matrix
+- Use QPainter::setAlpha instead of applying the alpha value to the image
+- Waterfall plots
+- transform/invTransform for polygons and lines
 
 Bugs/Change requests
 --------------------

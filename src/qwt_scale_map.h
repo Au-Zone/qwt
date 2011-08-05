@@ -46,7 +46,7 @@ public:
 
     virtual double xForm( double s, double s1, double s2,
         double p1, double p2 ) const;
-    virtual double invXForm( double x, double p1, double p2,
+    virtual double invXForm( double p, double p1, double p2,
         double s1, double s2 ) const;
 
     Type type() const;

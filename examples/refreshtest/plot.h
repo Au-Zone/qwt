@@ -13,13 +13,13 @@ class Plot: public QwtPlot
     Q_OBJECT
 
 public:
-    Plot(QWidget* = NULL);
+    Plot( QWidget* = NULL );
 
 public Q_SLOTS:
-    void setSettings(const Settings &);
+    void setSettings( const Settings & );
 
 protected:
-    virtual void timerEvent(QTimerEvent *e);
+    virtual void timerEvent( QTimerEvent *e );
 
 private:
     void alignScales();

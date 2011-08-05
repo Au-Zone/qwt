@@ -9,7 +9,7 @@ public:
     const SignalData &values() const;
     SignalData &values();
 
-    virtual QPointF sample(size_t i) const;
+    virtual QPointF sample( size_t i ) const;
     virtual size_t size() const;
 
     virtual QRectF boundingRect() const;

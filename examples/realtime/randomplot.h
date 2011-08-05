@@ -11,7 +11,7 @@ class RandomPlot: public IncrementalPlot
     Q_OBJECT
 
 public:
-    RandomPlot(QWidget *parent);
+    RandomPlot( QWidget *parent );
 
     virtual QSize sizeHint() const;
 

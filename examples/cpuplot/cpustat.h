@@ -1,10 +1,10 @@
 #include <qdatetime.h>
 
-class CpuStat 
+class CpuStat
 {
 public:
     CpuStat();
-    void statistic(double &user, double &system);
+    void statistic( double &user, double &system );
     QTime upTime() const;
 
     enum Value
@@ -18,6 +18,6 @@ public:
     };
 
 private:
-    void lookUp(double[NValues]) const;
+    void lookUp( double[NValues] ) const;
     double procValues[NValues];
 };

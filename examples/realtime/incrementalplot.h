@@ -11,10 +11,10 @@ class IncrementalPlot : public QwtPlot
     Q_OBJECT
 
 public:
-    IncrementalPlot(QWidget *parent = NULL);
+    IncrementalPlot( QWidget *parent = NULL );
     virtual ~IncrementalPlot();
 
-    void appendPoint( const QPointF &);
+    void appendPoint( const QPointF & );
     void clearPoints();
 
 private:

@@ -9,7 +9,7 @@ class MainWindow : public QWidget
     Q_OBJECT
 
 public:
-    MainWindow(QWidget * = NULL);
+    MainWindow( QWidget * = NULL );
 
     void start();
 
@@ -18,9 +18,9 @@ public:
     double signalInterval() const;
 
 Q_SIGNALS:
-    void amplitudeChanged(double);
-    void frequencyChanged(double);
-    void signalIntervalChanged(double);
+    void amplitudeChanged( double );
+    void frequencyChanged( double );
+    void signalIntervalChanged( double );
 
 private:
     Knob *d_frequencyKnob;

@@ -17,42 +17,42 @@ public:
         OppositeToScale
     };
 
-    ScrollZoomer(QwtPlotCanvas *);
+    ScrollZoomer( QwtPlotCanvas * );
     virtual ~ScrollZoomer();
 
     ScrollBar *horizontalScrollBar() const;
     ScrollBar *verticalScrollBar() const;
 
-    void setHScrollBarMode(Qt::ScrollBarPolicy);
-    void setVScrollBarMode(Qt::ScrollBarPolicy);
+    void setHScrollBarMode( Qt::ScrollBarPolicy );
+    void setVScrollBarMode( Qt::ScrollBarPolicy );
 
     Qt::ScrollBarPolicy vScrollBarMode () const;
     Qt::ScrollBarPolicy hScrollBarMode () const;
 
-    void setHScrollBarPosition(ScrollBarPosition);
-    void setVScrollBarPosition(ScrollBarPosition);
+    void setHScrollBarPosition( ScrollBarPosition );
+    void setVScrollBarPosition( ScrollBarPosition );
 
     ScrollBarPosition hScrollBarPosition() const;
     ScrollBarPosition vScrollBarPosition() const;
 
     QWidget* cornerWidget() const;
-    virtual void setCornerWidget(QWidget *); 
-    
-    virtual bool eventFilter(QObject *, QEvent *);
+    virtual void setCornerWidget( QWidget * );
+
+    virtual bool eventFilter( QObject *, QEvent * );
 
     virtual void rescale();
 
 protected:
-    virtual ScrollBar *scrollBar(Qt::Orientation);
+    virtual ScrollBar *scrollBar( Qt::Orientation );
     virtual void updateScrollBars();
-    virtual void layoutScrollBars(const QRect &);
+    virtual void layoutScrollBars( const QRect & );
 
 private Q_SLOTS:
-    void scrollBarMoved(Qt::Orientation o, double min, double max);
+    void scrollBarMoved( Qt::Orientation o, double min, double max );
 
 private:
-    bool needScrollBar(Qt::Orientation) const;
-    int oppositeAxis(int) const;
+    bool needScrollBar( Qt::Orientation ) const;
+    int oppositeAxis( int ) const;
 
     QWidget *d_cornerWidget;
 
@@ -62,5 +62,5 @@ private:
     bool d_inZoom;
     bool d_alignCanvasToScales;
 };
-            
+
 #endif

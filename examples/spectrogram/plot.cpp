@@ -13,19 +13,19 @@
 class MyZoomer: public QwtPlotZoomer
 {
 public:
-    MyZoomer(QwtPlotCanvas *canvas):
-        QwtPlotZoomer(canvas)
+    MyZoomer( QwtPlotCanvas *canvas ):
+        QwtPlotZoomer( canvas )
     {
-        setTrackerMode(AlwaysOn);
+        setTrackerMode( AlwaysOn );
     }
 
-    virtual QwtText trackerTextF(const QPointF &pos) const
+    virtual QwtText trackerTextF( const QPointF &pos ) const
     {
-        QColor bg(Qt::white);
-        bg.setAlpha(200);
+        QColor bg( Qt::white );
+        bg.setAlpha( 200 );
 
-        QwtText text = QwtPlotZoomer::trackerTextF(pos);
-        text.setBackgroundBrush( QBrush( bg ));
+        QwtText text = QwtPlotZoomer::trackerTextF( pos );
+        text.setBackgroundBrush( QBrush( bg ) );
         return text;
     }
 };
@@ -40,14 +40,14 @@ public:
         setInterval( Qt::ZAxis, QwtInterval( 0.0, 10.0 ) );
     }
 
-    virtual double value(double x, double y) const
+    virtual double value( double x, double y ) const
     {
         const double c = 0.842;
 
-        const double v1 = x * x + (y-c) * (y+c);
-        const double v2 = x * (y+c) + x * (y+c);
+        const double v1 = x * x + ( y - c ) * ( y + c );
+        const double v2 = x * ( y + c ) + x * ( y + c );
 
-        return 1.0 / (v1 * v1 + v2 * v2);
+        return 1.0 / ( v1 * v1 + v2 * v2 );
     }
 };
 
@@ -55,41 +55,41 @@ class ColorMap: public QwtLinearColorMap
 {
 public:
     ColorMap():
-        QwtLinearColorMap(Qt::darkCyan, Qt::red)
+        QwtLinearColorMap( Qt::darkCyan, Qt::red )
     {
-        addColorStop(0.1, Qt::cyan);
-        addColorStop(0.6, Qt::green);
-        addColorStop(0.95, Qt::yellow);
+        addColorStop( 0.1, Qt::cyan );
+        addColorStop( 0.6, Qt::green );
+        addColorStop( 0.95, Qt::yellow );
     }
 };
 
-Plot::Plot(QWidget *parent):
-    QwtPlot(parent)
+Plot::Plot( QWidget *parent ):
+    QwtPlot( parent )
 {
     d_spectrogram = new QwtPlotSpectrogram();
-    d_spectrogram->setRenderThreadCount(0); // use system specific thread count
+    d_spectrogram->setRenderThreadCount( 0 ); // use system specific thread count
 
-    d_spectrogram->setColorMap(new ColorMap());
+    d_spectrogram->setColorMap( new ColorMap() );
 
-    d_spectrogram->setData(new SpectrogramData());
-    d_spectrogram->attach(this);
+    d_spectrogram->setData( new SpectrogramData() );
+    d_spectrogram->attach( this );
 
     QList<double> contourLevels;
     for ( double level = 0.5; level < 10.0; level += 1.0 )
         contourLevels += level;
-    d_spectrogram->setContourLevels(contourLevels);
+    d_spectrogram->setContourLevels( contourLevels );
 
     const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
     // A color bar on the right axis
-    QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
-    rightAxis->setTitle("Intensity");
-    rightAxis->setColorBarEnabled(true);
-    rightAxis->setColorMap( zInterval, new ColorMap());
+    QwtScaleWidget *rightAxis = axisWidget( QwtPlot::yRight );
+    rightAxis->setTitle( "Intensity" );
+    rightAxis->setColorBarEnabled( true );
+    rightAxis->setColorMap( zInterval, new ColorMap() );
 
-    setAxisScale(QwtPlot::yRight, zInterval.minValue(), zInterval.maxValue() );
-    enableAxis(QwtPlot::yRight);
+    setAxisScale( QwtPlot::yRight, zInterval.minValue(), zInterval.maxValue() );
+    enableAxis( QwtPlot::yRight );
 
-    plotLayout()->setAlignCanvasToScales(true);
+    plotLayout()->setAlignCanvasToScales( true );
     replot();
 
     // LeftButton for the zooming
@@ -97,38 +97,38 @@ Plot::Plot(QWidget *parent):
     // RightButton: zoom out by 1
     // Ctrl+RighButton: zoom out to full size
 
-    QwtPlotZoomer* zoomer = new MyZoomer(canvas());
-    zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
-        Qt::RightButton, Qt::ControlModifier);
-    zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
-        Qt::RightButton);
+    QwtPlotZoomer* zoomer = new MyZoomer( canvas() );
+    zoomer->setMousePattern( QwtEventPattern::MouseSelect2,
+        Qt::RightButton, Qt::ControlModifier );
+    zoomer->setMousePattern( QwtEventPattern::MouseSelect3,
+        Qt::RightButton );
 
-    QwtPlotPanner *panner = new QwtPlotPanner(canvas());
-    panner->setAxisEnabled(QwtPlot::yRight, false);
-    panner->setMouseButton(Qt::MidButton);
+    QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
+    panner->setAxisEnabled( QwtPlot::yRight, false );
+    panner->setMouseButton( Qt::MidButton );
 
     // Avoid jumping when labels with more/less digits
     // appear/disappear when scrolling vertically
 
-    const QFontMetrics fm(axisWidget(QwtPlot::yLeft)->font());
-    QwtScaleDraw *sd = axisScaleDraw(QwtPlot::yLeft);
-    sd->setMinimumExtent( fm.width("100.00") );
+    const QFontMetrics fm( axisWidget( QwtPlot::yLeft )->font() );
+    QwtScaleDraw *sd = axisScaleDraw( QwtPlot::yLeft );
+    sd->setMinimumExtent( fm.width( "100.00" ) );
 
-    const QColor c(Qt::darkBlue);
-    zoomer->setRubberBandPen(c);
-    zoomer->setTrackerPen(c);
+    const QColor c( Qt::darkBlue );
+    zoomer->setRubberBandPen( c );
+    zoomer->setTrackerPen( c );
 }
 
-void Plot::showContour(bool on)
+void Plot::showContour( bool on )
 {
-    d_spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, on);
+    d_spectrogram->setDisplayMode( QwtPlotSpectrogram::ContourMode, on );
     replot();
 }
 
-void Plot::showSpectrogram(bool on)
+void Plot::showSpectrogram( bool on )
 {
-    d_spectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, on);
-    d_spectrogram->setDefaultContourPen(on ? QPen() : QPen(Qt::NoPen));
+    d_spectrogram->setDisplayMode( QwtPlotSpectrogram::ImageMode, on );
+    d_spectrogram->setDefaultContourPen( on ? QPen() : QPen( Qt::NoPen ) );
     replot();
 }
 
@@ -139,19 +139,19 @@ void Plot::printPlot()
 #if 1
     QPrinter printer;
 #else
-    QPrinter printer(QPrinter::HighResolution);
+    QPrinter printer( QPrinter::HighResolution );
 #endif
-    printer.setOrientation(QPrinter::Landscape);
-    printer.setOutputFileName("spectrogram.pdf");
-    QPrintDialog dialog(&printer);
+    printer.setOrientation( QPrinter::Landscape );
+    printer.setOutputFileName( "spectrogram.pdf" );
+    QPrintDialog dialog( &printer );
     if ( dialog.exec() )
     {
         QwtPlotRenderer renderer;
 
-        renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
-        renderer.setLayoutFlag(QwtPlotRenderer::KeepFrames, true);
+        renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
+        renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
 
-        renderer.renderTo(this, printer);
+        renderer.renderTo( this, printer );
     }
 }
 
