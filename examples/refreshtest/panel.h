@@ -13,21 +13,21 @@ class Panel: public QTabWidget
     Q_OBJECT
 
 public:
-    Panel(QWidget * = NULL);
+    Panel( QWidget * = NULL );
 
     Settings settings() const;
-    void setSettings(const Settings &);
+    void setSettings( const Settings & );
 
 Q_SIGNALS:
-    void settingsChanged(const Settings &);
+    void settingsChanged( const Settings & );
 
 private Q_SLOTS:
     void edited();
 
 private:
-    QWidget *createPlotTab(QWidget *);
-    QWidget *createCanvasTab(QWidget *);
-    QWidget *createCurveTab(QWidget *);
+    QWidget *createPlotTab( QWidget * );
+    QWidget *createCanvasTab( QWidget * );
+    QWidget *createCurveTab( QWidget * );
 
     SpinBox *d_numPoints;
     SpinBox *d_updateInterval;

@@ -7,13 +7,13 @@ class TVPlot: public QwtPlot
     Q_OBJECT
 
 public:
-    TVPlot(QWidget * = NULL);
+    TVPlot( QWidget * = NULL );
 
 private:
     void populate();
 
 private Q_SLOTS:
-    void showItem(QwtPlotItem *, bool on);
+    void showItem( QwtPlotItem *, bool on );
 };
 
 #endif

@@ -10,53 +10,53 @@
 class MainWindow: public QMainWindow
 {
 public:
-    MainWindow(QWidget * = NULL);
+    MainWindow( QWidget * = NULL );
 };
 
-MainWindow::MainWindow(QWidget *parent):
-    QMainWindow(parent)
+MainWindow::MainWindow( QWidget *parent ):
+    QMainWindow( parent )
 {
-    Plot *plot = new Plot(this);
-    setCentralWidget(plot);
+    Plot *plot = new Plot( this );
+    setCentralWidget( plot );
 
-    QToolBar *toolBar = new QToolBar(this);
+    QToolBar *toolBar = new QToolBar( this );
 
-    QComboBox *rasterBox = new QComboBox(toolBar);
-    rasterBox->setStyle(new QWindowsStyle() );
-    rasterBox->addItem("Wikipedia");
+    QComboBox *rasterBox = new QComboBox( toolBar );
+    rasterBox->setStyle( new QWindowsStyle() );
+    rasterBox->addItem( "Wikipedia" );
 
-    toolBar->addWidget(new QLabel("Data ", toolBar));
-    toolBar->addWidget(rasterBox);
+    toolBar->addWidget( new QLabel( "Data ", toolBar ) );
+    toolBar->addWidget( rasterBox );
     toolBar->addSeparator();
 
-    QComboBox *modeBox = new QComboBox(toolBar);
-    modeBox->setStyle(new QWindowsStyle() );
-    modeBox->addItem("Nearest Neighbour");
-    modeBox->addItem("Bilinear Interpolation");
+    QComboBox *modeBox = new QComboBox( toolBar );
+    modeBox->setStyle( new QWindowsStyle() );
+    modeBox->addItem( "Nearest Neighbour" );
+    modeBox->addItem( "Bilinear Interpolation" );
 
-    toolBar->addWidget(new QLabel("Resampling ", toolBar));
-    toolBar->addWidget(modeBox);
+    toolBar->addWidget( new QLabel( "Resampling ", toolBar ) );
+    toolBar->addWidget( modeBox );
 
     toolBar->addSeparator();
 
-    QToolButton *btnExport = new QToolButton(toolBar);
-    btnExport->setText("Export");
-    btnExport->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    toolBar->addWidget(btnExport);
-    
-    addToolBar(toolBar);
+    QToolButton *btnExport = new QToolButton( toolBar );
+    btnExport->setText( "Export" );
+    btnExport->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
+    toolBar->addWidget( btnExport );
 
-    connect(modeBox, SIGNAL(activated(int)), plot, SLOT(setResampleMode(int)));
-    connect(btnExport, SIGNAL(clicked()), plot, SLOT(exportPlot()) );
+    addToolBar( toolBar );
+
+    connect( modeBox, SIGNAL( activated( int ) ), plot, SLOT( setResampleMode( int ) ) );
+    connect( btnExport, SIGNAL( clicked() ), plot, SLOT( exportPlot() ) );
 }
 
-int main(int argc, char **argv)
+int main( int argc, char **argv )
 {
-    QApplication a(argc, argv);
+    QApplication a( argc, argv );
 
     MainWindow mainWindow;
-    mainWindow.resize(600,400);
+    mainWindow.resize( 600, 400 );
     mainWindow.show();
 
-    return a.exec(); 
+    return a.exec();
 }

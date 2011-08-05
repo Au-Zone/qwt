@@ -11,19 +11,19 @@ class Knob: public QWidget
     Q_OBJECT
 
 public:
-    Knob(const QString &title, 
-        double min, double max, QWidget *parent = NULL);
+    Knob( const QString &title,
+        double min, double max, QWidget *parent = NULL );
 
     virtual QSize sizeHint() const;
 
-    void setValue(double value);
+    void setValue( double value );
     double value() const;
 
 Q_SIGNALS:
-    double valueChanged(double);
+    double valueChanged( double );
 
 protected:
-    virtual void resizeEvent(QResizeEvent *);
+    virtual void resizeEvent( QResizeEvent * );
 
 private:
     QwtKnob *d_knob;

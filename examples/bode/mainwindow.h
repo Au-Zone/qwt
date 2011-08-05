@@ -11,21 +11,21 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow( QWidget *parent = 0 );
 
 private Q_SLOTS:
-    void moved(const QPoint &);
-    void selected(const QPolygon &);
-    
+    void moved( const QPoint & );
+    void selected( const QPolygon & );
+
 #ifndef QT_NO_PRINTER
     void print();
 #endif
 
     void exportDocument();
-    void enableZoomMode(bool);
+    void enableZoomMode( bool );
 
 private:
-    void showInfo(QString text = QString::null);
+    void showInfo( QString text = QString::null );
 
     Plot *d_plot;
 

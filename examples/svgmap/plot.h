@@ -8,7 +8,7 @@ class Plot: public QwtPlot
     Q_OBJECT
 
 public:
-    Plot(QWidget * = NULL);
+    Plot( QWidget * = NULL );
 
 public Q_SLOTS:
 
@@ -16,7 +16,7 @@ public Q_SLOTS:
     void loadSVG();
 #endif
 
-    void loadSVG(const QString &);
+    void loadSVG( const QString & );
 
 private:
     void rescale();

@@ -5,23 +5,23 @@
 
 CpuStat::CpuStat()
 {
-    lookUp(procValues);
+    lookUp( procValues );
 }
 
 QTime CpuStat::upTime() const
 {
     QTime t;
     for ( int i = 0; i < NValues; i++ )
-        t = t.addSecs(int(procValues[i] / 100));
+        t = t.addSecs( int( procValues[i] / 100 ) );
 
     return t;
 }
 
-void CpuStat::statistic(double &user, double &system)
+void CpuStat::statistic( double &user, double &system )
 {
     double values[NValues];
 
-    lookUp(values);
+    lookUp( values );
 
     double userDelta = values[User] + values[Nice]
         - procValues[User] - procValues[Nice];
@@ -38,10 +38,10 @@ void CpuStat::statistic(double &user, double &system)
         procValues[j] = values[j];
 }
 
-void CpuStat::lookUp(double values[NValues]) const
+void CpuStat::lookUp( double values[NValues] ) const
 {
-    QFile file("/proc/stat");
-    if ( !file.open(QIODevice::ReadOnly) )
+    QFile file( "/proc/stat" );
+    if ( !file.open( QIODevice::ReadOnly ) )
     {
         static double dummyValues[][NValues] =
         {
@@ -189,23 +189,24 @@ void CpuStat::lookUp(double values[NValues]) const
             { 109371, 0, 24019, 827486 },
         };
         static int counter = 0;
-        
+
         for ( int i = 0; i < NValues; i++ )
             values[i] = dummyValues[counter][i];
 
-        counter = (counter + 1) 
-            % (sizeof(dummyValues) / sizeof(dummyValues[0]));
+        counter = ( counter + 1 )
+            % ( sizeof( dummyValues ) / sizeof( dummyValues[0] ) );
     }
     else
     {
-        QTextStream textStream(&file);
-        do {
+        QTextStream textStream( &file );
+        do
+        {
             QString line = textStream.readLine();
             line = line.trimmed();
-            if ( line.startsWith("cpu ") )
+            if ( line.startsWith( "cpu " ) )
             {
                 const QStringList valueList =
-                    line.split(" ",  QString::SkipEmptyParts);
+                    line.split( " ",  QString::SkipEmptyParts );
                 if ( valueList.count() >= 5 )
                 {
                     for ( int i = 0; i < NValues; i++ )
@@ -213,6 +214,7 @@ void CpuStat::lookUp(double values[NValues]) const
                 }
                 break;
             }
-        } while(!textStream.atEnd());
+        }
+        while( !textStream.atEnd() );
     }
 }

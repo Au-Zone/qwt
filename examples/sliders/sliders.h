@@ -8,13 +8,13 @@ class Slider: public QWidget
 {
     Q_OBJECT
 public:
-    Slider(QWidget *parent, int sliderType);
+    Slider( QWidget *parent, int sliderType );
 
 private Q_SLOTS:
-    void setNum(double v);
+    void setNum( double v );
 
 private:
-    QwtSlider *createSlider(QWidget *, int sliderType) const;
+    QwtSlider *createSlider( QWidget *, int sliderType ) const;
 
     QwtSlider *d_slider;
     QLabel *d_label;
@@ -23,5 +23,5 @@ private:
 class SliderDemo : public QWidget
 {
 public:
-    SliderDemo(QWidget *p = NULL);
+    SliderDemo( QWidget *p = NULL );
 };

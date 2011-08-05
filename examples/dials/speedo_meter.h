@@ -4,14 +4,14 @@
 class SpeedoMeter: public QwtDial
 {
 public:
-    SpeedoMeter(QWidget *parent = NULL);
+    SpeedoMeter( QWidget *parent = NULL );
 
-    void setLabel(const QString &);
+    void setLabel( const QString & );
     QString label() const;
 
 protected:
-    virtual void drawScaleContents(QPainter *painter,
-        const QPointF &center, double radius) const;
+    virtual void drawScaleContents( QPainter *painter,
+        const QPointF &center, double radius ) const;
 
 private:
     QString d_label;

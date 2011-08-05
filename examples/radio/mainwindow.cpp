@@ -3,25 +3,25 @@
 #include "ampfrm.h"
 #include "mainwindow.h"
 
-MainWindow::MainWindow(): 
+MainWindow::MainWindow():
     QWidget()
 {
-    TunerFrame *frmTuner = new TunerFrame(this);
-    frmTuner->setFrameStyle(QFrame::Panel|QFrame::Raised);
+    TunerFrame *frmTuner = new TunerFrame( this );
+    frmTuner->setFrameStyle( QFrame::Panel | QFrame::Raised );
 
-    AmpFrame *frmAmp = new AmpFrame(this);
-    frmAmp->setFrameStyle(QFrame::Panel|QFrame::Raised);
+    AmpFrame *frmAmp = new AmpFrame( this );
+    frmAmp->setFrameStyle( QFrame::Panel | QFrame::Raised );
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    layout->addWidget(frmTuner);
-    layout->addWidget(frmAmp);
-    
-    connect(frmTuner, SIGNAL(fieldChanged(double)), 
-        frmAmp, SLOT(setMaster(double)));
+    QVBoxLayout *layout = new QVBoxLayout( this );
+    layout->setMargin( 0 );
+    layout->setSpacing( 0 );
+    layout->addWidget( frmTuner );
+    layout->addWidget( frmAmp );
 
-    frmTuner->setFreq(90.0);    
+    connect( frmTuner, SIGNAL( fieldChanged( double ) ),
+        frmAmp, SLOT( setMaster( double ) ) );
+
+    frmTuner->setFreq( 90.0 );
 
     setPalette( QPalette( QColor( 192, 192, 192 ) ) );
     updateGradient();

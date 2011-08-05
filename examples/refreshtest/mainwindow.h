@@ -10,8 +10,8 @@ class QLabel;
 class MainWindow: public QMainWindow
 {
 public:
-    MainWindow(QWidget *parent = NULL);
-    virtual bool eventFilter(QObject *, QEvent *);
+    MainWindow( QWidget *parent = NULL );
+    virtual bool eventFilter( QObject *, QEvent * );
 
 private:
     Plot *d_plot;

@@ -35,9 +35,9 @@ public:
     {
         QList<double> ticks[QwtScaleDiv::NTickTypes];
 
-        ticks[QwtScaleDiv::MajorTick] = 
+        ticks[QwtScaleDiv::MajorTick] =
             xMap.ticks( QwtScaleDiv::MediumTick );
-        ticks[QwtScaleDiv::MinorTick] = 
+        ticks[QwtScaleDiv::MinorTick] =
             xMap.ticks( QwtScaleDiv::MinorTick );
 
         QwtPlotGrid::updateScaleDiv(
@@ -226,7 +226,7 @@ void Plot::exportPlot()
 
     if ( imageFormats.size() > 0 )
     {
-        QString imageFilter("Images (");
+        QString imageFilter( "Images (" );
         for ( int i = 0; i < imageFormats.size(); i++ )
         {
             if ( i > 0 )
@@ -241,13 +241,13 @@ void Plot::exportPlot()
 
     fileName = QFileDialog::getSaveFileName(
         this, "Export File Name", fileName,
-        filter.join(";;"), NULL, QFileDialog::DontConfirmOverwrite);
+        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
 #endif
     if ( !fileName.isEmpty() )
     {
         QwtPlotRenderer renderer;
-        renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, false);
+        renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
 
-        renderer.renderDocument(this, fileName, QSizeF(300, 200), 85);
+        renderer.renderDocument( this, fileName, QSizeF( 300, 200 ), 85 );
     }
 }

@@ -8,32 +8,32 @@
 #include "plot.h"
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent):
-    QMainWindow(parent)
+MainWindow::MainWindow( QWidget *parent ):
+    QMainWindow( parent )
 {
-    QWidget *w = new QWidget(this);
+    QWidget *w = new QWidget( this );
 
-    d_panel = new Panel(w);
+    d_panel = new Panel( w );
 
-    d_plot = new Plot(w);
-    d_plot->canvas()->installEventFilter(this);
+    d_plot = new Plot( w );
+    d_plot->canvas()->installEventFilter( this );
 
-    QHBoxLayout *hLayout = new QHBoxLayout(w);
-    hLayout->addWidget(d_panel);
-    hLayout->addWidget(d_plot, 10);
+    QHBoxLayout *hLayout = new QHBoxLayout( w );
+    hLayout->addWidget( d_panel );
+    hLayout->addWidget( d_plot, 10 );
 
-    setCentralWidget(w);
+    setCentralWidget( w );
 
-    d_frameCount = new QLabel(this);
-    statusBar()->addWidget(d_frameCount, 10);
+    d_frameCount = new QLabel( this );
+    statusBar()->addWidget( d_frameCount, 10 );
 
-    d_plot->setSettings(d_panel->settings());
+    d_plot->setSettings( d_panel->settings() );
 
-    connect(d_panel, SIGNAL(settingsChanged(const Settings &)),
-        d_plot, SLOT(setSettings(const Settings &)));
+    connect( d_panel, SIGNAL( settingsChanged( const Settings & ) ),
+        d_plot, SLOT( setSettings( const Settings & ) ) );
 }
 
-bool MainWindow::eventFilter(QObject *object, QEvent *event)
+bool MainWindow::eventFilter( QObject *object, QEvent *event )
 {
     if ( object == d_plot->canvas() && event->type() == QEvent::Paint )
     {
@@ -53,10 +53,10 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
             if ( elapsed >= 1 )
             {
                 QString fps;
-                fps.setNum(qRound(counter / elapsed));
+                fps.setNum( qRound( counter / elapsed ) );
                 fps += " Fps";
 
-                d_frameCount->setText(fps);
+                d_frameCount->setText( fps );
 
                 counter = 0;
                 timeStamp.start();
@@ -64,5 +64,5 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
         }
     }
 
-    return QMainWindow::eventFilter(object, event);
+    return QMainWindow::eventFilter( object, event );
 };

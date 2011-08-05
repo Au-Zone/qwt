@@ -11,19 +11,19 @@ class Plot: public QwtPlot
     Q_OBJECT
 
 public:
-    Plot(QWidget * = NULL);
+    Plot( QWidget * = NULL );
     virtual ~Plot();
 
     void start();
     virtual void replot();
 
 public Q_SLOTS:
-    void setIntervalLength(double);
+    void setIntervalLength( double );
 
 protected:
-    virtual void showEvent(QShowEvent *);
-    virtual void resizeEvent(QResizeEvent *);
-    virtual void timerEvent(QTimerEvent *);
+    virtual void showEvent( QShowEvent * );
+    virtual void resizeEvent( QResizeEvent * );
+    virtual void timerEvent( QTimerEvent * );
 
 private:
     void initGradient();

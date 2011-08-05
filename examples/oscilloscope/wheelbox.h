@@ -12,18 +12,18 @@ class WheelBox: public QWidget
     Q_OBJECT
 
 public:
-    WheelBox(const QString &title, 
-        double min, double max, double stepSize, 
-        QWidget *parent = NULL);
+    WheelBox( const QString &title,
+        double min, double max, double stepSize,
+        QWidget *parent = NULL );
 
-    void setUnit(const QString &);
+    void setUnit( const QString & );
     QString unit() const;
 
-    void setValue(double value);
+    void setValue( double value );
     double value() const;
 
 Q_SIGNALS:
-    double valueChanged(double);
+    double valueChanged( double );
 
 private:
     QLCDNumber *d_number;
