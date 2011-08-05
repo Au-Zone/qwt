@@ -7,21 +7,21 @@
 class CircularBuffer: public QwtSeriesData<QPointF>
 {
 public:
-    CircularBuffer(double interval = 10.0, size_t numPoints = 1000);
-    void fill(double interval, size_t numPoints);
+    CircularBuffer( double interval = 10.0, size_t numPoints = 1000 );
+    void fill( double interval, size_t numPoints );
 
-    void setReferenceTime(double);
+    void setReferenceTime( double );
     double referenceTime() const;
 
     virtual size_t size() const;
-    virtual QPointF sample(size_t i) const;
+    virtual QPointF sample( size_t i ) const;
 
     virtual QRectF boundingRect() const;
 
-    void setFunction(double(*y)(double));
+    void setFunction( double( *y )( double ) );
 
 private:
-    double (*d_y)(double);
+    double ( *d_y )( double );
 
     double d_referenceTime;
     double d_interval;

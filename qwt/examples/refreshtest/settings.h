@@ -31,7 +31,7 @@ public:
         curve.paintAttributes = 0;
         curve.renderHint = 0;
         curve.lineSplitting = true;
-        
+
         canvas.useBackingStore = false;
         canvas.paintOnScreen = false;
         canvas.immediatePaint = true;

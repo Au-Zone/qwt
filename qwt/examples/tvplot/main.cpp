@@ -8,14 +8,14 @@
 class MainWindow: public QMainWindow
 {
 public:
-    MainWindow(QWidget * = NULL);
+    MainWindow( QWidget * = NULL );
 
 private:
     TVPlot *d_plot;
 };
 
-MainWindow::MainWindow(QWidget *parent):
-    QMainWindow(parent)
+MainWindow::MainWindow( QWidget *parent ):
+    QMainWindow( parent )
 {
     d_plot = new TVPlot( this );
     setCentralWidget( d_plot );
@@ -44,14 +44,14 @@ MainWindow::MainWindow(QWidget *parent):
              d_plot, SLOT( setMode( int ) ) );
 }
 
-int main(int argc, char **argv)
+int main( int argc, char **argv )
 {
-    QApplication a(argc, argv);
+    QApplication a( argc, argv );
 
     MainWindow mainWindow;
-    
-    mainWindow.resize(600,400);
+
+    mainWindow.resize( 600, 400 );
     mainWindow.show();
 
-    return a.exec(); 
+    return a.exec();
 }

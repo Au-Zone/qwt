@@ -6,11 +6,11 @@ class Plot: public QwtPlot
     Q_OBJECT
 
 public:
-    Plot(QWidget * = NULL);
+    Plot( QWidget * = NULL );
 
 public Q_SLOTS:
     void exportPlot();
-    void setResampleMode(int);
+    void setResampleMode( int );
 
 private:
     QwtPlotSpectrogram *d_spectrogram;

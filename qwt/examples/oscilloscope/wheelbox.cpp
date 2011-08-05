@@ -9,79 +9,79 @@
 class Wheel: public QwtWheel
 {
 public:
-    Wheel(WheelBox *parent):
-        QwtWheel(parent)
+    Wheel( WheelBox *parent ):
+        QwtWheel( parent )
     {
-        setFocusPolicy(Qt::WheelFocus);
-        parent->installEventFilter(this);
+        setFocusPolicy( Qt::WheelFocus );
+        parent->installEventFilter( this );
     }
 
-    virtual bool eventFilter(QObject *object, QEvent *event)
+    virtual bool eventFilter( QObject *object, QEvent *event )
     {
         if ( event->type() == QEvent::Wheel )
         {
             const QWheelEvent *we = static_cast<QWheelEvent *>( event );
 
-            QWheelEvent wheelEvent(QPoint(5, 5), we->delta(), 
+            QWheelEvent wheelEvent( QPoint( 5, 5 ), we->delta(),
                 we->buttons(), we->modifiers(),
-                we->orientation());
-                
-            QApplication::sendEvent(this, &wheelEvent);
+                we->orientation() );
+
+            QApplication::sendEvent( this, &wheelEvent );
             return true;
         }
-        return QwtWheel::eventFilter(object, event);
+        return QwtWheel::eventFilter( object, event );
     }
 };
 
-WheelBox::WheelBox(const QString &title,
-        double min, double max, double stepSize, QWidget *parent):
-    QWidget(parent)
+WheelBox::WheelBox( const QString &title,
+        double min, double max, double stepSize, QWidget *parent ):
+    QWidget( parent )
 {
 
-    d_number = new QLCDNumber(this);
-    d_number->setSegmentStyle(QLCDNumber::Filled);
-    d_number->setAutoFillBackground(true);
-    d_number->setFixedHeight(d_number->sizeHint().height() * 2 );
-    d_number->setFocusPolicy(Qt::WheelFocus);
+    d_number = new QLCDNumber( this );
+    d_number->setSegmentStyle( QLCDNumber::Filled );
+    d_number->setAutoFillBackground( true );
+    d_number->setFixedHeight( d_number->sizeHint().height() * 2 );
+    d_number->setFocusPolicy( Qt::WheelFocus );
 
-    QPalette pal(Qt::black);
-    pal.setColor(QPalette::WindowText, Qt::green);
-    d_number->setPalette(pal);
-    
-    d_wheel = new Wheel(this);
-    d_wheel->setOrientation(Qt::Vertical);
-    d_wheel->setRange(min, max, stepSize);
+    QPalette pal( Qt::black );
+    pal.setColor( QPalette::WindowText, Qt::green );
+    d_number->setPalette( pal );
+
+    d_wheel = new Wheel( this );
+    d_wheel->setOrientation( Qt::Vertical );
+    d_wheel->setRange( min, max, stepSize );
     d_wheel->setFixedSize(
-        qRound(d_number->height() / 2.5), d_number->height());
+        qRound( d_number->height() / 2.5 ), d_number->height() );
 
-    d_number->setFocusProxy(d_wheel);
+    d_number->setFocusProxy( d_wheel );
 
-    QFont font("Helvetica", 10);
-    font.setBold(true);
+    QFont font( "Helvetica", 10 );
+    font.setBold( true );
 
-    d_label = new QLabel(title, this);
-    d_label->setFont(font);
+    d_label = new QLabel( title, this );
+    d_label->setFont( font );
 
     QHBoxLayout *hLayout = new QHBoxLayout;
-    hLayout->setContentsMargins(0, 0, 0, 0);
-    hLayout->setSpacing(2);
-    hLayout->addWidget(d_number, 10);
-    hLayout->addWidget(d_wheel);
+    hLayout->setContentsMargins( 0, 0, 0, 0 );
+    hLayout->setSpacing( 2 );
+    hLayout->addWidget( d_number, 10 );
+    hLayout->addWidget( d_wheel );
 
-    QVBoxLayout *vLayout = new QVBoxLayout(this);
-    vLayout->addLayout(hLayout, 10);
-    vLayout->addWidget(d_label, 0, Qt::AlignTop | Qt::AlignHCenter);
+    QVBoxLayout *vLayout = new QVBoxLayout( this );
+    vLayout->addLayout( hLayout, 10 );
+    vLayout->addWidget( d_label, 0, Qt::AlignTop | Qt::AlignHCenter );
 
-    connect(d_wheel, SIGNAL(valueChanged(double)), 
-        d_number, SLOT(display(double)));
-    connect(d_wheel, SIGNAL(valueChanged(double)), 
-        this, SIGNAL(valueChanged(double)));
+    connect( d_wheel, SIGNAL( valueChanged( double ) ),
+        d_number, SLOT( display( double ) ) );
+    connect( d_wheel, SIGNAL( valueChanged( double ) ),
+        this, SIGNAL( valueChanged( double ) ) );
 }
 
-void WheelBox::setValue(double value)
+void WheelBox::setValue( double value )
 {
-    d_wheel->setValue(value);
-    d_number->display(value);
+    d_wheel->setValue( value );
+    d_number->display( value );
 }
 
 double WheelBox::value() const

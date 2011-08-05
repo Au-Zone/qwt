@@ -8,13 +8,13 @@ class ScalePicker: public QObject
 {
     Q_OBJECT
 public:
-    ScalePicker(QwtPlot *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
+    ScalePicker( QwtPlot *plot );
+    virtual bool eventFilter( QObject *, QEvent * );
 
 Q_SIGNALS:
-    void clicked(int axis, double value);
+    void clicked( int axis, double value );
 
 private:
-    void mouseClicked(const QwtScaleWidget *, const QPoint &);
-    QRect scaleRect(const QwtScaleWidget *) const;
+    void mouseClicked( const QwtScaleWidget *, const QPoint & );
+    QRect scaleRect( const QwtScaleWidget * ) const;
 };

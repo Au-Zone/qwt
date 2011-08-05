@@ -17,12 +17,12 @@ public:
         Ellipse
     };
 
-    RectItem(Type type):
-        d_type(type)
+    RectItem( Type type ):
+        d_type( type )
     {
     }
 
-    void setPen(const QPen &pen)
+    void setPen( const QPen &pen )
     {
         if ( pen != d_pen )
         {
@@ -31,7 +31,7 @@ public:
         }
     }
 
-    void setBrush(const QBrush &brush)
+    void setBrush( const QBrush &brush )
     {
         if ( brush != d_brush )
         {
@@ -39,7 +39,7 @@ public:
             itemChanged();
         }
     }
-    void setRect(const QRectF &rect)
+    void setRect( const QRectF &rect )
     {
         if ( d_rect != rect )
         {
@@ -53,20 +53,20 @@ public:
         return d_rect;
     }
 
-    virtual void draw(QPainter *painter,
+    virtual void draw( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &) const
+        const QRectF & ) const
     {
         if ( d_rect.isValid() )
         {
             const QRectF rect = QwtScaleMap::transform(
-                xMap, yMap, d_rect);
-            painter->setPen(d_pen);
-            painter->setBrush(d_brush);
+                xMap, yMap, d_rect );
+            painter->setPen( d_pen );
+            painter->setBrush( d_brush );
             if ( d_type == Ellipse )
-                QwtPainter::drawEllipse(painter, rect);
+                QwtPainter::drawEllipse( painter, rect );
             else
-                QwtPainter::drawRect(painter, rect);
+                QwtPainter::drawRect( painter, rect );
         }
     }
 private:
@@ -76,71 +76,71 @@ private:
     Type d_type;
 };
 
-Plot::Plot(QWidget *parent, const QwtInterval &interval):
-    QwtPlot(parent)
+Plot::Plot( QWidget *parent, const QwtInterval &interval ):
+    QwtPlot( parent )
 {
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis ++ )
-        setAxisScale(axis, interval.minValue(), interval.maxValue());
+        setAxisScale( axis, interval.minValue(), interval.maxValue() );
 
-    setCanvasBackground(QColor(Qt::darkBlue));
-    plotLayout()->setAlignCanvasToScales(true);
+    setCanvasBackground( QColor( Qt::darkBlue ) );
+    plotLayout()->setAlignCanvasToScales( true );
 
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
     //grid->enableXMin(true);
-    grid->setMajPen(QPen(Qt::white, 0, Qt::DotLine));
-    grid->setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
-    grid->attach(this);
+    grid->setMajPen( QPen( Qt::white, 0, Qt::DotLine ) );
+    grid->setMinPen( QPen( Qt::gray, 0 , Qt::DotLine ) );
+    grid->attach( this );
 
     const int numEllipses = 10;
 
     for ( int i = 0; i < numEllipses; i++ )
     {
-        const double x = interval.minValue() + 
-            qrand() % qRound(interval.width());
-        const double y = interval.minValue() + 
-            qrand() % qRound(interval.width());
-        const double r = interval.minValue() + 
-            qrand() % qRound(interval.width() / 6);
+        const double x = interval.minValue() +
+            qrand() % qRound( interval.width() );
+        const double y = interval.minValue() +
+            qrand() % qRound( interval.width() );
+        const double r = interval.minValue() +
+            qrand() % qRound( interval.width() / 6 );
 
-        const QRectF area(x - r, y - r , 2 * r, 2 * r);
+        const QRectF area( x - r, y - r , 2 * r, 2 * r );
 
-        RectItem *item = new RectItem(RectItem::Ellipse);
-        item->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-        item->setRect(area);
-        item->setPen(QPen(Qt::yellow));
-        item->attach(this);
+        RectItem *item = new RectItem( RectItem::Ellipse );
+        item->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+        item->setRect( area );
+        item->setPen( QPen( Qt::yellow ) );
+        item->attach( this );
     }
 
 
-    d_rectOfInterest = new RectItem(RectItem::Rect);
-    d_rectOfInterest->setPen(Qt::NoPen);
+    d_rectOfInterest = new RectItem( RectItem::Rect );
+    d_rectOfInterest->setPen( Qt::NoPen );
     QColor c = Qt::gray;
-    c.setAlpha(100);
-    d_rectOfInterest->setBrush(QBrush(c));
-    d_rectOfInterest->attach(this);
+    c.setAlpha( 100 );
+    d_rectOfInterest->setBrush( QBrush( c ) );
+    d_rectOfInterest->attach( this );
 }
 
 void Plot::updateLayout()
 {
     QwtPlot::updateLayout();
 
-    const QwtScaleMap xMap = canvasMap(QwtPlot::xBottom);
-    const QwtScaleMap yMap = canvasMap(QwtPlot::yLeft);
+    const QwtScaleMap xMap = canvasMap( QwtPlot::xBottom );
+    const QwtScaleMap yMap = canvasMap( QwtPlot::yLeft );
 
     const QRect cr = canvas()->contentsRect();
-    const double x1 = xMap.invTransform(cr.left());
-    const double x2 = xMap.invTransform(cr.right());
-    const double y1 = yMap.invTransform(cr.bottom());
-    const double y2 = yMap.invTransform(cr.top());
+    const double x1 = xMap.invTransform( cr.left() );
+    const double x2 = xMap.invTransform( cr.right() );
+    const double y1 = yMap.invTransform( cr.bottom() );
+    const double y2 = yMap.invTransform( cr.top() );
 
-    const double xRatio = (x2 - x1) / cr.width();
-    const double yRatio = (y2 - y1) / cr.height();
+    const double xRatio = ( x2 - x1 ) / cr.width();
+    const double yRatio = ( y2 - y1 ) / cr.height();
 
-    Q_EMIT resized(xRatio, yRatio);
+    Q_EMIT resized( xRatio, yRatio );
 }
 
-void Plot::setRectOfInterest(const QRectF &rect)
+void Plot::setRectOfInterest( const QRectF &rect )
 {
-    d_rectOfInterest->setRect(rect);
+    d_rectOfInterest->setRect( rect );
 }

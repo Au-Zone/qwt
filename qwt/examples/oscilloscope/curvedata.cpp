@@ -6,14 +6,14 @@ const SignalData &CurveData::values() const
     return SignalData::instance();
 }
 
-SignalData &CurveData::values() 
+SignalData &CurveData::values()
 {
     return SignalData::instance();
 }
 
-QPointF CurveData::sample(size_t i) const
+QPointF CurveData::sample( size_t i ) const
 {
-    return SignalData::instance().value(i);
+    return SignalData::instance().value( i );
 }
 
 size_t CurveData::size() const

@@ -35,28 +35,28 @@ public:
     }
 };
 
-IncrementalPlot::IncrementalPlot(QWidget *parent): 
-    QwtPlot(parent),
-    d_curve(NULL)
+IncrementalPlot::IncrementalPlot( QWidget *parent ):
+    QwtPlot( parent ),
+    d_curve( NULL )
 {
-    d_directPainter = new QwtPlotDirectPainter(this);
+    d_directPainter = new QwtPlotDirectPainter( this );
 
     if ( QwtPainter::isX11GraphicsSystem() )
     {
-        canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
-        canvas()->setAttribute(Qt::WA_PaintOnScreen, true);
+        canvas()->setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
+        canvas()->setAttribute( Qt::WA_PaintOnScreen, true );
     }
 
-    d_curve = new QwtPlotCurve("Test Curve");
-    d_curve->setStyle(QwtPlotCurve::NoCurve);
+    d_curve = new QwtPlotCurve( "Test Curve" );
+    d_curve->setStyle( QwtPlotCurve::NoCurve );
     d_curve->setData( new CurveData() );
 
-    d_curve->setSymbol(new QwtSymbol(QwtSymbol::XCross,
-        Qt::NoBrush, QPen(Qt::white), QSize( 4, 4 ) ) );
+    d_curve->setSymbol( new QwtSymbol( QwtSymbol::XCross,
+        Qt::NoBrush, QPen( Qt::white ), QSize( 4, 4 ) ) );
 
-    d_curve->attach(this);
+    d_curve->attach( this );
 
-    setAutoReplot(false);
+    setAutoReplot( false );
 }
 
 IncrementalPlot::~IncrementalPlot()
@@ -67,7 +67,7 @@ IncrementalPlot::~IncrementalPlot()
 void IncrementalPlot::appendPoint( const QPointF &point )
 {
     CurveData *data = static_cast<CurveData *>( d_curve->data() );
-    data->append(point);
+    data->append( point );
 
     const bool doClip = !canvas()->testAttribute( Qt::WA_PaintOnScreen );
     if ( doClip )
@@ -86,16 +86,16 @@ void IncrementalPlot::appendPoint( const QPointF &point )
         const QSize symbolSize = d_curve->symbol()->size();
         QRect r( 0, 0, symbolSize.width() + 2, symbolSize.height() + 2 );
 
-        const QPointF center = 
+        const QPointF center =
             QwtScaleMap::transform( xMap, yMap, point );
         r.moveCenter( center.toPoint() );
         clipRegion += r;
 
         d_directPainter->setClipRegion( clipRegion );
     }
-    
-    d_directPainter->drawSeries(d_curve, 
-        data->size() - 1, data->size() - 1);
+
+    d_directPainter->drawSeries( d_curve,
+        data->size() - 1, data->size() - 1 );
 }
 
 void IncrementalPlot::clearPoints()

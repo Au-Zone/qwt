@@ -22,21 +22,21 @@ public:
             1, 2, 4, 1,
             6, 3, 5, 2,
             4, 2, 1, 5,
-            5, 4, 2, 3 
+            5, 4, 2, 3
         };
 
         QVector<double> values;
-        for ( uint i = 0; i < sizeof(matrix) / sizeof(double); i++ )
+        for ( uint i = 0; i < sizeof( matrix ) / sizeof( double ); i++ )
             values += matrix[i];
-    
-        const int numColumns = 4;
-        setValueMatrix(values, numColumns);
 
-        setInterval( Qt::XAxis, 
+        const int numColumns = 4;
+        setValueMatrix( values, numColumns );
+
+        setInterval( Qt::XAxis,
             QwtInterval( -0.5, 3.5, QwtInterval::ExcludeMaximum ) );
-        setInterval( Qt::YAxis, 
+        setInterval( Qt::YAxis,
             QwtInterval( -0.5, 3.5, QwtInterval::ExcludeMaximum ) );
-        setInterval( Qt::ZAxis, QwtInterval(1.0, 6.0) );
+        setInterval( Qt::ZAxis, QwtInterval( 1.0, 6.0 ) );
     }
 };
 
@@ -44,54 +44,54 @@ class ColorMap: public QwtLinearColorMap
 {
 public:
     ColorMap():
-        QwtLinearColorMap(Qt::darkBlue, Qt::darkRed)
+        QwtLinearColorMap( Qt::darkBlue, Qt::darkRed )
     {
-        addColorStop(0.2, Qt::blue);
-        addColorStop(0.4, Qt::cyan);
-        addColorStop(0.6, Qt::yellow);
-        addColorStop(0.8, Qt::red);
+        addColorStop( 0.2, Qt::blue );
+        addColorStop( 0.4, Qt::cyan );
+        addColorStop( 0.6, Qt::yellow );
+        addColorStop( 0.8, Qt::red );
     }
 };
 
-Plot::Plot(QWidget *parent):
-    QwtPlot(parent)
+Plot::Plot( QWidget *parent ):
+    QwtPlot( parent )
 {
 #if 0
     QwtPlotGrid *grid = new QwtPlotGrid();
-    grid->setPen(QPen(Qt::DotLine));
-    grid->attach(this);
+    grid->setPen( QPen( Qt::DotLine ) );
+    grid->attach( this );
 #endif
 
     d_spectrogram = new QwtPlotSpectrogram();
-    d_spectrogram->setRenderThreadCount(0); // use system specific thread count
+    d_spectrogram->setRenderThreadCount( 0 ); // use system specific thread count
 
     d_spectrogram->setColorMap( new ColorMap() );
 
-    d_spectrogram->setData(new RasterData());
-    d_spectrogram->attach(this);
+    d_spectrogram->setData( new RasterData() );
+    d_spectrogram->attach( this );
 
     const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
     // A color bar on the right axis
-    QwtScaleWidget *rightAxis = axisWidget(QwtPlot::yRight);
-    rightAxis->setColorBarEnabled(true);
-    rightAxis->setColorBarWidth(40);
-    rightAxis->setColorMap(zInterval, new ColorMap() );
+    QwtScaleWidget *rightAxis = axisWidget( QwtPlot::yRight );
+    rightAxis->setColorBarEnabled( true );
+    rightAxis->setColorBarWidth( 40 );
+    rightAxis->setColorMap( zInterval, new ColorMap() );
 
-    setAxisScale(QwtPlot::yRight, zInterval.minValue(), zInterval.maxValue() );
-    enableAxis(QwtPlot::yRight);
+    setAxisScale( QwtPlot::yRight, zInterval.minValue(), zInterval.maxValue() );
+    enableAxis( QwtPlot::yRight );
 
-    plotLayout()->setAlignCanvasToScales(true);
+    plotLayout()->setAlignCanvasToScales( true );
 
-    setAxisScale(QwtPlot::xBottom, 0.0, 3.0);
-    setAxisMaxMinor(QwtPlot::xBottom, 0);
-    setAxisScale(QwtPlot::yLeft, 0.0, 3.0);
-    setAxisMaxMinor(QwtPlot::yLeft, 0);
+    setAxisScale( QwtPlot::xBottom, 0.0, 3.0 );
+    setAxisMaxMinor( QwtPlot::xBottom, 0 );
+    setAxisScale( QwtPlot::yLeft, 0.0, 3.0 );
+    setAxisMaxMinor( QwtPlot::yLeft, 0 );
 
     QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas() );
-    magnifier->setAxisEnabled( QwtPlot::yRight, false);
+    magnifier->setAxisEnabled( QwtPlot::yRight, false );
 
     QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
-    panner->setAxisEnabled( QwtPlot::yRight, false);
+    panner->setAxisEnabled( QwtPlot::yRight, false );
 
     canvas()->setBorderRadius( 10 );
 }
@@ -113,7 +113,7 @@ void Plot::exportPlot()
 
     if ( imageFormats.size() > 0 )
     {
-        QString imageFilter("Images (");
+        QString imageFilter( "Images (" );
         for ( int i = 0; i < imageFormats.size(); i++ )
         {
             if ( i > 0 )
@@ -128,20 +128,20 @@ void Plot::exportPlot()
 
     fileName = QFileDialog::getSaveFileName(
         this, "Export File Name", fileName,
-        filter.join(";;"), NULL, QFileDialog::DontConfirmOverwrite);
+        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
 #endif
     if ( !fileName.isEmpty() )
     {
         QwtPlotRenderer renderer;
-        renderer.renderDocument(this, fileName, QSizeF(300, 200), 85);
+        renderer.renderDocument( this, fileName, QSizeF( 300, 200 ), 85 );
     }
 }
 
-void Plot::setResampleMode(int mode)
+void Plot::setResampleMode( int mode )
 {
     RasterData *data = static_cast<RasterData *>( d_spectrogram->data() );
-    data->setResampleMode( 
-        static_cast<QwtMatrixRasterData::ResampleMode>( mode ));
+    data->setResampleMode(
+        static_cast<QwtMatrixRasterData::ResampleMode>( mode ) );
 
     replot();
 }
