@@ -127,7 +127,8 @@ double ScrollBar::maxSliderValue() const
 
 int ScrollBar::mapToTick(double v) const
 {   
-    return (int) ( ( v - d_minBase) / (d_maxBase - d_minBase ) * d_baseTicks );
+    const double pos = ( v - d_minBase) / (d_maxBase - d_minBase ) * d_baseTicks;
+    return static_cast<int>( pos );
 }
 
 double ScrollBar::mapFromTick(int tick) const

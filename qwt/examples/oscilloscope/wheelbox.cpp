@@ -16,11 +16,11 @@ public:
         parent->installEventFilter(this);
     }
 
-    virtual bool eventFilter(QObject *object, QEvent *ev)
+    virtual bool eventFilter(QObject *object, QEvent *event)
     {
-        if ( ev->type() == QEvent::Wheel )
+        if ( event->type() == QEvent::Wheel )
         {
-            QWheelEvent *we = (QWheelEvent *)ev;
+            const QWheelEvent *we = static_cast<QWheelEvent *>( event );
 
             QWheelEvent wheelEvent(QPoint(5, 5), we->delta(), 
                 we->buttons(), we->modifiers(),
@@ -29,7 +29,7 @@ public:
             QApplication::sendEvent(this, &wheelEvent);
             return true;
         }
-        return QwtWheel::eventFilter(object, ev);
+        return QwtWheel::eventFilter(object, event);
     }
 };
 

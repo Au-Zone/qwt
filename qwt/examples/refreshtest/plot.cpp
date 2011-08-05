@@ -25,7 +25,7 @@ static double wave(double x)
 
 static double noise(double)
 {
-    return 2.0 * ( qrand() / ((double)RAND_MAX + 1) ) - 1.0;
+    return 2.0 * ( qrand() / ( static_cast<double>(RAND_MAX) + 1) ) - 1.0;
 }
 
 Plot::Plot(QWidget *parent):
@@ -76,11 +76,11 @@ void Plot::alignScales()
 
     for ( int i = 0; i < QwtPlot::axisCnt; i++ )
     {
-        QwtScaleWidget *scaleWidget = (QwtScaleWidget *)axisWidget(i);
+        QwtScaleWidget *scaleWidget = axisWidget(i);
         if ( scaleWidget )
             scaleWidget->setMargin(0);
 
-        QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axisScaleDraw(i);
+        QwtScaleDraw *scaleDraw = axisScaleDraw(i);
         if ( scaleDraw )
             scaleDraw->enableComponent(QwtAbstractScaleDraw::Backbone, false);
     }
@@ -98,11 +98,10 @@ void Plot::setSettings(const Settings &s)
     d_grid->setPen(s.grid.pen);
     d_grid->setVisible(s.grid.pen.style() != Qt::NoPen);
 
-    CircularBuffer *buffer = (CircularBuffer *)d_curve->data();
+    CircularBuffer *buffer = static_cast<CircularBuffer *>( d_curve->data() );
     if ( s.curve.numPoints != buffer->size() ||
         s.curve.functionType != d_settings.curve.functionType )
     {
-
         switch(s.curve.functionType)
         {
             case Settings::Wave:
@@ -140,7 +139,7 @@ void Plot::setSettings(const Settings &s)
 
 void Plot::timerEvent(QTimerEvent *)
 {
-    CircularBuffer *buffer = (CircularBuffer *)d_curve->data();
+    CircularBuffer *buffer = static_cast<CircularBuffer *>( d_curve->data() );
     buffer->setReferenceTime(d_clock.elapsed() / 1000.0);
 
     switch(d_settings.updateType)
