@@ -183,7 +183,7 @@ void QwtPlot::setTitle( const QwtText &title )
     }
 }
 
-//! \return the plot's title
+//! \return Title of the plot
 QwtText QwtPlot::title() const
 {
     return d_data->lblTitle->text();
@@ -195,7 +195,7 @@ QwtPlotLayout *QwtPlot::plotLayout()
     return d_data->layout;
 }
 
-//! \return the plot's titel label.
+//! \return the plot's layout
 const QwtPlotLayout *QwtPlot::plotLayout() const
 {
     return d_data->layout;

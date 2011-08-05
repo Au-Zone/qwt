@@ -375,7 +375,6 @@ double QwtPlotLayout::legendRatio() const
   \return Geometry for the title
   \sa activate(), invalidate()
 */
-
 const QRectF &QwtPlotLayout::titleRect() const
 {
     return d_data->titleRect;
@@ -385,7 +384,6 @@ const QRectF &QwtPlotLayout::titleRect() const
   \return Geometry for the legend
   \sa activate(), invalidate()
 */
-
 const QRectF &QwtPlotLayout::legendRect() const
 {
     return d_data->legendRect;
@@ -396,7 +394,6 @@ const QRectF &QwtPlotLayout::legendRect() const
   \return Geometry for the scale
   \sa activate(), invalidate()
 */
-
 const QRectF &QwtPlotLayout::scaleRect( int axis ) const
 {
     if ( axis < 0 || axis >= QwtPlot::axisCnt )
@@ -411,7 +408,6 @@ const QRectF &QwtPlotLayout::scaleRect( int axis ) const
   \return Geometry for the canvas
   \sa activate(), invalidate()
 */
-
 const QRectF &QwtPlotLayout::canvasRect() const
 {
     return d_data->canvasRect;

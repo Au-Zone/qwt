@@ -465,8 +465,7 @@ void QwtLinearScaleEngine::buildTicks(
     const QwtInterval& interval, double stepSize, int maxMinSteps,
     QList<double> ticks[QwtScaleDiv::NTickTypes] ) const
 {
-    const QwtInterval boundingInterval =
-        align( interval, stepSize );
+    const QwtInterval boundingInterval = align( interval, stepSize );
 
     ticks[QwtScaleDiv::MajorTick] =
         buildMajorTicks( boundingInterval, stepSize );
@@ -617,7 +616,7 @@ QwtScaleTransformation *QwtLog10ScaleEngine::transformation() const
    \sa QwtScaleEngine::setAttribute()
 */
 void QwtLog10ScaleEngine::autoScale( int maxNumSteps,
-                                     double &x1, double &x2, double &stepSize ) const
+    double &x1, double &x2, double &stepSize ) const
 {
     if ( x1 > x2 )
         qSwap( x1, x2 );
