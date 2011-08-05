@@ -456,18 +456,12 @@ void QwtMagnifier::widgetKeyReleaseEvent( QKeyEvent *keyEvent )
 //! \return Parent widget, where the rescaling happens
 QWidget *QwtMagnifier::parentWidget()
 {
-    if ( parent()->inherits( "QWidget" ) )
-        return ( QWidget * )parent();
-
-    return NULL;
+    return qobject_cast<QWidget *>( parent() );
 }
 
 //! \return Parent widget, where the rescaling happens
 const QWidget *QwtMagnifier::parentWidget() const
 {
-    if ( parent()->inherits( "QWidget" ) )
-        return ( const QWidget * )parent();
-
-    return NULL;
+    return qobject_cast<const QWidget *>( parent() );
 }
 

@@ -820,32 +820,50 @@ bool QwtPicker::eventFilter( QObject *object, QEvent *event )
                 break;
             }
             case QEvent::Enter:
+            {
                 widgetEnterEvent( event );
                 break;
+            }
             case QEvent::Leave:
+            {
                 widgetLeaveEvent( event );
                 break;
+            }
             case QEvent::MouseButtonPress:
+            {
                 widgetMousePressEvent( ( QMouseEvent * )event );
                 break;
+            }
             case QEvent::MouseButtonRelease:
+            {
                 widgetMouseReleaseEvent( ( QMouseEvent * )event );
                 break;
+            }
             case QEvent::MouseButtonDblClick:
+            {
                 widgetMouseDoubleClickEvent( ( QMouseEvent * )event );
                 break;
+            }
             case QEvent::MouseMove:
+            {
                 widgetMouseMoveEvent( ( QMouseEvent * )event );
                 break;
+            }
             case QEvent::KeyPress:
+            {
                 widgetKeyPressEvent( ( QKeyEvent * )event );
                 break;
+            }
             case QEvent::KeyRelease:
+            {
                 widgetKeyReleaseEvent( ( QKeyEvent * )event );
                 break;
+            }
             case QEvent::Wheel:
+            {
                 widgetWheelEvent( ( QWheelEvent * )event );
                 break;
+            }
             default:
                 break;
         }
