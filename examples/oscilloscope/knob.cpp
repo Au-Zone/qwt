@@ -68,19 +68,19 @@ double Knob::value() const
     return d_knob->value();
 }
 
-void Knob::resizeEvent( QResizeEvent *e )
+void Knob::resizeEvent( QResizeEvent *event )
 {
-    const QSize sz = e->size();
+    const QSize sz = event->size();
+    const QSize hint = d_label->sizeHint();
 
-    int h = d_label->sizeHint().height();
+    d_label->setGeometry( 0, sz.height() - hint.height(),
+        sz.width(), hint.height() );
 
-    d_label->setGeometry( 0, sz.height() - h,
-        sz.width(), h );
+    const int knobHeight = d_knob->sizeHint().height();
 
-    h = d_knob->sizeHint().height();
     int off = d_knob->scaleDraw()->extent( d_knob->font() );
     off -= 10; // spacing
 
-    d_knob->setGeometry( 0, d_label->pos().y() - h + off,
-        sz.width(), h );
+    d_knob->setGeometry( 0, d_label->pos().y() - knobHeight + off,
+        sz.width(), knobHeight );
 }
