@@ -712,7 +712,7 @@ QSize QwtScaleWidget::minimumSizeHint() const
 
 int QwtScaleWidget::titleHeightForWidth( int width ) const
 {
-    return d_data->title.heightForWidth( width, font() );
+    return qCeil( d_data->title.heightForWidth( width, font() ) );
 }
 
 /*!
