@@ -28,7 +28,7 @@ void AttitudeIndicatorNeedle::drawNeedle( QPainter *painter,
 
     double l = length - 2;
     painter->setPen( QPen( palette().color( colorGroup, QPalette::Text ), 3 ) );
-    painter->drawLine( 0, -l, 0, l );
+    painter->drawLine( QPointF( 0.0, -l ), QPointF( 0.0, l ) );
 }
 
 AttitudeIndicator::AttitudeIndicator(

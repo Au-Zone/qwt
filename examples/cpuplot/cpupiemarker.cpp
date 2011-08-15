@@ -25,10 +25,10 @@ void CpuPieMarker::draw( QPainter *painter,
 
     const int margin = 5;
 
-    QRect pieRect;
+    QRectF pieRect;
     pieRect.setX( rect.x() + margin );
     pieRect.setY( rect.y() + margin );
-    pieRect.setHeight( qRound( yMap.transform( 80.0 ) ) );
+    pieRect.setHeight( yMap.transform( 80.0 ) );
     pieRect.setWidth( pieRect.height() );
 
     const int dataType[] = { CpuPlot::User, CpuPlot::System, CpuPlot::Idle };
