@@ -335,7 +335,7 @@ void QwtDialSimpleNeedle::drawNeedle( QPainter *painter,
         pen.setCapStyle( Qt::FlatCap );
     
         painter->setPen( pen );
-        painter->drawLine( 0, 0, length, 0 );
+        painter->drawLine( QPointF( 0.0, 0.0 ), QPointF( length, 0.0 ) );
 
         knobWidth = qMax( width * 3.0, 5.0 );
     }

@@ -817,8 +817,8 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
 
             if ( canvasRect.contains( xi, yi ) )
             {
-                const int left = qCeil( xi ) - pw2;
-                const int top = qCeil( yi ) - ph2;
+                const int left = qCeil( xi - pw2 );
+                const int top = qCeil( yi - ph2 );
 
                 painter->drawPixmap( left, top, pm );
             }
@@ -984,9 +984,9 @@ void QwtPlotCurve::drawLegendIdentifier(
     if ( rect.isEmpty() )
         return;
 
-    const int dim = qMin( rect.width(), rect.height() );
+    const double dim = qMin( rect.width(), rect.height() );
 
-    QSize size( dim, dim );
+    QSizeF size( dim, dim );
 
     QRectF r( 0, 0, size.width(), size.height() );
     r.moveCenter( rect.center() );
