@@ -467,7 +467,7 @@ static void qwtFillBackground( QPainter *painter, QwtPlotCanvas *canvas )
         const double radius = canvas->borderRadius();
         if ( radius > 0.0 )
         {
-            QSize sz( radius, radius );
+            QSizeF sz( radius, radius );
 
             rects += QRectF( r.topLeft(), sz );
             rects += QRectF( r.topRight() - QPointF( radius, 0 ), sz );

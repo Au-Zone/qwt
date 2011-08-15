@@ -569,7 +569,7 @@ void QwtPlotRenderer::renderLegend( const QwtPlot *plot,
     if ( legendLayout == NULL )
         return;
 
-    uint numCols = legendLayout->columnsForWidth( rect.width() );
+    uint numCols = legendLayout->columnsForWidth( qFloor( rect.width() ) );
     QList<QRect> itemRects =
         legendLayout->layoutItems( rect.toRect(), numCols );
 
