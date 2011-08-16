@@ -366,8 +366,11 @@ void QwtWheel::drawWheelBackground(
 */
 void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
 {
-    if ( maxValue() == minValue() || d_data->totalAngle == 0.0 )
+    if ( qFuzzyCompare( maxValue(), minValue() )
+        || qFuzzyCompare( d_data->totalAngle, 0.0 ) )
+    {
         return;
+    }
 
     const QPen lightPen( palette().color( QPalette::Light ), 
         0, Qt::SolidLine, Qt::FlatCap );
