@@ -49,7 +49,7 @@ public:
         int start;
         int end;
         int baseLineOffset;
-        int tickOffset;
+        double tickOffset;
         int dimWithoutTitle;
     } scale[QwtPlot::axisCnt];
 
@@ -160,7 +160,7 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
             scale[axis].start = 0;
             scale[axis].end = 0;
             scale[axis].baseLineOffset = 0;
-            scale[axis].tickOffset = 0;
+            scale[axis].tickOffset = 0.0;
             scale[axis].dimWithoutTitle = 0;
         }
     }
@@ -495,7 +495,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
             scl->getBorderDistHint( sd.minLeft, sd.minRight );
             sd.tickOffset = scl->margin();
             if ( scl->scaleDraw()->hasComponent( QwtAbstractScaleDraw::Ticks ) )
-                sd.tickOffset += scl->scaleDraw()->maxTickLength();
+                sd.tickOffset += qCeil( scl->scaleDraw()->maxTickLength() );
         }
 
         canvasBorder[axis] = plot->canvas()->frameWidth() +
@@ -745,7 +745,7 @@ QRectF QwtPlotLayout::alignLegend( const QRectF &canvasRect,
   \param options Options how to layout the legend
   \param rect Bounding rect for title, footer, axes and canvas.
   \param dimTitle Expanded height of the title widget
-  \param dimfooter Expanded height of the footer widget
+  \param dimFooter Expanded height of the footer widget
   \param dimAxis Expanded heights of the axis in axis orientation.
 
   \sa Options
@@ -783,7 +783,7 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
         if ( !( ( options & IgnoreTitle ) || 
             d_data->layoutData.title.text.isEmpty() ) )
         {
-            int w = rect.width();
+            double w = rect.width();
 
             if ( d_data->layoutData.scale[QwtPlot::yLeft].isEnabled
                 != d_data->layoutData.scale[QwtPlot::yRight].isEnabled )
@@ -806,7 +806,7 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
         if ( !( ( options & IgnoreFooter ) ||
             d_data->layoutData.footer.text.isEmpty() ) )
         {
-            int w = rect.width();
+            double w = rect.width();
 
             if ( d_data->layoutData.scale[QwtPlot::yLeft].isEnabled
                 != d_data->layoutData.scale[QwtPlot::yRight].isEnabled )
@@ -833,7 +833,7 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
 
             if ( scaleData.isEnabled )
             {
-                int length;
+                double length;
                 if ( axis == QwtPlot::xTop || axis == QwtPlot::xBottom )
                 {
                     length = rect.width() - dimAxis[QwtPlot::yLeft]
@@ -864,13 +864,13 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
                     {
                         length += qMin(
                             d_data->layoutData.scale[QwtPlot::xBottom].tickOffset,
-                            scaleData.start - backboneOffset[QwtPlot::xBottom] );
+                            double( scaleData.start - backboneOffset[QwtPlot::xBottom] ) );
                     }
                     if ( dimAxis[QwtPlot::xTop] > 0 )
                     {
                         length += qMin(
                             d_data->layoutData.scale[QwtPlot::xTop].tickOffset,
-                            scaleData.end - backboneOffset[QwtPlot::xTop] );
+                            double( scaleData.end - backboneOffset[QwtPlot::xTop] ) );
                     }
 
                     if ( dimTitle > 0 )
@@ -880,7 +880,7 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
                 int d = scaleData.dimWithoutTitle;
                 if ( !scaleData.scaleWidget->title().isEmpty() )
                 {
-                    d += scaleData.scaleWidget->titleHeightForWidth( length );
+                    d += scaleData.scaleWidget->titleHeightForWidth( qFloor( length ) );
                 }
 
 
@@ -932,8 +932,8 @@ void QwtPlotLayout::alignScales( int options,
 
             if ( leftScaleRect.isValid() )
             {
-                const int dx = leftOffset + leftScaleRect.width();
-                if ( d_data->alignCanvasToScales && dx < 0 )
+                const double dx = leftOffset + leftScaleRect.width();
+                if ( d_data->alignCanvasToScales && dx < 0.0 )
                 {
                     /*
                       The axis needs more space than the width
@@ -969,7 +969,7 @@ void QwtPlotLayout::alignScales( int options,
 
             if ( rightScaleRect.isValid() )
             {
-                const int dx = rightOffset + rightScaleRect.width();
+                const double dx = rightOffset + rightScaleRect.width();
                 if ( d_data->alignCanvasToScales && dx < 0 )
                 {
                     /*
@@ -1006,7 +1006,7 @@ void QwtPlotLayout::alignScales( int options,
 
             if ( bottomScaleRect.isValid() )
             {
-                const int dy = bottomOffset + bottomScaleRect.height();
+                const double dy = bottomOffset + bottomScaleRect.height();
                 if ( d_data->alignCanvasToScales && dy < 0 )
                 {
                     /*
@@ -1043,7 +1043,7 @@ void QwtPlotLayout::alignScales( int options,
 
             if ( topScaleRect.isValid() )
             {
-                const int dy = topOffset + topScaleRect.height();
+                const double dy = topOffset + topScaleRect.height();
                 if ( d_data->alignCanvasToScales && dy < 0 )
                 {
                     /*

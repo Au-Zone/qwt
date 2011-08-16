@@ -265,7 +265,7 @@ void PlotMatrix::alignVAxes( int col, int axis )
     if ( axis != QwtPlot::yLeft && axis != QwtPlot::yRight )
         return;
 
-    int maxExtent = 0;
+    double maxExtent = 0;
     for ( int row = 0; row < numRows(); row++ )
     {
         QwtPlot *p = plot( row, col );
@@ -274,9 +274,9 @@ void PlotMatrix::alignVAxes( int col, int axis )
             QwtScaleWidget *scaleWidget = p->axisWidget( axis );
 
             QwtScaleDraw *sd = scaleWidget->scaleDraw();
-            sd->setMinimumExtent( 0 );
+            sd->setMinimumExtent( 0.0 );
 
-            const int extent = sd->extent( scaleWidget->font() );
+            const double extent = sd->extent( scaleWidget->font() );
             if ( extent > maxExtent )
                 maxExtent = extent;
         }
