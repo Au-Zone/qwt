@@ -433,18 +433,22 @@ void QwtPlot::updateLayout()
         {
             axisWidget( axisId )->setGeometry( scaleRect[axisId] );
 
+#if 1
             if ( axisId == xBottom || axisId == xTop )
             {
+                // do we need this code any longer ???
+
                 QRegion r( scaleRect[axisId] );
                 if ( axisEnabled( yLeft ) )
                     r = r.subtract( QRegion( scaleRect[yLeft] ) );
                 if ( axisEnabled( yRight ) )
                     r = r.subtract( QRegion( scaleRect[yRight] ) );
-                r.translate( -d_data->layout->scaleRect( axisId ).x(),
+                r.translate( -scaleRect[ axisId ].x(),
                     -scaleRect[axisId].y() );
 
                 axisWidget( axisId )->setMask( r );
             }
+#endif
             if ( !axisWidget( axisId )->isVisibleTo( this ) )
                 axisWidget( axisId )->show();
         }

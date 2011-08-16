@@ -37,7 +37,7 @@ public:
         QwtScaleWidget *scaleWidget = plot()->axisWidget( yAxis() );
         QwtScaleDraw *sd = scaleWidget->scaleDraw();
 
-        int minExtent = 0;
+        double minExtent = 0.0;
         if ( zoomRectIndex() > 0 )
         {
             // When scrolling in vertical direction
