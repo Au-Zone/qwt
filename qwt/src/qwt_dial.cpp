@@ -838,10 +838,8 @@ void QwtDial::setScaleTicks( int minLen, int medLen,
 */
 QwtText QwtDial::scaleLabel( double value ) const
 {
-#if 1
-    if ( value == -0 )
-        value = 0;
-#endif
+    if ( value == -0.0 )
+        value = 0.0;
 
     return QString::number( value );
 }
@@ -950,8 +948,10 @@ static double line2Radians( const QPointF &p1, const QPointF &p2 )
     const QPointF p = p2 - p1;
 
     double angle;
-    if ( p.x() == 0 )
+    if ( p.x() == 0.0 )
+    {
         angle = ( p.y() <= 0.0 ) ? M_PI_2 : 3 * M_PI_2;
+    }
     else
     {
         angle = qAtan( double( -p.y() ) / double( p.x() ) );
