@@ -42,6 +42,7 @@ else {
 
 linux-g++ {
     # CONFIG           += separate_debug_info
+    # QMAKE_CXXFLAGS   *= -Wconversion
 }
 
 ######################################################################

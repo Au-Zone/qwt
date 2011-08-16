@@ -14,6 +14,11 @@
 #include <qapplication.h>
 #include <qpainter.h>
 
+#if QT_VERSION < 0x040601
+#define qFastSin(x) qSin(x)
+#define qFastCos(x) qCos(x)
+#endif
+
 static void qwtDrawStyle1Needle( QPainter *painter,
     const QPalette &palette, QPalette::ColorGroup colorGroup,
     double length )
@@ -27,8 +32,8 @@ static void qwtDrawStyle1Needle( QPainter *painter,
         const double angle = a[i] / 180.0 * M_PI;
         const double radius = r[i] * length;
 
-        const double x = radius * qCos( angle );
-        const double y = radius * qSin( angle );
+        const double x = radius * qFastCos( angle );
+        const double y = radius * qFastSin( angle );
 
         path.lineTo( x, -y );
     }

@@ -634,7 +634,7 @@ void QwtDial::drawScale( QPainter *painter, const QPointF &center,
     painter->setFont( font() );
 
     d_data->scaleDraw->setAngleRange( minArc, maxArc );
-    d_data->scaleDraw->setRadius( radius );
+    d_data->scaleDraw->setRadius( qFloor( radius ) );
     d_data->scaleDraw->moveCenter( center );
 
     QPalette pal = palette();

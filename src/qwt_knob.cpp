@@ -22,8 +22,8 @@
 #if QT_VERSION < 0x040601
 #define qAtan2(y, x) ::atan2(y, x)
 #define qFabs(x) ::fabs(x)
-#define qFastCos(x) ::cos(x)
-#define qFastSin(x) ::sin(x)
+#define qFastCos(x) qCos(x)
+#define qFastSin(x) qSin(x)
 #endif
 
 class QwtKnob::PrivateData
@@ -335,7 +335,7 @@ void QwtKnob::layoutKnob( bool update_geometry )
     d_data->knobRect.setHeight( d );
     d_data->knobRect.moveCenter( rect().center() );
 
-    scaleDraw()->setRadius( 0.5 * d + d_data->scaleDist );
+    scaleDraw()->setRadius( qFloor( 0.5 * d + d_data->scaleDist ) );
     scaleDraw()->moveCenter( rect().center() );
 
     if ( update_geometry )

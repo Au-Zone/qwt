@@ -43,10 +43,10 @@ public:
 
     virtual void draw( QPainter *painter,
         const QwtScaleMap &, const QwtScaleMap &yMap,
-        const QRectF &rect ) const
+        const QRectF &canvasRect ) const
     {
         QColor c( Qt::white );
-        QRectF r = rect;
+        QRectF r = canvasRect;
 
         for ( int i = 100; i > 0; i -= 10 )
         {
