@@ -61,14 +61,14 @@ inline QwtIntervalSample::QwtIntervalSample(
 }
 
 //! Compare operator
-inline bool QwtIntervalSample::operator==( 
+inline bool QwtIntervalSample::operator==(
     const QwtIntervalSample &other ) const
 {
     return value == other.value && interval == other.interval;
 }
 
 //! Compare operator
-inline bool QwtIntervalSample::operator!=( 
+inline bool QwtIntervalSample::operator!=(
     const QwtIntervalSample &other ) const
 {
     return !( *this == other );
@@ -439,4 +439,4 @@ QWT_EXPORT QRectF qwtBoundingRect(
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtSetSample> &, int from = 0, int to = -1 );
 
-#endif 
+#endif
