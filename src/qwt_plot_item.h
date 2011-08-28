@@ -102,6 +102,8 @@ public:
         //! For QwtPlotSvgItem
         Rtti_PlotSVG,
 
+        //! For QwtPlotTradingCurve
+        Rtti_PlotTradingCurve,
         /*! 
            Values >= Rtti_PlotUserItem are reserved for plot items
            not implemented in the Qwt library.
