@@ -61,14 +61,14 @@ inline QwtIntervalSample::QwtIntervalSample(
 }
 
 //! Compare operator
-inline bool QwtIntervalSample::operator==( 
+inline bool QwtIntervalSample::operator==(
     const QwtIntervalSample &other ) const
 {
     return value == other.value && interval == other.interval;
 }
 
 //! Compare operator
-inline bool QwtIntervalSample::operator!=( 
+inline bool QwtIntervalSample::operator!=(
     const QwtIntervalSample &other ) const
 {
     return !( *this == other );
@@ -108,6 +108,50 @@ inline bool QwtSetSample::operator==( const QwtSetSample &other ) const
 inline bool QwtSetSample::operator!=( const QwtSetSample &other ) const
 {
     return !( *this == other );
+}
+
+/*!
+   \brief Open-High-Low-Close sample used in financial charts
+
+   In financial charts the movement of a price in a time interval is often
+   represented by the opening/closing prices and the lowest/highest prices
+   in this interval.
+
+   \sa QwtTradingChartData
+*/
+class QWT_EXPORT QwtOHLCSample
+{
+public:
+    QwtOHLCSample();
+
+    //! Time of the sample, often a number representing a specific day
+    double time;
+
+    //! Opening price
+    double open;
+
+    //! Highest price
+    double high;
+
+    //! Lowest price
+    double low;
+
+    //! Closing price
+    double close;
+};
+
+
+/*!
+  Constructor
+  All values are initialized to 0.0
+*/
+inline QwtOHLCSample::QwtOHLCSample():
+    time( 0.0 ),
+    open( 0.0 ),
+    high( 0.0 ),
+    low( 0.0 ),
+    close( 0.0 )
+{
 }
 
 /*!
@@ -300,6 +344,18 @@ public:
 };
 
 /*!
+    Interface for iterating over an array of OHLC samples
+*/
+class QWT_EXPORT QwtTradingChartData: public QwtArraySeriesData<QwtOHLCSample>
+{
+public:
+    QwtTradingChartData(
+        const QVector<QwtOHLCSample> & = QVector<QwtOHLCSample>() );
+
+    virtual QRectF boundingRect() const;
+};
+
+/*!
   \brief Interface for iterating over two QVector<double> objects.
 */
 class QWT_EXPORT QwtPointArrayData: public QwtSeriesData<QPointF>
@@ -438,5 +494,7 @@ QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtIntervalSample> &, int from = 0, int to = -1 );
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtSetSample> &, int from = 0, int to = -1 );
+QWT_EXPORT QRectF qwtBoundingRect(
+    const QwtSeriesData<QwtOHLCSample> &, int from = 0, int to = -1 );
 
-#endif 
+#endif

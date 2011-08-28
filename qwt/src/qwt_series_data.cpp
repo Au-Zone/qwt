@@ -50,6 +50,21 @@ static inline QRectF qwtBoundingRect( const QwtSetSample &sample )
     return QRectF( minX, minY, maxX - minX, maxY - minY );
 }
 
+static inline QRectF qwtBoundingRect( const QwtOHLCSample &sample )
+{
+    double minY = sample.open;
+    minY = qMin( minY, sample.high );
+    minY = qMin( minY, sample.low );
+    minY = qMin( minY, sample.close );
+
+    double maxY = sample.open;
+    maxY = qMax( maxY, sample.high );
+    maxY = qMax( maxY, sample.low );
+    maxY = qMax( maxY, sample.close );
+
+    return QRectF( sample.time, minY, 0.0, maxY - minY );
+}
+
 /*!
   \brief Calculate the bounding rect of a series subset
 
@@ -63,7 +78,7 @@ static inline QRectF qwtBoundingRect( const QwtSetSample &sample )
 */
 
 template <class T>
-QRectF qwtBoundingRectT( 
+QRectF qwtBoundingRectT(
     const QwtSeriesData<T>& series, int from, int to )
 {
     QRectF boundingRect( 1.0, 1.0, -2.0, -2.0 ); // invalid;
@@ -115,7 +130,7 @@ QRectF qwtBoundingRectT(
 
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( 
+QRectF qwtBoundingRect(
     const QwtSeriesData<QPointF> &series, int from, int to )
 {
     return qwtBoundingRectT<QPointF>( series, from, to );
@@ -132,7 +147,7 @@ QRectF qwtBoundingRect(
 
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( 
+QRectF qwtBoundingRect(
     const QwtSeriesData<QwtPoint3D> &series, int from, int to )
 {
     return qwtBoundingRectT<QwtPoint3D>( series, from, to );
@@ -152,7 +167,7 @@ QRectF qwtBoundingRect(
 
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( 
+QRectF qwtBoundingRect(
     const QwtSeriesData<QwtPointPolar> &series, int from, int to )
 {
     return qwtBoundingRectT<QwtPointPolar>( series, from, to );
@@ -169,7 +184,7 @@ QRectF qwtBoundingRect(
 
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( 
+QRectF qwtBoundingRect(
     const QwtSeriesData<QwtIntervalSample>& series, int from, int to )
 {
     return qwtBoundingRectT<QwtIntervalSample>( series, from, to );
@@ -186,7 +201,7 @@ QRectF qwtBoundingRect(
 
   \return Bounding rectangle
 */
-QRectF qwtBoundingRect( 
+QRectF qwtBoundingRect(
     const QwtSeriesData<QwtSetSample>& series, int from, int to )
 {
     return qwtBoundingRectT<QwtSetSample>( series, from, to );
@@ -289,6 +304,32 @@ QwtSetSeriesData::QwtSetSeriesData(
   \return Bounding rectangle
 */
 QRectF QwtSetSeriesData::boundingRect() const
+{
+    if ( d_boundingRect.width() < 0.0 )
+        d_boundingRect = qwtBoundingRect( *this );
+
+    return d_boundingRect;
+}
+
+/*!
+   Constructor
+   \param samples Samples
+*/
+QwtTradingChartData::QwtTradingChartData(
+        const QVector<QwtOHLCSample> &samples ):
+    QwtArraySeriesData<QwtOHLCSample>( samples )
+{
+}
+
+/*!
+  \brief Calculate the bounding rect
+
+  The bounding rectangle is calculated once by iterating over all
+  points and is stored for all following requests.
+
+  \return Bounding rectangle
+*/
+QRectF QwtTradingChartData::boundingRect() const
 {
     if ( d_boundingRect.width() < 0.0 )
         d_boundingRect = qwtBoundingRect( *this );
@@ -535,10 +576,10 @@ QRectF QwtSyntheticPointData::rectOfInterest() const
 */
 QRectF QwtSyntheticPointData::boundingRect() const
 {
-    if ( d_size == 0 || 
+    if ( d_size == 0 ||
         !( d_interval.isValid() || d_intervalOfInterest.isValid() ) )
     {
-        return QRectF(1.0, 1.0, -2.0, -2.0); // something invalid
+        return QRectF( 1.0, 1.0, -2.0, -2.0 ); // something invalid
     }
 
     return qwtBoundingRect( *this );

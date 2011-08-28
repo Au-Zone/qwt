@@ -112,6 +112,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_histogram.h \
         qwt_plot_item.h \
         qwt_plot_intervalcurve.h \
+        qwt_plot_tradingcurve.h \
         qwt_plot_layout.h \
         qwt_plot_marker.h \
         qwt_plot_rasteritem.h \
@@ -146,6 +147,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_histogram.cpp \
         qwt_plot_item.cpp \
         qwt_plot_intervalcurve.cpp \
+        qwt_plot_tradingcurve.cpp \
         qwt_plot_spectrogram.cpp \
         qwt_plot_spectrocurve.cpp \
         qwt_plot_scaleitem.cpp \

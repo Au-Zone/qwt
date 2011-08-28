@@ -45,7 +45,7 @@ class QwtPlotIntervalCurve::PrivateData
 {
 public:
     PrivateData():
-        style( Tube ),
+        style( QwtPlotIntervalCurve::Tube ),
         symbol( NULL ),
         pen( Qt::black ),
         brush( Qt::white )
@@ -61,7 +61,7 @@ public:
         delete symbol;
     }
 
-    CurveStyle style;
+    QwtPlotIntervalCurve::CurveStyle style;
     const QwtIntervalSymbol *symbol;
 
     QPen pen;
@@ -456,7 +456,7 @@ void QwtPlotIntervalCurve::drawSymbols(
     painter->setPen( pen );
     painter->setBrush( symbol.brush() );
 
-    const QRectF &tr = QwtScaleMap::invTransform( xMap, yMap, canvasRect);
+    const QRectF tr = QwtScaleMap::invTransform( xMap, yMap, canvasRect );
 
     const double xMin = tr.left();
     const double xMax = tr.right();
@@ -499,8 +499,8 @@ void QwtPlotIntervalCurve::drawSymbols(
 }
 
 /*!
-  In case of Tibe stale() a plain rectangle is painted without a pen filled
-  the brush(). If a symbol is assigned it is painted cebtered into rect.
+  In case of Tube style() a plain rectangle filled with the brush() is painted. 
+  If a symbol is assigned it is painted centered into rect.
 
   \param painter Painter
   \param rect Bounding rectangle for the identifier
