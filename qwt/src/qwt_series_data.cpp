@@ -52,17 +52,8 @@ static inline QRectF qwtBoundingRect( const QwtSetSample &sample )
 
 static inline QRectF qwtBoundingRect( const QwtOHLCSample &sample )
 {
-    double minY = sample.open;
-    minY = qMin( minY, sample.high );
-    minY = qMin( minY, sample.low );
-    minY = qMin( minY, sample.close );
-
-    double maxY = sample.open;
-    maxY = qMax( maxY, sample.high );
-    maxY = qMax( maxY, sample.low );
-    maxY = qMax( maxY, sample.close );
-
-    return QRectF( sample.time, minY, 0.0, maxY - minY );
+    const QwtInterval interval = sample.boundingInterval();
+    return QRectF( interval.minValue(), sample.time, interval.width(), 0.0 );
 }
 
 /*!
@@ -188,6 +179,23 @@ QRectF qwtBoundingRect(
     const QwtSeriesData<QwtIntervalSample>& series, int from, int to )
 {
     return qwtBoundingRectT<QwtIntervalSample>( series, from, to );
+}
+
+/*!
+  \brief Calculate the bounding rect of a series subset
+
+  Slow implementation, that iterates over the series.
+
+  \param series Series
+  \param from Index of the first sample, <= 0 means from the beginning
+  \param to Index of the last sample, < 0 means to the end
+
+  \return Bounding rectangle
+*/
+QRectF qwtBoundingRect(
+    const QwtSeriesData<QwtOHLCSample>& series, int from, int to )
+{
+    return qwtBoundingRectT<QwtOHLCSample>( series, from, to );
 }
 
 /*!

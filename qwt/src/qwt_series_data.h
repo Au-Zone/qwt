@@ -122,7 +122,13 @@ inline bool QwtSetSample::operator!=( const QwtSetSample &other ) const
 class QWT_EXPORT QwtOHLCSample
 {
 public:
-    QwtOHLCSample();
+    QwtOHLCSample( double time = 0.0, 
+        double open = 0.0, double high = 0.0,
+        double low = 0.0, double close = 0.0 );
+
+    QwtInterval boundingInterval() const;
+
+    bool isValid() const;
 
     //! Time of the sample, often a number representing a specific day
     double time;
@@ -143,15 +149,39 @@ public:
 
 /*!
   Constructor
-  All values are initialized to 0.0
 */
-inline QwtOHLCSample::QwtOHLCSample():
-    time( 0.0 ),
-    open( 0.0 ),
-    high( 0.0 ),
-    low( 0.0 ),
-    close( 0.0 )
+inline QwtOHLCSample::QwtOHLCSample( double t,
+        double o, double h, double l, double c):
+    time( t ),
+    open( o ),
+    high( h ),
+    low( l ),
+    close( c )
 {
+}
+
+inline bool QwtOHLCSample::isValid() const
+{
+    return ( low <= high )
+        && ( open >= low )
+        && ( open <= high )
+        && ( close >= low )
+        && ( close <= high );
+}
+
+inline QwtInterval QwtOHLCSample::boundingInterval() const
+{
+    double minY = open;
+    minY = qMin( minY, high );
+    minY = qMin( minY, low );
+    minY = qMin( minY, close );
+
+    double maxY = open;
+    maxY = qMax( minY, high );
+    maxY = qMax( minY, low );
+    maxY = qMax( minY, close );
+
+    return QwtInterval( minY, maxY );
 }
 
 /*!

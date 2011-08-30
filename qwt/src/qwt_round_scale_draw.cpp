@@ -220,8 +220,8 @@ void QwtRoundScaleDraw::drawTick( QPainter *painter, double value, double len ) 
 */
 void QwtRoundScaleDraw::drawBackbone( QPainter *painter ) const
 {
-	const double deg1 = scaleMap().p1();
-	const double deg2 = scaleMap().p2();
+    const double deg1 = scaleMap().p1();
+    const double deg2 = scaleMap().p2();
 
     const int a1 = qRound( qMin( deg1, deg2 ) - 90 * 16 );
     const int a2 = qRound( qMax( deg1, deg2 ) - 90 * 16 );

@@ -17,6 +17,11 @@
 class QWT_EXPORT QwtPlotTradingCurve: public QwtPlotSeriesItem<QwtOHLCSample>
 {
 public:
+    enum Direction
+    {
+        Increasing,
+        Decreasing
+    };
 
     enum SymbolStyle
     {
@@ -28,6 +33,19 @@ public:
         UserSymbol = 100
     };
 
+    /*!
+        Attributes to modify the drawing algorithm.
+        \sa setPaintAttribute(), testPaintAttribute()
+    */
+    enum PaintAttribute
+    {
+        //! Check if a symbol is on the plot canvas before painting it.
+        ClipSymbols   = 0x01
+    };
+
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
+
     explicit QwtPlotTradingCurve( const QString &title = QString::null );
     explicit QwtPlotTradingCurve( const QwtText &title );
 
@@ -35,10 +53,19 @@ public:
 
     virtual int rtti() const;
 
+    void setPaintAttribute( PaintAttribute, bool on = true );
+    bool testPaintAttribute( PaintAttribute ) const;
+
     void setSamples( const QVector<QwtOHLCSample> & );
 
     void setSymbolStyle( SymbolStyle style );
     SymbolStyle symbolStyle() const;
+
+    void setSymbolPen( const QPen & );
+    QPen symbolPen() const;
+
+    void setSymbolBrush( Direction, const QBrush & );
+    QBrush symbolBrush( Direction ) const;
 
     virtual void drawSeries( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -55,9 +82,14 @@ protected:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
+    virtual void drawUserSymbol( QPainter *,
+        SymbolStyle, const QwtOHLCSample & ) const;
+
 private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotTradingCurve::PaintAttributes )
 
 #endif
