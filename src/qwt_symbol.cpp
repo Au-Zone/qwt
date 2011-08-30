@@ -980,7 +980,7 @@ QSize QwtSymbol::boundingSize() const
         }
     }
 
-	size += QSizeF( 1.0, 1.0 ); // for antialiasing
+    size += QSizeF( 1.0, 1.0 ); // for antialiasing
 
     return QSize( qCeil( size.width() ), qCeil( size.height() ) );
 }

@@ -24,7 +24,7 @@ MainWindow::MainWindow( QWidget *parent ):
 
     QComboBox *typeBox = new QComboBox( toolBar );
     typeBox->addItem( "Bars" );
-    typeBox->addItem( "Tube" );
+    typeBox->addItem( "CandleSticks" );
     typeBox->setCurrentIndex( 1 );
     typeBox->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
@@ -39,7 +39,7 @@ MainWindow::MainWindow( QWidget *parent ):
 
     d_plot->setMode( typeBox->currentIndex() );
     connect( typeBox, SIGNAL( currentIndexChanged( int ) ),
-             d_plot, SLOT( setMode( int ) ) );
+        d_plot, SLOT( setMode( int ) ) );
 }
 
 int main( int argc, char **argv )
@@ -47,7 +47,6 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     MainWindow w;
-    w.setObjectName( "MainWindow" );
     w.resize( 600, 400 );
     w.show();
 

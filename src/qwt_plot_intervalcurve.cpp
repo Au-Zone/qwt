@@ -463,7 +463,7 @@ void QwtPlotIntervalCurve::drawSymbols(
     const double yMin = tr.top();
     const double yMax = tr.bottom();
 
-    const bool doClip = d_data->paintAttributes & ClipPolygons;
+    const bool doClip = d_data->paintAttributes & ClipSymbol;
 
     for ( int i = from; i <= to; i++ )
     {
