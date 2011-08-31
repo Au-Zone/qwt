@@ -820,7 +820,9 @@ QVector<QwtOHLCSample> QuoteFactory::samples2010( Stock stock )
             break;
     }
 
-    QVector<QwtOHLCSample> samples( numSamples );
+    QVector<QwtOHLCSample> samples;
+    samples.reserve( numSamples );
+
     for ( int i = 0; i < numSamples; i++ )
     {
         const t_Data2010 &ohlc = data[ i ];
