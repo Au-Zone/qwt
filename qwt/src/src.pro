@@ -129,7 +129,9 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_raster_data.h \
         qwt_matrix_raster_data.h \
         qwt_sampling_thread.h \
+        qwt_samples.h \
         qwt_series_data.h \
+        qwt_point_data.h \
         qwt_scale_widget.h 
 
     SOURCES += \
@@ -165,6 +167,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_matrix_raster_data.cpp \
         qwt_sampling_thread.cpp \
         qwt_series_data.cpp \
+        qwt_point_data.cpp \
         qwt_scale_widget.cpp 
 }
 

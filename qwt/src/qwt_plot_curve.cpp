@@ -8,6 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_plot_curve.h"
+#include "qwt_point_data.h"
 #include "qwt_math.h"
 #include "qwt_clipper.h"
 #include "qwt_painter.h"
