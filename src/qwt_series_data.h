@@ -12,6 +12,8 @@
 
 #include "qwt_global.h"
 #include "qwt_samples.h"
+#include "qwt_point_3d.h"
+#include "qwt_point_polar.h"
 #include <qvector.h>
 #include <qrect.h>
 
@@ -218,14 +220,19 @@ public:
 
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QPointF> &, int from = 0, int to = -1 );
+
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtPoint3D> &, int from = 0, int to = -1 );
+
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtPointPolar> &, int from = 0, int to = -1 );
+
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtIntervalSample> &, int from = 0, int to = -1 );
+
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtSetSample> &, int from = 0, int to = -1 );
+
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtOHLCSample> &, int from = 0, int to = -1 );
 

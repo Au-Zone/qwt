@@ -14,23 +14,63 @@
 #include "qwt_plot_seriesitem.h"
 #include "qwt_series_data.h"
 
+/*!
+  \brief QwtPlotTradingCurve illustrates movements in the price of a
+         financial instrument over time.
+
+  QwtPlotTradingCurve supports candlestick or bar ( OHLC ) charts
+  that are used in the domain of technical analysis.
+*/
 class QWT_EXPORT QwtPlotTradingCurve: public QwtPlotSeriesItem<QwtOHLCSample>
 {
 public:
-    enum Direction
-    {
-        Increasing,
-        Decreasing
-    };
+    /*!
+        \brief Symbol styles.
 
+        The default setting is QwtPlotSeriesItem::CandleStick.
+        \sa setSymbolStyle(), symbolStyle()
+    */
     enum SymbolStyle
     {
+        //! Nothing is displayed
         NoSymbol = -1,
 
+        /*!
+          A line on the chart shows the price range (the highest and lowest
+          prices) over one unit of time, e.g. one day or one hour.
+          Tick marks project from each side of the line indicating the
+          opening and closing price.
+         */
         Bar,
+
+        /*!
+          The range between openeing/closing price are displayed as
+          a filled box. The fill brush depends on the direction of the
+          price movement. The box is connected to the highest/lowest
+          values by lines.
+        */
         CandleStick,
 
+        /*!
+          SymbolTypes >= UserSymbol are displayed by drawUserSymbol(),
+          that needs to be overloaded and implemented in derived
+          curve classes.
+
+          \sa drawUserSymbol()
+        */
         UserSymbol = 100
+    };
+
+    /*!
+        \brief Direction of a price movement
+     */
+    enum Direction
+    {
+        //! The closing price is higher than the openening price
+        Increasing,
+
+        //! The closing price is lower than the openening price
+        Decreasing
     };
 
     /*!
@@ -67,6 +107,9 @@ public:
     void setSymbolBrush( Direction, const QBrush & );
     QBrush symbolBrush( Direction ) const;
 
+    void setSymbolWidth( double width );
+    double symbolWidth() const;
+
     virtual void drawSeries( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
@@ -85,8 +128,8 @@ protected:
     virtual void drawUserSymbol( QPainter *,
         SymbolStyle, double symbolWidth, const QwtOHLCSample & ) const;
 
-    virtual double scaledSymbolWidth( 
-        const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    virtual double scaledSymbolWidth(
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect ) const;
 
 private:

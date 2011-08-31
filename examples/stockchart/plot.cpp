@@ -19,6 +19,8 @@ Plot::Plot( QWidget *parent ):
     setAxisTitle( QwtPlot::xBottom, "2010" );
     setAxisTitle( QwtPlot::yLeft, QString( "Price [EUR]" ) );
 
+    setAxisScale( QwtPlot::xBottom, 0.0, 365.0 );
+
     QwtLegend *legend = new QwtLegend;
     legend->setItemMode( QwtLegend::CheckableItem );
     insertLegend( legend, QwtPlot::RightLegend );
@@ -64,9 +66,10 @@ void Plot::populate()
 
         QwtPlotTradingCurve *curve = new QwtPlotTradingCurve();
         curve->setTitle( QuoteFactory::title( stock ) );
+        curve->setOrientation( Qt::Vertical );
         curve->setSamples( QuoteFactory::samples2010( stock ) );
 
-		const Qt::GlobalColor color = colors[ i % numColors ];
+        const Qt::GlobalColor color = colors[ i % numColors ];
 
         curve->setSymbolPen( QPen( color ) );
         curve->setSymbolBrush( QwtPlotTradingCurve::Decreasing, color );

@@ -52,7 +52,7 @@ public:
     {
         paintAttributes = QwtPlotIntervalCurve::ClipPolygons;
         paintAttributes |= QwtPlotIntervalCurve::ClipSymbol;
-    
+
         pen.setCapStyle( Qt::FlatCap );
     }
 
@@ -121,7 +121,7 @@ int QwtPlotIntervalCurve::rtti() const
   \param on On/Off
   \sa testPaintAttribute()
 */
-void QwtPlotIntervalCurve::setPaintAttribute( 
+void QwtPlotIntervalCurve::setPaintAttribute(
     PaintAttribute attribute, bool on )
 {
     if ( on )
@@ -134,7 +134,7 @@ void QwtPlotIntervalCurve::setPaintAttribute(
     \brief Return the current paint attributes
     \sa PaintAttribute, setPaintAttribute()
 */
-bool QwtPlotIntervalCurve::testPaintAttribute( 
+bool QwtPlotIntervalCurve::testPaintAttribute(
     PaintAttribute attribute ) const
 {
     return ( d_data->paintAttributes & attribute );
@@ -303,7 +303,7 @@ void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
     if ( d_data->symbol &&
         ( d_data->symbol->style() != QwtIntervalSymbol::NoSymbol ) )
     {
-        drawSymbols( painter, *d_data->symbol, 
+        drawSymbols( painter, *d_data->symbol,
             xMap, yMap, canvasRect, from, to );
     }
 }
@@ -387,8 +387,8 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
         if ( d_data->paintAttributes & ClipPolygons )
         {
             const qreal m = 1.0;
-            const QPolygonF p = QwtClipper::clipPolygonF( 
-                canvasRect.adjusted(-m, -m, m, m), polygon, true );
+            const QPolygonF p = QwtClipper::clipPolygonF(
+               canvasRect.adjusted( -m, -m, m, m ), polygon, true );
 
             QwtPainter::drawPolygon( painter, p );
         }
@@ -405,8 +405,8 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
 
         if ( d_data->paintAttributes & ClipPolygons )
         {
-            qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
-            const QRectF clipRect = canvasRect.adjusted(-pw, -pw, pw, pw);
+            qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF() );
+            const QRectF clipRect = canvasRect.adjusted( -pw, -pw, pw, pw );
 
             QPolygonF p;
 
@@ -499,13 +499,14 @@ void QwtPlotIntervalCurve::drawSymbols(
 }
 
 /*!
-  In case of Tube style() a plain rectangle filled with the brush() is painted. 
+  \brief Draw the identifier for the legend
+
+  In case of Tube style() a plain rectangle filled with the brush() is painted.
   If a symbol is assigned it is painted centered into rect.
 
   \param painter Painter
   \param rect Bounding rectangle for the identifier
 */
-
 void QwtPlotIntervalCurve::drawLegendIdentifier(
     QPainter *painter, const QRectF &rect ) const
 {

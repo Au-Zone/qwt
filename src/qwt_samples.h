@@ -12,8 +12,6 @@
 
 #include "qwt_global.h"
 #include "qwt_interval.h"
-#include "qwt_point_3d.h"
-#include "qwt_point_polar.h"
 #include <qvector.h>
 #include <qrect.h>
 
@@ -122,7 +120,7 @@ inline bool QwtSetSample::operator!=( const QwtSetSample &other ) const
 class QWT_EXPORT QwtOHLCSample
 {
 public:
-    QwtOHLCSample( double time = 0.0, 
+    QwtOHLCSample( double time = 0.0,
         double open = 0.0, double high = 0.0,
         double low = 0.0, double close = 0.0 );
 
@@ -130,7 +128,10 @@ public:
 
     bool isValid() const;
 
-    //! Time of the sample, often a number representing a specific day
+    /*!
+      Time of the sample, usually a number representing
+      a specific interval - like a day.
+    */
     double time;
 
     //! Opening price
@@ -149,9 +150,15 @@ public:
 
 /*!
   Constructor
+
+  \param t Time value
+  \param o Open value
+  \param h High value
+  \param l Low value
+  \param c Close value
 */
 inline QwtOHLCSample::QwtOHLCSample( double t,
-        double o, double h, double l, double c):
+        double o, double h, double l, double c ):
     time( t ),
     open( o ),
     high( h ),
@@ -160,6 +167,17 @@ inline QwtOHLCSample::QwtOHLCSample( double t,
 {
 }
 
+/*!
+  \brief Check if a sample is valid
+
+  A sample is valid, when all of the following checks are true:
+
+  - low <= high
+  - low <= open <= high
+  - low <= close <= high
+
+  \return True, when the sample is valid
+ */
 inline bool QwtOHLCSample::isValid() const
 {
     return ( low <= high )
@@ -169,6 +187,13 @@ inline bool QwtOHLCSample::isValid() const
         && ( close <= high );
 }
 
+/*!
+   \brief Calculate the bounding interval of the OHLC values
+
+   For valid samples the limits of this interval are always low/high.
+
+   \sa isValid()
+ */
 inline QwtInterval QwtOHLCSample::boundingInterval() const
 {
     double minY = open;
