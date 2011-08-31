@@ -1,8 +1,6 @@
 #include <qapplication.h>
 #include <qmainwindow.h>
 #include <qcombobox.h>
-#include <qlayout.h>
-#include <qtextstream.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include "plot.h"
