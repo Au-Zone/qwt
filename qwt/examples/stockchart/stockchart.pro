@@ -12,10 +12,12 @@ include( $${PWD}/../examples.pri )
 TARGET       = stockchart
 
 HEADERS = \
+    griditem.h \
     plot.h \
     quotefactory.h
 
 SOURCES = \
+    griditem.cpp \
     quotefactory.cpp \
     plot.cpp \
     main.cpp
