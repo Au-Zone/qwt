@@ -10,7 +10,6 @@ public:
     {
         BMW,
         Daimler,
-        VW,
         Porsche,
 
         NumStocks

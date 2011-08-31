@@ -83,7 +83,11 @@ protected:
         const QRectF &canvasRect, int from, int to ) const;
 
     virtual void drawUserSymbol( QPainter *,
-        SymbolStyle, const QwtOHLCSample & ) const;
+        SymbolStyle, double symbolWidth, const QwtOHLCSample & ) const;
+
+    virtual double scaledSymbolWidth( 
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+        const QRectF &canvasRect ) const;
 
 private:
     class PrivateData;
