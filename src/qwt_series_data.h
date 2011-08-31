@@ -177,9 +177,9 @@ inline QwtInterval QwtOHLCSample::boundingInterval() const
     minY = qMin( minY, close );
 
     double maxY = open;
-    maxY = qMax( minY, high );
-    maxY = qMax( minY, low );
-    maxY = qMax( minY, close );
+    maxY = qMax( maxY, high );
+    maxY = qMax( maxY, low );
+    maxY = qMax( maxY, close );
 
     return QwtInterval( minY, maxY );
 }

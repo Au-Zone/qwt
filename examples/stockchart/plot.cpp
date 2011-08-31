@@ -66,7 +66,11 @@ void Plot::populate()
         curve->setTitle( QuoteFactory::title( stock ) );
         curve->setSamples( QuoteFactory::samples2010( stock ) );
 
-        curve->setSymbolPen( QPen( colors[ i % numColors ] ) );
+		const Qt::GlobalColor color = colors[ i % numColors ];
+
+        curve->setSymbolPen( QPen( color ) );
+        curve->setSymbolBrush( QwtPlotTradingCurve::Decreasing, color );
+        curve->setSymbolBrush( QwtPlotTradingCurve::Increasing, Qt::white );
         curve->attach( this );
 
         showCurve( curve, true );
