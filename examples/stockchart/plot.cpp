@@ -1,4 +1,5 @@
 #include "plot.h"
+#include "griditem.h"
 #include "quotefactory.h"
 #include <qwt_legend.h>
 #include <qwt_plot_tradingcurve.h>
@@ -49,6 +50,12 @@ Plot::Plot( QWidget *parent ):
 
 void Plot::populate()
 {
+    GridItem *gridItem = new GridItem();
+#if 0
+    gridItem->setOrientations( Qt::Horizontal );
+#endif
+    gridItem->attach( this );
+
     const Qt::GlobalColor colors[] =
     {
         Qt::red,
