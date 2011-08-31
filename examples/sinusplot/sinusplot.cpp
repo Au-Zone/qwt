@@ -4,7 +4,7 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 #include <qwt_legend.h>
-#include <qwt_series_data.h>
+#include <qwt_point_data.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
