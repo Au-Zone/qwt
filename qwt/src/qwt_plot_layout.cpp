@@ -618,7 +618,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
                 w += d_data->spacing;
 
             if ( legendH > h )
-                legendW += legend->verticalScrollBar()->sizeHint().height();
+                legendW += legend->verticalScrollBar()->sizeHint().width();
 
             if ( d_data->legendRatio < 1.0 )
                 legendW = qMin( legendW, int( w / ( 1.0 - d_data->legendRatio ) ) );
