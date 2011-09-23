@@ -24,7 +24,7 @@
 #include <qalgorithms.h>
 #include <qmath.h>
 
-static int verifyRange( int size, int &i1, int &i2 )
+static int qwtVerifyRange( int size, int &i1, int &i2 )
 {
     if ( size < 1 )
         return 0;
@@ -36,6 +36,53 @@ static int verifyRange( int size, int &i1, int &i2 )
         qSwap( i1, i2 );
 
     return ( i2 - i1 + 1 );
+}
+
+static QPolygonF qwtTransformF( 
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QwtSeriesData<QPointF> *series, int from, int to,
+    const bool doAlign )
+{
+    QPolygonF polyline( to - from + 1 );
+    QPointF *points = polyline.data();
+
+    if ( doAlign )
+    {
+        for ( int i = from; i <= to; i++ )
+        {
+            const QPointF sample = series->sample( i );
+            points[i - from].rx() = qwtRoundF( xMap.transform( sample.x() ) );
+            points[i - from].ry() = qwtRoundF( yMap.transform( sample.y() ) );
+        }
+    }
+    else
+    {
+        for ( int i = from; i <= to; i++ )
+        {
+            const QPointF sample = series->sample( i );
+            points[i - from].rx() = xMap.transform( sample.x() );
+            points[i - from].ry() = yMap.transform( sample.y() );
+        }
+    }
+
+    return polyline;
+}
+
+static QPolygon qwtTransform( 
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QwtSeriesData<QPointF> *series, int from, int to )
+{
+    QPolygon polyline( to - from + 1 );
+    QPoint *points = polyline.data();
+
+    for ( int i = from; i <= to; i++ )
+    {
+        const QPointF sample = series->sample( i );
+        points[i - from].rx() = qRound( xMap.transform( sample.x() ) );
+        points[i - from].ry() = qRound( yMap.transform( sample.y() ) );
+    }
+
+    return polyline;
 }
 
 class QwtPlotCurve::PrivateData
@@ -295,7 +342,7 @@ void QwtPlotCurve::drawSeries( QPainter *painter,
     if ( to < 0 )
         to = dataSize() - 1;
 
-    if ( verifyRange( dataSize(), from, to ) > 0 )
+    if ( qwtVerifyRange( dataSize(), from, to ) > 0 )
     {
         painter->save();
         painter->setPen( d_data->pen );
@@ -382,49 +429,65 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
-    int size = to - from + 1;
-    if ( size <= 0 )
+    if ( from > to )
         return;
 
     const bool doAlign = QwtPainter::roundingAlignment( painter );
+    const bool doFloats = testRenderHint( QwtPlotItem::RenderFloats );
+    const bool doFit = ( d_data->attributes & Fitted ) && d_data->curveFitter;
+    const bool doFill = d_data->brush.style() != Qt::NoBrush
+        && d_data->brush.color().alpha() > 0;
 
-    QPolygonF polyline( size );
-
-    QPointF *points = polyline.data();
-    for ( int i = from; i <= to; i++ )
-    {
-        const QPointF sample = d_series->sample( i );
-
-        double x = xMap.transform( sample.x() );
-        double y = yMap.transform( sample.y() );
-        if ( doAlign )
-        {
-            x = qRound( x );
-            y = qRound( y );
-        }
-
-        points[i - from].rx() = x;
-        points[i - from].ry() = y;
-    }
-
-    if ( ( d_data->attributes & Fitted ) && d_data->curveFitter )
-        polyline = d_data->curveFitter->fitCurve( polyline );
-
+    QRectF clipRect;
     if ( d_data->paintAttributes & ClipPolygons )
     {
         qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
-        const QPolygonF clipped = QwtClipper::clipPolygonF( 
-            canvasRect.adjusted(-pw, -pw, pw, pw), polyline, false );
+        clipRect = canvasRect.adjusted(-pw, -pw, pw, pw);
+    }
 
-        QwtPainter::drawPolyline( painter, clipped );
+    if ( doAlign && !( doFloats || doFit || doFill ) )
+    {
+        // The raster paint engine is significantly faster
+        // for rendering QPolygon than PolygonF
+
+        const QPolygon polyline = 
+            qwtTransform( xMap, yMap, d_series, from, to );
+
+        if ( d_data->paintAttributes & ClipPolygons )
+        {
+            const QPolygon clipped = QwtClipper::clipPolygon( 
+                clipRect.toAlignedRect(), polyline, false );
+
+            QwtPainter::drawPolyline( painter, clipped );
+        }
+        else
+        {
+            QwtPainter::drawPolyline( painter, polyline );
+        }
     }
     else
     {
-        QwtPainter::drawPolyline( painter, polyline );
-    }
+        QPolygonF polyline = qwtTransformF( xMap, yMap,
+            d_series, from, to, doAlign );
 
-    if ( d_data->brush.style() != Qt::NoBrush )
-        fillCurve( painter, xMap, yMap, canvasRect, polyline );
+        if ( doFit )
+            polyline = d_data->curveFitter->fitCurve( polyline );
+
+        if ( d_data->paintAttributes & ClipPolygons )
+        {
+            const QPolygonF clipped = QwtClipper::clipPolygonF( 
+                clipRect, polyline, false );
+
+            QwtPainter::drawPolyline( painter, clipped );
+        }
+        else
+        {
+            QwtPainter::drawPolyline( painter, polyline );
+        }
+
+        if ( doFill )
+            fillCurve( painter, xMap, yMap, canvasRect, polyline );
+    }
 }
 
 /*!

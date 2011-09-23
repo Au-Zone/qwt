@@ -56,6 +56,7 @@ Panel::Panel( QWidget *parent ):
     connect( d_curveAntialiasing, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
     connect( d_curveClipping, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
     connect( d_lineSplitting, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
+    connect( d_forceFloats, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
     connect( d_curveFilled, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
 
     connect( d_updateType, SIGNAL( currentIndexChanged( int ) ), SLOT( edited() ) );
@@ -139,6 +140,7 @@ QWidget *Panel::createCurveTab( QWidget *parent )
     d_curveAntialiasing = new CheckBox( "Antialiasing", page );
     d_curveClipping = new CheckBox( "Clipping", page );
     d_lineSplitting = new CheckBox( "Split Lines", page );
+    d_forceFloats = new CheckBox( "Floats", page );
 
     d_curveWidth = new SpinBox( 0, 10, 1, page );
 
@@ -157,6 +159,7 @@ QWidget *Panel::createCurveTab( QWidget *parent )
     layout->addWidget( d_curveAntialiasing, row++, 0, 1, -1 );
     layout->addWidget( d_curveClipping, row++, 0, 1, -1 );
     layout->addWidget( d_lineSplitting, row++, 0, 1, -1 );
+    layout->addWidget( d_forceFloats, row++, 0, 1, -1 );
 
     layout->addWidget( new QLabel( "Width", page ), row, 0 );
     layout->addWidget( d_curveWidth, row++, 1 );
@@ -211,11 +214,16 @@ Settings Panel::settings() const
         s.curve.paintAttributes &= ~QwtPlotCurve::ClipPolygons;
 
     if ( d_curveAntialiasing->isChecked() )
-        s.curve.renderHint |= QwtPlotCurve::RenderAntialiased;
+        s.curve.renderHint |= QwtPlotItem::RenderAntialiased;
     else
-        s.curve.renderHint &= ~QwtPlotCurve::RenderAntialiased;
+        s.curve.renderHint &= ~QwtPlotItem::RenderAntialiased;
 
     s.curve.lineSplitting = ( d_lineSplitting->isChecked() );
+
+    if ( d_forceFloats->isChecked() )
+        s.curve.renderHint |= QwtPlotItem::RenderFloats;
+    else
+        s.curve.renderHint &= ~QwtPlotItem::RenderFloats;
 
     s.canvas.useBackingStore = ( d_paintCache->isChecked() );
     s.canvas.paintOnScreen = ( d_paintOnScreen->isChecked() );
@@ -263,6 +271,8 @@ void Panel::setSettings( const Settings &s )
         s.curve.paintAttributes & QwtPlotCurve::ClipPolygons );
 
     d_lineSplitting->setChecked( s.curve.lineSplitting );
+    d_forceFloats->setChecked( 
+        s.curve.renderHint & QwtPlotItem::RenderFloats );
 
     d_curveWidth->setValue( s.curve.pen.width() );
     d_curvePen->setCurrentIndex(
