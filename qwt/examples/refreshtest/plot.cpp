@@ -122,8 +122,11 @@ void Plot::setSettings( const Settings &s )
 
     d_curve->setPaintAttribute( QwtPlotCurve::ClipPolygons,
         s.curve.paintAttributes & QwtPlotCurve::ClipPolygons );
-    d_curve->setRenderHint( QwtPlotCurve::RenderAntialiased,
-        s.curve.renderHint & QwtPlotCurve::RenderAntialiased );
+
+    d_curve->setRenderHint( QwtPlotItem::RenderAntialiased,
+        s.curve.renderHint & QwtPlotItem::RenderAntialiased );
+    d_curve->setRenderHint( QwtPlotItem::RenderFloats,
+        s.curve.renderHint & QwtPlotItem::RenderFloats );
 
     canvas()->setAttribute( Qt::WA_PaintOnScreen, s.canvas.paintOnScreen );
 
