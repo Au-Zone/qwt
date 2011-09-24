@@ -51,8 +51,10 @@ static QPolygonF qwtTransformF(
         for ( int i = from; i <= to; i++ )
         {
             const QPointF sample = series->sample( i );
-            points[i - from].rx() = qwtRoundF( xMap.transform( sample.x() ) );
-            points[i - from].ry() = qwtRoundF( yMap.transform( sample.y() ) );
+            points[i - from].rx() =
+                static_cast<double>( qRound( xMap.transform( sample.x() ) ) );
+            points[i - from].ry() =
+                static_cast<double>( qRound( yMap.transform( sample.y() ) ) );
         }
     }
     else
@@ -78,8 +80,21 @@ static QPolygon qwtTransform(
     for ( int i = from; i <= to; i++ )
     {
         const QPointF sample = series->sample( i );
+
+#if 1
         points[i - from].rx() = qRound( xMap.transform( sample.x() ) );
         points[i - from].ry() = qRound( yMap.transform( sample.y() ) );
+#else
+        // A little bit faster, but differs from qRound
+        // for negative values. Should be no problem as we are
+        // rounding coordinates, where negative values are clipped off anyway
+        // ( at least when there is no painter transformation )
+
+        points[i - from].rx() = 
+            static_cast<int>( xMap.transform( sample.x() ) + 0.5 );
+        points[i - from].ry() = 
+            static_cast<int>( yMap.transform( sample.y() ) + 0.5 );
+#endif
     }
 
     return polyline;
@@ -336,13 +351,15 @@ void QwtPlotCurve::drawSeries( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
-    if ( !painter || dataSize() <= 0 )
+    const size_t numSamples = dataSize();
+
+    if ( !painter || numSamples <= 0 )
         return;
 
     if ( to < 0 )
-        to = dataSize() - 1;
+        to = numSamples - 1;
 
-    if ( qwtVerifyRange( dataSize(), from, to ) > 0 )
+    if ( qwtVerifyRange( numSamples, from, to ) > 0 )
     {
         painter->save();
         painter->setPen( d_data->pen );
@@ -433,10 +450,9 @@ void QwtPlotCurve::drawLines( QPainter *painter,
         return;
 
     const bool doAlign = QwtPainter::roundingAlignment( painter );
-    const bool doFloats = testRenderHint( QwtPlotItem::RenderFloats );
     const bool doFit = ( d_data->attributes & Fitted ) && d_data->curveFitter;
-    const bool doFill = d_data->brush.style() != Qt::NoBrush
-        && d_data->brush.color().alpha() > 0;
+    const bool doFill = ( d_data->brush.style() != Qt::NoBrush )
+            && ( d_data->brush.color().alpha() > 0 );
 
     QRectF clipRect;
     if ( d_data->paintAttributes & ClipPolygons )
@@ -445,11 +461,25 @@ void QwtPlotCurve::drawLines( QPainter *painter,
         clipRect = canvasRect.adjusted(-pw, -pw, pw, pw);
     }
 
-    if ( doAlign && !( doFloats || doFit || doFill ) )
-    {
-        // The raster paint engine is significantly faster
-        // for rendering QPolygon than PolygonF
+    // The raster paint engine is significantly faster
+    // for rendering QPolygon than for QPolygonF. So let's
+    // see if we can use them.
 
+    bool doIntegers = false;
+
+    if ( doAlign && !testRenderHint( QwtPlotItem::RenderFloats )
+        && !QwtPainter::isX11GraphicsSystem() )
+    {
+        // In case of filling or fitting performance doesn't count
+        // because both operations are much more expensive
+        // then drawing the polyline itsself
+
+        if ( !doFit && !doFill )
+            doIntegers = true; 
+    }
+
+    if ( doIntegers )
+    {
         const QPolygon polyline = 
             qwtTransform( xMap, yMap, d_series, from, to );
 
@@ -960,7 +990,9 @@ double QwtPlotCurve::baseline() const
 */
 int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
 {
-    if ( plot() == NULL || dataSize() <= 0 )
+    const size_t numSamples = dataSize();
+
+    if ( plot() == NULL || numSamples <= 0 )
         return -1;
 
     const QwtScaleMap xMap = plot()->canvasMap( xAxis() );
@@ -969,7 +1001,7 @@ int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
     int index = -1;
     double dmin = 1.0e10;
 
-    for ( uint i = 0; i < dataSize(); i++ )
+    for ( uint i = 0; i < numSamples; i++ )
     {
         const QPointF sample = d_series->sample( i );
 
