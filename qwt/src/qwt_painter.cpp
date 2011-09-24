@@ -140,8 +140,12 @@ bool QwtPainter::isX11GraphicsSystem()
   coordinates to integers. Today these are all paint engines
   beside QPaintEngine::Pdf and QPaintEngine::SVG.
 
+  If we have an integer based paint engine it is also
+  checked if the painter has a transformation matrix,
+  that rotates or scales.
+
   \param  painter Painter
-  \return true, when the paint engine is aligning
+  \return true, when the painter is aligning
 
   \sa setRoundingAlignment()
 */
@@ -156,6 +160,13 @@ bool QwtPainter::isAligning( QPainter *painter )
                 return false;
 
             default:;
+        }
+
+        const QTransform tr = painter->transform();
+        if ( tr.isRotating() || tr.isScaling() )
+        {
+            // we might have to check translations too
+            return false;
         }
     }
 
