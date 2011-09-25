@@ -48,11 +48,8 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
     }
 
     d_curve = new QwtPlotCurve( "Test Curve" );
-    d_curve->setStyle( QwtPlotCurve::NoCurve );
     d_curve->setData( new CurveData() );
-
-    d_curve->setSymbol( new QwtSymbol( QwtSymbol::XCross,
-        Qt::NoBrush, QPen( Qt::white ), QSize( 4, 4 ) ) );
+    showSymbols( true );
 
     d_curve->attach( this );
 
@@ -102,6 +99,24 @@ void IncrementalPlot::clearPoints()
 {
     CurveData *data = static_cast<CurveData *>( d_curve->data() );
     data->clear();
+
+    replot();
+}
+
+void IncrementalPlot::showSymbols( bool on )
+{
+    if ( on )
+    {
+        d_curve->setStyle( QwtPlotCurve::NoCurve );
+        d_curve->setSymbol( new QwtSymbol( QwtSymbol::XCross,
+            Qt::NoBrush, QPen( Qt::white ), QSize( 4, 4 ) ) );
+    }
+    else
+    {
+        d_curve->setPen( QPen( Qt::white ) );
+        d_curve->setStyle( QwtPlotCurve::Dots );
+        d_curve->setSymbol( NULL );
+    }
 
     replot();
 }

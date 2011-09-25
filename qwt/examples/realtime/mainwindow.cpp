@@ -4,6 +4,7 @@
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qspinbox.h>
+#include <qcheckbox.h>
 #include <qwhatsthis.h>
 #include <qpixmap.h>
 #include "randomplot.h"
@@ -70,6 +71,7 @@ MainWindow::MainWindow()
 
     connect( d_startAction, SIGNAL( toggled( bool ) ), this, SLOT( appendPoints( bool ) ) );
     connect( d_clearAction, SIGNAL( triggered() ), d_plot, SLOT( clear() ) );
+    connect( d_symbolType, SIGNAL( toggled( bool ) ), d_plot, SLOT( showSymbols( bool ) ) );
     connect( d_plot, SIGNAL( running( bool ) ), this, SLOT( showRunning( bool ) ) );
     connect( d_plot, SIGNAL( elapsed( int ) ), this, SLOT( showElapsed( int ) ) );
 
@@ -99,6 +101,9 @@ QToolBar *MainWindow::toolBar()
 
     QWidget *hBox = new QWidget( toolBar );
 
+    d_symbolType = new QCheckBox( "Symbols", hBox );
+    d_symbolType->setChecked( true );
+
     d_randomCount =
         new Counter( hBox, "Points", QString::null, 1, 100000, 100 );
     d_randomCount->setValue( 1000 );
@@ -111,6 +116,8 @@ QToolBar *MainWindow::toolBar()
     layout->setSpacing( 0 );
     layout->addSpacing( 10 );
     layout->addWidget( new QWidget( hBox ), 10 ); // spacer
+    layout->addWidget( d_symbolType );
+    layout->addSpacing( 5 );
     layout->addWidget( d_randomCount );
     layout->addSpacing( 5 );
     layout->addWidget( d_timerCount );
