@@ -50,6 +50,7 @@ HEADERS += \
     qwt_panner.h \
     qwt_picker.h \
     qwt_picker_machine.h \
+    qwt_pixel_matrix.h \
     qwt_point_3d.h \
     qwt_point_polar.h \
     qwt_round_scale_draw.h \
@@ -78,6 +79,7 @@ SOURCES += \
     qwt_null_paintdevice.cpp \
     qwt_painter.cpp \
     qwt_picker.cpp \
+    qwt_pixel_matrix.cpp \
     qwt_round_scale_draw.cpp \
     qwt_scale_div.cpp \
     qwt_scale_draw.cpp \
@@ -126,6 +128,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_zoomer.h \
         qwt_plot_magnifier.h \
         qwt_plot_rescaler.h \
+        qwt_point_mapper.h \
         qwt_raster_data.h \
         qwt_matrix_raster_data.h \
         qwt_sampling_thread.h \
@@ -163,6 +166,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_zoomer.cpp \
         qwt_plot_magnifier.cpp \
         qwt_plot_rescaler.cpp \
+        qwt_point_mapper.cpp \
         qwt_raster_data.cpp \
         qwt_matrix_raster_data.cpp \
         qwt_sampling_thread.cpp \

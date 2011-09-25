@@ -168,7 +168,7 @@ public:
 
     /*!
         Attributes to modify the drawing algorithm.
-        The default setting enables ClipPolygons
+        The default setting enables ClipPolygons | FilterPoints
 
         \sa setPaintAttribute(), testPaintAttribute()
     */
@@ -187,7 +187,31 @@ public:
           no effect, when the curve is not painted to the canvas
           ( f.e when exporting the plot to a PDF document ).
          */
-        CacheSymbols = 0x02
+        CacheSymbols = 0x02,
+
+        /*!
+          Tries to reduce the data that has to be painted, by sorting out
+          duplicates, or paintings outside the visible area. Might have a
+          notable impact on curves with many close points.
+          Only a couple of very basic filtering algos are implemented.
+         */
+        FilterPoints = 0x04,
+
+        /*!
+          Minimize memory usage that is temporarily needed for the 
+          translated points, before they get painted.
+          This might slow down the performance of painting 
+         */
+        MinimizeMemory = 0x08,
+
+        /*!
+          Render the points to a temporary image and paint the image.
+          This is a very special optimization for Dots style, when
+          having a huge amount of points. 
+          With a reasonable number of points QPainter::drawPoints()
+          will be faster.
+         */
+        ImageBuffer = 0x10
     };
 
     //! Paint attributes

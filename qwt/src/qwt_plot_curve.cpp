@@ -19,6 +19,7 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
+#include "qwt_point_mapper.h"
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qalgorithms.h>
@@ -38,68 +39,6 @@ static int qwtVerifyRange( int size, int &i1, int &i2 )
     return ( i2 - i1 + 1 );
 }
 
-static QPolygonF qwtTransformF( 
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QwtSeriesData<QPointF> *series, int from, int to,
-    const bool doAlign )
-{
-    QPolygonF polyline( to - from + 1 );
-    QPointF *points = polyline.data();
-
-    if ( doAlign )
-    {
-        for ( int i = from; i <= to; i++ )
-        {
-            const QPointF sample = series->sample( i );
-            points[i - from].rx() =
-                static_cast<double>( qRound( xMap.transform( sample.x() ) ) );
-            points[i - from].ry() =
-                static_cast<double>( qRound( yMap.transform( sample.y() ) ) );
-        }
-    }
-    else
-    {
-        for ( int i = from; i <= to; i++ )
-        {
-            const QPointF sample = series->sample( i );
-            points[i - from].rx() = xMap.transform( sample.x() );
-            points[i - from].ry() = yMap.transform( sample.y() );
-        }
-    }
-
-    return polyline;
-}
-
-static QPolygon qwtTransform( 
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QwtSeriesData<QPointF> *series, int from, int to )
-{
-    QPolygon polyline( to - from + 1 );
-    QPoint *points = polyline.data();
-
-    for ( int i = from; i <= to; i++ )
-    {
-        const QPointF sample = series->sample( i );
-
-#if 1
-        points[i - from].rx() = qRound( xMap.transform( sample.x() ) );
-        points[i - from].ry() = qRound( yMap.transform( sample.y() ) );
-#else
-        // A little bit faster, but differs from qRound
-        // for negative values. Should be no problem as we are
-        // rounding coordinates, where negative values are clipped off anyway
-        // ( at least when there is no painter transformation )
-
-        points[i - from].rx() = 
-            static_cast<int>( xMap.transform( sample.x() ) + 0.5 );
-        points[i - from].ry() = 
-            static_cast<int>( yMap.transform( sample.y() ) + 0.5 );
-#endif
-    }
-
-    return polyline;
-}
-
 class QwtPlotCurve::PrivateData
 {
 public:
@@ -108,7 +47,8 @@ public:
         baseline( 0.0 ),
         symbol( NULL ),
         attributes( 0 ),
-        paintAttributes( QwtPlotCurve::ClipPolygons ),
+        paintAttributes( 
+            QwtPlotCurve::ClipPolygons | QwtPlotCurve::FilterPoints ),
         legendAttributes( 0 )
     {
         pen = QPen( Qt::black );
@@ -478,10 +418,17 @@ void QwtPlotCurve::drawLines( QPainter *painter,
             doIntegers = true; 
     }
 
+    const bool noDuplicates = d_data->paintAttributes & FilterPoints;
+
+    QwtPointMapper mapper;
+    mapper.setFlag( QwtPointMapper::RoundPoints, doAlign );
+    mapper.setFlag( QwtPointMapper::WeedOutPoints, noDuplicates );
+    mapper.setBoundingRect( canvasRect );
+
     if ( doIntegers )
     {
-        const QPolygon polyline = 
-            qwtTransform( xMap, yMap, d_series, from, to );
+        const QPolygon polyline = mapper.toPolygon( 
+            xMap, yMap, d_series, from, to );
 
         if ( d_data->paintAttributes & ClipPolygons )
         {
@@ -497,8 +444,8 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     }
     else
     {
-        QPolygonF polyline = qwtTransformF( xMap, yMap,
-            d_series, from, to, doAlign );
+        QPolygonF polyline = mapper.toPolygonF( xMap, yMap,
+            d_series, from, to );
 
         if ( doFit )
             polyline = d_data->curveFitter->fitCurve( polyline );
@@ -516,7 +463,9 @@ void QwtPlotCurve::drawLines( QPainter *painter,
         }
 
         if ( doFill )
+        {
             fillCurve( painter, xMap, yMap, canvasRect, polyline );
+        }
     }
 }
 
@@ -587,37 +536,78 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
-    const bool doFill = d_data->brush.style() != Qt::NoBrush;
-    const bool doAlign = QwtPainter::roundingAlignment( painter );
-
-    QPolygonF polyline;
-    if ( doFill )
-        polyline.resize( to - from + 1 );
-
-    QPointF *points = polyline.data();
-
-    for ( int i = from; i <= to; i++ )
+    if ( painter->pen().style() == Qt::NoPen ||
+        painter->pen().color().alpha() == 0 )
     {
-        const QPointF sample = d_series->sample( i );
-        double xi = xMap.transform( sample.x() );
-        double yi = yMap.transform( sample.y() );
-        if ( doAlign )
-        {
-            xi = qRound( xi );
-            yi = qRound( yi );
-        }
-
-        QwtPainter::drawPoint( painter, QPointF( xi, yi ) );
-
-        if ( doFill )
-        {
-            points[i - from].rx() = xi;
-            points[i - from].ry() = yi;
-        }
+        return;
     }
 
+    const QColor color = painter->pen().color();
+
+    const bool doFill = ( d_data->brush.style() != Qt::NoBrush )
+            && ( d_data->brush.color().alpha() > 0 );
+    const bool doAlign = QwtPainter::roundingAlignment( painter );
+    const bool doOpaque = ( color.alpha() == 255 )
+        && !( painter->renderHints() & QPainter::Antialiasing );
+
+    const bool noDuplicates = doOpaque;
+
+    QwtPointMapper mapper;
+    mapper.setBoundingRect( canvasRect );
+    mapper.setFlag( QwtPointMapper::RoundPoints, doAlign );
+    mapper.setFlag( QwtPointMapper::WeedOutPoints, noDuplicates );
+
     if ( doFill )
-        fillCurve( painter, xMap, yMap, canvasRect, polyline );
+    {
+        QPolygonF points = mapper.toPolygonF( 
+            xMap, yMap, d_series, from, to );
+
+        QwtPainter::drawPoints( painter, points );
+        fillCurve( painter, xMap, yMap, canvasRect, points );
+    }
+    else if ( d_data->paintAttributes & ImageBuffer )
+    {
+        const QImage image = mapper.toImage( xMap, yMap,
+            d_series, from, to, color.rgba() );
+
+        painter->drawImage( canvasRect.toAlignedRect(), image );
+    }
+    else if ( ! ( d_data->paintAttributes & MinimizeMemory ) )
+    {
+        if ( doAlign && noDuplicates &&
+            !testRenderHint( QwtPlotItem::RenderFloats ) )
+        {
+            const QPolygon polygon = mapper.toPoints(
+                xMap, yMap, d_series, from, to ); 
+
+            QwtPainter::drawPoints( painter, polygon );
+        }
+        else
+        {
+            const QPolygonF points = mapper.toPolygonF( 
+                xMap, yMap, d_series, from, to );
+
+            QwtPainter::drawPoints( painter, points );
+        }
+    }
+    else
+    {
+        for ( int i = from; i <= to; i++ )
+        {
+            const QPointF sample = d_series->sample( i );
+
+            double xi = xMap.transform( sample.x() );
+            double yi = yMap.transform( sample.y() );
+
+            if ( doAlign )
+            {
+                xi = qRound( xi );
+                yi = qRound( yi );
+            }
+
+            QwtPainter::drawPoint( painter, QPointF( xi, yi ) );
+        }
+    }
 }
 
 /*!

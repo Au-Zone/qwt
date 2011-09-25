@@ -463,7 +463,7 @@ void QwtPainter::drawPolygon( QPainter *painter, const QPolygon &polygon )
 
     QPolygon cpa = polygon;
     if ( deviceClipping )
-        cpa = QwtClipper::clipPolygon( clipRect.toAlignedRect(), polygon );
+        cpa = QwtClipper::clipPolygon( clipRect, polygon );
 
     painter->drawPolygon( cpa );
 }
@@ -476,7 +476,7 @@ void QwtPainter::drawPolyline( QPainter *painter, const QPolygon &polygon )
 
     QPolygon cpa = polygon;
     if ( deviceClipping )
-        cpa = QwtClipper::clipPolygon( clipRect.toAlignedRect(), cpa );
+        cpa = QwtClipper::clipPolygon( clipRect, cpa );
 
     qwtDrawPolyline<QPoint>( painter,
         cpa.constData(), cpa.size(), d_polylineSplitting );
@@ -494,7 +494,7 @@ void QwtPainter::drawPolyline( QPainter *painter,
         QPolygon polygon( pointCount );
         qMemCopy( polygon.data(), points, pointCount * sizeof( QPoint ) );
 
-        polygon = QwtClipper::clipPolygon( clipRect.toAlignedRect(), polygon );
+        polygon = QwtClipper::clipPolygon( clipRect, polygon );
         qwtDrawPolyline<QPoint>( painter,
             polygon.constData(), polygon.size(), d_polylineSplitting );
     }
@@ -512,6 +512,88 @@ void QwtPainter::drawPoint( QPainter *painter, const QPointF &pos )
         return;
 
     painter->drawPoint( pos );
+}
+
+//! Wrapper for QPainter::drawPoint()
+void QwtPainter::drawPoint( QPainter *painter, const QPoint &pos )
+{
+    QRectF clipRect;
+    const bool deviceClipping = qwtIsClippingNeeded( painter, clipRect );
+
+    if ( deviceClipping )
+    {
+        const int minX = qCeil( clipRect.left() );
+        const int maxX = qFloor( clipRect.right() );
+        const int minY = qCeil( clipRect.top() );
+        const int maxY = qFloor( clipRect.bottom() );
+
+        if ( pos.x() < minX || pos.x() > maxX 
+            || pos.y() < minY || pos.y() > maxY )
+        {
+            return;
+        }
+    }
+
+    painter->drawPoint( pos );
+}
+
+//! Wrapper for QPainter::drawPoints()
+void QwtPainter::drawPoints( QPainter *painter, 
+    const QPoint *points, int pointCount )
+{
+    QRectF clipRect;
+    const bool deviceClipping = qwtIsClippingNeeded( painter, clipRect );
+
+    if ( deviceClipping )
+    {
+        const int minX = qCeil( clipRect.left() );
+        const int maxX = qFloor( clipRect.right() );
+        const int minY = qCeil( clipRect.top() );
+        const int maxY = qFloor( clipRect.bottom() );
+
+        const QRect r( minX, minY, maxX - minX, maxY - minY );
+
+        QPolygon clippedPolygon( pointCount );
+        QPoint *clippedData = clippedPolygon.data();
+
+        int numClippedPoints = 0;
+        for ( int i = 0; i < pointCount; i++ )
+        {
+            if ( r.contains( points[i] ) )
+                clippedData[ numClippedPoints++ ] = points[i];
+        }
+        painter->drawPoints( clippedData, numClippedPoints );
+    }
+    else
+    {
+        painter->drawPoints( points, pointCount );
+    }
+}
+
+//! Wrapper for QPainter::drawPoints()
+void QwtPainter::drawPoints( QPainter *painter, 
+    const QPointF *points, int pointCount )
+{
+    QRectF clipRect;
+    const bool deviceClipping = qwtIsClippingNeeded( painter, clipRect );
+
+    if ( deviceClipping )
+    {
+        QPolygonF clippedPolygon( pointCount );
+        QPointF *clippedData = clippedPolygon.data();
+
+        int numClippedPoints = 0;
+        for ( int i = 0; i < pointCount; i++ )
+        {
+            if ( clipRect.contains( points[i] ) )
+                clippedData[ numClippedPoints++ ] = points[i];
+        }
+        painter->drawPoints( clippedData, numClippedPoints );
+    }
+    else
+    {
+        painter->drawPoints( points, pointCount );
+    }
 }
 
 //! Wrapper for QPainter::drawImage()
