@@ -443,6 +443,28 @@ QList<QPointF> QwtCircleClipper::cuttingPoints(
    \return Clipped polygon
 */
 QPolygon QwtClipper::clipPolygon(
+    const QRectF &clipRect, const QPolygon &polygon, bool closePolygon )
+{
+    const int minX = qCeil( clipRect.left() );
+    const int maxX = qFloor( clipRect.right() );
+    const int minY = qCeil( clipRect.top() );
+    const int maxY = qFloor( clipRect.bottom() );
+
+    const QRect r( minX, minY, maxX - minX, maxY - minY );
+
+    QwtPolygonClipper<QPolygon, QRect, QPoint, int> clipper( r );
+    return clipper.clipPolygon( polygon, closePolygon );
+}
+/*!
+   Sutherland-Hodgman polygon clipping
+
+   \param clipRect Clip rectangle
+   \param polygon Polygon
+   \param closePolygon True, when the polygon is closed
+
+   \return Clipped polygon
+*/
+QPolygon QwtClipper::clipPolygon(
     const QRect &clipRect, const QPolygon &polygon, bool closePolygon )
 {
     QwtPolygonClipper<QPolygon, QRect, QPoint, int> clipper( clipRect );
