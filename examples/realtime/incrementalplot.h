@@ -17,6 +17,9 @@ public:
     void appendPoint( const QPointF & );
     void clearPoints();
 
+public Q_SLOTS:
+    void showSymbols( bool );
+
 private:
     QwtPlotCurve *d_curve;
     QwtPlotDirectPainter *d_directPainter;

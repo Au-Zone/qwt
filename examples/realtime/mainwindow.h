@@ -8,6 +8,7 @@ class QSpinBox;
 class QPushButton;
 class RandomPlot;
 class Counter;
+class QCheckBox;
 
 class MainWindow: public QMainWindow
 {
@@ -27,6 +28,7 @@ private:
 private:
     Counter *d_randomCount;
     Counter *d_timerCount;
+    QCheckBox *d_symbolType;
     QAction *d_startAction;
     QAction *d_clearAction;
     RandomPlot *d_plot;
