@@ -41,6 +41,7 @@ private:
     QComboBox *d_curveType;
     CheckBox *d_curveAntialiasing;
     CheckBox *d_curveClipping;
+    CheckBox *d_curveFiltering;
     CheckBox *d_lineSplitting;
     CheckBox *d_forceFloats;
     SpinBox  *d_curveWidth;
