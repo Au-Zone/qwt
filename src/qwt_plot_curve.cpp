@@ -536,30 +536,35 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
-    if ( painter->pen().style() == Qt::NoPen ||
-        painter->pen().color().alpha() == 0 )
+    const QColor color = painter->pen().color();
+
+    if ( painter->pen().style() == Qt::NoPen || color.alpha() == 0 )
     {
         return;
     }
 
-    const QColor color = painter->pen().color();
-
     const bool doFill = ( d_data->brush.style() != Qt::NoBrush )
             && ( d_data->brush.color().alpha() > 0 );
     const bool doAlign = QwtPainter::roundingAlignment( painter );
-    const bool doOpaque = ( color.alpha() == 255 )
-        && !( painter->renderHints() & QPainter::Antialiasing );
-
-    const bool noDuplicates = doOpaque;
 
     QwtPointMapper mapper;
     mapper.setBoundingRect( canvasRect );
     mapper.setFlag( QwtPointMapper::RoundPoints, doAlign );
-    mapper.setFlag( QwtPointMapper::WeedOutPoints, noDuplicates );
+
+    if ( d_data->paintAttributes & FilterPoints )
+    {
+        if ( ( color.alpha() == 255 )
+            && !( painter->renderHints() & QPainter::Antialiasing ) )
+        {
+            mapper.setFlag( QwtPointMapper::WeedOutPoints, true );
+        }
+    }
 
     if ( doFill )
     {
-        QPolygonF points = mapper.toPolygonF( 
+        mapper.setFlag( QwtPointMapper::WeedOutPoints, false );
+
+        QPolygonF points = mapper.toPointsF( 
             xMap, yMap, d_series, from, to );
 
         QwtPainter::drawPoints( painter, points );
@@ -572,25 +577,7 @@ void QwtPlotCurve::drawDots( QPainter *painter,
 
         painter->drawImage( canvasRect.toAlignedRect(), image );
     }
-    else if ( ! ( d_data->paintAttributes & MinimizeMemory ) )
-    {
-        if ( doAlign && noDuplicates &&
-            !testRenderHint( QwtPlotItem::RenderFloats ) )
-        {
-            const QPolygon polygon = mapper.toPoints(
-                xMap, yMap, d_series, from, to ); 
-
-            QwtPainter::drawPoints( painter, polygon );
-        }
-        else
-        {
-            const QPolygonF points = mapper.toPolygonF( 
-                xMap, yMap, d_series, from, to );
-
-            QwtPainter::drawPoints( painter, points );
-        }
-    }
-    else
+    else if ( d_data->paintAttributes & MinimizeMemory )
     {
         for ( int i = from; i <= to; i++ )
         {
@@ -606,6 +593,23 @@ void QwtPlotCurve::drawDots( QPainter *painter,
             }
 
             QwtPainter::drawPoint( painter, QPointF( xi, yi ) );
+        }
+    }
+    else
+    {
+        if ( doAlign && !testRenderHint( QwtPlotItem::RenderFloats ) )
+        {
+            const QPolygon points = mapper.toPoints(
+                xMap, yMap, d_series, from, to ); 
+
+            QwtPainter::drawPoints( painter, points );
+        }
+        else
+        {
+            const QPolygonF points = mapper.toPointsF( 
+                xMap, yMap, d_series, from, to );
+
+            QwtPainter::drawPoints( painter, points );
         }
     }
 }
@@ -910,23 +914,20 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
     }
     else
     {
+        QwtPointMapper mapper;
+        mapper.setFlag( QwtPointMapper::RoundPoints, doAlign );
+        mapper.setFlag( QwtPointMapper::WeedOutPoints, 
+            testPaintAttribute( QwtPlotCurve::FilterPoints ) );
+        mapper.setBoundingRect( canvasRect );
+
         const int chunkSize = 500;
 
         for ( int i = from; i <= to; i += chunkSize )
         {
             const int n = qMin( chunkSize, to - i + 1 );
 
-            QPolygonF points;
-            for ( int j = 0; j < n; j++ )
-            {
-                const QPointF sample = d_series->sample( i + j );
-
-                const double xi = xMap.transform( sample.x() );
-                const double yi = yMap.transform( sample.y() );
-
-                if ( canvasRect.contains( xi, yi ) )
-                    points += QPointF( xi, yi );
-            }
+            const QPolygonF points = mapper.toPointsF( xMap, yMap,
+                d_series, i, i + n - 1 );
 
             if ( points.size() > 0 )
                 symbol.drawSymbols( painter, points );
