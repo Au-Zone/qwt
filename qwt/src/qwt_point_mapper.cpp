@@ -25,11 +25,13 @@ public:
     QwtPointMapper::TransformationFlags flags;
 };
 
+//! Constructor
 QwtPointMapper::QwtPointMapper()
 {
     d_data = new PrivateData();
 }
 
+//! Destructor
 QwtPointMapper::~QwtPointMapper()
 {
     delete d_data;
@@ -68,6 +70,18 @@ QRectF QwtPointMapper::boundingRect() const
     return d_data->boundingRect;
 }
 
+/*!
+  \brief Translate a series of points into a QPolygonF
+
+  When the WeedOutPoints flag is enabled consecutive points,
+  that are mapped to the same position will be one point. 
+
+  \param xMap x map
+  \param yMap y map
+  \param series Seies of points to be mapped
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+*/
 QPolygonF QwtPointMapper::toPolygonF(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QwtSeriesData<QPointF> *series, int from, int to ) const
@@ -156,6 +170,18 @@ QPolygonF QwtPointMapper::toPolygonF(
     return polyline;
 }
 
+/*!
+  \brief Translate a series of points into a QPolygon
+
+  When the WeedOutPoints flag is enabled consecutive points,
+  that are mapped to the same position will be one point. 
+
+  \param xMap x map
+  \param yMap y map
+  \param series Seies of points to be mapped
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+*/
 QPolygon QwtPointMapper::toPolygon(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QwtSeriesData<QPointF> *series, int from, int to ) const
@@ -213,6 +239,19 @@ QPolygon QwtPointMapper::toPolygon(
     return polyline;
 }
 
+/*!
+  \brief Translate a series of points into a QPolygon
+
+  When the WeedOutPoints flag is enabled and the mapper has
+  a valid bounding rectangle all points that
+  are mapped to the same position will be one point. 
+
+  \param xMap x map
+  \param yMap y map
+  \param series Seies of points to be mapped
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+*/
 QPolygon QwtPointMapper::toPoints(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QwtSeriesData<QPointF> *series, int from, int to ) const
@@ -221,29 +260,7 @@ QPolygon QwtPointMapper::toPoints(
     QPoint *points = polygon.data();
     int numPoints = 0;
 
-    if ( ( d_data->flags & WeedOutPoints )
-            && !d_data->boundingRect.isEmpty() )
-    {
-        const QRect rect = d_data->boundingRect.toAlignedRect();
-
-        QwtPixelMatrix pixelMatrix( rect );
-
-        for ( int i = from; i <= to; i++ )
-        {
-            const QPointF sample = series->sample( i );
-
-            const QPoint pos(
-                qRound( xMap.transform( sample.x() ) ),
-                qRound( yMap.transform( sample.y() ) )
-            );
-
-            if ( pixelMatrix.testAndSetPixel( pos, true ) == false )
-                points[ numPoints++ ] = pos;
-        }
-
-        polygon.resize( numPoints );
-    }
-    else
+    if ( d_data->boundingRect.isEmpty() )
     {
         for ( int i = from; i <= to; i++ )
         {
@@ -258,25 +275,109 @@ QPolygon QwtPointMapper::toPoints(
             numPoints++;
         }
     }
+    else
+    {
+        if ( d_data->flags & WeedOutPoints )
+        {
+            const QRect rect = d_data->boundingRect.toAlignedRect();
+
+            QwtPixelMatrix pixelMatrix( rect );
+
+            for ( int i = from; i <= to; i++ )
+            {
+                const QPointF sample = series->sample( i );
+
+                const QPoint pos(
+                    qRound( xMap.transform( sample.x() ) ),
+                    qRound( yMap.transform( sample.y() ) )
+                );
+
+                if ( pixelMatrix.testAndSetPixel( pos, true ) == false )
+                    points[ numPoints++ ] = pos;
+            }
+        }
+        else
+        {
+            for ( int i = from; i <= to; i++ )
+            {
+                const QPointF sample = series->sample( i );
+
+                const double x = qRound( xMap.transform( sample.x() ) );
+                const double y = qRound( yMap.transform( sample.y() ) );
+
+                if ( d_data->boundingRect.contains( x, y ) )
+                {
+                    points[ numPoints ].rx() = qRound( x );
+                    points[ numPoints ].ry() = qRound( y );
+
+                    numPoints++;
+                }
+            }
+        }
+
+        polygon.resize( numPoints );
+    }
 
     return polygon;
 }
 
+/*!
+  \brief Translate a series into a QPolygon
+
+  When the WeedOutPoints flag is enabled and the mapper has
+  a valid bounding rectangle all points that
+  are mapped to the same position will be one point. 
+
+  \param xMap x map
+  \param yMap y map
+  \param series Seies of points to be mapped
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+*/
 QPolygonF QwtPointMapper::toPointsF(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QwtSeriesData<QPointF> *series, int from, int to ) const
 {
-    const bool on = d_data->flags & WeedOutPoints;
-    d_data->flags &= ~WeedOutPoints;
+    QPolygonF polyline( to - from + 1 );
+    QPointF *points = polyline.data();
 
-    QPolygonF points = toPolygonF( xMap, yMap, series, from, to );
+    if ( d_data->flags & RoundPoints )
+    {
+        for ( int i = from; i <= to; i++ )
+        {
+            const QPointF sample = series->sample( i );
 
-    if ( on )
-        d_data->flags |= WeedOutPoints;
+            const int x = qRound( xMap.transform( sample.x() ) );
+            const int y = qRound( yMap.transform( sample.y() ) );
 
-    return points;
+            points[i - from].rx() = static_cast<double>( x );
+            points[i - from].ry() = static_cast<double>( y );
+        }
+    }
+    else
+    {
+        for ( int i = from; i <= to; i++ )
+        {
+            const QPointF sample = series->sample( i );
+            points[i - from].rx() = xMap.transform( sample.x() );
+            points[i - from].ry() = yMap.transform( sample.y() );
+        }
+    }
+
+    return polyline;
 }
 
+/*!
+  \brief Translate a series into a QImage
+
+  \param xMap x map
+  \param yMap y map
+  \param series Seies of points to be mapped
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+  \param rgb RGB value, that will be set for all pixels
+             of the image, whe a point is mapped to
+*/
 QImage QwtPointMapper::toImage(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QwtSeriesData<QPointF> *series, int from, int to, QRgb rgb ) const
