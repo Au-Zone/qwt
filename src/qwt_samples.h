@@ -77,8 +77,12 @@ class QWT_EXPORT QwtSetSample
 {
 public:
     QwtSetSample();
+    QwtSetSample( double, const QVector<double> & = QVector<double>() );
+
     bool operator==( const QwtSetSample &other ) const;
     bool operator!=( const QwtSetSample &other ) const;
+
+	double added() const;
 
     //! value
     double value;
@@ -96,6 +100,18 @@ inline QwtSetSample::QwtSetSample():
 {
 }
 
+/*!
+  Constructor
+
+  \param v Value
+  \param s Set of values
+*/
+inline QwtSetSample::QwtSetSample( double v, const QVector< double > &s ):
+    value( v ),
+	set( s )
+{
+}
+
 //! Compare operator
 inline bool QwtSetSample::operator==( const QwtSetSample &other ) const
 {
@@ -106,6 +122,16 @@ inline bool QwtSetSample::operator==( const QwtSetSample &other ) const
 inline bool QwtSetSample::operator!=( const QwtSetSample &other ) const
 {
     return !( *this == other );
+}
+
+// \return All values of the set added
+inline double QwtSetSample::added() const
+{
+	double y = 0.0;
+	for ( int i = 0; i < set.size(); i++ )
+		y += set[i];
+
+	return y;
 }
 
 /*!

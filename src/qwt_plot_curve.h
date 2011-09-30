@@ -253,7 +253,7 @@ public:
     void setBrush( const QBrush & );
     const QBrush &brush() const;
 
-    void setBaseline( double ref );
+    void setBaseline( double );
     double baseline() const;
 
     void setStyle( CurveStyle style );
