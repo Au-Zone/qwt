@@ -14,6 +14,7 @@ TEMPLATE = subdirs
 contains(QWT_CONFIG, QwtPlot) {
     
     SUBDIRS += \
+        barchart \
         cpuplot \
         curvdemo1   \
         curvdemo2 \
