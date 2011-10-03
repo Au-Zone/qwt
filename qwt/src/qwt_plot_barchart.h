@@ -19,10 +19,52 @@ class QwtColumnRect;
 class QWT_EXPORT QwtPlotBarChart: public QwtPlotSeriesItem<QwtSetSample>
 {
 public:
+    enum ChartAttribute
+    {
+        ShowLabels = 0x01
+    };
+
+    typedef QFlags<ChartAttribute> ChartAttributes;
+
     enum ChartStyle
     {
         Stacked,
         Grouped
+    };
+
+    /*!
+        \brief Mode how to calculate the bar width
+
+        setLayoutPolicy(), setLayoutHint()
+     */
+    enum LayoutPolicy
+    {
+        /*!
+          The sample width is calculated by deviding the bounding rectangle
+          by the number of samples.
+
+          \sa boundingRectangle()
+          \note The layoutHint() is ignored
+         */
+        AutoAdjustSamples,
+
+        /*!
+          The barWidthHint() defines an interval in axis coordinates
+         */
+        ScaleSamplesToAxes,
+
+        /*!
+          The bar width is calculated by multiplying the barWidthHint()
+          with the height or width of the canvas.
+
+          \sa boundingRectangle()
+         */
+        ScaleSampleToCanvas,
+
+        /*!
+          The barWidthHint() defines a fixed width in paint device coordinates.
+         */
+        FixedSampleSize
     };
 
     explicit QwtPlotBarChart( const QString &title = QString::null );
@@ -32,6 +74,9 @@ public:
 
     virtual int rtti() const;
 
+    void setChartAttribute( ChartAttribute, bool on = true );
+    bool testChartAttribute( ChartAttribute ) const;
+
     void setSamples( const QVector<QwtSetSample> & );
     void setSamples( const QVector< QVector<double> > & );
     void setSamples( const QVector<double> & );
@@ -39,8 +84,14 @@ public:
     void setStyle( ChartStyle style );
     ChartStyle style() const;
 
-    void setBarWidth( double );
-    double barWidth() const;
+    void setLayoutPolicy( LayoutPolicy );
+    LayoutPolicy layoutPolicy() const;
+
+    void setLayoutHint( double );
+    double layoutHint() const;
+
+    void setSpacing( int );
+    int spacing() const;
 
     void setBaseline( double );
     double baseline() const;
@@ -55,22 +106,39 @@ public:
 protected:
     virtual void drawSample( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, const QwtSetSample& sample ) const;
+        const QRectF &canvasRect, const QwtInterval &boundingInterval,
+        int index, const QwtSetSample& sample ) const;
 
-    virtual void drawBar( QPainter *, int index, const QwtColumnRect & ) const;
+    virtual void drawBar( QPainter *, int sampleIndex, 
+        int barIndex, const QwtColumnRect & ) const;
+
+    virtual void drawLabel( QPainter *, int sampleIndex, 
+        int barIndex, const QwtColumnRect &, const QwtText & ) const;
+
+    virtual QwtText label( int sampleIndex, int barIndex, 
+        const QwtSetSample& ) const;
 
     void drawStackedBars( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, const QwtSetSample& sample ) const;
+        const QRectF &canvasRect, int index,
+        double sampleWidth, const QwtSetSample& sample ) const;
 
     void drawGroupedBars( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRectF &canvasRect, const QwtSetSample& sample ) const;
+        const QRectF &canvasRect, int index,
+        double sampleWidth, const QwtSetSample& sample ) const;
 
+private:
     void init();
+
+    double sampleWidth( const QwtScaleMap &map,
+        double canvasSize, double dataSize, 
+        const QwtSetSample& ) const;
 
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotBarChart::ChartAttributes )
 
 #endif
