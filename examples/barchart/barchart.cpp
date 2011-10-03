@@ -7,6 +7,7 @@
 #include <qfiledialog.h>
 #include <qimagewriter.h>
 #include <qprintdialog.h>
+#include <qevent.h>
 #include <qfileinfo.h>
 
 BarChart::BarChart( QWidget *parent ):
@@ -15,17 +16,18 @@ BarChart::BarChart( QWidget *parent ):
     setTitle( "Bar Chart" );
 
     canvas()->setPalette( Qt::gray );
+    canvas()->installEventFilter( this );
 
     setAxisTitle( QwtPlot::yLeft, "Whatever" );
     setAxisTitle( QwtPlot::xBottom, "Whatever" );
 
     d_barChartItem = new QwtPlotBarChart( "Bar Chart " );
-#if 0
-    d_barChartItem->setBaseline( 2 );
-#endif
+    d_barChartItem->setLayoutPolicy( QwtPlotBarChart::AutoAdjustSamples );
+    d_barChartItem->setSpacing( 10 );
     d_barChartItem->attach( this );
 
     populate();
+    setOrientation( 0 );
 
     setAutoReplot( true );
 }
@@ -43,8 +45,8 @@ void BarChart::populate()
 #endif
 
         QVector<double> values;
-        for ( int j = 0; j < 4; j++ )
-            values += sign * ( qrand() % 10 );
+        for ( int j = 0; j < 3; j++ )
+            values += sign * ( 1 + qrand() % 9 );
 
         series += values;
 #if 0
@@ -53,39 +55,28 @@ void BarChart::populate()
     }
 
     d_barChartItem->setSamples( series );
-    setOrientation( 0 );
 }
-
 
 void BarChart::setMode( int mode )
 {
     if ( mode == 0 )
     {
         d_barChartItem->setStyle( QwtPlotBarChart::Stacked );
-        d_barChartItem->setBarWidth( 0.8 );
     }
     else
     {
         d_barChartItem->setStyle( QwtPlotBarChart::Grouped );
-        d_barChartItem->setBarWidth( 0.15 );
     }
 }
 
 void BarChart::setOrientation( int orientation )
 {
-    const int margin = 30;
-
     QwtPlot::Axis axis1, axis2;
 
     if ( orientation == 0 )
     {
         axis1 = QwtPlot::xBottom;
         axis2 = QwtPlot::yLeft;
-
-        plotLayout()->setCanvasMargin( margin, QwtPlot::yLeft );
-        plotLayout()->setCanvasMargin( margin, QwtPlot::yRight );
-        plotLayout()->setCanvasMargin( 0, QwtPlot::xBottom );
-        plotLayout()->setCanvasMargin( 0, QwtPlot::xTop );
 
         d_barChartItem->setOrientation( Qt::Vertical );
     }
@@ -94,32 +85,60 @@ void BarChart::setOrientation( int orientation )
         axis1 = QwtPlot::yLeft;
         axis2 = QwtPlot::xBottom;
 
-        plotLayout()->setCanvasMargin( 0, QwtPlot::yLeft );
-        plotLayout()->setCanvasMargin( 0, QwtPlot::yRight );
-        plotLayout()->setCanvasMargin( margin, QwtPlot::xBottom );
-        plotLayout()->setCanvasMargin( margin, QwtPlot::xTop );
-
         d_barChartItem->setOrientation( Qt::Horizontal );
     }
 
     setAxisScale( axis1, 0, d_barChartItem->dataSize() - 1, 1.0 );
-#if 1
     setAxisAutoScale( axis2 );
-#else
-    setAxisScale( axis2, -15, 15 );
-#endif
 
     QwtScaleDraw *scaleDraw1 = axisScaleDraw( axis1 );
-    scaleDraw1->setTickLength( QwtScaleDiv::MinorTick, 0 );
-    scaleDraw1->setTickLength( QwtScaleDiv::MediumTick, 0 );
-    scaleDraw1->setTickLength( QwtScaleDiv::MajorTick, 8 );
+    scaleDraw1->enableComponent( QwtScaleDraw::Backbone, false );
+    scaleDraw1->enableComponent( QwtScaleDraw::Ticks, false );
 
     QwtScaleDraw *scaleDraw2 = axisScaleDraw( axis2 );
-    scaleDraw2->setTickLength( QwtScaleDiv::MinorTick, 4 );
-    scaleDraw2->setTickLength( QwtScaleDiv::MediumTick, 6 );
-    scaleDraw2->setTickLength( QwtScaleDiv::MajorTick, 8 );
+    scaleDraw2->enableComponent( QwtScaleDraw::Backbone, true );
+    scaleDraw2->enableComponent( QwtScaleDraw::Ticks, true );
+
+    plotLayout()->setCanvasMargin( 0 );
+    updateMargins();
 
     replot();
+}
+
+bool BarChart::eventFilter( QObject *object, QEvent *event )
+{
+    if ( object == canvas() )
+    {
+        if ( event->type() == QEvent::Resize )
+            updateMargins();
+    }
+
+    return QwtPlot::eventFilter( object, event );
+}
+
+void BarChart::updateMargins()
+{
+    const int numSamples = d_barChartItem->dataSize();
+
+    if ( d_barChartItem->layoutPolicy() 
+        == QwtPlotBarChart::AutoAdjustSamples )
+    {
+        const int off = 0.5 * d_barChartItem->spacing() - 2;
+
+        if ( d_barChartItem->orientation() == Qt::Vertical )
+        {
+            const int margin = qCeil( 0.5 * canvas()->width() / numSamples );
+            plotLayout()->setCanvasMargin( margin - off, QwtPlot::yLeft );
+            plotLayout()->setCanvasMargin( margin - off, QwtPlot::yRight );
+        }
+        else
+        {
+            const int margin = qCeil( 0.5 * canvas()->height() / numSamples );
+            plotLayout()->setCanvasMargin( margin - off, QwtPlot::xTop );
+            plotLayout()->setCanvasMargin( margin - off, QwtPlot::xBottom );
+        }
+    }
+    updateLayout();
 }
 
 void BarChart::exportChart()

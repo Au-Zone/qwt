@@ -11,6 +11,8 @@ class BarChart: public QwtPlot
 public:
     BarChart( QWidget * = NULL );
 
+    virtual bool eventFilter( QObject *, QEvent * );
+
 public Q_SLOTS:
     void setMode( int );
     void setOrientation( int );
@@ -18,6 +20,7 @@ public Q_SLOTS:
 
 private:
     void populate();
+    void updateMargins();
 
     QwtPlotBarChart *d_barChartItem;
 };
