@@ -11,6 +11,7 @@
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
 #include "qwt_column_symbol.h"
+#include "qwt_plot.h"
 #include <qpainter.h>
 #include <qpalette.h>
 
@@ -29,7 +30,7 @@ inline static bool qwtIsIncreasing(
     return !isInverting;
 }
 
-static inline double qwtTransformWidth( 
+static inline double qwtTransformWidth(
     const QwtScaleMap &map, double value, double width )
 {
     const double w2 = 0.5 * width;
@@ -301,7 +302,7 @@ void QwtPlotBarChart::drawSeries( QPainter *painter,
 
     for ( int i = from; i <= to; i++ )
     {
-        drawSample( painter, xMap, yMap, 
+        drawSample( painter, xMap, yMap,
             canvasRect, interval, i, sample( i ) );
     }
 
@@ -333,23 +334,23 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
 
     if ( orientation() == Qt::Horizontal )
     {
-        sampleW = sampleWidth( yMap, canvasRect.height(), 
+        sampleW = sampleWidth( yMap, canvasRect.height(),
             boundingInterval.width(), sample );
     }
     else
     {
-        sampleW = sampleWidth( xMap, canvasRect.width(), 
+        sampleW = sampleWidth( xMap, canvasRect.width(),
             boundingInterval.width(), sample );
     }
 
     if ( d_data->style == Stacked )
     {
-        drawStackedBars( painter, xMap, yMap, 
+        drawStackedBars( painter, xMap, yMap,
             canvasRect, index, sampleW, sample );
     }
     else
     {
-        drawGroupedBars( painter, xMap, yMap, 
+        drawGroupedBars( painter, xMap, yMap,
             canvasRect, index, sampleW, sample );
     }
 }
@@ -397,7 +398,7 @@ void QwtPlotBarChart::drawGroupedBars( QPainter *painter,
                 x2 = qFloor( x2 );
                 y2 = qRound( y2 );
             }
-            
+
             bar.hInterval = QwtInterval( x1, x2 );
             bar.vInterval = QwtInterval( y1, y2 ).normalized();
 
@@ -450,7 +451,7 @@ void QwtPlotBarChart::drawGroupedBars( QPainter *painter,
             {
                 const QwtText text = label( index, i, sample );
                 drawLabel( painter, index, i, bar, text );
-            } 
+            }
         }
     }
 }
@@ -541,7 +542,7 @@ void QwtPlotBarChart::drawStackedBars( QPainter *painter,
 
         QwtColumnRect bar;
         bar.direction = increasing ?
-            QwtColumnRect::LeftToRight : QwtColumnRect::RightToLeft;
+                        QwtColumnRect::LeftToRight : QwtColumnRect::RightToLeft;
         bar.vInterval = QwtInterval( y1, y2 );
 
         double sum = d_data->baseline;
@@ -606,7 +607,7 @@ void QwtPlotBarChart::drawBar( QPainter *painter,
 #endif
 }
 
-void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex, 
+void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex,
     int barIndex, const QwtColumnRect &rect, const QwtText &text ) const
 {
     Q_UNUSED( painter );
@@ -624,7 +625,7 @@ void QwtPlotBarChart::drawLegendIdentifier(
 }
 
 double QwtPlotBarChart::sampleWidth( const QwtScaleMap &map,
-    double canvasSize, double boundingSize, 
+    double canvasSize, double boundingSize,
     const QwtSetSample& sample ) const
 {
     double width;
@@ -633,7 +634,7 @@ double QwtPlotBarChart::sampleWidth( const QwtScaleMap &map,
     {
         case ScaleSamplesToAxes:
         {
-            width = qwtTransformWidth( map, 
+            width = qwtTransformWidth( map,
                 sample.value, d_data->layoutHint );
             break;
         }
@@ -666,7 +667,87 @@ double QwtPlotBarChart::sampleWidth( const QwtScaleMap &map,
     return width;
 }
 
-QwtText QwtPlotBarChart::label( 
+double QwtPlotBarChart::canvasMarginHint( const QSizeF &canvasSize ) const
+{
+    const size_t numSamples = d_series->size();
+
+    double margin = -1.0;
+
+    switch( layoutPolicy() )
+    {
+        case ScaleSampleToCanvas:
+        {
+            if ( orientation() == Qt::Vertical )
+                margin = 0.5 * canvasSize.width() * d_data->layoutHint;
+            else
+                margin = 0.5 * canvasSize.height() * d_data->layoutHint;
+
+            break;
+        }
+        case FixedSampleSize:
+        {
+            margin = 0.5 * d_data->layoutHint;
+            break;
+        }
+        case AutoAdjustSamples:
+        case ScaleSamplesToAxes:
+        default:
+        {
+            if ( numSamples <= 0 || plot() == NULL )
+                break;
+
+            // doesn't work for nonlinear scales
+
+            double spacing = 0.0;
+            double sampleWidthS = 1.0;
+
+            if ( layoutPolicy() == ScaleSamplesToAxes )
+            {
+                sampleWidthS = d_data->layoutHint;
+            }
+            else
+            {
+                spacing = d_data->spacing;
+
+                if ( numSamples > 1 )
+                {
+                    const QRectF br = d_series->boundingRect();
+                    sampleWidthS = qAbs( br.width() / ( numSamples - 1 ) );
+                }
+            }
+
+            QwtScaleMap map;
+            if ( orientation() == Qt::Vertical )
+            {
+                map = plot()->canvasMap( xAxis() );
+                map.setPaintInterval( 0.0, canvasSize.width() );
+            }
+            else
+            {
+                map = plot()->canvasMap( yAxis() );
+                map.setPaintInterval( 0.0, canvasSize.height() );
+            }
+
+            const double value = d_series->sample( 0 ).value;
+
+            double sampleWidthP;
+
+            // first approximation
+            sampleWidthP = qwtTransformWidth( map, value, sampleWidthS );
+            margin = 0.5 * ( sampleWidthP - spacing );
+
+            // calculating the same including the approximated margins
+            map.setPaintInterval( map.p1() + margin, map.p2() - margin );
+
+            sampleWidthP = qwtTransformWidth( map, value, sampleWidthS );
+            margin = 0.5 * ( sampleWidthP - spacing );
+        }
+    }
+
+    return margin;
+}
+
+QwtText QwtPlotBarChart::label(
     int sampleIndex, int barIndex, const QwtSetSample& sample ) const
 {
     Q_UNUSED( sampleIndex );
