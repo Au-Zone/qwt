@@ -103,19 +103,21 @@ public:
     virtual QRectF boundingRect() const;
     virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
 
+    virtual double canvasMarginHint( const QSizeF &canvasSize ) const;
+
 protected:
     virtual void drawSample( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, const QwtInterval &boundingInterval,
         int index, const QwtSetSample& sample ) const;
 
-    virtual void drawBar( QPainter *, int sampleIndex, 
+    virtual void drawBar( QPainter *, int sampleIndex,
         int barIndex, const QwtColumnRect & ) const;
 
-    virtual void drawLabel( QPainter *, int sampleIndex, 
+    virtual void drawLabel( QPainter *, int sampleIndex,
         int barIndex, const QwtColumnRect &, const QwtText & ) const;
 
-    virtual QwtText label( int sampleIndex, int barIndex, 
+    virtual QwtText label( int sampleIndex, int barIndex,
         const QwtSetSample& ) const;
 
     void drawStackedBars( QPainter *painter,
@@ -132,7 +134,7 @@ private:
     void init();
 
     double sampleWidth( const QwtScaleMap &map,
-        double canvasSize, double dataSize, 
+        double canvasSize, double dataSize,
         const QwtSetSample& ) const;
 
     class PrivateData;
