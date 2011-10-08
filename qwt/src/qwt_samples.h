@@ -82,7 +82,7 @@ public:
     bool operator==( const QwtSetSample &other ) const;
     bool operator!=( const QwtSetSample &other ) const;
 
-	double added() const;
+    double added() const;
 
     //! value
     double value;
@@ -108,7 +108,7 @@ inline QwtSetSample::QwtSetSample():
 */
 inline QwtSetSample::QwtSetSample( double v, const QVector< double > &s ):
     value( v ),
-	set( s )
+    set( s )
 {
 }
 
@@ -127,11 +127,11 @@ inline bool QwtSetSample::operator!=( const QwtSetSample &other ) const
 // \return All values of the set added
 inline double QwtSetSample::added() const
 {
-	double y = 0.0;
-	for ( int i = 0; i < set.size(); i++ )
-		y += set[i];
+    double y = 0.0;
+    for ( int i = 0; i < set.size(); i++ )
+        y += set[i];
 
-	return y;
+    return y;
 }
 
 /*!

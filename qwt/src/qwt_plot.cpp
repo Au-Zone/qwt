@@ -104,6 +104,7 @@ void QwtPlot::initPlot( const QwtText &title )
     d_data->canvas->setObjectName( "QwtPlotCanvas" );
     d_data->canvas->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     d_data->canvas->setLineWidth( 2 );
+    d_data->canvas->installEventFilter( this );
 
     updateTabOrder();
 
@@ -131,6 +132,15 @@ bool QwtPlot::event( QEvent *event )
         default:;
     }
     return ok;
+}
+
+bool QwtPlot::eventFilter( QObject *object, QEvent *event )
+{
+    if ( object == d_data->canvas )
+    {
+    }
+
+    return QFrame::eventFilter( object, event );
 }
 
 //! Replots the plot if autoReplot() is \c true.
@@ -469,6 +479,45 @@ void QwtPlot::updateLayout()
     }
 
     d_data->canvas->setGeometry( canvasRect );
+}
+
+void QwtPlot::updateCanvasMargins()
+{
+    const int axis[4] = {
+        QwtPlot::yLeft, QwtPlot::xTop, QwtPlot::yRight, QwtPlot::xBottom };
+
+    double margins[4];
+    margins[0] = margins[1] = margins[2] = margins[3] = -1.0;
+
+    const QSizeF canvasSize = canvas()->contentsRect().size();
+
+    const QwtPlotItemList& itmList = itemList();
+    for ( QwtPlotItemIterator it = itmList.begin();
+        it != itmList.end(); ++it )
+    {
+        const QwtPlotItem *item = *it;
+        if ( item->testItemAttribute( QwtPlotItem::Margins ) )
+        {
+            double m[4];
+            item->getCanvasMarginHint( canvasSize, m[0], m[1], m[2], m[3] );
+
+            for ( int i = 0; i < 4; i++ )
+                margins[i] = qMax( margins[i], m[i] );
+        }
+    }
+
+    bool doUpdate = false;
+    for ( int i = 0; i < 4; i++ )
+    {
+        if ( margins[i] >= 0.0 )
+        {
+            plotLayout()->setCanvasMargin( qCeil( margins[i] ), axis[i] );
+            doUpdate = true;
+        }
+    }
+
+    if ( doUpdate )
+        updateLayout();
 }
 
 /*!

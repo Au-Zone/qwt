@@ -20,7 +20,6 @@ public Q_SLOTS:
 
 private:
     void populate();
-    void updateMargins();
 
     QwtPlotBarChart *d_barChartItem;
 };

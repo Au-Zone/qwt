@@ -127,7 +127,14 @@ public:
          The boundingRect() of the item is included in the
          autoscaling calculation.
          */
-        AutoScale = 0x02
+        AutoScale = 0x02,
+
+        /*!
+         The item needs extra space to display something outside
+         its bounding rectangle. 
+         \sa getCanvasMarginHint()
+         */
+        Margins = 0x04
     };
 
     //! Plot Item Attributes
@@ -211,6 +218,9 @@ public:
         const QRectF &canvasRect ) const = 0;
 
     virtual QRectF boundingRect() const;
+
+    virtual void getCanvasMarginHint( const QSizeF &canvasSize,
+         double &left, double &top, double &right, double &bottom) const;
 
     virtual void updateLegend( QwtLegend * ) const;
     virtual void updateScaleDiv( 
