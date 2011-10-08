@@ -82,6 +82,7 @@ void QwtPlotBarChart::init()
 {
     setItemAttribute( QwtPlotItem::Legend, true );
     setItemAttribute( QwtPlotItem::AutoScale, true );
+    setItemAttribute( QwtPlotItem::Margins, true );
 
     d_data = new PrivateData;
     d_series = new QwtSetSeriesData();
@@ -667,7 +668,8 @@ double QwtPlotBarChart::sampleWidth( const QwtScaleMap &map,
     return width;
 }
 
-double QwtPlotBarChart::canvasMarginHint( const QSizeF &canvasSize ) const
+void QwtPlotBarChart::getCanvasMarginHint( const QSizeF &canvasSize,
+    double &left, double &top, double &right, double &bottom ) const
 {
     const size_t numSamples = d_series->size();
 
@@ -744,7 +746,16 @@ double QwtPlotBarChart::canvasMarginHint( const QSizeF &canvasSize ) const
         }
     }
 
-    return margin;
+    if ( orientation() == Qt::Vertical )
+    {
+        left = right = margin;
+        top = bottom = -1.0; // no hint
+    }
+    else
+    {
+        left = right = -1.0; // no hint
+        top = bottom = margin;
+    }
 }
 
 QwtText QwtPlotBarChart::label(

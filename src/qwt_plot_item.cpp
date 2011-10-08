@@ -397,6 +397,15 @@ QRectF QwtPlotItem::boundingRect() const
     return QRectF( 1.0, 1.0, -2.0, -2.0 ); // invalid
 }
 
+void QwtPlotItem::getCanvasMarginHint( const QSizeF &canvasSize,
+    double &left, double &top, double &right, double &bottom ) const
+{
+    Q_UNUSED( canvasSize );
+
+    // use QMargins, when we don't need to support Qt < 4.6 anymore
+    left = top = right = bottom = 0.0;
+}
+
 /*!
    \brief Allocate the widget that represents the item on the legend
 

@@ -16,7 +16,6 @@ BarChart::BarChart( QWidget *parent ):
     setTitle( "Bar Chart" );
 
     canvas()->setPalette( Qt::gray );
-    canvas()->installEventFilter( this );
 
     setAxisTitle( QwtPlot::yLeft, "Whatever" );
     setAxisTitle( QwtPlot::xBottom, "Whatever" );
@@ -114,7 +113,7 @@ void BarChart::setOrientation( int orientation )
     scaleDraw2->enableComponent( QwtScaleDraw::Ticks, true );
 
     plotLayout()->setCanvasMargin( 0 );
-    updateMargins();
+    updateCanvasMargins();
 
     replot();
 }
@@ -124,38 +123,12 @@ bool BarChart::eventFilter( QObject *object, QEvent *event )
     if ( object == canvas() )
     {
         if ( event->type() == QEvent::Resize )
-            updateMargins();
+            updateCanvasMargins();
     }
 
     return QwtPlot::eventFilter( object, event );
 }
 
-void BarChart::updateMargins()
-{
-    const QSize canvasSize = canvas()->contentsRect().size();
-
-    const double marginHint = 
-        d_barChartItem->canvasMarginHint( canvasSize );
-
-    if ( marginHint >= 0.0 )
-    {
-        const int off = 5;
-        int margin = qCeil( marginHint ) + off;
-
-        if ( d_barChartItem->orientation() == Qt::Vertical )
-        {
-            plotLayout()->setCanvasMargin( margin, QwtPlot::yLeft );
-            plotLayout()->setCanvasMargin( margin, QwtPlot::yRight );
-        }
-        else
-        {
-            plotLayout()->setCanvasMargin( margin, QwtPlot::xTop );
-            plotLayout()->setCanvasMargin( margin, QwtPlot::xBottom );
-        }
-
-        updateLayout();
-    }
-}
 
 void BarChart::exportChart()
 {

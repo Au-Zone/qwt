@@ -232,9 +232,11 @@ public:
     virtual void updateLayout();
     virtual void drawCanvas( QPainter * );
 
-    void updateAxes();
+    virtual void updateAxes();
+    virtual void updateCanvasMargins();
 
     virtual bool event( QEvent * );
+    virtual bool eventFilter( QObject *, QEvent * );
 
     virtual void drawItems( QPainter *, const QRectF &,
         const QwtScaleMap maps[axisCnt] ) const;
