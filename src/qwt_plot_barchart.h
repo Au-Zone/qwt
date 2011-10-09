@@ -103,8 +103,10 @@ public:
     virtual QRectF boundingRect() const;
     virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
 
-    virtual void getCanvasMarginHint( const QSizeF &canvasSize,
-         double &left, double &top, double &right, double &bottom) const;
+    virtual void getCanvasMarginHint( 
+		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+		const QRectF &canvasRect,
+        double &left, double &top, double &right, double &bottom) const;
 
 protected:
     virtual void drawSample( QPainter *painter,
