@@ -32,7 +32,7 @@ BarChart::BarChart( QWidget *parent ):
     d_barChartItem->setLayoutPolicy( QwtPlotBarChart::FixedSampleSize );
     d_barChartItem->setLayoutHint( 20 );
 #endif
-    d_barChartItem->setSpacing( 10 );
+    d_barChartItem->setSpacing( 20 );
 
 #if 1
     QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
@@ -51,7 +51,7 @@ BarChart::BarChart( QWidget *parent ):
 
 void BarChart::populate()
 {
-    const int numSamples = 9;
+    const int numSamples = 5;
 
     QVector< QVector<double> > series;
 
@@ -65,7 +65,7 @@ void BarChart::populate()
 
         QVector<double> values;
         for ( int j = 0; j < 3; j++ )
-            values += sign * ( 1 + qrand() % 9 );
+            values += sign * ( 2 + qrand() % 8 );
 
         series += values;
 #if 0
@@ -80,11 +80,11 @@ void BarChart::setMode( int mode )
 {
     if ( mode == 0 )
     {
-        d_barChartItem->setStyle( QwtPlotBarChart::Stacked );
+        d_barChartItem->setStyle( QwtPlotBarChart::Grouped );
     }
     else
     {
-        d_barChartItem->setStyle( QwtPlotBarChart::Grouped );
+        d_barChartItem->setStyle( QwtPlotBarChart::Stacked );
     }
 }
 

@@ -257,6 +257,10 @@ QRectF QwtPlotBarChart::boundingRect() const
     if ( d_data->style != QwtPlotBarChart::Stacked )
     {
         rect = QwtPlotSeriesItem<QwtSetSample>::boundingRect();
+        if ( rect.bottom() < d_data->baseline )
+            rect.setBottom( d_data->baseline );
+        if ( rect.top() > d_data->baseline )
+            rect.setTop( d_data->baseline );
     }
     else
     {
