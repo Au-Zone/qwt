@@ -2,6 +2,7 @@
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_barchart.h>
+#include <qwt_column_symbol.h>
 #include <qwt_plot_layout.h>
 #include <qwt_scale_draw.h>
 
@@ -32,6 +33,14 @@ BarChart::BarChart( QWidget *parent ):
     d_barChartItem->setLayoutHint( 20 );
 #endif
     d_barChartItem->setSpacing( 10 );
+
+#if 1
+    QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
+    symbol->setLineWidth( 2 );
+    symbol->setFrameStyle( QwtColumnSymbol::Raised );
+
+    d_barChartItem->setSymbol( symbol );
+#endif
     d_barChartItem->attach( this );
 
     populate();
@@ -42,9 +51,11 @@ BarChart::BarChart( QWidget *parent ):
 
 void BarChart::populate()
 {
+    const int numSamples = 9;
+
     QVector< QVector<double> > series;
 
-    for ( int i = 0; i < 10; i++ )
+    for ( int i = 0; i < numSamples; i++ )
     {
         double sign = 1.0;
 #if 0
@@ -115,6 +126,6 @@ void BarChart::setOrientation( int orientation )
 
 void BarChart::exportChart()
 {
-	QwtPlotRenderer renderer;
-	renderer.exportTo( this, "barchart.pdf" );
+    QwtPlotRenderer renderer;
+    renderer.exportTo( this, "barchart.pdf" );
 }
