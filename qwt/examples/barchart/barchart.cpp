@@ -4,11 +4,6 @@
 #include <qwt_plot_barchart.h>
 #include <qwt_plot_layout.h>
 #include <qwt_scale_draw.h>
-#include <qfiledialog.h>
-#include <qimagewriter.h>
-#include <qprintdialog.h>
-#include <qevent.h>
-#include <qfileinfo.h>
 
 BarChart::BarChart( QWidget *parent ):
     QwtPlot( parent )
@@ -120,45 +115,6 @@ void BarChart::setOrientation( int orientation )
 
 void BarChart::exportChart()
 {
-#ifndef QT_NO_PRINTER
-    QString fileName = "barchart.pdf";
-#else
-    QString fileName = "barchart.png";
-#endif
-
-#ifndef QT_NO_FILEDIALOG
-    const QList<QByteArray> imageFormats =
-        QImageWriter::supportedImageFormats();
-
-    QStringList filter;
-    filter += "PDF Documents (*.pdf)";
-#ifndef QWT_NO_SVG
-    filter += "SVG Documents (*.svg)";
-#endif
-    filter += "Postscript Documents (*.ps)";
-
-    if ( imageFormats.size() > 0 )
-    {
-        QString imageFilter( "Images (" );
-        for ( int i = 0; i < imageFormats.size(); i++ )
-        {
-            if ( i > 0 )
-                imageFilter += " ";
-            imageFilter += "*.";
-            imageFilter += imageFormats[i];
-        }
-        imageFilter += ")";
-
-        filter += imageFilter;
-    }
-
-    fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", fileName,
-        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
-#endif
-    if ( !fileName.isEmpty() )
-    {
-        QwtPlotRenderer renderer;
-        renderer.renderDocument( this, fileName, QSizeF( 300, 200 ), 85 );
-    }
+	QwtPlotRenderer renderer;
+	renderer.exportTo( this, "barchart.pdf" );
 }

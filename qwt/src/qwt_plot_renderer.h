@@ -146,6 +146,8 @@ public:
     virtual void renderLegend( 
         const QwtPlot *, QPainter *, const QRectF & ) const;
 
+    bool exportTo( QwtPlot *, const QString &documentName );
+
 protected:
     void buildCanvasMaps( const QwtPlot *,
         const QRectF &, QwtScaleMap maps[] ) const;
