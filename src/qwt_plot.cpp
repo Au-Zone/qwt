@@ -483,18 +483,11 @@ void QwtPlot::updateLayout()
     d_data->canvas->setGeometry( canvasRect );
 }
 
-void QwtPlot::updateCanvasMargins()
+void QwtPlot::getCanvasMarginsHint(
+    const QwtScaleMap maps[], const QRectF &canvasRect,
+    double &left, double &top, double &right, double &bottom) const
 {
-    double margins[axisCnt];
-    QwtScaleMap maps[axisCnt];
-
-    for ( int axisId = 0; axisId < axisCnt; axisId++ )
-    {
-        maps[axisId] = canvasMap( axisId );
-        margins[axisId] = -1.0;
-    }
-
-    const QRectF canvasRect = canvas()->contentsRect();
+	left = top = right = bottom = -1.0;
 
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
@@ -503,16 +496,29 @@ void QwtPlot::updateCanvasMargins()
         const QwtPlotItem *item = *it;
         if ( item->testItemAttribute( QwtPlotItem::Margins ) )
         {
-            double m[4];
-            item->getCanvasMarginHint( 
+            double m[ QwtPlot::axisCnt ];
+            item->getCanvasMarginHint(
                 maps[ item->xAxis() ], maps[ item->yAxis() ],
                 canvasRect, m[yLeft], m[xTop], m[yRight], m[xBottom] );
 
-            for ( int i = 0; i < 4; i++ )
-                margins[i] = qMax( margins[i], m[i] );
+            left = qMax( left, m[yLeft] );
+            top = qMax( top, m[xTop] );
+            right = qMax( right, m[yRight] );
+            bottom = qMax( bottom, m[xBottom] );
         }
     }
+}
 
+void QwtPlot::updateCanvasMargins()
+{
+    QwtScaleMap maps[axisCnt];
+    for ( int axisId = 0; axisId < axisCnt; axisId++ )
+        maps[axisId] = canvasMap( axisId );
+
+    double margins[axisCnt];
+	getCanvasMarginsHint( maps, canvas()->contentsRect(),
+		margins[yLeft], margins[xTop], margins[yRight], margins[xBottom] );
+	
     bool doUpdate = false;
     for ( int axisId = 0; axisId < axisCnt; axisId++ )
     {

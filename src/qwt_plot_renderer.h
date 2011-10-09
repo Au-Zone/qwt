@@ -152,6 +152,9 @@ protected:
     void buildCanvasMaps( const QwtPlot *,
         const QRectF &, QwtScaleMap maps[] ) const;
 
+    bool updateCanvasMargins( QwtPlot *,
+		const QRectF &, const QwtScaleMap maps[] ) const;
+
 private:
     class PrivateData;
     PrivateData *d_data;
