@@ -232,8 +232,12 @@ public:
     virtual void updateLayout();
     virtual void drawCanvas( QPainter * );
 
-    virtual void updateAxes();
-    virtual void updateCanvasMargins();
+    void updateAxes();
+    void updateCanvasMargins();
+
+    virtual void getCanvasMarginsHint( 
+		const QwtScaleMap maps[], const QRectF &canvasRect,
+        double &left, double &top, double &right, double &bottom) const;
 
     virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
