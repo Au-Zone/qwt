@@ -9,8 +9,6 @@
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_canvas.h>
-#include <qfiledialog.h>
-#include <qimagewriter.h>
 
 class RasterData: public QwtMatrixRasterData
 {
@@ -98,43 +96,8 @@ Plot::Plot( QWidget *parent ):
 
 void Plot::exportPlot()
 {
-    QString fileName = "rasterview.pdf";
-
-#ifndef QT_NO_FILEDIALOG
-    const QList<QByteArray> imageFormats =
-        QImageWriter::supportedImageFormats();
-
-    QStringList filter;
-    filter += "PDF Documents (*.pdf)";
-#ifndef QWT_NO_SVG
-    filter += "SVG Documents (*.svg)";
-#endif
-    filter += "Postscript Documents (*.ps)";
-
-    if ( imageFormats.size() > 0 )
-    {
-        QString imageFilter( "Images (" );
-        for ( int i = 0; i < imageFormats.size(); i++ )
-        {
-            if ( i > 0 )
-                imageFilter += " ";
-            imageFilter += "*.";
-            imageFilter += imageFormats[i];
-        }
-        imageFilter += ")";
-
-        filter += imageFilter;
-    }
-
-    fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", fileName,
-        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
-#endif
-    if ( !fileName.isEmpty() )
-    {
-        QwtPlotRenderer renderer;
-        renderer.renderDocument( this, fileName, QSizeF( 300, 200 ), 85 );
-    }
+    QwtPlotRenderer renderer;
+    renderer.exportTo( this, "rasterview.pdf" );
 }
 
 void Plot::setResampleMode( int mode )

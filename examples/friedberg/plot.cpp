@@ -15,10 +15,6 @@
 #include <qwt_scale_draw.h>
 #include <qwt_plot_renderer.h>
 #include <qdatetime.h>
-#include <qfiledialog.h>
-#include <qimagewriter.h>
-#include <qprintdialog.h>
-#include <qfileinfo.h>
 
 class Grid: public QwtPlotGrid
 {
@@ -207,47 +203,8 @@ void Plot::setMode( int style )
 
 void Plot::exportPlot()
 {
-#ifndef QT_NO_PRINTER
-    QString fileName = "friedberg.pdf";
-#else
-    QString fileName = "friedberg.png";
-#endif
+    QwtPlotRenderer renderer;
+    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
 
-#ifndef QT_NO_FILEDIALOG
-    const QList<QByteArray> imageFormats =
-        QImageWriter::supportedImageFormats();
-
-    QStringList filter;
-    filter += "PDF Documents (*.pdf)";
-#ifndef QWT_NO_SVG
-    filter += "SVG Documents (*.svg)";
-#endif
-    filter += "Postscript Documents (*.ps)";
-
-    if ( imageFormats.size() > 0 )
-    {
-        QString imageFilter( "Images (" );
-        for ( int i = 0; i < imageFormats.size(); i++ )
-        {
-            if ( i > 0 )
-                imageFilter += " ";
-            imageFilter += "*.";
-            imageFilter += imageFormats[i];
-        }
-        imageFilter += ")";
-
-        filter += imageFilter;
-    }
-
-    fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", fileName,
-        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
-#endif
-    if ( !fileName.isEmpty() )
-    {
-        QwtPlotRenderer renderer;
-        renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
-
-        renderer.renderDocument( this, fileName, QSizeF( 300, 200 ), 85 );
-    }
+    renderer.exportTo( this, "friedberg.pdf" );
 }

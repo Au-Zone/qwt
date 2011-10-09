@@ -24,10 +24,12 @@
 #include <qpaintengine.h>
 #include <qtransform.h>
 #include <qprinter.h>
+#include <qprintdialog.h>
+#include <qfiledialog.h>
+#include <qfileinfo.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qimagewriter.h>
-#include <qfileinfo.h>
 #ifndef QWT_NO_SVG
 #ifdef QT_SVG_LIB
 #include <qsvggenerator.h>
@@ -864,3 +866,68 @@ void QwtPlotRenderer::buildCanvasMaps( const QwtPlot *plot,
         maps[axisId].setPaintInterval( from, to );
     }
 }
+
+/*!
+   \brief Execute a file dialog and render the plot to the selected file
+
+   The document will be rendered in 85dpi for a size 30x20cm
+
+   \param plot Plot widget
+   \param documentName Default document name
+
+   \note exportTo() is handy for testing, but usually an application
+         wants to configure the export individually 
+         using renderDocument() or even more low level methods
+         of QwtPlotRenderer.
+*/
+bool QwtPlotRenderer::exportTo( QwtPlot *plot, const QString &documentName )
+{       
+    if ( plot == NULL )
+        return false;
+    
+    QString fileName = documentName;
+
+    // What about translation 
+
+#ifndef QT_NO_FILEDIALOG
+    const QList<QByteArray> imageFormats =
+        QImageWriter::supportedImageFormats();
+        
+    QStringList filter;
+#ifndef QT_NO_PRINTER
+    filter += QString( "PDF " ) + tr( "Documents" ) + " (*.pdf)";
+#endif
+#ifndef QWT_NO_SVG 
+    filter += QString( "SVG " ) + tr( "Documents" ) + " (*.svg)";
+#endif
+#ifndef QT_NO_PRINTER
+    filter += QString( "Postscript " ) + tr( "Documents" ) + " (*.ps)";
+#endif
+    
+    if ( imageFormats.size() > 0 )
+    {
+        QString imageFilter( tr( "Images" ) );
+        imageFilter += " (";
+        for ( int i = 0; i < imageFormats.size(); i++ )
+        {
+            if ( i > 0 )
+                imageFilter += " ";
+            imageFilter += "*."; 
+            imageFilter += imageFormats[i];
+        }   
+        imageFilter += ")";
+        
+        filter += imageFilter;
+    }   
+    
+    fileName = QFileDialog::getSaveFileName(
+        NULL, tr( "Export File Name" ), fileName,
+        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
+#endif  
+    if ( fileName.isEmpty() )
+        return false;
+
+    renderDocument( plot, fileName, QSizeF( 300, 200 ), 85 );
+
+    return true;
+}   

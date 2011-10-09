@@ -7,10 +7,7 @@
 #include <qprinter.h>
 #include <qpicture.h>
 #include <qpainter.h>
-#include <qfiledialog.h>
-#include <qimagewriter.h>
 #include <qprintdialog.h>
-#include <qfileinfo.h>
 #include <qwt_counter.h>
 #include <qwt_picker_machine.h>
 #include <qwt_plot_zoomer.h>
@@ -180,53 +177,13 @@ void MainWindow::print()
 
 void MainWindow::exportDocument()
 {
-#ifndef QT_NO_PRINTER
-    QString fileName = "bode.pdf";
-#else
-    QString fileName = "bode.png";
-#endif
+    QwtPlotRenderer renderer;
 
-#ifndef QT_NO_FILEDIALOG
-    const QList<QByteArray> imageFormats =
-        QImageWriter::supportedImageFormats();
+    // flags to make the document look like the widget
+    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
+    renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
 
-    QStringList filter;
-    filter += "PDF Documents (*.pdf)";
-#ifndef QWT_NO_SVG
-    filter += "SVG Documents (*.svg)";
-#endif
-    filter += "Postscript Documents (*.ps)";
-
-    if ( imageFormats.size() > 0 )
-    {
-        QString imageFilter( "Images (" );
-        for ( int i = 0; i < imageFormats.size(); i++ )
-        {
-            if ( i > 0 )
-                imageFilter += " ";
-            imageFilter += "*.";
-            imageFilter += imageFormats[i];
-        }
-        imageFilter += ")";
-
-        filter += imageFilter;
-    }
-
-    fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", fileName,
-        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
-#endif
-
-    if ( !fileName.isEmpty() )
-    {
-        QwtPlotRenderer renderer;
-
-        // flags to make the document look like the widget
-        renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
-        renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
-
-        renderer.renderDocument( d_plot, fileName, QSizeF( 300, 200 ), 85 );
-    }
+    renderer.exportTo( d_plot, "bode.pdf" );
 }
 
 void MainWindow::enableZoomMode( bool on )

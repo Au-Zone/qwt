@@ -9,10 +9,6 @@
 #include <qwt_column_symbol.h>
 #include <qwt_series_data.h>
 #include <qpen.h>
-#include <qfiledialog.h>
-#include <qimagewriter.h>
-#include <qprintdialog.h>
-#include <qfileinfo.h>
 #include <stdlib.h>
 
 class Histogram: public QwtPlotHistogram
@@ -121,47 +117,8 @@ void TVPlot::populate()
 
 void TVPlot::exportPlot()
 {
-#ifndef QT_NO_PRINTER
-    QString fileName = "tvplot.pdf";
-#else
-    QString fileName = "tvplot.png";
-#endif
-
-#ifndef QT_NO_FILEDIALOG
-    const QList<QByteArray> imageFormats =
-        QImageWriter::supportedImageFormats();
-
-    QStringList filter;
-    filter += "PDF Documents (*.pdf)";
-#ifndef QWT_NO_SVG
-    filter += "SVG Documents (*.svg)";
-#endif
-    filter += "Postscript Documents (*.ps)";
-
-    if ( imageFormats.size() > 0 )
-    {
-        QString imageFilter( "Images (" );
-        for ( int i = 0; i < imageFormats.size(); i++ )
-        {
-            if ( i > 0 )
-                imageFilter += " ";
-            imageFilter += "*.";
-            imageFilter += imageFormats[i];
-        }
-        imageFilter += ")";
-
-        filter += imageFilter;
-    }
-
-    fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", fileName,
-        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
-#endif
-    if ( !fileName.isEmpty() )
-    {
-        QwtPlotRenderer renderer;
-        renderer.renderDocument( this, fileName, QSizeF( 300, 200 ), 85 );
-    }
+    QwtPlotRenderer renderer;
+    renderer.exportTo( this, "tvplot.pdf" );
 }
 
 void TVPlot::setMode( int mode )

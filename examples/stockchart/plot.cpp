@@ -7,10 +7,6 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_legend_item.h>
-#include <qfiledialog.h>
-#include <qimagewriter.h>
-#include <qprintdialog.h>
-#include <qfileinfo.h>
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
@@ -118,47 +114,7 @@ void Plot::showCurve( QwtPlotItem *item, bool on )
 
 void Plot::exportPlot()
 {
-#ifndef QT_NO_PRINTER
-    QString fileName = "stockchart.pdf";
-#else
-    QString fileName = "stockchart.png";
-#endif
-
-#ifndef QT_NO_FILEDIALOG
-    const QList<QByteArray> imageFormats =
-        QImageWriter::supportedImageFormats();
-
-    QStringList filter;
-    filter += "PDF Documents (*.pdf)";
-#ifndef QWT_NO_SVG
-    filter += "SVG Documents (*.svg)";
-#endif
-    filter += "Postscript Documents (*.ps)";
-
-    if ( imageFormats.size() > 0 )
-    {
-        QString imageFilter( "Images (" );
-        for ( int i = 0; i < imageFormats.size(); i++ )
-        {
-            if ( i > 0 )
-                imageFilter += " ";
-            imageFilter += "*.";
-            imageFilter += imageFormats[i];
-        }
-        imageFilter += ")";
-
-        filter += imageFilter;
-    }
-
-    fileName = QFileDialog::getSaveFileName(
-        this, "Export File Name", fileName,
-        filter.join( ";;" ), NULL, QFileDialog::DontConfirmOverwrite );
-#endif
-    if ( !fileName.isEmpty() )
-    {
-        QwtPlotRenderer renderer;
-        renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
-
-        renderer.renderDocument( this, fileName, QSizeF( 300, 200 ), 85 );
-    }
+    QwtPlotRenderer renderer;
+    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
+    renderer.exportTo( this, "stockchart.pdf" );
 }
