@@ -15,6 +15,7 @@
 #include "qwt_series_data.h"
 
 class QwtColumnRect;
+class QwtColumnSymbol;
 
 class QWT_EXPORT QwtPlotBarChart: public QwtPlotSeriesItem<QwtSetSample>
 {
@@ -84,6 +85,10 @@ public:
     void setStyle( ChartStyle style );
     ChartStyle style() const;
 
+    void setSymbol( QwtColumnSymbol * );
+    const QwtColumnSymbol *symbol() const;
+
+
     void setLayoutPolicy( LayoutPolicy );
     LayoutPolicy layoutPolicy() const;
 
@@ -104,8 +109,8 @@ public:
     virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
 
     virtual void getCanvasMarginHint( 
-		const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-		const QRectF &canvasRect,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        const QRectF &canvasRect,
         double &left, double &top, double &right, double &bottom) const;
 
 protected:

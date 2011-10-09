@@ -49,7 +49,8 @@ public:
         layoutPolicy( QwtPlotBarChart::AutoAdjustSamples ),
         layoutHint( 0.5 ),
         spacing( 5 ),
-        baseline( 0.0 )
+        baseline( 0.0 ),
+        symbol( NULL )
     {
     }
 
@@ -59,6 +60,8 @@ public:
     int spacing;
     double baseline;
     ChartAttributes chartAttributes;
+
+    QwtColumnSymbol *symbol;
 };
 
 QwtPlotBarChart::QwtPlotBarChart( const QwtText &title ):
@@ -136,6 +139,25 @@ void QwtPlotBarChart::setSamples( const QVector<double> &values )
 #endif
 
     itemChanged();
+}
+
+void QwtPlotBarChart::setSymbol( QwtColumnSymbol *symbol )
+{
+    if ( symbol != d_data->symbol )
+    {
+        delete d_data->symbol;
+        d_data->symbol = symbol;
+        itemChanged();
+    }
+}
+
+/*!
+  \return Current symbol or NULL, when no symbol has been assigned
+  \sa setSymbol()
+*/
+const QwtColumnSymbol *QwtPlotBarChart::symbol() const
+{
+    return d_data->symbol;
 }
 
 void QwtPlotBarChart::setStyle( ChartStyle style )
@@ -367,40 +389,28 @@ void QwtPlotBarChart::drawGroupedBars( QPainter *painter,
     if ( numBars == 0 )
         return;
 
-    const bool doAlign = QwtPainter::roundingAlignment( painter );
-
     if ( orientation() == Qt::Vertical )
     {
         const double barWidth = sampleWidth / numBars;
 
-        double y1 = yMap.transform( d_data->baseline );
-        if ( doAlign )
-            y1 = qRound( y1 );
-
-        double x0 = xMap.transform( sample.value ) - 0.5 * sampleWidth;
+        const double y1 = yMap.transform( d_data->baseline );
+        const double x0 = xMap.transform( sample.value ) - 0.5 * sampleWidth;
 
         for ( int i = 0; i < numBars; i++ )
         {
-            double x1 = x0 + i * barWidth;
-            double x2 = x1 + barWidth;
+            const double x1 = x0 + i * barWidth;
+            const double x2 = x1 + barWidth;
 
-            double y2 = yMap.transform( sample.set[i] );
+            const double y2 = yMap.transform( sample.set[i] );
 
             QwtColumnRect bar;
             bar.direction = ( y1 < y2 ) ?
                 QwtColumnRect::TopToBottom : QwtColumnRect::BottomToTop;
 
-            if ( x1 > x2 )
-                qSwap( x1, x2 );
+            bar.hInterval = QwtInterval( x1, x2 ).normalized();
+            if ( i != 0 )
+                bar.hInterval.setBorderFlags( QwtInterval::ExcludeMinimum );
 
-            if ( doAlign )
-            {
-                x1 = qCeil( x1 );
-                x2 = qFloor( x2 );
-                y2 = qRound( y2 );
-            }
-
-            bar.hInterval = QwtInterval( x1, x2 );
             bar.vInterval = QwtInterval( y1, y2 ).normalized();
 
             drawBar( painter, index, i, bar );
@@ -416,10 +426,7 @@ void QwtPlotBarChart::drawGroupedBars( QPainter *painter,
     {
         const double barHeight = sampleWidth / numBars;
 
-        double x1 = xMap.transform( d_data->baseline );
-        if ( doAlign )
-            x1 = qRound( x1 );
-
+        const double x1 = xMap.transform( d_data->baseline );
         const double y0 = yMap.transform( sample.value ) - 0.5 * sampleWidth;
 
         for ( int i = 0; i < numBars; i++ )
@@ -433,18 +440,11 @@ void QwtPlotBarChart::drawGroupedBars( QPainter *painter,
             bar.direction = x1 < x2 ?
                 QwtColumnRect::LeftToRight : QwtColumnRect::RightToLeft;
 
-            if ( y1 > y2 )
-                qSwap( y1, y2 );
-
-            if ( doAlign )
-            {
-                x2 = qRound( x2 );
-                y1 = qCeil( y1 );
-                y2 = qFloor( y2 );
-            }
-
             bar.hInterval = QwtInterval( x1, x2 ).normalized();
+
             bar.vInterval = QwtInterval( y1, y2 );
+            if ( i != 0 )
+                bar.vInterval.setBorderFlags( QwtInterval::ExcludeMinimum );
 
             drawBar( painter, index, i, bar );
 
@@ -468,12 +468,12 @@ void QwtPlotBarChart::drawStackedBars( QPainter *painter,
     if ( numBars == 0 )
         return;
 
-    const bool doAlign = QwtPainter::roundingAlignment( painter );
+    QwtInterval::BorderFlag borderFlags = QwtInterval::IncludeBorders;
 
     if ( orientation() == Qt::Vertical )
     {
-        double x1 = xMap.transform( sample.value ) - 0.5 * sampleWidth;
-        double x2 = x1 + sampleWidth;
+        const double x1 = xMap.transform( sample.value ) - 0.5 * sampleWidth;
+        const double x2 = x1 + sampleWidth;
 
         const bool increasing = qwtIsIncreasing( yMap, sample.set );
 
@@ -481,100 +481,79 @@ void QwtPlotBarChart::drawStackedBars( QPainter *painter,
         bar.direction = increasing ?
             QwtColumnRect::TopToBottom : QwtColumnRect::BottomToTop;
 
-        if ( x1 > x2 )
-            qSwap( x1, x2 );
-
-        if ( doAlign )
-        {
-            x1 = qCeil( x1 );
-            x2 = qFloor( x2 );
-        }
-
-        bar.hInterval = QwtInterval( x1, x2 );
+        bar.hInterval = QwtInterval( x1, x2 ).normalized();
 
         double sum = d_data->baseline;
 
-        for ( int i = 0; i < sample.set.size(); i++ )
+        const int numBars = sample.set.size();
+        for ( int i = 0; i < numBars; i++ )
         {
             const double si = sample.set[ i ];
-            if ( si != 0.0 )
+            if ( si == 0.0 )
+                continue;
+
+            const double y1 = yMap.transform( sum );
+            const double y2 = yMap.transform( sum + si );
+
+            if ( ( y2 > y1 ) != increasing )
             {
-                double y1 = yMap.transform( sum );
-                double y2 = yMap.transform( sum + si );
-
-                if ( ( y2 > y1 ) != increasing )
-                {
-                    // stacked bars need to be in the same direction
-                    continue;
-                }
-
-                if ( y1 > y2 )
-                    qSwap( y1, y2 );
-
-                if ( doAlign )
-                {
-                    y1 = qCeil( y1 );
-                    y2 = qFloor( y2 );
-                }
-
-                bar.vInterval = QwtInterval( y1, y2 ).normalized();
-
-                drawBar( painter, index, i, bar );
-
-                sum += si;
+                // stacked bars need to be in the same direction
+                continue;
             }
+
+            bar.vInterval = QwtInterval( y1, y2 ).normalized();
+            bar.vInterval.setBorderFlags( borderFlags );
+
+            drawBar( painter, index, i, bar );
+
+            sum += si;
+
+            if ( increasing )
+                borderFlags = QwtInterval::ExcludeMinimum;
+            else
+                borderFlags = QwtInterval::ExcludeMaximum;
         }
     }
     else
     {
-        double y1 = yMap.transform( sample.value ) - 0.5 * sampleWidth;
-        double y2 = y1 + sampleWidth;
-
-        if ( y1 > y2 )
-            qSwap( y1, y2 );
-
-        if ( doAlign )
-        {
-            y1 = qCeil( y1 );
-            y2 = qFloor( y2 );
-        }
+        const double y1 = yMap.transform( sample.value ) - 0.5 * sampleWidth;
+        const double y2 = y1 + sampleWidth;
 
         const bool increasing = qwtIsIncreasing( xMap, sample.set );
 
         QwtColumnRect bar;
         bar.direction = increasing ?
-                        QwtColumnRect::LeftToRight : QwtColumnRect::RightToLeft;
-        bar.vInterval = QwtInterval( y1, y2 );
+            QwtColumnRect::LeftToRight : QwtColumnRect::RightToLeft;
+        bar.vInterval = QwtInterval( y1, y2 ).normalized();
 
         double sum = d_data->baseline;
 
         for ( int i = 0; i < sample.set.size(); i++ )
         {
             const double si = sample.set[ i ];
-            if ( si != 0.0 )
+            if ( si == 0.0 )
+                continue;
+
+            const double x1 = xMap.transform( sum );
+            const double x2 = xMap.transform( sum + si );
+
+            if ( ( x2 > x1 ) != increasing )
             {
-                double x1 = xMap.transform( sum );
-                double x2 = xMap.transform( sum + si );
-                if ( ( x2 > x1 ) != increasing )
-                {
-                    // stacked bars need to be in the same direction
-                    continue;
-                }
-
-                if ( x1 > x2 )
-                    qSwap( x1, x2 );
-
-                if ( doAlign )
-                {
-                    x1 = qCeil( x1 );
-                    x2 = qFloor( x2 );
-                }
-
-                bar.hInterval = QwtInterval( x1, x2 );
-                drawBar( painter, index, i, bar );
-
-                sum += si;
+                // stacked bars need to be in the same direction
+                continue;
             }
+
+            bar.hInterval = QwtInterval( x1, x2 ).normalized();
+            bar.hInterval.setBorderFlags( borderFlags );
+
+            drawBar( painter, index, i, bar );
+
+            sum += si;
+
+            if ( increasing )
+                borderFlags = QwtInterval::ExcludeMinimum;
+            else
+                borderFlags = QwtInterval::ExcludeMaximum;
         }
     }
 }
@@ -589,23 +568,27 @@ void QwtPlotBarChart::drawBar( QPainter *painter,
 
     const int colorIndex = barIndex % ( sizeof( colors ) / sizeof( colors[0] ) );
 
-#if 1
-    QwtColumnSymbol symbol( QwtColumnSymbol::Box );
-#if 0
-    symbol.setLineWidth( 2 );
-    symbol.setFrameStyle( QwtColumnSymbol::Raised );
-#else
-    symbol.setLineWidth( 1 );
-    symbol.setFrameStyle( QwtColumnSymbol::Plain );
-#endif
+    if ( d_data->symbol &&
+        ( d_data->symbol->style() != QwtColumnSymbol::NoStyle ) )
+    {
+        d_data->symbol->setPalette( QPalette( colors[ colorIndex ] ) );
+        d_data->symbol->draw( painter, rect );
+    }
+    else
+    {
+        QRectF r = rect.toRect();
+        if ( QwtPainter::roundingAlignment( painter ) )
+        {
+            r.setLeft( qRound( r.left() ) );
+            r.setRight( qRound( r.right() ) );
+            r.setTop( qRound( r.top() ) );
+            r.setBottom( qRound( r.bottom() ) );
+        }
 
-    symbol.setPalette( QPalette( colors[ colorIndex ] ) );
-    symbol.draw( painter, rect );
-#else
-    painter->setPen( QPen( Qt::black ) );
-    painter->setBrush( colors[ colorIndex ] );
-    painter->drawRect( rect.toRect() );
-#endif
+        painter->setPen( QPen( Qt::black, 1 ) );
+        painter->setBrush( colors[ colorIndex ] );
+        QwtPainter::drawRect( painter, r );
+    }
 }
 
 void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex,
