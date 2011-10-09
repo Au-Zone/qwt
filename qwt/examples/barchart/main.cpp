@@ -23,8 +23,8 @@ MainWindow::MainWindow( QWidget *parent ):
     QToolBar *toolBar = new QToolBar( this );
 
     QComboBox *typeBox = new QComboBox( toolBar );
-    typeBox->addItem( "Stacked" );
     typeBox->addItem( "Grouped" );
+    typeBox->addItem( "Stacked" );
     typeBox->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
 
     QComboBox *orientationBox = new QComboBox( toolBar );
