@@ -397,10 +397,13 @@ QRectF QwtPlotItem::boundingRect() const
     return QRectF( 1.0, 1.0, -2.0, -2.0 ); // invalid
 }
 
-void QwtPlotItem::getCanvasMarginHint( const QSizeF &canvasSize,
+void QwtPlotItem::getCanvasMarginHint( const QwtScaleMap &xMap, 
+    const QwtScaleMap &yMap, const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom ) const
 {
-    Q_UNUSED( canvasSize );
+    Q_UNUSED( xMap );
+    Q_UNUSED( yMap );
+    Q_UNUSED( canvasRect );
 
     // use QMargins, when we don't need to support Qt < 4.6 anymore
     left = top = right = bottom = 0.0;

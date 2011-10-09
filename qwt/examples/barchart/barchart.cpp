@@ -118,18 +118,6 @@ void BarChart::setOrientation( int orientation )
     replot();
 }
 
-bool BarChart::eventFilter( QObject *object, QEvent *event )
-{
-    if ( object == canvas() )
-    {
-        if ( event->type() == QEvent::Resize )
-            updateCanvasMargins();
-    }
-
-    return QwtPlot::eventFilter( object, event );
-}
-
-
 void BarChart::exportChart()
 {
 #ifndef QT_NO_PRINTER

@@ -138,6 +138,8 @@ bool QwtPlot::eventFilter( QObject *object, QEvent *event )
 {
     if ( object == d_data->canvas )
     {
+        if ( event->type() == QEvent::Resize )
+            updateCanvasMargins();
     }
 
     return QFrame::eventFilter( object, event );
@@ -483,13 +485,16 @@ void QwtPlot::updateLayout()
 
 void QwtPlot::updateCanvasMargins()
 {
-    const int axis[4] = {
-        QwtPlot::yLeft, QwtPlot::xTop, QwtPlot::yRight, QwtPlot::xBottom };
+    double margins[axisCnt];
+    QwtScaleMap maps[axisCnt];
 
-    double margins[4];
-    margins[0] = margins[1] = margins[2] = margins[3] = -1.0;
+    for ( int axisId = 0; axisId < axisCnt; axisId++ )
+    {
+        maps[axisId] = canvasMap( axisId );
+        margins[axisId] = -1.0;
+    }
 
-    const QSizeF canvasSize = canvas()->contentsRect().size();
+    const QRectF canvasRect = canvas()->contentsRect();
 
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
@@ -499,7 +504,9 @@ void QwtPlot::updateCanvasMargins()
         if ( item->testItemAttribute( QwtPlotItem::Margins ) )
         {
             double m[4];
-            item->getCanvasMarginHint( canvasSize, m[0], m[1], m[2], m[3] );
+            item->getCanvasMarginHint( 
+                maps[ item->xAxis() ], maps[ item->yAxis() ],
+                canvasRect, m[yLeft], m[xTop], m[yRight], m[xBottom] );
 
             for ( int i = 0; i < 4; i++ )
                 margins[i] = qMax( margins[i], m[i] );
@@ -507,11 +514,12 @@ void QwtPlot::updateCanvasMargins()
     }
 
     bool doUpdate = false;
-    for ( int i = 0; i < 4; i++ )
+    for ( int axisId = 0; axisId < axisCnt; axisId++ )
     {
-        if ( margins[i] >= 0.0 )
+        if ( margins[axisId] >= 0.0 )
         {
-            plotLayout()->setCanvasMargin( qCeil( margins[i] ), axis[i] );
+            const int m = qCeil( margins[axisId] );
+            plotLayout()->setCanvasMargin( m, axisId);
             doUpdate = true;
         }
     }

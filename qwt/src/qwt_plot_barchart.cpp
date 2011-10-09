@@ -668,7 +668,8 @@ double QwtPlotBarChart::sampleWidth( const QwtScaleMap &map,
     return width;
 }
 
-void QwtPlotBarChart::getCanvasMarginHint( const QSizeF &canvasSize,
+void QwtPlotBarChart::getCanvasMarginHint( const QwtScaleMap &xMap, 
+    const QwtScaleMap &yMap, const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom ) const
 {
     const size_t numSamples = d_series->size();
@@ -680,9 +681,9 @@ void QwtPlotBarChart::getCanvasMarginHint( const QSizeF &canvasSize,
         case ScaleSampleToCanvas:
         {
             if ( orientation() == Qt::Vertical )
-                margin = 0.5 * canvasSize.width() * d_data->layoutHint;
+                margin = 0.5 * canvasRect.width() * d_data->layoutHint;
             else
-                margin = 0.5 * canvasSize.height() * d_data->layoutHint;
+                margin = 0.5 * canvasRect.height() * d_data->layoutHint;
 
             break;
         }
@@ -721,13 +722,13 @@ void QwtPlotBarChart::getCanvasMarginHint( const QSizeF &canvasSize,
             QwtScaleMap map;
             if ( orientation() == Qt::Vertical )
             {
-                map = plot()->canvasMap( xAxis() );
-                map.setPaintInterval( 0.0, canvasSize.width() );
+                map = xMap;
+                map.setPaintInterval( 0.0, canvasRect.width() );
             }
             else
             {
-                map = plot()->canvasMap( yAxis() );
-                map.setPaintInterval( 0.0, canvasSize.height() );
+                map = yMap;
+                map.setPaintInterval( 0.0, canvasRect.height() );
             }
 
             const double value = d_series->sample( 0 ).value;
