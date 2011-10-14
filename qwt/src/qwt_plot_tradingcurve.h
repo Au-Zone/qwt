@@ -21,7 +21,8 @@
   QwtPlotTradingCurve supports candlestick or bar ( OHLC ) charts
   that are used in the domain of technical analysis.
 */
-class QWT_EXPORT QwtPlotTradingCurve: public QwtPlotSeriesItem<QwtOHLCSample>
+class QWT_EXPORT QwtPlotTradingCurve: 
+    public QwtPlotSeriesItem, QwtSeriesStore<QwtOHLCSample>
 {
 public:
     /*!

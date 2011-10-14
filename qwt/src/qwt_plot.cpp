@@ -487,7 +487,7 @@ void QwtPlot::getCanvasMarginsHint(
     const QwtScaleMap maps[], const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom) const
 {
-	left = top = right = bottom = -1.0;
+    left = top = right = bottom = -1.0;
 
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin();
@@ -516,9 +516,9 @@ void QwtPlot::updateCanvasMargins()
         maps[axisId] = canvasMap( axisId );
 
     double margins[axisCnt];
-	getCanvasMarginsHint( maps, canvas()->contentsRect(),
-		margins[yLeft], margins[xTop], margins[yRight], margins[xBottom] );
-	
+    getCanvasMarginsHint( maps, canvas()->contentsRect(),
+        margins[yLeft], margins[xTop], margins[yRight], margins[xBottom] );
+    
     bool doUpdate = false;
     for ( int axisId = 0; axisId < axisCnt; axisId++ )
     {

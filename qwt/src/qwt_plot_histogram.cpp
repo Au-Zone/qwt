@@ -17,7 +17,7 @@
 #include <qstring.h>
 #include <qpainter.h>
 
-static inline bool isCombinable( const QwtInterval &d1,
+static inline bool qwtIsCombinable( const QwtInterval &d1,
     const QwtInterval &d2 )
 {
     if ( d1.isValid() && d2.isValid() )
@@ -64,7 +64,7 @@ public:
 */
 
 QwtPlotHistogram::QwtPlotHistogram( const QwtText &title ):
-    QwtPlotSeriesItem<QwtIntervalSample>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -74,7 +74,7 @@ QwtPlotHistogram::QwtPlotHistogram( const QwtText &title ):
   \param title Title of the histogram.
 */
 QwtPlotHistogram::QwtPlotHistogram( const QString &title ):
-    QwtPlotSeriesItem<QwtIntervalSample>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -89,7 +89,7 @@ QwtPlotHistogram::~QwtPlotHistogram()
 void QwtPlotHistogram::init()
 {
     d_data = new PrivateData();
-    d_series = new QwtIntervalSeriesData();
+    setData( new QwtIntervalSeriesData() );
 
     setItemAttribute( QwtPlotItem::AutoScale, true );
     setItemAttribute( QwtPlotItem::Legend, true );
@@ -237,7 +237,7 @@ double QwtPlotHistogram::baseline() const
 */
 QRectF QwtPlotHistogram::boundingRect() const
 {
-    QRectF rect = d_series->boundingRect();
+    QRectF rect = data()->boundingRect();
     if ( !rect.isValid() )
         return rect;
 
@@ -275,9 +275,7 @@ int QwtPlotHistogram::rtti() const
 void QwtPlotHistogram::setSamples(
     const QVector<QwtIntervalSample> &samples )
 {
-    delete d_series;
-    d_series = new QwtIntervalSeriesData( samples );
-    itemChanged();
+    setData( new QwtIntervalSeriesData( samples ) );
 }
 
 /*!
@@ -349,7 +347,7 @@ void QwtPlotHistogram::drawOutline( QPainter *painter,
     QPolygonF polygon;
     for ( int i = from; i <= to; i++ )
     {
-        const QwtIntervalSample sample = d_series->sample( i );
+        const QwtIntervalSample sample = this->sample( i );
 
         if ( !sample.interval.isValid() )
         {
@@ -360,7 +358,7 @@ void QwtPlotHistogram::drawOutline( QPainter *painter,
 
         if ( previous.interval.isValid() )
         {
-            if ( !isCombinable( previous.interval, sample.interval ) )
+            if ( !qwtIsCombinable( previous.interval, sample.interval ) )
                 flushPolygon( painter, v0, polygon );
         }
 
@@ -425,9 +423,11 @@ void QwtPlotHistogram::drawColumns( QPainter *painter,
     painter->setPen( d_data->pen );
     painter->setBrush( d_data->brush );
 
+    const QwtSeriesData<QwtIntervalSample> *series = data();
+
     for ( int i = from; i <= to; i++ )
     {
-        const QwtIntervalSample sample = d_series->sample( i );
+        const QwtIntervalSample sample = series->sample( i );
         if ( !sample.interval.isNull() )
         {
             const QwtColumnRect rect = columnRect( sample, xMap, yMap );
@@ -457,9 +457,11 @@ void QwtPlotHistogram::drawLines( QPainter *painter,
     painter->setPen( d_data->pen );
     painter->setBrush( Qt::NoBrush );
 
+    const QwtSeriesData<QwtIntervalSample> *series = data();
+
     for ( int i = from; i <= to; i++ )
     {
-        const QwtIntervalSample sample = d_series->sample( i );
+        const QwtIntervalSample sample = series->sample( i );
         if ( !sample.interval.isNull() )
         {
             const QwtColumnRect rect = columnRect( sample, xMap, yMap );

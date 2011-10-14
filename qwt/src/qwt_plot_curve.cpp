@@ -81,7 +81,7 @@ public:
   \param title Title of the curve
 */
 QwtPlotCurve::QwtPlotCurve( const QwtText &title ):
-    QwtPlotSeriesItem<QPointF>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -91,7 +91,7 @@ QwtPlotCurve::QwtPlotCurve( const QwtText &title ):
   \param title Title of the curve
 */
 QwtPlotCurve::QwtPlotCurve( const QString &title ):
-    QwtPlotSeriesItem<QPointF>( QwtText( title ) )
+    QwtPlotSeriesItem( QwtText( title ) )
 {
     init();
 }
@@ -109,7 +109,7 @@ void QwtPlotCurve::init()
     setItemAttribute( QwtPlotItem::AutoScale );
 
     d_data = new PrivateData;
-    d_series = new QwtPointSeriesData();
+    setData( new QwtPointSeriesData() );
 
     setZ( 20.0 );
 }
@@ -428,7 +428,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     if ( doIntegers )
     {
         const QPolygon polyline = mapper.toPolygon( 
-            xMap, yMap, d_series, from, to );
+            xMap, yMap, data(), from, to );
 
         if ( d_data->paintAttributes & ClipPolygons )
         {
@@ -445,7 +445,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     else
     {
         QPolygonF polyline = mapper.toPolygonF( xMap, yMap,
-            d_series, from, to );
+            data(), from, to );
 
         if ( doFit )
             polyline = d_data->curveFitter->fitCurve( polyline );
@@ -500,9 +500,11 @@ void QwtPlotCurve::drawSticks( QPainter *painter,
 
     const Qt::Orientation o = orientation();
 
+    const QwtSeriesData<QPointF> *series = data();
+
     for ( int i = from; i <= to; i++ )
     {
-        const QPointF sample = d_series->sample( i );
+        const QPointF sample = series->sample( i );
         double xi = xMap.transform( sample.x() );
         double yi = yMap.transform( sample.y() );
         if ( doAlign )
@@ -565,7 +567,7 @@ void QwtPlotCurve::drawDots( QPainter *painter,
         mapper.setFlag( QwtPointMapper::WeedOutPoints, false );
 
         QPolygonF points = mapper.toPointsF( 
-            xMap, yMap, d_series, from, to );
+            xMap, yMap, data(), from, to );
 
         QwtPainter::drawPoints( painter, points );
         fillCurve( painter, xMap, yMap, canvasRect, points );
@@ -573,15 +575,17 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     else if ( d_data->paintAttributes & ImageBuffer )
     {
         const QImage image = mapper.toImage( xMap, yMap,
-            d_series, from, to, color.rgba() );
+            data(), from, to, color.rgba() );
 
         painter->drawImage( canvasRect.toAlignedRect(), image );
     }
     else if ( d_data->paintAttributes & MinimizeMemory )
     {
+        const QwtSeriesData<QPointF> *series = data();
+
         for ( int i = from; i <= to; i++ )
         {
-            const QPointF sample = d_series->sample( i );
+            const QPointF sample = series->sample( i );
 
             double xi = xMap.transform( sample.x() );
             double yi = yMap.transform( sample.y() );
@@ -600,14 +604,14 @@ void QwtPlotCurve::drawDots( QPainter *painter,
         if ( doAlign && !testRenderHint( QwtPlotItem::RenderFloats ) )
         {
             const QPolygon points = mapper.toPoints(
-                xMap, yMap, d_series, from, to ); 
+                xMap, yMap, data(), from, to ); 
 
             QwtPainter::drawPoints( painter, points );
         }
         else
         {
             const QPolygonF points = mapper.toPointsF( 
-                xMap, yMap, d_series, from, to );
+                xMap, yMap, data(), from, to );
 
             QwtPainter::drawPoints( painter, points );
         }
@@ -642,10 +646,12 @@ void QwtPlotCurve::drawSteps( QPainter *painter,
     if ( d_data->attributes & Inverted )
         inverted = !inverted;
 
+    const QwtSeriesData<QPointF> *series = data();
+
     int i, ip;
     for ( i = from, ip = 0; i <= to; i++, ip += 2 )
     {
-        const QPointF sample = d_series->sample( i );
+        const QPointF sample = series->sample( i );
         double xi = xMap.transform( sample.x() );
         double yi = yMap.transform( sample.y() );
         if ( doAlign )
@@ -891,9 +897,11 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
         symbol.drawSymbol( &p, QPointF( pw2, ph2 ) );
         p.end();
 
+        const QwtSeriesData<QPointF> *series = data();
+
         for ( int i = from; i <= to; i++ )
         {
-            const QPointF sample = d_series->sample( i );
+            const QPointF sample = series->sample( i );
 
             double xi = xMap.transform( sample.x() );
             double yi = yMap.transform( sample.y() );
@@ -927,7 +935,7 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
             const int n = qMin( chunkSize, to - i + 1 );
 
             const QPolygonF points = mapper.toPointsF( xMap, yMap,
-                d_series, i, i + n - 1 );
+                data(), i, i + n - 1 );
 
             if ( points.size() > 0 )
                 symbol.drawSymbols( painter, points );
@@ -986,6 +994,8 @@ int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
     if ( plot() == NULL || numSamples <= 0 )
         return -1;
 
+    const QwtSeriesData<QPointF> *series = data();
+
     const QwtScaleMap xMap = plot()->canvasMap( xAxis() );
     const QwtScaleMap yMap = plot()->canvasMap( yAxis() );
 
@@ -994,7 +1004,7 @@ int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
 
     for ( uint i = 0; i < numSamples; i++ )
     {
-        const QPointF sample = d_series->sample( i );
+        const QPointF sample = series->sample( i );
 
         const double cx = xMap.transform( sample.x() ) - pos.x();
         const double cy = yMap.transform( sample.y() ) - pos.y();
@@ -1144,9 +1154,7 @@ void QwtPlotCurve::drawLegendIdentifier(
 */
 void QwtPlotCurve::setSamples( const QVector<QPointF> &samples )
 {
-    delete d_series;
-    d_series = new QwtPointSeriesData( samples );
-    itemChanged();
+    setData( new QwtPointSeriesData( samples ) );
 }
 
 #ifndef QWT_NO_COMPAT
@@ -1168,9 +1176,7 @@ void QwtPlotCurve::setSamples( const QVector<QPointF> &samples )
 void QwtPlotCurve::setRawSamples( 
     const double *xData, const double *yData, int size )
 {
-    delete d_series;
-    d_series = new QwtCPointerData( xData, yData, size );
-    itemChanged();
+    setData( new QwtCPointerData( xData, yData, size ) );
 }
 
 /*!
@@ -1187,9 +1193,7 @@ void QwtPlotCurve::setRawSamples(
 void QwtPlotCurve::setSamples( 
     const double *xData, const double *yData, int size )
 {
-    delete d_series;
-    d_series = new QwtPointArrayData( xData, yData, size );
-    itemChanged();
+    setData( new QwtPointArrayData( xData, yData, size ) );
 }
 
 /*!
@@ -1203,9 +1207,8 @@ void QwtPlotCurve::setSamples(
 void QwtPlotCurve::setSamples( const QVector<double> &xData,
     const QVector<double> &yData )
 {
-    delete d_series;
-    d_series = new QwtPointArrayData( xData, yData );
-    itemChanged();
+    setData( new QwtPointArrayData( xData, yData ) );
 }
+
 #endif // !QWT_NO_COMPAT
 

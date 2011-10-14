@@ -17,7 +17,8 @@
 class QwtColumnRect;
 class QwtColumnSymbol;
 
-class QWT_EXPORT QwtPlotBarChart: public QwtPlotSeriesItem<QwtSetSample>
+class QWT_EXPORT QwtPlotBarChart: 
+    public QwtPlotSeriesItem, public QwtSeriesStore<QwtSetSample>
 {
 public:
     enum ChartAttribute
