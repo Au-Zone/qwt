@@ -2,7 +2,7 @@
 
 #include <qwt_plot.h>
 
-class QwtPlotBarChart;
+class QwtPlotMultiBarChart;
 
 class BarChart: public QwtPlot
 {
@@ -19,7 +19,7 @@ public Q_SLOTS:
 private:
     void populate();
 
-    QwtPlotBarChart *d_barChartItem;
+    QwtPlotMultiBarChart *d_barChartItem;
 };
 
 #endif

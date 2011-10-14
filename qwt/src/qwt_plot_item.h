@@ -107,6 +107,9 @@ public:
 
         //! For QwtPlotBarChart
         Rtti_PlotBarChart,
+
+        //! For QwtPlotMultiBarChart
+        Rtti_PlotMultiBarChart,
         /*! 
            Values >= Rtti_PlotUserItem are reserved for plot items
            not implemented in the Qwt library.
