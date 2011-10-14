@@ -41,7 +41,7 @@ public:
   \param title Title of the curve
 */
 QwtPlotSpectroCurve::QwtPlotSpectroCurve( const QwtText &title ):
-    QwtPlotSeriesItem<QwtPoint3D>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -51,7 +51,7 @@ QwtPlotSpectroCurve::QwtPlotSpectroCurve( const QwtText &title ):
   \param title Title of the curve
 */
 QwtPlotSpectroCurve::QwtPlotSpectroCurve( const QString &title ):
-    QwtPlotSeriesItem<QwtPoint3D>( QwtText( title ) )
+    QwtPlotSeriesItem( QwtText( title ) )
 {
     init();
 }
@@ -71,7 +71,7 @@ void QwtPlotSpectroCurve::init()
     setItemAttribute( QwtPlotItem::AutoScale );
 
     d_data = new PrivateData;
-    d_series = new QwtPoint3DSeriesData();
+    setData( new QwtPoint3DSeriesData() );
 
     setZ( 20.0 );
 }
@@ -112,9 +112,7 @@ bool QwtPlotSpectroCurve::testPaintAttribute( PaintAttribute attribute ) const
 */
 void QwtPlotSpectroCurve::setSamples( const QVector<QwtPoint3D> &samples )
 {
-    delete d_series;
-    d_series = new QwtPoint3DSeriesData( samples );
-    itemChanged();
+    setData( new QwtPoint3DSeriesData( samples ) );
 }
 
 /*!
@@ -259,9 +257,11 @@ void QwtPlotSpectroCurve::drawDots( QPainter *painter,
     if ( format == QwtColorMap::Indexed )
         d_data->colorTable = d_data->colorMap->colorTable( d_data->colorRange );
 
+    const QwtSeriesData<QwtPoint3D> *series = data();
+
     for ( int i = from; i <= to; i++ )
     {
-        const QwtPoint3D sample = d_series->sample( i );
+        const QwtPoint3D sample = series->sample( i );
 
         double xi = xMap.transform( sample.x() );
         double yi = yMap.transform( sample.y() );

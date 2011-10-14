@@ -135,6 +135,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_sampling_thread.h \
         qwt_samples.h \
         qwt_series_data.h \
+        qwt_series_store.h \
         qwt_point_data.h \
         qwt_scale_widget.h 
 

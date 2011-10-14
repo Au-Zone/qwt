@@ -411,17 +411,17 @@ void QwtPlotRenderer::render( QwtPlot *plot,
         double( painter->device()->logicalDpiX() ) / plot->logicalDpiX(),
         double( painter->device()->logicalDpiY() ) / plot->logicalDpiY() );
 
-	QwtPlotLayout *layout = plot->plotLayout();
+    QwtPlotLayout *layout = plot->plotLayout();
 
     painter->save();
 
     int baseLineDists[QwtPlot::axisCnt];
-	int canvasMargins[QwtPlot::axisCnt];
+    int canvasMargins[QwtPlot::axisCnt];
 
     for ( int axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
     {
-    	if ( d_data->layoutFlags & FrameWithScales )
-    	{
+        if ( d_data->layoutFlags & FrameWithScales )
+        {
             QwtScaleWidget *scaleWidget = plot->axisWidget( axisId );
             if ( scaleWidget )
             {
@@ -430,7 +430,7 @@ void QwtPlotRenderer::render( QwtPlot *plot,
             }
         }
 
-		canvasMargins[ axisId ] = layout->canvasMargin( axisId );
+        canvasMargins[ axisId ] = layout->canvasMargin( axisId );
     }
 
     // Calculate the layout for the document.
@@ -454,14 +454,14 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 
     QwtScaleMap maps[QwtPlot::axisCnt];
     buildCanvasMaps( plot, layout->canvasRect(), maps );
-	if ( updateCanvasMargins( plot, layout->canvasRect(), maps ) )
-	{
-		// recalculate maps and layout, when the margins
-		// have been changed
+    if ( updateCanvasMargins( plot, layout->canvasRect(), maps ) )
+    {
+        // recalculate maps and layout, when the margins
+        // have been changed
 
-		layout->activate( plot, layoutRect, layoutOptions );
-		buildCanvasMaps( plot, layout->canvasRect(), maps );
-	}
+        layout->activate( plot, layoutRect, layoutOptions );
+        buildCanvasMaps( plot, layout->canvasRect(), maps );
+    }
 
     painter->setWorldTransform( transform, true );
     renderCanvas( plot, painter, layout->canvasRect(), maps );
@@ -504,14 +504,14 @@ void QwtPlotRenderer::render( QwtPlot *plot,
     // restore all setting to their original attributes.
     for ( int axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
     {
-    	if ( d_data->layoutFlags & FrameWithScales )
+        if ( d_data->layoutFlags & FrameWithScales )
         {
             QwtScaleWidget *scaleWidget = plot->axisWidget( axisId );
             if ( scaleWidget  )
                 scaleWidget->setMargin( baseLineDists[axisId] );
         }
 
-		layout->setCanvasMargin( canvasMargins[axisId] );
+        layout->setCanvasMargin( canvasMargins[axisId] );
     }
 
     layout->invalidate();
@@ -886,7 +886,7 @@ bool QwtPlotRenderer::updateCanvasMargins( QwtPlot *plot,
     double margins[QwtPlot::axisCnt];
     plot->getCanvasMarginsHint( maps, canvasRect,
         margins[QwtPlot::yLeft], margins[QwtPlot::xTop], 
-		margins[QwtPlot::yRight], margins[QwtPlot::xBottom] );
+        margins[QwtPlot::yRight], margins[QwtPlot::xBottom] );
 
     bool marginsChanged = false;
     for ( int axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
@@ -899,7 +899,7 @@ bool QwtPlotRenderer::updateCanvasMargins( QwtPlot *plot,
         }
     }
 
-	return marginsChanged;
+    return marginsChanged;
 }
 
 /*!

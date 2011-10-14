@@ -153,7 +153,7 @@ protected:
         const QRectF &, QwtScaleMap maps[] ) const;
 
     bool updateCanvasMargins( QwtPlot *,
-		const QRectF &, const QwtScaleMap maps[] ) const;
+        const QRectF &, const QwtScaleMap maps[] ) const;
 
 private:
     class PrivateData;

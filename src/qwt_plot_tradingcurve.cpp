@@ -111,7 +111,7 @@ public:
   \param title Title of the curve
 */
 QwtPlotTradingCurve::QwtPlotTradingCurve( const QwtText &title ):
-    QwtPlotSeriesItem<QwtOHLCSample>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -121,7 +121,7 @@ QwtPlotTradingCurve::QwtPlotTradingCurve( const QwtText &title ):
   \param title Title of the curve
 */
 QwtPlotTradingCurve::QwtPlotTradingCurve( const QString &title ):
-    QwtPlotSeriesItem<QwtOHLCSample>( QwtText( title ) )
+    QwtPlotSeriesItem( QwtText( title ) )
 {
     init();
 }
@@ -139,7 +139,7 @@ void QwtPlotTradingCurve::init()
     setItemAttribute( QwtPlotItem::AutoScale, true );
 
     d_data = new PrivateData;
-    d_series = new QwtTradingChartData();
+    setData( new QwtTradingChartData() );
 
     setZ( 19.0 );
 }
@@ -185,9 +185,7 @@ bool QwtPlotTradingCurve::testPaintAttribute(
 void QwtPlotTradingCurve::setSamples(
     const QVector<QwtOHLCSample> &samples )
 {
-    delete d_series;
-    d_series = new QwtTradingChartData( samples );
-    itemChanged();
+    setData( new QwtTradingChartData( samples ) );
 }
 
 /*!
@@ -315,7 +313,7 @@ double QwtPlotTradingCurve::symbolWidth() const
 */
 QRectF QwtPlotTradingCurve::boundingRect() const
 {
-    QRectF rect = QwtPlotSeriesItem<QwtOHLCSample>::boundingRect();
+    QRectF rect = QwtPlotSeriesItem::boundingRect();
     if ( rect.isValid() && orientation() == Qt::Vertical )
         rect.setRect( rect.y(), rect.x(), rect.height(), rect.width() );
 

@@ -65,13 +65,13 @@ public:
 };
 
 QwtPlotBarChart::QwtPlotBarChart( const QwtText &title ):
-    QwtPlotSeriesItem<QwtSetSample>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
 
 QwtPlotBarChart::QwtPlotBarChart( const QString &title ):
-    QwtPlotSeriesItem<QwtSetSample>( QwtText( title ) )
+    QwtPlotSeriesItem( QwtText( title ) )
 {
     init();
 }
@@ -88,7 +88,7 @@ void QwtPlotBarChart::init()
     setItemAttribute( QwtPlotItem::Margins, true );
 
     d_data = new PrivateData;
-    d_series = new QwtSetSeriesData();
+    setData( new QwtSetSeriesData() );
 
     setZ( 19.0 );
 }
@@ -102,9 +102,7 @@ int QwtPlotBarChart::rtti() const
 void QwtPlotBarChart::setSamples(
     const QVector<QwtSetSample> &samples )
 {
-    delete d_series;
-    d_series = new QwtSetSeriesData( samples );
-    itemChanged();
+    setData( new QwtSetSeriesData( samples ) );
 }
 
 void QwtPlotBarChart::setSamples(
@@ -115,11 +113,8 @@ void QwtPlotBarChart::setSamples(
     for ( int i = 0; i < samples.size(); i++ )
         s += QwtSetSample( i, samples[ i ] );
 
-    delete d_series;
-    d_series = new QwtSetSeriesData( s );
+    setData( new QwtSetSeriesData( s ) );
 #endif
-
-    itemChanged();
 }
 
 void QwtPlotBarChart::setSamples( const QVector<double> &values )
@@ -134,11 +129,8 @@ void QwtPlotBarChart::setSamples( const QVector<double> &values )
         s += QwtSetSample( i, set );
     }
 
-    delete d_series;
-    d_series = new QwtSetSeriesData( s );
+    setData( new QwtSetSeriesData( s ) );
 #endif
-
-    itemChanged();
 }
 
 void QwtPlotBarChart::setSymbol( QwtColumnSymbol *symbol )
@@ -247,16 +239,16 @@ double QwtPlotBarChart::baseline() const
 
 QRectF QwtPlotBarChart::boundingRect() const
 {
-    const size_t numSamples = d_series->size();
+    const size_t numSamples = dataSize();
 
     if ( numSamples == 0 )
-        return QwtPlotSeriesItem<QwtSetSample>::boundingRect();
+        return QwtPlotSeriesItem::boundingRect();
 
     QRectF rect;
 
     if ( d_data->style != QwtPlotBarChart::Stacked )
     {
-        rect = QwtPlotSeriesItem<QwtSetSample>::boundingRect();
+        rect = QwtPlotSeriesItem::boundingRect();
         if ( rect.bottom() < d_data->baseline )
             rect.setBottom( d_data->baseline );
         if ( rect.top() > d_data->baseline )
@@ -268,9 +260,11 @@ QRectF QwtPlotBarChart::boundingRect() const
 
         yMin = yMax = d_data->baseline;
 
+        const QwtSeriesData<QwtSetSample> *series = data();
+
         for ( size_t i = 0; i < numSamples; i++ )
         {
-            const QwtSetSample sample = d_series->sample( i );
+            const QwtSetSample sample = series->sample( i );
             if ( i == 0 )
             {
                 xMin = xMax = sample.value;
@@ -322,7 +316,7 @@ void QwtPlotBarChart::drawSeries( QPainter *painter,
         return;
 
 
-    const QRectF br = d_series->boundingRect();
+    const QRectF br = data()->boundingRect();
     const QwtInterval interval( br.left(), br.right() );
 
     painter->save();
@@ -659,7 +653,7 @@ void QwtPlotBarChart::getCanvasMarginHint( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap, const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom ) const
 {
-    const size_t numSamples = d_series->size();
+    const size_t numSamples = dataSize();
 
     double margin = -1.0;
 
@@ -701,7 +695,7 @@ void QwtPlotBarChart::getCanvasMarginHint( const QwtScaleMap &xMap,
 
                 if ( numSamples > 1 )
                 {
-                    const QRectF br = d_series->boundingRect();
+                    const QRectF br = data()->boundingRect();
                     sampleWidthS = qAbs( br.width() / ( numSamples - 1 ) );
                 }
             }
@@ -718,7 +712,7 @@ void QwtPlotBarChart::getCanvasMarginHint( const QwtScaleMap &xMap,
                 map.setPaintInterval( 0.0, canvasRect.height() );
             }
 
-            const double value = d_series->sample( 0 ).value;
+            const double value = sample( 0 ).value;
 
             double sampleWidthP;
 

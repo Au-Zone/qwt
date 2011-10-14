@@ -236,7 +236,7 @@ public:
     void updateCanvasMargins();
 
     virtual void getCanvasMarginsHint( 
-		const QwtScaleMap maps[], const QRectF &canvasRect,
+        const QwtScaleMap maps[], const QRectF &canvasRect,
         double &left, double &top, double &right, double &bottom) const;
 
     virtual bool event( QEvent * );

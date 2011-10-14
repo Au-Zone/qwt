@@ -75,7 +75,7 @@ public:
   \param title Title of the curve
 */
 QwtPlotIntervalCurve::QwtPlotIntervalCurve( const QwtText &title ):
-    QwtPlotSeriesItem<QwtIntervalSample>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -85,7 +85,7 @@ QwtPlotIntervalCurve::QwtPlotIntervalCurve( const QwtText &title ):
   \param title Title of the curve
 */
 QwtPlotIntervalCurve::QwtPlotIntervalCurve( const QString &title ):
-    QwtPlotSeriesItem<QwtIntervalSample>( QwtText( title ) )
+    QwtPlotSeriesItem( QwtText( title ) )
 {
     init();
 }
@@ -103,7 +103,7 @@ void QwtPlotIntervalCurve::init()
     setItemAttribute( QwtPlotItem::AutoScale, true );
 
     d_data = new PrivateData;
-    d_series = new QwtIntervalSeriesData();
+    setData( new QwtIntervalSeriesData() );
 
     setZ( 19.0 );
 }
@@ -147,9 +147,7 @@ bool QwtPlotIntervalCurve::testPaintAttribute(
 void QwtPlotIntervalCurve::setSamples(
     const QVector<QwtIntervalSample> &samples )
 {
-    delete d_series;
-    d_series = new QwtIntervalSeriesData( samples );
-    itemChanged();
+    setData( new QwtIntervalSeriesData( samples ) );
 }
 
 /*!
@@ -256,7 +254,7 @@ const QBrush& QwtPlotIntervalCurve::brush() const
 */
 QRectF QwtPlotIntervalCurve::boundingRect() const
 {
-    QRectF rect = QwtPlotSeriesItem<QwtIntervalSample>::boundingRect();
+    QRectF rect = QwtPlotSeriesItem::boundingRect();
     if ( rect.isValid() && orientation() == Qt::Vertical )
         rect.setRect( rect.y(), rect.x(), rect.height(), rect.width() );
 

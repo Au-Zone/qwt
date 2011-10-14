@@ -52,7 +52,8 @@ class QwtCurveFitter;
 
   \sa QwtPointSeriesData, QwtSymbol, QwtScaleMap
 */
-class QWT_EXPORT QwtPlotCurve: public QwtPlotSeriesItem<QPointF>
+class QWT_EXPORT QwtPlotCurve: 
+    public QwtPlotSeriesItem, public QwtSeriesStore<QPointF>
 {
 public:
     /*!

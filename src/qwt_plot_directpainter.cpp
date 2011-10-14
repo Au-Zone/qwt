@@ -19,7 +19,7 @@
 
 static inline void renderItem( 
     QPainter *painter, const QRect &canvasRect,
-    QwtPlotAbstractSeriesItem *seriesItem, int from, int to )
+    QwtPlotSeriesItem *seriesItem, int from, int to )
 {
     // A minor performance improvement is possible
     // with caching the maps. TODO ...
@@ -50,7 +50,7 @@ public:
 
     QPainter painter;
 
-    QwtPlotAbstractSeriesItem *seriesItem;
+    QwtPlotSeriesItem *seriesItem;
     int from;
     int to;
 };
@@ -164,7 +164,7 @@ QRegion QwtPlotDirectPainter::clipRegion() const
          series will be painted to its last point.
 */
 void QwtPlotDirectPainter::drawSeries(
-    QwtPlotAbstractSeriesItem *seriesItem, int from, int to )
+    QwtPlotSeriesItem *seriesItem, int from, int to )
 {
     if ( seriesItem == NULL || seriesItem->plot() == NULL )
         return;
