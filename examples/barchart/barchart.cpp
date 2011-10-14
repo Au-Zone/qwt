@@ -1,7 +1,7 @@
 #include "barchart.h"
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_canvas.h>
-#include <qwt_plot_barchart.h>
+#include <qwt_plot_multi_barchart.h>
 #include <qwt_column_symbol.h>
 #include <qwt_plot_layout.h>
 #include <qwt_scale_draw.h>
@@ -16,20 +16,20 @@ BarChart::BarChart( QWidget *parent ):
     setAxisTitle( QwtPlot::yLeft, "Whatever" );
     setAxisTitle( QwtPlot::xBottom, "Whatever" );
 
-    d_barChartItem = new QwtPlotBarChart( "Bar Chart " );
+    d_barChartItem = new QwtPlotMultiBarChart( "Bar Chart " );
 #if 1
-    d_barChartItem->setLayoutPolicy( QwtPlotBarChart::AutoAdjustSamples );
+    d_barChartItem->setLayoutPolicy( QwtPlotMultiBarChart::AutoAdjustSamples );
 #endif
 #if 0
-    d_barChartItem->setLayoutPolicy( QwtPlotBarChart::ScaleSamplesToAxes );
+    d_barChartItem->setLayoutPolicy( QwtPlotMultiBarChart::ScaleSamplesToAxes );
     d_barChartItem->setLayoutHint( 0.8 );
 #endif
 #if 0
-    d_barChartItem->setLayoutPolicy( QwtPlotBarChart::ScaleSampleToCanvas );
+    d_barChartItem->setLayoutPolicy( QwtPlotMultiBarChart::ScaleSampleToCanvas );
     d_barChartItem->setLayoutHint( 0.08 );
 #endif
 #if 0
-    d_barChartItem->setLayoutPolicy( QwtPlotBarChart::FixedSampleSize );
+    d_barChartItem->setLayoutPolicy( QwtPlotMultiBarChart::FixedSampleSize );
     d_barChartItem->setLayoutHint( 20 );
 #endif
     d_barChartItem->setSpacing( 20 );
@@ -80,11 +80,11 @@ void BarChart::setMode( int mode )
 {
     if ( mode == 0 )
     {
-        d_barChartItem->setStyle( QwtPlotBarChart::Grouped );
+        d_barChartItem->setStyle( QwtPlotMultiBarChart::Grouped );
     }
     else
     {
-        d_barChartItem->setStyle( QwtPlotBarChart::Stacked );
+        d_barChartItem->setStyle( QwtPlotMultiBarChart::Stacked );
     }
 }
 

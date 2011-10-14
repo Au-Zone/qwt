@@ -37,6 +37,9 @@ protected:
 
     //! \return Bounding rectangle of the stored series
     virtual QRectF dataRect() const = 0;
+
+    //! \return Number of samples
+    virtual size_t dataSize() const = 0;
 };
 
 /*!
@@ -61,11 +64,12 @@ public:
     QwtSeriesData<T> *data();
     const QwtSeriesData<T> *data() const;
 
-    size_t dataSize() const;
     T sample( int index ) const;
 
-    virtual void setRectOfInterest( const QRectF & );
+    virtual size_t dataSize() const;
     virtual QRectF dataRect() const;
+
+    virtual void setRectOfInterest( const QRectF & );
 
 private:
     QwtSeriesData<T> *d_series;
