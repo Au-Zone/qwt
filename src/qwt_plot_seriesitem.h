@@ -193,11 +193,14 @@ template <typename T>
 void QwtPlotSeriesItem<T>::updateScaleDiv( 
     const QwtScaleDiv &xScaleDiv, const QwtScaleDiv &yScaleDiv )
 {
-    const QRectF rect = QRectF(
-        xScaleDiv.lowerBound(), yScaleDiv.lowerBound(),
-        xScaleDiv.range(), yScaleDiv.range() );
+    if ( d_series )
+    {
+        const QRectF rect = QRectF(
+            xScaleDiv.lowerBound(), yScaleDiv.lowerBound(),
+            xScaleDiv.range(), yScaleDiv.range() );
 
-    d_series->setRectOfInterest( rect );
+        d_series->setRectOfInterest( rect );
+    }
 }
 
 #endif
