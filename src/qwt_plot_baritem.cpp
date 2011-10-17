@@ -27,7 +27,8 @@ public:
     PrivateData():
         layoutPolicy( QwtPlotBarItem::AutoAdjustSamples ),
         layoutHint( 0.5 ),
-        spacing( 5 ),
+        spacing( 10 ),
+        margin( 5 ),
         baseline( 0.0 )
     {
     }
@@ -35,6 +36,7 @@ public:
     QwtPlotBarItem::LayoutPolicy layoutPolicy;
     double layoutHint;
     int spacing;
+    int margin;
     double baseline;
     ChartAttributes chartAttributes;
 };
@@ -112,6 +114,21 @@ int QwtPlotBarItem::spacing() const
     return d_data->spacing;
 }
 
+void QwtPlotBarItem::setMargin( int margin )
+{
+    margin = qMax( margin, 0 );
+    if ( margin != d_data->margin )
+    {
+        d_data->margin = margin;
+        itemChanged();
+    }
+}
+
+int QwtPlotBarItem::margin() const
+{
+    return d_data->margin;
+}
+
 void QwtPlotBarItem::setBaseline( double value )
 {
     if ( value != d_data->baseline )
@@ -151,7 +168,7 @@ double QwtPlotBarItem::sampleWidth( const QwtScaleMap &map,
         case AutoAdjustSamples:
         default:
         {
-			const size_t numSamples = dataSize();
+            const size_t numSamples = dataSize();
 
             double w = 1.0;
             if ( numSamples > 1 )
@@ -171,29 +188,29 @@ void QwtPlotBarItem::getCanvasMarginHint( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap, const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom ) const
 {
-    double margin = -1.0;
+    double hint = -1.0;
 
     switch( layoutPolicy() )
     {
         case ScaleSampleToCanvas:
         {
             if ( orientation() == Qt::Vertical )
-                margin = 0.5 * canvasRect.width() * d_data->layoutHint;
+                hint = 0.5 * canvasRect.width() * d_data->layoutHint;
             else
-                margin = 0.5 * canvasRect.height() * d_data->layoutHint;
+                hint = 0.5 * canvasRect.height() * d_data->layoutHint;
 
             break;
         }
         case FixedSampleSize:
         {
-            margin = 0.5 * d_data->layoutHint;
+            hint = 0.5 * d_data->layoutHint;
             break;
         }
         case AutoAdjustSamples:
         case ScaleSamplesToAxes:
         default:
         {
-    		const size_t numSamples = dataSize();
+            const size_t numSamples = dataSize();
             if ( numSamples <= 0 )
                 break;
 
@@ -205,7 +222,7 @@ void QwtPlotBarItem::getCanvasMarginHint( const QwtScaleMap &xMap,
 
             if ( layoutPolicy() == ScaleSamplesToAxes )
             {
-                sampleWidthS = d_data->layoutHint;
+                sampleWidthS = qMax( d_data->layoutHint, 0.0 );
             }
             else
             {
@@ -217,42 +234,34 @@ void QwtPlotBarItem::getCanvasMarginHint( const QwtScaleMap &xMap,
                 }
             }
 
-            QwtScaleMap map;
+            double ds, w;
             if ( orientation() == Qt::Vertical )
             {
-                map = xMap;
-                map.setPaintInterval( 0.0, canvasRect.width() );
+                ds = qAbs( xMap.sDist() );
+                w = canvasRect.width();
             }
             else
             {
-                map = yMap;
-                map.setPaintInterval( 0.0, canvasRect.height() );
+                ds = qAbs( yMap.sDist() );
+                w = canvasRect.height();
             }
 
-            const double value = br.left();
+            const double sampleWidthP = ( w - spacing * ds ) 
+                * sampleWidthS / ( ds + sampleWidthS );
 
-            double sampleWidthP;
-
-            // first approximation
-            sampleWidthP = qwtTransformWidth( map, value, sampleWidthS );
-            margin = 0.5 * ( sampleWidthP - spacing );
-
-            // calculating the same including the approximated margins
-            map.setPaintInterval( map.p1() + margin, map.p2() - margin );
-
-            sampleWidthP = qwtTransformWidth( map, value, sampleWidthS );
-            margin = 0.5 * ( sampleWidthP - spacing );
+            hint = 0.5 * sampleWidthP;
+            hint += qMax( d_data->margin, 0 );
         }
     }
 
     if ( orientation() == Qt::Vertical )
     {
-        left = right = margin;
+        left = right = hint;
         top = bottom = -1.0; // no hint
     }
     else
     {
         left = right = -1.0; // no hint
-        top = bottom = margin;
+        top = bottom = hint;
     }
 }

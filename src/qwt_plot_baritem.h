@@ -77,6 +77,9 @@ public:
     void setSpacing( int );
     int spacing() const;
 
+    void setMargin( int );
+    int margin() const;
+
     void setBaseline( double );
     double baseline() const;
 

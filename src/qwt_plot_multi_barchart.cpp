@@ -36,9 +36,9 @@ public:
     PrivateData():
         style( QwtPlotMultiBarChart::Grouped )
     {
-		colorTable << Qt::red << Qt::blue << Qt::darkGreen << Qt::yellow
-			<< Qt::darkCyan << Qt::darkMagenta << Qt::darkYellow
-			<< Qt::darkBlue << Qt::green << Qt::magenta;
+        colorTable << Qt::red << Qt::blue << Qt::darkGreen << Qt::yellow
+            << Qt::darkCyan << Qt::darkMagenta << Qt::darkYellow
+            << Qt::darkBlue << Qt::green << Qt::magenta;
     }
 
     QwtPlotMultiBarChart::ChartStyle style;
@@ -60,7 +60,7 @@ QwtPlotMultiBarChart::QwtPlotMultiBarChart( const QString &title ):
 
 QwtPlotMultiBarChart::~QwtPlotMultiBarChart()
 {
-	clearSymbols();
+    clearSymbols();
     delete d_data;
 }
 
@@ -94,47 +94,47 @@ void QwtPlotMultiBarChart::setSamples(
 
 void QwtPlotMultiBarChart::setColorTable( const QVector<QBrush> &colorTable )
 {
-	d_data->colorTable = colorTable;
-	itemChanged();
+    d_data->colorTable = colorTable;
+    itemChanged();
 }
 
 QVector<QBrush> QwtPlotMultiBarChart::colorTable() const
 {
-	return d_data->colorTable;
+    return d_data->colorTable;
 }
 
 void QwtPlotMultiBarChart::setSymbol( int barIndex, QwtColumnSymbol *symbol )
 {
-	if ( barIndex < 0 )
-		return;
+    if ( barIndex < 0 )
+        return;
 
-	QMap<int, QwtColumnSymbol *>::iterator it = 
-		d_data->symbolMap.find(barIndex);
-	if ( it == d_data->symbolMap.end() )
-	{
-		if ( symbol != NULL )
-		{
-			d_data->symbolMap.insert( barIndex, symbol );
-			itemChanged();
-		}
-	}
-	else
-	{
-		if ( symbol != it.value() )
-		{
-			delete it.value();
+    QMap<int, QwtColumnSymbol *>::iterator it = 
+        d_data->symbolMap.find(barIndex);
+    if ( it == d_data->symbolMap.end() )
+    {
+        if ( symbol != NULL )
+        {
+            d_data->symbolMap.insert( barIndex, symbol );
+            itemChanged();
+        }
+    }
+    else
+    {
+        if ( symbol != it.value() )
+        {
+            delete it.value();
 
-			if ( symbol == NULL )
-			{
-				d_data->symbolMap.remove( barIndex );
-			}
-			else
-			{
-				it.value() = symbol;
-			}
-        	itemChanged();
-		}
-	}
+            if ( symbol == NULL )
+            {
+                d_data->symbolMap.remove( barIndex );
+            }
+            else
+            {
+                it.value() = symbol;
+            }
+            itemChanged();
+        }
+    }
 }
 
 const QwtColumnSymbol *QwtPlotMultiBarChart::symbol( int barIndex ) const
@@ -142,7 +142,7 @@ const QwtColumnSymbol *QwtPlotMultiBarChart::symbol( int barIndex ) const
     QMap<int, QwtColumnSymbol *>::const_iterator it =
         d_data->symbolMap.find(barIndex);
 
-	return ( it == d_data->symbolMap.end() ) ? NULL : it.value();
+    return ( it == d_data->symbolMap.end() ) ? NULL : it.value();
 }
 
 QwtColumnSymbol *QwtPlotMultiBarChart::symbol( int barIndex ) 
@@ -150,18 +150,18 @@ QwtColumnSymbol *QwtPlotMultiBarChart::symbol( int barIndex )
     QMap<int, QwtColumnSymbol *>::iterator it =
         d_data->symbolMap.find(barIndex);
 
-	return ( it == d_data->symbolMap.end() ) ? NULL : it.value();
+    return ( it == d_data->symbolMap.end() ) ? NULL : it.value();
 }
 
 void QwtPlotMultiBarChart::clearSymbols()
 {
     for ( QMap<int, QwtColumnSymbol *>::iterator it 
-		= d_data->symbolMap.begin(); it != d_data->symbolMap.end(); ++it )
+        = d_data->symbolMap.begin(); it != d_data->symbolMap.end(); ++it )
     {
-		delete it.value();
-	}
+        delete it.value();
+    }
 
-	d_data->symbolMap.clear();
+    d_data->symbolMap.clear();
 }
 
 void QwtPlotMultiBarChart::setStyle( ChartStyle style )
@@ -185,7 +185,7 @@ QRectF QwtPlotMultiBarChart::boundingRect() const
     if ( numSamples == 0 )
         return QwtPlotSeriesItem::boundingRect();
 
-	const double baseLine = baseline();
+    const double baseLine = baseline();
 
     QRectF rect;
 
@@ -336,6 +336,12 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
 
         const double y1 = yMap.transform( baseline() );
         const double x0 = xMap.transform( sample.value ) - 0.5 * sampleWidth;
+#if 0
+        if ( index == 0 )
+        {
+            qDebug() << sampleWidth << x0 << xMap; 
+        }
+#endif
 
         for ( int i = 0; i < numBars; i++ )
         {
@@ -504,37 +510,30 @@ void QwtPlotMultiBarChart::drawBar( QPainter *painter,
 {
     Q_UNUSED( sampleIndex );
 
-	const QwtColumnSymbol *sym = symbol( barIndex );
-	if ( sym )
-	{
+    const QwtColumnSymbol *sym = symbol( barIndex );
+    if ( sym )
+    {
         sym->draw( painter, rect );
     }
     else
     {
-        QRectF r = rect.toRect();
-        if ( QwtPainter::roundingAlignment( painter ) )
+        QBrush brush( Qt::white );
+
+        if ( d_data->colorTable.size() > 0 )
         {
-            r.setLeft( qRound( r.left() ) );
-            r.setRight( qRound( r.right() ) );
-            r.setTop( qRound( r.top() ) );
-            r.setBottom( qRound( r.bottom() ) );
+            const int colorIndex = barIndex % d_data->colorTable.size();
+            brush = d_data->colorTable[ colorIndex ];
         }
 
-		QBrush brush( Qt::white );
+        QPalette palette;
+        palette.setBrush( QPalette::Window, brush );
+        palette.setColor( QPalette::Dark, Qt::black );
 
-		if ( d_data->colorTable.size() > 0 )
-		{
-			const int colorIndex = barIndex % d_data->colorTable.size();
-			brush = d_data->colorTable[ colorIndex ];
-		}
-
-#if 1
-        painter->setPen( QPen( Qt::black, 1 ) );
-#else
-        painter->setPen( Qt::NoPen );
-#endif
-        painter->setBrush( brush );
-        QwtPainter::drawRect( painter, r );
+        QwtColumnSymbol sym( QwtColumnSymbol::Box );
+        sym.setPalette( palette );
+        sym.setLineWidth( 0 );
+        sym.setFrameStyle( QwtColumnSymbol::Plain );
+        sym.draw( painter, rect );
     }
 }
 

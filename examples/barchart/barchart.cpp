@@ -36,6 +36,7 @@ BarChart::BarChart( QWidget *parent ):
     d_barChartItem->setLayoutHint( 20 );
 #endif
     d_barChartItem->setSpacing( 20 );
+    d_barChartItem->setMargin( 3 );
 
     d_barChartItem->attach( this );
 
@@ -47,7 +48,7 @@ BarChart::BarChart( QWidget *parent ):
 
 void BarChart::populate()
 {
-    static const char *colors[] = { "DarkOrchid", "LightSkyBlue", "Gold" };
+    static const char *colors[] = { "DarkOrchid", "SteelBlue", "Gold" };
 
     const int numSamples = 5;
     const int numBars = sizeof( colors ) / sizeof( colors[0] );
