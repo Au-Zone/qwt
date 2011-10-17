@@ -102,11 +102,11 @@ public:
     void setLayoutFlags( LayoutFlags flags );
     LayoutFlags layoutFlags() const;
 
-    void renderDocument( QwtPlot *, const QString &format,
+    void renderDocument( QwtPlot *, const QString &fileName,
         const QSizeF &sizeMM, int resolution = 85 );
 
     void renderDocument( QwtPlot *,
-        const QString &title, const QString &format,
+        const QString &title, const QString &fileName,
         const QSizeF &sizeMM, int resolution = 85 );
 
 #ifndef QWT_NO_SVG
