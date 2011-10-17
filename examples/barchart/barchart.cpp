@@ -9,9 +9,12 @@
 BarChart::BarChart( QWidget *parent ):
     QwtPlot( parent )
 {
-    setTitle( "Bar Chart" );
+    setAutoFillBackground( true );
 
-    canvas()->setPalette( Qt::gray );
+    setPalette( Qt::white );
+    canvas()->setPalette( QColor( "LemonChiffon" ) );
+
+    setTitle( "Bar Chart" );
 
     setAxisTitle( QwtPlot::yLeft, "Whatever" );
     setAxisTitle( QwtPlot::xBottom, "Whatever" );
@@ -34,13 +37,6 @@ BarChart::BarChart( QWidget *parent ):
 #endif
     d_barChartItem->setSpacing( 20 );
 
-#if 1
-    QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
-    symbol->setLineWidth( 2 );
-    symbol->setFrameStyle( QwtColumnSymbol::Raised );
-
-    d_barChartItem->setSymbol( symbol );
-#endif
     d_barChartItem->attach( this );
 
     populate();
@@ -51,10 +47,22 @@ BarChart::BarChart( QWidget *parent ):
 
 void BarChart::populate()
 {
+    static const char *colors[] = { "DarkOrchid", "LightSkyBlue", "Gold" };
+
     const int numSamples = 5;
+    const int numBars = sizeof( colors ) / sizeof( colors[0] );
 
+    for ( int i = 0; i < numBars; i++ )
+    {
+        QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
+        symbol->setLineWidth( 2 );
+        symbol->setFrameStyle( QwtColumnSymbol::Raised );
+        symbol->setPalette( QPalette( colors[i] ) );
+
+        d_barChartItem->setSymbol( i, symbol );
+    }
+    
     QVector< QVector<double> > series;
-
     for ( int i = 0; i < numSamples; i++ )
     {
         double sign = 1.0;
@@ -64,7 +72,7 @@ void BarChart::populate()
 #endif
 
         QVector<double> values;
-        for ( int j = 0; j < 3; j++ )
+        for ( int j = 0; j < numBars; j++ )
             values += sign * ( 2 + qrand() % 8 );
 
         series += values;
