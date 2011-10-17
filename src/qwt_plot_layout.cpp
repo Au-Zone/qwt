@@ -242,7 +242,7 @@ void QwtPlotLayout::setCanvasMargin( int margin, int axis )
 }
 
 /*!
-    \param axisId axisId Axis index
+    \param axisId Axis index
     \return Margin around the scale tick borders
     \sa setCanvasMargin()
 */
@@ -272,7 +272,7 @@ void QwtPlotLayout::setAlignCanvasToScales( bool on )
   - extend beyond the axis scale ends to maximize its size,
   - align with the axis scale ends to control its size.
 
-  The axis parameter is somhow confusing as it identifies a border 
+  The axis parameter is somhow confusing as it identifies a border
   of the plot and not the axes, that are aligned. F.e when QwtPlot::yLeft
   is set, the left end of the the x-axes ( QwtPlot::xTop, QwtPlot::xBottom )
   is aligned.
@@ -302,7 +302,7 @@ bool QwtPlotLayout::alignCanvasToScale( int axisId ) const
 {
     if ( axisId < 0 || axisId >= QwtPlot::axisCnt )
         return false;
-    
+
     return d_data->alignCanvasToScales[ axisId ];
 }
 
@@ -310,7 +310,7 @@ bool QwtPlotLayout::alignCanvasToScale( int axisId ) const
   Change the spacing of the plot. The spacing is the distance
   between the plot components.
 
-  \param spacing new spacing
+  \param spacing New spacing
   \sa setCanvasMargin(), spacing()
 */
 void QwtPlotLayout::setSpacing( int spacing )
@@ -319,7 +319,7 @@ void QwtPlotLayout::setSpacing( int spacing )
 }
 
 /*!
-  \return spacing
+  \return Spacing
   \sa margin(), setSpacing()
 */
 int QwtPlotLayout::spacing() const
@@ -472,7 +472,7 @@ const QRectF &QwtPlotLayout::canvasRect() const
 */
 void QwtPlotLayout::invalidate()
 {
-    d_data->titleRect = d_data->footerRect 
+    d_data->titleRect = d_data->footerRect
         = d_data->legendRect = d_data->canvasRect = QRect();
 
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
@@ -667,8 +667,10 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
 
 /*!
   Find the geometry for the legend
+
   \param options Options how to layout the legend
   \param rect Rectangle where to place the legend
+
   \return Geometry for the legend
   \sa Options
 */
@@ -730,8 +732,10 @@ QRectF QwtPlotLayout::layoutLegend( Options options,
 
 /*!
   Align the legend to the canvas
+
   \param canvasRect Geometry of the canvas
   \param legendRect Maximum geometry for the legend
+
   \return Geometry for the aligned legend
 */
 QRectF QwtPlotLayout::alignLegend( const QRectF &canvasRect,
@@ -772,7 +776,7 @@ QRectF QwtPlotLayout::alignLegend( const QRectF &canvasRect,
 
   \sa Options
 */
-void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
+void QwtPlotLayout::expandLineBreaks( Options options, const QRectF &rect,
     int &dimTitle, int &dimFooter, int dimAxis[QwtPlot::axisCnt] ) const
 {
     dimTitle = dimFooter = 0;
@@ -803,7 +807,7 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
         // axis what might result in a line break of a horizontal
         // axis ... . So we loop as long until no size changes.
 
-        if ( !( ( options & IgnoreTitle ) || 
+        if ( !( ( options & IgnoreTitle ) ||
             d_data->layoutData.title.text.isEmpty() ) )
         {
             double w = rect.width();
@@ -855,7 +859,7 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
                 d_data->layoutData.scale[axis];
 
             if ( scaleData.isEnabled )
-            {
+        {
                 double length;
                 if ( axis == QwtPlot::xTop || axis == QwtPlot::xBottom )
                 {
@@ -924,7 +928,7 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
   \sa Options
 */
 
-void QwtPlotLayout::alignScales( int options,
+void QwtPlotLayout::alignScales( Options options,
     QRectF &canvasRect, QRectF scaleRect[QwtPlot::axisCnt] ) const
 {
     int backboneOffset[QwtPlot::axisCnt];
@@ -1003,7 +1007,7 @@ void QwtPlotLayout::alignScales( int options,
                      */
                     canvasRect.setRight( qMin( canvasRect.right(),
                         axisRect.right() + dx ) );
-                }   
+                }
 
                 const double maxRight = rightScaleRect.right();
                 const double right = axisRect.right() - rightOffset;
@@ -1138,7 +1142,7 @@ void QwtPlotLayout::alignScales( int options,
                 else
                     sRect.setTop( canvasRect.bottom() );
             }
-        }   
+        }
         else
         {
             if ( d_data->alignCanvasToScales[QwtPlot::xTop] )
@@ -1244,7 +1248,7 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
 
     if ( dimTitle > 0 )
     {
-        d_data->titleRect.setRect( 
+        d_data->titleRect.setRect(
             rect.left(), rect.top(), rect.width(), dimTitle );
 
         rect.setTop( d_data->titleRect.bottom() + d_data->spacing );
@@ -1263,7 +1267,7 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
 
     if ( dimFooter > 0 )
     {
-        d_data->footerRect.setRect( 
+        d_data->footerRect.setRect(
             rect.left(), rect.bottom() - dimFooter, rect.width(), dimFooter );
 
         rect.setBottom( d_data->footerRect.top() - d_data->spacing );

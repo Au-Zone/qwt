@@ -97,10 +97,10 @@ protected:
     QRectF alignLegend( const QRectF &canvasRect,
         const QRectF &legendRect ) const;
 
-    void expandLineBreaks( int options, const QRectF &rect,
+    void expandLineBreaks( Options options, const QRectF &rect,
         int &dimTitle, int &dimFooter, int dimAxes[QwtPlot::axisCnt] ) const;
 
-    void alignScales( int options, QRectF &canvasRect,
+    void alignScales( Options options, QRectF &canvasRect,
         QRectF scaleRect[QwtPlot::axisCnt] ) const;
 
 private:
