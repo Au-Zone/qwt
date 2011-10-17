@@ -174,8 +174,7 @@ class QwtPlotLayout::PrivateData
 {
 public:
     PrivateData():
-        spacing( 5 ),
-        alignCanvasToScales( false )
+        spacing( 5 )
     {
     }
 
@@ -191,7 +190,7 @@ public:
     double legendRatio;
     unsigned int spacing;
     unsigned int canvasMargin[QwtPlot::axisCnt];
-    bool alignCanvasToScales;
+    bool alignCanvasToScales[QwtPlot::axisCnt];
 };
 
 /*!
@@ -204,6 +203,7 @@ QwtPlotLayout::QwtPlotLayout()
 
     setLegendPosition( QwtPlot::BottomLegend );
     setCanvasMargin( 4 );
+    setAlignCanvasToScales( false );
 
     invalidate();
 }
@@ -224,7 +224,7 @@ QwtPlotLayout::~QwtPlotLayout()
               -1 means margin at all borders.
   \sa canvasMargin()
 
-  \warning The margin will have no effect when alignCanvasToScales is true
+  \warning The margin will have no effect when alignCanvasToScale() is true
 */
 
 void QwtPlotLayout::setCanvasMargin( int margin, int axis )
@@ -242,32 +242,51 @@ void QwtPlotLayout::setCanvasMargin( int margin, int axis )
 }
 
 /*!
+    \param axisId axisId Axis index
     \return Margin around the scale tick borders
     \sa setCanvasMargin()
 */
-int QwtPlotLayout::canvasMargin( int axis ) const
+int QwtPlotLayout::canvasMargin( int axisId ) const
 {
-    if ( axis < 0 || axis >= QwtPlot::axisCnt )
+    if ( axisId < 0 || axisId >= QwtPlot::axisCnt )
         return 0;
 
-    return d_data->canvasMargin[axis];
+    return d_data->canvasMargin[axisId];
+}
+
+/*!
+  \brief Set the align-canvas-to-axis-scales flag for all axes
+
+  \param on True/False
+  \sa setAlignCanvasToScale(), alignCanvasToScale()
+*/
+void QwtPlotLayout::setAlignCanvasToScales( bool on )
+{
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+        d_data->alignCanvasToScales[axis] = on;
 }
 
 /*!
   Change the align-canvas-to-axis-scales setting. The canvas may:
+
   - extend beyond the axis scale ends to maximize its size,
   - align with the axis scale ends to control its size.
 
-  \param alignCanvasToScales New align-canvas-to-axis-scales setting
+  The axis parameter is somhow confusing as it identifies a border 
+  of the plot and not the axes, that are aligned. F.e when QwtPlot::yLeft
+  is set, the left end of the the x-axes ( QwtPlot::xTop, QwtPlot::xBottom )
+  is aligned.
 
-  \sa setCanvasMargin()
-  \note In this context the term 'scale' means the backbone of a scale.
-  \warning In case of alignCanvasToScales == true canvasMargin will have
-           no effect
+  \param axis Axis index
+  \param on New align-canvas-to-axis-scales setting
+
+  \sa setCanvasMargin(), alignCanvasToScale(), setAlignCanvasToScales()
+  \warning In case of on == true canvasMargin() will have no effect
 */
-void QwtPlotLayout::setAlignCanvasToScales( bool alignCanvasToScales )
+void QwtPlotLayout::setAlignCanvasToScale( int axisId, bool on )
 {
-    d_data->alignCanvasToScales = alignCanvasToScales;
+    if ( axisId >= 0 && axisId < QwtPlot::axisCnt )
+        d_data->alignCanvasToScales[axisId] = on;
 }
 
 /*!
@@ -275,13 +294,16 @@ void QwtPlotLayout::setAlignCanvasToScales( bool alignCanvasToScales )
   - extend beyond the axis scale ends to maximize its size
   - align with the axis scale ends to control its size.
 
+  \param axisId Axis index
   \return align-canvas-to-axis-scales setting
-  \sa setAlignCanvasToScales, setCanvasMargin()
-  \note In this context the term 'scale' means the backbone of a scale.
+  \sa setAlignCanvasToScale(), setAlignCanvasToScale(), setCanvasMargin()
 */
-bool QwtPlotLayout::alignCanvasToScales() const
+bool QwtPlotLayout::alignCanvasToScale( int axisId ) const
 {
-    return d_data->alignCanvasToScales;
+    if ( axisId < 0 || axisId >= QwtPlot::axisCnt )
+        return false;
+    
+    return d_data->alignCanvasToScales[ axisId ];
 }
 
 /*!
@@ -289,7 +311,7 @@ bool QwtPlotLayout::alignCanvasToScales() const
   between the plot components.
 
   \param spacing new spacing
-  \sa setMargin(), spacing()
+  \sa setCanvasMargin(), spacing()
 */
 void QwtPlotLayout::setSpacing( int spacing )
 {
@@ -761,10 +783,11 @@ void QwtPlotLayout::expandLineBreaks( int options, const QRectF &rect,
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
     {
         backboneOffset[axis] = 0;
-        if ( !d_data->alignCanvasToScales )
-            backboneOffset[axis] += d_data->canvasMargin[axis];
         if ( !( options & IgnoreFrames ) )
             backboneOffset[axis] += d_data->layoutData.canvas.frameWidth;
+
+        if ( !d_data->alignCanvasToScales[axis] )
+            backboneOffset[axis] += d_data->canvasMargin[axis];
     }
 
     bool done = false;
@@ -908,8 +931,10 @@ void QwtPlotLayout::alignScales( int options,
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
     {
         backboneOffset[axis] = 0;
-        if ( !d_data->alignCanvasToScales )
+
+        if ( !d_data->alignCanvasToScales[axis] )
             backboneOffset[axis] += d_data->canvasMargin[axis];
+
         if ( !( options & IgnoreFrames ) )
             backboneOffset[axis] += d_data->layoutData.canvas.frameWidth;
     }
@@ -933,7 +958,7 @@ void QwtPlotLayout::alignScales( int options,
             if ( leftScaleRect.isValid() )
             {
                 const double dx = leftOffset + leftScaleRect.width();
-                if ( d_data->alignCanvasToScales && dx < 0.0 )
+                if ( d_data->alignCanvasToScales[QwtPlot::yLeft] && dx < 0.0 )
                 {
                     /*
                       The axis needs more space than the width
@@ -951,7 +976,7 @@ void QwtPlotLayout::alignScales( int options,
             }
             else
             {
-                if ( d_data->alignCanvasToScales && leftOffset < 0 )
+                if ( d_data->alignCanvasToScales[QwtPlot::yLeft] && leftOffset < 0 )
                 {
                     canvasRect.setLeft( qMax( canvasRect.left(),
                         axisRect.left() - leftOffset ) );
@@ -970,7 +995,7 @@ void QwtPlotLayout::alignScales( int options,
             if ( rightScaleRect.isValid() )
             {
                 const double dx = rightOffset + rightScaleRect.width();
-                if ( d_data->alignCanvasToScales && dx < 0 )
+                if ( d_data->alignCanvasToScales[QwtPlot::yRight] && dx < 0 )
                 {
                     /*
                       The axis needs more space than the width
@@ -986,7 +1011,7 @@ void QwtPlotLayout::alignScales( int options,
             }
             else
             {
-                if ( d_data->alignCanvasToScales && rightOffset < 0 )
+                if ( d_data->alignCanvasToScales[QwtPlot::yRight] && rightOffset < 0 )
                 {
                     canvasRect.setRight( qMin( canvasRect.right(),
                         axisRect.right() + rightOffset ) );
@@ -1007,7 +1032,7 @@ void QwtPlotLayout::alignScales( int options,
             if ( bottomScaleRect.isValid() )
             {
                 const double dy = bottomOffset + bottomScaleRect.height();
-                if ( d_data->alignCanvasToScales && dy < 0 )
+                if ( d_data->alignCanvasToScales[QwtPlot::xBottom] && dy < 0 )
                 {
                     /*
                       The axis needs more space than the height
@@ -1026,7 +1051,7 @@ void QwtPlotLayout::alignScales( int options,
             }
             else
             {
-                if ( d_data->alignCanvasToScales && bottomOffset < 0 )
+                if ( d_data->alignCanvasToScales[QwtPlot::xBottom] && bottomOffset < 0 )
                 {
                     canvasRect.setBottom( qMin( canvasRect.bottom(),
                         axisRect.bottom() + bottomOffset ) );
@@ -1044,7 +1069,7 @@ void QwtPlotLayout::alignScales( int options,
             if ( topScaleRect.isValid() )
             {
                 const double dy = topOffset + topScaleRect.height();
-                if ( d_data->alignCanvasToScales && dy < 0 )
+                if ( d_data->alignCanvasToScales[QwtPlot::xTop] && dy < 0 )
                 {
                     /*
                       The axis needs more space than the height
@@ -1063,7 +1088,7 @@ void QwtPlotLayout::alignScales( int options,
             }
             else
             {
-                if ( d_data->alignCanvasToScales && topOffset < 0 )
+                if ( d_data->alignCanvasToScales[QwtPlot::xTop] && topOffset < 0 )
                 {
                     canvasRect.setTop( qMax( canvasRect.top(),
                         axisRect.top() - topOffset ) );
@@ -1077,46 +1102,64 @@ void QwtPlotLayout::alignScales( int options,
         }
     }
 
-    if ( d_data->alignCanvasToScales )
+    /*
+      The canvas has been aligned to the scale with largest
+      border distances. Now we have to realign the other scale.
+     */
+
+    int fw = 0;
+    if ( !( options & IgnoreFrames ) )
+        fw = d_data->layoutData.canvas.frameWidth;
+
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
     {
-        /*
-          The canvas has been aligned to the scale with largest
-          border distances. Now we have to realign the other scale.
-         */
+        QRectF &sRect = scaleRect[axis];
 
-        int fw = 0;
-        if ( !( options & IgnoreFrames ) )
-            fw = d_data->layoutData.canvas.frameWidth;
+        if ( !sRect.isValid() )
+            continue;
 
-        for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+        if ( axis == QwtPlot::xBottom || axis == QwtPlot::xTop )
         {
-            if ( !scaleRect[axis].isValid() )
-                continue;
-
-            if ( axis == QwtPlot::xBottom || axis == QwtPlot::xTop )
+            if ( d_data->alignCanvasToScales[QwtPlot::yLeft] )
             {
-                scaleRect[axis].setLeft( canvasRect.left() + fw
+                sRect.setLeft( canvasRect.left() + fw
                     - d_data->layoutData.scale[axis].start );
-                scaleRect[axis].setRight( canvasRect.right() - fw - 1
-                    + d_data->layoutData.scale[axis].end );
-            }   
-            else
+            }
+            if ( d_data->alignCanvasToScales[QwtPlot::yRight] )
             {
-                scaleRect[axis].setTop( canvasRect.top() + fw
-                    - d_data->layoutData.scale[axis].start );
-                scaleRect[axis].setBottom( canvasRect.bottom() - fw - 1
+                sRect.setRight( canvasRect.right() - fw - 1
                     + d_data->layoutData.scale[axis].end );
             }
-        }
 
-        if ( scaleRect[QwtPlot::xTop].isValid() )
-            scaleRect[QwtPlot::xTop].setBottom( canvasRect.top() );
-        if ( scaleRect[QwtPlot::xBottom].isValid() )
-            scaleRect[QwtPlot::xBottom].setTop( canvasRect.bottom() );
-        if ( scaleRect[QwtPlot::yLeft].isValid() )
-            scaleRect[QwtPlot::yLeft].setRight( canvasRect.left() );
-        if ( scaleRect[QwtPlot::yRight].isValid() )
-            scaleRect[QwtPlot::yRight].setLeft( canvasRect.right() );
+            if ( d_data->alignCanvasToScales[ axis ] )
+            {
+                if ( axis == QwtPlot::xTop )
+                    sRect.setBottom( canvasRect.top() );
+                else
+                    sRect.setTop( canvasRect.bottom() );
+            }
+        }   
+        else
+        {
+            if ( d_data->alignCanvasToScales[QwtPlot::xTop] )
+            {
+                sRect.setTop( canvasRect.top() + fw
+                    - d_data->layoutData.scale[axis].start );
+            }
+            if ( d_data->alignCanvasToScales[QwtPlot::xBottom] )
+            {
+                sRect.setBottom( canvasRect.bottom() - fw - 1
+                    + d_data->layoutData.scale[axis].end );
+            }
+
+            if ( d_data->alignCanvasToScales[ axis ] )
+            {
+                if ( axis == QwtPlot::yLeft )
+                    sRect.setRight( canvasRect.left() );
+                else
+                    sRect.setLeft( canvasRect.right() );
+            }
+        }
     }
 }
 

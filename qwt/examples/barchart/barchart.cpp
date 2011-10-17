@@ -127,6 +127,9 @@ void BarChart::setOrientation( int orientation )
     scaleDraw2->enableComponent( QwtScaleDraw::Backbone, true );
     scaleDraw2->enableComponent( QwtScaleDraw::Ticks, true );
 
+    plotLayout()->setAlignCanvasToScale( axis1, true );
+    plotLayout()->setAlignCanvasToScale( axis2, false );
+
     plotLayout()->setCanvasMargin( 0 );
     updateCanvasMargins();
 

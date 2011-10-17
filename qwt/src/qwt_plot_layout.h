@@ -62,7 +62,9 @@ public:
     int canvasMargin( int axis ) const;
 
     void setAlignCanvasToScales( bool );
-    bool alignCanvasToScales() const;
+
+    void setAlignCanvasToScale( int axisId, bool );
+    bool alignCanvasToScale( int axisId ) const;
 
     void setSpacing( int );
     int spacing() const;
