@@ -227,13 +227,6 @@ void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex,
     Q_UNUSED( text );
 }
 
-void QwtPlotBarChart::drawLegendIdentifier(
-    QPainter *painter, const QRectF &rect ) const
-{
-    Q_UNUSED( painter );
-    Q_UNUSED( rect );
-}
-
 QwtText QwtPlotBarChart::label(
     int sampleIndex, const QPointF &sample ) const
 {
