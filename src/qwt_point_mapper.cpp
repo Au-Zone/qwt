@@ -7,9 +7,9 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qwt_point_mapper.h>
-#include <qwt_scale_map.h>
-#include <qwt_pixel_matrix.h>
+#include "qwt_point_mapper.h"
+#include "qwt_scale_map.h"
+#include "qwt_pixel_matrix.h"
 #include <qpolygon.h>
 #include <qimage.h>
 
