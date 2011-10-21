@@ -336,12 +336,6 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
 
         const double y1 = yMap.transform( baseline() );
         const double x0 = xMap.transform( sample.value ) - 0.5 * sampleWidth;
-#if 0
-        if ( index == 0 )
-        {
-            qDebug() << sampleWidth << x0 << xMap; 
-        }
-#endif
 
         for ( int i = 0; i < numBars; i++ )
         {
@@ -547,12 +541,6 @@ void QwtPlotMultiBarChart::drawLabel( QPainter *painter, int sampleIndex,
     Q_UNUSED( text );
 }
 
-void QwtPlotMultiBarChart::drawLegendIdentifier(
-    QPainter *painter, const QRectF &rect ) const
-{
-    Q_UNUSED( painter );
-    Q_UNUSED( rect );
-}
 
 QwtText QwtPlotMultiBarChart::label(
     int sampleIndex, int barIndex, const QwtSetSample& sample ) const

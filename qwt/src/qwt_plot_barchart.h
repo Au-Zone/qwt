@@ -39,7 +39,6 @@ public:
         const QRectF &canvasRect, int from, int to ) const;
 
     virtual QRectF boundingRect() const;
-    virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
 
 protected:
     virtual void drawSample( QPainter *painter,

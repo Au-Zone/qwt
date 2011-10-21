@@ -10,45 +10,19 @@
 #include "qwt_legend.h"
 #include "qwt_legend_itemmanager.h"
 #include "qwt_legend_item.h"
+#include "qwt_legend_map.h"
 #include "qwt_dyngrid_layout.h"
 #include "qwt_math.h"
 #include <qapplication.h>
-#include <qmap.h>
 #include <qscrollbar.h>
 #include <qscrollarea.h>
 
 class QwtLegend::PrivateData
 {
 public:
-    class LegendMap
-    {
-    public:
-        void insert( const QwtLegendItemManager *, QWidget * );
-
-        void remove( const QwtLegendItemManager * );
-        void remove( QWidget * );
-
-        void clear();
-
-        uint count() const;
-
-        inline const QWidget *find( const QwtLegendItemManager * ) const;
-        inline QWidget *find( const QwtLegendItemManager * );
-
-        inline const QwtLegendItemManager *find( const QWidget * ) const;
-        inline QwtLegendItemManager *find( const QWidget * );
-
-        const QMap<QWidget *, const QwtLegendItemManager *> &widgetMap() const;
-        QMap<QWidget *, const QwtLegendItemManager *> &widgetMap();
-
-    private:
-        QMap<QWidget *, const QwtLegendItemManager *> d_widgetMap;
-        QMap<const QwtLegendItemManager *, QWidget *> d_itemMap;
-    };
-
     QwtLegend::LegendItemMode itemMode;
 
-    LegendMap map;
+    QwtLegendMap map;
 
     class LegendView;
     LegendView *view;
@@ -113,104 +87,6 @@ public:
 
     QWidget *contentsWidget;
 };
-
-void QwtLegend::PrivateData::LegendMap::insert(
-    const QwtLegendItemManager *item, QWidget *widget )
-{
-    d_itemMap.insert( item, widget );
-    d_widgetMap.insert( widget, item );
-}
-
-void QwtLegend::PrivateData::LegendMap::remove( const QwtLegendItemManager *item )
-{
-    QWidget *widget = d_itemMap[item];
-    d_itemMap.remove( item );
-    d_widgetMap.remove( widget );
-}
-
-void QwtLegend::PrivateData::LegendMap::remove( QWidget *widget )
-{
-    const QwtLegendItemManager *item = d_widgetMap[widget];
-    d_itemMap.remove( item );
-    d_widgetMap.remove( widget );
-}
-
-void QwtLegend::PrivateData::LegendMap::clear()
-{
-
-    /*
-       We can't delete the widgets in the following loop, because
-       we would get ChildRemoved events, changing d_itemMap, while
-       we are iterating.
-     */
-
-    QList<const QWidget *> widgets;
-
-    QMap<const QwtLegendItemManager *, QWidget *>::const_iterator it;
-    for ( it = d_itemMap.begin(); it != d_itemMap.end(); ++it )
-        widgets.append( it.value() );
-
-    d_itemMap.clear();
-    d_widgetMap.clear();
-
-    for ( int i = 0; i < widgets.size(); i++ )
-        delete widgets[i];
-}
-
-uint QwtLegend::PrivateData::LegendMap::count() const
-{
-    return d_itemMap.count();
-}
-
-inline const QWidget *QwtLegend::PrivateData::LegendMap::find( 
-    const QwtLegendItemManager *item ) const
-{
-    if ( !d_itemMap.contains( item ) )
-        return NULL;
-
-    return d_itemMap[item];
-}
-
-inline QWidget *QwtLegend::PrivateData::LegendMap::find( 
-    const QwtLegendItemManager *item )
-{
-    if ( !d_itemMap.contains( item ) )
-        return NULL;
-
-    return d_itemMap[item];
-}
-
-inline const QwtLegendItemManager *QwtLegend::PrivateData::LegendMap::find(
-    const QWidget *widget ) const
-{
-    QWidget *w = const_cast<QWidget *>( widget );
-    if ( !d_widgetMap.contains( w ) )
-        return NULL;
-
-    return d_widgetMap[w];
-}
-
-inline QwtLegendItemManager *QwtLegend::PrivateData::LegendMap::find(
-    const QWidget *widget )
-{
-    QWidget *w = const_cast<QWidget *>( widget );
-    if ( !d_widgetMap.contains( w ) )
-        return NULL;
-
-    return const_cast<QwtLegendItemManager *>( d_widgetMap[w] );
-}
-
-inline const QMap<QWidget *, const QwtLegendItemManager *> &
-QwtLegend::PrivateData::LegendMap::widgetMap() const
-{
-    return d_widgetMap;
-}
-
-inline QMap<QWidget *, const QwtLegendItemManager *> &
-QwtLegend::PrivateData::LegendMap::widgetMap()
-{
-    return d_widgetMap;
-}
 
 /*!
   Constructor
@@ -389,16 +265,8 @@ void QwtLegend::remove( const QwtLegendItemManager *plotItem )
 //! Remove all items.
 void QwtLegend::clear()
 {
-    bool doUpdate = updatesEnabled();
-    if ( doUpdate )
-        setUpdatesEnabled( false );
-
     d_data->map.clear();
-
-    if ( doUpdate )
-        setUpdatesEnabled( true );
-
-    update();
+	// delete ????
 }
 
 //! Return a size hint.
@@ -506,14 +374,5 @@ uint QwtLegend::itemCount() const
 //! Return a list of all legend items
 QList<QWidget *> QwtLegend::legendItems() const
 {
-    const QMap<QWidget *, const QwtLegendItemManager *> &map =
-        d_data->map.widgetMap();
-
-    QList<QWidget *> list;
-
-    QMap<QWidget *, const QwtLegendItemManager *>::const_iterator it;
-    for ( it = map.begin(); it != map.end(); ++it )
-        list += it.key();
-
-    return list;
+	return d_data->map.legendItems();
 }
