@@ -4,6 +4,7 @@
 #include <qwt_plot_multi_barchart.h>
 #include <qwt_column_symbol.h>
 #include <qwt_plot_layout.h>
+#include <qwt_legend.h>
 #include <qwt_scale_draw.h>
 
 BarChart::BarChart( QWidget *parent ):
@@ -40,6 +41,8 @@ BarChart::BarChart( QWidget *parent ):
 
     d_barChartItem->attach( this );
 
+    insertLegend( new QwtLegend() );
+
     populate();
     setOrientation( 0 );
 
@@ -52,6 +55,15 @@ void BarChart::populate()
 
     const int numSamples = 5;
     const int numBars = sizeof( colors ) / sizeof( colors[0] );
+
+    QList<QwtText> titles;
+    for ( int i = 0; i < numBars; i++ )
+    {
+        QString title("Bar %1");
+        titles += title.arg( i );
+    }
+    d_barChartItem->setTitles( titles );
+    d_barChartItem->setLegendIdentifierSize( QSize( 10, 14 ) );
 
     for ( int i = 0; i < numBars; i++ )
     {

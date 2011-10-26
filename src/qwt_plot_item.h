@@ -11,17 +11,15 @@
 #define QWT_PLOT_ITEM_H
 
 #include "qwt_global.h"
-#include "qwt_legend_itemmanager.h"
 #include "qwt_text.h"
+#include "qwt_legend_data.h"
 #include <qrect.h>
+#include <qlist.h>
 
-class QString;
 class QPainter;
-class QWidget;
-class QwtPlot;
-class QwtLegend;
 class QwtScaleMap;
 class QwtScaleDiv;
+class QwtPlot;
 
 /*!
   \brief Base class for items on the plot canvas
@@ -61,7 +59,7 @@ class QwtScaleDiv;
   \sa The cpuplot example shows the implementation of additional plot items.
 */
 
-class QWT_EXPORT QwtPlotItem: public QwtLegendItemManager
+class QWT_EXPORT QwtPlotItem
 {
 public:
     /*!
@@ -190,6 +188,9 @@ public:
     void setRenderHint( RenderHint, bool on = true );
     bool testRenderHint( RenderHint ) const;
 
+    void setLegendIdentifierSize( const QSize & );
+    QSize legendIdentifierSize() const;
+
     double z() const;
     void setZ( double z );
 
@@ -227,14 +228,16 @@ public:
         const QRectF &canvasSize,
         double &left, double &top, double &right, double &bottom) const;
 
-    virtual void updateLegend( QwtLegend * ) const;
     virtual void updateScaleDiv( 
         const QwtScaleDiv&, const QwtScaleDiv& );
 
-    virtual QWidget *legendItem() const;
-
     QRectF scaleRect( const QwtScaleMap &, const QwtScaleMap & ) const;
     QRectF paintRect( const QwtScaleMap &, const QwtScaleMap & ) const;
+
+    virtual QList<QwtLegendData> legendData() const;
+
+    virtual void drawLegendIdentifier( int index,
+        QPainter *, const QRectF & ) const;
 
 private:
     // Disabled copy constructor and operator=

@@ -13,8 +13,6 @@
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_layout.h"
 #include "qwt_legend.h"
-#include "qwt_legend_item.h"
-#include "qwt_dyngrid_layout.h"
 #include "qwt_scale_widget.h"
 #include "qwt_scale_engine.h"
 #include "qwt_text.h"
@@ -567,93 +565,10 @@ void QwtPlotRenderer::renderFooter( const QwtPlot *plot,
 void QwtPlotRenderer::renderLegend( const QwtPlot *plot,
     QPainter *painter, const QRectF &rect ) const
 {
-    if ( !plot->legend() || plot->legend()->isEmpty() )
-        return;
-
-    if ( !( d_data->discardFlags & DiscardBackground ) )
+    if ( plot->legend() )
     {
-        if ( plot->legend()->autoFillBackground() ||
-            plot->legend()->testAttribute( Qt::WA_StyledBackground ) )
-        {
-            qwtRenderBackground( painter, rect, plot->legend() );
-        }
-    }
-
-    const QwtDynGridLayout *legendLayout = qobject_cast<QwtDynGridLayout *>( 
-        plot->legend()->contentsWidget()->layout() );
-    if ( legendLayout == NULL )
-        return;
-
-    uint numCols = legendLayout->columnsForWidth( qFloor( rect.width() ) );
-    QList<QRect> itemRects =
-        legendLayout->layoutItems( rect.toRect(), numCols );
-
-    int index = 0;
-
-    for ( int i = 0; i < legendLayout->count(); i++ )
-    {
-        QLayoutItem *item = legendLayout->itemAt( i );
-        QWidget *w = item->widget();
-        if ( w )
-        {
-            painter->save();
-
-            painter->setClipRect( itemRects[index] );
-            renderLegendItem( plot, painter, w, itemRects[index] );
-
-            index++;
-            painter->restore();
-        }
-    }
-}
-
-/*!
-  Render the legend item into a given rectangle.
-
-  \param plot Plot widget
-  \param painter Painter
-  \param widget Widget representing a legend item
-  \param rect Bounding rectangle
-
-  \note When widget is not derived from QwtLegendItem renderLegendItem
-        does nothing and needs to be overloaded
-*/
-void QwtPlotRenderer::renderLegendItem( const QwtPlot *plot,
-    QPainter *painter, const QWidget *widget, const QRectF &rect ) const
-{
-    if ( !( d_data->discardFlags & DiscardBackground ) )
-    {
-        if ( widget->autoFillBackground() ||
-            widget->testAttribute( Qt::WA_StyledBackground ) )
-        {
-            qwtRenderBackground( painter, rect, widget );
-        }
-    }
-
-    const QwtLegendItem *item = qobject_cast<const QwtLegendItem *>( widget );
-    if ( item )
-    {
-        const QSize sz = item->identifierSize();
-
-        const QRectF identifierRect( rect.x() + item->margin(), 
-            rect.center().y() - 0.5 * sz.height(), sz.width(), sz.height() );
-
-        QwtLegendItemManager *itemManger = plot->legend()->find( item );
-        if ( itemManger )
-        {
-            painter->save();
-            painter->setClipRect( identifierRect, Qt::IntersectClip );
-            itemManger->drawLegendIdentifier( painter, identifierRect );
-            painter->restore();
-        }
-
-        // Label
-
-        QRectF titleRect = rect;
-        titleRect.setX( identifierRect.right() + 2 * item->spacing() );
-
-        painter->setFont( item->font() );
-        item->text().draw( painter, titleRect );
+        bool fillBackground = !( d_data->discardFlags & DiscardBackground );
+        plot->legend()->renderLegend( painter, rect, fillBackground );
     }
 }
 

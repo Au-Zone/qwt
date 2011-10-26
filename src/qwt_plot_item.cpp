@@ -10,10 +10,27 @@
 #include "qwt_plot_item.h"
 #include "qwt_text.h"
 #include "qwt_plot.h"
-#include "qwt_legend.h"
-#include "qwt_legend_item.h"
+#include "qwt_legend_data.h"
 #include "qwt_scale_div.h"
 #include <qpainter.h>
+
+static QPixmap qwtLegendIdentifier( 
+    const QwtPlotItem *item, int index, const QSize &size )
+{
+    QPixmap pm( size );
+    pm.fill( Qt::transparent );
+
+    QPainter painter( &pm );
+    painter.setRenderHint( QPainter::Antialiasing,
+        item->testRenderHint( QwtPlotItem::RenderAntialiased ) );
+
+    item->drawLegendIdentifier( index, &painter,
+        QRect( 0, 0, size.width(), size.height() ) );
+
+    painter.end();
+
+    return pm;
+}
 
 class QwtPlotItem::PrivateData
 {
@@ -25,7 +42,8 @@ public:
         renderHints( 0 ),
         z( 0.0 ),
         xAxis( QwtPlot::xBottom ),
-        yAxis( QwtPlot::yLeft )
+        yAxis( QwtPlot::yLeft ),
+        legendIconSize( 8, 8 )
     {
     }
 
@@ -40,6 +58,7 @@ public:
     int yAxis;
 
     QwtText title;
+    QSize legendIconSize;
 };
 
 /*!
@@ -75,28 +94,12 @@ void QwtPlotItem::attach( QwtPlot *plot )
     if ( plot == d_data->plot )
         return;
 
-    // remove the item from the previous plot
-
     if ( d_data->plot )
-    {
-        if ( d_data->plot->legend() )
-            d_data->plot->legend()->remove( this );
-
         d_data->plot->attachItem( this, false );
 
-        if ( d_data->plot->autoReplot() )
-            d_data->plot->update();
-    }
-
     d_data->plot = plot;
-
     if ( d_data->plot )
-    {
-        // insert the item into the current plot
-
         d_data->plot->attachItem( this, true );
-        itemChanged();
-    }
 }
 
 /*!
@@ -269,6 +272,24 @@ bool QwtPlotItem::testRenderHint( RenderHint hint ) const
     return ( d_data->renderHints & hint );
 }
 
+void QwtPlotItem::setLegendIdentifierSize( const QSize &size )
+{
+    d_data->legendIconSize = size;
+}
+
+QSize QwtPlotItem::legendIdentifierSize() const
+{
+    return d_data->legendIconSize;
+}
+
+void QwtPlotItem::drawLegendIdentifier( int index,
+    QPainter *painter, const QRectF &rect ) const
+{
+    Q_UNUSED( index );
+    Q_UNUSED( painter );
+    Q_UNUSED( rect );
+}
+
 //! Show the item
 void QwtPlotItem::show()
 {
@@ -315,9 +336,7 @@ void QwtPlotItem::itemChanged()
 {
     if ( d_data->plot )
     {
-        if ( d_data->plot->legend() )
-            updateLegend( d_data->plot->legend() );
-
+        d_data->plot->updateLegend( this );
         d_data->plot->autoRefresh();
     }
 }
@@ -409,96 +428,24 @@ void QwtPlotItem::getCanvasMarginHint( const QwtScaleMap &xMap,
     left = top = right = bottom = 0.0;
 }
 
-/*!
-   \brief Allocate the widget that represents the item on the legend
-
-   The default implementation returns a QwtLegendItem(), but an item 
-   could be represented by any type of widget,
-   by overloading legendItem() and updateLegend().
-
-   \return QwtLegendItem()
-   \sa updateLegend() QwtLegend()
-*/
-QWidget *QwtPlotItem::legendItem() const
+QList<QwtLegendData> QwtPlotItem::legendData() const
 {
-    QwtLegendItem *item = new QwtLegendItem;
-    if ( d_data->plot )
-    {
-        QObject::connect( item, SIGNAL( clicked() ),
-            d_data->plot, SLOT( legendItemClicked() ) );
-        QObject::connect( item, SIGNAL( checked( bool ) ),
-            d_data->plot, SLOT( legendItemChecked( bool ) ) );
-    }
-    return item;
-}
+    QwtLegendData data;
+            
+    QVariant titleValue;
+    qVariantSetValue( titleValue, title() );
+    data.setValue( QwtLegendData::TitleRole, titleValue );
+        
+    if ( !legendIdentifierSize().isEmpty() )
+    {   
+        data.setValue( QwtLegendData::IconRole, 
+            qwtLegendIdentifier( this, 0, legendIdentifierSize() ) );
+    }   
+        
+    QList<QwtLegendData> list;
+    list += data;
 
-/*!
-   \brief Update the widget that represents the item on the legend
-
-   updateLegend() is called from itemChanged() to adopt the widget
-   representing the item on the legend to its new configuration.
-
-   The default implementation updates a QwtLegendItem(), 
-   but an item could be represented by any type of widget,
-   by overloading legendItem() and updateLegend().
-
-   \param legend Legend
-
-   \sa legendItem(), itemChanged(), QwtLegend()
-*/
-void QwtPlotItem::updateLegend( QwtLegend *legend ) const
-{
-    if ( legend == NULL )
-        return;
-
-    QWidget *lgdItem = legend->find( this );
-    if ( testItemAttribute( QwtPlotItem::Legend ) )
-    {
-        if ( lgdItem == NULL )
-        {
-            lgdItem = legendItem();
-            if ( lgdItem )
-                legend->insert( this, lgdItem );
-        }
-
-        QwtLegendItem *label = qobject_cast<QwtLegendItem *>( lgdItem );
-        if ( label )
-        {
-            // paint the identifier
-            const QSize sz = label->identifierSize();
-
-            QPixmap identifier( sz.width(), sz.height() );
-            identifier.fill( Qt::transparent );
-
-            QPainter painter( &identifier );
-            painter.setRenderHint( QPainter::Antialiasing,
-                testRenderHint( QwtPlotItem::RenderAntialiased ) );
-            drawLegendIdentifier( &painter,
-                QRect( 0, 0, sz.width(), sz.height() ) );
-            painter.end();
-
-            const bool doUpdate = label->updatesEnabled();
-            if ( doUpdate )
-                label->setUpdatesEnabled( false );
-
-            label->setText( title() );
-            label->setIdentifier( identifier );
-            label->setItemMode( legend->itemMode() );
-
-            if ( doUpdate )
-                label->setUpdatesEnabled( true );
-
-            label->update();
-        }
-    }
-    else
-    {
-        if ( lgdItem )
-        {
-            lgdItem->hide();
-            lgdItem->deleteLater();
-        }
-    }
+    return list;
 }
 
 /*!

@@ -13,8 +13,6 @@
 #include "qwt_symbol.h"
 #include "qwt_text.h"
 #include "qwt_math.h"
-#include "qwt_legend.h"
-#include "qwt_legend_item.h"
 #include <qpainter.h>
 
 class QwtPlotMarker::PrivateData
@@ -357,6 +355,10 @@ void QwtPlotMarker::setSymbol( const QwtSymbol *symbol )
     {
         delete d_data->symbol;
         d_data->symbol = symbol;
+
+        if ( symbol )
+            setLegendIdentifierSize( symbol->boundingSize() );
+
         itemChanged();
     }
 }
@@ -513,35 +515,6 @@ QRectF QwtPlotMarker::boundingRect() const
 }
 
 /*!
-   \brief Update the widget that represents the item on the legend
-
-   \param legend Legend
-   \sa drawLegendIdentifier(), legendItem(), itemChanged(), QwtLegend()
-
-   \note In the default setting QwtPlotItem::Legend is disabled 
-*/
-void QwtPlotMarker::updateLegend( QwtLegend *legend ) const
-{
-    if ( legend && testItemAttribute( QwtPlotItem::Legend )
-        && d_data->symbol && d_data->symbol->style() != QwtSymbol::NoSymbol )
-    {
-        QWidget *lgdItem = legend->find( this );
-        if ( lgdItem == NULL )
-        {
-            lgdItem = legendItem();
-            if ( lgdItem )
-                legend->insert( this, lgdItem );
-        }
-
-        QwtLegendItem *l = qobject_cast<QwtLegendItem *>( lgdItem );
-        if ( l )
-            l->setIdentifierSize( d_data->symbol->boundingSize() );
-    }
-
-    QwtPlotItem::updateLegend( legend );
-}
-
-/*!
   \brief Draw the identifier representing the marker on the legend
 
   \param painter Painter
@@ -549,9 +522,11 @@ void QwtPlotMarker::updateLegend( QwtLegend *legend ) const
 
   \sa updateLegend(), QwtPlotItem::Legend
 */
-void QwtPlotMarker::drawLegendIdentifier(
+void QwtPlotMarker::drawLegendIdentifier( int index,
     QPainter *painter, const QRectF &rect ) const
 {
+    Q_UNUSED( index );
+
     if ( rect.isEmpty() )
         return;
 

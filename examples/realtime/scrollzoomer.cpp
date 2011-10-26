@@ -33,8 +33,8 @@ ScrollZoomer::ScrollZoomer( QwtPlotCanvas *canvas ):
     d_vScrollData( NULL ),
     d_inZoom( false )
 {
-	for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
-		d_alignCanvasToScales[ axis ] = false;
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+        d_alignCanvasToScales[ axis ] = false;
 
     if ( !canvas )
         return;
@@ -64,8 +64,8 @@ void ScrollZoomer::rescale()
 
             QwtPlotLayout *layout = plot()->plotLayout();
 
-			for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
-            	layout->setAlignCanvasToScale( axis, d_alignCanvasToScales );
+            for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+                layout->setAlignCanvasToScale( axis, d_alignCanvasToScales );
 
             d_inZoom = false;
         }
@@ -91,11 +91,11 @@ void ScrollZoomer::rescale()
             yScale->setMinBorderDist( start, end );
 
             QwtPlotLayout *layout = plot()->plotLayout();
-			for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
-			{
-            	d_alignCanvasToScales[axis] = 
-					layout->alignCanvasToScale( axis );
-			}
+            for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+            {
+                d_alignCanvasToScales[axis] = 
+                    layout->alignCanvasToScale( axis );
+            }
 
             layout->setAlignCanvasToScales( false );
 

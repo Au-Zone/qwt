@@ -14,6 +14,7 @@
 #include "qwt_scale_engine.h"
 #include "qwt_text_label.h"
 #include "qwt_legend.h"
+#include "qwt_legend_data.h"
 #include "qwt_dyngrid_layout.h"
 #include "qwt_plot_canvas.h"
 #include <qpainter.h>
@@ -471,13 +472,15 @@ void QwtPlot::updateLayout()
     if ( d_data->legend &&
         d_data->layout->legendPosition() != ExternalLegend )
     {
-        if ( d_data->legend->itemCount() > 0 )
+        if ( d_data->legend->isEmpty() )
+        {
+            d_data->legend->hide();
+        }
+        else
         {
             d_data->legend->setGeometry( legendRect );
             d_data->legend->show();
         }
-        else
-            d_data->legend->hide();
     }
 
     d_data->canvas->setGeometry( canvasRect );
@@ -546,9 +549,10 @@ void QwtPlot::updateTabOrder()
 {
     if ( d_data->canvas->focusPolicy() == Qt::NoFocus )
         return;
+
     if ( d_data->legend.isNull()
         || d_data->layout->legendPosition() == ExternalLegend
-        || d_data->legend->legendItems().count() == 0 )
+        || d_data->legend->isEmpty() )
     {
         return;
     }
@@ -767,37 +771,6 @@ bool QwtPlot::axisValid( int axisId )
 }
 
 /*!
-  Called internally when the legend has been clicked on.
-  Emits a legendClicked() signal.
-*/
-void QwtPlot::legendItemClicked()
-{
-    if ( d_data->legend && sender()->isWidgetType() )
-    {
-        QwtPlotItem *plotItem = static_cast< QwtPlotItem* >(
-            d_data->legend->find( qobject_cast<const QWidget *>( sender() ) ) );
-
-        if ( plotItem )
-            Q_EMIT legendClicked( plotItem );
-    }
-}
-
-/*!
-  Called internally when the legend has been checked
-  Emits a legendClicked() signal.
-*/
-void QwtPlot::legendItemChecked( bool on )
-{
-    if ( d_data->legend && sender()->isWidgetType() )
-    {
-        QwtPlotItem *plotItem = static_cast< QwtPlotItem* >(
-            d_data->legend->find( qobject_cast<const QWidget *>( sender() ) ) );
-        if ( plotItem )
-            Q_EMIT legendChecked( plotItem, on );
-    }
-}
-
-/*!
   \brief Insert a legend
 
   If the position legend is \c QwtPlot::LeftLegend or \c QwtPlot::RightLegend
@@ -838,6 +811,14 @@ void QwtPlot::insertLegend( QwtLegend *legend,
 
         if ( d_data->legend )
         {
+            connect( this, 
+                SIGNAL( legendDataChanged( 
+                    const QwtPlotItem *, const QList<QwtLegendData> & ) ),
+                d_data->legend, 
+                SLOT( updateLegend( 
+                    const QwtPlotItem *, const QList<QwtLegendData> & ) ) 
+            );
+
             if ( pos != ExternalLegend )
             {
                 if ( d_data->legend->parent() != this )
@@ -848,7 +829,7 @@ void QwtPlot::insertLegend( QwtLegend *legend,
             for ( QwtPlotItemIterator it = itmList.begin();
                 it != itmList.end(); ++it )
             {
-                ( *it )->updateLegend( d_data->legend );
+                updateLegend( *it );
             }
 
             QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
@@ -875,3 +856,41 @@ void QwtPlot::insertLegend( QwtLegend *legend,
 
     updateLayout();
 }
+
+void QwtPlot::updateLegend( const QwtPlotItem *plotItem )
+{
+    if ( plotItem == NULL )
+        return;
+
+    QList<QwtLegendData> legendData;
+
+    if ( plotItem->testItemAttribute( QwtPlotItem::Legend ) )
+        legendData = plotItem->legendData();
+
+    Q_EMIT legendDataChanged( plotItem, legendData );
+}
+
+/*!
+  \brief Attach/Detach a plot item 
+
+  \param plotItem Plot item
+  \param on When true attach the item, otherwise detach it
+ */
+void QwtPlot::attachItem( QwtPlotItem *plotItem, bool on )
+{
+    if ( on )
+    {
+        insertItem( plotItem );
+        updateLegend( plotItem );
+    }
+    else 
+    {
+        QList<QwtLegendData> legendData;
+        Q_EMIT legendDataChanged( plotItem, legendData );
+        removeItem( plotItem );
+    }
+
+    if ( autoReplot() )
+        update();
+}
+

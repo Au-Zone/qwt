@@ -30,6 +30,24 @@ inline static bool qwtIsIncreasing(
     return !isInverting;
 }
 
+static QPixmap qwtLegendIdentifier(
+    const QwtPlotItem *item, int index, const QSize &size )
+{
+    QPixmap pm( size );
+    pm.fill( Qt::transparent );
+
+    QPainter painter( &pm );
+    painter.setRenderHint( QPainter::Antialiasing,
+        item->testRenderHint( QwtPlotItem::RenderAntialiased ) );
+
+    item->drawLegendIdentifier( index, &painter,
+        QRect( 0, 0, size.width(), size.height() ) );
+
+    painter.end();
+
+    return pm;
+}
+
 class QwtPlotMultiBarChart::PrivateData
 {
 public:
@@ -42,7 +60,8 @@ public:
     }
 
     QwtPlotMultiBarChart::ChartStyle style;
-    QVector<QBrush> colorTable;
+    QList<QBrush> colorTable;
+    QList<QwtText> barTitles;
     QMap<int, QwtColumnSymbol *> symbolMap;
 };
 
@@ -92,13 +111,24 @@ void QwtPlotMultiBarChart::setSamples(
     setData( new QwtSetSeriesData( s ) );
 }
 
-void QwtPlotMultiBarChart::setColorTable( const QVector<QBrush> &colorTable )
+void QwtPlotMultiBarChart::setTitles( const QList<QwtText> &titles )
+{
+    d_data->barTitles = titles;
+    itemChanged();
+}
+
+QList<QwtText> QwtPlotMultiBarChart::titles() const
+{
+    return d_data->barTitles;
+}
+
+void QwtPlotMultiBarChart::setColorTable( const QList<QBrush> &colorTable )
 {
     d_data->colorTable = colorTable;
     itemChanged();
 }
 
-QVector<QBrush> QwtPlotMultiBarChart::colorTable() const
+QList<QBrush> QwtPlotMultiBarChart::colorTable() const
 {
     return d_data->colorTable;
 }
@@ -553,3 +583,38 @@ QwtText QwtPlotMultiBarChart::label(
 
     return QwtText( labelText );
 }
+
+QList<QwtLegendData> QwtPlotMultiBarChart::legendData() const
+{
+    QList<QwtLegendData> list;
+
+    for ( int i = 0; i < d_data->barTitles.size(); i++ )
+    {
+        QwtLegendData data;
+
+        QVariant titleValue;
+        qVariantSetValue( titleValue, d_data->barTitles[i] );
+        data.setValue( QwtLegendData::TitleRole, titleValue );
+
+        if ( !legendIdentifierSize().isEmpty() )
+        {
+            data.setValue( QwtLegendData::IconRole,
+                qwtLegendIdentifier( this, i, legendIdentifierSize() ) );
+        }
+
+        list += data;
+    }
+
+    return list;
+}
+
+void QwtPlotMultiBarChart::drawLegendIdentifier( int index,
+    QPainter *painter, const QRectF &rect ) const
+{
+    QwtColumnRect column;
+    column.hInterval = QwtInterval( rect.left(), rect.right() - 1 );
+    column.vInterval = QwtInterval( rect.top(), rect.bottom() - 1 );
+
+    drawBar( painter, -1, index, column );
+}
+

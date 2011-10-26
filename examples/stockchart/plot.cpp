@@ -6,7 +6,7 @@
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
-#include <qwt_legend_item.h>
+#include <qwt_legend_label.h>
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
@@ -19,7 +19,7 @@ Plot::Plot( QWidget *parent ):
     setAxisScale( QwtPlot::xBottom, 0.0, 365.0 );
 
     QwtLegend *legend = new QwtLegend;
-    legend->setItemMode( QwtLegend::CheckableItem );
+    legend->setDefaultItemMode( QwtLegendData::Checkable );
     insertLegend( legend, QwtPlot::RightLegend );
 
     populate();
@@ -40,7 +40,7 @@ Plot::Plot( QWidget *parent ):
     QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
     panner->setMouseButton( Qt::MidButton );
 
-    connect( this, SIGNAL( legendChecked( QwtPlotItem *, bool ) ),
+    connect( legend, SIGNAL( checked( QwtPlotItem *, bool, int ) ),
         SLOT( showCurve( QwtPlotItem *, bool ) ) );
 }
 
@@ -102,12 +102,16 @@ void Plot::setMode( int style )
 void Plot::showCurve( QwtPlotItem *item, bool on )
 {
     item->setVisible( on );
-
-    QwtLegendItem *legendItem =
-        qobject_cast<QwtLegendItem *>( legend()->find( item ) );
-
-    if ( legendItem )
-        legendItem->setChecked( on );
+        
+    QList<QWidget *> legendWidgets = legend()->legendWidgets( item );
+    if ( legendWidgets.size() == 1 )
+    {
+        QwtLegendLabel *legendLabel =
+            qobject_cast<QwtLegendLabel *>( legendWidgets[0] );
+    
+        if ( legendLabel )
+            legendLabel->setChecked( on );
+    }
 
     replot();
 }

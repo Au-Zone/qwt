@@ -3,7 +3,7 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_renderer.h>
 #include <qwt_legend.h>
-#include <qwt_legend_item.h>
+#include <qwt_legend_label.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_histogram.h>
 #include <qwt_column_symbol.h>
@@ -62,12 +62,12 @@ TVPlot::TVPlot( QWidget *parent ):
     setAxisTitle( QwtPlot::xBottom, "Number of Hours" );
 
     QwtLegend *legend = new QwtLegend;
-    legend->setItemMode( QwtLegend::CheckableItem );
+    legend->setDefaultItemMode( QwtLegendData::Checkable );
     insertLegend( legend, QwtPlot::RightLegend );
 
     populate();
 
-    connect( this, SIGNAL( legendChecked( QwtPlotItem *, bool ) ),
+    connect( legend, SIGNAL( checked( QwtPlotItem *, bool, int ) ),
         SLOT( showItem( QwtPlotItem *, bool ) ) );
 
     replot(); // creating the legend items
@@ -77,15 +77,17 @@ TVPlot::TVPlot( QWidget *parent ):
     {
         if ( i == 0 )
         {
-            QwtLegendItem *legendItem =
-                qobject_cast<QwtLegendItem *>( legend->find( items[i] ) );
-            if ( legendItem )
-                legendItem->setChecked( true );
+            QwtLegendLabel *legendLabel =
+                qobject_cast<QwtLegendLabel *>( legend->legendWidget( items[i] ) );
+            if ( legendLabel )
+                legendLabel->setChecked( true );
 
             items[i]->setVisible( true );
         }
         else
+        {
             items[i]->setVisible( false );
+        }
     }
 
     setAutoReplot( true );

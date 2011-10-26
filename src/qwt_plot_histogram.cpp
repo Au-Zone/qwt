@@ -9,8 +9,6 @@
 
 #include "qwt_plot_histogram.h"
 #include "qwt_plot.h"
-#include "qwt_legend.h"
-#include "qwt_legend_item.h"
 #include "qwt_painter.h"
 #include "qwt_column_symbol.h"
 #include "qwt_scale_map.h"
@@ -636,9 +634,11 @@ void QwtPlotHistogram::drawColumn( QPainter *painter,
   \param painter Painter
   \param rect Bounding rectangle for the identifier
 */
-void QwtPlotHistogram::drawLegendIdentifier(
+void QwtPlotHistogram::drawLegendIdentifier( int index,
     QPainter *painter, const QRectF &rect ) const
 {
+    Q_UNUSED( index );
+
     const double dim = qMin( rect.width(), rect.height() );
 
     QSizeF size( dim, dim );
