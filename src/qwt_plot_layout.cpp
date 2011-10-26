@@ -874,8 +874,8 @@ void QwtPlotLayout::alignScales( int options,
                       The axis needs more space than the width
                       of the left scale.
                      */
-                    canvasRect.setLeft( qMax( canvasRect.left(),
-                        axisRect.left() - dx ) );
+                    const double cLeft = canvasRect.left(); // qreal -> double
+                    canvasRect.setLeft( qMax( cLeft, axisRect.left() - dx ) );
                 }
                 else
                 {
@@ -911,8 +911,8 @@ void QwtPlotLayout::alignScales( int options,
                       The axis needs more space than the width
                       of the right scale.
                      */
-                    canvasRect.setRight( qMin( canvasRect.right(),
-                        axisRect.right() + dx ) );
+                    const double cRight = canvasRect.right(); // qreal -> double
+                    canvasRect.setRight( qMin( cRight, axisRect.right() + dx ) );
                 }   
 
                 const double maxRight = rightScaleRect.right();
@@ -948,8 +948,8 @@ void QwtPlotLayout::alignScales( int options,
                       The axis needs more space than the height
                       of the bottom scale.
                      */
-                    canvasRect.setBottom( qMin( canvasRect.bottom(),
-                        axisRect.bottom() + dy ) );
+                    const double cBottom = canvasRect.bottom(); // qreal -> double
+                    canvasRect.setBottom( qMin( cBottom, axisRect.bottom() + dy ) );
                 }
                 else
                 {
@@ -985,8 +985,8 @@ void QwtPlotLayout::alignScales( int options,
                       The axis needs more space than the height
                       of the top scale.
                      */
-                    canvasRect.setTop( qMax( canvasRect.top(),
-                        axisRect.top() - dy ) );
+                    const double cTop = canvasRect.top(); // qreal -> double
+                    canvasRect.setTop( qMax( cTop, axisRect.top() - dy ) );
                 }
                 else
                 {
