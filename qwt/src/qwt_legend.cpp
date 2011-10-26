@@ -8,21 +8,101 @@
  *****************************************************************************/
 
 #include "qwt_legend.h"
-#include "qwt_legend_itemmanager.h"
-#include "qwt_legend_item.h"
-#include "qwt_legend_map.h"
+#include "qwt_legend_label.h"
 #include "qwt_dyngrid_layout.h"
 #include "qwt_math.h"
+#include "qwt_plot_item.h"
 #include <qapplication.h>
 #include <qscrollbar.h>
 #include <qscrollarea.h>
+#include <qpainter.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
+
+static void qwtRenderBackground( QPainter *painter,
+    const QRectF &rect, const QWidget *widget )
+{
+    if ( widget->testAttribute( Qt::WA_StyledBackground ) )
+    {
+        QStyleOption opt;
+        opt.initFrom( widget );
+        opt.rect = rect.toAlignedRect();
+
+        widget->style()->drawPrimitive(
+            QStyle::PE_Widget, &opt, painter, widget);
+    }
+    else
+    {
+        const QBrush brush =
+            widget->palette().brush( widget->backgroundRole() );
+
+        painter->fillRect( rect, brush );
+    }
+}
+
+class QwtLegendMap: public QMap<const QwtPlotItem *, QList<QWidget *> >
+{
+public:
+    void removeWidget( const QWidget * );
+    QList<QWidget *> legendWidgets( const QwtPlotItem * ) const;
+    const QwtPlotItem *plotItem( const QWidget * ) const;
+    QwtPlotItem *plotItem( const QWidget * );
+};
+
+void QwtLegendMap::removeWidget( const QWidget *widget )
+{
+    while ( QwtPlotItem *item = plotItem( widget ) )
+    {
+        QList<QWidget *> widgets = legendWidgets( item );
+        widgets.removeAll( const_cast< QWidget *>( widget ) );
+        insert( item, widgets );
+    }
+}
+
+QwtPlotItem *QwtLegendMap::plotItem( const QWidget *widget )
+{
+    if ( widget == NULL )
+        return NULL;
+
+    for ( Iterator it = begin(); it != end(); ++it )
+    {
+        const QList< QWidget *> &widgets = it.value();
+        for ( int i = 0; i < widgets.size(); i++ )
+        {
+            if ( widgets[i] == widget )
+                return const_cast<QwtPlotItem *>( it.key() );
+        }
+    }
+
+    return NULL;
+}
+
+const QwtPlotItem *QwtLegendMap::plotItem( const QWidget *widget ) const
+{
+    QwtLegendMap *that = const_cast<QwtLegendMap *>( this );
+    return that->plotItem( widget );
+}
+
+QList<QWidget *> QwtLegendMap::legendWidgets( const QwtPlotItem *item ) const
+{
+    const ConstIterator it = find( item );
+    if ( it != constEnd() )
+        return it.value();
+
+    return QList<QWidget *>();
+}
 
 class QwtLegend::PrivateData
 {
 public:
-    QwtLegend::LegendItemMode itemMode;
+    PrivateData():
+        itemMode( QwtLegendData::ReadOnly ),
+        view( NULL )
+    {
+    }
 
-    QwtLegendMap map;
+    QwtLegendData::Mode itemMode;
+    QwtLegendMap itemMap;
 
     class LegendView;
     LegendView *view;
@@ -99,7 +179,6 @@ QwtLegend::QwtLegend( QWidget *parent ):
     setFrameStyle( NoFrame );
 
     d_data = new QwtLegend::PrivateData;
-    d_data->itemMode = QwtLegend::ReadOnlyItem;
 
     d_data->view = new QwtLegend::PrivateData::LegendView( this );
     d_data->view->setObjectName( "QwtLegendView" );
@@ -122,14 +201,29 @@ QwtLegend::~QwtLegend()
     delete d_data;
 }
 
-//! \sa LegendItemMode
-void QwtLegend::setItemMode( LegendItemMode mode )
+/*!
+  \brief Set the default mode for legend labels
+
+  Legend labels will be constructed according to the
+  attributes in a QwtLegendData object. When it doesn't
+  contain a value for the QwtLegendData::ModeRole the
+  label will be initialized with the default mode of the legend.
+
+  \param mode Default item mode
+
+  \sa itemMode(), QwtLegendData::value(), QwtPlotItem::legendData()
+  \note Changing the mode doesn't have any effect on existing labels.
+ */
+void QwtLegend::setDefaultItemMode( QwtLegendData::Mode mode )
 {
     d_data->itemMode = mode;
 }
 
-//! \sa LegendItemMode
-QwtLegend::LegendItemMode QwtLegend::itemMode() const
+/*!
+  \return Default item mode
+  \sa setDefaultItemMode()
+*/
+QwtLegendData::Mode QwtLegend::defaultItemMode() const
 {
     return d_data->itemMode;
 }
@@ -176,44 +270,122 @@ const QWidget *QwtLegend::contentsWidget() const
 }
 
 /*!
-  Insert a new item for a plot item
-  \param plotItem Plot item
-  \param legendItem New legend item
-  \note The parent of item will be changed to contentsWidget()
-*/
-void QwtLegend::insert( const QwtLegendItemManager *plotItem, QWidget *legendItem )
+  \brief Update the entries for a plot item
+
+  \param plotItem Plot items
+  \param data List of legend entry attributes
+ */
+void QwtLegend::updateLegend( const QwtPlotItem *plotItem, 
+    const QList<QwtLegendData> &data )
 {
-    if ( legendItem == NULL || plotItem == NULL )
-        return;
+    QList<QWidget *> widgetList = legendWidgets( plotItem );
 
-    QWidget *contentsWidget = d_data->view->contentsWidget;
+    if ( widgetList.size() != data.size() )
+    {
+        for ( int i = data.size(); i < widgetList.size(); i++ )
+        {
+            widgetList[i]->hide();
+            widgetList[i]->deleteLater();
 
-    if ( legendItem->parent() != contentsWidget )
-        legendItem->setParent( contentsWidget );
+            widgetList.removeAt( i );
+        }
 
-    legendItem->show();
+        QLayout *contentsLayout = d_data->view->contentsWidget->layout();
+        for ( int i = widgetList.size(); i < data.size(); i++ )
+        {
+            QWidget *widget = createWidget( data[i] );
 
-    d_data->map.insert( plotItem, legendItem );
+            if ( contentsLayout )
+                contentsLayout->addWidget( widget );
 
+            widgetList += widget;
+        }
+
+		if ( widgetList.isEmpty() )
+		{
+			d_data->itemMap.remove( plotItem );
+		}
+		else
+		{
+        	d_data->itemMap.insert( plotItem, widgetList );
+		}
+
+        updateLayout();
+    }
+    
+    for ( int i = 0; i < data.size(); i++ )
+        updateWidget( widgetList[i], data[i] );
+}
+
+/*!
+  \brief Create a widget to be inserted into the legend
+
+  The default implementation returns a QwtLegendLabel.
+
+  \param data Attributes of the legend entry
+  
+  \note updateWidget() will called soon after createWidget()
+        with the same attributes.
+ */
+QWidget *QwtLegend::createWidget( const QwtLegendData &data ) const
+{
+    Q_UNUSED( data );
+
+    QwtLegendLabel *label = new QwtLegendLabel();
+    label->setItemMode( defaultItemMode() );
+
+    connect( label, SIGNAL( clicked() ), SLOT( itemClicked() ) );
+    connect( label, SIGNAL( checked( bool ) ), SLOT( itemChecked( bool ) ) );
+
+    return label;
+}
+
+/*!
+  \brief Update the widget 
+
+  \param widget Usually a QwtLegendLabel
+  \param data Attributes to be displayed
+
+  \sa createWidget()
+  \note When widget is no QwtLegendLabel updateWidget() does nothing.
+ */
+void QwtLegend::updateWidget( QWidget *widget, const QwtLegendData &data )
+{
+    QwtLegendLabel *label = qobject_cast<QwtLegendLabel *>( widget );
+    if ( label )
+    {
+        label->setData( data );
+        if ( !data.value( QwtLegendData::ModeRole ).isValid() )
+        {
+            // use the default mode, when there is no specific
+            // hint from the legend data
+
+            label->setItemMode( defaultItemMode() );
+        }
+    }
+}
+
+void QwtLegend::updateLayout()
+{
     layoutContents();
 
-    if ( contentsWidget->layout() )
+    QLayout *contentsLayout = d_data->view->contentsWidget->layout();
+    if ( contentsLayout )
     {
-        contentsWidget->layout()->addWidget( legendItem );
-
         // set tab focus chain
 
         QWidget *w = NULL;
 
-        for ( int i = 0; i < contentsWidget->layout()->count(); i++ )
+        for ( int i = 0; i < contentsLayout->count(); i++ )
         {
-            QLayoutItem *item = contentsWidget->layout()->itemAt( i );
+            QLayoutItem *item = contentsLayout->itemAt( i );
             if ( w && item->widget() )
                 QWidget::setTabOrder( w, item->widget() );
 
             w = item->widget();
         }
     }
+
     if ( parentWidget() && parentWidget()->layout() == NULL )
     {
         /*
@@ -225,48 +397,6 @@ void QwtLegend::insert( const QwtLegendItemManager *plotItem, QWidget *legendIte
         QApplication::postEvent( parentWidget(),
             new QEvent( QEvent::LayoutRequest ) );
     }
-}
-
-/*!
-  Find the widget that represents a plot item
-
-  \param plotItem Plot item
-  \return Widget on the legend, or NULL
-*/
-QWidget *QwtLegend::find( const QwtLegendItemManager *plotItem ) const
-{
-    return d_data->map.find( plotItem );
-}
-
-/*!
-  Find the widget that represents a plot item
-
-  \param legendItem Legend item
-  \return Widget on the legend, or NULL
-*/
-QwtLegendItemManager *QwtLegend::find( const QWidget *legendItem ) const
-{
-    return d_data->map.find( legendItem );
-}
-
-/*!
-   Find the corresponding item for a plotItem and remove it
-   from the item list.
-
-   \param plotItem Plot item
-*/
-void QwtLegend::remove( const QwtLegendItemManager *plotItem )
-{
-    QWidget *legendItem = d_data->map.find( plotItem );
-    d_data->map.remove( legendItem );
-    delete legendItem;
-}
-
-//! Remove all items.
-void QwtLegend::clear()
-{
-    d_data->map.clear();
-	// delete ????
 }
 
 //! Return a size hint.
@@ -341,7 +471,7 @@ bool QwtLegend::eventFilter( QObject *object, QEvent *event )
                 if ( ce->child()->isWidgetType() )
                 {
                     QWidget *w = static_cast< QWidget * >( ce->child() );
-                    d_data->map.remove( w );
+                    d_data->itemMap.removeWidget( w );
                 }
                 break;
             }
@@ -358,21 +488,179 @@ bool QwtLegend::eventFilter( QObject *object, QEvent *event )
     return QFrame::eventFilter( object, event );
 }
 
+/*!
+  Called internally when the legend has been clicked on.
+  Emits a clicked() signal.
+*/
+void QwtLegend::itemClicked()
+{
+    QWidget *w = qobject_cast<QWidget *>( sender() );
+    if ( w )
+    {
+        QwtPlotItem *plotItem = d_data->itemMap.plotItem( w );
+        if ( plotItem )
+        {
+            const QList<QWidget *> widgetList =
+                d_data->itemMap.legendWidgets( plotItem );
 
-//! Return true, if there are no legend items.
+            const int index = widgetList.indexOf( w );
+            if ( index >= 0 )
+                Q_EMIT clicked( plotItem, index );
+        }
+    }
+}
+
+/*!
+  Called internally when the legend has been checked
+  Emits a checked() signal.
+*/
+void QwtLegend::itemChecked( bool on )
+{
+    QWidget *w = qobject_cast<QWidget *>( sender() );
+    if ( w )
+    {
+        QwtPlotItem *plotItem = d_data->itemMap.plotItem( w );
+        if ( plotItem )
+        {
+            const QList<QWidget *> widgetList =
+                d_data->itemMap.legendWidgets( plotItem );
+
+            const int index = widgetList.indexOf( w );
+            if ( index >= 0 )
+                Q_EMIT checked( plotItem, on, index );
+        }
+    }
+}
+
+/*!
+  Render the legend into a given rectangle.
+
+  \param painter Painter
+  \param rect Bounding rectangle
+  \param fillBackground When true, fill rect with the widget background 
+
+  \sa renderLegend() is used by QwtPlotRenderer - not by QwtLegend itself
+*/
+void QwtLegend::renderLegend( QPainter *painter, 
+    const QRectF &rect, bool fillBackground ) const
+{
+    if ( d_data->itemMap.isEmpty() )
+        return;
+
+    if ( fillBackground )
+    {
+        if ( autoFillBackground() ||
+            testAttribute( Qt::WA_StyledBackground ) )
+        {
+            qwtRenderBackground( painter, rect, this );
+        }
+    }
+
+    const QwtDynGridLayout *legendLayout = 
+        qobject_cast<QwtDynGridLayout *>( contentsWidget()->layout() );
+    if ( legendLayout == NULL )
+        return;
+
+    uint numCols = legendLayout->columnsForWidth( qFloor( rect.width() ) );
+    QList<QRect> itemRects =
+        legendLayout->layoutItems( rect.toRect(), numCols );
+
+    int index = 0;
+
+    for ( int i = 0; i < legendLayout->count(); i++ )
+    {
+        QLayoutItem *item = legendLayout->itemAt( i );
+        QWidget *w = item->widget();
+        if ( w )
+        {
+            painter->save();
+
+            painter->setClipRect( itemRects[index] );
+            renderItem( painter, w, itemRects[index], fillBackground );
+
+            index++;
+            painter->restore();
+        }
+    }
+}
+
+/*!
+  Render a legend entry into a given rectangle.
+
+  \param painter Painter
+  \param widget Widget representing a legend entry
+  \param rect Bounding rectangle
+  \param fillBackground When true, fill rect with the widget background 
+
+  \note When widget is not derived from QwtLegendLabel renderItem
+        does nothing beside the background
+*/
+void QwtLegend::renderItem( QPainter *painter, 
+    const QWidget *widget, const QRectF &rect, bool fillBackground ) const
+{
+    if ( fillBackground )
+    {
+        if ( widget->autoFillBackground() ||
+            widget->testAttribute( Qt::WA_StyledBackground ) )
+        {
+            qwtRenderBackground( painter, rect, widget );
+        }
+    }
+
+    const QwtLegendLabel *label = qobject_cast<const QwtLegendLabel *>( widget );
+    if ( label )
+    {
+        const QSize sz = label->identifier().size();
+
+        const QRectF identifierRect( rect.x() + label->margin(),
+            rect.center().y() - 0.5 * sz.height(), sz.width(), sz.height() );
+
+        const QwtPlotItem *plotItem = d_data->itemMap.plotItem( label );
+        if ( plotItem )
+        {
+            const int index = d_data->itemMap.legendWidgets( 
+                plotItem ).indexOf( const_cast<QwtLegendLabel *>( label ) );
+
+            painter->save();
+            painter->setClipRect( identifierRect, Qt::IntersectClip );
+            plotItem->drawLegendIdentifier( index, painter, identifierRect );
+            painter->restore();
+        }
+
+        // Label
+
+        QRectF titleRect = rect;
+        titleRect.setX( identifierRect.right() + 2 * label->spacing() );
+
+        painter->setFont( label->font() );
+        label->text().draw( painter, titleRect );
+    }
+}
+
+/*!
+  \return List of widgets associated to a plot item
+  \sa legendWidget()
+ */
+QList<QWidget *> QwtLegend::legendWidgets( const QwtPlotItem *item ) const
+{
+    return d_data->itemMap.legendWidgets( item );
+}
+
+/*!
+  \return First widget in the list of widgets associated to a plot item
+  \note Almost all types of plot items have only one widget
+*/
+QWidget *QwtLegend::legendWidget( const QwtPlotItem *item ) const
+{
+    const QList<QWidget *> list = d_data->itemMap.legendWidgets( item );
+    if ( list.isEmpty() )
+        return NULL;
+
+    return list[0];
+}
+
+//! \return True, when no plot item is inserted
 bool QwtLegend::isEmpty() const
 {
-    return d_data->map.count() == 0;
-}
-
-//! Return the number of legend items.
-uint QwtLegend::itemCount() const
-{
-    return d_data->map.count();
-}
-
-//! Return a list of all legend items
-QList<QWidget *> QwtLegend::legendItems() const
-{
-	return d_data->map.legendItems();
+    return d_data->itemMap.isEmpty();
 }

@@ -7,7 +7,7 @@
 #include <qwt_scale_draw.h>
 #include <qwt_scale_widget.h>
 #include <qwt_legend.h>
-#include <qwt_legend_item.h>
+#include <qwt_legend_label.h>
 #include <qwt_plot_canvas.h>
 #include "cpupiemarker.h"
 #include "cpuplot.h"
@@ -89,7 +89,7 @@ CpuPlot::CpuPlot( QWidget *parent ):
     plotLayout()->setAlignCanvasToScales( true );
 
     QwtLegend *legend = new QwtLegend;
-    legend->setItemMode( QwtLegend::CheckableItem );
+    legend->setDefaultItemMode( QwtLegendData::Checkable );
     insertLegend( legend, QwtPlot::RightLegend );
 
     setAxisTitle( QwtPlot::xBottom, " System Uptime [h:m:s]" );
@@ -156,7 +156,7 @@ CpuPlot::CpuPlot( QWidget *parent ):
 
     ( void )startTimer( 1000 ); // 1 second
 
-    connect( this, SIGNAL( legendChecked( QwtPlotItem *, bool ) ),
+    connect( legend, SIGNAL( checked( QwtPlotItem *, bool, int ) ),
         SLOT( showCurve( QwtPlotItem *, bool ) ) );
 }
 
@@ -198,11 +198,15 @@ void CpuPlot::showCurve( QwtPlotItem *item, bool on )
 {
     item->setVisible( on );
 
-    QwtLegendItem *legendItem =
-        qobject_cast<QwtLegendItem *>( legend()->find( item ) );
+    QList<QWidget *> legendWidgets = legend()->legendWidgets( item );
+    if ( legendWidgets.size() == 1 )
+    {
+        QwtLegendLabel *legendLabel =
+            qobject_cast<QwtLegendLabel *>( legendWidgets[0] );
 
-    if ( legendItem )
-        legendItem->setChecked( on );
+        if ( legendLabel )
+            legendLabel->setChecked( on );
+    }
 
     replot();
 }

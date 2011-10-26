@@ -126,9 +126,6 @@ public:
     virtual void render( QwtPlot *,
         QPainter *, const QRectF &rect ) const;
 
-    virtual void renderLegendItem( const QwtPlot *, 
-        QPainter *, const QWidget *, const QRectF & ) const;
-
     virtual void renderTitle( const QwtPlot *,
         QPainter *, const QRectF & ) const;
 

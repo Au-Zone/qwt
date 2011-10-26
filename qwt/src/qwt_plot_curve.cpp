@@ -12,8 +12,6 @@
 #include "qwt_math.h"
 #include "qwt_clipper.h"
 #include "qwt_painter.h"
-#include "qwt_legend.h"
-#include "qwt_legend_item.h"
 #include "qwt_scale_map.h"
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
@@ -204,6 +202,26 @@ void QwtPlotCurve::setSymbol( const QwtSymbol *symbol )
     {
         delete d_data->symbol;
         d_data->symbol = symbol;
+
+        if ( symbol )
+        {
+            QSize sz = symbol->boundingSize();
+            sz += QSize( 2, 2 ); // margin
+
+            if ( d_data->legendAttributes & QwtPlotCurve::LegendShowLine )
+            {
+                // Avoid, that the line is completely covered by the symbol
+
+                int w = qCeil( 1.5 * sz.width() );
+                if ( w % 2 )
+                    w++;
+
+                sz.setWidth( qMax( 8, w ) );
+            }
+
+            setLegendIdentifierSize( sz );
+        }
+
         itemChanged();
     }
 }
@@ -1023,51 +1041,6 @@ int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
 }
 
 /*!
-   \brief Update the widget that represents the item on the legend
-
-   \param legend Legend
-   \sa drawLegendIdentifier(), legendItem(), QwtPlotItem::Legend
-*/
-void QwtPlotCurve::updateLegend( QwtLegend *legend ) const
-{
-    if ( legend && testItemAttribute( QwtPlotItem::Legend )
-        && ( d_data->legendAttributes & QwtPlotCurve::LegendShowSymbol )
-        && d_data->symbol
-        && d_data->symbol->style() != QwtSymbol::NoSymbol )
-    {
-        QWidget *lgdItem = legend->find( this );
-        if ( lgdItem == NULL )
-        {
-            lgdItem = legendItem();
-            if ( lgdItem )
-                legend->insert( this, lgdItem );
-        }
-
-        QwtLegendItem *l = qobject_cast<QwtLegendItem *>( lgdItem );
-        if ( l )
-        {
-            QSize sz = d_data->symbol->boundingSize();
-            sz += QSize( 2, 2 ); // margin
-
-            if ( d_data->legendAttributes & QwtPlotCurve::LegendShowLine )
-            {
-                // Avoid, that the line is completely covered by the symbol
-
-                int w = qCeil( 1.5 * sz.width() );
-                if ( w % 2 )
-                    w++;
-
-                sz.setWidth( qMax( 8, w ) );
-            }
-
-            l->setIdentifierSize( sz );
-        }
-    }
-
-    QwtPlotItem::updateLegend( legend );
-}
-
-/*!
   \brief Draw the identifier representing the curve on the legend
 
   \param painter Painter
@@ -1076,8 +1049,10 @@ void QwtPlotCurve::updateLegend( QwtLegend *legend ) const
   \sa setLegendAttribute(), QwtPlotItem::Legend
 */
 void QwtPlotCurve::drawLegendIdentifier(
-    QPainter *painter, const QRectF &rect ) const
+    int index, QPainter *painter, const QRectF &rect ) const
 {
+    Q_UNUSED( index );
+
     if ( rect.isEmpty() )
         return;
 

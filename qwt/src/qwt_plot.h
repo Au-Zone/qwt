@@ -16,6 +16,7 @@
 #include "qwt_scale_map.h"
 #include "qwt_interval.h"
 #include <qframe.h>
+#include <qlist.h>
 
 class QwtPlotLayout;
 class QwtLegend;
@@ -224,6 +225,8 @@ public:
     QwtLegend *legend();
     const QwtLegend *legend() const;
 
+    void updateLegend( const QwtPlotItem * );
+
     // Misc
 
     virtual QSize sizeHint() const;
@@ -247,38 +250,18 @@ public:
 
 Q_SIGNALS:
     /*!
-      A signal which is emitted when the user has clicked on
-      a legend item, which is in QwtLegend::ClickableItem mode.
+      A signal with the attributes how to update 
+      the legend entries for a plot item.
 
-      \param plotItem Corresponding plot item of the
-                 selected legend item
-
-      \note clicks are disabled as default
-      \sa QwtLegend::setItemMode(), QwtLegend::itemMode()
+      \param plotItem Plot item
+      \param data List of attributes for items on a legend
      */
-    void legendClicked( QwtPlotItem *plotItem );
-
-    /*!
-      A signal which is emitted when the user has clicked on
-      a legend item, which is in QwtLegend::CheckableItem mode
-
-      \param plotItem Corresponding plot item of the
-                 selected legend item
-      \param on True when the legen item is checked
-
-      \note clicks are disabled as default
-      \sa QwtLegend::setItemMode(), QwtLegend::itemMode()
-     */
-
-    void legendChecked( QwtPlotItem *plotItem, bool on );
+    void legendDataChanged( const QwtPlotItem *plotItem, 
+        const QList<QwtLegendData> &data );
 
 public Q_SLOTS:
     virtual void replot();
     void autoRefresh();
-
-protected Q_SLOTS:
-    virtual void legendItemClicked();
-    virtual void legendItemChecked( bool );
 
 protected:
     static bool axisValid( int axisId );
@@ -288,6 +271,9 @@ protected:
     virtual void resizeEvent( QResizeEvent *e );
 
 private:
+    friend class QwtPlotItem;
+    void attachItem( QwtPlotItem *, bool );
+
     void initAxesData();
     void deleteAxesData();
     void updateScaleDiv();

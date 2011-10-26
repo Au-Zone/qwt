@@ -9,8 +9,6 @@
 
 #include "qwt_plot_svgitem.h"
 #include "qwt_scale_map.h"
-#include "qwt_legend.h"
-#include "qwt_legend_item.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
 #include <qsvgrenderer.h>

@@ -497,9 +497,11 @@ void QwtPlotTradingCurve::drawUserSymbol( QPainter *painter,
   \param rect Bounding rectangle for the identifier
 */
 
-void QwtPlotTradingCurve::drawLegendIdentifier(
+void QwtPlotTradingCurve::drawLegendIdentifier( int index,
     QPainter *painter, const QRectF &rect ) const
 {
+    Q_UNUSED( index );
+
     const double dim = qMin( rect.width(), rect.height() );
 
     QSizeF size( dim, dim );

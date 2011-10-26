@@ -505,9 +505,11 @@ void QwtPlotIntervalCurve::drawSymbols(
   \param painter Painter
   \param rect Bounding rectangle for the identifier
 */
-void QwtPlotIntervalCurve::drawLegendIdentifier(
+void QwtPlotIntervalCurve::drawLegendIdentifier( int index,
     QPainter *painter, const QRectF &rect ) const
 {
+    Q_UNUSED( index );
+
     const double dim = qMin( rect.width(), rect.height() );
 
     QSizeF size( dim, dim );

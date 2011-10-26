@@ -13,6 +13,7 @@
 #include "qwt_global.h"
 #include "qwt_plot_baritem.h"
 #include "qwt_series_data.h"
+#include <qlist.h>
 
 class QwtColumnRect;
 class QwtColumnSymbol;
@@ -34,17 +35,20 @@ public:
 
     virtual int rtti() const;
 
+    void setTitles( const QList<QwtText> & );
+    QList<QwtText> titles() const;
+
     void setSamples( const QVector<QwtSetSample> & );
     void setSamples( const QVector< QVector<double> > & );
 
     void setStyle( ChartStyle style );
     ChartStyle style() const;
 
-	void setColorTable( const QVector<QBrush> &colorTable );
-	QVector<QBrush> colorTable() const;
+    void setColorTable( const QList<QBrush> &colorTable );
+    QList<QBrush> colorTable() const;
 
-	void setSymbol( int barIndex, QwtColumnSymbol *symbol );
-	void clearSymbols();
+    void setSymbol( int barIndex, QwtColumnSymbol *symbol );
+    void clearSymbols();
 
     const QwtColumnSymbol *symbol( int barIndex ) const;
 
@@ -53,6 +57,11 @@ public:
         const QRectF &canvasRect, int from, int to ) const;
 
     virtual QRectF boundingRect() const;
+
+    virtual QList<QwtLegendData> legendData() const;
+
+    virtual void drawLegendIdentifier( int index,
+        QPainter *, const QRectF & ) const;
 
 protected:
     QwtColumnSymbol *symbol( int barIndex );

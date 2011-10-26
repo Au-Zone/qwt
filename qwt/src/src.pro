@@ -103,9 +103,8 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_curve_fitter.h \
         qwt_event_pattern.h \
         qwt_legend.h \
-        qwt_legend_map.h \
-        qwt_legend_item.h \
-        qwt_legend_itemmanager.h \
+        qwt_legend_data.h \
+        qwt_legend_label.h \
         qwt_plot.h \
         qwt_plot_renderer.h \
         qwt_plot_curve.h \
@@ -145,8 +144,8 @@ contains(QWT_CONFIG, QwtPlot) {
     SOURCES += \
         qwt_curve_fitter.cpp \
         qwt_legend.cpp \
-        qwt_legend_map.cpp \
-        qwt_legend_item.cpp \
+        qwt_legend_data.cpp \
+        qwt_legend_label.cpp \
         qwt_plot.cpp \
         qwt_plot_renderer.cpp \
         qwt_plot_xml.cpp \
