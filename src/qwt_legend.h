@@ -11,12 +11,9 @@
 #define QWT_LEGEND_H
 
 #include "qwt_global.h"
-#include "qwt_legend_data.h"
-#include <qframe.h>
-#include <qlist.h>
+#include "qwt_abstract_legend.h"
 
 class QScrollBar;
-class QwtPlotItem;
 
 /*!
   \brief The legend widget
@@ -28,13 +25,16 @@ class QwtPlotItem;
   \sa QwtLegendLabel, QwtPlotItem QwtPlot
 */
 
-class QWT_EXPORT QwtLegend : public QFrame
+class QWT_EXPORT QwtLegend : public QwtAbstractLegend
 {
     Q_OBJECT
 
 public:
     explicit QwtLegend( QWidget *parent = NULL );
     virtual ~QwtLegend();
+
+    void setMaxColumns( uint numColums );
+    uint maxColumns() const;
 
     void setDefaultItemMode( QwtLegendData::Mode );
     QwtLegendData::Mode defaultItemMode() const;
@@ -59,7 +59,8 @@ public:
     virtual void renderItem( QPainter *, 
         const QWidget *, const QRectF &, bool fillBackground ) const;
 
-    bool isEmpty() const;
+    virtual bool isEmpty() const;
+	virtual int scrollExtent( Qt::Orientation ) const;
 
 Q_SIGNALS:
     /*!
