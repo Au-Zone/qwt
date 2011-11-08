@@ -12,7 +12,7 @@
 #include "qwt_text_label.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_scale_widget.h"
-#include "qwt_legend.h"
+#include "qwt_abstract_legend.h"
 #include <qscrollbar.h>
 #include <qmath.h>
 
@@ -24,8 +24,8 @@ public:
     struct t_legendData
     {
         int frameWidth;
-        int vScrollBarWidth;
-        int hScrollBarHeight;
+        int hScrollExtent;
+        int vScrollExtent;
         QSize hint;
     } legend;
 
@@ -71,10 +71,10 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
         && plot->legend() )
     {
         legend.frameWidth = plot->legend()->frameWidth();
-        legend.vScrollBarWidth =
-            plot->legend()->verticalScrollBar()->sizeHint().width();
-        legend.hScrollBarHeight =
-            plot->legend()->horizontalScrollBar()->sizeHint().height();
+        legend.hScrollExtent =
+            plot->legend()->scrollExtent( Qt::Horizontal );
+        legend.vScrollExtent =
+            plot->legend()->scrollExtent( Qt::Vertical );
 
         const QSize hint = plot->legend()->sizeHint();
 
@@ -84,7 +84,7 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
             h = hint.height();
 
         if ( h > rect.height() )
-            w += legend.vScrollBarWidth;
+            w += legend.hScrollExtent;
 
         legend.hint = QSize( w, h );
     }
@@ -626,7 +626,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
 
     // Compute the legend contribution
 
-    const QwtLegend *legend = plot->legend();
+    const QwtAbstractLegend *legend = plot->legend();
     if ( d_data->legendPos != QwtPlot::ExternalLegend
         && legend && !legend->isEmpty() )
     {
@@ -640,7 +640,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
                 w += d_data->spacing;
 
             if ( legendH > h )
-                legendW += legend->verticalScrollBar()->sizeHint().width();
+                legendW += legend->scrollExtent( Qt::Horizontal );
 
             if ( d_data->legendRatio < 1.0 )
                 legendW = qMin( legendW, int( w / ( 1.0 - d_data->legendRatio ) ) );
@@ -696,14 +696,14 @@ QRectF QwtPlotLayout::layoutLegend( Options options,
                 // The legend will need additional
                 // space for the vertical scrollbar.
 
-                dim += d_data->layoutData.legend.vScrollBarWidth;
+                dim += d_data->layoutData.legend.hScrollExtent;
             }
         }
     }
     else
     {
         dim = qMin( hint.height(), int( rect.height() * d_data->legendRatio ) );
-        dim = qMax( dim, d_data->layoutData.legend.hScrollBarHeight );
+        dim = qMax( dim, d_data->layoutData.legend.vScrollExtent );
     }
 
     QRectF legendRect = rect;

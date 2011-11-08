@@ -15,7 +15,6 @@
 #include "qwt_text_label.h"
 #include "qwt_legend.h"
 #include "qwt_legend_data.h"
-#include "qwt_dyngrid_layout.h"
 #include "qwt_plot_canvas.h"
 #include <qpainter.h>
 #include <qpointer.h>
@@ -23,13 +22,61 @@
 #include <qapplication.h>
 #include <qevent.h>
 
+static void qwtSetTabOrder( 
+    QWidget *first, QWidget *second, bool withChildren )
+{
+    QList<QWidget *> tabChain;
+    tabChain += first;
+    tabChain += second;
+
+    if ( withChildren )
+    {
+        QList<QWidget *> children = qFindChildren<QWidget *>( second );
+
+        QWidget *w = second->nextInFocusChain();
+        while ( children.contains( w ) )
+        {
+            children.removeAll( w );
+
+            tabChain += w;
+            w = w->nextInFocusChain();
+        }
+    }
+
+    for ( int i = 0; i < tabChain.size() - 1; i++ )
+    {
+        QWidget *from = tabChain[i];
+        QWidget *to = tabChain[i+1];
+
+        const Qt::FocusPolicy policy1 = from->focusPolicy();
+        const Qt::FocusPolicy policy2 = to->focusPolicy();
+
+        QWidget *proxy1 = from->focusProxy();
+        QWidget *proxy2 = to->focusProxy();
+
+        from->setFocusPolicy( Qt::TabFocus );
+        from->setFocusProxy( NULL);
+
+        to->setFocusPolicy( Qt::TabFocus );
+        to->setFocusProxy( NULL);
+
+        QWidget::setTabOrder( from, to );
+
+        from->setFocusPolicy( policy1 );
+        from->setFocusProxy( proxy1);
+
+        to->setFocusPolicy( policy2 );
+        to->setFocusProxy( proxy2 );
+    }
+}
+
 class QwtPlot::PrivateData
 {
 public:
     QPointer<QwtTextLabel> titleLabel;
     QPointer<QwtTextLabel> footerLabel;
     QPointer<QwtPlotCanvas> canvas;
-    QPointer<QwtLegend> legend;
+    QPointer<QwtAbstractLegend> legend;
     QwtPlotLayout *layout;
 
     bool autoReplot;
@@ -107,12 +154,18 @@ void QwtPlot::initPlot( const QwtText &title )
     d_data->canvas->setLineWidth( 2 );
     d_data->canvas->installEventFilter( this );
 
-    updateTabOrder();
-
     setSizePolicy( QSizePolicy::MinimumExpanding,
         QSizePolicy::MinimumExpanding );
 
     resize( 200, 200 );
+
+    QList<QWidget *> focusChain;
+    focusChain << this << d_data->titleLabel << axisWidget( xTop )
+        << axisWidget( yLeft ) << d_data->canvas << axisWidget( yRight )
+        << axisWidget( xBottom ) << d_data->footerLabel;
+
+    for ( int i = 0; i < focusChain.size() - 1; i++ )
+        qwtSetTabOrder( focusChain[i], focusChain[i+1], false );
 }
 
 /*!
@@ -286,7 +339,7 @@ const QwtPlotLayout *QwtPlot::plotLayout() const
   \return the plot's legend
   \sa insertLegend()
 */
-QwtLegend *QwtPlot::legend()
+QwtAbstractLegend *QwtPlot::legend()
 {
     return d_data->legend;
 }
@@ -295,7 +348,7 @@ QwtLegend *QwtPlot::legend()
   \return the plot's legend
   \sa insertLegend()
 */
-const QwtLegend *QwtPlot::legend() const
+const QwtAbstractLegend *QwtPlot::legend() const
 {
     return d_data->legend;
 }
@@ -538,70 +591,6 @@ void QwtPlot::updateCanvasMargins()
 }
 
 /*!
-   Update the focus tab order
-
-   The order is changed so that the canvas will be in front of the
-   first legend item, or behind the last legend item - depending
-   on the position of the legend.
-*/
-
-void QwtPlot::updateTabOrder()
-{
-    if ( d_data->canvas->focusPolicy() == Qt::NoFocus )
-        return;
-
-    if ( d_data->legend.isNull()
-        || d_data->layout->legendPosition() == ExternalLegend
-        || d_data->legend->isEmpty() )
-    {
-        return;
-    }
-
-    // Depending on the position of the legend the
-    // tab order will be changed that the canvas is
-    // next to the last legend item, or before
-    // the first one.
-
-    const bool canvasFirst =
-        d_data->layout->legendPosition() == QwtPlot::BottomLegend ||
-        d_data->layout->legendPosition() == QwtPlot::RightLegend;
-
-    QWidget *previous = NULL;
-
-    QWidget *w = d_data->canvas;
-    while ( ( w = w->nextInFocusChain() ) != d_data->canvas )
-    {
-        bool isLegendItem = false;
-        if ( w->focusPolicy() != Qt::NoFocus
-            && w->parent() && w->parent() == d_data->legend->contentsWidget() )
-        {
-            isLegendItem = true;
-        }
-
-        if ( canvasFirst )
-        {
-            if ( isLegendItem )
-                break;
-
-            previous = w;
-        }
-        else
-        {
-            if ( isLegendItem )
-                previous = w;
-            else
-            {
-                if ( previous )
-                    break;
-            }
-        }
-    }
-
-    if ( previous && previous != d_data->canvas )
-        setTabOrder( previous, d_data->canvas );
-}
-
-/*!
   Redraw the canvas.
   \param painter Painter used for drawing
 
@@ -797,7 +786,7 @@ bool QwtPlot::axisValid( int axisId )
   \sa legend(), QwtPlotLayout::legendPosition(),
       QwtPlotLayout::setLegendPosition()
 */
-void QwtPlot::insertLegend( QwtLegend *legend,
+void QwtPlot::insertLegend( QwtAbstractLegend *legend,
     QwtPlot::LegendPosition pos, double ratio )
 {
     d_data->layout->setLegendPosition( pos, ratio );
@@ -832,26 +821,59 @@ void QwtPlot::insertLegend( QwtLegend *legend,
                 updateLegend( *it );
             }
 
-            QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
-                d_data->legend->contentsWidget()->layout() );
-            if ( tl )
+            QwtLegend *lgd = qobject_cast<QwtLegend *>( legend );
+            if ( lgd )
             {
                 switch ( d_data->layout->legendPosition() )
                 {
                     case LeftLegend:
                     case RightLegend:
-                        tl->setMaxCols( 1 ); // 1 column: align vertical
+                    {
+                        if ( lgd->maxColumns() == 0     )
+                            lgd->setMaxColumns( 1 ); // 1 column: align vertical
                         break;
+                    }
                     case TopLegend:
                     case BottomLegend:
-                        tl->setMaxCols( 0 ); // unlimited
+                    {
+                        lgd->setMaxColumns( 0 ); // unlimited
                         break;
-                    case ExternalLegend:
+                    }
+                    default:
                         break;
                 }
             }
+
+            QWidget *previousInChain = NULL;
+            switch ( d_data->layout->legendPosition() )
+            {
+                case LeftLegend:
+                {
+                    previousInChain = axisWidget( QwtPlot::xTop );
+                    break;
+                }
+                case TopLegend:
+                {
+                    previousInChain = this;
+                    break;
+                }
+                case RightLegend:
+                {
+                    previousInChain = axisWidget( QwtPlot::yRight );
+                    break;
+                }
+                case BottomLegend:
+                {
+                    previousInChain = footerLabel();
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            if ( previousInChain )
+                qwtSetTabOrder( previousInChain, legend, true );
         }
-        updateTabOrder();
     }
 
     updateLayout();

@@ -19,7 +19,7 @@
 #include <qlist.h>
 
 class QwtPlotLayout;
-class QwtLegend;
+class QwtAbstractLegend;
 class QwtScaleWidget;
 class QwtScaleEngine;
 class QwtScaleDiv;
@@ -219,11 +219,11 @@ public:
 
     // Legend
 
-    void insertLegend( QwtLegend *, LegendPosition = QwtPlot::RightLegend,
-        double ratio = -1.0 );
+    void insertLegend( QwtAbstractLegend *, 
+        LegendPosition = QwtPlot::RightLegend, double ratio = -1.0 );
 
-    QwtLegend *legend();
-    const QwtLegend *legend() const;
+    QwtAbstractLegend *legend();
+    const QwtAbstractLegend *legend() const;
 
     void updateLegend( const QwtPlotItem * );
 
@@ -265,8 +265,6 @@ public Q_SLOTS:
 
 protected:
     static bool axisValid( int axisId );
-
-    virtual void updateTabOrder();
 
     virtual void resizeEvent( QResizeEvent *e );
 

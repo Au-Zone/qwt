@@ -114,8 +114,6 @@ public:
     LegendView( QWidget *parent ):
         QScrollArea( parent )
     {
-        setFocusPolicy( Qt::NoFocus );
-
         contentsWidget = new QWidget( this );
         contentsWidget->setObjectName( "QwtLegendViewContents" );
 
@@ -128,6 +126,14 @@ public:
         // But we don't want a background.
         contentsWidget->setAutoFillBackground( false );
         viewport()->setAutoFillBackground( false );
+    }
+
+    virtual bool event( QEvent *ev )
+    {
+        if ( ev->type() == QEvent::PolishRequest )
+            setFocusPolicy( Qt::NoFocus );
+
+        return QScrollArea::event( ev );
     }
 
     virtual bool viewportEvent( QEvent *e )
@@ -174,7 +180,7 @@ public:
   \param parent Parent widget
 */
 QwtLegend::QwtLegend( QWidget *parent ):
-    QFrame( parent )
+    QwtAbstractLegend( parent )
 {
     setFrameStyle( NoFrame );
 
@@ -199,6 +205,26 @@ QwtLegend::QwtLegend( QWidget *parent ):
 QwtLegend::~QwtLegend()
 {
     delete d_data;
+}
+
+void QwtLegend::setMaxColumns( uint numColums )
+{
+    QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
+        d_data->view->contentsWidget->layout() );
+    if ( tl )
+        tl->setMaxCols( numColums );
+}
+
+uint QwtLegend::maxColumns() const
+{
+    uint maxCols = 0;
+
+    const QwtDynGridLayout *tl = qobject_cast<const QwtDynGridLayout *>(
+        d_data->view->contentsWidget->layout() );
+    if ( tl )
+        maxCols = tl->maxCols();
+
+    return maxCols;
 }
 
 /*!
@@ -301,14 +327,14 @@ void QwtLegend::updateLegend( const QwtPlotItem *plotItem,
             widgetList += widget;
         }
 
-		if ( widgetList.isEmpty() )
-		{
-			d_data->itemMap.remove( plotItem );
-		}
-		else
-		{
-        	d_data->itemMap.insert( plotItem, widgetList );
-		}
+        if ( widgetList.isEmpty() )
+        {
+            d_data->itemMap.remove( plotItem );
+        }
+        else
+        {
+            d_data->itemMap.insert( plotItem, widgetList );
+        }
 
         updateLayout();
     }
@@ -664,3 +690,16 @@ bool QwtLegend::isEmpty() const
 {
     return d_data->itemMap.isEmpty();
 }
+
+int QwtLegend::scrollExtent( Qt::Orientation orientation ) const
+{
+	int extent = 0;
+
+	if ( orientation == Qt::Horizontal )
+		extent = verticalScrollBar()->sizeHint().width();
+	else
+		extent = horizontalScrollBar()->sizeHint().height();
+
+	return extent;
+}
+
