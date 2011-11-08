@@ -103,7 +103,8 @@ void Plot::showCurve( QwtPlotItem *item, bool on )
 {
     item->setVisible( on );
         
-    QList<QWidget *> legendWidgets = legend()->legendWidgets( item );
+    QList<QWidget *> legendWidgets = 
+        qobject_cast<QwtLegend *>( legend() )->legendWidgets( item );
     if ( legendWidgets.size() == 1 )
     {
         QwtLegendLabel *legendLabel =

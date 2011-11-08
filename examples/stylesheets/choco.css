@@ -37,7 +37,7 @@ QwtLegend
     background: brown;
 }
 
-QwtLegendItem
+QwtLegendLabel
 {
     color: palette(light);
 }
