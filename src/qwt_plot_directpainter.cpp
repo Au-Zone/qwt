@@ -179,7 +179,6 @@ void QwtPlotDirectPainter::drawSeries(
     if ( hasBackingStore )
     {
         QPainter painter( const_cast<QPixmap *>( canvas->backingStore() ) );
-        painter.translate( -canvasRect.x(), -canvasRect.y() );
 
         if ( d_data->hasClipping )
             painter.setClipRegion( d_data->clipRegion );
