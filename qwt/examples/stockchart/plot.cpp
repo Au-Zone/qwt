@@ -1,4 +1,5 @@
 #include "plot.h"
+#include "legend.h"
 #include "griditem.h"
 #include "quotefactory.h"
 #include <qwt_legend.h>
@@ -18,9 +19,14 @@ Plot::Plot( QWidget *parent ):
 
     setAxisScale( QwtPlot::xBottom, 0.0, 365.0 );
 
+#if 0
     QwtLegend *legend = new QwtLegend;
     legend->setDefaultItemMode( QwtLegendData::Checkable );
     insertLegend( legend, QwtPlot::RightLegend );
+#else
+    Legend *legend = new Legend;
+    insertLegend( legend, QwtPlot::RightLegend );
+#endif
 
     populate();
 
@@ -103,6 +109,7 @@ void Plot::showCurve( QwtPlotItem *item, bool on )
 {
     item->setVisible( on );
         
+#if 0
     QList<QWidget *> legendWidgets = 
         qobject_cast<QwtLegend *>( legend() )->legendWidgets( item );
     if ( legendWidgets.size() == 1 )
@@ -113,6 +120,7 @@ void Plot::showCurve( QwtPlotItem *item, bool on )
         if ( legendLabel )
             legendLabel->setChecked( on );
     }
+#endif
 
     replot();
 }
