@@ -72,10 +72,13 @@ void QwtLegendLabel::setData( const QwtLegendData &data )
     setText( title );
 
     const QVariant iconValue = data.value( QwtLegendData::IconRole );
+
+    QPixmap pm;
     if ( qVariantCanConvert<QPixmap>( iconValue ) )
     {
-        setIdentifier( qVariantValue<QPixmap>( iconValue ) );
+        pm = qVariantValue<QPixmap>( iconValue );
     }
+    setIdentifier( pm );
 
     const QVariant modeValue = data.value( QwtLegendData::ModeRole );
     if ( qVariantCanConvert<int>( modeValue ) )
