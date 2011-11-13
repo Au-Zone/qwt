@@ -4,6 +4,7 @@
 #include "quotefactory.h"
 #include <qwt_legend.h>
 #include <qwt_plot_tradingcurve.h>
+#include <qwt_plot_marker.h>
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
@@ -86,6 +87,24 @@ void Plot::populate()
         curve->attach( this );
 
         showCurve( curve, true );
+    }
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        QwtPlotMarker *marker = new QwtPlotMarker();
+        marker->setTitle( QString( "Event %1" ).arg( i + 1 ) );
+        marker->setLineStyle( QwtPlotMarker::VLine );
+        marker->setItemAttribute( QwtPlotItem::Legend, true );
+
+        QPen pen;
+        pen.setStyle( Qt::DashLine );
+        pen.setColor( colors[ i % numColors ] );
+
+        marker->setLinePen( pen );
+        marker->setValue( 77.0 * ( i + 1 ), 0.0 );
+        marker->setVisible( false );
+
+        marker->attach( this );
     }
 }
 
