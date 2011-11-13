@@ -3,7 +3,7 @@
 
 #include <qwt_abstract_legend.h>
 
-class QTreeView;
+class LegendTreeView;
 class QStandardItem;
 class QModelIndex;
 class QwtPlotItem;
@@ -36,7 +36,7 @@ private Q_SLOTS:
 private:
     void updateItem( QStandardItem *, const QwtLegendData & );
 
-    QTreeView *d_treeView;
+    LegendTreeView *d_treeView;
 };
 
 #endif

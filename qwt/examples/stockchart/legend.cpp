@@ -1,18 +1,44 @@
 #include "legend.h"
 #include <qwt_legend_data.h>
 #include <qwt_text.h>
+#include <qwt_plot_item.h>
 #include <qtreeview.h>
 #include <qlayout.h>
 #include <qstyle.h>
-#include <qwindowsstyle.h>
 #include <qstandarditemmodel.h>
 #include <qitemdelegate.h>
-#include <qdebug.h>
+#include <qpainter.h>
+
+static void qwtRenderBackground( QPainter *painter,
+    const QRectF &rect, const QWidget *widget )
+{
+    if ( widget->testAttribute( Qt::WA_StyledBackground ) )
+    {
+        QStyleOption opt;
+        opt.initFrom( widget );
+        opt.rect = rect.toAlignedRect();
+
+        widget->style()->drawPrimitive(
+            QStyle::PE_Widget, &opt, painter, widget);
+    }
+    else
+    {
+        const QBrush brush =
+            widget->palette().brush( widget->backgroundRole() );
+
+        painter->fillRect( rect, brush );
+    }
+}
 
 class LegendTreeView: public QTreeView
 {
 public:
     LegendTreeView( Legend * );
+
+    QStandardItem *rootItem( int rtti );
+    QStandardItem *insertRootItem( int rtti );
+
+    QList<QStandardItem *> itemList( const QwtPlotItem * );
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -25,22 +51,83 @@ LegendTreeView::LegendTreeView( Legend *legend ):
     viewport()->setBackgroundRole(QPalette::Background);
     viewport()->setAutoFillBackground( false );
 
-    setRootIsDecorated( false );
+    setRootIsDecorated( true );
     setHeaderHidden( true );
 
     QStandardItemModel *model = new QStandardItemModel();
 
-    QStandardItem *rootItem = new QStandardItem( "Stocks" );
-    rootItem->setEditable( false );
-
-    model->appendRow( rootItem );
-
     setModel( model );
-    setExpanded( model->index( 0, 0 ), true );
 
     // we want unstyled items
     setItemDelegate( new QItemDelegate( this ) );
+}
 
+QStandardItem *LegendTreeView::rootItem( int rtti )
+{
+    QStandardItemModel *mdl =
+        qobject_cast<QStandardItemModel *>( model() );
+
+    for ( int row = 0; row < mdl->rowCount(); row++ )
+    {
+        QStandardItem *item = mdl->item( row );
+        if ( item->data() == rtti )
+            return item;
+    }
+
+    return NULL;
+}
+
+QList<QStandardItem *> LegendTreeView::itemList( 
+    const QwtPlotItem *plotItem ) 
+{
+    QList<QStandardItem *> itemList;
+
+    const QStandardItem *rootItem = this->rootItem( plotItem->rtti() );
+    if ( rootItem )
+    {
+        for ( int i = 0; i < rootItem->rowCount(); i++ )
+        {
+            QStandardItem *item = rootItem->child( i );
+        
+            const QVariant key = item->data();
+        
+            if ( qVariantCanConvert<qlonglong>( key ) )
+            {
+                const qlonglong ptr = qVariantValue<qlonglong>( key );
+                if ( ptr == qlonglong( plotItem ) )
+                    itemList += item;
+            }
+        }
+    }
+
+    return itemList;
+}
+
+QStandardItem *LegendTreeView::insertRootItem( int rtti )
+{
+    QStandardItem *item = new QStandardItem();
+    item->setEditable( false );
+    item->setData( rtti );
+
+    switch( rtti )
+    {
+        case QwtPlotItem::Rtti_PlotTradingCurve:
+            item->setText( "Curves" );
+            break;
+        case QwtPlotItem::Rtti_PlotMarker:
+            item->setText( "Events" );
+            break;
+        default:
+            break;
+    }
+
+    QStandardItemModel *mdl =
+        qobject_cast<QStandardItemModel *>( model() );
+
+    mdl->appendRow( item );
+    setExpanded( mdl->index( mdl->rowCount() - 1, 0 ), true );
+
+    return item;
 }
 
 QSize LegendTreeView::minimumSizeHint() const
@@ -53,27 +140,40 @@ QSize LegendTreeView::sizeHint() const
     QStyleOptionViewItem styleOption;
     styleOption.initFrom( this );
 
-    const QStandardItem *rootItem = 
-        qobject_cast<QStandardItemModel *>( model() )->item( 0 );
+    const QAbstractItemDelegate *delegate = itemDelegate();
 
-    QAbstractItemDelegate *delegate = itemDelegate();
-    
-    const QSize rootHint = delegate->sizeHint( 
-        styleOption, rootItem->index() );
-
-    int w0 = rootHint.width();
-    int h = rootHint.height();
+    const QStandardItemModel *mdl =
+        qobject_cast<const QStandardItemModel *>( model() );
 
     int w = 0;
-    for ( int i = 0; i < rootItem->rowCount(); i++ )
-    {
-        const QSize hint = delegate->sizeHint( styleOption, 
-            rootItem->child( i )->index() );
+    int h = 0;
 
-        w = qMax( w, hint.width() );
-        h += hint.height();
+    for ( int row = 0; row < mdl->rowCount(); row++ )
+    {
+        const QStandardItem *rootItem = mdl->item( row );
+
+        int wRow = 0;
+        for ( int i = 0; i < rootItem->rowCount(); i++ )
+        {
+            const QSize hint = delegate->sizeHint( styleOption, 
+                rootItem->child( i )->index() );
+
+            wRow = qMax( wRow, hint.width() );
+            h += hint.height();
+        }
+
+        const QSize rootHint = delegate->sizeHint( 
+            styleOption, rootItem->index() );
+
+        wRow = qMax( wRow + indentation(), rootHint.width() );
+        if ( wRow > w )
+            w = wRow;
+
+        if ( rootIsDecorated() )
+            w += indentation();
+
+        h += rootHint.height();
     }
-    w = qMax( w + indentation(), w0 );
 
     int left, right, top, bottom;
     getContentsMargins( &left, &top, &right, &bottom );
@@ -104,69 +204,99 @@ Legend::~Legend()
 void Legend::renderLegend( QPainter *painter,
     const QRectF &rect, bool fillBackground ) const
 {
-    Q_UNUSED( painter );
-    Q_UNUSED( rect );
-    Q_UNUSED( fillBackground );
+    if ( fillBackground )
+    {
+        if ( autoFillBackground() ||
+            testAttribute( Qt::WA_StyledBackground ) )
+        {
+            qwtRenderBackground( painter, rect, d_treeView );
+        }
+    }
+
+    QStyleOptionViewItem styleOption;
+    styleOption.initFrom( this );
+    styleOption.decorationAlignment = Qt::AlignCenter;
+
+    const QAbstractItemDelegate *delegate = d_treeView->itemDelegate();
+
+    const QStandardItemModel *mdl =
+        qobject_cast<const QStandardItemModel *>( d_treeView->model() );
+
+    painter->save();
+    painter->translate( rect.topLeft() );
+
+    for ( int row = 0; row < mdl->rowCount(); row++ )
+    {
+        const QStandardItem *rootItem = mdl->item( row );
+
+        styleOption.rect = d_treeView->visualRect( rootItem->index() );
+        if ( !styleOption.rect.isEmpty() )
+            delegate->paint( painter, styleOption, rootItem->index() );
+
+        for ( int i = 0; i < rootItem->rowCount(); i++ )
+        {
+            const QStandardItem *item = rootItem->child( i );
+
+            styleOption.rect = d_treeView->visualRect( item->index() );
+            if ( !styleOption.rect.isEmpty() )
+            {
+                delegate->paint( painter, styleOption, item->index() );
+            }
+        }
+    }
+    painter->restore();
 }
 
 bool Legend::isEmpty() const
 {
-    const QStandardItemModel *model =
-        qobject_cast<QStandardItemModel *>( d_treeView->model() );
-
-    const QStandardItem *rootItem = model->item( 0 );
-
-    return rootItem->rowCount() == 0;
+    return d_treeView->model()->rowCount() == 0;
 }
 
-int Legend::scrollExtent( Qt::Orientation ) const
+int Legend::scrollExtent( Qt::Orientation orientation ) const
 {
+    Q_UNUSED( orientation );
+
     return style()->pixelMetric( QStyle::PM_ScrollBarExtent );
 }
 
 void Legend::updateLegend( const QwtPlotItem *plotItem,
     const QList<QwtLegendData> &data )
 {
-    QStandardItemModel *model = 
-        qobject_cast<QStandardItemModel *>( d_treeView->model() );
+    QStandardItem *rootItem = d_treeView->rootItem( plotItem->rtti() );
+    QList<QStandardItem *> itemList = d_treeView->itemList( plotItem );
 
-    QStandardItem *rootItem = model->item( 0 );
-
-    QList<QStandardItem *> itemList;
-    for ( int i = 0; i < rootItem->rowCount(); i++ )
-    {
-        QStandardItem *item = rootItem->child( i );
-        
-        const QVariant key = item->data();
-
-        if ( qVariantCanConvert<qlonglong>( key ) )
-        {
-            const qlonglong ptr = qVariantValue<qlonglong>( key );
-            if ( ptr == qlonglong( plotItem ) )
-                itemList += item;
-        }
-    }
-
-    while ( itemList.size() < data.size() )
-    {
-        QStandardItem *item = new QStandardItem();
-        item->setEditable( false );
-        item->setData( qlonglong( plotItem ) );
-        item->setCheckable( true );
-        item->setCheckState( Qt::Checked );
-
-        itemList += item;
-        rootItem->appendRow( item );
-    }
-        
     while ( itemList.size() > data.size() )
     {
         QStandardItem *item = itemList.takeLast();
         rootItem->removeRow( item->row() );
     }
 
-    for ( int i = 0; i < itemList.size(); i++ )
-        updateItem( itemList[i], data[i] );
+    if ( !data.isEmpty() )
+    {
+        if ( rootItem == NULL )
+            rootItem = d_treeView->insertRootItem( plotItem->rtti() );
+
+        while ( itemList.size() < data.size() )
+        {
+            QStandardItem *item = new QStandardItem();
+            item->setEditable( false );
+            item->setData( qlonglong( plotItem ) );
+            item->setCheckable( true );
+            item->setCheckState( plotItem->isVisible() ?
+                Qt::Checked : Qt::Unchecked );
+
+            itemList += item;
+            rootItem->appendRow( item );
+        }
+
+        for ( int i = 0; i < itemList.size(); i++ )
+            updateItem( itemList[i], data[i] );
+    }
+    else
+    {
+        if ( rootItem && rootItem->rowCount() == 0 )
+            d_treeView->model()->removeRow( rootItem->row() );
+    }
 
     d_treeView->updateGeometry();
 }
@@ -202,8 +332,11 @@ void Legend::handleClick( const QModelIndex &index )
         qobject_cast<QStandardItemModel *>( d_treeView->model() );
 
     const QStandardItem *item = model->itemFromIndex( index );
-    const qlonglong ptr = qVariantValue<qlonglong>( item->data() );
+    if ( item->isCheckable() )
+    {
+        const qlonglong ptr = qVariantValue<qlonglong>( item->data() );
     
-    Q_EMIT checked( (QwtPlotItem *)ptr, 
-        item->checkState() == Qt::Checked, 0 );
+        Q_EMIT checked( (QwtPlotItem *)ptr, 
+            item->checkState() == Qt::Checked, 0 );
+    }
 }
