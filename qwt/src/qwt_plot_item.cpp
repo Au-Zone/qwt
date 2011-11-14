@@ -223,6 +223,12 @@ void QwtPlotItem::setItemAttribute( ItemAttribute attribute, bool on )
         else
             d_data->attributes &= ~attribute;
 
+        if ( attribute == QwtPlotItem::Legend && on == false )
+		{
+			if ( d_data->plot )
+            	d_data->plot->updateLegend( this );
+		}
+
         itemChanged();
     }
 }
@@ -330,13 +336,15 @@ bool QwtPlotItem::isVisible() const
    Update the legend and call QwtPlot::autoRefresh for the
    parent plot.
 
-   \sa updateLegend()
+   \sa QwtPlot::updateLegend(), QwtPlot::autoRefresh()
 */
 void QwtPlotItem::itemChanged()
 {
     if ( d_data->plot )
     {
-        d_data->plot->updateLegend( this );
+        if ( testItemAttribute( QwtPlotItem::Legend ) )
+            d_data->plot->updateLegend( this );
+
         d_data->plot->autoRefresh();
     }
 }

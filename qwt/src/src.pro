@@ -125,6 +125,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_spectrogram.h \
         qwt_plot_spectrocurve.h \
         qwt_plot_scaleitem.h \
+        qwt_plot_legenditem.h \
         qwt_plot_seriesitem.h \
         qwt_plot_canvas.h \
         qwt_plot_panner.h \
@@ -166,6 +167,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_spectrogram.cpp \
         qwt_plot_spectrocurve.cpp \
         qwt_plot_scaleitem.cpp \
+        qwt_plot_legenditem.cpp \
         qwt_plot_seriesitem.cpp \
         qwt_plot_marker.cpp \
         qwt_plot_layout.cpp \
