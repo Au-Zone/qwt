@@ -225,6 +225,7 @@ public:
     QwtAbstractLegend *legend();
     const QwtAbstractLegend *legend() const;
 
+    void updateLegend();
     void updateLegend( const QwtPlotItem * );
 
     // Misc

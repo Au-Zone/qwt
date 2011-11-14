@@ -814,12 +814,7 @@ void QwtPlot::insertLegend( QwtAbstractLegend *legend,
                     d_data->legend->setParent( this );
             }
 
-            const QwtPlotItemList& itmList = itemList();
-            for ( QwtPlotItemIterator it = itmList.begin();
-                it != itmList.end(); ++it )
-            {
-                updateLegend( *it );
-            }
+            updateLegend();
 
             QwtLegend *lgd = qobject_cast<QwtLegend *>( legend );
             if ( lgd )
@@ -877,6 +872,16 @@ void QwtPlot::insertLegend( QwtAbstractLegend *legend,
     }
 
     updateLayout();
+}
+
+void QwtPlot::updateLegend()
+{
+    const QwtPlotItemList& itmList = itemList();
+    for ( QwtPlotItemIterator it = itmList.begin();
+        it != itmList.end(); ++it )
+    {
+        updateLegend( *it );
+    }
 }
 
 void QwtPlot::updateLegend( const QwtPlotItem *plotItem )

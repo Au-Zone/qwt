@@ -79,6 +79,9 @@ public:
         //! For QwtPlotScaleItem
         Rtti_PlotScale,
 
+        //! For QwtPlotLegendItem
+        Rtti_PlotLegend,
+
         //! For QwtPlotMarker
         Rtti_PlotMarker,
 
