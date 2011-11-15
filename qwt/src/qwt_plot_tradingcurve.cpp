@@ -201,6 +201,8 @@ void QwtPlotTradingCurve::setSymbolStyle( SymbolStyle style )
     if ( style != d_data->symbolStyle )
     {
         d_data->symbolStyle = style;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -227,6 +229,8 @@ void QwtPlotTradingCurve::setSymbolPen( const QPen &pen )
     if ( pen != d_data->symbolPen )
     {
         d_data->symbolPen = pen;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -258,6 +262,8 @@ void QwtPlotTradingCurve::setSymbolBrush(
     if ( brush != d_data->symbolBrush[ direction ] )
     {
         d_data->symbolBrush[ direction ] = brush;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -294,6 +300,8 @@ void QwtPlotTradingCurve::setSymbolWidth( double width )
     if ( width != d_data->symbolWidth )
     {
         d_data->symbolWidth = width;
+
+        legendChanged();
         itemChanged();
     }
 }

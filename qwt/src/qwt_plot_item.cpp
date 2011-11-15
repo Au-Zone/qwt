@@ -193,6 +193,8 @@ void QwtPlotItem::setTitle( const QwtText &title )
     if ( d_data->title != title )
     {
         d_data->title = title;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -223,11 +225,8 @@ void QwtPlotItem::setItemAttribute( ItemAttribute attribute, bool on )
         else
             d_data->attributes &= ~attribute;
 
-        if ( attribute == QwtPlotItem::Legend && on == false )
-		{
-			if ( d_data->plot )
-            	d_data->plot->updateLegend( this );
-		}
+        if ( attribute == QwtPlotItem::Legend )
+            legendChanged();
 
         itemChanged();
     }
@@ -336,17 +335,22 @@ bool QwtPlotItem::isVisible() const
    Update the legend and call QwtPlot::autoRefresh for the
    parent plot.
 
-   \sa QwtPlot::updateLegend(), QwtPlot::autoRefresh()
+   \sa QwtPlot::legendChanged(), QwtPlot::autoRefresh()
 */
 void QwtPlotItem::itemChanged()
 {
     if ( d_data->plot )
-    {
-        if ( testItemAttribute( QwtPlotItem::Legend ) )
-            d_data->plot->updateLegend( this );
-
         d_data->plot->autoRefresh();
-    }
+}
+
+/*!
+   Update the legend of the parent plot.
+   \sa QwtPlot::updateLegend(), itemChanged()
+*/
+void QwtPlotItem::legendChanged()
+{
+    if ( testItemAttribute( QwtPlotItem::Legend ) && d_data->plot )
+        d_data->plot->updateLegend( this );
 }
 
 /*!

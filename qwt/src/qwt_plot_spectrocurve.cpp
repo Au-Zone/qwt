@@ -134,6 +134,7 @@ void QwtPlotSpectroCurve::setColorMap( QwtColorMap *colorMap )
         d_data->colorMap = colorMap;
     }
 
+    legendChanged();
     itemChanged();
 }
 
@@ -159,6 +160,8 @@ void QwtPlotSpectroCurve::setColorRange( const QwtInterval &interval )
     if ( interval != d_data->colorRange )
     {
         d_data->colorRange = interval;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -186,6 +189,8 @@ void QwtPlotSpectroCurve::setPenWidth(double penWidth)
     if ( d_data->penWidth != penWidth )
     {
         d_data->penWidth = penWidth;
+
+        legendChanged();
         itemChanged();
     }
 }

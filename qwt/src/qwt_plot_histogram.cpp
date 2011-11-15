@@ -106,6 +106,8 @@ void QwtPlotHistogram::setStyle( HistogramStyle style )
     if ( style != d_data->style )
     {
         d_data->style = style;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -130,6 +132,8 @@ void QwtPlotHistogram::setPen( const QPen &pen )
     if ( pen != d_data->pen )
     {
         d_data->pen = pen;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -154,6 +158,8 @@ void QwtPlotHistogram::setBrush( const QBrush &brush )
     if ( brush != d_data->brush )
     {
         d_data->brush = brush;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -187,6 +193,8 @@ void QwtPlotHistogram::setSymbol( const QwtColumnSymbol *symbol )
     {
         delete d_data->symbol;
         d_data->symbol = symbol;
+
+        legendChanged();
         itemChanged();
     }
 }

@@ -60,6 +60,8 @@ void QwtPlotSeriesItem::setOrientation( Qt::Orientation orientation )
     if ( d_data->orientation != orientation )
     {
         d_data->orientation = orientation;
+
+        legendChanged();
         itemChanged();
     }
 }
