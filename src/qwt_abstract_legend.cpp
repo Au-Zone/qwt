@@ -26,6 +26,6 @@ QwtAbstractLegend::~QwtAbstractLegend()
 
 int QwtAbstractLegend::scrollExtent( Qt::Orientation orientation ) const
 {
-	Q_UNUSED( orientation );
-	return 0;
+    Q_UNUSED( orientation );
+    return 0;
 }

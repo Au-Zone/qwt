@@ -107,6 +107,7 @@ void QwtPlotSpectrogram::setDisplayMode( DisplayMode mode, bool on )
             d_data->displayMode &= ~mode;
     }
 
+    legendChanged();
     itemChanged();
 }
 
@@ -172,6 +173,8 @@ void QwtPlotSpectrogram::setColorMap( QwtColorMap *colorMap )
     }
 
     invalidateCache();
+
+    legendChanged();
     itemChanged();
 }
 
@@ -199,6 +202,8 @@ void QwtPlotSpectrogram::setDefaultContourPen( const QPen &pen )
     if ( pen != d_data->defaultContourPen )
     {
         d_data->defaultContourPen = pen;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -287,6 +292,8 @@ void QwtPlotSpectrogram::setContourLevels( const QList<double> &levels )
 {
     d_data->contourLevels = levels;
     qSort( d_data->contourLevels );
+
+    legendChanged();
     itemChanged();
 }
 

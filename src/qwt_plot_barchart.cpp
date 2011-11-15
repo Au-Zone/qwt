@@ -76,6 +76,8 @@ void QwtPlotBarChart::setSymbol( QwtColumnSymbol *symbol )
     {
         delete d_data->symbol;
         d_data->symbol = symbol;
+
+        legendChanged();
         itemChanged();
     }
 }

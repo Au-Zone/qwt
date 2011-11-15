@@ -693,13 +693,13 @@ bool QwtLegend::isEmpty() const
 
 int QwtLegend::scrollExtent( Qt::Orientation orientation ) const
 {
-	int extent = 0;
+    int extent = 0;
 
-	if ( orientation == Qt::Horizontal )
-		extent = verticalScrollBar()->sizeHint().width();
-	else
-		extent = horizontalScrollBar()->sizeHint().height();
+    if ( orientation == Qt::Horizontal )
+        extent = verticalScrollBar()->sizeHint().width();
+    else
+        extent = horizontalScrollBar()->sizeHint().height();
 
-	return extent;
+    return extent;
 }
 

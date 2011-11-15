@@ -161,6 +161,8 @@ void QwtPlotIntervalCurve::setStyle( CurveStyle style )
     if ( style != d_data->style )
     {
         d_data->style = style;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -186,6 +188,8 @@ void QwtPlotIntervalCurve::setSymbol( const QwtIntervalSymbol *symbol )
     {
         delete d_data->symbol;
         d_data->symbol = symbol;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -209,6 +213,8 @@ void QwtPlotIntervalCurve::setPen( const QPen &pen )
     if ( pen != d_data->pen )
     {
         d_data->pen = pen;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -235,6 +241,8 @@ void QwtPlotIntervalCurve::setBrush( const QBrush &brush )
     if ( brush != d_data->brush )
     {
         d_data->brush = brush;
+
+        legendChanged();
         itemChanged();
     }
 }

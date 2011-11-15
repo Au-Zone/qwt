@@ -211,6 +211,7 @@ public:
     int yAxis() const;
 
     virtual void itemChanged();
+    virtual void legendChanged();
 
     /*!
       \brief Draw the item

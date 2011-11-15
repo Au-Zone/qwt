@@ -89,7 +89,10 @@ bool QwtPlotSvgItem::loadFile( const QRectF &rect,
 {
     d_data->boundingRect = rect;
     const bool ok = d_data->renderer.load( fileName );
+
+    legendChanged();
     itemChanged();
+
     return ok;
 }
 
@@ -106,7 +109,10 @@ bool QwtPlotSvgItem::loadData( const QRectF &rect,
 {
     d_data->boundingRect = rect;
     const bool ok = d_data->renderer.load( data );
+
+    legendChanged();
     itemChanged();
+
     return ok;
 }
 

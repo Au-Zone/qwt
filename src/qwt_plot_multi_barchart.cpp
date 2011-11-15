@@ -125,6 +125,8 @@ QList<QwtText> QwtPlotMultiBarChart::titles() const
 void QwtPlotMultiBarChart::setColorTable( const QList<QBrush> &colorTable )
 {
     d_data->colorTable = colorTable;
+
+    legendChanged();
     itemChanged();
 }
 
@@ -145,6 +147,8 @@ void QwtPlotMultiBarChart::setSymbol( int barIndex, QwtColumnSymbol *symbol )
         if ( symbol != NULL )
         {
             d_data->symbolMap.insert( barIndex, symbol );
+
+            legendChanged();
             itemChanged();
         }
     }
@@ -162,6 +166,8 @@ void QwtPlotMultiBarChart::setSymbol( int barIndex, QwtColumnSymbol *symbol )
             {
                 it.value() = symbol;
             }
+
+            legendChanged();
             itemChanged();
         }
     }
@@ -199,6 +205,8 @@ void QwtPlotMultiBarChart::setStyle( ChartStyle style )
     if ( style != d_data->style )
     {
         d_data->style = style;
+
+        legendChanged();
         itemChanged();
     }
 }

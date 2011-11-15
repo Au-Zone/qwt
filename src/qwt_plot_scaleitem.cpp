@@ -163,6 +163,8 @@ void QwtPlotScaleItem::setPalette( const QPalette &palette )
     if ( palette != d_data->palette )
     {
         d_data->palette = palette;
+
+        legendChanged();
         itemChanged();
     }
 }

@@ -337,6 +337,8 @@ void QwtPlotMarker::setLineStyle( LineStyle style )
     if ( style != d_data->style )
     {
         d_data->style = style;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -365,6 +367,7 @@ void QwtPlotMarker::setSymbol( const QwtSymbol *symbol )
         if ( symbol )
             setLegendIdentifierSize( symbol->boundingSize() );
 
+        legendChanged();
         itemChanged();
     }
 }
@@ -502,6 +505,8 @@ void QwtPlotMarker::setLinePen( const QPen &pen )
     if ( pen != d_data->pen )
     {
         d_data->pen = pen;
+
+        legendChanged();
         itemChanged();
     }
 }
