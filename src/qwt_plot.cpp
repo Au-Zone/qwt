@@ -22,6 +22,26 @@
 #include <qapplication.h>
 #include <qevent.h>
 
+static inline void qwtEnableLegendItems( QwtPlot *plot, bool on )
+{
+    if ( on )
+    {
+        QObject::connect( 
+            plot, SIGNAL( legendDataChanged(
+                const QwtPlotItem *, const QList<QwtLegendData> & ) ),
+            plot, SLOT( updateLegendItems( 
+                const QwtPlotItem *, const QList<QwtLegendData> & ) ) );
+    }
+    else
+    {
+        QObject::disconnect( 
+            plot, SIGNAL( legendDataChanged(
+                const QwtPlotItem *, const QList<QwtLegendData> & ) ),
+            plot, SLOT( updateLegendItems( 
+                const QwtPlotItem *, const QList<QwtLegendData> & ) ) );
+    }
+}
+
 static void qwtSetTabOrder( 
     QWidget *first, QWidget *second, bool withChildren )
 {
@@ -166,6 +186,8 @@ void QwtPlot::initPlot( const QwtText &title )
 
     for ( int i = 0; i < focusChain.size() - 1; i++ )
         qwtSetTabOrder( focusChain[i], focusChain[i+1], false );
+
+    qwtEnableLegendItems( this, true );
 }
 
 /*!
@@ -814,7 +836,9 @@ void QwtPlot::insertLegend( QwtAbstractLegend *legend,
                     d_data->legend->setParent( this );
             }
 
+            qwtEnableLegendItems( this, false );
             updateLegend();
+            qwtEnableLegendItems( this, true );
 
             QwtLegend *lgd = qobject_cast<QwtLegend *>( legend );
             if ( lgd )
@@ -897,6 +921,19 @@ void QwtPlot::updateLegend( const QwtPlotItem *plotItem )
     Q_EMIT legendDataChanged( plotItem, legendData );
 }
 
+void QwtPlot::updateLegendItems( const QwtPlotItem *plotItem,
+    const QList<QwtLegendData> &data )
+{
+    const QwtPlotItemList& itmList = itemList();
+    for ( QwtPlotItemIterator it = itmList.begin();
+        it != itmList.end(); ++it )
+    {
+        QwtPlotItem *item = *it;
+        if ( item->testItemInterest( QwtPlotItem::LegendInterest ) )
+            item->updateLegend( plotItem, data );
+    }
+}
+
 /*!
   \brief Attach/Detach a plot item 
 
@@ -905,16 +942,38 @@ void QwtPlot::updateLegend( const QwtPlotItem *plotItem )
  */
 void QwtPlot::attachItem( QwtPlotItem *plotItem, bool on )
 {
-    if ( on )
+    if ( plotItem->testItemInterest( QwtPlotItem::LegendInterest ) )
     {
-        insertItem( plotItem );
-        updateLegend( plotItem );
+        // plotItem is some sort of legend
+
+        const QwtPlotItemList& itmList = itemList();
+        for ( QwtPlotItemIterator it = itmList.begin();
+            it != itmList.end(); ++it )
+        {
+            QwtPlotItem *item = *it;
+
+            QList<QwtLegendData> legendData;
+            if ( on && item->testItemAttribute( QwtPlotItem::Legend ) )
+            {
+                legendData = plotItem->legendData();
+                plotItem->updateLegend( item, legendData );
+            }
+        }
     }
+
+    if ( on )
+        insertItem( plotItem );
     else 
-    {
-        QList<QwtLegendData> legendData;
-        Q_EMIT legendDataChanged( plotItem, legendData );
         removeItem( plotItem );
+
+    if ( plotItem->testItemAttribute( QwtPlotItem::Legend ) )
+    {
+        // the item wants to be represented on the legend
+
+        if ( on )
+            updateLegend( plotItem );
+        else
+            Q_EMIT legendDataChanged( plotItem, QList<QwtLegendData>() );
     }
 
     if ( autoReplot() )

@@ -17,6 +17,20 @@
 
 class QwtPlotItem;
 
+/*!
+  \brief Abstract base class for legend widgets
+
+  Legends, that need to be under control of the QwtPlot layout system
+  need to be derived from QwtAbstractLegend. 
+
+  \note Other type of legends can be implemented by connecting to
+        the QwtPlot::legendDataChanged() signal. But as these legends
+        are unknown to the plot layout system the layout code
+        ( on screen and for QwtPlotRenderer ) need to be organized
+        in application code.
+
+  \sa QwtLegend
+ */
 class QWT_EXPORT QwtAbstractLegend : public QFrame
 {
     Q_OBJECT
@@ -25,16 +39,33 @@ public:
     explicit QwtAbstractLegend( QWidget *parent = NULL );
     virtual ~QwtAbstractLegend();
 
-    virtual void renderLegend( QPainter *, 
-        const QRectF &, bool fillBackground ) const = 0;
+    /*!
+      Render the legend into a given rectangle.
 
+      \param painter Painter
+      \param rect Bounding rectangle
+      \param fillBackground When true, fill rect with the widget background 
+
+      \sa renderLegend() is used by QwtPlotRenderer
+    */
+    virtual void renderLegend( QPainter *painter, 
+        const QRectF &rect, bool fillBackground ) const = 0;
+
+    //! \return True, when no plot item is inserted
     virtual bool isEmpty() const = 0;
 
-	virtual int scrollExtent( Qt::Orientation ) const;
+    virtual int scrollExtent( Qt::Orientation ) const;
 
 public Q_SLOTS:
-    virtual void updateLegend( const QwtPlotItem *, 
-        const QList<QwtLegendData> & ) = 0;
+
+    /*!
+      \brief Update the entries for a plot item
+
+      \param plotItem Plot items
+      \param data List of legend entry attributes of plotItem
+     */
+    virtual void updateLegend( const QwtPlotItem *plotItem, 
+        const QList<QwtLegendData> &data ) = 0;
 };
 
 #endif 

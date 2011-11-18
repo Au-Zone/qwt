@@ -8,21 +8,38 @@
  *****************************************************************************/
 
 #include "qwt_plot_legenditem.h"
-#include <qpalette.h>
+#include <qpen.h>
+#include <qbrush.h>
+#if 1
+#include <qdebug.h>
+#endif
 
 class QwtPlotLegendItem::PrivateData
 {
 public:
     PrivateData():
-        borderDistance( -1 ),
-        alignment( Qt::AlignRight | Qt::AlignBottom )
+        span( 2 ),
+        borderRadius( 0.0 ),
+        borderPen( Qt::NoPen ),
+        backgroundBrush( Qt::NoBrush ),
+        borderDistance( 10 ),
+        alignment( Qt::AlignRight | Qt::AlignBottom ),
+        orientation( Qt::Vertical )
     {
     }
 
-    QPalette palette;
+    int span;
+
     QFont font;
+    QPen textPen;
+
+    double borderRadius;
+    QPen borderPen;
+    QBrush backgroundBrush;
+
     int borderDistance;
     Qt::Alignment alignment;
+    Qt::Orientation orientation;
 };
 
 QwtPlotLegendItem::QwtPlotLegendItem():
@@ -30,6 +47,7 @@ QwtPlotLegendItem::QwtPlotLegendItem():
 {
     d_data = new PrivateData;
 
+    setItemInterest( QwtPlotItem::LegendInterest, true );
     setZ( 100.0 );
 }
 
@@ -45,25 +63,47 @@ int QwtPlotLegendItem::rtti() const
     return QwtPlotItem::Rtti_PlotLegend;
 }
 
-/*!
-   Set the palette
-*/
-void QwtPlotLegendItem::setPalette( const QPalette &palette )
+void QwtPlotLegendItem::setAlignment( Qt::Alignment alignment )
 {
-    if ( palette != d_data->palette )
+    if ( d_data->alignment != alignment )
     {
-        d_data->palette = palette;
+        d_data->alignment = alignment;
         itemChanged();
     }
 }
 
-/*!
-   \return palette
-   \sa setPalette()
-*/
-QPalette QwtPlotLegendItem::palette() const
+Qt::Alignment QwtPlotLegendItem::alignment() const
 {
-    return d_data->palette;
+    return d_data->alignment;
+}
+
+void QwtPlotLegendItem::setOrientation( Qt::Orientation orientation )
+{
+    if ( orientation != d_data->orientation )
+    {
+        d_data->orientation = orientation;
+        itemChanged();
+    }
+}
+
+Qt::Orientation QwtPlotLegendItem::orientation() const
+{
+    return d_data->orientation;
+}
+
+void QwtPlotLegendItem::setSpan( int span )
+{
+    span = qMax( span, 1 );
+    if ( span != d_data->span )
+    {
+        d_data->span = span;
+        itemChanged();
+    }
+}
+
+int QwtPlotLegendItem::span() const
+{
+    return d_data->span;
 }
 
 /*!
@@ -105,18 +145,63 @@ int QwtPlotLegendItem::borderDistance() const
     return d_data->borderDistance;
 }
 
-void QwtPlotLegendItem::setAlignment( Qt::Alignment alignment )
+void QwtPlotLegendItem::setBorderRadius( double radius )
 {
-    if ( d_data->alignment != alignment )
+    radius = qMax( 0.0, radius );
+
+    if ( radius != d_data->borderRadius )
     {
-        d_data->alignment = alignment;
+        d_data->borderRadius = radius;
         itemChanged();
     }
 }
 
-Qt::Alignment QwtPlotLegendItem::alignment() const
+double QwtPlotLegendItem::borderRadius() const
 {
-    return d_data->alignment;
+    return d_data->borderRadius;
+}
+
+void QwtPlotLegendItem::setBorderPen( const QPen &pen )
+{
+    if ( d_data->borderPen != pen )
+    {
+        d_data->borderPen = pen;
+        itemChanged();
+    }
+}
+
+QPen QwtPlotLegendItem::borderPen() const
+{
+    return d_data->borderPen;
+}
+
+
+void QwtPlotLegendItem::setBackgroundBrush( const QBrush &brush )
+{
+    if ( d_data->backgroundBrush != brush )
+    {
+        d_data->backgroundBrush = brush;
+        itemChanged();
+    }
+}
+
+QBrush QwtPlotLegendItem::backgroundBrush() const
+{
+    return d_data->backgroundBrush;
+}
+
+void QwtPlotLegendItem::setTextPen( const QPen &pen )
+{
+    if ( d_data->textPen != pen )
+    {
+        d_data->textPen = pen;
+        itemChanged();
+    }
+}
+
+QPen QwtPlotLegendItem::textPen() const
+{
+    return d_data->textPen;
 }
 
 void QwtPlotLegendItem::draw( QPainter *painter,
@@ -135,5 +220,12 @@ void QwtPlotLegendItem::updateLegend( const QwtPlotItem *item,
 {
     Q_UNUSED( item );
     Q_UNUSED( data );
+
+    qDebug() << "QwtPlotLegendItem::updateLegend: " 
+        << item << item->title().text() << data.size();
 }
 
+QSizeF QwtPlotLegendItem::legendSize() const
+{
+    return QSizeF();
+}

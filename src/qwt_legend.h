@@ -60,7 +60,7 @@ public:
         const QWidget *, const QRectF &, bool fillBackground ) const;
 
     virtual bool isEmpty() const;
-	virtual int scrollExtent( Qt::Orientation ) const;
+    virtual int scrollExtent( Qt::Orientation ) const;
 
 Q_SIGNALS:
     /*!

@@ -663,8 +663,11 @@ void QwtPlot::updateAxes()
     for ( it = itmList.begin(); it != itmList.end(); ++it )
     {
         QwtPlotItem *item = *it;
-        item->updateScaleDiv( *axisScaleDiv( item->xAxis() ),
-            *axisScaleDiv( item->yAxis() ) );
+        if ( item->testItemInterest( QwtPlotItem::ScaleInterest ) )
+        {
+            item->updateScaleDiv( *axisScaleDiv( item->xAxis() ),
+                *axisScaleDiv( item->yAxis() ) );
+        }
     }
 }
 

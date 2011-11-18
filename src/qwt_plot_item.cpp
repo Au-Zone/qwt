@@ -39,6 +39,7 @@ public:
         plot( NULL ),
         isVisible( true ),
         attributes( 0 ),
+        interests( 0 ),
         renderHints( 0 ),
         z( 0.0 ),
         xAxis( QwtPlot::xBottom ),
@@ -51,6 +52,7 @@ public:
 
     bool isVisible;
     QwtPlotItem::ItemAttributes attributes;
+    QwtPlotItem::ItemInterests interests;
     QwtPlotItem::RenderHints renderHints;
     double z;
 
@@ -98,6 +100,7 @@ void QwtPlotItem::attach( QwtPlot *plot )
         d_data->plot->attachItem( this, false );
 
     d_data->plot = plot;
+
     if ( d_data->plot )
         d_data->plot->attachItem( this, true );
 }
@@ -214,11 +217,11 @@ const QwtText &QwtPlotItem::title() const
    \param attribute Attribute type
    \param on true/false
 
-   \sa testItemAttribute(), ItemAttribute
+   \sa testItemAttribute(), ItemInterest
 */
 void QwtPlotItem::setItemAttribute( ItemAttribute attribute, bool on )
 {
-    if ( bool( d_data->attributes & attribute ) != on )
+    if ( d_data->attributes.testFlag( attribute ) != on )
     {
         if ( on )
             d_data->attributes |= attribute;
@@ -237,11 +240,44 @@ void QwtPlotItem::setItemAttribute( ItemAttribute attribute, bool on )
 
    \param attribute Attribute type
    \return true/false
-   \sa setItemAttribute(), ItemAttribute
+   \sa setItemAttribute(), ItemInterest
 */
 bool QwtPlotItem::testItemAttribute( ItemAttribute attribute ) const
 {
-    return ( d_data->attributes & attribute );
+    return d_data->attributes.testFlag( attribute );
+}
+
+/*!
+   Toggle an item interest
+
+   \param interest Interest type
+   \param on true/false
+
+   \sa testItemInterest(), ItemAttribute
+*/
+void QwtPlotItem::setItemInterest( ItemInterest interest, bool on )
+{
+    if ( d_data->interests.testFlag( interest ) != on )
+    {
+        if ( on )
+            d_data->interests |= interest;
+        else
+            d_data->interests &= ~interest;
+
+        itemChanged();
+    }
+}
+
+/*!
+   Test an item interest
+
+   \param interest Interest type
+   \return true/false
+   \sa setItemInterest(), ItemAttribute
+*/
+bool QwtPlotItem::testItemInterest( ItemInterest interest ) const
+{
+    return d_data->interests.testFlag( interest );
 }
 
 /*!
@@ -254,7 +290,7 @@ bool QwtPlotItem::testItemAttribute( ItemAttribute attribute ) const
 */
 void QwtPlotItem::setRenderHint( RenderHint hint, bool on )
 {
-    if ( ( ( d_data->renderHints & hint ) != 0 ) != on )
+    if ( d_data->renderHints.testFlag( hint ) != on )
     {
         if ( on )
             d_data->renderHints |= hint;
@@ -274,7 +310,7 @@ void QwtPlotItem::setRenderHint( RenderHint hint, bool on )
 */
 bool QwtPlotItem::testRenderHint( RenderHint hint ) const
 {
-    return ( d_data->renderHints & hint );
+    return d_data->renderHints.testFlag( hint );
 }
 
 void QwtPlotItem::setLegendIdentifierSize( const QSize &size )
@@ -468,16 +504,42 @@ QList<QwtLegendData> QwtPlotItem::legendData() const
    on the scale division (like QwtPlotGrid()) have to reimplement
    updateScaleDiv()
 
+   updateScaleDiv() is only called when the ScaleInterest interest
+   is enabled. The default implemention does nothing.
+
    \param xScaleDiv Scale division of the x-axis
    \param yScaleDiv Scale division of the y-axis
 
-   \sa QwtPlot::updateAxes()
+   \sa QwtPlot::updateAxes(), ScaleInterest
 */
 void QwtPlotItem::updateScaleDiv( const QwtScaleDiv &xScaleDiv,
     const QwtScaleDiv &yScaleDiv )
 {
     Q_UNUSED( xScaleDiv );
     Q_UNUSED( yScaleDiv );
+}
+
+/*!
+   \brief Update the item to changes of the legend info
+
+   Plot items that want to display a legend ( not those, that want to
+   be displayed on a legend ! ) will have to implement updateLegend().
+
+   updateLegend() is only called when the LegendInterest interest
+   is enabled. The default implemention does nothing.
+
+   \param item Plot item to be displayed on a legend
+   \param data Attributes how to display item on the legend
+
+   \note Plot items, that want to be displayed on a legend
+         need to enable the QwtPlotItem::Legend flag and to implement
+         legendData() and drawLegendIdentifier()
+ */
+void QwtPlotItem::updateLegend( const QwtPlotItem *item, 
+    const QList<QwtLegendData> &data )
+{
+    Q_UNUSED( item );
+    Q_UNUSED( data );
 }
 
 /*!

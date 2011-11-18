@@ -119,8 +119,13 @@ public:
     };
 
     /*!
-       Plot Item Attributes
-       \sa setItemAttribute(), testItemAttribute()
+       \brief Plot Item Attributes
+
+       Various aspects of a plot widget depend on the attributes of
+       the attached plot items. If and how a single plot item 
+       participates in these updates depends on its attributes.
+       
+       \sa setItemAttribute(), testItemAttribute(), ItemInterest
      */
     enum ItemAttribute
     {
@@ -128,21 +133,55 @@ public:
         Legend = 0x01,
 
         /*!
-         The boundingRect() of the item is included in the
-         autoscaling calculation.
+           The boundingRect() of the item is included in the
+           autoscaling calculation.
          */
         AutoScale = 0x02,
 
         /*!
-         The item needs extra space to display something outside
-         its bounding rectangle. 
-         \sa getCanvasMarginHint()
+           The item needs extra space to display something outside
+           its bounding rectangle. 
+           \sa getCanvasMarginHint()
          */
         Margins = 0x04
     };
 
     //! Plot Item Attributes
     typedef QFlags<ItemAttribute> ItemAttributes;
+
+    /*!
+       \brief Plot Item Interests
+
+       Plot items might depend on the situation of the corresponding
+       plot widget. By enabling an interest the plot item will be
+       notified, when the corrsponding attribute of the plot widgets
+       has changed.
+
+       \sa setItemAttribute(), testItemAttribute(), ItemInterest
+     */
+    enum ItemInterest
+    {
+        /*! 
+           The item is interested in updates of the scales
+           \sa updateScaleDiv()
+         */
+        ScaleInterest = 0x01,
+
+        /*! 
+           The item is interested in updates of the legend ( of other items )
+           This flag is intended for items, that want to implement a legend
+           for displaying entries of other plot item.
+
+           \note If the plot item wants to be represented on a legend
+                 enable QwtPlotItem::Legend instead.
+
+           \sa updateLegend()
+         */
+        LegendInterest = 0x02
+    };
+
+    //! Plot Item Interests
+    typedef QFlags<ItemInterest> ItemInterests;
 
     //! Render hints
     enum RenderHint
@@ -187,6 +226,9 @@ public:
 
     void setItemAttribute( ItemAttribute, bool on = true );
     bool testItemAttribute( ItemAttribute ) const;
+
+    void setItemInterest( ItemInterest, bool on = true );
+    bool testItemInterest( ItemInterest ) const;
 
     void setRenderHint( RenderHint, bool on = true );
     bool testRenderHint( RenderHint ) const;
@@ -235,6 +277,9 @@ public:
     virtual void updateScaleDiv( 
         const QwtScaleDiv&, const QwtScaleDiv& );
 
+    virtual void updateLegend( const QwtPlotItem *,
+        const QList<QwtLegendData> & );
+
     QRectF scaleRect( const QwtScaleMap &, const QwtScaleMap & ) const;
     QRectF paintRect( const QwtScaleMap &, const QwtScaleMap & ) const;
 
@@ -253,6 +298,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemAttributes )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemInterests )
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::RenderHints )
 
 #endif

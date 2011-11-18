@@ -269,6 +269,10 @@ protected:
 
     virtual void resizeEvent( QResizeEvent *e );
 
+private Q_SLOTS:
+    void updateLegendItems( const QwtPlotItem *plotItem,
+        const QList<QwtLegendData> &data );
+
 private:
     friend class QwtPlotItem;
     void attachItem( QwtPlotItem *, bool );

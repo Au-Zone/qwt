@@ -44,6 +44,8 @@ QwtPlotGrid::QwtPlotGrid():
     QwtPlotItem( QwtText( "Grid" ) )
 {
     d_data = new PrivateData;
+
+    setItemInterest( QwtPlotItem::ScaleInterest, true );
     setZ( 10.0 );
 }
 
