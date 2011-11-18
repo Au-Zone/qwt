@@ -14,6 +14,9 @@
 #include <qvariant.h>
 #include <qmap.h>
 
+/*!
+    \brief Attributes of an entry on a legend
+ */
 class QWT_EXPORT QwtLegendData
 {
 public:

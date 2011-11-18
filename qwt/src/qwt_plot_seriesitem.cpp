@@ -28,6 +28,7 @@ QwtPlotSeriesItem::QwtPlotSeriesItem( const QwtText &title ):
     QwtPlotItem( title )
 {
     d_data = new PrivateData();
+    setItemInterest( QwtPlotItem::ScaleInterest, true );
 }
 
 /*!

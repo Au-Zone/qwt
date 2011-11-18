@@ -299,7 +299,7 @@ const QWidget *QwtLegend::contentsWidget() const
   \brief Update the entries for a plot item
 
   \param plotItem Plot items
-  \param data List of legend entry attributes
+  \param data List of legend entry attributes of plot item
  */
 void QwtLegend::updateLegend( const QwtPlotItem *plotItem, 
     const QList<QwtLegendData> &data )
@@ -691,6 +691,12 @@ bool QwtLegend::isEmpty() const
     return d_data->itemMap.isEmpty();
 }
 
+/*!
+    Return the extent, that is needed for the scroll bars
+
+    \param orientation Orientation ( 
+    \return The width of the vertical scroll bar for Qt::Horizontal and v.v.
+ */
 int QwtLegend::scrollExtent( Qt::Orientation orientation ) const
 {
     int extent = 0;

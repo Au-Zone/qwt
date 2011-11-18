@@ -24,8 +24,14 @@ public:
 
     virtual int rtti() const;
 
-    void setPalette( const QPalette & );
-    QPalette palette() const;
+    void setAlignment( Qt::Alignment );
+    Qt::Alignment alignment() const;
+
+    void setOrientation( Qt::Orientation );
+    Qt::Orientation orientation() const;
+
+    void setSpan( int );
+    int span() const;
 
     void setFont( const QFont& );
     QFont font() const;
@@ -33,8 +39,17 @@ public:
     void setBorderDistance( int numPixels );
     int borderDistance() const;
 
-    void setAlignment( Qt::Alignment );
-    Qt::Alignment alignment() const;
+    void setBorderRadius( double );
+    double borderRadius() const;
+
+    void setBorderPen( const QPen & );
+    QPen borderPen() const;
+
+    void setBackgroundBrush( const QBrush & );
+    QBrush backgroundBrush() const;
+
+    void setTextPen( const QPen & );
+    QPen textPen() const;
 
     virtual void draw( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -42,6 +57,8 @@ public:
 
     virtual void updateLegend( const QwtPlotItem *,
         const QList<QwtLegendData> & );
+
+    QSizeF legendSize() const;
 
 private:
     class PrivateData;

@@ -83,6 +83,7 @@ QwtPlotScaleItem::QwtPlotScaleItem(
     d_data->position = pos;
     d_data->scaleDraw->setAlignment( alignment );
 
+    setItemInterest( QwtPlotItem::ScaleInterest, true );
     setZ( 11.0 );
 }
 

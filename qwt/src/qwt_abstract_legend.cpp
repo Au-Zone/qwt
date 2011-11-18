@@ -24,6 +24,13 @@ QwtAbstractLegend::~QwtAbstractLegend()
 {
 }
 
+/*!
+   Return the extent, that is needed for elements to scroll
+   the legend ( usually scroll bars ),
+
+   \param orientation Orientation
+   \return Extent of the corresponding scroll element
+*/
 int QwtAbstractLegend::scrollExtent( Qt::Orientation orientation ) const
 {
     Q_UNUSED( orientation );
