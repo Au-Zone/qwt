@@ -19,6 +19,7 @@ contains(QWT_CONFIG, QwtPlot) {
         curvdemo1   \
         curvdemo2 \
         friedberg \
+        legends \
         stockchart \
         simpleplot \
         sinusplot \
