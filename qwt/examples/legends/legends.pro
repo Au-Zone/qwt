@@ -9,7 +9,7 @@
 
 include( $${PWD}/../examples.pri )
 
-TARGET       = legend
+TARGET       = legends
 
 HEADERS = \
     mainwindow.h \
