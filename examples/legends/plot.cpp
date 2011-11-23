@@ -1,9 +1,10 @@
+#include "plot.h"
+#include "settings.h"
 #include <qwt_plot_curve.h>
 #include <qwt_plot_legenditem.h>
 #include <qwt_legend.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
-#include "plot.h"
 
 class LegendItem: public QwtPlotLegendItem
 {
@@ -71,7 +72,8 @@ public:
 };
 
 Plot::Plot( QWidget *parent ):
-    QwtPlot( parent )
+    QwtPlot( parent ),
+    d_legendItem( NULL )
 {
     canvas()->setFocusIndicator( QwtPlotCanvas::CanvasFocusIndicator );
     canvas()->setFocusPolicy( Qt::StrongFocus );
@@ -89,15 +91,9 @@ Plot::Plot( QWidget *parent ):
     grid->setMinPen( QPen( Qt::darkGray, 0 , Qt::DotLine ) );
     grid->attach( this );
 
-    // legend
-    LegendItem *legendItem = new LegendItem();
-    legendItem->attach( this );
-
-    // curves
-    for ( int i = 0; i < 4; i++ )
-        insertCurve();
-
-    setAutoReplot( true );
+    // axis
+    setAxisScale( QwtPlot::yLeft, 0.0, 1000.0 );
+    setAxisScale( QwtPlot::xBottom, 0.0, 1000.0 );
 }
 
 void Plot::insertCurve()
@@ -128,23 +124,49 @@ void Plot::insertCurve()
     curve->attach( this );
 }
 
-void Plot::insertLegend()
+void Plot::applySettings( const Settings &settings )
 {
-    static int counter = 0;
+    if ( settings.legend.isEnabled )
+    {
+        QwtLegend *legend = new QwtLegend();
+        legend->setWindowTitle("Plot Legend");
 
-    QwtPlot::LegendPosition pos = 
-        ( QwtPlot::LegendPosition ) ( counter++ % ( ExternalLegend + 1 ) );
+        insertLegend( legend, 
+            QwtPlot::LegendPosition( settings.legend.position ) );
 
-    QwtLegend *legend = new QwtLegend();
-    legend->setDefaultItemMode( QwtLegendData::Clickable );
+        if ( settings.legend.position == QwtPlot::ExternalLegend )
+            legend->show();
+    }
+    else
+    {
+        insertLegend( NULL );
+    }
 
-    QwtPlot::insertLegend( legend, pos );
+    if ( settings.legendItem.isEnabled )
+    {
+        if ( d_legendItem == NULL )
+        {
+            d_legendItem = new LegendItem();
+            d_legendItem->attach( this );
+        }
 
-    connect( legend, SIGNAL( clicked( QwtPlotItem *, int ) ),
-        SLOT( removeItem( QwtPlotItem * ) ) );
-}
+        d_legendItem->setMaxColumns( settings.legendItem.numColumns );
+        d_legendItem->setAlignment( Qt::Alignment( settings.legendItem.alignment ) );
+        d_legendItem->setBackgroundMode(
+            QwtPlotLegendItem::BackgroundMode( settings.legendItem.backgroundMode ) );
+    }
+    else
+    {
+        delete d_legendItem;
+        d_legendItem = NULL;
+    }
 
-void Plot::removeItem( QwtPlotItem *item )
-{
-    delete item;
+    if ( itemList( QwtPlotItem::Rtti_PlotCurve ).count() != settings.numCurves )
+    {
+        detachItems( QwtPlotItem::Rtti_PlotCurve, true );
+        for ( int i = 0; i < settings.numCurves; i++ )
+            insertCurve();
+    }
+
+    replot();
 }

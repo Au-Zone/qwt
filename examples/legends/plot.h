@@ -3,17 +3,23 @@
 
 #include <qwt_plot.h>
 
+class Settings;
+class LegendItem;
+
 class Plot: public QwtPlot
 {
     Q_OBJECT
 
 public:
-    Plot( QWidget *parent );
+    Plot( QWidget *parent = NULL );
 
 public Q_SLOTS:
-    void insertLegend();
+    void applySettings( const Settings & );
+
+private:
     void insertCurve();
-    void removeItem( QwtPlotItem * );
+
+    LegendItem *d_legendItem;
 };
 
 #endif
