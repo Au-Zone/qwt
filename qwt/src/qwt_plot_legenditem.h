@@ -19,6 +19,12 @@ class QFont;
 class QWT_EXPORT QwtPlotLegendItem: public QwtPlotItem
 {
 public:
+    enum BackgroundMode
+    {
+        ItemBackground,
+        LegendBackground
+    };
+
     explicit QwtPlotLegendItem();
     virtual ~QwtPlotLegendItem();
 
@@ -27,11 +33,8 @@ public:
     void setAlignment( Qt::Alignment );
     Qt::Alignment alignment() const;
 
-    void setOrientation( Qt::Orientation );
-    Qt::Orientation orientation() const;
-
-    void setSpan( int );
-    int span() const;
+    void setMaxColumns( uint );
+    uint maxColumns() const;
 
     void setFont( const QFont& );
     QFont font() const;
@@ -48,6 +51,9 @@ public:
     void setBackgroundBrush( const QBrush & );
     QBrush backgroundBrush() const;
 
+    void setBackgroundMode( BackgroundMode );
+    BackgroundMode backgroundMode() const;
+
     void setTextPen( const QPen & );
     QPen textPen() const;
 
@@ -55,12 +61,16 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &rect ) const;
 
+    void clearLegend();
+
     virtual void updateLegend( const QwtPlotItem *,
         const QList<QwtLegendData> & );
 
-    QSizeF legendSize() const;
+    QRect geometry( const QRectF &canvasRect ) const;
 
 private:
+    void drawBackground( QPainter *, const QRectF &rect ) const;
+
     class PrivateData;
     PrivateData *d_data;
 };

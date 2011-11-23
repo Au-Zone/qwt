@@ -9,7 +9,7 @@
 
 #include "qwt_dyngrid_layout.h"
 #include "qwt_math.h"
-#include <qwidget.h>
+#include <qvector.h>
 #include <qlist.h>
 
 class QwtDynGridLayout::PrivateData
@@ -211,7 +211,7 @@ Qt::Orientations QwtDynGridLayout::expandingDirections() const
 }
 
 /*!
-  Reorganizes columns and rows and resizes managed widgets within
+  Reorganizes columns and rows and resizes managed items within
   the rectangle rect.
 
   \param rect Layout geometry
@@ -234,12 +234,8 @@ void QwtDynGridLayout::setGeometry( const QRect &rect )
     for ( QList<QLayoutItem*>::iterator it = d_data->itemList.begin();
         it != d_data->itemList.end(); ++it )
     {
-        QWidget *w = ( *it )->widget();
-        if ( w )
-        {
-            w->setGeometry( itemGeometries[index] );
-            index++;
-        }
+        ( *it )->setGeometry( itemGeometries[index] );
+        index++;
     }
 }
 
