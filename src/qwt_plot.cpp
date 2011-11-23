@@ -955,7 +955,7 @@ void QwtPlot::attachItem( QwtPlotItem *plotItem, bool on )
             QList<QwtLegendData> legendData;
             if ( on && item->testItemAttribute( QwtPlotItem::Legend ) )
             {
-                legendData = plotItem->legendData();
+                legendData = item->legendData();
                 plotItem->updateLegend( item, legendData );
             }
         }
