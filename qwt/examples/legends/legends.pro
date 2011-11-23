@@ -13,9 +13,12 @@ TARGET       = legends
 
 HEADERS = \
     mainwindow.h \
+    panel.h \
+    settings.h \
     plot.h
 
 SOURCES = \
-    plot.cpp \
     mainwindow.cpp \
+    panel.cpp \
+    plot.cpp \
     main.cpp

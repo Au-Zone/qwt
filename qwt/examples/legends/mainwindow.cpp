@@ -1,38 +1,61 @@
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
-#include <qdebug.h>
+#include <qlayout.h>
+#include <qwt_plot_renderer.h>
 #include "plot.h"
+#include "panel.h"
 #include "mainwindow.h"
 
 MainWindow::MainWindow( QWidget *parent ):
     QMainWindow( parent )
 {
-    Plot *plot = new Plot( this );
-    setCentralWidget( plot );
+    Settings settings;
+    settings.legend.isEnabled = false;
+    settings.legend.position = QwtPlot::RightLegend;
+
+    settings.legendItem.isEnabled = true;
+    settings.legendItem.numColumns = 1;
+    settings.legendItem.alignment = Qt::AlignRight | Qt::AlignVCenter;
+    settings.legendItem.backgroundMode = 1;
+    settings.numCurves = 4;
+    
+    d_plot = new Plot();
+    d_panel = new Panel();
+    d_panel->setSettings( settings );
+
+    QWidget *box = new QWidget( this );
+    QHBoxLayout *layout = new QHBoxLayout( box );
+    layout->addWidget( d_plot, 10 );
+    layout->addWidget( d_panel );
+
+    setCentralWidget( box );
 
     QToolBar *toolBar = new QToolBar( this );
 
-    QToolButton *btnLegend = new QToolButton( toolBar );
-    btnLegend->setText( "Legend" );
-    toolBar->addWidget( btnLegend );
-
-    QToolButton *btnCurve = new QToolButton( toolBar );
-    btnCurve->setText( "Curve" );
-    toolBar->addWidget( btnCurve );
+    QToolButton *btnExport = new QToolButton( toolBar );
+    btnExport->setText( "Export" );
+    toolBar->addWidget( btnExport );
 
     addToolBar( toolBar );
 
-    connect( btnLegend, SIGNAL( clicked() ), plot, SLOT( insertLegend() ) );
-    //connect( btnLegend, SIGNAL( clicked() ), this, SLOT( debugChain() ) );
-    connect( btnCurve, SIGNAL( clicked() ), plot, SLOT( insertCurve() ) );
+    updatePlot();
+
+    connect( d_panel, SIGNAL( edited() ), SLOT( updatePlot() ) );
+    connect( btnExport, SIGNAL( clicked() ), SLOT( exportPlot() ) );
 }
 
-void MainWindow::debugChain()
+void MainWindow::updatePlot()
 {
-    int i = 0;
-    for ( QWidget *w = nextInFocusChain();
-        w != this; w = w->nextInFocusChain() )
-    {
-        qDebug() << i++ << ": " << w;
-    }
+    d_plot->applySettings( d_panel->settings() );
+}
+
+void MainWindow::exportPlot()
+{
+    QwtPlotRenderer renderer;
+
+    // flags to make the document look like the widget
+    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
+    renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
+
+    renderer.exportTo( d_plot, "legends.pdf" );
 }
