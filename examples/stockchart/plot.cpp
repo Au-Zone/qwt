@@ -48,7 +48,7 @@ Plot::Plot( QWidget *parent ):
     panner->setMouseButton( Qt::MidButton );
 
     connect( legend, SIGNAL( checked( QwtPlotItem *, bool, int ) ),
-        SLOT( showCurve( QwtPlotItem *, bool ) ) );
+        SLOT( showItem( QwtPlotItem *, bool ) ) );
 }
 
 void Plot::populate()
@@ -86,7 +86,7 @@ void Plot::populate()
         curve->setSymbolBrush( QwtPlotTradingCurve::Increasing, Qt::white );
         curve->attach( this );
 
-        showCurve( curve, true );
+        showItem( curve, true );
     }
 
     for ( int i = 0; i < 4; i++ )
@@ -124,23 +124,9 @@ void Plot::setMode( int style )
     replot();
 }
 
-void Plot::showCurve( QwtPlotItem *item, bool on )
+void Plot::showItem( QwtPlotItem *item, bool on )
 {
     item->setVisible( on );
-        
-#if 0
-    QList<QWidget *> legendWidgets = 
-        qobject_cast<QwtLegend *>( legend() )->legendWidgets( item );
-    if ( legendWidgets.size() == 1 )
-    {
-        QwtLegendLabel *legendLabel =
-            qobject_cast<QwtLegendLabel *>( legendWidgets[0] );
-    
-        if ( legendLabel )
-            legendLabel->setChecked( on );
-    }
-#endif
-
     replot();
 }
 
