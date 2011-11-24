@@ -15,7 +15,7 @@ public Q_SLOTS:
     void exportPlot();
 
 private Q_SLOTS:
-    void showCurve( QwtPlotItem *, bool on );
+    void showItem( QwtPlotItem *, bool on );
 
 private:
     void populate();

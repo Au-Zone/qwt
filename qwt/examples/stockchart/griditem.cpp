@@ -10,6 +10,7 @@ GridItem::GridItem():
     m_isXMinEnabled( false ),
     m_isYMinEnabled( false )
 {
+	setItemInterest( QwtPlotItem::ScaleInterest, true );
     setZ( 10.0 );
 }
 
