@@ -42,6 +42,7 @@ public:
 
 protected:
     virtual void paintEvent( QPaintEvent * );
+    virtual void resizeEvent( QResizeEvent * );
 
     QwtPicker *d_picker;
     Type d_type;
@@ -194,6 +195,13 @@ void QwtPicker::PickerWidget::paintEvent( QPaintEvent *e )
             d_picker->drawTracker( &painter );
         }
     }
+}
+
+void QwtPicker::PickerWidget::resizeEvent( QResizeEvent *event )
+{
+    QWidget::resizeEvent( event );
+    if ( isVisible() )
+        updateMask();
 }
 
 /*!
@@ -1418,6 +1426,7 @@ void QwtPicker::updateDisplay()
         if ( rw.isNull() )
         {
             rw = new PickerWidget( this, w, PickerWidget::RubberBand );
+            rw->setObjectName( "PickerRubberBand" );
             rw->resize( w->size() );
         }
         rw->updateMask();
@@ -1432,6 +1441,7 @@ void QwtPicker::updateDisplay()
         if ( tw.isNull() )
         {
             tw = new PickerWidget( this, w, PickerWidget::Text );
+            tw->setObjectName( "PickerTracker" );
             tw->resize( w->size() );
         }
         tw->setFont( d_data->trackerFont );
