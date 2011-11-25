@@ -44,3 +44,34 @@ bool QwtLegendData::isValid() const
 {
     return !d_map.isEmpty();
 }
+
+QwtText QwtLegendData::title() const
+{
+    QwtText text;
+
+    const QVariant titleValue = value( QwtLegendData::TitleRole );
+    if ( qVariantCanConvert<QwtText>( titleValue ) )
+    {
+        text = qVariantValue<QwtText>( titleValue );
+    }
+    else if ( qVariantCanConvert<QString>( titleValue ) )
+    {
+        text.setText( qVariantValue<QString>( titleValue ) );
+    }
+
+    return text;
+}
+
+QPixmap QwtLegendData::icon() const
+{
+    const QVariant iconValue = value( QwtLegendData::IconRole );
+
+    QPixmap pm;
+    if ( qVariantCanConvert<QPixmap>( iconValue ) )
+    {
+        pm = qVariantValue<QPixmap>( iconValue );
+    }
+
+    return pm;
+}
+

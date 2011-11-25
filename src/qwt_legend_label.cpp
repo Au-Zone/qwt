@@ -58,27 +58,8 @@ void QwtLegendLabel::setData( const QwtLegendData &data )
     const bool doUpdate = updatesEnabled();
     setUpdatesEnabled( false );
 
-    const QVariant titleValue = data.value( QwtLegendData::TitleRole );
-
-    QwtText title;
-    if ( qVariantCanConvert<QwtText>( titleValue ) )
-    {
-        title = qVariantValue<QwtText>( titleValue );
-    }
-    else if ( qVariantCanConvert<QString>( titleValue ) )
-    {
-        title.setText( qVariantValue<QString>( titleValue ) );
-    }
-    setText( title );
-
-    const QVariant iconValue = data.value( QwtLegendData::IconRole );
-
-    QPixmap pm;
-    if ( qVariantCanConvert<QPixmap>( iconValue ) )
-    {
-        pm = qVariantValue<QPixmap>( iconValue );
-    }
-    setIdentifier( pm );
+    setText( data.title() );
+    setIdentifier( data.icon() );
 
     const QVariant modeValue = data.value( QwtLegendData::ModeRole );
     if ( qVariantCanConvert<int>( modeValue ) )
