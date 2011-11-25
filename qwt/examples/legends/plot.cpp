@@ -11,22 +11,8 @@ class LegendItem: public QwtPlotLegendItem
 public:
     LegendItem()
     {
-#if 1
-        setBackgroundMode( LegendBackground );
-        setBorderRadius( 10 );
         setRenderHint( QwtPlotItem::RenderAntialiased );
-#else
-        setBackgroundMode( ItemBackground );
-#endif
 
-        setMaxColumns( 1 );
-        setAlignment( Qt::AlignRight | Qt::AlignVCenter );
-
-        initColors();
-    }
-
-    void initColors()
-    {
         QColor color( Qt::white );
 
         setTextPen( color );
@@ -154,6 +140,21 @@ void Plot::applySettings( const Settings &settings )
         d_legendItem->setAlignment( Qt::Alignment( settings.legendItem.alignment ) );
         d_legendItem->setBackgroundMode(
             QwtPlotLegendItem::BackgroundMode( settings.legendItem.backgroundMode ) );
+        if ( settings.legendItem.backgroundMode == 
+            QwtPlotLegendItem::ItemBackground )
+        {
+            d_legendItem->setBorderRadius( 4 );
+            d_legendItem->setMargin( 0 );
+            d_legendItem->setSpacing( 4 );
+            d_legendItem->setItemMargin( 2 );
+        }
+        else
+        {
+            d_legendItem->setBorderRadius( 8 );
+            d_legendItem->setMargin( 4 );
+            d_legendItem->setSpacing( 2 );
+            d_legendItem->setItemMargin( 0 );
+        }
     }
     else
     {
