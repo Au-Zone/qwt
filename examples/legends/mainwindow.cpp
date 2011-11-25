@@ -16,7 +16,7 @@ MainWindow::MainWindow( QWidget *parent ):
     settings.legendItem.isEnabled = true;
     settings.legendItem.numColumns = 1;
     settings.legendItem.alignment = Qt::AlignRight | Qt::AlignVCenter;
-    settings.legendItem.backgroundMode = 1;
+    settings.legendItem.backgroundMode = 0;
     settings.numCurves = 4;
     
     d_plot = new Plot();
