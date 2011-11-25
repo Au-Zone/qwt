@@ -11,7 +11,9 @@
 #define QWT_LEGEND_DATA_H
 
 #include "qwt_global.h"
+#include "qwt_text.h"
 #include <qvariant.h>
+#include <qpixmap.h>
 #include <qmap.h>
 
 /*!
@@ -52,6 +54,9 @@ public:
     QVariant value( int role ) const;
 
     bool isValid() const;
+
+    QPixmap icon() const;
+    QwtText title() const;
 
 private:
     QMap<int, QVariant> d_map;

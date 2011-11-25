@@ -21,8 +21,8 @@ class QWT_EXPORT QwtPlotLegendItem: public QwtPlotItem
 public:
     enum BackgroundMode
     {
-        ItemBackground,
-        LegendBackground
+        LegendBackground,
+        ItemBackground
     };
 
     explicit QwtPlotLegendItem();
@@ -36,6 +36,18 @@ public:
     void setMaxColumns( uint );
     uint maxColumns() const;
 
+    void setMargin( int );
+    int margin() const;
+
+    void setSpacing( int );
+    int spacing() const;
+
+    void setItemMargin( int );
+    int itemMargin() const;
+
+    void setItemSpacing( int );
+    int itemSpacing() const;
+    
     void setFont( const QFont& );
     QFont font() const;
 
@@ -67,6 +79,13 @@ public:
         const QList<QwtLegendData> & );
 
     QRect geometry( const QRectF &canvasRect ) const;
+
+    virtual QSize minimumSize( const QwtLegendData & ) const;
+    virtual int heightForWidth( const QwtLegendData &, int w ) const;
+
+protected:
+    virtual void drawLegendData( QPainter *painter, 
+        const QwtLegendData &, const QRectF & ) const;
 
 private:
     void drawBackground( QPainter *, const QRectF &rect ) const;
