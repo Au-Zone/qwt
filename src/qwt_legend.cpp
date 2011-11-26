@@ -636,6 +636,8 @@ void QwtLegend::renderItem( QPainter *painter,
     const QwtLegendLabel *label = qobject_cast<const QwtLegendLabel *>( widget );
     if ( label )
     {
+        // identifier
+
         const QSize sz = label->identifier().size();
 
         const QRectF identifierRect( rect.x() + label->margin(),
@@ -653,7 +655,7 @@ void QwtLegend::renderItem( QPainter *painter,
             painter->restore();
         }
 
-        // Label
+        // title
 
         QRectF titleRect = rect;
         titleRect.setX( identifierRect.right() + 2 * label->spacing() );

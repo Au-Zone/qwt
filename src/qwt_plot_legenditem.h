@@ -85,7 +85,7 @@ public:
 
 protected:
     virtual void drawLegendData( QPainter *painter, 
-        const QwtLegendData &, const QRectF & ) const;
+        const QwtPlotItem *, const QwtLegendData &, const QRectF & ) const;
 
 private:
     void drawBackground( QPainter *, const QRectF &rect ) const;

@@ -531,8 +531,8 @@ QSize QwtDynGridLayout::sizeHint() const
         return QSize();
 
     uint numCols = itemCount();
-	if ( d_data->maxCols > 0 )
-		numCols = qMin( d_data->maxCols, numCols );
+    if ( d_data->maxCols > 0 )
+        numCols = qMin( d_data->maxCols, numCols );
 
     uint numRows = itemCount() / numCols;
     if ( itemCount() % numCols )

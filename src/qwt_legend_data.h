@@ -53,10 +53,12 @@ public:
     void setValue( int role, const QVariant & );
     QVariant value( int role ) const;
 
+    bool hasRole( int role ) const;
     bool isValid() const;
 
     QPixmap icon() const;
     QwtText title() const;
+    Mode mode() const;
 
 private:
     QMap<int, QVariant> d_map;

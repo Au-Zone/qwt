@@ -27,6 +27,11 @@ const QMap<int, QVariant> &QwtLegendData::values() const
     return d_map;
 }
 
+bool QwtLegendData::hasRole( int role ) const
+{
+    return d_map.contains( role );
+}
+
 void QwtLegendData::setValue( int role, const QVariant &data )
 {
     d_map[role] = data;
@@ -73,5 +78,17 @@ QPixmap QwtLegendData::icon() const
     }
 
     return pm;
+}
+
+QwtLegendData::Mode QwtLegendData::mode() const
+{
+    const QVariant modeValue = value( QwtLegendData::ModeRole );
+    if ( qVariantCanConvert<int>( modeValue ) )
+    {
+        const int mode = qVariantValue<int>( modeValue );
+        return static_cast<QwtLegendData::Mode>( mode );
+    }
+    
+    return QwtLegendData::ReadOnly;
 }
 

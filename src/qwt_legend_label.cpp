@@ -61,12 +61,8 @@ void QwtLegendLabel::setData( const QwtLegendData &data )
     setText( data.title() );
     setIdentifier( data.icon() );
 
-    const QVariant modeValue = data.value( QwtLegendData::ModeRole );
-    if ( qVariantCanConvert<int>( modeValue ) )
-    {
-        const int mode = qVariantValue<int>( modeValue );
-        setItemMode( static_cast<QwtLegendData::Mode>( mode ) );
-    }
+    if ( data.hasRole( QwtLegendData::ModeRole ) )
+        setItemMode( data.mode() );
 
     if ( doUpdate )
     {
