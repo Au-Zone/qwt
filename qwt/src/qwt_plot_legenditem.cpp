@@ -9,6 +9,7 @@
 
 #include "qwt_plot_legenditem.h"
 #include "qwt_dyngrid_layout.h"
+#include "qwt_painter.h"
 #include <qlayoutitem.h>
 #include <qpen.h>
 #include <qbrush.h>
@@ -18,8 +19,10 @@
 class QwtLegendLayoutItem: public QLayoutItem
 {
 public:
-    QwtLegendLayoutItem( const QwtPlotLegendItem * );
+    QwtLegendLayoutItem( const QwtPlotLegendItem *, const QwtPlotItem * );
     virtual ~QwtLegendLayoutItem();
+
+    const QwtPlotItem *plotItem() const;
 
     void setData( const QwtLegendData & );
     const QwtLegendData &data() const;
@@ -38,18 +41,26 @@ public:
 private:
 
     const QwtPlotLegendItem *d_legendItem;
+    const QwtPlotItem *d_plotItem;
     QwtLegendData d_data;
 
     QRect d_rect;
 };
 
-QwtLegendLayoutItem::QwtLegendLayoutItem( const QwtPlotLegendItem *legendItem ):
-    d_legendItem( legendItem )
+QwtLegendLayoutItem::QwtLegendLayoutItem( 
+        const QwtPlotLegendItem *legendItem, const QwtPlotItem *plotItem ):
+    d_legendItem( legendItem ),
+    d_plotItem( plotItem)
 {
 }
 
 QwtLegendLayoutItem::~QwtLegendLayoutItem()
 {
+}
+
+const QwtPlotItem *QwtLegendLayoutItem::plotItem() const
+{
+    return d_plotItem;
 }
 
 void QwtLegendLayoutItem::setData( const QwtLegendData &data )
@@ -402,7 +413,8 @@ void QwtPlotLegendItem::draw( QPainter *painter,
             drawBackground( painter, layoutItem->geometry() );
 
         painter->save();
-        drawLegendData( painter, layoutItem->data(), layoutItem->geometry() );
+        drawLegendData( painter, layoutItem->plotItem(),
+            layoutItem->data(), layoutItem->geometry() );
         painter->restore();
     }
 }
@@ -458,16 +470,16 @@ QRect QwtPlotLegendItem::geometry( const QRectF &canvasRect ) const
     return rect;
 }
 
-void QwtPlotLegendItem::updateLegend( const QwtPlotItem *item,
+void QwtPlotLegendItem::updateLegend( const QwtPlotItem *plotItem,
         const QList<QwtLegendData> &data )
 {
-    if ( item == NULL )
+    if ( plotItem == NULL )
         return;
 
     QList<QwtLegendLayoutItem *> layoutItems;
 
     QMap<const QwtPlotItem *, QList<QwtLegendLayoutItem *> >::iterator it = 
-        d_data->map.find( item );
+        d_data->map.find( plotItem );
     if ( it != d_data->map.end() )
         layoutItems = it.value();
 
@@ -483,18 +495,19 @@ void QwtPlotLegendItem::updateLegend( const QwtPlotItem *item,
             delete layoutItems[i];
         }
         if ( it != d_data->map.end() )
-            d_data->map.remove( item );
+            d_data->map.remove( plotItem );
 
         if ( !data.isEmpty() )
         {
             for ( int i = 0; i < data.size(); i++ )
             {
-                QwtLegendLayoutItem *layoutItem = new QwtLegendLayoutItem( this );
+                QwtLegendLayoutItem *layoutItem = 
+                    new QwtLegendLayoutItem( this, plotItem );
                 d_data->layout->addItem( layoutItem );
                 layoutItems += layoutItem;
             }
 
-            d_data->map.insert( item, layoutItems );
+            d_data->map.insert( plotItem, layoutItems );
         }
     }
 
@@ -525,8 +538,11 @@ void QwtPlotLegendItem::clearLegend()
 }
 
 void QwtPlotLegendItem::drawLegendData( QPainter *painter,
-    const QwtLegendData &data, const QRectF &rect ) const
+    const QwtPlotItem *plotItem, const QwtLegendData &data, 
+    const QRectF &rect ) const
 {
+    Q_UNUSED( plotItem );
+
     const int m = d_data->itemMargin;
     const QRect r = rect.toRect().adjusted( m, m, -m, -m );
 
@@ -537,14 +553,14 @@ void QwtPlotLegendItem::drawLegendData( QPainter *painter,
     const QPixmap pm = data.icon();
     if ( !pm.isNull() )
     {
-        QRect pmRect( r.topLeft(), pm.size() );
+        QRect identifierRect( r.topLeft(), pm.size() );
 
-        pmRect.moveCenter( 
-            QPoint( pmRect.center().x(), rect.center().y() ) );
+        identifierRect.moveCenter( 
+            QPoint( identifierRect.center().x(), rect.center().y() ) );
 
-        painter->drawPixmap( pmRect, pm );
+        painter->drawPixmap( identifierRect, pm );
 
-        titleOff += pmRect.width() + d_data->itemSpacing;
+        titleOff += identifierRect.width() + d_data->itemSpacing;
     }
 
     const QwtText text = data.title();
