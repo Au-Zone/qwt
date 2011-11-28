@@ -370,11 +370,14 @@ uint QwtDynGridLayout::columnsForWidth(int width) const
     if ( isEmpty() )
         return 0;
 
-    const int maxCols = (d_data->maxCols > 0) ? d_data->maxCols : itemCount();
-    if ( maxRowWidth(maxCols) <= width )
+    uint maxCols = itemCount();
+    if ( d_data->maxCols > 0 ) 
+        maxCols = qMin( d_data->maxCols, maxCols );
+
+    if ( maxRowWidth( maxCols ) <= width )
         return maxCols;
 
-    for (int numCols = 2; numCols <= maxCols; numCols++ )
+    for ( uint numCols = 2; numCols <= maxCols; numCols++ )
     {
         const int rowWidth = maxRowWidth(numCols);
         if ( rowWidth > width )
@@ -465,12 +468,15 @@ QList<QRect> QwtDynGridLayout::layoutItems(const QRect &rect,
         return itemGeometries;
 
     uint numRows = itemCount() / numCols;
-    if ( numRows % itemCount() )
+    if ( numCols % itemCount() )
         numRows++;
- 
+
+    if ( numRows == 0 )
+        return itemGeometries;
+
     QwtArray<int> rowHeight(numRows);
     QwtArray<int> colWidth(numCols);
- 
+
     layoutGrid(numCols, rowHeight, colWidth);
 
     bool expandH, expandV;
