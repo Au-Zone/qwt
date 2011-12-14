@@ -966,6 +966,8 @@ void QwtPlot::attachItem( QwtPlotItem *plotItem, bool on )
     else 
         removeItem( plotItem );
 
+    Q_EMIT itemAttached( plotItem, on );
+
     if ( plotItem->testItemAttribute( QwtPlotItem::Legend ) )
     {
         // the item wants to be represented on the legend

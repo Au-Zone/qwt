@@ -251,6 +251,14 @@ public:
 
 Q_SIGNALS:
     /*!
+      A signal indicating, that an item has been attached/detached
+
+      \param plotItem Plot item
+      \param on Attached/Detached
+     */
+    void itemAttached( QwtPlotItem *plotItem, bool on );
+
+    /*!
       A signal with the attributes how to update 
       the legend entries for a plot item.
 
