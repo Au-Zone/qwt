@@ -411,7 +411,10 @@ void QwtPlotRenderer::render( QwtPlot *plot,
         double( painter->device()->logicalDpiX() ) / plot->logicalDpiX(),
         double( painter->device()->logicalDpiY() ) / plot->logicalDpiY() );
 
-    painter->save();
+
+    QRectF layoutRect = transform.inverted().mapRect( plotRect );
+
+    // layout hacks for FrameWithScales
 
     int baseLineDists[QwtPlot::axisCnt];
     if ( d_data->layoutFlags & FrameWithScales )
@@ -424,6 +427,37 @@ void QwtPlotRenderer::render( QwtPlot *plot,
                 baseLineDists[axisId] = scaleWidget->margin();
                 scaleWidget->setMargin( 0 );
             }
+
+            if ( !plot->axisEnabled( axisId ) )
+            {
+                int left = 0;
+                int right = 0;
+                int top = 0;
+                int bottom = 0;
+
+                // When we have a scale the frame is painted on
+                // the position of the backbone - otherwise we
+                // need to introduce a margin around the canvas
+
+                switch( axisId )
+                {
+                    case QwtPlot::yLeft:
+                        layoutRect.adjust( 1, 0, 0, 0 );
+                        break;
+                    case QwtPlot::yRight:
+                        layoutRect.adjust( 0, 0, -1, 0 );
+                        break;
+                    case QwtPlot::xTop:
+                        layoutRect.adjust( 0, 1, 0, 0 );
+                        break;
+                    case QwtPlot::xBottom:
+                        layoutRect.adjust( 0, 0, 0, -1 );
+                        break;
+                    default:
+                        break;
+                }
+                layoutRect.adjust( left, top, right, bottom );
+            }
         }
     }
     // Calculate the layout for the print.
@@ -433,9 +467,11 @@ void QwtPlotRenderer::render( QwtPlot *plot,
     if ( d_data->discardFlags & DiscardLegend )
         layoutOptions |= QwtPlotLayout::IgnoreLegend;
 
-    const QRectF layoutRect = transform.inverted().mapRect( plotRect );
     plot->plotLayout()->activate( plot, layoutRect, layoutOptions );
 
+    // now start painting
+
+    painter->save();
     painter->setWorldTransform( transform, true );
 
     // canvas
