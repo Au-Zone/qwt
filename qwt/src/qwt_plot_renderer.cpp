@@ -409,15 +409,17 @@ void QwtPlotRenderer::render( QwtPlot *plot,
         double( painter->device()->logicalDpiX() ) / plot->logicalDpiX(),
         double( painter->device()->logicalDpiY() ) / plot->logicalDpiY() );
 
-    QwtPlotLayout *layout = plot->plotLayout();
+    QRectF layoutRect = transform.inverted().mapRect( plotRect );
 
-    painter->save();
+    QwtPlotLayout *layout = plot->plotLayout();
 
     int baseLineDists[QwtPlot::axisCnt];
     int canvasMargins[QwtPlot::axisCnt];
 
     for ( int axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
     {
+        canvasMargins[ axisId ] = layout->canvasMargin( axisId );
+
         if ( d_data->layoutFlags & FrameWithScales )
         {
             QwtScaleWidget *scaleWidget = plot->axisWidget( axisId );
@@ -426,9 +428,38 @@ void QwtPlotRenderer::render( QwtPlot *plot,
                 baseLineDists[axisId] = scaleWidget->margin();
                 scaleWidget->setMargin( 0 );
             }
-        }
 
-        canvasMargins[ axisId ] = layout->canvasMargin( axisId );
+            if ( !plot->axisEnabled( axisId ) )
+            {
+                int left = 0;
+                int right = 0;
+                int top = 0;
+                int bottom = 0;
+
+                // When we have a scale the frame is painted on
+                // the position of the backbone - otherwise we
+                // need to introduce a margin around the canvas
+
+                switch( axisId )
+                {
+                    case QwtPlot::yLeft:
+                        layoutRect.adjust( 1, 0, 0, 0 );
+                        break;
+                    case QwtPlot::yRight:
+                        layoutRect.adjust( 0, 0, -1, 0 );
+                        break;
+                    case QwtPlot::xTop:
+                        layoutRect.adjust( 0, 1, 0, 0 );
+                        break;
+                    case QwtPlot::xBottom:
+                        layoutRect.adjust( 0, 0, 0, -1 );
+                        break;
+                    default:
+                        break;
+                }
+                layoutRect.adjust( left, top, right, bottom );
+            }
+        }
     }
 
     // Calculate the layout for the document.
@@ -445,7 +476,6 @@ void QwtPlotRenderer::render( QwtPlot *plot,
     if ( d_data->discardFlags & DiscardFooter )
         layoutOptions |= QwtPlotLayout::IgnoreFooter;
 
-    const QRectF layoutRect = transform.inverted().mapRect( plotRect );
     layout->activate( plot, layoutRect, layoutOptions );
 
     // canvas
@@ -461,7 +491,11 @@ void QwtPlotRenderer::render( QwtPlot *plot,
         buildCanvasMaps( plot, layout->canvasRect(), maps );
     }
 
+    // now start painting
+
+    painter->save();
     painter->setWorldTransform( transform, true );
+
     renderCanvas( plot, painter, layout->canvasRect(), maps );
 
     if ( !( d_data->discardFlags & DiscardTitle )
