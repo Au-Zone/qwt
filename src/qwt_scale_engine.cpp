@@ -477,6 +477,16 @@ QwtScaleDiv QwtLinearScaleEngine::divideScale(double x1, double x2,
     return scaleDiv;
 }
 
+/*!
+   \brief Calculate ticks for an interval
+
+   \param interval Interval
+   \param stepSize Step size
+   \param maxMinSteps Maximum number of minor steps
+   \param ticks Arrays to be filled with the calculated ticks
+
+   \sa buildMajorTicks(), buildMinorTicks
+*/
 void QwtLinearScaleEngine::buildTicks(
     const QwtDoubleInterval& interval, double stepSize, int maxMinSteps,
     QwtValueList ticks[QwtScaleDiv::NTickTypes]) const
@@ -507,6 +517,14 @@ void QwtLinearScaleEngine::buildTicks(
     }
 }
 
+/*!
+   \brief Calculate major ticks for an interval
+
+   \param interval Interval
+   \param stepSize Step size
+
+   \return Calculated ticks
+*/
 QwtValueList QwtLinearScaleEngine::buildMajorTicks(
     const QwtDoubleInterval &interval, double stepSize) const
 {
@@ -524,6 +542,16 @@ QwtValueList QwtLinearScaleEngine::buildMajorTicks(
     return ticks;
 }
 
+/*!
+   \brief Calculate minor/medium ticks for major ticks
+
+   \param majorTicks Major ticks
+   \param maxMinSteps Maximum number of minor steps
+   \param stepSize Step size
+   \param minorTicks Array to be filled with the calculated minor ticks
+   \param mediumTicks Array to be filled with the calculated medium ticks
+
+*/
 void QwtLinearScaleEngine::buildMinorTicks(
     const QwtValueList& majorTicks,
     int maxMinSteps, double stepSize,
@@ -632,7 +660,11 @@ void QwtLog10ScaleEngine::autoScale(int maxNumSteps,
         linearScaler.setMargins(lowerMargin(), upperMargin());
 
         linearScaler.autoScale(maxNumSteps, x1, x2, stepSize);
-        stepSize = ::log10(stepSize);
+
+        if ( stepSize < 0.0 )
+            stepSize = -::log10( qAbs( stepSize ) );
+        else
+            stepSize = ::log10( stepSize );
 
         return;
     }
@@ -704,7 +736,12 @@ QwtScaleDiv QwtLog10ScaleEngine::divideScale(double x1, double x2,
         linearScaler.setMargins(lowerMargin(), upperMargin());
 
         if ( stepSize != 0.0 )
-            stepSize = ::pow(10.0, stepSize);
+        {
+            if ( stepSize < 0.0 )
+                stepSize = -::pow( 10.0, -stepSize );
+            else
+                stepSize = ::pow( 10.0, stepSize );
+        }
 
         return linearScaler.divideScale(x1, x2, 
             maxMajSteps, maxMinSteps, stepSize);
@@ -736,6 +773,16 @@ QwtScaleDiv QwtLog10ScaleEngine::divideScale(double x1, double x2,
     return scaleDiv;
 }
 
+/*!
+   \brief Calculate ticks for an interval
+
+   \param interval Interval
+   \param maxMinSteps Maximum number of minor steps
+   \param stepSize Step size
+   \param ticks Arrays to be filled with the calculated ticks
+
+   \sa buildMajorTicks(), buildMinorTicks
+*/
 void QwtLog10ScaleEngine::buildTicks(
     const QwtDoubleInterval& interval, double stepSize, int maxMinSteps,
     QwtValueList ticks[QwtScaleDiv::NTickTypes]) const
