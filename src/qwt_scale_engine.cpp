@@ -651,7 +651,11 @@ void QwtLog10ScaleEngine::autoScale( int maxNumSteps,
         linearScaler.setMargins( lowerMargin(), upperMargin() );
 
         linearScaler.autoScale( maxNumSteps, x1, x2, stepSize );
-        stepSize = ::log10( stepSize );
+
+        if ( stepSize < 0.0 )
+            stepSize = -::log10( qAbs( stepSize ) );
+        else
+            stepSize = ::log10( stepSize );
 
         return;
     }
@@ -723,7 +727,12 @@ QwtScaleDiv QwtLog10ScaleEngine::divideScale( double x1, double x2,
         linearScaler.setMargins( lowerMargin(), upperMargin() );
 
         if ( stepSize != 0.0 )
-            stepSize = qPow( 10.0, stepSize );
+        {
+            if ( stepSize < 0.0 )
+                stepSize = -qPow( 10.0, -stepSize );
+            else
+                stepSize = qPow( 10.0, stepSize );
+        }
 
         return linearScaler.divideScale( x1, x2,
             maxMajSteps, maxMinSteps, stepSize );
