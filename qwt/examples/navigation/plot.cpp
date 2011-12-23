@@ -8,6 +8,32 @@
 #include <qwt_painter.h>
 #include <qwt_plot_item.h>
 
+class TextItem: public QwtPlotItem
+{
+public:
+    void setText( const QString &text )
+    {
+        m_text = text;
+    }
+
+    virtual void draw( QPainter *painter,
+        const QwtScaleMap &, const QwtScaleMap &,
+        const QRectF &canvasRect ) const
+    {
+        const int margin = 5;
+        const QRectF textRect = 
+            canvasRect.adjusted( margin, margin, -margin, -margin );
+
+        painter->setPen( Qt::white );
+        painter->drawText( textRect, 
+            Qt::AlignBottom | Qt::AlignRight, m_text );
+    }
+
+private:
+    QString m_text;
+};
+
+
 class RectItem: public QwtPlotItem
 {
 public:
@@ -112,6 +138,9 @@ Plot::Plot( QWidget *parent, const QwtInterval &interval ):
         item->attach( this );
     }
 
+    TextItem *textItem = new TextItem();
+    textItem->setText( "Navigation Example" );
+    textItem->attach( this );
 
     d_rectOfInterest = new RectItem( RectItem::Rect );
     d_rectOfInterest->setPen( Qt::NoPen );
