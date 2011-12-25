@@ -15,8 +15,7 @@
 //! Construct an invalid QwtScaleDiv instance.
 QwtScaleDiv::QwtScaleDiv():
     d_lowerBound( 0.0 ),
-    d_upperBound( 0.0 ),
-    d_isValid( false )
+    d_upperBound( 0.0 )
 {
 }
 
@@ -29,8 +28,7 @@ QwtScaleDiv::QwtScaleDiv():
 QwtScaleDiv::QwtScaleDiv( const QwtInterval &interval,
         QList<double> ticks[NTickTypes] ):
     d_lowerBound( interval.minValue() ),
-    d_upperBound( interval.maxValue() ),
-    d_isValid( true )
+    d_upperBound( interval.maxValue() )
 {
     for ( int i = 0; i < NTickTypes; i++ )
         d_ticks[i] = ticks[i];
@@ -47,8 +45,7 @@ QwtScaleDiv::QwtScaleDiv(
         double lowerBound, double upperBound,
         QList<double> ticks[NTickTypes] ):
     d_lowerBound( lowerBound ),
-    d_upperBound( upperBound ),
-    d_isValid( true )
+    d_upperBound( upperBound )
 {
     for ( int i = 0; i < NTickTypes; i++ )
         d_ticks[i] = ticks[i];
@@ -70,8 +67,7 @@ void QwtScaleDiv::setInterval( const QwtInterval &interval )
 bool QwtScaleDiv::operator==( const QwtScaleDiv &other ) const
 {
     if ( d_lowerBound != other.d_lowerBound ||
-        d_upperBound != other.d_upperBound ||
-        d_isValid != other.d_isValid )
+        d_upperBound != other.d_upperBound )
     {
         return false;
     }
@@ -94,22 +90,10 @@ bool QwtScaleDiv::operator!=( const QwtScaleDiv &s ) const
     return ( !( *this == s ) );
 }
 
-//! Invalidate the scale division
-void QwtScaleDiv::invalidate()
-{
-    d_isValid = false;
-
-    // detach arrays
-    for ( int i = 0; i < NTickTypes; i++ )
-        d_ticks[i].clear();
-
-    d_lowerBound = d_upperBound = 0;
-}
-
 //! Check if the scale division is valid
-bool QwtScaleDiv::isValid() const
+bool QwtScaleDiv::isEmpty() const
 {
-    return d_isValid;
+    return ( d_lowerBound == d_upperBound );
 }
 
 /*!
@@ -120,9 +104,6 @@ bool QwtScaleDiv::isValid() const
 */
 bool QwtScaleDiv::contains( double value ) const
 {
-    if ( !d_isValid )
-        return false;
-
     const double min = qMin( d_lowerBound, d_upperBound );
     const double max = qMax( d_lowerBound, d_upperBound );
 
@@ -177,16 +158,9 @@ const QList<double> &QwtScaleDiv::ticks( int type ) const
 QDebug operator<<( QDebug debug, const QwtScaleDiv &scaleDiv )
 {
     debug << scaleDiv.interval();
-    if ( scaleDiv.isValid() )
-    {
-        debug << "Major: " << scaleDiv.ticks( QwtScaleDiv::MajorTick );
-        debug << "Medium: " << scaleDiv.ticks( QwtScaleDiv::MediumTick );
-        debug << "Minor: " << scaleDiv.ticks( QwtScaleDiv::MinorTick );
-    }
-    else
-    {
-        debug << "invalid";
-    }
+	debug << "Major: " << scaleDiv.ticks( QwtScaleDiv::MajorTick );
+	debug << "Medium: " << scaleDiv.ticks( QwtScaleDiv::MediumTick );
+	debug << "Minor: " << scaleDiv.ticks( QwtScaleDiv::MinorTick );
 
     return debug;
 }

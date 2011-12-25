@@ -71,8 +71,7 @@ public:
     void setTicks( int type, const QList<double> & );
     const QList<double> &ticks( int type ) const;
 
-    void invalidate();
-    bool isValid() const;
+    bool isEmpty() const;
 
     void invert();
 
@@ -80,8 +79,6 @@ private:
     double d_lowerBound;
     double d_upperBound;
     QList<double> d_ticks[NTickTypes];
-
-    bool d_isValid;
 };
 
 Q_DECLARE_TYPEINFO(QwtScaleDiv, Q_MOVABLE_TYPE);

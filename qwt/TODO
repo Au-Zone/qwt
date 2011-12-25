@@ -16,7 +16,6 @@ Ideas
 - Grid of QwtPlots
 - Interval scale labels ( between 2 ticks )
 - More than 4 axes
-- QwtPlotLegendItem: legend item on the canvas
 - QwtSymbol/QwtIntervalSymbol + QPainterPath
 - QwtPlotScene + breaking composite architecture
 - Using QStaticText for markers ( and scales ? )
@@ -26,13 +25,16 @@ Ideas
 - Use QPainter::setAlpha instead of applying the alpha value to the image
 - Waterfall plots
 - transform/invTransform for polygons and lines
+- cursor item
+- line marker with a line from the position to the axis
+- 1uadtree
 
 Bugs/Change requests
 --------------------
-1) QwtPlotDict, performance of z sorting
-2) Layout init of round scales too late.
-3) Remove QwtScaleTransformation::copy()
-4) Remove valid flag of QwtScaleDiv
-5) Reference value for QwtThermo
-6) Transparent canvas background + backingstore
-7) Conflicts of qtAddLibrary with installed versions
+- QwtPlotDict, performance of z sorting
+- Layout init of round scales too late.
+- Remove QwtScaleTransformation::copy()
+- Reference value for QwtThermo
+- Transparent canvas background + backingstore
+- Conflicts of qtAddLibrary with installed versions
+- QwtSystemClock -> QElapsedTimer
