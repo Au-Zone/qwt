@@ -94,6 +94,9 @@ public:
 
     void invalidateCache();
 
+    void setRenderThreadCount( uint numThreads );
+    uint renderThreadCount() const;
+
     virtual void draw( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &rect ) const;
