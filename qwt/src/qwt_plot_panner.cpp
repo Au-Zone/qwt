@@ -140,8 +140,8 @@ void QwtPlotPanner::moveCanvas( int dx, int dy )
 
         const QwtScaleMap map = plot->canvasMap( axis );
 
-        const double p1 = map.transform( plot->axisScaleDiv( axis )->lowerBound() );
-        const double p2 = map.transform( plot->axisScaleDiv( axis )->upperBound() );
+        const double p1 = map.transform( plot->axisScaleDiv( axis ).lowerBound() );
+        const double p2 = map.transform( plot->axisScaleDiv( axis ).upperBound() );
 
         double d1, d2;
         if ( axis == QwtPlot::xBottom || axis == QwtPlot::xTop )

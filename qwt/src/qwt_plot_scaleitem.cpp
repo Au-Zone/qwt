@@ -137,8 +137,8 @@ void QwtPlotScaleItem::setScaleDivFromAxis( bool on )
             const QwtPlot *plt = plot();
             if ( plt )
             {
-                updateScaleDiv( *plt->axisScaleDiv( xAxis() ),
-                    *plt->axisScaleDiv( yAxis() ) );
+                updateScaleDiv( plt->axisScaleDiv( xAxis() ),
+                    plt->axisScaleDiv( yAxis() ) );
                 itemChanged();
             }
         }
@@ -225,8 +225,8 @@ void QwtPlotScaleItem::setScaleDraw( QwtScaleDraw *scaleDraw )
     const QwtPlot *plt = plot();
     if ( plt )
     {
-        updateScaleDiv( *plt->axisScaleDiv( xAxis() ),
-            *plt->axisScaleDiv( yAxis() ) );
+        updateScaleDiv( plt->axisScaleDiv( xAxis() ),
+            plt->axisScaleDiv( yAxis() ) );
     }
 
     itemChanged();

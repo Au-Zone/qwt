@@ -90,10 +90,16 @@ bool QwtScaleDiv::operator!=( const QwtScaleDiv &s ) const
     return ( !( *this == s ) );
 }
 
-//! Check if the scale division is valid
+//! Check if the scale division is empty( lowerBound() == upperBound() )
 bool QwtScaleDiv::isEmpty() const
 {
     return ( d_lowerBound == d_upperBound );
+}
+
+//! Check if the scale division is increasing( lowerBound() <= upperBound() )
+bool QwtScaleDiv::isIncreasing() const
+{
+	return d_lowerBound <= d_upperBound;
 }
 
 /*!

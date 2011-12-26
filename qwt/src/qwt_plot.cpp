@@ -676,8 +676,8 @@ QwtScaleMap QwtPlot::canvasMap( int axisId ) const
 
     map.setTransformation( axisScaleEngine( axisId )->transformation() );
 
-    const QwtScaleDiv *sd = axisScaleDiv( axisId );
-    map.setScaleInterval( sd->lowerBound(), sd->upperBound() );
+    const QwtScaleDiv &sd = axisScaleDiv( axisId );
+    map.setScaleInterval( sd.lowerBound(), sd.upperBound() );
 
     if ( axisEnabled( axisId ) )
     {

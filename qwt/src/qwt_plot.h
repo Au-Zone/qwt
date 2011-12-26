@@ -195,8 +195,7 @@ public:
     double axisStepSize( int axisId ) const;
     QwtInterval axisInterval( int axisId ) const;
 
-    const QwtScaleDiv *axisScaleDiv( int axisId ) const;
-    QwtScaleDiv *axisScaleDiv( int axisId );
+    const QwtScaleDiv &axisScaleDiv( int axisId ) const;
 
     const QwtScaleDraw *axisScaleDraw( int axisId ) const;
     QwtScaleDraw *axisScaleDraw( int axisId );

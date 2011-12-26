@@ -236,7 +236,7 @@ int QwtPlot::axisMaxMinor( int axisId ) const
 /*!
   \brief Return the scale division of a specified axis
 
-  axisScaleDiv(axisId)->lowerBound(), axisScaleDiv(axisId)->upperBound()
+  axisScaleDiv(axisId).lowerBound(), axisScaleDiv(axisId).upperBound()
   are the current limits of the axis scale.
 
   \param axisId axis index
@@ -244,31 +244,9 @@ int QwtPlot::axisMaxMinor( int axisId ) const
 
   \sa QwtScaleDiv, setAxisScaleDiv()
 */
-const QwtScaleDiv *QwtPlot::axisScaleDiv( int axisId ) const
+const QwtScaleDiv &QwtPlot::axisScaleDiv( int axisId ) const
 {
-    if ( !axisValid( axisId ) )
-        return NULL;
-
-    return &d_axisData[axisId]->scaleDiv;
-}
-
-/*!
-  \brief Return the scale division of a specified axis
-
-  axisScaleDiv(axisId)->lowerBound(), axisScaleDiv(axisId)->upperBound()
-  are the current limits of the axis scale.
-
-  \param axisId axis index
-  \return Scale division
-
-  \sa QwtScaleDiv, setAxisScaleDiv()
-*/
-QwtScaleDiv *QwtPlot::axisScaleDiv( int axisId )
-{
-    if ( !axisValid( axisId ) )
-        return NULL;
-
-    return &d_axisData[axisId]->scaleDiv;
+    return d_axisData[axisId]->scaleDiv;
 }
 
 /*!
@@ -669,8 +647,8 @@ void QwtPlot::updateAxes()
         QwtPlotItem *item = *it;
         if ( item->testItemInterest( QwtPlotItem::ScaleInterest ) )
         {
-            item->updateScaleDiv( *axisScaleDiv( item->xAxis() ),
-                *axisScaleDiv( item->yAxis() ) );
+            item->updateScaleDiv( axisScaleDiv( item->xAxis() ),
+                axisScaleDiv( item->yAxis() ) );
         }
     }
 }

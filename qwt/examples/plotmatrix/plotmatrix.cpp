@@ -184,7 +184,7 @@ void PlotMatrix::scaleDivChanged()
             {
                 QwtPlot *p = plot( row, rowOrColumn );
                 if ( p != plt )
-                    p->setAxisScaleDiv( axisId, *plt->axisScaleDiv( axisId ) );
+                    p->setAxisScaleDiv( axisId, plt->axisScaleDiv( axisId ) );
             }
         }
         else
@@ -193,7 +193,7 @@ void PlotMatrix::scaleDivChanged()
             {
                 QwtPlot *p = plot( rowOrColumn, col );
                 if ( p != plt )
-                    p->setAxisScaleDiv( axisId, *plt->axisScaleDiv( axisId ) );
+                    p->setAxisScaleDiv( axisId, plt->axisScaleDiv( axisId ) );
             }
         }
 

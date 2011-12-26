@@ -72,6 +72,7 @@ public:
     const QList<double> &ticks( int type ) const;
 
     bool isEmpty() const;
+    bool isIncreasing() const;
 
     void invert();
 
@@ -81,7 +82,7 @@ private:
     QList<double> d_ticks[NTickTypes];
 };
 
-Q_DECLARE_TYPEINFO(QwtScaleDiv, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO( QwtScaleDiv, Q_MOVABLE_TYPE );
 
 #ifndef QT_NO_DEBUG_STREAM
 QWT_EXPORT QDebug operator<<( QDebug, const QwtScaleDiv & );
@@ -131,4 +132,5 @@ inline double QwtScaleDiv::range() const
 {
     return d_upperBound - d_lowerBound;
 }
+
 #endif

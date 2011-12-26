@@ -185,7 +185,7 @@ void Plot::incrementInterval()
     // the autocalculation of the ticks and shift them
     // manually instead.
 
-    QwtScaleDiv scaleDiv = *axisScaleDiv( QwtPlot::xBottom );
+    QwtScaleDiv scaleDiv = axisScaleDiv( QwtPlot::xBottom );
     scaleDiv.setInterval( d_interval );
 
     for ( int i = 0; i < QwtScaleDiv::NTickTypes; i++ )
