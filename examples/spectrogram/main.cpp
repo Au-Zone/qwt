@@ -2,6 +2,7 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
+#include <qslider.h>
 #include "plot.h"
 
 class MainWindow: public QMainWindow
@@ -47,10 +48,19 @@ MainWindow::MainWindow( QWidget *parent ):
         d_plot, SLOT( printPlot() ) );
 #endif
 
+    QSlider *slider = new QSlider( Qt::Horizontal );
+    slider->setRange( 0, 255 );
+    slider->setValue( 255 );
+    connect( slider, SIGNAL( valueChanged( int ) ), 
+        d_plot, SLOT( setAlpha( int ) ) );
+
+    toolBar->addWidget( slider );
+
     addToolBar( toolBar );
 
     btnSpectrogram->setChecked( true );
     btnContour->setChecked( false );
+
 }
 
 int main( int argc, char **argv )

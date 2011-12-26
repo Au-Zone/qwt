@@ -70,6 +70,7 @@ Plot::Plot( QWidget *parent ):
     d_spectrogram->setRenderThreadCount( 0 ); // use system specific thread count
 
     d_spectrogram->setColorMap( new ColorMap() );
+    d_spectrogram->setCachePolicy( QwtPlotRasterItem::PaintCache );
 
     d_spectrogram->setData( new SpectrogramData() );
     d_spectrogram->attach( this );
@@ -129,6 +130,12 @@ void Plot::showSpectrogram( bool on )
 {
     d_spectrogram->setDisplayMode( QwtPlotSpectrogram::ImageMode, on );
     d_spectrogram->setDefaultContourPen( on ? QPen() : QPen( Qt::NoPen ) );
+    replot();
+}
+
+void Plot::setAlpha( int alpha )
+{
+    d_spectrogram->setAlpha( alpha );
     replot();
 }
 
