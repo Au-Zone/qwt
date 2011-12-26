@@ -11,6 +11,7 @@ public:
 public Q_SLOTS:
     void showContour( bool on );
     void showSpectrogram( bool on );
+    void setAlpha( int );
 
 #ifndef QT_NO_PRINTER
     void printPlot();
