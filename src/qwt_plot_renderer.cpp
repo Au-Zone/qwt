@@ -789,7 +789,7 @@ void QwtPlotRenderer::buildCanvasMaps( const QwtPlot *plot,
         maps[axisId].setTransformation(
             plot->axisScaleEngine( axisId )->transformation() );
 
-        const QwtScaleDiv &scaleDiv = *plot->axisScaleDiv( axisId );
+        const QwtScaleDiv &scaleDiv = plot->axisScaleDiv( axisId );
         maps[axisId].setScaleInterval(
             scaleDiv.lowerBound(), scaleDiv.upperBound() );
 

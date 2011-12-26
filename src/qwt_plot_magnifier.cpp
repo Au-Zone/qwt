@@ -124,12 +124,12 @@ void QwtPlotMagnifier::rescale( double factor )
 
     for ( int axisId = 0; axisId < QwtPlot::axisCnt; axisId++ )
     {
-        const QwtScaleDiv *scaleDiv = plt->axisScaleDiv( axisId );
+        const QwtScaleDiv &scaleDiv = plt->axisScaleDiv( axisId );
         if ( isAxisEnabled( axisId ) )
         {
             const double center =
-                scaleDiv->lowerBound() + scaleDiv->range() / 2;
-            const double width_2 = scaleDiv->range() / 2 * factor;
+                scaleDiv.lowerBound() + scaleDiv.range() / 2;
+            const double width_2 = scaleDiv.range() / 2 * factor;
 
             plt->setAxisScale( axisId, center - width_2, center + width_2 );
             doReplot = true;

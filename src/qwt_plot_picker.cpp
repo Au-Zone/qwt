@@ -144,15 +144,12 @@ QRectF QwtPlotPicker::scaleRect() const
 
     if ( plot() )
     {
-        const QwtScaleDiv *xs = plot()->axisScaleDiv( xAxis() );
-        const QwtScaleDiv *ys = plot()->axisScaleDiv( yAxis() );
+        const QwtScaleDiv &xs = plot()->axisScaleDiv( xAxis() );
+        const QwtScaleDiv &ys = plot()->axisScaleDiv( yAxis() );
 
-        if ( xs && ys )
-        {
-            rect = QRectF( xs->lowerBound(), ys->lowerBound(),
-                xs->range(), ys->range() );
-            rect = rect.normalized();
-        }
+		rect = QRectF( xs.lowerBound(), ys.lowerBound(),
+			xs.range(), ys.range() );
+		rect = rect.normalized();
     }
 
     return rect;

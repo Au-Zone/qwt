@@ -482,20 +482,15 @@ Qt::Orientation QwtPlotRescaler::orientation( int axis ) const
 }
 
 /*!
-  Return interval of an axis
   \param axis Axis index ( see QwtPlot::AxisId )
+  \return Normalized interval of an axis
 */
 QwtInterval QwtPlotRescaler::interval( int axis ) const
 {
     if ( axis < 0 || axis >= QwtPlot::axisCnt )
         return QwtInterval();
 
-    const QwtPlot *plt = plot();
-
-    const double v1 = plt->axisScaleDiv( axis )->lowerBound();
-    const double v2 = plt->axisScaleDiv( axis )->upperBound();
-
-    return QwtInterval( v1, v2 ).normalized();
+    return plot()->axisScaleDiv( axis ).interval().normalized();
 }
 
 /*!
@@ -587,16 +582,11 @@ void QwtPlotRescaler::updateScales(
             double v1 = intervals[axis].minValue();
             double v2 = intervals[axis].maxValue();
 
-            if ( plt->axisScaleDiv( axis )->lowerBound() >
-                plt->axisScaleDiv( axis )->upperBound() )
-            {
+            if ( !plt->axisScaleDiv( axis ).isIncreasing() )
                 qSwap( v1, v2 );
-            }
 
             if ( d_data->inReplot >= 1 )
-            {
-                d_data->axisData[axis].scaleDiv = *plt->axisScaleDiv( axis );
-            }
+                d_data->axisData[axis].scaleDiv = plt->axisScaleDiv( axis );
 
             if ( d_data->inReplot >= 2 )
             {
