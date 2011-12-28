@@ -14,6 +14,7 @@
 #include <QPolygonF>
 
 class QPainter;
+class QPainterPath;
 class QRect;
 class QSize;
 class QBrush;
@@ -80,6 +81,10 @@ public:
         Hexagon,
 
         /*!
+         */
+        Path,
+
+        /*!
          Styles >= QwtSymbol::UserSymbol are reserved for derived
          classes of QwtSymbol that overload drawSymbols() with
          additional application specific symbol types.
@@ -128,6 +133,8 @@ public:
 public:
     QwtSymbol( Style = NoSymbol );
     QwtSymbol( Style, const QBrush &, const QPen &, const QSize & );
+    QwtSymbol( const QPainterPath &, const QBrush &, const QPen & );
+
     QwtSymbol( const QwtSymbol & );
 
     virtual ~QwtSymbol();
@@ -154,14 +161,20 @@ public:
     void setStyle( Style );
     Style style() const;
 
+    void setPath( const QPainterPath & );
+    const QPainterPath &path() const;
+
     void drawSymbol( QPainter *, const QPointF & ) const;
     void drawSymbols( QPainter *, const QPolygonF & ) const;
 
-    virtual QSize boundingSize() const;
+    virtual QRect boundingRect() const;
     void invalidateCache();
 
 protected:
-    virtual void drawSymbols( QPainter *,
+    void drawSymbols( QPainter *,
+        const QPointF *, int numPoints ) const;
+
+    virtual void renderSymbols( QPainter *,
         const QPointF *, int numPoints ) const;
 
 private:
