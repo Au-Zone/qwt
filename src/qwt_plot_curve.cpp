@@ -792,33 +792,29 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
 
     if ( usePixmap )
     {
-        QPixmap pm( symbol.boundingSize() );
-        pm.fill( Qt::transparent );
+        const QSize sz = ( 2 * symbol.boundingSize() + QSize( 1, 1 ) ) / 2;
+        const int w2 = sz.width() / 2;
+        const int h2 = sz.height() / 2;
 
-        const double pw2 = 0.5 * pm.width();
-        const double ph2 = 0.5 * pm.height();
+        QPixmap pm( sz );
+        pm.fill( Qt::transparent );
 
         QPainter p( &pm );
         p.setRenderHints( painter->renderHints() );
-        symbol.drawSymbol( &p, QPointF( pw2, ph2 ) );
+        symbol.drawSymbol( &p, QPointF( w2, h2 ) );
         p.end();
 
         for ( int i = from; i <= to; i++ )
         {
             const QPointF sample = d_series->sample( i );
 
-            double xi = xMap.transform( sample.x() );
-            double yi = yMap.transform( sample.y() );
-            if ( doAlign )
-            {
-                xi = qRound( xi );
-                yi = qRound( yi );
-            }
+            const double xi = xMap.transform( sample.x() );
+            const double yi = yMap.transform( sample.y() );
 
             if ( canvasRect.contains( xi, yi ) )
             {
-                const int left = qCeil( xi - pw2 );
-                const int top = qCeil( yi - ph2 );
+                const int left = qRound( xi ) - w2;
+                const int top = qRound( yi ) - h2;
 
                 painter->drawPixmap( left, top, pm );
             }
