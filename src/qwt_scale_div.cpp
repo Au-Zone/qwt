@@ -99,7 +99,7 @@ bool QwtScaleDiv::isEmpty() const
 //! Check if the scale division is increasing( lowerBound() <= upperBound() )
 bool QwtScaleDiv::isIncreasing() const
 {
-	return d_lowerBound <= d_upperBound;
+    return d_lowerBound <= d_upperBound;
 }
 
 /*!
@@ -164,9 +164,9 @@ const QList<double> &QwtScaleDiv::ticks( int type ) const
 QDebug operator<<( QDebug debug, const QwtScaleDiv &scaleDiv )
 {
     debug << scaleDiv.interval();
-	debug << "Major: " << scaleDiv.ticks( QwtScaleDiv::MajorTick );
-	debug << "Medium: " << scaleDiv.ticks( QwtScaleDiv::MediumTick );
-	debug << "Minor: " << scaleDiv.ticks( QwtScaleDiv::MinorTick );
+    debug << "Major: " << scaleDiv.ticks( QwtScaleDiv::MajorTick );
+    debug << "Medium: " << scaleDiv.ticks( QwtScaleDiv::MediumTick );
+    debug << "Minor: " << scaleDiv.ticks( QwtScaleDiv::MinorTick );
 
     return debug;
 }

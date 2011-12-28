@@ -87,15 +87,57 @@ public:
         UserStyle = 1000
     };
 
+    /*!
+      Depending on the render engine and the complexity of the
+      symbol shape it might be faster to render the symbol
+      to a pixmap and to paint this pixmap.
+
+      F.e. the raster paint engine is a pure software renderer
+      where in cache mode a draw operation usually ends in 
+      raster operation with the the backing store, that are usually
+      faster, than the algorithms for rendering polygons.
+      But the opposite can be expected for graphic pipelines
+      that can make use of hardware acceleration.
+
+      The default setting is AutoCache
+
+      \sa setCachePolicy(), cachePolicy()
+
+      \note The policy has no effect, when the symbol is painted 
+            to a vector graphics format ( PDF, SVG ).
+      \warning Since Qt 4.8 raster is the default backend on X11
+     */
+
+    enum CachePolicy
+    {
+        //! Don't use a pixmap cache
+        NoCache,
+
+        //! Always use a pixmap cache
+        Cache,
+
+        /*! 
+           Use a cache wehn one of the following condiditions is true:
+
+           - The symbol is rendered with the software 
+             renderer ( QPaintEngine::Raster )
+         */
+        AutoCache
+    };
+
 public:
     QwtSymbol( Style = NoSymbol );
     QwtSymbol( Style, const QBrush &, const QPen &, const QSize & );
     QwtSymbol( const QwtSymbol & );
+
     virtual ~QwtSymbol();
 
     QwtSymbol &operator=( const QwtSymbol & );
     bool operator==( const QwtSymbol & ) const;
     bool operator!=( const QwtSymbol & ) const;
+
+    void setCachePolicy( CachePolicy );
+    CachePolicy cachePolicy() const;
 
     void setSize( const QSize & );
     void setSize( int width, int height = -1 );
@@ -116,6 +158,7 @@ public:
     void drawSymbols( QPainter *, const QPolygonF & ) const;
 
     virtual QSize boundingSize() const;
+    void invalidateCache();
 
 protected:
     virtual void drawSymbols( QPainter *,

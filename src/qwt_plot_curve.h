@@ -183,27 +183,19 @@ public:
         ClipPolygons = 0x01,
 
         /*!
-          Paint the symbol to a QPixmap and paint the pixmap
-          instead rendering the symbol for each point. The flag has
-          no effect, when the curve is not painted to the canvas
-          ( f.e when exporting the plot to a PDF document ).
-         */
-        CacheSymbols = 0x02,
-
-        /*!
           Tries to reduce the data that has to be painted, by sorting out
           duplicates, or paintings outside the visible area. Might have a
           notable impact on curves with many close points.
           Only a couple of very basic filtering algos are implemented.
          */
-        FilterPoints = 0x04,
+        FilterPoints = 0x02,
 
         /*!
           Minimize memory usage that is temporarily needed for the 
           translated points, before they get painted.
           This might slow down the performance of painting 
          */
-        MinimizeMemory = 0x08,
+        MinimizeMemory = 0x04,
 
         /*!
           Render the points to a temporary image and paint the image.
@@ -212,7 +204,7 @@ public:
           With a reasonable number of points QPainter::drawPoints()
           will be faster.
          */
-        ImageBuffer = 0x10
+        ImageBuffer = 0x08
     };
 
     //! Paint attributes
