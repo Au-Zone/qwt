@@ -203,7 +203,7 @@ QPolygon QwtPointMapper::toPolygon(
             const int x = qRound( xMap.transform( sample.x() ) );
             const int y = qRound( yMap.transform( sample.y() ) );
 
-            if ( points[pos].x() != x && points[pos].y() != y )
+            if ( points[pos].x() != x || points[pos].y() != y )
             {
                 pos++;
                 points[pos].rx() = x;
