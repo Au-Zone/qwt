@@ -365,7 +365,7 @@ void QwtPlotMarker::setSymbol( const QwtSymbol *symbol )
         d_data->symbol = symbol;
 
         if ( symbol )
-            setLegendIdentifierSize( symbol->boundingSize() );
+            setLegendIdentifierSize( symbol->boundingRect().size() );
 
         legendChanged();
         itemChanged();
@@ -565,22 +565,25 @@ void QwtPlotMarker::drawLegendIdentifier( int index,
 
     if ( d_data->symbol && d_data->symbol->style() != QwtSymbol::NoSymbol )
     {
-        QSize symbolSize = d_data->symbol->boundingSize();
-        symbolSize -= QSize( 2, 2 );
+        const QRect br = d_data->symbol->boundingRect();
+        const QSize sz = br.size() - QSize( 2, 2 );
 
         // scale the symbol size down if it doesn't fit into rect.
 
         double xRatio = 1.0;
-        if ( rect.width() < symbolSize.width() )
-            xRatio = rect.width() / symbolSize.width();
+        if ( rect.width() < sz.width() )
+            xRatio = rect.width() / sz.width();
+
         double yRatio = 1.0;
-        if ( rect.height() < symbolSize.height() )
-            yRatio = rect.height() / symbolSize.height();
+        if ( rect.height() < sz.height() )
+            yRatio = rect.height() / sz.height();
 
         const double ratio = qMin( xRatio, yRatio );
 
         painter->scale( ratio, ratio );
-        d_data->symbol->drawSymbol( painter, rect.center() / ratio );
+
+        d_data->symbol->drawSymbol( painter, 
+            ( rect.center() - br.center() ) / ratio );
     }
 
     painter->restore();

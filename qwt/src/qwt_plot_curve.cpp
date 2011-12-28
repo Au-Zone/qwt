@@ -23,6 +23,29 @@
 #include <qalgorithms.h>
 #include <qmath.h>
 
+static void qwtUpdateLegendIdentifierSize( QwtPlotCurve *curve )
+{
+    if ( curve->symbol() && 
+        curve->testLegendAttribute( QwtPlotCurve::LegendShowSymbol ) )
+    {
+        QSize sz = curve->symbol()->boundingRect().size();
+        sz += QSize( 2, 2 ); // margin
+
+        if ( curve->testLegendAttribute( QwtPlotCurve::LegendShowLine ) )
+        {
+            // Avoid, that the line is completely covered by the symbol
+
+            int w = qCeil( 1.5 * sz.width() );
+            if ( w % 2 )
+                w++;
+
+            sz.setWidth( qMax( 8, w ) );
+        }
+
+        curve->setLegendIdentifierSize( sz );
+    }
+}
+
 static int qwtVerifyRange( int size, int &i1, int &i2 )
 {
     if ( size < 1 )
@@ -151,10 +174,16 @@ bool QwtPlotCurve::testPaintAttribute( PaintAttribute attribute ) const
 */
 void QwtPlotCurve::setLegendAttribute( LegendAttribute attribute, bool on )
 {
-    if ( on )
-        d_data->legendAttributes |= attribute;
-    else
-        d_data->legendAttributes &= ~attribute;
+    if ( on != ( d_data->legendAttributes & attribute ) )
+    {
+
+        if ( on )
+            d_data->legendAttributes |= attribute;
+        else
+            d_data->legendAttributes &= ~attribute;
+
+        qwtUpdateLegendIdentifierSize( this );
+    }
 }
 
 /*!
@@ -205,24 +234,7 @@ void QwtPlotCurve::setSymbol( const QwtSymbol *symbol )
         delete d_data->symbol;
         d_data->symbol = symbol;
 
-        if ( symbol )
-        {
-            QSize sz = symbol->boundingSize();
-            sz += QSize( 2, 2 ); // margin
-
-            if ( d_data->legendAttributes & QwtPlotCurve::LegendShowLine )
-            {
-                // Avoid, that the line is completely covered by the symbol
-
-                int w = qCeil( 1.5 * sz.width() );
-                if ( w % 2 )
-                    w++;
-
-                sz.setWidth( qMax( 8, w ) );
-            }
-
-            setLegendIdentifierSize( sz );
-        }
+        qwtUpdateLegendIdentifierSize( this );
 
         legendChanged();
         itemChanged();
@@ -1037,11 +1049,13 @@ void QwtPlotCurve::drawLegendIdentifier(
         if ( brush.style() != Qt::NoBrush )
             painter->fillRect( r, brush );
     }
+
     if ( d_data->legendAttributes & QwtPlotCurve::LegendShowBrush )
     {
         if ( d_data->brush.style() != Qt::NoBrush )
             painter->fillRect( r, d_data->brush );
     }
+
     if ( d_data->legendAttributes & QwtPlotCurve::LegendShowLine )
     {
         if ( pen() != Qt::NoPen )
@@ -1051,29 +1065,32 @@ void QwtPlotCurve::drawLegendIdentifier(
                                   rect.right() - 1.0, rect.center().y() );
         }
     }
+
     if ( d_data->legendAttributes & QwtPlotCurve::LegendShowSymbol )
     {
         if ( d_data->symbol &&
             ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
         {
-            QSize symbolSize = d_data->symbol->boundingSize();
-            symbolSize -= QSize( 2, 2 );
+            const QRect br = d_data->symbol->boundingRect();
+            const QSize sz = br.size() - QSize( 2, 2 );
 
             // scale the symbol size down if it doesn't fit into rect.
 
             double xRatio = 1.0;
-            if ( rect.width() < symbolSize.width() )
-                xRatio = rect.width() / symbolSize.width();
+            if ( rect.width() < sz.width() )
+                xRatio = rect.width() / sz.width();
+
             double yRatio = 1.0;
-            if ( rect.height() < symbolSize.height() )
-                yRatio = rect.height() / symbolSize.height();
+            if ( rect.height() < sz.height() )
+                yRatio = rect.height() / sz.height();
 
             const double ratio = qMin( xRatio, yRatio );
 
             painter->save();
             painter->scale( ratio, ratio );
 
-            d_data->symbol->drawSymbol( painter, rect.center() / ratio );
+            d_data->symbol->drawSymbol( painter, 
+                ( rect.center() - br.center() ) / ratio );
 
             painter->restore();
         }
