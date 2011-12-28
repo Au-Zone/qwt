@@ -26,7 +26,7 @@ public:
     int maxMajor;
     int maxMinor;
 
-	bool isValid;
+    bool isValid;
 
     QwtScaleDiv scaleDiv;
     QwtScaleEngine *scaleEngine;
@@ -630,7 +630,7 @@ void QwtPlot::updateAxes()
             d.scaleDiv = d.scaleEngine->divideScale(
                 minValue, maxValue,
                 d.maxMajor, d.maxMinor, stepSize );
-			d.isValid = true;
+            d.isValid = true;
         }
 
         QwtScaleWidget *scaleWidget = axisWidget( axisId );

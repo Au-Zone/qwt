@@ -239,7 +239,7 @@ QRectF QwtPlotMultiBarChart::boundingRect() const
     {
         double xMin, xMax, yMin, yMax;
 
-		xMin = xMax = 0.0;
+        xMin = xMax = 0.0;
         yMin = yMax = baseLine;
 
         const QwtSeriesData<QwtSetSample> *series = data();

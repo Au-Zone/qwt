@@ -898,73 +898,24 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int from, int to ) const
 {
-    const bool doAlign = QwtPainter::roundingAlignment( painter );
+    QwtPointMapper mapper;
+    mapper.setFlag( QwtPointMapper::RoundPoints, 
+        QwtPainter::roundingAlignment( painter ) );
+    mapper.setFlag( QwtPointMapper::WeedOutPoints, 
+        testPaintAttribute( QwtPlotCurve::FilterPoints ) );
+    mapper.setBoundingRect( canvasRect );
 
-    bool usePixmap = testPaintAttribute( CacheSymbols );
-    if ( usePixmap && !doAlign )
+    const int chunkSize = 500;
+
+    for ( int i = from; i <= to; i += chunkSize )
     {
-        // Don't use the pixmap, when the paint device
-        // could generate scalable vectors
+        const int n = qMin( chunkSize, to - i + 1 );
 
-        usePixmap = false;
-    }
+        const QPolygonF points = mapper.toPointsF( xMap, yMap,
+            data(), i, i + n - 1 );
 
-    if ( usePixmap )
-    {
-        QPixmap pm( symbol.boundingSize() );
-        pm.fill( Qt::transparent );
-
-        const double pw2 = 0.5 * pm.width();
-        const double ph2 = 0.5 * pm.height();
-
-        QPainter p( &pm );
-        p.setRenderHints( painter->renderHints() );
-        symbol.drawSymbol( &p, QPointF( pw2, ph2 ) );
-        p.end();
-
-        const QwtSeriesData<QPointF> *series = data();
-
-        for ( int i = from; i <= to; i++ )
-        {
-            const QPointF sample = series->sample( i );
-
-            double xi = xMap.transform( sample.x() );
-            double yi = yMap.transform( sample.y() );
-            if ( doAlign )
-            {
-                xi = qRound( xi );
-                yi = qRound( yi );
-            }
-
-            if ( canvasRect.contains( xi, yi ) )
-            {
-                const int left = qCeil( xi - pw2 );
-                const int top = qCeil( yi - ph2 );
-
-                painter->drawPixmap( left, top, pm );
-            }
-        }
-    }
-    else
-    {
-        QwtPointMapper mapper;
-        mapper.setFlag( QwtPointMapper::RoundPoints, doAlign );
-        mapper.setFlag( QwtPointMapper::WeedOutPoints, 
-            testPaintAttribute( QwtPlotCurve::FilterPoints ) );
-        mapper.setBoundingRect( canvasRect );
-
-        const int chunkSize = 500;
-
-        for ( int i = from; i <= to; i += chunkSize )
-        {
-            const int n = qMin( chunkSize, to - i + 1 );
-
-            const QPolygonF points = mapper.toPointsF( xMap, yMap,
-                data(), i, i + n - 1 );
-
-            if ( points.size() > 0 )
-                symbol.drawSymbols( painter, points );
-        }
+        if ( points.size() > 0 )
+            symbol.drawSymbols( painter, points );
     }
 }
 
