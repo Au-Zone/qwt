@@ -27,12 +27,29 @@ namespace QwtTriangle
     };
 }
 
+static inline QRectF qwtPathBoundingRect( 
+    const QPainterPath &path, const QPen &pen )
+{
+    QPainterPathStroker stroker;
+    stroker.setDashPattern( pen.style() );
+    stroker.setWidth( pen.widthF() );
+    stroker.setJoinStyle( pen.joinStyle() );
+    stroker.setCapStyle( pen.capStyle() );
+    stroker.setMiterLimit( pen.miterLimit() );
+
+    const QPainterPath strokedPath = stroker.createStroke( path );
+    return strokedPath.boundingRect();
+}
+
 static inline void qwtDrawPathSymbols( QPainter *painter, 
     const QSizeF &pathSize, const QPointF *points, int numPoints, 
     const QwtSymbol &symbol )
 {
     if ( pathSize.isEmpty() )
         return;
+
+    painter->setBrush( symbol.brush() );
+    painter->setPen( symbol.pen() );
 
     double sx = 1.0;
     double sy = 1.0;
@@ -44,19 +61,18 @@ static inline void qwtDrawPathSymbols( QPainter *painter,
         sy = sz.height() / pathSize.height();
     }
 
-    const QTransform transform = painter->transform();
-
-    painter->setBrush( symbol.brush() );
-    painter->setPen( symbol.pen() );
-
     for ( int i = 0; i < numPoints; i++ )
     {
-        QTransform tr = transform;
-        tr.translate( points[i].x(), points[i].y() );
-        tr.scale( sx, sy );
-        
-        painter->setTransform( tr );
-        painter->drawPath( symbol.path() );
+        // to avoid scaling of non cosmetic pens we
+        // map the path instead of setting the transformation
+        // for the painter
+
+        QTransform transform;
+        transform.translate( points[i].x(), points[i].y() );
+        transform.scale( sx, sy );
+
+        const QPainterPath path = transform.map( symbol.path() );
+        painter->drawPath( path );
     }
 }
 
@@ -678,7 +694,8 @@ public:
 
     struct Path
     {
-        QRectF boundingRect;
+        QRectF pathRect;
+        QRectF outerRect;
         QPainterPath path;
     } path;
 
@@ -717,6 +734,20 @@ QwtSymbol::QwtSymbol( QwtSymbol::Style style, const QBrush &brush,
 {
     d_data = new PrivateData( style, brush, pen, size );
 }
+
+/*!
+  \brief Constructor
+
+  The symbol gets initialized by a painter path. The style is
+  set to QwtSymbol::Path, the size is set to empty ( the path
+  is displayed unscaled ).
+
+  \param path painter path
+  \param brush brush to fill the interior
+  \param pen outline pen
+
+  \sa setPath(), setBrush(), setPen(), setSize()
+*/
 
 QwtSymbol::QwtSymbol( const QPainterPath &path, const QBrush &brush,
     const QPen &pen )
@@ -788,13 +819,34 @@ QwtSymbol::CachePolicy QwtSymbol::cachePolicy() const
     return d_data->cache.policy;
 }
 
+/*!
+  \brief Set a painter path as symbol
+
+  The symbol is represented by a painter path, where the 
+  origin ( 0, 0 ) of the path coordinate system is mapped to
+  the position of the symbol.
+
+  When the symbol has valid size the painter path gets scaled
+  to fit into the size. Otherwise the symbol size depends on
+  the bounding rectangle of the path.
+
+  \param path Painter path
+
+  \note The style is implicitely set to QwtSymbol::Path.
+  \sa path(), setSize()
+ */
 void QwtSymbol::setPath( const QPainterPath &path )
 {
     d_data->style = QwtSymbol::Path;
     d_data->path.path = path;
-    d_data->path.boundingRect = path.boundingRect();
+    d_data->path.pathRect = path.boundingRect();
+    d_data->path.outerRect = QRectF( 0.0, 0.0, -1.0, -1.0 );
 }
 
+/*!
+   \return Painter path for displaying the symbol
+   \sa setPath()
+*/
 const QPainterPath &QwtSymbol::path() const
 {
     return d_data->path.path;
@@ -806,6 +858,7 @@ const QPainterPath &QwtSymbol::path() const
   If the 'h' parameter is left out or less than 0,
   and the 'w' parameter is greater than or equal to 0,
   the symbol size will be set to (w,w).
+
   \param width Width
   \param height Height (defaults to -1)
 
@@ -883,6 +936,7 @@ void QwtSymbol::setPen( const QPen &pen )
     {
         d_data->pen = pen;
         invalidateCache();
+        d_data->path.outerRect = QRectF( 0.0, 0.0, -1.0, -1.0 );
     }
 }
 
@@ -1108,7 +1162,7 @@ void QwtSymbol::renderSymbols( QPainter *painter,
         }
         case QwtSymbol::Path:
         {
-            qwtDrawPathSymbols( painter, d_data->path.boundingRect.size(), 
+            qwtDrawPathSymbols( painter, d_data->path.pathRect.size(), 
                 points, numPoints, *this );
             break;
         }
@@ -1118,10 +1172,6 @@ void QwtSymbol::renderSymbols( QPainter *painter,
 
 QRect QwtSymbol::boundingRect() const
 {
-    qreal pw = 0.0;
-    if ( d_data->pen.style() != Qt::NoPen )
-        pw = qMax( d_data->pen.widthF(), qreal( 1.0 ) );
-
     QRectF rect;
 
     switch ( d_data->style )
@@ -1130,6 +1180,10 @@ QRect QwtSymbol::boundingRect() const
         case QwtSymbol::Rect:
         case QwtSymbol::Hexagon:
         {
+            qreal pw = 0.0;
+            if ( d_data->pen.style() != Qt::NoPen )
+                pw = qMax( d_data->pen.widthF(), qreal( 1.0 ) );
+
             rect.setSize( d_data->size + QSizeF( pw, pw ) );
             rect.moveCenter( QPointF( 0.0, 0.0 ) );
 
@@ -1145,22 +1199,51 @@ QRect QwtSymbol::boundingRect() const
         case QwtSymbol::Star1:
         case QwtSymbol::Star2:
         {
+            qreal pw = 0.0;
+            if ( d_data->pen.style() != Qt::NoPen )
+                pw = qMax( d_data->pen.widthF(), qreal( 1.0 ) );
+
             rect.setSize( d_data->size + QSizeF( 2 * pw, 2 * pw ) );
             rect.moveCenter( QPointF( 0.0, 0.0 ) );
             break;
         }
         case QwtSymbol::Path:
         {
-            rect = d_data->path.boundingRect;
+            qreal pw = 0.0;
+            if ( d_data->pen.style() != Qt::NoPen )
+                pw = qMax( d_data->pen.widthF(), qreal( 1.0 ) );
+
+            if ( d_data->pen.style() != Qt::NoPen &&
+                d_data->pen.widthF() > 0.0 )
+            {
+                if ( d_data->path.outerRect.width() < 0 )
+                {
+                    d_data->path.outerRect = 
+                        qwtPathBoundingRect( d_data->path.path, d_data->pen );
+                }
+
+                rect = d_data->path.outerRect;
+            }
+            else
+            {
+                const double m = 2 * pw;
+                rect = d_data->path.pathRect.adjusted( -m, -m, m, m );
+            }
 
             if ( d_data->size.isValid() && !rect.isEmpty() )
             {
+                const QSizeF sz = rect.size() - 
+                    0.5 * ( rect.size() - d_data->path.pathRect.size() );
+
+                const double sx = d_data->size.width() / sz.width();
+                const double sy = d_data->size.height() / sz.height();
+
                 QTransform transform;
-                transform.scale( d_data->size.width() / rect.width(),
-                    d_data->size.height() / rect.height() );
+                transform.scale( sx, sy );
 
                 rect = transform.mapRect( rect );
             }
+
             break;
         }
         default:
