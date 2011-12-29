@@ -9,6 +9,7 @@
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_text.h>
+#include <qwt_symbol.h>
 #include <qwt_math.h>
 #include <math.h>
 
@@ -36,6 +37,35 @@ public:
 
 private:
     double( *d_y )( double );
+};
+
+class ArrowSymbol: public QwtSymbol
+{
+public:
+    ArrowSymbol()
+    {
+        QPen pen( Qt::black, 0 );
+        pen.setJoinStyle( Qt::MiterJoin );
+
+        setPen( pen );
+        setBrush( Qt::red );
+
+        QPainterPath path;
+        path.moveTo( 0, 8 );
+        path.lineTo( 0, 5 );
+        path.lineTo( -3, 5 );
+        path.lineTo( 0, 0 );
+        path.lineTo( 3, 5 );
+        path.lineTo( 0, 5 );
+
+        QTransform transform;
+        transform.rotate( -30.0 );
+        path = transform.map( path );
+
+        setPath( path );
+
+        setSize( 10, 14 );
+    }
 };
 
 class Plot : public QwtPlot
@@ -125,6 +155,18 @@ void Plot::populate()
     mX->setLinePen( QPen( Qt::black, 0, Qt::DashDotLine ) );
     mX->setXValue( 2.0 * M_PI );
     mX->attach( this );
+
+    const double x = 7.7;
+
+    // an arrow at a specific position
+    QwtPlotMarker *mPos = new QwtPlotMarker();
+    mPos->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    mPos->setSymbol( new ArrowSymbol() );
+    mPos->setValue( QPointF( x, ::sin( x ) ) );
+    mPos->setLabel( 
+        QString( "( %1,%2 )" ).arg( x ).arg( ::sin( x ) ) );
+    mPos->setLabelAlignment( Qt::AlignRight | Qt::AlignBottom );
+    mPos->attach( this );
 }
 
 void Plot::updateGradient()
