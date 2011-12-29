@@ -1039,7 +1039,23 @@ void QwtSymbol::drawSymbols( QPainter *painter,
         else if ( d_data->cache.policy == QwtSymbol::AutoCache )
         {
             if ( painter->paintEngine()->type() == QPaintEngine::Raster )
+            {
                 useCache = true;
+            }
+            else
+            {
+                switch( d_data->style )
+                {
+                    case QwtSymbol::XCross:
+                    case QwtSymbol::HLine:
+                    case QwtSymbol::VLine:
+                    case QwtSymbol::Cross:
+                        break;
+
+                    default:
+                        useCache = true;
+                }
+            }
         }
     }
         
