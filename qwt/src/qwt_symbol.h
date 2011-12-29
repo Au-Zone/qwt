@@ -81,6 +81,41 @@ public:
         Hexagon,
 
         /*!
+          The symbol is represented by a painter path, where the 
+          origin ( 0, 0 ) of the path coordinate system is mapped to
+          the position of the symbol.
+
+          The following code defines a symbol drawing an arrow:
+
+  \verbatim
+#include <qwt_symbol.h>
+
+QwtSymbol *symbol = new QwtSymbol();
+
+QPen pen( Qt::black, 2 );
+pen.setJoinStyle( Qt::MiterJoin );
+
+symbol->setPen( pen );
+symbol->setBrush( Qt::red );
+
+QPainterPath path;
+path.moveTo( 0, 8 );
+path.lineTo( 0, 5 );
+path.lineTo( -3, 5 );
+path.lineTo( 0, 0 );
+path.lineTo( 3, 5 );
+path.lineTo( 0, 5 );
+
+QTransform transform;
+transform.rotate( -30.0 );
+path = transform.map( path );
+
+symbol->setPath( path );
+
+setSize( 10, 14 );
+\endverbatim
+
+          \sa setPath(), path()
          */
         Path,
 
