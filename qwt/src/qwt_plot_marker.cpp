@@ -580,10 +580,10 @@ void QwtPlotMarker::drawLegendIdentifier( int index,
 
         const double ratio = qMin( xRatio, yRatio );
 
+        painter->translate( rect.center() );
         painter->scale( ratio, ratio );
 
-        d_data->symbol->drawSymbol( painter, 
-            ( rect.center() - br.center() ) / ratio );
+        d_data->symbol->drawSymbol( painter, -br.center() );
     }
 
     painter->restore();
