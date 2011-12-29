@@ -44,12 +44,14 @@ static inline void qwtDrawPathSymbols( QPainter *painter,
         sy = sz.height() / pathSize.height();
     }
 
+    const QTransform transform = painter->transform();
+
     painter->setBrush( symbol.brush() );
     painter->setPen( symbol.pen() );
 
     for ( int i = 0; i < numPoints; i++ )
     {
-        QTransform tr;
+        QTransform tr = transform;
         tr.translate( points[i].x(), points[i].y() );
         tr.scale( sx, sy );
         
