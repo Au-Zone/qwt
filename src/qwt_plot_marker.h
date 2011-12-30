@@ -64,7 +64,9 @@ public:
         Cross
     };
 
-    explicit QwtPlotMarker();
+    explicit QwtPlotMarker( const QString &title = QString::null );
+    explicit QwtPlotMarker( const QwtText &title );
+
     virtual ~QwtPlotMarker();
 
     virtual int rtti() const;

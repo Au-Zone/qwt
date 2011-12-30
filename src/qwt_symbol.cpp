@@ -42,10 +42,10 @@ static inline QRectF qwtPathBoundingRect(
 }
 
 static inline void qwtDrawPathSymbols( QPainter *painter, 
-    const QSizeF &pathSize, const QPointF *points, int numPoints, 
+    const QRectF &pathRect, const QPointF *points, int numPoints, 
     const QwtSymbol &symbol )
 {
-    if ( pathSize.isEmpty() )
+    if ( pathRect.isEmpty() )
         return;
 
     painter->setBrush( symbol.brush() );
@@ -57,9 +57,16 @@ static inline void qwtDrawPathSymbols( QPainter *painter,
     const QSize sz = symbol.size();
     if ( sz.isValid() )
     {
-        sx = sz.width() / pathSize.width();
-        sy = sz.height() / pathSize.height();
+        sx = sz.width() / pathRect.width();
+        sy = sz.height() / pathRect.height();
     }
+
+    QPointF pinPoint = pathRect.center();
+    if ( symbol.isPinPointEnabled() )
+        pinPoint = symbol.pinPoint();
+
+    const double dx = sx * pinPoint.x();
+    const double dy = sy * pinPoint.y();
 
     for ( int i = 0; i < numPoints; i++ )
     {
@@ -68,7 +75,7 @@ static inline void qwtDrawPathSymbols( QPainter *painter,
         // for the painter
 
         QTransform transform;
-        transform.translate( points[i].x(), points[i].y() );
+        transform.translate( points[i].x() - dx, points[i].y() - dy );
         transform.scale( sx, sy );
 
         const QPainterPath path = transform.map( symbol.path() );
@@ -674,7 +681,8 @@ public:
         style( st ),
         size( sz ),
         brush( br ),
-        pen( pn )
+        pen( pn ),
+        isPinPointEnabled( false )
     {
         cache.policy = QwtSymbol::AutoCache;
     }
@@ -692,12 +700,21 @@ public:
     QBrush brush;
     QPen pen;
 
+    bool isPinPointEnabled;
+    QPointF pinPoint;
+
     struct Path
     {
         QRectF pathRect;
         QRectF outerRect;
         QPainterPath path;
     } path;
+
+    struct Pixmap
+    {
+        QPixmap pixmap;
+
+    } pixmap;
 
     struct PaintCache
     {
@@ -830,6 +847,36 @@ QwtSymbol::CachePolicy QwtSymbol::cachePolicy() const
   to fit into the size. Otherwise the symbol size depends on
   the bounding rectangle of the path.
 
+  The following code defines a symbol drawing an arrow:
+
+  \verbatim
+#include <qwt_symbol.h>
+
+QwtSymbol *symbol = new QwtSymbol();
+
+QPen pen( Qt::black, 2 );
+pen.setJoinStyle( Qt::MiterJoin );
+
+symbol->setPen( pen );
+symbol->setBrush( Qt::red );
+
+QPainterPath path;
+path.moveTo( 0, 8 );
+path.lineTo( 0, 5 );
+path.lineTo( -3, 5 );
+path.lineTo( 0, 0 );
+path.lineTo( 3, 5 );
+path.lineTo( 0, 5 );
+
+QTransform transform;
+transform.rotate( -30.0 );
+path = transform.map( path );
+
+symbol->setPath( path );
+
+setSize( 10, 14 );
+\endverbatim
+
   \param path Painter path
 
   \note The style is implicitely set to QwtSymbol::Path.
@@ -850,6 +897,17 @@ void QwtSymbol::setPath( const QPainterPath &path )
 const QPainterPath &QwtSymbol::path() const
 {
     return d_data->path.path;
+}
+
+void QwtSymbol::setPixmap( const QPixmap &pixmap )
+{
+    d_data->style = QwtSymbol::Pixmap;
+    d_data->pixmap.pixmap = pixmap;
+}
+
+const QPixmap &QwtSymbol::pixmap() const
+{
+    return d_data->pixmap.pixmap;
 }
 
 /*!
@@ -1008,6 +1066,39 @@ void QwtSymbol::setColor( const QColor &color )
     }
 }
 
+void QwtSymbol::setPinPoint( const QPointF &pos, bool enable )
+{
+    if ( d_data->pinPoint != pos )
+    {
+        d_data->pinPoint = pos;
+        if ( d_data->isPinPointEnabled )
+        {
+            invalidateCache();
+        }
+    }
+
+    setPinPointEnabled( enable );
+}
+
+QPointF QwtSymbol::pinPoint() const
+{
+    return d_data->pinPoint;
+}
+
+void QwtSymbol::setPinPointEnabled( bool on )
+{
+    if ( d_data->isPinPointEnabled != on )
+    {
+        d_data->isPinPointEnabled = on;
+        invalidateCache();
+    }
+}
+
+bool QwtSymbol::isPinPointEnabled() const
+{
+    return d_data->isPinPointEnabled;
+}
+
 /*!
   Render an array of symbols
 
@@ -1030,7 +1121,8 @@ void QwtSymbol::drawSymbols( QPainter *painter,
     // Don't use the pixmap, when the paint device
     // could generate scalable vectors
 
-    if ( QwtPainter::roundingAlignment( painter ) )
+    if ( QwtPainter::roundingAlignment( painter ) &&
+        !painter->transform().isScaling() )
     {
         if ( d_data->cache.policy == QwtSymbol::Cache )
         {
@@ -1058,13 +1150,13 @@ void QwtSymbol::drawSymbols( QPainter *painter,
             }
         }
     }
-        
+
     if ( useCache )
     {
         QRect br = boundingRect();
         br.setSize( ( 2 * br.size() + QSize( 1, 1 ) / 2 ) );
 
-        const QPointF center = br.center();
+        QPointF pos = br.center() - br.topLeft();
         
         if ( d_data->cache.pixmap.isNull() )
         {
@@ -1073,14 +1165,14 @@ void QwtSymbol::drawSymbols( QPainter *painter,
 
             QPainter p( &d_data->cache.pixmap );
             p.setRenderHints( painter->renderHints() );
-            renderSymbols( &p, &center, 1 );
+            renderSymbols( &p, &pos, 1 );
             p.end();
         }
 
         for ( int i = 0; i < numPoints; i++ )
         {
-            const int left = qRound( points[i].x() ) - center.x();
-            const int top = qRound( points[i].y() ) - center.y();
+            const int left = qRound( points[i].x() ) - pos.x();
+            const int top = qRound( points[i].y() ) - pos.y();
 
             painter->drawPixmap( left, top, d_data->cache.pixmap );
         }
@@ -1091,6 +1183,54 @@ void QwtSymbol::drawSymbols( QPainter *painter,
         renderSymbols( painter, points, numPoints );
         painter->restore();
     }
+}
+
+/*!
+  \brief Draw the symbol into a rectangle
+
+  The symbol is painted centered and scaled into the target rectangle.
+  It is always painted uncached and the pin point is ignored.
+
+  This method is primarily intended for drawing a symbol to
+  the legend.
+
+  \param painter Painter
+  \param rect Target rectangle for the symbol 
+*/
+
+void QwtSymbol::drawSymbol( QPainter *painter, const QRectF &rect ) const
+{
+    if ( d_data->style == QwtSymbol::NoSymbol )
+        return;
+
+    const QRect br = boundingRect();
+
+    // scale the symbol size down if it doesn't fit into rect.
+
+    double xRatio = 1.0;
+    if ( rect.width() < br.width() )
+        xRatio = rect.width() / br.width();
+
+    double yRatio = 1.0;
+    if ( rect.height() < br.height() )
+        yRatio = rect.height() / br.height();
+
+    const double ratio = qMin( xRatio, yRatio );
+
+    painter->save();
+
+    painter->translate( rect.center() );
+    painter->scale( ratio, ratio );
+
+    const bool isPinPointEnabled = d_data->isPinPointEnabled;
+    d_data->isPinPointEnabled = false;
+
+    const QPointF pos;
+    renderSymbols( painter, &pos, 1 );
+    
+    d_data->isPinPointEnabled = isPinPointEnabled;
+
+    painter->restore();
 }
 
 void QwtSymbol::renderSymbols( QPainter *painter,
@@ -1178,7 +1318,7 @@ void QwtSymbol::renderSymbols( QPainter *painter,
         }
         case QwtSymbol::Path:
         {
-            qwtDrawPathSymbols( painter, d_data->path.pathRect.size(), 
+            qwtDrawPathSymbols( painter, d_data->path.pathRect, 
                 points, numPoints, *this );
             break;
         }
