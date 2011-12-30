@@ -63,6 +63,7 @@ public:
         path = transform.map( path );
 
         setPath( path );
+        setPinPoint( QPointF( 0, 0 ) );
 
         setSize( 10, 14 );
     }
@@ -159,12 +160,12 @@ void Plot::populate()
     const double x = 7.7;
 
     // an arrow at a specific position
-    QwtPlotMarker *mPos = new QwtPlotMarker();
+    QwtPlotMarker *mPos = new QwtPlotMarker( "Marker" );
     mPos->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    mPos->setItemAttribute( QwtPlotItem::Legend, true );
     mPos->setSymbol( new ArrowSymbol() );
     mPos->setValue( QPointF( x, ::sin( x ) ) );
-    mPos->setLabel( 
-        QString( "( %1,%2 )" ).arg( x ).arg( ::sin( x ) ) );
+    mPos->setLabel( QString( "x = %1" ).arg( x ) );
     mPos->setLabelAlignment( Qt::AlignRight | Qt::AlignBottom );
     mPos->attach( this );
 }
