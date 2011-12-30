@@ -48,8 +48,16 @@ public:
 };
 
 //! Sets alignment to Qt::AlignCenter, and style to QwtPlotMarker::NoLine
-QwtPlotMarker::QwtPlotMarker():
-    QwtPlotItem( QwtText( "Marker" ) )
+QwtPlotMarker::QwtPlotMarker( const QString &title ):
+    QwtPlotItem( QwtText( title ) )
+{
+    d_data = new PrivateData;
+    setZ( 30.0 );
+}
+
+//! Sets alignment to Qt::AlignCenter, and style to QwtPlotMarker::NoLine
+QwtPlotMarker::QwtPlotMarker( const QwtText &title ):
+    QwtPlotItem( title )
 {
     d_data = new PrivateData;
     setZ( 30.0 );
@@ -563,28 +571,8 @@ void QwtPlotMarker::drawLegendIdentifier( int index,
         }
     }
 
-    if ( d_data->symbol && d_data->symbol->style() != QwtSymbol::NoSymbol )
-    {
-        const QRect br = d_data->symbol->boundingRect();
-        const QSize sz = br.size() - QSize( 2, 2 );
-
-        // scale the symbol size down if it doesn't fit into rect.
-
-        double xRatio = 1.0;
-        if ( rect.width() < sz.width() )
-            xRatio = rect.width() / sz.width();
-
-        double yRatio = 1.0;
-        if ( rect.height() < sz.height() )
-            yRatio = rect.height() / sz.height();
-
-        const double ratio = qMin( xRatio, yRatio );
-
-        painter->translate( rect.center() );
-        painter->scale( ratio, ratio );
-
-        d_data->symbol->drawSymbol( painter, -br.center() );
-    }
+    if ( d_data->symbol )
+        d_data->symbol->drawSymbol( painter, rect );
 
     painter->restore();
 }
