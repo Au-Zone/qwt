@@ -23,6 +23,9 @@ class QPointF;
 class QPolygonF;
 class QPainterPath;
 class QPixmap;
+#ifndef QT_NO_PICTURE 
+class QPicture;
+#endif
 
 //! A class for drawing symbols
 class QWT_EXPORT QwtSymbol
@@ -96,6 +99,14 @@ public:
         Pixmap,
 
         /*!
+         */
+        Picture,
+
+        /*!
+         */
+        SVG,
+
+        /*!
          Styles >= QwtSymbol::UserSymbol are reserved for derived
          classes of QwtSymbol that overload drawSymbols() with
          additional application specific symbol types.
@@ -146,13 +157,7 @@ public:
     QwtSymbol( Style, const QBrush &, const QPen &, const QSize & );
     QwtSymbol( const QPainterPath &, const QBrush &, const QPen & );
 
-    QwtSymbol( const QwtSymbol & );
-
     virtual ~QwtSymbol();
-
-    QwtSymbol &operator=( const QwtSymbol & );
-    bool operator==( const QwtSymbol & ) const;
-    bool operator!=( const QwtSymbol & ) const;
 
     void setCachePolicy( CachePolicy );
     CachePolicy cachePolicy() const;
@@ -184,6 +189,11 @@ public:
     void setPixmap( const QPixmap & );
     const QPixmap &pixmap() const;
 
+#ifndef QT_NO_PICTURE 
+    void setPicture( const QPicture & );
+    const QPicture &picture() const;
+#endif
+
     void drawSymbol( QPainter *, const QRectF & ) const;
     void drawSymbol( QPainter *, const QPointF & ) const;
     void drawSymbols( QPainter *, const QPolygonF & ) const;
@@ -199,6 +209,10 @@ protected:
         const QPointF *, int numPoints ) const;
 
 private:
+    // Disabled copy constructor and operator=
+    QwtSymbol( const QwtSymbol & );
+    QwtSymbol &operator=( const QwtSymbol & );
+
     class PrivateData;
     PrivateData *d_data;
 };
