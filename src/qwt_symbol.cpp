@@ -15,6 +15,12 @@
 #include <qpixmap.h>
 #include <qpaintengine.h>
 #include <qmath.h>
+#ifndef QWT_NO_SVG
+#include <qsvgrenderer.h>
+#endif
+#ifndef QT_NO_PICTURE
+#include <qpicture.h>
+#endif
 
 namespace QwtTriangle
 {
@@ -115,6 +121,54 @@ static inline void qwtDrawPixmapSymbols( QPainter *painter,
             QRect( pos.toPoint(), pm.size() ), pm );
     }
 }
+
+#ifndef QT_NO_PICTURE
+
+static inline void qwtDrawPictureSymbols( QPainter *painter, 
+    const QPointF *points, int numPoints, const QwtSymbol &symbol )
+{
+    QPicture &pic = const_cast< QPicture & >( symbol.picture() );
+    const QRectF &picRect = pic.boundingRect();
+
+    if ( picRect.isEmpty() )
+        return;
+
+    double sx = 1.0;
+    double sy = 1.0;
+
+    const QSize sz = symbol.size();
+    if ( sz.isValid() )
+    {
+        sx = sz.width() / picRect.width();
+        sy = sz.height() / picRect.height();
+    }
+
+    QPointF pinPoint = picRect.center();
+    if ( symbol.isPinPointEnabled() )
+        pinPoint = symbol.pinPoint();
+
+    const double dx = sx * pinPoint.x();
+    const double dy = sy * pinPoint.y();
+
+    QTransform transform = painter->transform();
+
+    for ( int i = 0; i < numPoints; i++ )
+    {
+        // to avoid scaling of non cosmetic pens we
+        // map the path instead of setting the transformation
+        // for the painter
+
+        QTransform tr = transform;
+        tr.translate( points[i].x() - dx, points[i].y() - dy );
+        tr.scale( sx, sy );
+
+        painter->setTransform( tr );
+
+        pic.play( painter );
+    }
+}
+
+#endif
 
 static inline void qwtDrawEllipseSymbols( QPainter *painter,
     const QPointF *points, int numPoints, const QwtSymbol &symbol )
@@ -718,14 +772,16 @@ public:
         isPinPointEnabled( false )
     {
         cache.policy = QwtSymbol::AutoCache;
+#ifndef QWT_NO_SVG
+        svg.renderer = NULL;
+#endif
     }
 
-    bool operator==( const PrivateData &other ) const
+    ~PrivateData()
     {
-        return ( style == other.style )
-            && ( size == other.size )
-            && ( brush == other.brush )
-            && ( pen == other.pen );
+#ifndef QWT_NO_SVG
+        delete svg.renderer;
+#endif
     }
 
     Style style;
@@ -741,6 +797,7 @@ public:
         QRectF pathRect;
         QRectF outerRect;
         QPainterPath path;
+
     } path;
 
     struct Pixmap
@@ -748,6 +805,21 @@ public:
         QPixmap pixmap;
 
     } pixmap;
+
+#ifndef QT_NO_PICTURE
+    struct Picture
+    {
+        QPicture picture;
+
+    } picture;
+#endif
+
+#ifndef QWT_NO_SVG
+    struct SVG
+    {
+        QSvgRenderer *renderer;
+    } svg;
+#endif
 
     struct PaintCache
     {
@@ -806,40 +878,10 @@ QwtSymbol::QwtSymbol( const QPainterPath &path, const QBrush &brush,
     setPath( path );
 }
 
-/*!
-  \brief Copy constructor
-
-  \param other Symbol
-*/
-QwtSymbol::QwtSymbol( const QwtSymbol &other )
-{
-    d_data = new PrivateData( other.style(), other.brush(),
-        other.pen(), other.size() );
-};
-
 //! Destructor
 QwtSymbol::~QwtSymbol()
 {
     delete d_data;
-}
-
-//! \brief Assignment operator
-QwtSymbol &QwtSymbol::operator=( const QwtSymbol &other )
-{
-    *d_data = *other.d_data;
-    return *this;
-}
-
-//! \brief Compare two symbols
-bool QwtSymbol::operator==( const QwtSymbol &other ) const
-{
-    return *d_data == *other.d_data;
-}
-
-//! \brief Compare two symbols
-bool QwtSymbol::operator!=( const QwtSymbol &other ) const
-{
-    return !( *d_data == *other.d_data );
 }
 
 /*!
@@ -943,6 +985,21 @@ const QPixmap &QwtSymbol::pixmap() const
 {
     return d_data->pixmap.pixmap;
 }
+
+#ifndef QT_NO_PICTURE
+
+void QwtSymbol::setPicture( const QPicture &picture )
+{
+    d_data->style = QwtSymbol::Picture;
+    d_data->picture.picture = picture;
+}
+
+const QPicture &QwtSymbol::picture() const
+{
+    return d_data->picture.picture;
+}
+
+#endif
 
 /*!
   \brief Specify the symbol's size
@@ -1363,6 +1420,13 @@ void QwtSymbol::renderSymbols( QPainter *painter,
             qwtDrawPixmapSymbols( painter, points, numPoints, *this );
             break;
         }
+        case QwtSymbol::Picture:
+        {
+#ifndef QT_NO_PICTURE
+            qwtDrawPictureSymbols( painter, points, numPoints, *this );
+#endif
+            break;
+        }
         default:;
     }
 }
@@ -1454,6 +1518,25 @@ QRect QwtSymbol::boundingRect() const
 
             break;
         }
+#ifndef QT_NO_PICTURE
+        case QwtSymbol::Picture:
+        {
+            rect = d_data->picture.picture.boundingRect();
+            if ( d_data->size.isValid() && !rect.isEmpty() )
+            {
+                const QSizeF sz = rect.size();
+
+                const double sx = d_data->size.width() / sz.width();
+                const double sy = d_data->size.height() / sz.height();
+
+                QTransform transform;
+                transform.scale( sx, sy );
+
+                rect = transform.mapRect( rect );
+            }
+            break;
+        }
+#endif
         default:
         {
             rect.setSize( d_data->size );
