@@ -235,12 +235,9 @@ void QwtTextLabel::drawContents( QPainter *painter )
 
     if ( hasFocus() )
     {
-        const int margin = 2;
+        const int m = 2;
 
-        QRect focusRect = contentsRect();
-        focusRect.setRect( focusRect.x() + margin, focusRect.y() + margin,
-            focusRect.width() - 2 * margin - 2,
-            focusRect.height() - 2 * margin - 2 );
+        QRect focusRect = contentsRect().adjusted( m, m, -m + 1, -m + 1);
 
         QwtPainter::drawFocusRect( painter, this, focusRect );
     }

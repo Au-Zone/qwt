@@ -83,6 +83,39 @@ static inline void qwtDrawPathSymbols( QPainter *painter,
     }
 }
 
+static inline void qwtDrawPixmapSymbols( QPainter *painter,
+    const QPointF *points, int numPoints, const QwtSymbol &symbol )
+{
+    QSize size = symbol.size();
+    if ( size.isEmpty() )
+        size = symbol.pixmap().size();
+
+    const QTransform transform = painter->transform();
+    if ( transform.isScaling() )
+    {
+        const QRect r( 0, 0, size.width(), size.height() );
+        size = transform.mapRect( r ).size();
+    }
+
+    QPixmap pm = symbol.pixmap();
+    if ( pm.size() != size )
+        pm = pm.scaled( size );
+    
+    QPointF pinPoint( 0.5 * size.width(), 0.5 * size.height() );
+    if ( symbol.isPinPointEnabled() )
+        pinPoint = symbol.pinPoint();
+
+    painter->resetTransform();
+
+    for ( int i = 0; i < numPoints; i++ )
+    {
+        const QPointF pos = transform.map( points[i] ) - pinPoint;
+
+        QwtPainter::drawPixmap( painter, 
+            QRect( pos.toPoint(), pm.size() ), pm );
+    }
+}
+
 static inline void qwtDrawEllipseSymbols( QPainter *painter,
     const QPointF *points, int numPoints, const QwtSymbol &symbol )
 {
@@ -873,6 +906,7 @@ transform.rotate( -30.0 );
 path = transform.map( path );
 
 symbol->setPath( path );
+symbol->setPinPoint( QPointF( 0.0, 0.0 ) );
 
 setSize( 10, 14 );
 \endverbatim
@@ -1144,6 +1178,15 @@ void QwtSymbol::drawSymbols( QPainter *painter,
                     case QwtSymbol::Cross:
                         break;
 
+                    case QwtSymbol::Pixmap:
+                    {
+                        if ( !d_data->size.isEmpty() &&
+                            d_data->size != d_data->pixmap.pixmap.size() ) 
+                        {
+                            useCache = true;
+                        }
+                        break;
+                    }                       
                     default:
                         useCache = true;
                 }
@@ -1205,17 +1248,10 @@ void QwtSymbol::drawSymbol( QPainter *painter, const QRectF &rect ) const
 
     const QRect br = boundingRect();
 
-    // scale the symbol size down if it doesn't fit into rect.
+    // scale the symbol size to fit into rect.
 
-    double xRatio = 1.0;
-    if ( rect.width() < br.width() )
-        xRatio = rect.width() / br.width();
-
-    double yRatio = 1.0;
-    if ( rect.height() < br.height() )
-        yRatio = rect.height() / br.height();
-
-    const double ratio = qMin( xRatio, yRatio );
+    const double ratio = qMin( rect.width() / br.width(), 
+        rect.height() / br.height() );
 
     painter->save();
 
@@ -1322,6 +1358,11 @@ void QwtSymbol::renderSymbols( QPainter *painter,
                 points, numPoints, *this );
             break;
         }
+        case QwtSymbol::Pixmap:
+        {
+            qwtDrawPixmapSymbols( painter, points, numPoints, *this );
+            break;
+        }
         default:;
     }
 }
@@ -1402,6 +1443,17 @@ QRect QwtSymbol::boundingRect() const
 
             break;
         }
+        case QwtSymbol::Pixmap:
+        {
+            if ( d_data->size.isEmpty() )
+                rect.setSize( d_data->pixmap.pixmap.size() );
+            else
+                rect.setSize( d_data->size );
+            
+            rect.moveCenter( QPointF( 0.0, 0.0 ) );
+
+            break;
+        }
         default:
         {
             rect.setSize( d_data->size );
@@ -1416,7 +1468,8 @@ QRect QwtSymbol::boundingRect() const
     r.setRight( qCeil( rect.right() ) );
     r.setBottom( qCeil( rect.bottom() ) );
 
-    r.adjust( -1, -1, 1, 1 ); // for antialiasing
+    if ( d_data->style != QwtSymbol::Pixmap )
+        r.adjust( -1, -1, 1, 1 ); // for antialiasing
 
     return r;
 }
