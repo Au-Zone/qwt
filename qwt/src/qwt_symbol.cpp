@@ -122,6 +122,44 @@ static inline void qwtDrawPixmapSymbols( QPainter *painter,
     }
 }
 
+#ifndef QWT_NO_SVG
+
+static inline void qwtDrawSvgSymbols( QPainter *painter, 
+    const QPointF *points, int numPoints, 
+    QSvgRenderer *renderer, const QwtSymbol &symbol )
+{
+    if ( renderer == NULL || !renderer->isValid() )
+        return;
+
+    const QRectF viewBox = renderer->viewBoxF();
+    if ( viewBox.isEmpty() )
+        return;
+
+    QSizeF sz = symbol.size();
+    if ( !sz.isValid() )
+        sz = viewBox.size();
+
+    const double sx = sz.width() / viewBox.width();
+    const double sy = sz.height() / viewBox.height();
+
+    QPointF pinPoint = viewBox.center();
+    if ( symbol.isPinPointEnabled() )
+        pinPoint = symbol.pinPoint();
+
+    const double dx = sx * ( pinPoint.x() - viewBox.left() );
+    const double dy = sy * ( pinPoint.y() - viewBox.top() );
+
+    for ( int i = 0; i < numPoints; i++ )
+    {
+        const double x = points[i].x() - dx;
+        const double y = points[i].y() - dy;
+
+        renderer->render( painter, 
+            QRectF( x, y, sz.width(), sz.height() ) );
+    }
+}
+#endif
+
 #ifndef QT_NO_PICTURE
 
 static inline void qwtDrawPictureSymbols( QPainter *painter, 
@@ -1001,6 +1039,17 @@ const QPicture &QwtSymbol::picture() const
 
 #endif
 
+#ifndef QWT_NO_SVG
+    void QwtSymbol::setSvgDocument( const QByteArray &svgDocument )
+    {
+        d_data->style = QwtSymbol::SvgDocument;
+        if ( d_data->svg.renderer == NULL )
+            d_data->svg.renderer = new QSvgRenderer();
+
+        d_data->svg.renderer->load( svgDocument );
+    }
+#endif
+
 /*!
   \brief Specify the symbol's size
 
@@ -1256,7 +1305,7 @@ void QwtSymbol::drawSymbols( QPainter *painter,
         QRect br = boundingRect();
         br.setSize( ( 2 * br.size() + QSize( 1, 1 ) / 2 ) );
 
-        QPointF pos = br.center() - br.topLeft();
+        const QPointF pos = br.center() - br.topLeft();
         
         if ( d_data->cache.pixmap.isNull() )
         {
@@ -1427,6 +1476,14 @@ void QwtSymbol::renderSymbols( QPainter *painter,
 #endif
             break;
         }
+        case QwtSymbol::SvgDocument:
+        {
+#ifndef QWT_NO_SVG
+            qwtDrawSvgSymbols( painter, points, numPoints, 
+                d_data->svg.renderer, *this );
+#endif
+            break;
+        }
         default:;
     }
 }
@@ -1528,6 +1585,25 @@ QRect QwtSymbol::boundingRect() const
 
                 const double sx = d_data->size.width() / sz.width();
                 const double sy = d_data->size.height() / sz.height();
+
+                QTransform transform;
+                transform.scale( sx, sy );
+
+                rect = transform.mapRect( rect );
+            }
+            break;
+        }
+#endif
+#ifndef QWT_NO_SVG
+        case QwtSymbol::SvgDocument:
+        {
+            if ( d_data->svg.renderer )
+                rect = d_data->svg.renderer->viewBoxF();
+
+            if ( d_data->size.isValid() && !rect.isEmpty() )
+            {
+                const double sx = d_data->size.width() / rect.width();
+                const double sy = d_data->size.height() / rect.height();
 
                 QTransform transform;
                 transform.scale( sx, sy );

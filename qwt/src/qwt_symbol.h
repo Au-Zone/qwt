@@ -23,6 +23,8 @@ class QPointF;
 class QPolygonF;
 class QPainterPath;
 class QPixmap;
+class QByteArray;
+
 #ifndef QT_NO_PICTURE 
 class QPicture;
 #endif
@@ -104,7 +106,7 @@ public:
 
         /*!
          */
-        SVG,
+        SvgDocument,
 
         /*!
          Styles >= QwtSymbol::UserSymbol are reserved for derived
@@ -192,6 +194,10 @@ public:
 #ifndef QT_NO_PICTURE 
     void setPicture( const QPicture & );
     const QPicture &picture() const;
+#endif
+
+#ifndef QWT_NO_SVG
+    void setSvgDocument( const QByteArray & );
 #endif
 
     void drawSymbol( QPainter *, const QRectF & ) const;
