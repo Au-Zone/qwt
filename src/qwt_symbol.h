@@ -203,14 +203,13 @@ public:
     void drawSymbol( QPainter *, const QRectF & ) const;
     void drawSymbol( QPainter *, const QPointF & ) const;
     void drawSymbols( QPainter *, const QPolygonF & ) const;
+    void drawSymbols( QPainter *,
+        const QPointF *, int numPoints ) const;
 
     virtual QRect boundingRect() const;
     void invalidateCache();
 
 protected:
-    void drawSymbols( QPainter *,
-        const QPointF *, int numPoints ) const;
-
     virtual void renderSymbols( QPainter *,
         const QPointF *, int numPoints ) const;
 
