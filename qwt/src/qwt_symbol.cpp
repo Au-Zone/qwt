@@ -1303,9 +1303,8 @@ void QwtSymbol::drawSymbols( QPainter *painter,
     if ( useCache )
     {
         QRect br = boundingRect();
-        br.setSize( ( 2 * br.size() + QSize( 1, 1 ) / 2 ) );
 
-        const QPointF pos = br.center() - br.topLeft();
+        const QRect rect( 0, 0, br.width(), br.height() );
         
         if ( d_data->cache.pixmap.isNull() )
         {
@@ -1314,14 +1313,19 @@ void QwtSymbol::drawSymbols( QPainter *painter,
 
             QPainter p( &d_data->cache.pixmap );
             p.setRenderHints( painter->renderHints() );
+            p.translate( -br.topLeft() );
+
+            const QPointF pos;
             renderSymbols( &p, &pos, 1 );
-            p.end();
         }
+
+        const int dx = br.left();
+        const int dy = br.top();
 
         for ( int i = 0; i < numPoints; i++ )
         {
-            const int left = qRound( points[i].x() ) - pos.x();
-            const int top = qRound( points[i].y() ) - pos.y();
+            const int left = qRound( points[i].x() ) + dx;
+            const int top = qRound( points[i].y() ) + dy;
 
             painter->drawPixmap( left, top, d_data->cache.pixmap );
         }
@@ -1538,6 +1542,8 @@ QRect QwtSymbol::boundingRect() const
                 {
                     d_data->path.outerRect = 
                         qwtPathBoundingRect( d_data->path.path, d_data->pen );
+                    d_data->path.outerRect.moveCenter( 
+                        d_data->path.pathRect.center() );
                 }
 
                 rect = d_data->path.outerRect;
@@ -1547,6 +1553,12 @@ QRect QwtSymbol::boundingRect() const
                 const double m = 2 * pw;
                 rect = d_data->path.pathRect.adjusted( -m, -m, m, m );
             }
+
+            QPointF pinPoint( 0.0, 0.0 );
+            if ( d_data->isPinPointEnabled )
+                pinPoint = rect.center() - d_data->pinPoint;
+
+            rect.moveCenter( pinPoint );
 
             if ( d_data->size.isValid() && !rect.isEmpty() )
             {
