@@ -24,10 +24,7 @@ class QPolygonF;
 class QPainterPath;
 class QPixmap;
 class QByteArray;
-
-#ifndef QT_NO_PICTURE 
-class QPicture;
-#endif
+class QwtVectorGraphic;
 
 //! A class for drawing symbols
 class QWT_EXPORT QwtSymbol
@@ -102,7 +99,7 @@ public:
 
         /*!
          */
-        Picture,
+        Graphic,
 
         /*!
          */
@@ -191,10 +188,8 @@ public:
     void setPixmap( const QPixmap & );
     const QPixmap &pixmap() const;
 
-#ifndef QT_NO_PICTURE 
-    void setPicture( const QPicture & );
-    const QPicture &picture() const;
-#endif
+    void setGraphic( const QwtVectorGraphic & );
+    const QwtVectorGraphic &graphic() const;
 
 #ifndef QWT_NO_SVG
     void setSvgDocument( const QByteArray & );
