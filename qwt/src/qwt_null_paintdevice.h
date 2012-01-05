@@ -31,11 +31,39 @@
 class QWT_EXPORT QwtNullPaintDevice: public QPaintDevice
 {
 public:
+    /*!
+      \brief Render mode
+
+      \sa setMode(), mode()
+     */
+    enum Mode
+    {
+        /*!
+           All vector graphic primitives are painted by
+           the corresponding draw methods
+         */
+        NormalMode, 
+
+        /*!
+           All vector graphic primitives are mapped to a QPainterPath
+           and are painted by drawPath. In PathMode mode
+           only a few draw methods are called:
+
+           - drawPath()
+           - drawPixmap()
+           - drawImage()
+         */
+        PathMode
+    };
+
     QwtNullPaintDevice( QPaintEngine::PaintEngineFeatures );
     QwtNullPaintDevice( const QSize &size,
         QPaintEngine::PaintEngineFeatures );
 
     virtual ~QwtNullPaintDevice();
+
+    void setMode( Mode );
+    Mode mode() const;
 
     void setSize( const QSize &);
     QSize size() const;
