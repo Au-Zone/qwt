@@ -9,6 +9,7 @@
 
 #include "qwt_symbol.h"
 #include "qwt_painter.h"
+#include "qwt_vector_graphic.h"
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qpainterpath.h>
@@ -17,9 +18,6 @@
 #include <qmath.h>
 #ifndef QWT_NO_SVG
 #include <qsvgrenderer.h>
-#endif
-#ifndef QT_NO_PICTURE
-#include <qpicture.h>
 #endif
 
 namespace QwtTriangle
@@ -160,15 +158,14 @@ static inline void qwtDrawSvgSymbols( QPainter *painter,
 }
 #endif
 
-#ifndef QT_NO_PICTURE
-
-static inline void qwtDrawPictureSymbols( QPainter *painter, 
+static inline void qwtDrawGraphicSymbols( QPainter *painter, 
     const QPointF *points, int numPoints, const QwtSymbol &symbol )
 {
-    QPicture &pic = const_cast< QPicture & >( symbol.picture() );
-    const QRectF &picRect = pic.boundingRect();
+    QwtVectorGraphic &graphic = 
+        const_cast< QwtVectorGraphic & >( symbol.graphic() );
 
-    if ( picRect.isEmpty() )
+    const QRectF graphicRect = graphic.boundingRectF();
+    if ( graphicRect.isEmpty() )
         return;
 
     double sx = 1.0;
@@ -177,11 +174,11 @@ static inline void qwtDrawPictureSymbols( QPainter *painter,
     const QSize sz = symbol.size();
     if ( sz.isValid() )
     {
-        sx = sz.width() / picRect.width();
-        sy = sz.height() / picRect.height();
+        sx = sz.width() / graphicRect.width();
+        sy = sz.height() / graphicRect.height();
     }
 
-    QPointF pinPoint = picRect.center();
+    QPointF pinPoint = graphicRect.center();
     if ( symbol.isPinPointEnabled() )
         pinPoint = symbol.pinPoint();
 
@@ -202,11 +199,9 @@ static inline void qwtDrawPictureSymbols( QPainter *painter,
 
         painter->setTransform( tr );
 
-        pic.play( painter );
+        graphic.play( painter );
     }
 }
-
-#endif
 
 static inline void qwtDrawEllipseSymbols( QPainter *painter,
     const QPointF *points, int numPoints, const QwtSymbol &symbol )
@@ -844,13 +839,11 @@ public:
 
     } pixmap;
 
-#ifndef QT_NO_PICTURE
-    struct Picture
+    struct Graphic
     {
-        QPicture picture;
+        QwtVectorGraphic graphic;
 
-    } picture;
-#endif
+    } graphic;
 
 #ifndef QWT_NO_SVG
     struct SVG
@@ -1024,20 +1017,16 @@ const QPixmap &QwtSymbol::pixmap() const
     return d_data->pixmap.pixmap;
 }
 
-#ifndef QT_NO_PICTURE
-
-void QwtSymbol::setPicture( const QPicture &picture )
+void QwtSymbol::setGraphic( const QwtVectorGraphic &graphic )
 {
-    d_data->style = QwtSymbol::Picture;
-    d_data->picture.picture = picture;
+    d_data->style = QwtSymbol::Graphic;
+    d_data->graphic.graphic = graphic;
 }
 
-const QPicture &QwtSymbol::picture() const
+const QwtVectorGraphic &QwtSymbol::graphic() const
 {
-    return d_data->picture.picture;
+    return d_data->graphic.graphic;
 }
-
-#endif
 
 #ifndef QWT_NO_SVG
     void QwtSymbol::setSvgDocument( const QByteArray &svgDocument )
@@ -1473,11 +1462,9 @@ void QwtSymbol::renderSymbols( QPainter *painter,
             qwtDrawPixmapSymbols( painter, points, numPoints, *this );
             break;
         }
-        case QwtSymbol::Picture:
+        case QwtSymbol::Graphic:
         {
-#ifndef QT_NO_PICTURE
-            qwtDrawPictureSymbols( painter, points, numPoints, *this );
-#endif
+            qwtDrawGraphicSymbols( painter, points, numPoints, *this );
             break;
         }
         case QwtSymbol::SvgDocument:
@@ -1587,10 +1574,9 @@ QRect QwtSymbol::boundingRect() const
 
             break;
         }
-#ifndef QT_NO_PICTURE
-        case QwtSymbol::Picture:
+        case QwtSymbol::Graphic:
         {
-            rect = d_data->picture.picture.boundingRect();
+            rect = d_data->graphic.graphic.boundingRect();
             if ( d_data->size.isValid() && !rect.isEmpty() )
             {
                 const QSizeF sz = rect.size();
@@ -1605,7 +1591,6 @@ QRect QwtSymbol::boundingRect() const
             }
             break;
         }
-#endif
 #ifndef QWT_NO_SVG
         case QwtSymbol::SvgDocument:
         {

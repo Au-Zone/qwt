@@ -63,7 +63,8 @@ HEADERS += \
     qwt_system_clock.h \
     qwt_text_engine.h \
     qwt_text_label.h \
-    qwt_text.h
+    qwt_text.h \
+    qwt_vector_graphic.h
 
 SOURCES += \
     qwt_abstract_scale_draw.cpp \
@@ -94,7 +95,8 @@ SOURCES += \
     qwt_point_polar.cpp \
     qwt_scale_engine.cpp \
     qwt_symbol.cpp \
-    qwt_system_clock.cpp
+    qwt_system_clock.cpp \
+    qwt_vector_graphic.cpp
 
  
 contains(QWT_CONFIG, QwtPlot) {
