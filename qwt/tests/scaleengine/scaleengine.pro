@@ -7,15 +7,10 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ################################################################
 
-include( $${PWD}/../qwtconfig.pri )
+include( $${PWD}/../tests.pri )
 
-TEMPLATE = subdirs
+TARGET       = scaleengine
 
-contains(QWT_CONFIG, QwtPlot) {
-    
-    SUBDIRS += \
-        plotmatrix \
-        scaleengine \
-        symbols
+SOURCES = \
+    scaleengine.cpp
 
-}
