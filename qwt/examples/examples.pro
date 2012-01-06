@@ -26,7 +26,6 @@ contains(QWT_CONFIG, QwtPlot) {
         realtime \
         refreshtest \
         navigation \
-        plotmatrix \
         spectrogram \
         rasterview \
         tvplot 
