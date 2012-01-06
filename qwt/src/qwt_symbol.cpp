@@ -164,7 +164,7 @@ static inline void qwtDrawGraphicSymbols( QPainter *painter,
     QwtVectorGraphic &graphic = 
         const_cast< QwtVectorGraphic & >( symbol.graphic() );
 
-    const QRectF graphicRect = graphic.boundingRectF();
+    const QRectF graphicRect = graphic.pointRect();
     if ( graphicRect.isEmpty() )
         return;
 
@@ -199,7 +199,7 @@ static inline void qwtDrawGraphicSymbols( QPainter *painter,
 
         painter->setTransform( tr );
 
-        graphic.play( painter );
+        graphic.render( painter );
     }
 }
 
@@ -1579,7 +1579,7 @@ QRect QwtSymbol::boundingRect() const
             rect = d_data->graphic.graphic.boundingRect();
             if ( d_data->size.isValid() && !rect.isEmpty() )
             {
-                const QSizeF sz = rect.size();
+                QSizeF sz = rect.size();
 
                 const double sx = d_data->size.width() / sz.width();
                 const double sy = d_data->size.height() / sz.height();

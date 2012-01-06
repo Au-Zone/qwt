@@ -11,23 +11,54 @@
 #define QWT_VECTOR_GRAPHIC_H
 
 #include "qwt_global.h"
-#include <qpicture.h>
+#include "qwt_null_paintdevice.h"
 #include <qmetatype.h>
 
-class QWT_EXPORT QwtVectorGraphic: public QPicture
+class QwtPainterCommand;
+
+class QWT_EXPORT QwtVectorGraphic: public QwtNullPaintDevice
 {
 public:
     QwtVectorGraphic();
+    QwtVectorGraphic( const QwtVectorGraphic & );
+
     virtual ~QwtVectorGraphic();
 
     QwtVectorGraphic& operator=(const QwtVectorGraphic &p);
 
-    QRectF boundingRectF() const;
+    void reset();
+    bool isNull() const;
 
-    bool operator==(const QwtVectorGraphic &) const;
-    bool operator!=(const QwtVectorGraphic &) const;
+    void render( QPainter * ) const;
+
+    QRectF boundingRect() const;
+    QRectF pointRect() const;
+
+    const QVector< QwtPainterCommand > &commands() const;
+    void setCommands( QVector< QwtPainterCommand > & );
+
+protected:
+    virtual QSize sizeMetrics() const;
+
+    virtual void drawPath(const QPainterPath &);
+
+    virtual void drawPolygon(
+        const QPointF *, int , QPaintEngine::PolygonDrawMode );
+
+    virtual void drawPolygon(
+        const QPoint *, int , QPaintEngine::PolygonDrawMode );
+
+    virtual void drawPixmap(const QRectF &,
+        const QPixmap &, const QRectF &);
+
+    virtual void drawImage(const QRectF &,
+        const QImage &, const QRectF &, Qt::ImageConversionFlags );
+
+    virtual void updateState( const QPaintEngineState &state );
 
 private:
+    void updateRects( const QRectF &, bool addPen );
+
     class PrivateData;
     PrivateData *d_data;
 };

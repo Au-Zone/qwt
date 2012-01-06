@@ -26,9 +26,8 @@ class QwtStyleSheetRecorder: public QwtNullPaintDevice
 {
 public:
     QwtStyleSheetRecorder( const QSize &size ):
-        QwtNullPaintDevice( QPaintEngine::AllFeatures )
+        d_size( size )
     {
-        setSize( size );
     }
 
     virtual void updateState( const QPaintEngineState &state )
@@ -55,7 +54,7 @@ public:
 
     virtual void drawPath( const QPainterPath &path )
     {
-        const QRectF rect( QPointF( 0.0, 0.0 ) , size() );
+        const QRectF rect( QPointF( 0.0, 0.0 ), d_size );
         if ( path.controlPointRect().contains( rect.center() ) )
         {
             setCornerRects( path );
@@ -116,6 +115,12 @@ public:
         }
     }
 
+protected:
+    virtual QSize sizeMetrics() const
+    {
+        return d_size;
+    }
+
 private:
     void alignCornerRects( const QRectF &rect )
     {
@@ -153,6 +158,8 @@ public:
     } background;
 
 private:
+    const QSize d_size;
+
     QPen d_pen;
     QBrush d_brush;
     QPointF d_origin;

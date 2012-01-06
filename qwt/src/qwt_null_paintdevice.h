@@ -45,30 +45,26 @@ public:
         NormalMode, 
 
         /*!
-           All vector graphic primitives are mapped to a QPainterPath
+           Vector graphic primitives ( beside polygons ) are mapped to a QPainterPath
            and are painted by drawPath. In PathMode mode
            only a few draw methods are called:
 
            - drawPath()
            - drawPixmap()
            - drawImage()
+           - drawPolygon()
          */
         PathMode
     };
 
-    QwtNullPaintDevice( QPaintEngine::PaintEngineFeatures );
-    QwtNullPaintDevice( const QSize &size,
-        QPaintEngine::PaintEngineFeatures );
-
+    QwtNullPaintDevice();
     virtual ~QwtNullPaintDevice();
 
     void setMode( Mode );
     Mode mode() const;
 
-    void setSize( const QSize &);
-    QSize size() const;
-
     virtual QPaintEngine *paintEngine() const;
+
     virtual int metric( PaintDeviceMetric metric ) const;
 
     virtual void drawRects(const QRect *, int );
@@ -104,9 +100,10 @@ public:
 
     virtual void updateState( const QPaintEngineState &state );
 
-private:
-    void init( QPaintEngine::PaintEngineFeatures );
+protected:
+    virtual QSize sizeMetrics() const = 0;
 
+private:
     class PaintEngine;
     PaintEngine *d_engine;
 
