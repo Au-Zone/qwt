@@ -47,6 +47,7 @@ HEADERS += \
     qwt_magnifier.h \
     qwt_null_paintdevice.h \
     qwt_painter.h \
+    qwt_painter_command.h \
     qwt_panner.h \
     qwt_picker.h \
     qwt_picker_machine.h \
@@ -79,6 +80,7 @@ SOURCES += \
     qwt_panner.cpp \
     qwt_null_paintdevice.cpp \
     qwt_painter.cpp \
+    qwt_painter_command.cpp \
     qwt_picker.cpp \
     qwt_pixel_matrix.cpp \
     qwt_round_scale_draw.cpp \
