@@ -8,7 +8,7 @@ class QStandardItem;
 class QModelIndex;
 class QwtPlotItem;
 
-class QWT_EXPORT Legend : public QwtAbstractLegend
+class Legend : public QwtAbstractLegend
 {
     Q_OBJECT
 
