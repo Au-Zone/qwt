@@ -13,6 +13,8 @@
 #include "qwt_global.h"
 #include "qwt_null_paintdevice.h"
 #include <qmetatype.h>
+#include <qimage.h>
+#include <qpixmap.h>
 
 class QwtPainterCommand;
 
@@ -27,9 +29,25 @@ public:
     QwtVectorGraphic& operator=(const QwtVectorGraphic &p);
 
     void reset();
+
     bool isNull() const;
+    bool isEmpty() const;
 
     void render( QPainter * ) const;
+    void render( QPainter *, const QSizeF &, 
+            Qt::AspectRatioMode = Qt::IgnoreAspectRatio  ) const;
+    void render( QPainter *, const QRectF &, 
+            Qt::AspectRatioMode = Qt::IgnoreAspectRatio  ) const;
+    void render( QPainter *, const QPointF &,
+        Qt::Alignment = Qt::AlignTop | Qt::AlignLeft ) const;
+
+    QPixmap toPixmap() const; 
+    QPixmap toPixmap( const QSize &, 
+        Qt::AspectRatioMode = Qt::IgnoreAspectRatio  ) const;
+
+    QImage toImage() const; 
+    QImage toImage( const QSize &, 
+        Qt::AspectRatioMode = Qt::IgnoreAspectRatio  ) const;
 
     QRectF boundingRect() const;
     QRectF pointRect() const;
@@ -37,6 +55,9 @@ public:
     const QVector< QwtPainterCommand > &commands() const;
     void setCommands( QVector< QwtPainterCommand > & );
 
+    void setDefaultSize( const QSizeF & );
+    QSizeF defaultSize() const;
+    
 protected:
     virtual QSize sizeMetrics() const;
 
@@ -57,7 +78,8 @@ protected:
     virtual void updateState( const QPaintEngineState &state );
 
 private:
-    void updateRects( const QRectF &, bool addPen );
+    void updateBoundingRect( const QRectF & );
+    void updatePointRect( const QRectF & );
 
     class PrivateData;
     PrivateData *d_data;

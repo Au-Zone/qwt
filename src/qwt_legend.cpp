@@ -638,30 +638,22 @@ void QwtLegend::renderItem( QPainter *painter,
     {
         // identifier
 
-        const QSize sz = label->identifier().size();
+        const QwtVectorGraphic &icon = label->data().icon();
+        const QSizeF sz = icon.defaultSize();
 
-        const QRectF identifierRect( rect.x() + label->margin(),
-            rect.center().y() - 0.5 * sz.height(), sz.width(), sz.height() );
+        const QRectF iconRect( rect.x() + label->margin(),
+            rect.center().y() - 0.5 * sz.height(), 
+            sz.width(), sz.height() );
 
-        const QwtPlotItem *plotItem = d_data->itemMap.plotItem( label );
-        if ( plotItem )
-        {
-            const int index = d_data->itemMap.legendWidgets( 
-                plotItem ).indexOf( const_cast<QwtLegendLabel *>( label ) );
-
-            painter->save();
-            painter->setClipRect( identifierRect, Qt::IntersectClip );
-            plotItem->drawLegendIdentifier( index, painter, identifierRect );
-            painter->restore();
-        }
+        icon.render( painter, iconRect );
 
         // title
 
         QRectF titleRect = rect;
-        titleRect.setX( identifierRect.right() + 2 * label->spacing() );
+        titleRect.setX( iconRect.right() + 2 * label->spacing() );
 
         painter->setFont( label->font() );
-        label->text().draw( painter, titleRect );
+        label->data().title().draw( painter, titleRect );
     }
 }
 

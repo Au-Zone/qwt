@@ -29,6 +29,7 @@ public:
     virtual ~QwtLegendLabel();
 
     void setData( const QwtLegendData & );
+    const QwtLegendData &data() const;
 
     void setItemMode( QwtLegendData::Mode );
     QwtLegendData::Mode itemMode() const;

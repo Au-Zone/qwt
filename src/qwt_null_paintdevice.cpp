@@ -368,7 +368,7 @@ QPaintEngine *QwtNullPaintDevice::paintEngine() const
 
 /*! 
     See QPaintDevice::metric()
-    \sa setSize()
+    \sa sizeMetrics()
 */
 int QwtNullPaintDevice::metric( PaintDeviceMetric deviceMetric ) const
 {

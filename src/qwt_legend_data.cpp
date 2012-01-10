@@ -67,17 +67,17 @@ QwtText QwtLegendData::title() const
     return text;
 }
 
-QPixmap QwtLegendData::icon() const
+QwtVectorGraphic QwtLegendData::icon() const
 {
     const QVariant iconValue = value( QwtLegendData::IconRole );
 
-    QPixmap pm;
-    if ( qVariantCanConvert<QPixmap>( iconValue ) )
+    QwtVectorGraphic graphic;
+    if ( qVariantCanConvert<QwtVectorGraphic>( iconValue ) )
     {
-        pm = qVariantValue<QPixmap>( iconValue );
+        graphic = qVariantValue<QwtVectorGraphic>( iconValue );
     }
 
-    return pm;
+    return graphic;
 }
 
 QwtLegendData::Mode QwtLegendData::mode() const

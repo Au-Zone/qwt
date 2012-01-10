@@ -12,6 +12,7 @@
 #include "qwt_math.h"
 #include "qwt_painter.h"
 #include "qwt_symbol.h"
+#include "qwt_vector_graphic.h"
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qstyle.h>
@@ -46,6 +47,7 @@ public:
     }
 
     QwtLegendData::Mode itemMode;
+    QwtLegendData legendData;
     bool isDown;
 
     QPixmap identifier;
@@ -53,22 +55,29 @@ public:
     int spacing;
 };
 
-void QwtLegendLabel::setData( const QwtLegendData &data )
+void QwtLegendLabel::setData( const QwtLegendData &legendData )
 {
+    d_data->legendData = legendData;
+
     const bool doUpdate = updatesEnabled();
     setUpdatesEnabled( false );
 
-    setText( data.title() );
-    setIdentifier( data.icon() );
+    setText( legendData.title() );
+    setIdentifier( legendData.icon().toPixmap() );
 
-    if ( data.hasRole( QwtLegendData::ModeRole ) )
-        setItemMode( data.mode() );
+    if ( legendData.hasRole( QwtLegendData::ModeRole ) )
+        setItemMode( legendData.mode() );
 
     if ( doUpdate )
     {
         setUpdatesEnabled( true );
         update();
     }
+}
+
+const QwtLegendData &QwtLegendLabel::data() const
+{
+    return d_data->legendData;
 }
 
 /*!
