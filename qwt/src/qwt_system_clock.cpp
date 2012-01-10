@@ -9,7 +9,7 @@
 
 #include "qwt_system_clock.h"
 
-#if QT_VERSION >= 0x040700
+#if QT_VERSION >= 0x040800
 #define USE_ELAPSED_TIMER 1
 #endif
 
