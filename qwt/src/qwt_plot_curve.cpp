@@ -1060,9 +1060,12 @@ void QwtPlotCurve::drawLegendIdentifier(
     {
         if ( pen() != Qt::NoPen )
         {
-            painter->setPen( pen() );
+            QPen pn = pen();
+            pn.setCapStyle( Qt::FlatCap );
+
+            painter->setPen( pn );
             QwtPainter::drawLine( painter, rect.left(), rect.center().y(),
-                                  rect.right() - 1.0, rect.center().y() );
+                                  rect.right(), rect.center().y() );
         }
     }
 

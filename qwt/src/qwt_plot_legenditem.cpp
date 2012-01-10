@@ -414,8 +414,10 @@ void QwtPlotLegendItem::draw( QPainter *painter,
             drawBackground( painter, layoutItem->geometry() );
 
         painter->save();
+
         drawLegendData( painter, layoutItem->plotItem(),
             layoutItem->data(), layoutItem->geometry() );
+
         painter->restore();
     }
 }
@@ -545,23 +547,23 @@ void QwtPlotLegendItem::drawLegendData( QPainter *painter,
     Q_UNUSED( plotItem );
 
     const int m = d_data->itemMargin;
-    const QRect r = rect.toRect().adjusted( m, m, -m, -m );
+    const QRectF r = rect.toRect().adjusted( m, m, -m, -m );
 
     painter->setClipRect( r, Qt::IntersectClip );
 
     int titleOff = 0;
 
-    const QPixmap pm = data.icon();
-    if ( !pm.isNull() )
+    const QwtVectorGraphic graphic = data.icon();
+    if ( !graphic.isEmpty() )
     {
-        QRect identifierRect( r.topLeft(), pm.size() );
+        QRectF iconRect( r.topLeft(), graphic.defaultSize() );
 
-        identifierRect.moveCenter( 
-            QPoint( identifierRect.center().x(), rect.center().y() ) );
+        iconRect.moveCenter( 
+            QPoint( iconRect.center().x(), rect.center().y() ) );
 
-        painter->drawPixmap( identifierRect, pm );
+        graphic.render( painter, iconRect, Qt::KeepAspectRatio );
 
-        titleOff += identifierRect.width() + d_data->itemSpacing;
+        titleOff += iconRect.width() + d_data->itemSpacing;
     }
 
     const QwtText text = data.title();
@@ -570,7 +572,7 @@ void QwtPlotLegendItem::drawLegendData( QPainter *painter,
         painter->setPen( textPen() );
         painter->setFont( font() );
 
-        const QRect textRect = r.adjusted( titleOff, 0, 0, 0 );
+        const QRectF textRect = r.adjusted( titleOff, 0, 0, 0 );
         text.draw( painter, textRect );
     }
 }
@@ -582,16 +584,16 @@ QSize QwtPlotLegendItem::minimumSize( const QwtLegendData &data ) const
     if ( !data.isValid() )
         return size;
 
-    const QPixmap pm = data.icon();
+    const QwtVectorGraphic graphic = data.icon();
     const QwtText text = data.title();
 
     int w = 0;
     int h = 0;
 
-    if ( !pm.isNull() )
+    if ( !graphic.isNull() )
     {
-        w = pm.width();
-        h = pm.height();
+        w = graphic.width();
+        h = graphic.height();
     }
 
     if ( !text.isEmpty() )
@@ -602,7 +604,7 @@ QSize QwtPlotLegendItem::minimumSize( const QwtLegendData &data ) const
         h = qMax( h, qCeil( sz.height() ) );
     }
 
-    if ( pm.width() > 0 && !text.isEmpty() )
+    if ( graphic.width() > 0 && !text.isEmpty() )
         w += d_data->itemSpacing;
 
     size += QSize( w, h );
@@ -614,17 +616,17 @@ int QwtPlotLegendItem::heightForWidth(
 {
     w -= 2 * d_data->itemMargin;
 
-    const QPixmap pm = data.icon();
+    const QwtVectorGraphic graphic = data.icon();
     const QwtText text = data.title();
 
     if ( text.isEmpty() )
-        return pm.height();
+        return graphic.height();
 
-    if ( pm.width() > 0 )
-        w -= pm.width() + d_data->itemSpacing;
+    if ( graphic.width() > 0 )
+        w -= graphic.width() + d_data->itemSpacing;
 
     int h = text.heightForWidth( w, font() );
     h += 2 * d_data->itemMargin;
 
-    return qMax( pm.height(), h );
+    return qMax( graphic.height(), h );
 }

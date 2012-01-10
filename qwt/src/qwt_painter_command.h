@@ -121,8 +121,6 @@ public:
     StateData* stateData();
     const StateData* stateData() const;
 
-    void render( QPainter *painter ) const;
-
 private:
     void copy( const QwtPainterCommand & );
     void reset();
@@ -139,5 +137,48 @@ private:
         StateData *d_stateData;
     };
 };
+
+inline QwtPainterCommand::Type QwtPainterCommand::type() const
+{
+    return d_type;
+}
+
+inline const QPainterPath *QwtPainterCommand::path() const
+{
+    return d_path;
+}
+
+
+inline const QwtPainterCommand::PolygonData* 
+QwtPainterCommand::polygonData() const
+{
+    return d_polygonData;
+}
+
+
+inline const QwtPainterCommand::PolygonFData* 
+QwtPainterCommand::polygonFData() const
+{
+    return d_polygonFData;
+}
+
+
+inline const QwtPainterCommand::PixmapData* 
+QwtPainterCommand::pixmapData() const
+{
+    return d_pixmapData;
+}
+
+inline const QwtPainterCommand::ImageData* 
+QwtPainterCommand::imageData() const
+{
+    return d_imageData;
+}
+
+inline const QwtPainterCommand::StateData* 
+QwtPainterCommand::stateData() const
+{
+    return d_stateData;
+}
 
 #endif

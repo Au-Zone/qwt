@@ -12,25 +12,8 @@
 #include "qwt_plot.h"
 #include "qwt_legend_data.h"
 #include "qwt_scale_div.h"
+#include "qwt_vector_graphic.h"
 #include <qpainter.h>
-
-static QPixmap qwtLegendIdentifier( 
-    const QwtPlotItem *item, int index, const QSize &size )
-{
-    QPixmap pm( size );
-    pm.fill( Qt::transparent );
-
-    QPainter painter( &pm );
-    painter.setRenderHint( QPainter::Antialiasing,
-        item->testRenderHint( QwtPlotItem::RenderAntialiased ) );
-
-    item->drawLegendIdentifier( index, &painter,
-        QRect( 0, 0, size.width(), size.height() ) );
-
-    painter.end();
-
-    return pm;
-}
 
 class QwtPlotItem::PrivateData
 {
@@ -484,10 +467,24 @@ QList<QwtLegendData> QwtPlotItem::legendData() const
     qVariantSetValue( titleValue, title() );
     data.setValue( QwtLegendData::TitleRole, titleValue );
         
-    if ( !legendIdentifierSize().isEmpty() )
+    const QSize sz = legendIdentifierSize();
+    if ( !sz.isEmpty() )
     {   
-        data.setValue( QwtLegendData::IconRole, 
-            qwtLegendIdentifier( this, 0, legendIdentifierSize() ) );
+        QwtVectorGraphic graphic;
+        graphic.setDefaultSize( sz );
+
+        QPainter painter( &graphic );
+        painter.setRenderHint( QPainter::Antialiasing,
+            testRenderHint( QwtPlotItem::RenderAntialiased ) );
+
+        drawLegendIdentifier( 0, &painter,
+            QRectF( 0, 0, sz.width(), sz.height() ) );
+
+        painter.end();
+
+        QVariant iconValue;
+        qVariantSetValue( iconValue, graphic );
+        data.setValue( QwtLegendData::IconRole, iconValue );
     }   
         
     QList<QwtLegendData> list;
