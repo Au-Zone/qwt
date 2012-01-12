@@ -54,7 +54,18 @@ public:
            - drawImage()
            - drawPolygon()
          */
-        PathMode
+        PolygonPathMode,
+
+		/*!
+           Vector graphic primitives are mapped to a QPainterPath
+           and are painted by drawPath. In PathMode mode
+           only a few draw methods are called:
+
+           - drawPath()
+           - drawPixmap()
+           - drawImage()
+         */
+		PathMode
     };
 
     QwtNullPaintDevice();

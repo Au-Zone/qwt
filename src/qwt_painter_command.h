@@ -26,23 +26,9 @@ public:
         Invalid = -1,
 
         Path,
-        Polygon,
-        PolygonF,
         Pixmap,
         Image,
         State
-    };
-
-    struct PolygonData
-    {
-        QPolygon polygon;
-        QPaintEngine::PolygonDrawMode mode;
-    };
-
-    struct PolygonFData
-    {
-        QPolygonF polygonF;
-        QPaintEngine::PolygonDrawMode mode;
     };
 
     struct PixmapData
@@ -87,14 +73,14 @@ public:
     QwtPainterCommand(const QwtPainterCommand &);
 
     QwtPainterCommand( const QPainterPath & );
-    QwtPainterCommand( const QPolygon &, QPaintEngine::PolygonDrawMode );
 
-    QwtPainterCommand( const QPolygonF &, QPaintEngine::PolygonDrawMode );
     QwtPainterCommand( const QRectF &rect,
             const QPixmap &, const QRectF& subRect );
+
     QwtPainterCommand( const QRectF &rect,
             const QImage &, const QRectF& subRect,
             Qt::ImageConversionFlags );
+
     QwtPainterCommand( const QPaintEngineState & );
 
     ~QwtPainterCommand();
@@ -105,12 +91,6 @@ public:
 
     QPainterPath *path();
     const QPainterPath *path() const;
-
-    PolygonData* polygonData();
-    const PolygonData* polygonData() const;
-
-    PolygonFData* polygonFData();
-    const PolygonFData* polygonFData() const;
 
     PixmapData* pixmapData();
     const PixmapData* pixmapData() const;
@@ -130,8 +110,6 @@ private:
     union
     {
         QPainterPath *d_path;
-        PolygonData *d_polygonData;
-        PolygonFData *d_polygonFData;
         PixmapData *d_pixmapData;
         ImageData *d_imageData;
         StateData *d_stateData;
@@ -147,21 +125,6 @@ inline const QPainterPath *QwtPainterCommand::path() const
 {
     return d_path;
 }
-
-
-inline const QwtPainterCommand::PolygonData* 
-QwtPainterCommand::polygonData() const
-{
-    return d_polygonData;
-}
-
-
-inline const QwtPainterCommand::PolygonFData* 
-QwtPainterCommand::polygonFData() const
-{
-    return d_polygonFData;
-}
-
 
 inline const QwtPainterCommand::PixmapData* 
 QwtPainterCommand::pixmapData() const

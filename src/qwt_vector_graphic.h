@@ -21,6 +21,14 @@ class QwtPainterCommand;
 class QWT_EXPORT QwtVectorGraphic: public QwtNullPaintDevice
 {
 public:
+	enum RenderHint
+	{
+		RenderPensUnscaled = 0x1
+	};
+
+    //! Render hints
+    typedef QFlags<RenderHint> RenderHints;
+
     QwtVectorGraphic();
     QwtVectorGraphic( const QwtVectorGraphic & );
 
@@ -58,16 +66,13 @@ public:
     void setDefaultSize( const QSizeF & );
     QSizeF defaultSize() const;
     
+    void setRenderHint( RenderHint, bool on = true );
+    bool testRenderHint( RenderHint ) const;
+
 protected:
     virtual QSize sizeMetrics() const;
 
     virtual void drawPath(const QPainterPath &);
-
-    virtual void drawPolygon(
-        const QPointF *, int , QPaintEngine::PolygonDrawMode );
-
-    virtual void drawPolygon(
-        const QPoint *, int , QPaintEngine::PolygonDrawMode );
 
     virtual void drawPixmap(const QRectF &,
         const QPixmap &, const QRectF &);
@@ -85,6 +90,7 @@ private:
     PrivateData *d_data;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtVectorGraphic::RenderHints )
 Q_DECLARE_METATYPE( QwtVectorGraphic )
 
 #endif

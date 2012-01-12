@@ -35,70 +35,56 @@ static QRectF qwtStrokedPathRect(
     return strokedPath.boundingRect();
 }
 
-static inline void qwtExecCommand( QPainter *painter,
-    const QwtPainterCommand &cmd, const QTransform &transform )
+static inline void qwtExecCommand( 
+	QPainter *painter, const QwtPainterCommand &cmd, 
+	QwtVectorGraphic::RenderHints renderHints,
+	const QTransform &transform )
 {
+	
+
     switch( cmd.type() )
     {
         case QwtPainterCommand::Path:
         {
-            painter->drawPath( *cmd.path() );
-            break;
-        }
-        case QwtPainterCommand::Polygon:
-        {
-            const QwtPainterCommand::PolygonData *data = cmd.polygonData();
-            switch( data->mode )
-            {
-                case QPaintEngine::PolylineMode:
-                {
-                    painter->drawPolyline( data->polygon );
-                    break;
-                }
-                case QPaintEngine::OddEvenMode:
-                {
-                    painter->drawPolygon( data->polygon, Qt::OddEvenFill );
-                    break;
-                }
-                case QPaintEngine::WindingMode:
-                {
-                    painter->drawPolygon( data->polygon, Qt::WindingFill );
-                    break;
-                }
-                case QPaintEngine::ConvexMode:
-                {
-                    painter->drawConvexPolygon( data->polygon );
-                    break;
-                }
-            }
-            break;
-        }
-        case QwtPainterCommand::PolygonF:
-        {
-            const QwtPainterCommand::PolygonFData *data = cmd.polygonFData();
-            switch( data->mode )
-            {
-                case QPaintEngine::PolylineMode:
-                {
-                    painter->drawPolyline( data->polygonF );
-                    break;
-                }
-                case QPaintEngine::OddEvenMode:
-                {
-                    painter->drawPolygon( data->polygonF, Qt::OddEvenFill );
-                    break;
-                }
-                case QPaintEngine::WindingMode:
-                {
-                    painter->drawPolygon( data->polygonF, Qt::WindingFill );
-                    break;
-                }
-                case QPaintEngine::ConvexMode:
-                {
-                    painter->drawConvexPolygon( data->polygonF );
-                    break;
-                }
-            }
+			bool doMap = false;
+
+			if ( renderHints.testFlag( QwtVectorGraphic::RenderPensUnscaled )
+				&& painter->transform().isScaling() )
+			{
+				bool isCosmetic = painter->pen().isCosmetic();
+				if ( !isCosmetic && painter->pen().widthF() == 0.0 )
+				{
+					QPainter::RenderHints hints = painter->renderHints();
+					if ( hints.testFlag( QPainter::NonCosmeticDefaultPen ) )
+						isCosmetic = true;
+				}
+
+				doMap = isCosmetic;
+			}
+
+			if ( doMap )
+			{
+				const QTransform transform = painter->transform();
+
+				QPainterPath clipPath;
+				if ( painter->hasClipping() )
+				{
+					clipPath = painter->clipPath();
+					painter->setClipPath( transform.map( clipPath ) );
+				}
+
+				painter->resetTransform();
+            	painter->drawPath( transform.map( *cmd.path() ) );
+
+				// restore painter
+				painter->setTransform( transform );
+				if ( painter->hasClipping() ) 
+					painter->setClipPath( clipPath );
+			}
+			else
+			{
+				painter->drawPath( *cmd.path() );
+			}
             break;
         }
         case QwtPainterCommand::Pixmap:
@@ -185,6 +171,7 @@ static inline void qwtExecCommand( QPainter *painter,
         default:
             break;
     }
+
 }
 
 class QwtVectorGraphic::PrivateData
@@ -200,6 +187,8 @@ public:
     QVector<QwtPainterCommand> commands;
     QRectF boundingRect;
     QRectF pointRect;
+
+    QwtVectorGraphic::RenderHints renderHints;
 };
 
 QwtVectorGraphic::QwtVectorGraphic()
@@ -243,6 +232,37 @@ bool QwtVectorGraphic::isNull() const
 bool QwtVectorGraphic::isEmpty() const
 {
     return d_data->boundingRect.isEmpty();
+}
+
+/*!
+   Toggle an render hint
+
+   \param hint Render hint
+   \param on true/false
+
+   \sa testRenderHint(), RenderHint
+*/
+void QwtVectorGraphic::setRenderHint( RenderHint hint, bool on )
+{
+    if ( d_data->renderHints.testFlag( hint ) != on )
+    {
+        if ( on )
+            d_data->renderHints |= hint;
+        else
+            d_data->renderHints &= ~hint;
+    }
+}
+
+/*!
+   Test a render hint
+
+   \param hint Render hint
+   \return true/false
+   \sa setRenderHint(), RenderHint
+*/
+bool QwtVectorGraphic::testRenderHint( RenderHint hint ) const
+{
+    return d_data->renderHints.testFlag( hint );
 }
 
 QRectF QwtVectorGraphic::boundingRect() const
@@ -296,7 +316,10 @@ void QwtVectorGraphic::render( QPainter *painter ) const
     painter->save();
 
     for ( int i = 0; i < numCommands; i++ )
-        qwtExecCommand( painter, commands[i], transform );
+	{
+        qwtExecCommand( painter, commands[i], 
+			d_data->renderHints, transform );
+	}
 
     painter->restore();
 }
@@ -461,104 +484,6 @@ QImage QwtVectorGraphic::toImage() const
     return image;
 }
 
-void QwtVectorGraphic::drawPolygon(
-    const QPointF *points, int pointCount, 
-    QPaintEngine::PolygonDrawMode mode)
-{
-    if ( pointCount <= 0 )
-        return;
-
-    const QPainter *painter = paintEngine()->painter();
-    if ( painter == NULL )
-        return;
-
-    QPolygonF polygon;
-    polygon.reserve( pointCount );
-
-    double minX = points[0].x();
-    double maxX = points[0].x();
-    double minY = points[0].y();
-    double maxY = points[0].y();
-
-    for ( int i = 0; i < pointCount; i++ )
-    {
-        polygon += points[i];
-
-        minX = qMin( points[i].x(), minX );
-        minY = qMin( points[i].y(), minY );
-        maxX = qMax( points[i].x(), maxX );
-        maxY = qMin( points[i].y(), maxY );
-    }
-
-    d_data->commands += QwtPainterCommand( polygon, mode );
-
-    QRectF pointRect( minX, minY, maxX - minX, maxY - minY );
-    pointRect = painter->transform().mapRect( pointRect );
-
-    QRectF boundingRect = pointRect;
-    if ( painter->pen().style() != Qt::NoPen )
-    {
-        QPainterPath path;
-        path.addPolygon( polygon );
-        if ( mode != QPaintEngine::PolylineMode )
-            path.closeSubpath();
-    
-        boundingRect = qwtStrokedPathRect( painter, path );
-    }
-
-    updatePointRect( pointRect );
-    updateBoundingRect( boundingRect );
-}
-
-void QwtVectorGraphic::drawPolygon(
-    const QPoint *points, int pointCount, 
-    QPaintEngine::PolygonDrawMode mode)
-{
-    if ( pointCount <= 0 )
-        return;
-
-    const QPainter *painter = paintEngine()->painter();
-    if ( painter == NULL )
-        return;
-
-    QPolygon polygon;
-    polygon.reserve( pointCount );
-
-    int minX = points[0].x();
-    int maxX = points[0].x();
-    int minY = points[0].y();
-    int maxY = points[0].y();
-
-    for ( int i = 0; i < pointCount; i++ )
-    {
-        polygon += points[i];
-
-        minX = qMin( points[i].x(), minX );
-        minY = qMin( points[i].y(), minY );
-        maxX = qMax( points[i].x(), maxX );
-        maxY = qMin( points[i].y(), maxY );
-    }
-
-    d_data->commands += QwtPainterCommand( polygon, mode );
-
-    const QRectF pointRect = painter->transform().mapRect( 
-        QRectF( minX, minY, maxX - minX, maxY - minY ) );
-    
-    QRectF boundingRect = pointRect;
-    if ( painter->pen().style() != Qt::NoPen )
-    {
-        QPainterPath path;
-        path.addPolygon( polygon );
-        if ( mode != QPaintEngine::PolylineMode )
-            path.closeSubpath();
-
-        boundingRect = qwtStrokedPathRect( painter, path );
-    }
-
-    updatePointRect( pointRect );
-    updateBoundingRect( boundingRect );
-}
-
 void QwtVectorGraphic::drawPath( const QPainterPath &path )
 {
     const QPainter *painter = paintEngine()->painter();
@@ -666,7 +591,7 @@ void QwtVectorGraphic::setCommands( QVector< QwtPainterCommand > &commands )
 
     QPainter painter( this );
     for ( int i = 0; i < numCommands; i++ )
-        qwtExecCommand( &painter, cmds[i], QTransform() );
+        qwtExecCommand( &painter, cmds[i], RenderHints(), QTransform() );
 
     painter.end();
 }

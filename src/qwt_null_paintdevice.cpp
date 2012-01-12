@@ -94,7 +94,7 @@ void QwtNullPaintDevice::PaintEngine::drawRects(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawRects( rects, rectCount );
         return;
@@ -110,7 +110,7 @@ void QwtNullPaintDevice::PaintEngine::drawRects(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawRects( rects, rectCount );
         return;
@@ -126,7 +126,7 @@ void QwtNullPaintDevice::PaintEngine::drawLines(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawLines( lines, lineCount );
         return;
@@ -142,7 +142,7 @@ void QwtNullPaintDevice::PaintEngine::drawLines(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawLines( lines, lineCount );
         return;
@@ -158,7 +158,7 @@ void QwtNullPaintDevice::PaintEngine::drawEllipse(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawEllipse( rect );
         return;
@@ -174,7 +174,7 @@ void QwtNullPaintDevice::PaintEngine::drawEllipse(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawEllipse( rect );
         return;
@@ -201,7 +201,7 @@ void QwtNullPaintDevice::PaintEngine::drawPoints(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawPoints( points, pointCount );
         return;
@@ -217,7 +217,7 @@ void QwtNullPaintDevice::PaintEngine::drawPoints(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawPoints( points, pointCount );
         return;
@@ -233,6 +233,24 @@ void QwtNullPaintDevice::PaintEngine::drawPolygon(
     if ( device == NULL )
         return;
 
+	if ( device->mode() == QwtNullPaintDevice::PathMode )
+	{
+    	QPainterPath path;
+
+		if ( pointCount > 0 )
+		{
+    		path.moveTo( points[0] );
+			for ( int i = 1; i < pointCount; i++ )
+        		path.lineTo( points[i] );
+
+			if ( mode != PolylineMode )
+        		path.closeSubpath();
+		}
+
+    	device->drawPath( path );
+		return;
+	}
+
     device->drawPolygon( points, pointCount, mode );
 }
 
@@ -242,6 +260,24 @@ void QwtNullPaintDevice::PaintEngine::drawPolygon(
     QwtNullPaintDevice *device = nullDevice();
     if ( device == NULL )
         return;
+
+    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    {
+        QPainterPath path;
+
+        if ( pointCount > 0 )
+        {
+            path.moveTo( points[0] );
+            for ( int i = 1; i < pointCount; i++ )
+                path.lineTo( points[i] );
+
+            if ( mode != PolylineMode )
+                path.closeSubpath();
+        }
+
+        device->drawPath( path );
+        return;
+    }
 
     device->drawPolygon( points, pointCount, mode );
 }
@@ -263,7 +299,7 @@ void QwtNullPaintDevice::PaintEngine::drawTextItem(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawTextItem( pos, textItem );
         return;
@@ -280,7 +316,7 @@ void QwtNullPaintDevice::PaintEngine::drawTiledPixmap(
     if ( device == NULL )
         return;
 
-    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
     {
         QPaintEngine::drawTiledPixmap( rect, pixmap, subRect );
         return;
