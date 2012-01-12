@@ -11,24 +11,6 @@ QwtPainterCommand::QwtPainterCommand( const QPainterPath &path ):
     d_path = new QPainterPath( path );
 }
 
-QwtPainterCommand::QwtPainterCommand( const QPolygon &polygon, 
-        QPaintEngine::PolygonDrawMode mode ):
-    d_type( Polygon )
-{
-    d_polygonData = new PolygonData();
-    d_polygonData->polygon = polygon;
-    d_polygonData->mode = mode;
-}
-
-QwtPainterCommand::QwtPainterCommand( const QPolygonF &polygon, 
-        QPaintEngine::PolygonDrawMode mode ):
-    d_type( PolygonF )
-{
-    d_polygonFData = new PolygonFData();
-    d_polygonFData->polygonF = polygon;
-    d_polygonFData->mode = mode;
-}
-
 QwtPainterCommand::QwtPainterCommand( const QRectF &rect,
         const QPixmap &pixmap, const QRectF& subRect ):
     d_type( Pixmap )
@@ -133,16 +115,6 @@ void QwtPainterCommand::copy( const QwtPainterCommand &other )
             d_path = new QPainterPath( *other.d_path );
             break;
         }
-        case Polygon:
-        {
-            d_polygonData = new PolygonData( *other.d_polygonData );
-            break;
-        }
-        case PolygonF:
-        {
-            d_polygonFData = new PolygonFData( *other.d_polygonFData );
-            break;
-        }
         case Pixmap:
         {
             d_pixmapData = new PixmapData( *other.d_pixmapData );
@@ -172,16 +144,6 @@ void QwtPainterCommand::reset()
             delete d_path;
             break;
         }
-        case Polygon:
-        {
-            delete d_polygonData;
-            break;
-        }
-        case PolygonF:
-        {
-            delete d_polygonFData;
-            break;
-        }
         case Pixmap:
         {
             delete d_pixmapData;
@@ -207,16 +169,6 @@ void QwtPainterCommand::reset()
 QPainterPath *QwtPainterCommand::path() 
 {
     return d_path;
-}
-
-QwtPainterCommand::PolygonData* QwtPainterCommand::polygonData() 
-{
-    return d_polygonData;
-}
-
-QwtPainterCommand::PolygonFData* QwtPainterCommand::polygonFData() 
-{
-    return d_polygonFData;
 }
 
 QwtPainterCommand::PixmapData* QwtPainterCommand::pixmapData() 
