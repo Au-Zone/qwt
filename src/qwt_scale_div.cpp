@@ -128,7 +128,7 @@ void QwtScaleDiv::invert()
         const int size = ticks.count();
         const int size2 = size / 2;
 
-        for ( int j = 0; j < size2; i++ )
+        for ( int j = 0; j < size2; j++ )
             qSwap( ticks[j], ticks[size - 1 - j] );
     }
 }
