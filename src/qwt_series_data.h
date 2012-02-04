@@ -24,6 +24,24 @@
    but in situations, where data of an application specific format
    needs to be displayed, without having to copy it, it is recommended
    to implement an individual data access.
+
+   A subclass of QwtSeriesData<QPointF> must implement: 
+
+   - size()\n 
+     Should return number of data points.
+
+   - sample()\n
+     Should return values x and y values of the sample at specific position
+     as QPointF object.
+
+   - boundingRect()\n 
+     Should return the bounding rectangle of the data series.
+     It is used for autoscaling and might help certain algorithms for displaying
+     the data. You can use qwtBoundingRect() for an implementation
+     but often it is possible to implement a more efficient alogrithm 
+     depending on the characteristics of the series.
+     The member d_boundingRect is intended for caching the calculated rectangle.
+    
 */
 template <typename T>
 class QwtSeriesData
