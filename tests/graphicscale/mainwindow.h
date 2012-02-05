@@ -1,6 +1,7 @@
 #include <qmainwindow.h>
 
 class Canvas;
+class QPainterPath;
 
 class MainWindow: public QMainWindow
 {
@@ -15,6 +16,7 @@ private Q_SLOTS:
 
 private:
     void loadSVG( const QString & );
+	void loadPath( const QPainterPath & );
 
     Canvas *d_canvas[2];
 };

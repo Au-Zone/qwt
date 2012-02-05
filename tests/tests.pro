@@ -16,6 +16,7 @@ contains(QWT_CONFIG, QwtPlot) {
     SUBDIRS += \
         plotmatrix \
         scaleengine \
+        graphicscale \
         symbols
 
 }
