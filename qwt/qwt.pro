@@ -24,6 +24,10 @@ contains(QWT_CONFIG, QwtExamples ) {
     SUBDIRS += examples 
 }
 
+contains(QWT_CONFIG, QwtTests ) {
+    SUBDIRS += tests 
+}
+ 
 qwtspec.files  = qwtconfig.pri qwt.prf
 qwtspec.path  = $${QWT_INSTALL_FEATURES}
 

@@ -6,6 +6,7 @@ Ideas
 - QAbstractModel -> QwtSeriesData
 - Box/Whisker plot item
 - QwtSeriesData + functors
+- QwtTransformation + functors
 - QwtSeriesData/QwtPlotCurve + Level of details (Douglas Peucker)
 - Common zoom stack for all navigation objects
 - Watermark Item
@@ -16,18 +17,18 @@ Ideas
 - Grid of QwtPlots
 - Interval scale labels ( between 2 ticks )
 - More than 4 axes
-- QwtSymbol/QwtIntervalSymbol + QPainterPath
+- QwtIntervalSymbol + QPainterPath/...
 - QwtPlotScene + breaking composite architecture
 - Using QStaticText for markers ( and scales ? )
 - Using QAbstractSlider as baseclass of QwtAbstractSlider
 - Scales/Grid item like in QwtPolarGrid
 - Container for a 2D matrix
-- Use QPainter::setAlpha instead of applying the alpha value to the image
 - Waterfall plots
 - transform/invTransform for polygons and lines
 - cursor item
 - line marker with a line from the position to the axis
-- 1uadtree
+- quadtree
+- QwtText supporting Qt::TextElideMode
 
 Bugs/Change requests
 --------------------
@@ -37,4 +38,3 @@ Bugs/Change requests
 - Reference value for QwtThermo
 - Transparent canvas background + backingstore
 - Conflicts of qtAddLibrary with installed versions
-- QwtSystemClock -> QElapsedTimer

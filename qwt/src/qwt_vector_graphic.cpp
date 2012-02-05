@@ -8,83 +8,120 @@
 #include <qpainterpath.h>
 #include <qmath.h>
 
+QTransform qwtRectTransformation(
+    const QRectF &rect, const QRectF &targetRect )
+{
+    if ( rect == targetRect )
+        return QTransform();
+    
+    double sx = 1.0;
+    double sy = 1.0;
+
+    if ( rect.width() > 0.0 )
+        sx = targetRect.width() / rect.width();
+
+    if ( rect.height() > 0.0 )
+        sy = targetRect.height() / rect.height();
+
+    QTransform tr;
+    tr.scale( sx, sy );
+
+    const QRectF scaledRect = tr.mapRect( rect );
+
+    const double dx = targetRect.x() - scaledRect.x();
+    const double dy = targetRect.y() - scaledRect.y();
+
+    QTransform transform;
+    transform.translate( dx, dy );
+    transform.scale( sx, sy );
+
+    return transform;
+}
+
 static QRectF qwtStrokedPathRect( 
     const QPainter *painter, const QPainterPath &path )
 {
     const QPen pen = painter->pen();
-    QPainterPath mappedPath = path;
 
-    if ( !painter->transform().isIdentity() )
+    bool scaledPen = false;
+
+    if ( pen.style() != Qt::NoPen && pen.brush().style() != Qt::NoBrush )
     {
-        mappedPath = painter->transform().map( mappedPath );
-
-        if ( !pen.isCosmetic() )
+        scaledPen = !pen.isCosmetic();
+        if ( !scaledPen && pen.widthF() == 0.0 )
         {
-            // TODO
+            const QPainter::RenderHints hints = painter->renderHints();
+            if ( hints.testFlag( QPainter::NonCosmeticDefaultPen ) )
+                scaledPen = true;
         }
     }
 
     QPainterPathStroker stroker;
-    stroker.setDashPattern( pen.style() );
-    stroker.setJoinStyle( pen.joinStyle() );
-    stroker.setCapStyle( pen.capStyle() );
-    stroker.setMiterLimit( pen.miterLimit() );
     stroker.setWidth( pen.widthF() );
 
-    const QPainterPath strokedPath = stroker.createStroke( mappedPath );
-    return strokedPath.boundingRect();
+    QRectF rect;
+    if ( scaledPen )
+    {
+        QPainterPath stroke = stroker.createStroke(path);
+        rect = painter->transform().map(stroke).boundingRect();
+    }
+    else
+    {
+        QPainterPath mappedPath = painter->transform().map(path);
+        rect = stroker.createStroke( mappedPath ).boundingRect();
+    }
+
+    return rect;
 }
 
 static inline void qwtExecCommand( 
-	QPainter *painter, const QwtPainterCommand &cmd, 
-	QwtVectorGraphic::RenderHints renderHints,
-	const QTransform &transform )
+    QPainter *painter, const QwtPainterCommand &cmd, 
+    QwtVectorGraphic::RenderHints renderHints,
+    const QTransform &transform )
 {
-	
-
     switch( cmd.type() )
     {
         case QwtPainterCommand::Path:
         {
-			bool doMap = false;
+            bool doMap = false;
 
-			if ( renderHints.testFlag( QwtVectorGraphic::RenderPensUnscaled )
-				&& painter->transform().isScaling() )
-			{
-				bool isCosmetic = painter->pen().isCosmetic();
-				if ( !isCosmetic && painter->pen().widthF() == 0.0 )
-				{
-					QPainter::RenderHints hints = painter->renderHints();
-					if ( hints.testFlag( QPainter::NonCosmeticDefaultPen ) )
-						isCosmetic = true;
-				}
+            if ( renderHints.testFlag( QwtVectorGraphic::RenderPensUnscaled )
+                && painter->transform().isScaling() )
+            {
+                bool isCosmetic = painter->pen().isCosmetic();
+                if ( isCosmetic && painter->pen().widthF() == 0.0 )
+                {
+                    QPainter::RenderHints hints = painter->renderHints();
+                    if ( hints.testFlag( QPainter::NonCosmeticDefaultPen ) )
+                        isCosmetic = false;
+                }
 
-				doMap = isCosmetic;
-			}
+                doMap = isCosmetic;
+            }
 
-			if ( doMap )
-			{
-				const QTransform transform = painter->transform();
+            if ( doMap )
+            {
+                const QTransform transform = painter->transform();
 
-				QPainterPath clipPath;
-				if ( painter->hasClipping() )
-				{
-					clipPath = painter->clipPath();
-					painter->setClipPath( transform.map( clipPath ) );
-				}
+                QPainterPath clipPath;
+                if ( painter->hasClipping() )
+                {
+                    clipPath = painter->clipPath();
+                    painter->setClipPath( transform.map( clipPath ) );
+                }
 
-				painter->resetTransform();
-            	painter->drawPath( transform.map( *cmd.path() ) );
+                painter->resetTransform();
+                painter->drawPath( transform.map( *cmd.path() ) );
 
-				// restore painter
-				painter->setTransform( transform );
-				if ( painter->hasClipping() ) 
-					painter->setClipPath( clipPath );
-			}
-			else
-			{
-				painter->drawPath( *cmd.path() );
-			}
+                // restore painter
+                painter->setTransform( transform );
+                if ( painter->hasClipping() ) 
+                    painter->setClipPath( clipPath );
+            }
+            else
+            {
+                painter->drawPath( *cmd.path() );
+            }
             break;
         }
         case QwtPainterCommand::Pixmap:
@@ -103,6 +140,7 @@ static inline void qwtExecCommand(
         case QwtPainterCommand::State:
         {
             const QwtPainterCommand::StateData *data = cmd.stateData();
+
             if ( data->flags & QPaintEngine::DirtyPen ) 
                 painter->setPen( data->pen );
 
@@ -316,10 +354,10 @@ void QwtVectorGraphic::render( QPainter *painter ) const
     painter->save();
 
     for ( int i = 0; i < numCommands; i++ )
-	{
+    {
         qwtExecCommand( painter, commands[i], 
-			d_data->renderHints, transform );
-	}
+            d_data->renderHints, transform );
+    }
 
     painter->restore();
 }
@@ -340,8 +378,7 @@ void QwtVectorGraphic::render( QPainter *painter, const QRectF &rect,
     const QRectF br = d_data->boundingRect;
     const QRectF pr = d_data->pointRect;
 
-    double sx = 1.0;
-    double sy = 1.0;
+    QRectF targetRect;
 
     if ( rect.size() != br.size() )
     {
@@ -352,28 +389,16 @@ void QwtVectorGraphic::render( QPainter *painter, const QRectF &rect,
             case Qt::IgnoreAspectRatio:
             default:
             {
-                if ( br.width() > 0.0 )
-                    sx = rect.width() / br.width();
-
-                if ( br.height() > 0.0 )
-                    sy = rect.height() / br.height();
-
+                targetRect = rect;
                 break;
             }
         }
     }
 
-    const double dx = sx * br.center().x();
-    const double dy = sy * br.center().y();
-
     const QTransform transform = painter->transform();
 
-    QTransform tr = transform;
-    tr.translate( rect.center().x() - dx,
-        rect.center().y() - dy );
-    tr.scale( sx, sy );
-
-    painter->setTransform( tr );
+    painter->setTransform( 
+        qwtRectTransformation( br, targetRect ), true );
 
     render( painter );
     
@@ -538,8 +563,7 @@ void QwtVectorGraphic::drawImage(
     updateBoundingRect( r );
 }
 
-void QwtVectorGraphic::updateState(
-    const QPaintEngineState &state)
+void QwtVectorGraphic::updateState( const QPaintEngineState &state)
 {
     d_data->commands += QwtPainterCommand( state );
 }
