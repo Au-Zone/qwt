@@ -86,6 +86,8 @@ private:
     void updateBoundingRect( const QRectF & );
     void updatePointRect( const QRectF & );
 
+    class PathInfo;
+
     class PrivateData;
     PrivateData *d_data;
 };
