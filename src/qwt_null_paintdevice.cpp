@@ -233,23 +233,23 @@ void QwtNullPaintDevice::PaintEngine::drawPolygon(
     if ( device == NULL )
         return;
 
-	if ( device->mode() == QwtNullPaintDevice::PathMode )
-	{
-    	QPainterPath path;
+    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    {
+        QPainterPath path;
 
-		if ( pointCount > 0 )
-		{
-    		path.moveTo( points[0] );
-			for ( int i = 1; i < pointCount; i++ )
-        		path.lineTo( points[i] );
+        if ( pointCount > 0 )
+        {
+            path.moveTo( points[0] );
+            for ( int i = 1; i < pointCount; i++ )
+                path.lineTo( points[i] );
 
-			if ( mode != PolylineMode )
-        		path.closeSubpath();
-		}
+            if ( mode != PolylineMode )
+                path.closeSubpath();
+        }
 
-    	device->drawPath( path );
-		return;
-	}
+        device->drawPath( path );
+        return;
+    }
 
     device->drawPolygon( points, pointCount, mode );
 }

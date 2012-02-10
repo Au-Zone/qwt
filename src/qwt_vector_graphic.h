@@ -21,10 +21,10 @@ class QwtPainterCommand;
 class QWT_EXPORT QwtVectorGraphic: public QwtNullPaintDevice
 {
 public:
-	enum RenderHint
-	{
-		RenderPensUnscaled = 0x1
-	};
+    enum RenderHint
+    {
+        RenderPensUnscaled = 0x1
+    };
 
     //! Render hints
     typedef QFlags<RenderHint> RenderHints;
@@ -72,12 +72,12 @@ public:
 protected:
     virtual QSize sizeMetrics() const;
 
-    virtual void drawPath(const QPainterPath &);
+    virtual void drawPath( const QPainterPath & );
 
-    virtual void drawPixmap(const QRectF &,
-        const QPixmap &, const QRectF &);
+    virtual void drawPixmap( const QRectF &,
+        const QPixmap &, const QRectF & );
 
-    virtual void drawImage(const QRectF &,
+    virtual void drawImage( const QRectF &,
         const QImage &, const QRectF &, Qt::ImageConversionFlags );
 
     virtual void updateState( const QPaintEngineState &state );

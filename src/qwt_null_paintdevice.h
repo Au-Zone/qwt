@@ -56,7 +56,7 @@ public:
          */
         PolygonPathMode,
 
-		/*!
+        /*!
            Vector graphic primitives are mapped to a QPainterPath
            and are painted by drawPath. In PathMode mode
            only a few draw methods are called:
@@ -65,7 +65,7 @@ public:
            - drawPixmap()
            - drawImage()
          */
-		PathMode
+        PathMode
     };
 
     QwtNullPaintDevice();
