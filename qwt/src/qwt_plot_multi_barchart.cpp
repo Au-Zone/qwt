@@ -30,13 +30,12 @@ inline static bool qwtIsIncreasing(
     return !isInverting;
 }
 
-static QPixmap qwtLegendIdentifier(
+static QwtVectorGraphic qwtLegendIdentifier(
     const QwtPlotItem *item, int index, const QSize &size )
 {
-    QPixmap pm( size );
-    pm.fill( Qt::transparent );
+    QwtVectorGraphic graphic;
 
-    QPainter painter( &pm );
+    QPainter painter( &graphic );
     painter.setRenderHint( QPainter::Antialiasing,
         item->testRenderHint( QwtPlotItem::RenderAntialiased ) );
 
@@ -45,7 +44,7 @@ static QPixmap qwtLegendIdentifier(
 
     painter.end();
 
-    return pm;
+    return graphic;
 }
 
 class QwtPlotMultiBarChart::PrivateData
@@ -607,8 +606,11 @@ QList<QwtLegendData> QwtPlotMultiBarChart::legendData() const
 
         if ( !legendIdentifierSize().isEmpty() )
         {
-            data.setValue( QwtLegendData::IconRole,
-                qwtLegendIdentifier( this, i, legendIdentifierSize() ) );
+        	QVariant iconValue;
+        	qVariantSetValue( iconValue, 
+				qwtLegendIdentifier( this, i, legendIdentifierSize() ) );
+
+            data.setValue( QwtLegendData::IconRole, iconValue );
         }
 
         list += data;
