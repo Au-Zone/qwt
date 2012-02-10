@@ -8,59 +8,35 @@
 #include <qpainterpath.h>
 #include <qmath.h>
 
-QTransform qwtRectTransformation(
-    const QRectF &rect, const QRectF &targetRect )
+static bool qwtHasScalablePen( const QPainter *painter )
 {
-    if ( rect == targetRect )
-        return QTransform();
-    
-    double sx = 1.0;
-    double sy = 1.0;
+    const QPen pen = painter->pen();
 
-    if ( rect.width() > 0.0 )
-        sx = targetRect.width() / rect.width();
+    bool scalablePen = false;
 
-    if ( rect.height() > 0.0 )
-        sy = targetRect.height() / rect.height();
+    if ( pen.style() != Qt::NoPen && pen.brush().style() != Qt::NoBrush )
+    {
+        scalablePen = !pen.isCosmetic();
+        if ( !scalablePen && pen.widthF() == 0.0 )
+        {
+            const QPainter::RenderHints hints = painter->renderHints();
+            if ( hints.testFlag( QPainter::NonCosmeticDefaultPen ) )
+                scalablePen = true;
+        }
+    }
 
-    QTransform tr;
-    tr.scale( sx, sy );
-
-    const QRectF scaledRect = tr.mapRect( rect );
-
-    const double dx = targetRect.x() - scaledRect.x();
-    const double dy = targetRect.y() - scaledRect.y();
-
-    QTransform transform;
-    transform.translate( dx, dy );
-    transform.scale( sx, sy );
-
-    return transform;
+    return scalablePen;
 }
+
 
 static QRectF qwtStrokedPathRect( 
     const QPainter *painter, const QPainterPath &path )
 {
-    const QPen pen = painter->pen();
-
-    bool scaledPen = false;
-
-    if ( pen.style() != Qt::NoPen && pen.brush().style() != Qt::NoBrush )
-    {
-        scaledPen = !pen.isCosmetic();
-        if ( !scaledPen && pen.widthF() == 0.0 )
-        {
-            const QPainter::RenderHints hints = painter->renderHints();
-            if ( hints.testFlag( QPainter::NonCosmeticDefaultPen ) )
-                scaledPen = true;
-        }
-    }
-
     QPainterPathStroker stroker;
-    stroker.setWidth( pen.widthF() );
+    stroker.setWidth( painter->pen().widthF() );
 
     QRectF rect;
-    if ( scaledPen )
+    if ( qwtHasScalablePen( painter ) )
     {
         QPainterPath stroke = stroker.createStroke(path);
         rect = painter->transform().map(stroke).boundingRect();
@@ -212,6 +188,84 @@ static inline void qwtExecCommand(
 
 }
 
+class QwtVectorGraphic::PathInfo
+{
+public:
+	PathInfo():
+		d_scalablePen( false )
+	{
+		// QVector needs a default constructor
+	}
+
+	PathInfo( const QRectF &pointRect, 
+			const QRectF &boundingRect, bool scalablePen ):
+		d_pointRect( pointRect ),
+		d_boundingRect( boundingRect ),
+		d_scalablePen( scalablePen )
+	{
+	}
+
+    inline QPointF scaleFactor( const QRectF& pathRect, 
+        const QRectF &targetRect ) const
+    {
+        double sx = 0.0;
+        double sy = 0.0;
+
+        const QPointF p0 = d_pointRect.center();
+
+        if ( pathRect.width() > 0.0 )
+        {
+            const double l = qAbs( pathRect.left() - p0.x() );
+            const double r = qAbs( pathRect.right() - p0.x() );
+
+            const double w = 2.0 * qMin( l, r ) 
+                * targetRect.width() / pathRect.width();
+
+            if ( d_scalablePen )
+            {
+                sx = w / d_boundingRect.width();
+            }
+            else
+            {
+                const double pw = qMax( 
+					qAbs( d_boundingRect.left() - d_pointRect.left() ),
+                    qAbs( d_boundingRect.right() - d_pointRect.right() ) );
+
+                sx = ( w - pw ) / d_pointRect.width();
+            }
+        }
+
+        if ( pathRect.height() > 0.0 )
+        {
+            const double t = qAbs( pathRect.top() - p0.y() );
+            const double b = qAbs( pathRect.bottom() - p0.y() );
+
+            const double h = 2.0 * qMin( t, b ) 
+                * targetRect.height() / pathRect.height();
+
+            if ( d_scalablePen )
+            {
+                sy = h / d_boundingRect.height();
+            }
+            else
+            {
+                const double pw = 
+					qMax( qAbs( d_boundingRect.top() - d_pointRect.top() ),
+                    qAbs( d_boundingRect.bottom() - d_pointRect.bottom() ) );
+
+                sy = ( h - pw ) / d_pointRect.height();
+            }
+        }
+
+        return QPointF( sx, sy );
+    }
+
+private:
+    QRectF d_pointRect;
+    QRectF d_boundingRect;
+    bool d_scalablePen;
+};
+
 class QwtVectorGraphic::PrivateData
 {
 public:
@@ -223,6 +277,8 @@ public:
 
     QSizeF defaultSize;
     QVector<QwtPainterCommand> commands;
+    QVector<QwtVectorGraphic::PathInfo> pathInfos;
+
     QRectF boundingRect;
     QRectF pointRect;
 
@@ -257,9 +313,12 @@ QwtVectorGraphic& QwtVectorGraphic::operator=(const QwtVectorGraphic &other)
 void QwtVectorGraphic::reset() 
 {
     d_data->commands.clear();
+    d_data->pathInfos.clear();
+
     d_data->boundingRect = QRectF( 0.0, 0.0, -1.0, -1.0 );
     d_data->pointRect = QRectF( 0.0, 0.0, -1.0, -1.0 );
     d_data->defaultSize = QSizeF();
+
 }
 
 bool QwtVectorGraphic::isNull() const
@@ -372,33 +431,62 @@ void QwtVectorGraphic::render( QPainter *painter, const QSizeF &size,
 void QwtVectorGraphic::render( QPainter *painter, const QRectF &rect, 
     Qt::AspectRatioMode aspectRatioMode ) const
 {
-    if ( isEmpty() )
+    if ( isEmpty() || rect.isEmpty() )
         return;
 
-    const QRectF br = d_data->boundingRect;
-    const QRectF pr = d_data->pointRect;
+    double sx = 1.0; 
+    double sy = 1.0;
 
-    QRectF targetRect;
+    if ( d_data->pointRect.width() > 0.0 )
+        sx = rect.width() / d_data->pointRect.width();
 
-    if ( rect.size() != br.size() )
+    if ( d_data->pointRect.height() > 0.0 )
+        sy = rect.height() / d_data->pointRect.height();
+
+    for ( int i = 0; i < d_data->pathInfos.size(); i++ )
     {
-        switch( aspectRatioMode )
-        {
-            case Qt::KeepAspectRatio:
-            case Qt::KeepAspectRatioByExpanding:
-            case Qt::IgnoreAspectRatio:
-            default:
-            {
-                targetRect = rect;
-                break;
-            }
-        }
+        const PathInfo info = d_data->pathInfos[i];
+
+        const QPointF scaleFactor = 
+            d_data->pathInfos[i].scaleFactor( d_data->pointRect, rect );
+
+        if ( scaleFactor.x() > 0.0 )
+            sx = qMin( sx, scaleFactor.x() );
+
+        if ( scaleFactor.y() > 0.0 )
+            sy = qMin( sy, scaleFactor.y() );
     }
+
+    if ( aspectRatioMode == Qt::KeepAspectRatio )
+    {
+        const double s = qMin( sx, sy );
+        sx = s;
+        sy = s;
+    }
+    else if ( aspectRatioMode == Qt::KeepAspectRatioByExpanding )
+    {
+        const double s = qMax( sx, sy );
+        sx = s;
+        sy = s;
+    }
+
+#if 1
+    QTransform tr0;
+    tr0.scale( sx, sy );
+
+    const QRectF scaledRect = tr0.mapRect( d_data->pointRect );
+
+    const double dx = rect.x() - scaledRect.x();
+    const double dy = rect.y() - scaledRect.y();
+
+    QTransform tr;
+    tr.translate( dx, dy );
+    tr.scale( sx, sy );
+#endif
 
     const QTransform transform = painter->transform();
 
-    painter->setTransform( 
-        qwtRectTransformation( br, targetRect ), true );
+    painter->setTransform( tr, true );
 
     render( painter );
     
@@ -524,11 +612,17 @@ void QwtVectorGraphic::drawPath( const QPainterPath &path )
         QRectF pointRect = scaledPath.boundingRect();
         QRectF boundingRect = pointRect;
 
-        if ( painter->pen().style() != Qt::NoPen )
+        if ( painter->pen().style() != Qt::NoPen 
+            && painter->pen().brush().style() != Qt::NoBrush )
+        {
             boundingRect = qwtStrokedPathRect( painter, path );
+        }
 
         updatePointRect( pointRect );
         updateBoundingRect( boundingRect );
+
+        d_data->pathInfos += PathInfo( pointRect, 
+			boundingRect, qwtHasScalablePen( painter ) );
     }
 }
 
