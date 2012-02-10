@@ -645,7 +645,7 @@ void QwtLegend::renderItem( QPainter *painter,
             rect.center().y() - 0.5 * sz.height(), 
             sz.width(), sz.height() );
 
-        icon.render( painter, iconRect );
+        icon.render( painter, iconRect, Qt::KeepAspectRatio );
 
         // title
 

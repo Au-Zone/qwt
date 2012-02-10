@@ -1,3 +1,12 @@
+/* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
+ * Qwt Widget Library
+ * Copyright (C) 1997   Josef Wilgen
+ * Copyright (C) 2002   Uwe Rathmann
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the Qwt License, Version 1.0
+ *****************************************************************************/
+
 #include "qwt_vector_graphic.h"
 #include "qwt_painter_command.h"
 #include <qvector.h>
@@ -529,8 +538,10 @@ QPixmap QwtVectorGraphic::toPixmap() const
     QPixmap pixmap( w, h );
     pixmap.fill( Qt::transparent );
 
+    const QRectF r( 0.0, 0.0, sz.width(), sz.height() );
+
     QPainter painter( &pixmap );
-    render( &painter, QRectF( 0.0, 0.0, sz.width(), sz.height() ) );
+    render( &painter, r, Qt::KeepAspectRatio );
     painter.end();
 
     return pixmap;
@@ -579,8 +590,10 @@ QImage QwtVectorGraphic::toImage() const
     QImage image( w, h, QImage::Format_ARGB32 );
     image.fill( 0 );
 
+    const QRect r( 0, 0, sz.width(), sz.height() );
+
     QPainter painter( &image );
-    render( &painter, QRectF( 0.0, 0.0, sz.width(), sz.height() ) );
+    render( &painter, r, Qt::KeepAspectRatio );
     painter.end();
 
     return image;

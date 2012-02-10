@@ -132,13 +132,13 @@ QwtPainterCommand::pixmapData() const
     return d_pixmapData;
 }
 
-inline const QwtPainterCommand::ImageData* 
+inline const QwtPainterCommand::ImageData * 
 QwtPainterCommand::imageData() const
 {
     return d_imageData;
 }
 
-inline const QwtPainterCommand::StateData* 
+inline const QwtPainterCommand::StateData * 
 QwtPainterCommand::stateData() const
 {
     return d_stateData;
