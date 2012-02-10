@@ -191,19 +191,19 @@ static inline void qwtExecCommand(
 class QwtVectorGraphic::PathInfo
 {
 public:
-	PathInfo():
-		d_scalablePen( false )
-	{
-		// QVector needs a default constructor
-	}
+    PathInfo():
+        d_scalablePen( false )
+    {
+        // QVector needs a default constructor
+    }
 
-	PathInfo( const QRectF &pointRect, 
-			const QRectF &boundingRect, bool scalablePen ):
-		d_pointRect( pointRect ),
-		d_boundingRect( boundingRect ),
-		d_scalablePen( scalablePen )
-	{
-	}
+    PathInfo( const QRectF &pointRect, 
+            const QRectF &boundingRect, bool scalablePen ):
+        d_pointRect( pointRect ),
+        d_boundingRect( boundingRect ),
+        d_scalablePen( scalablePen )
+    {
+    }
 
     inline QPointF scaleFactor( const QRectF& pathRect, 
         const QRectF &targetRect ) const
@@ -228,7 +228,7 @@ public:
             else
             {
                 const double pw = qMax( 
-					qAbs( d_boundingRect.left() - d_pointRect.left() ),
+                    qAbs( d_boundingRect.left() - d_pointRect.left() ),
                     qAbs( d_boundingRect.right() - d_pointRect.right() ) );
 
                 sx = ( w - pw ) / d_pointRect.width();
@@ -250,7 +250,7 @@ public:
             else
             {
                 const double pw = 
-					qMax( qAbs( d_boundingRect.top() - d_pointRect.top() ),
+                    qMax( qAbs( d_boundingRect.top() - d_pointRect.top() ),
                     qAbs( d_boundingRect.bottom() - d_pointRect.bottom() ) );
 
                 sy = ( h - pw ) / d_pointRect.height();
@@ -470,26 +470,15 @@ void QwtVectorGraphic::render( QPainter *painter, const QRectF &rect,
         sy = s;
     }
 
-#if 1
-    QTransform tr0;
-    tr0.scale( sx, sy );
-
-    const QRectF scaledRect = tr0.mapRect( d_data->pointRect );
-
-    const double dx = rect.x() - scaledRect.x();
-    const double dy = rect.y() - scaledRect.y();
-
     QTransform tr;
-    tr.translate( dx, dy );
+    tr.translate( rect.center().x() - 0.5 * sx * d_data->pointRect.width(),
+        rect.center().y() - 0.5 * sy * d_data->pointRect.height() );
     tr.scale( sx, sy );
-#endif
+    tr.translate( -d_data->pointRect.x(), -d_data->pointRect.y() );
 
     const QTransform transform = painter->transform();
-
     painter->setTransform( tr, true );
-
     render( painter );
-    
     painter->setTransform( transform );
 }
 
@@ -622,7 +611,7 @@ void QwtVectorGraphic::drawPath( const QPainterPath &path )
         updateBoundingRect( boundingRect );
 
         d_data->pathInfos += PathInfo( pointRect, 
-			boundingRect, qwtHasScalablePen( painter ) );
+            boundingRect, qwtHasScalablePen( painter ) );
     }
 }
 
