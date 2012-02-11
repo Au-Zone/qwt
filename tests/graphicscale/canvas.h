@@ -2,7 +2,7 @@
 
 class QByteArray;
 class QSvgRenderer;
-class QwtVectorGraphic;
+class QwtGraphic;
 
 class Canvas: public QWidget
 {
@@ -28,6 +28,6 @@ private:
 	union
 	{
     	QSvgRenderer *d_renderer;
-		QwtVectorGraphic *d_graphic;
+		QwtGraphic *d_graphic;
 	};
 };
