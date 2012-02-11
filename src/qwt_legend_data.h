@@ -12,7 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_text.h"
-#include "qwt_vector_graphic.h"
+#include "qwt_graphic.h"
 #include <qvariant.h>
 #include <qpixmap.h>
 #include <qmap.h>
@@ -57,7 +57,7 @@ public:
     bool hasRole( int role ) const;
     bool isValid() const;
 
-    QwtVectorGraphic icon() const;
+    QwtGraphic icon() const;
     QwtText title() const;
     Mode mode() const;
 

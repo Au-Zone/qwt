@@ -55,26 +55,26 @@ QwtText QwtLegendData::title() const
     QwtText text;
 
     const QVariant titleValue = value( QwtLegendData::TitleRole );
-    if ( qVariantCanConvert<QwtText>( titleValue ) )
+    if ( titleValue.canConvert<QwtText>() )
     {
-        text = qVariantValue<QwtText>( titleValue );
+        text = qvariant_cast<QwtText>( titleValue );
     }
-    else if ( qVariantCanConvert<QString>( titleValue ) )
+    else if ( titleValue.canConvert<QString>( titleValue ) )
     {
-        text.setText( qVariantValue<QString>( titleValue ) );
+        text.setText( qvariant_cast<QString>( titleValue ) );
     }
 
     return text;
 }
 
-QwtVectorGraphic QwtLegendData::icon() const
+QwtGraphic QwtLegendData::icon() const
 {
     const QVariant iconValue = value( QwtLegendData::IconRole );
 
-    QwtVectorGraphic graphic;
-    if ( qVariantCanConvert<QwtVectorGraphic>( iconValue ) )
+    QwtGraphic graphic;
+    if ( iconValue.canConvert<QwtGraphic>() )
     {
-        graphic = qVariantValue<QwtVectorGraphic>( iconValue );
+        graphic = qvariant_cast<QwtGraphic>( iconValue );
     }
 
     return graphic;
@@ -83,9 +83,9 @@ QwtVectorGraphic QwtLegendData::icon() const
 QwtLegendData::Mode QwtLegendData::mode() const
 {
     const QVariant modeValue = value( QwtLegendData::ModeRole );
-    if ( qVariantCanConvert<int>( modeValue ) )
+    if ( modeValue.canConvert<int>() )
     {
-        const int mode = qVariantValue<int>( modeValue );
+        const int mode = qvariant_cast<int>( modeValue );
         return static_cast<QwtLegendData::Mode>( mode );
     }
     

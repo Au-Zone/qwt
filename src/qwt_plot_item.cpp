@@ -12,7 +12,7 @@
 #include "qwt_plot.h"
 #include "qwt_legend_data.h"
 #include "qwt_scale_div.h"
-#include "qwt_vector_graphic.h"
+#include "qwt_graphic.h"
 #include <qpainter.h>
 
 class QwtPlotItem::PrivateData
@@ -470,7 +470,7 @@ QList<QwtLegendData> QwtPlotItem::legendData() const
     const QSize sz = legendIdentifierSize();
     if ( !sz.isEmpty() )
     {   
-        QwtVectorGraphic graphic;
+        QwtGraphic graphic;
         graphic.setDefaultSize( sz );
 
         QPainter painter( &graphic );

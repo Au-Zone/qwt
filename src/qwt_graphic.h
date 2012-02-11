@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_VECTOR_GRAPHIC_H
-#define QWT_VECTOR_GRAPHIC_H
+#ifndef QWT_GRAPHIC_H
+#define QWT_GRAPHIC_H
 
 #include "qwt_global.h"
 #include "qwt_null_paintdevice.h"
@@ -18,7 +18,7 @@
 
 class QwtPainterCommand;
 
-class QWT_EXPORT QwtVectorGraphic: public QwtNullPaintDevice
+class QWT_EXPORT QwtGraphic: public QwtNullPaintDevice
 {
 public:
     enum RenderHint
@@ -29,12 +29,12 @@ public:
     //! Render hints
     typedef QFlags<RenderHint> RenderHints;
 
-    QwtVectorGraphic();
-    QwtVectorGraphic( const QwtVectorGraphic & );
+    QwtGraphic();
+    QwtGraphic( const QwtGraphic & );
 
-    virtual ~QwtVectorGraphic();
+    virtual ~QwtGraphic();
 
-    QwtVectorGraphic& operator=(const QwtVectorGraphic &p);
+    QwtGraphic& operator=(const QwtGraphic &p);
 
     void reset();
 
@@ -92,7 +92,7 @@ private:
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtVectorGraphic::RenderHints )
-Q_DECLARE_METATYPE( QwtVectorGraphic )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtGraphic::RenderHints )
+Q_DECLARE_METATYPE( QwtGraphic )
 
 #endif
