@@ -7,7 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_vector_graphic.h"
+#include "qwt_graphic.h"
 #include "qwt_painter_command.h"
 #include <qvector.h>
 #include <qpainter.h>
@@ -61,7 +61,7 @@ static QRectF qwtStrokedPathRect(
 
 static inline void qwtExecCommand( 
     QPainter *painter, const QwtPainterCommand &cmd, 
-    QwtVectorGraphic::RenderHints renderHints,
+    QwtGraphic::RenderHints renderHints,
     const QTransform &transform )
 {
     switch( cmd.type() )
@@ -70,7 +70,7 @@ static inline void qwtExecCommand(
         {
             bool doMap = false;
 
-            if ( renderHints.testFlag( QwtVectorGraphic::RenderPensUnscaled )
+            if ( renderHints.testFlag( QwtGraphic::RenderPensUnscaled )
                 && painter->transform().isScaling() )
             {
                 bool isCosmetic = painter->pen().isCosmetic();
@@ -197,7 +197,7 @@ static inline void qwtExecCommand(
 
 }
 
-class QwtVectorGraphic::PathInfo
+class QwtGraphic::PathInfo
 {
 public:
     PathInfo():
@@ -275,7 +275,7 @@ private:
     bool d_scalablePen;
 };
 
-class QwtVectorGraphic::PrivateData
+class QwtGraphic::PrivateData
 {
 public:
     PrivateData():
@@ -286,32 +286,32 @@ public:
 
     QSizeF defaultSize;
     QVector<QwtPainterCommand> commands;
-    QVector<QwtVectorGraphic::PathInfo> pathInfos;
+    QVector<QwtGraphic::PathInfo> pathInfos;
 
     QRectF boundingRect;
     QRectF pointRect;
 
-    QwtVectorGraphic::RenderHints renderHints;
+    QwtGraphic::RenderHints renderHints;
 };
 
-QwtVectorGraphic::QwtVectorGraphic()
+QwtGraphic::QwtGraphic()
 {
     setMode( QwtNullPaintDevice::PathMode );
     d_data = new PrivateData;
 }
 
-QwtVectorGraphic::QwtVectorGraphic( const QwtVectorGraphic &other )
+QwtGraphic::QwtGraphic( const QwtGraphic &other )
 {
     setMode( other.mode() );
     d_data = new PrivateData( *other.d_data );
 }
 
-QwtVectorGraphic::~QwtVectorGraphic()
+QwtGraphic::~QwtGraphic()
 {
     delete d_data;
 }
 
-QwtVectorGraphic& QwtVectorGraphic::operator=(const QwtVectorGraphic &other)
+QwtGraphic& QwtGraphic::operator=(const QwtGraphic &other)
 {
     setMode( other.mode() );
     *d_data = *other.d_data;
@@ -319,7 +319,7 @@ QwtVectorGraphic& QwtVectorGraphic::operator=(const QwtVectorGraphic &other)
     return *this;
 }
 
-void QwtVectorGraphic::reset() 
+void QwtGraphic::reset() 
 {
     d_data->commands.clear();
     d_data->pathInfos.clear();
@@ -330,12 +330,12 @@ void QwtVectorGraphic::reset()
 
 }
 
-bool QwtVectorGraphic::isNull() const
+bool QwtGraphic::isNull() const
 {
     return d_data->commands.isEmpty();
 }
 
-bool QwtVectorGraphic::isEmpty() const
+bool QwtGraphic::isEmpty() const
 {
     return d_data->boundingRect.isEmpty();
 }
@@ -348,7 +348,7 @@ bool QwtVectorGraphic::isEmpty() const
 
    \sa testRenderHint(), RenderHint
 */
-void QwtVectorGraphic::setRenderHint( RenderHint hint, bool on )
+void QwtGraphic::setRenderHint( RenderHint hint, bool on )
 {
     if ( d_data->renderHints.testFlag( hint ) != on )
     {
@@ -366,12 +366,12 @@ void QwtVectorGraphic::setRenderHint( RenderHint hint, bool on )
    \return true/false
    \sa setRenderHint(), RenderHint
 */
-bool QwtVectorGraphic::testRenderHint( RenderHint hint ) const
+bool QwtGraphic::testRenderHint( RenderHint hint ) const
 {
     return d_data->renderHints.testFlag( hint );
 }
 
-QRectF QwtVectorGraphic::boundingRect() const
+QRectF QwtGraphic::boundingRect() const
 {
     if ( d_data->boundingRect.width() < 0 )
         return QRectF();
@@ -379,7 +379,7 @@ QRectF QwtVectorGraphic::boundingRect() const
     return d_data->boundingRect;
 }
 
-QRectF QwtVectorGraphic::pointRect() const
+QRectF QwtGraphic::pointRect() const
 {
     if ( d_data->pointRect.width() < 0 )
         return QRectF();
@@ -387,13 +387,13 @@ QRectF QwtVectorGraphic::pointRect() const
     return d_data->pointRect;
 }
 
-QSize QwtVectorGraphic::sizeMetrics() const
+QSize QwtGraphic::sizeMetrics() const
 {
     const QSizeF sz = defaultSize();
     return QSize( qCeil( sz.width() ), qCeil( sz.height() ) );
 }
 
-void QwtVectorGraphic::setDefaultSize( const QSizeF &size )
+void QwtGraphic::setDefaultSize( const QSizeF &size )
 {
     const double w = qMax( 0.0, size.width() );
     const double h = qMax( 0.0, size.height() );
@@ -401,7 +401,7 @@ void QwtVectorGraphic::setDefaultSize( const QSizeF &size )
     d_data->defaultSize = QSizeF( w, h );
 }
 
-QSizeF QwtVectorGraphic::defaultSize() const
+QSizeF QwtGraphic::defaultSize() const
 {
     if ( !d_data->defaultSize.isEmpty() )
         return d_data->defaultSize;
@@ -409,7 +409,7 @@ QSizeF QwtVectorGraphic::defaultSize() const
     return boundingRect().size();
 }
 
-void QwtVectorGraphic::render( QPainter *painter ) const
+void QwtGraphic::render( QPainter *painter ) const
 {
     if ( isNull() )
         return;
@@ -430,14 +430,14 @@ void QwtVectorGraphic::render( QPainter *painter ) const
     painter->restore();
 }
 
-void QwtVectorGraphic::render( QPainter *painter, const QSizeF &size, 
+void QwtGraphic::render( QPainter *painter, const QSizeF &size, 
     Qt::AspectRatioMode aspectRatioMode ) const
 {
     const QRectF r( 0.0, 0.0, size.width(), size.height() );
     render( painter, r, aspectRatioMode );
 }
 
-void QwtVectorGraphic::render( QPainter *painter, const QRectF &rect, 
+void QwtGraphic::render( QPainter *painter, const QRectF &rect, 
     Qt::AspectRatioMode aspectRatioMode ) const
 {
     if ( isEmpty() || rect.isEmpty() )
@@ -491,7 +491,7 @@ void QwtVectorGraphic::render( QPainter *painter, const QRectF &rect,
     painter->setTransform( transform );
 }
 
-void QwtVectorGraphic::render( QPainter *painter, 
+void QwtGraphic::render( QPainter *painter, 
     const QPointF &pos, Qt::Alignment alignment ) const
 {
     QRectF r( pos, defaultSize() );
@@ -525,7 +525,7 @@ void QwtVectorGraphic::render( QPainter *painter,
     render( painter, r );
 }
 
-QPixmap QwtVectorGraphic::toPixmap() const
+QPixmap QwtGraphic::toPixmap() const
 {
     if ( isNull() )
         return QPixmap();
@@ -547,7 +547,7 @@ QPixmap QwtVectorGraphic::toPixmap() const
     return pixmap;
 }
 
-QPixmap QwtVectorGraphic::toPixmap( const QSize &size,
+QPixmap QwtGraphic::toPixmap( const QSize &size,
     Qt::AspectRatioMode aspectRatioMode ) const
 {
     QPixmap pixmap( size );
@@ -562,7 +562,7 @@ QPixmap QwtVectorGraphic::toPixmap( const QSize &size,
     return pixmap;
 }
 
-QImage QwtVectorGraphic::toImage( const QSize &size,
+QImage QwtGraphic::toImage( const QSize &size,
     Qt::AspectRatioMode aspectRatioMode  ) const
 {
     QImage image( size, QImage::Format_ARGB32 );
@@ -577,7 +577,7 @@ QImage QwtVectorGraphic::toImage( const QSize &size,
     return image;
 }
 
-QImage QwtVectorGraphic::toImage() const
+QImage QwtGraphic::toImage() const
 {
     if ( isNull() )
         return QImage();
@@ -599,7 +599,7 @@ QImage QwtVectorGraphic::toImage() const
     return image;
 }
 
-void QwtVectorGraphic::drawPath( const QPainterPath &path )
+void QwtGraphic::drawPath( const QPainterPath &path )
 {
     const QPainter *painter = paintEngine()->painter();
     if ( painter == NULL )
@@ -628,7 +628,7 @@ void QwtVectorGraphic::drawPath( const QPainterPath &path )
     }
 }
 
-void QwtVectorGraphic::drawPixmap(
+void QwtGraphic::drawPixmap(
     const QRectF &rect, const QPixmap &pixmap, 
     const QRectF &subRect )
 {
@@ -643,7 +643,7 @@ void QwtVectorGraphic::drawPixmap(
     updateBoundingRect( r );
 }
 
-void QwtVectorGraphic::drawImage(
+void QwtGraphic::drawImage(
     const QRectF &rect, const QImage &image,
     const QRectF &subRect, Qt::ImageConversionFlags flags)
 {
@@ -659,12 +659,12 @@ void QwtVectorGraphic::drawImage(
     updateBoundingRect( r );
 }
 
-void QwtVectorGraphic::updateState( const QPaintEngineState &state)
+void QwtGraphic::updateState( const QPaintEngineState &state)
 {
     d_data->commands += QwtPainterCommand( state );
 }
 
-void QwtVectorGraphic::updateBoundingRect( const QRectF &rect )
+void QwtGraphic::updateBoundingRect( const QRectF &rect )
 {
     QRectF br = rect;
 
@@ -683,7 +683,7 @@ void QwtVectorGraphic::updateBoundingRect( const QRectF &rect )
         d_data->boundingRect |= br;
 }
 
-void QwtVectorGraphic::updatePointRect( const QRectF &rect )
+void QwtGraphic::updatePointRect( const QRectF &rect )
 {
     if ( d_data->pointRect.width() < 0.0 )
         d_data->pointRect = rect;
@@ -691,12 +691,12 @@ void QwtVectorGraphic::updatePointRect( const QRectF &rect )
         d_data->pointRect |= rect;
 }
 
-const QVector< QwtPainterCommand > &QwtVectorGraphic::commands() const
+const QVector< QwtPainterCommand > &QwtGraphic::commands() const
 {
     return d_data->commands;
 }
 
-void QwtVectorGraphic::setCommands( QVector< QwtPainterCommand > &commands )
+void QwtGraphic::setCommands( QVector< QwtPainterCommand > &commands )
 {
     reset();
 

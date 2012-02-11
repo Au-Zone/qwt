@@ -553,7 +553,7 @@ void QwtPlotLegendItem::drawLegendData( QPainter *painter,
 
     int titleOff = 0;
 
-    const QwtVectorGraphic graphic = data.icon();
+    const QwtGraphic graphic = data.icon();
     if ( !graphic.isEmpty() )
     {
         QRectF iconRect( r.topLeft(), graphic.defaultSize() );
@@ -584,7 +584,7 @@ QSize QwtPlotLegendItem::minimumSize( const QwtLegendData &data ) const
     if ( !data.isValid() )
         return size;
 
-    const QwtVectorGraphic graphic = data.icon();
+    const QwtGraphic graphic = data.icon();
     const QwtText text = data.title();
 
     int w = 0;
@@ -616,7 +616,7 @@ int QwtPlotLegendItem::heightForWidth(
 {
     w -= 2 * d_data->itemMargin;
 
-    const QwtVectorGraphic graphic = data.icon();
+    const QwtGraphic graphic = data.icon();
     const QwtText text = data.title();
 
     if ( text.isEmpty() )

@@ -12,7 +12,7 @@
 #include "qwt_math.h"
 #include "qwt_painter.h"
 #include "qwt_symbol.h"
-#include "qwt_vector_graphic.h"
+#include "qwt_graphic.h"
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qstyle.h>

@@ -9,7 +9,7 @@
 
 #include "qwt_symbol.h"
 #include "qwt_painter.h"
-#include "qwt_vector_graphic.h"
+#include "qwt_graphic.h"
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qpainterpath.h>
@@ -161,8 +161,7 @@ static inline void qwtDrawSvgSymbols( QPainter *painter,
 static inline void qwtDrawGraphicSymbols( QPainter *painter, 
     const QPointF *points, int numPoints, const QwtSymbol &symbol )
 {
-    QwtVectorGraphic &graphic = 
-        const_cast< QwtVectorGraphic & >( symbol.graphic() );
+    QwtGraphic &graphic = const_cast< QwtGraphic & >( symbol.graphic() );
 
     const QRectF graphicRect = graphic.pointRect();
     if ( graphicRect.isEmpty() )
@@ -841,7 +840,7 @@ public:
 
     struct Graphic
     {
-        QwtVectorGraphic graphic;
+        QwtGraphic graphic;
 
     } graphic;
 
@@ -1017,13 +1016,13 @@ const QPixmap &QwtSymbol::pixmap() const
     return d_data->pixmap.pixmap;
 }
 
-void QwtSymbol::setGraphic( const QwtVectorGraphic &graphic )
+void QwtSymbol::setGraphic( const QwtGraphic &graphic )
 {
     d_data->style = QwtSymbol::Graphic;
     d_data->graphic.graphic = graphic;
 }
 
-const QwtVectorGraphic &QwtSymbol::graphic() const
+const QwtGraphic &QwtSymbol::graphic() const
 {
     return d_data->graphic.graphic;
 }

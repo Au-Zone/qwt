@@ -638,7 +638,7 @@ void QwtLegend::renderItem( QPainter *painter,
     {
         // identifier
 
-        const QwtVectorGraphic &icon = label->data().icon();
+        const QwtGraphic &icon = label->data().icon();
         const QSizeF sz = icon.defaultSize();
 
         const QRectF iconRect( rect.x() + label->margin(),

@@ -30,10 +30,10 @@ inline static bool qwtIsIncreasing(
     return !isInverting;
 }
 
-static QwtVectorGraphic qwtLegendIdentifier(
+static QwtGraphic qwtLegendIdentifier(
     const QwtPlotItem *item, int index, const QSize &size )
 {
-    QwtVectorGraphic graphic;
+    QwtGraphic graphic;
 
     QPainter painter( &graphic );
     painter.setRenderHint( QPainter::Antialiasing,
