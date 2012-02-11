@@ -1,5 +1,5 @@
 #include "canvas.h"
-#include <qwt_vector_graphic.h>
+#include <qwt_graphic.h>
 #include <qsvgrenderer.h>
 
 Canvas::Canvas( Mode mode, QWidget *parent ):
@@ -12,7 +12,7 @@ Canvas::Canvas( Mode mode, QWidget *parent ):
 	if ( d_mode == Svg )
 		d_renderer = new QSvgRenderer( this );
 	else
-		d_graphic = new QwtVectorGraphic;
+		d_graphic = new QwtGraphic();
 }
 
 Canvas::~Canvas()
