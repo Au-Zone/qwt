@@ -31,60 +31,39 @@ namespace QwtTriangle
     };
 }
 
-static inline QRectF qwtPathBoundingRect( 
-    const QPainterPath &path, const QPen &pen )
+static QwtGraphic qwtPathGraphic( const QPainterPath &path, 
+    const QPen &pen, const QBrush& brush )
 {
-    QPainterPathStroker stroker;
-    stroker.setDashPattern( pen.style() );
-    stroker.setWidth( pen.widthF() );
-    stroker.setJoinStyle( pen.joinStyle() );
-    stroker.setCapStyle( pen.capStyle() );
-    stroker.setMiterLimit( pen.miterLimit() );
+    QwtGraphic graphic;
+    graphic.setRenderHint( QwtGraphic::RenderPensUnscaled );
 
-    const QPainterPath strokedPath = stroker.createStroke( path );
-    return strokedPath.boundingRect();
+    QPainter painter( &graphic );
+    painter.setPen( pen );
+    painter.setBrush( brush );
+    painter.drawPath( path );
+    painter.end();
+
+    return graphic;
 }
 
-static inline void qwtDrawPathSymbols( QPainter *painter, 
-    const QRectF &pathRect, const QPointF *points, int numPoints, 
-    const QwtSymbol &symbol )
+static inline QRectF qwtScaledBoundingRect( 
+    const QwtGraphic &graphic, const QSizeF size )
 {
-    if ( pathRect.isEmpty() )
-        return;
-
-    painter->setBrush( symbol.brush() );
-    painter->setPen( symbol.pen() );
+    QSizeF scaledSize = size;
+    if ( scaledSize.isEmpty() )
+        scaledSize = graphic.defaultSize();
+        
+    const QSizeF sz = graphic.controlPointRect().size();
 
     double sx = 1.0;
+    if ( sz.width() > 0.0 )
+        sx = scaledSize.width() / sz.width();
+    
     double sy = 1.0;
+    if ( sz.height() > 0.0 )
+        sy = scaledSize.height() / sz.height();
 
-    const QSize sz = symbol.size();
-    if ( sz.isValid() )
-    {
-        sx = sz.width() / pathRect.width();
-        sy = sz.height() / pathRect.height();
-    }
-
-    QPointF pinPoint = pathRect.center();
-    if ( symbol.isPinPointEnabled() )
-        pinPoint = symbol.pinPoint();
-
-    const double dx = sx * pinPoint.x();
-    const double dy = sy * pinPoint.y();
-
-    for ( int i = 0; i < numPoints; i++ )
-    {
-        // to avoid scaling of non cosmetic pens we
-        // map the path instead of setting the transformation
-        // for the painter
-
-        QTransform transform;
-        transform.translate( points[i].x() - dx, points[i].y() - dy );
-        transform.scale( sx, sy );
-
-        const QPainterPath path = transform.map( symbol.path() );
-        painter->drawPath( path );
-    }
+    return graphic.scaledBoundingRect( sx, sy );
 }
 
 static inline void qwtDrawPixmapSymbols( QPainter *painter,
@@ -160,10 +139,9 @@ static inline void qwtDrawSvgSymbols( QPainter *painter,
 #endif
 
 static inline void qwtDrawGraphicSymbols( QPainter *painter, 
-    const QPointF *points, int numPoints, const QwtSymbol &symbol )
+    const QPointF *points, int numPoints, const QwtGraphic &graphic,
+    const QwtSymbol &symbol )
 {
-    QwtGraphic &graphic = const_cast< QwtGraphic & >( symbol.graphic() );
-
 #if 0
     const QRectF graphicRect = graphic.controlPointRect();
 #else
@@ -823,9 +801,8 @@ public:
 
     struct Path
     {
-        QRectF pathRect;
-        QRectF outerRect;
         QPainterPath path;
+        QwtGraphic graphic;
 
     } path;
 
@@ -989,8 +966,7 @@ void QwtSymbol::setPath( const QPainterPath &path )
 {
     d_data->style = QwtSymbol::Path;
     d_data->path.path = path;
-    d_data->path.pathRect = path.boundingRect();
-    d_data->path.outerRect = QRectF( 0.0, 0.0, -1.0, -1.0 );
+    d_data->path.graphic.reset();
 }
 
 /*!
@@ -1093,6 +1069,9 @@ void QwtSymbol::setBrush( const QBrush &brush )
     {
         d_data->brush = brush;
         invalidateCache();
+
+        if ( d_data->style == QwtSymbol::Path )
+            d_data->path.graphic.reset();
     }
 }
 
@@ -1119,7 +1098,9 @@ void QwtSymbol::setPen( const QPen &pen )
     {
         d_data->pen = pen;
         invalidateCache();
-        d_data->path.outerRect = QRectF( 0.0, 0.0, -1.0, -1.0 );
+
+        if ( d_data->style == QwtSymbol::Path )
+            d_data->path.graphic.reset();
     }
 }
 
@@ -1449,8 +1430,14 @@ void QwtSymbol::renderSymbols( QPainter *painter,
         }
         case QwtSymbol::Path:
         {
-            qwtDrawPathSymbols( painter, d_data->path.pathRect, 
-                points, numPoints, *this );
+            if ( d_data->path.graphic.isNull() )
+            {
+                d_data->path.graphic = qwtPathGraphic( d_data->path.path, 
+                    d_data->pen, d_data->brush );
+            }
+
+            qwtDrawGraphicSymbols( painter, points, numPoints, 
+                d_data->path.graphic, *this );
             break;
         }
         case QwtSymbol::Pixmap:
@@ -1460,7 +1447,8 @@ void QwtSymbol::renderSymbols( QPainter *painter,
         }
         case QwtSymbol::Graphic:
         {
-            qwtDrawGraphicSymbols( painter, points, numPoints, *this );
+            qwtDrawGraphicSymbols( painter, points, numPoints, 
+                d_data->graphic.graphic, *this );
             break;
         }
         case QwtSymbol::SvgDocument:
@@ -1514,48 +1502,14 @@ QRect QwtSymbol::boundingRect() const
         }
         case QwtSymbol::Path:
         {
-            qreal pw = 0.0;
-            if ( d_data->pen.style() != Qt::NoPen )
-                pw = qMax( d_data->pen.widthF(), qreal( 1.0 ) );
-
-            if ( d_data->pen.style() != Qt::NoPen &&
-                d_data->pen.widthF() > 0.0 )
+            if ( d_data->path.graphic.isNull() )
             {
-                if ( d_data->path.outerRect.width() < 0 )
-                {
-                    d_data->path.outerRect = 
-                        qwtPathBoundingRect( d_data->path.path, d_data->pen );
-                    d_data->path.outerRect.moveCenter( 
-                        d_data->path.pathRect.center() );
-                }
-
-                rect = d_data->path.outerRect;
-            }
-            else
-            {
-                const double m = 2 * pw;
-                rect = d_data->path.pathRect.adjusted( -m, -m, m, m );
+                d_data->path.graphic = qwtPathGraphic(
+                    d_data->path.path, d_data->pen, d_data->brush );
             }
 
-            QPointF pinPoint( 0.0, 0.0 );
-            if ( d_data->isPinPointEnabled )
-                pinPoint = rect.center() - d_data->pinPoint;
-
-            rect.moveCenter( pinPoint );
-
-            if ( d_data->size.isValid() && !rect.isEmpty() )
-            {
-                const QSizeF sz = rect.size() - 
-                    0.5 * ( rect.size() - d_data->path.pathRect.size() );
-
-                const double sx = d_data->size.width() / sz.width();
-                const double sy = d_data->size.height() / sz.height();
-
-                QTransform transform;
-                transform.scale( sx, sy );
-
-                rect = transform.mapRect( rect );
-            }
+            rect = qwtScaledBoundingRect( 
+                d_data->path.graphic, d_data->size );
 
             break;
         }
@@ -1568,23 +1522,14 @@ QRect QwtSymbol::boundingRect() const
             
             rect.moveCenter( QPointF( 0.0, 0.0 ) );
 
+            // pinpoint ???
             break;
         }
         case QwtSymbol::Graphic:
         {
-            rect = d_data->graphic.graphic.boundingRect();
-            if ( d_data->size.isValid() && !rect.isEmpty() )
-            {
-                QSizeF sz = rect.size();
+            rect = qwtScaledBoundingRect( 
+                d_data->graphic.graphic, d_data->size );
 
-                const double sx = d_data->size.width() / sz.width();
-                const double sy = d_data->size.height() / sz.height();
-
-                QTransform transform;
-                transform.scale( sx, sy );
-
-                rect = transform.mapRect( rect );
-            }
             break;
         }
 #ifndef QWT_NO_SVG
@@ -1595,8 +1540,10 @@ QRect QwtSymbol::boundingRect() const
 
             if ( d_data->size.isValid() && !rect.isEmpty() )
             {
-                const double sx = d_data->size.width() / rect.width();
-                const double sy = d_data->size.height() / rect.height();
+                QSizeF sz = rect.size();
+
+                const double sx = d_data->size.width() / sz.width();
+                const double sy = d_data->size.height() / sz.height();
 
                 QTransform transform;
                 transform.scale( sx, sy );
@@ -1613,6 +1560,26 @@ QRect QwtSymbol::boundingRect() const
         }
     }
 
+    if ( d_data->style == QwtSymbol::Graphic || 
+        d_data->style == QwtSymbol::SvgDocument || d_data->style == QwtSymbol::Path )
+    {
+        QPointF pinPoint( 0.0, 0.0 );
+        if ( d_data->isPinPointEnabled )
+            pinPoint = rect.center() - d_data->pinPoint;
+
+        rect.moveCenter( pinPoint );
+
+        if ( d_data->size.isValid() && !rect.isEmpty() )
+        {
+            const double sx = d_data->size.width() / rect.width();
+            const double sy = d_data->size.height() / rect.height();
+
+            QTransform transform;
+            transform.scale( sx, sy );
+
+            rect = transform.mapRect( rect );
+        }
+    }
 
     QRect r;
     r.setLeft( qFloor( rect.left() ) );

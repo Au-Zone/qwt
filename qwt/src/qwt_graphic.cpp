@@ -37,7 +37,6 @@ static bool qwtHasScalablePen( const QPainter *painter )
     return scalablePen;
 }
 
-
 static QRectF qwtStrokedPathRect( 
     const QPainter *painter, const QPainterPath &path )
 {
@@ -53,7 +52,9 @@ static QRectF qwtStrokedPathRect(
     else
     {
         QPainterPath mappedPath = painter->transform().map(path);
-        rect = stroker.createStroke( mappedPath ).boundingRect();
+        mappedPath = stroker.createStroke( mappedPath );
+
+        rect = mappedPath.boundingRect();
     }
 
     return rect;
@@ -212,6 +213,34 @@ public:
         d_boundingRect( boundingRect ),
         d_scalablePen( scalablePen )
     {
+    }
+
+    inline QRectF scaledBoundingRect( double sx, double sy ) const
+    {
+        if ( sx == 1.0 && sy == 1.0 )
+            return d_boundingRect;
+
+        QTransform transform;
+        transform.scale( sx, sy );
+
+        QRectF rect;
+        if ( d_scalablePen )
+        {
+            rect = transform.mapRect( d_boundingRect );
+        }
+        else
+        {
+            rect = transform.mapRect( d_pointRect );
+
+            const double l = qAbs( d_pointRect.left() - d_boundingRect.left() );
+            const double r = qAbs( d_pointRect.right() - d_boundingRect.right() );
+            const double t = qAbs( d_pointRect.top() - d_boundingRect.top() );
+            const double b = qAbs( d_pointRect.bottom() - d_boundingRect.bottom() );
+
+            rect.adjust( -l, -t, r, b );
+        }
+
+        return rect;
     }
 
     inline QPointF scaleFactor( const QRectF& pathRect, 
@@ -382,6 +411,22 @@ QRectF QwtGraphic::controlPointRect() const
         return QRectF();
 
     return d_data->pointRect;
+}
+
+QRectF QwtGraphic::scaledBoundingRect( double sx, double sy ) const
+{
+    if ( sx == 1.0 && sy == 1.0 )
+        return d_data->boundingRect;
+
+    QTransform transform;
+    transform.scale( sx, sy );
+
+    QRectF rect = transform.mapRect( d_data->pointRect );
+
+    for ( int i = 0; i < d_data->pathInfos.size(); i++ )
+        rect |= d_data->pathInfos[i].scaledBoundingRect( sx, sy );
+
+    return rect;
 }
 
 QSize QwtGraphic::sizeMetrics() const
