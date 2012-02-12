@@ -637,22 +637,17 @@ void QwtPlotHistogram::drawColumn( QPainter *painter,
 }
 
 /*!
-  Draw a plain rectangle without pen using the brush() as identifier
+   A plain rectangle without pen using the brush()
 
-  \param painter Painter
-  \param rect Bounding rectangle for the identifier
+   \param index Index of the legend entry 
+                ( ignored as there is only one )
+   \param size Icon size
+    
+   \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
 */
-void QwtPlotHistogram::drawLegendIdentifier( int index,
-    QPainter *painter, const QRectF &rect ) const
+QwtGraphic QwtPlotHistogram::legendIcon( int index,
+    const QSizeF &size ) const
 {
     Q_UNUSED( index );
-
-    const double dim = qMin( rect.width(), rect.height() );
-
-    QSizeF size( dim, dim );
-
-    QRectF r( 0, 0, size.width(), size.height() );
-    r.moveCenter( rect.center() );
-
-    painter->fillRect( r, d_data->brush );
+    return defaultIcon( d_data->brush, size );
 }

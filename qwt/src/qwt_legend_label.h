@@ -39,8 +39,8 @@ public:
 
     virtual void setText( const QwtText & );
 
-    void setIdentifier( const QPixmap & );
-    QPixmap identifier() const;
+    void setIcon( const QPixmap & );
+    QPixmap icon() const;
 
     virtual QSize sizeHint() const;
 

@@ -58,7 +58,7 @@ public:
         Qt::AspectRatioMode = Qt::IgnoreAspectRatio  ) const;
 
     QRectF boundingRect() const;
-    QRectF pointRect() const;
+    QRectF controlPointRect() const;
 
     const QVector< QwtPainterCommand > &commands() const;
     void setCommands( QVector< QwtPainterCommand > & );

@@ -60,8 +60,7 @@ public:
 
     virtual QList<QwtLegendData> legendData() const;
 
-    virtual void drawLegendIdentifier( int index,
-        QPainter *, const QRectF & ) const;
+    virtual QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
 protected:
     QwtColumnSymbol *symbol( int barIndex );

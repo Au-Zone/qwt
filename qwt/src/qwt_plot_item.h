@@ -13,6 +13,7 @@
 #include "qwt_global.h"
 #include "qwt_text.h"
 #include "qwt_legend_data.h"
+#include "qwt_graphic.h"
 #include <qrect.h>
 #include <qlist.h>
 
@@ -233,8 +234,8 @@ public:
     void setRenderHint( RenderHint, bool on = true );
     bool testRenderHint( RenderHint ) const;
 
-    void setLegendIdentifierSize( const QSize & );
-    QSize legendIdentifierSize() const;
+    void setLegendIconSize( const QSize & );
+    QSize legendIconSize() const;
 
     double z() const;
     void setZ( double z );
@@ -285,8 +286,10 @@ public:
 
     virtual QList<QwtLegendData> legendData() const;
 
-    virtual void drawLegendIdentifier( int index,
-        QPainter *, const QRectF & ) const;
+    virtual QwtGraphic legendIcon( int index, const QSizeF  & ) const;
+
+protected:
+    QwtGraphic defaultIcon( const QBrush &, const QSizeF & ) const;
 
 private:
     // Disabled copy constructor and operator=

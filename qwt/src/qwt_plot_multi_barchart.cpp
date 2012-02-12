@@ -30,23 +30,6 @@ inline static bool qwtIsIncreasing(
     return !isInverting;
 }
 
-static QwtGraphic qwtLegendIdentifier(
-    const QwtPlotItem *item, int index, const QSize &size )
-{
-    QwtGraphic graphic;
-
-    QPainter painter( &graphic );
-    painter.setRenderHint( QPainter::Antialiasing,
-        item->testRenderHint( QwtPlotItem::RenderAntialiased ) );
-
-    item->drawLegendIdentifier( index, &painter,
-        QRect( 0, 0, size.width(), size.height() ) );
-
-    painter.end();
-
-    return graphic;
-}
-
 class QwtPlotMultiBarChart::PrivateData
 {
 public:
@@ -604,11 +587,11 @@ QList<QwtLegendData> QwtPlotMultiBarChart::legendData() const
         qVariantSetValue( titleValue, d_data->barTitles[i] );
         data.setValue( QwtLegendData::TitleRole, titleValue );
 
-        if ( !legendIdentifierSize().isEmpty() )
+        if ( !legendIconSize().isEmpty() )
         {
-        	QVariant iconValue;
-        	qVariantSetValue( iconValue, 
-				qwtLegendIdentifier( this, i, legendIdentifierSize() ) );
+            QVariant iconValue;
+            qVariantSetValue( iconValue, 
+                legendIcon( i, legendIconSize() ) );
 
             data.setValue( QwtLegendData::IconRole, iconValue );
         }
@@ -619,13 +602,23 @@ QList<QwtLegendData> QwtPlotMultiBarChart::legendData() const
     return list;
 }
 
-void QwtPlotMultiBarChart::drawLegendIdentifier( int index,
-    QPainter *painter, const QRectF &rect ) const
+QwtGraphic QwtPlotMultiBarChart::legendIcon( int index,
+    const QSizeF &size ) const
 {
     QwtColumnRect column;
-    column.hInterval = QwtInterval( rect.left(), rect.right() - 1 );
-    column.vInterval = QwtInterval( rect.top(), rect.bottom() - 1 );
+    column.hInterval = QwtInterval( 0.0, size.width() - 1.0 );
+    column.vInterval = QwtInterval( 0.0, size.height() - 1.0 );
 
-    drawBar( painter, -1, index, column );
+    QwtGraphic icon;
+    icon.setDefaultSize( size );
+    icon.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+
+    QPainter painter( &icon );
+    painter.setRenderHint( QPainter::Antialiasing,
+        testRenderHint( QwtPlotItem::RenderAntialiased ) );
+
+    drawBar( &painter, -1, index, column );
+
+    return icon;
 }
 

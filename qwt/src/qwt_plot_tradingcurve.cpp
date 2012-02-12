@@ -497,27 +497,19 @@ void QwtPlotTradingCurve::drawUserSymbol( QPainter *painter,
 }
 
 /*!
-  \brief Draw the identifier for the legend
+  \return A rectangle filled with the color of the symbol pen
 
-  Draw a rectangle filled with the color of the symbol pen
+  \param index Index of the legend entry 
+                ( usually there is only one )
+  \param size Icon size
 
-  \param painter Qt painter
-  \param rect Bounding rectangle for the identifier
+  \sa setLegendIconSize(), legendData()
 */
-
-void QwtPlotTradingCurve::drawLegendIdentifier( int index,
-    QPainter *painter, const QRectF &rect ) const
+QwtGraphic QwtPlotTradingCurve::legendIcon( int index,
+    const QSizeF &size ) const
 {
     Q_UNUSED( index );
-
-    const double dim = qMin( rect.width(), rect.height() );
-
-    QSizeF size( dim, dim );
-
-    QRectF r( 0, 0, size.width(), size.height() );
-    r.moveCenter( rect.center() );
-
-    painter->fillRect( r, d_data->symbolPen.color() );
+    return defaultIcon( d_data->symbolPen.color(), size );
 }
 
 /*!

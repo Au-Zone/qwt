@@ -505,29 +505,37 @@ void QwtPlotIntervalCurve::drawSymbols(
 }
 
 /*!
-  \brief Draw the identifier for the legend
+  \return Icon for the legend
 
-  In case of Tube style() a plain rectangle filled with the brush() is painted.
-  If a symbol is assigned it is painted centered into rect.
+  In case of Tube style() the icon is a plain rectangle filled with the brush().
+  If a symbol is assigned it is scaled to size.
 
-  \param painter Painter
-  \param rect Bounding rectangle for the identifier
+  \param index Index of the legend entry 
+               ( ignored as there is only one )
+  \param size Icon size
+    
+  \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
 */
-void QwtPlotIntervalCurve::drawLegendIdentifier( int index,
-    QPainter *painter, const QRectF &rect ) const
+QwtGraphic QwtPlotIntervalCurve::legendIcon( 
+    int index, const QSizeF &size ) const
 {
     Q_UNUSED( index );
 
-    const double dim = qMin( rect.width(), rect.height() );
+    if ( size.isEmpty() )
+        return QwtGraphic();
 
-    QSizeF size( dim, dim );
+    QwtGraphic icon;
+    icon.setDefaultSize( size );
+    icon.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
 
-    QRectF r( 0, 0, size.width(), size.height() );
-    r.moveCenter( rect.center() );
+    QPainter painter( &icon );
+    painter.setRenderHint( QPainter::Antialiasing,
+        testRenderHint( QwtPlotItem::RenderAntialiased ) );
 
     if ( d_data->style == Tube )
     {
-        painter->fillRect( r, d_data->brush );
+        QRectF r( 0, 0, size.width(), size.height() );
+        painter.fillRect( r, d_data->brush );
     }
 
     if ( d_data->symbol &&
@@ -537,20 +545,24 @@ void QwtPlotIntervalCurve::drawLegendIdentifier( int index,
         pen.setWidthF( pen.widthF() );
         pen.setCapStyle( Qt::FlatCap );
 
-        painter->setPen( pen );
-        painter->setBrush( d_data->symbol->brush() );
+        painter.setPen( pen );
+        painter.setBrush( d_data->symbol->brush() );
 
         if ( orientation() == Qt::Vertical )
         {
-            d_data->symbol->draw( painter, orientation(),
-                QPointF( r.center().x(), r.top() ),
-                QPointF( r.center().x(), r.bottom() - 1 ) );
+            const double x = 0.5 * size.width();
+
+            d_data->symbol->draw( &painter, orientation(),
+                QPointF( x, 0 ), QPointF( x, size.height() - 1.0 ) );
         }
         else
         {
-            d_data->symbol->draw( painter, orientation(),
-                QPointF( r.left(), r.center().y() ),
-                QPointF( r.right() - 1, r.center().y() ) );
+            const double y = 0.5 * size.height();
+
+            d_data->symbol->draw( &painter, orientation(),
+                QPointF( 0.0, y ), QPointF( size.width() - 1.0, y ) );
         }
     }
+
+    return icon;
 }
