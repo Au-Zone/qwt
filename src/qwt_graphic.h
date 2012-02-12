@@ -57,6 +57,8 @@ public:
     QImage toImage( const QSize &, 
         Qt::AspectRatioMode = Qt::IgnoreAspectRatio  ) const;
 
+	QRectF scaledBoundingRect( double sx, double sy ) const;
+
     QRectF boundingRect() const;
     QRectF controlPointRect() const;
 
