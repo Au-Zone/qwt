@@ -636,7 +636,7 @@ void QwtLegend::renderItem( QPainter *painter,
     const QwtLegendLabel *label = qobject_cast<const QwtLegendLabel *>( widget );
     if ( label )
     {
-        // identifier
+        // icon
 
         const QwtGraphic &icon = label->data().icon();
         const QSizeF sz = icon.defaultSize();

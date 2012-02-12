@@ -296,23 +296,64 @@ bool QwtPlotItem::testRenderHint( RenderHint hint ) const
     return d_data->renderHints.testFlag( hint );
 }
 
-void QwtPlotItem::setLegendIdentifierSize( const QSize &size )
+/*!
+   Set the size of the legend icon
+
+   The default setting is 8x8 pixels
+
+   \param size Size
+   \sa legendIconSize(), legendIcon()
+*/
+void QwtPlotItem::setLegendIconSize( const QSize &size )
 {
     d_data->legendIconSize = size;
 }
 
-QSize QwtPlotItem::legendIdentifierSize() const
+/*!
+   \return Legend icon size
+   \sa setLegendIconSize(), legendIcon()
+*/
+QSize QwtPlotItem::legendIconSize() const
 {
     return d_data->legendIconSize;
 }
 
-void QwtPlotItem::drawLegendIdentifier( int index,
-    QPainter *painter, const QRectF &rect ) const
+/*!
+   \return Icon representing the item on the legend
+
+   The default implementation returns an invalid icon
+
+   \param index Index of the legend entry 
+                ( usually there is only one )
+   \param size Icon size
+
+   \sa setLegendIconSize(), legendData()
+ */
+QwtGraphic QwtPlotItem::legendIcon( 
+    int index, const QSizeF &size ) const
 {
-    Q_UNUSED( index );
-    Q_UNUSED( painter );
-    Q_UNUSED( rect );
+    Q_UNUSED( index )
+    Q_UNUSED( size )
+
+    return QwtGraphic();
 }
+
+QwtGraphic QwtPlotItem::defaultIcon( 
+    const QBrush &brush, const QSizeF &size ) const
+{   
+    QwtGraphic icon;
+    if ( !size.isEmpty() )
+    {
+        icon.setDefaultSize( size );
+        
+        QRectF r( 0, 0, size.width(), size.height() );
+        
+        QPainter painter( &icon );
+        painter.fillRect( r, brush );
+    }   
+    
+    return icon;
+}   
 
 //! Show the item
 void QwtPlotItem::show()
@@ -467,21 +508,9 @@ QList<QwtLegendData> QwtPlotItem::legendData() const
     qVariantSetValue( titleValue, title() );
     data.setValue( QwtLegendData::TitleRole, titleValue );
         
-    const QSize sz = legendIdentifierSize();
-    if ( !sz.isEmpty() )
+    const QwtGraphic graphic = legendIcon( 0, legendIconSize() );
+    if ( !graphic.isNull() )
     {   
-        QwtGraphic graphic;
-        graphic.setDefaultSize( sz );
-
-        QPainter painter( &graphic );
-        painter.setRenderHint( QPainter::Antialiasing,
-            testRenderHint( QwtPlotItem::RenderAntialiased ) );
-
-        drawLegendIdentifier( 0, &painter,
-            QRectF( 0, 0, sz.width(), sz.height() ) );
-
-        painter.end();
-
         QVariant iconValue;
         qVariantSetValue( iconValue, graphic );
         data.setValue( QwtLegendData::IconRole, iconValue );
@@ -530,7 +559,7 @@ void QwtPlotItem::updateScaleDiv( const QwtScaleDiv &xScaleDiv,
 
    \note Plot items, that want to be displayed on a legend
          need to enable the QwtPlotItem::Legend flag and to implement
-         legendData() and drawLegendIdentifier()
+         legendData() and legendIcon()
  */
 void QwtPlotItem::updateLegend( const QwtPlotItem *item, 
     const QList<QwtLegendData> &data )

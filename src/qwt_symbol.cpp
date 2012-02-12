@@ -156,6 +156,7 @@ static inline void qwtDrawSvgSymbols( QPainter *painter,
             QRectF( x, y, sz.width(), sz.height() ) );
     }
 }
+
 #endif
 
 static inline void qwtDrawGraphicSymbols( QPainter *painter, 
@@ -163,7 +164,11 @@ static inline void qwtDrawGraphicSymbols( QPainter *painter,
 {
     QwtGraphic &graphic = const_cast< QwtGraphic & >( symbol.graphic() );
 
-    const QRectF graphicRect = graphic.pointRect();
+#if 0
+    const QRectF graphicRect = graphic.controlPointRect();
+#else
+    const QRectF graphicRect = graphic.boundingRect();
+#endif
     if ( graphicRect.isEmpty() )
         return;
 
@@ -181,24 +186,16 @@ static inline void qwtDrawGraphicSymbols( QPainter *painter,
     if ( symbol.isPinPointEnabled() )
         pinPoint = symbol.pinPoint();
 
-    const double dx = sx * pinPoint.x();
-    const double dy = sy * pinPoint.y();
-
-    QTransform transform = painter->transform();
+    const double dx = sx * ( pinPoint.x() - graphicRect.left() );
+    const double dy = sy * ( pinPoint.y() - graphicRect.top() );
 
     for ( int i = 0; i < numPoints; i++ )
     {
-        // to avoid scaling of non cosmetic pens we
-        // map the path instead of setting the transformation
-        // for the painter
+        const double x = points[i].x() - dx;
+        const double y = points[i].y() - dy;
 
-        QTransform tr = transform;
-        tr.translate( points[i].x() - dx, points[i].y() - dy );
-        tr.scale( sx, sy );
-
-        painter->setTransform( tr );
-
-        graphic.render( painter );
+        graphic.render( painter,
+            QRectF( x, y, sz.width(), sz.height() ) );
     }
 }
 

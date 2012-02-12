@@ -81,7 +81,7 @@ static inline void qwtExecCommand(
                         isCosmetic = false;
                 }
 
-                doMap = isCosmetic;
+                doMap = !isCosmetic;
             }
 
             if ( doMap )
@@ -350,13 +350,10 @@ bool QwtGraphic::isEmpty() const
 */
 void QwtGraphic::setRenderHint( RenderHint hint, bool on )
 {
-    if ( d_data->renderHints.testFlag( hint ) != on )
-    {
-        if ( on )
-            d_data->renderHints |= hint;
-        else
-            d_data->renderHints &= ~hint;
-    }
+    if ( on )
+        d_data->renderHints |= hint;
+    else
+        d_data->renderHints &= ~hint;
 }
 
 /*!
@@ -379,7 +376,7 @@ QRectF QwtGraphic::boundingRect() const
     return d_data->boundingRect;
 }
 
-QRectF QwtGraphic::pointRect() const
+QRectF QwtGraphic::controlPointRect() const
 {
     if ( d_data->pointRect.width() < 0 )
         return QRectF();

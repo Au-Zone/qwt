@@ -23,7 +23,7 @@
 #include <qalgorithms.h>
 #include <qmath.h>
 
-static void qwtUpdateLegendIdentifierSize( QwtPlotCurve *curve )
+static void qwtUpdateLegendIconSize( QwtPlotCurve *curve )
 {
     if ( curve->symbol() && 
         curve->testLegendAttribute( QwtPlotCurve::LegendShowSymbol ) )
@@ -42,7 +42,7 @@ static void qwtUpdateLegendIdentifierSize( QwtPlotCurve *curve )
             sz.setWidth( qMax( 8, w ) );
         }
 
-        curve->setLegendIdentifierSize( sz );
+        curve->setLegendIconSize( sz );
     }
 }
 
@@ -166,11 +166,11 @@ bool QwtPlotCurve::testPaintAttribute( PaintAttribute attribute ) const
 }
 
 /*!
-  Specify an attribute how to draw the legend identifier
+  Specify an attribute how to draw the legend icon
 
   \param attribute Attribute
   \param on On/Off
-  /sa testLegendAttribute()
+  /sa testLegendAttribute(). legendIcon()
 */
 void QwtPlotCurve::setLegendAttribute( LegendAttribute attribute, bool on )
 {
@@ -182,7 +182,7 @@ void QwtPlotCurve::setLegendAttribute( LegendAttribute attribute, bool on )
         else
             d_data->legendAttributes &= ~attribute;
 
-        qwtUpdateLegendIdentifierSize( this );
+        qwtUpdateLegendIconSize( this );
     }
 }
 
@@ -234,7 +234,7 @@ void QwtPlotCurve::setSymbol( const QwtSymbol *symbol )
         delete d_data->symbol;
         d_data->symbol = symbol;
 
-        qwtUpdateLegendIdentifierSize( this );
+        qwtUpdateLegendIconSize( this );
 
         legendChanged();
         itemChanged();
@@ -1011,49 +1011,54 @@ int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
 }
 
 /*!
-  \brief Draw the identifier representing the curve on the legend
+    \return Icon representing the curve on the legend
 
-  \param painter Painter
-  \param rect Bounding rectangle for the identifier
+   \param index Index of the legend entry 
+                ( ignored as there is only one )
+   \param size Icon size
 
-  \sa setLegendAttribute(), QwtPlotItem::Legend
-*/
-void QwtPlotCurve::drawLegendIdentifier(
-    int index, QPainter *painter, const QRectF &rect ) const
+   \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
+ */
+QwtGraphic QwtPlotCurve::legendIcon( int index, 
+    const QSizeF &size ) const
 {
     Q_UNUSED( index );
 
-    if ( rect.isEmpty() )
-        return;
+    if ( size.isEmpty() )
+        return QwtGraphic();
 
-    const double dim = qMin( rect.width(), rect.height() );
+    QwtGraphic graphic;
+    graphic.setDefaultSize( size );
+    graphic.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
 
-    QSizeF size( dim, dim );
+    QPainter painter( &graphic );
+    painter.setRenderHint( QPainter::Antialiasing,
+        testRenderHint( QwtPlotItem::RenderAntialiased ) );
 
-    QRectF r( 0, 0, size.width(), size.height() );
-    r.moveCenter( rect.center() );
-
-    if ( d_data->legendAttributes == 0 )
+    if ( d_data->legendAttributes == 0 ||
+        d_data->legendAttributes & QwtPlotCurve::LegendShowBrush )
     {
         QBrush brush = d_data->brush;
-        if ( brush.style() == Qt::NoBrush )
+
+        if ( brush.style() == Qt::NoBrush &&
+            d_data->legendAttributes == 0 )
         {
             if ( style() != QwtPlotCurve::NoCurve )
+            {
                 brush = QBrush( pen().color() );
+            }
             else if ( d_data->symbol &&
                 ( d_data->symbol->style() != QwtSymbol::NoSymbol ) )
             {
                 brush = QBrush( d_data->symbol->pen().color() );
             }
         }
-        if ( brush.style() != Qt::NoBrush )
-            painter->fillRect( r, brush );
-    }
 
-    if ( d_data->legendAttributes & QwtPlotCurve::LegendShowBrush )
-    {
-        if ( d_data->brush.style() != Qt::NoBrush )
-            painter->fillRect( r, d_data->brush );
+        if ( brush.style() != Qt::NoBrush )
+        {
+            QRectF r( 0, 0, size.width(), size.height() );
+            painter.fillRect( r, brush );
+        }
     }
 
     if ( d_data->legendAttributes & QwtPlotCurve::LegendShowLine )
@@ -1063,17 +1068,23 @@ void QwtPlotCurve::drawLegendIdentifier(
             QPen pn = pen();
             pn.setCapStyle( Qt::FlatCap );
 
-            painter->setPen( pn );
-            QwtPainter::drawLine( painter, rect.left(), rect.center().y(),
-                                  rect.right(), rect.center().y() );
+            painter.setPen( pn );
+
+            const double y = 0.5 * size.height();
+            QwtPainter::drawLine( &painter, 0.0, y, size.width(), y );
         }
     }
 
     if ( d_data->legendAttributes & QwtPlotCurve::LegendShowSymbol )
     {
         if ( d_data->symbol )
-            d_data->symbol->drawSymbol( painter, rect );
+        {
+            QRectF r( 0, 0, size.width(), size.height() );
+            d_data->symbol->drawSymbol( &painter, r );
+        }
     }
+
+    return graphic;
 }
 
 /*!

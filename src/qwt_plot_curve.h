@@ -135,7 +135,7 @@ public:
         Attributes how to represent the curve on the legend
 
         \sa setLegendAttribute(), testLegendAttribute(),
-            drawLegendIdentifier()
+            QwtPlotItem::legendData(), legendIcon()
      */
 
     enum LegendAttribute
@@ -262,8 +262,7 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    virtual void drawLegendIdentifier( int index,
-        QPainter *, const QRectF & ) const;
+    virtual QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
 protected:
 

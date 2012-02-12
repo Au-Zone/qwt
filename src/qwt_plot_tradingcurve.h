@@ -116,8 +116,8 @@ public:
         const QRectF &canvasRect, int from, int to ) const;
 
     virtual QRectF boundingRect() const;
-    virtual void drawLegendIdentifier( int index,
-        QPainter *, const QRectF & ) const;
+
+    virtual QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
 protected:
 

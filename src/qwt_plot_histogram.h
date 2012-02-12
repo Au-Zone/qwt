@@ -103,8 +103,7 @@ public:
 
     virtual QRectF boundingRect() const;
 
-    virtual void drawLegendIdentifier( int index,
-        QPainter *, const QRectF & ) const;
+    virtual QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
 protected:
     virtual QwtColumnRect columnRect( const QwtIntervalSample &,

@@ -50,7 +50,7 @@ public:
     QwtLegendData legendData;
     bool isDown;
 
-    QPixmap identifier;
+    QPixmap icon;
 
     int spacing;
 };
@@ -63,7 +63,7 @@ void QwtLegendLabel::setData( const QwtLegendData &legendData )
     setUpdatesEnabled( false );
 
     setText( legendData.title() );
-    setIdentifier( legendData.icon().toPixmap() );
+    setIcon( legendData.icon().toPixmap() );
 
     if ( legendData.hasRole( QwtLegendData::ModeRole ) )
         setItemMode( legendData.mode() );
@@ -148,37 +148,36 @@ QwtLegendData::Mode QwtLegendLabel::itemMode() const
 }
 
 /*!
-  Assign the identifier
-  The identifier needs to be created according to the identifierWidth()
+  Assign the icon
 
-  \param identifier Pixmap representing a plot item
+  \param icon Pixmap representing a plot item
 
-  \sa identifier(), identifierWidth()
+  \sa icon(), QwtPlotItem::legendIcon()
 */
-void QwtLegendLabel::setIdentifier( const QPixmap &identifier )
+void QwtLegendLabel::setIcon( const QPixmap &icon )
 {
-    d_data->identifier = identifier;
+    d_data->icon = icon;
 
     int indent = margin() + d_data->spacing;
-    if ( identifier.width() > 0 )
-        indent += identifier.width() + d_data->spacing;
+    if ( icon.width() > 0 )
+        indent += icon.width() + d_data->spacing;
 
     setIndent( indent );
 }
 
 /*!
-  \return pixmap representing a plot item
-  \sa setIdentifier()
+  \return Pixmap representing a plot item
+  \sa setIcon()
 */
-QPixmap QwtLegendLabel::identifier() const
+QPixmap QwtLegendLabel::icon() const
 {
-    return d_data->identifier;
+    return d_data->icon;
 }
 
 /*!
    Change the spacing
    \param spacing Spacing
-   \sa spacing(), identifierWidth(), QwtTextLabel::margin()
+   \sa spacing(), QwtTextLabel::margin()
 */
 void QwtLegendLabel::setSpacing( int spacing )
 {
@@ -188,8 +187,8 @@ void QwtLegendLabel::setSpacing( int spacing )
         d_data->spacing = spacing;
 
         int indent = margin() + d_data->spacing;
-        if ( d_data->identifier.width() > 0 )
-            indent += d_data->identifier.width() + d_data->spacing;
+        if ( d_data->icon.width() > 0 )
+            indent += d_data->icon.width() + d_data->spacing;
 
         setIndent( indent );
     }
@@ -197,7 +196,7 @@ void QwtLegendLabel::setSpacing( int spacing )
 
 /*!
    Return the spacing
-   \sa setSpacing(), identifierWidth(), QwtTextLabel::margin()
+   \sa setSpacing(), QwtTextLabel::margin()
 */
 int QwtLegendLabel::spacing() const
 {
@@ -263,7 +262,7 @@ bool QwtLegendLabel::isDown() const
 QSize QwtLegendLabel::sizeHint() const
 {
     QSize sz = QwtTextLabel::sizeHint();
-    sz.setHeight( qMax( sz.height(), d_data->identifier.height() + 4 ) );
+    sz.setHeight( qMax( sz.height(), d_data->icon.height() + 4 ) );
 
     if ( d_data->itemMode != QwtLegendData::ReadOnly )
     {
@@ -300,17 +299,17 @@ void QwtLegendLabel::paintEvent( QPaintEvent *e )
 
     drawContents( &painter );
 
-    if ( !d_data->identifier.isNull() )
+    if ( !d_data->icon.isNull() )
     {
-        QRect identRect = cr;
-        identRect.setX( identRect.x() + margin() );
+        QRect iconRect = cr;
+        iconRect.setX( iconRect.x() + margin() );
         if ( d_data->itemMode != QwtLegendData::ReadOnly )
-            identRect.setX( identRect.x() + ButtonFrame );
+            iconRect.setX( iconRect.x() + ButtonFrame );
 
-        identRect.setSize( d_data->identifier.size() );
-        identRect.moveCenter( QPoint( identRect.center().x(), cr.center().y() ) );
+        iconRect.setSize( d_data->icon.size() );
+        iconRect.moveCenter( QPoint( iconRect.center().x(), cr.center().y() ) );
 
-        painter.drawPixmap( identRect, d_data->identifier );
+        painter.drawPixmap( iconRect, d_data->icon );
     }
 
     painter.restore();
