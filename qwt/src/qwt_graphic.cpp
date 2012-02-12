@@ -89,20 +89,10 @@ static inline void qwtExecCommand(
             {
                 const QTransform transform = painter->transform();
 
-                QPainterPath clipPath;
-                if ( painter->hasClipping() )
-                {
-                    clipPath = painter->clipPath();
-                    painter->setClipPath( transform.map( clipPath ) );
-                }
-
                 painter->resetTransform();
                 painter->drawPath( transform.map( *cmd.path() ) );
 
-                // restore painter
                 painter->setTransform( transform );
-                if ( painter->hasClipping() ) 
-                    painter->setClipPath( clipPath );
             }
             else
             {
