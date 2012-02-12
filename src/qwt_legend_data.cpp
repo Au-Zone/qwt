@@ -59,7 +59,7 @@ QwtText QwtLegendData::title() const
     {
         text = qvariant_cast<QwtText>( titleValue );
     }
-    else if ( titleValue.canConvert<QString>( titleValue ) )
+    else if ( titleValue.canConvert<QString>() )
     {
         text.setText( qvariant_cast<QString>( titleValue ) );
     }
