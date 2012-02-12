@@ -63,7 +63,7 @@ void BarChart::populate()
         titles += title.arg( i );
     }
     d_barChartItem->setTitles( titles );
-    d_barChartItem->setLegendIdentifierSize( QSize( 10, 14 ) );
+    d_barChartItem->setLegendIconSize( QSize( 10, 14 ) );
 
     for ( int i = 0; i < numBars; i++ )
     {
