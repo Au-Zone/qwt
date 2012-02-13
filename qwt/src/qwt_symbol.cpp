@@ -142,12 +142,8 @@ static inline void qwtDrawGraphicSymbols( QPainter *painter,
     const QPointF *points, int numPoints, const QwtGraphic &graphic,
     const QwtSymbol &symbol )
 {
-#if 0
-    const QRectF graphicRect = graphic.controlPointRect();
-#else
-    const QRectF graphicRect = graphic.boundingRect();
-#endif
-    if ( graphicRect.isEmpty() )
+    const QRectF pointRect = graphic.controlPointRect();
+    if ( pointRect.isEmpty() )
         return;
 
     double sx = 1.0;
@@ -156,25 +152,37 @@ static inline void qwtDrawGraphicSymbols( QPainter *painter,
     const QSize sz = symbol.size();
     if ( sz.isValid() )
     {
-        sx = sz.width() / graphicRect.width();
-        sy = sz.height() / graphicRect.height();
+        sx = sz.width() / pointRect.width();
+        sy = sz.height() / pointRect.height();
     }
 
-    QPointF pinPoint = graphicRect.center();
+    QPointF pinPoint = pointRect.center();
     if ( symbol.isPinPointEnabled() )
         pinPoint = symbol.pinPoint();
 
-    const double dx = sx * ( pinPoint.x() - graphicRect.left() );
-    const double dy = sy * ( pinPoint.y() - graphicRect.top() );
+    const QRectF r = graphic.scaledBoundingRect( sx, sy );
+
+    const double rx = pinPoint.x() - pointRect.left();
+    const double ry = pinPoint.y() - pointRect.top();
+
+    const double dx = qAbs( r.left() - sx * pointRect.left() );
+    const double dy = qAbs( r.top() - sy * pointRect.top() );
+
+    const QTransform transform = painter->transform();
 
     for ( int i = 0; i < numPoints; i++ )
     {
-        const double x = points[i].x() - dx;
-        const double y = points[i].y() - dy;
+        QTransform tr = transform;
+        tr.translate( points[i].x(), points[i].y() );
+        tr.scale( sx, sy );
+        tr.translate( -rx, -ry );
+        tr.translate( -dx, -dy );
+        painter->setTransform( tr );
 
-        graphic.render( painter,
-            QRectF( x, y, sz.width(), sz.height() ) );
+        graphic.render( painter, QPointF() );
     }
+
+    painter->setTransform( transform );
 }
 
 static inline void qwtDrawEllipseSymbols( QPainter *painter,
@@ -1268,7 +1276,7 @@ void QwtSymbol::drawSymbols( QPainter *painter,
 
     if ( useCache )
     {
-        QRect br = boundingRect();
+        const QRect br = boundingRect();
 
         const QRect rect( 0, 0, br.width(), br.height() );
         
@@ -1568,17 +1576,6 @@ QRect QwtSymbol::boundingRect() const
             pinPoint = rect.center() - d_data->pinPoint;
 
         rect.moveCenter( pinPoint );
-
-        if ( d_data->size.isValid() && !rect.isEmpty() )
-        {
-            const double sx = d_data->size.width() / rect.width();
-            const double sy = d_data->size.height() / rect.height();
-
-            QTransform transform;
-            transform.scale( sx, sy );
-
-            rect = transform.mapRect( rect );
-        }
     }
 
     QRect r;

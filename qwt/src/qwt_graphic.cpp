@@ -205,7 +205,8 @@ public:
     {
     }
 
-    inline QRectF scaledBoundingRect( double sx, double sy ) const
+    inline QRectF scaledBoundingRect( double sx, double sy,
+        bool scalePens ) const
     {
         if ( sx == 1.0 && sy == 1.0 )
             return d_boundingRect;
@@ -214,7 +215,7 @@ public:
         transform.scale( sx, sy );
 
         QRectF rect;
-        if ( d_scalablePen )
+        if ( scalePens && d_scalablePen )
         {
             rect = transform.mapRect( d_boundingRect );
         }
@@ -414,7 +415,10 @@ QRectF QwtGraphic::scaledBoundingRect( double sx, double sy ) const
     QRectF rect = transform.mapRect( d_data->pointRect );
 
     for ( int i = 0; i < d_data->pathInfos.size(); i++ )
-        rect |= d_data->pathInfos[i].scaledBoundingRect( sx, sy );
+    {
+        rect |= d_data->pathInfos[i].scaledBoundingRect( sx, sy, 
+            !d_data->renderHints.testFlag( RenderPensUnscaled ) );
+    }
 
     return rect;
 }
