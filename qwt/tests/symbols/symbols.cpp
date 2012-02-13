@@ -16,7 +16,7 @@ class MySymbol: public QwtSymbol
 public:
     MySymbol( QwtSymbol::Style style, const QBrush &brush )
     {
-        QPen pen( Qt::black, 2 );
+        QPen pen( Qt::black, 0 );
         pen.setJoinStyle( Qt::MiterJoin );
         pen.setCosmetic( true );
 
@@ -24,9 +24,7 @@ public:
 
         const QSizeF pathSize = path.boundingRect().size();
 
-#if 1
         setSize( 1.5 * pathSize.toSize() );
-#endif
 
         setPinPoint( QPointF( 0.0, 0.0 ) );
 
@@ -52,7 +50,7 @@ public:
 
                 const QRectF br = path.boundingRect();
 
-                int m = 4;
+                int m = 2 + qCeil( pen.widthF() );
 
                 QPixmap pm( sz + QSize( 2 * m, 2 * m ) );
                 pm.fill( Qt::transparent );
@@ -199,9 +197,7 @@ int main( int argc, char **argv )
         curve->setSymbol( symbol );
         curve->setTitle( title );
         curve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
-#if 1
         curve->setLegendIconSize( QSize( 15, 18 ) );
-#endif
 
         QPolygonF points;
         points << QPointF( 0.0, 4.4 ) << QPointF( 1.0, 3.0 )
@@ -226,7 +222,7 @@ int main( int argc, char **argv )
     renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
     renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
 
-    renderer.renderDocument( &plot, "simple.pdf", QSizeF( 300, 200 ) );
+    renderer.renderDocument( &plot, "symbols.pdf", QSizeF( 300, 200 ) );
 #endif
 
     return ok;
