@@ -18,7 +18,7 @@
 
 class QPainterPath;
 
-class QwtPainterCommand
+class QWT_EXPORT QwtPainterCommand
 {
 public:
     enum Type

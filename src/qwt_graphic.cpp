@@ -42,6 +42,9 @@ static QRectF qwtStrokedPathRect(
 {
     QPainterPathStroker stroker;
     stroker.setWidth( painter->pen().widthF() );
+    stroker.setCapStyle( painter->pen().capStyle() );
+    stroker.setJoinStyle( painter->pen().joinStyle() );
+    stroker.setMiterLimit( painter->pen().miterLimit() );
 
     QRectF rect;
     if ( qwtHasScalablePen( painter ) )
@@ -235,7 +238,7 @@ public:
     }
 
     inline QPointF scaleFactor( const QRectF& pathRect, 
-        const QRectF &targetRect ) const
+        const QRectF &targetRect, bool scalePens ) const
     {
         double sx = 0.0;
         double sy = 0.0;
@@ -250,7 +253,7 @@ public:
             const double w = 2.0 * qMin( l, r ) 
                 * targetRect.width() / pathRect.width();
 
-            if ( d_scalablePen )
+            if ( scalePens && d_scalablePen )
             {
                 sx = w / d_boundingRect.width();
             }
@@ -488,12 +491,15 @@ void QwtGraphic::render( QPainter *painter, const QRectF &rect,
     if ( d_data->pointRect.height() > 0.0 )
         sy = rect.height() / d_data->pointRect.height();
 
+    const bool scalePens = 
+        !d_data->renderHints.testFlag( RenderPensUnscaled );
+
     for ( int i = 0; i < d_data->pathInfos.size(); i++ )
     {
         const PathInfo info = d_data->pathInfos[i];
 
-        const QPointF scaleFactor = 
-            d_data->pathInfos[i].scaleFactor( d_data->pointRect, rect );
+        const QPointF scaleFactor = info.scaleFactor( 
+            d_data->pointRect, rect, scalePens );
 
         if ( scaleFactor.x() > 0.0 )
             sx = qMin( sx, scaleFactor.x() );

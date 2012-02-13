@@ -160,14 +160,6 @@ static inline void qwtDrawGraphicSymbols( QPainter *painter,
     if ( symbol.isPinPointEnabled() )
         pinPoint = symbol.pinPoint();
 
-    const QRectF r = graphic.scaledBoundingRect( sx, sy );
-
-    const double rx = pinPoint.x() - pointRect.left();
-    const double ry = pinPoint.y() - pointRect.top();
-
-    const double dx = qAbs( r.left() - sx * pointRect.left() );
-    const double dy = qAbs( r.top() - sy * pointRect.top() );
-
     const QTransform transform = painter->transform();
 
     for ( int i = 0; i < numPoints; i++ )
@@ -175,11 +167,11 @@ static inline void qwtDrawGraphicSymbols( QPainter *painter,
         QTransform tr = transform;
         tr.translate( points[i].x(), points[i].y() );
         tr.scale( sx, sy );
-        tr.translate( -rx, -ry );
-        tr.translate( -dx, -dy );
+        tr.translate( -pinPoint.x(), -pinPoint.y() );
+
         painter->setTransform( tr );
 
-        graphic.render( painter, QPointF() );
+        graphic.render( painter );
     }
 
     painter->setTransform( transform );
