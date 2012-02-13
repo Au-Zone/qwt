@@ -63,7 +63,8 @@ public:
                 painter.setPen( pen ); 
                 painter.setBrush( brush );
 
-                painter.translate( br.topLeft() + QPoint( m, m ) );
+                painter.translate( m, m );
+                painter.translate( -br.left(), br.top() );
                 painter.drawPath( path );
                 
                 setPixmap( pm );
@@ -199,7 +200,7 @@ int main( int argc, char **argv )
         curve->setTitle( title );
         curve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
 #if 1
-        curve->setLegendIdentifierSize( QSize( 15, 18 ) );
+        curve->setLegendIconSize( QSize( 15, 18 ) );
 #endif
 
         QPolygonF points;
