@@ -52,10 +52,10 @@ MainWindow::MainWindow()
 
     connect( btnLoad, SIGNAL( clicked() ), this, SLOT( loadSVG() ) );
 
-#if 1
-	QPainterPath path;
-	path.addRect( QRectF( 1.0, 1.0, 2.0, 2.0 ) );
-	loadPath( path );
+#if 0
+    QPainterPath path;
+    path.addRect( QRectF( 1.0, 1.0, 2.0, 2.0 ) );
+    loadPath( path );
 #endif
 };
 
@@ -99,9 +99,9 @@ void MainWindow::loadPath( const QPainterPath &path )
 
     QPainter painter( &generator );
     painter.setRenderHint( QPainter::Antialiasing, false );
-	painter.setPen( QPen( Qt::blue, 0 ) );
-	painter.setBrush( Qt::darkCyan );
-	painter.drawPath( path );
+    painter.setPen( QPen( Qt::blue, 0 ) );
+    painter.setBrush( Qt::darkCyan );
+    painter.drawPath( path );
     painter.end();
 
     d_canvas[0]->setSvg( buf.data() );
