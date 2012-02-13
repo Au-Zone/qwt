@@ -1322,27 +1322,71 @@ void QwtSymbol::drawSymbol( QPainter *painter, const QRectF &rect ) const
     if ( d_data->style == QwtSymbol::NoSymbol )
         return;
 
-    const QRect br = boundingRect();
+    if ( d_data->style == QwtSymbol::Graphic )
+    {
+        d_data->graphic.graphic.render( 
+            painter, rect, Qt::KeepAspectRatio );
+    }
+    else if ( d_data->style == QwtSymbol::Path )
+    {
+        if ( d_data->path.graphic.isNull() )
+        {
+            d_data->path.graphic = qwtPathGraphic( 
+                d_data->path.path, d_data->pen, d_data->brush );
+        }
 
-    // scale the symbol size to fit into rect.
+        d_data->path.graphic.render( 
+            painter, rect, Qt::KeepAspectRatio );
+        return;
+    }
+    else if ( d_data->style == QwtSymbol::SvgDocument )
+    {
+#ifndef QWT_NO_SVG
+        if ( d_data->svg.renderer )
+        {
+            QRectF scaledRect;
 
-    const double ratio = qMin( rect.width() / br.width(), 
-        rect.height() / br.height() );
+            QSizeF sz = d_data->svg.renderer->viewBoxF().size();
+            if ( !sz.isEmpty() )
+            {
+                sz.scale( rect.size(), Qt::KeepAspectRatio );
+                scaledRect.setSize( sz );
+                scaledRect.moveCenter( rect.center() );
+            }
+            else
+            {
+                scaledRect = rect;
+            }
 
-    painter->save();
+            d_data->svg.renderer->render( 
+                painter, scaledRect );
+        }
+#endif
+    }
+    else
+    {
+        const QRect br = boundingRect();
 
-    painter->translate( rect.center() );
-    painter->scale( ratio, ratio );
+        // scale the symbol size to fit into rect.
 
-    const bool isPinPointEnabled = d_data->isPinPointEnabled;
-    d_data->isPinPointEnabled = false;
+        const double ratio = qMin( rect.width() / br.width(), 
+            rect.height() / br.height() );
 
-    const QPointF pos;
-    renderSymbols( painter, &pos, 1 );
+        painter->save();
+
+        painter->translate( rect.center() );
+        painter->scale( ratio, ratio );
+
+        const bool isPinPointEnabled = d_data->isPinPointEnabled;
+        d_data->isPinPointEnabled = false;
+
+        const QPointF pos;
+        renderSymbols( painter, &pos, 1 );
     
-    d_data->isPinPointEnabled = isPinPointEnabled;
+        d_data->isPinPointEnabled = isPinPointEnabled;
 
-    painter->restore();
+        painter->restore();
+    }
 }
 
 void QwtSymbol::renderSymbols( QPainter *painter,

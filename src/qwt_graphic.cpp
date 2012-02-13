@@ -237,59 +237,66 @@ public:
         return rect;
     }
 
-    inline QPointF scaleFactor( const QRectF& pathRect, 
+    inline double scaleFactorX( const QRectF& pathRect, 
         const QRectF &targetRect, bool scalePens ) const
     {
-        double sx = 0.0;
-        double sy = 0.0;
+        if ( pathRect.width() <= 0.0 )
+            return 0.0;
 
         const QPointF p0 = d_pointRect.center();
 
-        if ( pathRect.width() > 0.0 )
+        const double l = qAbs( pathRect.left() - p0.x() );
+        const double r = qAbs( pathRect.right() - p0.x() );
+
+        const double w = 2.0 * qMin( l, r ) 
+            * targetRect.width() / pathRect.width();
+
+        double sx;
+        if ( scalePens && d_scalablePen )
         {
-            const double l = qAbs( pathRect.left() - p0.x() );
-            const double r = qAbs( pathRect.right() - p0.x() );
+            sx = w / d_boundingRect.width();
+        }
+        else
+        {
+            const double pw = qMax( 
+                qAbs( d_boundingRect.left() - d_pointRect.left() ),
+                qAbs( d_boundingRect.right() - d_pointRect.right() ) );
 
-            const double w = 2.0 * qMin( l, r ) 
-                * targetRect.width() / pathRect.width();
-
-            if ( scalePens && d_scalablePen )
-            {
-                sx = w / d_boundingRect.width();
-            }
-            else
-            {
-                const double pw = qMax( 
-                    qAbs( d_boundingRect.left() - d_pointRect.left() ),
-                    qAbs( d_boundingRect.right() - d_pointRect.right() ) );
-
-                sx = ( w - pw ) / d_pointRect.width();
-            }
+            sx = ( w - 2 * pw ) / d_pointRect.width();
         }
 
-        if ( pathRect.height() > 0.0 )
+        return sx;
+    }
+
+    inline double scaleFactorY( const QRectF& pathRect, 
+        const QRectF &targetRect, bool scalePens ) const
+    {
+        if ( pathRect.height() <= 0.0 )
+            return 0.0;
+
+        const QPointF p0 = d_pointRect.center();
+
+        const double t = qAbs( pathRect.top() - p0.y() );
+        const double b = qAbs( pathRect.bottom() - p0.y() );
+
+        const double h = 2.0 * qMin( t, b ) 
+            * targetRect.height() / pathRect.height();
+
+        double sy;
+        if ( scalePens && d_scalablePen )
         {
-            const double t = qAbs( pathRect.top() - p0.y() );
-            const double b = qAbs( pathRect.bottom() - p0.y() );
+            sy = h / d_boundingRect.height();
+        }
+        else
+        {
+            const double pw = 
+                qMax( qAbs( d_boundingRect.top() - d_pointRect.top() ),
+                qAbs( d_boundingRect.bottom() - d_pointRect.bottom() ) );
 
-            const double h = 2.0 * qMin( t, b ) 
-                * targetRect.height() / pathRect.height();
-
-            if ( d_scalablePen )
-            {
-                sy = h / d_boundingRect.height();
-            }
-            else
-            {
-                const double pw = 
-                    qMax( qAbs( d_boundingRect.top() - d_pointRect.top() ),
-                    qAbs( d_boundingRect.bottom() - d_pointRect.bottom() ) );
-
-                sy = ( h - pw ) / d_pointRect.height();
-            }
+            sy = ( h - 2 * pw ) / d_pointRect.height();
         }
 
-        return QPointF( sx, sy );
+        return sy;
     }
 
 private:
@@ -498,14 +505,17 @@ void QwtGraphic::render( QPainter *painter, const QRectF &rect,
     {
         const PathInfo info = d_data->pathInfos[i];
 
-        const QPointF scaleFactor = info.scaleFactor( 
+        const double ssx = info.scaleFactorX( 
             d_data->pointRect, rect, scalePens );
 
-        if ( scaleFactor.x() > 0.0 )
-            sx = qMin( sx, scaleFactor.x() );
+        if ( ssx > 0.0 )
+            sx = qMin( sx, ssx );
 
-        if ( scaleFactor.y() > 0.0 )
-            sy = qMin( sy, scaleFactor.y() );
+        const double ssy = info.scaleFactorY( 
+            d_data->pointRect, rect, scalePens );
+
+        if ( ssy > 0.0 )
+            sy = qMin( sy, ssy );
     }
 
     if ( aspectRatioMode == Qt::KeepAspectRatio )
@@ -528,8 +538,10 @@ void QwtGraphic::render( QPainter *painter, const QRectF &rect,
     tr.translate( -d_data->pointRect.x(), -d_data->pointRect.y() );
 
     const QTransform transform = painter->transform();
+
     painter->setTransform( tr, true );
     render( painter );
+
     painter->setTransform( transform );
 }
 
