@@ -24,7 +24,7 @@ public:
 
         const QSizeF pathSize = path.boundingRect().size();
 
-        setSize( 1.5 * pathSize.toSize() );
+        setSize( 0.8 * pathSize.toSize() );
 
         setPinPoint( QPointF( 0.0, 0.0 ) );
 
@@ -75,9 +75,7 @@ public:
             case QwtSymbol::Graphic:
             {
                 QwtGraphic graphic;
-#if 1
                 graphic.setRenderHint( QwtGraphic::RenderPensUnscaled );
-#endif
         
                 QPainter painter( &graphic );
                 painter.setRenderHint( QPainter::Antialiasing, true );
@@ -134,11 +132,9 @@ private:
         path.lineTo( 0.5 * w, y0 );
         path.lineTo( 0, y0 );
         
-#if 1
         QTransform transform;
         transform.rotate( -30.0 );
         path = transform.map( path );
-#endif
 
         return path;
     }
