@@ -18,15 +18,86 @@
 
 class QwtPainterCommand;
 
+/*!
+    \brief A paint device for scalable graphics
+
+    QwtGraphic is the representation of a graphic that is tailored for
+    scalability. Like QPicture it will be initialized by QPainter
+    operations and replayed later to any target paint device.
+
+    While the usual image representations QImage and QPixmap are not
+    scalable Qt offers two paint devices, that might be candidates
+    for representing a vector graphic:
+
+    - QPicture\n
+      Unfortunately QPicture had been forgotten, when Qt4
+      introduced floating point based render engines. Its API
+      is still on integers, what make it unusable for proper scaling.
+
+    - QSvgRenderer/QSvgGenerator\n
+      Unfortunately QSvgRenderer hides to much information about
+      its nodes in internal APIs, that are necessary proper 
+      layout calculations. Also it is derived from QObject and 
+      can't be copied like QImage/QPixmap.
+      Also QSvgRenderer/QSvgGenerator are no complete SVG implementations
+      with a questionable future in Qt 5.
+
+    QwtGraphic maps all scalable drawing primitives to a QPainterPath
+    and stores them together with the painter state changes 
+    ( pen, brush, transformation ... ) in a list of QwtPaintCommands. 
+    For being a complete QPaintDevice it also stores pixmaps or images, 
+    what is somehow against the idea of the class, because these objects 
+    can be scaled without a loss in quality.
+
+    The main issue about scaling a QwtGraphic object are the pens used for
+    drawing the outlines of the painter paths. While non cosmetic pens 
+    ( QPen::isCosmetic() ) are scaled with the same ratio as the path, 
+    cosmetic pens have a fixed width. A graphic might have paths with 
+    different pens - cosmetic and non-cosmetic.
+
+    QwtGraphic caches 2 different rectangles:
+
+    - control point rectangle\n
+      The control point rectangle is the bounding rectangle of all
+      control point rectangles of the painter paths, or the target 
+      rectangle of the pixmaps/images.
+
+    - bounding rectangle\n
+      The bounding rectangle extends the control point rectangle by
+      what is needed for rendering the outline with an unscaled pen.
+
+    Because the offset for drawing the outline depends on the shape 
+    of the painter path ( the peak of a triangle is different than the flat side ) 
+    scaling with a fixed aspect ratio always needs to be calculated from the 
+	control point rectangle.
+
+    \sa QwtPainterCommand
+ */
 class QWT_EXPORT QwtGraphic: public QwtNullPaintDevice
 {
 public:
+    /*! 
+		Hint how to render a graphic
+		\sa setRenderHint(), testRenderHint()
+     */
     enum RenderHint
     {
+        /*!
+           When RenderPensUnscaled is set non cosmetic pens are
+           painted unscaled - like cosmetic pens. The difference to
+           using cosmetic pens is, when the graphic is rendered
+           to a document in a scalable vector format ( PDF, SVG ):
+           the width of non cosmetic pens will be scaled by the
+           document viewer.
+         */
         RenderPensUnscaled = 0x1
     };
 
-    //! Render hints
+    /*! 
+        \brief Render hints
+
+        The default setting is to disable all hints
+     */
     typedef QFlags<RenderHint> RenderHints;
 
     QwtGraphic();
@@ -34,7 +105,7 @@ public:
 
     virtual ~QwtGraphic();
 
-    QwtGraphic& operator=(const QwtGraphic &p);
+    QwtGraphic& operator=( const QwtGraphic & );
 
     void reset();
 
@@ -42,10 +113,13 @@ public:
     bool isEmpty() const;
 
     void render( QPainter * ) const;
+
     void render( QPainter *, const QSizeF &, 
             Qt::AspectRatioMode = Qt::IgnoreAspectRatio  ) const;
+
     void render( QPainter *, const QRectF &, 
             Qt::AspectRatioMode = Qt::IgnoreAspectRatio  ) const;
+
     void render( QPainter *, const QPointF &,
         Qt::Alignment = Qt::AlignTop | Qt::AlignLeft ) const;
 
@@ -86,7 +160,7 @@ protected:
 
 private:
     void updateBoundingRect( const QRectF & );
-    void updatePointRect( const QRectF & );
+    void updateControlPointRect( const QRectF & );
 
     class PathInfo;
 
