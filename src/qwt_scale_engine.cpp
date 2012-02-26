@@ -35,7 +35,7 @@ double QwtScaleArithmetic::ceilEps( double value,
     const double eps = _eps * intervalSize;
 
     value = ( value - eps ) / intervalSize;
-    return qwtCeilF( value ) * intervalSize;
+    return ::ceil( value ) * intervalSize;
 }
 
 /*!
@@ -51,7 +51,7 @@ double QwtScaleArithmetic::floorEps( double value, double intervalSize )
     const double eps = _eps * intervalSize;
 
     value = ( value + eps ) / intervalSize;
-    return qwtFloorF( value ) * intervalSize;
+    return ::floor( value ) * intervalSize;
 }
 
 /*!
@@ -84,7 +84,7 @@ double QwtScaleArithmetic::ceil125( double x )
 
     const double sign = ( x > 0 ) ? 1.0 : -1.0;
     const double lx = ::log10( qFabs( x ) );
-    const double p10 = qwtFloorF( lx );
+    const double p10 = ::floor( lx );
 
     double fr = qPow( 10.0, lx - p10 );
     if ( fr <= 1.0 )
@@ -112,7 +112,7 @@ double QwtScaleArithmetic::floor125( double x )
 
     double sign = ( x > 0 ) ? 1.0 : -1.0;
     const double lx = ::log10( qFabs( x ) );
-    const double p10 = qwtFloorF( lx );
+    const double p10 = ::floor( lx );
 
     double fr = qPow( 10.0, lx - p10 );
     if ( fr >= 10.0 )
