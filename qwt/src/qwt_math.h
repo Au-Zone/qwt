@@ -161,24 +161,6 @@ inline double qwtSqr( double x )
     return x * x;
 }
 
-//! Like qRound, but without converting the result to an int
-inline double qwtRoundF(double d)
-{ 
-    return static_cast<double>( qRound( d ) );
-}
-
-//! Like qFloor, but without converting the result to an int
-inline double qwtFloorF(double d)
-{ 
-    return static_cast<double>( qFloor( d ) );
-}
-
-//! Like qCeil, but without converting the result to an int
-inline double qwtCeilF(double d)
-{ 
-    return static_cast<double>( qCeil( d ) );
-}
-
 //! Approximation of arc tangent ( error below 0,005 radians )
 inline double qwtFastAtan( double x )
 {

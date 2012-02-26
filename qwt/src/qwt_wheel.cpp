@@ -403,7 +403,7 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
         const double minpos = rect.left() + 2;
 
         // draw tick marks
-        for ( double tickValue = qwtCeilF( loValue / tickWidth ) * tickWidth;
+        for ( double tickValue = ::ceil( loValue / tickWidth ) * tickWidth;
             tickValue < hiValue; tickValue += tickWidth )
         {
             const double angle = ( tickValue - value() ) * M_PI / 180.0;
@@ -439,7 +439,7 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
         const double maxpos = rect.bottom() - 2;
         const double minpos = rect.top() + 2;
 
-        for ( double tickValue = qwtCeilF( loValue / tickWidth ) * tickWidth;
+        for ( double tickValue = ::ceil( loValue / tickWidth ) * tickWidth;
             tickValue < hiValue; tickValue += tickWidth )
         {
             const double angle = ( tickValue - value() ) * M_PI / 180.0;
