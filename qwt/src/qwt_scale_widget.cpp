@@ -201,19 +201,21 @@ void QwtScaleWidget::setTitle( const QwtText &title )
 */
 void QwtScaleWidget::setAlignment( QwtScaleDraw::Alignment alignment )
 {
+    if ( d_data->scaleDraw )
+        d_data->scaleDraw->setAlignment( alignment );
+
     if ( !testAttribute( Qt::WA_WState_OwnSizePolicy ) )
     {
         QSizePolicy policy( QSizePolicy::MinimumExpanding,
             QSizePolicy::Fixed );
         if ( d_data->scaleDraw->orientation() == Qt::Vertical )
             policy.transpose();
+
         setSizePolicy( policy );
 
         setAttribute( Qt::WA_WState_OwnSizePolicy, false );
     }
 
-    if ( d_data->scaleDraw )
-        d_data->scaleDraw->setAlignment( alignment );
     layoutScale();
 }
 
