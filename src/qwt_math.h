@@ -23,7 +23,6 @@
 #define _USE_MATH_DEFINES 1
 #endif
 
-#include <qpoint.h>
 #include <qmath.h>
 #include "qwt_global.h"
 

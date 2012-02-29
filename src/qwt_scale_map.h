@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_math.h"
+#include <qrect.h>
 #ifndef QT_NO_DEBUG_STREAM
 #include <qdebug.h>
 #endif
