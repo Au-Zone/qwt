@@ -936,15 +936,16 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
 
   The baseline is needed for filling the curve with a brush or
   the Sticks drawing style.
-  The interpretation of the baseline depends on the CurveType.
-  With QwtPlotCurve::Yfx, the baseline is interpreted as a horizontal line
-  at y = baseline(), with QwtPlotCurve::Yfy, it is interpreted as a vertical
+
+  The interpretation of the baseline depends on the orientation().
+  With Qt::Horizontal, the baseline is interpreted as a horizontal line
+  at y = baseline(), with Qt::Vertical, it is interpreted as a vertical
   line at x = baseline().
 
   The default value is 0.0.
 
   \param value Value of the baseline
-  \sa baseline(), setBrush(), setStyle(), setStyle()
+  \sa baseline(), setBrush(), setStyle(), QwtPlotAbstractSeriesItem::orientation()
 */
 void QwtPlotCurve::setBaseline( double value )
 {
