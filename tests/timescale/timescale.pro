@@ -7,17 +7,20 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ################################################################
 
-include( $${PWD}/../qwtconfig.pri )
+include( $${PWD}/../tests.pri )
 
-TEMPLATE = subdirs
+TARGET       = timescale
 
-contains(QWT_CONFIG, QwtPlot) {
-    
-    SUBDIRS += \
-        plotmatrix \
-        timescale \
-        scaleengine \
-        graphicscale \
-        symbols
+HEADERS = \
+    timedate.h \
+    timescaleengine.h \
+    timescaledraw.h \
+    plot.h 
 
-}
+SOURCES = \
+    timedate.cpp \
+    timescaleengine.cpp \
+    timescaledraw.cpp \
+    plot.cpp \
+    main.cpp
+
