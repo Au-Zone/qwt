@@ -192,6 +192,9 @@ void QwtScaleWidget::setTitle(const QwtText &title)
 */
 void QwtScaleWidget::setAlignment(QwtScaleDraw::Alignment alignment)
 {
+    if ( d_data->scaleDraw )
+        d_data->scaleDraw->setAlignment( alignment );
+
 #if QT_VERSION >= 0x040000
     if ( !testAttribute(Qt::WA_WState_OwnSizePolicy) )
 #else
@@ -202,6 +205,7 @@ void QwtScaleWidget::setAlignment(QwtScaleDraw::Alignment alignment)
             QSizePolicy::Fixed);
         if ( d_data->scaleDraw->orientation() == Qt::Vertical )
             policy.transpose();
+
         setSizePolicy(policy);
 
 #if QT_VERSION >= 0x040000
@@ -211,8 +215,6 @@ void QwtScaleWidget::setAlignment(QwtScaleDraw::Alignment alignment)
 #endif
     }
 
-    if (d_data->scaleDraw)
-        d_data->scaleDraw->setAlignment(alignment);
     layoutScale();
 }
 
