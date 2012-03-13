@@ -10,14 +10,15 @@ MainWindow::MainWindow( QWidget *parent ):
     QMainWindow( parent )
 {
     Settings settings;
-    settings.legend.isEnabled = false;
-    settings.legend.position = QwtPlot::RightLegend;
+    settings.legend.isEnabled = true;
+    settings.legend.position = QwtPlot::BottomLegend;
 
-    settings.legendItem.isEnabled = true;
+    settings.legendItem.isEnabled = false;
     settings.legendItem.numColumns = 1;
     settings.legendItem.alignment = Qt::AlignRight | Qt::AlignVCenter;
     settings.legendItem.backgroundMode = 0;
-    settings.numCurves = 4;
+    settings.curve.numCurves = 4;
+    settings.curve.title = "Curve";
     
     d_plot = new Plot();
     d_panel = new Panel();

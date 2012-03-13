@@ -6,6 +6,7 @@
 #include <qgroupbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
+#include <qlineedit.h>
 #include <qwt_plot.h>
 #include <qwt_plot_legenditem.h>
 
@@ -45,8 +46,10 @@ Panel::Panel( QWidget *parent ):
     d_legendItem.backgroundBox->addItem( "Items",
         QwtPlotLegendItem::ItemBackground );
 
-    d_numCurves = new QSpinBox();
-    d_numCurves->setRange( 0, 99 );
+    d_curve.numCurves = new QSpinBox();
+    d_curve.numCurves->setRange( 0, 99 );
+
+    d_curve.title = new QLineEdit();
 
     // layout
 
@@ -88,7 +91,11 @@ Panel::Panel( QWidget *parent ):
 
     row = 0;
     curveBoxLayout->addWidget( new QLabel( "Number" ), row, 0 );
-    curveBoxLayout->addWidget( d_numCurves, row, 1 );
+    curveBoxLayout->addWidget( d_curve.numCurves, row, 1 );
+
+    row++;
+    curveBoxLayout->addWidget( new QLabel( "Title" ), row, 0 );
+    curveBoxLayout->addWidget( d_curve.title, row, 1 );
 
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->addWidget( legendBox );
@@ -127,7 +134,8 @@ void Panel::setSettings( const Settings &settings)
     d_legendItem.backgroundBox->setCurrentIndex( 
         settings.legendItem.backgroundMode );
 
-    d_numCurves->setValue( settings.numCurves );
+    d_curve.numCurves->setValue( settings.curve.numCurves );
+    d_curve.title->setText( settings.curve.title );
 
     connect( d_legend.checkBox, 
         SIGNAL( stateChanged( int ) ), SIGNAL( edited() ) );
@@ -144,8 +152,10 @@ void Panel::setSettings( const Settings &settings)
         SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
     connect( d_legendItem.backgroundBox, 
         SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_numCurves, 
+    connect( d_curve.numCurves, 
         SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_curve.title, 
+        SIGNAL( textEdited( const QString & ) ), SIGNAL( edited() ) );
 }
 
 Settings Panel::settings() const
@@ -183,7 +193,8 @@ Settings Panel::settings() const
     s.legendItem.backgroundMode = 
             d_legendItem.backgroundBox->currentIndex();
 
-    s.numCurves = d_numCurves->value();
+    s.curve.numCurves = d_curve.numCurves->value();
+    s.curve.title = d_curve.title->text();
 
     return s;
 }
