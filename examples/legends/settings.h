@@ -1,6 +1,8 @@
 #ifndef _SETTINGS_
 #define _SETTINGS_
 
+#include <qstring.h>
+
 class Settings
 {
 public:
@@ -14,7 +16,8 @@ public:
         legendItem.alignment = 0;
         legendItem.backgroundMode = 0;
 
-        numCurves = 0;
+        curve.numCurves = 0;
+        curve.title = "Curve";
     }
     
     struct
@@ -32,7 +35,11 @@ public:
         
     } legendItem;
     
-    int numCurves;
+    struct
+    {
+        int numCurves;
+        QString title;
+    } curve;
 };
 
 #endif

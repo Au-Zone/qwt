@@ -7,6 +7,7 @@
 class QCheckBox;
 class QComboBox;
 class QSpinBox;
+class QLineEdit;
 
 class Panel: public QWidget
 {
@@ -39,7 +40,12 @@ private:
 
     } d_legendItem;
 
-    QSpinBox *d_numCurves;
+    struct
+    {
+        QSpinBox *numCurves;
+        QLineEdit *title;
+
+    } d_curve;
 };
 
 #endif

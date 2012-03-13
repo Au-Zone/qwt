@@ -5,6 +5,7 @@
 #include <qwt_legend.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
+#include <qwt_plot_layout.h>
 
 class LegendItem: public QwtPlotLegendItem
 {
@@ -30,10 +31,17 @@ public:
 class Curve: public QwtPlotCurve
 {
 public:
-    Curve()
+    Curve( int index ):
+        d_index( index )
     {
         setRenderHint( QwtPlotItem::RenderAntialiased );
         initData();
+    }
+
+    void setCurveTitle( const QString &title )
+    {
+        QString txt("%1 %2");
+        setTitle( QString( "%1 %2" ).arg( title ).arg( d_index ) );
     }
 
     void initData()
@@ -55,6 +63,9 @@ public:
 
         setSamples( points );
     }
+
+private:
+    const int d_index;
 };
 
 Plot::Plot( QWidget *parent ):
@@ -86,26 +97,22 @@ void Plot::insertCurve()
 {
     static int counter = 1;
 
-    QString title("Curve %1");
-    title = title.arg( counter ++ );
-
     const char *colors[] = 
     { 
         "LightSalmon",
-        "HotPink",
+        "SteelBlue",
         "Yellow",
         "Fuchsia",
         "PaleGreen",
         "PaleTurquoise",
-        "SteelBlue",
         "Cornsilk",
+        "HotPink",
         "Peru",
         "Maroon"
     };
     const int numColors = sizeof( colors ) / sizeof( colors[0] );
 
-    QwtPlotCurve *curve = new Curve();
-    curve->setTitle( title );
+    QwtPlotCurve *curve = new Curve( counter++ );
     curve->setPen( QPen( QColor( colors[ counter % numColors ] ), 2 ) );
     curve->attach( this );
 }
@@ -114,14 +121,18 @@ void Plot::applySettings( const Settings &settings )
 {
     if ( settings.legend.isEnabled )
     {
-        QwtLegend *legend = new QwtLegend();
-        legend->setWindowTitle("Plot Legend");
+        if ( legend() == NULL || 
+            plotLayout()->legendPosition() != settings.legend.position )
+        {
+            QwtLegend *lgd = new QwtLegend();
+            lgd->setWindowTitle("Plot Legend");
 
-        insertLegend( legend, 
-            QwtPlot::LegendPosition( settings.legend.position ) );
+            insertLegend( lgd, 
+                QwtPlot::LegendPosition( settings.legend.position ) );
 
-        if ( settings.legend.position == QwtPlot::ExternalLegend )
-            legend->show();
+            if ( settings.legend.position == QwtPlot::ExternalLegend )
+                lgd->show();
+        }
     }
     else
     {
@@ -162,11 +173,24 @@ void Plot::applySettings( const Settings &settings )
         d_legendItem = NULL;
     }
 
-    if ( itemList( QwtPlotItem::Rtti_PlotCurve ).count() != settings.numCurves )
+    QwtPlotItemList curveList = itemList( QwtPlotItem::Rtti_PlotCurve );
+    if ( curveList.size() != settings.curve.numCurves )
     {
-        detachItems( QwtPlotItem::Rtti_PlotCurve, true );
-        for ( int i = 0; i < settings.numCurves; i++ )
+        while ( curveList.size() > settings.curve.numCurves )
+        {
+            QwtPlotItem* curve = curveList.takeFirst();
+            delete curve;
+        }
+        
+        for ( int i = curveList.size(); i < settings.curve.numCurves; i++ )
             insertCurve();
+    }
+
+    curveList = itemList( QwtPlotItem::Rtti_PlotCurve );
+    for ( int i = 0; i < curveList.count(); i++ )
+    {
+        Curve* curve = static_cast<Curve*>( curveList[i] );
+        curve->setCurveTitle( settings.curve.title );
     }
 
     replot();
