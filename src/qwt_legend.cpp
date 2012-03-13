@@ -308,15 +308,21 @@ void QwtLegend::updateLegend( const QwtPlotItem *plotItem,
 
     if ( widgetList.size() != data.size() )
     {
-        for ( int i = data.size(); i < widgetList.size(); i++ )
-        {
-            widgetList[i]->hide();
-            widgetList[i]->deleteLater();
+        QLayout *contentsLayout = d_data->view->contentsWidget->layout();
 
-            widgetList.removeAt( i );
+        while ( widgetList.size() > data.size() )
+        {
+            QWidget *w = widgetList.takeLast();
+
+            contentsLayout->removeWidget( w );
+
+            // updates might be triggered by signals from the legend widget
+            // itself. So we better don't delete it here.
+
+            w->hide();
+            w->deleteLater();
         }
 
-        QLayout *contentsLayout = d_data->view->contentsWidget->layout();
         for ( int i = widgetList.size(); i < data.size(); i++ )
         {
             QWidget *widget = createWidget( data[i] );
@@ -336,7 +342,11 @@ void QwtLegend::updateLegend( const QwtPlotItem *plotItem,
             d_data->itemMap.insert( plotItem, widgetList );
         }
 
-        updateLayout();
+        if ( contentsLayout )
+            contentsLayout->invalidate();
+
+        updateTabOrder();
+        layoutContents();
     }
     
     for ( int i = 0; i < data.size(); i++ )
@@ -391,10 +401,8 @@ void QwtLegend::updateWidget( QWidget *widget, const QwtLegendData &data )
     }
 }
 
-void QwtLegend::updateLayout()
+void QwtLegend::updateTabOrder()
 {
-    layoutContents();
-
     QLayout *contentsLayout = d_data->view->contentsWidget->layout();
     if ( contentsLayout )
     {
@@ -410,18 +418,6 @@ void QwtLegend::updateLayout()
 
             w = item->widget();
         }
-    }
-
-    if ( parentWidget() && parentWidget()->layout() == NULL )
-    {
-        /*
-           updateGeometry() doesn't post LayoutRequest in certain
-           situations, like when we are hidden. But we want the
-           parent widget notified, so it can show/hide the legend
-           depending on its items.
-         */
-        QApplication::postEvent( parentWidget(),
-            new QEvent( QEvent::LayoutRequest ) );
     }
 }
 
@@ -454,27 +450,29 @@ int QwtLegend::heightForWidth( int width ) const
 */
 void QwtLegend::layoutContents()
 {
+    const QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
+        d_data->view->contentsWidget->layout() );
+    if ( tl == NULL )
+        return;
+
     const QSize visibleSize = 
         d_data->view->viewport()->contentsRect().size();
 
-    const QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
-        d_data->view->contentsWidget->layout() );
-    if ( tl )
+    const int minW = int( tl->maxItemWidth() ) + 2 * tl->margin();
+
+    int w = qMax( visibleSize.width(), minW );
+    int h = qMax( tl->heightForWidth( w ), visibleSize.height() );
+
+    const int vpWidth = d_data->view->viewportSize( w, h ).width();
+    if ( w > vpWidth )
     {
-        const int minW = int( tl->maxItemWidth() ) + 2 * tl->margin();
-
-        int w = qMax( visibleSize.width(), minW );
-        int h = qMax( tl->heightForWidth( w ), visibleSize.height() );
-
-        const int vpWidth = d_data->view->viewportSize( w, h ).width();
-        if ( w > vpWidth )
-        {
-            w = qMax( vpWidth, minW );
-            h = qMax( tl->heightForWidth( w ), visibleSize.height() );
-        }
-
-        d_data->view->contentsWidget->resize( w, h );
+        w = qMax( vpWidth, minW );
+        h = qMax( tl->heightForWidth( w ), visibleSize.height() );
     }
+
+    d_data->view->contentsWidget->resize( w, h );
+    if ( layout() )
+        layout()->invalidate();
 }
 
 /*!
@@ -504,6 +502,17 @@ bool QwtLegend::eventFilter( QObject *object, QEvent *event )
             case QEvent::LayoutRequest:
             {
                 layoutContents();
+                if ( parentWidget() && parentWidget()->layout() == NULL )
+                {
+                    /*
+                       updateGeometry() doesn't post LayoutRequest in certain
+                       situations, like when we are hidden. But we want the
+                       parent widget notified, so it can show/hide the legend
+                       depending on its items.
+                     */
+                    QApplication::postEvent( parentWidget(),
+                        new QEvent( QEvent::LayoutRequest ) );
+                }                
                 break;
             }
             default:
