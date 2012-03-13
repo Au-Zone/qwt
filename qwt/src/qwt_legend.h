@@ -107,7 +107,7 @@ protected:
     virtual void layoutContents();
 
 private:
-    void updateLayout();
+    void updateTabOrder();
 
     class PrivateData;
     PrivateData *d_data;
