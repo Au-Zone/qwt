@@ -128,22 +128,41 @@ public:
         viewport()->setAutoFillBackground( false );
     }
 
-    virtual bool event( QEvent *ev )
+    virtual bool event( QEvent *event )
     {
-        if ( ev->type() == QEvent::PolishRequest )
+        if ( event->type() == QEvent::PolishRequest )
+        {
             setFocusPolicy( Qt::NoFocus );
+        }
 
-        return QScrollArea::event( ev );
+        if ( event->type() == QEvent::Resize )
+        {
+            // adjust the size to en/disable the scrollbars
+            // before QScrollArea adjusts the viewport size
+
+            const QRect cr = contentsRect();
+
+            int w = cr.width();
+            int h = contentsWidget->heightForWidth( cr.width() );
+            if ( h > w )
+            {
+                w -= verticalScrollBar()->sizeHint().width();
+                h = contentsWidget->heightForWidth( w );
+            }
+
+            contentsWidget->resize( w, h );
+        }
+
+        return QScrollArea::event( event );
     }
 
-    virtual bool viewportEvent( QEvent *e )
+    virtual bool viewportEvent( QEvent *event )
     {
-        bool ok = QScrollArea::viewportEvent( e );
+        bool ok = QScrollArea::viewportEvent( event );
 
-        if ( e->type() == QEvent::Resize )
+        if ( event->type() == QEvent::Resize )
         {
-            QEvent event( QEvent::LayoutRequest );
-            QApplication::sendEvent( contentsWidget, &event );
+            layoutContents();
         }
         return ok;
     }
@@ -169,6 +188,30 @@ public:
                 vh -= sbHeight;
         }
         return QSize( vw, vh );
+    }
+
+    void layoutContents()
+    {
+        const QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
+            contentsWidget->layout() );
+        if ( tl == NULL )
+            return;
+
+        const QSize visibleSize = viewport()->contentsRect().size();
+
+        const int minW = int( tl->maxItemWidth() ) + 2 * tl->margin();
+
+        int w = qMax( visibleSize.width(), minW );
+        int h = qMax( tl->heightForWidth( w ), visibleSize.height() );
+
+        const int vpWidth = viewportSize( w, h ).width();
+        if ( w > vpWidth )
+        {
+            w = qMax( vpWidth, minW );
+            h = qMax( tl->heightForWidth( w ), visibleSize.height() );
+        }
+
+        contentsWidget->resize( w, h );
     }
 
     QWidget *contentsWidget;
@@ -342,11 +385,7 @@ void QwtLegend::updateLegend( const QwtPlotItem *plotItem,
             d_data->itemMap.insert( plotItem, widgetList );
         }
 
-        if ( contentsLayout )
-            contentsLayout->invalidate();
-
         updateTabOrder();
-        layoutContents();
     }
     
     for ( int i = 0; i < data.size(); i++ )
@@ -445,35 +484,6 @@ int QwtLegend::heightForWidth( int width ) const
     return h;
 }
 
-/*!
-  Adjust contents widget and item layout to the size of the viewport().
-*/
-void QwtLegend::layoutContents()
-{
-    const QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
-        d_data->view->contentsWidget->layout() );
-    if ( tl == NULL )
-        return;
-
-    const QSize visibleSize = 
-        d_data->view->viewport()->contentsRect().size();
-
-    const int minW = int( tl->maxItemWidth() ) + 2 * tl->margin();
-
-    int w = qMax( visibleSize.width(), minW );
-    int h = qMax( tl->heightForWidth( w ), visibleSize.height() );
-
-    const int vpWidth = d_data->view->viewportSize( w, h ).width();
-    if ( w > vpWidth )
-    {
-        w = qMax( vpWidth, minW );
-        h = qMax( tl->heightForWidth( w ), visibleSize.height() );
-    }
-
-    d_data->view->contentsWidget->resize( w, h );
-    if ( layout() )
-        layout()->invalidate();
-}
 
 /*!
   Handle QEvent::ChildRemoved andQEvent::LayoutRequest events 
@@ -501,12 +511,18 @@ bool QwtLegend::eventFilter( QObject *object, QEvent *event )
             }
             case QEvent::LayoutRequest:
             {
-                layoutContents();
+                d_data->view->layoutContents();
+
                 if ( parentWidget() && parentWidget()->layout() == NULL )
                 {
                     /*
-                       updateGeometry() doesn't post LayoutRequest in certain
-                       situations, like when we are hidden. But we want the
+                       We want the parent widget ( usually QwtPlot ) to recalculate
+                       its layout, when the contentsWidget has changed. But
+                       because of the scroll view we have to forward the LayoutRequest
+                       event manually.
+
+                       We don't use updateGeometry() because it doesn't post LayoutRequest
+                       events when the legend is hidden. But we want the
                        parent widget notified, so it can show/hide the legend
                        depending on its items.
                      */
@@ -520,7 +536,7 @@ bool QwtLegend::eventFilter( QObject *object, QEvent *event )
         }
     }
 
-    return QFrame::eventFilter( object, event );
+    return QwtAbstractLegend::eventFilter( object, event );
 }
 
 /*!

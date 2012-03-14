@@ -104,8 +104,6 @@ protected:
     virtual QWidget *createWidget( const QwtLegendData & ) const;
     virtual void updateWidget( QWidget *widget, const QwtLegendData &data );
 
-    virtual void layoutContents();
-
 private:
     void updateTabOrder();
 

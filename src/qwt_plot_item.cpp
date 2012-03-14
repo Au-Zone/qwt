@@ -181,7 +181,9 @@ void QwtPlotItem::setTitle( const QwtText &title )
         d_data->title = title;
 
         legendChanged();
+#if 0
         itemChanged();
+#endif
     }
 }
 
