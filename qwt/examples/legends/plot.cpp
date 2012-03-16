@@ -70,7 +70,8 @@ private:
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent ),
-    d_legendItem( NULL )
+    d_legendItem( NULL ),
+    d_isDirty( false )
 {
     canvas()->setFocusIndicator( QwtPlotCanvas::CanvasFocusIndicator );
     canvas()->setFocusPolicy( Qt::StrongFocus );
@@ -119,6 +120,9 @@ void Plot::insertCurve()
 
 void Plot::applySettings( const Settings &settings )
 {
+    d_isDirty = false;
+    setAutoReplot( true );
+
     if ( settings.legend.isEnabled )
     {
         if ( legend() == NULL || 
@@ -193,5 +197,22 @@ void Plot::applySettings( const Settings &settings )
         curve->setCurveTitle( settings.curve.title );
     }
 
-    replot();
+    setAutoReplot( false );
+    if ( d_isDirty )
+    {
+        d_isDirty = false;
+        replot();
+    }
 }
+
+void Plot::replot()
+{
+    if ( autoReplot() )
+    {
+        d_isDirty = true;
+        return;
+    }
+
+    QwtPlot::replot();
+}
+
