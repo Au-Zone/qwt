@@ -16,10 +16,14 @@ public:
 public Q_SLOTS:
     void applySettings( const Settings & );
 
+public:
+    virtual void replot();
+
 private:
     void insertCurve();
 
     LegendItem *d_legendItem;
+    bool d_isDirty;
 };
 
 #endif
