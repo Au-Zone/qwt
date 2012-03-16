@@ -25,9 +25,9 @@ extern QDateTime qwtToDateTime( double value );
 extern double qwtFromDateTime( const QDateTime & );
 
 extern QDateTime qwtCeilDate( const QDateTime &, 
-	TimeDate::IntervalType );
+    TimeDate::IntervalType );
 
 extern QDateTime qwtFloorDate( const QDateTime &, 
-	TimeDate::IntervalType );
+    TimeDate::IntervalType );
 
 #endif

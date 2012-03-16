@@ -1,46 +1,45 @@
 #include "plot.h"
+#include "settings.h"
+#include "timedate.h"
 #include "timescaleengine.h"
 #include "timescaledraw.h"
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
-#include <qwt_scale_widget.h>
-#include <qdatetime.h>
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
-#if 0
-    qDebug() << "MIN: " << qwtToDateTime( DATE_MIN );
-    qDebug() << "ABOVE: " << qwtToDateTime( DATE_MIN - 1 );
-    qDebug() << "BELOW: " << qwtToDateTime( DATE_MIN + 1 );
-    exit( 0 );
-#endif
     const int axis = QwtPlot::yLeft;
 
     TimeScaleDraw *scaleDraw = new TimeScaleDraw();
     setAxisScaleDraw( axis, scaleDraw );
-    setAxisScaleEngine( axis, new TimeScaleEngine() );
 
-#if 1
-    const QDateTime from( QDate( 2005, 1, 1 ) );
-    const QDateTime to( QDate( 2012, 12, 31 ) );
-#else
-    const QDateTime from( QDate( 1, 1, 1 ) );
-    const QDateTime to( QDate( 1000000, 12, 31 ) );
-#endif
-
-    setAxisScale( axis, qwtFromDateTime( from ), qwtFromDateTime( to ) );
-
-#if 0
-    axisWidget( axis )->setFont( QFont( "Verdana", 16 ) );
-#endif
+    TimeScaleEngine *scaleEngine = new TimeScaleEngine();
+    setAxisScaleEngine( axis, scaleEngine );
 
     QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
     QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas() );
 
     for ( int i = 0; i < QwtPlot::axisCnt; i++ )
     {
-        panner->setAxisEnabled( i, i == axis );
-        magnifier->setAxisEnabled( i, i == axis );
+        const bool on = ( i == axis );
+        panner->setAxisEnabled( i, on );
+        magnifier->setAxisEnabled( i, on );
     }
+}
+
+void Plot::applySettings( const Settings &settings )
+{
+    const int axis = QwtPlot::yLeft;
+
+    TimeScaleEngine *scaleEngine = 
+        static_cast<TimeScaleEngine *>( axisScaleEngine( axis ) );
+
+    scaleEngine->setMaxWeeks( settings.maxWeeks );
+    setAxisMaxMinor( axis, settings.maxMinor );
+    setAxisMaxMajor( axis, settings.maxMinor );
+    setAxisScale( axis, qwtFromDateTime( settings.startDateTime ), 
+        qwtFromDateTime( settings.endDateTime ) );
+
+    replot();
 }

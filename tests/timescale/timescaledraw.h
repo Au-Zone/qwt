@@ -7,14 +7,14 @@
 class TimeScaleDraw: public QwtScaleDraw
 {
 public:
-	TimeScaleDraw();
-	virtual ~TimeScaleDraw();
+    TimeScaleDraw();
+    virtual ~TimeScaleDraw();
 
     virtual QwtText label( double ) const;
 
 protected:
-	virtual QString format( const QwtScaleDiv & ) const;
-	virtual QString format( TimeDate::IntervalType ) const;
+    virtual QString format( const QwtScaleDiv & ) const;
+    virtual QString format( TimeDate::IntervalType ) const;
 };
 
 #endif

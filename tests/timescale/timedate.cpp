@@ -237,7 +237,12 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
         case TimeDate::Week:
         {
             dt = QDateTime( dateTime.date() );
-            dt = dt.addDays( -( dt.date().dayOfWeek() % 7 ) );
+
+            int days = dt.date().dayOfWeek() - s_dayOfWeek0;
+            if ( days < 0 )
+                days += 7;
+
+            dt = dt.addDays( -days );
 
             break;
         }
