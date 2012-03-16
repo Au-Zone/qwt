@@ -102,10 +102,32 @@ Panel::Panel( QWidget *parent ):
     layout->addWidget( legendItemBox );
     layout->addWidget( curveBox );
     layout->addStretch( 10 );
+
+    connect( d_legend.checkBox, 
+        SIGNAL( stateChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_legend.positionBox, 
+        SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
+
+    connect( d_legendItem.checkBox, 
+        SIGNAL( stateChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_legendItem.numColumnsBox, 
+        SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_legendItem.hAlignmentBox, 
+        SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_legendItem.vAlignmentBox, 
+        SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_legendItem.backgroundBox, 
+        SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_curve.numCurves, 
+        SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_curve.title, 
+        SIGNAL( textEdited( const QString & ) ), SIGNAL( edited() ) );
 }
 
 void Panel::setSettings( const Settings &settings)
 {
+	blockSignals( true );
+
     d_legend.checkBox->setCheckState(
         settings.legend.isEnabled ? Qt::Checked : Qt::Unchecked );
     d_legend.positionBox->setCurrentIndex( settings.legend.position );
@@ -137,25 +159,7 @@ void Panel::setSettings( const Settings &settings)
     d_curve.numCurves->setValue( settings.curve.numCurves );
     d_curve.title->setText( settings.curve.title );
 
-    connect( d_legend.checkBox, 
-        SIGNAL( stateChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legend.positionBox, 
-        SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
-
-    connect( d_legendItem.checkBox, 
-        SIGNAL( stateChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.numColumnsBox, 
-        SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.hAlignmentBox, 
-        SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.vAlignmentBox, 
-        SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.backgroundBox, 
-        SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_curve.numCurves, 
-        SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_curve.title, 
-        SIGNAL( textEdited( const QString & ) ), SIGNAL( edited() ) );
+	blockSignals( false );
 }
 
 Settings Panel::settings() const
