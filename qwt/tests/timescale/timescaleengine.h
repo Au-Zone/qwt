@@ -7,8 +7,11 @@
 class TimeScaleEngine: public QwtLinearScaleEngine
 {
 public:
-	TimeScaleEngine();
-	virtual ~TimeScaleEngine();
+    TimeScaleEngine();
+    virtual ~TimeScaleEngine();
+
+    void setMaxWeeks( int );
+    int maxWeeks() const;
 
     virtual void autoScale( int maxNumSteps,
         double &x1, double &x2, double &stepSize ) const;
@@ -19,7 +22,8 @@ public:
 
     virtual QwtScaleTransformation *transformation() const;
 
-	virtual TimeDate::IntervalType intervalType( double x1, double x2 ) const;
+    virtual TimeDate::IntervalType intervalType( 
+        double x1, double x2, int maxSteps ) const;
 
 private:
     QwtScaleDiv divideToSeconds( double x1, double x2,
@@ -42,6 +46,9 @@ private:
 
     QwtScaleDiv divideToYears( double x1, double x2,
         int maxMajSteps, int maxMinSteps, double stepSize ) const;
+
+private:
+    int d_maxWeeks;
 };
 
 #endif

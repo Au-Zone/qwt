@@ -15,12 +15,16 @@ HEADERS = \
     timedate.h \
     timescaleengine.h \
     timescaledraw.h \
-    plot.h 
+    panel.h \
+    plot.h \
+    mainwindow.h
 
 SOURCES = \
     timedate.cpp \
     timescaleengine.cpp \
     timescaledraw.cpp \
+    panel.cpp \
     plot.cpp \
+    mainwindow.cpp \
     main.cpp
 
