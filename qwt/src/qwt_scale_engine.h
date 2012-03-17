@@ -112,13 +112,13 @@ public:
 
       \param x1 First interval limit
       \param x2 Second interval limit
-      \param maxMajSteps Maximum for the number of major steps
-      \param maxMinSteps Maximum number of minor steps
+      \param maxMajorSteps Maximum for the number of major steps
+      \param maxMinorSteps Maximum number of minor steps
       \param stepSize Step size. If stepSize == 0.0, the scaleEngine
                    calculates one.
     */
     virtual QwtScaleDiv divideScale( double x1, double x2,
-        int maxMajSteps, int maxMinSteps,
+        int maxMajorSteps, int maxMinorSteps,
         double stepSize = 0.0 ) const = 0;
 
     //! \return a transformation
