@@ -11,6 +11,7 @@
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
 #include "qwt_curve_fitter.h"
+#include "qwt_clipper.h"
 
 QPainterPath qwtTransformPath( const QwtScaleMap &xMap,
         const QwtScaleMap &yMap, const QPainterPath &path, bool doAlign )
@@ -81,6 +82,8 @@ public:
     {
     }
 
+    QwtPlotShapeItem::PaintAttributes paintAttributes;
+
     double renderTolerance;
     QRectF boundingRect;
 
@@ -140,6 +143,30 @@ void QwtPlotShapeItem::init()
 int QwtPlotShapeItem::rtti() const
 {
     return QwtPlotItem::Rtti_PlotShape;
+}
+
+/*!
+  Specify an attribute how to draw the curve
+
+  \param attribute Paint attribute
+  \param on On/Off
+  \sa testPaintAttribute()
+*/
+void QwtPlotShapeItem::setPaintAttribute( PaintAttribute attribute, bool on )
+{
+    if ( on )
+        d_data->paintAttributes |= attribute;
+    else
+        d_data->paintAttributes &= ~attribute;
+}
+
+/*!
+    \brief Return if a paint attributes is enabled
+    \sa setPaintAttribute()
+*/
+bool QwtPlotShapeItem::testPaintAttribute( PaintAttribute attribute ) const
+{
+    return ( d_data->paintAttributes & attribute );
 }
 
 //! Bounding rect of the item
@@ -231,24 +258,6 @@ double QwtPlotShapeItem::renderTolerance() const
     return d_data->renderTolerance;
 }
 
-QPainterPath QwtPlotShapeItem::simplifyPath( 
-    const QPainterPath &path ) const
-{
-    if ( d_data->renderTolerance <= 0.0 )
-        return path;
-
-    QwtWeedingCurveFitter fitter( d_data->renderTolerance );
-
-    QPainterPath shape;
-    shape.setFillRule( path.fillRule() );
-
-    const QList<QPolygonF> polygons = path.toSubpathPolygons();
-    for ( int i = 0; i < polygons.size(); i++ )
-        shape.addPolygon( fitter.fitCurve( polygons[ i ] ) );
-
-    return shape;
-}
-
 /*!
   Draw the shape item
 
@@ -277,14 +286,71 @@ void QwtPlotShapeItem::draw( QPainter *painter,
     {
         const bool doAlign = QwtPainter::roundingAlignment( painter );
 
-        QPainterPath transformedShape = qwtTransformPath( xMap, yMap, 
+        QPainterPath path = qwtTransformPath( xMap, yMap, 
             d_data->shape, doAlign );
 
-        transformedShape = simplifyPath( transformedShape );
+        if ( testPaintAttribute( QwtPlotShapeItem::ClipPolygons ) )
+        {
+            qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
+            QRectF clipRect = canvasRect.adjusted( -pw, -pw, pw, pw );
+
+            QPainterPath clippedPath;
+            clippedPath.setFillRule( path.fillRule() );
+
+            const QList<QPolygonF> polygons = path.toSubpathPolygons();
+            for ( int i = 0; i < polygons.size(); i++ )
+            {
+                const QPolygonF p = QwtClipper::clipPolygonF(
+                    clipRect, polygons[i], true );
+
+                clippedPath.addPolygon( p );
+
+            }
+
+            path = clippedPath;
+        }
+
+        if ( d_data->renderTolerance > 0.0 )
+        {
+            QwtWeedingCurveFitter fitter( d_data->renderTolerance );
+
+            QPainterPath fittedPath;
+            fittedPath.setFillRule( path.fillRule() );
+
+            const QList<QPolygonF> polygons = path.toSubpathPolygons();
+            for ( int i = 0; i < polygons.size(); i++ )
+                fittedPath.addPolygon( fitter.fitCurve( polygons[ i ] ) );
+
+            path = fittedPath;
+        }
 
         painter->setPen( d_data->pen );
         painter->setBrush( d_data->brush );
 
-        painter->drawPath( transformedShape );
+        painter->drawPath( path );
     }
 }
+
+/*!
+  \return A rectangle filled with the color of the brush ( or the pen )
+
+  \param index Index of the legend entry 
+                ( usually there is only one )
+  \param size Icon size
+
+  \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
+*/
+QwtGraphic QwtPlotShapeItem::legendIcon( int index,
+    const QSizeF &size ) const
+{
+    Q_UNUSED( index );
+
+    QColor iconColor;
+    if ( d_data->brush.style() != Qt::NoBrush )
+        iconColor = d_data->brush.color();
+    else
+        iconColor = d_data->pen.color();
+
+    return defaultIcon( iconColor, size );
+}
+

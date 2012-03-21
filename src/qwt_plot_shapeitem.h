@@ -17,10 +17,32 @@
 class QWT_EXPORT QwtPlotShapeItem: public QwtPlotItem
 {
 public:
+    /*!
+        Attributes to modify the drawing algorithm.
+        The default setting enables ClipPolygons | FilterPoints
+
+        \sa setPaintAttribute(), testPaintAttribute()
+    */
+    enum PaintAttribute
+    {
+        /*!
+          Clip polygons before painting them. In situations, where points
+          are far outside the visible area (f.e when zooming deep) this
+          might be a substantial improvement for the painting performance
+         */
+        ClipPolygons = 0x01,
+    };
+
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
+
     explicit QwtPlotShapeItem( const QString &title = QString::null );
     explicit QwtPlotShapeItem( const QwtText &title );
 
     virtual ~QwtPlotShapeItem();
+
+    void setPaintAttribute( PaintAttribute, bool on = true );
+    bool testPaintAttribute( PaintAttribute ) const;
 
     void setRect( const QRectF & );
     void setPolygon( const QPolygonF & );
@@ -43,10 +65,9 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &rect ) const;
 
-    virtual int rtti() const;
+    virtual QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
-protected:
-    virtual QPainterPath simplifyPath( const QPainterPath & ) const;
+    virtual int rtti() const;
 
 private:
     void init();
