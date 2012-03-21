@@ -10,9 +10,10 @@
 #include "qwt_plot_shapeitem.h"
 #include "qwt_scale_map.h"
 #include "qwt_painter.h"
+#include "qwt_curve_fitter.h"
 
-static QPainterPath qwtTransformPath( const QwtScaleMap &xMap,
-        const QwtScaleMap &yMap, const QPainterPath &path )
+QPainterPath qwtTransformPath( const QwtScaleMap &xMap,
+        const QwtScaleMap &yMap, const QPainterPath &path, bool doAlign )
 {
     QPainterPath shape;
     shape.setFillRule( path.fillRule() );
@@ -21,18 +22,30 @@ static QPainterPath qwtTransformPath( const QwtScaleMap &xMap,
     {
         const QPainterPath::Element &element = path.elementAt( i );
 
-        const double x = xMap.transform( element.x );
-        const double y = yMap.transform( element.y );
+        double x = xMap.transform( element.x );
+        double y = yMap.transform( element.y );
 
         switch( element.type )
         {
             case QPainterPath::MoveToElement:
             {
+                if ( doAlign )
+                {
+                    x = qRound( x );
+                    y = qRound( y );
+                }
+
                 shape.moveTo( x, y );
                 break;
             }
             case QPainterPath::LineToElement:
             {
+                if ( doAlign )
+                {
+                    x = qRound( x );
+                    y = qRound( y );
+                }
+
                 shape.lineTo( x, y );
                 break;
             }
@@ -59,13 +72,16 @@ static QPainterPath qwtTransformPath( const QwtScaleMap &xMap,
     return shape;
 }
 
+
 class QwtPlotShapeItem::PrivateData
 {
 public:
-    PrivateData()
+    PrivateData():
+        renderTolerance( 0.0 )
     {
     }
 
+    double renderTolerance;
     QRectF boundingRect;
 
     QPen pen;
@@ -199,6 +215,40 @@ QBrush QwtPlotShapeItem::brush() const
     return d_data->brush;
 }
 
+void QwtPlotShapeItem::setRenderTolerance( double tolerance )
+{
+    tolerance = qMax( tolerance, 0.0 );
+
+    if ( tolerance != d_data->renderTolerance )
+    {
+        d_data->renderTolerance = tolerance;
+        itemChanged();
+    }
+}
+
+double QwtPlotShapeItem::renderTolerance() const
+{
+    return d_data->renderTolerance;
+}
+
+QPainterPath QwtPlotShapeItem::simplifyPath( 
+    const QPainterPath &path ) const
+{
+    if ( d_data->renderTolerance <= 0.0 )
+        return path;
+
+    QwtWeedingCurveFitter fitter( d_data->renderTolerance );
+
+    QPainterPath shape;
+    shape.setFillRule( path.fillRule() );
+
+    const QList<QPolygonF> polygons = path.toSubpathPolygons();
+    for ( int i = 0; i < polygons.size(); i++ )
+        shape.addPolygon( fitter.fitCurve( polygons[ i ] ) );
+
+    return shape;
+}
+
 /*!
   Draw the shape item
 
@@ -225,11 +275,16 @@ void QwtPlotShapeItem::draw( QPainter *painter,
 
     if ( d_data->boundingRect.intersects( cRect ) )
     {
-        const QPainterPath shape = 
-            qwtTransformPath( xMap, yMap, d_data->shape );
+        const bool doAlign = QwtPainter::roundingAlignment( painter );
+
+        QPainterPath transformedShape = qwtTransformPath( xMap, yMap, 
+            d_data->shape, doAlign );
+
+        transformedShape = simplifyPath( transformedShape );
 
         painter->setPen( d_data->pen );
         painter->setBrush( d_data->brush );
-        painter->drawPath( shape );
+
+        painter->drawPath( transformedShape );
     }
 }

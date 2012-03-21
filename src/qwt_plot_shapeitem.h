@@ -34,6 +34,9 @@ public:
     void setBrush( const QBrush & );
     QBrush brush() const;
 
+    void setRenderTolerance( double );
+    double renderTolerance() const;
+
     virtual QRectF boundingRect() const;
 
     virtual void draw( QPainter *p,
@@ -41,6 +44,9 @@ public:
         const QRectF &rect ) const;
 
     virtual int rtti() const;
+
+protected:
+    virtual QPainterPath simplifyPath( const QPainterPath & ) const;
 
 private:
     void init();
