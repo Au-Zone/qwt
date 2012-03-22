@@ -13,7 +13,7 @@
 #include "qwt_curve_fitter.h"
 #include "qwt_clipper.h"
 
-QPainterPath qwtTransformPath( const QwtScaleMap &xMap,
+static QPainterPath qwtTransformPath( const QwtScaleMap &xMap,
         const QwtScaleMap &yMap, const QPainterPath &path, bool doAlign )
 {
     QPainterPath shape;
@@ -146,7 +146,7 @@ int QwtPlotShapeItem::rtti() const
 }
 
 /*!
-  Specify an attribute how to draw the curve
+  Specify an attribute how to draw the shape
 
   \param attribute Paint attribute
   \param on On/Off
@@ -161,20 +161,26 @@ void QwtPlotShapeItem::setPaintAttribute( PaintAttribute attribute, bool on )
 }
 
 /*!
-    \brief Return if a paint attributes is enabled
-    \sa setPaintAttribute()
+  \brief Return if a paint attributes is enabled
+  \sa setPaintAttribute()
 */
 bool QwtPlotShapeItem::testPaintAttribute( PaintAttribute attribute ) const
 {
     return ( d_data->paintAttributes & attribute );
 }
 
-//! Bounding rect of the item
+//! Bounding rectangle of the shape
 QRectF QwtPlotShapeItem::boundingRect() const
 {
     return d_data->boundingRect;
 }
 
+/*!
+  \brief Set a path built from a rectangle
+
+  \param rect Rectangle
+  \sa setShape(), setPolygon(), shape()
+ */
 void QwtPlotShapeItem::setRect( const QRectF &rect ) 
 {
     QPainterPath path;
@@ -183,6 +189,12 @@ void QwtPlotShapeItem::setRect( const QRectF &rect )
     setShape( path );
 }
 
+/*!
+  \brief Set a path built from a polygon
+
+  \param polygon Polygon
+  \sa setShape(), setRect(), shape()
+ */
 void QwtPlotShapeItem::setPolygon( const QPolygonF &polygon )
 {
     QPainterPath shape;
@@ -190,7 +202,13 @@ void QwtPlotShapeItem::setPolygon( const QPolygonF &polygon )
 
     setShape( shape );
 }
-    
+
+/*!
+  \brief Set the shape to be displayed
+
+  \param shape Shape
+  \sa setShape(), shape()
+ */
 void QwtPlotShapeItem::setShape( const QPainterPath &shape )
 {
     if ( shape != d_data->shape )
@@ -209,11 +227,23 @@ void QwtPlotShapeItem::setShape( const QPainterPath &shape )
     }
 }
 
+/*!
+  \return Shape to be displayed
+  \sa setShape()
+ */
 QPainterPath QwtPlotShapeItem::shape() const
 {
     return d_data->shape;
 }
 
+/*!
+  \brief Assign a pen
+
+  The pen is used to draw the outline of the shape
+
+  \param pen Pen
+  \sa pen(), brush()
+*/
 void QwtPlotShapeItem::setPen( const QPen &pen )
 {
     if ( pen != d_data->pen )
@@ -223,11 +253,23 @@ void QwtPlotShapeItem::setPen( const QPen &pen )
     }
 }
 
+/*!
+    \return Pen used to draw the outline of the shape
+    \sa setPen(), brush()
+*/
 QPen QwtPlotShapeItem::pen() const
 {
     return d_data->pen;
 }
 
+/*!
+  Assign a brush.
+
+  The brush is used to fill the path
+
+  \param brush Brush
+  \sa brush(), pen()
+*/
 void QwtPlotShapeItem::setBrush( const QBrush &brush )
 {
     if ( brush != d_data->brush )
@@ -237,11 +279,31 @@ void QwtPlotShapeItem::setBrush( const QBrush &brush )
     }
 }
 
+/*!
+  \return Brush used to fill the shape
+  \sa setBrush(), pen()
+*/
 QBrush QwtPlotShapeItem::brush() const
 {
     return d_data->brush;
 }
 
+/*!
+  \brief Set the tolerance for the weeding optimization
+
+  After translating the shape into target device coordinate 
+  ( usually widget geometries ) the painter path can be simplified
+  by a point weeding algorithm ( Douglas-Peucker ).
+
+  For shapes built from curves and ellipses weeding might
+  have the opposite effect because they have to be expanded
+  to polygons.
+
+  \param tolerance Accepted error when reducing the number of points
+                   A value <= 0.0 disables weeding.
+
+  \sa renderTolerance(), QwtWeedingCurveFitter
+ */
 void QwtPlotShapeItem::setRenderTolerance( double tolerance )
 {
     tolerance = qMax( tolerance, 0.0 );
@@ -253,6 +315,10 @@ void QwtPlotShapeItem::setRenderTolerance( double tolerance )
     }
 }
 
+/*!
+  \return Tolerance for the weeding optimization
+  \sa setRenderTolerance()
+ */
 double QwtPlotShapeItem::renderTolerance() const
 {
     return d_data->renderTolerance;
@@ -338,7 +404,7 @@ void QwtPlotShapeItem::draw( QPainter *painter,
                 ( usually there is only one )
   \param size Icon size
 
-  \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
+  \sa setLegendIconSize(), legendData()
 */
 QwtGraphic QwtPlotShapeItem::legendIcon( int index,
     const QSizeF &size ) const
