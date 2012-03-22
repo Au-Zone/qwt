@@ -14,12 +14,24 @@
 #include "qwt_plot_item.h"
 #include <qpainterpath.h>
 
+/*!
+  \brief A plot item, which displays any graphical shape, 
+         that can be defined by a QPainterPath
+
+  A QPainterPath is a shape composed from intersecting and uniting
+  regions, rectangles, ellipses or irregular areas defined by lines, and curves.
+  QwtPlotShapeItem displays a shape with a pen and brush.
+
+  QwtPlotShapeItem offers a couple of optimizations like clipping or weeding.
+  These algorithms need to convert the painter path into polygons that might be
+  less performant for paths built from curves and ellipses.
+*/
 class QWT_EXPORT QwtPlotShapeItem: public QwtPlotItem
 {
 public:
     /*!
         Attributes to modify the drawing algorithm.
-        The default setting enables ClipPolygons | FilterPoints
+        The default disables all attributes
 
         \sa setPaintAttribute(), testPaintAttribute()
     */
@@ -29,6 +41,10 @@ public:
           Clip polygons before painting them. In situations, where points
           are far outside the visible area (f.e when zooming deep) this
           might be a substantial improvement for the painting performance
+
+          But polygon clipping will convert the painter path into
+          polygons what might introduce a negative impact on the
+          performance of paths composed from curves or ellipses.
          */
         ClipPolygons = 0x01,
     };
