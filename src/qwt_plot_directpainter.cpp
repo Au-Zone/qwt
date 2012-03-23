@@ -282,29 +282,27 @@ bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
             QPainter painter( canvas );
             painter.setClipRegion( pe->region() );
 
-            bool copyCache = testAttribute( CopyBackingStore )
-                && canvas->testPaintAttribute( QwtPlotCanvas::BackingStore );
+            bool copyCache = testAttribute( CopyBackingStore );
 
             if ( copyCache )
             {
-                // is something valid in the cache ?
-                copyCache = ( canvas->backingStore() != NULL )
-                    && !canvas->backingStore()->isNull();
+                copyCache = canvas->testPaintAttribute( QwtPlotCanvas::BackingStore )
+                    && canvas->backingStore() != NULL && !canvas->backingStore()->isNull();
+
+                if ( copyCache )
+                {
+                    painter.drawPixmap( canvas->contentsRect().topLeft(), 
+                        *canvas->backingStore() );
+                }
             }
 
-            if ( copyCache )
-            {
-                painter.drawPixmap( 
-                    canvas->contentsRect().topLeft(), 
-                    *canvas->backingStore() );
-            }
-            else
+            if ( !copyCache )
             {
                 renderItem( &painter, canvas->contentsRect(),
                     d_data->seriesItem, d_data->from, d_data->to );
             }
 
-            return true; // don't call QwtPlotCanvas::paintEvent()
+            return true;
         }
     }
 

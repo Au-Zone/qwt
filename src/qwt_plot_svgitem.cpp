@@ -63,7 +63,7 @@ QwtPlotSvgItem::~QwtPlotSvgItem()
 void QwtPlotSvgItem::init()
 {
     d_data = new PrivateData();
-	d_data->boundingRect = QwtPlotItem::boundingRect();
+    d_data->boundingRect = QwtPlotItem::boundingRect();
 
     setItemAttribute( QwtPlotItem::AutoScale, true );
     setItemAttribute( QwtPlotItem::Legend, false );

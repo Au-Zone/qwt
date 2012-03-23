@@ -330,9 +330,13 @@ bool QwtPlotRescaler::eventFilter( QObject *object, QEvent *event )
 */
 void QwtPlotRescaler::canvasResizeEvent( QResizeEvent* event )
 {
-    const int fw = 2 * canvas()->frameWidth();
-    const QSize newSize = event->size() - QSize( fw, fw );
-    const QSize oldSize = event->oldSize() - QSize( fw, fw );
+    int left, top, right, bottom;
+    canvas()->getContentsMargins( &left, &top, &right, &bottom );
+
+    const QSize marginSize( left + right, top + bottom );
+
+    const QSize newSize = event->size() - marginSize;
+    const QSize oldSize = event->oldSize() - marginSize;
 
     rescale( oldSize, newSize );
 }
@@ -603,9 +607,14 @@ void QwtPlotRescaler::updateScales(
         }
     }
 
-    const bool immediatePaint = 
-        plt->canvas()->testPaintAttribute( QwtPlotCanvas::ImmediatePaint );
-    plt->canvas()->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, false );
+    QwtPlotCanvas *canvas = plt->canvas();
+
+    bool immediatePaint = false;
+    if ( canvas )
+    {
+        immediatePaint = canvas->testPaintAttribute( QwtPlotCanvas::ImmediatePaint );
+        canvas->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, false );
+    }
 
     plt->setAutoReplot( doReplot );
 
@@ -613,6 +622,8 @@ void QwtPlotRescaler::updateScales(
     plt->replot();
     d_data->inReplot--;
 
-    plt->canvas()->setPaintAttribute( 
-        QwtPlotCanvas::ImmediatePaint, immediatePaint );
+    if ( canvas && immediatePaint )
+    {
+        canvas->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, true );
+    }
 }
