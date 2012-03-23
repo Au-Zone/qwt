@@ -9,10 +9,10 @@ MainWindow::MainWindow( QWidget *parent ):
     QMainWindow( parent )
 {
     Settings settings;
-    settings.startDateTime = QDateTime( QDate( 2005, 1, 1 ) );
-    settings.endDateTime = QDateTime( QDate( 2012, 12, 31 ) );
-    settings.maxMajor = 10;
-    settings.maxMinor = 8;
+    settings.startDateTime = QDateTime( QDate( 2012, 3, 10 ), QTime( 23, 59, 0 ) );
+    settings.endDateTime = QDateTime( QDate( 2012, 3, 11 ) );
+    settings.maxMajorSteps = 10;
+    settings.maxMinorSteps = 8;
     settings.maxWeeks = -1;
 
     d_plot = new Plot();

@@ -7,8 +7,8 @@ class Settings
 {
 public:
     Settings():
-        maxMajor( 10 ),
-        maxMinor( 5 ),
+        maxMajorSteps( 10 ),
+        maxMinorSteps( 5 ),
         maxWeeks( -1 )
     {
     };
@@ -16,8 +16,8 @@ public:
     QDateTime startDateTime;
     QDateTime endDateTime;
 
-    int maxMajor;
-    int maxMinor;
+    int maxMajorSteps;
+    int maxMinorSteps;
 
     int maxWeeks;
 };

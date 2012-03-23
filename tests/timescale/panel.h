@@ -24,8 +24,8 @@ private:
     QDateTimeEdit* d_startDateTime;
     QDateTimeEdit* d_endDateTime;
 
-    QSpinBox *d_maxMajorTicks;
-    QSpinBox *d_maxMinorTicks;
+    QSpinBox *d_maxMajorSteps;
+    QSpinBox *d_maxMinorSteps;
     QSpinBox *d_maxWeeks;
 };
 
