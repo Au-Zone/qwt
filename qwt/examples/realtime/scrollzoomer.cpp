@@ -218,12 +218,12 @@ bool ScrollZoomer::eventFilter( QObject *object, QEvent *event )
         {
             case QEvent::Resize:
             {
-                const int fw = canvas()->frameWidth();
+                int left, top, right, bottom;
+                canvas()->getContentsMargins( &left, &top, &right, &bottom );
 
                 QRect rect;
                 rect.setSize( static_cast<QResizeEvent *>( event )->size() );
-                rect.setRect( rect.x() + fw, rect.y() + fw,
-                    rect.width() - 2 * fw, rect.height() - 2 * fw );
+                rect.adjust( left, top, -right, -bottom );
 
                 layoutScrollBars( rect );
                 break;
