@@ -63,7 +63,6 @@ RandomPlot::RandomPlot( QWidget *parent ):
 {
     setFrameStyle( QFrame::NoFrame );
     setLineWidth( 0 );
-    setCanvasLineWidth( 2 );
 
     plotLayout()->setAlignCanvasToScales( true );
 
