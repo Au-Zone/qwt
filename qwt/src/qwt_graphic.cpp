@@ -325,7 +325,7 @@ public:
 };
 
 /*!
-	\brief Constructor
+    \brief Constructor
 
     Initializes a null graphic
     \sa isNull()
@@ -340,7 +340,7 @@ QwtGraphic::QwtGraphic()
     \brief Copy constructor
 
     \param other Source 
-	\sa operator=()
+    \sa operator=()
  */
 QwtGraphic::QwtGraphic( const QwtGraphic &other )
 {
@@ -369,7 +369,7 @@ QwtGraphic& QwtGraphic::operator=(const QwtGraphic &other)
 
 /*!
     \brief Clear all stored commands 
-	\sa isNull()
+    \sa isNull()
  */
 void QwtGraphic::reset() 
 {
@@ -384,7 +384,7 @@ void QwtGraphic::reset()
 
 /*!
     \return True, when no painter commands have been stored
-	\sa isEmpty(), commands()
+    \sa isEmpty(), commands()
 */
 bool QwtGraphic::isNull() const
 {
@@ -392,8 +392,8 @@ bool QwtGraphic::isNull() const
 }
 
 /*!
-	\return True, when the bounding rectangle is empty
-	\sa boundingRect(), isNull()
+    \return True, when the bounding rectangle is empty
+    \sa boundingRect(), isNull()
 */
 bool QwtGraphic::isEmpty() const
 {
@@ -539,7 +539,7 @@ QSizeF QwtGraphic::defaultSize() const
 }
 
 /*!
-	\brief Replay all recorded painter commands
+    \brief Replay all recorded painter commands
     \param painter Qt painter
  */
 void QwtGraphic::render( QPainter *painter ) const
@@ -564,7 +564,7 @@ void QwtGraphic::render( QPainter *painter ) const
 }
 
 /*!
-	\brief Replay all recorded painter commands
+    \brief Replay all recorded painter commands
 
     The graphic is scaled to fit into the rectangle
     of the given size starting at ( 0, 0 ).
@@ -757,7 +757,7 @@ QPixmap QwtGraphic::toPixmap( const QSize &size,
 }
 
 /*!
-	\brief Convert the graphic to a QImage
+    \brief Convert the graphic to a QImage
 
     All pixels of the image get initialized by 0 ( transparent )
     before the graphic is scaled and rendered on it.
@@ -857,7 +857,7 @@ void QwtGraphic::drawPath( const QPainterPath &path )
     \sa QPaintEngine::drawPixmap()
 */
 void QwtGraphic::drawPixmap( const QRectF &rect, 
-	const QPixmap &pixmap, const QRectF &subRect )
+    const QPixmap &pixmap, const QRectF &subRect )
 {
     const QPainter *painter = paintEngine()->painter();
     if ( painter == NULL )

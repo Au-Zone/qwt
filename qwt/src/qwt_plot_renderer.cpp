@@ -742,7 +742,8 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
         {
             qwtRenderBackground( painter, r, plot->canvas() );
 
-            if ( plot->canvas()->testAttribute( Qt::WA_StyledBackground ) )
+            const QwtPlotCanvas *canvas = plot->canvas();
+            if ( canvas && canvas->testAttribute( Qt::WA_StyledBackground ) )
             {
                 // The clip region is calculated in integers
                 // To avoid too much rounding errors better
@@ -754,7 +755,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 int y1 = qCeil( canvasRect.top() );
                 int y2 = qFloor( canvasRect.bottom() );
 
-                clipPath = plot->canvas()->borderPath( 
+                clipPath = canvas->borderPath( 
                     QRect( x1, y1, x2 - x1 - 1, y2 - y1 - 1 ) );
             }
         }

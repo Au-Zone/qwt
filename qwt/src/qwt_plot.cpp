@@ -170,8 +170,6 @@ void QwtPlot::initPlot( const QwtText &title )
     // canvas
     d_data->canvas = new QwtPlotCanvas( this );
     d_data->canvas->setObjectName( "QwtPlotCanvas" );
-    d_data->canvas->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    d_data->canvas->setLineWidth( 2 );
     d_data->canvas->installEventFilter( this );
 
     setSizePolicy( QSizePolicy::MinimumExpanding,

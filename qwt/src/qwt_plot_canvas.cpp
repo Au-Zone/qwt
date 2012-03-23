@@ -530,6 +530,9 @@ public:
 QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
     QFrame( plot )
 {
+    setFrameStyle( QFrame::Panel | QFrame::Sunken );
+    setLineWidth( 2 );
+
     d_data = new PrivateData;
 
 #ifndef QT_NO_CURSOR

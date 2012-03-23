@@ -125,7 +125,7 @@ public:
         ItemFocusIndicator
     };
 
-    explicit QwtPlotCanvas( QwtPlot * );
+    explicit QwtPlotCanvas( QwtPlot * = NULL );
     virtual ~QwtPlotCanvas();
 
     QwtPlot *plot();
