@@ -16,11 +16,11 @@ Panel::Panel( QWidget *parent ):
     d_endDateTime = new QDateTimeEdit();
     d_endDateTime->setCalendarPopup( true );
     
-    d_maxMajorTicks = new QSpinBox();
-    d_maxMajorTicks->setRange( 0, 50 );
+    d_maxMajorSteps = new QSpinBox();
+    d_maxMajorSteps->setRange( 0, 50 );
 
-    d_maxMinorTicks = new QSpinBox();
-    d_maxMinorTicks->setRange( 0, 50 );
+    d_maxMinorSteps = new QSpinBox();
+    d_maxMinorSteps->setRange( 0, 50 );
 
     d_maxWeeks = new QSpinBox();
     d_maxWeeks->setRange( -1, 100 );
@@ -40,12 +40,12 @@ Panel::Panel( QWidget *parent ):
     layout->addWidget( d_endDateTime, row, 1 );
 
     row++;
-    layout->addWidget( new QLabel( "Max Major" ), row, 0 );
-    layout->addWidget( d_maxMajorTicks, row, 1 );
+    layout->addWidget( new QLabel( "Max. Major Steps" ), row, 0 );
+    layout->addWidget( d_maxMajorSteps, row, 1 );
 
     row++;
-    layout->addWidget( new QLabel( "Max Minor" ), row, 0 );
-    layout->addWidget( d_maxMinorTicks, row, 1 );
+    layout->addWidget( new QLabel( "Max. Minor Steps" ), row, 0 );
+    layout->addWidget( d_maxMinorSteps, row, 1 );
 
     row++;
     layout->addWidget( new QLabel( "Max Weeks" ), row, 0 );
@@ -55,9 +55,9 @@ Panel::Panel( QWidget *parent ):
         SIGNAL( dateTimeChanged( const QDateTime & ) ), SIGNAL( edited() ) );
     connect( d_endDateTime,
         SIGNAL( dateTimeChanged( const QDateTime & ) ), SIGNAL( edited() ) );
-    connect( d_maxMajorTicks,
+    connect( d_maxMajorSteps,
         SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_maxMinorTicks,
+    connect( d_maxMinorSteps,
         SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
     connect( d_maxWeeks,
         SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
@@ -70,8 +70,8 @@ void Panel::setSettings( const Settings &settings )
     d_startDateTime->setDateTime( settings.startDateTime );
     d_endDateTime->setDateTime( settings.endDateTime );
 
-    d_maxMajorTicks->setValue( settings.maxMajor );
-    d_maxMinorTicks->setValue( settings.maxMinor );
+    d_maxMajorSteps->setValue( settings.maxMajorSteps );
+    d_maxMinorSteps->setValue( settings.maxMinorSteps );
     d_maxWeeks->setValue( settings.maxWeeks );
         
     blockSignals( false );
@@ -83,8 +83,8 @@ Settings Panel::settings() const
 
     settings.startDateTime = d_startDateTime->dateTime();
     settings.endDateTime = d_endDateTime->dateTime();
-    settings.maxMajor = d_maxMajorTicks->value();
-    settings.maxMinor = d_maxMinorTicks->value();
+    settings.maxMajorSteps = d_maxMajorSteps->value();
+    settings.maxMinorSteps = d_maxMinorSteps->value();
     settings.maxWeeks = d_maxWeeks->value();
 
     return settings;

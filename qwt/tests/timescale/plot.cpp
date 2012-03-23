@@ -36,8 +36,8 @@ void Plot::applySettings( const Settings &settings )
         static_cast<TimeScaleEngine *>( axisScaleEngine( axis ) );
 
     scaleEngine->setMaxWeeks( settings.maxWeeks );
-    setAxisMaxMinor( axis, settings.maxMinor );
-    setAxisMaxMajor( axis, settings.maxMinor );
+    setAxisMaxMinor( axis, settings.maxMinorSteps );
+    setAxisMaxMajor( axis, settings.maxMajorSteps );
     setAxisScale( axis, qwtFromDateTime( settings.startDateTime ), 
         qwtFromDateTime( settings.endDateTime ) );
 

@@ -6,8 +6,8 @@
 
 #define DEBUG_ENGINE 0
 
-static inline double qwtDivideInterval( double intervalSize, int numSteps, 
-    const double limits[], size_t numLimits )
+static inline int qwtDivideInterval( double intervalSize, int numSteps, 
+    const int limits[], size_t numLimits )
 {
     const double v = intervalSize / numSteps;
 
@@ -17,41 +17,41 @@ static inline double qwtDivideInterval( double intervalSize, int numSteps,
             return limits[i];
     }
 
-    return limits[ numSteps - 1 ];
+    return limits[ numLimits - 1 ];
 }
 
-static inline double qwtDivideMonths(
+static inline int qwtDivideMonths(
     double intervalSize, int numSteps )
 {
-    static double limits[] = { 1, 2, 3, 4, 6, 12 };
+    static int limits[] = { 1, 2, 3, 4, 6, 12 };
 
     return qwtDivideInterval( intervalSize, numSteps,
         limits, sizeof( limits ) / sizeof( double ) );
 }
 
-static inline double qwtDivideWeeks(
+static inline int qwtDivideWeeks(
     double intervalSize, int numSteps )
 {
-    static double limits[] = { 1, 2, 4, 8, 12, 26, 52 };
+    static int limits[] = { 1, 2, 4, 8, 12, 26, 52 };
 
     return qwtDivideInterval( intervalSize, numSteps,
         limits, sizeof( limits ) / sizeof( double ) );
 }
 
-static inline double qwtDivideDays(
+static inline int qwtDivideDays(
     double intervalSize, int numSteps )
 {
     const double v = intervalSize / numSteps;
     if ( v <= 5.0 )
         return qCeil( v );
 
-    return qCeil( v / 7.0 ) * 7.0;
+    return qCeil( v / 7 ) * 7;
 }
 
 static inline double qwtDivideHours(
     double intervalSize, int numSteps )
 {
-    static double limits[] = { 1, 2, 3, 4, 6, 12, 24 };
+    static int limits[] = { 1, 2, 3, 4, 6, 12, 24 };
 
     return qwtDivideInterval( intervalSize, numSteps,
         limits, sizeof( limits ) / sizeof( double ) );
@@ -60,7 +60,7 @@ static inline double qwtDivideHours(
 static inline double qwtDivide60(
     double intervalSize, int numSteps )
 {
-    static double limits[] = { 1, 2, 5, 10, 15, 20, 30, 60 };
+    static int limits[] = { 1, 2, 5, 10, 15, 20, 30, 60 };
     
     return qwtDivideInterval( intervalSize, numSteps,
         limits, sizeof( limits ) / sizeof( double ) );
@@ -245,12 +245,14 @@ QwtScaleDiv TimeScaleEngine::divideToSeconds( double min, double max,
 {
     Q_UNUSED( maxMinSteps );
 
+    // round min/max to seconds
     QDateTime from = qwtToDateTime( min );
     from = qwtFloorDate( from, TimeDate::Second );
 
     QDateTime to = qwtToDateTime( max );
     to = qwtCeilDate( to, TimeDate::Second );
 
+    // calculate the step size
     stepSize = qAbs( stepSize );
     if ( stepSize == 0.0 )
     {
@@ -262,19 +264,51 @@ QwtScaleDiv TimeScaleEngine::divideToSeconds( double min, double max,
 #endif
     }
 
+    // calculate the major ticks
     QList<double> majorTicks;
-    while ( from <= to )
+
+    for ( QDateTime dt = from; dt <= to; 
+        dt = dt.addMSecs( qRound64( stepSize * 1000 ) ) )
     {
-        const double value = qwtFromDateTime( from );
+        const double value = qwtFromDateTime( dt );
         if ( value >= min && value <= max )
             majorTicks += value;
+    }
 
-        from = from.addMSecs( qRound64( stepSize * 1000 ) );
+    // calculate the minor/medium ticks
+    QList<double> minorTicks;
+    QList<double> mediumTicks;
+
+    if ( maxMinSteps > 1 )
+    {
+        const double minStepSize = divideInterval( stepSize, maxMinSteps );
+
+        const int numSteps = stepSize / minStepSize;
+
+        for ( QDateTime dt = from; dt <= to; 
+            dt = dt.addMSecs( qRound64( stepSize * 1000 ) ) )
+        {
+            const double tick0 = qwtFromDateTime( dt );
+
+            for ( int i = 1; i < numSteps; i++ )
+            {
+                const double value = tick0 + i * minStepSize * 1000;
+                if ( value >= min && value <= max )
+                {
+                    if ( numSteps % 2 == 0 && i == numSteps / 2 )
+                        mediumTicks += value;
+                    else
+                        minorTicks += value;
+                }
+            }
+        }
     }
 
     QwtScaleDiv scaleDiv;
     scaleDiv.setInterval( min, max );
     scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MediumTick, mediumTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
 
     return scaleDiv;
 }
@@ -310,9 +344,15 @@ QwtScaleDiv TimeScaleEngine::divideToMinutes( double min, double max,
         from = from.addSecs( qRound( 60 * stepSize ) );
     }
 
+    // calculate the minor/medium ticks
+    QList<double> minorTicks;
+    QList<double> mediumTicks;
+
     QwtScaleDiv scaleDiv;
     scaleDiv.setInterval( min, max );
     scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MediumTick, mediumTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
 
     return scaleDiv;
 }
@@ -348,6 +388,10 @@ QwtScaleDiv TimeScaleEngine::divideToHours( double min, double max,
 
         from = from.addSecs( 3600 * stepSize );
     }
+
+    // calculate the minor/medium ticks
+    QList<double> minorTicks;
+    QList<double> mediumTicks;
 
     QwtScaleDiv scaleDiv;
     scaleDiv.setInterval( min, max );
@@ -388,9 +432,15 @@ QwtScaleDiv TimeScaleEngine::divideToDays( double min, double max,
         from = from.addSecs( qRound( 24 * 3600 * stepSize ) );
     }
 
+    // calculate the minor/medium ticks
+    QList<double> minorTicks;
+    QList<double> mediumTicks;
+
     QwtScaleDiv scaleDiv;
     scaleDiv.setInterval( min, max );
     scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MediumTick, mediumTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
 
     return scaleDiv;
 }
@@ -515,9 +565,15 @@ QwtScaleDiv TimeScaleEngine::divideToMonths( double min, double max,
         from = from.addMonths( stepSize );
     }
 
+    // calculate the minor/medium ticks
+    QList<double> minorTicks;
+    QList<double> mediumTicks;
+
     QwtScaleDiv scaleDiv;
     scaleDiv.setInterval( min, max );
     scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MediumTick, mediumTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
 
     return scaleDiv;
 }
@@ -557,9 +613,15 @@ QwtScaleDiv TimeScaleEngine::divideToYears( double min, double max,
         from = from.addMonths( qRound( stepSize * 12 ) );
     }   
 
+    // calculate the minor/medium ticks
+    QList<double> minorTicks;
+    QList<double> mediumTicks;
+
     QwtScaleDiv scaleDiv;
     scaleDiv.setInterval( min, max );
     scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MediumTick, mediumTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
 
     return scaleDiv;
 }
