@@ -22,6 +22,9 @@ private:
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
+    setPalette( QColor( 60, 60, 60 ) );
+    canvas()->setPalette( Qt::white );
+
     // panning with the left mouse button
     ( void ) new QwtPlotPanner( canvas() );
 
@@ -35,59 +38,54 @@ Plot::Plot( QWidget *parent ):
     setAxisTitle( xBottom, "x -->" );
     setAxisTitle( yLeft, "y -->" );
 #if 0
-	setAxisScaleEngine( xBottom, new QwtLog10ScaleEngine );
-	setAxisScaleEngine( yLeft, new QwtLog10ScaleEngine );
+    setAxisScaleEngine( xBottom, new QwtLog10ScaleEngine );
+    setAxisScaleEngine( yLeft, new QwtLog10ScaleEngine );
 #endif
-
-    // canvas
-    canvas()->setLineWidth( 1 );
-    canvas()->setFrameStyle( QFrame::Box | QFrame::Plain );
-    canvas()->setBorderRadius( 15 );
 
     populate();
 }
 
 void Plot::populate()
 {
-	const double d = 900.0;
-	const QRectF rect( 1.0, 1.0, d, d );
+    const double d = 900.0;
+    const QRectF rect( 1.0, 1.0, d, d );
 
-	QPainterPath path;
-	//path.setFillRule( Qt::WindingFill );
-	path.addEllipse( rect );
+    QPainterPath path;
+    //path.setFillRule( Qt::WindingFill );
+    path.addEllipse( rect );
 
-	const QRectF rect2 = rect.adjusted( 0.2 * d, 0.3 * d, -0.22 * d, 1.5 * d );
-	path.addEllipse( rect2 );
+    const QRectF rect2 = rect.adjusted( 0.2 * d, 0.3 * d, -0.22 * d, 1.5 * d );
+    path.addEllipse( rect2 );
 
 #if 0
-	QFont font;
-	font.setPointSizeF( 200 );
-	QPainterPath textPath;
-	textPath.addText( rect.center(), font, "Seppi" );
+    QFont font;
+    font.setPointSizeF( 200 );
+    QPainterPath textPath;
+    textPath.addText( rect.center(), font, "Seppi" );
 
-	QTransform transform;
-	transform.translate( rect.center().x() - 600, rect.center().y() + 50 );
-	transform.rotate( 180.0, Qt::XAxis );
+    QTransform transform;
+    transform.translate( rect.center().x() - 600, rect.center().y() + 50 );
+    transform.rotate( 180.0, Qt::XAxis );
 
-	textPath = transform.map( textPath );
+    textPath = transform.map( textPath );
 
-	path.addPath( textPath );
+    path.addPath( textPath );
 #endif
 
-	QwtPlotShapeItem *item = new QwtPlotShapeItem();
-	item->setItemAttribute( QwtPlotItem::Legend, true );
-	item->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    QwtPlotShapeItem *item = new QwtPlotShapeItem( "Shape" );
+    item->setItemAttribute( QwtPlotItem::Legend, true );
+    item->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 #if 1
-	item->setRenderTolerance( 1.0 );
+    item->setRenderTolerance( 1.0 );
 #endif
-	item->setShape( path );
-	item->setPen( QPen( Qt::yellow ) );
+    item->setShape( path );
+    item->setPen( QPen( Qt::yellow ) );
 
-	QColor c = Qt::darkRed;
-	c.setAlpha( 100 );
-	item->setBrush( c );
+    QColor c = Qt::darkRed;
+    c.setAlpha( 100 );
+    item->setBrush( c );
 
-	item->attach( this );
+    item->attach( this );
 }
 
 int main( int argc, char **argv )
