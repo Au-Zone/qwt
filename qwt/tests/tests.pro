@@ -18,6 +18,7 @@ contains(QWT_CONFIG, QwtPlot) {
         timescale \
         scaleengine \
         graphicscale \
+        rescaler \
         shapes \
         symbols
 
