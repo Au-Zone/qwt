@@ -9,9 +9,9 @@
 
 #include "qwt_plot_rescaler.h"
 #include "qwt_plot.h"
-#include "qwt_plot_canvas.h"
 #include "qwt_scale_div.h"
 #include "qwt_interval.h"
+#include "qwt_plot_canvas.h"
 #include <qevent.h>
 #include <qalgorithms.h>
 
@@ -58,7 +58,7 @@ public:
 
    \sa setRescalePolicy(), setReferenceAxis()
 */
-QwtPlotRescaler::QwtPlotRescaler( QwtPlotCanvas *canvas,
+QwtPlotRescaler::QwtPlotRescaler( QWidget *canvas,
         int referenceAxis, RescalePolicy policy ):
     QObject( canvas )
 {
@@ -267,35 +267,35 @@ QwtInterval QwtPlotRescaler::intervalHint( int axis ) const
 }
 
 //! \return plot canvas
-QwtPlotCanvas *QwtPlotRescaler::canvas()
+QWidget *QwtPlotRescaler::canvas()
 {
-    return qobject_cast<QwtPlotCanvas *>( parent() );
+	return qobject_cast<QWidget *>( parent() );
 }
 
 //! \return plot canvas
-const QwtPlotCanvas *QwtPlotRescaler::canvas() const
+const QWidget *QwtPlotRescaler::canvas() const
 {
-    return qobject_cast<const QwtPlotCanvas *>( parent() );
+	return qobject_cast<const QWidget *>( parent() );
 }
 
 //! \return plot widget
 QwtPlot *QwtPlotRescaler::plot()
 {
-    QwtPlotCanvas *w = canvas();
+    QWidget *w = canvas();
     if ( w )
-        return w->plot();
+        w = w->parentWidget();
 
-    return NULL;
+    return qobject_cast<QwtPlot *>( w );
 }
 
 //! \return plot widget
 const QwtPlot *QwtPlotRescaler::plot() const
 {
-    const QwtPlotCanvas *w = canvas();
+    const QWidget *w = canvas();
     if ( w )
-        return w->plot();
+        w = w->parentWidget();
 
-    return NULL;
+    return qobject_cast<const QwtPlot *>( w );
 }
 
 //!  Event filter for the plot canvas
@@ -607,7 +607,7 @@ void QwtPlotRescaler::updateScales(
         }
     }
 
-    QwtPlotCanvas *canvas = plt->canvas();
+    QwtPlotCanvas *canvas = qobject_cast<QwtPlotCanvas *>( plt->canvas() );
 
     bool immediatePaint = false;
     if ( canvas )

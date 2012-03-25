@@ -15,8 +15,7 @@ CanvasPicker::CanvasPicker( QwtPlot *plot ):
     d_selectedCurve( NULL ),
     d_selectedPoint( -1 )
 {
-    QwtPlotCanvas *canvas = plot->canvas();
-
+    QwtPlotCanvas *canvas = qobject_cast<QwtPlotCanvas *>( plot->canvas() );
     canvas->installEventFilter( this );
 
     // We want the focus, but no focus rect. The
@@ -278,9 +277,12 @@ void CanvasPicker::move( const QPoint &pos )
        Enable QwtPlotCanvas::ImmediatePaint, so that the canvas has been
        updated before we paint the cursor on it.
      */
-    plot()->canvas()->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, true );
+	QwtPlotCanvas *plotCanvas = 
+		qobject_cast<QwtPlotCanvas *>( plot()->canvas() );
+
+    plotCanvas->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, true );
     plot()->replot();
-    plot()->canvas()->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, false );
+    plotCanvas->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, false );
 
     showCursor( true );
 }

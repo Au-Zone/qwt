@@ -36,7 +36,12 @@ Plot::Plot( QWidget *parent ):
     // Assign a title
     setTitle( "Testing Refresh Rates" );
 
-    setCanvasBackground( Qt::white );
+	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setFrameStyle( QFrame::Box | QFrame::Plain );
+    canvas->setLineWidth( 1 );
+	canvas->setPalette( Qt::white );
+
+	setCanvas( canvas );
 
     alignScales();
 
@@ -70,9 +75,6 @@ void Plot::alignScales()
     // The code below shows how to align the scales to
     // the canvas frame, but is also a good example demonstrating
     // why the spreaded API needs polishing.
-
-    canvas()->setFrameStyle( QFrame::Box | QFrame::Plain );
-    canvas()->setLineWidth( 1 );
 
     for ( int i = 0; i < QwtPlot::axisCnt; i++ )
     {
@@ -130,12 +132,16 @@ void Plot::setSettings( const Settings &s )
     d_curve->setRenderHint( QwtPlotItem::RenderFloats,
         s.curve.renderHint & QwtPlotItem::RenderFloats );
 
-    canvas()->setAttribute( Qt::WA_PaintOnScreen, s.canvas.paintOnScreen );
+	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
+	if ( plotCanvas )
+	{
+    	plotCanvas->setAttribute( Qt::WA_PaintOnScreen, s.canvas.paintOnScreen );
 
-    canvas()->setPaintAttribute(
-        QwtPlotCanvas::BackingStore, s.canvas.useBackingStore );
-    canvas()->setPaintAttribute(
-        QwtPlotCanvas::ImmediatePaint, s.canvas.immediatePaint );
+    	plotCanvas->setPaintAttribute(
+        	QwtPlotCanvas::BackingStore, s.canvas.useBackingStore );
+    	plotCanvas->setPaintAttribute(
+        	QwtPlotCanvas::ImmediatePaint, s.canvas.immediatePaint );
+	}
 
     QwtPainter::setPolylineSplitting( s.curve.lineSplitting );
 
@@ -147,19 +153,16 @@ void Plot::timerEvent( QTimerEvent * )
     CircularBuffer *buffer = static_cast<CircularBuffer *>( d_curve->data() );
     buffer->setReferenceTime( d_clock.elapsed() / 1000.0 );
 
-    switch( d_settings.updateType )
-    {
-        case Settings::RepaintCanvas:
-        {
-            // the axes in this example doesn't change. So all we need to do
-            // is to repaint the canvas.
+	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
+	if ( plotCanvas && d_settings.updateType == Settings::RepaintCanvas )
+	{
+		// the axes in this example doesn't change. So all we need to do
+		// is to repaint the canvas.
 
-            canvas()->replot();
-            break;
-        }
-        default:
-        {
-            replot();
-        }
-    }
+		plotCanvas->replot();
+	}
+	else
+	{
+		replot();
+	}
 }

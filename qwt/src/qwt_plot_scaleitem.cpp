@@ -9,7 +9,6 @@
 
 #include "qwt_plot_scaleitem.h"
 #include "qwt_plot.h"
-#include "qwt_plot_canvas.h"
 #include "qwt_scale_map.h"
 #include "qwt_interval.h"
 #include <qpalette.h>

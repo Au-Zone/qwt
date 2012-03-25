@@ -13,7 +13,7 @@ const unsigned int c_rangeMax = 1000;
 class Zoomer: public ScrollZoomer
 {
 public:
-    Zoomer( QwtPlotCanvas *canvas ):
+    Zoomer( QWidget *canvas ):
         ScrollZoomer( canvas )
     {
 #if 0
@@ -114,7 +114,9 @@ void RandomPlot::append( int timeout, int count )
     Q_EMIT running( true );
     d_timeStamp.start();
 
-    canvas()->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
+    plotCanvas->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+
     d_timer->start( timeout );
 }
 
@@ -128,7 +130,8 @@ void RandomPlot::stop()
         Q_EMIT running( false );
     }
 
-    canvas()->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
+	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
+    plotCanvas->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
 }
 
 void RandomPlot::clear()

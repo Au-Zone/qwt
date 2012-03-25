@@ -54,8 +54,11 @@ TVPlot::TVPlot( QWidget *parent ):
 {
     setTitle( "Watching TV during a weekend" );
 
-    canvas()->setPalette( Qt::gray );
-    canvas()->setBorderRadius( 10 );
+	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setPalette( Qt::gray );
+    canvas->setBorderRadius( 10 );
+	setCanvas( canvas );
+
     plotLayout()->setAlignCanvasToScales( true );
 
     setAxisTitle( QwtPlot::yLeft, "Number of People" );

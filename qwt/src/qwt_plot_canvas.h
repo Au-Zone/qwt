@@ -14,7 +14,6 @@
 #include <qframe.h>
 #include <qpen.h>
 #include <qpainterpath.h>
-#include <qbitmap.h>
 
 class QwtPlot;
 class QPixmap;
@@ -29,6 +28,8 @@ class QPixmap;
 class QWT_EXPORT QwtPlotCanvas : public QFrame
 {
     Q_OBJECT
+
+	Q_PROPERTY( double borderRadius READ borderRadius WRITE setBorderRadius )
 
 public:
 
@@ -137,18 +138,18 @@ public:
     void setBorderRadius( double );
     double borderRadius() const;
 
-    QPainterPath borderPath( const QRect &rect ) const;
-    QBitmap borderMask( const QSize & ) const;
-
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
 
     const QPixmap *backingStore() const;
     void invalidateBackingStore();
 
-    void replot();
-
     virtual bool event( QEvent * );
+
+    Q_INVOKABLE QPainterPath borderPath( const QRect &rect ) const;
+
+public Q_SLOTS:
+    void replot();
 
 protected:
     virtual void paintEvent( QPaintEvent * );

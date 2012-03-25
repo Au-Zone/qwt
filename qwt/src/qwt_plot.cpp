@@ -95,7 +95,7 @@ class QwtPlot::PrivateData
 public:
     QPointer<QwtTextLabel> titleLabel;
     QPointer<QwtTextLabel> footerLabel;
-    QPointer<QwtPlotCanvas> canvas;
+    QPointer<QWidget> canvas;
     QPointer<QwtAbstractLegend> legend;
     QwtPlotLayout *layout;
 
@@ -188,6 +188,21 @@ void QwtPlot::initPlot( const QwtText &title )
     qwtEnableLegendItems( this, true );
 }
 
+void QwtPlot::setCanvas( QWidget *canvas )
+{
+	if ( canvas == d_data->canvas )
+		return;
+
+	delete d_data->canvas;
+	d_data->canvas = canvas;
+
+	if ( canvas )
+	{
+		canvas->setParent( this );
+    	canvas->installEventFilter( this );
+	}
+}
+
 /*!
   \brief Adds handling of layout requests
   \param event Event
@@ -213,7 +228,13 @@ bool QwtPlot::eventFilter( QObject *object, QEvent *event )
     if ( object == d_data->canvas )
     {
         if ( event->type() == QEvent::Resize )
+		{
             updateCanvasMargins();
+		}
+		else if ( event->type() == QEvent::ContentsRectChange )
+		{
+			updateLayout();
+		}
     }
 
     return QFrame::eventFilter( object, event );
@@ -377,7 +398,7 @@ const QwtAbstractLegend *QwtPlot::legend() const
 /*!
   \return the plot's canvas
 */
-QwtPlotCanvas *QwtPlot::canvas()
+QWidget *QwtPlot::canvas()
 {
     return d_data->canvas;
 }
@@ -385,7 +406,7 @@ QwtPlotCanvas *QwtPlot::canvas()
 /*!
   \return the plot's canvas
 */
-const QwtPlotCanvas *QwtPlot::canvas() const
+const QWidget *QwtPlot::canvas() const
 {
     return d_data->canvas;
 }
@@ -472,7 +493,16 @@ void QwtPlot::replot()
      */
     QApplication::sendPostedEvents( this, QEvent::LayoutRequest );
 
-    d_data->canvas->replot();
+	if ( d_data->canvas )
+	{
+		const bool ok = QMetaObject::invokeMethod( 
+			d_data->canvas, "replot", Qt::DirectConnection );
+		if ( !ok )
+		{
+			// fallback, when canvas has no a replot method
+			d_data->canvas->update( d_data->canvas->contentsRect() );
+		}
+	}
 
     setAutoReplot( doAutoReplot );
 }
@@ -743,31 +773,6 @@ QBrush QwtPlot::canvasBackground() const
 {
     return canvas()->palette().brush(
         QPalette::Normal, QPalette::Window );
-}
-
-/*!
-  \brief Change the border width of the plotting area
-
-  Nothing else than canvas()->setLineWidth(w),
-  left for compatibility only.
-
-  \param width New border width
-*/
-void QwtPlot::setCanvasLineWidth( int width )
-{
-    canvas()->setLineWidth( width );
-    updateLayout();
-}
-
-/*!
-  Nothing else than: canvas()->lineWidth(),
-  left for compatibility only.
-
-  \return the border width of the plotting area
-*/
-int QwtPlot::canvasLineWidth() const
-{
-    return canvas()->lineWidth();
 }
 
 /*!

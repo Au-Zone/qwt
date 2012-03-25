@@ -73,9 +73,11 @@ Plot::Plot( QWidget *parent ):
     d_legendItem( NULL ),
     d_isDirty( false )
 {
-    canvas()->setFocusIndicator( QwtPlotCanvas::CanvasFocusIndicator );
-    canvas()->setFocusPolicy( Qt::StrongFocus );
-    canvas()->setPalette( Qt::black );
+	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setFocusIndicator( QwtPlotCanvas::CanvasFocusIndicator );
+    canvas->setFocusPolicy( Qt::StrongFocus );
+    canvas->setPalette( Qt::black );
+	setCanvas( canvas );
 
     setAutoReplot( false );
 

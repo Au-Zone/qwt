@@ -15,7 +15,6 @@
 #include <qvector.h>
 
 class QwtPlot;
-class QwtPlotCanvas;
 
 /*!
   \brief QwtPlotPicker provides selections on a plot canvas
@@ -30,14 +29,14 @@ class QWT_EXPORT QwtPlotPicker: public QwtPicker
     Q_OBJECT
 
 public:
-    explicit QwtPlotPicker( QwtPlotCanvas * );
+    explicit QwtPlotPicker( QWidget * );
     virtual ~QwtPlotPicker();
 
-    explicit QwtPlotPicker( int xAxis, int yAxis, QwtPlotCanvas * );
+    explicit QwtPlotPicker( int xAxis, int yAxis, QWidget * );
 
     explicit QwtPlotPicker( int xAxis, int yAxis,
         RubberBand rubberBand, DisplayMode trackerMode,
-        QwtPlotCanvas * );
+        QWidget * );
 
     virtual void setAxis( int xAxis, int yAxis );
 
@@ -47,8 +46,8 @@ public:
     QwtPlot *plot();
     const QwtPlot *plot() const;
 
-    QwtPlotCanvas *canvas();
-    const QwtPlotCanvas *canvas() const;
+    QWidget *canvas();
+    const QWidget *canvas() const;
 
 Q_SIGNALS:
 

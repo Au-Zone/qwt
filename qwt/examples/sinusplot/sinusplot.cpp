@@ -86,12 +86,6 @@ private:
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
-    // panning with the left mouse button
-    ( void ) new QwtPlotPanner( canvas() );
-
-    // zoom in/out with the wheel
-    ( void ) new QwtPlotMagnifier( canvas() );
-
     setAutoFillBackground( true );
     setPalette( QPalette( QColor( 165, 193, 228 ) ) );
     updateGradient();
@@ -107,13 +101,22 @@ Plot::Plot( QWidget *parent ):
     setAxisScale( yLeft, -1.0, 1.0 );
 
     // canvas
-    canvas()->setLineWidth( 1 );
-    canvas()->setFrameStyle( QFrame::Box | QFrame::Plain );
-    canvas()->setBorderRadius( 15 );
+	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setLineWidth( 1 );
+    canvas->setFrameStyle( QFrame::Box | QFrame::Plain );
+    canvas->setBorderRadius( 15 );
 
     QPalette canvasPalette( Qt::white );
     canvasPalette.setColor( QPalette::Foreground, QColor( 133, 190, 232 ) );
-    canvas()->setPalette( canvasPalette );
+    canvas->setPalette( canvasPalette );
+
+	setCanvas( canvas );
+
+    // panning with the left mouse button
+    ( void ) new QwtPlotPanner( canvas );
+
+    // zoom in/out with the wheel
+    ( void ) new QwtPlotMagnifier( canvas );
 
     populate();
 }
