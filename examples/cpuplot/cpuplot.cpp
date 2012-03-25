@@ -84,7 +84,10 @@ CpuPlot::CpuPlot( QWidget *parent ):
 {
     setAutoReplot( false );
 
-    canvas()->setBorderRadius( 10 );
+	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setBorderRadius( 10 );
+
+	setCanvas( canvas );
 
     plotLayout()->setAlignCanvasToScales( true );
 

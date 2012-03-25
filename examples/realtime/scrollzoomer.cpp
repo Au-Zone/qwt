@@ -26,7 +26,7 @@ public:
     Qt::ScrollBarPolicy mode;
 };
 
-ScrollZoomer::ScrollZoomer( QwtPlotCanvas *canvas ):
+ScrollZoomer::ScrollZoomer( QWidget *canvas ):
     QwtPlotZoomer( canvas ),
     d_cornerWidget( NULL ),
     d_hScrollData( NULL ),

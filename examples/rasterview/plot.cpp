@@ -54,6 +54,10 @@ public:
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
+	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setBorderRadius( 10 );
+	setCanvas( canvas );
+
 #if 0
     QwtPlotGrid *grid = new QwtPlotGrid();
     grid->setPen( QPen( Qt::DotLine ) );
@@ -85,13 +89,11 @@ Plot::Plot( QWidget *parent ):
     setAxisScale( QwtPlot::yLeft, 0.0, 3.0 );
     setAxisMaxMinor( QwtPlot::yLeft, 0 );
 
-    QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas() );
+    QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas );
     magnifier->setAxisEnabled( QwtPlot::yRight, false );
 
-    QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
+    QwtPlotPanner *panner = new QwtPlotPanner( canvas );
     panner->setAxisEnabled( QwtPlot::yRight, false );
-
-    canvas()->setBorderRadius( 10 );
 }
 
 void Plot::exportPlot()

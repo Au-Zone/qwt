@@ -17,7 +17,7 @@
 #include <qapplication.h>
 #include <qpixmap.h>
 
-static inline void renderItem( 
+static inline void qwtRenderItem( 
     QPainter *painter, const QRect &canvasRect,
     QwtPlotSeriesItem *seriesItem, int from, int to )
 {
@@ -31,6 +31,12 @@ static inline void renderItem(
     painter->setRenderHint( QPainter::Antialiasing,
         seriesItem->testRenderHint( QwtPlotItem::RenderAntialiased ) );
     seriesItem->drawSeries( painter, xMap, yMap, canvasRect, from, to );
+}
+
+static inline bool qwtHasBackingStore( const QwtPlotCanvas *canvas )
+{
+	return canvas->testPaintAttribute( QwtPlotCanvas::BackingStore )
+        && canvas->backingStore() && !canvas->backingStore()->isNull();
 }
 
 class QwtPlotDirectPainter::PrivateData
@@ -169,21 +175,19 @@ void QwtPlotDirectPainter::drawSeries(
     if ( seriesItem == NULL || seriesItem->plot() == NULL )
         return;
 
-    QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
-    const QRect canvasRect = canvas->contentsRect();
+    QWidget *widget = seriesItem->plot()->canvas();
+    const QRect canvasRect = widget->contentsRect();
 
-    const bool hasBackingStore = 
-        canvas->testPaintAttribute( QwtPlotCanvas::BackingStore ) 
-        && canvas->backingStore() && !canvas->backingStore()->isNull();
+    QwtPlotCanvas *canvas = qobject_cast<QwtPlotCanvas *>( widget );
 
-    if ( hasBackingStore )
+    if ( qwtHasBackingStore( canvas ) )
     {
         QPainter painter( const_cast<QPixmap *>( canvas->backingStore() ) );
 
         if ( d_data->hasClipping )
             painter.setClipRegion( d_data->clipRegion );
 
-        renderItem( &painter, canvasRect, seriesItem, from, to );
+        qwtRenderItem( &painter, canvasRect, seriesItem, from, to );
 
         if ( testAttribute( QwtPlotDirectPainter::FullRepaint ) )
         {
@@ -193,21 +197,20 @@ void QwtPlotDirectPainter::drawSeries(
     }
 
     bool immediatePaint = true;
-    if ( !canvas->testAttribute( Qt::WA_WState_InPaintEvent ) &&
-        !canvas->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
+    if ( !widget->testAttribute( Qt::WA_WState_InPaintEvent ) &&
+        !widget->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
     {
         immediatePaint = false;
     }
 
     if ( immediatePaint )
     {
-        QwtPlotCanvas *canvas = seriesItem->plot()->canvas();
         if ( !d_data->painter.isActive() )
         {
             reset();
 
-            d_data->painter.begin( canvas );
-            canvas->installEventFilter( this );
+            d_data->painter.begin( widget );
+            widget->installEventFilter( this );
         }
 
         if ( d_data->hasClipping )
@@ -221,7 +224,7 @@ void QwtPlotDirectPainter::drawSeries(
                 d_data->painter.setClipRect( canvasRect );
         }
 
-        renderItem( &d_data->painter, canvasRect, seriesItem, from, to );
+        qwtRenderItem( &d_data->painter, canvasRect, seriesItem, from, to );
 
         if ( d_data->attributes & QwtPlotDirectPainter::AtomicPainter )
         {
@@ -245,9 +248,9 @@ void QwtPlotDirectPainter::drawSeries(
         if ( d_data->hasClipping )
             clipRegion &= d_data->clipRegion;
 
-        canvas->installEventFilter( this );
-        canvas->repaint(clipRegion);
-        canvas->removeEventFilter( this );
+        widget->installEventFilter( this );
+        widget->repaint(clipRegion);
+        widget->removeEventFilter( this );
 
         d_data->seriesItem = NULL;
     }
@@ -277,28 +280,31 @@ bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
         {
             const QPaintEvent *pe = static_cast< QPaintEvent *>( event );
 
-            QwtPlotCanvas *canvas = d_data->seriesItem->plot()->canvas();
+            QWidget *canvas = d_data->seriesItem->plot()->canvas();
 
             QPainter painter( canvas );
             painter.setClipRegion( pe->region() );
 
-            bool copyCache = testAttribute( CopyBackingStore );
+            bool doCopyCache = testAttribute( CopyBackingStore );
 
-            if ( copyCache )
+            if ( doCopyCache )
             {
-                copyCache = canvas->testPaintAttribute( QwtPlotCanvas::BackingStore )
-                    && canvas->backingStore() != NULL && !canvas->backingStore()->isNull();
-
-                if ( copyCache )
-                {
-                    painter.drawPixmap( canvas->contentsRect().topLeft(), 
-                        *canvas->backingStore() );
-                }
+				QwtPlotCanvas *plotCanvas = 
+					qobject_cast<QwtPlotCanvas *>( canvas );
+				if ( plotCanvas )
+				{
+                	doCopyCache = qwtHasBackingStore( plotCanvas );
+                	if ( doCopyCache )
+                	{
+                    	painter.drawPixmap( plotCanvas->contentsRect().topLeft(), 
+                        	*plotCanvas->backingStore() );
+                	}
+				}
             }
 
-            if ( !copyCache )
+            if ( !doCopyCache )
             {
-                renderItem( &painter, canvas->contentsRect(),
+                qwtRenderItem( &painter, canvas->contentsRect(),
                     d_data->seriesItem, d_data->from, d_data->to );
             }
 

@@ -9,7 +9,6 @@
 
 #include "qwt_plot_zoomer.h"
 #include "qwt_plot.h"
-#include "qwt_plot_canvas.h"
 #include "qwt_scale_div.h"
 #include "qwt_picker_machine.h"
 #include <qalgorithms.h>
@@ -42,7 +41,7 @@ public:
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), setZoomBase()
 */
-QwtPlotZoomer::QwtPlotZoomer( QwtPlotCanvas *canvas, bool doReplot ):
+QwtPlotZoomer::QwtPlotZoomer( QWidget *canvas, bool doReplot ):
     QwtPlotPicker( canvas )
 {
     if ( canvas )
@@ -67,7 +66,7 @@ QwtPlotZoomer::QwtPlotZoomer( QwtPlotCanvas *canvas, bool doReplot ):
 */
 
 QwtPlotZoomer::QwtPlotZoomer( int xAxis, int yAxis,
-        QwtPlotCanvas *canvas, bool doReplot ):
+        QWidget *canvas, bool doReplot ):
     QwtPlotPicker( xAxis, yAxis, canvas )
 {
     if ( canvas )

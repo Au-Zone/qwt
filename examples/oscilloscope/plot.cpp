@@ -26,14 +26,15 @@ Plot::Plot( QWidget *parent ):
     // Here we don't have them and the internal
     // backing store of QWidget is good enough.
 
-    canvas()->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
 
     if ( QwtPainter::isX11GraphicsSystem() )
     {
         // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent
         // works on X11. This has a nice effect on the performance.
 
-        canvas()->setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
+        canvas->setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
 
         // Disabling the backing store of Qt improves the performance
         // for the direct painter even more, but the canvas becomes
@@ -43,12 +44,14 @@ Plot::Plot( QWidget *parent ):
         // the canvas is disabled. So in this application
         // we better don't both backing stores.
 
-        if ( canvas()->testPaintAttribute( QwtPlotCanvas::BackingStore ) )
+        if ( canvas->testPaintAttribute( QwtPlotCanvas::BackingStore ) )
         {
-            canvas()->setAttribute( Qt::WA_PaintOnScreen, true );
-            canvas()->setAttribute( Qt::WA_NoSystemBackground, true );
+            canvas->setAttribute( Qt::WA_PaintOnScreen, true );
+            canvas->setAttribute( Qt::WA_NoSystemBackground, true );
         }
     }
+
+	setCanvas( canvas );
 
     initGradient();
 

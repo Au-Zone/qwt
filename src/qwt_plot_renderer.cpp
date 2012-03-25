@@ -10,7 +10,6 @@
 #include "qwt_plot_renderer.h"
 #include "qwt_plot.h"
 #include "qwt_painter.h"
-#include "qwt_plot_canvas.h"
 #include "qwt_plot_layout.h"
 #include "qwt_abstract_legend.h"
 #include "qwt_scale_widget.h"
@@ -716,6 +715,8 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
     QPainter *painter, const QRectF &canvasRect, 
     const QwtScaleMap *map ) const
 {
+	const QWidget *canvas = plot->canvas();
+
     painter->save();
 
     QPainterPath clipPath;
@@ -730,7 +731,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
         if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
         {
             const QBrush bgBrush =
-                plot->canvas()->palette().brush( plot->backgroundRole() );
+                canvas->palette().brush( plot->backgroundRole() );
             painter->setBrush( bgBrush );
         }
 
@@ -740,10 +741,9 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
     {
         if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
         {
-            qwtRenderBackground( painter, r, plot->canvas() );
+            qwtRenderBackground( painter, r, canvas );
 
-            const QwtPlotCanvas *canvas = plot->canvas();
-            if ( canvas && canvas->testAttribute( Qt::WA_StyledBackground ) )
+            if ( canvas->testAttribute( Qt::WA_StyledBackground ) )
             {
                 // The clip region is calculated in integers
                 // To avoid too much rounding errors better
@@ -755,8 +755,10 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 int y1 = qCeil( canvasRect.top() );
                 int y2 = qFloor( canvasRect.bottom() );
 
-                clipPath = canvas->borderPath( 
-                    QRect( x1, y1, x2 - x1 - 1, y2 - y1 - 1 ) );
+				const QRect r( x1, y1, x2 - x1 - 1, y2 - y1 - 1 );
+    			( void ) QMetaObject::invokeMethod(
+        			const_cast< QWidget *>( canvas ), "borderPath", Qt::DirectConnection,
+        			Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, r ) );
             }
         }
     }

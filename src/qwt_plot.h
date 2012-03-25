@@ -25,7 +25,6 @@ class QwtScaleEngine;
 class QwtScaleDiv;
 class QwtScaleDraw;
 class QwtTextLabel;
-class QwtPlotCanvas;
 
 /*!
   \brief A 2-D plotting widget
@@ -157,16 +156,16 @@ public:
 
     QwtTextLabel *footerLabel();
     const QwtTextLabel *footerLabel() const;
+
     // Canvas
 
-    QwtPlotCanvas *canvas();
-    const QwtPlotCanvas *canvas() const;
+	void setCanvas( QWidget * );
+
+    QWidget *canvas();
+    const QWidget *canvas() const;
 
     void setCanvasBackground( const QBrush & );
     QBrush canvasBackground() const;
-
-    void setCanvasLineWidth( int w );
-    int canvasLineWidth() const;
 
     virtual QwtScaleMap canvasMap( int axisId ) const;
 

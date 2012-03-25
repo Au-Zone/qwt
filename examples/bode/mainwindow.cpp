@@ -22,7 +22,7 @@
 class Zoomer: public QwtPlotZoomer
 {
 public:
-    Zoomer( int xAxis, int yAxis, QwtPlotCanvas *canvas ):
+    Zoomer( int xAxis, int yAxis, QWidget *canvas ):
         QwtPlotZoomer( xAxis, yAxis, canvas )
     {
         setTrackerMode( QwtPicker::AlwaysOff );

@@ -76,6 +76,12 @@ Plot::Plot( QWidget *parent ):
     setAxisTitle( QwtPlot::yLeft,
         QString( "Temperature [%1C]" ).arg( QChar( 0x00B0 ) ) );
 
+	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setPalette( Qt::darkGray );
+    canvas->setBorderRadius( 10 );
+
+	setCanvas( canvas );
+
     // grid
     QwtPlotGrid *grid = new Grid;
     grid->attach( this );
@@ -102,7 +108,7 @@ Plot::Plot( QWidget *parent ):
     // RightButton: zoom out by 1
     // Ctrl+RighButton: zoom out to full size
 
-    QwtPlotZoomer* zoomer = new QwtPlotZoomer( canvas() );
+    QwtPlotZoomer* zoomer = new QwtPlotZoomer( canvas );
     zoomer->setRubberBandPen( QColor( Qt::black ) );
     zoomer->setTrackerPen( QColor( Qt::black ) );
     zoomer->setMousePattern( QwtEventPattern::MouseSelect2,
@@ -110,11 +116,8 @@ Plot::Plot( QWidget *parent ):
     zoomer->setMousePattern( QwtEventPattern::MouseSelect3,
         Qt::RightButton );
 
-    QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
+    QwtPlotPanner *panner = new QwtPlotPanner( canvas );
     panner->setMouseButton( Qt::MidButton );
-
-    canvas()->setPalette( Qt::darkGray );
-    canvas()->setBorderRadius( 10 );
 }
 
 QwtScaleDiv Plot::yearScaleDiv() const
