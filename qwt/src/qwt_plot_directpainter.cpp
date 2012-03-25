@@ -175,14 +175,14 @@ void QwtPlotDirectPainter::drawSeries(
     if ( seriesItem == NULL || seriesItem->plot() == NULL )
         return;
 
-    QWidget *widget = seriesItem->plot()->canvas();
-    const QRect canvasRect = widget->contentsRect();
+    QWidget *canvas = seriesItem->plot()->canvas();
+    const QRect canvasRect = canvas->contentsRect();
 
-    QwtPlotCanvas *canvas = qobject_cast<QwtPlotCanvas *>( widget );
+    QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas );
 
-    if ( qwtHasBackingStore( canvas ) )
+    if ( plotCanvas && qwtHasBackingStore( plotCanvas ) )
     {
-        QPainter painter( const_cast<QPixmap *>( canvas->backingStore() ) );
+        QPainter painter( const_cast<QPixmap *>( plotCanvas->backingStore() ) );
 
         if ( d_data->hasClipping )
             painter.setClipRegion( d_data->clipRegion );
@@ -191,14 +191,14 @@ void QwtPlotDirectPainter::drawSeries(
 
         if ( testAttribute( QwtPlotDirectPainter::FullRepaint ) )
         {
-            canvas->repaint();
+            plotCanvas->repaint();
             return;
         }
     }
 
     bool immediatePaint = true;
-    if ( !widget->testAttribute( Qt::WA_WState_InPaintEvent ) &&
-        !widget->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
+    if ( !canvas->testAttribute( Qt::WA_WState_InPaintEvent ) &&
+        !canvas->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
     {
         immediatePaint = false;
     }
@@ -209,8 +209,8 @@ void QwtPlotDirectPainter::drawSeries(
         {
             reset();
 
-            d_data->painter.begin( widget );
-            widget->installEventFilter( this );
+            d_data->painter.begin( canvas );
+            canvas->installEventFilter( this );
         }
 
         if ( d_data->hasClipping )
@@ -248,9 +248,9 @@ void QwtPlotDirectPainter::drawSeries(
         if ( d_data->hasClipping )
             clipRegion &= d_data->clipRegion;
 
-        widget->installEventFilter( this );
-        widget->repaint(clipRegion);
-        widget->removeEventFilter( this );
+        canvas->installEventFilter( this );
+        canvas->repaint(clipRegion);
+        canvas->removeEventFilter( this );
 
         d_data->seriesItem = NULL;
     }
