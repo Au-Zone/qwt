@@ -82,6 +82,12 @@ QWT_CONFIG     += QwtWidgets
 QWT_CONFIG     += QwtSvg
 
 ######################################################################
+# If you want to use a OpenGL plot canvas
+######################################################################
+
+QWT_CONFIG     += QwtOpenGL
+
+######################################################################
 # You can use the MathML renderer of the Qt solutions package to 
 # enable MathML support in Qwt. Because of license implications
 # the ( modified ) code of the MML Widget solution is included and

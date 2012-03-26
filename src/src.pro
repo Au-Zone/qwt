@@ -196,12 +196,25 @@ contains(QWT_CONFIG, QwtPlot) {
 contains(QWT_CONFIG, QwtSvg) {
 
     QT += svg
+
     HEADERS += qwt_plot_svgitem.h
     SOURCES += qwt_plot_svgitem.cpp 
 }
 else {
 
     DEFINES += QWT_NO_SVG
+}
+
+contains(QWT_CONFIG, QwtOpenGL) {
+
+	QT += opengl
+
+	HEADERS += qwt_plot_glcanvas.h
+	SOURCES += qwt_plot_glcanvas.cpp
+}
+else {
+
+    DEFINES += QWT_NO_OPENGL
 }
 
 contains(QWT_CONFIG, QwtWidgets) {
