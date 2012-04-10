@@ -32,6 +32,12 @@ IPATH       = $${INCLUDEPATH}
 qtAddLibrary(qwt)
 INCLUDEPATH = $${IPATH}
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+
+    QT += printsupport
+    QT += concurrent
+}   
+
 contains(QWT_CONFIG, QwtSvg) {
 
     QT += svg
