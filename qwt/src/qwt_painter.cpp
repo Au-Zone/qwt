@@ -871,3 +871,63 @@ void QwtPainter::drawColorBar( QPainter *painter,
 
     drawPixmap( painter, rect, pixmap );
 }
+
+#if QT_VERSION >= 0x050000
+
+static inline void fillRect(QPainter *painter, const QRect &rect, const QBrush &brush)
+{
+    if (brush.style() == Qt::TexturePattern) 
+	{
+		painter->setClipRect( rect );
+		painter->drawTiledPixmap(rect, brush.texture(), rect.topLeft());
+    } 
+	else if (brush.gradient()
+    	&& brush.gradient()->coordinateMode() == QGradient::ObjectBoundingMode) 
+	{
+        painter->save();
+        painter->setClipRect( rect );
+        painter->fillRect(0, 0, painter->device()->width(), 
+			painter->device()->height(), brush);
+        painter->restore();
+    } 
+	else 
+	{
+        painter->fillRect(rect, brush);
+    }
+}
+
+#endif
+
+void QwtPainter::fillPixmap( const QWidget *widget, 
+	QPixmap &pixmap, const QPoint &offset )
+{
+#if QT_VERSION >= 0x050000
+	const QRect rect( offset, pixmap.size() );
+
+    QPainter painter( &pixmap );
+    painter.translate( -offset );
+
+    const QBrush autoFillBrush = widget->palette().brush(widget->backgroundRole());
+
+    if ( !( widget->autoFillBackground() && autoFillBrush.isOpaque() ) ) 
+	{
+        const QBrush bg = widget->palette().brush(QPalette::Window);
+        fillRect( &painter, rect, bg);
+    }
+
+    if (widget->autoFillBackground())
+        fillRect( &painter, rect, autoFillBrush);
+
+    if (widget->testAttribute(Qt::WA_StyledBackground)) 
+	{
+        painter.setClipRegion(rect);
+
+        QStyleOption opt;
+        opt.initFrom( widget );
+        widget->style()->drawPrimitive( QStyle::PE_Widget, &opt, &painter, widget );
+    }
+#else
+    pixmap.fill( widget, offset );
+#endif
+}
+

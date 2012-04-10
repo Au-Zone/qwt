@@ -9,6 +9,7 @@
 
 #include "qwt_panner.h"
 #include "qwt_picker.h"
+#include "qwt_painter.h"
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qevent.h>
@@ -252,7 +253,7 @@ void QwtPanner::paintEvent( QPaintEvent *pe )
     r.moveCenter( QPoint( r.center().x() + dx, r.center().y() + dy ) );
 
     QPixmap pm( size() );
-    pm.fill( parentWidget(), 0, 0 );
+	QwtPainter::fillPixmap( parentWidget(), pm );
 
     QPainter painter( &pm );
 

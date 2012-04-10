@@ -173,7 +173,7 @@ static void qwtDrawBackground( QPainter *painter, QWidget *widget )
     if ( brush.style() == Qt::TexturePattern )
     {
         QPixmap pm( widget->size() );
-        pm.fill( widget, 0, 0 );
+		QwtPainter::fillPixmap( widget, pm );
         painter->drawPixmap( 0, 0, pm );
     }
     else if ( brush.gradient() )
@@ -445,7 +445,7 @@ static void qwtFillBackground( QPainter *painter,
         if ( clipRegion.intersects( rect ) )
         {
             QPixmap pm( rect.size() );
-            pm.fill( bgWidget, widget->mapTo( bgWidget, rect.topLeft() ) );
+            QwtPainter::fillPixmap( bgWidget, pm, widget->mapTo( bgWidget, rect.topLeft() ) );
             painter->drawPixmap( rect, pm );
         }
     }
@@ -747,7 +747,7 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
                 QPainter p;
                 if ( d_data->borderRadius <= 0.0 )
                 {
-                    bs.fill( this, 0, 0 );
+                    QwtPainter::fillPixmap( this, bs );
                     p.begin( &bs );
                     drawCanvas( &p, false );
                 }
