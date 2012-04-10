@@ -32,6 +32,11 @@ IPATH       = $${INCLUDEPATH}
 qtAddLibrary(qwt)
 INCLUDEPATH = $${IPATH}
 
+contains(QWT_CONFIG, QwtOpenGL ) {
+
+    QT += opengl
+}
+
 contains(QWT_CONFIG, QwtSvg) {
 
     QT += svg
