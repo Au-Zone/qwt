@@ -237,7 +237,7 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
     const QRectF documentRect( 0.0, 0.0, size.width(), size.height() );
 
     const QString fmt = format.toLower();
-    if ( fmt == "pdf" || fmt == "ps" )
+    if ( fmt == "pdf" )
     {
 #ifndef QT_NO_PRINTER
         QPrinter printer;
@@ -245,12 +245,28 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
         printer.setPaperSize( sizeMM, QPrinter::Millimeter );
         printer.setDocName( title );
         printer.setOutputFileName( fileName );
-        printer.setOutputFormat( ( format == "pdf" )
-            ? QPrinter::PdfFormat : QPrinter::PostScriptFormat );
+        printer.setOutputFormat( QPrinter::PdfFormat );
         printer.setResolution( resolution );
 
         QPainter painter( &printer );
         render( plot, &painter, documentRect );
+#endif
+    }
+    else if ( fmt == "ps" )
+    {
+#if QT_VERSION < 0x050000
+#ifndef QT_NO_PRINTER
+        QPrinter printer;
+        printer.setFullPage( true );
+        printer.setPaperSize( sizeMM, QPrinter::Millimeter );
+        printer.setDocName( title );
+        printer.setOutputFileName( fileName );
+        printer.setOutputFormat( QPrinter::PostScriptFormat );
+        printer.setResolution( resolution );
+
+        QPainter painter( &printer );
+        render( plot, &painter, documentRect );
+#endif
 #endif
     }
     else if ( fmt == "svg" )
@@ -715,7 +731,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
     QPainter *painter, const QRectF &canvasRect, 
     const QwtScaleMap *map ) const
 {
-	const QWidget *canvas = plot->canvas();
+    const QWidget *canvas = plot->canvas();
 
     painter->save();
 
@@ -755,10 +771,10 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 int y1 = qCeil( canvasRect.top() );
                 int y2 = qFloor( canvasRect.bottom() );
 
-				const QRect r( x1, y1, x2 - x1 - 1, y2 - y1 - 1 );
-    			( void ) QMetaObject::invokeMethod(
-        			const_cast< QWidget *>( canvas ), "borderPath", Qt::DirectConnection,
-        			Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, r ) );
+                const QRect r( x1, y1, x2 - x1 - 1, y2 - y1 - 1 );
+                ( void ) QMetaObject::invokeMethod(
+                    const_cast< QWidget *>( canvas ), "borderPath", Qt::DirectConnection,
+                    Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, r ) );
             }
         }
     }
