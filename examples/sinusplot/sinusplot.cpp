@@ -179,20 +179,10 @@ void Plot::updateGradient()
 
     const QColor buttonColor = pal.color( QPalette::Button );
 
-#ifdef Q_WS_X11
-    // Qt 4.7.1: QGradient::StretchToDeviceMode is buggy on X11
-
     QLinearGradient gradient( rect().topLeft(), rect().bottomLeft() );
     gradient.setColorAt( 0.0, Qt::white );
     gradient.setColorAt( 0.7, buttonColor );
     gradient.setColorAt( 1.0, buttonColor );
-#else
-    QLinearGradient gradient( 0, 0, 0, 1 );
-    gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
-    gradient.setColorAt( 0.0, Qt::white );
-    gradient.setColorAt( 0.7, buttonColor );
-    gradient.setColorAt( 1.0, buttonColor );
-#endif
 
     pal.setBrush( QPalette::Window, gradient );
     setPalette( pal );
@@ -201,9 +191,9 @@ void Plot::updateGradient()
 void Plot::resizeEvent( QResizeEvent *event )
 {
     QwtPlot::resizeEvent( event );
-#ifdef Q_WS_X11
+
+    // Qt 4.7.1: QGradient::StretchToDeviceMode is buggy on X11
     updateGradient();
-#endif
 }
 
 int main( int argc, char **argv )
