@@ -119,7 +119,6 @@ static inline void qwtUnscaleFont( QPainter *painter )
 */
 bool QwtPainter::isX11GraphicsSystem()
 {
-#if defined(Q_WS_X11)
     static int onX11 = -1;
     if ( onX11 < 0 )
     {
@@ -130,9 +129,6 @@ bool QwtPainter::isX11GraphicsSystem()
     }
 
     return onX11 == 1;
-#else
-    return false;
-#endif
 }
 
 /*!
@@ -901,7 +897,8 @@ static inline void fillRect(QPainter *painter, const QRect &rect, const QBrush &
 void QwtPainter::fillPixmap( const QWidget *widget, 
 	QPixmap &pixmap, const QPoint &offset )
 {
-#if QT_VERSION >= 0x050000
+//#if QT_VERSION >= 0x050000
+#if 1
 	const QRect rect( offset, pixmap.size() );
 
     QPainter painter( &pixmap );
