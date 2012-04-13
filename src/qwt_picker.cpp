@@ -44,6 +44,9 @@ protected:
     virtual void paintEvent( QPaintEvent * );
     virtual void resizeEvent( QResizeEvent * );
 
+private:
+    void drawTrackerMask( QPaintDevice & ) const;
+
     QwtPicker *d_picker;
     Type d_type;
 };
@@ -133,19 +136,34 @@ void QwtPicker::PickerWidget::updateMask()
 
         if ( d_hasTextMask )
         {
-            QBitmap bm( width(), height() );
-            bm.fill( Qt::color0 );
+            bool useBitmap = true;
 
-            QPainter painter( &bm );
-            painter.setFont( font() );
+#if QT_VERSION >= 0x040800
+            if ( QwtPainter::isX11GraphicsSystem() &&
+                parent()->inherits( "QGLWidget" ) )
+            {
+                // Qt crashes in this combination
+                useBitmap = false;
+            }
+#endif
+            if ( useBitmap )
+            {
+                QBitmap bm( width(), height() );
+                bm.fill( Qt::color0 );
 
-            QPen pen = d_picker->trackerPen();
-            pen.setColor( Qt::color1 );
-            painter.setPen( pen );
+                drawTrackerMask( bm );
 
-            d_picker->drawTracker( &painter );
+                mask = QRegion( bm );
+            }
+            else
+            {
+                QImage image( width(), height(), QImage::Format_Mono );
+                image.fill( 1 );
 
-            mask = QRegion( bm );
+                drawTrackerMask( image );
+
+                mask = QRegion( QBitmap::fromImage( image ) );
+            }
         }
         else
         {
@@ -165,6 +183,18 @@ void QwtPicker::PickerWidget::updateMask()
     }
     setMask( mask );
     setVisible( !mask.isEmpty() );
+}
+
+void QwtPicker::PickerWidget::drawTrackerMask( QPaintDevice &device ) const
+{
+    QPainter painter( &device );
+    painter.setFont( font() );
+
+    QPen pen = d_picker->trackerPen();
+    pen.setColor( Qt::color1 );
+    painter.setPen( pen );
+
+    d_picker->drawTracker( &painter );
 }
 
 void QwtPicker::PickerWidget::paintEvent( QPaintEvent *e )
