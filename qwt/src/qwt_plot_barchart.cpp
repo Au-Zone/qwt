@@ -170,23 +170,46 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
     const QRectF &canvasRect, const QwtInterval &boundingInterval,
     int index, const QPointF &point ) const
 {
-    double sampleW;
+    QwtColumnRect bar;
 
     if ( orientation() == Qt::Horizontal )
     {
-        sampleW = sampleWidth( yMap, canvasRect.height(),
+        const double barHeight = sampleWidth( yMap, canvasRect.height(),
             boundingInterval.width(), point.y() );
+
+        const double x1 = xMap.transform( baseline() );
+        const double x2 = xMap.transform( point.y() );
+
+        const double y = yMap.transform( point.x() );
+        const double y1 = y - 0.5 * barHeight;
+        const double y2 = y + 0.5 * barHeight;
+
+        bar.direction = ( x1 < x2 ) ?
+            QwtColumnRect::LeftToRight : QwtColumnRect::RightToLeft;
+
+        bar.hInterval = QwtInterval( x1, x2 ).normalized();
+        bar.vInterval = QwtInterval( y1, y2 );
     }
     else
     {
-        sampleW = sampleWidth( xMap, canvasRect.width(),
+        const double barWidth = sampleWidth( xMap, canvasRect.width(),
             boundingInterval.width(), point.y() );
+
+        const double x = xMap.transform( point.x() );
+        const double x1 = x - 0.5 * barWidth;
+        const double x2 = x + 0.5 * barWidth;
+
+        const double y1 = yMap.transform( baseline() );
+        const double y2 = yMap.transform( point.y() );
+
+        bar.direction = ( y1 < y2 ) ?
+            QwtColumnRect::TopToBottom : QwtColumnRect::BottomToTop;
+
+        bar.hInterval = QwtInterval( x1, x2 );
+        bar.vInterval = QwtInterval( y1, y2 ).normalized();
     }
 
-    // ....
-    Q_UNUSED( painter );
-    Q_UNUSED( sampleW );
-    Q_UNUSED( index );
+    drawBar( painter, index, bar );
 }
 
 void QwtPlotBarChart::drawBar( QPainter *painter,
