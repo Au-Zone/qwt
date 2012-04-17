@@ -18,6 +18,7 @@ contains(QWT_CONFIG, QwtPlot) {
         cpuplot \
         curvdemo1   \
         curvdemo2 \
+        distrowatch \
         friedberg \
         legends \
         stockchart \
