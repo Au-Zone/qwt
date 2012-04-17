@@ -40,16 +40,17 @@ BarChart::BarChart( QWidget *parent ):
     {
         const char *distro;
         const int hits;
+        QColor color;
 
     } pageHits[] =
     {
-        { "Arch", 1116 },
-        { "Debian", 1388 },
-        { "Fedora", 1483},
-        { "Mageia", 1311 },
-        { "Mint", 3857 },
-        { "openSuSE", 1604 },
-        { "Puppy", 1065 },
+        { "Arch", 1116, QColor( Qt::blue ) },
+        { "Debian", 1388, QColor( Qt::red ) },
+        { "Fedora", 1483, QColor( Qt::darkBlue ) },
+        { "Mageia", 1311, QColor( Qt::darkCyan ) },
+        { "Mint", 3857, QColor( "MintCream" ) },
+        { "openSuSE", 1604, QColor( Qt::darkGreen ) },
+        { "Puppy", 1065, QColor( Qt::darkYellow ) }
     };
 
     QVector< double > samples;
@@ -72,6 +73,11 @@ BarChart::BarChart( QWidget *parent ):
 
     d_barChartItem = new QwtPlotBarChart();
     d_barChartItem->setSamples( samples );
+
+    QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
+    symbol->setLineWidth( 2 );
+    symbol->setFrameStyle( QwtColumnSymbol::Raised );
+    d_barChartItem->setSymbol( symbol );
     
     d_barChartItem->attach( this );
 
