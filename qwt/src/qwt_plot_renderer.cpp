@@ -772,8 +772,10 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 int y2 = qFloor( canvasRect.bottom() );
 
                 const QRect r( x1, y1, x2 - x1 - 1, y2 - y1 - 1 );
+
                 ( void ) QMetaObject::invokeMethod(
-                    const_cast< QWidget *>( canvas ), "borderPath", Qt::DirectConnection,
+                    const_cast< QWidget *>( canvas ), "borderPath", 
+                    Qt::DirectConnection,
                     Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, r ) );
             }
         }

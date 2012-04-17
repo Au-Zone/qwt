@@ -10,6 +10,7 @@
 #include "qwt_plot_panner.h"
 #include "qwt_scale_div.h"
 #include "qwt_plot.h"
+#include "qwt_painter.h"
 #include <qbitmap.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
@@ -18,11 +19,11 @@ static QBitmap qwtBorderMask( const QWidget *canvas, const QSize &size )
 {
     const QRect r( 0, 0, size.width(), size.height() );
 
-	QPainterPath borderPath;
+    QPainterPath borderPath;
 
     ( void )QMetaObject::invokeMethod( 
-		const_cast< QWidget *>( canvas ), "borderPath", Qt::DirectConnection,
-    	Q_RETURN_ARG( QPainterPath, borderPath ), Q_ARG( QRect, r ) );
+        const_cast< QWidget *>( canvas ), "borderPath", Qt::DirectConnection,
+        Q_RETURN_ARG( QPainterPath, borderPath ), Q_ARG( QRect, r ) );
 
     if ( borderPath.isEmpty() )
         return QBitmap();
@@ -47,24 +48,24 @@ static QBitmap qwtBorderMask( const QWidget *canvas, const QSize &size )
     }
     else
     {
-		const QVariant borderRadius = canvas->property( "borderRadius" );
-		const QVariant frameWidth = canvas->property( "frameWidth" );
+        const QVariant borderRadius = canvas->property( "borderRadius" );
+        const QVariant frameWidth = canvas->property( "frameWidth" );
 
-		if ( borderRadius.type() == QVariant::Double 
-			&& frameWidth.type() == QVariant::Int )
-		{
-			const double br = borderRadius.toDouble();
-			const int fw = frameWidth.toInt();
-		
-        	if ( br > 0.0 && fw > 0 )
-			{
-				painter.setPen( QPen( Qt::color1, fw ) );
-				painter.setBrush( Qt::NoBrush );
-				painter.setRenderHint( QPainter::Antialiasing, true );
+        if ( borderRadius.type() == QVariant::Double 
+            && frameWidth.type() == QVariant::Int )
+        {
+            const double br = borderRadius.toDouble();
+            const int fw = frameWidth.toInt();
+        
+            if ( br > 0.0 && fw > 0 )
+            {
+                painter.setPen( QPen( Qt::color1, fw ) );
+                painter.setBrush( Qt::NoBrush );
+                painter.setRenderHint( QPainter::Antialiasing, true );
 
-				painter.drawPath( borderPath );
-			}
-		}
+                painter.drawPath( borderPath );
+            }
+        }
     }
 
     painter.end();
@@ -236,3 +237,23 @@ QBitmap QwtPlotPanner::contentsMask() const
 
     return QwtPanner::contentsMask();
 }
+
+QPixmap QwtPlotPanner::grab() const
+{   
+    const QWidget *cv = canvas();
+    if ( cv && cv->inherits( "QGLWidget" ) )
+    {
+        // we can't grab from a QGLWidget
+
+        QPixmap pm( cv->size() );
+        QwtPainter::fillPixmap( cv, pm );
+
+        QPainter painter( &pm );
+        const_cast<QwtPlot *>( plot() )->drawCanvas( &painter );
+
+        return pm;
+    }
+
+    return QwtPanner::grab();
+}   
+

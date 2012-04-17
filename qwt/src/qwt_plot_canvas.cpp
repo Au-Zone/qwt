@@ -173,7 +173,7 @@ static void qwtDrawBackground( QPainter *painter, QWidget *widget )
     if ( brush.style() == Qt::TexturePattern )
     {
         QPixmap pm( widget->size() );
-		QwtPainter::fillPixmap( widget, pm );
+        QwtPainter::fillPixmap( widget, pm );
         painter->drawPixmap( 0, 0, pm );
     }
     else if ( brush.gradient() )
@@ -525,8 +525,12 @@ public:
 
 };
 
-//! Sets a cross cursor, enables QwtPlotCanvas::BackingStore
+/*! 
+  \brief Constructor
 
+  \param plot Parent plot widget
+  \sa QwtPlot::setCanvas()
+*/
 QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
     QFrame( plot )
 {

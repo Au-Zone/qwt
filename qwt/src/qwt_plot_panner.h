@@ -50,6 +50,7 @@ protected Q_SLOTS:
 
 protected:
     virtual QBitmap contentsMask() const;
+    virtual QPixmap grab() const;
 
 private:
     class PrivateData;

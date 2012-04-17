@@ -269,13 +269,13 @@ QwtInterval QwtPlotRescaler::intervalHint( int axis ) const
 //! \return plot canvas
 QWidget *QwtPlotRescaler::canvas()
 {
-	return qobject_cast<QWidget *>( parent() );
+    return qobject_cast<QWidget *>( parent() );
 }
 
 //! \return plot canvas
 const QWidget *QwtPlotRescaler::canvas() const
 {
-	return qobject_cast<const QWidget *>( parent() );
+    return qobject_cast<const QWidget *>( parent() );
 }
 
 //! \return plot widget

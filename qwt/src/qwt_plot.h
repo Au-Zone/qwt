@@ -159,7 +159,7 @@ public:
 
     // Canvas
 
-	void setCanvas( QWidget * );
+    void setCanvas( QWidget * );
 
     QWidget *canvas();
     const QWidget *canvas() const;

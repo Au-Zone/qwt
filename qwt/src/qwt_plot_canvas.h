@@ -22,13 +22,13 @@ class QPixmap;
   
    Canvas is the widget where all plot items are displayed
 
-  \sa QwtPlot
+  \sa QwtPlot::setCanvas(), QwtPlotGLCanvas
 */
 class QWT_EXPORT QwtPlotCanvas : public QFrame
 {
     Q_OBJECT
 
-	Q_PROPERTY( double borderRadius READ borderRadius WRITE setBorderRadius )
+    Q_PROPERTY( double borderRadius READ borderRadius WRITE setBorderRadius )
 
 public:
 
@@ -145,7 +145,7 @@ public:
 
     virtual bool event( QEvent * );
 
-    Q_INVOKABLE QPainterPath borderPath( const QRect &rect ) const;
+    Q_INVOKABLE QPainterPath borderPath( const QRect & ) const;
 
 public Q_SLOTS:
     void replot();

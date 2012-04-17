@@ -190,17 +190,17 @@ void QwtPlot::initPlot( const QwtText &title )
 
 void QwtPlot::setCanvas( QWidget *canvas )
 {
-	if ( canvas == d_data->canvas )
-		return;
+    if ( canvas == d_data->canvas )
+        return;
 
-	delete d_data->canvas;
-	d_data->canvas = canvas;
+    delete d_data->canvas;
+    d_data->canvas = canvas;
 
-	if ( canvas )
-	{
-		canvas->setParent( this );
-    	canvas->installEventFilter( this );
-	}
+    if ( canvas )
+    {
+        canvas->setParent( this );
+        canvas->installEventFilter( this );
+    }
 }
 
 /*!
@@ -228,13 +228,13 @@ bool QwtPlot::eventFilter( QObject *object, QEvent *event )
     if ( object == d_data->canvas )
     {
         if ( event->type() == QEvent::Resize )
-		{
+        {
             updateCanvasMargins();
-		}
-		else if ( event->type() == QEvent::ContentsRectChange )
-		{
-			updateLayout();
-		}
+        }
+        else if ( event->type() == QEvent::ContentsRectChange )
+        {
+            updateLayout();
+        }
     }
 
     return QFrame::eventFilter( object, event );
@@ -493,16 +493,16 @@ void QwtPlot::replot()
      */
     QApplication::sendPostedEvents( this, QEvent::LayoutRequest );
 
-	if ( d_data->canvas )
-	{
-		const bool ok = QMetaObject::invokeMethod( 
-			d_data->canvas, "replot", Qt::DirectConnection );
-		if ( !ok )
-		{
-			// fallback, when canvas has no a replot method
-			d_data->canvas->update( d_data->canvas->contentsRect() );
-		}
-	}
+    if ( d_data->canvas )
+    {
+        const bool ok = QMetaObject::invokeMethod( 
+            d_data->canvas, "replot", Qt::DirectConnection );
+        if ( !ok )
+        {
+            // fallback, when canvas has no a replot method
+            d_data->canvas->update( d_data->canvas->contentsRect() );
+        }
+    }
 
     setAutoReplot( doAutoReplot );
 }
@@ -678,6 +678,8 @@ void QwtPlot::drawItems( QPainter *painter, const QRectF &canvasRect,
             painter->save();
 
             painter->setRenderHint( QPainter::Antialiasing,
+                item->testRenderHint( QwtPlotItem::RenderAntialiased ) );
+            painter->setRenderHint( QPainter::HighQualityAntialiasing,
                 item->testRenderHint( QwtPlotItem::RenderAntialiased ) );
 
             item->draw( painter,
