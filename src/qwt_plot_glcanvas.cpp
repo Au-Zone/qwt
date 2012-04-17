@@ -12,6 +12,12 @@
 #include <qevent.h>
 #include <qpainter.h>
 
+/*! 
+  \brief Constructor
+
+  \param plot Parent plot widget
+  \sa QwtPlot::setCanvas()
+*/
 QwtPlotGLCanvas::QwtPlotGLCanvas( QwtPlot *plot ):
     QGLWidget( plot )
 {
@@ -22,26 +28,38 @@ QwtPlotGLCanvas::QwtPlotGLCanvas( QwtPlot *plot ):
     setAutoFillBackground( true );
 }
 
+//! Destructor
 QwtPlotGLCanvas::~QwtPlotGLCanvas()
 {
 }
 
-bool QwtPlotGLCanvas::event( QEvent *event )
-{
-    return QGLWidget::event( event );
-}
+/*!
+  Paint event
 
+  \param event Paint event
+  \sa QwtPlot::drawCanvas()
+*/
 void QwtPlotGLCanvas::paintEvent( QPaintEvent *event )
 {
     QPainter painter( this );
-	painter.setClipRegion( event->region() );
+    painter.setClipRegion( event->region() );
 
-	QwtPlot *plot = qobject_cast< QwtPlot *>( parent() );
-	if ( plot )
-    	plot->drawCanvas( &painter );
+    QwtPlot *plot = qobject_cast< QwtPlot *>( parent() );
+    if ( plot )
+        plot->drawCanvas( &painter );
 }
 
+//! Calls repaint()
 void QwtPlotGLCanvas::replot()
 {
-	repaint( contentsRect() );
+    repaint( contentsRect() );
+}
+
+/*!
+   \return Empty path
+*/
+QPainterPath QwtPlotGLCanvas::borderPath( const QRect &rect ) const
+{
+    Q_UNUSED( rect );
+    return QPainterPath();
 }

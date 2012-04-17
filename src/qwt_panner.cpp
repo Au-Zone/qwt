@@ -253,7 +253,7 @@ void QwtPanner::paintEvent( QPaintEvent *pe )
     r.moveCenter( QPoint( r.center().x() + dx, r.center().y() + dy ) );
 
     QPixmap pm( size() );
-	QwtPainter::fillPixmap( parentWidget(), pm );
+    QwtPainter::fillPixmap( parentWidget(), pm );
 
     QPainter painter( &pm );
 

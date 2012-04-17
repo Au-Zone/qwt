@@ -35,7 +35,7 @@ static inline void qwtRenderItem(
 
 static inline bool qwtHasBackingStore( const QwtPlotCanvas *canvas )
 {
-	return canvas->testPaintAttribute( QwtPlotCanvas::BackingStore )
+    return canvas->testPaintAttribute( QwtPlotCanvas::BackingStore )
         && canvas->backingStore() && !canvas->backingStore()->isNull();
 }
 
@@ -289,17 +289,17 @@ bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
 
             if ( doCopyCache )
             {
-				QwtPlotCanvas *plotCanvas = 
-					qobject_cast<QwtPlotCanvas *>( canvas );
-				if ( plotCanvas )
-				{
-                	doCopyCache = qwtHasBackingStore( plotCanvas );
-                	if ( doCopyCache )
-                	{
-                    	painter.drawPixmap( plotCanvas->contentsRect().topLeft(), 
-                        	*plotCanvas->backingStore() );
-                	}
-				}
+                QwtPlotCanvas *plotCanvas = 
+                    qobject_cast<QwtPlotCanvas *>( canvas );
+                if ( plotCanvas )
+                {
+                    doCopyCache = qwtHasBackingStore( plotCanvas );
+                    if ( doCopyCache )
+                    {
+                        painter.drawPixmap( plotCanvas->contentsRect().topLeft(), 
+                            *plotCanvas->backingStore() );
+                    }
+                }
             }
 
             if ( !doCopyCache )

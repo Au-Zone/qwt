@@ -117,7 +117,7 @@ QwtPlot *QwtPlotPicker::plot()
 {
     QWidget *w = canvas();
     if ( w )
-		w = w->parentWidget();
+        w = w->parentWidget();
 
     return qobject_cast<QwtPlot *>( w );
 }
@@ -127,7 +127,7 @@ const QwtPlot *QwtPlotPicker::plot() const
 {
     const QWidget *w = canvas();
     if ( w )
-		w = w->parentWidget();
+        w = w->parentWidget();
 
     return qobject_cast<const QwtPlot *>( w );
 }

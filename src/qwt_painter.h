@@ -105,8 +105,8 @@ public:
     static bool isAligning( QPainter *painter );
     static bool isX11GraphicsSystem();
 
-	static void fillPixmap( const QWidget *, 
-		QPixmap &, const QPoint &offset = QPoint() );
+    static void fillPixmap( const QWidget *, 
+        QPixmap &, const QPoint &offset = QPoint() );
 
 private:
     static bool d_polylineSplitting;
