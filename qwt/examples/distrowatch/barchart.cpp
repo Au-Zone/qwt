@@ -10,14 +10,30 @@
 class DistroScaleDraw: public QwtScaleDraw
 {
 public:
-    DistroScaleDraw( const QStringList &labels ):
+    DistroScaleDraw( Qt::Orientation orientation, const QStringList &labels ):
         d_labels( labels )
     {
+#if 1
         setTickLength( QwtScaleDiv::MinorTick, 0 );
         setTickLength( QwtScaleDiv::MediumTick, 0 );
+        setTickLength( QwtScaleDiv::MajorTick, 2 );
+#else
+        enableComponent( QwtScaleDraw::Ticks, false );
+#endif
 
-        setLabelRotation( -60.0 );
-        setLabelAlignment( Qt::AlignLeft | Qt::AlignBottom );
+        enableComponent( QwtScaleDraw::Backbone, false );
+
+
+        if ( orientation == Qt::Vertical )
+        {
+            setLabelRotation( -60.0 );
+        }
+        else
+        {
+            setLabelRotation( -20.0 );
+        }
+
+        setLabelAlignment( Qt::AlignLeft | Qt::AlignVCenter );
     }
 
     virtual QwtText label( double value ) const
@@ -87,23 +103,23 @@ BarChart::BarChart( QWidget *parent ):
     setAutoReplot( false );
 }
 
-void BarChart::setOrientation( int orientation )
+void BarChart::setOrientation( int o )
 {
-    if ( orientation == 0 )
-    {
-        d_barChartItem->setOrientation( Qt::Vertical );
+    const Qt::Orientation orientation =
+        ( o == 0 ) ? Qt::Vertical : Qt::Horizontal;
 
-        setAxisScaleDraw( QwtPlot::xBottom, new DistroScaleDraw( d_distros ) );
-        setAxisScaleDraw( QwtPlot::yLeft, new QwtScaleDraw() );
+    int axis1 = QwtPlot::xBottom;
+    int axis2 = QwtPlot::yLeft;
 
-    }
-    else
-    {
-        d_barChartItem->setOrientation( Qt::Horizontal );
+    if ( orientation == Qt::Horizontal )
+        qSwap( axis1, axis2 );
 
-        setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
-        setAxisScaleDraw( QwtPlot::yLeft, new DistroScaleDraw( d_distros ) );
-    }
+    d_barChartItem->setOrientation( orientation );
+    setAxisScaleDraw( axis1, new DistroScaleDraw( orientation, d_distros ) );
+    setAxisScaleDraw( axis2, new QwtScaleDraw() );
+
+    plotLayout()->setCanvasMargin( 0 );
+    //updateCanvasMargins();
 
     replot();
 }
