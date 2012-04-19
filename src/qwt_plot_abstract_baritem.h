@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_PLOT_BAR_ITEM_H
-#define QWT_PLOT_BAR_ITEM_H
+#ifndef QWT_PLOT_ABSTRACT_BAR_ITEM_H
+#define QWT_PLOT_ABSTRACT_BAR_ITEM_H
 
 #include "qwt_global.h"
 #include "qwt_plot_seriesitem.h"
@@ -17,7 +17,7 @@
 class QwtColumnRect;
 class QwtColumnSymbol;
 
-class QWT_EXPORT QwtPlotBarItem: public QwtPlotSeriesItem
+class QWT_EXPORT QwtPlotAbstractBarItem: public QwtPlotSeriesItem
 {
 public:
     enum ChartAttribute
@@ -62,8 +62,8 @@ public:
         FixedSampleSize
     };
 
-    explicit QwtPlotBarItem( const QwtText &title );
-    virtual ~QwtPlotBarItem();
+    explicit QwtPlotAbstractBarItem( const QwtText &title );
+    virtual ~QwtPlotAbstractBarItem();
 
     void setChartAttribute( ChartAttribute, bool on = true );
     bool testChartAttribute( ChartAttribute ) const;
@@ -98,6 +98,6 @@ private:
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotBarItem::ChartAttributes )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotAbstractBarItem::ChartAttributes )
 
 #endif

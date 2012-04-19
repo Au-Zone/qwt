@@ -7,7 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_plot_baritem.h"
+#include "qwt_plot_abstract_baritem.h"
 #include "qwt_scale_map.h"
 
 static inline double qwtTransformWidth(
@@ -21,11 +21,11 @@ static inline double qwtTransformWidth(
     return qAbs( v2 - v1 );
 }
 
-class QwtPlotBarItem::PrivateData
+class QwtPlotAbstractBarItem::PrivateData
 {
 public:
     PrivateData():
-        layoutPolicy( QwtPlotBarItem::AutoAdjustSamples ),
+        layoutPolicy( QwtPlotAbstractBarItem::AutoAdjustSamples ),
         layoutHint( 0.5 ),
         spacing( 10 ),
         margin( 5 ),
@@ -33,7 +33,7 @@ public:
     {
     }
 
-    QwtPlotBarItem::LayoutPolicy layoutPolicy;
+    QwtPlotAbstractBarItem::LayoutPolicy layoutPolicy;
     double layoutHint;
     int spacing;
     int margin;
@@ -41,7 +41,7 @@ public:
     ChartAttributes chartAttributes;
 };
 
-QwtPlotBarItem::QwtPlotBarItem( const QwtText &title ):
+QwtPlotAbstractBarItem::QwtPlotAbstractBarItem( const QwtText &title ):
     QwtPlotSeriesItem( title )
 {
     d_data = new PrivateData;
@@ -52,12 +52,12 @@ QwtPlotBarItem::QwtPlotBarItem( const QwtText &title ):
     setZ( 19.0 );
 }
 
-QwtPlotBarItem::~QwtPlotBarItem()
+QwtPlotAbstractBarItem::~QwtPlotAbstractBarItem()
 {
     delete d_data;
 }
 
-void QwtPlotBarItem::setChartAttribute( ChartAttribute attribute, bool on )
+void QwtPlotAbstractBarItem::setChartAttribute( ChartAttribute attribute, bool on )
 {
     if ( on )
         d_data->chartAttributes |= attribute;
@@ -65,12 +65,12 @@ void QwtPlotBarItem::setChartAttribute( ChartAttribute attribute, bool on )
         d_data->chartAttributes &= ~attribute;
 }
 
-bool QwtPlotBarItem::testChartAttribute( ChartAttribute attribute ) const
+bool QwtPlotAbstractBarItem::testChartAttribute( ChartAttribute attribute ) const
 {
     return ( d_data->chartAttributes & attribute );
 }
 
-void QwtPlotBarItem::setLayoutPolicy( LayoutPolicy policy )
+void QwtPlotAbstractBarItem::setLayoutPolicy( LayoutPolicy policy )
 {
     if ( policy != d_data->layoutPolicy )
     {
@@ -79,12 +79,12 @@ void QwtPlotBarItem::setLayoutPolicy( LayoutPolicy policy )
     }
 }
 
-QwtPlotBarItem::LayoutPolicy QwtPlotBarItem::layoutPolicy() const
+QwtPlotAbstractBarItem::LayoutPolicy QwtPlotAbstractBarItem::layoutPolicy() const
 {
     return d_data->layoutPolicy;
 }
 
-void QwtPlotBarItem::setLayoutHint( double hint )
+void QwtPlotAbstractBarItem::setLayoutHint( double hint )
 {
     hint = qMax( 0.0, hint );
     if ( hint != d_data->layoutHint )
@@ -94,12 +94,12 @@ void QwtPlotBarItem::setLayoutHint( double hint )
     }
 }
 
-double QwtPlotBarItem::layoutHint() const
+double QwtPlotAbstractBarItem::layoutHint() const
 {
     return d_data->layoutHint;
 }
 
-void QwtPlotBarItem::setSpacing( int spacing )
+void QwtPlotAbstractBarItem::setSpacing( int spacing )
 {
     spacing = qMax( spacing, 0 );
     if ( spacing != d_data->spacing )
@@ -109,12 +109,12 @@ void QwtPlotBarItem::setSpacing( int spacing )
     }
 }
 
-int QwtPlotBarItem::spacing() const
+int QwtPlotAbstractBarItem::spacing() const
 {
     return d_data->spacing;
 }
 
-void QwtPlotBarItem::setMargin( int margin )
+void QwtPlotAbstractBarItem::setMargin( int margin )
 {
     margin = qMax( margin, 0 );
     if ( margin != d_data->margin )
@@ -124,12 +124,12 @@ void QwtPlotBarItem::setMargin( int margin )
     }
 }
 
-int QwtPlotBarItem::margin() const
+int QwtPlotAbstractBarItem::margin() const
 {
     return d_data->margin;
 }
 
-void QwtPlotBarItem::setBaseline( double value )
+void QwtPlotAbstractBarItem::setBaseline( double value )
 {
     if ( value != d_data->baseline )
     {
@@ -138,12 +138,12 @@ void QwtPlotBarItem::setBaseline( double value )
     }
 }
 
-double QwtPlotBarItem::baseline() const
+double QwtPlotAbstractBarItem::baseline() const
 {
     return d_data->baseline;
 }
 
-double QwtPlotBarItem::sampleWidth( const QwtScaleMap &map,
+double QwtPlotAbstractBarItem::sampleWidth( const QwtScaleMap &map,
     double canvasSize, double boundingSize, double value ) const
 {
     double width;
@@ -184,7 +184,7 @@ double QwtPlotBarItem::sampleWidth( const QwtScaleMap &map,
     return width;
 }
 
-void QwtPlotBarItem::getCanvasMarginHint( const QwtScaleMap &xMap, 
+void QwtPlotAbstractBarItem::getCanvasMarginHint( const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap, const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom ) const
 {

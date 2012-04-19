@@ -48,13 +48,13 @@ public:
 };
 
 QwtPlotMultiBarChart::QwtPlotMultiBarChart( const QwtText &title ):
-    QwtPlotBarItem( title )
+    QwtPlotAbstractBarItem( title )
 {
     init();
 }
 
 QwtPlotMultiBarChart::QwtPlotMultiBarChart( const QString &title ):
-    QwtPlotBarItem( QwtText( title ) )
+    QwtPlotAbstractBarItem( QwtText( title ) )
 {
     init();
 }
@@ -377,7 +377,7 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
 
             drawBar( painter, index, i, bar );
 
-            if ( testChartAttribute( QwtPlotBarItem::ShowLabels ) )
+            if ( testChartAttribute( QwtPlotAbstractBarItem::ShowLabels ) )
             {
                 const QwtText text = label( index, i, sample );
                 drawLabel( painter, index, i, bar, text );
@@ -410,7 +410,7 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
 
             drawBar( painter, index, i, bar );
 
-            if ( testChartAttribute( QwtPlotBarItem::ShowLabels ) )
+            if ( testChartAttribute( QwtPlotAbstractBarItem::ShowLabels ) )
             {
                 const QwtText text = label( index, i, sample );
                 drawLabel( painter, index, i, bar, text );
