@@ -11,14 +11,14 @@
 #define QWT_PLOT_BAR_CHART_H
 
 #include "qwt_global.h"
-#include "qwt_plot_baritem.h"
+#include "qwt_plot_abstract_baritem.h"
 #include "qwt_series_data.h"
 
 class QwtColumnRect;
 class QwtColumnSymbol;
 
 class QWT_EXPORT QwtPlotBarChart:
-    public QwtPlotBarItem, public QwtSeriesStore<QPointF>
+    public QwtPlotAbstractBarItem, public QwtSeriesStore<QPointF>
 {
 public:
     explicit QwtPlotBarChart( const QString &title = QString::null );
