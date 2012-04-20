@@ -26,13 +26,13 @@ public:
 };
 
 QwtPlotBarChart::QwtPlotBarChart( const QwtText &title ):
-    QwtPlotAbstractBarItem( title )
+    QwtPlotAbstractBarChart( title )
 {
     init();
 }
 
 QwtPlotBarChart::QwtPlotBarChart( const QString &title ):
-    QwtPlotAbstractBarItem( QwtText( title ) )
+    QwtPlotAbstractBarChart( QwtText( title ) )
 {
     init();
 }

@@ -118,7 +118,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_grid.h \
         qwt_plot_histogram.h \
         qwt_plot_item.h \
-        qwt_plot_abstract_baritem.h \
+        qwt_plot_abstract_barchart.h \
         qwt_plot_barchart.h \
         qwt_plot_multi_barchart.h \
         qwt_plot_intervalcurve.h \
@@ -164,7 +164,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_grid.cpp \
         qwt_plot_histogram.cpp \
         qwt_plot_item.cpp \
-        qwt_plot_abstract_baritem.cpp \
+        qwt_plot_abstract_barchart.cpp \
         qwt_plot_barchart.cpp \
         qwt_plot_multi_barchart.cpp \
         qwt_plot_intervalcurve.cpp \
