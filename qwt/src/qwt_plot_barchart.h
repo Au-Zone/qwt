@@ -13,11 +13,17 @@
 #include "qwt_global.h"
 #include "qwt_plot_abstract_barchart.h"
 #include "qwt_series_data.h"
-#include <qpalette.h>
 
 class QwtColumnRect;
 class QwtColumnSymbol;
 
+/*!
+  \brief QwtPlotBarChart displays a series of a values as bars.
+
+   Each bar rendered by a QwtColumnSymbol. The symbol for drawing
+   a value is created by symbol() that needs to be overloaded
+   to customize the bar for a specific value.
+ */
 class QWT_EXPORT QwtPlotBarChart:
     public QwtPlotAbstractBarChart, public QwtSeriesStore<QPointF>
 {
@@ -41,17 +47,18 @@ public:
 
     virtual QRectF boundingRect() const;
 
-    virtual QwtColumnSymbol *symbol( int index ) const;
+    virtual QwtColumnSymbol *specialSymbol( 
+        int sampleIndex, const QPointF& ) const;
 
 protected:
-
     virtual void drawSample( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, const QwtInterval &boundingInterval,
         int index, const QPointF& sample ) const;
 
     virtual void drawBar( QPainter *,
-        int sampleIndex, const QwtColumnRect & ) const;
+        int sampleIndex, const QPointF& point, 
+        const QwtColumnRect & ) const;
 
     virtual void drawLabel( QPainter *, int sampleIndex,
         const QwtColumnRect &, const QwtText & ) const;

@@ -17,14 +17,47 @@
 class QwtColumnRect;
 class QwtColumnSymbol;
 
+/*!
+  \brief QwtPlotMultiBarChart displays a series of a samples that consist
+         each of a set of values. 
+
+   Each value is displayed as a bar, the bars of each set can be organized 
+   side by side or accumulated.
+
+   Each bar of a set is rendered by a QwtColumnSymbol, that is set by setSymbol().
+   The bars of different sets use the same symbols. Exceptions are possible
+   by overloading specialSymbol() or overloading drawBar().
+
+   Depending on its orientation ( QwtPlotSeriesItem::orientation() ) the bars
+   are displayed horizontally or vertically. The bars cover the interval between
+   the baseline and the value.
+
+   In opposite to most other plot items, QwtPlotMultiBarChart returns more
+   than one entry for the legend - one for each symbol.
+   
+   \sa QwtPlotSeriesItem::orientation(), QwtPlotAbstractBarChart::setBaseline()
+ */
 class QWT_EXPORT QwtPlotMultiBarChart: 
     public QwtPlotAbstractBarChart, public QwtSeriesStore<QwtSetSample>
 {
 public:
+    /*!
+        \brief Chart styles.
+
+        The default setting is QwtPlotMultiBarChart::Grouped.
+        \sa setStyle(), style()
+    */
     enum ChartStyle
     {
-        Stacked,
-        Grouped
+        //! The bars of a set are displayed side by side
+        Grouped,
+
+        /*!
+            The bars are displayed on top of each other accumulating
+            to a single bar. All values of a set need to have the same
+            sign.
+         */
+        Stacked
     };
 
     explicit QwtPlotMultiBarChart( const QString &title = QString::null );
@@ -44,9 +77,9 @@ public:
     ChartStyle style() const;
 
     void setSymbol( int barIndex, QwtColumnSymbol *symbol );
-    void clearSymbols();
-
     const QwtColumnSymbol *symbol( int barIndex ) const;
+
+    void resetSymbolMap();
 
     virtual void drawSeries( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -60,6 +93,9 @@ public:
 
 protected:
     QwtColumnSymbol *symbol( int barIndex );
+
+    virtual QwtColumnSymbol *specialSymbol( 
+        int sampleIndex, int valueIndex ) const;
 
     virtual void drawSample( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,

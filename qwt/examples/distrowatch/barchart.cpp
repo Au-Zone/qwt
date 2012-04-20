@@ -49,6 +49,91 @@ private:
     const QStringList d_labels;
 };
 
+class DistroChartItem: public QwtPlotBarChart
+{
+public:
+    DistroChartItem():
+        QwtPlotBarChart( "Page Hits" )
+    {
+        setLegendIconSize( QSize( 10, 14 ) );
+    }
+
+    void addDistro( const QString &distro, const QColor &color )
+    {
+        d_colors += color;
+        d_distros += distro;
+        itemChanged();
+    }
+
+    virtual QwtColumnSymbol *specialSymbol(
+        int index, const QPointF& ) const
+    {
+        // we want to have individual colors for each bar
+
+        QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
+        symbol->setLineWidth( 2 );
+        symbol->setFrameStyle( QwtColumnSymbol::Raised );
+
+        QColor c( Qt::white );
+        if ( index >= 0 && index < d_colors.size() )
+            c = d_colors[ index ];
+
+        symbol->setPalette( c );
+    
+        return symbol;
+    }
+
+    QList<QwtLegendData> legendData() const
+    {
+        QList<QwtLegendData> list;
+
+        for ( int i = 0; i < d_colors.size(); i++ )
+        {
+            QwtLegendData data;
+
+            QVariant titleValue;
+            qVariantSetValue( titleValue, d_distros[ i ] );
+            data.setValue( QwtLegendData::TitleRole, titleValue );
+
+            if ( !legendIconSize().isEmpty() )
+            {
+                QVariant iconValue;
+                qVariantSetValue( iconValue,
+                    legendIcon( i, legendIconSize() ) );
+
+                data.setValue( QwtLegendData::IconRole, iconValue );
+            }
+
+            list += data;
+        }
+
+        return list;
+    }
+
+    virtual QwtGraphic legendIcon( int index, const QSizeF &size ) const
+    {
+        QwtColumnRect column;
+        column.hInterval = QwtInterval( 0.0, size.width() - 1.0 );
+        column.vInterval = QwtInterval( 0.0, size.height() - 1.0 );
+
+        QwtGraphic icon;
+        icon.setDefaultSize( size ); 
+        icon.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+        
+        QPainter painter( &icon );
+        painter.setRenderHint( QPainter::Antialiasing,
+            testRenderHint( QwtPlotItem::RenderAntialiased ) );
+
+        drawBar( &painter, index, QPointF(), column ); 
+        
+        return icon;
+    }
+
+private:
+    QList<QColor> d_colors;
+    QList<QString> d_distros;
+};
+
 BarChart::BarChart( QWidget *parent ):
     QwtPlot( parent )
 {
@@ -60,24 +145,15 @@ BarChart::BarChart( QWidget *parent ):
 
     } pageHits[] =
     {
-        { "Arch", 1116, QColor( Qt::blue ) },
-        { "Debian", 1388, QColor( Qt::red ) },
-        { "Fedora", 1483, QColor( Qt::darkBlue ) },
-        { "Mageia", 1311, QColor( Qt::darkCyan ) },
-        { "Mint", 3857, QColor( "MintCream" ) },
-        { "openSuSE", 1604, QColor( Qt::darkGreen ) },
-        { "Puppy", 1065, QColor( Qt::darkYellow ) }
+        { "Arch", 1114, QColor( "DodgerBlue" ) },
+        { "Debian", 1373, QColor( "#d70751" ) },
+        { "Fedora", 1638, QColor( "SteelBlue" ) },
+        { "Mageia", 1395, QColor( "Indigo" ) },
+        { "Mint", 3874, QColor( "MintCream" ) },
+        { "openSuSE", 1532, QColor( 115, 186, 37 ) },
+        { "Puppy", 1059, QColor( "LightSkyBlue" ) },
+        { "Ubuntu", 2391, QColor( "FireBrick" ) }
     };
-
-    QVector< double > samples;
-    QList< QBrush > colors;
-
-    for ( uint i = 0; i < sizeof( pageHits ) / sizeof( pageHits[ 0 ] ); i++ )
-    {
-        d_distros += pageHits[ i ].distro;
-        samples += pageHits[ i ].hits;
-        colors += pageHits[ i ].color;
-    }
 
     setAutoFillBackground( true );
     setPalette( QColor( "Azure" ) );
@@ -85,9 +161,9 @@ BarChart::BarChart( QWidget *parent ):
     QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setLineWidth( 2 );
     canvas->setFrameStyle( QFrame::Box | QFrame::Plain );
-    canvas->setBorderRadius( 15 );
+    canvas->setBorderRadius( 10 );
 
-    QPalette canvasPalette( QColor( "Purple" ) );
+    QPalette canvasPalette( QColor( "Plum" ) );
     canvasPalette.setColor( QPalette::Foreground, QColor( "Indigo" ) );
     canvas->setPalette( canvasPalette );
 
@@ -95,16 +171,21 @@ BarChart::BarChart( QWidget *parent ):
 
     setTitle( "DistroWatch Page Hit Ranking, April 2012" );
 
+    d_barChartItem = new DistroChartItem();
 
-    d_barChartItem = new QwtPlotBarChart();
+    QVector< double > samples;
+
+    for ( uint i = 0; i < sizeof( pageHits ) / sizeof( pageHits[ 0 ] ); i++ )
+    {
+        d_distros += pageHits[ i ].distro;
+        samples += pageHits[ i ].hits;
+
+        d_barChartItem->addDistro( 
+            pageHits[ i ].distro, pageHits[ i ].color );
+    }
+
     d_barChartItem->setSamples( samples );
-    d_barChartItem->setColorTable( colors );
 
-    QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
-    symbol->setLineWidth( 2 );
-    symbol->setFrameStyle( QwtColumnSymbol::Raised );
-    d_barChartItem->setSymbol( symbol );
-    
     d_barChartItem->attach( this );
 
     insertLegend( new QwtLegend() );
