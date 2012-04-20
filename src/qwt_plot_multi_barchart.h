@@ -11,7 +11,7 @@
 #define QWT_PLOT_BAR_CHART_H
 
 #include "qwt_global.h"
-#include "qwt_plot_abstract_baritem.h"
+#include "qwt_plot_abstract_barchart.h"
 #include "qwt_series_data.h"
 #include <qlist.h>
 
@@ -19,7 +19,7 @@ class QwtColumnRect;
 class QwtColumnSymbol;
 
 class QWT_EXPORT QwtPlotMultiBarChart: 
-    public QwtPlotAbstractBarItem, public QwtSeriesStore<QwtSetSample>
+    public QwtPlotAbstractBarChart, public QwtSeriesStore<QwtSetSample>
 {
 public:
     enum ChartStyle
