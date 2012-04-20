@@ -21,21 +21,7 @@ BarChart::BarChart( QWidget *parent ):
     setAxisTitle( QwtPlot::xBottom, "Whatever" );
 
     d_barChartItem = new QwtPlotMultiBarChart( "Bar Chart " );
-#if 1
     d_barChartItem->setLayoutPolicy( QwtPlotMultiBarChart::AutoAdjustSamples );
-#endif
-#if 0
-    d_barChartItem->setLayoutPolicy( QwtPlotMultiBarChart::ScaleSamplesToAxes );
-    d_barChartItem->setLayoutHint( 0.8 );
-#endif
-#if 0
-    d_barChartItem->setLayoutPolicy( QwtPlotMultiBarChart::ScaleSampleToCanvas );
-    d_barChartItem->setLayoutHint( 0.08 );
-#endif
-#if 0
-    d_barChartItem->setLayoutPolicy( QwtPlotMultiBarChart::FixedSampleSize );
-    d_barChartItem->setLayoutHint( 20 );
-#endif
     d_barChartItem->setSpacing( 20 );
     d_barChartItem->setMargin( 3 );
 
@@ -78,20 +64,11 @@ void BarChart::populate()
     QVector< QVector<double> > series;
     for ( int i = 0; i < numSamples; i++ )
     {
-        double sign = 1.0;
-#if 0
-        if ( i % 3 == 0 )
-            sign = -1.0;
-#endif
-
         QVector<double> values;
         for ( int j = 0; j < numBars; j++ )
-            values += sign * ( 2 + qrand() % 8 );
+            values += ( 2 + qrand() % 8 );
 
         series += values;
-#if 0
-        qDebug() << i << values;
-#endif
     }
 
     d_barChartItem->setSamples( series );

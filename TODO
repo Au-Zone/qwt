@@ -11,7 +11,7 @@ Ideas
 - Common zoom stack for all navigation objects
 - Watermark Item
 - Contour algorithm for vectors: http://apptree.net/conrec.htm
-- OpenGL plot canvas
+- QwtPlotCanvas rendered via FBO, PBO
 - Time/Date scale engine
 - TeX texts
 - Grid of QwtPlots

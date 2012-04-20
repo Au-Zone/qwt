@@ -36,13 +36,9 @@ public:
     PrivateData():
         style( QwtPlotMultiBarChart::Grouped )
     {
-        colorTable << Qt::red << Qt::blue << Qt::darkGreen << Qt::yellow
-            << Qt::darkCyan << Qt::darkMagenta << Qt::darkYellow
-            << Qt::darkBlue << Qt::green << Qt::magenta;
     }
 
     QwtPlotMultiBarChart::ChartStyle style;
-    QList<QBrush> colorTable;
     QList<QwtText> barTitles;
     QMap<int, QwtColumnSymbol *> symbolMap;
 };
@@ -68,6 +64,14 @@ QwtPlotMultiBarChart::~QwtPlotMultiBarChart()
 void QwtPlotMultiBarChart::init()
 {
     d_data = new PrivateData;
+
+    QList<QBrush> colorTable;
+    colorTable << Qt::red << Qt::blue << Qt::darkGreen << Qt::yellow
+        << Qt::darkCyan << Qt::darkMagenta << Qt::darkYellow
+        << Qt::darkBlue << Qt::green << Qt::magenta;
+
+    setColorTable( colorTable );
+
     setData( new QwtSetSeriesData() );
 }
 
@@ -102,19 +106,6 @@ void QwtPlotMultiBarChart::setTitles( const QList<QwtText> &titles )
 QList<QwtText> QwtPlotMultiBarChart::titles() const
 {
     return d_data->barTitles;
-}
-
-void QwtPlotMultiBarChart::setColorTable( const QList<QBrush> &colorTable )
-{
-    d_data->colorTable = colorTable;
-
-    legendChanged();
-    itemChanged();
-}
-
-QList<QBrush> QwtPlotMultiBarChart::colorTable() const
-{
-    return d_data->colorTable;
 }
 
 void QwtPlotMultiBarChart::setSymbol( int barIndex, QwtColumnSymbol *symbol )
@@ -532,21 +523,9 @@ void QwtPlotMultiBarChart::drawBar( QPainter *painter,
     }
     else
     {
-        QBrush brush( Qt::white );
-
-        if ( d_data->colorTable.size() > 0 )
-        {
-            const int colorIndex = barIndex % d_data->colorTable.size();
-            brush = d_data->colorTable[ colorIndex ];
-        }
-
-        QPalette palette;
-        palette.setBrush( QPalette::Window, brush );
-        palette.setColor( QPalette::Dark, Qt::black );
-
         QwtColumnSymbol sym( QwtColumnSymbol::Box );
-        sym.setPalette( palette );
-        sym.setLineWidth( 0 );
+        sym.setPalette( symbolPalette( barIndex ) );
+        sym.setLineWidth( 1 );
         sym.setFrameStyle( QwtColumnSymbol::Plain );
         sym.draw( painter, rect );
     }

@@ -70,25 +70,35 @@ BarChart::BarChart( QWidget *parent ):
     };
 
     QVector< double > samples;
+    QList< QBrush > colors;
 
     for ( uint i = 0; i < sizeof( pageHits ) / sizeof( pageHits[ 0 ] ); i++ )
     {
         d_distros += pageHits[ i ].distro;
         samples += pageHits[ i ].hits;
+        colors += pageHits[ i ].color;
     }
 
     setAutoFillBackground( true );
+    setPalette( QColor( "Azure" ) );
 
-    setPalette( Qt::white );
-    canvas()->setPalette( QColor( "LemonChiffon" ) );
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setLineWidth( 2 );
+    canvas->setFrameStyle( QFrame::Box | QFrame::Plain );
+    canvas->setBorderRadius( 15 );
+
+    QPalette canvasPalette( QColor( "Purple" ) );
+    canvasPalette.setColor( QPalette::Foreground, QColor( "Indigo" ) );
+    canvas->setPalette( canvasPalette );
+
+    setCanvas( canvas );
 
     setTitle( "DistroWatch Page Hit Ranking, April 2012" );
 
-    setAxisTitle( QwtPlot::yLeft, "Hits per day ( HPD )" );
-    setAxisTitle( QwtPlot::xBottom, "Distros" );
 
     d_barChartItem = new QwtPlotBarChart();
     d_barChartItem->setSamples( samples );
+    d_barChartItem->setColorTable( colors );
 
     QwtColumnSymbol *symbol = new QwtColumnSymbol( QwtColumnSymbol::Box );
     symbol->setLineWidth( 2 );
@@ -115,11 +125,17 @@ void BarChart::setOrientation( int o )
         qSwap( axis1, axis2 );
 
     d_barChartItem->setOrientation( orientation );
+
+    setAxisTitle( axis1, "Distros" );
     setAxisScaleDraw( axis1, new DistroScaleDraw( orientation, d_distros ) );
+
+    setAxisTitle( axis2, "Hits per day ( HPD )" );
     setAxisScaleDraw( axis2, new QwtScaleDraw() );
 
     plotLayout()->setCanvasMargin( 0 );
-    //updateCanvasMargins();
+#if 1
+    updateCanvasMargins();
+#endif
 
     replot();
 }
