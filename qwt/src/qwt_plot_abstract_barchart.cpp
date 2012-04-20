@@ -31,6 +31,7 @@ public:
         margin( 5 ),
         baseline( 0.0 )
     {
+        colorTable << Qt::red << Qt::blue << Qt::darkGreen << Qt::yellow;
     }
 
     QwtPlotAbstractBarChart::LayoutPolicy layoutPolicy;
@@ -38,6 +39,7 @@ public:
     int spacing;
     int margin;
     double baseline;
+    QList<QBrush> colorTable;
     ChartAttributes chartAttributes;
 };
 
@@ -264,4 +266,34 @@ void QwtPlotAbstractBarChart::getCanvasMarginHint( const QwtScaleMap &xMap,
         left = right = -1.0; // no hint
         top = bottom = hint;
     }
+}
+
+void QwtPlotAbstractBarChart::setColorTable( const QList<QBrush> &colorTable )
+{
+    d_data->colorTable = colorTable;
+
+    legendChanged();
+    itemChanged();
+}
+
+QList<QBrush> QwtPlotAbstractBarChart::colorTable() const
+{
+    return d_data->colorTable;
+}
+
+QPalette QwtPlotAbstractBarChart::symbolPalette( int index ) const
+{
+    QPalette palette;
+
+    if ( d_data->colorTable.size() > 0 )
+    {
+        index = index % d_data->colorTable.size();
+
+        const QBrush brush = d_data->colorTable[ index ];
+
+        palette = QPalette( brush.color() );
+        palette.setBrush( QPalette::Window, brush );
+    }
+
+    return palette;
 }

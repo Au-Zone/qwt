@@ -13,7 +13,6 @@
 #include "qwt_global.h"
 #include "qwt_plot_abstract_barchart.h"
 #include "qwt_series_data.h"
-#include <qlist.h>
 
 class QwtColumnRect;
 class QwtColumnSymbol;
@@ -43,9 +42,6 @@ public:
 
     void setStyle( ChartStyle style );
     ChartStyle style() const;
-
-    void setColorTable( const QList<QBrush> &colorTable );
-    QList<QBrush> colorTable() const;
 
     void setSymbol( int barIndex, QwtColumnSymbol *symbol );
     void clearSymbols();

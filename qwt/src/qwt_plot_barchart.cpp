@@ -215,32 +215,26 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
 void QwtPlotBarChart::drawBar( QPainter *painter,
     int sampleIndex, const QwtColumnRect &rect ) const
 {
-    static Qt::GlobalColor colors[] =
-        { Qt::blue, Qt::red, Qt::green, Qt::magenta, Qt::yellow };
-
-    const int colorIndex = sampleIndex % ( sizeof( colors ) / sizeof( colors[0] ) );
-
-    if ( d_data->symbol &&
-        ( d_data->symbol->style() != QwtColumnSymbol::NoStyle ) )
+    QwtColumnSymbol *sym = symbol( sampleIndex );
+    if ( sym )
     {
-        d_data->symbol->setPalette( QPalette( colors[ colorIndex ] ) );
-        d_data->symbol->draw( painter, rect );
+        sym->setPalette( symbolPalette( sampleIndex ) );
+        sym->draw( painter, rect );
     }
     else
     {
-        QRectF r = rect.toRect();
-        if ( QwtPainter::roundingAlignment( painter ) )
-        {
-            r.setLeft( qRound( r.left() ) );
-            r.setRight( qRound( r.right() ) );
-            r.setTop( qRound( r.top() ) );
-            r.setBottom( qRound( r.bottom() ) );
-        }
-
-        painter->setPen( QPen( Qt::black, 1 ) );
-        painter->setBrush( colors[ colorIndex ] );
-        QwtPainter::drawRect( painter, r );
+        QwtColumnSymbol sym( QwtColumnSymbol::Box );
+        sym.setPalette( symbolPalette( sampleIndex ) );
+        sym.setLineWidth( 1 );
+        sym.setFrameStyle( QwtColumnSymbol::Plain );
+        sym.draw( painter, rect );
     }
+}
+
+QwtColumnSymbol *QwtPlotBarChart::symbol( int index ) const
+{
+    Q_UNUSED( index );
+    return d_data->symbol;
 }
 
 void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex,

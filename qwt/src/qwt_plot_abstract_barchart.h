@@ -13,6 +13,8 @@
 #include "qwt_global.h"
 #include "qwt_plot_seriesitem.h"
 #include "qwt_series_data.h"
+#include <qlist.h>
+#include <qpalette.h>
 
 class QwtColumnRect;
 class QwtColumnSymbol;
@@ -68,6 +70,9 @@ public:
     void setChartAttribute( ChartAttribute, bool on = true );
     bool testChartAttribute( ChartAttribute ) const;
 
+    void setColorTable( const QList<QBrush> & );
+    QList<QBrush> colorTable() const;
+
     void setLayoutPolicy( LayoutPolicy );
     LayoutPolicy layoutPolicy() const;
 
@@ -87,6 +92,8 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect,
         double &left, double &top, double &right, double &bottom) const;
+
+    virtual QPalette symbolPalette( int index ) const;
 
 protected:
     double sampleWidth( const QwtScaleMap &map,

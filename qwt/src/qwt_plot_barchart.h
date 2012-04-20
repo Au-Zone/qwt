@@ -13,6 +13,7 @@
 #include "qwt_global.h"
 #include "qwt_plot_abstract_barchart.h"
 #include "qwt_series_data.h"
+#include <qpalette.h>
 
 class QwtColumnRect;
 class QwtColumnSymbol;
@@ -40,7 +41,10 @@ public:
 
     virtual QRectF boundingRect() const;
 
+    virtual QwtColumnSymbol *symbol( int index ) const;
+
 protected:
+
     virtual void drawSample( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, const QwtInterval &boundingInterval,
