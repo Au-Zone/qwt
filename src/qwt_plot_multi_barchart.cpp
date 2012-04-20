@@ -43,35 +43,36 @@ public:
     QMap<int, QwtColumnSymbol *> symbolMap;
 };
 
+/*!
+  Constructor
+  \param title Title of the curve
+*/
 QwtPlotMultiBarChart::QwtPlotMultiBarChart( const QwtText &title ):
     QwtPlotAbstractBarChart( title )
 {
     init();
 }
 
+/*!
+  Constructor
+  \param title Title of the curve
+*/
 QwtPlotMultiBarChart::QwtPlotMultiBarChart( const QString &title ):
     QwtPlotAbstractBarChart( QwtText( title ) )
 {
     init();
 }
 
+//! Destructor
 QwtPlotMultiBarChart::~QwtPlotMultiBarChart()
 {
-    clearSymbols();
+    resetSymbolMap();
     delete d_data;
 }
 
 void QwtPlotMultiBarChart::init()
 {
     d_data = new PrivateData;
-
-    QList<QBrush> colorTable;
-    colorTable << Qt::red << Qt::blue << Qt::darkGreen << Qt::yellow
-        << Qt::darkCyan << Qt::darkMagenta << Qt::darkYellow
-        << Qt::darkBlue << Qt::green << Qt::magenta;
-
-    setColorTable( colorTable );
-
     setData( new QwtSetSeriesData() );
 }
 
@@ -108,18 +109,29 @@ QList<QwtText> QwtPlotMultiBarChart::titles() const
     return d_data->barTitles;
 }
 
-void QwtPlotMultiBarChart::setSymbol( int barIndex, QwtColumnSymbol *symbol )
+/*!
+  \brief Add a symbol to the symbol map
+
+  Assign a default symbol for drawing the bar representing all values
+  with the same index in a set.
+
+  \param valueIndex Index of a value in a set
+  \param symbol Symbol used for drawing a bar
+
+  \sa symbol(), resetSymbolMap(), specialSymbol()
+*/
+void QwtPlotMultiBarChart::setSymbol( int valueIndex, QwtColumnSymbol *symbol )
 {
-    if ( barIndex < 0 )
+    if ( valueIndex < 0 )
         return;
 
     QMap<int, QwtColumnSymbol *>::iterator it = 
-        d_data->symbolMap.find(barIndex);
+        d_data->symbolMap.find(valueIndex);
     if ( it == d_data->symbolMap.end() )
     {
         if ( symbol != NULL )
         {
-            d_data->symbolMap.insert( barIndex, symbol );
+            d_data->symbolMap.insert( valueIndex, symbol );
 
             legendChanged();
             itemChanged();
@@ -133,7 +145,7 @@ void QwtPlotMultiBarChart::setSymbol( int barIndex, QwtColumnSymbol *symbol )
 
             if ( symbol == NULL )
             {
-                d_data->symbolMap.remove( barIndex );
+                d_data->symbolMap.remove( valueIndex );
             }
             else
             {
@@ -146,23 +158,42 @@ void QwtPlotMultiBarChart::setSymbol( int barIndex, QwtColumnSymbol *symbol )
     }
 }
 
-const QwtColumnSymbol *QwtPlotMultiBarChart::symbol( int barIndex ) const
+/*!
+  Find a symbol in the symbol map
+
+  \param valueIndex Index of a value in a set
+  \return The symbol, that had been set by setSymbol() or NULL.
+
+  \sa setSymbol(), specialSymbol(), drawBar()
+*/
+const QwtColumnSymbol *QwtPlotMultiBarChart::symbol( int valueIndex ) const
 {
     QMap<int, QwtColumnSymbol *>::const_iterator it =
-        d_data->symbolMap.find(barIndex);
+        d_data->symbolMap.find( valueIndex );
 
     return ( it == d_data->symbolMap.end() ) ? NULL : it.value();
 }
 
-QwtColumnSymbol *QwtPlotMultiBarChart::symbol( int barIndex ) 
+/*!
+  Find a symbol in the symbol map
+
+  \param valueIndex Index of a value in a set
+  \return The symbol, that had been set by setSymbol() or NULL.
+
+  \sa setSymbol(), specialSymbol(), drawBar()
+*/
+QwtColumnSymbol *QwtPlotMultiBarChart::symbol( int valueIndex ) 
 {
     QMap<int, QwtColumnSymbol *>::iterator it =
-        d_data->symbolMap.find(barIndex);
+        d_data->symbolMap.find( valueIndex );
 
     return ( it == d_data->symbolMap.end() ) ? NULL : it.value();
 }
 
-void QwtPlotMultiBarChart::clearSymbols()
+/*!
+  Remove all symbols from the symbol map
+ */
+void QwtPlotMultiBarChart::resetSymbolMap()
 {
     for ( QMap<int, QwtColumnSymbol *>::iterator it 
         = d_data->symbolMap.begin(); it != d_data->symbolMap.end(); ++it )
@@ -171,6 +202,35 @@ void QwtPlotMultiBarChart::clearSymbols()
     }
 
     d_data->symbolMap.clear();
+}
+
+/*!
+  \brief Create a symbol for special values
+
+  Usually the symbols for displaying a bar are set by setSymbols() and
+  common for all sets. By overloading specialSymbol() it is possible to
+  create a temporary symbol() for displaying a special value.
+
+  The symbol has to be created by new each time specialSymbol() is
+  called. As soon as the symbol is painted this symbol gets deleted.
+
+  When no symbol ( NULL ) is returned, the value will be displayed
+  with the standard symbol that is used for all symbols with the same 
+  valueIndex.
+
+  \param sampleIndex Index of the sample
+  \param valueIndex Index of the value in the set
+
+  \return NULL, meaning that the value is not special
+    
+ */
+QwtColumnSymbol *QwtPlotMultiBarChart::specialSymbol( 
+    int sampleIndex, int valueIndex ) const
+{
+    Q_UNUSED( sampleIndex );
+    Q_UNUSED( valueIndex );
+
+    return NULL;
 }
 
 void QwtPlotMultiBarChart::setStyle( ChartStyle style )
@@ -511,45 +571,74 @@ void QwtPlotMultiBarChart::drawStackedBars( QPainter *painter,
     }
 }
 
-void QwtPlotMultiBarChart::drawBar( QPainter *painter,
-    int sampleIndex, int barIndex, const QwtColumnRect &rect ) const
-{
-    Q_UNUSED( sampleIndex );
+/*!
+  Draw a bar
 
-    const QwtColumnSymbol *sym = symbol( barIndex );
+  \param painter Painter
+  \param sampleIndex Index of the sample - might be -1 when the
+                     bar is painted for the legend
+  \param valueIndex Index of a value in a set
+  \param rect Directed target rectangle for the bar
+
+  \sa drawSeries()
+*/
+
+void QwtPlotMultiBarChart::drawBar( QPainter *painter,
+    int sampleIndex, int valueIndex, const QwtColumnRect &rect ) const
+{
+    const QwtColumnSymbol *specialSym = NULL;
+    if ( sampleIndex >= 0 )
+        specialSym = specialSymbol( sampleIndex, valueIndex );
+
+    const QwtColumnSymbol *sym = specialSym;
+    if ( sym == NULL )
+        sym = symbol( valueIndex );
+
     if ( sym )
     {
         sym->draw( painter, rect );
     }
     else
     {
+        // we build a temporary default symbol
         QwtColumnSymbol sym( QwtColumnSymbol::Box );
-        sym.setPalette( symbolPalette( barIndex ) );
         sym.setLineWidth( 1 );
         sym.setFrameStyle( QwtColumnSymbol::Plain );
         sym.draw( painter, rect );
     }
+
+    delete specialSym;
 }
 
+/*!
+  Draw a label aligned to bar
+
+  \param painter Painter
+  \param sampleIndex Index of the sample - might be -1 when the
+                     bar is painted for the legend
+  \param valueIndex Index of a value in a set
+  \param rect Directed target rectangle for the bar
+  \param text Label text
+*/
 void QwtPlotMultiBarChart::drawLabel( QPainter *painter, int sampleIndex,
-    int barIndex, const QwtColumnRect &rect, const QwtText &text ) const
+    int valueIndex, const QwtColumnRect &rect, const QwtText &text ) const
 {
     Q_UNUSED( painter );
     Q_UNUSED( sampleIndex );
-    Q_UNUSED( barIndex );
+    Q_UNUSED( valueIndex );
     Q_UNUSED( rect );
     Q_UNUSED( text );
 }
 
 
 QwtText QwtPlotMultiBarChart::label(
-    int sampleIndex, int barIndex, const QwtSetSample& sample ) const
+    int sampleIndex, int valueIndex, const QwtSetSample& sample ) const
 {
     Q_UNUSED( sampleIndex );
 
     QString labelText;
-    if ( barIndex >= 0 && barIndex <= sample.set.size() )
-        labelText.setNum( sample.set[ barIndex ] );
+    if ( valueIndex >= 0 && valueIndex <= sample.set.size() )
+        labelText.setNum( sample.set[ valueIndex ] );
 
     return QwtText( labelText );
 }

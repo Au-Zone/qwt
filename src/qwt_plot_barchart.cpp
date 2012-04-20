@@ -12,7 +12,6 @@
 #include "qwt_column_symbol.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
-#include <qpalette.h>
 
 class QwtPlotBarChart::PrivateData
 {
@@ -20,6 +19,11 @@ public:
     PrivateData():
         symbol( NULL )
     {
+    }
+ 
+    ~PrivateData()
+    {
+        delete symbol;
     }
 
     QwtColumnSymbol *symbol;
@@ -209,32 +213,43 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
         bar.vInterval = QwtInterval( y1, y2 ).normalized();
     }
 
-    drawBar( painter, index, bar );
+    drawBar( painter, index, point, bar );
 }
 
 void QwtPlotBarChart::drawBar( QPainter *painter,
-    int sampleIndex, const QwtColumnRect &rect ) const
+    int sampleIndex, const QPointF &point, 
+    const QwtColumnRect &rect ) const
 {
-    QwtColumnSymbol *sym = symbol( sampleIndex );
+    const QwtColumnSymbol *specialSym = 
+        specialSymbol( sampleIndex, point );
+
+    const QwtColumnSymbol *sym = specialSym;
+    if ( sym == NULL )
+        sym = d_data->symbol;
+
     if ( sym )
     {
-        sym->setPalette( symbolPalette( sampleIndex ) );
         sym->draw( painter, rect );
     }
     else
     {
+        // we build a temporary default symbol
         QwtColumnSymbol sym( QwtColumnSymbol::Box );
-        sym.setPalette( symbolPalette( sampleIndex ) );
         sym.setLineWidth( 1 );
         sym.setFrameStyle( QwtColumnSymbol::Plain );
         sym.draw( painter, rect );
     }
+
+    delete specialSym;
 }
 
-QwtColumnSymbol *QwtPlotBarChart::symbol( int index ) const
+QwtColumnSymbol *QwtPlotBarChart::specialSymbol( 
+    int index, const QPointF &point ) const
 {
     Q_UNUSED( index );
-    return d_data->symbol;
+    Q_UNUSED( point );
+
+    return NULL;
 }
 
 void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex,

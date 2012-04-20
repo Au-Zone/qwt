@@ -3,7 +3,7 @@
 #include <qwt_plot.h>
 #include <qstringlist.h>
 
-class QwtPlotBarChart;
+class DistroChartItem;
 
 class BarChart: public QwtPlot
 {
@@ -19,7 +19,7 @@ public Q_SLOTS:
 private:
     void populate();
 
-    QwtPlotBarChart *d_barChartItem;
+    DistroChartItem *d_barChartItem;
     QStringList d_distros;
 };
 
