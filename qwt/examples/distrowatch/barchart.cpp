@@ -13,16 +13,11 @@ public:
     DistroScaleDraw( Qt::Orientation orientation, const QStringList &labels ):
         d_labels( labels )
     {
-#if 1
         setTickLength( QwtScaleDiv::MinorTick, 0 );
         setTickLength( QwtScaleDiv::MediumTick, 0 );
         setTickLength( QwtScaleDiv::MajorTick, 2 );
-#else
-        enableComponent( QwtScaleDraw::Ticks, false );
-#endif
 
         enableComponent( QwtScaleDraw::Backbone, false );
-
 
         if ( orientation == Qt::Vertical )
         {
@@ -55,6 +50,7 @@ public:
     DistroChartItem():
         QwtPlotBarChart( "Page Hits" )
     {
+        setLegendMode( QwtPlotBarChart::LegendBarTitles );
         setLegendIconSize( QSize( 10, 14 ) );
     }
 
@@ -83,50 +79,13 @@ public:
         return symbol;
     }
 
-    QList<QwtLegendData> legendData() const
+    virtual QwtText barTitle( int sampleIndex ) const
     {
-        QList<QwtLegendData> list;
+        QwtText title;
+        if ( sampleIndex >= 0 && sampleIndex < d_distros.size() )
+            title = d_distros[ sampleIndex ];
 
-        for ( int i = 0; i < d_colors.size(); i++ )
-        {
-            QwtLegendData data;
-
-            QVariant titleValue;
-            qVariantSetValue( titleValue, d_distros[ i ] );
-            data.setValue( QwtLegendData::TitleRole, titleValue );
-
-            if ( !legendIconSize().isEmpty() )
-            {
-                QVariant iconValue;
-                qVariantSetValue( iconValue,
-                    legendIcon( i, legendIconSize() ) );
-
-                data.setValue( QwtLegendData::IconRole, iconValue );
-            }
-
-            list += data;
-        }
-
-        return list;
-    }
-
-    virtual QwtGraphic legendIcon( int index, const QSizeF &size ) const
-    {
-        QwtColumnRect column;
-        column.hInterval = QwtInterval( 0.0, size.width() - 1.0 );
-        column.vInterval = QwtInterval( 0.0, size.height() - 1.0 );
-
-        QwtGraphic icon;
-        icon.setDefaultSize( size ); 
-        icon.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
-        
-        QPainter painter( &icon );
-        painter.setRenderHint( QPainter::Antialiasing,
-            testRenderHint( QwtPlotItem::RenderAntialiased ) );
-
-        drawBar( &painter, index, QPointF(), column ); 
-        
-        return icon;
+        return title;
     }
 
 private:
@@ -208,16 +167,17 @@ void BarChart::setOrientation( int o )
     d_barChartItem->setOrientation( orientation );
 
     setAxisTitle( axis1, "Distros" );
+    setAxisMaxMinor( axis1, 3 );
     setAxisScaleDraw( axis1, new DistroScaleDraw( orientation, d_distros ) );
 
     setAxisTitle( axis2, "Hits per day ( HPD )" );
-    setAxisScaleDraw( axis2, new QwtScaleDraw() );
+    setAxisMaxMinor( axis2, 3 );
+
+    QwtScaleDraw *scaleDraw = new QwtScaleDraw();
+    scaleDraw->setTickLength( QwtScaleDiv::MediumTick, 4 );
+    setAxisScaleDraw( axis2, scaleDraw );
 
     plotLayout()->setCanvasMargin( 0 );
-#if 1
-    updateCanvasMargins();
-#endif
-
     replot();
 }
 
