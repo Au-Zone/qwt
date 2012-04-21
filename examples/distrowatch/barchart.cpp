@@ -33,11 +33,15 @@ public:
 
     virtual QwtText label( double value ) const
     {
+        QwtText lbl;
+
         const int index = qRound( value );
         if ( index >= 0 && index <= d_labels.size() )
-            return d_labels[ index ];
-
-        return QwtText();
+        {
+            lbl = d_labels[ index ];
+        }
+            
+        return lbl;
     }
 
 private:
@@ -108,18 +112,18 @@ BarChart::BarChart( QWidget *parent ):
         { "Debian", 1373, QColor( "#d70751" ) },
         { "Fedora", 1638, QColor( "SteelBlue" ) },
         { "Mageia", 1395, QColor( "Indigo" ) },
-        { "Mint", 3874, QColor( "MintCream" ) },
+        { "Mint", 3874, QColor( 183, 255, 183 ) },
         { "openSuSE", 1532, QColor( 115, 186, 37 ) },
         { "Puppy", 1059, QColor( "LightSkyBlue" ) },
         { "Ubuntu", 2391, QColor( "FireBrick" ) }
     };
 
     setAutoFillBackground( true );
-    setPalette( QColor( "Azure" ) );
+    setPalette( QColor( "Linen" ) );
 
     QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setLineWidth( 2 );
-    canvas->setFrameStyle( QFrame::Box | QFrame::Plain );
+    canvas->setFrameStyle( QFrame::Box | QFrame::Sunken );
     canvas->setBorderRadius( 10 );
 
     QPalette canvasPalette( QColor( "Plum" ) );
