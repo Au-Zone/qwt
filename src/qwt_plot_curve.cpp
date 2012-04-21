@@ -175,13 +175,13 @@ void QwtPlotCurve::setLegendAttribute( LegendAttribute attribute, bool on )
 {
     if ( on != ( d_data->legendAttributes & attribute ) )
     {
-
         if ( on )
             d_data->legendAttributes |= attribute;
         else
             d_data->legendAttributes &= ~attribute;
 
         qwtUpdateLegendIconSize( this );
+		legendChanged();
     }
 }
 

@@ -28,6 +28,12 @@ class QWT_EXPORT QwtPlotBarChart:
     public QwtPlotAbstractBarChart, public QwtSeriesStore<QPointF>
 {
 public:
+	enum LegendMode
+	{
+		LegendChartTitle,
+		LegendBarTitles
+	};
+
     explicit QwtPlotBarChart( const QString &title = QString::null );
     explicit QwtPlotBarChart( const QwtText &title );
 
@@ -41,6 +47,9 @@ public:
     void setSymbol( QwtColumnSymbol * );
     const QwtColumnSymbol *symbol() const;
 
+	void setLegendMode( LegendMode );
+	LegendMode legendMode() const;
+
     virtual void drawSeries( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
@@ -49,6 +58,8 @@ public:
 
     virtual QwtColumnSymbol *specialSymbol( 
         int sampleIndex, const QPointF& ) const;
+
+    virtual QwtText barTitle( int sampleIndex ) const;
 
 protected:
     virtual void drawSample( QPainter *painter,
@@ -60,10 +71,8 @@ protected:
         int sampleIndex, const QPointF& point, 
         const QwtColumnRect & ) const;
 
-    virtual void drawLabel( QPainter *, int sampleIndex,
-        const QwtColumnRect &, const QwtText & ) const;
-
-    virtual QwtText label( int sampleIndex, const QPointF & ) const;
+	QList<QwtLegendData> legendData() const;
+	QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
 private:
     void init();

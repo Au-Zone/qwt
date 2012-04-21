@@ -17,7 +17,8 @@ class QwtPlotBarChart::PrivateData
 {
 public:
     PrivateData():
-        symbol( NULL )
+        symbol( NULL ),
+		legendMode( QwtPlotBarChart::LegendChartTitle )
     {
     }
  
@@ -27,6 +28,7 @@ public:
     }
 
     QwtColumnSymbol *symbol;
+	QwtPlotBarChart::LegendMode legendMode;
 };
 
 QwtPlotBarChart::QwtPlotBarChart( const QwtText &title ):
@@ -93,6 +95,20 @@ void QwtPlotBarChart::setSymbol( QwtColumnSymbol *symbol )
 const QwtColumnSymbol *QwtPlotBarChart::symbol() const
 {
     return d_data->symbol;
+}
+
+void QwtPlotBarChart::setLegendMode( LegendMode mode )
+{
+	if ( mode != d_data->legendMode )
+	{
+		d_data->legendMode = mode;
+		legendChanged();
+	}
+}
+
+QwtPlotBarChart::LegendMode QwtPlotBarChart::legendMode() const
+{
+	return d_data->legendMode;
 }
 
 QRectF QwtPlotBarChart::boundingRect() const
@@ -252,22 +268,68 @@ QwtColumnSymbol *QwtPlotBarChart::specialSymbol(
     return NULL;
 }
 
-void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex,
-    const QwtColumnRect &rect, const QwtText &text ) const
-{
-    Q_UNUSED( painter );
-    Q_UNUSED( sampleIndex );
-    Q_UNUSED( rect );
-    Q_UNUSED( text );
-}
-
-QwtText QwtPlotBarChart::label(
-    int sampleIndex, const QPointF &sample ) const
+QwtText QwtPlotBarChart::barTitle( int sampleIndex ) const
 {
     Q_UNUSED( sampleIndex );
-
-    QString labelText;
-    labelText.setNum( sample.y() );
-
-    return QwtText( labelText );
+    return QwtText();
 }
+
+QList<QwtLegendData> QwtPlotBarChart::legendData() const
+{
+	QList<QwtLegendData> list;
+
+	if ( d_data->legendMode == LegendBarTitles )
+	{
+		const size_t numSamples = dataSize();
+		for ( size_t i = 0; i < numSamples; i++ )
+		{
+			QwtLegendData data;
+
+			QVariant titleValue;
+			qVariantSetValue( titleValue, barTitle( i ) );
+			data.setValue( QwtLegendData::TitleRole, titleValue );
+
+			if ( !legendIconSize().isEmpty() )
+			{
+				QVariant iconValue;
+				qVariantSetValue( iconValue,
+					legendIcon( i, legendIconSize() ) );
+
+				data.setValue( QwtLegendData::IconRole, iconValue );
+			}
+
+			list += data;
+		}
+	}
+	else
+	{
+		return QwtPlotAbstractBarChart::legendData();
+	}
+
+	return list;
+}
+
+QwtGraphic QwtPlotBarChart::legendIcon( 
+	int index, const QSizeF &size ) const
+{
+	QwtColumnRect column;
+	column.hInterval = QwtInterval( 0.0, size.width() - 1.0 );
+	column.vInterval = QwtInterval( 0.0, size.height() - 1.0 );
+
+	QwtGraphic icon;
+	icon.setDefaultSize( size );
+	icon.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+
+	QPainter painter( &icon );
+	painter.setRenderHint( QPainter::Antialiasing,
+		testRenderHint( QwtPlotItem::RenderAntialiased ) );
+
+	int barIndex = -1;
+	if ( d_data->legendMode == QwtPlotBarChart::LegendBarTitles )
+		barIndex = index;
+		
+	drawBar( &painter, barIndex, QPointF(), column );
+
+	return icon;
+}
+
