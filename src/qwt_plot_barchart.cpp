@@ -230,12 +230,6 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
     }
 
     drawBar( painter, index, point, barRect );
-
-    if ( testChartAttribute( QwtPlotAbstractBarChart::ShowLabels ) )
-	{
-		const QwtText text = label( index, point );
-		drawLabel( painter, index, barRect, text );
-	}
 }
 
 void QwtPlotBarChart::drawBar( QPainter *painter,
@@ -263,24 +257,6 @@ void QwtPlotBarChart::drawBar( QPainter *painter,
     }
 
     delete specialSym;
-}
-
-/*! 
-  Draw a label aligned to bar
-
-  \param painter Painter
-  \param sampleIndex Index of the sample - might be -1 when the
-                     bar is painted for the legend
-  \param rect Directed target rectangle for the bar
-  \param text Label text
-*/      
-void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex,
-    const QwtColumnRect &rect, const QwtText &text ) const
-{       
-    Q_UNUSED( painter );
-    Q_UNUSED( sampleIndex );
-    Q_UNUSED( rect );
-    Q_UNUSED( text );
 }
 
 QwtColumnSymbol *QwtPlotBarChart::specialSymbol( 

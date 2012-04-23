@@ -114,11 +114,15 @@ QWT_CONFIG     += QwtDesigner
 QWT_CONFIG     += QwtExamples
 
 ######################################################################
-# If you want to auto build the test applications, enable the line below
-# Otherwise you have to build them from the tests directory.
+# The playground is primarily intended for the Qwt development 
+# to explore and test new features. Nevertheless you might find
+# ideas or code snippets that help for application development
+# If you want to auto build the applications in playground, enable 
+# the line below.
+# Otherwise you have to build them from the playground directory.
 ######################################################################
 
-QWT_CONFIG     += QwtTests
+QWT_CONFIG     += QwtPlayground
 
 ######################################################################
 # When Qt has been built as framework qmake ( qtAddLibrary ) wants 

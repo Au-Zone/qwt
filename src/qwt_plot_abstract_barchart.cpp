@@ -38,7 +38,6 @@ public:
     int spacing;
     int margin;
     double baseline;
-    ChartAttributes chartAttributes;
 };
 
 /*!
@@ -60,19 +59,6 @@ QwtPlotAbstractBarChart::QwtPlotAbstractBarChart( const QwtText &title ):
 QwtPlotAbstractBarChart::~QwtPlotAbstractBarChart()
 {
     delete d_data;
-}
-
-void QwtPlotAbstractBarChart::setChartAttribute( ChartAttribute attribute, bool on )
-{
-    if ( on )
-        d_data->chartAttributes |= attribute;
-    else
-        d_data->chartAttributes &= ~attribute;
-}
-
-bool QwtPlotAbstractBarChart::testChartAttribute( ChartAttribute attribute ) const
-{
-    return ( d_data->chartAttributes & attribute );
 }
 
 /*!

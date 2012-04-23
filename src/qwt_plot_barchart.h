@@ -106,9 +106,6 @@ protected:
         int sampleIndex, const QPointF& point, 
         const QwtColumnRect & ) const;
 
-    virtual void drawLabel( QPainter *, int sampleIndex,
-        const QwtColumnRect &, const QwtText & ) const;
-
     QList<QwtLegendData> legendData() const;
     QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
