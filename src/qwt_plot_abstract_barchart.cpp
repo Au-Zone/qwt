@@ -41,6 +41,10 @@ public:
     ChartAttributes chartAttributes;
 };
 
+/*!
+  Constructor
+  \param title Title of the chart
+*/
 QwtPlotAbstractBarChart::QwtPlotAbstractBarChart( const QwtText &title ):
     QwtPlotSeriesItem( title )
 {
@@ -52,6 +56,7 @@ QwtPlotAbstractBarChart::QwtPlotAbstractBarChart( const QwtText &title ):
     setZ( 19.0 );
 }
 
+//! Destructor
 QwtPlotAbstractBarChart::~QwtPlotAbstractBarChart()
 {
     delete d_data;
@@ -70,6 +75,14 @@ bool QwtPlotAbstractBarChart::testChartAttribute( ChartAttribute attribute ) con
     return ( d_data->chartAttributes & attribute );
 }
 
+/*!
+  The combination of layoutPolicy() and layoutHint() define how the width
+  of the bars is calculated
+
+  \param policy Layout policy
+
+  \sa layoutPolicy(), layoutHint()
+ */
 void QwtPlotAbstractBarChart::setLayoutPolicy( LayoutPolicy policy )
 {
     if ( policy != d_data->layoutPolicy )
@@ -79,11 +92,26 @@ void QwtPlotAbstractBarChart::setLayoutPolicy( LayoutPolicy policy )
     }
 }
 
+/*!
+  The combination of layoutPolicy() and layoutHint() define how the width
+  of the bars is calculated
+
+  \return Layout policy of the chart item
+  \sa setLayoutPolicy(), layoutHint()
+ */
 QwtPlotAbstractBarChart::LayoutPolicy QwtPlotAbstractBarChart::layoutPolicy() const
 {
     return d_data->layoutPolicy;
 }
 
+/*!
+  The combination of layoutPolicy() and layoutHint() define how the width
+  of the bars is calculated
+
+  \param hint Layout hint
+
+  \sa LayoutPolicy, layoutPolicy(), layoutHint()
+ */
 void QwtPlotAbstractBarChart::setLayoutHint( double hint )
 {
     hint = qMax( 0.0, hint );
@@ -94,11 +122,26 @@ void QwtPlotAbstractBarChart::setLayoutHint( double hint )
     }
 }
 
+/*!
+  The combination of layoutPolicy() and layoutHint() define how the width
+  of the bars is calculated
+
+  \return Layout policy of the chart item
+  \sa LayoutPolicy, setLayoutHint(), layoutPolicy()
+*/
 double QwtPlotAbstractBarChart::layoutHint() const
 {
     return d_data->layoutHint;
 }
 
+/*!
+  \brief Set the spacing
+
+  The spacing is the distance between 2 samples ( bars for QwtPlotBarChart or
+  a group of bars for QwtPlotMultiBarChart ) in paint device coordinates.
+
+  \sa spacing()
+ */
 void QwtPlotAbstractBarChart::setSpacing( int spacing )
 {
     spacing = qMax( spacing, 0 );
@@ -109,6 +152,10 @@ void QwtPlotAbstractBarChart::setSpacing( int spacing )
     }
 }
 
+/*!
+  \return Spacing between 2 samples ( bars or groups of bars )
+  \sa setSpacing()
+ */
 int QwtPlotAbstractBarChart::spacing() const
 {
     return d_data->spacing;
@@ -129,6 +176,20 @@ int QwtPlotAbstractBarChart::margin() const
     return d_data->margin;
 }
 
+/*!
+   \brief Set the baseline
+
+   The baseline is the origin for the chart. Each bar is 
+   painted from the baseline in the direction of the sample 
+   value. In case of a horizontal orientation() the baseline
+   is interpreted as x - otherwise as y - value.
+
+   The default value for the baseline is 0.
+
+   \param value Value for the baseline
+
+   \sa baseline(), QwtPlotSeriesItem::orientation()
+*/
 void QwtPlotAbstractBarChart::setBaseline( double value )
 {
     if ( value != d_data->baseline )
@@ -138,11 +199,21 @@ void QwtPlotAbstractBarChart::setBaseline( double value )
     }
 }
 
+/*! 
+   \return Value for the origin of the bar chart
+   \sa setBaseline(), QwtPlotSeriesItem::orientation()
+ */
 double QwtPlotAbstractBarChart::baseline() const
 {
     return d_data->baseline;
 }
 
+/*!
+   Calculate the sample width
+
+   \return Sample width
+   \sa layoutPolicy(), layoutHint()
+*/
 double QwtPlotAbstractBarChart::sampleWidth( const QwtScaleMap &map,
     double canvasSize, double boundingSize, double value ) const
 {

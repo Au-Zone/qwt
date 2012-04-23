@@ -21,21 +21,22 @@ class QwtColumnSymbol;
   \brief QwtPlotMultiBarChart displays a series of a samples that consist
          each of a set of values. 
 
-   Each value is displayed as a bar, the bars of each set can be organized 
-   side by side or accumulated.
+  Each value is displayed as a bar, the bars of each set can be organized 
+  side by side or accumulated.
 
-   Each bar of a set is rendered by a QwtColumnSymbol, that is set by setSymbol().
-   The bars of different sets use the same symbols. Exceptions are possible
-   by overloading specialSymbol() or overloading drawBar().
+  Each bar of a set is rendered by a QwtColumnSymbol, that is set by setSymbol().
+  The bars of different sets use the same symbols. Exceptions are possible
+  by overloading specialSymbol() or overloading drawBar().
 
-   Depending on its orientation ( QwtPlotSeriesItem::orientation() ) the bars
-   are displayed horizontally or vertically. The bars cover the interval between
-   the baseline and the value.
+  Depending on its orientation() the bars are displayed horizontally 
+  or vertically. The bars cover the interval between the baseline() 
+  and the value.
 
-   In opposite to most other plot items, QwtPlotMultiBarChart returns more
-   than one entry for the legend - one for each symbol.
+  In opposite to most other plot items, QwtPlotMultiBarChart returns more
+  than one entry for the legend - one for each symbol.
    
-   \sa QwtPlotSeriesItem::orientation(), QwtPlotAbstractBarChart::setBaseline()
+  \sa QwtPlotBarChart, QwtPlotHistogram
+      QwtPlotSeriesItem::orientation(), QwtPlotAbstractBarChart::baseline()
  */
 class QWT_EXPORT QwtPlotMultiBarChart: 
     public QwtPlotAbstractBarChart, public QwtSeriesStore<QwtSetSample>

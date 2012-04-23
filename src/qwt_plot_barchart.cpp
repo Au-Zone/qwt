@@ -190,7 +190,7 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
     const QRectF &canvasRect, const QwtInterval &boundingInterval,
     int index, const QPointF &point ) const
 {
-    QwtColumnRect bar;
+    QwtColumnRect barRect;
 
     if ( orientation() == Qt::Horizontal )
     {
@@ -204,11 +204,11 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
         const double y1 = y - 0.5 * barHeight;
         const double y2 = y + 0.5 * barHeight;
 
-        bar.direction = ( x1 < x2 ) ?
+        barRect.direction = ( x1 < x2 ) ?
             QwtColumnRect::LeftToRight : QwtColumnRect::RightToLeft;
 
-        bar.hInterval = QwtInterval( x1, x2 ).normalized();
-        bar.vInterval = QwtInterval( y1, y2 );
+        barRect.hInterval = QwtInterval( x1, x2 ).normalized();
+        barRect.vInterval = QwtInterval( y1, y2 );
     }
     else
     {
@@ -222,14 +222,20 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
         const double y1 = yMap.transform( baseline() );
         const double y2 = yMap.transform( point.y() );
 
-        bar.direction = ( y1 < y2 ) ?
+        barRect.direction = ( y1 < y2 ) ?
             QwtColumnRect::TopToBottom : QwtColumnRect::BottomToTop;
 
-        bar.hInterval = QwtInterval( x1, x2 );
-        bar.vInterval = QwtInterval( y1, y2 ).normalized();
+        barRect.hInterval = QwtInterval( x1, x2 );
+        barRect.vInterval = QwtInterval( y1, y2 ).normalized();
     }
 
-    drawBar( painter, index, point, bar );
+    drawBar( painter, index, point, barRect );
+
+    if ( testChartAttribute( QwtPlotAbstractBarChart::ShowLabels ) )
+	{
+		const QwtText text = label( index, point );
+		drawLabel( painter, index, barRect, text );
+	}
 }
 
 void QwtPlotBarChart::drawBar( QPainter *painter,
@@ -259,6 +265,24 @@ void QwtPlotBarChart::drawBar( QPainter *painter,
     delete specialSym;
 }
 
+/*! 
+  Draw a label aligned to bar
+
+  \param painter Painter
+  \param sampleIndex Index of the sample - might be -1 when the
+                     bar is painted for the legend
+  \param rect Directed target rectangle for the bar
+  \param text Label text
+*/      
+void QwtPlotBarChart::drawLabel( QPainter *painter, int sampleIndex,
+    const QwtColumnRect &rect, const QwtText &text ) const
+{       
+    Q_UNUSED( painter );
+    Q_UNUSED( sampleIndex );
+    Q_UNUSED( rect );
+    Q_UNUSED( text );
+}
+
 QwtColumnSymbol *QwtPlotBarChart::specialSymbol( 
     int index, const QPointF &point ) const
 {
@@ -271,6 +295,15 @@ QwtColumnSymbol *QwtPlotBarChart::specialSymbol(
 QwtText QwtPlotBarChart::barTitle( int sampleIndex ) const
 {
     Q_UNUSED( sampleIndex );
+    return QwtText();
+}
+
+QwtText QwtPlotBarChart::label( 
+	int sampleIndex, const QPointF& point ) const
+{
+    Q_UNUSED( sampleIndex );
+    Q_UNUSED( point );
+
     return QwtText();
 }
 

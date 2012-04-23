@@ -32,6 +32,8 @@ class QPolygonF;
         terms "image histogram" and "color histogram" to avoid confusions.
         While "image histograms" can be displayed by a QwtPlotCurve there
         is no applicable plot item for a "color histogram" yet.
+
+  \sa QwtPlotBarChart, QwtPlotMultiBarChart
 */
 
 class QWT_EXPORT QwtPlotHistogram: 
