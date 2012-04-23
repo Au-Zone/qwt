@@ -45,7 +45,7 @@ public:
 
 /*!
   Constructor
-  \param title Title of the curve
+  \param title Title of the chart
 */
 QwtPlotMultiBarChart::QwtPlotMultiBarChart( const QwtText &title ):
     QwtPlotAbstractBarChart( title )
@@ -55,7 +55,7 @@ QwtPlotMultiBarChart::QwtPlotMultiBarChart( const QwtText &title ):
 
 /*!
   Constructor
-  \param title Title of the curve
+  \param title Title of the chart
 */
 QwtPlotMultiBarChart::QwtPlotMultiBarChart( const QString &title ):
     QwtPlotAbstractBarChart( QwtText( title ) )
@@ -416,22 +416,22 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
 
             const double y2 = yMap.transform( sample.set[i] );
 
-            QwtColumnRect bar;
-            bar.direction = ( y1 < y2 ) ?
+            QwtColumnRect barRect;
+            barRect.direction = ( y1 < y2 ) ?
                 QwtColumnRect::TopToBottom : QwtColumnRect::BottomToTop;
 
-            bar.hInterval = QwtInterval( x1, x2 ).normalized();
+            barRect.hInterval = QwtInterval( x1, x2 ).normalized();
             if ( i != 0 )
-                bar.hInterval.setBorderFlags( QwtInterval::ExcludeMinimum );
+                barRect.hInterval.setBorderFlags( QwtInterval::ExcludeMinimum );
 
-            bar.vInterval = QwtInterval( y1, y2 ).normalized();
+            barRect.vInterval = QwtInterval( y1, y2 ).normalized();
 
-            drawBar( painter, index, i, bar );
+            drawBar( painter, index, i, barRect );
 
             if ( testChartAttribute( QwtPlotAbstractBarChart::ShowLabels ) )
             {
                 const QwtText text = label( index, i, sample );
-                drawLabel( painter, index, i, bar, text );
+                drawLabel( painter, index, i, barRect, text );
             }
         }
     }
@@ -449,22 +449,22 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
 
             double x2 = xMap.transform( sample.set[i] );
 
-            QwtColumnRect bar;
-            bar.direction = x1 < x2 ?
+            QwtColumnRect barRect;
+            barRect.direction = x1 < x2 ?
                 QwtColumnRect::LeftToRight : QwtColumnRect::RightToLeft;
 
-            bar.hInterval = QwtInterval( x1, x2 ).normalized();
+            barRect.hInterval = QwtInterval( x1, x2 ).normalized();
 
-            bar.vInterval = QwtInterval( y1, y2 );
+            barRect.vInterval = QwtInterval( y1, y2 );
             if ( i != 0 )
-                bar.vInterval.setBorderFlags( QwtInterval::ExcludeMinimum );
+                barRect.vInterval.setBorderFlags( QwtInterval::ExcludeMinimum );
 
-            drawBar( painter, index, i, bar );
+            drawBar( painter, index, i, barRect );
 
             if ( testChartAttribute( QwtPlotAbstractBarChart::ShowLabels ) )
             {
                 const QwtText text = label( index, i, sample );
-                drawLabel( painter, index, i, bar, text );
+                drawLabel( painter, index, i, barRect, text );
             }
         }
     }
