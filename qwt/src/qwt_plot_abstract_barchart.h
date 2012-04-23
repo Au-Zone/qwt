@@ -25,13 +25,6 @@
 class QWT_EXPORT QwtPlotAbstractBarChart: public QwtPlotSeriesItem
 {
 public:
-    enum ChartAttribute
-    {
-        ShowLabels = 0x01
-    };
-
-    typedef QFlags<ChartAttribute> ChartAttributes;
-
     /*!
         \brief Mode how to calculate the bar width
 
@@ -69,9 +62,6 @@ public:
 
     explicit QwtPlotAbstractBarChart( const QwtText &title );
     virtual ~QwtPlotAbstractBarChart();
-
-    void setChartAttribute( ChartAttribute, bool on = true );
-    bool testChartAttribute( ChartAttribute ) const;
 
     void setLayoutPolicy( LayoutPolicy );
     LayoutPolicy layoutPolicy() const;

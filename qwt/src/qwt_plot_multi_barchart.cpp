@@ -427,12 +427,6 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
             barRect.vInterval = QwtInterval( y1, y2 ).normalized();
 
             drawBar( painter, index, i, barRect );
-
-            if ( testChartAttribute( QwtPlotAbstractBarChart::ShowLabels ) )
-            {
-                const QwtText text = label( index, i, sample );
-                drawLabel( painter, index, i, barRect, text );
-            }
         }
     }
     else
@@ -460,12 +454,6 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
                 barRect.vInterval.setBorderFlags( QwtInterval::ExcludeMinimum );
 
             drawBar( painter, index, i, barRect );
-
-            if ( testChartAttribute( QwtPlotAbstractBarChart::ShowLabels ) )
-            {
-                const QwtText text = label( index, i, sample );
-                drawLabel( painter, index, i, barRect, text );
-            }
         }
     }
 }
@@ -608,39 +596,6 @@ void QwtPlotMultiBarChart::drawBar( QPainter *painter,
     }
 
     delete specialSym;
-}
-
-/*!
-  Draw a label aligned to bar
-
-  \param painter Painter
-  \param sampleIndex Index of the sample - might be -1 when the
-                     bar is painted for the legend
-  \param valueIndex Index of a value in a set
-  \param rect Directed target rectangle for the bar
-  \param text Label text
-*/
-void QwtPlotMultiBarChart::drawLabel( QPainter *painter, int sampleIndex,
-    int valueIndex, const QwtColumnRect &rect, const QwtText &text ) const
-{
-    Q_UNUSED( painter );
-    Q_UNUSED( sampleIndex );
-    Q_UNUSED( valueIndex );
-    Q_UNUSED( rect );
-    Q_UNUSED( text );
-}
-
-
-QwtText QwtPlotMultiBarChart::label(
-    int sampleIndex, int valueIndex, const QwtSetSample& sample ) const
-{
-    Q_UNUSED( sampleIndex );
-
-    QString labelText;
-    if ( valueIndex >= 0 && valueIndex <= sample.set.size() )
-        labelText.setNum( sample.set[ valueIndex ] );
-
-    return QwtText( labelText );
 }
 
 QList<QwtLegendData> QwtPlotMultiBarChart::legendData() const

@@ -24,8 +24,8 @@ contains(QWT_CONFIG, QwtExamples ) {
     SUBDIRS += examples 
 }
 
-contains(QWT_CONFIG, QwtTests ) {
-    SUBDIRS += tests 
+contains(QWT_CONFIG, QwtPlayground ) {
+    SUBDIRS += playground 
 }
  
 qwtspec.files  = qwtconfig.pri qwt.prf

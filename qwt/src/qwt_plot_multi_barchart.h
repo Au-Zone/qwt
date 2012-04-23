@@ -106,12 +106,6 @@ protected:
     virtual void drawBar( QPainter *, int sampleIndex,
         int barIndex, const QwtColumnRect & ) const;
 
-    virtual void drawLabel( QPainter *, int sampleIndex,
-        int barIndex, const QwtColumnRect &, const QwtText & ) const;
-
-    virtual QwtText label( int sampleIndex, int barIndex,
-        const QwtSetSample& ) const;
-
     void drawStackedBars( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int index,
