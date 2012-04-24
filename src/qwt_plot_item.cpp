@@ -513,7 +513,7 @@ void QwtPlotItem::updateScaleDiv( const QwtScaleDiv &xScaleDiv,
    \brief Calculate the bounding scale rect of 2 maps
 
    \param xMap X map
-   \param yMap X map
+   \param yMap Y map
 
    \return Bounding scale rect of the scale maps, normalized
 */
@@ -528,9 +528,9 @@ QRectF QwtPlotItem::scaleRect( const QwtScaleMap &xMap,
    \brief Calculate the bounding paint rect of 2 maps
 
    \param xMap X map
-   \param yMap X map
+   \param yMap Y map
 
-   \return Bounding paint rect of the scale maps, normalized
+   \return Bounding paint rect of the scale maps, not normalized
 */
 QRectF QwtPlotItem::paintRect( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap ) const
