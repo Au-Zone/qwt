@@ -340,6 +340,17 @@ QwtGraphic QwtPlotItem::legendIcon(
     return QwtGraphic();
 }
 
+/*!
+   \brief Return a default icon from a brush
+
+   The default icon is a filled rectangle used
+   in several derived classes as legendIcon().
+
+   \param brush Fill brush
+   \param size Icon size
+
+   \return A filled rectangle
+ */
 QwtGraphic QwtPlotItem::defaultIcon( 
     const QBrush &brush, const QSizeF &size ) const
 {   
@@ -490,6 +501,28 @@ QRectF QwtPlotItem::boundingRect() const
     return QRectF( 1.0, 1.0, -2.0, -2.0 ); // invalid
 }
 
+/*!
+   \brief Calculate a hint for the canvas margin
+
+   When the QwtPlotItem::Margins flag is enabled the plot item
+   indicates, that it needs some margins at the borders of the canvas.
+   This is f.e. used by bar charts to reserve space for displaying
+   the bars.
+
+   The margins are in target device coordinates ( pixels on screen )
+
+   \param xMap Maps x-values into pixel coordinates.
+   \param yMap Maps y-values into pixel coordinates.
+   \param canvasRect Contents rect of the canvas in painter coordinates
+   \param left Returns the left margin
+   \param top Returns the top margin
+   \param right Returns the right margin
+   \param bottom Returns the bottom margin
+
+   \return The default implementation returns 0 for all margins
+
+   \sa QwtPlot::getCanvasMarginsHint(), QwtPlot::updateCanvasMargins()
+ */
 void QwtPlotItem::getCanvasMarginHint( const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap, const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom ) const
@@ -502,6 +535,24 @@ void QwtPlotItem::getCanvasMarginHint( const QwtScaleMap &xMap,
     left = top = right = bottom = 0.0;
 }
 
+/*!
+   \brief Return all information, that is needed to represent
+          the item on the legend
+
+   Most items are represented by one entry on the legend
+   showing an icon and a text, but f.e. QwtPlotMultiBarChart
+   displays one entry for each bar.
+
+   QwtLegendData is basically a list of QVariants that makes it
+   possible to overload and reimplement legendData() to 
+   return almost any type of information, that is understood
+   by the receiver that acts as the legend.
+
+   The default implementation returns one entry with 
+   the title() of the item and the legendIcon().
+
+   \sa title(), legendIcon(), QwtLegend, QwtPlotLegendItem
+ */
 QList<QwtLegendData> QwtPlotItem::legendData() const
 {
     QwtLegendData data;
@@ -573,10 +624,10 @@ void QwtPlotItem::updateLegend( const QwtPlotItem *item,
 /*!
    \brief Calculate the bounding scale rect of 2 maps
 
-   \param xMap X map
-   \param yMap X map
+   \param xMap Maps x-values into pixel coordinates.
+   \param yMap Maps y-values into pixel coordinates.
 
-   \return Bounding scale rect of the scale maps, normalized
+   \return Bounding scale rect of the scale maps, not normalized
 */
 QRectF QwtPlotItem::scaleRect( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap ) const
@@ -588,10 +639,10 @@ QRectF QwtPlotItem::scaleRect( const QwtScaleMap &xMap,
 /*!
    \brief Calculate the bounding paint rect of 2 maps
 
-   \param xMap X map
-   \param yMap X map
+   \param xMap Maps x-values into pixel coordinates.
+   \param yMap Maps y-values into pixel coordinates.
 
-   \return Bounding paint rect of the scale maps, normalized
+   \return Bounding paint rect of the scale maps, not normalized
 */
 QRectF QwtPlotItem::paintRect( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap ) const

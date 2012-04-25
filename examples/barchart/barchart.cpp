@@ -48,7 +48,7 @@ void BarChart::populate()
         QString title("Bar %1");
         titles += title.arg( i );
     }
-    d_barChartItem->setTitles( titles );
+    d_barChartItem->setBarTitles( titles );
     d_barChartItem->setLegendIconSize( QSize( 10, 14 ) );
 
     for ( int i = 0; i < numBars; i++ )
