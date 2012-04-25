@@ -29,6 +29,7 @@ Ideas
 - line marker with a line from the position to the axis
 - quadtree
 - QwtText supporting Qt::TextElideMode
+- Multitouch events
 
 Bugs/Change requests
 --------------------

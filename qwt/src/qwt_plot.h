@@ -97,8 +97,6 @@ public:
         Position of the legend, relative to the canvas.
 
         \sa insertLegend()
-        \note In case of ExternalLegend, the legend is not
-              handled by QwtPlotRenderer
      */
     enum LegendPosition
     {
@@ -112,15 +110,7 @@ public:
         BottomLegend,
 
         //! The legend will be above the title
-        TopLegend,
-
-        /*!
-          External means that only the content of the legend
-          will be handled by QwtPlot, but not its geometry.
-          This type can be used to have a legend in an 
-          external window ( or on the canvas ).
-         */
-        ExternalLegend
+        TopLegend
     };
 
     explicit QwtPlot( QWidget * = NULL );

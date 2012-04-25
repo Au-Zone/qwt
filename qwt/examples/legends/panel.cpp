@@ -22,7 +22,7 @@ Panel::Panel( QWidget *parent ):
     d_legend.positionBox->addItem( "Right", QwtPlot::RightLegend );
     d_legend.positionBox->addItem( "Bottom", QwtPlot::BottomLegend );
     d_legend.positionBox->addItem( "Top", QwtPlot::TopLegend );
-    d_legend.positionBox->addItem( "External", QwtPlot::ExternalLegend );
+    d_legend.positionBox->addItem( "External", QwtPlot::TopLegend + 1 );
 
     d_legendItem.checkBox = new QCheckBox( "Enabled" );
 
@@ -126,7 +126,7 @@ Panel::Panel( QWidget *parent ):
 
 void Panel::setSettings( const Settings &settings)
 {
-	blockSignals( true );
+    blockSignals( true );
 
     d_legend.checkBox->setCheckState(
         settings.legend.isEnabled ? Qt::Checked : Qt::Unchecked );
@@ -159,7 +159,7 @@ void Panel::setSettings( const Settings &settings)
     d_curve.numCurves->setValue( settings.curve.numCurves );
     d_curve.title->setText( settings.curve.title );
 
-	blockSignals( false );
+    blockSignals( false );
 }
 
 Settings Panel::settings() const
