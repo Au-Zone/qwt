@@ -82,12 +82,20 @@ int QwtPlotMultiBarChart::rtti() const
     return QwtPlotItem::Rtti_PlotMultiBarChart;
 }
 
+/*!
+  Initialize data with an array of samples.
+  \param samples Vector of points
+*/
 void QwtPlotMultiBarChart::setSamples(
     const QVector<QwtSetSample> &samples )
 {
     setData( new QwtSetSeriesData( samples ) );
 }
 
+/*!
+  Initialize data with an array of samples.
+  \param samples Vector of points
+*/
 void QwtPlotMultiBarChart::setSamples(
     const QVector< QVector<double> > &samples )
 {
@@ -98,13 +106,26 @@ void QwtPlotMultiBarChart::setSamples(
     setData( new QwtSetSeriesData( s ) );
 }
 
-void QwtPlotMultiBarChart::setTitles( const QList<QwtText> &titles )
+/*!
+  \brief Set the titles for the bars
+
+  The titles are used for the legend.
+
+  \param titles Bar titles
+
+  \sa barTitles(), legendData()
+ */
+void QwtPlotMultiBarChart::setBarTitles( const QList<QwtText> &titles )
 {
     d_data->barTitles = titles;
     itemChanged();
 }
 
-QList<QwtText> QwtPlotMultiBarChart::titles() const
+/*! 
+  \return Bar titles
+  \sa setBarTitles(), legendData()
+ */
+QList<QwtText> QwtPlotMultiBarChart::barTitles() const
 {
     return d_data->barTitles;
 }
@@ -249,6 +270,10 @@ QwtPlotMultiBarChart::ChartStyle QwtPlotMultiBarChart::style() const
     return d_data->style;
 }
 
+/*!
+  \return Bounding rectangle of all samples.
+  For an empty series the rectangle is invalid.
+*/
 QRectF QwtPlotMultiBarChart::boundingRect() const
 {
     const size_t numSamples = dataSize();
@@ -570,7 +595,6 @@ void QwtPlotMultiBarChart::drawStackedBars( QPainter *painter,
 
   \sa drawSeries()
 */
-
 void QwtPlotMultiBarChart::drawBar( QPainter *painter,
     int sampleIndex, int valueIndex, const QwtColumnRect &rect ) const
 {
@@ -598,6 +622,14 @@ void QwtPlotMultiBarChart::drawBar( QPainter *painter,
     delete specialSym;
 }
 
+/*!
+  \return Information to be displayed on the legend
+
+  The chart is represented by a list of entries - one for each bar title.
+  Each element contains a bar title and an icon showing its corresponding bar.
+
+  \sa barTitles(), legendIcon(), legendIconSize()
+*/
 QList<QwtLegendData> QwtPlotMultiBarChart::legendData() const
 {
     QList<QwtLegendData> list;
@@ -625,6 +657,15 @@ QList<QwtLegendData> QwtPlotMultiBarChart::legendData() const
     return list;
 }
 
+/*!
+  \return Icon for representing a bar on the legend
+
+  \param index Index of the bar
+  \param size Icon size
+  
+  \return An icon showing a bar
+  \sa drawBar(), legendData()
+ */
 QwtGraphic QwtPlotMultiBarChart::legendIcon( int index,
     const QSizeF &size ) const
 {

@@ -140,13 +140,22 @@ void QwtPlotAbstractBarChart::setSpacing( int spacing )
 
 /*!
   \return Spacing between 2 samples ( bars or groups of bars )
-  \sa setSpacing()
+  \sa setSpacing(), margin()
  */
 int QwtPlotAbstractBarChart::spacing() const
 {
     return d_data->spacing;
 }
+/*!
+  \brief Set the margin
 
+  The margin is the distance between the outmost bars and the contentsRect()
+  of the canvas. The default setting is 5 pixels.
+
+  \param margin Margin
+
+  \sa spacing(), margin()
+ */
 void QwtPlotAbstractBarChart::setMargin( int margin )
 {
     margin = qMax( margin, 0 );
@@ -157,6 +166,12 @@ void QwtPlotAbstractBarChart::setMargin( int margin )
     }
 }
 
+/*!
+  \return Margin between the outmost bars and the contentsRect()
+  of the canvas.
+
+  \sa setMargin(), spacing()
+ */
 int QwtPlotAbstractBarChart::margin() const
 {
     return d_data->margin;
@@ -195,7 +210,7 @@ double QwtPlotAbstractBarChart::baseline() const
 }
 
 /*!
-   Calculate the sample width
+   Calculate the width for a sample in paint device coordinates
 
    \return Sample width
    \sa layoutPolicy(), layoutHint()
@@ -241,6 +256,28 @@ double QwtPlotAbstractBarChart::sampleWidth( const QwtScaleMap &map,
     return width;
 }
 
+/*!
+   \brief Calculate a hint for the canvas margin
+
+   Bar charts need to reserve some space for displaying the bars
+   for the first and the last sample.  The hint is calculated
+   from the layoutHint() depending on the layoutPolicy().
+
+   The margins are in target device coordinates ( pixels on screen )
+
+   \param xMap Maps x-values into pixel coordinates.
+   \param yMap Maps y-values into pixel coordinates.
+   \param canvasRect Contents rect of the canvas in painter coordinates
+   \param left Returns the left margin
+   \param top Returns the top margin
+   \param right Returns the right margin
+   \param bottom Returns the bottom margin
+
+   \return Margin
+
+   \sa layoutPolicy(), layoutHint(), QwtPlotItem::Margins
+       QwtPlot::getCanvasMarginsHint(), QwtPlot::updateCanvasMargins()
+ */
 void QwtPlotAbstractBarChart::getCanvasMarginHint( const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap, const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom ) const

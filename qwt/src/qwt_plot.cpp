@@ -188,6 +188,30 @@ void QwtPlot::initPlot( const QwtText &title )
     qwtEnableLegendItems( this, true );
 }
 
+/*!
+  \brief Set the drawing canvas of the plot widget
+
+  QwtPlot invokes methods of the canvas as meta methods ( see QMetaObject ).
+  In opposite to using conventional C++ techniques like virtual methods
+  they allow to use canvas implementations that are derived from 
+  QWidget or QGLWidget.
+
+  The following meta methods could be implemented:
+
+  - replot()
+    When the canvas doesn't offer a replot method, QwtPlot calls
+    update() instead.
+
+  - borderPath()
+    The border path is necessary to clip the content of the canvas
+    When the canvas doesn't have any special border ( f.e rounded corners )
+    it is o.k. not to implement this method.
+
+  The default canvas is a QwtPlotCanvas 
+
+  \param canvas Canvas Widget
+  \sa canvas()
+ */
 void QwtPlot::setCanvas( QWidget *canvas )
 {
     if ( canvas == d_data->canvas )
@@ -223,6 +247,22 @@ bool QwtPlot::event( QEvent *event )
     return ok;
 }
 
+/*!
+  \brief Event filter
+
+  The plot handles the following events for the canvas:
+
+  - QEvent::Resize
+    The canvas margins might depend on its size
+
+  - QEvent::ContentsRectChange
+    The layout needs to be recalculated
+
+  \param object Object to be filtered
+  \param event Event
+
+  \sa updateCanvasMargins(), updateLayout()
+*/
 bool QwtPlot::eventFilter( QObject *object, QEvent *event )
 {
     if ( object == d_data->canvas )
@@ -589,6 +629,14 @@ void QwtPlot::updateLayout()
     d_data->canvas->setGeometry( canvasRect );
 }
 
+/*!
+  \brief Calculate the canvas margins
+
+  Plot items might indicate, that they need some extra space
+  at the borders of the canvas by the QwtPlotItem::Margins flag.
+
+  updateCanvasMargins(), QwtPlotItem::getCanvasMarginHint()
+ */
 void QwtPlot::getCanvasMarginsHint(
     const QwtScaleMap maps[], const QRectF &canvasRect,
     double &left, double &top, double &right, double &bottom) const
@@ -615,6 +663,14 @@ void QwtPlot::getCanvasMarginsHint(
     }
 }
 
+/*!
+  \brief Update the canvas margins
+
+  Plot items might indicate, that they need some extra space
+  at the borders of the canvas by the QwtPlotItem::Margins flag.
+
+  getCanvasMarginsHint(), QwtPlotItem::getCanvasMarginHint()
+ */
 void QwtPlot::updateCanvasMargins()
 {
     QwtScaleMap maps[axisCnt];

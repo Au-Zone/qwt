@@ -111,6 +111,10 @@ QwtPlotBarChart::LegendMode QwtPlotBarChart::legendMode() const
 	return d_data->legendMode;
 }
 
+/*!
+  \return Bounding rectangle of all samples.
+  For an empty series the rectangle is invalid.
+*/
 QRectF QwtPlotBarChart::boundingRect() const
 {
     const size_t numSamples = dataSize();
