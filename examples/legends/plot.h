@@ -5,6 +5,7 @@
 
 class Settings;
 class LegendItem;
+class QwtLegend;
 
 class Plot: public QwtPlot
 {
@@ -12,6 +13,7 @@ class Plot: public QwtPlot
 
 public:
     Plot( QWidget *parent = NULL );
+    virtual ~Plot();
 
 public Q_SLOTS:
     void applySettings( const Settings & );
@@ -22,6 +24,7 @@ public:
 private:
     void insertCurve();
 
+    QwtLegend *d_externalLegend;
     LegendItem *d_legendItem;
     bool d_isDirty;
 };

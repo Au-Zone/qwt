@@ -612,8 +612,7 @@ void QwtPlot::updateLayout()
             axisWidget( axisId )->hide();
     }
 
-    if ( d_data->legend &&
-        d_data->layout->legendPosition() != ExternalLegend )
+    if ( d_data->legend )
     {
         if ( d_data->legend->isEmpty() )
         {
@@ -850,9 +849,15 @@ bool QwtPlot::axisValid( int axisId )
   Otherwise the legend items will be placed in a table
   with a best fit number of columns from left to right.
 
-  If pos != QwtPlot::ExternalLegend the plot widget will become
-  parent of the legend. It will be deleted when the plot is deleted,
-  or another legend is set with insertLegend().
+  insertLegend() will set the plot widget as parent for the legend.
+  The legend will be deleted in the destructor of the plot or when 
+  another legend is inserted.
+
+  Legends, that are not inserted into the layout of the plot widget
+  need to connect to the legendDataChanged() signal. Calling updateLegend()
+  initiates this signal for an initial update. When the application code
+  wants to implement its own layout this also needs to be done for
+  rendering plots to a document ( see QwtPlotRenderer ).
 
   \param legend Legend
   \param pos The legend's position. For top/left position the number
@@ -891,11 +896,8 @@ void QwtPlot::insertLegend( QwtAbstractLegend *legend,
                     const QwtPlotItem *, const QList<QwtLegendData> & ) ) 
             );
 
-            if ( pos != ExternalLegend )
-            {
-                if ( d_data->legend->parent() != this )
-                    d_data->legend->setParent( this );
-            }
+            if ( d_data->legend->parent() != this )
+                d_data->legend->setParent( this );
 
             qwtEnableLegendItems( this, false );
             updateLegend();
@@ -947,8 +949,6 @@ void QwtPlot::insertLegend( QwtAbstractLegend *legend,
                     previousInChain = footerLabel();
                     break;
                 }
-                default:
-                    break;
             }
 
             if ( previousInChain )

@@ -67,8 +67,7 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
 {
     // legend
 
-    if ( plot->plotLayout()->legendPosition() != QwtPlot::ExternalLegend
-        && plot->legend() )
+    if ( plot->legend() )
     {
         legend.frameWidth = plot->legend()->frameWidth();
         legend.hScrollExtent =
@@ -365,9 +364,6 @@ void QwtPlotLayout::setLegendPosition( QwtPlot::LegendPosition pos, double ratio
             d_data->legendRatio = ratio;
             d_data->legendPos = pos;
             break;
-        case QwtPlot::ExternalLegend:
-            d_data->legendRatio = ratio; // meaningless
-            d_data->legendPos = pos;
         default:
             break;
     }
@@ -636,8 +632,7 @@ QSize QwtPlotLayout::minimumSizeHint( const QwtPlot *plot ) const
     // Compute the legend contribution
 
     const QwtAbstractLegend *legend = plot->legend();
-    if ( d_data->legendPos != QwtPlot::ExternalLegend
-        && legend && !legend->isEmpty() )
+    if ( legend && !legend->isEmpty() )
     {
         if ( d_data->legendPos == QwtPlot::LeftLegend
             || d_data->legendPos == QwtPlot::RightLegend )
@@ -731,8 +726,6 @@ QRectF QwtPlotLayout::layoutLegend( Options options,
         case QwtPlot::BottomLegend:
             legendRect.setY( rect.bottom() - dim );
             legendRect.setHeight( dim );
-            break;
-        case QwtPlot::ExternalLegend:
             break;
     }
 
@@ -1213,7 +1206,6 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
     d_data->layoutData.init( plot, rect );
 
     if ( !( options & IgnoreLegend )
-        && d_data->legendPos != QwtPlot::ExternalLegend
         && plot->legend() && !plot->legend()->isEmpty() )
     {
         d_data->legendRect = layoutLegend( options, rect );
@@ -1237,8 +1229,6 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
             case QwtPlot::BottomLegend:
                 rect.setBottom( rect.bottom() - d_data->spacing );
                 break;
-            case QwtPlot::ExternalLegend:
-                break; // suppress compiler warning
         }
     }
 

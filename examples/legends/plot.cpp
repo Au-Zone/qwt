@@ -70,14 +70,15 @@ private:
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent ),
+    d_externalLegend( NULL ),
     d_legendItem( NULL ),
     d_isDirty( false )
 {
-	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setFocusIndicator( QwtPlotCanvas::CanvasFocusIndicator );
     canvas->setFocusPolicy( Qt::StrongFocus );
     canvas->setPalette( Qt::black );
-	setCanvas( canvas );
+    setCanvas( canvas );
 
     setAutoReplot( false );
 
@@ -94,6 +95,11 @@ Plot::Plot( QWidget *parent ):
     // axis
     setAxisScale( QwtPlot::yLeft, 0.0, 1000.0 );
     setAxisScale( QwtPlot::xBottom, 0.0, 1000.0 );
+}
+
+Plot::~Plot()
+{
+    delete d_externalLegend;
 }
 
 void Plot::insertCurve()
@@ -127,22 +133,52 @@ void Plot::applySettings( const Settings &settings )
 
     if ( settings.legend.isEnabled )
     {
-        if ( legend() == NULL || 
-            plotLayout()->legendPosition() != settings.legend.position )
+        if ( settings.legend.position > QwtPlot::TopLegend )
         {
-            QwtLegend *lgd = new QwtLegend();
-            lgd->setWindowTitle("Plot Legend");
+            if ( legend() )
+            {
+                // remove legend controlled by the plot
+                insertLegend( NULL );
+            }
 
-            insertLegend( lgd, 
-                QwtPlot::LegendPosition( settings.legend.position ) );
+            if ( d_externalLegend == NULL )
+            {
+                d_externalLegend = new QwtLegend();
+                d_externalLegend->setWindowTitle("Plot Legend");
 
-            if ( settings.legend.position == QwtPlot::ExternalLegend )
-                lgd->show();
+                connect( 
+                    this, 
+                    SIGNAL( legendDataChanged( const QwtPlotItem *, 
+                        const QList<QwtLegendData> & ) ),
+                    d_externalLegend, 
+                    SLOT( updateLegend( const QwtPlotItem *, 
+                        const QList<QwtLegendData> & ) ) );
+
+                d_externalLegend->show();
+
+                // populate the new legend
+                updateLegend();
+            }
+        }
+        else
+        {
+            delete d_externalLegend;
+            d_externalLegend = NULL;
+
+            if ( legend() == NULL || 
+                plotLayout()->legendPosition() != settings.legend.position )
+            {
+                insertLegend( new QwtLegend(), 
+                    QwtPlot::LegendPosition( settings.legend.position ) );
+            }
         }
     }
     else
     {
         insertLegend( NULL );
+
+        delete d_externalLegend;
+        d_externalLegend = NULL;
     }
 
     if ( settings.legendItem.isEnabled )

@@ -15,7 +15,7 @@ TEMPLATE     = app
 
 INCLUDEPATH += $${QWT_ROOT}/src
 DEPENDPATH  += $${QWT_ROOT}/src
-DESTDIR      = $${QWT_ROOT}/tests/bin
+DESTDIR      = $${QWT_ROOT}/playground/bin
 
 QMAKE_RPATHDIR *= $${QWT_ROOT}/lib
 
