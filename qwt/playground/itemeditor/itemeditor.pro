@@ -7,20 +7,20 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ################################################################
 
-include( $${PWD}/../qwtconfig.pri )
+include( $${PWD}/../playground.pri )
 
-TEMPLATE = subdirs
+TARGET       = itemeditor
 
-contains(QWT_CONFIG, QwtPlot) {
-    
-    SUBDIRS += \
-        plotmatrix \
-        timescale \
-        scaleengine \
-        graphicscale \
-        rescaler \
-        shapes \
-        itemeditor \
-        symbols
+HEADERS = \
+    overlay.h \
+    canvas_editor.h \
+	item_editor.h \
+	plot.h
 
-}
+SOURCES = \
+    overlay.cpp \
+    canvas_editor.cpp \
+	item_editor.cpp \
+	plot.cpp \
+	main.cpp
+
