@@ -8,6 +8,14 @@ class QPainter;
 class Overlay: public QWidget
 {
 public:
+    enum MaskMode
+    {
+        NoMask,
+
+        ImageMask,
+        BitmapMask
+    };
+
     Overlay( QWidget* parent );
     virtual ~Overlay();
 
@@ -20,10 +28,11 @@ protected:
     virtual void drawOverlay( QPainter * ) const = 0;
 
 private:
-    uchar* overlayImage() const;
+    void draw( QPainter * ) const;
+    uchar* rgbaBuffer() const;
 
 private:
-    uchar* m_imageBuffer;
+    uchar* m_rgbaBuffer;
 };
 
 #endif

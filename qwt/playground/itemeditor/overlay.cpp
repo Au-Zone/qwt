@@ -8,6 +8,7 @@
 #define USE_IMAGE 1
 static const QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
 
+#if 0
 static QImage qwtAlphaMask( const QImage &image )
 {
     QImage mask(image.width(), image.height(), QImage::Format_MonoLSB);
@@ -45,10 +46,54 @@ static QImage qwtAlphaMask( const QImage &image )
 
     return mask;
 }
+#endif
+
+static QRegion qwtToRegion( const QImage& image )
+{
+    const int w = image.width();
+    const int h = image.height();
+
+    QRegion region;
+    QRect xr;
+
+    for ( int y = 0; y < h; ++y ) 
+    {
+        const uint *line = reinterpret_cast<const uint *> ( image.scanLine( y ) );
+        bool inRect = false;
+        int x0 = -1;
+
+        for ( int x = 0; x < w; x++ ) 
+        {
+            const bool on = ( line[x] != 0 );
+            if ( on != inRect ) 
+            {
+                if ( inRect  ) 
+                {
+                    xr.setCoords( x0, y, x - 1, y );
+                    region = region.united( xr );
+                } 
+                else 
+                {
+                    x0 = x;
+                }
+
+                inRect = !inRect;
+            } 
+        }
+
+        if ( inRect ) 
+        {
+            xr.setCoords( x0, h - 1, w - 1, y );
+            region = region.united( xr );
+        }
+    }
+
+    return region;
+}
 
 Overlay::Overlay( QWidget* parent ):
     QWidget( parent ),
-    m_imageBuffer( 0 )
+    m_rgbaBuffer( NULL )
 {
     setObjectName( "Overlay" );
 
@@ -59,26 +104,36 @@ Overlay::Overlay( QWidget* parent ):
 
 Overlay::~Overlay()
 {
-    if ( m_imageBuffer )
-        ::free( m_imageBuffer );
+    if ( m_rgbaBuffer )
+        ::free( m_rgbaBuffer );
 }
 
 void Overlay::updateMask()
 {
-    if ( m_imageBuffer )
-        ::free( m_imageBuffer );
-
 #if USE_IMAGE
-    m_imageBuffer = overlayImage();
+    if ( m_rgbaBuffer )
+        ::free( m_rgbaBuffer );
 
-    const QImage image( m_imageBuffer, width(), height(), imageFormat );
-    const QBitmap mask = QBitmap::fromImage( qwtAlphaMask( image ) );
+    m_rgbaBuffer = rgbaBuffer();
+
+    const QImage image( m_rgbaBuffer, width(), height(), imageFormat );
+
+#if 0
+    const QImage monoImage = qwtAlphaMask( image );
+    const QBitmap bitmap = QBitmap::fromImage( monoImage );
+    const QRegion mask( bitmap );
 #else
-    QBitmap mask( width(), height() );
-    mask.fill( Qt::color0 );
+    QRegion mask = qwtToRegion( image );
+#endif
 
-    QPainter painter( &mask );
-    drawOverlay( &painter );
+#else
+    QBitmap bitmap( width(), height() );
+    bitmap.fill( Qt::color0 );
+
+    QPainter painter( &bitmap );
+    draw( &painter );
+
+    const QRegion mask( bitmap );
 #endif
 
     // A bug in Qt initiates a full repaint of the plot canvas
@@ -103,28 +158,28 @@ void Overlay::paintEvent( QPaintEvent* event )
 
     if ( useImage )
     {
-        if ( m_imageBuffer == 0 )
-            m_imageBuffer = overlayImage();
+        if ( m_rgbaBuffer == 0 )
+            m_rgbaBuffer = rgbaBuffer();
 
-        const QImage image( m_imageBuffer, width(), height(), imageFormat );
+        const QImage image( m_rgbaBuffer, width(), height(), imageFormat );
         painter.drawImage( 0, 0, image );
     }
     else
     {
-        drawOverlay( &painter );
+        draw( &painter );
     }
 }
 
 void Overlay::resizeEvent( QResizeEvent* )
 {
-    if ( m_imageBuffer )
+    if ( m_rgbaBuffer )
     {
-        ::free( m_imageBuffer );
-        m_imageBuffer = 0;
+        ::free( m_rgbaBuffer );
+        m_rgbaBuffer = 0;
     }
 }
 
-uchar* Overlay::overlayImage() const
+uchar* Overlay::rgbaBuffer() const
 {
     // A fresh buffer from calloc() is usually faster
     // then reinitializing an existing one with
@@ -134,10 +189,16 @@ uchar* Overlay::overlayImage() const
     QImage image( buf, width(), height(), imageFormat );
 
     QPainter painter( &image );
+    draw( &painter );
 
+    return buf;
+}
+
+void Overlay::draw( QPainter *painter ) const
+{
     if ( parentWidget() )
     {
-        painter.setClipRect( parentWidget()->contentsRect() );
+        painter->setClipRect( parentWidget()->contentsRect() );
 
         QPainterPath clipPath;
 
@@ -147,11 +208,9 @@ uchar* Overlay::overlayImage() const
 
         if (!clipPath.isEmpty())
         {
-            painter.setClipPath( clipPath, Qt::IntersectClip );
+            painter->setClipPath( clipPath, Qt::IntersectClip );
         }
     }
 
-    drawOverlay( &painter );
-
-    return buf;
+    drawOverlay( painter );
 }
