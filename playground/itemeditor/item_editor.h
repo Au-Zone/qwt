@@ -24,6 +24,7 @@ private:
 
     virtual void drawOverlay( QPainter* painter ) const;
     QwtPlotShapeItem* itemAt( const QPoint& ) const;
+    void raiseItem( QwtPlotShapeItem * );
 
 private:
     // Mouse positions

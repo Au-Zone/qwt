@@ -1,6 +1,7 @@
 #include "plot.h"
 #include "item_editor.h"
 #include <qwt_plot_shapeitem.h>
+#include <qwt_plot_magnifier.h>
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
@@ -15,6 +16,8 @@ Plot::Plot( QWidget *parent ):
 
     ItemEditor *editor = new ItemEditor( this );
     editor->setEnabled( true );
+
+    ( void ) new QwtPlotMagnifier( canvas() );
 }
 
 void Plot::populate()
@@ -23,6 +26,13 @@ void Plot::populate()
     addEllipse( QRectF( 90.0, 110.0, 50.0, 40.0 ), Qt::red );
     addRect( QRectF( 200.0, 200.0, 30.0, 60.0 ), Qt::darkCyan );
     addEllipse( QRectF( 10.0, 140.0, 30.0, 50.0 ), Qt::darkYellow );
+
+    QPolygonF shape;
+    shape += QPointF( 150.0, 50.0 );
+    shape += QPointF( 175.0, 100.0 );
+    shape += QPointF( 200.0, 50.0 );
+
+    addPolygon( shape, QColor( "SandyBrown" ) );
 }
 
 void Plot::addRect( const QRectF &rect, const QColor &color )
@@ -45,6 +55,7 @@ void Plot::addPolygon( const QPolygonF &polygon, const QColor &color )
 {
     QPainterPath path;
     path.addPolygon( polygon );
+    path.closeSubpath();
 
     addShape( path, color );
 }

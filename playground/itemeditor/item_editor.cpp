@@ -65,6 +65,7 @@ void ItemEditor::released( const QPoint& pos )
 
     if ( m_editedItem  )
     {
+        raiseItem( m_editedItem );
         m_editedItem->setVisible( true );
         m_editedItem = NULL;
 
@@ -91,7 +92,7 @@ QwtPlotShapeItem* ItemEditor::itemAt( const QPoint& pos ) const
         plot->canvasMap( QwtPlot::yRight ).invTransform( pos.y() );
 
     QwtPlotItemList items = plot->itemList();
-    for ( int i = 0; i < items.size(); i++ )
+    for ( int i = items.size() - 1; i >= 0; i-- )
     {
         QwtPlotItem *item = items[ i ];
         if ( item->isVisible() && 
@@ -100,8 +101,11 @@ QwtPlotShapeItem* ItemEditor::itemAt( const QPoint& pos ) const
             QwtPlotShapeItem *shapeItem = static_cast<QwtPlotShapeItem *>( item );
             const QPointF p( coords[ item->xAxis() ], coords[ item->yAxis() ] );
             
-            if ( shapeItem->shape().contains( p ) )
+            if ( shapeItem->boundingRect().contains( p )
+                && shapeItem->shape().contains( p ) )
+            {
                 return shapeItem;
+            }
         }
     }
 
@@ -117,6 +121,30 @@ void ItemEditor::drawOverlay( QPainter* painter ) const
     const QwtScaleMap xMap = plot->canvasMap( QwtPlot::xBottom );
     const QwtScaleMap yMap = plot->canvasMap( QwtPlot::yLeft );
 
+    painter->setRenderHint( QPainter::Antialiasing,
+        m_editedItem->testRenderHint( QwtPlotItem::RenderAntialiased ) );
     m_editedItem->draw( painter, xMap, yMap,
         plot->canvas()->contentsRect() );
+}
+
+void ItemEditor::raiseItem( QwtPlotShapeItem *shapeItem )
+{
+    const QwtPlot *plot = this->plot();
+    if ( plot == NULL || shapeItem == NULL )
+        return;
+
+    const QwtPlotItemList items = plot->itemList();
+    for ( int i = items.size() - 1; i >= 0; i-- )
+    {
+        QwtPlotItem *item = items[ i ];
+        if ( shapeItem == item )
+            return;
+        
+        if ( item->isVisible() &&
+            item->rtti() == QwtPlotItem::Rtti_PlotShape )
+        {
+            shapeItem->setZ( item->z() + 1 );
+            return;
+        }
+    }
 }
