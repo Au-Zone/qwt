@@ -111,12 +111,15 @@ const QwtPlot *QwtPlotMagnifier::plot() const
 */
 void QwtPlotMagnifier::rescale( double factor )
 {
+    QwtPlot* plt = plot();
+    if ( plt == NULL )
+        return;
+
     factor = qAbs( factor );
     if ( factor == 1.0 || factor == 0.0 )
         return;
 
     bool doReplot = false;
-    QwtPlot* plt = plot();
 
     const bool autoReplot = plt->autoReplot();
     plt->setAutoReplot( false );
