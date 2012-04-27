@@ -1,8 +1,50 @@
 #include "overlay.h"
 #include <qpainter.h>
+#include <qpaintengine.h>
 #include <qimage.h>
 #include <qbitmap.h>
 #include <qevent.h>
+
+#define USE_IMAGE 1
+static const QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
+
+static QImage qwtAlphaMask( const QImage &image )
+{
+    QImage mask(image.width(), image.height(), QImage::Format_MonoLSB);
+    memset( mask.bits(), 0, mask.byteCount() );
+
+    QVector<QRgb> colorTable;
+    colorTable.append(0xffffffff);
+    colorTable.append(0xff000000);
+
+    mask.setColorTable( colorTable );
+
+    const int w = image.width();
+    const int h = image.height();
+
+    for ( int y = 0; y < h; y++)
+    {
+        const uint *from = reinterpret_cast<const uint *> ( image.scanLine( y ) );
+        const uint *end = from + w;
+
+        uchar *to = mask.scanLine( y );
+
+        int bit = 0;
+        while ( from < end )
+        {
+            if ( *from++ )
+                *to |= 1 << bit;
+
+            if ( ++bit == 8 )
+            {
+                to++;
+                bit = 0;
+            }
+        }
+    }
+
+    return mask;
+}
 
 Overlay::Overlay( QWidget* parent ):
     QWidget( parent ),
@@ -26,13 +68,18 @@ void Overlay::updateMask()
     if ( m_imageBuffer )
         ::free( m_imageBuffer );
 
+#if USE_IMAGE
     m_imageBuffer = overlayImage();
 
-    const QImage image( m_imageBuffer, width(), height(),
-                        QImage::Format_ARGB32_Premultiplied );
+    const QImage image( m_imageBuffer, width(), height(), imageFormat );
+    const QBitmap mask = QBitmap::fromImage( qwtAlphaMask( image ) );
+#else
+    QBitmap mask( width(), height() );
+    mask.fill( Qt::color0 );
 
-    const QBitmap mask = QBitmap::fromImage( image.createAlphaMask(
-                             Qt::MonoOnly | Qt::ThresholdDither | Qt::NoOpaqueDetection ) );
+    QPainter painter( &mask );
+    drawOverlay( &painter );
+#endif
 
     // A bug in Qt initiates a full repaint of the plot canvas
     // when we change the mask, while we are visible !
@@ -46,17 +93,27 @@ void Overlay::updateMask()
 void Overlay::paintEvent( QPaintEvent* event )
 {
     QPainter painter( this );
-
     painter.setClipRegion( event->region() );
-    if ( m_imageBuffer == 0 )
-       m_imageBuffer = overlayImage();
 
-    const QImage image( m_imageBuffer, width(), height(),
-                        QImage::Format_ARGB32_Premultiplied );
+    bool useImage = false;
+#if USE_IMAGE
+    if ( painter.paintEngine()->type() == QPaintEngine::Raster )
+        useImage = true;
+#endif
 
-    painter.drawImage( 0, 0, image );
+    if ( useImage )
+    {
+        if ( m_imageBuffer == 0 )
+            m_imageBuffer = overlayImage();
+
+        const QImage image( m_imageBuffer, width(), height(), imageFormat );
+        painter.drawImage( 0, 0, image );
+    }
+    else
+    {
+        drawOverlay( &painter );
+    }
 }
-
 
 void Overlay::resizeEvent( QResizeEvent* )
 {
@@ -74,9 +131,7 @@ uchar* Overlay::overlayImage() const
     // QImage::fill( 0 ) or memset()
 
     uchar* buf = ( uchar* )::calloc( width() * height(), 4 );
-
-    QImage image( buf, width(), height(),
-        QImage::Format_ARGB32_Premultiplied );
+    QImage image( buf, width(), height(), imageFormat );
 
     QPainter painter( &image );
 
