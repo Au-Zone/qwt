@@ -14,13 +14,13 @@ TARGET       = itemeditor
 HEADERS = \
     overlay.h \
     canvas_editor.h \
-	item_editor.h \
-	plot.h
+    item_editor.h \
+    plot.h
 
 SOURCES = \
     overlay.cpp \
     canvas_editor.cpp \
-	item_editor.cpp \
-	plot.cpp \
-	main.cpp
+    item_editor.cpp \
+    plot.cpp \
+    main.cpp
 

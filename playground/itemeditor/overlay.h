@@ -26,6 +26,7 @@ protected:
     virtual void resizeEvent( QResizeEvent* event );
 
     virtual void drawOverlay( QPainter * ) const = 0;
+    virtual QRegion maskHint() const;
 
 private:
     void draw( QPainter * ) const;

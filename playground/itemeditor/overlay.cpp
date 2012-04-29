@@ -4,87 +4,63 @@
 #include <qimage.h>
 #include <qbitmap.h>
 #include <qevent.h>
+#include <qelapsedtimer.h>
+#include <qdebug.h>
 
 #define USE_IMAGE 1
 static const QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
 
-#if 0
-static QImage qwtAlphaMask( const QImage &image )
-{
-    QImage mask(image.width(), image.height(), QImage::Format_MonoLSB);
-    memset( mask.bits(), 0, mask.byteCount() );
 
-    QVector<QRgb> colorTable;
-    colorTable.append(0xffffffff);
-    colorTable.append(0xff000000);
-
-    mask.setColorTable( colorTable );
-
-    const int w = image.width();
-    const int h = image.height();
-
-    for ( int y = 0; y < h; y++)
-    {
-        const uint *from = reinterpret_cast<const uint *> ( image.scanLine( y ) );
-        const uint *end = from + w;
-
-        uchar *to = mask.scanLine( y );
-
-        int bit = 0;
-        while ( from < end )
-        {
-            if ( *from++ )
-                *to |= 1 << bit;
-
-            if ( ++bit == 8 )
-            {
-                to++;
-                bit = 0;
-            }
-        }
-    }
-
-    return mask;
-}
-#endif
-
-static QRegion qwtToRegion( const QImage& image )
+static QRegion qwtAlphaMask( 
+    const QImage& image, const QVector<QRect> rects )
 {
     const int w = image.width();
     const int h = image.height();
 
     QRegion region;
-    QRect xr;
+    QRect rect;
 
-    for ( int y = 0; y < h; ++y ) 
+    for ( int i = 0; i < rects.size(); i++ )
     {
-        const uint *line = reinterpret_cast<const uint *> ( image.scanLine( y ) );
-        bool inRect = false;
-        int x0 = -1;
+        int x1, x2, y1, y2;
+        rects[i].getCoords( &x1, &y1, &x2, &y2 );
 
-        for ( int x = 0; x < w; x++ ) 
+        x1 = qMax( x1, 0 );
+        x2 = qMin( x2, w - 1 );
+        y1 = qMax( y1, 0 );
+        y2 = qMin( y2, h - 1 );
+
+        for ( int y = y1; y <= y2; ++y ) 
         {
-            const bool on = ( line[x] != 0 );
-            if ( on != inRect ) 
+            bool inRect = false;
+            int rx0 = -1;
+
+            const uint *line = 
+                reinterpret_cast<const uint *> ( image.scanLine( y ) ) + x1;
+            for ( int x = x1; x <= x2; x++ ) 
             {
-                if ( inRect  ) 
+                const bool on = ( *line++ != 0 );
+                if ( on != inRect ) 
                 {
-                    xr.setCoords( x0, y, x - 1, y );
-                    region = region.united( xr );
+                    if ( inRect  ) 
+                    {
+                        rect.setCoords( rx0, y, x - 1, y );
+                        region += rect;
+                    } 
+                    else 
+                    {
+                        rx0 = x;
+                    }
+
+                    inRect = on;
                 } 
-                else 
-                {
-                    x0 = x;
-                }
+            }
 
-                inRect = !inRect;
-            } 
-        }
-
-        if ( inRect ) 
-        {
-            xr.setCoords( x0, h - 1, w - 1, y );
-            region = region.united( xr );
+            if ( inRect ) 
+            {
+                rect.setCoords( rx0, y, x2, y );
+                region = region.united( rect );
+            }
         }
     }
 
@@ -111,6 +87,7 @@ Overlay::~Overlay()
 void Overlay::updateMask()
 {
 #if USE_IMAGE
+
     if ( m_rgbaBuffer )
         ::free( m_rgbaBuffer );
 
@@ -118,13 +95,11 @@ void Overlay::updateMask()
 
     const QImage image( m_rgbaBuffer, width(), height(), imageFormat );
 
-#if 0
-    const QImage monoImage = qwtAlphaMask( image );
-    const QBitmap bitmap = QBitmap::fromImage( monoImage );
-    const QRegion mask( bitmap );
-#else
-    QRegion mask = qwtToRegion( image );
-#endif
+    QRegion hint = maskHint();
+    if ( hint.isEmpty() )
+        hint += QRect( 0, 0, width(), height() );
+
+    QRegion mask = qwtAlphaMask( image, hint.rects() );
 
 #else
     QBitmap bitmap( width(), height() );
@@ -147,8 +122,9 @@ void Overlay::updateMask()
 
 void Overlay::paintEvent( QPaintEvent* event )
 {
+    const QRegion clipRegion = event->region();
+
     QPainter painter( this );
-    painter.setClipRegion( event->region() );
 
     bool useImage = false;
 #if USE_IMAGE
@@ -162,10 +138,27 @@ void Overlay::paintEvent( QPaintEvent* event )
             m_rgbaBuffer = rgbaBuffer();
 
         const QImage image( m_rgbaBuffer, width(), height(), imageFormat );
-        painter.drawImage( 0, 0, image );
+
+        QVector<QRect> rects;
+        if ( clipRegion.rects().size() > 20 )
+        {
+            painter.setClipRegion( clipRegion );
+            rects += clipRegion.boundingRect();
+        }
+        else
+        {
+            rects = clipRegion.rects();
+        }
+
+        for ( int i = 0; i < rects.size(); i++ )
+        {
+            const QRect r = rects[i];
+            painter.drawImage( r.topLeft(), image, r );
+        }
     }
     else
     {
+        painter.setClipRegion( clipRegion );
         draw( &painter );
     }
 }
@@ -213,4 +206,9 @@ void Overlay::draw( QPainter *painter ) const
     }
 
     drawOverlay( painter );
+}
+
+QRegion Overlay::maskHint() const
+{
+    return QRegion();
 }

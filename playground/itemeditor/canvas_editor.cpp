@@ -13,9 +13,15 @@ public:
     {
     }
 
+protected:
     virtual void drawOverlay( QPainter *painter ) const
     {
         d_editor->drawOverlay( painter );
+    }
+
+    virtual QRegion maskHint() const
+    {
+        return d_editor->maskHint();
     }
 
 private:
