@@ -17,12 +17,15 @@ public:
     const QwtPlot *plot() const;
     QwtPlot *plot(); 
 
+protected:
+    virtual void drawOverlay( QPainter* painter ) const;
+    virtual QRegion maskHint() const;
+
 private:
     virtual bool pressed( const QPoint& );
     virtual bool moved( const QPoint& );
     virtual void released( const QPoint& );
 
-    virtual void drawOverlay( QPainter* painter ) const;
     QwtPlotShapeItem* itemAt( const QPoint& ) const;
     void raiseItem( QwtPlotShapeItem * );
 

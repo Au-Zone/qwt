@@ -112,14 +112,30 @@ QwtPlotShapeItem* ItemEditor::itemAt( const QPoint& pos ) const
     return NULL;
 }
 
+QRegion ItemEditor::maskHint() const
+{
+    const QwtPlot *plot = this->plot();
+    if ( plot == NULL || m_editedItem == NULL )
+        return QRegion();
+
+    const QwtScaleMap xMap = plot->canvasMap( m_editedItem->xAxis() );
+    const QwtScaleMap yMap = plot->canvasMap( m_editedItem->yAxis() );
+
+    QRect rect = QwtScaleMap::transform( xMap, yMap, 
+        m_editedItem->shape().boundingRect() ).toRect();
+
+    const int m = 5; // for the pen
+    return rect.adjusted( -m, -m, m, m );
+}
+
 void ItemEditor::drawOverlay( QPainter* painter ) const
 {
     const QwtPlot *plot = this->plot();
     if ( plot == NULL || m_editedItem == NULL )
         return;
 
-    const QwtScaleMap xMap = plot->canvasMap( QwtPlot::xBottom );
-    const QwtScaleMap yMap = plot->canvasMap( QwtPlot::yLeft );
+    const QwtScaleMap xMap = plot->canvasMap( m_editedItem->xAxis() );
+    const QwtScaleMap yMap = plot->canvasMap( m_editedItem->yAxis() );
 
     painter->setRenderHint( QPainter::Antialiasing,
         m_editedItem->testRenderHint( QwtPlotItem::RenderAntialiased ) );
