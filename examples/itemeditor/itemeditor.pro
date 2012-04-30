@@ -12,13 +12,13 @@ include( $${PWD}/../examples.pri )
 TARGET       = itemeditor
 
 HEADERS = \
-    canvas_editor.h \
-    item_editor.h \
+    editor.h \
+    shapefactory.h \
     plot.h
 
 SOURCES = \
-    canvas_editor.cpp \
-    item_editor.cpp \
+    editor.cpp \
+    shapefactory.cpp \
     plot.cpp \
     main.cpp
 
