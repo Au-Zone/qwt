@@ -38,10 +38,10 @@ public:
        ( f.e embedded systems ) bit blitting is a noticeable
        operation, that needs to be avoided.
        
-       If it masking improves the performance depends on how expensive
-       its calculation is and how many pixels can be excluded by the mask.
+       If and how to mask depends on how expensive the calculation 
+       of the mask is and how many pixels can be excluded by the mask.
 
-       The default setting is AlphaMask.
+       The default setting is MaskHint.
 
        \sa setMaskMode(), maskMode()
      */
@@ -61,6 +61,10 @@ public:
 
         /*!
            \brief Calculate a mask by checking the alpha values
+
+           Sometimes it is not possible to give a fast approximation
+           and the mask needs to be calculated by drawing the overlay
+           and testing the result.
           
            When a valid maskHint() is available
            only pixels inside this approximation are checked.

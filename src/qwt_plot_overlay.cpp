@@ -82,7 +82,7 @@ class QwtPlotOverlay::PrivateData
 {
 public:
     PrivateData():
-        maskMode( QwtPlotOverlay::AlphaMask ),
+        maskMode( QwtPlotOverlay::MaskHint ),
         renderMode( QwtPlotOverlay::AutoRenderMode ),
         rgbaBuffer( NULL )
     {
@@ -260,7 +260,7 @@ void QwtPlotOverlay::paintEvent( QPaintEvent* event )
             width(), height(), qwtMaskImageFormat() );
 
         QVector<QRect> rects;
-        if ( clipRegion.rects().size() > 20 )
+        if ( clipRegion.rects().size() > 2000 )
         {
             // the region is to complex
             painter.setClipRegion( clipRegion );
