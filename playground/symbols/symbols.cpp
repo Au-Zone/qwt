@@ -161,7 +161,7 @@ int main( int argc, char **argv )
         curve->setPen( QPen( Qt::blue, 0 ) );
 
         QBrush brush;
-        QwtSymbol::Style style;
+        QwtSymbol::Style style = QwtSymbol::NoSymbol;
         QString title;
         if ( i == 0 )
         {
