@@ -78,11 +78,13 @@ class QwtPlotShapeItem::PrivateData
 {
 public:
     PrivateData():
+        legendMode( QwtPlotShapeItem::LegendColor ),
         renderTolerance( 0.0 )
     {
     }
 
     QwtPlotShapeItem::PaintAttributes paintAttributes;
+    QwtPlotShapeItem::LegendMode legendMode;
 
     double renderTolerance;
     QRectF boundingRect;
@@ -167,6 +169,20 @@ void QwtPlotShapeItem::setPaintAttribute( PaintAttribute attribute, bool on )
 bool QwtPlotShapeItem::testPaintAttribute( PaintAttribute attribute ) const
 {
     return ( d_data->paintAttributes & attribute );
+}
+
+void QwtPlotShapeItem::setLegendMode( LegendMode mode )
+{
+    if ( mode != d_data->legendMode )
+    {
+        d_data->legendMode = mode;
+        legendChanged();
+    }
+}
+
+QwtPlotShapeItem::LegendMode QwtPlotShapeItem::legendMode() const
+{
+    return d_data->legendMode;
 }
 
 //! Bounding rectangle of the shape
@@ -411,12 +427,37 @@ QwtGraphic QwtPlotShapeItem::legendIcon( int index,
 {
     Q_UNUSED( index );
 
-    QColor iconColor;
-    if ( d_data->brush.style() != Qt::NoBrush )
-        iconColor = d_data->brush.color();
-    else
-        iconColor = d_data->pen.color();
+    QwtGraphic icon;
+    icon.setDefaultSize( size );
 
-    return defaultIcon( iconColor, size );
+    if ( size.isEmpty() )
+        return icon;
+
+    if ( d_data->legendMode == QwtPlotShapeItem::LegendShape )
+    {
+        const QRectF &br = d_data->boundingRect;
+
+        QPainter painter( &icon );
+        painter.setRenderHint( QPainter::Antialiasing,
+            testRenderHint( QwtPlotItem::RenderAntialiased ) );
+
+        painter.translate( -br.topLeft() );
+
+        painter.setPen( d_data->pen );
+        painter.setBrush( d_data->brush );
+        painter.drawPath( d_data->shape );
+    }
+    else
+    {
+        QColor iconColor;
+        if ( d_data->brush.style() != Qt::NoBrush )
+            iconColor = d_data->brush.color();
+        else
+            iconColor = d_data->pen.color();
+
+        icon = defaultIcon( iconColor, size );
+    }
+
+    return icon;
 }
 
