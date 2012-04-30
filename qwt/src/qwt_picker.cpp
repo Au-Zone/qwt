@@ -114,61 +114,9 @@ void QwtPicker::PickerWidget::updateMask()
 
         mask = QRegion( bm );
     }
-    if ( d_type == Text )
+    else if ( d_type == Text )
     {
-        d_hasTextMask = parentWidget()->testAttribute( Qt::WA_PaintOnScreen );
-
-        if ( d_hasTextMask )
-        {
-            const QwtText label = d_picker->trackerText(
-                d_picker->trackerPosition() );
-
-            if ( label.testPaintAttribute( QwtText::PaintBackground )
-                && label.backgroundBrush().style() != Qt::NoBrush )
-            {
-                if ( label.backgroundBrush().color().alpha() > 0 )
-                {
-                    // We don't need a text mask, when we have a background
-                    d_hasTextMask = false;
-                }
-            }
-        }
-
-        if ( d_hasTextMask )
-        {
-            bool useBitmap = true;
-
-#if QT_VERSION >= 0x040800
-            if ( QwtPainter::isX11GraphicsSystem() &&
-                parent()->inherits( "QGLWidget" ) )
-            {
-                // Qt crashes in this combination
-                useBitmap = false;
-            }
-#endif
-            if ( useBitmap )
-            {
-                QBitmap bm( width(), height() );
-                bm.fill( Qt::color0 );
-
-                drawTrackerMask( bm );
-
-                mask = QRegion( bm );
-            }
-            else
-            {
-                QImage image( width(), height(), QImage::Format_Mono );
-                image.fill( 1 );
-
-                drawTrackerMask( image );
-
-                mask = QRegion( QBitmap::fromImage( image ) );
-            }
-        }
-        else
-        {
-            mask = d_picker->trackerRect( font() );
-        }
+        mask = d_picker->trackerRect( font() );
     }
 
     QWidget *w = parentWidget();

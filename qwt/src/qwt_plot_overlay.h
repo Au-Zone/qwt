@@ -24,9 +24,6 @@ class QPainter;
    when the updates of the canvas is not in time with the mouse 
    movements.
 
-   QwtPlotOverlay is used by QwtPlotPicker to display the rubberbands
-   and tracker text.
-
    \sa QwtPlotCanvas::BackingStore
  */
 class QwtPlotOverlay: public QWidget
