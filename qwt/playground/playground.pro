@@ -20,7 +20,6 @@ contains(QWT_CONFIG, QwtPlot) {
         graphicscale \
         rescaler \
         shapes \
-        itemeditor \
         symbols
 
 }
