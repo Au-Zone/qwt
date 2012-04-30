@@ -1,37 +1,160 @@
-#include "item_editor.h"
-#include <qwt_plot_shapeitem.h>
-#include <qwt_scale_map.h>
+#include "editor.h"
 #include <qwt_plot.h>
+#include <qwt_scale_map.h>
+#include <qwt_plot_shapeitem.h>
+#include <qevent.h>
 
-ItemEditor::ItemEditor( QwtPlot* plot ):
-    CanvasEditor( plot ),
-    m_editedItem( NULL )
+class Overlay: public QwtPlotOverlay
 {
-    setEnabled( false );
+public:
+    Overlay( QWidget *parent, Editor *editor ):
+        QwtPlotOverlay( parent ),
+        d_editor( editor )
+    {
+    }
+
+protected:
+    virtual void drawOverlay( QPainter *painter ) const
+    {
+        d_editor->drawOverlay( painter );
+    }
+
+    virtual QRegion maskHint() const
+    {
+        return d_editor->maskHint();
+    }
+
+private:
+    Editor *d_editor;
+};
+
+Editor::Editor( QwtPlot* plot ):
+    QObject( plot ),
+    m_isEnabled( false ),
+    m_overlay( NULL )
+{
+    setEnabled( true );
 }
 
-ItemEditor::~ItemEditor()
+
+Editor::~Editor()
 {
+    delete m_overlay;
 }
 
-QwtPlot *ItemEditor::plot()
+QwtPlot *Editor::plot()
 {
     return qobject_cast<QwtPlot *>( parent() );
 }
 
-const QwtPlot *ItemEditor::plot() const
+const QwtPlot *Editor::plot() const
 {
     return qobject_cast<const QwtPlot *>( parent() );
 }
 
-bool ItemEditor::pressed( const QPoint& pos )
+
+void Editor::setEnabled( bool on )
+{
+    if ( on == m_isEnabled )
+        return;
+
+    QwtPlot *plot = qobject_cast<QwtPlot *>( parent() );
+    if ( plot )
+    {
+        m_isEnabled = on;
+
+        if ( on )
+        {
+            plot->canvas()->installEventFilter( this );
+        }
+        else
+        {
+            plot->canvas()->removeEventFilter( this );
+
+            delete m_overlay;
+            m_overlay = NULL;
+        }
+    }
+}
+
+bool Editor::isEnabled() const
+{
+    return m_isEnabled;
+}
+
+bool Editor::eventFilter( QObject* object, QEvent* event )
+{
+    QwtPlot *plot = qobject_cast<QwtPlot *>( parent() );
+    if ( plot && object == plot->canvas() )
+    {
+        switch( event->type() )
+        {
+            case QEvent::MouseButtonPress:
+            {
+                const QMouseEvent* mouseEvent =
+                    dynamic_cast<QMouseEvent* >( event );
+
+                if ( m_overlay == NULL && 
+                    mouseEvent->button() == Qt::LeftButton  )
+                {
+                    const bool accepted = pressed( mouseEvent->pos() );
+                    if ( accepted )
+                    {
+                        m_overlay = new Overlay( plot->canvas(), this );
+                        m_overlay->updateOverlay();
+                        m_overlay->show();
+                    }
+                }
+
+                break;
+            }
+            case QEvent::MouseMove:
+            {
+                if ( m_overlay )
+                {
+                    const QMouseEvent* mouseEvent =
+                        dynamic_cast< QMouseEvent* >( event );
+
+                    const bool accepted = moved( mouseEvent->pos() );
+                    if ( accepted )
+                        m_overlay->updateOverlay();
+                }
+
+                break;
+            }
+            case QEvent::MouseButtonRelease:
+            {
+                const QMouseEvent* mouseEvent =
+                    static_cast<QMouseEvent* >( event );
+
+                if ( m_overlay && mouseEvent->button() == Qt::LeftButton )
+                {
+                    released( mouseEvent->pos() );
+
+                    delete m_overlay;
+                    m_overlay = NULL;
+                }
+
+                break;
+            }
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    return QObject::eventFilter( object, event );
+}
+
+bool Editor::pressed( const QPoint& pos )
 {
     m_editedItem = itemAt( pos );
     if ( m_editedItem )
     {
         m_currentPos = pos;
         m_editedItem->setVisible( false );
-        
+
         if ( plot() )
             plot()->replot();
 
@@ -41,7 +164,7 @@ bool ItemEditor::pressed( const QPoint& pos )
     return false; // don't accept the position
 }
 
-bool ItemEditor::moved( const QPoint& pos )
+bool Editor::moved( const QPoint& pos )
 {
     if ( plot() == NULL )
         return false;
@@ -58,8 +181,7 @@ bool ItemEditor::moved( const QPoint& pos )
     return true;
 }
 
-
-void ItemEditor::released( const QPoint& pos )
+void Editor::released( const QPoint& pos )
 {
     Q_UNUSED( pos );
 
@@ -74,7 +196,7 @@ void ItemEditor::released( const QPoint& pos )
     }
 }
 
-QwtPlotShapeItem* ItemEditor::itemAt( const QPoint& pos ) const
+QwtPlotShapeItem* Editor::itemAt( const QPoint& pos ) const
 {
     const QwtPlot *plot = this->plot();
     if ( plot == NULL )
@@ -95,12 +217,12 @@ QwtPlotShapeItem* ItemEditor::itemAt( const QPoint& pos ) const
     for ( int i = items.size() - 1; i >= 0; i-- )
     {
         QwtPlotItem *item = items[ i ];
-        if ( item->isVisible() && 
+        if ( item->isVisible() &&
             item->rtti() == QwtPlotItem::Rtti_PlotShape )
         {
             QwtPlotShapeItem *shapeItem = static_cast<QwtPlotShapeItem *>( item );
             const QPointF p( coords[ item->xAxis() ], coords[ item->yAxis() ] );
-            
+
             if ( shapeItem->boundingRect().contains( p )
                 && shapeItem->shape().contains( p ) )
             {
@@ -112,7 +234,7 @@ QwtPlotShapeItem* ItemEditor::itemAt( const QPoint& pos ) const
     return NULL;
 }
 
-QRegion ItemEditor::maskHint() const
+QRegion Editor::maskHint() const
 {
     const QwtPlot *plot = this->plot();
     if ( plot == NULL || m_editedItem == NULL )
@@ -121,14 +243,14 @@ QRegion ItemEditor::maskHint() const
     const QwtScaleMap xMap = plot->canvasMap( m_editedItem->xAxis() );
     const QwtScaleMap yMap = plot->canvasMap( m_editedItem->yAxis() );
 
-    QRect rect = QwtScaleMap::transform( xMap, yMap, 
+    QRect rect = QwtScaleMap::transform( xMap, yMap,
         m_editedItem->shape().boundingRect() ).toRect();
 
     const int m = 5; // for the pen
     return rect.adjusted( -m, -m, m, m );
 }
 
-void ItemEditor::drawOverlay( QPainter* painter ) const
+void Editor::drawOverlay( QPainter* painter ) const
 {
     const QwtPlot *plot = this->plot();
     if ( plot == NULL || m_editedItem == NULL )
@@ -143,7 +265,7 @@ void ItemEditor::drawOverlay( QPainter* painter ) const
         plot->canvas()->contentsRect() );
 }
 
-void ItemEditor::raiseItem( QwtPlotShapeItem *shapeItem )
+void Editor::raiseItem( QwtPlotShapeItem *shapeItem )
 {
     const QwtPlot *plot = this->plot();
     if ( plot == NULL || shapeItem == NULL )
@@ -155,7 +277,7 @@ void ItemEditor::raiseItem( QwtPlotShapeItem *shapeItem )
         QwtPlotItem *item = items[ i ];
         if ( shapeItem == item )
             return;
-        
+
         if ( item->isVisible() &&
             item->rtti() == QwtPlotItem::Rtti_PlotShape )
         {
@@ -164,3 +286,4 @@ void ItemEditor::raiseItem( QwtPlotShapeItem *shapeItem )
         }
     }
 }
+

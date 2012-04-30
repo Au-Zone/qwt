@@ -2,11 +2,10 @@
 #define _PLOT_H
 
 #include <qwt_plot.h>
+#include "shapefactory.h"
 
 class QColor;
 class QRectF;
-class QPolygonF;
-class QPainterPath;
 
 class Plot: public QwtPlot
 {
@@ -16,10 +15,9 @@ public:
 private:
     void populate();
 
-    void addEllipse( const QRectF &, const QColor & );
-    void addRect( const QRectF &, const QColor & );
-    void addPolygon( const QPolygonF &, const QColor & );
-    void addShape( const QPainterPath &, const QColor & );
+    void addShape( const QString &title,
+        ShapeFactory::Shape, const QColor &,
+        const QPointF &, const QSizeF & );
 };
 
 #endif
