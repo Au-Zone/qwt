@@ -52,6 +52,12 @@ public:
     //! Paint attributes
     typedef QFlags<PaintAttribute> PaintAttributes;
 
+    enum LegendMode
+    {
+        LegendShape,
+        LegendColor
+    };
+
     explicit QwtPlotShapeItem( const QString &title = QString::null );
     explicit QwtPlotShapeItem( const QwtText &title );
 
@@ -59,6 +65,9 @@ public:
 
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
+
+    void setLegendMode( LegendMode );
+    LegendMode legendMode() const;
 
     void setRect( const QRectF & );
     void setPolygon( const QPolygonF & );

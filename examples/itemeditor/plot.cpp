@@ -5,6 +5,25 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_legend.h>
 
+class Legend: public QwtLegend
+{
+protected:
+    virtual QWidget *createWidget( const QwtLegendData &data ) const
+    {
+        QWidget *w = QwtLegend::createWidget( data );
+        if ( w )
+        {
+            w->setStyleSheet(
+                "border-radius: 5px;"
+                "padding: 2px;"
+                "background: LemonChiffon;"
+            );
+        }
+
+        return w;
+    }
+};
+
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
@@ -20,7 +39,8 @@ Plot::Plot( QWidget *parent ):
     canvas->setBorderRadius( 15 );
 
     setCanvas( canvas );
-    insertLegend( new QwtLegend(), QwtPlot::RightLegend );
+
+    insertLegend( new Legend(), QwtPlot::RightLegend );
 
     populate();
 
@@ -56,6 +76,8 @@ void Plot::addShape( const QString &title,
 {
     QwtPlotShapeItem *item = new QwtPlotShapeItem( title );
     item->setItemAttribute( QwtPlotItem::Legend, true );
+    item->setLegendMode( QwtPlotShapeItem::LegendShape );
+    item->setLegendIconSize( QSize( 20, 20 ) );
     item->setRenderHint( QwtPlotItem::RenderAntialiased, true );
     item->setShape( ShapeFactory::path( shape, pos, size ) );
 
