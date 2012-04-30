@@ -4,6 +4,7 @@
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_legend.h>
+#include <qwt_plot_renderer.h>
 
 class Legend: public QwtLegend
 {
@@ -30,16 +31,28 @@ Plot::Plot( QWidget *parent ):
     setAutoReplot( false );
 
     setTitle( "Movable Items" );
+
+    setAutoFillBackground( true );
     setPalette( QColor( "DimGray" ) );
 
     QwtPlotCanvas *canvas = new QwtPlotCanvas();
-    canvas->setPalette( QColor( "LemonChiffon" ) );
-    canvas->setLineWidth( 2 );
-    canvas->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    canvas->setBorderRadius( 15 );
+#if 0
+    // a gradient making a replot slow on X11
+    canvas->setStyleSheet(
+        "border: 2px solid Black;"
+        "border-radius: 15px;"
+        "background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1,"
+            "stop: 0 LemonChiffon, stop: 0.5 PaleGoldenrod, stop: 1 LemonChiffon );"
+    );
+#else
+    canvas->setStyleSheet(
+        "border: 2px solid Black;"
+        "border-radius: 15px;"
+        "background: LemonChiffon;"
+    );
+#endif
 
     setCanvas( canvas );
-
     insertLegend( new Legend(), QwtPlot::RightLegend );
 
     populate();
@@ -48,9 +61,8 @@ Plot::Plot( QWidget *parent ):
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
         setAxisAutoScale( axis, false );
 
-    ( void ) new Editor( this );
+    d_editor = new Editor( this );
     ( void ) new QwtPlotMagnifier( canvas );
-
 }
 
 void Plot::populate()
@@ -91,3 +103,15 @@ void Plot::addShape( const QString &title,
 
     item->attach( this );
 }
+
+void Plot::exportPlot()
+{
+    QwtPlotRenderer renderer;
+    renderer.exportTo( this, "shapes.pdf" );
+}
+
+void Plot::setMode( int mode )
+{
+    d_editor->setMode( static_cast<Editor::Mode>( mode ) );
+}
+

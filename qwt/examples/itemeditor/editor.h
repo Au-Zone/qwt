@@ -16,6 +16,15 @@ class Editor: public QObject
     Q_OBJECT
 
 public:
+    enum Mode
+    {
+        NoMask,
+        Mask,
+        AlphaMask,
+        AlphaMaskRedraw,
+        AlphaMaskCopyMask
+    };
+
     Editor( QwtPlot * );
     virtual ~Editor();
 
@@ -30,6 +39,9 @@ public:
 
     virtual bool eventFilter( QObject *, QEvent *);
 
+    void setMode( Mode mode );
+    Mode mode() const;
+
 private:
     bool pressed( const QPoint & );
     bool moved( const QPoint & );
@@ -38,12 +50,14 @@ private:
     QwtPlotShapeItem* itemAt( const QPoint& ) const;
     void raiseItem( QwtPlotShapeItem * );
 
-    bool m_isEnabled;
-    QPointer<QwtPlotOverlay> m_overlay;
+    bool d_isEnabled;
+    QPointer<QwtPlotOverlay> d_overlay;
 
     // Mouse positions
-    QPointF m_currentPos;
-    QwtPlotShapeItem* m_editedItem;
+    QPointF d_currentPos;
+    QwtPlotShapeItem* d_editedItem;
+
+    Mode d_mode;
 };
 
 #endif
