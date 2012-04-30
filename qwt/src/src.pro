@@ -133,6 +133,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_seriesitem.h \
         qwt_plot_shapeitem.h \
         qwt_plot_canvas.h \
+        qwt_plot_overlay.h \
         qwt_plot_panner.h \
         qwt_plot_picker.h \
         qwt_plot_zoomer.h \
@@ -178,6 +179,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_marker.cpp \
         qwt_plot_layout.cpp \
         qwt_plot_canvas.cpp \
+        qwt_plot_overlay.cpp \
         qwt_plot_panner.cpp \
         qwt_plot_rasteritem.cpp \
         qwt_plot_picker.cpp \

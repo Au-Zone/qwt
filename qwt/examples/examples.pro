@@ -20,6 +20,7 @@ contains(QWT_CONFIG, QwtPlot) {
         curvdemo2 \
         distrowatch \
         friedberg \
+        itemeditor \
         legends \
         stockchart \
         simpleplot \
