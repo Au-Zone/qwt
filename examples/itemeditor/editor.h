@@ -50,6 +50,9 @@ private:
     QwtPlotShapeItem* itemAt( const QPoint& ) const;
     void raiseItem( QwtPlotShapeItem * );
 
+    QRegion maskHint( QwtPlotShapeItem * ) const;
+    void setItemVisible( QwtPlotShapeItem *item, bool on );
+
     bool d_isEnabled;
     QPointer<QwtPlotOverlay> d_overlay;
 

@@ -1,5 +1,6 @@
 #include "editor.h"
 #include <qwt_plot.h>
+#include <qwt_plot_canvas.h>
 #include <qwt_scale_map.h>
 #include <qwt_plot_shapeitem.h>
 #include <qevent.h>
@@ -197,10 +198,7 @@ bool Editor::pressed( const QPoint& pos )
     if ( d_editedItem )
     {
         d_currentPos = pos;
-        d_editedItem->setVisible( false );
-
-        if ( plot() )
-            plot()->replot();
+        setItemVisible( d_editedItem, false );
 
         return true;
     }
@@ -232,11 +230,7 @@ void Editor::released( const QPoint& pos )
     if ( d_editedItem  )
     {
         raiseItem( d_editedItem );
-        d_editedItem->setVisible( true );
-        d_editedItem = NULL;
-
-        if ( plot() )
-            plot()->replot();
+        setItemVisible( d_editedItem, true );
     }
 }
 
@@ -280,17 +274,22 @@ QwtPlotShapeItem* Editor::itemAt( const QPoint& pos ) const
 
 QRegion Editor::maskHint() const
 {
+    return maskHint( d_editedItem );
+}
+
+QRegion Editor::maskHint( QwtPlotShapeItem *shapeItem ) const
+{
     const QwtPlot *plot = this->plot();
-    if ( plot == NULL || d_editedItem == NULL )
+    if ( plot == NULL || shapeItem == NULL )
         return QRegion();
 
-    const QwtScaleMap xMap = plot->canvasMap( d_editedItem->xAxis() );
-    const QwtScaleMap yMap = plot->canvasMap( d_editedItem->yAxis() );
+    const QwtScaleMap xMap = plot->canvasMap( shapeItem->xAxis() );
+    const QwtScaleMap yMap = plot->canvasMap( shapeItem->yAxis() );
 
     QRect rect = QwtScaleMap::transform( xMap, yMap,
-        d_editedItem->shape().boundingRect() ).toRect();
+        shapeItem->shape().boundingRect() ).toRect();
 
-    const int m = 5; // for the pen
+    const int m = 5; // some margin for the pen
     return rect.adjusted( -m, -m, m, m );
 }
 
@@ -329,5 +328,33 @@ void Editor::raiseItem( QwtPlotShapeItem *shapeItem )
             return;
         }
     }
+}
+
+void Editor::setItemVisible( QwtPlotShapeItem *item, bool on )
+{
+    if ( plot() == NULL || item == NULL || item->isVisible() == on )
+        return;
+
+    const bool doAutoReplot = plot()->autoReplot();
+    plot()->setAutoReplot( false );
+
+    item->setVisible( on );
+
+    plot()->setAutoReplot( doAutoReplot );
+
+    /*
+      Avoid replot with a full repaint of the canvas. 
+      For special combinations - f.e. using the 
+      raster paint engine on a remote display -
+      this makes a difference.
+     */
+
+    QwtPlotCanvas *canvas =
+        qobject_cast<QwtPlotCanvas *>( plot()->canvas() );
+    if ( canvas )
+        canvas->invalidateBackingStore();
+
+    plot()->canvas()->update( maskHint( item ) );
+
 }
 
