@@ -24,6 +24,12 @@ class QPainter;
    when the updates of the canvas is not in time with the mouse 
    movements.
 
+   QwtPlotOverlay is an abstract base class. Deriving classes are
+   supposed to reimplement the following methods:
+
+   - drawOverlay()
+   - maskHint()
+
    \sa QwtPlotCanvas::BackingStore
  */
 class QwtPlotOverlay: public QWidget
@@ -35,7 +41,8 @@ public:
        When using masks the canvas gets paint events for
        the masked regions of the overlay only. Otherwise
        Qt triggers full repaints. On less powerful hardware
-       ( f.e embedded systems ) bit blitting is a noticeable
+       ( f.e embedded systems ) - or when using the raster paint 
+       engine on a remote desktop - bit blitting is a noticeable
        operation, that needs to be avoided.
        
        If and how to mask depends on how expensive the calculation 
