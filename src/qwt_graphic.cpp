@@ -330,7 +330,8 @@ public:
     Initializes a null graphic
     \sa isNull()
  */
-QwtGraphic::QwtGraphic()
+QwtGraphic::QwtGraphic():
+    QwtNullPaintDevice()
 {
     setMode( QwtNullPaintDevice::PathMode );
     d_data = new PrivateData;
@@ -342,7 +343,8 @@ QwtGraphic::QwtGraphic()
     \param other Source 
     \sa operator=()
  */
-QwtGraphic::QwtGraphic( const QwtGraphic &other )
+QwtGraphic::QwtGraphic( const QwtGraphic &other ):
+    QwtNullPaintDevice()
 {
     setMode( other.mode() );
     d_data = new PrivateData( *other.d_data );
