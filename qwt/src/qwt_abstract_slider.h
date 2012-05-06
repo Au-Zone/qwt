@@ -30,6 +30,7 @@ class QWT_EXPORT QwtAbstractSlider : public QWidget, public QwtDoubleRange
     Q_OBJECT
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool valid READ isValid WRITE setValid )
+    Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
     Q_PROPERTY( double mass READ mass WRITE setMass )
     Q_PROPERTY( Qt::Orientation orientation
                 READ orientation WRITE setOrientation )
@@ -67,7 +68,9 @@ public:
 
     void setUpdateTime( int t );
     void stopMoving();
+
     void setTracking( bool enable );
+    bool isTracking() const;
 
     virtual void setMass( double val );
     virtual double mass() const;

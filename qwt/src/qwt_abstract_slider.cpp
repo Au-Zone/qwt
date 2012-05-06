@@ -34,7 +34,7 @@ public:
     QwtAbstractSlider::ScrollMode scrollMode;
     double mouseOffset;
     int direction;
-    int tracking;
+    bool tracking;
 
     int tmrID;
     int updTime;
@@ -296,10 +296,21 @@ void QwtAbstractSlider::setPosition( const QPoint &p )
   <li>at the end of automatic scrolling.</ul>
   Tracking is enabled by default.
   \param enable \c true (enable) or \c false (disable) tracking.
+
+  \sa isTracking()
 */
 void QwtAbstractSlider::setTracking( bool enable )
 {
     d_data->tracking = enable;
+}
+
+/*!
+  \return True, when tracking has been enabled
+  \sa setTracking()
+*/
+bool QwtAbstractSlider::isTracking() const
+{
+    return d_data->tracking;
 }
 
 /*!

@@ -41,6 +41,7 @@ class QWT_EXPORT QwtSlider : public QwtAbstractSlider, public QwtAbstractScale
     Q_PROPERTY( QSize handleSize READ handleSize WRITE setHandleSize )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
+    Q_PROPERTY( double scaleValue READ scaleValue WRITE setScaleValue )
 
 public:
 
@@ -116,6 +117,14 @@ public:
 
     void setScaleDraw( QwtScaleDraw * );
     const QwtScaleDraw *scaleDraw() const;
+
+    double scaleValue() const;
+
+public Q_SLOTS:
+	void setScaleValue( double value );
+
+Q_SIGNALS:
+    void scaleValueChanged( double value );
 
 protected:
     virtual double getValue( const QPoint &p );
