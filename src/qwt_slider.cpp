@@ -705,9 +705,26 @@ void QwtSlider::layoutSlider( bool update_geometry )
 void QwtSlider::valueChange()
 {
     QwtAbstractSlider::valueChange();
+
+    if ( isTracking() )
+    {
+        Q_EMIT scaleValueChanged( scaleValue() );
+    }
+
     update();
 }
 
+double QwtSlider::scaleValue() const
+{
+    const double v = d_data->map.transform( value() );
+    return scaleDraw()->scaleMap().invTransform( v );
+}
+
+void QwtSlider::setScaleValue( double value )
+{
+	const double v = scaleDraw()->scaleMap().transform( value );
+	setValue( d_data->map.invTransform( v ) );
+}
 
 //! Notify change of range
 void QwtSlider::rangeChange()

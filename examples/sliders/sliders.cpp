@@ -3,7 +3,6 @@
 #include <qlayout.h>
 #include <qwt_slider.h>
 #include <qwt_scale_engine.h>
-#include <qwt_scale_map.h>
 #include "sliders.h"
 
 class Layout: public QBoxLayout
@@ -52,7 +51,7 @@ Slider::Slider( QWidget *parent, int sliderType ):
     d_label->setAlignment( alignment );
     d_label->setFixedWidth( d_label->fontMetrics().width( "10000.9" ) );
 
-    connect( d_slider, SIGNAL( valueChanged( double ) ), SLOT( setNum( double ) ) );
+    connect( d_slider, SIGNAL( scaleValueChanged( double ) ), SLOT( setNum( double ) ) );
 
     QBoxLayout *layout;
     if ( d_slider->orientation() == Qt::Horizontal )
@@ -133,12 +132,6 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
 
 void Slider::setNum( double v )
 {
-    if ( d_slider->scaleMap().transformation()->type() ==
-        QwtScaleTransformation::Log10 )
-    {
-        v = qPow( 10.0, v );
-    }
-
     QString text;
     text.setNum( v, 'f', 1 );
 
