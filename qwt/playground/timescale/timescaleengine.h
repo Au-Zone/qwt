@@ -20,7 +20,7 @@ public:
         int maxMajSteps, int maxMinSteps,
         double stepSize = 0.0 ) const;
 
-    virtual QwtScaleTransformation *transformation() const;
+    virtual QwtTransform *transformation() const;
 
     virtual TimeDate::IntervalType intervalType( 
         double x1, double x2, int maxSteps ) const;

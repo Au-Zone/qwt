@@ -16,6 +16,7 @@
 #include "qwt_legend.h"
 #include "qwt_legend_data.h"
 #include "qwt_plot_canvas.h"
+#include <qmath.h>
 #include <qpainter.h>
 #include <qpointer.h>
 #include <qpaintengine.h>

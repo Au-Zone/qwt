@@ -383,7 +383,12 @@ void QwtPlotScaleItem::draw( QPainter *painter,
 
         sd->move( canvasRect.left(), y );
         sd->setLength( canvasRect.width() - 1 );
-        sd->setTransformation( xMap.transformation()->copy() );
+
+        QwtTransform *transform = NULL;
+        if ( xMap.transformation() )
+            transform = xMap.transformation()->copy();
+
+        sd->setTransformation( transform );
     }
     else // == Qt::Vertical
     {
@@ -406,7 +411,12 @@ void QwtPlotScaleItem::draw( QPainter *painter,
 
         sd->move( x, canvasRect.top() );
         sd->setLength( canvasRect.height() - 1 );
-        sd->setTransformation( yMap.transformation()->copy() );
+
+        QwtTransform *transform = NULL;
+        if ( yMap.transformation() )
+            transform = yMap.transformation()->copy();
+
+        sd->setTransformation( transform );
     }
 
     painter->setFont( d_data->font );

@@ -181,7 +181,7 @@ void QwtPlotCurve::setLegendAttribute( LegendAttribute attribute, bool on )
             d_data->legendAttributes &= ~attribute;
 
         qwtUpdateLegendIconSize( this );
-		legendChanged();
+        legendChanged();
     }
 }
 
@@ -862,11 +862,8 @@ void QwtPlotCurve::closePolyline( QPainter *painter,
     
     if ( orientation() == Qt::Vertical )
     {
-        if ( yMap.transformation()->type() == QwtScaleTransformation::Log10 )
-        {
-            if ( baseline < QwtScaleMap::LogMin )
-                baseline = QwtScaleMap::LogMin;
-        }
+        if ( yMap.transformation() )
+            baseline = yMap.transformation()->bounded( baseline );
 
         double refY = yMap.transform( baseline );
         if ( doAlign )
@@ -877,11 +874,8 @@ void QwtPlotCurve::closePolyline( QPainter *painter,
     }
     else
     {
-        if ( xMap.transformation()->type() == QwtScaleTransformation::Log10 )
-        {
-            if ( baseline < QwtScaleMap::LogMin )
-                baseline = QwtScaleMap::LogMin;
-        }
+        if ( xMap.transformation() )
+            baseline = xMap.transformation()->bounded( baseline );
 
         double refX = xMap.transform( baseline );
         if ( doAlign )

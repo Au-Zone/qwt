@@ -6,7 +6,6 @@ Ideas
 - QAbstractModel -> QwtSeriesData
 - Box/Whisker plot item
 - QwtSeriesData + functors
-- QwtTransformation + functors
 - QwtSeriesData/QwtPlotCurve + Level of details (Douglas Peucker)
 - Common zoom stack for all navigation objects
 - Watermark Item
@@ -34,7 +33,6 @@ Ideas
 Bugs/Change requests
 --------------------
 - QwtPlotDict, performance of z sorting
-- Layout init of round scales too late.
 - Remove QwtScaleTransformation::copy()
 - Reference value for QwtThermo
 - Transparent canvas background + backingstore

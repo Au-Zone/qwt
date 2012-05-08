@@ -722,8 +722,8 @@ double QwtSlider::scaleValue() const
 
 void QwtSlider::setScaleValue( double value )
 {
-	const double v = scaleDraw()->scaleMap().transform( value );
-	setValue( d_data->map.invTransform( v ) );
+    const double v = scaleDraw()->scaleMap().transform( value );
+    setValue( d_data->map.invTransform( v ) );
 }
 
 //! Notify change of range

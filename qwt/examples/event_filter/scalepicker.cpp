@@ -1,7 +1,8 @@
-#include <qevent.h>
+#include "scalepicker.h"
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
-#include "scalepicker.h"
+#include <qevent.h>
+#include <qmath.h>
 
 ScalePicker::ScalePicker( QwtPlot *plot ):
     QObject( plot )

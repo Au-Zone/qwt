@@ -121,7 +121,7 @@ public:
     double scaleValue() const;
 
 public Q_SLOTS:
-	void setScaleValue( double value );
+    void setScaleValue( double value );
 
 Q_SIGNALS:
     void scaleValueChanged( double value );

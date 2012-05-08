@@ -55,12 +55,20 @@ void QwtPlot::initAxesData()
     d_axisData[xTop]->scaleWidget->setObjectName( "QwtPlotAxisXTop" );
     d_axisData[xBottom]->scaleWidget->setObjectName( "QwtPlotAxisXBottom" );
 
+#if 1
+    // better find the font sizes from the application font
     QFont fscl( fontInfo().family(), 10 );
     QFont fttl( fontInfo().family(), 12, QFont::Bold );
+#endif
 
     for ( axisId = 0; axisId < axisCnt; axisId++ )
     {
         AxisData &d = *d_axisData[axisId];
+
+        d.scaleEngine = new QwtLinearScaleEngine;
+
+        d.scaleWidget->setTransformation( 
+            d.scaleEngine->transformation() );
 
         d.scaleWidget->setFont( fscl );
         d.scaleWidget->setMargin( 2 );
@@ -78,7 +86,6 @@ void QwtPlot::initAxesData()
         d.maxMinor = 5;
         d.maxMajor = 8;
 
-        d.scaleEngine = new QwtLinearScaleEngine;
 
         d.isValid = false;
     }
@@ -139,6 +146,9 @@ void QwtPlot::setAxisScaleEngine( int axisId, QwtScaleEngine *scaleEngine )
 
         delete d.scaleEngine;
         d.scaleEngine = scaleEngine;
+
+        d_axisData[axisId]->scaleWidget->setTransformation( 
+            scaleEngine->transformation() );
 
         d.isValid = false;
 
@@ -634,8 +644,7 @@ void QwtPlot::updateAxes()
         }
 
         QwtScaleWidget *scaleWidget = axisWidget( axisId );
-        scaleWidget->setScaleDiv(
-            d.scaleEngine->transformation(), d.scaleDiv );
+        scaleWidget->setScaleDiv( d.scaleDiv );
 
         int startDist, endDist;
         scaleWidget->getBorderDistHint( startDist, endDist );

@@ -1,7 +1,8 @@
+#include "plotmatrix.h"
+#include <qwt_plot_grid.h>
 #include <qapplication.h>
 #include <qpen.h>
-#include <qwt_plot_grid.h>
-#include "plotmatrix.h"
+#include <qmath.h>
 
 class MainWindow: public PlotMatrix
 {

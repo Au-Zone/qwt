@@ -14,6 +14,7 @@
 #include <qdesktopwidget.h>
 #include <qpainter.h>
 #include <qpaintengine.h>
+#include <qmath.h>
 #if QT_VERSION >= 0x040400
 #include <qthread.h>
 #include <qfuture.h>

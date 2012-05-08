@@ -17,14 +17,7 @@
 #include <qdrawutil.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
-
-static inline bool qwtIsLogarithmic( const QwtThermo *thermo )
-{
-    const QwtScaleTransformation::Type scaleType =
-        thermo->scaleEngine()->transformation()->type();
-
-    return ( scaleType == QwtScaleTransformation::Log10 );
-}
+#include <qmath.h>
 
 static inline void qwtDrawLine( 
     QPainter *painter, int pos, 
@@ -126,7 +119,7 @@ QwtThermo::QwtThermo( QWidget *parent ):
     QWidget( parent )
 {
     d_data = new PrivateData;
-    setRange( 0.0, 1.0, false );
+    setRange( 0.0, 1.0 );
 
     QSizePolicy policy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed );
     if ( d_data->orientation == Qt::Vertical )
@@ -184,7 +177,7 @@ QwtInterval::BorderFlags QwtThermo::rangeFlags() const
 */
 void QwtThermo::setMaxValue( double maxValue )
 {
-    setRange( d_data->minValue, maxValue, qwtIsLogarithmic( this ) );
+    setRange( d_data->minValue, maxValue );
 }
 
 //! Return the maximum value.
@@ -201,7 +194,7 @@ double QwtThermo::maxValue() const
 */
 void QwtThermo::setMinValue( double minValue )
 {
-    setRange( minValue, d_data->maxValue, qwtIsLogarithmic( this ) );
+    setRange( minValue, d_data->maxValue );
 }
 
 //! Return the minimum value.
@@ -784,23 +777,13 @@ int QwtThermo::borderWidth() const
                   of the thermometer
   \param maxValue value corresponding to the upper or 
                   right end of the thermometer
-  \param logarithmic logarithmic mapping, true or false
 */
-void QwtThermo::setRange( 
-    double minValue, double maxValue, bool logarithmic )
+void QwtThermo::setRange( double minValue, double maxValue )
 {
-    if ( minValue == d_data->minValue && maxValue == d_data->maxValue
-        && logarithmic == qwtIsLogarithmic( this ) )
+    if ( ( minValue == d_data->minValue ) 
+        && ( maxValue == d_data->maxValue ) )
     {
         return;
-    }
-
-    if ( logarithmic != qwtIsLogarithmic( this ) )
-    {
-        if ( logarithmic )
-            setScaleEngine( new QwtLog10ScaleEngine );
-        else
-            setScaleEngine( new QwtLinearScaleEngine );
     }
 
     d_data->minValue = minValue;
@@ -812,7 +795,6 @@ void QwtThermo::setRange(
       in the future. TODO ...
      */
 
-    d_data->map.setTransformation( scaleEngine()->transformation() );
     d_data->map.setScaleInterval( minValue, maxValue );
 
     if ( autoScale() )
