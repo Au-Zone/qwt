@@ -11,6 +11,14 @@ include( $${PWD}/../playground.pri )
 
 TARGET       = scaleengine
 
+HEADERS = \
+    transformplot.h \
+	plot.h \
+    mainwindow.h
+
 SOURCES = \
+    transformplot.cpp \
+    plot.cpp \
+    mainwindow.cpp \
     scaleengine.cpp
 

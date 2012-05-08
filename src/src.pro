@@ -35,14 +35,15 @@ contains(QWT_CONFIG, QwtFramework) {
 HEADERS += \
     qwt.h \
     qwt_abstract_scale_draw.h \
-    qwt_interval_symbol.h \
     qwt_clipper.h \
     qwt_color_map.h \
     qwt_compat.h \
     qwt_column_symbol.h \
-    qwt_interval.h \
     qwt_dyngrid_layout.h \
     qwt_global.h \
+    qwt_graphic.h \
+    qwt_interval.h \
+    qwt_interval_symbol.h \
     qwt_math.h \
     qwt_magnifier.h \
     qwt_null_paintdevice.h \
@@ -65,40 +66,41 @@ HEADERS += \
     qwt_text_engine.h \
     qwt_text_label.h \
     qwt_text.h \
-    qwt_graphic.h
+    qwt_transform.h
 
 SOURCES += \
     qwt_abstract_scale_draw.cpp \
-    qwt_interval_symbol.cpp \
     qwt_clipper.cpp \
     qwt_color_map.cpp \
     qwt_column_symbol.cpp \
-    qwt_interval.cpp \
     qwt_dyngrid_layout.cpp \
+    qwt_event_pattern.cpp \
+    qwt_graphic.cpp \
+    qwt_interval.cpp \
+    qwt_interval_symbol.cpp \
     qwt_math.cpp \
     qwt_magnifier.cpp \
-    qwt_panner.cpp \
     qwt_null_paintdevice.cpp \
     qwt_painter.cpp \
     qwt_painter_command.cpp \
+    qwt_panner.cpp \
     qwt_picker.cpp \
+    qwt_picker_machine.cpp \
     qwt_pixel_matrix.cpp \
+    qwt_point_3d.cpp \
+    qwt_point_polar.cpp \
     qwt_round_scale_draw.cpp \
     qwt_scale_div.cpp \
     qwt_scale_draw.cpp \
     qwt_scale_map.cpp \
     qwt_spline.cpp \
-    qwt_text_engine.cpp \
-    qwt_text_label.cpp \
-    qwt_text.cpp \
-    qwt_event_pattern.cpp \
-    qwt_picker_machine.cpp \
-    qwt_point_3d.cpp \
-    qwt_point_polar.cpp \
     qwt_scale_engine.cpp \
     qwt_symbol.cpp \
     qwt_system_clock.cpp \
-    qwt_graphic.cpp
+    qwt_text_engine.cpp \
+    qwt_text_label.cpp \
+    qwt_text.cpp \
+    qwt_transform.cpp 
 
  
 contains(QWT_CONFIG, QwtPlot) {
@@ -197,8 +199,8 @@ contains(QWT_CONFIG, QwtPlot) {
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 
-	QT += printsupport
-	QT += concurrent
+    QT += printsupport
+    QT += concurrent
 } 
 
 contains(QWT_CONFIG, QwtSvg) {
@@ -215,10 +217,10 @@ else {
 
 contains(QWT_CONFIG, QwtOpenGL) {
 
-	QT += opengl
+    QT += opengl
 
-	HEADERS += qwt_plot_glcanvas.h
-	SOURCES += qwt_plot_glcanvas.cpp
+    HEADERS += qwt_plot_glcanvas.h
+    SOURCES += qwt_plot_glcanvas.cpp
 }
 else {
 

@@ -108,7 +108,7 @@ void QwtAbstractScaleDraw::setScaleDiv( const QwtScaleDiv &sd )
   \param transformation New scale transformation
 */
 void QwtAbstractScaleDraw::setTransformation(
-    QwtScaleTransformation *transformation )
+    QwtTransform *transformation )
 {
     d_data->map.setTransformation( transformation );
 }

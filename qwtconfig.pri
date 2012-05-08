@@ -96,7 +96,7 @@ QWT_CONFIG     += QwtOpenGL
 # to your qmake project file.
 ######################################################################
 
-QWT_CONFIG     += QwtMathML
+#QWT_CONFIG     += QwtMathML
 
 ######################################################################
 # If you want to build the Qwt designer plugin, 
@@ -104,7 +104,7 @@ QWT_CONFIG     += QwtMathML
 # Otherwise you have to build it from the designer directory.
 ######################################################################
 
-QWT_CONFIG     += QwtDesigner
+#QWT_CONFIG     += QwtDesigner
 
 ######################################################################
 # If you want to auto build the examples, enable the line below

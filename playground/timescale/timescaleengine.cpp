@@ -1,6 +1,7 @@
 #include "timescaleengine.h"
 #include <qwt_interval.h>
 #include <qwt_math.h>
+#include <qwt_transform.h>
 #include <qdatetime.h>
 #include <qdebug.h>
 
@@ -626,8 +627,8 @@ QwtScaleDiv TimeScaleEngine::divideToYears( double min, double max,
     return scaleDiv;
 }
 
-QwtScaleTransformation *TimeScaleEngine::transformation() const
+QwtTransform *TimeScaleEngine::transformation() const
 {
-    return QwtLinearScaleEngine::transformation();
+    return new QwtNullTransform();
 }
 

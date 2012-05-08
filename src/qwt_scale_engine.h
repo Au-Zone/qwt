@@ -14,7 +14,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_interval.h"
 
-class QwtScaleTransformation;
+class QwtTransform;
 
 /*!
   \brief Arithmetic including a tolerance
@@ -122,7 +122,7 @@ public:
         double stepSize = 0.0 ) const = 0;
 
     //! \return a transformation
-    virtual QwtScaleTransformation *transformation() const = 0;
+    virtual QwtTransform *transformation() const = 0;
 
 protected:
     bool contains( const QwtInterval &, double val ) const;
@@ -153,7 +153,7 @@ public:
         int numMajorSteps, int numMinorSteps,
                                      double stepSize = 0.0 ) const;
 
-    virtual QwtScaleTransformation *transformation() const;
+    virtual QwtTransform *transformation() const;
 
 protected:
     QwtInterval align( const QwtInterval&, double stepSize ) const;
@@ -192,7 +192,7 @@ public:
         int numMajorSteps, int numMinorSteps,
         double stepSize = 0.0 ) const;
 
-    virtual QwtScaleTransformation *transformation() const;
+    virtual QwtTransform *transformation() const;
 
 protected:
     QwtInterval log10( const QwtInterval& ) const;

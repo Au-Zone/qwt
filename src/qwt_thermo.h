@@ -169,7 +169,7 @@ public:
 
     double value() const;
 
-    void setRange( double vmin, double vmax, bool lg = false );
+    void setRange( double vmin, double vmax );
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;

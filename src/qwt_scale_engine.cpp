@@ -365,11 +365,11 @@ double QwtScaleEngine::reference() const
 }
 
 /*!
-  Return a transformation, for linear scales
+  \return NULL, indicating no transformations
 */
-QwtScaleTransformation *QwtLinearScaleEngine::transformation() const
+QwtTransform *QwtLinearScaleEngine::transformation() const
 {
-    return new QwtScaleTransformation( QwtScaleTransformation::Linear );
+    return NULL;
 }
 
 /*!
@@ -615,11 +615,11 @@ QwtInterval QwtLinearScaleEngine::align(
 }
 
 /*!
-  Return a transformation, for logarithmic (base 10) scales
+  Return a transformation, for logarithmic scales
 */
-QwtScaleTransformation *QwtLog10ScaleEngine::transformation() const
+QwtTransform *QwtLog10ScaleEngine::transformation() const
 {
-    return new QwtScaleTransformation( QwtScaleTransformation::Log10 );
+    return new QwtLogTransform();
 }
 
 /*!

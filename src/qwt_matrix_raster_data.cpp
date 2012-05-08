@@ -132,12 +132,12 @@ const QVector<double> QwtMatrixRasterData::valueMatrix() const
 */
 void QwtMatrixRasterData::setValue( int row, int col, double value )
 {
-	if ( row >= 0 && row < d_data->numRows &&
-		col >= 0 && col < d_data->numColumns )
-	{
-		const int index = row * d_data->numColumns + col;
-		d_data->values.data()[ index ] = value;
-	}
+    if ( row >= 0 && row < d_data->numRows &&
+        col >= 0 && col < d_data->numColumns )
+    {
+        const int index = row * d_data->numColumns + col;
+        d_data->values.data()[ index ] = value;
+    }
 }
 
 /*!

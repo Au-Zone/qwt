@@ -55,7 +55,7 @@ public:
     void setValueMatrix( const QVector<double> &values, int numColumns );
     const QVector<double> valueMatrix() const;
 
-	void setValue( int row, int col, double value );
+    void setValue( int row, int col, double value );
 
     int numColumns() const;
     int numRows() const;

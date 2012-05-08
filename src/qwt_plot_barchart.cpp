@@ -18,7 +18,7 @@ class QwtPlotBarChart::PrivateData
 public:
     PrivateData():
         symbol( NULL ),
-		legendMode( QwtPlotBarChart::LegendChartTitle )
+        legendMode( QwtPlotBarChart::LegendChartTitle )
     {
     }
  
@@ -28,7 +28,7 @@ public:
     }
 
     QwtColumnSymbol *symbol;
-	QwtPlotBarChart::LegendMode legendMode;
+    QwtPlotBarChart::LegendMode legendMode;
 };
 
 QwtPlotBarChart::QwtPlotBarChart( const QwtText &title ):
@@ -99,16 +99,16 @@ const QwtColumnSymbol *QwtPlotBarChart::symbol() const
 
 void QwtPlotBarChart::setLegendMode( LegendMode mode )
 {
-	if ( mode != d_data->legendMode )
-	{
-		d_data->legendMode = mode;
-		legendChanged();
-	}
+    if ( mode != d_data->legendMode )
+    {
+        d_data->legendMode = mode;
+        legendChanged();
+    }
 }
 
 QwtPlotBarChart::LegendMode QwtPlotBarChart::legendMode() const
 {
-	return d_data->legendMode;
+    return d_data->legendMode;
 }
 
 /*!
@@ -279,7 +279,7 @@ QwtText QwtPlotBarChart::barTitle( int sampleIndex ) const
 }
 
 QwtText QwtPlotBarChart::label( 
-	int sampleIndex, const QPointF& point ) const
+    int sampleIndex, const QPointF& point ) const
 {
     Q_UNUSED( sampleIndex );
     Q_UNUSED( point );
@@ -289,60 +289,60 @@ QwtText QwtPlotBarChart::label(
 
 QList<QwtLegendData> QwtPlotBarChart::legendData() const
 {
-	QList<QwtLegendData> list;
+    QList<QwtLegendData> list;
 
-	if ( d_data->legendMode == LegendBarTitles )
-	{
-		const size_t numSamples = dataSize();
-		for ( size_t i = 0; i < numSamples; i++ )
-		{
-			QwtLegendData data;
+    if ( d_data->legendMode == LegendBarTitles )
+    {
+        const size_t numSamples = dataSize();
+        for ( size_t i = 0; i < numSamples; i++ )
+        {
+            QwtLegendData data;
 
-			QVariant titleValue;
-			qVariantSetValue( titleValue, barTitle( i ) );
-			data.setValue( QwtLegendData::TitleRole, titleValue );
+            QVariant titleValue;
+            qVariantSetValue( titleValue, barTitle( i ) );
+            data.setValue( QwtLegendData::TitleRole, titleValue );
 
-			if ( !legendIconSize().isEmpty() )
-			{
-				QVariant iconValue;
-				qVariantSetValue( iconValue,
-					legendIcon( i, legendIconSize() ) );
+            if ( !legendIconSize().isEmpty() )
+            {
+                QVariant iconValue;
+                qVariantSetValue( iconValue,
+                    legendIcon( i, legendIconSize() ) );
 
-				data.setValue( QwtLegendData::IconRole, iconValue );
-			}
+                data.setValue( QwtLegendData::IconRole, iconValue );
+            }
 
-			list += data;
-		}
-	}
-	else
-	{
-		return QwtPlotAbstractBarChart::legendData();
-	}
+            list += data;
+        }
+    }
+    else
+    {
+        return QwtPlotAbstractBarChart::legendData();
+    }
 
-	return list;
+    return list;
 }
 
 QwtGraphic QwtPlotBarChart::legendIcon( 
-	int index, const QSizeF &size ) const
+    int index, const QSizeF &size ) const
 {
-	QwtColumnRect column;
-	column.hInterval = QwtInterval( 0.0, size.width() - 1.0 );
-	column.vInterval = QwtInterval( 0.0, size.height() - 1.0 );
+    QwtColumnRect column;
+    column.hInterval = QwtInterval( 0.0, size.width() - 1.0 );
+    column.vInterval = QwtInterval( 0.0, size.height() - 1.0 );
 
-	QwtGraphic icon;
-	icon.setDefaultSize( size );
-	icon.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+    QwtGraphic icon;
+    icon.setDefaultSize( size );
+    icon.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
 
-	QPainter painter( &icon );
-	painter.setRenderHint( QPainter::Antialiasing,
-		testRenderHint( QwtPlotItem::RenderAntialiased ) );
+    QPainter painter( &icon );
+    painter.setRenderHint( QPainter::Antialiasing,
+        testRenderHint( QwtPlotItem::RenderAntialiased ) );
 
-	int barIndex = -1;
-	if ( d_data->legendMode == QwtPlotBarChart::LegendBarTitles )
-		barIndex = index;
-		
-	drawBar( &painter, barIndex, QPointF(), column );
+    int barIndex = -1;
+    if ( d_data->legendMode == QwtPlotBarChart::LegendBarTitles )
+        barIndex = index;
+        
+    drawBar( &painter, barIndex, QPointF(), column );
 
-	return icon;
+    return icon;
 }
 
