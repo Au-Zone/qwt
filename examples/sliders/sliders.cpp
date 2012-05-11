@@ -111,12 +111,12 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         {
             slider = new QwtSlider( parent, Qt::Vertical,
                 QwtSlider::RightScale, QwtSlider::Trough | QwtSlider::Groove );
-            slider->setScaleEngine( new QwtLog10ScaleEngine );
+            slider->setScaleEngine( new QwtLogScaleEngine );
             slider->setHandleSize( 20, 32 );
             slider->setBorderWidth( 1 );
             slider->setRange( 0.0, 4.0, 0.01 );
             slider->setScale( 1.0, 1.0e4 );
-            slider->setScaleMaxMinor( 10 );
+            slider->setScaleMaxMinor( 9 );
             break;
         }
     }

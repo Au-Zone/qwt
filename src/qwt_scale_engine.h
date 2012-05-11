@@ -39,9 +39,7 @@ public:
 
   The layout of the scale can be varied with setAttribute().
 
-  Qwt offers implementations for logarithmic (log10)
-  and linear scales. Contributions for other types of scale engines
-  (date/time, log2 ... ) are welcome.
+  Qwt offers implementations for logarithmic and linear scales. 
 */
 
 class QWT_EXPORT QwtScaleEngine
@@ -146,6 +144,9 @@ private:
 class QWT_EXPORT QwtLinearScaleEngine: public QwtScaleEngine
 {
 public:
+    QwtLinearScaleEngine();
+    virtual ~QwtLinearScaleEngine();
+
     virtual void autoScale( int maxSteps,
         double &x1, double &x2, double &stepSize ) const;
 
@@ -172,7 +173,7 @@ protected:
 };
 
 /*!
-  \brief A scale engine for logarithmic (base 10) scales
+  \brief A scale engine for logarithmic scales
 
   The step size is measured in *decades*
   and the major step size will be adjusted to fit the pattern
@@ -182,9 +183,12 @@ protected:
   \warning the step size as well as the margins are measured in *decades*.
 */
 
-class QWT_EXPORT QwtLog10ScaleEngine: public QwtScaleEngine
+class QWT_EXPORT QwtLogScaleEngine: public QwtScaleEngine
 {
 public:
+    QwtLogScaleEngine( int base = 10 );
+    virtual ~QwtLogScaleEngine();
+
     virtual void autoScale( int maxSteps,
         double &x1, double &x2, double &stepSize ) const;
 
@@ -195,9 +199,6 @@ public:
     virtual QwtTransform *transformation() const;
 
 protected:
-    QwtInterval log10( const QwtInterval& ) const;
-    QwtInterval pow10( const QwtInterval& ) const;
-
     QwtInterval align( const QwtInterval&, double stepSize ) const;
 
     void buildTicks(
@@ -210,6 +211,9 @@ protected:
     QList<double> buildMinorTicks(
         const QList<double>& majorTicks,
         int maxMinMark, double step ) const;
+
+private:
+    const double d_base;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtScaleEngine::Attributes )

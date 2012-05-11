@@ -77,7 +77,7 @@ void Plot::setTransformation( QwtTransform *transform )
     // invalidated, when the scale engine has changed
 
     QwtScaleDiv scaleDiv = 
-        QwtLinearScaleEngine().divideScale( 10.0, 1000.0, 8, 10 );
+        axisScaleEngine( QwtPlot::xBottom )->divideScale( 10.0, 1000.0, 8, 10 );
 
     QList<double> ticks;
     ticks += 10.0;
