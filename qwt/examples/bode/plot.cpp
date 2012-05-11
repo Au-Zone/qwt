@@ -60,8 +60,8 @@ Plot::Plot( QWidget *parent ):
     setAxisTitle( QwtPlot::yRight, "Phase [deg]" );
 
     setAxisMaxMajor( QwtPlot::xBottom, 6 );
-    setAxisMaxMinor( QwtPlot::xBottom, 10 );
-    setAxisScaleEngine( QwtPlot::xBottom, new QwtLog10ScaleEngine );
+    setAxisMaxMinor( QwtPlot::xBottom, 9 );
+    setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine );
 
     // curves
     d_curve1 = new QwtPlotCurve( "Amplitude" );
