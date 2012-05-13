@@ -639,8 +639,8 @@ QwtInterval QwtLinearScaleEngine::align(
     return QwtInterval( x1, x2 );
 }
 
-QwtLogScaleEngine::QwtLogScaleEngine( int base ):
-    d_base( qMax( base, 2 ) )
+QwtLogScaleEngine::QwtLogScaleEngine( double base ):
+    d_base( qMax( base, 1.1) )
 {
 }
 
@@ -677,7 +677,7 @@ void QwtLogScaleEngine::autoScale( int maxNumSteps,
 
     if ( interval.maxValue() / interval.minValue() < d_base )
     {
-        // scale width is less than one decade -> build linear scale
+        // scale width is less than one step -> build linear scale
 
         QwtLinearScaleEngine linearScaler;
         linearScaler.setAttributes( attributes() );

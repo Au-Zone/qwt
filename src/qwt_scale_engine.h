@@ -186,7 +186,7 @@ protected:
 class QWT_EXPORT QwtLogScaleEngine: public QwtScaleEngine
 {
 public:
-    QwtLogScaleEngine( int base = 10 );
+    QwtLogScaleEngine( double base = 10.0 );
     virtual ~QwtLogScaleEngine();
 
     virtual void autoScale( int maxSteps,
