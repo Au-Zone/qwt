@@ -26,9 +26,6 @@ public:
     static double floorEps( double value, double intervalSize );
 
     static double divideEps( double interval, double steps );
-
-    static double ceil125( double x );
-    static double floor125( double x );
 };
 
 /*!
@@ -78,8 +75,11 @@ public:
     //! Layout attributes
     typedef QFlags<Attribute> Attributes;
 
-    explicit QwtScaleEngine();
+    explicit QwtScaleEngine( uint base = 10 );
     virtual ~QwtScaleEngine();
+
+    void setBase( uint base );
+    uint base() const;
 
     void setAttribute( Attribute, bool on = true );
     bool testAttribute( Attribute ) const;
@@ -144,7 +144,7 @@ private:
 class QWT_EXPORT QwtLinearScaleEngine: public QwtScaleEngine
 {
 public:
-    QwtLinearScaleEngine();
+    QwtLinearScaleEngine( uint base = 10 );
     virtual ~QwtLinearScaleEngine();
 
     virtual void autoScale( int maxSteps,
@@ -169,7 +169,8 @@ protected:
     void buildMinorTicks(
         const QList<double>& majorTicks,
         int maxMinMark, double step,
-        QList<double> &, QList<double> & ) const;
+        QList<double> &minorTicks, 
+        QList<double> &mediumTicks ) const;
 };
 
 /*!
@@ -186,7 +187,7 @@ protected:
 class QWT_EXPORT QwtLogScaleEngine: public QwtScaleEngine
 {
 public:
-    QwtLogScaleEngine( double base = 10.0 );
+    QwtLogScaleEngine( uint base = 10 );
     virtual ~QwtLogScaleEngine();
 
     virtual void autoScale( int maxSteps,
@@ -208,12 +209,11 @@ protected:
     QList<double> buildMajorTicks(
         const QwtInterval &interval, double stepSize ) const;
 
-    QList<double> buildMinorTicks(
+    void buildMinorTicks(
         const QList<double>& majorTicks,
-        int maxMinMark, double step ) const;
-
-private:
-    const double d_base;
+        int maxMinMark, double step,
+        QList<double> &minorTicks, 
+        QList<double> &mediumTicks ) const;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtScaleEngine::Attributes )
