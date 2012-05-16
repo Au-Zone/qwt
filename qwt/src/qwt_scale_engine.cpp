@@ -860,25 +860,29 @@ void QwtLogScaleEngine::buildMinorTicks(
 {
     const double logBase = base();
 
-    if ( stepSize < 1.1 )          // major step width is one decade
+    if ( stepSize < 1.1 )          // major step width is one base
     {
         if ( maxMinorSteps < 1 )
             return;
 
-        int medIndex = -1;
-        if ( maxMinorSteps % 2 == 0 )
-            medIndex = maxMinorSteps / 2;
+#if 1
+        int nMin = maxMinorSteps; // TODO ...
+#endif
+
+        int mediumTickIndex = -1;
+        if ( ( nMin > 2 ) && ( nMin % 2 == 0 ) )
+            mediumTickIndex = nMin / 2;
 
         for ( int i = 0; i < majorTicks.count() - 1; i++ )
         {
             const double v = majorTicks[i];
             const double s = v * ( logBase - 1 ) / maxMinorSteps;
 
-            for ( int i = 1; i < maxMinorSteps; i++ )
+            for ( int j = 1; j < nMin; j++ )
             {
-                const double tick = v + i * s;
+                const double tick = v + j * s;
 
-                if ( i == medIndex )
+                if ( j == mediumTickIndex )
                     mediumTicks += tick;
                 else
                     minorTicks += tick;
@@ -908,25 +912,24 @@ void QwtLogScaleEngine::buildMinorTicks(
         if ( nMin < 1 )
             return; 
 
-        int medIndex = -1;
-        if ( maxMinorSteps % 2 )
-            medIndex = nMin / 2;
+        int mediumTickIndex = -1;
+        if ( ( nMin > 2 ) && ( nMin % 2 ) )
+            mediumTickIndex = nMin / 2;
 
         // substep factor = base^substeps
         const qreal minFactor = qMax( qPow( logBase, minStep ), qreal( logBase ) );
 
-        QList<double> minorTicks;
         for ( int i = 0; i < majorTicks.count(); i++ )
         {
-            double val = majorTicks[i];
-            for ( int k = 0; k < nMin; k++ )
+            double tick = majorTicks[i];
+            for ( int j = 0; j < nMin; j++ )
             {
-                val *= minFactor;
+                tick *= minFactor;
 
-                if ( k == medIndex )
-                    mediumTicks += val;
+                if ( j == mediumTickIndex )
+                    mediumTicks += tick;
                 else
-                    minorTicks += val;
+                    minorTicks += tick;
             }
         }
     }
