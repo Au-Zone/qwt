@@ -862,34 +862,42 @@ void QwtLogScaleEngine::buildMinorTicks(
 
     if ( stepSize < 1.1 )          // major step width is one base
     {
-        if ( maxMinorSteps < 1 )
+        double minStep = divideInterval( stepSize, maxMinorSteps + 1 );
+        if ( minStep == 0.0 )
             return;
-
-#if 1
-        int nMin = maxMinorSteps; // TODO ...
-#endif
+        
+        const int numSteps = qRound( stepSize / minStep ); 
 
         int mediumTickIndex = -1;
-        if ( ( nMin > 2 ) && ( nMin % 2 == 0 ) )
-            mediumTickIndex = nMin / 2;
+        if ( ( numSteps > 2 ) && ( numSteps % 2 == 0 ) )
+            mediumTickIndex = numSteps / 2;
 
         for ( int i = 0; i < majorTicks.count() - 1; i++ )
         {
             const double v = majorTicks[i];
-            const double s = v * ( logBase - 1 ) / maxMinorSteps;
+            const double s = logBase / numSteps;
 
-            for ( int j = 1; j < nMin; j++ )
+            if ( s >= 1.0 )
             {
-                const double tick = v + j * s;
-
-                if ( j == mediumTickIndex )
-                    mediumTicks += tick;
-                else
-                    minorTicks += tick;
+                for ( int j = 2; j < numSteps; j++ )
+                {
+                    minorTicks += v * j * s;
+                }
+            }
+            else
+            {
+                for ( int j = 1; j < numSteps; j++ )
+                {
+                    const double tick = v + j * v * ( logBase - 1 ) / numSteps;
+                    if ( j == mediumTickIndex )
+                        mediumTicks += tick;
+                    else
+                        minorTicks += tick;
+                }
             }
         }
     }
-    else  // major step > one decade
+    else
     {
         double minStep = divideInterval( stepSize, maxMinorSteps );
         if ( minStep == 0.0 )
@@ -899,22 +907,21 @@ void QwtLogScaleEngine::buildMinorTicks(
             minStep = 1.0;
 
         // # subticks per interval
-        int nMin = qRound( stepSize / minStep ) - 1;
+        int numTicks = qRound( stepSize / minStep ) - 1;
 
         // Do the minor steps fit into the interval?
-
-        if ( qwtFuzzyCompare( ( nMin +  1 ) * minStep,
-            qAbs( stepSize ), stepSize ) > 0 )
+        if ( qwtFuzzyCompare( ( numTicks +  1 ) * minStep,
+            stepSize, stepSize ) > 0 )
         {
-            nMin = 0;
+            numTicks = 0;
         }
 
-        if ( nMin < 1 )
+        if ( numTicks < 1 )
             return; 
 
         int mediumTickIndex = -1;
-        if ( ( nMin > 2 ) && ( nMin % 2 ) )
-            mediumTickIndex = nMin / 2;
+        if ( ( numTicks > 2 ) && ( numTicks % 2 ) )
+            mediumTickIndex = numTicks / 2;
 
         // substep factor = base^substeps
         const qreal minFactor = qMax( qPow( logBase, minStep ), qreal( logBase ) );
@@ -922,7 +929,7 @@ void QwtLogScaleEngine::buildMinorTicks(
         for ( int i = 0; i < majorTicks.count(); i++ )
         {
             double tick = majorTicks[i];
-            for ( int j = 0; j < nMin; j++ )
+            for ( int j = 0; j < numTicks; j++ )
             {
                 tick *= minFactor;
 
