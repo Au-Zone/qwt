@@ -617,7 +617,7 @@ int QwtKnob::markerSize() const
 void QwtKnob::recalcAngle()
 {
     // calculate the angle corresponding to the value
-    if ( qFuzzyCompare( maxValue(), minValue() ) )
+    if ( maxValue() == minValue() )
     {
         d_data->angle = 0;
         d_data->nTurns = 0;
