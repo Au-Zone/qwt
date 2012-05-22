@@ -118,7 +118,8 @@ MainWindow::MainWindow( QWidget *parent ):
     layout->addSpacing( 10 );
 
     QwtCounter *cntDamp = new QwtCounter( hBox );
-    cntDamp->setRange( 0.0, 5.0, 0.01 );
+    cntDamp->setRange( 0.0, 5.0 );
+	cntDamp->setSingleStep( 0.01 );
     cntDamp->setValue( 0.0 );
 
     layout->addWidget( cntDamp, 0 );
