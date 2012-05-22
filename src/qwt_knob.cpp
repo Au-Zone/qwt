@@ -335,7 +335,7 @@ void QwtKnob::layoutKnob( bool update_geometry )
     d_data->knobRect.setHeight( d );
     d_data->knobRect.moveCenter( rect().center() );
 
-    scaleDraw()->setRadius( qFloor( 0.5 * d + d_data->scaleDist ) );
+    scaleDraw()->setRadius( 0.5 * d + d_data->scaleDist );
     scaleDraw()->moveCenter( rect().center() );
 
     if ( update_geometry )
@@ -617,7 +617,7 @@ int QwtKnob::markerSize() const
 void QwtKnob::recalcAngle()
 {
     // calculate the angle corresponding to the value
-    if ( qFuzzyCompare( maxValue(), minValue() ) )
+    if ( maxValue() == minValue() )
     {
         d_data->angle = 0;
         d_data->nTurns = 0;
