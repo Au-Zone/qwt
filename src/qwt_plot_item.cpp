@@ -515,7 +515,7 @@ void QwtPlotItem::updateScaleDiv( const QwtScaleDiv &xScaleDiv,
    \param xMap X map
    \param yMap Y map
 
-   \return Bounding scale rect of the scale maps, normalized
+   \return Bounding scale rect of the scale maps, not normalized
 */
 QRectF QwtPlotItem::scaleRect( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap ) const
