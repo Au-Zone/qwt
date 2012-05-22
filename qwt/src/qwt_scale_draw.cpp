@@ -234,7 +234,7 @@ int QwtScaleDraw::minLabelDist( const QFont &font ) const
         angle += M_PI / 2;
 
     const double sinA = qFastSin( angle ); // qreal -> double
-    if ( qFuzzyCompare( sinA, 0.0 ) )
+    if ( qFuzzyCompare( sinA + 1.0, 1.0 ) )
         return qCeil( maxDist );
 
     const int fmHeight = fm.ascent() - 2;

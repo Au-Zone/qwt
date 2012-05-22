@@ -151,7 +151,7 @@ void QwtAnalogClock::setTime( const QTime &time )
 */
 QwtText QwtAnalogClock::scaleLabel( double value ) const
 {
-    if ( qFuzzyCompare( value, 0.0 ) )
+    if ( qFuzzyCompare( value + 1.0, 1.0 ) )
         value = 60.0 * 60.0 * 12.0;
 
     return QString::number( qRound( value / ( 60.0 * 60.0 ) ) );
