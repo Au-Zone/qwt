@@ -153,7 +153,7 @@ private Q_SLOTS:
     void textChanged();
 
 private:
-    void incValue( int );
+    void incrementValue( int numSteps );
     void initCounter();
     void updateButtons();
     void showNumber( double );

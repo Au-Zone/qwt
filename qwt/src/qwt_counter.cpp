@@ -50,6 +50,9 @@ public:
 };
 
 /*!
+  The counter is initialized with a range is set to [0.0, 1.0] with 
+  0.01 as single step size. The value is invalid.
+
   The default number of buttons is set to 2. The default increments are:
   \li Button 1: 1 step
   \li Button 2: 10 steps
@@ -127,11 +130,21 @@ QwtCounter::~QwtCounter()
     delete d_data;
 }
 
-void QwtCounter::setValid( bool isValid )
+/*! 
+  Set the counter to be in valid/invalid state
+
+  When the counter is set to invalid, no numbers are displayed and
+  the buttons are disabled.
+
+  \param on If true the counter will be set as valid 
+
+  \sa setValue(), isValid()
+*/
+void QwtCounter::setValid( bool on )
 {
-    if ( isValid != d_data->isValid )
+    if ( on != d_data->isValid )
     {
-        d_data->isValid = isValid;
+        d_data->isValid = on;
 
         updateButtons();
 
@@ -147,66 +160,45 @@ void QwtCounter::setValid( bool isValid )
     }   
 }   
 
+/*! 
+  \return True, if the value is valid
+  \sa setValid(), setValue()
+ */
 bool QwtCounter::isValid() const
 {
     return d_data->isValid;
 }   
 
-void QwtCounter::setWrapping( bool tf )
+/*!
+  \brief Allow/disallow the user to manually edit the value
+
+  \param on True disable editing
+  \sa isReadOnly()
+*/
+void QwtCounter::setReadOnly( bool on )
 {
-    d_data->wrapping = tf;
+    d_data->valueEdit->setReadOnly( on );
 }
 
-void QwtCounter::incValue( int nSteps )
+/*! 
+   \return True, when the line line edit is read only. (default is no)
+  \sa setReadOnly()
+ */
+bool QwtCounter::isReadOnly() const
 {
-    const double min = d_data->minimum;
-    const double max = d_data->maximum;
-	double stepSize = d_data->singleStep;
-
-    if ( !isValid() || min >= max || stepSize <= 0.0 )
-        return;
-
-
-#if 1
-    stepSize = qMax( stepSize, 1.0e-10 * ( max - min ) );
-#endif
-
-    double value = d_data->value + nSteps * stepSize;
-
-    if ( d_data->wrapping )
-    {
-        const double range = max - min;
-
-        if ( value < min )
-        {
-            value += ::ceil( ( min - value ) / range ) * range;
-        }
-        else if ( value > max )
-        {
-            value -= ::ceil( ( value - max ) / range ) * range;
-        }
-    }
-    else
-    {
-        value = qBound( min, value, max );
-    }
-
-    value = min + qRound( ( value - min ) / stepSize ) * stepSize;
-	if ( qFuzzyCompare( value, max ) )
-		value = max;
-
-	if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-		value = 0.0;
-
-    if ( value != d_data->value )
-    {
-        d_data->value = value;
-        showNumber( d_data->value );
-        updateButtons();
-
-        Q_EMIT valueChanged( d_data->value );
-    }
+    return d_data->valueEdit->isReadOnly();
 }
+
+/*!
+  \brief Set a new value without adjusting to the step raster
+
+  The state of the counter is set to be valid.
+
+  \param value New value
+
+  \sa isValid(), value(), valueChanged()
+  \warning The value is clipped when it lies outside the range.
+*/
 
 void QwtCounter::setValue( double value )
 {
@@ -228,19 +220,28 @@ void QwtCounter::setValue( double value )
 }
 
 /*!
-   \brief Set the minimum and maximum values
+  \return Current value of the counter
+  \sa setValue(), valueChanged()
+ */
+double QwtCounter::value() const
+{
+    return d_data->value;
+}
 
-   The maximum is adjusted if necessary to ensure that the range remains valid.
-   The value might be modified to be inside of the range.
+/*!
+  \brief Set the minimum and maximum values
 
-   \param min Minimum value
-   \param max Maximum value
+  The maximum is adjusted if necessary to ensure that the range remains valid.
+  The value might be modified to be inside of the range.
 
-   \sa minimum(), maximum()
+  \param min Minimum value
+  \param max Maximum value
+
+  \sa minimum(), maximum()
  */
 void QwtCounter::setRange( double min, double max )
 {
-	max = qMax( min, max );
+    max = qMax( min, max );
 
     if ( d_data->maximum == max && d_data->minimum == min )
         return;
@@ -266,41 +267,208 @@ void QwtCounter::setRange( double min, double max )
     updateButtons();
 }
 
-void QwtCounter::setSingleStep( double stepSize )
-{
-	stepSize = qMax( stepSize, 0.0 );
-    if ( stepSize > 0.0 )
-    {
-    	const double range = d_data->maximum - d_data->minimum;
-		stepSize = qMax( stepSize, 1.0e-10 * range );
-    }
+/*!
+  Set the minimum value of the range
 
-    d_data->singleStep = stepSize;
+  \param value Minimum value
+  \sa setMaxValue(), minimum()
+
+  \note The maximum is adjusted if necessary to ensure that the range remains valid.
+*/
+void QwtCounter::setMinimum( double min )
+{
+    setRange( min, maximum() );
 }
 
-double QwtCounter::singleStep() const
+/*!
+  Set the maximum value of the range
+
+  \param value Maximum value
+  \sa setMinValue(), maxVal()
+*/
+void QwtCounter::setMaximum( double max )
 {
-    return d_data->singleStep;
+    setRange( minimum(), max );
 }
 
+/*!
+  \return The maximum of the range
+  \sa setRange(), setMaximum(), minimum()
+*/
 double QwtCounter::maximum() const
 {
     return d_data->maximum;
 }
 
+/*!
+  \return The minimum of the range
+  \sa setRange(), setMinimum(), maximum()
+*/
 double QwtCounter::minimum() const
 {
     return d_data->minimum;
 }
 
+/*!
+  \brief Set the step size of the counter
+
+  \param stepSize Single step size
+  \sa singleStep()
+*/
+void QwtCounter::setSingleStep( double stepSize )
+{
+    stepSize = qMax( stepSize, 0.0 );
+    if ( stepSize > 0.0 )
+    {
+        const double range = d_data->maximum - d_data->minimum;
+        stepSize = qMax( stepSize, 1.0e-10 * range );
+    }
+
+    d_data->singleStep = stepSize;
+}
+
+/*!
+  \return Single step size
+  \sa setSingleStep()
+ */
+double QwtCounter::singleStep() const
+{
+    return d_data->singleStep;
+}
+
+/*!
+  If wrapping is true stepping up from maximum() value will take you to the minimum() 
+  value and vica versa. 
+
+  \param on En/Disable warpping
+  \sa wrapping()
+ */
+void QwtCounter::setWrapping( bool on )
+{
+    d_data->wrapping = on;
+}
+
+/*!
+  \return True, when wrapping is set
+  \sa setWrapping()
+ */
 bool QwtCounter::wrapping() const
 {
     return d_data->wrapping;
 }
 
-double QwtCounter::value() const
+/*!
+  Specify the number of buttons on each side of the label
+
+  \param numButtons Number of buttons
+  \sa numButtons()
+*/
+void QwtCounter::setNumButtons( int numButtons )
 {
-    return d_data->value;
+    if ( numButtons < 0 || numButtons > QwtCounter::ButtonCnt )
+        return;
+
+    for ( int i = 0; i < QwtCounter::ButtonCnt; i++ )
+    {
+        if ( i < numButtons )
+        {
+            d_data->buttonDown[i]->show();
+            d_data->buttonUp[i]->show();
+        }
+        else
+        {
+            d_data->buttonDown[i]->hide();
+            d_data->buttonUp[i]->hide();
+        }
+    }
+
+    d_data->numButtons = numButtons;
+}
+
+/*!
+  \return The number of buttons on each side of the widget.
+  \sa setNumButtons()
+*/
+int QwtCounter::numButtons() const
+{
+    return d_data->numButtons;
+}
+
+/*!
+  Specify the number of steps by which the value
+  is incremented or decremented when a specified button
+  is pushed.
+
+  \param button Button index
+  \param nSteps Number of steps
+
+  \sa incSteps()
+*/
+void QwtCounter::setIncSteps( QwtCounter::Button button, int nSteps )
+{
+    if ( button >= 0 && button < QwtCounter::ButtonCnt )
+        d_data->increment[ button ] = nSteps;
+}
+
+/*!
+  \return The number of steps by which a specified button increments the value
+          or 0 if the button is invalid.
+  \param button Button index
+
+  \sa setIncSteps()
+*/
+int QwtCounter::incSteps( QwtCounter::Button button ) const
+{
+    if ( button >= 0 && button < QwtCounter::ButtonCnt )
+        return d_data->increment[ button ];
+
+    return 0;
+}
+
+
+/*!
+  Set the number of increment steps for button 1
+  \param nSteps Number of steps
+*/
+void QwtCounter::setStepButton1( int nSteps )
+{
+    setIncSteps( QwtCounter::Button1, nSteps );
+}
+
+//! returns the number of increment steps for button 1
+int QwtCounter::stepButton1() const
+{
+    return incSteps( QwtCounter::Button1 );
+}
+
+/*!
+  Set the number of increment steps for button 2
+  \param nSteps Number of steps
+*/
+void QwtCounter::setStepButton2( int nSteps )
+{
+    setIncSteps( QwtCounter::Button2, nSteps );
+}
+
+//! returns the number of increment steps for button 2
+int QwtCounter::stepButton2() const
+{
+    return incSteps( QwtCounter::Button2 );
+}
+
+/*!
+  Set the number of increment steps for button 3
+  \param nSteps Number of steps
+*/
+void QwtCounter::setStepButton3( int nSteps )
+{
+    setIncSteps( QwtCounter::Button3, nSteps );
+}
+
+//! returns the number of increment steps for button 3
+int QwtCounter::stepButton3() const
+{
+    return incSteps( QwtCounter::Button3 );
 }
 
 //! Set from lineedit
@@ -311,23 +479,6 @@ void QwtCounter::textChanged()
     const double value = d_data->valueEdit->text().toDouble( &converted );
     if ( converted )
         setValue( value );
-}
-
-/**
-  \brief Allow/disallow the user to manually edit the value
-
-  \param editable true enables editing
-  \sa editable()
-*/
-void QwtCounter::setReadOnly( bool on )
-{
-    d_data->valueEdit->setReadOnly( on );
-}
-
-//! returns whether the line edit is edatble. (default is yes)
-bool QwtCounter::isReadOnly() const
-{
-    return d_data->valueEdit->isReadOnly();
 }
 
 /*!
@@ -395,12 +546,12 @@ void QwtCounter::keyPressEvent ( QKeyEvent *event )
         }
         case Qt::Key_Up:
         {
-            incValue( d_data->increment[0] );
+            incrementValue( d_data->increment[0] );
             break;
         }
         case Qt::Key_Down:
         {
-            incValue( -d_data->increment[0] );
+            incrementValue( -d_data->increment[0] );
             break;
         }
         case Qt::Key_PageUp:
@@ -416,7 +567,7 @@ void QwtCounter::keyPressEvent ( QKeyEvent *event )
             }
             if ( event->key() == Qt::Key_PageDown )
                 increment = -increment;
-            incValue( increment );
+            incrementValue( increment );
             break;
         }
         default:
@@ -474,39 +625,60 @@ void QwtCounter::wheelEvent( QWheelEvent *event )
         delta /= 2; // Never saw an abs(delta) < 240
 #endif
 
-    incValue( delta / wheel_delta * increment );
+    incrementValue( delta / wheel_delta * increment );
 }
 
-/*!
-  Specify the number of steps by which the value
-  is incremented or decremented when a specified button
-  is pushed.
-
-  \param button Button index
-  \param nSteps Number of steps
-
-  \sa incSteps()
-*/
-void QwtCounter::setIncSteps( QwtCounter::Button button, int nSteps )
+void QwtCounter::incrementValue( int numSteps )
 {
-    if ( button >= 0 && button < QwtCounter::ButtonCnt )
-        d_data->increment[ button ] = nSteps;
+    const double min = d_data->minimum;
+    const double max = d_data->maximum;
+    double stepSize = d_data->singleStep;
+
+    if ( !d_data->isValid || min >= max || stepSize <= 0.0 )
+        return;
+
+
+#if 1
+    stepSize = qMax( stepSize, 1.0e-10 * ( max - min ) );
+#endif
+
+    double value = d_data->value + numSteps * stepSize;
+
+    if ( d_data->wrapping )
+    {
+        const double range = max - min;
+
+        if ( value < min )
+        {
+            value += ::ceil( ( min - value ) / range ) * range;
+        }
+        else if ( value > max )
+        {
+            value -= ::ceil( ( value - max ) / range ) * range;
+        }
+    }
+    else
+    {
+        value = qBound( min, value, max );
+    }
+
+    value = min + qRound( ( value - min ) / stepSize ) * stepSize;
+    if ( qFuzzyCompare( value, max ) )
+        value = max;
+
+    if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+        value = 0.0;
+
+    if ( value != d_data->value )
+    {
+        d_data->value = value;
+        showNumber( d_data->value );
+        updateButtons();
+
+        Q_EMIT valueChanged( d_data->value );
+    }
 }
 
-/*!
-  \return the number of steps by which a specified button increments the value
-  or 0 if the button is invalid.
-  \param button Button index
-
-  \sa setIncSteps()
-*/
-int QwtCounter::incSteps( QwtCounter::Button button ) const
-{
-    if ( button >= 0 && button < QwtCounter::ButtonCnt )
-        return d_data->increment[ button ];
-
-    return 0;
-}
 
 /*!
   \brief Update buttons according to the current value
@@ -518,7 +690,7 @@ int QwtCounter::incSteps( QwtCounter::Button button ) const
 */
 void QwtCounter::updateButtons()
 {
-    if ( isValid() )
+    if ( d_data->isValid )
     {
         // 1. save enabled state of the smallest down- and up-button
         // 2. change enabled state on under- or over-flow
@@ -538,41 +710,6 @@ void QwtCounter::updateButtons()
         }
     }
 }
-
-/*!
-  \brief Specify the number of buttons on each side of the label
-  \param numButtons Number of buttons
-*/
-void QwtCounter::setNumButtons( int numButtons )
-{
-    if ( numButtons < 0 || numButtons > QwtCounter::ButtonCnt )
-        return;
-
-    for ( int i = 0; i < QwtCounter::ButtonCnt; i++ )
-    {
-        if ( i < numButtons )
-        {
-            d_data->buttonDown[i]->show();
-            d_data->buttonUp[i]->show();
-        }
-        else
-        {
-            d_data->buttonDown[i]->hide();
-            d_data->buttonUp[i]->hide();
-        }
-    }
-
-    d_data->numButtons = numButtons;
-}
-
-/*!
-    \return The number of buttons on each side of the widget.
-*/
-int QwtCounter::numButtons() const
-{
-    return d_data->numButtons;
-}
-
 /*!
   Display number string
 
@@ -594,10 +731,10 @@ void QwtCounter::btnClicked()
     for ( int i = 0; i < ButtonCnt; i++ )
     {
         if ( d_data->buttonUp[i] == sender() )
-            incValue( d_data->increment[i] );
+            incrementValue( d_data->increment[i] );
 
         if ( d_data->buttonDown[i] == sender() )
-            incValue( -d_data->increment[i] );
+            incrementValue( -d_data->increment[i] );
     }
 }
 
@@ -638,73 +775,4 @@ QSize QwtCounter::sizeHint() const
     const int h = qMin( QWidget::sizeHint().height(),
         d_data->valueEdit->minimumSizeHint().height() );
     return QSize( w, h );
-}
-
-/*!
-  Set the minimum value of the range
-
-  \param value Minimum value
-  \sa setMaxValue(), minimum()
-
-  \note The maximum is adjusted if necessary to ensure that the range remains valid.
-*/
-void QwtCounter::setMinimum( double min )
-{
-    setRange( min, maximum() );
-}
-
-/*!
-  Set the maximum value of the range
-
-  \param value Maximum value
-  \sa setMinValue(), maxVal()
-*/
-void QwtCounter::setMaximum( double max )
-{
-    setRange( minimum(), max );
-}
-
-/*!
-  Set the number of increment steps for button 1
-  \param nSteps Number of steps
-*/
-void QwtCounter::setStepButton1( int nSteps )
-{
-    setIncSteps( QwtCounter::Button1, nSteps );
-}
-
-//! returns the number of increment steps for button 1
-int QwtCounter::stepButton1() const
-{
-    return incSteps( QwtCounter::Button1 );
-}
-
-/*!
-  Set the number of increment steps for button 2
-  \param nSteps Number of steps
-*/
-void QwtCounter::setStepButton2( int nSteps )
-{
-    setIncSteps( QwtCounter::Button2, nSteps );
-}
-
-//! returns the number of increment steps for button 2
-int QwtCounter::stepButton2() const
-{
-    return incSteps( QwtCounter::Button2 );
-}
-
-/*!
-  Set the number of increment steps for button 3
-  \param nSteps Number of steps
-*/
-void QwtCounter::setStepButton3( int nSteps )
-{
-    setIncSteps( QwtCounter::Button3, nSteps );
-}
-
-//! returns the number of increment steps for button 3
-int QwtCounter::stepButton3() const
-{
-    return incSteps( QwtCounter::Button3 );
 }
