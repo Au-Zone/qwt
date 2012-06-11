@@ -36,7 +36,7 @@ Qwt includes a class documentation, that is available in various formats:
 A) Unix Qt3/Qt4
 ==========================
 
-qmake
+qmake qwt.pro
 make
 make install
 
@@ -54,7 +54,7 @@ If you didn't enable autobuilding of the examples in qwtconfig.pri
 you have to build the examples this way:
 
 cd examples
-qmake 
+qmake examples.pro
 make
 
 
@@ -67,6 +67,7 @@ your *.pro files into your development environment.
 F.e MSVC with nmake:
 qmake qwt.pro
 nmake
+nmake install
 
 If you didn't enable autobuilding of the examples in qwtconfig.pri
 you have to build the examples this way:
@@ -101,6 +102,7 @@ Start a Windows Shell, where Qt4 is initialized. ( F.e. with
 
 qmake qwt.pro
 make
+make install
 
 If you didn't enable autobuilding of the examples in qwtconfig.pri
 you have to build the examples this way:
@@ -108,7 +110,6 @@ you have to build the examples this way:
 cd examples
 qmake examples.pro
 make
-make install
 
 C2) MSYS Shell Qt >= 4.3.0
 
@@ -135,7 +136,6 @@ you have to build the examples this way:
 cd examples
 qmake examples.pro
 make -i
-make -i install
 
 C1-C3)
 
@@ -156,22 +156,20 @@ In the recent Qt4 releases the default target of qmake is to generate
 XCode project files instead of makefiles. So you might need to do the
 following:
 
-qmake -spec macx-g++
+qmake -spec macx-g++ qwt.pro
 ...
 
-D) Qtopia Core
+E) Qt Embedded
+--------
 
-I only tested Qwt with Qtopia Core in qvfb (Virtual Framebuffer Devivce)
+I only tested Qwt with Qt Embedded in qvfb (Virtual Framebuffer Devivce)
 Emulator on my Linux box. To build Qwt for the emulator was as simple as 
 for a regular Unix build.
 
-qmake
-make
+F) Symbian
+--------
 
-E) Qtopia (!= Qtopia Core)
+I never tried this platform myself.
 
-I once compiled the Qwt library against Qtopia 4.2.0 successfully - but
-not more. It should be possible to build and install Qwt, but it's
-not done yet.
 
 Good luck !
