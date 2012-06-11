@@ -37,7 +37,7 @@ insist on using an IDE don't forget the "make install" step.
 A) Unix 
 --------
 
-qmake
+qmake qwt.pro
 make
 make install
 
@@ -55,7 +55,7 @@ If you didn't enable autobuilding of the examples in qwtconfig.pri
 you have to build the examples this way:
 
 cd examples
-qmake 
+qmake examples.pro
 make
 
 
@@ -126,7 +126,7 @@ In the recent Qt4 releases the default target of qmake is to generate
 XCode project files instead of makefiles. So you might need to do the
 following:
 
-qmake -spec macx-g++
+qmake -spec macx-g++ qwt.pro
 ...
 
 E) Qt Embedded
