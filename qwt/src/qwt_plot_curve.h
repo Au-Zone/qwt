@@ -252,7 +252,7 @@ public:
     void setStyle( CurveStyle style );
     CurveStyle style() const;
 
-    void setSymbol( const QwtSymbol *s );
+    void setSymbol( QwtSymbol * );
     const QwtSymbol *symbol() const;
 
     void setCurveFitter( QwtCurveFitter * );

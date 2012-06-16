@@ -221,12 +221,16 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 }
 
 /*!
-  Assign a symbol
+  \brief Assign a symbol
+
+  The curve will take the ownership of the symbol, hence the previously
+  set symbol will be delete by setting a new one. If \p symbol is 
+  \c NULL no symbol will be drawn.
 
   \param symbol Symbol
   \sa symbol()
 */
-void QwtPlotCurve::setSymbol( const QwtSymbol *symbol )
+void QwtPlotCurve::setSymbol( QwtSymbol *symbol )
 {
     if ( symbol != d_data->symbol )
     {
