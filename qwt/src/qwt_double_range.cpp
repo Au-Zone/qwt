@@ -139,35 +139,6 @@ void QwtDoubleRange::setNewValue( double value, bool align )
 }
 
 /*!
-  \brief  Adjust the value to the closest point in the step raster.
-  \param x value
-  \warning The value is clipped when it lies outside the range.
-  When the range is QwtDoubleRange::periodic, it will
-  be mapped to a point in the interval such that
-  \verbatim new value := x + n * (max. value - min. value)\endverbatim
-  with an integer number n.
-*/
-void QwtDoubleRange::fitValue( double x )
-{
-    setNewValue( x, true );
-}
-
-
-/*!
-  \brief Set a new value without adjusting to the step raster
-  \param x new value
-  \warning The value is clipped when it lies outside the range.
-  When the range is QwtDoubleRange::periodic, it will
-  be mapped to a point in the interval such that
-  \verbatim new value := x + n * (max. value - min. value)\endverbatim
-  with an integer number n.
-*/
-void QwtDoubleRange::setValue( double x )
-{
-    setNewValue( x, false );
-}
-
-/*!
   \brief Specify  range and step size
 
   \param vmin   lower boundary of the interval
@@ -245,7 +216,6 @@ void QwtDoubleRange::setStep( double vstep )
     if ( newStep != d_data->step )
     {
         d_data->step = newStep;
-        stepChange();
     }
 }
 
@@ -270,33 +240,6 @@ void QwtDoubleRange::setPeriodic( bool tf )
 }
 
 /*!
-  \brief Increment the value by a specified number of steps
-  \param nSteps Number of steps to increment
-  \warning As a result of this operation, the new value will always be
-       adjusted to the step raster.
-*/
-void QwtDoubleRange::incValue( int nSteps )
-{
-    if ( isValid() )
-        setNewValue( d_data->value + double( nSteps ) * d_data->step, true );
-}
-
-/*!
-  \brief Increment the value by a specified number of pages
-  \param nPages Number of pages to increment.
-        A negative number decrements the value.
-  \warning The Page size is specified in the constructor.
-*/
-void QwtDoubleRange::incPages( int nPages )
-{
-    if ( isValid() )
-    {
-        const double off = d_data->step * d_data->pageSize * nPages; 
-        setNewValue( d_data->value + off, true );
-    }
-}
-
-/*!
   \brief Notify a change of value
 
   This virtual function is called whenever the value changes.
@@ -314,17 +257,6 @@ void QwtDoubleRange::valueChange()
   The default implementation does nothing.
 */
 void QwtDoubleRange::rangeChange()
-{
-}
-
-
-/*!
-  \brief Notify a change of the step size
-
-  This virtual function is called whenever the step size changes.
-  The default implementation does nothing.
-*/
-void QwtDoubleRange::stepChange()
 {
 }
 
