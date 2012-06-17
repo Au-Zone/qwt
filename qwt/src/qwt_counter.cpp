@@ -271,7 +271,7 @@ void QwtCounter::setRange( double min, double max )
   Set the minimum value of the range
 
   \param value Minimum value
-  \sa setMaxValue(), minimum()
+  \sa setRange(), setMaximum(), minimum()
 
   \note The maximum is adjusted if necessary to ensure that the range remains valid.
 */
@@ -281,10 +281,20 @@ void QwtCounter::setMinimum( double min )
 }
 
 /*!
+  \return The minimum of the range
+  \sa setRange(), setMinimum(), maximum()
+*/
+double QwtCounter::minimum() const
+{
+    return d_data->minimum;
+}
+
+
+/*!
   Set the maximum value of the range
 
   \param value Maximum value
-  \sa setMinValue(), maxVal()
+  \sa setRange(), setMinimum(), maximum()
 */
 void QwtCounter::setMaximum( double max )
 {
@@ -298,15 +308,6 @@ void QwtCounter::setMaximum( double max )
 double QwtCounter::maximum() const
 {
     return d_data->maximum;
-}
-
-/*!
-  \return The minimum of the range
-  \sa setRange(), setMinimum(), maximum()
-*/
-double QwtCounter::minimum() const
-{
-    return d_data->minimum;
 }
 
 /*!
@@ -340,7 +341,7 @@ double QwtCounter::singleStep() const
   If wrapping is true stepping up from maximum() value will take you to the minimum() 
   value and vica versa. 
 
-  \param on En/Disable warpping
+  \param on En/Disable wrapping
   \sa wrapping()
  */
 void QwtCounter::setWrapping( bool on )

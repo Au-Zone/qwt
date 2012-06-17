@@ -729,10 +729,10 @@ void QwtSlider::setScaleValue( double value )
 //! Notify change of range
 void QwtSlider::rangeChange()
 {
-    d_data->map.setScaleInterval( minValue(), maxValue() );
+    d_data->map.setScaleInterval( minimum(), maximum() );
 
     if ( autoScale() )
-        rescale( minValue(), maxValue() );
+        rescale( minimum(), maximum() );
 
     QwtAbstractSlider::rangeChange();
     layoutSlider( true );
