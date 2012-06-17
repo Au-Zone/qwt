@@ -54,9 +54,9 @@ public:
 
     int pageSize() const;
 
-    virtual void incValue( int );
-    virtual void incPages( int );
-    virtual void fitValue( double );
+    void incValue( int );
+    void incPages( int );
+    void fitValue( double );
 
 protected:
 

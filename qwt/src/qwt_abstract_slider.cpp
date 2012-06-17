@@ -24,8 +24,8 @@ public:
         scrollMode( QwtAbstractSlider::ScrNone ),
         mouseOffset( 0.0 ),
         tracking( true ),
-        tmrID( 0 ),
-        updTime( 150 ),
+        timerId( 0 ),
+        updateInterval( 150 ),
         mass( 0.0 ),
         readOnly( false )
     {
@@ -36,8 +36,8 @@ public:
     int direction;
     bool tracking;
 
-    int tmrID;
-    int updTime;
+    int timerId;
+    int updateInterval;
     int timerTick;
     QTime time;
     double speed;
@@ -65,8 +65,8 @@ QwtAbstractSlider::QwtAbstractSlider(
 //! Destructor
 QwtAbstractSlider::~QwtAbstractSlider()
 {
-    if ( d_data->tmrID )
-        killTimer( d_data->tmrID );
+    if ( d_data->timerId )
+        killTimer( d_data->timerId );
 
     delete d_data;
 }
@@ -121,23 +121,24 @@ Qt::Orientation QwtAbstractSlider::orientation() const
 
 void QwtAbstractSlider::stopMoving()
 {
-    if ( d_data->tmrID )
+    if ( d_data->timerId )
     {
-        killTimer( d_data->tmrID );
-        d_data->tmrID = 0;
+        killTimer( d_data->timerId );
+        d_data->timerId = 0;
     }
 }
 
 /*!
   \brief Specify the update interval for automatic scrolling
-  \param t update interval in milliseconds
+  \param interval Update interval in milliseconds
   \sa getScrollMode()
 */
-void QwtAbstractSlider::setUpdateTime( int t )
+void QwtAbstractSlider::setUpdateTime( int interval )
 {
-    if ( t < 50 )
-        t = 50;
-    d_data->updTime = t;
+    if ( interval < 50 )
+        interval = 50;
+
+    d_data->updateInterval = interval;
 }
 
 
@@ -167,7 +168,7 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *e )
         case ScrPage:
         case ScrTimer:
             d_data->mouseOffset = 0;
-            d_data->tmrID = startTimer( qMax( 250, 2 * d_data->updTime ) );
+            d_data->timerId = startTimer( qMax( 250, 2 * d_data->updateInterval ) );
             break;
 
         case ScrMouse:
@@ -220,7 +221,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
             {
                 const int ms = d_data->time.elapsed();
                 if ( ( qFabs( d_data->speed ) >  0.0 ) && ( ms < 50 ) )
-                    d_data->tmrID = startTimer( d_data->updTime );
+                    d_data->timerId = startTimer( d_data->updateInterval );
             }
             else
             {
@@ -246,7 +247,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
         {
             stopMoving();
             if ( !d_data->timerTick )
-                QwtDoubleRange::incPages( d_data->direction );
+                incPages( d_data->direction );
             d_data->timerTick = 0;
             buttonReleased();
             d_data->scrollMode = ScrNone;
@@ -257,7 +258,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
         {
             stopMoving();
             if ( !d_data->timerTick )
-                QwtDoubleRange::fitValue( value() + double( d_data->direction ) * inc );
+                fitValue( value() + double( d_data->direction ) * inc );
             d_data->timerTick = 0;
             buttonReleased();
             d_data->scrollMode = ScrNone;
@@ -279,7 +280,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
 */
 void QwtAbstractSlider::setPosition( const QPoint &p )
 {
-    QwtDoubleRange::fitValue( getValue( p ) - d_data->mouseOffset );
+    fitValue( getValue( p ) - d_data->mouseOffset );
 }
 
 
@@ -370,7 +371,7 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *e )
         // the delta value is a multiple of 120
 
         const int inc = e->delta() / 120;
-        QwtDoubleRange::incPages( inc );
+        incPages( inc );
         if ( value() != prevValue() )
             Q_EMIT sliderMoved( value() );
     }
@@ -423,7 +424,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
 
     if ( increment != 0 )
     {
-        QwtDoubleRange::incValue( increment );
+        incValue( increment );
         if ( value() != prevValue() )
             Q_EMIT sliderMoved( value() );
     }
@@ -443,10 +444,10 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
         {
             if ( d_data->mass > 0.0 )
             {
-                d_data->speed *= qExp( - double( d_data->updTime ) * 0.001 / d_data->mass );
+                d_data->speed *= qExp( - double( d_data->updateInterval ) * 0.001 / d_data->mass );
                 const double newval =
-                    exactValue() + d_data->speed * double( d_data->updTime );
-                QwtDoubleRange::fitValue( newval );
+                    exactValue() + d_data->speed * double( d_data->updateInterval );
+                fitValue( newval );
                 // stop if d_data->speed < one step per second
                 if ( qFabs( d_data->speed ) < 0.001 * qFabs( step() ) )
                 {
@@ -457,27 +458,29 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
 
             }
             else
+			{
                 stopMoving();
+			}
             break;
         }
 
         case ScrPage:
         {
-            QwtDoubleRange::incPages( d_data->direction );
+            incPages( d_data->direction );
             if ( !d_data->timerTick )
             {
-                killTimer( d_data->tmrID );
-                d_data->tmrID = startTimer( d_data->updTime );
+                killTimer( d_data->timerId );
+                d_data->timerId = startTimer( d_data->updateInterval );
             }
             break;
         }
         case ScrTimer:
         {
-            QwtDoubleRange::fitValue( value() +  double( d_data->direction ) * inc );
+            fitValue( value() +  double( d_data->direction ) * inc );
             if ( !d_data->timerTick )
             {
-                killTimer( d_data->tmrID );
-                d_data->tmrID = startTimer( d_data->updTime );
+                killTimer( d_data->timerId );
+                d_data->timerId = startTimer( d_data->updateInterval );
             }
             break;
         }
@@ -556,33 +559,6 @@ void QwtAbstractSlider::setValue( double val )
     if ( d_data->scrollMode == ScrMouse )
         stopMoving();
     QwtDoubleRange::setValue( val );
-}
-
-
-/*!
-  \brief Set the slider's value to the nearest integer multiple
-         of the step size.
-
-   \param value Value
-   \sa setValue(), incValue()
-*/
-void QwtAbstractSlider::fitValue( double value )
-{
-    if ( d_data->scrollMode == ScrMouse )
-        stopMoving();
-    QwtDoubleRange::fitValue( value );
-}
-
-/*!
-  \brief Increment the value by a specified number of steps
-  \param steps number of steps
-  \sa setValue()
-*/
-void QwtAbstractSlider::incValue( int steps )
-{
-    if ( d_data->scrollMode == ScrMouse )
-        stopMoving();
-    QwtDoubleRange::incValue( steps );
 }
 
 /*!
