@@ -28,8 +28,8 @@
 class QWT_EXPORT QwtAbstractSlider : public QWidget, public QwtDoubleRange
 {
     Q_OBJECT
+
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
-    Q_PROPERTY( bool valid READ isValid WRITE setValid )
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
     Q_PROPERTY( double mass READ mass WRITE setMass )
     Q_PROPERTY( Qt::Orientation orientation
@@ -78,33 +78,13 @@ public:
     virtual void setOrientation( Qt::Orientation o );
     Qt::Orientation orientation() const;
 
+    void setReadOnly( bool );
     bool isReadOnly() const;
 
-    /*
-        Wrappers for QwtDblRange::isValid/QwtDblRange::setValid made
-        to be available as Q_PROPERTY in the designer.
-    */
-
-    /*!
-      \sa QwtDblRange::isValid()
-    */
-    bool isValid() const
-    {
-        return QwtDoubleRange::isValid();
-    }
-
-    /*!
-      \param valid true/false
-      \sa QwtDblRange::isValid()
-    */
-    void setValid( bool valid )
-    {
-        QwtDoubleRange::setValid( valid );
-    }
-
 public Q_SLOTS:
-    virtual void setValue( double val );
-    virtual void setReadOnly( bool );
+    void setValue( double val );
+    void incValue( int steps );
+    void incPages( int pages );
 
 Q_SIGNALS:
 

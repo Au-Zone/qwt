@@ -24,8 +24,7 @@
 
   As a special case, a QwtDoubleRange can be periodic, which means that
   a value outside the interval will be mapped to a value inside the
-  interval when QwtDoubleRange::setValue(), QwtDoubleRange::fitValue(),
-  QwtDoubleRange::incValue() or QwtDoubleRange::incPages() are called.
+  interval.
 */
 
 class QWT_EXPORT QwtDoubleRange
@@ -40,7 +39,6 @@ public:
     void setValid( bool );
     bool isValid() const;
 
-    virtual void setValue( double );
     double value() const;
 
     void setPeriodic( bool tf );
@@ -54,23 +52,17 @@ public:
 
     int pageSize() const;
 
-    void incValue( int );
-    void incPages( int );
-    void fitValue( double );
-
 protected:
+    void setNewValue( double value, bool align );
 
     double exactValue() const;
     double exactPrevValue() const;
     double prevValue() const;
 
     virtual void valueChange();
-    virtual void stepChange();
     virtual void rangeChange();
 
 private:
-    void setNewValue( double value, bool align = false );
-
     class PrivateData;
     PrivateData *d_data;
 };

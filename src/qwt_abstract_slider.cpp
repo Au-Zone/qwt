@@ -258,7 +258,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
         {
             stopMoving();
             if ( !d_data->timerTick )
-                fitValue( value() + double( d_data->direction ) * inc );
+                setNewValue( value() + double( d_data->direction ) * inc, true );
             d_data->timerTick = 0;
             buttonReleased();
             d_data->scrollMode = ScrNone;
@@ -280,7 +280,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
 */
 void QwtAbstractSlider::setPosition( const QPoint &p )
 {
-    fitValue( getValue( p ) - d_data->mouseOffset );
+    setNewValue( getValue( p ) - d_data->mouseOffset, true );
 }
 
 
@@ -447,7 +447,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
                 d_data->speed *= qExp( - double( d_data->updateInterval ) * 0.001 / d_data->mass );
                 const double newval =
                     exactValue() + d_data->speed * double( d_data->updateInterval );
-                fitValue( newval );
+                setNewValue( newval, true );
                 // stop if d_data->speed < one step per second
                 if ( qFabs( d_data->speed ) < 0.001 * qFabs( step() ) )
                 {
@@ -458,9 +458,9 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
 
             }
             else
-			{
+            {
                 stopMoving();
-			}
+            }
             break;
         }
 
@@ -476,7 +476,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
         }
         case ScrTimer:
         {
-            fitValue( value() +  double( d_data->direction ) * inc );
+            setNewValue( value() +  double( d_data->direction ) * inc, true );
             if ( !d_data->timerTick )
             {
                 killTimer( d_data->timerId );
@@ -558,7 +558,35 @@ void QwtAbstractSlider::setValue( double val )
 {
     if ( d_data->scrollMode == ScrMouse )
         stopMoving();
-    QwtDoubleRange::setValue( val );
+
+    setNewValue( val, false );
+}
+
+/*!
+  \brief Increment the value by a specified number of steps
+  \param nSteps Number of steps to increment
+  \warning As a result of this operation, the new value will always be
+       adjusted to the step raster.
+*/
+void QwtAbstractSlider::incValue( int nSteps )
+{
+    if ( isValid() )
+        setNewValue( value() + double( nSteps ) * step(), true );
+}
+
+/*!
+  \brief Increment the value by a specified number of pages
+  \param nPages Number of pages to increment.
+        A negative number decrements the value.
+  \warning The Page size is specified in the constructor.
+*/
+void QwtAbstractSlider::incPages( int nPages )
+{
+    if ( isValid() )
+    {
+        const double off = step() * pageSize() * nPages;
+        setNewValue( value() + off, true );
+    }
 }
 
 /*!
