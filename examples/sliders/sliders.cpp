@@ -74,14 +74,18 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider = new QwtSlider( parent, Qt::Horizontal,
                 QwtSlider::TopScale, QwtSlider::Trough );
             slider->setHandleSize( 30, 16 );
-            slider->setRange( -10.0, 10.0, 1.0, 0 ); // paging disabled
+            slider->setRange( -10.0, 10.0 ); 
+			slider->setSingleStep( 1.0 ); 
+			slider->setPageSize( 0 ); // paging disabled
             break;
         }
         case 1:
         {
             slider = new QwtSlider( parent, Qt::Horizontal,
                 QwtSlider::NoScale, QwtSlider::Trough | QwtSlider::Groove );
-            slider->setRange( 0.0, 1.0, 0.01, 5 );
+            slider->setRange( 0.0, 1.0 );
+			slider->setSingleStep( 0.01 );
+			slider->setPageSize( 5 );
             break;
         }
         case 2:
@@ -89,14 +93,18 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider = new QwtSlider( parent, Qt::Horizontal,
                 QwtSlider::BottomScale, QwtSlider::Groove );
             slider->setHandleSize( 12, 25 );
-            slider->setRange( 1000.0, 3000.0, 10.0, 10 );
+            slider->setRange( 1000.0, 3000.0 );
+			slider->setSingleStep( 10.0 );
+			slider->setPageSize( 10 );
             break;
         }
         case 3:
         {
             slider = new QwtSlider( parent, Qt::Vertical,
                 QwtSlider::LeftScale, QwtSlider::Groove );
-            slider->setRange( 0.0, 100.0, 1.0, 5 );
+            slider->setRange( 0.0, 100.0 );
+            slider->setSingleStep( 1.0 );
+			slider->setPageSize( 5 );
             slider->setScaleMaxMinor( 5 );
             break;
         }
@@ -104,7 +112,9 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         {
             slider = new QwtSlider( parent, Qt::Vertical,
                 QwtSlider::NoScale, QwtSlider::Trough );
-            slider->setRange( 0.0, 100.0, 1.0, 10 );
+            slider->setRange( 0.0, 100.0 );
+			slider->setSingleStep( 1.0 );
+			slider->setPageSize( 10 );
             break;
         }
         case 5:
@@ -114,7 +124,8 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setScaleEngine( new QwtLogScaleEngine );
             slider->setHandleSize( 20, 32 );
             slider->setBorderWidth( 1 );
-            slider->setRange( 0.0, 4.0, 0.01 );
+            slider->setRange( 0.0, 4.0 );
+			slider->setSingleStep( 0.01 );
             slider->setScale( 1.0, 1.0e4 );
             slider->setScaleMaxMinor( 9 );
             break;

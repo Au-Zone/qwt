@@ -21,7 +21,8 @@ public:
         QWidget( parent )
     {
         d_knob = new QwtKnob( this );
-        d_knob->setRange( min, max, 0, 1 );
+        d_knob->setRange( min, max );
+        d_knob->setSingleStep( 0.0 ); // disable
         d_knob->setScaleMaxMajor( 10 );
 
         d_knob->setKnobStyle( QwtKnob::Raised );

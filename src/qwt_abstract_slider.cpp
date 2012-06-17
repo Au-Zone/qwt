@@ -160,7 +160,7 @@ Qt::Orientation QwtAbstractSlider::orientation() const
 
 void QwtAbstractSlider::stopMoving()
 {
-    if ( d_data->timerId )
+    if ( d_data->timerId != 0 )
     {
         killTimer( d_data->timerId );
         d_data->timerId = 0;
@@ -241,10 +241,9 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
         e->ignore();
         return;
     }
+
     if ( !isValid() )
         return;
-
-    const double inc = singleStep();
 
     switch ( d_data->scrollMode )
     {
@@ -294,7 +293,10 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
         {
             stopMoving();
             if ( !d_data->timerTick )
-                setNewValue( d_data->value + double( d_data->direction ) * inc, true );
+            {
+                const double stepSize = qAbs( d_data->singleStep );
+                setNewValue( d_data->value + double( d_data->direction ) * stepSize, true );
+            }
             d_data->timerTick = 0;
             buttonReleased();
             d_data->scrollMode = ScrNone;
@@ -470,7 +472,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
 */
 void QwtAbstractSlider::timerEvent( QTimerEvent * )
 {
-    const double inc = singleStep();
+    const double inc = qAbs( d_data->singleStep );
 
     switch ( d_data->scrollMode )
     {
@@ -483,7 +485,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
                     d_data->exactValue + d_data->speed * double( d_data->updateInterval );
                 setNewValue( newval, true );
                 // stop if d_data->speed < one step per second
-                if ( qFabs( d_data->speed ) < 0.001 * qFabs( singleStep() ) )
+                if ( qFabs( d_data->speed ) < 0.001 * qFabs( inc ) )
                 {
                     d_data->speed = 0;
                     stopMoving();
@@ -555,49 +557,26 @@ void QwtAbstractSlider::rangeChange()
 /*!
   \brief Specify  range and step size
 
-  \param vmin   lower boundary of the interval
-  \param vmax   higher boundary of the interval
-  \param vstep  step width
-  \param pageSize  page size in steps
+  \param minimum   lower boundary of the interval
+  \param maximum   higher boundary of the interval
   \warning
   \li A change of the range changes the value if it lies outside the
       new range. The current value
       will *not* be adjusted to the new step raster.
-  \li vmax < vmin is allowed.
-  \li If the step size is left out or set to zero, it will be
-      set to 1/100 of the interval length.
-  \li If the step size has an absurd value, it will be corrected
-      to a better one.
+  \li maximum < minimum is allowed.
 */
-void QwtAbstractSlider::setRange(
-    double vmin, double vmax, double vstep, int pageSize )
+void QwtAbstractSlider::setRange( double minimum, double maximum )
 {   
-    const bool rchg = ( d_data->maximum != vmax || d_data->minimum != vmin );
+    if ( d_data->minimum == minimum && d_data->maximum == maximum )
+		return;
     
-    if ( rchg )
-    {
-        d_data->minimum = vmin;
-        d_data->maximum = vmax;
-    }
+	d_data->minimum = minimum;
+	d_data->maximum = maximum;
 
-    // look if the step width has an acceptable
-    // value or otherwise change it.
-    setSingleStep( vstep );
+    rangeChange();
 
-    // limit page size
-    const int max =
-        int( qAbs( ( d_data->maximum - d_data->minimum ) / d_data->singleStep ) );
-    d_data->pageSize = qBound( 0, pageSize, max );
-
-    // If the value lies out of the range, it
-    // will be changed. Note that it will not be adjusted to
-    // the new step width.
+    // If the value lies out of the range, it will be changed. 
     setNewValue( d_data->value, false );
-
-    // call notifier after the step width has been
-    // adjusted.
-    if ( rchg )
-        rangeChange();
 }
 
 /*!
@@ -692,6 +671,16 @@ double QwtAbstractSlider::minimum() const
     return d_data->minimum;
 }   
 
+void QwtAbstractSlider::setPageSize( int pageSize )
+{
+#if 1
+    // limit page size
+    const int max =
+        int( qAbs( ( d_data->maximum - d_data->minimum ) / d_data->singleStep ) );
+    d_data->pageSize = qBound( 0, pageSize, max );
+#endif
+}
+
 //! Returns the page size in steps.
 int QwtAbstractSlider::pageSize() const
 {
@@ -785,7 +774,10 @@ void QwtAbstractSlider::setValue( double val )
 void QwtAbstractSlider::incValue( int nSteps )
 {
     if ( isValid() )
-        setNewValue( d_data->value + double( nSteps ) * singleStep(), true );
+	{
+		const double stepSize = qAbs( d_data->singleStep );
+        setNewValue( d_data->value + double( nSteps ) * stepSize, true );
+	}
 }
 
 /*!
@@ -798,7 +790,8 @@ void QwtAbstractSlider::incPages( int nPages )
 {
     if ( isValid() )
     {
-        const double off = singleStep() * pageSize() * nPages;
+		const double stepSize = qAbs( d_data->singleStep );
+        const double off = stepSize * d_data->pageSize * nPages;
         setNewValue( d_data->value + off, true );
     }
 }

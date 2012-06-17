@@ -50,7 +50,8 @@ WheelBox::WheelBox( const QString &title,
 
     d_wheel = new Wheel( this );
     d_wheel->setOrientation( Qt::Vertical );
-    d_wheel->setRange( min, max, stepSize );
+    d_wheel->setRange( min, max );
+	d_wheel->setSingleStep( stepSize );
     d_wheel->setFixedSize(
         qRound( d_number->height() / 2.5 ), d_number->height() );
 
