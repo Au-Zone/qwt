@@ -225,11 +225,11 @@ double QwtKnob::getValue( const QPoint &pos )
 
     const double arc = qAtan2( -dx, dy ) * 180.0 / M_PI;
 
-    double newValue =  0.5 * ( minValue() + maxValue() )
-        + ( arc + d_data->nTurns * 360.0 ) * ( maxValue() - minValue() )
+    double newValue =  0.5 * ( minimum() + maximum() )
+        + ( arc + d_data->nTurns * 360.0 ) * ( maximum() - minimum() )
         / d_data->totalAngle;
 
-    const double oneTurn = qFabs( maxValue() - minValue() ) * 360.0 / d_data->totalAngle;
+    const double oneTurn = qFabs( maximum() - minimum() ) * 360.0 / d_data->totalAngle;
     const double eqValue = value() + mouseOffset();
 
     if ( qFabs( newValue - eqValue ) > 0.5 * oneTurn )
@@ -287,7 +287,7 @@ void QwtKnob::getScrollMode( const QPoint &pos,
 void QwtKnob::rangeChange()
 {
     if ( autoScale() )
-        rescale( minValue(), maxValue() );
+        rescale( minimum(), maximum() );
 
     layoutKnob( true );
     recalcAngle();
@@ -617,15 +617,15 @@ int QwtKnob::markerSize() const
 void QwtKnob::recalcAngle()
 {
     // calculate the angle corresponding to the value
-    if ( maxValue() == minValue() )
+    if ( maximum() == minimum() )
     {
         d_data->angle = 0;
         d_data->nTurns = 0;
     }
     else
     {
-        d_data->angle = ( value() - 0.5 * ( minValue() + maxValue() ) )
-            / ( maxValue() - minValue() ) * d_data->totalAngle;
+        d_data->angle = ( value() - 0.5 * ( minimum() + maximum() ) )
+            / ( maximum() - minimum() ) * d_data->totalAngle;
         d_data->nTurns = qFloor( ( d_data->angle + 180.0 ) / 360.0 );
         d_data->angle = d_data->angle - d_data->nTurns * 360.0;
     }

@@ -87,7 +87,7 @@ public:
     void setValid( bool );
     bool isValid() const;
 
-    void setWrapping( bool tf );
+    void setWrapping( bool );
     bool wrapping() const;
 
     bool isReadOnly() const;
@@ -100,8 +100,6 @@ public:
     int incSteps( QwtCounter::Button btn ) const;
 
     virtual QSize sizeHint() const;
-
-    // a set of dummies to help the designer
 
     double singleStep() const;
     void setSingleStep( double s );

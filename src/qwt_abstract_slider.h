@@ -28,8 +28,14 @@ class QWT_EXPORT QwtAbstractSlider : public QWidget
 {
     Q_OBJECT
 
+    Q_PROPERTY( double value READ value WRITE setValue )
+    Q_PROPERTY( double minimum READ minimum WRITE setMinimum )
+    Q_PROPERTY( double maximum READ maximum WRITE setMaximum )
+
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
+    Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
+
     Q_PROPERTY( double mass READ mass WRITE setMass )
     Q_PROPERTY( Qt::Orientation orientation
                 READ orientation WRITE setOrientation )
@@ -73,14 +79,17 @@ public:
 
     double value() const;
 
-    void setPeriodic( bool tf );
-    bool periodic() const;
+    void setWrapping( bool tf );
+    bool wrapping() const;
 
-    void setStep( double );
-    double step() const;
+    void setSingleStep( double );
+    double singleStep() const;
 
-    double maxValue() const;
-    double minValue() const;
+	void setMinimum( double min );
+    double minimum() const;
+
+	void setMaximum( double max );
+    double maximum() const;
 
     int pageSize() const;
 
@@ -180,11 +189,8 @@ protected:
     virtual void valueChange();
     virtual void rangeChange();
 
-    double prevValue() const;
 
 private:
-    double exactValue() const;
-    double exactPrevValue() const;
     void buttonReleased();
 
     class PrivateData;

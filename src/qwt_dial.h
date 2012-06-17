@@ -75,7 +75,6 @@ class QWT_EXPORT QwtDial: public QwtAbstractSlider
     Q_PROPERTY( Shadow frameShadow READ frameShadow WRITE setFrameShadow )
     Q_PROPERTY( Mode mode READ mode WRITE setMode )
     Q_PROPERTY( double origin READ origin WRITE setOrigin )
-    Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
     Q_PROPERTY( Direction direction READ direction WRITE setDirection )
 
     friend class QwtDialScaleDraw;
@@ -132,9 +131,6 @@ public:
 
     void setMode( Mode );
     Mode mode() const;
-
-    virtual void setWrapping( bool );
-    bool wrapping() const;
 
     virtual void setScale( int maxMajIntv, int maxMinIntv, double step = 0.0 );
 

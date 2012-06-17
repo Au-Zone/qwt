@@ -309,34 +309,6 @@ QwtDial::Mode QwtDial::mode() const
 }
 
 /*!
-    Sets whether it is possible to step the value from the highest value to
-    the lowest value and vice versa to on.
-
-    \param wrapping en/disables wrapping
-
-    \sa wrapping(), QwtAbstractSlider::periodic()
-    \note The meaning of wrapping is like the wrapping property of QSpinBox,
-          but not like it is used in QDial.
-*/
-void QwtDial::setWrapping( bool wrapping )
-{
-    setPeriodic( wrapping );
-}
-
-/*!
-    wrapping() holds whether it is possible to step the value from the
-    highest value to the lowest value and vice versa.
-
-    \sa setWrapping(), QwtAbstractSlider::setPeriodic()
-    \note The meaning of wrapping is like the wrapping property of QSpinBox,
-          but not like it is used in QDial.
-*/
-bool QwtDial::wrapping() const
-{
-    return periodic();
-}
-
-/*!
     Set the direction of the dial (clockwise/counterclockwise)
 
     \param direction Direction
@@ -525,11 +497,11 @@ void QwtDial::drawContents( QPainter *painter ) const
     if ( isValid() )
     {
         direction = d_data->minScaleArc;
-        if ( maxValue() > minValue() && 
+        if ( maximum() > minimum() && 
             d_data->maxScaleArc > d_data->minScaleArc )
         {
             const double ratio =
-                ( value() - minValue() ) / ( maxValue() - minValue() );
+                ( value() - minimum() ) / ( maximum() - minimum() );
             direction += ratio * ( d_data->maxScaleArc - d_data->minScaleArc );
         }
 
@@ -724,7 +696,7 @@ void QwtDial::updateScale()
         QwtLinearScaleEngine scaleEngine;
 
         const QwtScaleDiv scaleDiv = scaleEngine.divideScale(
-            minValue(), maxValue(),
+            minimum(), maximum(),
             d_data->maxMajIntv, d_data->maxMinIntv, d_data->scaleStep );
 
         d_data->scaleDraw->setTransformation( scaleEngine.transformation() );
@@ -971,8 +943,8 @@ static double line2Radians( const QPointF &p1, const QPointF &p2 )
 */
 double QwtDial::getValue( const QPoint &pos )
 {
-    if ( d_data->maxScaleArc == d_data->minScaleArc || maxValue() == minValue() )
-        return minValue();
+    if ( d_data->maxScaleArc == d_data->minScaleArc || maximum() == minimum() )
+        return minimum();
 
     double dir = line2Radians( innerRect().center(), pos ) - d_data->origin;
     if ( dir < 0.0 )
@@ -985,9 +957,9 @@ double QwtDial::getValue( const QPoint &pos )
     // We need the range of the scale if it was a complete circle.
 
     const double completeCircle = 360.0 / ( d_data->maxScaleArc - d_data->minScaleArc )
-        * ( maxValue() - minValue() );
+        * ( maximum() - minimum() );
 
-    double posValue = minValue() + completeCircle * dir / 360.0;
+    double posValue = minimum() + completeCircle * dir / 360.0;
 
     if ( scrollMode() == ScrMouse )
     {
@@ -1012,23 +984,23 @@ double QwtDial::getValue( const QPoint &pos )
 
                 if ( wrapping() )
                 {
-                    if ( posValue - mouseOffset() > maxValue() )
+                    if ( posValue - mouseOffset() > maximum() )
                     {
-                        // We passed maxValue and the value will be set
-                        // to minValue. We have to adjust the mouseOffset.
+                        // We passed maximum and the value will be set
+                        // to minimum. We have to adjust the mouseOffset.
 
-                        setMouseOffset( posValue - minValue() );
+                        setMouseOffset( posValue - minimum() );
                     }
                 }
                 else
                 {
-                    if ( posValue - mouseOffset() > maxValue() ||
-                            value() == maxValue() )
+                    if ( posValue - mouseOffset() > maximum() ||
+                            value() == maximum() )
                     {
-                        // We fix the value at maxValue by adjusting
+                        // We fix the value at maximum by adjusting
                         // the mouse offset.
 
-                        setMouseOffset( posValue - maxValue() );
+                        setMouseOffset( posValue - maximum() );
                     }
                 }
             }
@@ -1042,23 +1014,23 @@ double QwtDial::getValue( const QPoint &pos )
 
                 if ( wrapping() )
                 {
-                    if ( posValue - mouseOffset() < minValue() )
+                    if ( posValue - mouseOffset() < minimum() )
                     {
-                        // We passed minValue and the value will be set
-                        // to maxValue. We have to adjust the mouseOffset.
+                        // We passed minimum and the value will be set
+                        // to maximum. We have to adjust the mouseOffset.
 
-                        setMouseOffset( posValue - maxValue() );
+                        setMouseOffset( posValue - maximum() );
                     }
                 }
                 else
                 {
-                    if ( posValue - mouseOffset() < minValue() ||
-                        value() == minValue() )
+                    if ( posValue - mouseOffset() < minimum() ||
+                        value() == minimum() )
                     {
-                        // We fix the value at minValue by adjusting
+                        // We fix the value at minimum by adjusting
                         // the mouse offset.
 
-                        setMouseOffset( posValue - minValue() );
+                        setMouseOffset( posValue - minimum() );
                     }
                 }
             }
@@ -1100,14 +1072,14 @@ void QwtDial::getScrollMode( const QPoint &pos,
   - Key_Prior\n
     Decrement by pageSize()
   - Key_Home\n
-    Set the value to minValue()
+    Set the value to minimum()
 
   - Key_Up, KeyRight\n
     Increment by 1
   - Key_Next\n
     Increment by pageSize()
   - Key_End\n
-    Set the value to maxValue()
+    Set the value to maximum()
 
   \param event Key event
   \sa isReadOnly()
@@ -1123,34 +1095,48 @@ void QwtDial::keyPressEvent( QKeyEvent *event )
     if ( !isValid() )
         return;
 
-    double previous = prevValue();
+    const double previousValue = value();
+
     switch ( event->key() )
     {
         case Qt::Key_Down:
         case Qt::Key_Left:
+        {
             incValue( -1 );
             break;
+        }
         case Qt::Key_PageUp:
+        {
             incValue( -pageSize() );
             break;
+        }
         case Qt::Key_Home:
-            setValue( minValue() );
+        {
+            setValue( minimum() );
             break;
-
+        }
         case Qt::Key_Up:
         case Qt::Key_Right:
+        {
             incValue( 1 );
             break;
+        }
         case Qt::Key_PageDown:
+        {
             incValue( pageSize() );
             break;
+        }
         case Qt::Key_End:
-            setValue( maxValue() );
+        {
+            setValue( maximum() );
             break;
+        }
         default:;
+        {
             event->ignore();
+        }
     }
 
-    if ( value() != previous )
+    if ( value() != previousValue )
         Q_EMIT sliderMoved( value() );
 }

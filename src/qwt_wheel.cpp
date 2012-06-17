@@ -255,7 +255,7 @@ double QwtWheel::getValue( const QPoint &p )
 
     // value range maps to totalAngle degrees,
     // so convert the change in angle to a change in value
-    const double val = ang * ( maxValue() - minValue() ) / d_data->totalAngle;
+    const double val = ang * ( maximum() - minimum() ) / d_data->totalAngle;
 
     // Note, range clamping and rasterizing to step is automatically
     // handled by QwtAbstractSlider, so we simply return the change in value
@@ -358,7 +358,7 @@ void QwtWheel::drawWheelBackground(
 */
 void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
 {
-    if ( maxValue() == minValue() || d_data->totalAngle == 0.0 )
+    if ( maximum() == minimum() || d_data->totalAngle == 0.0 )
     {
         return;
     }
@@ -368,8 +368,8 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
     const QPen darkPen( palette().color( QPalette::Dark ), 
         0, Qt::SolidLine, Qt::FlatCap );
 
-    const double sign = ( minValue() < maxValue() ) ? 1.0 : -1.0;
-    const double cnvFactor = qAbs( d_data->totalAngle / ( maxValue() - minValue() ) );
+    const double sign = ( minimum() < maximum() ) ? 1.0 : -1.0;
+    const double cnvFactor = qAbs( d_data->totalAngle / ( maximum() - minimum() ) );
     const double halfIntv = 0.5 * d_data->viewAngle / cnvFactor;
     const double loValue = value() - halfIntv;
     const double hiValue = value() + halfIntv;
