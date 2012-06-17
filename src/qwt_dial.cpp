@@ -1128,10 +1128,10 @@ void QwtDial::keyPressEvent( QKeyEvent *event )
     {
         case Qt::Key_Down:
         case Qt::Key_Left:
-            QwtDoubleRange::incValue( -1 );
+            incValue( -1 );
             break;
         case Qt::Key_PageUp:
-            QwtDoubleRange::incValue( -pageSize() );
+            incValue( -pageSize() );
             break;
         case Qt::Key_Home:
             setValue( minValue() );
@@ -1139,10 +1139,10 @@ void QwtDial::keyPressEvent( QKeyEvent *event )
 
         case Qt::Key_Up:
         case Qt::Key_Right:
-            QwtDoubleRange::incValue( 1 );
+            incValue( 1 );
             break;
         case Qt::Key_PageDown:
-            QwtDoubleRange::incValue( pageSize() );
+            incValue( pageSize() );
             break;
         case Qt::Key_End:
             setValue( maxValue() );

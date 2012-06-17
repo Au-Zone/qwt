@@ -104,9 +104,6 @@ public:
 
 public Q_SLOTS:
     virtual void setValue( double val );
-    virtual void fitValue( double val );
-    virtual void incValue( int steps );
-
     virtual void setReadOnly( bool );
 
 Q_SIGNALS:
