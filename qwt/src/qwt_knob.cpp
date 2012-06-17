@@ -82,7 +82,8 @@ void QwtKnob::initKnob()
     recalcAngle();
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 
-    setRange( 0.0, 10.0, 1.0 );
+    setRange( 0.0, 10.0 );
+    setSingleStep( 1.0 );
     setValue( 0.0 );
 }
 

@@ -32,6 +32,8 @@ class QWT_EXPORT QwtAbstractSlider : public QWidget
     Q_PROPERTY( double minimum READ minimum WRITE setMinimum )
     Q_PROPERTY( double maximum READ maximum WRITE setMaximum )
 
+    Q_PROPERTY( int pageSize READ pageSize WRITE setPageSize )
+
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
     Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
@@ -71,9 +73,6 @@ public:
     explicit QwtAbstractSlider( Qt::Orientation, QWidget *parent = NULL );
     virtual ~QwtAbstractSlider();
 
-    void setRange( double vmin, double vmax,
-        double vstep = 0.0, int pagesize = 1 );
-
     void setValid( bool );
     bool isValid() const;
 
@@ -85,12 +84,15 @@ public:
     void setSingleStep( double );
     double singleStep() const;
 
+    void setRange( double vmin, double vmax );
+
 	void setMinimum( double min );
     double minimum() const;
 
 	void setMaximum( double max );
     double maximum() const;
 
+    void setPageSize( int );
     int pageSize() const;
 
     void setUpdateTime( int t );
@@ -147,8 +149,6 @@ Q_SIGNALS:
 protected:
     void setNewValue( double value, bool align );
 
-    virtual void setPosition( const QPoint & );
-
     virtual void timerEvent( QTimerEvent *e );
     virtual void mousePressEvent( QMouseEvent *e );
     virtual void mouseReleaseEvent( QMouseEvent *e );
@@ -191,6 +191,7 @@ protected:
 
 
 private:
+    void setPosition( const QPoint & );
     void buttonReleased();
 
     class PrivateData;

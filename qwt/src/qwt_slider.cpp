@@ -131,7 +131,8 @@ void QwtSlider::initSlider( Qt::Orientation orientation,
     scaleDraw()->setAlignment( align );
     scaleDraw()->setLength( 100 );
 
-    setRange( 0.0, 100.0, 1.0 );
+    setRange( 0.0, 100.0 );
+    setSingleStep( 1.0 );
     setValue( 0.0 );
 }
 

@@ -46,7 +46,9 @@ TunerFrame::TunerFrame( QWidget *parent ):
     QFrame( parent )
 {
     d_sliderFrequency = new QwtSlider( this, Qt::Horizontal, QwtSlider::TopScale );
-    d_sliderFrequency->setRange( 87.5, 108, 0.01, 10 );
+    d_sliderFrequency->setRange( 87.5, 108 );
+    d_sliderFrequency->setSingleStep( 0.01 );
+    d_sliderFrequency->setPageSize( 10 );
     d_sliderFrequency->setScaleMaxMinor( 5 );
     d_sliderFrequency->setScaleMaxMajor( 12 );
     d_sliderFrequency->setHandleSize( 80, 20 );
@@ -56,7 +58,8 @@ TunerFrame::TunerFrame( QWidget *parent ):
 
     d_wheelFrequency = new QwtWheel( this );
     d_wheelFrequency->setMass( 0.5 );
-    d_wheelFrequency->setRange( 87.5, 108, 0.01 );
+    d_wheelFrequency->setRange( 87.5, 108 );
+    d_wheelFrequency->setSingleStep( 0.01 );
     d_wheelFrequency->setTotalAngle( 3600.0 );
     d_wheelFrequency->setFixedHeight( 30 );
 
