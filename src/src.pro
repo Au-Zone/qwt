@@ -239,7 +239,6 @@ contains(QWT_CONFIG, QwtWidgets) {
         qwt_counter.h \
         qwt_dial.h \
         qwt_dial_needle.h \
-        qwt_double_range.h \
         qwt_knob.h \
         qwt_slider.h \
         qwt_thermo.h \
@@ -255,7 +254,6 @@ contains(QWT_CONFIG, QwtWidgets) {
         qwt_counter.cpp \
         qwt_dial.cpp \
         qwt_dial_needle.cpp \
-        qwt_double_range.cpp \
         qwt_knob.cpp \
         qwt_slider.cpp \
         qwt_thermo.cpp \

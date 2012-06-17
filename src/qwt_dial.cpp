@@ -314,7 +314,7 @@ QwtDial::Mode QwtDial::mode() const
 
     \param wrapping en/disables wrapping
 
-    \sa wrapping(), QwtDoubleRange::periodic()
+    \sa wrapping(), QwtAbstractSlider::periodic()
     \note The meaning of wrapping is like the wrapping property of QSpinBox,
           but not like it is used in QDial.
 */
@@ -327,7 +327,7 @@ void QwtDial::setWrapping( bool wrapping )
     wrapping() holds whether it is possible to step the value from the
     highest value to the lowest value and vice versa.
 
-    \sa setWrapping(), QwtDoubleRange::setPeriodic()
+    \sa setWrapping(), QwtAbstractSlider::setPeriodic()
     \note The meaning of wrapping is like the wrapping property of QSpinBox,
           but not like it is used in QDial.
 */
@@ -707,7 +707,7 @@ QwtDialNeedle *QwtDial::needle()
     return d_data->needle;
 }
 
-//! QwtDoubleRange update hook
+//! QwtAbstractSlider update hook
 void QwtDial::rangeChange()
 {
     updateScale();
@@ -902,7 +902,7 @@ void QwtDial::setScaleArc( double minArc, double maxArc )
     update();
 }
 
-//! QwtDoubleRange update hook
+//! QwtAbstractSlider update hook
 void QwtDial::valueChange()
 {
     update();

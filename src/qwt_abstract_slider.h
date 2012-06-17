@@ -11,7 +11,6 @@
 #define QWT_ABSTRACT_SLIDER_H
 
 #include "qwt_global.h"
-#include "qwt_double_range.h"
 #include <qwidget.h>
 
 /*!
@@ -25,7 +24,7 @@
   valueChange(), which normally requires repainting.
 */
 
-class QWT_EXPORT QwtAbstractSlider : public QWidget, public QwtDoubleRange
+class QWT_EXPORT QwtAbstractSlider : public QWidget
 {
     Q_OBJECT
 
@@ -65,6 +64,25 @@ public:
 
     explicit QwtAbstractSlider( Qt::Orientation, QWidget *parent = NULL );
     virtual ~QwtAbstractSlider();
+
+    void setRange( double vmin, double vmax,
+        double vstep = 0.0, int pagesize = 1 );
+
+    void setValid( bool );
+    bool isValid() const;
+
+    double value() const;
+
+    void setPeriodic( bool tf );
+    bool periodic() const;
+
+    void setStep( double );
+    double step() const;
+
+    double maxValue() const;
+    double minValue() const;
+
+    int pageSize() const;
 
     void setUpdateTime( int t );
     void stopMoving();
@@ -118,8 +136,9 @@ Q_SIGNALS:
     void sliderMoved( double value );
 
 protected:
+    void setNewValue( double value, bool align );
+
     virtual void setPosition( const QPoint & );
-    virtual void valueChange();
 
     virtual void timerEvent( QTimerEvent *e );
     virtual void mousePressEvent( QMouseEvent *e );
@@ -158,7 +177,14 @@ protected:
 
     int scrollMode() const;
 
+    virtual void valueChange();
+    virtual void rangeChange();
+
+    double prevValue() const;
+
 private:
+    double exactValue() const;
+    double exactPrevValue() const;
     void buttonReleased();
 
     class PrivateData;
