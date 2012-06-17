@@ -32,7 +32,6 @@ class QWT_EXPORT QwtWheel : public QwtAbstractSlider
     Q_PROPERTY( int wheelWidth READ wheelWidth WRITE setWheelWidth )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( int wheelBorderWidth READ wheelBorderWidth WRITE setWheelBorderWidth )
-    Q_PROPERTY( double mass READ mass WRITE setMass )
 
 public:
     explicit QwtWheel( QWidget *parent = NULL );
@@ -50,9 +49,6 @@ public:
 
     void setTickCnt( int );
     int tickCnt() const;
-
-    void setMass( double );
-    double mass() const;
 
     void setWheelWidth( int );
     int wheelWidth() const;

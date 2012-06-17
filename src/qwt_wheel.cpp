@@ -86,14 +86,6 @@ int QwtWheel::tickCnt() const
 }
 
 /*!
-    \return mass
-*/
-double QwtWheel::mass() const
-{
-    return QwtAbstractSlider::mass();
-}
-
-/*!
   \brief Set the wheel border width of the wheel.
 
   The wheel border must not be smaller than 1
@@ -483,17 +475,6 @@ void QwtWheel::getScrollMode( const QPoint &p,
         scrollMode = QwtAbstractSlider::ScrNone;
 
     direction = 0;
-}
-
-/*!
-  \brief Set the mass of the wheel
-
-  Assigning a mass turns the wheel into a flywheel.
-  \param mass The wheel's mass
-*/
-void QwtWheel::setMass( double mass )
-{
-    QwtAbstractSlider::setMass( mass );
 }
 
 /*!
