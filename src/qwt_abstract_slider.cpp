@@ -48,7 +48,7 @@ public:
 
     int timerId;
     int updateInterval;
-    int timerTick;
+    bool timerTick;
     QTime time;
     double speed;
     double mass;
@@ -184,21 +184,19 @@ void QwtAbstractSlider::setUpdateTime( int interval )
    Mouse press event handler
    \param e Mouse event
 */
-void QwtAbstractSlider::mousePressEvent( QMouseEvent *e )
+void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
 {
     if ( isReadOnly() )
     {
-        e->ignore();
+        event->ignore();
         return;
     }
     if ( !isValid() )
         return;
 
-    const QPoint &p = e->pos();
+    d_data->timerTick = false;
 
-    d_data->timerTick = 0;
-
-    getScrollMode( p, d_data->scrollMode, d_data->direction );
+    getScrollMode( event->pos(), d_data->scrollMode, d_data->direction );
     stopMoving();
 
     switch ( d_data->scrollMode )
@@ -212,7 +210,7 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *e )
         case ScrMouse:
             d_data->time.start();
             d_data->speed = 0;
-            d_data->mouseOffset = getValue( p ) - d_data->value;
+            d_data->mouseOffset = getValue( event->pos() ) - d_data->value;
             Q_EMIT sliderPressed();
             break;
 
@@ -234,11 +232,11 @@ void QwtAbstractSlider::buttonReleased()
    Mouse Release Event handler
    \param e Mouse event
 */
-void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
+void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
 {
     if ( isReadOnly() )
     {
-        e->ignore();
+        event->ignore();
         return;
     }
 
@@ -249,7 +247,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
     {
         case ScrMouse:
         {
-            setPosition( e->pos() );
+            setPosition( event->pos() );
             d_data->direction = 0;
             d_data->mouseOffset = 0;
             if ( d_data->mass > 0.0 )
@@ -270,7 +268,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
 
         case ScrDirect:
         {
-            setPosition( e->pos() );
+            setPosition( event->pos() );
             d_data->direction = 0;
             d_data->mouseOffset = 0;
             d_data->scrollMode = ScrNone;
@@ -283,7 +281,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
             stopMoving();
             if ( !d_data->timerTick )
                 incPages( d_data->direction );
-            d_data->timerTick = 0;
+            d_data->timerTick = false;
             buttonReleased();
             d_data->scrollMode = ScrNone;
             break;
@@ -295,9 +293,9 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
             if ( !d_data->timerTick )
             {
                 const double stepSize = qAbs( d_data->singleStep );
-                setNewValue( d_data->value + double( d_data->direction ) * stepSize, true );
+                setNewValue( d_data->value + double( d_data->direction ) * stepSize );
             }
-            d_data->timerTick = 0;
+            d_data->timerTick = false;
             buttonReleased();
             d_data->scrollMode = ScrNone;
             break;
@@ -317,7 +315,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *e )
 */
 void QwtAbstractSlider::setPosition( const QPoint &p )
 {
-    setNewValue( getValue( p ) - d_data->mouseOffset, true );
+    setNewValue( getValue( p ) - d_data->mouseOffset );
 }
 
 /*!
@@ -483,7 +481,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
                 d_data->speed *= qExp( - double( d_data->updateInterval ) * 0.001 / d_data->mass );
                 const double newval =
                     d_data->exactValue + d_data->speed * double( d_data->updateInterval );
-                setNewValue( newval, true );
+                setNewValue( newval );
                 // stop if d_data->speed < one step per second
                 if ( qFabs( d_data->speed ) < 0.001 * qFabs( inc ) )
                 {
@@ -512,7 +510,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
         }
         case ScrTimer:
         {
-            setNewValue( d_data->value +  double( d_data->direction ) * inc, true );
+            setNewValue( d_data->value +  double( d_data->direction ) * inc );
             if ( !d_data->timerTick )
             {
                 killTimer( d_data->timerId );
@@ -527,7 +525,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
         }
     }
 
-    d_data->timerTick = 1;
+    d_data->timerTick = true;
 }
 
 /*!
@@ -573,10 +571,26 @@ void QwtAbstractSlider::setRange( double minimum, double maximum )
 	d_data->minimum = minimum;
 	d_data->maximum = maximum;
 
+    const double vmin = qMin( d_data->minimum, d_data->maximum );
+    const double vmax = qMax( d_data->minimum, d_data->maximum );
+    
+    const double value = qBound( vmin, value, vmax );
+
+	if ( value != d_data->value )
+	{
+    	d_data->prevValue = d_data->value;
+    	d_data->value = value;
+
+    	d_data->exactPrevValue = d_data->exactValue;
+    	d_data->exactValue = value;
+	}
+    
     rangeChange();
 
-    // If the value lies out of the range, it will be changed. 
-    setNewValue( d_data->value, false );
+    if ( d_data->isValid || d_data->prevValue != d_data->value )
+    {
+        valueChange();
+    }   
 }
 
 /*!
@@ -618,7 +632,7 @@ void QwtAbstractSlider::setSingleStep( double vstep )
 */
 double QwtAbstractSlider::singleStep() const
 {
-    return qAbs( d_data->singleStep );
+    return d_data->singleStep;
 }   
 
 /*!
@@ -757,12 +771,27 @@ double QwtAbstractSlider::mass() const
   \param val new value
   \sa fitValue()
 */
-void QwtAbstractSlider::setValue( double val )
+void QwtAbstractSlider::setValue( double value )
 {
     if ( d_data->scrollMode == ScrMouse )
         stopMoving();
 
-    setNewValue( val, false );
+    const double vmin = qMin( d_data->minimum, d_data->maximum );
+    const double vmax = qMax( d_data->minimum, d_data->maximum );
+    
+	value = qBound( vmin, value, vmax );
+
+    d_data->prevValue = d_data->value;
+    d_data->value = value;
+
+    d_data->exactPrevValue = d_data->exactValue;
+    d_data->exactValue = value;
+
+    if ( !d_data->isValid || d_data->prevValue != d_data->value )
+    {
+        d_data->isValid = true;
+        valueChange();
+    }
 }
 
 /*!
@@ -776,7 +805,7 @@ void QwtAbstractSlider::incValue( int nSteps )
     if ( isValid() )
 	{
 		const double stepSize = qAbs( d_data->singleStep );
-        setNewValue( d_data->value + double( nSteps ) * stepSize, true );
+        setNewValue( d_data->value + double( nSteps ) * stepSize );
 	}
 }
 
@@ -792,7 +821,7 @@ void QwtAbstractSlider::incPages( int nPages )
     {
 		const double stepSize = qAbs( d_data->singleStep );
         const double off = stepSize * d_data->pageSize * nPages;
-        setNewValue( d_data->value + off, true );
+        setNewValue( d_data->value + off );
     }
 }
 
@@ -818,7 +847,7 @@ int QwtAbstractSlider::scrollMode() const
     return d_data->scrollMode;
 }
 
-void QwtAbstractSlider::setNewValue( double value, bool align )
+void QwtAbstractSlider::setNewValue( double value )
 {
     d_data->prevValue = d_data->value;
     
@@ -853,25 +882,24 @@ void QwtAbstractSlider::setNewValue( double value, bool align )
     d_data->exactPrevValue = d_data->exactValue;
     d_data->exactValue = d_data->value;
 
-    if ( align )
-    {
-        if ( d_data->singleStep != 0.0 )
-        {
-            d_data->value = d_data->minimum +
-                qRound( ( d_data->value - d_data->minimum ) / d_data->singleStep ) * d_data->singleStep;
-        }
-        else
-            d_data->value = d_data->minimum;
+	if ( d_data->singleStep != 0.0 )
+	{
+		d_data->value = d_data->minimum +
+			qRound( ( d_data->value - d_data->minimum ) / d_data->singleStep ) * d_data->singleStep;
+	}
+	else
+	{
+		d_data->value = d_data->minimum;
+	}
 
-        const double minEps = 1.0e-10;
-        // correct rounding error at the border
-        if ( qFabs( d_data->value - d_data->maximum ) < minEps * qAbs( d_data->singleStep ) )
-            d_data->value = d_data->maximum;
+	const double minEps = 1.0e-10;
+	// correct rounding error at the border
+	if ( qFabs( d_data->value - d_data->maximum ) < minEps * qAbs( d_data->singleStep ) )
+		d_data->value = d_data->maximum;
 
-        // correct rounding error if value = 0
-        if ( qFabs( d_data->value ) < minEps * qAbs( d_data->singleStep ) )
-            d_data->value = 0.0;
-    }
+	// correct rounding error if value = 0
+	if ( qFabs( d_data->value ) < minEps * qAbs( d_data->singleStep ) )
+		d_data->value = 0.0;
 
     if ( !d_data->isValid || d_data->prevValue != d_data->value )
     {

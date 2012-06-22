@@ -147,8 +147,6 @@ Q_SIGNALS:
     void sliderMoved( double value );
 
 protected:
-    void setNewValue( double value, bool align );
-
     virtual void timerEvent( QTimerEvent *e );
     virtual void mousePressEvent( QMouseEvent *e );
     virtual void mouseReleaseEvent( QMouseEvent *e );
@@ -191,6 +189,8 @@ protected:
 
 
 private:
+    void setNewValue( double value );
+
     void setPosition( const QPoint & );
     void buttonReleased();
 
