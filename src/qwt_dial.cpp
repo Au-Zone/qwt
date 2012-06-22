@@ -163,6 +163,7 @@ void QwtDial::initDial()
     setRange( 0.0, 360.0 ); // degrees as default
 	setSingleStep( 1.0 );
 	setPageSize( 10.0 );
+    setValue( 0.0 );
 }
 
 //!  Destructor
