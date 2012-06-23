@@ -35,7 +35,6 @@ public:
         isValid( false ),
         value( 0.0 ),
         exactValue( 0.0 ),
-        exactPrevValue( 0.0 ),
         prevValue( 0.0 ),
         wrapping( false )
     {
@@ -63,7 +62,6 @@ public:
     bool isValid;
     double value;
     double exactValue;
-    double exactPrevValue;
     double prevValue;
 
     bool wrapping;
@@ -358,16 +356,18 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
 
     if ( d_data->scrollMode == ScrMouse )
     {
+		const double exactPrevValue = d_data->exactValue;
+
 		setNewValue( getValue( e->pos() ) - d_data->mouseOffset );
 
         if ( d_data->mass > 0.0 )
         {
-            double ms = double( d_data->time.elapsed() );
-            if ( ms < 1.0 )
-                ms = 1.0;
-            d_data->speed = ( d_data->exactValue - d_data->exactPrevValue ) / ms;
+            const double ms = qMax( d_data->time.elapsed(), 1 );
+
+            d_data->speed = ( d_data->exactValue - exactPrevValue ) / ms;
             d_data->time.start();
         }
+
         if ( d_data->value != d_data->prevValue )
             Q_EMIT sliderMoved( d_data->value );
     }
@@ -486,10 +486,10 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
         {
             if ( d_data->mass > 0.0 )
             {
-                d_data->speed *= qExp( - double( d_data->updateInterval ) * 0.001 / d_data->mass );
-                const double value =
-                    d_data->exactValue + d_data->speed * double( d_data->updateInterval );
-                setNewValue( value );
+				const double intv = d_data->updateInterval;
+
+                d_data->speed *= qExp( -intv * 0.001 / d_data->mass );
+                setNewValue( d_data->exactValue + d_data->speed * intv );
 
                 // stop if d_data->speed < one step per second
                 if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
@@ -510,19 +510,13 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
         case ScrPage:
         case ScrTimer:
         {
-			if ( d_data->scrollMode == ScrPage )
+    		if ( isValid() )
 			{
-    			if ( isValid() )
-				{
-					const double stepSize = qAbs( d_data->singleStep );
-					const double off = stepSize * d_data->pageSize * d_data->direction;
-					setNewValue( d_data->value + off );
-				}
-			}
-			else
-			{
-				const double off = double( d_data->direction ) * qAbs( d_data->singleStep );
-            	setNewValue( d_data->value + off );
+				double off = d_data->direction * qAbs( d_data->singleStep );
+				if ( d_data->scrollMode == ScrPage )
+					off *= d_data->pageSize;
+
+				setNewValue( d_data->value + off );
 			}
 
             if ( !d_data->timerTick )
@@ -595,7 +589,6 @@ void QwtAbstractSlider::setRange( double minimum, double maximum )
     	d_data->prevValue = d_data->value;
     	d_data->value = value;
 
-    	d_data->exactPrevValue = d_data->exactValue;
     	d_data->exactValue = value;
 	}
     
@@ -794,7 +787,6 @@ void QwtAbstractSlider::setValue( double value )
     d_data->prevValue = d_data->value;
     d_data->value = value;
 
-    d_data->exactPrevValue = d_data->exactValue;
     d_data->exactValue = value;
 
     if ( !d_data->isValid || d_data->prevValue != d_data->value )
@@ -866,7 +858,6 @@ void QwtAbstractSlider::setNewValue( double value )
 
     d_data->prevValue = d_data->value;
 	d_data->value = value;
-    d_data->exactPrevValue = d_data->exactValue;
     d_data->exactValue = d_data->value;
 
 	if ( d_data->singleStep != 0.0 )
