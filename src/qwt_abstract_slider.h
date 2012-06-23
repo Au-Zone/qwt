@@ -96,13 +96,12 @@ public:
     int pageSize() const;
 
     void setUpdateTime( int t );
-    void stopMoving();
 
     void setTracking( bool enable );
     bool isTracking() const;
 
-    virtual void setMass( double val );
-    virtual double mass() const;
+    void setMass( double val );
+    double mass() const;
 
     virtual void setOrientation( Qt::Orientation o );
     Qt::Orientation orientation() const;
@@ -112,8 +111,6 @@ public:
 
 public Q_SLOTS:
     void setValue( double val );
-    void incValue( int steps );
-    void incPages( int pages );
 
 Q_SIGNALS:
 
@@ -154,6 +151,8 @@ protected:
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void wheelEvent( QWheelEvent *e );
 
+    void incValue( int steps );
+
     /*!
       \brief Determine the value corresponding to a specified poind
 
@@ -162,7 +161,7 @@ protected:
       mouse. It has to be implemented by the derived class.
       \param p point
     */
-    virtual double getValue( const QPoint & p ) = 0;
+    virtual double getValue( const QPoint & ) = 0;
 
     /*!
       \brief Determine what to do when the user presses a mouse button.
@@ -187,12 +186,9 @@ protected:
     virtual void valueChange();
     virtual void rangeChange();
 
-
 private:
     void setNewValue( double value );
-
-    void setPosition( const QPoint & );
-    void buttonReleased();
+    void stopMoving();
 
     class PrivateData;
     PrivateData *d_data;
