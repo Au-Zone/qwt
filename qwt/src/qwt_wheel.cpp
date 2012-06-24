@@ -263,15 +263,6 @@ double QwtWheel::getValue( const QPoint &p )
 }
 
 /*! 
-   \brief Qt Resize Event
-   \param event Resize event
-*/
-void QwtWheel::resizeEvent( QResizeEvent *event )
-{
-    QwtAbstractSlider::resizeEvent( event );
-}
-
-/*! 
    \brief Qt Paint Event
    \param event Paint event
 */

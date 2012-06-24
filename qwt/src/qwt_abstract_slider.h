@@ -64,8 +64,6 @@ public:
          */
         ScrTimer,
 
-        ScrDirect,
-
         //! Automatic scrolling. Same as ScrTimer, but increment by page size.
         ScrPage
     };
@@ -188,7 +186,7 @@ protected:
 
 private:
     bool setNewValue( double value );
-    void stopMoving();
+    void stopFlying();
 
     class PrivateData;
     PrivateData *d_data;

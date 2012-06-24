@@ -24,7 +24,8 @@ public:
         scrollMode( QwtAbstractSlider::ScrNone ),
         mouseOffset( 0.0 ),
         tracking( true ),
-        timerId( 0 ),
+        repeatTimerId( 0 ),
+        flyingTimerId( 0 ),
         updateInterval( 150 ),
         mass( 0.0 ),
         readOnly( false ),
@@ -45,7 +46,8 @@ public:
     int direction;
     bool tracking;
 
-    int timerId;
+    int repeatTimerId;
+    int flyingTimerId;
     int updateInterval;
     bool timerTick;
     QTime time;
@@ -83,7 +85,7 @@ QwtAbstractSlider::QwtAbstractSlider(
     d_data = new QwtAbstractSlider::PrivateData;
     d_data->orientation = orientation;
 
-    setFocusPolicy( Qt::TabFocus );
+    setFocusPolicy( Qt::StrongFocus );
 }
 
 //! Destructor
@@ -213,7 +215,7 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
     d_data->timerTick = false;
 
     getScrollMode( event->pos(), d_data->scrollMode, d_data->direction );
-    stopMoving();
+    stopFlying();
 
     switch ( d_data->scrollMode )
     {
@@ -221,7 +223,7 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
         case ScrTimer:
 		{
             d_data->mouseOffset = 0;
-            d_data->timerId = startTimer( qMax( 250, 2 * d_data->updateInterval ) );
+            d_data->repeatTimerId = startTimer( qMax( 250, 2 * d_data->updateInterval ) );
             break;
 		}
         case ScrMouse:
@@ -232,7 +234,6 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
             Q_EMIT sliderPressed();
             break;
 		}
-        case ScrDirect:
         case ScrNone:
 		{
             d_data->mouseOffset = 0;
@@ -274,10 +275,8 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
 
         if ( d_data->mass > 0.0 )
         {
-            const double ms = qMax( d_data->time.elapsed(), 1 );
-
-            d_data->speed = ( d_data->exactValue - exactPrevValue ) / ms;
-            d_data->time.start();
+            const double ms = d_data->time.restart();
+            d_data->speed = ( d_data->exactValue - exactPrevValue ) / qMax( ms, 1.0 );
         }
 
         if ( changed )
@@ -321,7 +320,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
             {
                 const int ms = d_data->time.elapsed();
                 if ( ( qFabs( d_data->speed ) >  0.0 ) && ( ms < 50 ) )
-                    d_data->timerId = startTimer( d_data->updateInterval );
+                    d_data->flyingTimerId = startTimer( d_data->updateInterval );
             }
             else
             {
@@ -334,26 +333,11 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
 
             break;
         }
-        case ScrDirect:
-        {
-			const bool changed = setNewValue( getValue( event->pos() ) - d_data->mouseOffset );
-
-			if ( changed )
-			{   
-				valueChange();
-				Q_EMIT valueChanged( d_data->value );
-			}   
-
-            d_data->direction = 0;
-            d_data->mouseOffset = 0;
-            d_data->scrollMode = ScrNone;
-
-            break;
-        }
         case ScrPage:
         case ScrTimer:
         {
-            stopMoving();
+			killTimer( d_data->repeatTimerId );
+			d_data->repeatTimerId = 0;
 
             if ( !d_data->timerTick )
 			{
@@ -408,6 +392,8 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *e )
     getScrollMode( e->pos(), mode, direction );
     if ( mode != QwtAbstractSlider::ScrNone )
     {
+		stopFlying();
+
         // Most mouse types work in steps of 15 degrees, in which case
         // the delta value is a multiple of 120
 
@@ -451,31 +437,53 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
     if ( !d_data->isValid )
         return;
 
-    int increment = 0;
+	const double stepSize = qAbs( d_data->singleStep );
+	double value = d_data->value;
+
     switch ( e->key() )
     {
         case Qt::Key_Down:
 		{
             if ( orientation() == Qt::Vertical )
-                increment = -1;
+                value -= stepSize;
             break;
 		}
         case Qt::Key_Up:
 		{
             if ( orientation() == Qt::Vertical )
-                increment = 1;
+                value += stepSize;
             break;
 		}
         case Qt::Key_Left:
 		{
             if ( orientation() == Qt::Horizontal )
-                increment = -1;
+                value -= stepSize;
             break;
 		}
         case Qt::Key_Right:
 		{
             if ( orientation() == Qt::Horizontal )
-                increment = 1;
+                value += stepSize;
+            break;
+		}
+        case Qt::Key_PageUp:
+		{
+			value += d_data->pageSize * stepSize;
+            break;
+		}
+        case Qt::Key_PageDown:
+		{
+			value -= d_data->pageSize * stepSize;
+            break;
+		}
+        case Qt::Key_Home:
+		{
+			value = d_data->minimum;
+            break;
+		}
+        case Qt::Key_End:
+		{
+			value = d_data->maximum;
             break;
 		}
         default:;
@@ -484,10 +492,11 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
 		}
     }
 
-    if ( increment != 0 )
+    if ( value != d_data->value )
     {
-		const double stepSize = qAbs( d_data->singleStep );
-        const bool changed = setNewValue( d_data->value + double( increment ) * stepSize );
+		stopFlying();
+
+        const bool changed = setNewValue( value );
 
 		if ( changed )
 		{   
@@ -505,80 +514,78 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
    Qt timer event
    \param e Timer event
 */
-void QwtAbstractSlider::timerEvent( QTimerEvent * )
+void QwtAbstractSlider::timerEvent( QTimerEvent *event )
 {
-	if ( !d_data->isValid )
-		return;
-
-    switch ( d_data->scrollMode )
+	if ( event->timerId() == d_data->flyingTimerId )
     {
-        case ScrMouse:
-        {
-            if ( d_data->mass > 0.0 )
-            {
-				const double intv = d_data->updateInterval;
+		if ( !d_data->isValid || d_data->mass <= 0.0 )
+		{
+			killTimer( d_data->flyingTimerId );
+			d_data->flyingTimerId = 0;
+			return;
+		}
 
-                d_data->speed *= qExp( -intv * 0.001 / d_data->mass );
-                const bool changed = setNewValue( d_data->exactValue + d_data->speed * intv );
+		const double intv = d_data->updateInterval;
 
-				if ( changed )
-				{   
-					valueChange();
+		d_data->speed *= qExp( -intv * 0.001 / d_data->mass );
+		const bool changed = setNewValue( d_data->exactValue + d_data->speed * intv );
 
-					if ( d_data->tracking )
-						Q_EMIT valueChanged( d_data->value );
-				}   
+		if ( changed )
+		{   
+			valueChange();
 
-                // stop if d_data->speed < one step per second
-                if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
-                {
-                    d_data->speed = 0;
-                    stopMoving();
+			if ( d_data->tracking )
+				Q_EMIT valueChanged( d_data->value );
+		}   
 
-    				if ( ( !d_data->tracking ) || changed )
-       					Q_EMIT valueChanged( d_data->value );
-                }
-            }
-            else
-            {
-                stopMoving();
-            }
-            break;
-        }
-        case ScrPage:
-        case ScrTimer:
-        {
-			d_data->prevValue = d_data->value;
+		// stop if d_data->speed < one step per second
+		if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
+		{
+			d_data->speed = 0.0;
 
-			double off = d_data->direction * qAbs( d_data->singleStep );
-			if ( d_data->scrollMode == ScrPage )
-				off *= d_data->pageSize;
+        	killTimer( d_data->flyingTimerId );
+        	d_data->flyingTimerId = 0;
 
-			const bool changed = setNewValue( d_data->value + off );
+			if ( ( !d_data->tracking ) || changed )
+				Q_EMIT valueChanged( d_data->value );
+		}
+	}
+	else if ( event->timerId() == d_data->repeatTimerId )
+	{
+		if ( !d_data->isValid )
+		{
+			killTimer( d_data->repeatTimerId );
+			d_data->repeatTimerId = 0;
+			return;
+		}
 
-			if ( changed )
-			{   
-				valueChange();
+		d_data->prevValue = d_data->value;
 
-				if ( d_data->tracking )
-					Q_EMIT valueChanged( d_data->value );
-			}   
+		double off = d_data->direction * qAbs( d_data->singleStep );
+		if ( d_data->scrollMode == ScrPage )
+			off *= d_data->pageSize;
 
-            if ( !d_data->timerTick )
-            {
-                killTimer( d_data->timerId );
-                d_data->timerId = startTimer( d_data->updateInterval );
-            }
-            break;
-        }
-        default:
-        {
-            stopMoving();
-            break;
-        }
+		const bool changed = setNewValue( d_data->value + off );
+
+		if ( changed )
+		{   
+			valueChange();
+
+			if ( d_data->tracking )
+				Q_EMIT valueChanged( d_data->value );
+		}   
+
+		if ( !d_data->timerTick )
+		{
+			// restart the timer with a shorter interval
+			killTimer( d_data->repeatTimerId );
+			d_data->repeatTimerId = startTimer( d_data->updateInterval );
+
+    		d_data->timerTick = true;
+		}
     }
 
-    d_data->timerTick = true;
+	QWidget::timerEvent( event );
 }
 
 /*!
@@ -821,8 +828,7 @@ double QwtAbstractSlider::mass() const
 */
 void QwtAbstractSlider::setValue( double value )
 {
-    if ( d_data->scrollMode == ScrMouse )
-        stopMoving();
+    stopFlying();
 
     const double vmin = qMin( d_data->minimum, d_data->maximum );
     const double vmax = qMax( d_data->minimum, d_data->maximum );
@@ -887,12 +893,12 @@ int QwtAbstractSlider::scrollMode() const
     return d_data->scrollMode;
 }
 
-void QwtAbstractSlider::stopMoving()
+void QwtAbstractSlider::stopFlying()
 {
-    if ( d_data->timerId != 0 )
+    if ( d_data->flyingTimerId != 0 )
     {
-        killTimer( d_data->timerId );
-        d_data->timerId = 0;
+        killTimer( d_data->flyingTimerId );
+        d_data->flyingTimerId = 0;
     }
 }
 
