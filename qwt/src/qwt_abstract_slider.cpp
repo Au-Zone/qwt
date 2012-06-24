@@ -99,6 +99,8 @@ void QwtAbstractSlider::setValid( bool isValid )
     {
         d_data->isValid = isValid;
         valueChange();
+
+      	Q_EMIT valueChanged( d_data->value );
     }   
 }   
 
@@ -154,15 +156,30 @@ Qt::Orientation QwtAbstractSlider::orientation() const
     return d_data->orientation;
 }
 
-//! Stop updating if automatic scrolling is active
+/*!
+  \brief Enables or disables tracking.
 
-void QwtAbstractSlider::stopMoving()
+  If tracking is enabled, the slider emits the valueChanged() 
+  signal while the slider is being dragged. If tracking is disabled, the 
+  slider emits the valueChanged() signal only when the user releases the slider.
+
+  Tracking is enabled by default.
+  \param enable \c true (enable) or \c false (disable) tracking.
+
+  \sa isTracking()
+*/
+void QwtAbstractSlider::setTracking( bool enable )
 {
-    if ( d_data->timerId != 0 )
-    {
-        killTimer( d_data->timerId );
-        d_data->timerId = 0;
-    }
+    d_data->tracking = enable;
+}
+
+/*!
+  \return True, when tracking has been enabled
+  \sa setTracking()
+*/
+bool QwtAbstractSlider::isTracking() const
+{
+    return d_data->tracking;
 }
 
 /*!
@@ -189,7 +206,8 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
         event->ignore();
         return;
     }
-    if ( !isValid() )
+
+    if ( !d_data->isValid )
         return;
 
     d_data->timerTick = false;
@@ -214,12 +232,56 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
             Q_EMIT sliderPressed();
             break;
 		}
-        default:
+        ScrDirect:
+        ScrNone:
 		{
             d_data->mouseOffset = 0;
             d_data->direction = 0;
             break;
 		}
+    }
+}
+
+/*!
+   Mouse Move Event handler
+   \param e Mouse event
+*/
+void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
+{
+    if ( isReadOnly() )
+    {
+        e->ignore();
+        return;
+    }
+
+    if ( !d_data->isValid )
+        return;
+
+    if ( d_data->scrollMode == ScrMouse )
+    {
+		const double exactPrevValue = d_data->exactValue;
+
+		const bool changed = 
+			setNewValue( getValue( e->pos() ) - d_data->mouseOffset );
+
+    	if ( changed )
+		{
+			valueChange();
+
+			if ( d_data->tracking )
+				Q_EMIT valueChanged( d_data->value );
+		}
+
+        if ( d_data->mass > 0.0 )
+        {
+            const double ms = qMax( d_data->time.elapsed(), 1 );
+
+            d_data->speed = ( d_data->exactValue - exactPrevValue ) / ms;
+            d_data->time.start();
+        }
+
+        if ( changed )
+            Q_EMIT sliderMoved( d_data->value );
     }
 }
 
@@ -235,14 +297,22 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
         return;
     }
 
-    if ( !isValid() )
+    if ( !d_data->isValid )
         return;
 
     switch ( d_data->scrollMode )
     {
         case ScrMouse:
         {
-			setNewValue( getValue( event->pos() ) - d_data->mouseOffset );
+			const bool changed = setNewValue( getValue( event->pos() ) - d_data->mouseOffset );
+
+    		if ( changed )
+			{   
+				valueChange();
+
+				if ( d_data->tracking )
+					Q_EMIT valueChanged( d_data->value );
+			}   
 
             d_data->direction = 0;
             d_data->mouseOffset = 0;
@@ -256,7 +326,7 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
             else
             {
                 d_data->scrollMode = ScrNone;
-    			if ( ( !d_data->tracking ) || ( d_data->value != d_data->prevValue ) )
+    			if ( ( !d_data->tracking ) || changed )
         			Q_EMIT valueChanged( d_data->value );
 
             }
@@ -266,14 +336,17 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
         }
         case ScrDirect:
         {
-			setNewValue( getValue( event->pos() ) - d_data->mouseOffset );
+			const bool changed = setNewValue( getValue( event->pos() ) - d_data->mouseOffset );
+
+			if ( changed )
+			{   
+				valueChange();
+				Q_EMIT valueChanged( d_data->value );
+			}   
 
             d_data->direction = 0;
             d_data->mouseOffset = 0;
             d_data->scrollMode = ScrNone;
-
-    		if ( ( !d_data->tracking ) || ( d_data->value != d_data->prevValue ) )
-       			Q_EMIT valueChanged( d_data->value );
 
             break;
         }
@@ -288,7 +361,14 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
 				if ( d_data->scrollMode == ScrPage )
 					off *= d_data->pageSize;
 
-               	setNewValue( d_data->value + off );
+               	const bool changed = setNewValue( d_data->value + off );
+				if ( changed )
+				{   
+					valueChange();
+
+					if ( d_data->tracking )
+						Q_EMIT valueChanged( d_data->value );
+				}   
 			}
 
             d_data->timerTick = false;
@@ -299,77 +379,10 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
 
             break;
         }
-        default:
+        case ScrNone:
         {
-            d_data->scrollMode = ScrNone;
-
-    		if ( ( !d_data->tracking ) || ( d_data->value != d_data->prevValue ) )
-       			Q_EMIT valueChanged( d_data->value );
+			break;
         }
-    }
-}
-
-/*!
-  \brief Enables or disables tracking.
-
-  If tracking is enabled, the slider emits a
-  valueChanged() signal whenever its value
-  changes (the default behaviour). If tracking
-  is disabled, the value changed() signal will only
-  be emitted if:<ul>
-  <li>the user releases the mouse
-      button and the value has changed or
-  <li>at the end of automatic scrolling.</ul>
-  Tracking is enabled by default.
-  \param enable \c true (enable) or \c false (disable) tracking.
-
-  \sa isTracking()
-*/
-void QwtAbstractSlider::setTracking( bool enable )
-{
-    d_data->tracking = enable;
-}
-
-/*!
-  \return True, when tracking has been enabled
-  \sa setTracking()
-*/
-bool QwtAbstractSlider::isTracking() const
-{
-    return d_data->tracking;
-}
-
-/*!
-   Mouse Move Event handler
-   \param e Mouse event
-*/
-void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
-{
-    if ( isReadOnly() )
-    {
-        e->ignore();
-        return;
-    }
-
-    if ( !isValid() )
-        return;
-
-    if ( d_data->scrollMode == ScrMouse )
-    {
-		const double exactPrevValue = d_data->exactValue;
-
-		setNewValue( getValue( e->pos() ) - d_data->mouseOffset );
-
-        if ( d_data->mass > 0.0 )
-        {
-            const double ms = qMax( d_data->time.elapsed(), 1 );
-
-            d_data->speed = ( d_data->exactValue - exactPrevValue ) / ms;
-            d_data->time.start();
-        }
-
-        if ( d_data->value != d_data->prevValue )
-            Q_EMIT sliderMoved( d_data->value );
     }
 }
 
@@ -385,7 +398,7 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *e )
         return;
     }
 
-    if ( !isValid() )
+    if ( !d_data->isValid )
         return;
 
     QwtAbstractSlider::ScrollMode mode = ScrNone; 
@@ -402,10 +415,17 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *e )
 
         const double stepSize = qAbs( d_data->singleStep );
         const double off = stepSize * d_data->pageSize * numPages;
-        setNewValue( d_data->value + off );
+        const bool changed = setNewValue( d_data->value + off );
 
-        if ( d_data->value != d_data->prevValue )
+		if ( changed )
+		{   
+			valueChange();
+
+			if ( d_data->tracking )
+				Q_EMIT valueChanged( d_data->value );
+
             Q_EMIT sliderMoved( d_data->value );
+		}   
     }
 }
 
@@ -428,7 +448,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
         return;
     }
 
-    if ( !isValid() )
+    if ( !d_data->isValid )
         return;
 
     int increment = 0;
@@ -467,10 +487,17 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
     if ( increment != 0 )
     {
 		const double stepSize = qAbs( d_data->singleStep );
-        setNewValue( d_data->value + double( increment ) * stepSize );
+        const bool changed = setNewValue( d_data->value + double( increment ) * stepSize );
 
-        if ( d_data->value != d_data->prevValue )
+		if ( changed )
+		{   
+			valueChange();
+
+			if ( d_data->tracking )
+				Q_EMIT valueChanged( d_data->value );
+
             Q_EMIT sliderMoved( d_data->value );
+		}   
     }
 }
 
@@ -480,6 +507,9 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
 */
 void QwtAbstractSlider::timerEvent( QTimerEvent * )
 {
+	if ( !d_data->isValid )
+		return;
+
     switch ( d_data->scrollMode )
     {
         case ScrMouse:
@@ -489,7 +519,15 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
 				const double intv = d_data->updateInterval;
 
                 d_data->speed *= qExp( -intv * 0.001 / d_data->mass );
-                setNewValue( d_data->exactValue + d_data->speed * intv );
+                const bool changed = setNewValue( d_data->exactValue + d_data->speed * intv );
+
+				if ( changed )
+				{   
+					valueChange();
+
+					if ( d_data->tracking )
+						Q_EMIT valueChanged( d_data->value );
+				}   
 
                 // stop if d_data->speed < one step per second
                 if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
@@ -497,7 +535,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
                     d_data->speed = 0;
                     stopMoving();
 
-    				if ( ( !d_data->tracking ) || ( d_data->value != d_data->prevValue ) )
+    				if ( ( !d_data->tracking ) || changed )
        					Q_EMIT valueChanged( d_data->value );
                 }
             }
@@ -510,14 +548,21 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
         case ScrPage:
         case ScrTimer:
         {
-    		if ( isValid() )
-			{
-				double off = d_data->direction * qAbs( d_data->singleStep );
-				if ( d_data->scrollMode == ScrPage )
-					off *= d_data->pageSize;
+			d_data->prevValue = d_data->value;
 
-				setNewValue( d_data->value + off );
-			}
+			double off = d_data->direction * qAbs( d_data->singleStep );
+			if ( d_data->scrollMode == ScrPage )
+				off *= d_data->pageSize;
+
+			const bool changed = setNewValue( d_data->value + off );
+
+			if ( changed )
+			{   
+				valueChange();
+
+				if ( d_data->tracking )
+					Q_EMIT valueChanged( d_data->value );
+			}   
 
             if ( !d_data->timerTick )
             {
@@ -546,8 +591,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent * )
 */
 void QwtAbstractSlider::valueChange()
 {
-    if ( d_data->tracking )
-        Q_EMIT valueChanged( d_data->value );
+	update();
 }
 
 /*!
@@ -584,19 +628,20 @@ void QwtAbstractSlider::setRange( double minimum, double maximum )
     
     const double value = qBound( vmin, value, vmax );
 
-	if ( value != d_data->value )
-	{
-    	d_data->prevValue = d_data->value;
-    	d_data->value = value;
+	const bool changed = value != d_data->value;
 
+	if ( changed )
+	{
+    	d_data->value = value;
     	d_data->exactValue = value;
 	}
     
     rangeChange();
 
-    if ( d_data->isValid || d_data->prevValue != d_data->value )
+    if ( d_data->isValid || changed )
     {
         valueChange();
+        Q_EMIT valueChanged( d_data->value );
     }   
 }
 
@@ -784,15 +829,16 @@ void QwtAbstractSlider::setValue( double value )
     
 	value = qBound( vmin, value, vmax );
 
-    d_data->prevValue = d_data->value;
+	const bool changed = ( d_data->value != value ) || !isValid;
+
     d_data->value = value;
-
     d_data->exactValue = value;
+    d_data->isValid = true;
 
-    if ( !d_data->isValid || d_data->prevValue != d_data->value )
+    if ( changed )
     {
-        d_data->isValid = true;
         valueChange();
+        Q_EMIT valueChanged( d_data->value );
     }
 }
 
@@ -804,10 +850,18 @@ void QwtAbstractSlider::setValue( double value )
 */
 void QwtAbstractSlider::incValue( int nSteps )
 {
-    if ( isValid() )
+    if ( d_data->isValid )
 	{
 		const double stepSize = qAbs( d_data->singleStep );
-        setNewValue( d_data->value + double( nSteps ) * stepSize );
+        const bool changed = setNewValue( d_data->value + double( nSteps ) * stepSize );
+
+		if ( changed )
+		{   
+			valueChange();
+
+			if ( d_data->tracking )
+				Q_EMIT valueChanged( d_data->value );
+		}   
 	}
 }
 
@@ -833,7 +887,16 @@ int QwtAbstractSlider::scrollMode() const
     return d_data->scrollMode;
 }
 
-void QwtAbstractSlider::setNewValue( double value )
+void QwtAbstractSlider::stopMoving()
+{
+    if ( d_data->timerId != 0 )
+    {
+        killTimer( d_data->timerId );
+        d_data->timerId = 0;
+    }
+}
+
+bool QwtAbstractSlider::setNewValue( double value )
 {
     const double vmin = qMin( d_data->minimum, d_data->maximum );
     const double vmax = qMax( d_data->minimum, d_data->maximum );
@@ -856,7 +919,8 @@ void QwtAbstractSlider::setNewValue( double value )
 		value = qBound( vmin, value, vmax );
 	}
 
-    d_data->prevValue = d_data->value;
+    const double previousValue = d_data->value;
+
 	d_data->value = value;
     d_data->exactValue = d_data->value;
 
@@ -879,10 +943,5 @@ void QwtAbstractSlider::setNewValue( double value )
 	if ( qFabs( d_data->value ) < minEps * qAbs( d_data->singleStep ) )
 		d_data->value = 0.0;
 
-    if ( !d_data->isValid || d_data->prevValue != d_data->value )
-    {
-        d_data->isValid = true;
-        valueChange();
-    }
+	return previousValue != d_data->value;
 }
-

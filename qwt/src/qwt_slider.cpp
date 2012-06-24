@@ -711,8 +711,6 @@ void QwtSlider::valueChange()
     {
         Q_EMIT scaleValueChanged( scaleValue() );
     }
-
-    update();
 }
 
 double QwtSlider::scaleValue() const

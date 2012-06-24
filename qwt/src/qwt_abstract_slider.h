@@ -187,7 +187,7 @@ protected:
     virtual void rangeChange();
 
 private:
-    void setNewValue( double value );
+    bool setNewValue( double value );
     void stopMoving();
 
     class PrivateData;

@@ -877,13 +877,6 @@ void QwtDial::setScaleArc( double minArc, double maxArc )
     update();
 }
 
-//! QwtAbstractSlider update hook
-void QwtDial::valueChange()
-{
-    update();
-    QwtAbstractSlider::valueChange();
-}
-
 /*!
   \return Size hint
 */

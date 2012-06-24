@@ -195,7 +195,6 @@ protected:
     void updateScale();
 
     virtual void rangeChange();
-    virtual void valueChange();
 
     virtual double getValue( const QPoint & );
     virtual void getScrollMode( const QPoint &,
