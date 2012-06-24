@@ -232,8 +232,8 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
             Q_EMIT sliderPressed();
             break;
 		}
-        ScrDirect:
-        ScrNone:
+        case ScrDirect:
+        case ScrNone:
 		{
             d_data->mouseOffset = 0;
             d_data->direction = 0;
@@ -829,7 +829,7 @@ void QwtAbstractSlider::setValue( double value )
     
 	value = qBound( vmin, value, vmax );
 
-	const bool changed = ( d_data->value != value ) || !isValid;
+	const bool changed = ( d_data->value != value ) || !d_data->isValid;
 
     d_data->value = value;
     d_data->exactValue = value;
