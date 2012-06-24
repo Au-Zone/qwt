@@ -209,7 +209,6 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 void QwtKnob::valueChange()
 {
     recalcAngle();
-    update();
     QwtAbstractSlider::valueChange();
 }
 

@@ -71,8 +71,6 @@ protected:
     virtual void drawTicks( QPainter *, const QRectF & );
     virtual void drawWheelBackground( QPainter *, const QRectF & );
 
-    virtual void valueChange();
-
     virtual double getValue( const QPoint & );
     virtual void getScrollMode( const QPoint &,
         QwtAbstractSlider::ScrollMode &, int &direction ) const;

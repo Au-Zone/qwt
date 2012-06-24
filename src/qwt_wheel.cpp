@@ -452,13 +452,6 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
     }
 }
 
-//! Notify value change
-void QwtWheel::valueChange()
-{
-    QwtAbstractSlider::valueChange();
-    update();
-}
-
 /*!
   \brief Determine the scrolling mode and direction corresponding
          to a specified point
