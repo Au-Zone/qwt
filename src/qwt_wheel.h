@@ -66,7 +66,6 @@ public:
 
 protected:
     virtual void paintEvent( QPaintEvent * );
-    virtual void resizeEvent( QResizeEvent * );
 
     virtual void drawTicks( QPainter *, const QRectF & );
     virtual void drawWheelBackground( QPainter *, const QRectF & );
