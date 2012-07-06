@@ -43,7 +43,8 @@ public:
         maxMajIntv( 36 ),
         maxMinIntv( 10 ),
         scaleStep( 0.0 ),
-        needle( 0 )
+        needle( 0 ),
+		previousDir( -1.0 )
     {
     }
 
@@ -69,10 +70,8 @@ public:
 
     QwtDialNeedle *needle;
 
-    static double previousDir;
+    double previousDir;
 };
-
-double QwtDial::PrivateData::previousDir = -1.0;
 
 /*!
   Constructor
@@ -911,38 +910,18 @@ QSize QwtDial::minimumSizeHint() const
     return QSize( d, d );
 }
 
-static double line2Radians( const QPointF &p1, const QPointF &p2 )
-{
-    const QPointF p = p2 - p1;
-
-    double angle;
-    if ( p.x() == 0.0 )
-    {
-        angle = ( p.y() <= 0.0 ) ? M_PI_2 : 3 * M_PI_2;
-    }
-    else
-    {
-        angle = qAtan( double( -p.y() ) / double( p.x() ) );
-        if ( p.x() < 0.0 )
-            angle += M_PI;
-        if ( angle < 0.0 )
-            angle += 2 * M_PI;
-    }
-    return 360.0 - angle * 180.0 / M_PI;
-}
-
 /*!
   Find the value for a given position
 
   \param pos Position
   \return Value
 */
-double QwtDial::getValue( const QPoint &pos )
+double QwtDial::valueAt( const QPoint &pos )
 {
     if ( d_data->maxScaleArc == d_data->minScaleArc || maximum() == minimum() )
         return minimum();
 
-    double dir = line2Radians( innerRect().center(), pos ) - d_data->origin;
+    double dir = 360.0 - QLineF( innerRect().center(), pos ).angle() - d_data->origin;
     if ( dir < 0.0 )
         dir += 360.0;
 
@@ -950,189 +929,105 @@ double QwtDial::getValue( const QPoint &pos )
         dir = 360.0 - dir;
 
     // The position might be in the area that is outside the scale arc.
-    // We need the range of the scale if it was a complete circle.
+    // We need the range of the scale if it were a complete circle.
 
     const double completeCircle = 360.0 / ( d_data->maxScaleArc - d_data->minScaleArc )
         * ( maximum() - minimum() );
 
     double posValue = minimum() + completeCircle * dir / 360.0;
 
-    if ( scrollMode() == ScrMouse )
-    {
-        if ( d_data->previousDir >= 0.0 ) // valid direction
-        {
-            // We have to find out whether the mouse is moving
-            // clock or counter clockwise
+	if ( d_data->previousDir >= 0.0 ) // valid direction
+	{
+		// We have to find out whether the mouse is moving
+		// clock or counter clockwise
 
-            bool clockWise = false;
+		bool clockWise = false;
 
-            const double angle = dir - d_data->previousDir;
-            if ( ( angle >= 0.0 && angle <= 180.0 ) || angle < -180.0 )
-                clockWise = true;
+		const double angle = dir - d_data->previousDir;
+		if ( ( angle >= 0.0 && angle <= 180.0 ) || angle < -180.0 )
+			clockWise = true;
 
-            if ( clockWise )
-            {
-                if ( dir < d_data->previousDir && mouseOffset() > 0.0 )
-                {
-                    // We passed 360 -> 0
-                    setMouseOffset( mouseOffset() - completeCircle );
-                }
+		if ( clockWise )
+		{
+			if ( dir < d_data->previousDir && mouseOffset() > 0.0 )
+			{
+				// We passed 360 -> 0
+				setMouseOffset( mouseOffset() - completeCircle );
+			}
 
-                if ( wrapping() )
-                {
-                    if ( posValue - mouseOffset() > maximum() )
-                    {
-                        // We passed maximum and the value will be set
-                        // to minimum. We have to adjust the mouseOffset.
+			if ( wrapping() )
+			{
+				if ( posValue - mouseOffset() > maximum() )
+				{
+					// We passed maximum and the value will be set
+					// to minimum. We have to adjust the mouseOffset.
 
-                        setMouseOffset( posValue - minimum() );
-                    }
-                }
-                else
-                {
-                    if ( posValue - mouseOffset() > maximum() ||
-                            value() == maximum() )
-                    {
-                        // We fix the value at maximum by adjusting
-                        // the mouse offset.
+					setMouseOffset( posValue - minimum() );
+				}
+			}
+			else
+			{
+				if ( posValue - mouseOffset() > maximum() ||
+						value() == maximum() )
+				{
+					// We fix the value at maximum by adjusting
+					// the mouse offset.
 
-                        setMouseOffset( posValue - maximum() );
-                    }
-                }
-            }
-            else
-            {
-                if ( dir > d_data->previousDir && mouseOffset() < 0.0 )
-                {
-                    // We passed 0 -> 360
-                    setMouseOffset( mouseOffset() + completeCircle );
-                }
+					setMouseOffset( posValue - maximum() );
+				}
+			}
+		}
+		else
+		{
+			if ( dir > d_data->previousDir && mouseOffset() < 0.0 )
+			{
+				// We passed 0 -> 360
+				setMouseOffset( mouseOffset() + completeCircle );
+			}
 
-                if ( wrapping() )
-                {
-                    if ( posValue - mouseOffset() < minimum() )
-                    {
-                        // We passed minimum and the value will be set
-                        // to maximum. We have to adjust the mouseOffset.
+			if ( wrapping() )
+			{
+				if ( posValue - mouseOffset() < minimum() )
+				{
+					// We passed minimum and the value will be set
+					// to maximum. We have to adjust the mouseOffset.
 
-                        setMouseOffset( posValue - maximum() );
-                    }
-                }
-                else
-                {
-                    if ( posValue - mouseOffset() < minimum() ||
-                        value() == minimum() )
-                    {
-                        // We fix the value at minimum by adjusting
-                        // the mouse offset.
+					setMouseOffset( posValue - maximum() );
+				}
+			}
+			else
+			{
+				if ( posValue - mouseOffset() < minimum() ||
+					value() == minimum() )
+				{
+					// We fix the value at minimum by adjusting
+					// the mouse offset.
 
-                        setMouseOffset( posValue - minimum() );
-                    }
-                }
-            }
-        }
-        d_data->previousDir = dir;
-    }
+					setMouseOffset( posValue - minimum() );
+				}
+			}
+		}
+	}
+	d_data->previousDir = dir;
 
     return posValue;
 }
 
-/*!
-  See QwtAbstractSlider::getScrollMode()
-
-  \param pos point where the mouse was pressed
-  \retval scrollMode The scrolling mode
-  \retval direction  direction: 1, 0, or -1.
-
-  \sa QwtAbstractSlider::getScrollMode()
-*/
-void QwtDial::getScrollMode( const QPoint &pos, 
-    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
+bool QwtDial::isScrollPosition( const QPoint &pos ) const
 {
-    direction = 0;
-    scrollMode = QwtAbstractSlider::ScrNone;
-
     const QRegion region( innerRect().toRect(), QRegion::Ellipse );
-    if ( region.contains( pos ) && pos != innerRect().center() )
-    {
-        scrollMode = QwtAbstractSlider::ScrMouse;
-        d_data->previousDir = -1.0;
-    }
+    return region.contains( pos ) && ( pos != innerRect().center() );
 }
 
-/*!
-  Handles key events
-
-  - Key_Down, KeyLeft\n
-    Decrement by 1
-  - Key_Prior\n
-    Decrement by pageSize()
-  - Key_Home\n
-    Set the value to minimum()
-
-  - Key_Up, KeyRight\n
-    Increment by 1
-  - Key_Next\n
-    Increment by pageSize()
-  - Key_End\n
-    Set the value to maximum()
-
-  \param event Key event
-  \sa isReadOnly()
-*/
-void QwtDial::keyPressEvent( QKeyEvent *event )
+void QwtDial::mousePressEvent( QMouseEvent *event )
 {
-    if ( isReadOnly() )
-    {
-        event->ignore();
-        return;
-    }
+	d_data->previousDir = -1.0;
+	QwtAbstractSlider::mousePressEvent( event );
+}
 
-    if ( !isValid() )
-        return;
-
-    const double previousValue = value();
-
-    switch ( event->key() )
-    {
-        case Qt::Key_Down:
-        case Qt::Key_Left:
-        {
-            incValue( -1 );
-            break;
-        }
-        case Qt::Key_PageUp:
-        {
-            incValue( -pageSize() );
-            break;
-        }
-        case Qt::Key_Home:
-        {
-            setValue( minimum() );
-            break;
-        }
-        case Qt::Key_Up:
-        case Qt::Key_Right:
-        {
-            incValue( 1 );
-            break;
-        }
-        case Qt::Key_PageDown:
-        {
-            incValue( pageSize() );
-            break;
-        }
-        case Qt::Key_End:
-        {
-            setValue( maximum() );
-            break;
-        }
-        default:;
-        {
-            event->ignore();
-        }
-    }
-
-    if ( value() != previousValue )
-        Q_EMIT sliderMoved( value() );
+void QwtDial::wheelEvent( QWheelEvent *event )
+{
+	const QRegion region( innerRect().toRect(), QRegion::Ellipse );
+	if ( region.contains( event->pos() ) )
+		QwtAbstractSlider::wheelEvent( event );
 }

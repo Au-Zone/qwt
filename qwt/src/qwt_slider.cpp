@@ -23,6 +23,20 @@
 class QwtSlider::PrivateData
 {
 public:
+#if 1
+	PrivateData():
+		repeatTimerId( 0 ),
+		prevValue( 0.0 ),
+		direction( 0 )
+	{
+	}
+
+	int repeatTimerId;
+	double prevValue;
+	int direction;
+	bool timerTick;
+#endif
+
     QRect sliderRect;
 
     QSize handleSize;
@@ -507,7 +521,7 @@ int QwtSlider::transform( double value ) const
    Determine the value corresponding to a specified mouse location.
    \param pos Mouse position
 */
-double QwtSlider::getValue( const QPoint &pos )
+double QwtSlider::valueAt( const QPoint &pos )
 {
     return d_data->map.invTransform(
         orientation() == Qt::Horizontal ? pos.x() : pos.y() );
@@ -519,32 +533,140 @@ double QwtSlider::getValue( const QPoint &pos )
   \param scrollMode Scrolling mode
   \param direction Direction
 */
-void QwtSlider::getScrollMode( const QPoint &p,
-    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
+bool QwtSlider::isScrollPosition( const QPoint &p ) const
 {
-    if ( !d_data->sliderRect.contains( p ) )
+    if ( d_data->sliderRect.contains( p ) )
+	{
+    	const int pos = ( orientation() == Qt::Horizontal ) ? p.x() : p.y();
+    	const int markerPos = transform( value() );
+
+    	if ( ( pos > markerPos - d_data->handleSize.width() / 2 )
+        	&& ( pos < markerPos + d_data->handleSize.width() / 2 ) )
+    	{
+        	return true;
+    	}
+	}
+
+	return false;
+}
+
+void QwtSlider::mousePressEvent( QMouseEvent *event )
+{
+    if ( isReadOnly() )
     {
-        scrollMode = QwtAbstractSlider::ScrNone;
-        direction = 0;
+        event->ignore();
         return;
     }
 
-    const int pos = ( orientation() == Qt::Horizontal ) ? p.x() : p.y();
-    const int markerPos = transform( value() );
+    if ( !isReadOnly() && isValid() && d_data->sliderRect.contains( event->pos() ) )
+	{
+        const int pos = ( orientation() == Qt::Horizontal ) ? event->pos().x() : event->pos().y();
+        const int markerPos = transform( value() );
 
-    if ( ( pos > markerPos - d_data->handleSize.width() / 2 )
-        && ( pos < markerPos + d_data->handleSize.width() / 2 ) )
+        if ( ( pos < markerPos - d_data->handleSize.width() / 2 )
+            || ( pos > markerPos + d_data->handleSize.width() / 2 ) )
+        {
+    		stopFlying();
+
+    		d_data->direction = ( pos > markerPos ) ? 1 : -1;
+    		if ( scaleDraw()->scaleMap().p1() > scaleDraw()->scaleMap().p2() )
+        		d_data->direction = -d_data->direction;
+
+            d_data->timerTick = false;
+            d_data->repeatTimerId = startTimer( qMax( 250, 2 * updateInterval() ) );
+
+			return;
+		}
+    }
+
+	QwtAbstractSlider::mousePressEvent( event );
+}
+
+void QwtSlider::mouseReleaseEvent( QMouseEvent *event )
+{
+    if ( isReadOnly() )
     {
-        scrollMode = QwtAbstractSlider::ScrMouse;
-        direction = 0;
+        event->ignore();
         return;
     }
 
-    scrollMode = QwtAbstractSlider::ScrPage;
-    direction = ( pos > markerPos ) ? 1 : -1;
+    if ( !isValid() )
+        return;
 
-    if ( scaleDraw()->scaleMap().p1() > scaleDraw()->scaleMap().p2() )
-        direction = -direction;
+	if ( d_data->repeatTimerId > 0 )
+	{
+		killTimer( d_data->repeatTimerId );
+		d_data->repeatTimerId = 0;
+
+		if ( !d_data->timerTick )
+		{
+			double off = qAbs( singleStep() ) * d_data->direction;
+			off *= pageSize();
+
+			const bool changed = setNewValue( value() + off );
+			if ( changed )
+			{
+				valueChange();
+
+				if ( isTracking() )
+					Q_EMIT valueChanged( value() );
+			}
+		}
+
+		d_data->timerTick = false;
+
+		if ( ( !isTracking() ) || ( value() != d_data->prevValue ) )
+			Q_EMIT valueChanged( value() );
+
+		return;
+	}
+
+	QwtAbstractSlider::mouseReleaseEvent( event );
+}
+
+void QwtSlider::timerEvent( QTimerEvent *event )
+{
+    if ( event->timerId() == d_data->repeatTimerId )
+    {
+        if ( !isValid() )
+        {
+            killTimer( d_data->repeatTimerId );
+            d_data->repeatTimerId = 0;
+            return;
+        }
+
+        d_data->prevValue = value();
+
+        double off = d_data->direction * qAbs( singleStep() );
+        off *= pageSize();
+
+        const bool changed = setNewValue( value() + off );
+
+        if ( changed )
+        {
+            valueChange();
+
+            if ( isTracking() )
+                Q_EMIT valueChanged( value() );
+        }
+        if ( !d_data->timerTick )
+        {
+            // restart the timer with a shorter interval
+            killTimer( d_data->repeatTimerId );
+            d_data->repeatTimerId = startTimer( updateInterval() );
+            
+            d_data->timerTick = true;
+        }   
+		return;
+	}
+
+	QwtAbstractSlider::timerEvent( event );
+}
+
+void QwtSlider::wheelEvent( QWheelEvent *event )
+{
+	if ( d_data->sliderRect.contains( event->pos() ) )
+		QwtAbstractSlider::wheelEvent( event );
 }
 
 /*!

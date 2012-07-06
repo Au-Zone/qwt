@@ -127,16 +127,19 @@ Q_SIGNALS:
     void scaleValueChanged( double value );
 
 protected:
-    virtual double getValue( const QPoint &p );
-    virtual void getScrollMode( const QPoint &p,
-        QwtAbstractSlider::ScrollMode &, int &direction ) const;
+    virtual double valueAt( const QPoint & );
+    virtual bool isScrollPosition( const QPoint & ) const;
 
     virtual void drawSlider ( QPainter *, const QRect & ) const;
     virtual void drawHandle( QPainter *, const QRect &, int pos ) const;
 
+	virtual void mousePressEvent( QMouseEvent * );
+	virtual void mouseReleaseEvent( QMouseEvent * );
+    virtual void wheelEvent( QWheelEvent * );
     virtual void resizeEvent( QResizeEvent * );
     virtual void paintEvent ( QPaintEvent * );
     virtual void changeEvent( QEvent * );
+	virtual void timerEvent( QTimerEvent * );
 
     virtual void valueChange();
     virtual void rangeChange();

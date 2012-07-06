@@ -19,7 +19,7 @@
   QwtAbstractSlider is a base class for
   slider widgets. It handles mouse events
   and updates the slider's value accordingly. Derived classes
-  only have to implement the getValue() and
+  only have to implement the valueAt() and
   getScrollMode() members, and should react to a
   valueChange(), which normally requires repainting.
 */
@@ -43,31 +43,6 @@ class QWT_EXPORT QwtAbstractSlider : public QWidget
                 READ orientation WRITE setOrientation )
 
 public:
-    /*!
-      Scroll mode
-      \sa getScrollMode()
-     */
-    enum ScrollMode
-    {
-        //! Scrolling switched off. Don't change the value.
-        ScrNone,
-
-        /*!
-          Change the value while the user keeps the
-          button pressed and moves the mouse.
-         */
-        ScrMouse,
-
-        /*!
-          Automatic scrolling. Increment the value in the specified direction 
-          as long as the user keeps the button pressed.
-         */
-        ScrTimer,
-
-        //! Automatic scrolling. Same as ScrTimer, but increment by page size.
-        ScrPage
-    };
-
     explicit QwtAbstractSlider( Qt::Orientation, QWidget *parent = NULL );
     virtual ~QwtAbstractSlider();
 
@@ -93,7 +68,8 @@ public:
     void setPageSize( int );
     int pageSize() const;
 
-    void setUpdateTime( int t );
+    void setUpdateInterval( int );
+	int updateInterval() const;
 
     void setTracking( bool enable );
     bool isTracking() const;
@@ -142,14 +118,12 @@ Q_SIGNALS:
     void sliderMoved( double value );
 
 protected:
-    virtual void timerEvent( QTimerEvent *e );
-    virtual void mousePressEvent( QMouseEvent *e );
-    virtual void mouseReleaseEvent( QMouseEvent *e );
-    virtual void mouseMoveEvent( QMouseEvent *e );
-    virtual void keyPressEvent( QKeyEvent *e );
-    virtual void wheelEvent( QWheelEvent *e );
-
-    void incValue( int steps );
+    virtual void timerEvent( QTimerEvent * );
+    virtual void mousePressEvent( QMouseEvent * );
+    virtual void mouseReleaseEvent( QMouseEvent * );
+    virtual void mouseMoveEvent( QMouseEvent * );
+    virtual void keyPressEvent( QKeyEvent * );
+    virtual void wheelEvent( QWheelEvent * );
 
     /*!
       \brief Determine the value corresponding to a specified poind
@@ -159,7 +133,7 @@ protected:
       mouse. It has to be implemented by the derived class.
       \param p point
     */
-    virtual double getValue( const QPoint & ) = 0;
+    virtual double valueAt( const QPoint & ) = 0;
 
     /*!
       \brief Determine what to do when the user presses a mouse button.
@@ -171,23 +145,19 @@ protected:
 
       \param pos point where the mouse was pressed
       \retval scrollMode The scrolling mode
-      \retval direction  direction: 1, 0, or -1.
     */
-    virtual void getScrollMode( const QPoint &pos,
-        ScrollMode &scrollMode, int &direction ) const = 0;
+    virtual bool isScrollPosition( const QPoint &pos ) const = 0;
 
     void setMouseOffset( double );
     double mouseOffset() const;
 
-    int scrollMode() const;
-
     virtual void valueChange();
     virtual void rangeChange();
 
-private:
     bool setNewValue( double value );
     void stopFlying();
 
+private:
     class PrivateData;
     PrivateData *d_data;
 };

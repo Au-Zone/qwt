@@ -77,7 +77,7 @@ void QwtKnob::initKnob()
 
     setScaleDraw( new QwtRoundScaleDraw() );
 
-    setUpdateTime( 50 );
+    setUpdateInterval( 50 );
     setTotalAngle( 270.0 );
     recalcAngle();
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
@@ -218,7 +218,7 @@ void QwtKnob::valueChange()
   Called by QwtAbstractSlider
   \param pos point
 */
-double QwtKnob::getValue( const QPoint &pos )
+double QwtKnob::valueAt( const QPoint &pos )
 {
     const double dx = rect().center().x() - pos.x();
     const double dy = rect().center().y() - pos.y();
@@ -248,35 +248,12 @@ double QwtKnob::getValue( const QPoint &pos )
 
   Called by QwtAbstractSlider
   \param pos Point in question
-  \param scrollMode Scrolling mode
-  \param direction Direction
+  \return Scrolling mode
 */
-void QwtKnob::getScrollMode( const QPoint &pos, 
-    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
+bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
-    const double r = 0.5 * d_data->knobRect.width();
-    const double dx = d_data->knobRect.x() + r - pos.x();
-    const double dy = d_data->knobRect.y() + r - pos.y();
-
-    if ( qwtSqr( dx ) + qwtSqr( dy ) <= qwtSqr( r ) ) 
-    {
-        // point is inside the knob
-
-        scrollMode = QwtAbstractSlider::ScrMouse;
-        direction = 0;
-    }
-    else                                // point lies outside
-    {
-        scrollMode = QwtAbstractSlider::ScrTimer;
-
-        double arc = qAtan2( double( -dx ), double( dy ) ) * 180.0 / M_PI;
-        if ( arc < d_data->angle )
-            direction = -1;
-        else if ( arc > d_data->angle )
-            direction = 1;
-        else
-            direction = 0;
-    }
+	Q_UNUSED( pos )
+	return true;
 }
 
 /*!

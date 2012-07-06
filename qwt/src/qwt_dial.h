@@ -164,8 +164,9 @@ public:
     const QwtDialScaleDraw *scaleDraw() const;
 
 protected:
+	virtual void mousePressEvent( QMouseEvent * );
+    virtual void wheelEvent( QWheelEvent * );
     virtual void paintEvent( QPaintEvent * );
-    virtual void keyPressEvent( QKeyEvent * );
 
     virtual void drawFrame( QPainter *p );
     virtual void drawContents( QPainter * ) const;
@@ -196,9 +197,8 @@ protected:
 
     virtual void rangeChange();
 
-    virtual double getValue( const QPoint & );
-    virtual void getScrollMode( const QPoint &,
-        QwtAbstractSlider::ScrollMode &, int &direction ) const;
+    virtual double valueAt( const QPoint & );
+    virtual bool isScrollPosition( const QPoint & ) const;
 
 private:
     void initDial();
