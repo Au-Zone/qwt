@@ -26,6 +26,9 @@ class QWT_EXPORT QwtWheel : public QwtAbstractSlider
 {
     Q_OBJECT
 
+    Q_PROPERTY( Qt::Orientation orientation
+                READ orientation WRITE setOrientation )
+
     Q_PROPERTY( double totalAngle READ totalAngle WRITE setTotalAngle )
     Q_PROPERTY( double viewAngle READ viewAngle WRITE setViewAngle )
     Q_PROPERTY( int tickCnt READ tickCnt WRITE setTickCnt )
@@ -37,12 +40,9 @@ public:
     explicit QwtWheel( QWidget *parent = NULL );
     virtual ~QwtWheel();
 
-public Q_SLOTS:
-    void setTotalAngle ( double );
-    void setViewAngle( double );
-
 public:
-    virtual void setOrientation( Qt::Orientation );
+    void setOrientation( Qt::Orientation );
+    Qt::Orientation orientation() const;
 
     double totalAngle() const;
     double viewAngle() const;
@@ -64,9 +64,14 @@ public:
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
+public Q_SLOTS:
+    void setTotalAngle ( double );
+    void setViewAngle( double );
+
 protected:
     virtual void paintEvent( QPaintEvent * );
     virtual void wheelEvent( QWheelEvent * );
+    virtual void keyPressEvent( QKeyEvent * );
 
     virtual void drawTicks( QPainter *, const QRectF & );
     virtual void drawWheelBackground( QPainter *, const QRectF & );

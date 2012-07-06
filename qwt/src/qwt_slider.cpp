@@ -24,17 +24,17 @@ class QwtSlider::PrivateData
 {
 public:
 #if 1
-	PrivateData():
-		repeatTimerId( 0 ),
-		prevValue( 0.0 ),
-		direction( 0 )
-	{
-	}
+    PrivateData():
+        repeatTimerId( 0 ),
+        prevValue( 0.0 ),
+        direction( 0 )
+    {
+    }
 
-	int repeatTimerId;
-	double prevValue;
-	int direction;
-	bool timerTick;
+    int repeatTimerId;
+    double prevValue;
+    int direction;
+    bool timerTick;
 #endif
 
     QRect sliderRect;
@@ -43,6 +43,7 @@ public:
     int borderWidth;
     int spacing;
 
+    Qt::Orientation orientation;
     QwtSlider::ScalePos scalePos;
     QwtSlider::BackgroundStyles bgStyle;
 
@@ -76,7 +77,7 @@ public:
 QwtSlider::QwtSlider( QWidget *parent,
         Qt::Orientation orientation, ScalePos scalePos, 
         BackgroundStyles bgStyle ):
-    QwtAbstractSlider( orientation, parent )
+    QwtAbstractSlider( parent )
 {
     initSlider( orientation, scalePos, bgStyle );
 }
@@ -95,6 +96,7 @@ void QwtSlider::initSlider( Qt::Orientation orientation,
 
     d_data->borderWidth = 2;
     d_data->spacing = 4;
+    d_data->orientation = orientation;
     d_data->scalePos = scalePos;
     d_data->bgStyle = bgStyle;
 
@@ -161,14 +163,17 @@ QwtSlider::~QwtSlider()
 
   If the new orientation and the old scale position are an invalid combination,
   the scale position will be set to QwtSlider::NoScale.
-  \sa QwtAbstractSlider::orientation()
+
+  \sa orientation()
 */
-void QwtSlider::setOrientation( Qt::Orientation o )
+void QwtSlider::setOrientation( Qt::Orientation orientation )
 {
-    if ( o == orientation() )
+    if ( orientation == d_data->orientation )
         return;
 
-    if ( o == Qt::Horizontal )
+    d_data->orientation = orientation;
+
+    if ( orientation == Qt::Horizontal )
     {
         if ( d_data->scalePos == LeftScale 
             || d_data->scalePos == RightScale )
@@ -176,7 +181,7 @@ void QwtSlider::setOrientation( Qt::Orientation o )
             d_data->scalePos = NoScale;
         }
     }
-    else // if (o == Qt::Vertical)
+    else 
     {
         if ( d_data->scalePos == BottomScale || 
             d_data->scalePos == TopScale )
@@ -194,8 +199,16 @@ void QwtSlider::setOrientation( Qt::Orientation o )
         setAttribute( Qt::WA_WState_OwnSizePolicy, false );
     }
 
-    QwtAbstractSlider::setOrientation( o );
     layoutSlider( true );
+}
+
+/*!
+  \return Orientation
+  \sa setOrientation()
+*/
+Qt::Orientation QwtSlider::orientation() const
+{
+    return d_data->orientation;
 }
 
 /*!
@@ -240,7 +253,7 @@ void QwtSlider::setScalePosition( ScalePos scalePos )
         }
         case RightScale:
         {
-            QwtSlider::setOrientation( Qt::Vertical );
+            setOrientation( Qt::Vertical );
             scaleDraw()->setAlignment( QwtScaleDraw::RightScale );
             break;
         }
@@ -536,18 +549,18 @@ double QwtSlider::valueAt( const QPoint &pos )
 bool QwtSlider::isScrollPosition( const QPoint &p ) const
 {
     if ( d_data->sliderRect.contains( p ) )
-	{
-    	const int pos = ( orientation() == Qt::Horizontal ) ? p.x() : p.y();
-    	const int markerPos = transform( value() );
+    {
+        const int pos = ( orientation() == Qt::Horizontal ) ? p.x() : p.y();
+        const int markerPos = transform( value() );
 
-    	if ( ( pos > markerPos - d_data->handleSize.width() / 2 )
-        	&& ( pos < markerPos + d_data->handleSize.width() / 2 ) )
-    	{
-        	return true;
-    	}
-	}
+        if ( ( pos > markerPos - d_data->handleSize.width() / 2 )
+            && ( pos < markerPos + d_data->handleSize.width() / 2 ) )
+        {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 void QwtSlider::mousePressEvent( QMouseEvent *event )
@@ -559,27 +572,27 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
     }
 
     if ( !isReadOnly() && isValid() && d_data->sliderRect.contains( event->pos() ) )
-	{
+    {
         const int pos = ( orientation() == Qt::Horizontal ) ? event->pos().x() : event->pos().y();
         const int markerPos = transform( value() );
 
         if ( ( pos < markerPos - d_data->handleSize.width() / 2 )
             || ( pos > markerPos + d_data->handleSize.width() / 2 ) )
         {
-    		stopFlying();
+            stopFlying();
 
-    		d_data->direction = ( pos > markerPos ) ? 1 : -1;
-    		if ( scaleDraw()->scaleMap().p1() > scaleDraw()->scaleMap().p2() )
-        		d_data->direction = -d_data->direction;
+            d_data->direction = ( pos > markerPos ) ? 1 : -1;
+            if ( scaleDraw()->scaleMap().p1() > scaleDraw()->scaleMap().p2() )
+                d_data->direction = -d_data->direction;
 
             d_data->timerTick = false;
             d_data->repeatTimerId = startTimer( qMax( 250, 2 * updateInterval() ) );
 
-			return;
-		}
+            return;
+        }
     }
 
-	QwtAbstractSlider::mousePressEvent( event );
+    QwtAbstractSlider::mousePressEvent( event );
 }
 
 void QwtSlider::mouseReleaseEvent( QMouseEvent *event )
@@ -593,35 +606,51 @@ void QwtSlider::mouseReleaseEvent( QMouseEvent *event )
     if ( !isValid() )
         return;
 
-	if ( d_data->repeatTimerId > 0 )
-	{
-		killTimer( d_data->repeatTimerId );
-		d_data->repeatTimerId = 0;
+    if ( d_data->repeatTimerId > 0 )
+    {
+        killTimer( d_data->repeatTimerId );
+        d_data->repeatTimerId = 0;
 
-		if ( !d_data->timerTick )
-		{
-			double off = qAbs( singleStep() ) * d_data->direction;
-			off *= pageSize();
+        if ( !d_data->timerTick )
+        {
+            double off = qAbs( singleStep() ) * d_data->direction;
+            off *= pageSize();
 
-			const bool changed = setNewValue( value() + off );
-			if ( changed )
-			{
-				valueChange();
+            const bool changed = setNewValue( value() + off );
+            if ( changed )
+            {
+                valueChange();
 
-				if ( isTracking() )
-					Q_EMIT valueChanged( value() );
-			}
-		}
+                if ( isTracking() )
+                    Q_EMIT valueChanged( value() );
+            }
+        }
 
-		d_data->timerTick = false;
+        d_data->timerTick = false;
 
-		if ( ( !isTracking() ) || ( value() != d_data->prevValue ) )
-			Q_EMIT valueChanged( value() );
+        if ( ( !isTracking() ) || ( value() != d_data->prevValue ) )
+            Q_EMIT valueChanged( value() );
 
-		return;
-	}
+        return;
+    }
 
-	QwtAbstractSlider::mouseReleaseEvent( event );
+    QwtAbstractSlider::mouseReleaseEvent( event );
+}
+
+void QwtSlider::keyPressEvent( QKeyEvent *event )
+{
+    if ( d_data->orientation == Qt::Vertical )
+    {
+        if ( event->key() == Qt::Key_Left || event->key() == Qt::Key_Right )
+            return;
+    }
+    else
+    {
+        if ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down )
+            return;
+    }
+
+    QwtAbstractSlider::keyPressEvent( event );
 }
 
 void QwtSlider::timerEvent( QTimerEvent *event )
@@ -657,16 +686,16 @@ void QwtSlider::timerEvent( QTimerEvent *event )
             
             d_data->timerTick = true;
         }   
-		return;
-	}
+        return;
+    }
 
-	QwtAbstractSlider::timerEvent( event );
+    QwtAbstractSlider::timerEvent( event );
 }
 
 void QwtSlider::wheelEvent( QWheelEvent *event )
 {
-	if ( d_data->sliderRect.contains( event->pos() ) )
-		QwtAbstractSlider::wheelEvent( event );
+    if ( d_data->sliderRect.contains( event->pos() ) )
+        QwtAbstractSlider::wheelEvent( event );
 }
 
 /*!
@@ -723,7 +752,7 @@ void QwtSlider::changeEvent( QEvent *event )
 void QwtSlider::layoutSlider( bool update_geometry )
 {
     int handleThickness;
-    if ( orientation() == Qt::Horizontal )
+    if ( d_data->orientation == Qt::Horizontal )
         handleThickness = d_data->handleSize.width();
     else
         handleThickness = d_data->handleSize.height();
@@ -755,7 +784,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
     length = x = y = 0;
 
     const QRect cr = contentsRect();
-    if ( orientation() == Qt::Horizontal )
+    if ( d_data->orientation == Qt::Horizontal )
     {
         int sh = d_data->handleSize.height();
         if ( d_data->bgStyle & QwtSlider::Trough )
@@ -900,7 +929,7 @@ QSize QwtSlider::minimumSizeHint() const
     int handleLength = d_data->handleSize.width();
     int handleThickness = d_data->handleSize.height();
 
-    if ( orientation() == Qt::Vertical )
+    if ( d_data->orientation == Qt::Vertical )
         qSwap( handleLength, handleThickness );
 
     int w = minLength; 
@@ -929,7 +958,7 @@ QSize QwtSlider::minimumSizeHint() const
     if ( d_data->bgStyle & QwtSlider::Trough )
         h += 2 * d_data->borderWidth;
 
-    if ( orientation() == Qt::Vertical )
+    if ( d_data->orientation == Qt::Vertical )
         qSwap( w, h );
 
     int left, right, top, bottom;

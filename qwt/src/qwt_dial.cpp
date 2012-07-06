@@ -44,7 +44,7 @@ public:
         maxMinIntv( 10 ),
         scaleStep( 0.0 ),
         needle( 0 ),
-		previousDir( -1.0 )
+        previousDir( -1.0 )
     {
     }
 
@@ -130,7 +130,7 @@ QwtText QwtDialScaleDraw::label( double value ) const
   is QwtDial::RotateNeedle.
 */
 QwtDial::QwtDial( QWidget* parent ):
-    QwtAbstractSlider( Qt::Horizontal, parent )
+    QwtAbstractSlider( parent )
 {
     initDial();
 }
@@ -160,8 +160,8 @@ void QwtDial::initDial()
 
     setScaleArc( 0.0, 360.0 ); // scale as a full circle
     setRange( 0.0, 360.0 ); // degrees as default
-	setSingleStep( 1.0 );
-	setPageSize( 10.0 );
+    setSingleStep( 1.0 );
+    setPageSize( 10.0 );
     setValue( 0.0 );
 }
 
@@ -936,79 +936,79 @@ double QwtDial::valueAt( const QPoint &pos )
 
     double posValue = minimum() + completeCircle * dir / 360.0;
 
-	if ( d_data->previousDir >= 0.0 ) // valid direction
-	{
-		// We have to find out whether the mouse is moving
-		// clock or counter clockwise
+    if ( d_data->previousDir >= 0.0 ) // valid direction
+    {
+        // We have to find out whether the mouse is moving
+        // clock or counter clockwise
 
-		bool clockWise = false;
+        bool clockWise = false;
 
-		const double angle = dir - d_data->previousDir;
-		if ( ( angle >= 0.0 && angle <= 180.0 ) || angle < -180.0 )
-			clockWise = true;
+        const double angle = dir - d_data->previousDir;
+        if ( ( angle >= 0.0 && angle <= 180.0 ) || angle < -180.0 )
+            clockWise = true;
 
-		if ( clockWise )
-		{
-			if ( dir < d_data->previousDir && mouseOffset() > 0.0 )
-			{
-				// We passed 360 -> 0
-				setMouseOffset( mouseOffset() - completeCircle );
-			}
+        if ( clockWise )
+        {
+            if ( dir < d_data->previousDir && mouseOffset() > 0.0 )
+            {
+                // We passed 360 -> 0
+                setMouseOffset( mouseOffset() - completeCircle );
+            }
 
-			if ( wrapping() )
-			{
-				if ( posValue - mouseOffset() > maximum() )
-				{
-					// We passed maximum and the value will be set
-					// to minimum. We have to adjust the mouseOffset.
+            if ( wrapping() )
+            {
+                if ( posValue - mouseOffset() > maximum() )
+                {
+                    // We passed maximum and the value will be set
+                    // to minimum. We have to adjust the mouseOffset.
 
-					setMouseOffset( posValue - minimum() );
-				}
-			}
-			else
-			{
-				if ( posValue - mouseOffset() > maximum() ||
-						value() == maximum() )
-				{
-					// We fix the value at maximum by adjusting
-					// the mouse offset.
+                    setMouseOffset( posValue - minimum() );
+                }
+            }
+            else
+            {
+                if ( posValue - mouseOffset() > maximum() ||
+                        value() == maximum() )
+                {
+                    // We fix the value at maximum by adjusting
+                    // the mouse offset.
 
-					setMouseOffset( posValue - maximum() );
-				}
-			}
-		}
-		else
-		{
-			if ( dir > d_data->previousDir && mouseOffset() < 0.0 )
-			{
-				// We passed 0 -> 360
-				setMouseOffset( mouseOffset() + completeCircle );
-			}
+                    setMouseOffset( posValue - maximum() );
+                }
+            }
+        }
+        else
+        {
+            if ( dir > d_data->previousDir && mouseOffset() < 0.0 )
+            {
+                // We passed 0 -> 360
+                setMouseOffset( mouseOffset() + completeCircle );
+            }
 
-			if ( wrapping() )
-			{
-				if ( posValue - mouseOffset() < minimum() )
-				{
-					// We passed minimum and the value will be set
-					// to maximum. We have to adjust the mouseOffset.
+            if ( wrapping() )
+            {
+                if ( posValue - mouseOffset() < minimum() )
+                {
+                    // We passed minimum and the value will be set
+                    // to maximum. We have to adjust the mouseOffset.
 
-					setMouseOffset( posValue - maximum() );
-				}
-			}
-			else
-			{
-				if ( posValue - mouseOffset() < minimum() ||
-					value() == minimum() )
-				{
-					// We fix the value at minimum by adjusting
-					// the mouse offset.
+                    setMouseOffset( posValue - maximum() );
+                }
+            }
+            else
+            {
+                if ( posValue - mouseOffset() < minimum() ||
+                    value() == minimum() )
+                {
+                    // We fix the value at minimum by adjusting
+                    // the mouse offset.
 
-					setMouseOffset( posValue - minimum() );
-				}
-			}
-		}
-	}
-	d_data->previousDir = dir;
+                    setMouseOffset( posValue - minimum() );
+                }
+            }
+        }
+    }
+    d_data->previousDir = dir;
 
     return posValue;
 }
@@ -1021,13 +1021,13 @@ bool QwtDial::isScrollPosition( const QPoint &pos ) const
 
 void QwtDial::mousePressEvent( QMouseEvent *event )
 {
-	d_data->previousDir = -1.0;
-	QwtAbstractSlider::mousePressEvent( event );
+    d_data->previousDir = -1.0;
+    QwtAbstractSlider::mousePressEvent( event );
 }
 
 void QwtDial::wheelEvent( QWheelEvent *event )
 {
-	const QRegion region( innerRect().toRect(), QRegion::Ellipse );
-	if ( region.contains( event->pos() ) )
-		QwtAbstractSlider::wheelEvent( event );
+    const QRegion region( innerRect().toRect(), QRegion::Ellipse );
+    if ( region.contains( event->pos() ) )
+        QwtAbstractSlider::wheelEvent( event );
 }

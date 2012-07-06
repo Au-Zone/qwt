@@ -48,7 +48,6 @@ public:
     QTime time;
     double speed;
     double mass;
-    Qt::Orientation orientation;
     bool readOnly;
 
     double minimum;
@@ -69,16 +68,12 @@ public:
    The range is initialized to [0.0, 100.0], the
    step size to 1.0, and the value to 0.0.
 
-   \param orientation Orientation
    \param parent Parent widget
 */
-QwtAbstractSlider::QwtAbstractSlider(
-        Qt::Orientation orientation, QWidget *parent ):
+QwtAbstractSlider::QwtAbstractSlider( QWidget *parent ):
     QWidget( parent, NULL )
 {
     d_data = new QwtAbstractSlider::PrivateData;
-    d_data->orientation = orientation;
-
     setFocusPolicy( Qt::StrongFocus );
 }
 
@@ -96,7 +91,7 @@ void QwtAbstractSlider::setValid( bool isValid )
         d_data->isValid = isValid;
         valueChange();
 
-      	Q_EMIT valueChanged( d_data->value );
+        Q_EMIT valueChanged( d_data->value );
     }   
 }   
 
@@ -131,25 +126,6 @@ void QwtAbstractSlider::setReadOnly( bool readOnly )
 bool QwtAbstractSlider::isReadOnly() const
 {
     return d_data->readOnly;
-}
-
-/*!
-  \brief Set the orientation.
-  \param o Orientation. Allowed values are
-           Qt::Horizontal and Qt::Vertical.
-*/
-void QwtAbstractSlider::setOrientation( Qt::Orientation o )
-{
-    d_data->orientation = o;
-}
-
-/*!
-  \return Orientation
-  \sa setOrientation()
-*/
-Qt::Orientation QwtAbstractSlider::orientation() const
-{
-    return d_data->orientation;
 }
 
 /*!
@@ -190,7 +166,7 @@ void QwtAbstractSlider::setUpdateInterval( int interval )
 
 int QwtAbstractSlider::updateInterval() const
 {
-	return d_data->updateInterval;
+    return d_data->updateInterval;
 }
 
 /*!
@@ -214,12 +190,12 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
 
     if ( d_data->isScrolling )
     {
-		d_data->time.start();
-		d_data->speed = 0;
-		d_data->initialScrollOffset = valueAt( event->pos() ) - d_data->value;
+        d_data->time.start();
+        d_data->speed = 0;
+        d_data->initialScrollOffset = valueAt( event->pos() ) - d_data->value;
 
-		Q_EMIT sliderPressed();
-	}
+        Q_EMIT sliderPressed();
+    }
 }
 
 /*!
@@ -239,18 +215,18 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
 
     if ( d_data->isScrolling )
     {
-		const double exactPrevValue = d_data->exactValue;
-		const double newValue = 
-			valueAt( e->pos() ) - d_data->initialScrollOffset;
+        const double exactPrevValue = d_data->exactValue;
+        const double newValue = 
+            valueAt( e->pos() ) - d_data->initialScrollOffset;
 
-		const bool changed = setNewValue( newValue );
-    	if ( changed )
-		{
-			valueChange();
+        const bool changed = setNewValue( newValue );
+        if ( changed )
+        {
+            valueChange();
 
-			if ( d_data->tracking )
-				Q_EMIT valueChanged( d_data->value );
-		}
+            if ( d_data->tracking )
+                Q_EMIT valueChanged( d_data->value );
+        }
 
         if ( d_data->mass > 0.0 )
         {
@@ -280,34 +256,34 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
 
     if ( d_data->isScrolling )
     {
-		const double newValue = 
-			valueAt( event->pos() ) - d_data->initialScrollOffset;
+        const double newValue = 
+            valueAt( event->pos() ) - d_data->initialScrollOffset;
 
-		const bool changed = setNewValue( newValue );
-		if ( changed )
-		{   
-			valueChange();
+        const bool changed = setNewValue( newValue );
+        if ( changed )
+        {   
+            valueChange();
 
-			if ( d_data->tracking )
-				Q_EMIT valueChanged( d_data->value );
-		}   
+            if ( d_data->tracking )
+                Q_EMIT valueChanged( d_data->value );
+        }   
 
-		d_data->initialScrollOffset = 0.0;
+        d_data->initialScrollOffset = 0.0;
 
-		if ( d_data->mass > 0.0 )
-		{
-			const int ms = d_data->time.elapsed();
-			if ( ( qFabs( d_data->speed ) > 0.0 ) && ( ms < 50 ) )
-				d_data->timerId = startTimer( d_data->updateInterval );
-		}
-		else
-		{
-			d_data->isScrolling = false;
-			if ( ( !d_data->tracking ) || changed )
-				Q_EMIT valueChanged( d_data->value );
+        if ( d_data->mass > 0.0 )
+        {
+            const int ms = d_data->time.elapsed();
+            if ( ( qFabs( d_data->speed ) > 0.0 ) && ( ms < 50 ) )
+                d_data->timerId = startTimer( d_data->updateInterval );
+        }
+        else
+        {
+            d_data->isScrolling = false;
+            if ( ( !d_data->tracking ) || changed )
+                Q_EMIT valueChanged( d_data->value );
 
-		}
-		Q_EMIT sliderReleased();
+        }
+        Q_EMIT sliderReleased();
     }
 }
 
@@ -326,24 +302,24 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
     if ( !d_data->isValid )
         return;
 
-	stopFlying();
+    stopFlying();
 
-	const int numPages = event->delta() / 120;
+    const int numPages = event->delta() / 120;
 
-	const double stepSize = qAbs( d_data->singleStep );
-	const double off = stepSize * d_data->pageSize * numPages;
+    const double stepSize = qAbs( d_data->singleStep );
+    const double off = stepSize * d_data->pageSize * numPages;
 
-	const bool changed = setNewValue( d_data->value + off );
+    const bool changed = setNewValue( d_data->value + off );
 
-	if ( changed )
-	{   
-		valueChange();
+    if ( changed )
+    {   
+        valueChange();
 
-		if ( d_data->tracking )
-			Q_EMIT valueChanged( d_data->value );
+        if ( d_data->tracking )
+            Q_EMIT valueChanged( d_data->value );
 
-		Q_EMIT sliderMoved( d_data->value );
-	}   
+        Q_EMIT sliderMoved( d_data->value );
+    }   
 }
 
 /*!
@@ -368,79 +344,67 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
     if ( !d_data->isValid )
         return;
 
-	const double stepSize = qAbs( d_data->singleStep );
-	double value = d_data->value;
+    const double stepSize = qAbs( d_data->singleStep );
+    double value = d_data->value;
 
 #if 1
-	// better use key mapping from QAbstractSlider or QDial
+    // better use key mapping from QAbstractSlider or QDial
     switch ( e->key() )
     {
         case Qt::Key_Down:
-		{
-            if ( orientation() == Qt::Vertical )
-                value -= stepSize;
-            break;
-		}
-        case Qt::Key_Up:
-		{
-            if ( orientation() == Qt::Vertical )
-                value += stepSize;
-            break;
-		}
         case Qt::Key_Left:
-		{
-            if ( orientation() == Qt::Horizontal )
-                value -= stepSize;
+        {
+            value -= stepSize;
             break;
-		}
+        }
+        case Qt::Key_Up:
         case Qt::Key_Right:
-		{
-            if ( orientation() == Qt::Horizontal )
-                value += stepSize;
+        {
+            value += stepSize;
             break;
-		}
+        }
         case Qt::Key_PageUp:
-		{
-			value += d_data->pageSize * stepSize;
+        {
+            value += d_data->pageSize * stepSize;
             break;
-		}
+        }
         case Qt::Key_PageDown:
-		{
-			value -= d_data->pageSize * stepSize;
+        {
+            value -= d_data->pageSize * stepSize;
             break;
-		}
+        }
         case Qt::Key_Home:
-		{
-			value = d_data->minimum;
+        {
+            value = d_data->minimum;
             break;
-		}
+        }
         case Qt::Key_End:
-		{
-			value = d_data->maximum;
+        {
+            value = d_data->maximum;
             break;
-		}
+        }
         default:;
-		{
+        {
             e->ignore();
-		}
+        }
     }
 #endif
 
     if ( value != d_data->value )
     {
-		stopFlying();
+        stopFlying();
 
         const bool changed = setNewValue( value );
 
-		if ( changed )
-		{   
-			valueChange();
+        if ( changed )
+        {   
+            valueChange();
 
-			if ( d_data->tracking )
-				Q_EMIT valueChanged( d_data->value );
+            if ( d_data->tracking )
+                Q_EMIT valueChanged( d_data->value );
 
             Q_EMIT sliderMoved( d_data->value );
-		}   
+        }   
     }
 }
 
@@ -450,44 +414,44 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
 */
 void QwtAbstractSlider::timerEvent( QTimerEvent *event )
 {
-	if ( event->timerId() == d_data->timerId )
+    if ( event->timerId() == d_data->timerId )
     {
-		if ( !d_data->isValid || d_data->mass <= 0.0 )
-		{
-			killTimer( d_data->timerId );
-			d_data->timerId = 0;
-			return;
-		}
+        if ( !d_data->isValid || d_data->mass <= 0.0 )
+        {
+            killTimer( d_data->timerId );
+            d_data->timerId = 0;
+            return;
+        }
 
-		const double intv = d_data->updateInterval;
+        const double intv = d_data->updateInterval;
 
-		d_data->speed *= qExp( -intv * 0.001 / d_data->mass );
-		const bool changed = setNewValue( d_data->exactValue + d_data->speed * intv );
+        d_data->speed *= qExp( -intv * 0.001 / d_data->mass );
+        const bool changed = setNewValue( d_data->exactValue + d_data->speed * intv );
 
-		if ( changed )
-		{   
-			valueChange();
+        if ( changed )
+        {   
+            valueChange();
 
-			if ( d_data->tracking )
-				Q_EMIT valueChanged( d_data->value );
-		}   
+            if ( d_data->tracking )
+                Q_EMIT valueChanged( d_data->value );
+        }   
 
-		// stop if d_data->speed < one step per second
-		if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
-		{
-			d_data->speed = 0.0;
+        // stop if d_data->speed < one step per second
+        if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
+        {
+            d_data->speed = 0.0;
 
-        	killTimer( d_data->timerId );
-        	d_data->timerId = 0;
+            killTimer( d_data->timerId );
+            d_data->timerId = 0;
 
-			if ( ( !d_data->tracking ) || changed )
-				Q_EMIT valueChanged( d_data->value );
-		}
+            if ( ( !d_data->tracking ) || changed )
+                Q_EMIT valueChanged( d_data->value );
+        }
 
-		return;
-	}
+        return;
+    }
 
-	QWidget::timerEvent( event );
+    QWidget::timerEvent( event );
 }
 
 /*!
@@ -500,7 +464,7 @@ void QwtAbstractSlider::timerEvent( QTimerEvent *event )
 */
 void QwtAbstractSlider::valueChange()
 {
-	update();
+    update();
 }
 
 /*!
@@ -527,10 +491,10 @@ void QwtAbstractSlider::rangeChange()
 void QwtAbstractSlider::setRange( double minimum, double maximum )
 {   
     if ( d_data->minimum == minimum && d_data->maximum == maximum )
-		return;
+        return;
     
-	d_data->minimum = minimum;
-	d_data->maximum = maximum;
+    d_data->minimum = minimum;
+    d_data->maximum = maximum;
 
     const double vmin = qMin( d_data->minimum, d_data->maximum );
     const double vmax = qMax( d_data->minimum, d_data->maximum );
@@ -541,13 +505,13 @@ void QwtAbstractSlider::setRange( double minimum, double maximum )
     setSingleStep( singleStep() );
 #endif
 
-	const bool changed = value != d_data->value;
+    const bool changed = value != d_data->value;
 
-	if ( changed )
-	{
-    	d_data->value = value;
-    	d_data->exactValue = value;
-	}
+    if ( changed )
+    {
+        d_data->value = value;
+        d_data->exactValue = value;
+    }
     
     rangeChange();
 
@@ -585,7 +549,7 @@ void QwtAbstractSlider::setSingleStep( double vstep )
             newStep = minRelStep * range;
     }       
     
-	d_data->singleStep = newStep;
+    d_data->singleStep = newStep;
 }   
 
 /*!
@@ -712,7 +676,7 @@ void QwtAbstractSlider::setMass( double mass )
     if ( mass < 0.001 )
         d_data->mass = 0.0;
     else 
-		d_data->mass = qMin( 100.0, mass );
+        d_data->mass = qMin( 100.0, mass );
 }
 
 /*!
@@ -739,9 +703,9 @@ void QwtAbstractSlider::setValue( double value )
     const double vmin = qMin( d_data->minimum, d_data->maximum );
     const double vmax = qMax( d_data->minimum, d_data->maximum );
     
-	value = qBound( vmin, value, vmax );
+    value = qBound( vmin, value, vmax );
 
-	const bool changed = ( d_data->value != value ) || !d_data->isValid;
+    const bool changed = ( d_data->value != value ) || !d_data->isValid;
 
     d_data->value = value;
     d_data->exactValue = value;
@@ -784,51 +748,51 @@ bool QwtAbstractSlider::setNewValue( double value )
     const double vmin = qMin( d_data->minimum, d_data->maximum );
     const double vmax = qMax( d_data->minimum, d_data->maximum );
     
-	if ( d_data->wrapping && vmin != vmax )
-	{
-		const double range = vmax - vmin;
+    if ( d_data->wrapping && vmin != vmax )
+    {
+        const double range = vmax - vmin;
 
-		if ( value < vmin )
-		{
-			value += ::ceil( ( vmin - value ) / range ) * range;
-		}       
-		else if ( value > vmax )
-		{
-			value -= ::ceil( ( value - vmax ) / range ) * range;
-		}
-	}
-	else
-	{
-		value = qBound( vmin, value, vmax );
-	}
+        if ( value < vmin )
+        {
+            value += ::ceil( ( vmin - value ) / range ) * range;
+        }       
+        else if ( value > vmax )
+        {
+            value -= ::ceil( ( value - vmax ) / range ) * range;
+        }
+    }
+    else
+    {
+        value = qBound( vmin, value, vmax );
+    }
 
     d_data->exactValue = value;
 
-	if ( d_data->singleStep != 0.0 )
-	{
-		value = d_data->minimum +
-			qRound( ( value - d_data->minimum ) / d_data->singleStep ) * d_data->singleStep;
+    if ( d_data->singleStep != 0.0 )
+    {
+        value = d_data->minimum +
+            qRound( ( value - d_data->minimum ) / d_data->singleStep ) * d_data->singleStep;
 
-		// correct rounding error at the border
-    	if ( qFuzzyCompare( value, d_data->maximum ) )
-        	value = d_data->maximum;
+        // correct rounding error at the border
+        if ( qFuzzyCompare( value, d_data->maximum ) )
+            value = d_data->maximum;
 
-		// correct rounding error if value = 0
-    	if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-        	value = 0.0;
-	}
-	else
-	{
-		value = d_data->minimum;
-	}
+        // correct rounding error if value = 0
+        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+            value = 0.0;
+    }
+    else
+    {
+        value = d_data->minimum;
+    }
 
-	if ( value != d_data->value )
-	{
-		d_data->value = value;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    if ( value != d_data->value )
+    {
+        d_data->value = value;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

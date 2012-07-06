@@ -39,11 +39,9 @@ class QWT_EXPORT QwtAbstractSlider : public QWidget
     Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
 
     Q_PROPERTY( double mass READ mass WRITE setMass )
-    Q_PROPERTY( Qt::Orientation orientation
-                READ orientation WRITE setOrientation )
 
 public:
-    explicit QwtAbstractSlider( Qt::Orientation, QWidget *parent = NULL );
+    explicit QwtAbstractSlider( QWidget *parent = NULL );
     virtual ~QwtAbstractSlider();
 
     void setValid( bool );
@@ -59,26 +57,23 @@ public:
 
     void setRange( double vmin, double vmax );
 
-	void setMinimum( double min );
+    void setMinimum( double min );
     double minimum() const;
 
-	void setMaximum( double max );
+    void setMaximum( double max );
     double maximum() const;
 
     void setPageSize( int );
     int pageSize() const;
 
     void setUpdateInterval( int );
-	int updateInterval() const;
+    int updateInterval() const;
 
     void setTracking( bool enable );
     bool isTracking() const;
 
     void setMass( double val );
     double mass() const;
-
-    virtual void setOrientation( Qt::Orientation o );
-    Qt::Orientation orientation() const;
 
     void setReadOnly( bool );
     bool isReadOnly() const;

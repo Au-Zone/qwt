@@ -24,16 +24,18 @@
 class QwtWheel::PrivateData
 {
 public:
-    PrivateData()
+    PrivateData():
+        orientation( Qt::Horizontal ),
+        viewAngle( 175.0 ),
+        totalAngle( 360.0 ),
+        tickCnt( 10 ),
+        wheelBorderWidth( 2 ),
+        borderWidth( 2 ),
+        wheelWidth( 20 )
     {
-        viewAngle = 175.0;
-        totalAngle = 360.0;
-        tickCnt = 10;
-        wheelBorderWidth = 2;
-        borderWidth = 2;
-        wheelWidth = 20;
     };
 
+    Qt::Orientation orientation;
     double viewAngle;
     double totalAngle;
     int tickCnt;
@@ -44,7 +46,7 @@ public:
 
 //! Constructor
 QwtWheel::QwtWheel( QWidget *parent ):
-    QwtAbstractSlider( Qt::Horizontal, parent )
+    QwtAbstractSlider( parent )
 {
     d_data = new PrivateData;
 
@@ -184,9 +186,9 @@ double QwtWheel::totalAngle() const
    Defaults to Qt::Horizontal.
   \sa QwtAbstractSlider::orientation()
 */
-void QwtWheel::setOrientation( Qt::Orientation o )
+void QwtWheel::setOrientation( Qt::Orientation orientation )
 {
-    if ( orientation() == o )
+    if ( d_data->orientation == orientation )
         return;
 
     if ( !testAttribute( Qt::WA_WState_OwnSizePolicy ) )
@@ -198,8 +200,17 @@ void QwtWheel::setOrientation( Qt::Orientation o )
         setAttribute( Qt::WA_WState_OwnSizePolicy, false );
     }
 
-    QwtAbstractSlider::setOrientation( o );
+    d_data->orientation = orientation;
     update();
+}
+
+/*!
+  \return Orientation
+  \sa setOrientation()
+*/
+Qt::Orientation QwtWheel::orientation() const
+{
+    return d_data->orientation;
 }
 
 /*!
@@ -235,7 +246,7 @@ double QwtWheel::valueAt( const QPoint &p )
     // The reference position is arbitrary, but the
     // sign of the offset is important
     double w, dx;
-    if ( orientation() == Qt::Vertical )
+    if ( d_data->orientation == Qt::Vertical )
     {
         w = rect.height();
         dx = rect.y() - p.y();
@@ -264,8 +275,24 @@ double QwtWheel::valueAt( const QPoint &p )
 
 void QwtWheel::wheelEvent( QWheelEvent *event )
 {
-	if ( wheelRect().contains( event->pos() ) )
-		QwtAbstractSlider::wheelEvent( event );
+    if ( wheelRect().contains( event->pos() ) )
+        QwtAbstractSlider::wheelEvent( event );
+}
+
+void QwtWheel::keyPressEvent( QKeyEvent *event )
+{
+    if ( d_data->orientation == Qt::Vertical )
+    {
+        if ( event->key() == Qt::Key_Left || event->key() == Qt::Key_Right )
+            return;
+    }
+    else
+    {
+        if ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down )
+            return;
+    }
+
+    QwtAbstractSlider::keyPressEvent( event );
 }
 
 /*! 
@@ -306,7 +333,7 @@ void QwtWheel::drawWheelBackground(
 
     //  draw shaded background
     QLinearGradient gradient( rect.topLeft(), 
-        ( orientation() == Qt::Horizontal ) ? rect.topRight() : rect.bottomLeft() );
+        ( d_data->orientation == Qt::Horizontal ) ? rect.topRight() : rect.bottomLeft() );
     gradient.setColorAt( 0.0, pal.color( QPalette::Button ) );
     gradient.setColorAt( 0.2, pal.color( QPalette::Light ) );
     gradient.setColorAt( 0.7, pal.color( QPalette::Mid ) );
@@ -323,7 +350,7 @@ void QwtWheel::drawWheelBackground(
 
     const double bw2 = 0.5 * d_data->wheelBorderWidth;
 
-    if ( orientation() == Qt::Horizontal )
+    if ( d_data->orientation == Qt::Horizontal )
     {
         painter->setPen( lightPen );
         painter->drawLine( QPointF( rect.left(), rect.top() + bw2 ), 
@@ -373,7 +400,7 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
     const double tickWidth = 360.0 / double( d_data->tickCnt ) / cnvFactor;
     const double sinArc = qFastSin( d_data->viewAngle * M_PI / 360.0 );
 
-    if ( orientation() == Qt::Horizontal )
+    if ( d_data->orientation == Qt::Horizontal )
     {
         const double halfSize = rect.width() * 0.5;
 
@@ -502,7 +529,7 @@ QSize QwtWheel::minimumSizeHint() const
 {
     QSize sz( 3 * d_data->wheelWidth + 2 * d_data->borderWidth,
         d_data->wheelWidth + 2 * d_data->borderWidth );
-    if ( orientation() != Qt::Horizontal )
+    if ( d_data->orientation != Qt::Horizontal )
         sz.transpose();
 
     return sz;

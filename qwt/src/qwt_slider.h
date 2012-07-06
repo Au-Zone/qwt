@@ -32,8 +32,12 @@ class QwtScaleDraw;
 class QWT_EXPORT QwtSlider : public QwtAbstractSlider, public QwtAbstractScale
 {
     Q_OBJECT
+
     Q_ENUMS( ScalePos )
     Q_ENUMS( BackgroundStyle )
+
+    Q_PROPERTY( Qt::Orientation orientation
+                READ orientation WRITE setOrientation )
     Q_PROPERTY( ScalePos scalePosition READ scalePosition
         WRITE setScalePosition )
     Q_PROPERTY( BackgroundStyles backgroundStyle 
@@ -94,7 +98,8 @@ public:
 
     virtual ~QwtSlider();
 
-    virtual void setOrientation( Qt::Orientation );
+    void setOrientation( Qt::Orientation );
+    Qt::Orientation orientation() const;
 
     void setBackgroundStyle( BackgroundStyles );
     BackgroundStyles backgroundStyle() const;
@@ -133,13 +138,14 @@ protected:
     virtual void drawSlider ( QPainter *, const QRect & ) const;
     virtual void drawHandle( QPainter *, const QRect &, int pos ) const;
 
-	virtual void mousePressEvent( QMouseEvent * );
-	virtual void mouseReleaseEvent( QMouseEvent * );
+    virtual void mousePressEvent( QMouseEvent * );
+    virtual void mouseReleaseEvent( QMouseEvent * );
+    virtual void keyPressEvent( QKeyEvent * );
     virtual void wheelEvent( QWheelEvent * );
     virtual void resizeEvent( QResizeEvent * );
     virtual void paintEvent ( QPaintEvent * );
     virtual void changeEvent( QEvent * );
-	virtual void timerEvent( QTimerEvent * );
+    virtual void timerEvent( QTimerEvent * );
 
     virtual void valueChange();
     virtual void rangeChange();
