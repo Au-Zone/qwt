@@ -537,6 +537,10 @@ void QwtAbstractSlider::setRange( double minimum, double maximum )
     
     const double value = qBound( vmin, value, vmax );
 
+#if 0
+    setSingleStep( singleStep() );
+#endif
+
 	const bool changed = value != d_data->value;
 
 	if ( changed )
@@ -804,21 +808,20 @@ bool QwtAbstractSlider::setNewValue( double value )
 	{
 		value = d_data->minimum +
 			qRound( ( value - d_data->minimum ) / d_data->singleStep ) * d_data->singleStep;
+
+		// correct rounding error at the border
+    	if ( qFuzzyCompare( value, d_data->maximum ) )
+        	value = d_data->maximum;
+
+		// correct rounding error if value = 0
+    	if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+        	value = 0.0;
 	}
 	else
 	{
 		value = d_data->minimum;
 	}
 
-	const double minEps = 1.0e-10;
-	// correct rounding error at the border
-	if ( qFabs( value - d_data->maximum ) < minEps * qAbs( d_data->singleStep ) )
-		value = d_data->maximum;
-
-	// correct rounding error if value = 0
-	if ( qFabs( value ) < minEps * qAbs( d_data->singleStep ) )
-		value = 0.0;
-	
 	if ( value != d_data->value )
 	{
 		d_data->value = value;
