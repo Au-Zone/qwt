@@ -23,7 +23,7 @@ static inline bool qwtIsHSampleInside( const QwtIntervalSample &sample,
     const double x2 = sample.interval.maxValue();
 
     const bool isOffScreen = ( y < yMin ) || ( y > yMax )
-        || ( x1 < xMin && x2 < xMin ) || ( x1 > yMax && x2 > xMax );
+        || ( x1 < xMin && x2 < xMin ) || ( x1 > xMax && x2 > xMax );
 
     return !isOffScreen;
 }
