@@ -51,7 +51,7 @@ QwtWheel::QwtWheel( QWidget *parent ):
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 
     setAttribute( Qt::WA_WState_OwnSizePolicy, false );
-    setUpdateTime( 50 );
+    setUpdateInterval( 50 );
 }
 
 //! Destructor
@@ -228,7 +228,7 @@ double QwtWheel::viewAngle() const
 }
 
 //! Determine the value corresponding to a specified point
-double QwtWheel::getValue( const QPoint &p )
+double QwtWheel::valueAt( const QPoint &p )
 {
     const QRectF rect = wheelRect();
 
@@ -260,6 +260,12 @@ double QwtWheel::getValue( const QPoint &p )
     // Note, range clamping and rasterizing to step is automatically
     // handled by QwtAbstractSlider, so we simply return the change in value
     return val;
+}
+
+void QwtWheel::wheelEvent( QWheelEvent *event )
+{
+	if ( wheelRect().contains( event->pos() ) )
+		QwtAbstractSlider::wheelEvent( event );
 }
 
 /*! 
@@ -450,15 +456,9 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
   \param scrollMode scrolling mode
   \param direction direction
 */
-void QwtWheel::getScrollMode( const QPoint &p, 
-    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
+bool QwtWheel::isScrollPosition( const QPoint &pos ) const
 {
-    if ( wheelRect().contains( p ) )
-        scrollMode = QwtAbstractSlider::ScrMouse;
-    else
-        scrollMode = QwtAbstractSlider::ScrNone;
-
-    direction = 0;
+    return wheelRect().contains( pos );
 }
 
 /*!

@@ -66,13 +66,13 @@ public:
 
 protected:
     virtual void paintEvent( QPaintEvent * );
+    virtual void wheelEvent( QWheelEvent * );
 
     virtual void drawTicks( QPainter *, const QRectF & );
     virtual void drawWheelBackground( QPainter *, const QRectF & );
 
-    virtual double getValue( const QPoint & );
-    virtual void getScrollMode( const QPoint &,
-        QwtAbstractSlider::ScrollMode &, int &direction ) const;
+    virtual double valueAt( const QPoint & );
+    virtual bool isScrollPosition( const QPoint & ) const;
 
 private:
     class PrivateData;

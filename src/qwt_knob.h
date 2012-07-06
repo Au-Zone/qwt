@@ -139,9 +139,8 @@ protected:
     virtual void drawMarker( QPainter *, 
         const QRectF &, double arc ) const;
 
-    virtual double getValue( const QPoint &p );
-    virtual void getScrollMode( const QPoint &, 
-        QwtAbstractSlider::ScrollMode &, int &direction ) const;
+    virtual double valueAt( const QPoint & );
+    virtual bool isScrollPosition( const QPoint & ) const;
 
 private:
     void initKnob();
