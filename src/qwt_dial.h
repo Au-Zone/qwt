@@ -164,7 +164,7 @@ public:
     const QwtDialScaleDraw *scaleDraw() const;
 
 protected:
-	virtual void mousePressEvent( QMouseEvent * );
+    virtual void mousePressEvent( QMouseEvent * );
     virtual void wheelEvent( QWheelEvent * );
     virtual void paintEvent( QPaintEvent * );
 

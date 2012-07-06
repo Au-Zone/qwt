@@ -66,7 +66,7 @@ public:
   \param parent Parent widget
 */
 QwtKnob::QwtKnob( QWidget* parent ):
-    QwtAbstractSlider( Qt::Horizontal, parent )
+    QwtAbstractSlider( parent )
 {
     initKnob();
 }
@@ -252,8 +252,8 @@ double QwtKnob::valueAt( const QPoint &pos )
 */
 bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
-	Q_UNUSED( pos )
-	return true;
+    Q_UNUSED( pos )
+    return true;
 }
 
 /*!
