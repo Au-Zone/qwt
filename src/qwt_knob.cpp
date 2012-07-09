@@ -77,7 +77,6 @@ void QwtKnob::initKnob()
 
     setScaleDraw( new QwtRoundScaleDraw() );
 
-    setUpdateInterval( 50 );
     setTotalAngle( 270.0 );
     recalcAngle();
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
@@ -601,10 +600,10 @@ void QwtKnob::recalcAngle()
     }
     else
     {
-        d_data->angle = ( value() - 0.5 * ( minimum() + maximum() ) )
+        const double angle = ( value() - 0.5 * ( minimum() + maximum() ) )
             / ( maximum() - minimum() ) * d_data->totalAngle;
-        d_data->nTurns = qFloor( ( d_data->angle + 180.0 ) / 360.0 );
-        d_data->angle = d_data->angle - d_data->nTurns * 360.0;
+        d_data->nTurns = qFloor( ( angle + 180.0 ) / 360.0 );
+        d_data->angle = angle - d_data->nTurns * 360.0;
     }
 }
 

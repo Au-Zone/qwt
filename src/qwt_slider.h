@@ -123,6 +123,9 @@ public:
     void setScaleDraw( QwtScaleDraw * );
     const QwtScaleDraw *scaleDraw() const;
 
+    void setUpdateInterval( int );
+    int updateInterval() const;
+
     double scaleValue() const;
 
 public Q_SLOTS:

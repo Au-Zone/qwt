@@ -16,9 +16,12 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qapplication.h>
+#include <qdatetime.h>
 
 #if QT_VERSION < 0x040601
+#define qFabs(x) ::fabs(x)
 #define qFastSin(x) ::sin(x)
+#define qExp(x) ::exp(x)
 #endif
 
 class QwtWheel::PrivateData
@@ -31,7 +34,20 @@ public:
         tickCnt( 10 ),
         wheelBorderWidth( 2 ),
         borderWidth( 2 ),
-        wheelWidth( 20 )
+        wheelWidth( 20 ),
+        isScrolling( false ),
+        initialScrollOffset( 0.0 ),
+        tracking( true ),
+        timerId( 0 ),
+        updateInterval( 50 ),
+        mass( 0.0 ),
+        minimum( 0.0 ),
+        maximum( 0.0 ),
+        singleStep( 1.0 ),
+        pageSize( 1 ),
+        value( 0.0 ),
+        exactValue( 0.0 ),
+        wrapping( false )
     {
     };
 
@@ -42,24 +58,255 @@ public:
     int wheelBorderWidth;
     int borderWidth;
     int wheelWidth;
+
+    bool isScrolling;
+    double initialScrollOffset;
+    bool tracking;
+
+    int timerId;
+    int updateInterval;
+    QTime time;
+    double speed;
+    double mass;
+
+    double minimum;
+    double maximum;
+    double singleStep;
+    int pageSize;
+
+    double value;
+    double exactValue;
+
+    bool wrapping;
 };
 
 //! Constructor
 QwtWheel::QwtWheel( QWidget *parent ):
-    QwtAbstractSlider( parent )
+    QWidget( parent )
 {
     d_data = new PrivateData;
 
+    setFocusPolicy( Qt::StrongFocus );
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
-
     setAttribute( Qt::WA_WState_OwnSizePolicy, false );
-    setUpdateInterval( 50 );
 }
 
 //! Destructor
 QwtWheel::~QwtWheel()
 {
     delete d_data;
+}
+
+void QwtWheel::setTracking( bool enable )
+{
+    d_data->tracking = enable;
+}
+
+bool QwtWheel::isTracking() const
+{
+    return d_data->tracking;
+}
+
+void QwtWheel::setUpdateInterval( int interval )
+{
+    d_data->updateInterval = qMax( interval, 50 );
+}
+
+int QwtWheel::updateInterval() const
+{
+    return d_data->updateInterval;
+}
+
+void QwtWheel::mousePressEvent( QMouseEvent *event )
+{
+    stopFlying();
+
+    d_data->isScrolling = wheelRect().contains( event->pos() );
+
+    if ( d_data->isScrolling )
+    {
+        d_data->time.start();
+        d_data->speed = 0;
+        d_data->initialScrollOffset = valueAt( event->pos() ) - d_data->value;
+
+        Q_EMIT wheelPressed();
+    }
+}
+
+void QwtWheel::mouseMoveEvent( QMouseEvent *e )
+{
+    if ( d_data->isScrolling )
+    {
+        const double exactPrevValue = d_data->exactValue;
+        const double newValue =
+            valueAt( e->pos() ) - d_data->initialScrollOffset;
+
+        const bool changed = updateValue( newValue );
+
+        if ( d_data->mass > 0.0 )
+        {
+            const double ms = d_data->time.restart();
+            d_data->speed = ( d_data->exactValue - exactPrevValue ) / qMax( ms, 1.0 );
+        }
+
+        if ( changed )
+            Q_EMIT wheelMoved( d_data->value );
+    }
+}
+
+void QwtWheel::mouseReleaseEvent( QMouseEvent *event )
+{
+    if ( d_data->isScrolling )
+    {
+        const double newValue =
+            valueAt( event->pos() ) - d_data->initialScrollOffset;
+
+        const bool changed = updateValue( newValue );
+
+        d_data->initialScrollOffset = 0.0;
+
+        if ( d_data->mass > 0.0 )
+        {
+            const int ms = d_data->time.elapsed();
+            if ( ( qFabs( d_data->speed ) > 0.0 ) && ( ms < 50 ) )
+                d_data->timerId = startTimer( d_data->updateInterval );
+        }
+        else
+        {
+            d_data->isScrolling = false;
+            if ( ( !d_data->tracking ) || changed )
+                Q_EMIT valueChanged( d_data->value );
+
+        }
+        Q_EMIT wheelReleased();
+    }
+}
+
+void QwtWheel::wheelEvent( QWheelEvent *event )
+{
+    if ( !wheelRect().contains( event->pos() ) )
+    {
+        event->ignore();
+        return;
+    }
+
+    stopFlying();
+
+    const int numPages = event->delta() / 120;
+
+    const double stepSize = qAbs( d_data->singleStep );
+    const double off = stepSize * d_data->pageSize * numPages;
+
+    const bool changed = updateValue( d_data->value + off );
+    if ( changed )
+    {
+        Q_EMIT wheelMoved( d_data->value );
+    }
+}
+
+void QwtWheel::keyPressEvent( QKeyEvent *e )
+{
+    const double stepSize = qAbs( d_data->singleStep );
+    double value = d_data->value;
+
+    switch ( e->key() )
+    {
+        case Qt::Key_Down:
+        {
+            if ( d_data->orientation == Qt::Vertical )
+                value -= stepSize;
+
+            break;
+        }
+        case Qt::Key_Left:
+        {
+            if ( d_data->orientation == Qt::Horizontal )
+                value -= stepSize;
+
+            break;
+        }
+        case Qt::Key_Up:
+        {
+            if ( d_data->orientation == Qt::Vertical )
+                value += stepSize;
+            break;
+        }
+        case Qt::Key_Right:
+        {
+            if ( d_data->orientation == Qt::Horizontal )
+                value += stepSize;
+            break;
+        }
+        case Qt::Key_PageUp:
+        {
+            value += d_data->pageSize * stepSize;
+            break;
+        }
+        case Qt::Key_PageDown:
+        {
+            value -= d_data->pageSize * stepSize;
+            break;
+        }
+        case Qt::Key_Home:
+        {
+            value = d_data->minimum;
+            break;
+        }
+        case Qt::Key_End:
+        {
+            value = d_data->maximum;
+            break;
+        }
+        default:;
+        {
+            e->ignore();
+        }
+    }
+
+    if ( value != d_data->value )
+    {
+        stopFlying();
+
+        const bool changed = updateValue( value );
+        if ( changed )
+        {
+            Q_EMIT wheelMoved( d_data->value );
+        }
+    }
+}
+
+void QwtWheel::timerEvent( QTimerEvent *event )
+{
+    if ( event->timerId() == d_data->timerId )
+    {
+        if ( d_data->mass <= 0.0 )
+        {
+            killTimer( d_data->timerId );
+            d_data->timerId = 0;
+            return;
+        }
+
+        const double intv = d_data->updateInterval;
+
+        d_data->speed *= qExp( -intv * 0.001 / d_data->mass );
+        const bool changed = updateValue( d_data->exactValue + d_data->speed * intv );
+
+        // stop if d_data->speed < one step per second
+        if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
+        {
+            d_data->speed = 0.0;
+
+            killTimer( d_data->timerId );
+            d_data->timerId = 0;
+
+            if ( ( !d_data->tracking ) || changed )
+                Q_EMIT valueChanged( d_data->value );
+        }
+
+        return;
+    }
+
+    QWidget::timerEvent( event );
 }
 
 /*!
@@ -184,7 +431,7 @@ double QwtWheel::totalAngle() const
   \param o Orientation. Allowed values are
            Qt::Horizontal and Qt::Vertical.
    Defaults to Qt::Horizontal.
-  \sa QwtAbstractSlider::orientation()
+  \sa orientation()
 */
 void QwtWheel::setOrientation( Qt::Orientation orientation )
 {
@@ -239,7 +486,7 @@ double QwtWheel::viewAngle() const
 }
 
 //! Determine the value corresponding to a specified point
-double QwtWheel::valueAt( const QPoint &p )
+double QwtWheel::valueAt( const QPoint &pos )
 {
     const QRectF rect = wheelRect();
 
@@ -249,12 +496,12 @@ double QwtWheel::valueAt( const QPoint &p )
     if ( d_data->orientation == Qt::Vertical )
     {
         w = rect.height();
-        dx = rect.y() - p.y();
+        dx = rect.y() - pos.y();
     }
     else
     {
         w = rect.width();
-        dx = p.x() - rect.x();
+        dx = pos.x() - rect.x();
     }
 
     if ( w == 0.0 )
@@ -268,31 +515,7 @@ double QwtWheel::valueAt( const QPoint &p )
     // so convert the change in angle to a change in value
     const double val = ang * ( maximum() - minimum() ) / d_data->totalAngle;
 
-    // Note, range clamping and rasterizing to step is automatically
-    // handled by QwtAbstractSlider, so we simply return the change in value
     return val;
-}
-
-void QwtWheel::wheelEvent( QWheelEvent *event )
-{
-    if ( wheelRect().contains( event->pos() ) )
-        QwtAbstractSlider::wheelEvent( event );
-}
-
-void QwtWheel::keyPressEvent( QKeyEvent *event )
-{
-    if ( d_data->orientation == Qt::Vertical )
-    {
-        if ( event->key() == Qt::Key_Left || event->key() == Qt::Key_Right )
-            return;
-    }
-    else
-    {
-        if ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down )
-            return;
-    }
-
-    QwtAbstractSlider::keyPressEvent( event );
 }
 
 /*! 
@@ -477,18 +700,6 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
 }
 
 /*!
-  \brief Determine the scrolling mode and direction corresponding
-         to a specified point
-  \param p point
-  \param scrollMode scrolling mode
-  \param direction direction
-*/
-bool QwtWheel::isScrollPosition( const QPoint &pos ) const
-{
-    return wheelRect().contains( pos );
-}
-
-/*!
   \brief Set the width of the wheel
 
   Corresponds to the wheel height for horizontal orientation,
@@ -534,3 +745,257 @@ QSize QwtWheel::minimumSizeHint() const
 
     return sz;
 }
+
+void QwtWheel::setRange( double minimum, double maximum )
+{
+    if ( d_data->minimum == minimum && d_data->maximum == maximum )
+        return;
+
+    d_data->minimum = minimum;
+    d_data->maximum = maximum;
+
+    const double vmin = qMin( d_data->minimum, d_data->maximum );
+    const double vmax = qMax( d_data->minimum, d_data->maximum );
+
+    const double value = qBound( vmin, value, vmax );
+
+#if 0
+    setSingleStep( singleStep() );
+#endif
+
+    const bool changed = value != d_data->value;
+
+    if ( changed )
+    {
+        d_data->value = value;
+        d_data->exactValue = value;
+    }
+
+    if ( changed )
+    {
+        update();
+        Q_EMIT valueChanged( d_data->value );
+    }
+}
+
+void QwtWheel::setSingleStep( double vstep )
+{
+    const double range = d_data->maximum - d_data->minimum;
+
+    double newStep;
+    if ( vstep == 0.0 )
+    {
+        const double defaultRelStep = 1.0e-2;
+        newStep = range * defaultRelStep;
+    }
+    else
+    {
+        if ( ( range > 0.0 && vstep < 0.0 ) || ( range < 0.0 && vstep > 0.0 ) )
+            newStep = -vstep;
+        else
+            newStep = vstep;
+
+        const double minRelStep = 1.0e-10;
+        if ( qFabs( newStep ) < qFabs( minRelStep * range ) )
+            newStep = minRelStep * range;
+    }
+
+    d_data->singleStep = newStep;
+}
+
+double QwtWheel::singleStep() const
+{
+    return d_data->singleStep;
+}
+
+void QwtWheel::setMaximum( double max )
+{
+    setRange( minimum(), max );
+}
+
+double QwtWheel::maximum() const
+{
+    return d_data->maximum;
+}
+
+void QwtWheel::setMinimum( double min )
+{
+    setRange( min, maximum() );
+}
+
+double QwtWheel::minimum() const
+{
+    return d_data->minimum;
+}
+
+void QwtWheel::setPageSize( int pageSize )
+{
+#if 1
+    // limit page size
+    const int max =
+        int( qAbs( ( d_data->maximum - d_data->minimum ) / d_data->singleStep ) );
+    d_data->pageSize = qBound( 0, pageSize, max );
+#endif
+}
+
+int QwtWheel::pageSize() const
+{
+    return d_data->pageSize;
+}
+
+double QwtWheel::value() const
+{
+    return d_data->value;
+}
+
+void QwtWheel::setWrapping( bool on )
+{
+    d_data->wrapping = on;
+}
+
+bool QwtWheel::wrapping() const
+{
+    return d_data->wrapping;
+}
+
+/*!
+  \brief Set the slider's mass for flywheel effect.
+
+  If the slider's mass is greater then 0, it will continue
+  to move after the mouse button has been released. Its speed
+  decreases with time at a rate depending on the slider's mass.
+  A large mass means that it will continue to move for a
+  long time.
+
+  Derived widgets may overload this function to make it public.
+
+  \param mass New mass in kg
+
+  \bug If the mass is smaller than 1g, it is set to zero.
+       The maximal mass is limited to 100kg.
+  \sa mass()
+*/
+void QwtWheel::setMass( double mass )
+{
+    if ( mass < 0.001 )
+        d_data->mass = 0.0;
+    else
+        d_data->mass = qMin( 100.0, mass );
+}
+
+/*!
+    \return mass
+    \sa setMass()
+*/
+double QwtWheel::mass() const
+{
+    return d_data->mass;
+}
+
+/*!
+  \brief Move the slider to a specified value
+
+  This function can be used to move the slider to a value
+  which is not an integer multiple of the step size.
+  \param val new value
+  \sa fitValue()
+*/
+void QwtWheel::setValue( double value )
+{
+    stopFlying();
+
+    const double vmin = qMin( d_data->minimum, d_data->maximum );
+    const double vmax = qMax( d_data->minimum, d_data->maximum );
+
+    value = qBound( vmin, value, vmax );
+
+    const bool changed = d_data->value != value;
+
+    d_data->value = value;
+    d_data->exactValue = value;
+
+    if ( changed )
+    {
+        update();
+        Q_EMIT valueChanged( d_data->value );
+    }
+}
+
+void QwtWheel::stopFlying()
+{
+    if ( d_data->timerId != 0 )
+    {
+        killTimer( d_data->timerId );
+        d_data->timerId = 0;
+    }
+}
+
+bool QwtWheel::setNewValue( double value )
+{
+    const double vmin = qMin( d_data->minimum, d_data->maximum );
+    const double vmax = qMax( d_data->minimum, d_data->maximum );
+    
+    if ( d_data->wrapping && vmin != vmax )
+    {
+        const double range = vmax - vmin;
+
+        if ( value < vmin )
+        {
+            value += ::ceil( ( vmin - value ) / range ) * range;
+        }       
+        else if ( value > vmax )
+        {
+            value -= ::ceil( ( value - vmax ) / range ) * range;
+        }
+    }
+    else
+    {
+        value = qBound( vmin, value, vmax );
+    }
+
+    d_data->exactValue = value;
+
+    if ( d_data->singleStep != 0.0 )
+    {
+        value = d_data->minimum +
+            qRound( ( value - d_data->minimum ) / d_data->singleStep ) * d_data->singleStep;
+
+        // correct rounding error at the border
+        if ( qFuzzyCompare( value, d_data->maximum ) )
+            value = d_data->maximum;
+
+        // correct rounding error if value = 0
+        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+            value = 0.0;
+    }
+    else
+    {
+        value = d_data->minimum;
+    }
+
+    if ( value != d_data->value )
+    {
+        d_data->value = value;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool QwtWheel::updateValue( double value )
+{
+    const bool changed = setNewValue( value );
+    if ( changed )
+    {
+        update();
+
+        if ( d_data->tracking )
+            Q_EMIT valueChanged( d_data->value );
+    }
+
+    return changed;
+}
+
+
