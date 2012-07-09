@@ -10,11 +10,9 @@
 #include "qwt_abstract_slider.h"
 #include "qwt_math.h"
 #include <qevent.h>
-#include <qdatetime.h>
 
 #if QT_VERSION < 0x040601
 #define qFabs(x) ::fabs(x)
-#define qExp(x) ::exp(x)
 #endif
 
 class QwtAbstractSlider::PrivateData
@@ -24,9 +22,6 @@ public:
         isScrolling( false ),
         initialScrollOffset( 0.0 ),
         tracking( true ),
-        timerId( 0 ),
-        updateInterval( 150 ),
-        mass( 0.0 ),
         readOnly( false ),
         minimum( 0.0 ),
         maximum( 0.0 ),
@@ -43,11 +38,6 @@ public:
     double initialScrollOffset;
     bool tracking;
 
-    int timerId;
-    int updateInterval;
-    QTime time;
-    double speed;
-    double mass;
     bool readOnly;
 
     double minimum;
@@ -155,21 +145,6 @@ bool QwtAbstractSlider::isTracking() const
 }
 
 /*!
-  \brief Specify the update interval for automatic scrolling
-  \param interval Update interval in milliseconds
-  \sa getScrollMode()
-*/
-void QwtAbstractSlider::setUpdateInterval( int interval )
-{
-    d_data->updateInterval = qMax( interval, 50 );
-}
-
-int QwtAbstractSlider::updateInterval() const
-{
-    return d_data->updateInterval;
-}
-
-/*!
    Mouse press event handler
    \param e Mouse event
 */
@@ -184,14 +159,10 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
     if ( !d_data->isValid )
         return;
 
-    stopFlying();
-
     d_data->isScrolling = isScrollPosition( event->pos() );
 
     if ( d_data->isScrolling )
     {
-        d_data->time.start();
-        d_data->speed = 0;
         d_data->initialScrollOffset = valueAt( event->pos() ) - d_data->value;
 
         Q_EMIT sliderPressed();
@@ -215,25 +186,10 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
 
     if ( d_data->isScrolling )
     {
-        const double exactPrevValue = d_data->exactValue;
         const double newValue = 
             valueAt( e->pos() ) - d_data->initialScrollOffset;
 
-        const bool changed = setNewValue( newValue );
-        if ( changed )
-        {
-            valueChange();
-
-            if ( d_data->tracking )
-                Q_EMIT valueChanged( d_data->value );
-        }
-
-        if ( d_data->mass > 0.0 )
-        {
-            const double ms = d_data->time.restart();
-            d_data->speed = ( d_data->exactValue - exactPrevValue ) / qMax( ms, 1.0 );
-        }
-
+        const bool changed = updateValue( newValue );
         if ( changed )
             Q_EMIT sliderMoved( d_data->value );
     }
@@ -259,30 +215,14 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
         const double newValue = 
             valueAt( event->pos() ) - d_data->initialScrollOffset;
 
-        const bool changed = setNewValue( newValue );
-        if ( changed )
-        {   
-            valueChange();
-
-            if ( d_data->tracking )
-                Q_EMIT valueChanged( d_data->value );
-        }   
+        const bool changed = updateValue( newValue );
 
         d_data->initialScrollOffset = 0.0;
 
-        if ( d_data->mass > 0.0 )
-        {
-            const int ms = d_data->time.elapsed();
-            if ( ( qFabs( d_data->speed ) > 0.0 ) && ( ms < 50 ) )
-                d_data->timerId = startTimer( d_data->updateInterval );
-        }
-        else
-        {
-            d_data->isScrolling = false;
-            if ( ( !d_data->tracking ) || changed )
-                Q_EMIT valueChanged( d_data->value );
+        d_data->isScrolling = false;
+        if ( ( !d_data->tracking ) || changed )
+            Q_EMIT valueChanged( d_data->value );
 
-        }
         Q_EMIT sliderReleased();
     }
 }
@@ -302,22 +242,14 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
     if ( !d_data->isValid )
         return;
 
-    stopFlying();
-
     const int numPages = event->delta() / 120;
 
     const double stepSize = qAbs( d_data->singleStep );
     const double off = stepSize * d_data->pageSize * numPages;
 
-    const bool changed = setNewValue( d_data->value + off );
-
+    const bool changed = updateValue( d_data->value + off );
     if ( changed )
     {   
-        valueChange();
-
-        if ( d_data->tracking )
-            Q_EMIT valueChanged( d_data->value );
-
         Q_EMIT sliderMoved( d_data->value );
     }   
 }
@@ -392,66 +324,12 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
 
     if ( value != d_data->value )
     {
-        stopFlying();
-
-        const bool changed = setNewValue( value );
-
+        const bool changed = updateValue( value );
         if ( changed )
         {   
-            valueChange();
-
-            if ( d_data->tracking )
-                Q_EMIT valueChanged( d_data->value );
-
             Q_EMIT sliderMoved( d_data->value );
         }   
     }
-}
-
-/*!
-   Qt timer event
-   \param e Timer event
-*/
-void QwtAbstractSlider::timerEvent( QTimerEvent *event )
-{
-    if ( event->timerId() == d_data->timerId )
-    {
-        if ( !d_data->isValid || d_data->mass <= 0.0 )
-        {
-            killTimer( d_data->timerId );
-            d_data->timerId = 0;
-            return;
-        }
-
-        const double intv = d_data->updateInterval;
-
-        d_data->speed *= qExp( -intv * 0.001 / d_data->mass );
-        const bool changed = setNewValue( d_data->exactValue + d_data->speed * intv );
-
-        if ( changed )
-        {   
-            valueChange();
-
-            if ( d_data->tracking )
-                Q_EMIT valueChanged( d_data->value );
-        }   
-
-        // stop if d_data->speed < one step per second
-        if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
-        {
-            d_data->speed = 0.0;
-
-            killTimer( d_data->timerId );
-            d_data->timerId = 0;
-
-            if ( ( !d_data->tracking ) || changed )
-                Q_EMIT valueChanged( d_data->value );
-        }
-
-        return;
-    }
-
-    QWidget::timerEvent( event );
 }
 
 /*!
@@ -655,40 +533,6 @@ bool QwtAbstractSlider::wrapping() const
 }
 
 /*!
-  \brief Set the slider's mass for flywheel effect.
-
-  If the slider's mass is greater then 0, it will continue
-  to move after the mouse button has been released. Its speed
-  decreases with time at a rate depending on the slider's mass.
-  A large mass means that it will continue to move for a
-  long time.
-
-  Derived widgets may overload this function to make it public.
-
-  \param mass New mass in kg
-
-  \bug If the mass is smaller than 1g, it is set to zero.
-       The maximal mass is limited to 100kg.
-  \sa mass()
-*/
-void QwtAbstractSlider::setMass( double mass )
-{
-    if ( mass < 0.001 )
-        d_data->mass = 0.0;
-    else 
-        d_data->mass = qMin( 100.0, mass );
-}
-
-/*!
-    \return mass
-    \sa setMass()
-*/
-double QwtAbstractSlider::mass() const
-{
-    return d_data->mass;
-}
-
-/*!
   \brief Move the slider to a specified value
 
   This function can be used to move the slider to a value
@@ -698,8 +542,6 @@ double QwtAbstractSlider::mass() const
 */
 void QwtAbstractSlider::setValue( double value )
 {
-    stopFlying();
-
     const double vmin = qMin( d_data->minimum, d_data->maximum );
     const double vmax = qMax( d_data->minimum, d_data->maximum );
     
@@ -732,15 +574,6 @@ void QwtAbstractSlider::setMouseOffset( double offset )
 double QwtAbstractSlider::mouseOffset() const
 {
     return d_data->initialScrollOffset;
-}
-
-void QwtAbstractSlider::stopFlying()
-{
-    if ( d_data->timerId != 0 )
-    {
-        killTimer( d_data->timerId );
-        d_data->timerId = 0;
-    }
 }
 
 bool QwtAbstractSlider::setNewValue( double value )
@@ -795,4 +628,18 @@ bool QwtAbstractSlider::setNewValue( double value )
     {
         return false;
     }
+}
+
+bool QwtAbstractSlider::updateValue( double value )
+{
+    const bool changed = setNewValue( value );
+    if ( changed )
+    {
+        valueChange();
+
+        if ( d_data->tracking )
+            Q_EMIT valueChanged( d_data->value );
+    }
+
+    return changed;
 }

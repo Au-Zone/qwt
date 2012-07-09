@@ -23,19 +23,20 @@
 class QwtSlider::PrivateData
 {
 public:
-#if 1
     PrivateData():
-        repeatTimerId( 0 ),
         prevValue( 0.0 ),
-        direction( 0 )
+        direction( 0 ),
+        repeatTimerId( 0 ),
+        updateInterval( 150 )
     {
     }
 
-    int repeatTimerId;
     double prevValue;
     int direction;
+
+    int repeatTimerId;
     bool timerTick;
-#endif
+    int updateInterval;
 
     QRect sliderRect;
 
@@ -417,6 +418,20 @@ void QwtSlider::scaleChange()
 }
 
 /*!
+  \brief Specify the update interval for automatic scrolling
+  \param interval Update interval in milliseconds
+*/
+void QwtSlider::setUpdateInterval( int interval )
+{
+    d_data->updateInterval = qMax( interval, 50 );
+}
+
+int QwtSlider::updateInterval() const
+{
+    return d_data->updateInterval;
+}
+
+/*!
    Draw the slider into the specified rectangle.
 
    \param painter Painter
@@ -579,8 +594,6 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
         if ( ( pos < markerPos - d_data->handleSize.width() / 2 )
             || ( pos > markerPos + d_data->handleSize.width() / 2 ) )
         {
-            stopFlying();
-
             d_data->direction = ( pos > markerPos ) ? 1 : -1;
             if ( scaleDraw()->scaleMap().p1() > scaleDraw()->scaleMap().p2() )
                 d_data->direction = -d_data->direction;

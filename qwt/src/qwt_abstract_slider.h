@@ -32,13 +32,12 @@ class QWT_EXPORT QwtAbstractSlider : public QWidget
     Q_PROPERTY( double minimum READ minimum WRITE setMinimum )
     Q_PROPERTY( double maximum READ maximum WRITE setMaximum )
 
+    Q_PROPERTY( double singleStep READ singleStep WRITE setSingleStep )
     Q_PROPERTY( int pageSize READ pageSize WRITE setPageSize )
 
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
     Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
-
-    Q_PROPERTY( double mass READ mass WRITE setMass )
 
 public:
     explicit QwtAbstractSlider( QWidget *parent = NULL );
@@ -66,14 +65,8 @@ public:
     void setPageSize( int );
     int pageSize() const;
 
-    void setUpdateInterval( int );
-    int updateInterval() const;
-
     void setTracking( bool enable );
     bool isTracking() const;
-
-    void setMass( double val );
-    double mass() const;
 
     void setReadOnly( bool );
     bool isReadOnly() const;
@@ -113,7 +106,6 @@ Q_SIGNALS:
     void sliderMoved( double value );
 
 protected:
-    virtual void timerEvent( QTimerEvent * );
     virtual void mousePressEvent( QMouseEvent * );
     virtual void mouseReleaseEvent( QMouseEvent * );
     virtual void mouseMoveEvent( QMouseEvent * );
@@ -150,7 +142,7 @@ protected:
     virtual void rangeChange();
 
     bool setNewValue( double value );
-    void stopFlying();
+    bool updateValue( double value );
 
 private:
     class PrivateData;
