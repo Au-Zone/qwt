@@ -31,7 +31,7 @@ public:
         orientation( Qt::Horizontal ),
         viewAngle( 175.0 ),
         totalAngle( 360.0 ),
-        tickCnt( 10 ),
+        tickCount( 10 ),
         wheelBorderWidth( 2 ),
         borderWidth( 2 ),
         wheelWidth( 20 ),
@@ -44,9 +44,11 @@ public:
         minimum( 0.0 ),
         maximum( 0.0 ),
         singleStep( 1.0 ),
-        pageSize( 1 ),
+        pageStepCount( 1 ),
+        stepAlignment( true ),
         value( 0.0 ),
         exactValue( 0.0 ),
+        inverted( false ),
         wrapping( false )
     {
     };
@@ -54,7 +56,7 @@ public:
     Qt::Orientation orientation;
     double viewAngle;
     double totalAngle;
-    int tickCnt;
+    int tickCount;
     int wheelBorderWidth;
     int borderWidth;
     int wheelWidth;
@@ -71,12 +73,15 @@ public:
 
     double minimum;
     double maximum;
+
     double singleStep;
-    int pageSize;
+    int pageStepCount;
+    bool stepAlignment;
 
     double value;
     double exactValue;
 
+    bool inverted;
     bool wrapping;
 };
 
@@ -97,26 +102,60 @@ QwtWheel::~QwtWheel()
     delete d_data;
 }
 
+/*!
+  \brief En/Disable tracking
+
+  If tracking is enabled (the default), the wheel emits the valueChanged() 
+  signal while the wheel is moving. If tracking is disabled, the wheel 
+  emits the valueChanged() signal only when the wheel movement is terminated.
+
+  The wheelMoved() signal is emitted regardless id tracking is enabled or not.
+
+  \sa isTracking()
+ */
 void QwtWheel::setTracking( bool enable )
 {
     d_data->tracking = enable;
 }
 
+/*!
+  \return True, when tracking is enabled
+  \sa setTracking(), valueChanged(), wheelMoved()
+*/
 bool QwtWheel::isTracking() const
 {
     return d_data->tracking;
 }
 
+/*!
+  \brief Specify the update interval for the flying wheel
+
+  Default and minimum value is 50 ms.
+
+  \param interval Interval in milliseconds
+  \sa updateInterval(), setMass(), setTracking()
+*/
 void QwtWheel::setUpdateInterval( int interval )
 {
     d_data->updateInterval = qMax( interval, 50 );
 }
 
+/*!
+  \return Update interval for the flying wheel
+  \sa setUpdateInterval(), mass(), isTracking()
+ */
 int QwtWheel::updateInterval() const
 {
     return d_data->updateInterval;
 }
 
+/*!
+   \brief Mouse press event handler
+
+   Start movement of the wheel. 
+
+   \param event Mouse event
+*/
 void QwtWheel::mousePressEvent( QMouseEvent *event )
 {
     stopFlying();
@@ -126,20 +165,27 @@ void QwtWheel::mousePressEvent( QMouseEvent *event )
     if ( d_data->isScrolling )
     {
         d_data->time.start();
-        d_data->speed = 0;
+        d_data->speed = 0.0;
         d_data->initialScrollOffset = valueAt( event->pos() ) - d_data->value;
 
         Q_EMIT wheelPressed();
     }
 }
 
-void QwtWheel::mouseMoveEvent( QMouseEvent *e )
+/*!
+   \brief Mouse Move Event handler
+
+   Turn the wheel according to the mouse position
+
+   \param event Mouse event
+*/
+void QwtWheel::mouseMoveEvent( QMouseEvent *event )
 {
     if ( d_data->isScrolling )
     {
         const double exactPrevValue = d_data->exactValue;
         const double newValue =
-            valueAt( e->pos() ) - d_data->initialScrollOffset;
+            valueAt( event->pos() ) - d_data->initialScrollOffset;
 
         const bool changed = updateValue( newValue );
 
@@ -153,6 +199,15 @@ void QwtWheel::mouseMoveEvent( QMouseEvent *e )
             Q_EMIT wheelMoved( d_data->value );
     }
 }
+
+/*!
+   \brief Mouse Release Event handler
+
+   When the wheel has no mass the movement of the wheel stops, otherwise
+   it starts flying.
+
+   \param event Mouse event
+*/  
 
 void QwtWheel::mouseReleaseEvent( QMouseEvent *event )
 {
@@ -182,6 +237,12 @@ void QwtWheel::mouseReleaseEvent( QMouseEvent *event )
     }
 }
 
+/*!
+  Handle wheel events
+
+  In/Decrement the value by 
+  \param event Wheel event
+*/
 void QwtWheel::wheelEvent( QWheelEvent *event )
 {
     if ( !wheelRect().contains( event->pos() ) )
@@ -192,10 +253,24 @@ void QwtWheel::wheelEvent( QWheelEvent *event )
 
     stopFlying();
 
-    const int numPages = event->delta() / 120;
+    double off = 0.0;
 
-    const double stepSize = qAbs( d_data->singleStep );
-    const double off = stepSize * d_data->pageSize * numPages;
+    if ( ( event->modifiers() & Qt::ControlModifier) || 
+        ( event->modifiers() & Qt::ShiftModifier ) )
+    {
+        // one page regardless of delta
+        off = d_data->singleStep * d_data->pageStepCount;
+        if ( event->delta() < 0 )
+            off = -off;
+    }
+    else
+    {
+        const int numSteps = event->delta() / 120;
+        off = d_data->singleStep * numSteps;
+    }
+
+    if ( d_data->orientation == Qt::Vertical && d_data->inverted )
+        off = -off;
 
     const bool changed = updateValue( d_data->value + off );
     if ( changed )
@@ -204,47 +279,99 @@ void QwtWheel::wheelEvent( QWheelEvent *event )
     }
 }
 
-void QwtWheel::keyPressEvent( QKeyEvent *e )
+/*!
+  Handle key events
+
+  - Qt::Key_Home\n
+    Step to minimum()
+
+  - Qt::Key_End\n
+    Step to maximum()
+
+  - Qt::Key_Up\n
+    In case of a horizontal or not inverted vertical wheel the value 
+    will be incremented by the step size. For an inverted vertical wheel
+    the value will be decremented by the step size.
+
+  - Qt::Key_Down\n
+    In case of a horizontal or not inverted vertical wheel the value 
+    will be decremented by the step size. For an inverted vertical wheel
+    the value will be incremented by the step size.
+
+  - Qt::Key_PageUp\n
+    The value will be incremented by pageStepSize() * singleStepSize().
+
+  - Qt::Key_PageDown\n
+    The value will be decremented by pageStepSize() * singleStepSize().
+
+  \param event Key event
+*/
+void QwtWheel::keyPressEvent( QKeyEvent *event )
 {
-    const double stepSize = qAbs( d_data->singleStep );
     double value = d_data->value;
 
-    switch ( e->key() )
+    switch ( event->key() )
     {
         case Qt::Key_Down:
         {
             if ( d_data->orientation == Qt::Vertical )
-                value -= stepSize;
-
-            break;
-        }
-        case Qt::Key_Left:
-        {
-            if ( d_data->orientation == Qt::Horizontal )
-                value -= stepSize;
-
+            {
+                if ( d_data->inverted )
+                    value += d_data->singleStep;
+                else
+                    value -= d_data->singleStep;
+            }
+            else
+            {
+                value -= d_data->singleStep;
+            }
             break;
         }
         case Qt::Key_Up:
         {
             if ( d_data->orientation == Qt::Vertical )
-                value += stepSize;
+            {
+                if ( d_data->inverted )
+                    value -= d_data->singleStep;
+                else
+                    value += d_data->singleStep;
+            }
+            else
+            {
+                value += d_data->singleStep;
+            }
+            break;
+        }
+        case Qt::Key_Left:
+        {
+            if ( d_data->orientation == Qt::Horizontal )
+            {
+                if ( d_data->inverted )
+                    value += d_data->singleStep;
+                else
+                    value -= d_data->singleStep;
+            }
             break;
         }
         case Qt::Key_Right:
         {
             if ( d_data->orientation == Qt::Horizontal )
-                value += stepSize;
+            {
+                if ( d_data->inverted )
+                    value -= d_data->singleStep;
+                else
+                    value += d_data->singleStep;
+            }
             break;
         }
         case Qt::Key_PageUp:
         {
-            value += d_data->pageSize * stepSize;
+            value += d_data->pageStepCount * d_data->singleStep;
             break;
         }
         case Qt::Key_PageDown:
         {
-            value -= d_data->pageSize * stepSize;
+            value -= d_data->pageStepCount * d_data->singleStep;
             break;
         }
         case Qt::Key_Home:
@@ -259,7 +386,7 @@ void QwtWheel::keyPressEvent( QKeyEvent *e )
         }
         default:;
         {
-            e->ignore();
+            event->ignore();
         }
     }
 
@@ -275,6 +402,15 @@ void QwtWheel::keyPressEvent( QKeyEvent *e )
     }
 }
 
+/*!
+  \brief Qt timer event
+
+  The flying wheel effect is implemented using a timer
+   
+  \param event Timer event
+
+  \sa updateInterval()
+ */
 void QwtWheel::timerEvent( QTimerEvent *event )
 {
     if ( event->timerId() == d_data->timerId )
@@ -292,7 +428,7 @@ void QwtWheel::timerEvent( QTimerEvent *event )
         const bool changed = updateValue( d_data->exactValue + d_data->speed * intv );
 
         // stop if d_data->speed < one step per second
-        if ( qFabs( d_data->speed ) < 0.001 * qAbs( d_data->singleStep ) )
+        if ( qFabs( d_data->speed ) < 0.001 * d_data->singleStep )
         {
             d_data->speed = 0.0;
 
@@ -316,22 +452,27 @@ void QwtWheel::timerEvent( QTimerEvent *event )
   Values outside this range will be clipped.
   The default value is 10.
 
-  \param cnt Number of grooves per 360 degrees
-  \sa tickCnt()
+  \param count Number of grooves per 360 degrees
+  \sa tickCount()
 */
-void QwtWheel::setTickCnt( int cnt )
+void QwtWheel::setTickCount( int count )
 {
-    d_data->tickCnt = qBound( 6, cnt, 50 );
-    update();
+    count = qBound( 6, count, 50 );
+
+    if ( count != d_data->tickCount )
+    {
+        d_data->tickCount = qBound( 6, count, 50 );
+        update();
+    }
 }
 
 /*!
   \return Number of grooves in the wheel's surface.
   \sa setTickCnt()
 */
-int QwtWheel::tickCnt() const
+int QwtWheel::tickCount() const
 {
-    return d_data->tickCnt;
+    return d_data->tickCount;
 }
 
 /*!
@@ -428,9 +569,10 @@ double QwtWheel::totalAngle() const
 
 /*!
   \brief Set the wheel's orientation.
-  \param o Orientation. Allowed values are
-           Qt::Horizontal and Qt::Vertical.
-   Defaults to Qt::Horizontal.
+
+  The default orientation is Qt::Horizontal.
+
+  \param orientation Qt::Horizontal or Qt::Vertical.
   \sa orientation()
 */
 void QwtWheel::setOrientation( Qt::Orientation orientation )
@@ -485,27 +627,35 @@ double QwtWheel::viewAngle() const
     return d_data->viewAngle;
 }
 
-//! Determine the value corresponding to a specified point
-double QwtWheel::valueAt( const QPoint &pos )
+/*! 
+  Determine the value corresponding to a specified point
+
+  \param pos Position
+  \return Value corresponding to pos
+*/
+double QwtWheel::valueAt( const QPoint &pos ) const
 {
     const QRectF rect = wheelRect();
 
-    // The reference position is arbitrary, but the
-    // sign of the offset is important
     double w, dx;
     if ( d_data->orientation == Qt::Vertical )
     {
         w = rect.height();
-        dx = rect.y() - pos.y();
+        dx = rect.top() - pos.y();
     }
     else
     {
         w = rect.width();
-        dx = pos.x() - rect.x();
+        dx = pos.x() - rect.left();
     }
 
     if ( w == 0.0 )
         return 0.0;
+
+    if ( d_data->inverted )
+    {
+        dx = w - dx;
+    }
 
     // w pixels is an arc of viewAngle degrees,
     // so we convert change in pixels to change in angle
@@ -605,7 +755,9 @@ void QwtWheel::drawWheelBackground(
 */
 void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
 {
-    if ( maximum() == minimum() || d_data->totalAngle == 0.0 )
+    const double range = d_data->maximum - d_data->minimum;
+
+    if ( range == 0.0 || d_data->totalAngle == 0.0 )
     {
         return;
     }
@@ -615,17 +767,16 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
     const QPen darkPen( palette().color( QPalette::Dark ), 
         0, Qt::SolidLine, Qt::FlatCap );
 
-    const double sign = ( minimum() < maximum() ) ? 1.0 : -1.0;
-    const double cnvFactor = qAbs( d_data->totalAngle / ( maximum() - minimum() ) );
+    const double cnvFactor = qAbs( d_data->totalAngle / range );
     const double halfIntv = 0.5 * d_data->viewAngle / cnvFactor;
     const double loValue = value() - halfIntv;
     const double hiValue = value() + halfIntv;
-    const double tickWidth = 360.0 / double( d_data->tickCnt ) / cnvFactor;
+    const double tickWidth = 360.0 / double( d_data->tickCount ) / cnvFactor;
     const double sinArc = qFastSin( d_data->viewAngle * M_PI / 360.0 );
 
     if ( d_data->orientation == Qt::Horizontal )
     {
-        const double halfSize = rect.width() * 0.5;
+        const double radius = rect.width() * 0.5;
 
         double l1 = rect.top() + d_data->wheelBorderWidth;
         double l2 = rect.bottom() - d_data->wheelBorderWidth - 1;
@@ -647,8 +798,13 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
             const double angle = ( tickValue - value() ) * M_PI / 180.0;
             const double s = qFastSin( angle * cnvFactor );
 
-            const double tickPos = 
-                rect.right() - halfSize * ( sinArc + sign * s ) / sinArc;
+            const double off = radius * ( sinArc + s ) / sinArc;
+
+            double tickPos;
+            if ( d_data->inverted ) 
+                tickPos = rect.left() + off;
+            else
+                tickPos = rect.right() - off;
 
             if ( ( tickPos <= maxpos ) && ( tickPos > minpos ) )
             {
@@ -663,7 +819,7 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
     }
     else // Qt::Vertical
     {
-        const double halfSize = rect.height() * 0.5;
+        const double radius = rect.height() * 0.5;
 
         double l1 = rect.left() + d_data->wheelBorderWidth;
         double l2 = rect.right() - d_data->wheelBorderWidth - 1;
@@ -683,8 +839,14 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
             const double angle = ( tickValue - value() ) * M_PI / 180.0;
             const double s = qFastSin( angle * cnvFactor );
 
-            const double tickPos = 
-                rect.y() + halfSize * ( sinArc + sign * s ) / sinArc;
+            const double off = radius * ( sinArc + s ) / sinArc;
+
+            double tickPos;
+
+            if ( d_data->inverted )
+                tickPos = rect.bottom() - off;
+            else
+                tickPos = rect.top() + off;
 
             if ( ( tickPos <= maxpos ) && ( tickPos > minpos ) )
             {
@@ -746,18 +908,103 @@ QSize QwtWheel::minimumSizeHint() const
     return sz;
 }
 
-void QwtWheel::setRange( double minimum, double maximum )
+/*!
+  \brief Set the step size of the counter
+
+  A value <= 0.0 disables stepping
+
+  \param stepSize Single step size
+  \sa singleStep(), setPageStepCount()
+*/
+void QwtWheel::setSingleStep( double stepSize )
 {
-    if ( d_data->minimum == minimum && d_data->maximum == maximum )
+    d_data->singleStep = qMax( stepSize, 0.0 );
+}
+
+/*!
+  \return Single step size
+  \sa setSingleStep()
+ */
+double QwtWheel::singleStep() const
+{
+    return d_data->singleStep;
+}
+
+/*!
+  \brief En/Disable step alignment
+
+  When step alignment is enabled value changes initiated by
+  user input ( mouse, keyboard, wheel ) are aligned to
+  the multiples of the single step.
+
+  \sa stepAlignment(), setSingleStep()
+ */
+void QwtWheel::setStepAlignment( bool on )
+{
+    if ( on != d_data->stepAlignment )
+    {
+        d_data->stepAlignment = on;
+    }
+}
+
+/*!
+  \return True, when the step alignment is enabled
+  \sa setStepAlignment(), singleStep()
+ */
+bool QwtWheel::stepAlignment() const
+{
+    return d_data->stepAlignment;
+}
+
+/*!
+  \brief Set the page step count  
+    
+  pageStepCount is a multiplicator for the single step size
+  that typically corresponds to the user pressing PageUp or PageDown.
+    
+  A value of 0 disables page stepping. 
+
+  The default value is 1.
+
+  \param count Multiplicator for the single step size
+  \sa pageStepCount(), setSingleStep()
+ */
+void QwtWheel::setPageStepCount( int count )
+{
+    d_data->pageStepCount = qMax( 0, count );
+}
+
+/*! 
+  \return Page step count
+  \sa setPageStepCount(), singleStep()
+ */
+int QwtWheel::pageStepCount() const
+{
+    return d_data->pageStepCount;
+}
+
+/*!
+  \brief Set the minimum and maximum values
+
+  The maximum is adjusted if necessary to ensure that the range remains valid.
+  The value might be modified to be inside of the range.
+
+  \param min Minimum value
+  \param max Maximum value
+
+  \sa minimum(), maximum()
+ */
+void QwtWheel::setRange( double min, double max )
+{
+    max = qMax( min, max );
+
+    if ( d_data->minimum == min && d_data->maximum == max )
         return;
 
-    d_data->minimum = minimum;
-    d_data->maximum = maximum;
+    d_data->minimum = min;
+    d_data->maximum = max;
 
-    const double vmin = qMin( d_data->minimum, d_data->maximum );
-    const double vmax = qMax( d_data->minimum, d_data->maximum );
-
-    const double value = qBound( vmin, value, vmax );
+    const double value = qBound( min, value, max );
 
 #if 0
     setSingleStep( singleStep() );
@@ -777,82 +1024,130 @@ void QwtWheel::setRange( double minimum, double maximum )
         Q_EMIT valueChanged( d_data->value );
     }
 }
+/*!
+  Set the minimum value of the range
 
-void QwtWheel::setSingleStep( double vstep )
-{
-    const double range = d_data->maximum - d_data->minimum;
+  \param value Minimum value
+  \sa setRange(), setMaximum(), minimum()
 
-    double newStep;
-    if ( vstep == 0.0 )
-    {
-        const double defaultRelStep = 1.0e-2;
-        newStep = range * defaultRelStep;
-    }
-    else
-    {
-        if ( ( range > 0.0 && vstep < 0.0 ) || ( range < 0.0 && vstep > 0.0 ) )
-            newStep = -vstep;
-        else
-            newStep = vstep;
-
-        const double minRelStep = 1.0e-10;
-        if ( qFabs( newStep ) < qFabs( minRelStep * range ) )
-            newStep = minRelStep * range;
-    }
-
-    d_data->singleStep = newStep;
-}
-
-double QwtWheel::singleStep() const
-{
-    return d_data->singleStep;
-}
-
-void QwtWheel::setMaximum( double max )
-{
-    setRange( minimum(), max );
-}
-
-double QwtWheel::maximum() const
-{
-    return d_data->maximum;
-}
-
+  \note The maximum is adjusted if necessary to ensure that the range remains valid.
+*/
 void QwtWheel::setMinimum( double min )
 {
     setRange( min, maximum() );
 }
 
+/*!
+  \return The minimum of the range
+  \sa setRange(), setMinimum(), maximum()
+*/
 double QwtWheel::minimum() const
 {
     return d_data->minimum;
 }
 
-void QwtWheel::setPageSize( int pageSize )
+/*!
+  Set the maximum value of the range
+
+  \param value Maximum value
+  \sa setRange(), setMinimum(), maximum()
+*/
+void QwtWheel::setMaximum( double max )
 {
-#if 1
-    // limit page size
-    const int max =
-        int( qAbs( ( d_data->maximum - d_data->minimum ) / d_data->singleStep ) );
-    d_data->pageSize = qBound( 0, pageSize, max );
-#endif
+    setRange( minimum(), max );
 }
 
-int QwtWheel::pageSize() const
+/*!
+  \return The maximum of the range
+  \sa setRange(), setMaximum(), minimum()
+*/
+double QwtWheel::maximum() const
 {
-    return d_data->pageSize;
+    return d_data->maximum;
 }
 
+/*!
+  \brief Set a new value without adjusting to the step raster
+
+  \param value New value
+
+  \sa value(), valueChanged()
+  \warning The value is clipped when it lies outside the range.
+*/
+void QwtWheel::setValue( double value )
+{
+    stopFlying();
+
+    value = qBound( d_data->minimum, value, d_data->maximum );
+
+    const bool changed = d_data->value != value;
+
+    d_data->value = value;
+    d_data->exactValue = value;
+
+    if ( changed )
+    {
+        update();
+        Q_EMIT valueChanged( d_data->value );
+    }
+}
+
+/*!
+  \return Current value of the wheel
+  \sa setValue(), valueChanged()
+ */
 double QwtWheel::value() const
 {
     return d_data->value;
 }
 
+/*!
+  \brief En/Disable inverted appearance
+
+  An inverted wheel increases its values in the opposite direction.
+  The direction of an inverted horizontal wheel will be from right to left
+  an inverted vertical wheel will increase from bottom to top.
+  
+  \param on En/Disable inverted appearance
+  \sa isInverted()
+ 
+ */
+void QwtWheel::setInverted( bool on )
+{
+    if ( d_data->inverted != on )
+    {
+        d_data->inverted = on;
+        update();
+    }
+}
+
+/*!
+  \return True, when the wheel is inverted
+  \sa setInverted()
+ */
+bool QwtWheel::isInverted() const
+{
+    return d_data->inverted;
+}
+
+/*!
+  \brief En/Disable wrapping
+
+  If wrapping is true stepping up from maximum() value will take 
+  you to the minimum() value and vica versa. 
+
+  \param on En/Disable wrapping
+  \sa wrapping()
+ */
 void QwtWheel::setWrapping( bool on )
 {
     d_data->wrapping = on;
 }
 
+/*!
+  \return True, when wrapping is set
+  \sa setWrapping()
+ */
 bool QwtWheel::wrapping() const
 {
     return d_data->wrapping;
@@ -878,49 +1173,25 @@ bool QwtWheel::wrapping() const
 void QwtWheel::setMass( double mass )
 {
     if ( mass < 0.001 )
+    {
         d_data->mass = 0.0;
+    }
     else
+    {
         d_data->mass = qMin( 100.0, mass );
+    }
 }
 
 /*!
-    \return mass
-    \sa setMass()
+  \return mass
+  \sa setMass()
 */
 double QwtWheel::mass() const
 {
     return d_data->mass;
 }
 
-/*!
-  \brief Move the slider to a specified value
-
-  This function can be used to move the slider to a value
-  which is not an integer multiple of the step size.
-  \param val new value
-  \sa fitValue()
-*/
-void QwtWheel::setValue( double value )
-{
-    stopFlying();
-
-    const double vmin = qMin( d_data->minimum, d_data->maximum );
-    const double vmax = qMax( d_data->minimum, d_data->maximum );
-
-    value = qBound( vmin, value, vmax );
-
-    const bool changed = d_data->value != value;
-
-    d_data->value = value;
-    d_data->exactValue = value;
-
-    if ( changed )
-    {
-        update();
-        Q_EMIT valueChanged( d_data->value );
-    }
-}
-
+//!  Stop the flying movement of the wheel
 void QwtWheel::stopFlying()
 {
     if ( d_data->timerId != 0 )
@@ -930,52 +1201,46 @@ void QwtWheel::stopFlying()
     }
 }
 
-bool QwtWheel::setNewValue( double value )
-{
-    const double vmin = qMin( d_data->minimum, d_data->maximum );
-    const double vmax = qMax( d_data->minimum, d_data->maximum );
-    
-    if ( d_data->wrapping && vmin != vmax )
-    {
-        const double range = vmax - vmin;
+/*!
+  Align the value from a user input according to range and 
+  step size and emit the valueChanged() signal, when tracking is enabled.
 
-        if ( value < vmin )
+  \sa stepSize(), range(), stepAlignment(), wrapping(), tracking()
+ */
+bool QwtWheel::updateValue( double value )
+{
+    const double range = d_data->maximum - d_data->minimum;
+    
+    if ( d_data->wrapping && range != 0.0 )
+    {
+        if ( value < d_data->minimum )
         {
-            value += ::ceil( ( vmin - value ) / range ) * range;
+            value += ::ceil( ( d_data->minimum - value ) / range ) * range;
         }       
-        else if ( value > vmax )
+        else if ( value > d_data->maximum )
         {
-            value -= ::ceil( ( value - vmax ) / range ) * range;
+            value -= ::ceil( ( value - d_data->maximum ) / range ) * range;
         }
     }
     else
     {
-        value = qBound( vmin, value, vmax );
+        value = qBound( d_data->minimum, value, d_data->maximum );
     }
 
     d_data->exactValue = value;
 
-    if ( d_data->singleStep != 0.0 )
-    {
-        value = d_data->minimum +
-            qRound( ( value - d_data->minimum ) / d_data->singleStep ) * d_data->singleStep;
-
-        // correct rounding error at the border
-        if ( qFuzzyCompare( value, d_data->maximum ) )
-            value = d_data->maximum;
-
-        // correct rounding error if value = 0
-        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-            value = 0.0;
-    }
-    else
-    {
-        value = d_data->minimum;
-    }
+    if ( d_data->stepAlignment )
+        value = alignedValue( value );
 
     if ( value != d_data->value )
     {
         d_data->value = value;
+
+        update();
+
+        if ( d_data->tracking )
+            Q_EMIT valueChanged( d_data->value );
+
         return true;
     }
     else
@@ -984,18 +1249,24 @@ bool QwtWheel::setNewValue( double value )
     }
 }
 
-bool QwtWheel::updateValue( double value )
+double QwtWheel::alignedValue( double value ) const
 {
-    const bool changed = setNewValue( value );
-    if ( changed )
+    const double stepSize = d_data->singleStep;
+
+    if ( stepSize > 0.0 )
     {
-        update();
+        value = d_data->minimum +
+            qRound( ( value - d_data->minimum ) / stepSize ) * stepSize;
 
-        if ( d_data->tracking )
-            Q_EMIT valueChanged( d_data->value );
-    }
+        // correct rounding error at the border
+        if ( qFuzzyCompare( value, d_data->maximum ) )
+            value = d_data->maximum;
+            
+        // correct rounding error if value = 0
+        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+            value = 0.0;
+    }       
 
-    return changed;
+    return value;
 }
-
 

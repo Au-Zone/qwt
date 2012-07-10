@@ -34,16 +34,19 @@ class QWT_EXPORT QwtWheel: public QWidget
     Q_PROPERTY( double maximum READ maximum WRITE setMaximum )
 
     Q_PROPERTY( double singleStep READ singleStep WRITE setSingleStep )
-    Q_PROPERTY( int pageSize READ pageSize WRITE setPageSize )
+    Q_PROPERTY( int pageStepCount READ pageStepCount WRITE setPageStepCount )
+    Q_PROPERTY( bool stepAlignment READ stepAlignment WRITE setStepAlignment )
 
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
     Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
+    Q_PROPERTY( bool inverted READ isInverted WRITE setInverted )
 
     Q_PROPERTY( double mass READ mass WRITE setMass )
+    Q_PROPERTY( int updateInterval READ updateInterval WRITE setUpdateInterval )
 
     Q_PROPERTY( double totalAngle READ totalAngle WRITE setTotalAngle )
     Q_PROPERTY( double viewAngle READ viewAngle WRITE setViewAngle )
-    Q_PROPERTY( int tickCnt READ tickCnt WRITE setTickCnt )
+    Q_PROPERTY( int tickCount READ tickCount WRITE setTickCount )
     Q_PROPERTY( int wheelWidth READ wheelWidth WRITE setWheelWidth )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( int wheelBorderWidth READ wheelBorderWidth WRITE setWheelBorderWidth )
@@ -60,8 +63,8 @@ public:
     double totalAngle() const;
     double viewAngle() const;
 
-    void setTickCnt( int );
-    int tickCnt() const;
+    void setTickCount( int );
+    int tickCount() const;
 
     void setWheelWidth( int );
     int wheelWidth() const;
@@ -72,12 +75,21 @@ public:
     void setBorderWidth( int );
     int borderWidth() const;
 
+    void setInverted( bool tf );
+    bool isInverted() const;
 
     void setWrapping( bool tf );
     bool wrapping() const;
 
     void setSingleStep( double );
     double singleStep() const;
+
+    void setPageStepCount( int );
+    int pageStepCount() const;
+
+    void setStepAlignment( bool on );
+    bool stepAlignment() const;
+
     void setRange( double vmin, double vmax );
 
     void setMinimum( double min );
@@ -86,50 +98,48 @@ public:
     void setMaximum( double max );
     double maximum() const;
 
-    void setPageSize( int );
-    int pageSize() const;
-
     void setUpdateInterval( int );
     int updateInterval() const;
 
     void setTracking( bool enable );
     bool isTracking() const;
 
-    void setMass( double val );
     double mass() const;
 
 public Q_SLOTS:
     void setValue( double val );
     void setTotalAngle ( double );
     void setViewAngle( double );
+    void setMass( double val );
 
 Q_SIGNALS:
 
     /*!
       \brief Notify a change of value.
 
-      In the default setting
-      (tracking enabled), this signal will be emitted every
-      time the value changes ( see setTracking() ).
+      When tracking is enabled this signal will be emitted every
+      time the value changes. 
+
       \param value new value
+      \sa setTracking()
     */
     void valueChanged( double value );
 
     /*!
       This signal is emitted when the user presses the
-      movable part of the slider (start ScrMouse Mode).
+      the wheel with the mouse
     */
     void wheelPressed();
 
     /*!
-      This signal is emitted when the user releases the
-      movable part of the slider.
+      This signal is emitted when the user releases the mouse
     */
-
     void wheelReleased();
+
     /*!
       This signal is emitted when the user moves the
-      slider with the mouse.
+      wheel with the mouse.
+
       \param value new value
     */
     void wheelMoved( double value );
@@ -143,8 +153,6 @@ protected:
     virtual void wheelEvent( QWheelEvent * );
     virtual void timerEvent( QTimerEvent * );
 
-    bool setNewValue( double value );
-    bool updateValue( double value );
     void stopFlying();
 
     QRect wheelRect() const;
@@ -155,9 +163,12 @@ protected:
     virtual void drawTicks( QPainter *, const QRectF & );
     virtual void drawWheelBackground( QPainter *, const QRectF & );
 
-    virtual double valueAt( const QPoint & );
+    virtual double valueAt( const QPoint & ) const;
+    virtual bool updateValue( double value );
 
 private:
+    double alignedValue( double ) const;
+
     class PrivateData;
     PrivateData *d_data;
 };

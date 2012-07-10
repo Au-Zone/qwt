@@ -26,7 +26,8 @@ public:
         minimum( 0.0 ),
         maximum( 0.0 ),
         singleStep( 1.0 ),
-        pageSize( 1 ),
+        pageStepCount( 1 ),
+        stepAlignment( true ),
         isValid( false ),
         value( 0.0 ),
         exactValue( 0.0 ),
@@ -42,8 +43,10 @@ public:
 
     double minimum;
     double maximum;
+
     double singleStep;
-    int pageSize;
+    int pageStepCount;
+    bool stepAlignment;
 
     bool isValid;
     double value;
@@ -242,10 +245,21 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
     if ( !d_data->isValid )
         return;
 
-    const int numPages = event->delta() / 120;
+    double off = 0.0;
 
-    const double stepSize = qAbs( d_data->singleStep );
-    const double off = stepSize * d_data->pageSize * numPages;
+    if ( ( event->modifiers() & Qt::ControlModifier) ||
+        ( event->modifiers() & Qt::ShiftModifier ) )
+    {
+        // one page regardless of delta
+        off = d_data->singleStep * d_data->pageStepCount;
+        if ( event->delta() < 0 )
+            off = -off;
+    }
+    else
+    {
+        const int numSteps = event->delta() / 120;
+        off = d_data->singleStep * numSteps;
+    }
 
     const bool changed = updateValue( d_data->value + off );
     if ( changed )
@@ -297,12 +311,12 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
         }
         case Qt::Key_PageUp:
         {
-            value += d_data->pageSize * stepSize;
+            value += d_data->pageStepCount * stepSize;
             break;
         }
         case Qt::Key_PageDown:
         {
-            value -= d_data->pageSize * stepSize;
+            value -= d_data->pageStepCount * stepSize;
             break;
         }
         case Qt::Key_Home:
@@ -431,6 +445,51 @@ void QwtAbstractSlider::setSingleStep( double vstep )
 }   
 
 /*!
+  \brief Set the page step count 
+
+  pageStepCount is a multiplicator for the single step size
+  that typically corresponds to the user pressing PageUp or PageDown.
+
+  A value of 0 disables page stepping. The value is floored to
+  ( maximum() - minimum() ) / singleStep().
+
+  The default value is 1.
+
+  \param count Multiplicator for the single step size
+
+  \sa pageStepCount(), setSingleStep()
+ */
+void QwtAbstractSlider::setPageStepCount( int count )
+{
+	const double range = d_data->maximum - d_data->minimum;
+
+    const int max = int( qAbs( range / d_data->singleStep ) );
+    d_data->pageStepCount = qBound( 0, count, max );
+}
+
+/*! 
+  \return Page step count
+  \sa setPageStepCount(), singleStep()
+ */
+int QwtAbstractSlider::pageStepCount() const
+{
+    return d_data->pageStepCount;
+}
+
+void QwtAbstractSlider::setStepAlignment( bool on )
+{   
+    if ( on != d_data->stepAlignment )
+    {
+        d_data->stepAlignment = on;
+    }
+}   
+    
+bool QwtAbstractSlider::stepAlignment() const
+{
+    return d_data->stepAlignment;
+}
+
+/*!
   \return The absolute step size
   \sa setStep(), setRange()
 */
@@ -488,22 +547,6 @@ double QwtAbstractSlider::minimum() const
 {
     return d_data->minimum;
 }   
-
-void QwtAbstractSlider::setPageSize( int pageSize )
-{
-#if 1
-    // limit page size
-    const int max =
-        int( qAbs( ( d_data->maximum - d_data->minimum ) / d_data->singleStep ) );
-    d_data->pageSize = qBound( 0, pageSize, max );
-#endif
-}
-
-//! Returns the page size in steps.
-int QwtAbstractSlider::pageSize() const
-{
-    return d_data->pageSize;
-}
 
 //! Returns the current value.
 double QwtAbstractSlider::value() const
@@ -601,23 +644,8 @@ bool QwtAbstractSlider::setNewValue( double value )
 
     d_data->exactValue = value;
 
-    if ( d_data->singleStep != 0.0 )
-    {
-        value = d_data->minimum +
-            qRound( ( value - d_data->minimum ) / d_data->singleStep ) * d_data->singleStep;
-
-        // correct rounding error at the border
-        if ( qFuzzyCompare( value, d_data->maximum ) )
-            value = d_data->maximum;
-
-        // correct rounding error if value = 0
-        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-            value = 0.0;
-    }
-    else
-    {
-        value = d_data->minimum;
-    }
+	if ( d_data->stepAlignment )
+        value = alignedValue( value );
 
     if ( value != d_data->value )
     {
@@ -642,4 +670,25 @@ bool QwtAbstractSlider::updateValue( double value )
     }
 
     return changed;
+}
+
+double QwtAbstractSlider::alignedValue( double value ) const
+{
+    const double stepSize = d_data->singleStep;
+
+    if ( stepSize > 0.0 )
+    {
+        value = d_data->minimum +
+            qRound( ( value - d_data->minimum ) / stepSize ) * stepSize;
+
+        // correct rounding error at the border
+        if ( qFuzzyCompare( value, d_data->maximum ) )
+            value = d_data->maximum;
+
+        // correct rounding error if value = 0
+        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+            value = 0.0;
+    }
+
+    return value;
 }

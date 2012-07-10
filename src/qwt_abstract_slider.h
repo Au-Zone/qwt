@@ -33,7 +33,8 @@ class QWT_EXPORT QwtAbstractSlider : public QWidget
     Q_PROPERTY( double maximum READ maximum WRITE setMaximum )
 
     Q_PROPERTY( double singleStep READ singleStep WRITE setSingleStep )
-    Q_PROPERTY( int pageSize READ pageSize WRITE setPageSize )
+    Q_PROPERTY( int pageStepCount READ pageStepCount WRITE setPageStepCount )
+    Q_PROPERTY( bool stepAlignment READ stepAlignment WRITE setStepAlignment )
 
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
@@ -54,6 +55,12 @@ public:
     void setSingleStep( double );
     double singleStep() const;
 
+    void setPageStepCount( int );
+    int pageStepCount() const;
+
+    void setStepAlignment( bool on ); 
+    bool stepAlignment() const;
+
     void setRange( double vmin, double vmax );
 
     void setMinimum( double min );
@@ -61,9 +68,6 @@ public:
 
     void setMaximum( double max );
     double maximum() const;
-
-    void setPageSize( int );
-    int pageSize() const;
 
     void setTracking( bool enable );
     bool isTracking() const;
@@ -145,6 +149,8 @@ protected:
     bool updateValue( double value );
 
 private:
+	double alignedValue( double ) const;
+
     class PrivateData;
     PrivateData *d_data;
 };

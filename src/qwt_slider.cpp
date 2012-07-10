@@ -627,7 +627,7 @@ void QwtSlider::mouseReleaseEvent( QMouseEvent *event )
         if ( !d_data->timerTick )
         {
             double off = qAbs( singleStep() ) * d_data->direction;
-            off *= pageSize();
+            off *= pageStepCount();
 
             const bool changed = setNewValue( value() + off );
             if ( changed )
@@ -679,8 +679,8 @@ void QwtSlider::timerEvent( QTimerEvent *event )
 
         d_data->prevValue = value();
 
-        double off = d_data->direction * qAbs( singleStep() );
-        off *= pageSize();
+        double off = qAbs( singleStep() ) * pageStepCount();
+		off *= d_data->direction;
 
         const bool changed = setNewValue( value() + off );
 

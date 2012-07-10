@@ -289,7 +289,6 @@ double QwtCounter::minimum() const
     return d_data->minimum;
 }
 
-
 /*!
   Set the maximum value of the range
 
@@ -313,19 +312,14 @@ double QwtCounter::maximum() const
 /*!
   \brief Set the step size of the counter
 
+  A value <= 0.0 disables stepping
+
   \param stepSize Single step size
   \sa singleStep()
 */
 void QwtCounter::setSingleStep( double stepSize )
 {
-    stepSize = qMax( stepSize, 0.0 );
-    if ( stepSize > 0.0 )
-    {
-        const double range = d_data->maximum - d_data->minimum;
-        stepSize = qMax( stepSize, 1.0e-10 * range );
-    }
-
-    d_data->singleStep = stepSize;
+    d_data->singleStep = qMax( stepSize, 0.0 );
 }
 
 /*!
@@ -338,8 +332,10 @@ double QwtCounter::singleStep() const
 }
 
 /*!
-  If wrapping is true stepping up from maximum() value will take you to the minimum() 
-  value and vica versa. 
+  \brief En/Disable wrapping
+
+  If wrapping is true stepping up from maximum() value will take 
+  you to the minimum() value and vica versa. 
 
   \param on En/Disable wrapping
   \sa wrapping()
