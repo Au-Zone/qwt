@@ -36,19 +36,21 @@ public:
         borderWidth( 2 ),
         wheelWidth( 20 ),
         isScrolling( false ),
-        initialScrollOffset( 0.0 ),
-        valueModified( false ),
+        mouseOffset( 0.0 ),
         tracking( true ),
-        timerId( 0 ),
+        pendingValueChanged( false ),
         updateInterval( 50 ),
         mass( 0.0 ),
+        timerId( 0 ),
+        speed( 0.0 ),
+        mouseValue( 0.0 ),
+        flyingValue( 0.0 ),
         minimum( 0.0 ),
         maximum( 0.0 ),
         singleStep( 1.0 ),
         pageStepCount( 1 ),
         stepAlignment( true ),
         value( 0.0 ),
-        exactValue( 0.0 ),
         inverted( false ),
         wrapping( false )
     {
@@ -63,15 +65,21 @@ public:
     int wheelWidth;
 
     bool isScrolling;
-    double initialScrollOffset;
-    bool valueModified;
-    bool tracking;
+    double mouseOffset;
 
-    int timerId;
+    bool tracking;
+    bool pendingValueChanged; // when not tracking
+
     int updateInterval;
+    double mass;
+
+    // for the flying wheel effect
+    int timerId;
     QTime time;
     double speed;
-    double mass;
+    double mouseValue;
+    double flyingValue;
+
 
     double minimum;
     double maximum;
@@ -81,7 +89,6 @@ public:
     bool stepAlignment;
 
     double value;
-    double exactValue;
 
     bool inverted;
     bool wrapping;
@@ -168,9 +175,9 @@ void QwtWheel::mousePressEvent( QMouseEvent *event )
     {
         d_data->time.start();
         d_data->speed = 0.0;
-        d_data->initialScrollOffset = valueAt( event->pos() ) - d_data->value;
-        d_data->exactValue = d_data->value;
-        d_data->valueModified = false;
+        d_data->mouseValue = valueAt( event->pos() );
+        d_data->mouseOffset = d_data->mouseValue - d_data->value;
+        d_data->pendingValueChanged = false;
 
         Q_EMIT wheelPressed();
     }
@@ -188,25 +195,29 @@ void QwtWheel::mouseMoveEvent( QMouseEvent *event )
     if ( !d_data->isScrolling )
         return;
 
-    double value = valueAt( event->pos() ) - d_data->initialScrollOffset;
-
-    value = boundedValue( value );
+    double mouseValue = valueAt( event->pos() );
 
     if ( d_data->mass > 0.0 )
     {
-        const double ms = d_data->time.restart();
-        d_data->speed = ( value - d_data->exactValue ) / qMax( ms, 1.0 );
+        double ms = d_data->time.restart();
+
+        // the interval when mouse move events are posted are somehow
+        // random. To avoid unrealistic speed values we limit ms
+
+        ms = qMax( ms, 5.0 );
+
+        d_data->speed = ( mouseValue - d_data->mouseValue ) / ms;
     }
     
-    d_data->exactValue = value; 
+    d_data->mouseValue = mouseValue; 
 
+    double value = boundedValue( mouseValue - d_data->mouseOffset );
     if ( d_data->stepAlignment )
         value = alignedValue( value );
         
     if ( value != d_data->value )
     {
         d_data->value = value;
-        d_data->valueModified = true;
 
         update();
 
@@ -214,6 +225,8 @@ void QwtWheel::mouseMoveEvent( QMouseEvent *event )
 
         if ( d_data->tracking )
             Q_EMIT valueChanged( d_data->value );
+        else
+            d_data->pendingValueChanged = true;
     }
 }
 
@@ -234,7 +247,6 @@ void QwtWheel::mouseReleaseEvent( QMouseEvent *event )
         return;
 
     d_data->isScrolling = false;
-    d_data->initialScrollOffset = 0.0;
 
     bool startFlying = false;
 
@@ -247,18 +259,65 @@ void QwtWheel::mouseReleaseEvent( QMouseEvent *event )
 
     if ( startFlying )
     {
+        d_data->flyingValue = 
+            boundedValue( d_data->mouseValue - d_data->mouseOffset );
+
         d_data->timerId = startTimer( d_data->updateInterval );
     }
     else
     {
-        if ( d_data->valueModified && !d_data->tracking )
+        if ( d_data->pendingValueChanged )
             Q_EMIT valueChanged( d_data->value );
     }
 
-    d_data->valueModified = false;
+    d_data->pendingValueChanged = false;
+    d_data->mouseOffset = 0.0;
 
     Q_EMIT wheelReleased();
 }
+
+/*!
+  \brief Qt timer event
+
+  The flying wheel effect is implemented using a timer
+   
+  \param event Timer event
+
+  \sa updateInterval()
+ */
+void QwtWheel::timerEvent( QTimerEvent *event )
+{
+    if ( event->timerId() != d_data->timerId )
+    {
+        QWidget::timerEvent( event );
+        return;
+    }
+
+    d_data->speed *= qExp( -d_data->updateInterval * 0.001 / d_data->mass );
+
+    d_data->flyingValue += d_data->speed * d_data->updateInterval;
+    d_data->flyingValue = boundedValue( d_data->flyingValue );
+
+    double value = d_data->flyingValue;
+    if ( d_data->stepAlignment )
+        value = alignedValue( value );
+
+    if ( qFabs( d_data->speed ) < 0.001 * d_data->singleStep )
+    {
+        // stop if d_data->speed < one step per second
+        stopFlying();
+    }
+
+    if ( value != d_data->value )
+    {
+        d_data->value = value;
+        update();
+
+        if ( d_data->tracking || d_data->timerId == 0 )
+            Q_EMIT valueChanged( d_data->value );
+    }
+}
+
 
 /*!
   Handle wheel events
@@ -438,51 +497,6 @@ void QwtWheel::keyPressEvent( QKeyEvent *event )
 
         Q_EMIT valueChanged( d_data->value );
         Q_EMIT wheelMoved( d_data->value );
-    }
-}
-
-/*!
-  \brief Qt timer event
-
-  The flying wheel effect is implemented using a timer
-   
-  \param event Timer event
-
-  \sa updateInterval()
- */
-void QwtWheel::timerEvent( QTimerEvent *event )
-{
-    if ( event->timerId() != d_data->timerId )
-    {
-        QWidget::timerEvent( event );
-        return;
-    }
-
-    d_data->speed *= qExp( -d_data->updateInterval * 0.001 / d_data->mass );
-
-    double value = d_data->exactValue + d_data->speed * d_data->updateInterval;
-    value = boundedValue( value );
-
-    d_data->exactValue = value;
-
-    if ( d_data->stepAlignment )
-        value = alignedValue( value );
-
-#if 1
-    if ( qFabs( d_data->speed ) < 0.001 * d_data->singleStep )
-    {
-        // stop if d_data->speed < one step per second
-        stopFlying();
-    }
-#endif
-
-    if ( value != d_data->value )
-    {
-        d_data->value = value;
-        update();
-
-        if ( d_data->tracking || d_data->timerId == 0 )
-            Q_EMIT valueChanged( d_data->value );
     }
 }
 
