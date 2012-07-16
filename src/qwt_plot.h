@@ -39,6 +39,9 @@ class QwtTextLabel;
   are calculated from the plot items, using algorithms (QwtScaleEngine) which
   can be configured separately for each axis.
 
+  The simpleplot example is a good starting point to see how to set up a 
+  plot widget.
+
   \image html plot.png
 
   \par Example

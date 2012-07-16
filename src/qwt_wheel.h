@@ -164,10 +164,10 @@ protected:
     virtual void drawWheelBackground( QPainter *, const QRectF & );
 
     virtual double valueAt( const QPoint & ) const;
-    virtual bool updateValue( double value );
 
 private:
     double alignedValue( double ) const;
+    double boundedValue( double ) const;
 
     class PrivateData;
     PrivateData *d_data;

@@ -1,6 +1,5 @@
 #include <qapplication.h>
 #include <qwt_plot.h>
-#include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
 #include <qwt_symbol.h>
