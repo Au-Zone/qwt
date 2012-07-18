@@ -20,8 +20,9 @@ class QwtAbstractSlider::PrivateData
 public:
     PrivateData():
         isScrolling( false ),
-        initialScrollOffset( 0.0 ),
+        mouseOffset( 0.0 ),
         tracking( true ),
+        pendingValueChanged( false ),
         readOnly( false ),
         minimum( 0.0 ),
         maximum( 0.0 ),
@@ -30,14 +31,14 @@ public:
         stepAlignment( true ),
         isValid( false ),
         value( 0.0 ),
-        exactValue( 0.0 ),
         wrapping( false )
     {
     }
 
     bool isScrolling;
-    double initialScrollOffset;
+    double mouseOffset;
     bool tracking;
+    bool pendingValueChanged;
 
     bool readOnly;
 
@@ -50,7 +51,6 @@ public:
 
     bool isValid;
     double value;
-    double exactValue;
 
     bool wrapping;
 };
@@ -166,7 +166,8 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
 
     if ( d_data->isScrolling )
     {
-        d_data->initialScrollOffset = valueAt( event->pos() ) - d_data->value;
+        d_data->mouseOffset = valueAt( event->pos() ) - d_data->value;
+		d_data->pendingValueChanged = false;
 
         Q_EMIT sliderPressed();
     }
@@ -184,17 +185,28 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
         return;
     }
 
-    if ( !d_data->isValid )
-        return;
-
-    if ( d_data->isScrolling )
+    if ( d_data->isValid && d_data->isScrolling )
     {
-        const double newValue = 
-            valueAt( e->pos() ) - d_data->initialScrollOffset;
+        double value = valueAt( e->pos() ) - d_data->mouseOffset;
 
-        const bool changed = updateValue( newValue );
-        if ( changed )
+    	value = boundedValue( value );
+
+    	if ( d_data->stepAlignment )
+        	value = alignedValue( value );
+
+    	if ( value != d_data->value )
+    	{
+        	d_data->value = value;
+
+        	valueChange();
+
+        	if ( d_data->tracking )
+            	Q_EMIT valueChanged( d_data->value );
+			else
+				d_data->pendingValueChanged = true;
+
             Q_EMIT sliderMoved( d_data->value );
+		}
     }
 }
 
@@ -210,20 +222,12 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
         return;
     }
 
-    if ( !d_data->isValid )
-        return;
-
-    if ( d_data->isScrolling )
+    if ( d_data->isScrolling && d_data->isValid )
     {
-        const double newValue = 
-            valueAt( event->pos() ) - d_data->initialScrollOffset;
-
-        const bool changed = updateValue( newValue );
-
-        d_data->initialScrollOffset = 0.0;
-
+        d_data->mouseOffset = 0.0;
         d_data->isScrolling = false;
-        if ( ( !d_data->tracking ) || changed )
+
+        if ( d_data->pendingValueChanged )
             Q_EMIT valueChanged( d_data->value );
 
         Q_EMIT sliderReleased();
@@ -242,30 +246,38 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
         return;
     }
 
-    if ( !d_data->isValid )
+    if ( !d_data->isValid || d_data->isScrolling )
         return;
 
-    double off = 0.0;
+    double increment = 0.0;
 
     if ( ( event->modifiers() & Qt::ControlModifier) ||
         ( event->modifiers() & Qt::ShiftModifier ) )
     {
         // one page regardless of delta
-        off = d_data->singleStep * d_data->pageStepCount;
+        increment = d_data->singleStep * d_data->pageStepCount;
         if ( event->delta() < 0 )
-            off = -off;
+            increment = -increment;
     }
     else
     {
         const int numSteps = event->delta() / 120;
-        off = d_data->singleStep * numSteps;
+        increment = d_data->singleStep * numSteps;
     }
 
-    const bool changed = updateValue( d_data->value + off );
-    if ( changed )
-    {   
+    double value = boundedValue( d_data->value + increment );
+
+    if ( d_data->stepAlignment )
+        value = alignedValue( value );
+
+    if ( value != d_data->value )
+    {
+        d_data->value = value;
+        valueChange();
+
+        Q_EMIT valueChanged( d_data->value );
         Q_EMIT sliderMoved( d_data->value );
-    }   
+    }
 }
 
 /*!
@@ -279,44 +291,46 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
   \param e Key event
   \sa isReadOnly()
 */
-void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
+void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
 {
     if ( isReadOnly() )
     {
-        e->ignore();
+        event->ignore();
         return;
     }
 
-    if ( !d_data->isValid )
+    if ( !d_data->isValid || d_data->isScrolling )
         return;
 
     const double stepSize = qAbs( d_data->singleStep );
+
     double value = d_data->value;
+	double increment = 0.0;
 
 #if 1
     // better use key mapping from QAbstractSlider or QDial
-    switch ( e->key() )
+    switch ( event->key() )
     {
         case Qt::Key_Down:
         case Qt::Key_Left:
         {
-            value -= stepSize;
+            increment = -stepSize;
             break;
         }
         case Qt::Key_Up:
         case Qt::Key_Right:
         {
-            value += stepSize;
+            increment = stepSize;
             break;
         }
         case Qt::Key_PageUp:
         {
-            value += d_data->pageStepCount * stepSize;
+            increment = d_data->pageStepCount * stepSize;
             break;
         }
         case Qt::Key_PageDown:
         {
-            value -= d_data->pageStepCount * stepSize;
+            increment = -d_data->pageStepCount * stepSize;
             break;
         }
         case Qt::Key_Home:
@@ -331,18 +345,26 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *e )
         }
         default:;
         {
-            e->ignore();
+            event->ignore();
         }
     }
 #endif
 
+	if ( increment != 0.0 )
+	{
+		value = boundedValue( d_data->value + increment );
+
+        if ( d_data->stepAlignment )
+            value = alignedValue( value );
+	}
+
     if ( value != d_data->value )
     {
-        const bool changed = updateValue( value );
-        if ( changed )
-        {   
-            Q_EMIT sliderMoved( d_data->value );
-        }   
+		d_data->value = value;
+		valueChange();
+
+		Q_EMIT valueChanged( d_data->value );
+		Q_EMIT sliderMoved( d_data->value );
     }
 }
 
@@ -402,7 +424,6 @@ void QwtAbstractSlider::setRange( double minimum, double maximum )
     if ( changed )
     {
         d_data->value = value;
-        d_data->exactValue = value;
     }
     
     rangeChange();
@@ -593,7 +614,6 @@ void QwtAbstractSlider::setValue( double value )
     const bool changed = ( d_data->value != value ) || !d_data->isValid;
 
     d_data->value = value;
-    d_data->exactValue = value;
     d_data->isValid = true;
 
     if ( changed )
@@ -608,7 +628,7 @@ void QwtAbstractSlider::setValue( double value )
 */
 void QwtAbstractSlider::setMouseOffset( double offset )
 {
-    d_data->initialScrollOffset = offset;
+    d_data->mouseOffset = offset;
 }
 
 /*!
@@ -616,33 +636,12 @@ void QwtAbstractSlider::setMouseOffset( double offset )
 */
 double QwtAbstractSlider::mouseOffset() const
 {
-    return d_data->initialScrollOffset;
+    return d_data->mouseOffset;
 }
 
 bool QwtAbstractSlider::setNewValue( double value )
 {
-    const double vmin = qMin( d_data->minimum, d_data->maximum );
-    const double vmax = qMax( d_data->minimum, d_data->maximum );
-    
-    if ( d_data->wrapping && vmin != vmax )
-    {
-        const double range = vmax - vmin;
-
-        if ( value < vmin )
-        {
-            value += ::ceil( ( vmin - value ) / range ) * range;
-        }       
-        else if ( value > vmax )
-        {
-            value -= ::ceil( ( value - vmax ) / range ) * range;
-        }
-    }
-    else
-    {
-        value = qBound( vmin, value, vmax );
-    }
-
-    d_data->exactValue = value;
+	value = boundedValue( value );
 
 	if ( d_data->stepAlignment )
         value = alignedValue( value );
@@ -658,18 +657,30 @@ bool QwtAbstractSlider::setNewValue( double value )
     }
 }
 
-bool QwtAbstractSlider::updateValue( double value )
+double QwtAbstractSlider::boundedValue( double value ) const
 {
-    const bool changed = setNewValue( value );
-    if ( changed )
-    {
-        valueChange();
+    const double vmin = qMin( d_data->minimum, d_data->maximum );
+    const double vmax = qMax( d_data->minimum, d_data->maximum );
 
-        if ( d_data->tracking )
-            Q_EMIT valueChanged( d_data->value );
+    if ( d_data->wrapping && vmin != vmax )
+    {
+        const double range = vmax - vmin;
+
+        if ( value < vmin )
+        {
+            value += ::ceil( ( vmin - value ) / range ) * range;
+        }
+        else if ( value > vmax )
+        {
+            value -= ::ceil( ( value - vmax ) / range ) * range;
+        }
+    }
+    else
+    {
+        value = qBound( vmin, value, vmax );
     }
 
-    return changed;
+	return value;
 }
 
 double QwtAbstractSlider::alignedValue( double value ) const

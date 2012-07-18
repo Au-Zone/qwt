@@ -146,10 +146,10 @@ protected:
     virtual void rangeChange();
 
     bool setNewValue( double value );
-    bool updateValue( double value );
 
 private:
 	double alignedValue( double ) const;
+	double boundedValue( double ) const;
 
     class PrivateData;
     PrivateData *d_data;
