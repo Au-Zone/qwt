@@ -80,7 +80,6 @@ public:
     double mouseValue;
     double flyingValue;
 
-
     double minimum;
     double maximum;
 
@@ -337,7 +336,6 @@ void QwtWheel::wheelEvent( QWheelEvent *event )
         return;
 
     stopFlying();
-    d_data->isScrolling = false;
 
     double increment = 0.0;
 
