@@ -142,10 +142,9 @@ protected:
     void setMouseOffset( double );
     double mouseOffset() const;
 
-    virtual void valueChange();
     virtual void rangeChange();
 
-    bool setNewValue( double value );
+    void incrementValue( double increment );
 
 private:
 	double alignedValue( double ) const;

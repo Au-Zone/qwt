@@ -45,13 +45,15 @@ private:
 TunerFrame::TunerFrame( QWidget *parent ):
     QFrame( parent )
 {
-    d_sliderFrequency = new QwtSlider( this, Qt::Horizontal, QwtSlider::TopScale );
+    d_sliderFrequency = new QwtSlider( this );
+	d_sliderFrequency->setOrientation( Qt::Horizontal );
+	d_sliderFrequency->setScalePosition( QwtSlider::TrailingScale );
     d_sliderFrequency->setRange( 87.5, 108 );
     d_sliderFrequency->setSingleStep( 0.01 );
     d_sliderFrequency->setPageStepCount( 10 );
     d_sliderFrequency->setScaleMaxMinor( 5 );
     d_sliderFrequency->setScaleMaxMajor( 12 );
-    d_sliderFrequency->setHandleSize( 80, 20 );
+    d_sliderFrequency->setHandleSize( QSize( 80, 20 ) );
     d_sliderFrequency->setBorderWidth( 1 );
 
     d_thermoTune = new TuningThermo( this );
