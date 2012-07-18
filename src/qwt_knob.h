@@ -143,11 +143,6 @@ protected:
     virtual bool isScrollPosition( const QPoint & ) const;
 
 private:
-    void initKnob();
-    void layoutKnob( bool update );
-    void recalcAngle();
-
-    virtual void valueChange();
     virtual void rangeChange();
     virtual void scaleChange();
 

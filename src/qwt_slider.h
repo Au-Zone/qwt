@@ -33,12 +33,12 @@ class QWT_EXPORT QwtSlider : public QwtAbstractSlider, public QwtAbstractScale
 {
     Q_OBJECT
 
-    Q_ENUMS( ScalePos )
+    Q_ENUMS( ScalePosition )
     Q_ENUMS( BackgroundStyle )
 
     Q_PROPERTY( Qt::Orientation orientation
                 READ orientation WRITE setOrientation )
-    Q_PROPERTY( ScalePos scalePosition READ scalePosition
+    Q_PROPERTY( ScalePosition scalePosition READ scalePosition
         WRITE setScalePosition )
     Q_PROPERTY( BackgroundStyles backgroundStyle 
         READ backgroundStyle WRITE setBackgroundStyle )
@@ -50,30 +50,20 @@ class QWT_EXPORT QwtSlider : public QwtAbstractSlider, public QwtAbstractScale
 public:
 
     /*!
-      Scale position. QwtSlider tries to enforce valid combinations of its
-      orientation and scale position:
+      Scale position. 
 
-      - Qt::Horizonal combines with NoScale, TopScale and BottomScale
-      - Qt::Vertical combines with NoScale, LeftScale and RightScale
-
-      \sa QwtSlider()
+      \sa QwtSlider(), setOrientation()
      */
-    enum ScalePos
+    enum ScalePosition
     {
         //! The slider has no scale
         NoScale,
 
-        //! The scale is left of the slider
-        LeftScale,
+        //! The scale is right of a vertical or below a horizontal slider
+        LeadingScale,
 
-        //! The scale is right of the slider
-        RightScale,
-
-        //! The scale is above of the slider
-        TopScale,
-
-        //! The scale is below of the slider
-        BottomScale
+        //! The scale is left of a vertical or above a horizontal slider
+        TrailingScale
     };
 
     /*!
@@ -94,20 +84,19 @@ public:
 
     explicit QwtSlider( QWidget *parent,
         Qt::Orientation = Qt::Horizontal,
-        ScalePos = NoScale, BackgroundStyles = Trough );
+        ScalePosition = NoScale, BackgroundStyles = Trough );
 
     virtual ~QwtSlider();
 
     void setOrientation( Qt::Orientation );
     Qt::Orientation orientation() const;
 
+    void setScalePosition( ScalePosition );
+    ScalePosition scalePosition() const;
+
     void setBackgroundStyle( BackgroundStyles );
     BackgroundStyles backgroundStyle() const;
 
-    void setScalePosition( ScalePos s );
-    ScalePos scalePosition() const;
-
-    void setHandleSize( int width, int height );
     void setHandleSize( const QSize & );
     QSize handleSize() const;
 
@@ -150,17 +139,20 @@ protected:
     virtual void changeEvent( QEvent * );
     virtual void timerEvent( QTimerEvent * );
 
-    virtual void valueChange();
     virtual void rangeChange();
     virtual void scaleChange();
 
     int transform( double v ) const;
 
     QwtScaleDraw *scaleDraw();
+	QRect sliderRect() const;
+
+private Q_SLOTS:
+    void emitScaleValue();
 
 private:
+	QRect handleRect() const;
     void layoutSlider( bool );
-    void initSlider( Qt::Orientation, ScalePos, BackgroundStyles );
 
     class PrivateData;
     PrivateData *d_data;

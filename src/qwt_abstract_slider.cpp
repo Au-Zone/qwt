@@ -82,7 +82,7 @@ void QwtAbstractSlider::setValid( bool isValid )
     if ( isValid != d_data->isValid )
     {
         d_data->isValid = isValid;
-        valueChange();
+        update();
 
         Q_EMIT valueChanged( d_data->value );
     }   
@@ -159,7 +159,7 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
         return;
     }
 
-    if ( !d_data->isValid )
+    if ( !d_data->isValid || d_data->minimum == d_data->maximum )
         return;
 
     d_data->isScrolling = isScrollPosition( event->pos() );
@@ -198,7 +198,7 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
     	{
         	d_data->value = value;
 
-        	valueChange();
+        	update();
 
         	if ( d_data->tracking )
             	Q_EMIT valueChanged( d_data->value );
@@ -273,7 +273,7 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
     if ( value != d_data->value )
     {
         d_data->value = value;
-        valueChange();
+        update();
 
         Q_EMIT valueChanged( d_data->value );
         Q_EMIT sliderMoved( d_data->value );
@@ -361,24 +361,11 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     if ( value != d_data->value )
     {
 		d_data->value = value;
-		valueChange();
+		update();
 
 		Q_EMIT valueChanged( d_data->value );
 		Q_EMIT sliderMoved( d_data->value );
     }
-}
-
-/*!
-  Notify change of value
-
-  This function can be reimplemented by derived classes
-  in order to keep track of changes, i.e. repaint the widget.
-  The default implementation emits a valueChanged() signal
-  if tracking is enabled.
-*/
-void QwtAbstractSlider::valueChange()
-{
-    update();
 }
 
 /*!
@@ -430,7 +417,7 @@ void QwtAbstractSlider::setRange( double minimum, double maximum )
 
     if ( d_data->isValid || changed )
     {
-        valueChange();
+        update();
         Q_EMIT valueChanged( d_data->value );
     }   
 }
@@ -618,7 +605,7 @@ void QwtAbstractSlider::setValue( double value )
 
     if ( changed )
     {
-        valueChange();
+        update();
         Q_EMIT valueChanged( d_data->value );
     }
 }
@@ -639,22 +626,17 @@ double QwtAbstractSlider::mouseOffset() const
     return d_data->mouseOffset;
 }
 
-bool QwtAbstractSlider::setNewValue( double value )
+void QwtAbstractSlider::incrementValue( double increment )
 {
-	value = boundedValue( value );
-
+	double value = boundedValue( d_data->value + increment );
 	if ( d_data->stepAlignment )
         value = alignedValue( value );
 
     if ( value != d_data->value )
-    {
-        d_data->value = value;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	{
+		d_data->value = value;
+		update();
+	}
 }
 
 double QwtAbstractSlider::boundedValue( double value ) const

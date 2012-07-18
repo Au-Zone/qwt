@@ -25,27 +25,25 @@ Slider::Slider( QWidget *parent, int sliderType ):
     d_slider = createSlider( this, sliderType );
 
     QFlags<Qt::AlignmentFlag> alignment;
-    switch( d_slider->scalePosition() )
-    {
-        case QwtSlider::NoScale:
-            if ( d_slider->orientation() == Qt::Horizontal )
-                alignment = Qt::AlignHCenter | Qt::AlignTop;
-            else
-                alignment = Qt::AlignVCenter | Qt::AlignLeft;
-            break;
-        case QwtSlider::LeftScale:
-            alignment = Qt::AlignVCenter | Qt::AlignRight;
-            break;
-        case QwtSlider::RightScale:
-            alignment = Qt::AlignVCenter | Qt::AlignLeft;
-            break;
-        case QwtSlider::TopScale:
-            alignment = Qt::AlignHCenter | Qt::AlignBottom;
-            break;
-        case QwtSlider::BottomScale:
-            alignment = Qt::AlignHCenter | Qt::AlignTop;
-            break;
-    }
+
+	if ( d_slider->orientation() == Qt::Horizontal )
+	{
+		if ( d_slider->scalePosition() == QwtSlider::TrailingScale )
+			alignment = Qt::AlignBottom;
+		else
+			alignment = Qt::AlignTop;
+
+		alignment |= Qt::AlignHCenter;
+	}
+	else
+	{
+		if ( d_slider->scalePosition() == QwtSlider::TrailingScale )
+			alignment = Qt::AlignRight;
+		else
+			alignment = Qt::AlignLeft;
+
+		alignment |= Qt::AlignVCenter;
+	}
 
     d_label = new QLabel( "0", this );
     d_label->setAlignment( alignment );
@@ -71,18 +69,22 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
     {
         case 0:
         {
-            slider = new QwtSlider( parent, Qt::Horizontal,
-                QwtSlider::TopScale, QwtSlider::Trough );
-            slider->setHandleSize( 30, 16 );
-            slider->setRange( -10.0, 10.0 ); 
+            slider = new QwtSlider( parent );
+			slider->setOrientation( Qt::Horizontal );
+			slider->setScalePosition( QwtSlider::TrailingScale );
+			slider->setBackgroundStyle( QwtSlider::Trough );
+            slider->setHandleSize( QSize( 30, 16 ) );
+            slider->setRange( 10.0, -10.0 ); 
 			slider->setSingleStep( 1.0 ); 
 			slider->setPageStepCount( 0 ); // paging disabled
             break;
         }
         case 1:
         {
-            slider = new QwtSlider( parent, Qt::Horizontal,
-                QwtSlider::NoScale, QwtSlider::Trough | QwtSlider::Groove );
+            slider = new QwtSlider( parent );
+			slider->setOrientation( Qt::Horizontal );
+			slider->setScalePosition( QwtSlider::NoScale );
+			slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
             slider->setRange( 0.0, 1.0 );
 			slider->setSingleStep( 0.01 );
 			slider->setPageStepCount( 5 );
@@ -90,9 +92,11 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 2:
         {
-            slider = new QwtSlider( parent, Qt::Horizontal,
-                QwtSlider::BottomScale, QwtSlider::Groove );
-            slider->setHandleSize( 12, 25 );
+            slider = new QwtSlider( parent );
+			slider->setOrientation( Qt::Horizontal );
+			slider->setScalePosition( QwtSlider::LeadingScale );
+			slider->setBackgroundStyle( QwtSlider::Groove );
+            slider->setHandleSize( QSize( 12, 25 ) );
             slider->setRange( 1000.0, 3000.0 );
 			slider->setSingleStep( 10.0 );
 			slider->setPageStepCount( 10 );
@@ -100,8 +104,10 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 3:
         {
-            slider = new QwtSlider( parent, Qt::Vertical,
-                QwtSlider::LeftScale, QwtSlider::Groove );
+            slider = new QwtSlider( parent );
+			slider->setOrientation( Qt::Vertical );
+			slider->setScalePosition( QwtSlider::TrailingScale );
+			slider->setBackgroundStyle( QwtSlider::Groove );
             slider->setRange( 0.0, 100.0 );
             slider->setSingleStep( 1.0 );
 			slider->setPageStepCount( 5 );
@@ -110,8 +116,10 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 4:
         {
-            slider = new QwtSlider( parent, Qt::Vertical,
-                QwtSlider::NoScale, QwtSlider::Trough );
+            slider = new QwtSlider( parent );
+			slider->setOrientation( Qt::Vertical );
+			slider->setScalePosition( QwtSlider::NoScale );
+			slider->setBackgroundStyle( QwtSlider::Trough );
             slider->setRange( 0.0, 100.0 );
 			slider->setSingleStep( 1.0 );
 			slider->setPageStepCount( 10 );
@@ -119,10 +127,12 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 5:
         {
-            slider = new QwtSlider( parent, Qt::Vertical,
-                QwtSlider::RightScale, QwtSlider::Trough | QwtSlider::Groove );
+            slider = new QwtSlider( parent );
+			slider->setOrientation( Qt::Vertical );
+			slider->setScalePosition( QwtSlider::LeadingScale );
+			slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
             slider->setScaleEngine( new QwtLogScaleEngine );
-            slider->setHandleSize( 20, 32 );
+            slider->setHandleSize( QSize( 20, 32 ) );
             slider->setBorderWidth( 1 );
             slider->setRange( 0.0, 4.0 );
 			slider->setSingleStep( 0.01 );
