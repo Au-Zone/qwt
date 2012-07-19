@@ -8,7 +8,33 @@
  *****************************************************************************/
 
 #include "qwt_analog_clock.h"
+#include "qwt_round_scale_draw.h"
 #include <qmath.h>
+
+class QwtAnalogClockScaleDraw: public QwtRoundScaleDraw
+{
+public:
+    QwtAnalogClockScaleDraw()
+    {
+        setSpacing( 8 );
+
+        enableComponent( QwtAbstractScaleDraw::Backbone, false );
+
+        setTickLength( QwtScaleDiv::MinorTick, 1 );
+        setTickLength( QwtScaleDiv::MediumTick, 0 );
+        setTickLength( QwtScaleDiv::MajorTick, 8 );
+
+        setPenWidth( 1 );
+    }
+
+    virtual QwtText label( double value ) const
+    {
+        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+            value = 60.0 * 60.0 * 12.0;
+
+        return QLocale().toString( qRound( value / ( 60.0 * 60.0 ) ) );
+    }
+};
 
 /*!
   Constructor
@@ -29,10 +55,7 @@ void QwtAnalogClock::initClock()
     setRange( 0.0, 60.0 * 60.0 * 12.0 ); // seconds
     setScale( -1, 5, 60.0 * 60.0 );
 
-    setScaleComponents( 
-        QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels );
-    setScaleTicks( 1, 0, 8 );
-    scaleDraw()->setSpacing( 8 );
+    setScaleDraw( new QwtAnalogClockScaleDraw() );
 
     QColor knobColor = palette().color( QPalette::Active, QPalette::Text );
     knobColor = knobColor.dark( 120 );
@@ -141,20 +164,6 @@ void QwtAnalogClock::setTime( const QTime &time )
     }
     else
         setValid( false );
-}
-
-/*!
-  Find the scale label for a given value
-
-  \param value Value
-  \return Label
-*/
-QwtText QwtAnalogClock::scaleLabel( double value ) const
-{
-    if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-        value = 60.0 * 60.0 * 12.0;
-
-    return QString::number( qRound( value / ( 60.0 * 60.0 ) ) );
 }
 
 /*!
