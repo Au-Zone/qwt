@@ -78,8 +78,6 @@ public Q_SLOTS:
     void setTime( const QTime & = QTime::currentTime() );
 
 protected:
-    virtual QwtText scaleLabel( double ) const;
-
     virtual void drawNeedle( QPainter *, const QPointF &,
         double radius, double direction, QPalette::ColorGroup ) const;
 

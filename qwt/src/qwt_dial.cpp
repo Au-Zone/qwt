@@ -12,6 +12,7 @@
 #include "qwt_math.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_map.h"
+#include "qwt_round_scale_draw.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
 #include <qbitmap.h>
@@ -63,62 +64,16 @@ public:
     double minScaleArc;
     double maxScaleArc;
 
-    QwtDialScaleDraw *scaleDraw;
+    QwtRoundScaleDraw *scaleDraw;
     int maxMajIntv;
     int maxMinIntv;
     double scaleStep;
 
+    double scalePenWidth;
     QwtDialNeedle *needle;
 
     double previousDir;
 };
-
-/*!
-  Constructor
-
-  \param parent Parent dial widget
-*/
-QwtDialScaleDraw::QwtDialScaleDraw( QwtDial *parent ):
-    d_parent( parent ),
-    d_penWidth( 1.0 )
-{
-}
-
-/*!
-  Set the pen width used for painting the scale
-
-  \param penWidth Pen width
-  \sa penWidth(), QwtDial::drawScale()
-*/
-
-void QwtDialScaleDraw::setPenWidth( double penWidth )
-{
-    d_penWidth = qMax( penWidth, 0.0 );
-}
-
-/*!
-  \return Pen width used for painting the scale
-  \sa setPenWidth, QwtDial::drawScale()
-*/
-double QwtDialScaleDraw::penWidth() const
-{
-    return d_penWidth;
-}
-
-/*!
-  Call QwtDial::scaleLabel of the parent dial widget.
-
-  \param value Value to display
-
-  \sa QwtDial::scaleLabel()
-*/
-QwtText QwtDialScaleDraw::label( double value ) const
-{
-    if ( d_parent == NULL )
-        return QwtRoundScaleDraw::label( value );
-
-    return d_parent->scaleLabel( value );
-}
 
 /*!
   \brief Constructor
@@ -131,11 +86,6 @@ QwtText QwtDialScaleDraw::label( double value ) const
 */
 QwtDial::QwtDial( QWidget* parent ):
     QwtAbstractSlider( parent )
-{
-    initDial();
-}
-
-void QwtDial::initDial()
 {
     d_data = new PrivateData;
 
@@ -155,7 +105,7 @@ void QwtDial::initDial()
     }
     setPalette( p );
 
-    d_data->scaleDraw = new QwtDialScaleDraw( this );
+    d_data->scaleDraw = new QwtRoundScaleDraw();
     d_data->scaleDraw->setRadius( 0 );
 
     setScaleArc( 0.0, 360.0 ); // scale as a full circle
@@ -707,13 +657,13 @@ void QwtDial::updateScale()
 }
 
 //! Return the scale draw
-QwtDialScaleDraw *QwtDial::scaleDraw()
+QwtRoundScaleDraw *QwtDial::scaleDraw()
 {
     return d_data->scaleDraw;
 }
 
 //! Return the scale draw
-const QwtDialScaleDraw *QwtDial::scaleDraw() const
+const QwtRoundScaleDraw *QwtDial::scaleDraw() const
 {
     return d_data->scaleDraw;
 }
@@ -724,7 +674,7 @@ const QwtDialScaleDraw *QwtDial::scaleDraw() const
   \param scaleDraw Scale draw
   \warning The previous scale draw is deleted
 */
-void QwtDial::setScaleDraw( QwtDialScaleDraw *scaleDraw )
+void QwtDial::setScaleDraw( QwtRoundScaleDraw *scaleDraw )
 {
     if ( scaleDraw != d_data->scaleDraw )
     {
@@ -753,69 +703,6 @@ void QwtDial::setScale( int maxMajIntv, int maxMinIntv, double step )
     d_data->scaleStep = step;
 
     updateScale();
-}
-
-/*!
-  A wrapper method for accessing the scale draw.
-
-  \param components Scale components
-  \sa QwtAbstractScaleDraw::enableComponent()
-*/
-void QwtDial::setScaleComponents( 
-    QwtAbstractScaleDraw::ScaleComponents components )
-{
-    if ( components == 0 )
-        setScaleDraw( NULL );
-
-    QwtDialScaleDraw *sd = d_data->scaleDraw;
-    if ( sd == NULL )
-        return;
-
-    sd->enableComponent( QwtAbstractScaleDraw::Backbone,
-        components & QwtAbstractScaleDraw::Backbone );
-
-    sd->enableComponent( QwtAbstractScaleDraw::Ticks,
-        components & QwtAbstractScaleDraw::Ticks );
-
-    sd->enableComponent( QwtAbstractScaleDraw::Labels,
-        components & QwtAbstractScaleDraw::Labels );
-}
-
-/*!
-  Assign length and width of the ticks
-
-  \param minLen Length of the minor ticks
-  \param medLen Length of the medium ticks
-  \param majLen Length of the major ticks
-  \param penWidth Width of the pen for all ticks
-
-  \sa QwtAbstractScaleDraw::setTickLength(), QwtDialScaleDraw::setPenWidth()
-*/
-void QwtDial::setScaleTicks( int minLen, int medLen,
-                             int majLen, int penWidth )
-{
-    QwtDialScaleDraw *sd = d_data->scaleDraw;
-    if ( sd )
-    {
-        sd->setTickLength( QwtScaleDiv::MinorTick, minLen );
-        sd->setTickLength( QwtScaleDiv::MediumTick, medLen );
-        sd->setTickLength( QwtScaleDiv::MajorTick, majLen );
-        sd->setPenWidth( penWidth );
-    }
-}
-
-/*!
-   Find the label for a value
-
-   \param value Value
-   \return label
-*/
-QwtText QwtDial::scaleLabel( double value ) const
-{
-    if ( value == -0.0 )
-        value = 0.0;
-
-    return QString::number( value );
 }
 
 //! \return Lower limit of the scale arc

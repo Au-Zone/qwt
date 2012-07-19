@@ -78,7 +78,7 @@ QwtCompass *CompassGrid::createCompass( int pos )
             map.insert( 180.0, "S" );
             map.insert( 270.0, "W" );
 
-            compass->setLabelMap( map );
+            compass->setScaleDraw( new QwtCompassScaleDraw( map ) );
 
             QwtSimpleCompassRose *rose = new QwtSimpleCompassRose( 4, 1 );
             compass->setRose( rose );
@@ -100,9 +100,16 @@ QwtCompass *CompassGrid::createCompass( int pos )
                                QColor( Qt::darkBlue ).dark( 120 ) );
             palette0.setColor( QPalette::Text, Qt::white );
 
-            compass->setScaleComponents(
-                QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels );
-            compass->setScaleTicks( 1, 1, 3 );
+            QwtCompassScaleDraw *scaleDraw = new QwtCompassScaleDraw();
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Ticks, true );
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Labels, true );
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+            scaleDraw->setTickLength( QwtScaleDiv::MinorTick, 1 );
+            scaleDraw->setTickLength( QwtScaleDiv::MediumTick, 1 );
+            scaleDraw->setTickLength( QwtScaleDiv::MajorTick, 3 );
+
+            compass->setScaleDraw( scaleDraw );
+
             compass->setScale( 36, 5, 0 );
 
             compass->setNeedle(
@@ -123,10 +130,6 @@ QwtCompass *CompassGrid::createCompass( int pos )
 
             compass->setLineWidth( 0 );
 
-            compass->setScaleComponents( QwtAbstractScaleDraw::Backbone |
-                QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels );
-            compass->setScaleTicks( 0, 0, 3 );
-
             QMap<double, QString> map;
             for ( double d = 0.0; d < 360.0; d += 60.0 )
             {
@@ -134,7 +137,18 @@ QwtCompass *CompassGrid::createCompass( int pos )
                 label.sprintf( "%.0f", d );
                 map.insert( d, label );
             }
-            compass->setLabelMap( map );
+
+            QwtCompassScaleDraw *scaleDraw = 
+                new QwtCompassScaleDraw( map );
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Ticks, true );
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Labels, true );
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Backbone, true );
+            scaleDraw->setTickLength( QwtScaleDiv::MinorTick, 0 );
+            scaleDraw->setTickLength( QwtScaleDiv::MediumTick, 0 );
+            scaleDraw->setTickLength( QwtScaleDiv::MajorTick, 3 );
+
+            compass->setScaleDraw( scaleDraw );
+
             compass->setScale( 36, 5, 0 );
 
             compass->setNeedle( new QwtDialSimpleNeedle( QwtDialSimpleNeedle::Ray,
@@ -148,9 +162,15 @@ QwtCompass *CompassGrid::createCompass( int pos )
             /*
              A compass showing another needle
              */
-            compass->setScaleComponents(
-                QwtAbstractScaleDraw::Ticks | QwtAbstractScaleDraw::Labels );
-            compass->setScaleTicks( 0, 0, 3 );
+            QwtCompassScaleDraw *scaleDraw = new QwtCompassScaleDraw();
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Ticks, true );
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Labels, true );
+            scaleDraw->enableComponent( QwtAbstractScaleDraw::Backbone, false );
+            scaleDraw->setTickLength( QwtScaleDiv::MinorTick, 0 );
+            scaleDraw->setTickLength( QwtScaleDiv::MediumTick, 0 );
+            scaleDraw->setTickLength( QwtScaleDiv::MajorTick, 3 );
+
+            compass->setScaleDraw( scaleDraw );
 
             compass->setNeedle( new QwtCompassMagnetNeedle(
                 QwtCompassMagnetNeedle::TriangleStyle, Qt::white, Qt::red ) );
