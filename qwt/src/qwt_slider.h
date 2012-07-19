@@ -144,14 +144,15 @@ protected:
 
     int transform( double v ) const;
 
-    QwtScaleDraw *scaleDraw();
-	QRect sliderRect() const;
+    QRect sliderRect() const;
+    QRect handleRect() const;
 
 private Q_SLOTS:
     void emitScaleValue();
 
 private:
-	QRect handleRect() const;
+    QwtScaleDraw *scaleDraw();
+
     void layoutSlider( bool );
 
     class PrivateData;

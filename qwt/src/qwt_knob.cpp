@@ -149,8 +149,8 @@ void QwtKnob::setTotalAngle ( double angle )
     scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
     scaleDraw()->moveCenter( rect().center() );
 
-	updateGeometry();
-	update();
+    updateGeometry();
+    update();
 }
 
 //! Return the total angle
@@ -279,11 +279,11 @@ void QwtKnob::changeEvent( QEvent *event )
     {
         case QEvent::StyleChange:
         case QEvent::FontChange:
-		{
-    		updateGeometry();
-    		update();
+        {
+            updateGeometry();
+            update();
             break;
-		}
+        }
         default:
             break;
     }
@@ -295,7 +295,7 @@ void QwtKnob::changeEvent( QEvent *event )
 */
 void QwtKnob::paintEvent( QPaintEvent *event )
 {
-	QRectF knobRect( 0, 0, d_data->knobWidth, d_data->knobWidth );
+    QRectF knobRect( 0, 0, d_data->knobWidth, d_data->knobWidth );
     knobRect.moveCenter( rect().center() );
 
     QPainter painter( this );
@@ -312,7 +312,7 @@ void QwtKnob::paintEvent( QPaintEvent *event )
 
     drawKnob( &painter, knobRect );
 
-	double angle = 0.0;
+    double angle = 0.0;
     if ( maximum() != minimum() )
     {
         angle = ( value() - 0.5 * ( minimum() + maximum() ) )
@@ -581,8 +581,8 @@ int QwtKnob::markerSize() const
 */
 void QwtKnob::scaleChange()
 {
-	updateGeometry();
-	update();
+    updateGeometry();
+    update();
 }
 
 /*!
@@ -602,8 +602,8 @@ QSize QwtKnob::sizeHint() const
 QSize QwtKnob::minimumSizeHint() const
 {
     // Add the scale radial thickness to the knobWidth
-    const int sh = qCeil( scaleDraw()->extent( font() ) );
-    const int d = 2 * sh + 2 * d_data->scaleDist + d_data->knobWidth;
+    const int extent = qCeil( scaleDraw()->extent( font() ) );
+    const int d = 2 * ( extent + d_data->scaleDist ) + d_data->knobWidth;
 
     return QSize( d, d );
 }
