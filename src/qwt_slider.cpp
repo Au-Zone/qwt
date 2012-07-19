@@ -21,28 +21,28 @@
 #include <qapplication.h>
 
 static QSize qwtHandleSize( const QSize &size, 
-	Qt::Orientation orientation, QwtSlider::BackgroundStyles bgStyles )
+    Qt::Orientation orientation, QwtSlider::BackgroundStyles bgStyles )
 {
-	QSize handleSize = size;
+    QSize handleSize = size;
 
-	if ( handleSize.isEmpty() )
-	{
-    	const int handleThickness = 16;
-    	handleSize.setWidth( 2 * handleThickness );
-    	handleSize.setHeight( handleThickness );
+    if ( handleSize.isEmpty() )
+    {
+        const int handleThickness = 16;
+        handleSize.setWidth( 2 * handleThickness );
+        handleSize.setHeight( handleThickness );
 
-    	if ( !( bgStyles & QwtSlider::Trough ) )
-        	handleSize.transpose();
+        if ( !( bgStyles & QwtSlider::Trough ) )
+            handleSize.transpose();
 
-    	if ( orientation == Qt::Vertical )
-        	handleSize.transpose();
-	}
+        if ( orientation == Qt::Vertical )
+            handleSize.transpose();
+    }
 
-	return handleSize;
+    return handleSize;
 }
 
 static QwtScaleDraw::Alignment qwtScaleDrawAlignment( 
-	Qt::Orientation orientation, QwtSlider::ScalePosition scalePos )
+    Qt::Orientation orientation, QwtSlider::ScalePosition scalePos )
 {
     QwtScaleDraw::Alignment align;
 
@@ -63,7 +63,7 @@ static QwtScaleDraw::Alignment qwtScaleDrawAlignment(
             align = QwtScaleDraw::BottomScale;
     }
 
-	return align;
+    return align;
 }
 
 class QwtSlider::PrivateData
@@ -73,7 +73,9 @@ public:
         repeatTimerId( 0 ),
         updateInterval( 150 ),
         valueIncrement( 0.0 ),
-		pendingValueChange( false )
+        pendingValueChange( false ),
+        borderWidth( 2 ),
+        spacing( 4 )
     {
     }
 
@@ -81,7 +83,7 @@ public:
     bool timerTick;
     int updateInterval;
     double valueIncrement;
-	bool pendingValueChange;
+    bool pendingValueChange;
 
     QRect sliderRect;
 
@@ -110,8 +112,8 @@ public:
   \param scalePosition Position of the scale.
          Defaults to QwtSlider::NoScale.
   \param bgStyle Background style. QwtSlider::Trough draws the
-         slider button in a trough, QwtSlider::Slot draws
-         a slot underneath the button. An or-combination of both
+         slider handle in a trough, QwtSlider::Slot draws
+         a slot underneath the handle. An or-combination of both
          may also be used. The default is QwtSlider::Trough.
 */
 QwtSlider::QwtSlider( QWidget *parent,
@@ -128,23 +130,20 @@ QwtSlider::QwtSlider( QWidget *parent,
 
     d_data = new QwtSlider::PrivateData;
 
-    d_data->borderWidth = 2;
-    d_data->spacing = 4;
     d_data->orientation = orientation;
     d_data->scalePosition = scalePosition;
     d_data->bgStyle = bgStyle;
 
-    d_data->sliderRect.setRect( 0, 0, 8, 8 );
-
     scaleDraw()->setAlignment( 
-		qwtScaleDrawAlignment( orientation, scalePosition ) );
+        qwtScaleDrawAlignment( orientation, scalePosition ) );
     scaleDraw()->setLength( 100 );
 
     setRange( 0.0, 100.0 );
     setSingleStep( 1.0 );
     setValue( 0.0 );
 
-	connect( this, SIGNAL( valueChanged( double ) ), SLOT( emitScaleValue() ) );
+    connect( this, SIGNAL( valueChanged( double ) ), 
+        SLOT( emitScaleValue() ) );
 }
 
 QwtSlider::~QwtSlider()
@@ -177,7 +176,8 @@ void QwtSlider::setOrientation( Qt::Orientation orientation )
         setAttribute( Qt::WA_WState_OwnSizePolicy, false );
     }
 
-    layoutSlider( true );
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+        layoutSlider( true );
 }
 
 /*!
@@ -209,9 +209,10 @@ void QwtSlider::setScalePosition( ScalePosition scalePosition )
 
     d_data->scalePosition = scalePosition;
     scaleDraw()->setAlignment( 
-		qwtScaleDrawAlignment( d_data->orientation, scalePosition ) );
+        qwtScaleDrawAlignment( d_data->orientation, scalePosition ) );
 
-    layoutSlider( true );
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+        layoutSlider( true );
 }
 
 //! Return the scale position.
@@ -222,6 +223,10 @@ QwtSlider::ScalePosition QwtSlider::scalePosition() const
 
 /*!
   \brief Change the slider's border width
+
+  The border width is used for drawing the slider handle and the
+  trough.
+
   \param width Border width
 */
 void QwtSlider::setBorderWidth( int width )
@@ -232,7 +237,9 @@ void QwtSlider::setBorderWidth( int width )
     if ( width != d_data->borderWidth )
     {
         d_data->borderWidth = width;
-        layoutSlider( true );
+
+        if ( testAttribute( Qt::WA_WState_Polished ) )
+            layoutSlider( true );
     }
 }
 
@@ -264,7 +271,9 @@ void QwtSlider::setSpacing( int spacing )
     if ( spacing != d_data->spacing  )
     {
         d_data->spacing = spacing;
-        layoutSlider( true );
+
+        if ( testAttribute( Qt::WA_WState_Polished ) )
+            layoutSlider( true );
     }
 }
 
@@ -292,7 +301,9 @@ void QwtSlider::setHandleSize( const QSize &size )
     if ( size != d_data->handleSize )
     {
         d_data->handleSize = size;
-        layoutSlider( true );
+
+        if ( testAttribute( Qt::WA_WState_Polished ) )
+            layoutSlider( true );
     }
 }
 
@@ -328,7 +339,9 @@ void QwtSlider::setScaleDraw( QwtScaleDraw *scaleDraw )
         scaleDraw->setAlignment( previousScaleDraw->alignment() );
 
     setAbstractScaleDraw( scaleDraw );
-    layoutSlider( true );
+
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+        layoutSlider( true );
 }
 
 /*!
@@ -352,7 +365,8 @@ QwtScaleDraw *QwtSlider::scaleDraw()
 //! Notify changed scale
 void QwtSlider::scaleChange()
 {
-    layoutSlider( true );
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+        layoutSlider( true );
 }
 
 /*!
@@ -383,100 +397,75 @@ void QwtSlider::drawSlider(
     if ( d_data->bgStyle & QwtSlider::Trough )
     {
         const int bw = d_data->borderWidth;
-
-        qDrawShadePanel( painter, sliderRect, palette(), true, bw, NULL );
-
         innerRect = sliderRect.adjusted( bw, bw, -bw, -bw );
+
         painter->fillRect( innerRect, palette().brush( QPalette::Mid ) );
+        qDrawShadePanel( painter, sliderRect, palette(), true, bw, NULL );
     }
 
     const QSize handleSize = qwtHandleSize( d_data->handleSize,
-		d_data->orientation, d_data->bgStyle );
+        d_data->orientation, d_data->bgStyle );
 
     if ( d_data->bgStyle & QwtSlider::Groove )
     {
-        int ws = 4;
-        int ds = handleSize.width() / 2 - 4;
-        if ( ds < 1 )
-            ds = 1;
+        const int slotExtent = 4;
+        const int slotMargin = 4;
 
-        QRect rSlot;
+        QRect slotRect; 
         if ( orientation() == Qt::Horizontal )
         {
-            if ( innerRect.height() & 1 )
-                ws++;
+            int slotOffset = qMax( 1, handleSize.width() / 2 - slotMargin );
+            int slotHeight = slotExtent + ( innerRect.height() % 2 );
 
-            rSlot = QRect( innerRect.x() + ds,
-                    innerRect.y() + ( innerRect.height() - ws ) / 2,
-                    innerRect.width() - 2 * ds, ws );
+            slotRect.setWidth( innerRect.width() - 2 * slotOffset );
+            slotRect.setHeight( slotHeight );
         }
         else
         {
-            if ( innerRect.width() & 1 )
-                ws++;
+            int slotOffset = qMax( 1, handleSize.height() / 2 - slotMargin );
+            int slotWidth = slotExtent + ( innerRect.width() % 2 );
 
-            rSlot = QRect( innerRect.x() + ( innerRect.width() - ws ) / 2,
-                           innerRect.y() + ds,
-                           ws, innerRect.height() - 2 * ds );
+            slotRect.setWidth( slotWidth );
+            slotRect.setHeight( innerRect.height() - 2 * slotOffset );
+
         }
 
+        slotRect.moveCenter( innerRect.center() );
+
         QBrush brush = palette().brush( QPalette::Dark );
-        qDrawShadePanel( painter, rSlot, palette(), true, 1 , &brush );
+        qDrawShadePanel( painter, slotRect, palette(), true, 1 , &brush );
     }
 
     if ( isValid() )
-        drawHandle( painter, innerRect, transform( value() ) );
+        drawHandle( painter, handleRect(), transform( value() ) );
 }
 
 /*!
   Draw the thumb at a position
 
   \param painter Painter
-  \param sliderRect Bounding rectangle of the slider
-  \param pos Position of the slider thumb
+  \param handleRect Bounding rectangle of the handle
+  \param pos Position of the handle marker in widget coordinates
 */
 void QwtSlider::drawHandle( QPainter *painter, 
-    const QRect &sliderRect, int pos ) const
+    const QRect &handleRect, int pos ) const
 {
-    const QSize handleSize = qwtHandleSize( d_data->handleSize,
-        d_data->orientation, d_data->bgStyle );
-
     const int bw = d_data->borderWidth;
+
+    qDrawShadePanel( painter, 
+        handleRect, palette(), false, bw,
+        &palette().brush( QPalette::Button ) );
 
     pos++; // shade line points one pixel below
     if ( orientation() == Qt::Horizontal )
     {
-        QRect handleRect(
-            pos - handleSize.width() / 2,
-            sliderRect.y(), 
-            handleSize.width(), 
-            sliderRect.height()
-        );
-
-        qDrawShadePanel( painter, 
-            handleRect, palette(), false, bw,
-            &palette().brush( QPalette::Button ) );
-
-        qDrawShadeLine( painter, pos, sliderRect.top() + bw,
-            pos, sliderRect.bottom() - bw,
-            palette(), true, 1 );
+        qDrawShadeLine( painter, pos, handleRect.top() + bw,
+            pos, handleRect.bottom() - bw, palette(), true, 1 );
     }
     else // Vertical
     {
-        QRect handleRect(
-            sliderRect.left(), 
-            pos - handleSize.height() / 2,
-            sliderRect.width(), 
-            handleSize.height()
-        );
-
-        qDrawShadePanel( painter, 
-            handleRect, palette(), false, bw,
-            &palette().brush( QPalette::Button ) );
-
-        qDrawShadeLine( painter, sliderRect.left() + bw, pos,
-            sliderRect.right() - bw, pos,
-            palette(), true, 1 );
+        qDrawShadeLine( painter, handleRect.left() + bw, pos,
+            handleRect.right() - bw, pos, palette(), true, 1 );
     }
 }
 
@@ -512,39 +501,39 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
         return;
     }
 
-	const QPoint pos = event->pos();
+    const QPoint pos = event->pos();
 
     if ( isValid() && d_data->sliderRect.contains( pos ) )
     {
         if ( !handleRect().contains( pos ) )
         {
-        	const int markerPos = transform( value() );
+            const int markerPos = transform( value() );
 
-			d_data->valueIncrement = qAbs( singleStep() );
-			if ( d_data->orientation == Qt::Horizontal )
-			{
-				if ( pos.x() < markerPos )
-					d_data->valueIncrement = -d_data->valueIncrement;
-			}
-			else
-			{
-				if ( pos.y() < markerPos )
-					d_data->valueIncrement = -d_data->valueIncrement;
-			}
+            d_data->valueIncrement = qAbs( singleStep() );
+            if ( d_data->orientation == Qt::Horizontal )
+            {
+                if ( pos.x() < markerPos )
+                    d_data->valueIncrement = -d_data->valueIncrement;
+            }
+            else
+            {
+                if ( pos.y() < markerPos )
+                    d_data->valueIncrement = -d_data->valueIncrement;
+            }
 
-			if ( d_data->map.isInverting() )
-				d_data->valueIncrement = -d_data->valueIncrement;
+            if ( d_data->map.isInverting() )
+                d_data->valueIncrement = -d_data->valueIncrement;
 
-    		if ( pageStepCount() > 0 )
-			{
+            if ( pageStepCount() > 0 )
+            {
 #if 0
-				if ( ( event->modifiers() & Qt::ControlModifier) ||
-					( event->modifiers() & Qt::ShiftModifier ) )
+                if ( ( event->modifiers() & Qt::ControlModifier) ||
+                    ( event->modifiers() & Qt::ShiftModifier ) )
 #endif
-				{
-					d_data->valueIncrement *= pageStepCount();
-				}
-			}
+                {
+                    d_data->valueIncrement *= pageStepCount();
+                }
+            }
 
             d_data->timerTick = false;
             d_data->repeatTimerId = startTimer( qMax( 250, 2 * updateInterval() ) );
@@ -567,10 +556,10 @@ void QwtSlider::mouseReleaseEvent( QMouseEvent *event )
     }
 
     if ( d_data->pendingValueChange )
-	{
-		d_data->pendingValueChange = false;
+    {
+        d_data->pendingValueChange = false;
         Q_EMIT valueChanged( value() );
-	}
+    }
 
     QwtAbstractSlider::mouseReleaseEvent( event );
 }
@@ -595,38 +584,38 @@ void QwtSlider::timerEvent( QTimerEvent *event )
 {
     if ( event->timerId() != d_data->repeatTimerId )
     {
-		QwtAbstractSlider::timerEvent( event );
-		return;
-	}
+        QwtAbstractSlider::timerEvent( event );
+        return;
+    }
 
     if ( !isValid() )
-	{
-		killTimer( d_data->repeatTimerId );
-		d_data->repeatTimerId = 0;
-		return;
-	}
+    {
+        killTimer( d_data->repeatTimerId );
+        d_data->repeatTimerId = 0;
+        return;
+    }
 
     const double v = value();
     incrementValue( d_data->valueIncrement );
 
-	if ( v != value() )
-	{
-       	if ( isTracking() )
-           	Q_EMIT valueChanged( value() );
-		else
-			d_data->pendingValueChange = true;
+    if ( v != value() )
+    {
+        if ( isTracking() )
+            Q_EMIT valueChanged( value() );
+        else
+            d_data->pendingValueChange = true;
 
-       	Q_EMIT sliderMoved( value() );
+        Q_EMIT sliderMoved( value() );
     }
 
     if ( !d_data->timerTick )
-	{
-		// restart the timer with a shorter interval
-		killTimer( d_data->repeatTimerId );
-		d_data->repeatTimerId = startTimer( updateInterval() );
-		
-		d_data->timerTick = true;
-	}   
+    {
+        // restart the timer with a shorter interval
+        killTimer( d_data->repeatTimerId );
+        d_data->repeatTimerId = startTimer( updateInterval() );
+        
+        d_data->timerTick = true;
+    }   
 }
 
 void QwtSlider::wheelEvent( QWheelEvent *event )
@@ -669,116 +658,123 @@ void QwtSlider::resizeEvent( QResizeEvent * )
 //! Qt change event handler
 void QwtSlider::changeEvent( QEvent *event )
 {
-	if ( event->type() == QEvent::StyleChange || 
-		event->type() == QEvent::FontChange )
-	{
-		layoutSlider( true );
-	}
+    if ( event->type() == QEvent::StyleChange || 
+        event->type() == QEvent::FontChange )
+    {
+        if ( testAttribute( Qt::WA_WState_Polished ) )
+            layoutSlider( true );
+    }
 
-	QwtAbstractSlider::changeEvent( event );
+    QwtAbstractSlider::changeEvent( event );
 }
 
 /*!
   Recalculate the slider's geometry and layout based on
   the current rect and fonts.
+
   \param update_geometry  notify the layout system and call update
          to redraw the scale
 */
 void QwtSlider::layoutSlider( bool update_geometry )
 {
+    int bw = 0;
+    if ( d_data->bgStyle & QwtSlider::Trough )
+        bw = d_data->borderWidth;
+
     const QSize handleSize = qwtHandleSize( d_data->handleSize,
         d_data->orientation, d_data->bgStyle );
 
-    int handleThickness;
-    if ( d_data->orientation == Qt::Horizontal )
-        handleThickness = handleSize.width();
-    else
-        handleThickness = handleSize.height();
+    QRect sliderRect = contentsRect();
 
-    int sld1 = handleThickness / 2 - 1;
-    int sld2 = handleThickness / 2 + handleThickness % 2;
+    /*
+       The marker line of the handle needs to be aligned to
+       the scale. But the marker is in the center 
+       and we need space enough to display the rest of the handle.
 
-    if ( d_data->bgStyle & QwtSlider::Trough )
-    {
-        sld1 += d_data->borderWidth;
-        sld2 += d_data->borderWidth;
-    }
+       But the scale itself usually needs margins for displaying
+       the tick labels, that also might needs space beyond the
+       backbone.
 
-    int scd = 0;
+       Now it depends on what needs more margins. If it is the
+       slider the scale gets shrinked, otherwise the slider.
+     */
+
+
+    int scaleMargin = 0;
     if ( d_data->scalePosition != QwtSlider::NoScale )
     {
         int d1, d2;
         scaleDraw()->getBorderDistHint( font(), d1, d2 );
-        scd = qMax( d1, d2 );
+
+        scaleMargin = qMax( d1, d2 ) - bw;
     }
 
-    int slo = scd - sld1;
-    if ( slo < 0 )
-        slo = 0;
+    int scaleX, scaleY, scaleLength;
 
-    int x, y, length;
-    QRect sliderRect;
-
-    length = x = y = 0;
-
-    const QRect cr = contentsRect();
     if ( d_data->orientation == Qt::Horizontal )
     {
-        int sh = handleSize.height();
-        if ( d_data->bgStyle & QwtSlider::Trough )
-            sh += 2 * d_data->borderWidth;
-
-        sliderRect.setLeft( cr.left() + slo );
-        sliderRect.setRight( cr.right() - slo );
-        sliderRect.setTop( cr.top() );
-        sliderRect.setBottom( cr.top() + sh - 1);
-
-        if ( d_data->scalePosition == QwtSlider::LeadingScale )
+        const int handleMargin = handleSize.width() / 2 - 1;
+        if ( scaleMargin > handleMargin )
         {
-            y = sliderRect.bottom() + d_data->spacing;
-        }
-        else if ( d_data->scalePosition == QwtSlider::TrailingScale )
-        {
-            sliderRect.setTop( cr.bottom() - sh + 1 );
-            sliderRect.setBottom( cr.bottom() );
-
-            y = sliderRect.top() - d_data->spacing;
+            int off = scaleMargin - handleMargin;
+            sliderRect.adjust( off, 0, -off, 0 );
         }
 
-        x = sliderRect.left() + sld1;
-        length = sliderRect.width() - ( sld1 + sld2 );
+        scaleX = sliderRect.left() + bw + handleSize.width() / 2 - 1;
+        scaleLength = sliderRect.width() - handleSize.width();
     }
-    else // Qt::Vertical
+    else
     {
-        int sw = handleSize.width();
-        if ( d_data->bgStyle & QwtSlider::Trough )
-            sw += 2 * d_data->borderWidth;
+        int handleMargin = handleSize.height() / 2 - 1;
+        if ( scaleMargin > handleMargin )
+        {
+            int off = scaleMargin - handleMargin;
+            sliderRect.adjust( 0, off, 0, -off );
+        }
 
-        sliderRect.setLeft( cr.right() - sw + 1 );
-        sliderRect.setRight( cr.right() );
-        sliderRect.setTop( cr.top() + slo );
-        sliderRect.setBottom( cr.bottom() - slo );
+        scaleY = sliderRect.top() + bw + handleSize.height() / 2 - 1;
+        scaleLength = sliderRect.height() - handleSize.height();
+    }
+
+    scaleLength -= 2 * bw;
+
+    // now align slider and scale according to the ScalePosition
+
+    if ( d_data->orientation == Qt::Horizontal )
+    {
+        const int h = handleSize.height() + 2 * bw;
 
         if ( d_data->scalePosition == QwtSlider::TrailingScale )
         {
-            x = sliderRect.left() - d_data->spacing;
+            sliderRect.setTop( sliderRect.bottom() + 1 - h );
+            scaleY = sliderRect.top() - d_data->spacing;
         }
-        else if ( d_data->scalePosition == QwtSlider::LeadingScale )
+        else
         {
-            sliderRect.setLeft( cr.left() );
-            sliderRect.setRight( cr.left() + sw - 1);
-
-            x = sliderRect.right() + d_data->spacing;
+            sliderRect.setHeight( h );
+            scaleY = sliderRect.bottom() + 1 + d_data->spacing;
         }
+    }
+    else // Qt::Vertical
+    {
+        const int w = handleSize.width() + 2 * bw;
 
-        y = sliderRect.top() + sld1;
-        length = sliderRect.height() - ( sld1 + sld2 );
+        if ( d_data->scalePosition == QwtSlider::LeadingScale )
+        {
+            sliderRect.setWidth( w );
+            scaleX = sliderRect.right() + 1 + d_data->spacing;
+        }
+        else
+        {
+            sliderRect.setLeft( sliderRect.right() + 1 - w );
+            scaleX = sliderRect.left() - d_data->spacing;
+        }
     }
 
     d_data->sliderRect = sliderRect;
 
-    scaleDraw()->move( x, y );
-    scaleDraw()->setLength( length );
+    scaleDraw()->move( scaleX, scaleY );
+    scaleDraw()->setLength( scaleLength );
 
     d_data->map.setPaintInterval( scaleDraw()->scaleMap().p1(),
         scaleDraw()->scaleMap().p2() );
@@ -793,7 +789,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
 
 void QwtSlider::emitScaleValue()
 {
-	Q_EMIT scaleValueChanged( scaleValue() );
+    Q_EMIT scaleValueChanged( scaleValue() );
 }
 
 double QwtSlider::scaleValue() const
@@ -817,7 +813,9 @@ void QwtSlider::rangeChange()
         rescale( minimum(), maximum() );
 
     QwtAbstractSlider::rangeChange();
-    layoutSlider( true );
+
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+        layoutSlider( true );
 }
 
 /*!
@@ -826,7 +824,9 @@ void QwtSlider::rangeChange()
 void QwtSlider::setBackgroundStyle( BackgroundStyles style )
 {
     d_data->bgStyle = style;
-    layoutSlider( true );
+
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+        layoutSlider( true );
 }
 
 /*!
@@ -856,46 +856,57 @@ QSize QwtSlider::minimumSizeHint() const
     if ( !d_data->sizeHintCache.isEmpty() )
         return d_data->sizeHintCache;
 
-    const int minLength = 84; // from QSlider
-
     const QSize handleSize = qwtHandleSize( d_data->handleSize,
         d_data->orientation, d_data->bgStyle );
 
-    int handleLength = handleSize.width();
-    int handleThickness = handleSize.height();
+    int bw = 0;
+    if ( d_data->bgStyle & QwtSlider::Trough )
+        bw = d_data->borderWidth;
 
-    if ( d_data->orientation == Qt::Vertical )
-        qSwap( handleLength, handleThickness );
-
-    int w = minLength; 
-    int h = handleThickness;
+    int sliderLength = 0; 
+    int scaleExtent = 0;
 
     if ( d_data->scalePosition != QwtSlider::NoScale )
     {
         int d1, d2;
         scaleDraw()->getBorderDistHint( font(), d1, d2 );
 
-        const int sdBorderDist = 2 * qMax( d1, d2 );
-        const int sdExtent = qCeil( scaleDraw()->extent( font() ) );
-        const int sdLength = scaleDraw()->minLength( font() );
+        const int scaleBorderDist = 2 * ( qMax( d1, d2 ) - bw );
 
-        int l = sdLength;
-        if ( handleLength > sdBorderDist )
+        int handleBorderDist;
+        if ( d_data->orientation == Qt::Horizontal )
+            handleBorderDist = handleSize.width();
+        else
+            handleBorderDist = handleSize.height();
+
+        sliderLength = scaleDraw()->minLength( font() );
+        if ( handleBorderDist > scaleBorderDist )
         {
             // We need additional space for the overlapping handle
-            l += handleLength - sdBorderDist;
+            sliderLength += handleBorderDist - scaleBorderDist;
         }
 
-        w = qMax( l, w );
-        h += sdExtent + d_data->spacing;
+        scaleExtent += d_data->spacing;
+        scaleExtent += qCeil( scaleDraw()->extent( font() ) );
     }
 
-    if ( d_data->bgStyle & QwtSlider::Trough )
-        h += 2 * d_data->borderWidth;
+    sliderLength = qMax( sliderLength, 84 ); // from QSlider
 
-    if ( d_data->orientation == Qt::Vertical )
-        qSwap( w, h );
+    int w = 0;
+    int h = 0;
 
+    if ( d_data->orientation == Qt::Horizontal )
+    {
+        w = sliderLength;
+        h = handleSize.height() + 2 * bw + scaleExtent;
+    }
+    else
+    {
+        w = handleSize.width() + 2 * bw + scaleExtent;
+        h = sliderLength;
+    }
+
+    // finally add margins
     int left, right, top, bottom;
     getContentsMargins( &left, &top, &right, &bottom );
 
@@ -908,18 +919,26 @@ QSize QwtSlider::minimumSizeHint() const
 
 QRect QwtSlider::handleRect() const
 {
+    if ( !isValid() )
+        return QRect();
+
     const int markerPos = transform( value() );
 
-	QPoint center = d_data->sliderRect.center();
-	if ( d_data->orientation == Qt::Horizontal )
-		center.setX( markerPos );
-	else
-		center.setY( markerPos );
+    QPoint center = d_data->sliderRect.center();
+    if ( d_data->orientation == Qt::Horizontal )
+        center.setX( markerPos );
+    else
+        center.setY( markerPos );
 
     QRect rect;
-	rect.setSize( qwtHandleSize( d_data->handleSize,
+    rect.setSize( qwtHandleSize( d_data->handleSize,
         d_data->orientation, d_data->bgStyle ) );
-	rect.moveCenter( center );
+    rect.moveCenter( center );
 
-	return rect;
+    return rect;
+}
+
+QRect QwtSlider::sliderRect() const
+{
+    return d_data->sliderRect;
 }
