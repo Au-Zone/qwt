@@ -247,14 +247,10 @@ bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 */
 void QwtKnob::rangeChange()
 {
-    if ( autoScale() )
-        rescale( minimum(), maximum() );
-
     scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
     scaleDraw()->moveCenter( rect().center() );
     
-    updateGeometry();
-    update();
+    QwtAbstractSlider::rangeChange();
 }
 
 /*!

@@ -169,7 +169,6 @@ protected:
     virtual void drawNeedle( QPainter *, const QPointF &,
         double radius, double direction, QPalette::ColorGroup ) const;
 
-    virtual void rangeChange();
     virtual void scaleChange();
 
     virtual double valueAt( const QPoint & );

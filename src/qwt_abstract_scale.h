@@ -29,7 +29,7 @@ class QwtInterval;
 
 class QWT_EXPORT QwtAbstractScale: public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
     QwtAbstractScale( QWidget *parent = NULL );
@@ -38,6 +38,9 @@ public:
     void setScale( double vmin, double vmax, double step = 0.0 );
     void setScale( const QwtInterval &, double step = 0.0 );
     void setScale( const QwtScaleDiv & );
+
+    double scaleStepSize() const;
+    const QwtScaleDiv& scaleDiv() const;
 
     void setAutoScale();
     bool autoScale() const;

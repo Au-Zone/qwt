@@ -3,6 +3,7 @@
 #include <qlayout.h>
 #include <qwt_slider.h>
 #include <qwt_scale_engine.h>
+#include <qwt_transform.h>
 #include "sliders.h"
 
 class Layout: public QBoxLayout
@@ -105,6 +106,27 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         case 3:
         {
             slider = new QwtSlider( parent );
+            slider->setOrientation( Qt::Horizontal );
+            slider->setScalePosition( QwtSlider::TrailingScale );
+            slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
+
+#if 1
+            QwtLinearScaleEngine *scaleEngine = new QwtLinearScaleEngine( 2 );
+            scaleEngine->setTransformation( new QwtPowerTransform( 2 ) );
+            slider->setScaleEngine( scaleEngine );
+            slider->setRange( 0.0, 16.0 );
+            slider->setScale( 0.0, 128.0 );
+#else
+            QwtLogScaleEngine *scaleEngine = new QwtLogScaleEngine( 2 );
+            slider->setScaleEngine( scaleEngine );
+            slider->setRange( 0.0, 16.0 );
+            slider->setScale( 1.0, 256.0 );
+#endif
+            break;
+        }
+        case 4:
+        {
+            slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Groove );
@@ -114,7 +136,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setScaleMaxMinor( 5 );
             break;
         }
-        case 4:
+        case 5:
         {
             slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Vertical );
@@ -125,7 +147,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setPageStepCount( 10 );
             break;
         }
-        case 5:
+        case 6:
         {
             slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Vertical );
@@ -165,12 +187,12 @@ SliderDemo::SliderDemo( QWidget *p ):
     int i;
 
     Layout *hSliderLayout = new Layout( Qt::Vertical );
-    for ( i = 0; i < 3; i++ )
+    for ( i = 0; i < 4; i++ )
         hSliderLayout->addWidget( new Slider( this, i ) );
     hSliderLayout->addStretch();
 
     Layout *vSliderLayout = new Layout( Qt::Horizontal );
-    for ( ; i < 6; i++ )
+    for ( ; i < 7; i++ )
         vSliderLayout->addWidget( new Slider( this, i ) );
 
     QLabel *vTitle = new QLabel( "Vertical Sliders", this );

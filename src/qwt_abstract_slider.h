@@ -146,8 +146,8 @@ protected:
     void incrementValue( double increment );
 
 private:
-	double alignedValue( double ) const;
-	double boundedValue( double ) const;
+    double alignedValue( double ) const;
+    double boundedValue( double ) const;
 
     class PrivateData;
     PrivateData *d_data;
