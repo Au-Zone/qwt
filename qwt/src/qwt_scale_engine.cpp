@@ -97,14 +97,14 @@ public:
         upperMargin( 0.0 ),
         referenceValue( 0.0 ),
         base( 10 ),
-		transform( NULL )
+        transform( NULL )
     {
     }
 
     ~PrivateData()
-	{
-		delete transform;
-	}
+    {
+        delete transform;
+    }
 
     QwtScaleEngine::Attributes attributes;       // scale attributes
 
@@ -115,7 +115,7 @@ public:
 
     uint base;
 
-	QwtTransform* transform;
+    QwtTransform* transform;
 };
 
 //! Constructor
@@ -147,11 +147,11 @@ QwtScaleEngine::~QwtScaleEngine ()
  */
 void QwtScaleEngine::setTransformation( QwtTransform *transform )
 {
-	if ( transform != d_data->transform )
-	{
-		delete d_data->transform;
-		d_data->transform = transform;
-	}
+    if ( transform != d_data->transform )
+    {
+        delete d_data->transform;
+        d_data->transform = transform;
+    }
 }
 
 /*!
@@ -163,11 +163,11 @@ void QwtScaleEngine::setTransformation( QwtTransform *transform )
  */
 QwtTransform *QwtScaleEngine::transformation() const
 {
-	QwtTransform *transform = NULL;
-	if ( d_data->transform )
-		transform = d_data->transform->copy();
+    QwtTransform *transform = NULL;
+    if ( d_data->transform )
+        transform = d_data->transform->copy();
 
-	return transform;
+    return transform;
 }
 
 /*!
@@ -656,7 +656,7 @@ QwtInterval QwtLinearScaleEngine::align(
 QwtLogScaleEngine::QwtLogScaleEngine( uint base ):
     QwtScaleEngine( base )
 {
-	setTransformation( new QwtLogTransform() );
+    setTransformation( new QwtLogTransform() );
 }
 
 QwtLogScaleEngine::~QwtLogScaleEngine()

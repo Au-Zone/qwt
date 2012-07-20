@@ -95,12 +95,6 @@ public:
     QwtSlider::ScalePosition scalePosition;
     QwtSlider::BackgroundStyles bgStyle;
 
-    /*
-      Scale and values might have different maps. This is
-      confusing and I can't see strong arguments for such
-      a feature. TODO ...
-     */
-    QwtScaleMap map; // linear map
     mutable QSize sizeHintCache;
 };
 
@@ -475,7 +469,7 @@ void QwtSlider::drawHandle( QPainter *painter,
 */
 int QwtSlider::transform( double value ) const
 {
-    return qRound( d_data->map.transform( value ) );
+    return qRound( sliderMap().transform( value ) );
 }
 
 /*!
@@ -484,7 +478,7 @@ int QwtSlider::transform( double value ) const
 */
 double QwtSlider::valueAt( const QPoint &pos )
 {
-    return d_data->map.invTransform(
+    return sliderMap().invTransform(
         orientation() == Qt::Horizontal ? pos.x() : pos.y() );
 }
 
@@ -521,7 +515,7 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
                     d_data->valueIncrement = -d_data->valueIncrement;
             }
 
-            if ( d_data->map.isInverting() )
+            if ( sliderMap().isInverting() )
                 d_data->valueIncrement = -d_data->valueIncrement;
 
             if ( pageStepCount() > 0 )
@@ -776,9 +770,6 @@ void QwtSlider::layoutSlider( bool update_geometry )
     scaleDraw()->move( scaleX, scaleY );
     scaleDraw()->setLength( scaleLength );
 
-    d_data->map.setPaintInterval( scaleDraw()->scaleMap().p1(),
-        scaleDraw()->scaleMap().p2() );
-
     if ( update_geometry )
     {
         d_data->sizeHintCache = QSize(); // invalidate
@@ -794,28 +785,23 @@ void QwtSlider::emitScaleValue()
 
 double QwtSlider::scaleValue() const
 {
-    const double v = d_data->map.transform( value() );
+    const double v = sliderMap().transform( value() );
     return scaleDraw()->scaleMap().invTransform( v );
 }
 
 void QwtSlider::setScaleValue( double value )
 {
     const double v = scaleDraw()->scaleMap().transform( value );
-    setValue( d_data->map.invTransform( v ) );
+    setValue( sliderMap().invTransform( v ) );
 }
 
 //! Notify change of range
 void QwtSlider::rangeChange()
 {
-    d_data->map.setScaleInterval( minimum(), maximum() );
-
-    if ( autoScale() )
-        rescale( minimum(), maximum() );
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+        layoutSlider( false );
 
     QwtAbstractSlider::rangeChange();
-
-    if ( testAttribute( Qt::WA_WState_Polished ) )
-        layoutSlider( true );
 }
 
 /*!
@@ -941,4 +927,14 @@ QRect QwtSlider::handleRect() const
 QRect QwtSlider::sliderRect() const
 {
     return d_data->sliderRect;
+}
+
+QwtScaleMap QwtSlider::sliderMap() const
+{
+    QwtScaleMap map;
+    map.setPaintInterval( scaleDraw()->scaleMap().p1(),
+        scaleDraw()->scaleMap().p2() );
+    map.setScaleInterval( minimum(), maximum() );
+
+    return map;
 }

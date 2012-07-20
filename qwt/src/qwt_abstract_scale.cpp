@@ -51,7 +51,7 @@ public:
 */
 
 QwtAbstractScale::QwtAbstractScale( QWidget *parent ):
-	QWidget( parent )
+    QWidget( parent )
 {
     d_data = new PrivateData;
     rescale( 0.0, 100.0 );
@@ -291,6 +291,16 @@ const QwtScaleEngine *QwtAbstractScale::scaleEngine() const
 QwtScaleEngine *QwtAbstractScale::scaleEngine()
 {
     return d_data->scaleEngine;
+}
+
+double QwtAbstractScale::scaleStepSize() const
+{
+    return d_data->stepSize;
+}
+
+const QwtScaleDiv& QwtAbstractScale::scaleDiv() const
+{
+    return d_data->scaleDraw->scaleDiv();
 }
 
 /*!

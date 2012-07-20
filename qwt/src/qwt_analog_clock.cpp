@@ -49,24 +49,24 @@ QwtAnalogClock::QwtAnalogClock( QWidget *parent ):
     setOrigin( 270.0 );
     setScaleDraw( new QwtAnalogClockScaleDraw() );
 
-	const int secondsPerHour = 60.0 * 60.0; 
+    const int secondsPerHour = 60.0 * 60.0; 
 
-	QList<double> majorTicks;
-	QList<double> minorTicks;
+    QList<double> majorTicks;
+    QList<double> minorTicks;
 
-	for ( int i = 0; i < 12; i++ )
-	{
-		majorTicks += i * secondsPerHour;
+    for ( int i = 0; i < 12; i++ )
+    {
+        majorTicks += i * secondsPerHour;
 
-		for ( int j = 1; j < 5; j++ )
-			minorTicks += i * secondsPerHour + j * secondsPerHour / 5.0;
-	}
+        for ( int j = 1; j < 5; j++ )
+            minorTicks += i * secondsPerHour + j * secondsPerHour / 5.0;
+    }
 
-	QwtScaleDiv scaleDiv;
-	scaleDiv.setInterval( 0.0, 12.0 * secondsPerHour );
-	scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
-	scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
-	setScale( scaleDiv );
+    QwtScaleDiv scaleDiv;
+    scaleDiv.setInterval( 0.0, 12.0 * secondsPerHour );
+    scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
+    scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
+    setScale( scaleDiv );
 
     setRange( 0.0, 12.0 * secondsPerHour ); // seconds
 

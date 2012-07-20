@@ -167,7 +167,7 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
     if ( d_data->isScrolling )
     {
         d_data->mouseOffset = valueAt( event->pos() ) - d_data->value;
-		d_data->pendingValueChanged = false;
+        d_data->pendingValueChanged = false;
 
         Q_EMIT sliderPressed();
     }
@@ -189,24 +189,24 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
     {
         double value = valueAt( e->pos() ) - d_data->mouseOffset;
 
-    	value = boundedValue( value );
+        value = boundedValue( value );
 
-    	if ( d_data->stepAlignment )
-        	value = alignedValue( value );
+        if ( d_data->stepAlignment )
+            value = alignedValue( value );
 
-    	if ( value != d_data->value )
-    	{
-        	d_data->value = value;
+        if ( value != d_data->value )
+        {
+            d_data->value = value;
 
-        	update();
+            update();
 
-        	if ( d_data->tracking )
-            	Q_EMIT valueChanged( d_data->value );
-			else
-				d_data->pendingValueChanged = true;
+            if ( d_data->tracking )
+                Q_EMIT valueChanged( d_data->value );
+            else
+                d_data->pendingValueChanged = true;
 
             Q_EMIT sliderMoved( d_data->value );
-		}
+        }
     }
 }
 
@@ -305,7 +305,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     const double stepSize = qAbs( d_data->singleStep );
 
     double value = d_data->value;
-	double increment = 0.0;
+    double increment = 0.0;
 
 #if 1
     // better use key mapping from QAbstractSlider or QDial
@@ -350,21 +350,21 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     }
 #endif
 
-	if ( increment != 0.0 )
-	{
-		value = boundedValue( d_data->value + increment );
+    if ( increment != 0.0 )
+    {
+        value = boundedValue( d_data->value + increment );
 
         if ( d_data->stepAlignment )
             value = alignedValue( value );
-	}
+    }
 
     if ( value != d_data->value )
     {
-		d_data->value = value;
-		update();
+        d_data->value = value;
+        update();
 
-		Q_EMIT valueChanged( d_data->value );
-		Q_EMIT sliderMoved( d_data->value );
+        Q_EMIT valueChanged( d_data->value );
+        Q_EMIT sliderMoved( d_data->value );
     }
 }
 
@@ -372,10 +372,14 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
   \brief Notify a change of the range
 
   This virtual function is called whenever the range changes.
-  The default implementation does nothing.
 */
 void QwtAbstractSlider::rangeChange()
 {
+    if ( autoScale() )
+        rescale( minimum(), maximum() );
+
+    updateGeometry();
+    update();
 }
 
 /*!
@@ -469,7 +473,7 @@ void QwtAbstractSlider::setSingleStep( double vstep )
  */
 void QwtAbstractSlider::setPageStepCount( int count )
 {
-	const double range = d_data->maximum - d_data->minimum;
+    const double range = d_data->maximum - d_data->minimum;
 
     const int max = int( qAbs( range / d_data->singleStep ) );
     d_data->pageStepCount = qBound( 0, count, max );
@@ -628,15 +632,15 @@ double QwtAbstractSlider::mouseOffset() const
 
 void QwtAbstractSlider::incrementValue( double increment )
 {
-	double value = boundedValue( d_data->value + increment );
-	if ( d_data->stepAlignment )
+    double value = boundedValue( d_data->value + increment );
+    if ( d_data->stepAlignment )
         value = alignedValue( value );
 
     if ( value != d_data->value )
-	{
-		d_data->value = value;
-		update();
-	}
+    {
+        d_data->value = value;
+        update();
+    }
 }
 
 double QwtAbstractSlider::boundedValue( double value ) const
@@ -662,7 +666,7 @@ double QwtAbstractSlider::boundedValue( double value ) const
         value = qBound( vmin, value, vmax );
     }
 
-	return value;
+    return value;
 }
 
 double QwtAbstractSlider::alignedValue( double value ) const

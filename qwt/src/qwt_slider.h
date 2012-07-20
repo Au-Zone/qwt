@@ -152,6 +152,7 @@ private Q_SLOTS:
 private:
     QwtScaleDraw *scaleDraw();
 
+    QwtScaleMap sliderMap() const;
     void layoutSlider( bool );
 
     class PrivateData;

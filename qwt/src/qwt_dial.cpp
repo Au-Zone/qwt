@@ -98,10 +98,10 @@ QwtDial::QwtDial( QWidget* parent ):
     QwtRoundScaleDraw* scaleDraw = new QwtRoundScaleDraw();
     scaleDraw->setRadius( 0 );
 
-	setScaleDraw( scaleDraw );
+    setScaleDraw( scaleDraw );
 
-	setScaleMaxMajor( 36 );
-	setScaleMaxMinor( 10 );
+    setScaleMaxMajor( 36 );
+    setScaleMaxMinor( 10 );
 
     setScaleArc( 0.0, 360.0 ); // scale as a full circle
     setRange( 0.0, 360.0 ); // degrees as default
@@ -201,7 +201,7 @@ QRectF QwtDial::scaleInnerRect() const
 {
     QRectF rect = innerRect();
 
-	const QwtAbstractScaleDraw *sd = scaleDraw();
+    const QwtAbstractScaleDraw *sd = scaleDraw();
     if ( sd )
     {
         double scaleDist = qCeil( sd->extent( font() ) );
@@ -527,7 +527,7 @@ void QwtDial::drawNeedle( QPainter *painter, const QPointF &center,
 void QwtDial::drawScale( QPainter *painter, const QPointF &center,
     double radius, double origin, double minArc, double maxArc ) const
 {
-	QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
+    QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
 
     if ( sd == NULL )
         return;
@@ -629,16 +629,6 @@ QwtDialNeedle *QwtDial::needle()
     return d_data->needle;
 }
 
-//! QwtAbstractSlider update hook
-void QwtDial::rangeChange()
-{
-    if ( autoScale() )
-        rescale( minimum(), maximum() );
-
-    updateGeometry();
-    update();
-}
-
 //! Return the scale draw
 QwtRoundScaleDraw *QwtDial::scaleDraw()
 {
@@ -659,7 +649,7 @@ const QwtRoundScaleDraw *QwtDial::scaleDraw() const
 */
 void QwtDial::setScaleDraw( QwtRoundScaleDraw *scaleDraw )
 {
-	setAbstractScaleDraw( scaleDraw );
+    setAbstractScaleDraw( scaleDraw );
 }
 
 //! \return Lower limit of the scale arc
@@ -878,6 +868,6 @@ void QwtDial::wheelEvent( QWheelEvent *event )
 
 void QwtDial::scaleChange()
 {
-	updateGeometry();
-	update();
+    updateGeometry();
+    update();
 }
