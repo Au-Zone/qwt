@@ -101,7 +101,9 @@ QwtDial *CockpitGrid::createDial( int pos )
     if ( dial )
     {
         dial->setReadOnly( true );
-        dial->scaleDraw()->setPenWidth( 3 );
+        // QwtDialScaleDraw is obsolete and QwtDialScaleDraw::setPenWidth
+        // is broken in Qwt 6.0
+        dial->scaleDraw()->QwtAbstractScaleDraw::setPenWidth( 3 );
         dial->setLineWidth( 4 );
         dial->setFrameShadow( QwtDial::Sunken );
     }
