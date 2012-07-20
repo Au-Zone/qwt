@@ -33,7 +33,9 @@ public:
         displayMode = ImageMode;
 
         conrecFlags = QwtRasterData::IgnoreAllVerticesOnLevel;
+#if 0
         conrecFlags |= QwtRasterData::IgnoreOutOfRange;
+#endif
     }
     ~PrivateData()
     {
@@ -235,6 +237,8 @@ void QwtPlotSpectrogram::setConrecFlag(
 
    \param flag CONREC flag
    \return true, is enabled
+
+   The default setting enables QwtRasterData::IgnoreAllVerticesOnLevel
 
    \sa setConrecClag(), renderContourLines(),
        QwtRasterData::contourLines()
