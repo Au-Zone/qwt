@@ -120,7 +120,7 @@ inline bool QwtRasterData::ContourPlane::intersect(
             break;
         case 6:
             // e(-1,1,0), e(1,0,-1)
-            line[0] = vertex[1].pos();
+            line[0] = vertex[2].pos();
             line[1] = intersection(vertex[0], vertex[1]);
             break;
         case 7:
