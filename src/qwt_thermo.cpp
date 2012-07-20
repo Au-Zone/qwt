@@ -116,7 +116,7 @@ public:
   \param parent Parent widget
 */
 QwtThermo::QwtThermo( QWidget *parent ):
-    QWidget( parent )
+    QwtAbstractScale( parent )
 {
     d_data = new PrivateData;
     setRange( 0.0, 1.0 );

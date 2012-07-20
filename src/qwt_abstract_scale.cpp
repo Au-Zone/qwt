@@ -50,7 +50,8 @@ public:
   Autoscaling is enabled, and the stepSize is initialized by 0.0.
 */
 
-QwtAbstractScale::QwtAbstractScale()
+QwtAbstractScale::QwtAbstractScale( QWidget *parent ):
+	QWidget( parent )
 {
     d_data = new PrivateData;
     rescale( 0.0, 100.0 );
