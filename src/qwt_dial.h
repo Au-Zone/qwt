@@ -13,6 +13,7 @@
 #include "qwt_global.h"
 #include "qwt_abstract_slider.h"
 #include "qwt_abstract_scale_draw.h"
+#include "qwt_abstract_scale.h"
 #include <qframe.h>
 #include <qpalette.h>
 
@@ -43,7 +44,7 @@ class QwtRoundScaleDraw;
   \note The examples/dials example shows different types of dials.
 */
 
-class QWT_EXPORT QwtDial: public QwtAbstractSlider
+class QWT_EXPORT QwtDial: public QwtAbstractSlider, public QwtAbstractScale
 {
     Q_OBJECT
 
@@ -112,8 +113,6 @@ public:
     void setMode( Mode );
     Mode mode() const;
 
-    void setScale( int maxMajIntv, int maxMinIntv, double step = 0.0 );
-
     void setScaleArc( double min, double max );
 
     double minScaleArc() const;
@@ -171,9 +170,8 @@ protected:
     virtual void drawNeedle( QPainter *, const QPointF &,
         double radius, double direction, QPalette::ColorGroup ) const;
 
-    void updateScale();
-
     virtual void rangeChange();
+    virtual void scaleChange();
 
     virtual double valueAt( const QPoint & );
     virtual bool isScrollPosition( const QPoint & ) const;

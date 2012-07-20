@@ -36,6 +36,10 @@ QwtDial *CockpitGrid::createDial( int pos )
         case 0:
         {
             d_clock = new QwtAnalogClock( this );
+#if 0
+            // disable minor ticks
+            d_clock->scaleDraw()->setTickLength( QwtScaleDiv::MinorTick, 0 );
+#endif
 
             const QColor knobColor = QColor( Qt::gray ).light( 130 );
 
@@ -69,7 +73,8 @@ QwtDial *CockpitGrid::createDial( int pos )
         {
             d_speedo = new SpeedoMeter( this );
             d_speedo->setRange( 0.0, 240.0 );
-            d_speedo->setScale( -1, 2, 20 );
+            d_speedo->setScale( 0.0, 240.0, 20.0 );
+            d_speedo->scaleDraw()->setPenWidth( 2 );
 
             QTimer *timer = new QTimer( d_speedo );
             timer->connect( timer, SIGNAL( timeout() ),
@@ -82,6 +87,7 @@ QwtDial *CockpitGrid::createDial( int pos )
         case 2:
         {
             d_ai = new AttitudeIndicator( this );
+            d_ai->scaleDraw()->setPenWidth( 3 );
 
             QTimer *gradientTimer = new QTimer( d_ai );
             gradientTimer->connect( gradientTimer, SIGNAL( timeout() ),
@@ -102,7 +108,6 @@ QwtDial *CockpitGrid::createDial( int pos )
     if ( dial )
     {
         dial->setReadOnly( true );
-        dial->scaleDraw()->setPenWidth( 3 );
         dial->setLineWidth( 4 );
         dial->setFrameShadow( QwtDial::Sunken );
     }
@@ -129,8 +134,8 @@ void CockpitGrid::changeSpeed()
 
     double speed = d_speedo->value();
 
-    if ( ( speed < 40.0 && offset < 0.0 ) ||
-        ( speed > 160.0 && offset > 0.0 ) )
+    if ( ( speed < 7.0 && offset < 0.0 ) ||
+        ( speed > 203.0 && offset > 0.0 ) )
     {
         offset = -offset;
     }

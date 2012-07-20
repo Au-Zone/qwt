@@ -110,7 +110,8 @@ QwtCompass *CompassGrid::createCompass( int pos )
 
             compass->setScaleDraw( scaleDraw );
 
-            compass->setScale( 36, 5, 0 );
+            compass->setScaleMaxMajor( 36 );
+            compass->setScaleMaxMinor( 5 );
 
             compass->setNeedle(
                 new QwtCompassMagnetNeedle( QwtCompassMagnetNeedle::ThinStyle ) );
@@ -149,7 +150,8 @@ QwtCompass *CompassGrid::createCompass( int pos )
 
             compass->setScaleDraw( scaleDraw );
 
-            compass->setScale( 36, 5, 0 );
+            compass->setScaleMaxMajor( 36 );
+            compass->setScaleMaxMinor( 5 );
 
             compass->setNeedle( new QwtDialSimpleNeedle( QwtDialSimpleNeedle::Ray,
                 true, Qt::white ) );
