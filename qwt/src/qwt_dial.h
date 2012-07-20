@@ -13,7 +13,6 @@
 #include "qwt_global.h"
 #include "qwt_abstract_slider.h"
 #include "qwt_abstract_scale_draw.h"
-#include "qwt_abstract_scale.h"
 #include <qframe.h>
 #include <qpalette.h>
 
@@ -44,7 +43,7 @@ class QwtRoundScaleDraw;
   \note The examples/dials example shows different types of dials.
 */
 
-class QWT_EXPORT QwtDial: public QwtAbstractSlider, public QwtAbstractScale
+class QWT_EXPORT QwtDial: public QwtAbstractSlider
 {
     Q_OBJECT
 

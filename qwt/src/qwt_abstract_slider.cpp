@@ -64,7 +64,7 @@ public:
    \param parent Parent widget
 */
 QwtAbstractSlider::QwtAbstractSlider( QWidget *parent ):
-    QWidget( parent, NULL )
+    QwtAbstractScale( parent )
 {
     d_data = new QwtAbstractSlider::PrivateData;
     setFocusPolicy( Qt::StrongFocus );

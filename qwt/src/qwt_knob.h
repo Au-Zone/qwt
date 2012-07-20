@@ -12,7 +12,6 @@
 
 #include "qwt_global.h"
 #include "qwt_abstract_slider.h"
-#include "qwt_abstract_scale.h"
 
 class QwtRoundScaleDraw;
 
@@ -31,7 +30,7 @@ class QwtRoundScaleDraw;
     of the inherited members.
 */
 
-class QWT_EXPORT QwtKnob : public QwtAbstractSlider, public QwtAbstractScale
+class QWT_EXPORT QwtKnob: public QwtAbstractSlider
 {
     Q_OBJECT
 

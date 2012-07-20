@@ -11,20 +11,19 @@
 #define QWT_ABSTRACT_SLIDER_H
 
 #include "qwt_global.h"
-#include <qwidget.h>
+#include "qwt_abstract_scale.h"
 
 /*!
   \brief An abstract base class for slider widgets
 
-  QwtAbstractSlider is a base class for
-  slider widgets. It handles mouse events
-  and updates the slider's value accordingly. Derived classes
-  only have to implement the valueAt() and
+  QwtAbstractSlider is a base class for slider widgets. 
+  It handles mouse events and updates the slider's value accordingly. 
+  Derived classes only have to implement the valueAt() and
   getScrollMode() members, and should react to a
   valueChange(), which normally requires repainting.
 */
 
-class QWT_EXPORT QwtAbstractSlider : public QWidget
+class QWT_EXPORT QwtAbstractSlider: public QwtAbstractScale
 {
     Q_OBJECT
 
