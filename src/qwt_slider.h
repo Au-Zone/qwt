@@ -44,7 +44,6 @@ class QWT_EXPORT QwtSlider: public QwtAbstractSlider
     Q_PROPERTY( QSize handleSize READ handleSize WRITE setHandleSize )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
-    Q_PROPERTY( double scaleValue READ scaleValue WRITE setScaleValue )
 
 public:
 
@@ -114,14 +113,6 @@ public:
     void setUpdateInterval( int );
     int updateInterval() const;
 
-    double scaleValue() const;
-
-public Q_SLOTS:
-    void setScaleValue( double value );
-
-Q_SIGNALS:
-    void scaleValueChanged( double value );
-
 protected:
     virtual double valueAt( const QPoint & );
     virtual bool isScrollPosition( const QPoint & ) const;
@@ -141,18 +132,12 @@ protected:
     virtual void rangeChange();
     virtual void scaleChange();
 
-    int transform( double v ) const;
-
     QRect sliderRect() const;
     QRect handleRect() const;
-
-private Q_SLOTS:
-    void emitScaleValue();
 
 private:
     QwtScaleDraw *scaleDraw();
 
-    QwtScaleMap sliderMap() const;
     void layoutSlider( bool );
 
     class PrivateData;

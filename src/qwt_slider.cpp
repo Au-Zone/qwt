@@ -135,9 +135,6 @@ QwtSlider::QwtSlider( QWidget *parent,
     setRange( 0.0, 100.0 );
     setSingleStep( 1.0 );
     setValue( 0.0 );
-
-    connect( this, SIGNAL( valueChanged( double ) ), 
-        SLOT( emitScaleValue() ) );
 }
 
 QwtSlider::~QwtSlider()
@@ -431,7 +428,7 @@ void QwtSlider::drawSlider(
     }
 
     if ( isValid() )
-        drawHandle( painter, handleRect(), transform( value() ) );
+        drawHandle( painter, handleRect(), sliderMap().transform( value() ) );
 }
 
 /*!
@@ -464,15 +461,6 @@ void QwtSlider::drawHandle( QPainter *painter,
 }
 
 /*!
-   Map and round a value into widget coordinates
-   \param value Value
-*/
-int QwtSlider::transform( double value ) const
-{
-    return qRound( sliderMap().transform( value ) );
-}
-
-/*!
    Determine the value corresponding to a specified mouse location.
    \param pos Mouse position
 */
@@ -501,7 +489,7 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
     {
         if ( !handleRect().contains( pos ) )
         {
-            const int markerPos = transform( value() );
+            const int markerPos = sliderMap().transform( value() );
 
             d_data->valueIncrement = qAbs( singleStep() );
             if ( d_data->orientation == Qt::Horizontal )
@@ -778,23 +766,6 @@ void QwtSlider::layoutSlider( bool update_geometry )
     }
 }
 
-void QwtSlider::emitScaleValue()
-{
-    Q_EMIT scaleValueChanged( scaleValue() );
-}
-
-double QwtSlider::scaleValue() const
-{
-    const double v = sliderMap().transform( value() );
-    return scaleDraw()->scaleMap().invTransform( v );
-}
-
-void QwtSlider::setScaleValue( double value )
-{
-    const double v = scaleDraw()->scaleMap().transform( value );
-    setValue( sliderMap().invTransform( v ) );
-}
-
 //! Notify change of range
 void QwtSlider::rangeChange()
 {
@@ -908,7 +879,7 @@ QRect QwtSlider::handleRect() const
     if ( !isValid() )
         return QRect();
 
-    const int markerPos = transform( value() );
+    const int markerPos = sliderMap().transform( value() );
 
     QPoint center = d_data->sliderRect.center();
     if ( d_data->orientation == Qt::Horizontal )
@@ -927,14 +898,4 @@ QRect QwtSlider::handleRect() const
 QRect QwtSlider::sliderRect() const
 {
     return d_data->sliderRect;
-}
-
-QwtScaleMap QwtSlider::sliderMap() const
-{
-    QwtScaleMap map;
-    map.setPaintInterval( scaleDraw()->scaleMap().p1(),
-        scaleDraw()->scaleMap().p2() );
-    map.setScaleInterval( minimum(), maximum() );
-
-    return map;
 }
