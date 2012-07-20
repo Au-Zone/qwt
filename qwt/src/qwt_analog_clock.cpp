@@ -20,8 +20,8 @@ public:
 
         enableComponent( QwtAbstractScaleDraw::Backbone, false );
 
-        setTickLength( QwtScaleDiv::MinorTick, 1 );
-        setTickLength( QwtScaleDiv::MediumTick, 0 );
+        setTickLength( QwtScaleDiv::MinorTick, 2 );
+        setTickLength( QwtScaleDiv::MediumTick, 4 );
         setTickLength( QwtScaleDiv::MajorTick, 8 );
 
         setPenWidth( 1 );
@@ -43,19 +43,32 @@ public:
 QwtAnalogClock::QwtAnalogClock( QWidget *parent ):
     QwtDial( parent )
 {
-    initClock();
-}
-
-void QwtAnalogClock::initClock()
-{
     setWrapping( true );
     setReadOnly( true );
 
     setOrigin( 270.0 );
-    setRange( 0.0, 60.0 * 60.0 * 12.0 ); // seconds
-    setScale( -1, 5, 60.0 * 60.0 );
-
     setScaleDraw( new QwtAnalogClockScaleDraw() );
+
+	const int secondsPerHour = 60.0 * 60.0; 
+
+	QList<double> majorTicks;
+	QList<double> minorTicks;
+
+	for ( int i = 0; i < 12; i++ )
+	{
+		majorTicks += i * secondsPerHour;
+
+		for ( int j = 1; j < 5; j++ )
+			minorTicks += i * secondsPerHour + j * secondsPerHour / 5.0;
+	}
+
+	QwtScaleDiv scaleDiv;
+	scaleDiv.setInterval( 0.0, 12.0 * secondsPerHour );
+	scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
+	scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
+	setScale( scaleDiv );
+
+    setRange( 0.0, 12.0 * secondsPerHour ); // seconds
 
     QColor knobColor = palette().color( QPalette::Active, QPalette::Text );
     knobColor = knobColor.dark( 120 );

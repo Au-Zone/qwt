@@ -40,18 +40,13 @@ public:
         origin( 90.0 ),
         minScaleArc( 0.0 ),
         maxScaleArc( 0.0 ),
-        scaleDraw( 0 ),
-        maxMajIntv( 36 ),
-        maxMinIntv( 10 ),
-        scaleStep( 0.0 ),
-        needle( 0 ),
+        needle( NULL ),
         previousDir( -1.0 )
     {
     }
 
     ~PrivateData()
     {
-        delete scaleDraw;
         delete needle;
     }
     Shadow frameShadow;
@@ -63,11 +58,6 @@ public:
     double origin;
     double minScaleArc;
     double maxScaleArc;
-
-    QwtRoundScaleDraw *scaleDraw;
-    int maxMajIntv;
-    int maxMinIntv;
-    double scaleStep;
 
     double scalePenWidth;
     QwtDialNeedle *needle;
@@ -105,8 +95,13 @@ QwtDial::QwtDial( QWidget* parent ):
     }
     setPalette( p );
 
-    d_data->scaleDraw = new QwtRoundScaleDraw();
-    d_data->scaleDraw->setRadius( 0 );
+    QwtRoundScaleDraw* scaleDraw = new QwtRoundScaleDraw();
+    scaleDraw->setRadius( 0 );
+
+	setScaleDraw( scaleDraw );
+
+	setScaleMaxMajor( 36 );
+	setScaleMaxMinor( 10 );
 
     setScaleArc( 0.0, 360.0 ); // scale as a full circle
     setRange( 0.0, 360.0 ); // degrees as default
@@ -206,9 +201,10 @@ QRectF QwtDial::scaleInnerRect() const
 {
     QRectF rect = innerRect();
 
-    if ( d_data->scaleDraw )
+	const QwtAbstractScaleDraw *sd = scaleDraw();
+    if ( sd )
     {
-        double scaleDist = qCeil( d_data->scaleDraw->extent( font() ) );
+        double scaleDist = qCeil( sd->extent( font() ) );
         scaleDist++; // margin
 
         rect.adjust( scaleDist, scaleDist, -scaleDist, -scaleDist );
@@ -531,7 +527,9 @@ void QwtDial::drawNeedle( QPainter *painter, const QPointF &center,
 void QwtDial::drawScale( QPainter *painter, const QPointF &center,
     double radius, double origin, double minArc, double maxArc ) const
 {
-    if ( d_data->scaleDraw == NULL )
+	QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
+
+    if ( sd == NULL )
         return;
 
     origin -= 270.0; // hardcoded origin of QwtScaleDraw
@@ -558,19 +556,19 @@ void QwtDial::drawScale( QPainter *painter, const QPointF &center,
 
     painter->setFont( font() );
 
-    d_data->scaleDraw->setAngleRange( minArc, maxArc );
-    d_data->scaleDraw->setRadius( radius );
-    d_data->scaleDraw->moveCenter( center );
+    sd->setAngleRange( minArc, maxArc );
+    sd->setRadius( radius );
+    sd->moveCenter( center );
 
     QPalette pal = palette();
 
     const QColor textColor = pal.color( QPalette::Text );
     pal.setColor( QPalette::WindowText, textColor ); //ticks, backbone
 
-    painter->setPen( QPen( textColor, d_data->scaleDraw->penWidth() ) );
+    painter->setPen( QPen( textColor, sd->penWidth() ) );
 
     painter->setBrush( Qt::red );
-    d_data->scaleDraw->draw( painter, pal );
+    sd->draw( painter, pal );
 }
 
 /*!
@@ -634,38 +632,23 @@ QwtDialNeedle *QwtDial::needle()
 //! QwtAbstractSlider update hook
 void QwtDial::rangeChange()
 {
-    updateScale();
-}
+    if ( autoScale() )
+        rescale( minimum(), maximum() );
 
-/*!
-  Update the scale with the current attributes
-  \sa setScale()
-*/
-void QwtDial::updateScale()
-{
-    if ( d_data->scaleDraw )
-    {
-        QwtLinearScaleEngine scaleEngine;
-
-        const QwtScaleDiv scaleDiv = scaleEngine.divideScale(
-            minimum(), maximum(),
-            d_data->maxMajIntv, d_data->maxMinIntv, d_data->scaleStep );
-
-        d_data->scaleDraw->setTransformation( scaleEngine.transformation() );
-        d_data->scaleDraw->setScaleDiv( scaleDiv );
-    }
+    updateGeometry();
+    update();
 }
 
 //! Return the scale draw
 QwtRoundScaleDraw *QwtDial::scaleDraw()
 {
-    return d_data->scaleDraw;
+    return static_cast<QwtRoundScaleDraw *>( abstractScaleDraw() );
 }
 
 //! Return the scale draw
 const QwtRoundScaleDraw *QwtDial::scaleDraw() const
 {
-    return d_data->scaleDraw;
+    return static_cast<const QwtRoundScaleDraw *>( abstractScaleDraw() );
 }
 
 /*!
@@ -676,33 +659,7 @@ const QwtRoundScaleDraw *QwtDial::scaleDraw() const
 */
 void QwtDial::setScaleDraw( QwtRoundScaleDraw *scaleDraw )
 {
-    if ( scaleDraw != d_data->scaleDraw )
-    {
-        if ( d_data->scaleDraw )
-            delete d_data->scaleDraw;
-
-        d_data->scaleDraw = scaleDraw;
-        updateScale();
-        update();
-    }
-}
-
-/*!
-  Change the intervals of the scale
-
-  \param maxMajIntv Maximum for the number of major steps
-  \param maxMinIntv Maximum number of minor steps
-  \param step Step size
-
-  \sa QwtScaleEngine::divideScale()
-*/
-void QwtDial::setScale( int maxMajIntv, int maxMinIntv, double step )
-{
-    d_data->maxMajIntv = maxMajIntv;
-    d_data->maxMinIntv = maxMinIntv;
-    d_data->scaleStep = step;
-
-    updateScale();
+	setAbstractScaleDraw( scaleDraw );
 }
 
 //! \return Lower limit of the scale arc
@@ -769,8 +726,8 @@ void QwtDial::setScaleArc( double minArc, double maxArc )
 QSize QwtDial::sizeHint() const
 {
     int sh = 0;
-    if ( d_data->scaleDraw )
-        sh = qCeil( d_data->scaleDraw->extent( font() ) );
+    if ( scaleDraw() )
+        sh = qCeil( scaleDraw()->extent( font() ) );
 
     const int d = 6 * sh + 2 * lineWidth();
 
@@ -789,8 +746,8 @@ QSize QwtDial::sizeHint() const
 QSize QwtDial::minimumSizeHint() const
 {
     int sh = 0;
-    if ( d_data->scaleDraw )
-        sh = qCeil( d_data->scaleDraw->extent( font() ) );
+    if ( scaleDraw() )
+        sh = qCeil( scaleDraw()->extent( font() ) );
 
     const int d = 3 * sh + 2 * lineWidth();
 
@@ -917,4 +874,10 @@ void QwtDial::wheelEvent( QWheelEvent *event )
     const QRegion region( innerRect().toRect(), QRegion::Ellipse );
     if ( region.contains( event->pos() ) )
         QwtAbstractSlider::wheelEvent( event );
+}
+
+void QwtDial::scaleChange()
+{
+	updateGeometry();
+	update();
 }

@@ -46,7 +46,9 @@ AttitudeIndicator::AttitudeIndicator(
     setWrapping( true );
 
     setOrigin( 270.0 );
-    setScale( 0, 0, 30.0 );
+
+	setScaleMaxMinor( 0 );
+	setScale( 0.0, 360.0, 30.0 );
 
     const QColor color = palette().color( QPalette::Text );
     setNeedle( new AttitudeIndicatorNeedle( color ) );
