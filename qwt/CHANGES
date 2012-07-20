@@ -16,6 +16,7 @@ Changes
 4) Legend identifiers of with symbol and line fixed
 5) simpleplot example added
 6) QwtThermo layout code fixed
+7) QwtPickerPolygonMachine modified according the documented transtions
 
 Release 6.0.0
 ===================
