@@ -442,7 +442,7 @@ QRect QwtThermo::pipeRect() const
         scaleDraw()->getBorderDistHint( font(), d1, d2 );
         mbd = qMax( d1, d2 );
     }
-    int bw = d_data->borderWidth;
+    const int bw = d_data->borderWidth;
 
     QRect tRect;
     if ( d_data->orientation == Qt::Horizontal )
@@ -453,7 +453,7 @@ QRect QwtThermo::pipeRect() const
             {
                 tRect.setRect(
                     cr.x() + mbd + bw,
-                    cr.y() + cr.height() - d_data->pipeWidth - 2 * bw,
+                    cr.y() + cr.height() - d_data->pipeWidth - bw,
                     cr.width() - 2 * ( bw + mbd ),
                     d_data->pipeWidth 
                 );
@@ -466,7 +466,7 @@ QRect QwtThermo::pipeRect() const
             {
                 tRect.setRect(
                     cr.x() + mbd + bw,
-                    cr.y() + d_data->borderWidth,
+                    cr.y() + bw,
                     cr.width() - 2 * ( bw + mbd ),
                     d_data->pipeWidth 
                 );
@@ -493,7 +493,7 @@ QRect QwtThermo::pipeRect() const
             default:   
             {
                 tRect.setRect(
-                    cr.x() + cr.width() - 2 * bw - d_data->pipeWidth,
+                    cr.x() + cr.width() - bw - d_data->pipeWidth,
                     cr.y() + mbd + bw,
                     d_data->pipeWidth,
                     cr.height() - 2 * ( bw + mbd ) );
@@ -993,8 +993,7 @@ QSize QwtThermo::minimumSizeHint() const
         const int sdLength = scaleDraw()->minLength( font() );
 
         w = sdLength;
-        h = d_data->pipeWidth + sdExtent +
-            d_data->borderWidth + d_data->spacing;
+        h = d_data->pipeWidth + sdExtent + d_data->spacing;
 
     }
     else // no scale
@@ -1009,6 +1008,7 @@ QSize QwtThermo::minimumSizeHint() const
     w += 2 * d_data->borderWidth;
     h += 2 * d_data->borderWidth;
 
+    // finally add the margins
     int left, right, top, bottom;
     getContentsMargins( &left, &top, &right, &bottom );
     w += left + right;
