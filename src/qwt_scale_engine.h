@@ -119,8 +119,8 @@ public:
         int maxMajorSteps, int maxMinorSteps,
         double stepSize = 0.0 ) const = 0;
 
-    //! \return a transformation
-    virtual QwtTransform *transformation() const = 0;
+	void setTransformation( QwtTransform * );
+    QwtTransform *transformation() const;
 
 protected:
     bool contains( const QwtInterval &, double val ) const;
@@ -154,7 +154,6 @@ public:
         int numMajorSteps, int numMinorSteps,
                                      double stepSize = 0.0 ) const;
 
-    virtual QwtTransform *transformation() const;
 
 protected:
     QwtInterval align( const QwtInterval&, double stepSize ) const;
@@ -196,8 +195,6 @@ public:
     virtual QwtScaleDiv divideScale( double x1, double x2,
         int numMajorSteps, int numMinorSteps,
         double stepSize = 0.0 ) const;
-
-    virtual QwtTransform *transformation() const;
 
 protected:
     QwtInterval align( const QwtInterval&, double stepSize ) const;
