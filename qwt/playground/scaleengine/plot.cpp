@@ -5,28 +5,6 @@
 #include <qwt_plot_picker.h>
 #include <qwt_scale_engine.h>
 
-class ScaleEngine: public QwtLinearScaleEngine
-{
-public:
-    ScaleEngine( QwtTransform *transform ):
-        d_transform( transform )
-    {
-    }
-
-    virtual ~ScaleEngine()
-    {
-        delete d_transform;
-    }
-
-    virtual QwtTransform *transformation() const
-    {
-        return d_transform->copy();
-    }
-
-private:
-    const QwtTransform *d_transform;
-};
-
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
@@ -70,8 +48,10 @@ void Plot::populate()
 
 void Plot::setTransformation( QwtTransform *transform )
 {
-    setAxisScaleEngine( QwtPlot::xBottom, 
-        new ScaleEngine( transform ) );
+	QwtLinearScaleEngine *scaleEngine = new QwtLinearScaleEngine();
+	scaleEngine->setTransformation( transform );
+
+    setAxisScaleEngine( QwtPlot::xBottom, scaleEngine );
 
     // we have to reassign the axis settinge, because they are
     // invalidated, when the scale engine has changed

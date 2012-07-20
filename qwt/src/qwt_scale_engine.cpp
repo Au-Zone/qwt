@@ -96,9 +96,15 @@ public:
         lowerMargin( 0.0 ),
         upperMargin( 0.0 ),
         referenceValue( 0.0 ),
-        base( 10 )
+        base( 10 ),
+		transform( NULL )
     {
     }
+
+    ~PrivateData()
+	{
+		delete transform;
+	}
 
     QwtScaleEngine::Attributes attributes;       // scale attributes
 
@@ -109,6 +115,7 @@ public:
 
     uint base;
 
+	QwtTransform* transform;
 };
 
 //! Constructor
@@ -123,6 +130,44 @@ QwtScaleEngine::QwtScaleEngine( uint base )
 QwtScaleEngine::~QwtScaleEngine ()
 {
     delete d_data;
+}
+
+/*!
+   Assign a transformation
+
+   \param transform Transformation
+
+   The transformation object is used as factory for clones
+   that are returned by transformation()
+
+   The scale engine takes ownership of the transformation.
+
+   \sa QwtTransform::copy(), transformation()
+
+ */
+void QwtScaleEngine::setTransformation( QwtTransform *transform )
+{
+	if ( transform != d_data->transform )
+	{
+		delete d_data->transform;
+		d_data->transform = transform;
+	}
+}
+
+/*!
+   Create and return a clone of the transformation 
+   of the engine. When the engine has ne special transformation
+   NULL is returned, indicating no transformation.
+
+   \sa setTransformation
+ */
+QwtTransform *QwtScaleEngine::transformation() const
+{
+	QwtTransform *transform = NULL;
+	if ( d_data->transform )
+		transform = d_data->transform->copy();
+
+	return transform;
 }
 
 /*!
@@ -364,14 +409,6 @@ QwtLinearScaleEngine::QwtLinearScaleEngine( uint base ):
 
 QwtLinearScaleEngine::~QwtLinearScaleEngine()
 {
-}
-
-/*!
-  \return NULL, indicating no transformations
-*/
-QwtTransform *QwtLinearScaleEngine::transformation() const
-{
-    return NULL;
 }
 
 /*!
@@ -619,18 +656,11 @@ QwtInterval QwtLinearScaleEngine::align(
 QwtLogScaleEngine::QwtLogScaleEngine( uint base ):
     QwtScaleEngine( base )
 {
+	setTransformation( new QwtLogTransform() );
 }
 
 QwtLogScaleEngine::~QwtLogScaleEngine()
 {
-}
-
-/*!
-  Return a transformation, for logarithmic scales
-*/
-QwtTransform *QwtLogScaleEngine::transformation() const
-{
-    return new QwtLogTransform();
 }
 
 /*!
