@@ -397,15 +397,17 @@ QList<QwtPickerMachine::Command> QwtPickerPolygonMachine::transition(
                 }
                 else
                 {
-                    cmdList += End;
-                    setState( 0 );
+                    cmdList += Append;
                 }
             }
             if ( eventPattern.mouseMatch(
                 QwtEventPattern::MouseSelect2, ( const QMouseEvent * )event ) )
             {
                 if ( state() == 1 )
-                    cmdList += Append;
+                {
+                    cmdList += End;
+                    setState( 0 );
+                }
             }
             break;
         }
@@ -430,15 +432,17 @@ QList<QwtPickerMachine::Command> QwtPickerPolygonMachine::transition(
                 }
                 else
                 {
-                    cmdList += End;
-                    setState( 0 );
+                    cmdList += Append;
                 }
             }
             else if ( eventPattern.keyMatch(
                 QwtEventPattern::KeySelect2, ( const QKeyEvent * )event ) )
             {
                 if ( state() == 1 )
-                    cmdList += Append;
+                {
+                    cmdList += End;
+                    setState( 0 );
+                }
             }
             break;
         }
