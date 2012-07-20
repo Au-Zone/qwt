@@ -138,25 +138,49 @@ QwtKnob::MarkerStyle QwtKnob::markerStyle() const
 */
 void QwtKnob::setTotalAngle ( double angle )
 {
-    if ( angle < 10.0 )
-        d_data->totalAngle = 10.0;
-    else
+    angle = qBound( 10.0, angle, 360.0 );
+
+    if ( angle != d_data->totalAngle )
+    {
         d_data->totalAngle = angle;
 
-    scaleDraw()->setAngleRange( -0.5 * d_data->totalAngle,
-        0.5 * d_data->totalAngle );
+        scaleDraw()->setAngleRange( -0.5 * d_data->totalAngle,
+            0.5 * d_data->totalAngle );
 
-    scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
-    scaleDraw()->moveCenter( rect().center() );
-
-    updateGeometry();
-    update();
+        updateGeometry();
+        update();
+    }
 }
 
 //! Return the total angle
 double QwtKnob::totalAngle() const
 {
     return d_data->totalAngle;
+}
+
+void QwtKnob::setNumTurns( int numTurns )
+{
+    numTurns = qMax( numTurns, 1 );
+
+    if ( numTurns == 1 && d_data->totalAngle <= 360.0 )
+        return;
+
+    const double angle = numTurns * 360.0;
+    if ( angle != d_data->totalAngle )
+    {
+        d_data->totalAngle = angle;
+
+        scaleDraw()->setAngleRange( -0.5 * d_data->totalAngle,
+            0.5 * d_data->totalAngle );
+
+        updateGeometry();
+        update();
+    }
+}
+
+int QwtKnob::numTurns() const
+{
+    return qCeil( d_data->totalAngle / 360.0 );
 }
 
 /*!

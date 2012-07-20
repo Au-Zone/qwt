@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include "qwt_abstract_scale.h"
+#include "qwt_scale_map.h"
 
 /*!
   \brief An abstract base class for slider widgets
@@ -39,6 +40,8 @@ class QWT_EXPORT QwtAbstractSlider: public QwtAbstractScale
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
     Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
 
+	Q_PROPERTY( double scaleValue READ scaleValue WRITE setScaleValue )
+
 public:
     explicit QwtAbstractSlider( QWidget *parent = NULL );
     virtual ~QwtAbstractSlider();
@@ -47,6 +50,7 @@ public:
     bool isValid() const;
 
     double value() const;
+    double scaleValue() const;
 
     void setWrapping( bool tf );
     bool wrapping() const;
@@ -76,8 +80,17 @@ public:
 
 public Q_SLOTS:
     void setValue( double val );
+    void setScaleValue( double value );
 
 Q_SIGNALS:
+
+   /*!
+      \brief Notify a change of value translated into 
+             scale coordinates.
+
+      \param value New value
+    */
+    void scaleValueChanged( double value );
 
     /*!
       \brief Notify a change of value.
@@ -85,7 +98,8 @@ Q_SIGNALS:
       In the default setting
       (tracking enabled), this signal will be emitted every
       time the value changes ( see setTracking() ).
-      \param value new value
+
+      \param value New value
     */
     void valueChanged( double value );
 
@@ -144,6 +158,11 @@ protected:
     virtual void rangeChange();
 
     void incrementValue( double increment );
+
+    QwtScaleMap sliderMap() const;
+
+private Q_SLOTS:
+    void emitScaleValue();
 
 private:
     double alignedValue( double ) const;

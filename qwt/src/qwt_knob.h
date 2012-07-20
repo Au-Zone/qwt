@@ -21,8 +21,7 @@ class QwtRoundScaleDraw;
   The QwtKnob widget imitates look and behaviour of a volume knob on a radio.
   It contains a scale around the knob which is set up automatically or can
   be configured manually (see QwtAbstractScale).
-  Automatic scrolling is enabled when the user presses a mouse
-  button on the scale. For a description of signals, slots and other
+  For a description of signals, slots and other
   members, see QwtAbstractSlider.
 
   \image html knob.png
@@ -38,10 +37,10 @@ class QWT_EXPORT QwtKnob: public QwtAbstractSlider
     Q_ENUMS ( MarkerStyle )
 
     Q_PROPERTY( KnobStyle knobStyle READ knobStyle WRITE setKnobStyle )
-    Q_PROPERTY( MarkerStyle markerStyle READ markerStyle WRITE setMarkerStyle )
     Q_PROPERTY( int knobWidth READ knobWidth WRITE setKnobWidth )
-    Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( double totalAngle READ totalAngle WRITE setTotalAngle )
+    Q_PROPERTY( int numTurns READ numTurns WRITE setNumTurns )
+    Q_PROPERTY( MarkerStyle markerStyle READ markerStyle WRITE setMarkerStyle )
     Q_PROPERTY( int markerSize READ markerSize WRITE setMarkerSize )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
 
@@ -106,6 +105,9 @@ public:
 
     void setKnobWidth( int w );
     int knobWidth() const;
+
+    void setNumTurns( int );
+    int numTurns() const;
 
     void setTotalAngle ( double angle );
     double totalAngle() const;

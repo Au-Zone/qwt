@@ -8,6 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_abstract_slider.h"
+#include "qwt_abstract_scale_draw.h"
 #include "qwt_math.h"
 #include <qevent.h>
 
@@ -68,6 +69,9 @@ QwtAbstractSlider::QwtAbstractSlider( QWidget *parent ):
 {
     d_data = new QwtAbstractSlider::PrivateData;
     setFocusPolicy( Qt::StrongFocus );
+
+    connect( this, SIGNAL( valueChanged( double ) ), 
+        SLOT( emitScaleValue() ) );
 }
 
 //! Destructor
@@ -560,33 +564,6 @@ double QwtAbstractSlider::minimum() const
     return d_data->minimum;
 }   
 
-//! Returns the current value.
-double QwtAbstractSlider::value() const
-{
-    return d_data->value;
-}
-
-/*!
-  If wrapping is true stepping up from maximum() value will take you to the minimum() 
-  value and vica versa. 
-
-  \param on En/Disable wrapping
-  \sa wrapping()
-*/
-void QwtAbstractSlider::setWrapping( bool on )
-{
-    d_data->wrapping = on;
-}   
-
-/*!
-  \return True, when wrapping is set
-  \sa setWrapping()
- */ 
-bool QwtAbstractSlider::wrapping() const
-{
-    return d_data->wrapping;
-}
-
 /*!
   \brief Move the slider to a specified value
 
@@ -612,6 +589,45 @@ void QwtAbstractSlider::setValue( double value )
         update();
         Q_EMIT valueChanged( d_data->value );
     }
+}
+
+//! Returns the current value.
+double QwtAbstractSlider::value() const
+{
+    return d_data->value;
+}
+
+double QwtAbstractSlider::scaleValue() const
+{
+    const double v = sliderMap().transform( value() );
+    return abstractScaleDraw()->scaleMap().invTransform( v );
+}
+
+void QwtAbstractSlider::setScaleValue( double value )
+{
+    const double v = abstractScaleDraw()->scaleMap().transform( value );
+    setValue( sliderMap().invTransform( v ) );
+}
+
+/*!
+  If wrapping is true stepping up from maximum() value will take you to the minimum() 
+  value and vica versa. 
+
+  \param on En/Disable wrapping
+  \sa wrapping()
+*/
+void QwtAbstractSlider::setWrapping( bool on )
+{
+    d_data->wrapping = on;
+}   
+
+/*!
+  \return True, when wrapping is set
+  \sa setWrapping()
+ */ 
+bool QwtAbstractSlider::wrapping() const
+{
+    return d_data->wrapping;
 }
 
 /*!
@@ -688,4 +704,19 @@ double QwtAbstractSlider::alignedValue( double value ) const
     }
 
     return value;
+}
+
+QwtScaleMap QwtAbstractSlider::sliderMap() const
+{
+    QwtScaleMap map;
+    map.setPaintInterval( abstractScaleDraw()->scaleMap().p1(),
+        abstractScaleDraw()->scaleMap().p2() );
+    map.setScaleInterval( minimum(), maximum() );
+
+    return map;
+}
+
+void QwtAbstractSlider::emitScaleValue()
+{
+	Q_EMIT scaleValueChanged( scaleValue() );
 }
