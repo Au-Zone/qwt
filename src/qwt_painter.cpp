@@ -702,3 +702,64 @@ void QwtPainter::drawColorBar( QPainter *painter,
 
     drawPixmap( painter, rect, pixmap );
 }
+
+#if QT_VERSION >= 0x050000
+
+static inline void qwtFillRect(QPainter *painter, const QRect &rect, const QBrush &brush)
+{
+    if ( brush.style() == Qt::TexturePattern )
+    {
+        painter->setClipRect( rect );
+        painter->drawTiledPixmap(rect, brush.texture(), rect.topLeft());
+    }
+    else if (brush.gradient()
+        && brush.gradient()->coordinateMode() == QGradient::ObjectBoundingMode) 
+    {
+        painter->save();
+        painter->setClipRect( rect );
+        painter->fillRect(0, 0, painter->device()->width(),
+            painter->device()->height(), brush);
+        painter->restore();
+    }
+    else
+    {
+        painter->fillRect(rect, brush);
+    }
+}
+
+void QwtPainter::fillPixmap( const QWidget *widget,
+    QPixmap &pixmap, const QPoint &offset )
+{
+    // Qwt 5.0.0 Alpha offers an empty dummy implementation
+    // of QPixmap::fill, that does nothing helpful beside converting
+    // a compiler into a runtime error
+
+    const QRect rect( offset, pixmap.size() );
+
+    QPainter painter( &pixmap );
+    painter.translate( -offset );
+
+    const QBrush autoFillBrush =
+        widget->palette().brush( widget->backgroundRole() );
+
+    if ( !( widget->autoFillBackground() && autoFillBrush.isOpaque() ) )
+    {
+        const QBrush bg = widget->palette().brush( QPalette::Window );
+        qwtFillRect( &painter, rect, bg);
+    }
+
+    if ( widget->autoFillBackground() )
+        qwtFillRect( &painter, rect, autoFillBrush);
+
+    if ( widget->testAttribute(Qt::WA_StyledBackground) )
+    {
+        painter.setClipRegion( rect );
+
+        QStyleOption opt;
+        opt.initFrom( widget );
+        widget->style()->drawPrimitive( QStyle::PE_Widget,
+            &opt, &painter, widget );
+    }
+}
+
+#endif // QT_VERSION >= 0x050000

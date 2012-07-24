@@ -11,6 +11,7 @@ QWT_ROOT = $${PWD}/..
 
 include ( $${QWT_ROOT}/qwtconfig.pri )
 include ( $${QWT_ROOT}/qwtbuild.pri )
+include ( $${QWT_ROOT}/qwtfunctions.pri )
 
 contains(QWT_CONFIG, QwtDesigner) {
 
@@ -35,8 +36,8 @@ contains(QWT_CONFIG, QwtDesigner) {
     }
 
     IPATH       = $${INCLUDEPATH}
-    qtAddLibrary(qwt)
-    INCLUDEPATH = $${IPATH}
+    qwtAddLibrary(qwt)
+	INCLUDEPATH = $${IPATH}
 
     contains(QWT_CONFIG, QwtDll) {
 

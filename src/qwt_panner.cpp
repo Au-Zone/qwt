@@ -9,6 +9,9 @@
 
 #include "qwt_panner.h"
 #include "qwt_picker.h"
+#if QT_VERSION >= 0x050000
+#include "qwt_painter.h"
+#endif
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qevent.h>
@@ -252,7 +255,11 @@ void QwtPanner::paintEvent( QPaintEvent *pe )
     r.moveCenter( QPoint( r.center().x() + dx, r.center().y() + dy ) );
 
     QPixmap pm( size() );
+#if QT_VERSION >= 0x050000
+    QwtPainter::fillPixmap( parentWidget(), pm );
+#else
     pm.fill( parentWidget(), 0, 0 );
+#endif
 
     QPainter painter( &pm );
 

@@ -238,7 +238,7 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
     const QRectF documentRect( 0.0, 0.0, size.width(), size.height() );
 
     const QString fmt = format.toLower();
-    if ( fmt == "pdf" || fmt == "ps" )
+    if ( fmt == "pdf" )
     {
 #ifndef QT_NO_PRINTER
         QPrinter printer;
@@ -246,12 +246,28 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
         printer.setPaperSize( sizeMM, QPrinter::Millimeter );
         printer.setDocName( title );
         printer.setOutputFileName( fileName );
-        printer.setOutputFormat( ( format == "pdf" )
-            ? QPrinter::PdfFormat : QPrinter::PostScriptFormat );
+        printer.setOutputFormat( QPrinter::PdfFormat );
         printer.setResolution( resolution );
 
         QPainter painter( &printer );
         render( plot, &painter, documentRect );
+#endif
+    }
+    else if ( fmt == "ps" )
+    {
+#if QT_VERSION < 0x050000
+#ifndef QT_NO_PRINTER
+        QPrinter printer;
+        printer.setFullPage( true );
+        printer.setPaperSize( sizeMM, QPrinter::Millimeter );
+        printer.setDocName( title );
+        printer.setOutputFileName( fileName );
+        printer.setOutputFormat( QPrinter::PostScriptFormat );
+        printer.setResolution( resolution );
+
+        QPainter painter( &printer );
+        render( plot, &painter, documentRect );
+#endif
 #endif
     }
     else if ( fmt == "svg" )

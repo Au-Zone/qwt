@@ -166,9 +166,16 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_scale_widget.cpp 
 }
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+
+    QT += printsupport
+    QT += concurrent
+} 
+
 contains(QWT_CONFIG, QwtSvg) {
 
     QT += svg
+
     HEADERS += qwt_plot_svgitem.h
     SOURCES += qwt_plot_svgitem.cpp 
 }

@@ -166,7 +166,11 @@ static void qwtDrawBackground( QPainter *painter, QWidget *widget )
     if ( brush.style() == Qt::TexturePattern )
     {
         QPixmap pm( widget->size() );
+#if QT_VERSION >= 0x050000
+        QwtPainter::fillPixmap( widget, pm );
+#else
         pm.fill( widget, 0, 0 );
+#endif
         painter->drawPixmap( 0, 0, pm );
     }
     else if ( brush.gradient() )
@@ -255,13 +259,11 @@ static inline void qwtRevertPath( QPainterPath &path )
 {
     if ( path.elementCount() == 4 )
     {
-        QPainterPath::Element &el0 = 
-            const_cast<QPainterPath::Element &>( path.elementAt(0) );
-        QPainterPath::Element &el2 = 
-            const_cast<QPainterPath::Element &>( path.elementAt(3) );
+		QPainterPath::Element el0 = path.elementAt(0);
+		QPainterPath::Element el3 = path.elementAt(3);
 
-        qSwap( el0.x, el2.x );
-        qSwap( el0.y, el2.y );
+		path.setElementPositionAt( 0, el3.x, el3.y );
+		path.setElementPositionAt( 3, el0.x, el0.y );
     }
 }
 
@@ -437,8 +439,14 @@ static void qwtFillBackground( QPainter *painter,
         const QRect rect = fillRects[i].toAlignedRect();
         if ( clipRegion.intersects( rect ) )
         {
+			const QPoint topLeft = widget->mapTo( bgWidget, rect.topLeft() );
+
             QPixmap pm( rect.size() );
-            pm.fill( bgWidget, widget->mapTo( bgWidget, rect.topLeft() ) );
+#if QT_VERSION >= 0x050000
+        	QwtPainter::fillPixmap( bgWidget, pm, topLeft );
+#else
+            pm.fill( bgWidget, topLeft ) );
+#endif
             painter->drawPixmap( rect, pm );
         }
     }
@@ -582,8 +590,12 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 
                 if ( isVisible() )
                 {
+#if QT_VERSION >= 0x050000
+                    *d_data->backingStore = grab( rect() );
+#else
                     *d_data->backingStore = 
                         QPixmap::grabWidget( this, rect() );
+#endif
                 }
             }
             else
@@ -733,7 +745,11 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
                 QPainter p;
                 if ( d_data->borderRadius <= 0.0 )
                 {
+#if QT_VERSION >= 0x050000
+                    QwtPainter::fillPixmap( this, bs );
+#else
                     bs.fill( this, 0, 0 );
+#endif
                     p.begin( &bs );
                     drawCanvas( &p, false );
                 }

@@ -39,7 +39,6 @@ void MainWindow::updateGradient()
     QPalette pal = palette();
 
     const QColor buttonColor = pal.color( QPalette::Button );
-    const QColor lightColor = pal.color( QPalette::Light );
     const QColor midLightColor = pal.color( QPalette::Midlight );
 
 #ifdef Q_WS_X11

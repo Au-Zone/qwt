@@ -93,6 +93,11 @@ public:
 
     static bool isAligning( QPainter *painter );
 
+#if QT_VERSION >= 0x050000
+    static void fillPixmap( const QWidget *,
+        QPixmap &, const QPoint &offset = QPoint() );
+#endif
+
 private:
     static bool d_polylineSplitting;
     static bool d_roundingAlignment;
