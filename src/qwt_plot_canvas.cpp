@@ -445,7 +445,7 @@ static void qwtFillBackground( QPainter *painter,
 #if QT_VERSION >= 0x050000
         	QwtPainter::fillPixmap( bgWidget, pm, topLeft );
 #else
-            pm.fill( bgWidget, topLeft ) );
+            pm.fill( bgWidget, topLeft );
 #endif
             painter->drawPixmap( rect, pm );
         }
