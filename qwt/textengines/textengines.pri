@@ -37,9 +37,7 @@ else {
     LIBS      += -L$${QWT_ROOT}/lib
 }
 
-IPATH       = $${INCLUDEPATH}
 qwtAddLibrary(qwt)
-INCLUDEPATH = $${IPATH}
 
 # Install directives
 
