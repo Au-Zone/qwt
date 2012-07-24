@@ -870,7 +870,7 @@ void QwtPainter::drawColorBar( QPainter *painter,
 
 #if QT_VERSION >= 0x050000
 
-static inline void fillRect(QPainter *painter, const QRect &rect, const QBrush &brush)
+static inline void qwtFillRect(QPainter *painter, const QRect &rect, const QBrush &brush)
 {
     if ( brush.style() == Qt::TexturePattern ) 
     {
@@ -899,8 +899,10 @@ void QwtPainter::fillPixmap( const QWidget *widget,
 {
 #if QT_VERSION >= 0x050000
 
-    // Qwt 5.0.0 Alpha doesn't offer a replacement for QPixmap::fill
-#if 1
+    // Qwt 5.0.0 Alpha offers an empty dummy implementation
+    // of QPixmap::fill, that does nothing helpful beside converting
+    // a compiler into a runtime error
+
     const QRect rect( offset, pixmap.size() );
 
     QPainter painter( &pixmap );
@@ -912,11 +914,11 @@ void QwtPainter::fillPixmap( const QWidget *widget,
     if ( !( widget->autoFillBackground() && autoFillBrush.isOpaque() ) ) 
     {
         const QBrush bg = widget->palette().brush( QPalette::Window );
-        fillRect( &painter, rect, bg);
+        qwtFillRect( &painter, rect, bg);
     }
 
     if ( widget->autoFillBackground() )
-        fillRect( &painter, rect, autoFillBrush);
+        qwtFillRect( &painter, rect, autoFillBrush);
 
     if ( widget->testAttribute(Qt::WA_StyledBackground) ) 
     {
@@ -927,8 +929,6 @@ void QwtPainter::fillPixmap( const QWidget *widget,
         widget->style()->drawPrimitive( QStyle::PE_Widget, 
             &opt, &painter, widget );
     }
-#endif
-
 #else
     pixmap.fill( widget, offset );
 #endif

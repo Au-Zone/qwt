@@ -10,6 +10,7 @@
 QWT_ROOT = $${PWD}/..
 include( $${QWT_ROOT}/qwtconfig.pri )
 include( $${QWT_ROOT}/qwtbuild.pri )
+include( $${QWT_ROOT}/qwtfunctions.pri )
 
 TEMPLATE     = app
 
@@ -29,7 +30,7 @@ else {
 }
 
 IPATH       = $${INCLUDEPATH}
-qtAddLibrary(qwt)
+qwtAddLibrary(qwt)
 INCLUDEPATH = $${IPATH}
 
 greaterThan(QT_MAJOR_VERSION, 4) {

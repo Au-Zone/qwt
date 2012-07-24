@@ -104,7 +104,7 @@ QWT_CONFIG     += QwtOpenGL
 # Otherwise you have to build it from the designer directory.
 ######################################################################
 
-#QWT_CONFIG     += QwtDesigner
+QWT_CONFIG     += QwtDesigner
 
 ######################################################################
 # If you want to auto build the examples, enable the line below

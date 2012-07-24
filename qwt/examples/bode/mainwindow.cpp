@@ -85,7 +85,7 @@ MainWindow::MainWindow( QWidget *parent ):
 
     QToolButton *btnZoom = new QToolButton( toolBar );
     btnZoom->setText( "Zoom" );
-    btnZoom->setIcon( QIcon( zoom_xpm ) );
+    btnZoom->setIcon( QPixmap( zoom_xpm ) );
     btnZoom->setCheckable( true );
     btnZoom->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
     toolBar->addWidget( btnZoom );
@@ -94,7 +94,7 @@ MainWindow::MainWindow( QWidget *parent ):
 #ifndef QT_NO_PRINTER
     QToolButton *btnPrint = new QToolButton( toolBar );
     btnPrint->setText( "Print" );
-    btnPrint->setIcon( QIcon( print_xpm ) );
+    btnPrint->setIcon( QPixmap( print_xpm ) );
     btnPrint->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
     toolBar->addWidget( btnPrint );
     connect( btnPrint, SIGNAL( clicked() ), SLOT( print() ) );
@@ -102,7 +102,7 @@ MainWindow::MainWindow( QWidget *parent ):
 
     QToolButton *btnExport = new QToolButton( toolBar );
     btnExport->setText( "Export" );
-    btnExport->setIcon( QIcon( print_xpm ) );
+    btnExport->setIcon( QPixmap( print_xpm ) );
     btnExport->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
     toolBar->addWidget( btnExport );
     connect( btnExport, SIGNAL( clicked() ), SLOT( exportDocument() ) );
