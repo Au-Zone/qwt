@@ -31,10 +31,12 @@ Plot::Plot( QWidget *parent ):
 
     if ( QwtPainter::isX11GraphicsSystem() )
     {
+#if QT_VERSION < 0x050000
         // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent
         // works on X11. This has a nice effect on the performance.
 
         canvas->setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
+#endif
 
         // Disabling the backing store of Qt improves the performance
         // for the direct painter even more, but the canvas becomes

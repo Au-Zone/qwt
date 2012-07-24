@@ -197,10 +197,12 @@ void QwtPlotDirectPainter::drawSeries(
     }
 
     bool immediatePaint = true;
-    if ( !canvas->testAttribute( Qt::WA_WState_InPaintEvent ) &&
-        !canvas->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
+    if ( !canvas->testAttribute( Qt::WA_WState_InPaintEvent ) ) 
     {
-        immediatePaint = false;
+#if QT_VERSION < 0x050000
+		if ( !canvas->testAttribute( Qt::WA_PaintOutsidePaintEvent ) )
+#endif
+        	immediatePaint = false;
     }
 
     if ( immediatePaint )
