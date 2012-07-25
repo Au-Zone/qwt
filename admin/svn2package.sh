@@ -130,6 +130,9 @@ function createDocs {
         sed -i -e '/GENERATE_LATEX/d' -e '/GENERATE_MAN/d' Doxyfile.doc
         echo 'GENERATE_LATEX = YES' >> Doxyfile.doc
         echo 'GENERATE_MAN = YES' >> Doxyfile.doc
+
+#        sed -i -e '/INLINE_INHERITED_MEMB/d' Doxyfile.doc
+#        echo 'INLINE_INHERITED_MEMB = NO' >> Doxyfile.doc
     fi
 
     if [ $GENERATE_QCH -ne 0 ]
