@@ -129,7 +129,6 @@ protected:
     virtual void changeEvent( QEvent * );
     virtual void timerEvent( QTimerEvent * );
 
-    virtual void rangeChange();
     virtual void scaleChange();
 
     QRect sliderRect() const;

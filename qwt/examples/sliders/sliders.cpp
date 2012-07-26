@@ -50,7 +50,7 @@ Slider::Slider( QWidget *parent, int sliderType ):
     d_label->setAlignment( alignment );
     d_label->setFixedWidth( d_label->fontMetrics().width( "10000.9" ) );
 
-    connect( d_slider, SIGNAL( scaleValueChanged( double ) ), SLOT( setNum( double ) ) );
+    connect( d_slider, SIGNAL( valueChanged( double ) ), SLOT( setNum( double ) ) );
 
     QBoxLayout *layout;
     if ( d_slider->orientation() == Qt::Horizontal )
@@ -75,7 +75,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Trough );
             slider->setHandleSize( QSize( 30, 16 ) );
-            slider->setRange( 10.0, -10.0 ); 
+            slider->setScale( 10.0, -10.0 ); 
             slider->setSingleStep( 1.0 ); 
             slider->setPageStepCount( 0 ); // paging disabled
             break;
@@ -86,7 +86,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::NoScale );
             slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
-            slider->setRange( 0.0, 1.0 );
+            slider->setScale( 0.0, 1.0 );
             slider->setSingleStep( 0.01 );
             slider->setPageStepCount( 5 );
             break;
@@ -98,7 +98,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setScalePosition( QwtSlider::LeadingScale );
             slider->setBackgroundStyle( QwtSlider::Groove );
             slider->setHandleSize( QSize( 12, 25 ) );
-            slider->setRange( 1000.0, 3000.0 );
+            slider->setScale( 1000.0, 3000.0 );
             slider->setSingleStep( 10.0 );
             slider->setPageStepCount( 10 );
             break;
@@ -110,18 +110,10 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
 
-#if 1
             QwtLinearScaleEngine *scaleEngine = new QwtLinearScaleEngine( 2 );
             scaleEngine->setTransformation( new QwtPowerTransform( 2 ) );
             slider->setScaleEngine( scaleEngine );
-            slider->setRange( 0.0, 16.0 );
             slider->setScale( 0.0, 128.0 );
-#else
-            QwtLogScaleEngine *scaleEngine = new QwtLogScaleEngine( 2 );
-            slider->setScaleEngine( scaleEngine );
-            slider->setRange( 0.0, 16.0 );
-            slider->setScale( 1.0, 256.0 );
-#endif
             break;
         }
         case 4:
@@ -130,7 +122,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Groove );
-            slider->setRange( 0.0, 100.0 );
+            slider->setScale( 0.0, 100.0 );
             slider->setSingleStep( 1.0 );
             slider->setPageStepCount( 5 );
             slider->setScaleMaxMinor( 5 );
@@ -142,7 +134,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::NoScale );
             slider->setBackgroundStyle( QwtSlider::Trough );
-            slider->setRange( 0.0, 100.0 );
+            slider->setScale( 0.0, 100.0 );
             slider->setSingleStep( 1.0 );
             slider->setPageStepCount( 10 );
             break;
@@ -156,9 +148,8 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setScaleEngine( new QwtLogScaleEngine );
             slider->setHandleSize( QSize( 20, 32 ) );
             slider->setBorderWidth( 1 );
-            slider->setRange( 0.0, 4.0 );
-            slider->setSingleStep( 0.01 );
             slider->setScale( 1.0, 1.0e4 );
+            slider->setSingleStep( 0.01 );
             slider->setScaleMaxMinor( 9 );
             break;
         }

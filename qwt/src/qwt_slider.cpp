@@ -132,7 +132,7 @@ QwtSlider::QwtSlider( QWidget *parent,
         qwtScaleDrawAlignment( orientation, scalePosition ) );
     scaleDraw()->setLength( 100 );
 
-    setRange( 0.0, 100.0 );
+    setScale( 0.0, 100.0 );
     setSingleStep( 1.0 );
     setValue( 0.0 );
 }
@@ -356,6 +356,8 @@ QwtScaleDraw *QwtSlider::scaleDraw()
 //! Notify changed scale
 void QwtSlider::scaleChange()
 {
+    QwtAbstractSlider::scaleChange();
+
     if ( testAttribute( Qt::WA_WState_Polished ) )
         layoutSlider( true );
 }
@@ -428,7 +430,7 @@ void QwtSlider::drawSlider(
     }
 
     if ( isValid() )
-        drawHandle( painter, handleRect(), sliderMap().transform( value() ) );
+        drawHandle( painter, handleRect(), transform( value() ) );
 }
 
 /*!
@@ -466,7 +468,7 @@ void QwtSlider::drawHandle( QPainter *painter,
 */
 double QwtSlider::valueAt( const QPoint &pos )
 {
-    return sliderMap().invTransform(
+    return invTransform(
         orientation() == Qt::Horizontal ? pos.x() : pos.y() );
 }
 
@@ -489,7 +491,7 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
     {
         if ( !handleRect().contains( pos ) )
         {
-            const int markerPos = sliderMap().transform( value() );
+            const int markerPos = transform( value() );
 
             d_data->valueIncrement = qAbs( singleStep() );
             if ( d_data->orientation == Qt::Horizontal )
@@ -503,7 +505,7 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
                     d_data->valueIncrement = -d_data->valueIncrement;
             }
 
-            if ( sliderMap().isInverting() )
+            if ( isInverted() )
                 d_data->valueIncrement = -d_data->valueIncrement;
 
             if ( pageStepCount() > 0 )
@@ -766,15 +768,6 @@ void QwtSlider::layoutSlider( bool update_geometry )
     }
 }
 
-//! Notify change of range
-void QwtSlider::rangeChange()
-{
-    if ( testAttribute( Qt::WA_WState_Polished ) )
-        layoutSlider( false );
-
-    QwtAbstractSlider::rangeChange();
-}
-
 /*!
   Set the background style.
 */
@@ -879,7 +872,7 @@ QRect QwtSlider::handleRect() const
     if ( !isValid() )
         return QRect();
 
-    const int markerPos = sliderMap().transform( value() );
+    const int markerPos = transform( value() );
 
     QPoint center = d_data->sliderRect.center();
     if ( d_data->orientation == Qt::Horizontal )

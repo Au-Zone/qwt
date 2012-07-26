@@ -31,6 +31,9 @@ class QWT_EXPORT QwtAbstractScale: public QWidget
 {
     Q_OBJECT
 
+    Q_PROPERTY( double lowerBound READ lowerBound WRITE setLowerBound )
+    Q_PROPERTY( double upperBound READ upperBound WRITE setUpperBound )
+
 public:
     QwtAbstractScale( QWidget *parent = NULL );
     virtual ~QwtAbstractScale();
@@ -39,11 +42,14 @@ public:
     void setScale( const QwtInterval &, double step = 0.0 );
     void setScale( const QwtScaleDiv & );
 
+    void setLowerBound( double min );
+    double lowerBound() const;
+
+    void setUpperBound( double max );
+    double upperBound() const;
+
     double scaleStepSize() const;
     const QwtScaleDiv& scaleDiv() const;
-
-    void setAutoScale();
-    bool autoScale() const;
 
     void setScaleMaxMajor( int ticks );
     int scaleMaxMinor() const;
@@ -55,7 +61,13 @@ public:
     const QwtScaleEngine *scaleEngine() const;
     QwtScaleEngine *scaleEngine();
 
-    const QwtScaleMap &scaleMap() const;
+    int transform( double ) const;
+    double invTransform( int ) const;
+
+    bool isInverted() const;
+
+    double minimum() const;
+    double maximum() const;
 
 protected:
     void rescale( double vmin, double vmax, double step = 0.0 );
