@@ -12,7 +12,6 @@
 
 #include "qwt_global.h"
 #include "qwt_abstract_scale.h"
-#include "qwt_scale_map.h"
 
 /*!
   \brief An abstract base class for slider widgets
@@ -29,8 +28,6 @@ class QWT_EXPORT QwtAbstractSlider: public QwtAbstractScale
     Q_OBJECT
 
     Q_PROPERTY( double value READ value WRITE setValue )
-    Q_PROPERTY( double minimum READ minimum WRITE setMinimum )
-    Q_PROPERTY( double maximum READ maximum WRITE setMaximum )
 
     Q_PROPERTY( double singleStep READ singleStep WRITE setSingleStep )
     Q_PROPERTY( int pageStepCount READ pageStepCount WRITE setPageStepCount )
@@ -40,8 +37,6 @@ class QWT_EXPORT QwtAbstractSlider: public QwtAbstractScale
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
     Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
 
-	Q_PROPERTY( double scaleValue READ scaleValue WRITE setScaleValue )
-
 public:
     explicit QwtAbstractSlider( QWidget *parent = NULL );
     virtual ~QwtAbstractSlider();
@@ -50,7 +45,6 @@ public:
     bool isValid() const;
 
     double value() const;
-    double scaleValue() const;
 
     void setWrapping( bool tf );
     bool wrapping() const;
@@ -64,14 +58,6 @@ public:
     void setStepAlignment( bool on ); 
     bool stepAlignment() const;
 
-    void setRange( double vmin, double vmax );
-
-    void setMinimum( double min );
-    double minimum() const;
-
-    void setMaximum( double max );
-    double maximum() const;
-
     void setTracking( bool enable );
     bool isTracking() const;
 
@@ -80,7 +66,6 @@ public:
 
 public Q_SLOTS:
     void setValue( double val );
-    void setScaleValue( double value );
 
 Q_SIGNALS:
 
@@ -155,14 +140,9 @@ protected:
     void setMouseOffset( double );
     double mouseOffset() const;
 
-    virtual void rangeChange();
-
     void incrementValue( double increment );
 
-    QwtScaleMap sliderMap() const;
-
-private Q_SLOTS:
-    void emitScaleValue();
+    virtual void scaleChange();
 
 private:
     double alignedValue( double ) const;

@@ -143,10 +143,9 @@ protected:
     virtual double valueAt( const QPoint & );
     virtual bool isScrollPosition( const QPoint & ) const;
 
-private:
-    virtual void rangeChange();
     virtual void scaleChange();
 
+private:
     class PrivateData;
     PrivateData *d_data;
 };

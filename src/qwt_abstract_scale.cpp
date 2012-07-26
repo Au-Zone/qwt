@@ -20,8 +20,7 @@ public:
     PrivateData():
         maxMajor( 5 ),
         maxMinor( 3 ),
-        stepSize( 0.0 ),
-        autoScale( true )
+        stepSize( 0.0 )
     {
         scaleEngine = new QwtLinearScaleEngine;
         scaleDraw = new QwtScaleDraw();
@@ -39,8 +38,6 @@ public:
     int maxMajor;
     int maxMinor;
     double stepSize;
-
-    bool autoScale;
 };
 
 /*!
@@ -63,19 +60,37 @@ QwtAbstractScale::~QwtAbstractScale()
     delete d_data;
 }
 
+void QwtAbstractScale::setLowerBound( double value )
+{
+    setScale( value, upperBound(), scaleStepSize() );
+}
+
+double QwtAbstractScale::lowerBound() const
+{
+    return d_data->scaleDraw->scaleDiv().lowerBound();
+}
+
+void QwtAbstractScale::setUpperBound( double value )
+{
+    setScale( lowerBound(), value, scaleStepSize() );
+}
+
+double QwtAbstractScale::upperBound() const
+{
+    return d_data->scaleDraw->scaleDiv().upperBound();
+}
+
 /*!
   \brief Specify a scale.
 
-  Disable autoscaling and define a scale by an interval and a step size
+  Define a scale by an interval and a step size
 
   \param vmin lower limit of the scale interval
   \param vmax upper limit of the scale interval
   \param stepSize major step size
-  \sa setAutoScale()
 */
 void QwtAbstractScale::setScale( double vmin, double vmax, double stepSize )
 {
-    d_data->autoScale = false;
     d_data->stepSize = stepSize;
 
     rescale( vmin, vmax, stepSize );
@@ -84,7 +99,7 @@ void QwtAbstractScale::setScale( double vmin, double vmax, double stepSize )
 /*!
   \brief Specify a scale.
 
-  Disable autoscaling and define a scale by an interval and a step size
+  Define a scale by an interval and a step size
 
   \param interval Interval
   \param stepSize major step size
@@ -99,18 +114,17 @@ void QwtAbstractScale::setScale( const QwtInterval &interval, double stepSize )
 /*!
   \brief Specify a scale.
 
-  Disable autoscaling and define a scale by a scale division
+  Define a scale by a scale division
 
   \param scaleDiv Scale division
   \sa setAutoScale()
 */
 void QwtAbstractScale::setScale( const QwtScaleDiv &scaleDiv )
 {
-    d_data->autoScale = false;
-
     if ( scaleDiv != d_data->scaleDraw->scaleDiv() )
     {
         d_data->scaleDraw->setScaleDiv( scaleDiv );
+
         scaleChange();
     }
 }
@@ -131,34 +145,14 @@ void QwtAbstractScale::rescale( double vmin, double vmax, double stepSize )
 
     if ( scaleDiv != d_data->scaleDraw->scaleDiv() )
     {
+#if 1
         d_data->scaleDraw->setTransformation(
             d_data->scaleEngine->transformation() );
+#endif
+
         d_data->scaleDraw->setScaleDiv( scaleDiv );
         scaleChange();
     }
-}
-
-/*!
-  \brief Advise the widget to control the scale range internally.
-
-  Autoscaling is on by default.
-  \sa setScale(), autoScale()
-*/
-void QwtAbstractScale::setAutoScale()
-{
-    if ( !d_data->autoScale )
-    {
-        d_data->autoScale = true;
-        scaleChange();
-    }
-}
-
-/*!
-  \return \c true if autoscaling is enabled
-*/
-bool QwtAbstractScale::autoScale() const
-{
-    return d_data->autoScale;
 }
 
 /*!
@@ -260,8 +254,8 @@ void QwtAbstractScale::updateScaleDraw()
 /*!
   \brief Set a scale engine
 
-  The scale engine is responsible for calculating the scale division,
-  and in case of auto scaling how to align the scale.
+  The scale engine is responsible for calculating the scale division
+  and provides a transformation between scale and widget coordinates.
 
   scaleEngine has to be created with new and will be deleted in
   ~QwtAbstractScale or the next call of setScaleEngine.
@@ -303,19 +297,34 @@ const QwtScaleDiv& QwtAbstractScale::scaleDiv() const
     return d_data->scaleDraw->scaleDiv();
 }
 
-/*!
-  \brief Notify changed scale
-
-  Dummy empty implementation, intended to be overloaded by derived classes
-*/
-void QwtAbstractScale::scaleChange()
+int QwtAbstractScale::transform( double value ) const
 {
+    return qRound( d_data->scaleDraw->scaleMap().transform( value ) );
 }
 
-/*!
-   \return abstractScaleDraw()->scaleMap()
-*/
-const QwtScaleMap &QwtAbstractScale::scaleMap() const
+double QwtAbstractScale::invTransform( int value ) const
 {
-    return d_data->scaleDraw->scaleMap();
+    return d_data->scaleDraw->scaleMap().invTransform( value );
+}
+
+bool QwtAbstractScale::isInverted() const
+{
+    return d_data->scaleDraw->scaleMap().isInverting();
+}
+
+double QwtAbstractScale::minimum() const
+{
+    return qMin( d_data->scaleDraw->scaleDiv().lowerBound(),
+        d_data->scaleDraw->scaleDiv().upperBound() );
+}
+
+double QwtAbstractScale::maximum() const
+{
+    return qMax( d_data->scaleDraw->scaleDiv().lowerBound(),
+        d_data->scaleDraw->scaleDiv().upperBound() );
+}
+
+//! Notify changed scale
+void QwtAbstractScale::scaleChange()
+{
 }

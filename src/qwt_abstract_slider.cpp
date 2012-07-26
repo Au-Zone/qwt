@@ -25,8 +25,6 @@ public:
         tracking( true ),
         pendingValueChanged( false ),
         readOnly( false ),
-        minimum( 0.0 ),
-        maximum( 0.0 ),
         singleStep( 1.0 ),
         pageStepCount( 1 ),
         stepAlignment( true ),
@@ -42,9 +40,6 @@ public:
     bool pendingValueChanged;
 
     bool readOnly;
-
-    double minimum;
-    double maximum;
 
     double singleStep;
     int pageStepCount;
@@ -69,9 +64,6 @@ QwtAbstractSlider::QwtAbstractSlider( QWidget *parent ):
 {
     d_data = new QwtAbstractSlider::PrivateData;
     setFocusPolicy( Qt::StrongFocus );
-
-    connect( this, SIGNAL( valueChanged( double ) ), 
-        SLOT( emitScaleValue() ) );
 }
 
 //! Destructor
@@ -163,7 +155,7 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
         return;
     }
 
-    if ( !d_data->isValid || d_data->minimum == d_data->maximum )
+    if ( !d_data->isValid || lowerBound() == upperBound() )
         return;
 
     d_data->isScrolling = isScrollPosition( event->pos() );
@@ -339,12 +331,12 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
         }
         case Qt::Key_Home:
         {
-            value = d_data->minimum;
+            value = lowerBound();
             break;
         }
         case Qt::Key_End:
         {
-            value = d_data->maximum;
+            value = upperBound();
             break;
         }
         default:;
@@ -373,71 +365,13 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
 }
 
 /*!
-  \brief Notify a change of the range
-
-  This virtual function is called whenever the range changes.
-*/
-void QwtAbstractSlider::rangeChange()
-{
-    if ( autoScale() )
-        rescale( minimum(), maximum() );
-
-    updateGeometry();
-    update();
-}
-
-/*!
-  \brief Specify  range and step size
-
-  \param minimum   lower boundary of the interval
-  \param maximum   higher boundary of the interval
-  \warning
-  \li A change of the range changes the value if it lies outside the
-      new range. The current value
-      will *not* be adjusted to the new step raster.
-  \li maximum < minimum is allowed.
-*/
-void QwtAbstractSlider::setRange( double minimum, double maximum )
-{   
-    if ( d_data->minimum == minimum && d_data->maximum == maximum )
-        return;
-    
-    d_data->minimum = minimum;
-    d_data->maximum = maximum;
-
-    const double vmin = qMin( d_data->minimum, d_data->maximum );
-    const double vmax = qMax( d_data->minimum, d_data->maximum );
-    
-    const double value = qBound( vmin, value, vmax );
-
-#if 0
-    setSingleStep( singleStep() );
-#endif
-
-    const bool changed = value != d_data->value;
-
-    if ( changed )
-    {
-        d_data->value = value;
-    }
-    
-    rangeChange();
-
-    if ( d_data->isValid || changed )
-    {
-        update();
-        Q_EMIT valueChanged( d_data->value );
-    }   
-}
-
-/*!
   \brief Change the step raster
   \param vstep new step width
   \warning The value will \e not be adjusted to the new step raster.
 */
 void QwtAbstractSlider::setSingleStep( double vstep )
 {
-    const double range = d_data->maximum - d_data->minimum;
+    const double range = upperBound() - lowerBound();
     
     double newStep;
     if ( vstep == 0.0 )
@@ -467,7 +401,7 @@ void QwtAbstractSlider::setSingleStep( double vstep )
   that typically corresponds to the user pressing PageUp or PageDown.
 
   A value of 0 disables page stepping. The value is floored to
-  ( maximum() - minimum() ) / singleStep().
+  ( upperBound() - lowerBound() ) / singleStep().
 
   The default value is 1.
 
@@ -477,7 +411,7 @@ void QwtAbstractSlider::setSingleStep( double vstep )
  */
 void QwtAbstractSlider::setPageStepCount( int count )
 {
-    const double range = d_data->maximum - d_data->minimum;
+    const double range = upperBound() - lowerBound();
 
     const int max = int( qAbs( range / d_data->singleStep ) );
     d_data->pageStepCount = qBound( 0, count, max );
@@ -515,56 +449,6 @@ double QwtAbstractSlider::singleStep() const
 }   
 
 /*!
-  Set the maximum value of the range
-
-  \param value Maximum value
-  \sa setRange(), setMinimum(), maximum()
-*/
-void QwtAbstractSlider::setMaximum( double max )
-{
-    setRange( minimum(), max );
-}
-
-/*!
-  \brief Returns the value of the second border of the range
-
-  maximum returns the value which has been specified
-  as the second parameter in  QwtAbstractSlider::setRange.
-
-  \sa setRange()
-*/
-double QwtAbstractSlider::maximum() const
-{
-    return d_data->maximum;
-}   
-
-/*!
-  Set the minimum value of the range
-
-  \param value Minimum value
-  \sa setRange(), setMaximum(), minimum()
-
-  \note The maximum is adjusted if necessary to ensure that the range remains valid.
-*/
-void QwtAbstractSlider::setMinimum( double min )
-{
-    setRange( min, maximum() );
-}
-
-/*!
-  \brief Returns the value at the first border of the range
-
-  minimum returns the value which has been specified
-  as the first parameter in  setRange().
-
-  \sa setRange()
-*/
-double QwtAbstractSlider::minimum() const
-{
-    return d_data->minimum;
-}   
-
-/*!
   \brief Move the slider to a specified value
 
   This function can be used to move the slider to a value
@@ -574,10 +458,7 @@ double QwtAbstractSlider::minimum() const
 */
 void QwtAbstractSlider::setValue( double value )
 {
-    const double vmin = qMin( d_data->minimum, d_data->maximum );
-    const double vmax = qMax( d_data->minimum, d_data->maximum );
-    
-    value = qBound( vmin, value, vmax );
+    value = qBound( minimum(), value, maximum() );
 
     const bool changed = ( d_data->value != value ) || !d_data->isValid;
 
@@ -597,20 +478,8 @@ double QwtAbstractSlider::value() const
     return d_data->value;
 }
 
-double QwtAbstractSlider::scaleValue() const
-{
-    const double v = sliderMap().transform( value() );
-    return abstractScaleDraw()->scaleMap().invTransform( v );
-}
-
-void QwtAbstractSlider::setScaleValue( double value )
-{
-    const double v = abstractScaleDraw()->scaleMap().transform( value );
-    setValue( sliderMap().invTransform( v ) );
-}
-
 /*!
-  If wrapping is true stepping up from maximum() value will take you to the minimum() 
+  If wrapping is true stepping up from upperBound() value will take you to the minimum() 
   value and vica versa. 
 
   \param on En/Disable wrapping
@@ -649,8 +518,10 @@ double QwtAbstractSlider::mouseOffset() const
 void QwtAbstractSlider::incrementValue( double increment )
 {
     double value = boundedValue( d_data->value + increment );
+#if 0
     if ( d_data->stepAlignment )
         value = alignedValue( value );
+#endif
 
     if ( value != d_data->value )
     {
@@ -661,8 +532,8 @@ void QwtAbstractSlider::incrementValue( double increment )
 
 double QwtAbstractSlider::boundedValue( double value ) const
 {
-    const double vmin = qMin( d_data->minimum, d_data->maximum );
-    const double vmax = qMax( d_data->minimum, d_data->maximum );
+    const double vmin = minimum();
+    const double vmax = maximum();
 
     if ( d_data->wrapping && vmin != vmax )
     {
@@ -691,12 +562,11 @@ double QwtAbstractSlider::alignedValue( double value ) const
 
     if ( stepSize > 0.0 )
     {
-        value = d_data->minimum +
-            qRound( ( value - d_data->minimum ) / stepSize ) * stepSize;
+        value = lowerBound() + qRound( ( value - lowerBound() ) / stepSize ) * stepSize;
 
         // correct rounding error at the border
-        if ( qFuzzyCompare( value, d_data->maximum ) )
-            value = d_data->maximum;
+        if ( qFuzzyCompare( value, upperBound() ) )
+            value = upperBound();
 
         // correct rounding error if value = 0
         if ( qFuzzyCompare( value + 1.0, 1.0 ) )
@@ -706,17 +576,22 @@ double QwtAbstractSlider::alignedValue( double value ) const
     return value;
 }
 
-QwtScaleMap QwtAbstractSlider::sliderMap() const
+void QwtAbstractSlider::scaleChange()
 {
-    QwtScaleMap map;
-    map.setPaintInterval( abstractScaleDraw()->scaleMap().p1(),
-        abstractScaleDraw()->scaleMap().p2() );
-    map.setScaleInterval( minimum(), maximum() );
+    const double value = qBound( minimum(), value, maximum() );
 
-    return map;
-}
+    setSingleStep( singleStep() );
 
-void QwtAbstractSlider::emitScaleValue()
-{
-	Q_EMIT scaleValueChanged( scaleValue() );
+    const bool changed = ( value != d_data->value );
+
+    if ( changed )
+    {
+        d_data->value = value;
+    }
+
+    if ( d_data->isValid || changed )
+        Q_EMIT valueChanged( d_data->value );
+
+    updateGeometry();
+    update();
 }

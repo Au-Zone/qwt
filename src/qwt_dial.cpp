@@ -104,7 +104,8 @@ QwtDial::QwtDial( QWidget* parent ):
     setScaleMaxMinor( 10 );
 
     setScaleArc( 0.0, 360.0 ); // scale as a full circle
-    setRange( 0.0, 360.0 ); // degrees as default
+    setScale( 0.0, 360.0 ); // degrees as default
+
     setSingleStep( 1.0 );
     setPageStepCount( 10.0 );
     setValue( 0.0 );
@@ -445,11 +446,11 @@ void QwtDial::drawContents( QPainter *painter ) const
     if ( isValid() )
     {
         direction = d_data->minScaleArc;
-        if ( maximum() > minimum() && 
+        if ( upperBound() > lowerBound() && 
             d_data->maxScaleArc > d_data->minScaleArc )
         {
             const double ratio =
-                ( value() - minimum() ) / ( maximum() - minimum() );
+                ( value() - lowerBound() ) / ( upperBound() - lowerBound() );
             direction += ratio * ( d_data->maxScaleArc - d_data->minScaleArc );
         }
 
@@ -752,8 +753,8 @@ QSize QwtDial::minimumSizeHint() const
 */
 double QwtDial::valueAt( const QPoint &pos )
 {
-    if ( d_data->maxScaleArc == d_data->minScaleArc || maximum() == minimum() )
-        return minimum();
+    if ( d_data->maxScaleArc == d_data->minScaleArc || upperBound() == lowerBound() )
+        return lowerBound();
 
     double dir = 360.0 - QLineF( innerRect().center(), pos ).angle() - d_data->origin;
     if ( dir < 0.0 )
@@ -766,9 +767,9 @@ double QwtDial::valueAt( const QPoint &pos )
     // We need the range of the scale if it were a complete circle.
 
     const double completeCircle = 360.0 / ( d_data->maxScaleArc - d_data->minScaleArc )
-        * ( maximum() - minimum() );
+        * ( upperBound() - lowerBound() );
 
-    double posValue = minimum() + completeCircle * dir / 360.0;
+    double posValue = lowerBound() + completeCircle * dir / 360.0;
 
     if ( d_data->previousDir >= 0.0 ) // valid direction
     {
@@ -791,23 +792,23 @@ double QwtDial::valueAt( const QPoint &pos )
 
             if ( wrapping() )
             {
-                if ( posValue - mouseOffset() > maximum() )
+                if ( posValue - mouseOffset() > upperBound() )
                 {
                     // We passed maximum and the value will be set
                     // to minimum. We have to adjust the mouseOffset.
 
-                    setMouseOffset( posValue - minimum() );
+                    setMouseOffset( posValue - lowerBound() );
                 }
             }
             else
             {
-                if ( posValue - mouseOffset() > maximum() ||
-                        value() == maximum() )
+                if ( posValue - mouseOffset() > upperBound() ||
+                        value() == upperBound() )
                 {
                     // We fix the value at maximum by adjusting
                     // the mouse offset.
 
-                    setMouseOffset( posValue - maximum() );
+                    setMouseOffset( posValue - upperBound() );
                 }
             }
         }
@@ -821,23 +822,23 @@ double QwtDial::valueAt( const QPoint &pos )
 
             if ( wrapping() )
             {
-                if ( posValue - mouseOffset() < minimum() )
+                if ( posValue - mouseOffset() < lowerBound() )
                 {
                     // We passed minimum and the value will be set
                     // to maximum. We have to adjust the mouseOffset.
 
-                    setMouseOffset( posValue - maximum() );
+                    setMouseOffset( posValue - upperBound() );
                 }
             }
             else
             {
-                if ( posValue - mouseOffset() < minimum() ||
-                    value() == minimum() )
+                if ( posValue - mouseOffset() < lowerBound() ||
+                    value() == lowerBound() )
                 {
                     // We fix the value at minimum by adjusting
                     // the mouse offset.
 
-                    setMouseOffset( posValue - minimum() );
+                    setMouseOffset( posValue - lowerBound() );
                 }
             }
         }
@@ -864,10 +865,4 @@ void QwtDial::wheelEvent( QWheelEvent *event )
     const QRegion region( innerRect().toRect(), QRegion::Ellipse );
     if ( region.contains( event->pos() ) )
         QwtAbstractSlider::wheelEvent( event );
-}
-
-void QwtDial::scaleChange()
-{
-    updateGeometry();
-    update();
 }

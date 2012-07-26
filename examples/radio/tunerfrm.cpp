@@ -46,9 +46,9 @@ TunerFrame::TunerFrame( QWidget *parent ):
     QFrame( parent )
 {
     d_sliderFrequency = new QwtSlider( this );
-	d_sliderFrequency->setOrientation( Qt::Horizontal );
-	d_sliderFrequency->setScalePosition( QwtSlider::TrailingScale );
-    d_sliderFrequency->setRange( 87.5, 108 );
+    d_sliderFrequency->setOrientation( Qt::Horizontal );
+    d_sliderFrequency->setScalePosition( QwtSlider::TrailingScale );
+    d_sliderFrequency->setScale( 87.5, 108 );
     d_sliderFrequency->setSingleStep( 0.01 );
     d_sliderFrequency->setPageStepCount( 10 );
     d_sliderFrequency->setScaleMaxMinor( 5 );

@@ -14,7 +14,6 @@ Knob::Knob( const QString &title, double min, double max, QWidget *parent ):
 
     d_knob = new QwtKnob( this );
     d_knob->setFont( font );
-    d_knob->setRange( min, max );
 
     QwtScaleDiv scaleDiv =
         d_knob->scaleEngine()->divideScale( min, max, 5, 3 );

@@ -68,8 +68,6 @@ QwtAnalogClock::QwtAnalogClock( QWidget *parent ):
     scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
     setScale( scaleDiv );
 
-    setRange( 0.0, 12.0 * secondsPerHour ); // seconds
-
     QColor knobColor = palette().color( QPalette::Active, QPalette::Text );
     knobColor = knobColor.dark( 120 );
 

@@ -72,7 +72,6 @@ QwtDial *CockpitGrid::createDial( int pos )
         case 1:
         {
             d_speedo = new SpeedoMeter( this );
-            d_speedo->setRange( 0.0, 240.0 );
             d_speedo->setScale( 0.0, 240.0, 20.0 );
             d_speedo->scaleDraw()->setPenWidth( 2 );
 

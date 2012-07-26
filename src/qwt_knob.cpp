@@ -69,7 +69,7 @@ QwtKnob::QwtKnob( QWidget* parent ):
     setTotalAngle( 270.0 );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 
-    setRange( 0.0, 10.0 );
+    setScale( 0.0, 10.0 );
     setSingleStep( 1.0 );
     setValue( 0.0 );
 }
@@ -224,8 +224,8 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 */
 double QwtKnob::valueAt( const QPoint &pos )
 {
-    const double angle = ( value() - 0.5 * ( minimum() + maximum() ) )
-        / ( maximum() - minimum() ) * d_data->totalAngle;
+    const double angle = ( value() - 0.5 * ( lowerBound() + upperBound() ) )
+        / ( upperBound() - lowerBound() ) * d_data->totalAngle;
     const int numTurns = qFloor( ( angle + 180.0 ) / 360.0 );
 
     const double dx = rect().center().x() - pos.x();
@@ -233,11 +233,11 @@ double QwtKnob::valueAt( const QPoint &pos )
 
     const double arc = qAtan2( -dx, dy ) * 180.0 / M_PI;
 
-    double newValue =  0.5 * ( minimum() + maximum() )
-        + ( arc + numTurns * 360.0 ) * ( maximum() - minimum() )
+    double newValue =  0.5 * ( lowerBound() + upperBound() )
+        + ( arc + numTurns * 360.0 ) * ( upperBound() - lowerBound() )
         / d_data->totalAngle;
 
-    const double oneTurn = qFabs( maximum() - minimum() ) * 360.0 / d_data->totalAngle;
+    const double oneTurn = qFabs( upperBound() - lowerBound() ) * 360.0 / d_data->totalAngle;
     const double eqValue = value() + mouseOffset();
 
     if ( qFabs( newValue - eqValue ) > 0.5 * oneTurn )
@@ -262,19 +262,6 @@ bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
     Q_UNUSED( pos )
     return true;
-}
-
-/*!
-  \brief Notify a change of the range
-
-  Called by QwtAbstractSlider
-*/
-void QwtKnob::rangeChange()
-{
-    scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
-    scaleDraw()->moveCenter( rect().center() );
-    
-    QwtAbstractSlider::rangeChange();
 }
 
 /*!
@@ -333,10 +320,10 @@ void QwtKnob::paintEvent( QPaintEvent *event )
     drawKnob( &painter, knobRect );
 
     double angle = 0.0;
-    if ( maximum() != minimum() )
+    if ( upperBound() != lowerBound() )
     {
-        angle = ( value() - 0.5 * ( minimum() + maximum() ) )
-            / ( maximum() - minimum() ) * d_data->totalAngle;
+        angle = ( value() - 0.5 * ( lowerBound() + upperBound() ) )
+            / ( upperBound() - lowerBound() ) * d_data->totalAngle;
 
         const double numTurns = qFloor( ( angle + 180.0 ) / 360.0 );
         angle = angle - numTurns * 360.0;
@@ -601,8 +588,13 @@ int QwtKnob::markerSize() const
 */
 void QwtKnob::scaleChange()
 {
-    updateGeometry();
-    update();
+#if 1
+    // why here ???
+    scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
+    scaleDraw()->moveCenter( rect().center() );
+#endif
+
+    QwtAbstractSlider::scaleChange();
 }
 
 /*!

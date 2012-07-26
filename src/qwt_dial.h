@@ -169,8 +169,6 @@ protected:
     virtual void drawNeedle( QPainter *, const QPointF &,
         double radius, double direction, QPalette::ColorGroup ) const;
 
-    virtual void scaleChange();
-
     virtual double valueAt( const QPoint & );
     virtual bool isScrollPosition( const QPoint & ) const;
 
