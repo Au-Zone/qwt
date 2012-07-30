@@ -639,7 +639,7 @@ QList< const QwtPlotItem * > QwtPlotLegendItem::plotItems() const
     return d_data->map.keys();
 }
 
-QList< QRect > QwtPlotLegendItem::legendGeomtries( const QwtPlotItem *plotItem ) const
+QList< QRect > QwtPlotLegendItem::legendGeometries( const QwtPlotItem *plotItem ) const
 {
     QList<QwtLegendLayoutItem *> layoutItems;
 
