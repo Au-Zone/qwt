@@ -560,9 +560,12 @@ void QwtPlotItem::getCanvasMarginHint( const QwtScaleMap &xMap,
 QList<QwtLegendData> QwtPlotItem::legendData() const
 {
     QwtLegendData data;
+
+    QwtText label = title();
+    label.setRenderFlags( label.renderFlags() & Qt::AlignLeft );
             
     QVariant titleValue;
-    qVariantSetValue( titleValue, title() );
+    qVariantSetValue( titleValue, label );
     data.setValue( QwtLegendData::TitleRole, titleValue );
         
     const QwtGraphic graphic = legendIcon( 0, legendIconSize() );
