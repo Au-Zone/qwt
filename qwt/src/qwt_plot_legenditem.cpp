@@ -633,3 +633,24 @@ int QwtPlotLegendItem::heightForWidth(
 
     return qMax( graphic.height(), h );
 }
+
+QList< const QwtPlotItem * > QwtPlotLegendItem::plotItems() const
+{
+    return d_data->map.keys();
+}
+
+QList< QRect > QwtPlotLegendItem::legendGeomtries( const QwtPlotItem *plotItem ) const
+{
+    QList<QwtLegendLayoutItem *> layoutItems;
+
+    QMap<const QwtPlotItem *, QList<QwtLegendLayoutItem *> >::iterator it =
+        d_data->map.find( plotItem );
+    if ( it != d_data->map.end() )
+        layoutItems = it.value();
+
+    QList<QRect> geometries;
+    for ( int i = 0; i < layoutItems.size(); i++ )
+        geometries += layoutItems[i]->geometry();
+
+    return geometries;
+}

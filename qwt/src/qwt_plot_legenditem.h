@@ -83,6 +83,9 @@ public:
     virtual QSize minimumSize( const QwtLegendData & ) const;
     virtual int heightForWidth( const QwtLegendData &, int w ) const;
 
+	QList< const QwtPlotItem * > plotItems() const;
+	QList< QRect > legendGeomtries( const QwtPlotItem * ) const;
+
 protected:
     virtual void drawLegendData( QPainter *painter, 
         const QwtPlotItem *, const QwtLegendData &, const QRectF & ) const;
