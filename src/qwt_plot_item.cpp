@@ -308,7 +308,11 @@ bool QwtPlotItem::testRenderHint( RenderHint hint ) const
 */
 void QwtPlotItem::setLegendIconSize( const QSize &size )
 {
-    d_data->legendIconSize = size;
+    if ( d_data->legendIconSize != size )
+    {
+        d_data->legendIconSize = size;
+        legendChanged();
+    }
 }
 
 /*!
