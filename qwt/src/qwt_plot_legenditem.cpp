@@ -282,7 +282,8 @@ int QwtPlotLegendItem::itemSpacing() const
 }
 
 /*!
-   Change the tick label font
+   Change the font used for drawing the text label
+
    \sa font()
 */
 void QwtPlotLegendItem::setFont( const QFont &font )
@@ -295,7 +296,7 @@ void QwtPlotLegendItem::setFont( const QFont &font )
 }
 
 /*!
-   \return tick label font
+   \return Font used for drawing the text label
    \sa setFont()
 */
 QFont QwtPlotLegendItem::font() const
