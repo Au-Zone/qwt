@@ -2,6 +2,7 @@
 #include <qtoolbutton.h>
 #include <qlayout.h>
 #include <qwt_plot_renderer.h>
+#include <qwt_plot_canvas.h>
 #include "plot.h"
 #include "panel.h"
 #include "mainwindow.h"
@@ -9,6 +10,8 @@
 MainWindow::MainWindow( QWidget *parent ):
     QMainWindow( parent )
 {
+    d_plot = new Plot();
+
     Settings settings;
     settings.legend.isEnabled = true;
     settings.legend.position = QwtPlot::BottomLegend;
@@ -17,10 +20,11 @@ MainWindow::MainWindow( QWidget *parent ):
     settings.legendItem.numColumns = 1;
     settings.legendItem.alignment = Qt::AlignRight | Qt::AlignVCenter;
     settings.legendItem.backgroundMode = 0;
+    settings.legendItem.size = d_plot->canvas()->font().pointSize();
+
     settings.curve.numCurves = 4;
     settings.curve.title = "Curve";
     
-    d_plot = new Plot();
     d_panel = new Panel();
     d_panel->setSettings( settings );
 

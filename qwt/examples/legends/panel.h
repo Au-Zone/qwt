@@ -37,6 +37,7 @@ private:
         QComboBox *hAlignmentBox;
         QComboBox *vAlignmentBox;
         QComboBox *backgroundBox;
+        QSpinBox *sizeBox;
 
     } d_legendItem;
 

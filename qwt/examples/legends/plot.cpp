@@ -208,6 +208,10 @@ void Plot::applySettings( const Settings &settings )
             d_legendItem->setSpacing( 2 );
             d_legendItem->setItemMargin( 0 );
         }
+
+        QFont font = d_legendItem->font();
+        font.setPointSize( settings.legendItem.size );
+        d_legendItem->setFont( font );
     }
     else
     {
@@ -233,6 +237,9 @@ void Plot::applySettings( const Settings &settings )
     {
         Curve* curve = static_cast<Curve*>( curveList[i] );
         curve->setCurveTitle( settings.curve.title );
+
+        int sz = 0.5 * settings.legendItem.size;
+        curve->setLegendIconSize( QSize( sz, sz ) );
     }
 
     setAutoReplot( false );

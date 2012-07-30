@@ -256,7 +256,9 @@ void QwtPlotLegendItem::setItemMargin( int margin )
     if ( margin != d_data->itemMargin )
     {
         d_data->itemMargin = margin;
+
         d_data->layout->invalidate();
+		itemChanged();
     }
 }
 
@@ -271,7 +273,9 @@ void QwtPlotLegendItem::setItemSpacing( int spacing )
     if ( spacing != d_data->itemSpacing )
     {
         d_data->itemSpacing = spacing;
+
         d_data->layout->invalidate();
+        itemChanged();
     }
 
 }
@@ -291,6 +295,8 @@ void QwtPlotLegendItem::setFont( const QFont &font )
     if ( font != d_data->font )
     {
         d_data->font = font;
+
+		d_data->layout->invalidate();
         itemChanged();
     }
 }

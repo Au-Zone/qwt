@@ -15,6 +15,7 @@ public:
         legendItem.numColumns = 0;
         legendItem.alignment = 0;
         legendItem.backgroundMode = 0;
+        legendItem.size = 12;
 
         curve.numCurves = 0;
         curve.title = "Curve";
@@ -32,6 +33,7 @@ public:
         int numColumns;
         int alignment;
         int backgroundMode;
+        int size;
         
     } legendItem;
     

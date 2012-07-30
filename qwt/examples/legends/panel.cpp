@@ -46,6 +46,9 @@ Panel::Panel( QWidget *parent ):
     d_legendItem.backgroundBox->addItem( "Items",
         QwtPlotLegendItem::ItemBackground );
 
+    d_legendItem.sizeBox = new QSpinBox();
+    d_legendItem.sizeBox->setRange( 8, 22 );
+
     d_curve.numCurves = new QSpinBox();
     d_curve.numCurves->setRange( 0, 99 );
 
@@ -86,6 +89,10 @@ Panel::Panel( QWidget *parent ):
     legendItemBoxLayout->addWidget( new QLabel( "Background" ), row, 0 );
     legendItemBoxLayout->addWidget( d_legendItem.backgroundBox, row, 1 );
 
+    row++;
+    legendItemBoxLayout->addWidget( new QLabel( "Size" ), row, 0 );
+    legendItemBoxLayout->addWidget( d_legendItem.sizeBox, row, 1 );
+
     QGroupBox *curveBox = new QGroupBox( "Curves" );
     QGridLayout *curveBoxLayout = new QGridLayout( curveBox );
 
@@ -119,6 +126,8 @@ Panel::Panel( QWidget *parent ):
     connect( d_legendItem.backgroundBox, 
         SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
     connect( d_curve.numCurves, 
+        SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
+    connect( d_legendItem.sizeBox, 
         SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
     connect( d_curve.title, 
         SIGNAL( textEdited( const QString & ) ), SIGNAL( edited() ) );
@@ -155,6 +164,8 @@ void Panel::setSettings( const Settings &settings)
 
     d_legendItem.backgroundBox->setCurrentIndex( 
         settings.legendItem.backgroundMode );
+
+    d_legendItem.sizeBox->setValue( settings.legendItem.size );
 
     d_curve.numCurves->setValue( settings.curve.numCurves );
     d_curve.title->setText( settings.curve.title );
@@ -196,6 +207,7 @@ Settings Panel::settings() const
 
     s.legendItem.backgroundMode = 
             d_legendItem.backgroundBox->currentIndex();
+    s.legendItem.size = d_legendItem.sizeBox->value();
 
     s.curve.numCurves = d_curve.numCurves->value();
     s.curve.title = d_curve.title->text();
