@@ -79,7 +79,7 @@ void QwtPlotLayout::LayoutData::init( const QwtPlot *plot, const QRectF &rect )
 
         int w = qMin( hint.width(), qFloor( rect.width() ) );
         int h = plot->legend()->heightForWidth( w );
-        if ( h == 0 )
+        if ( h <= 0 )
             h = hint.height();
 
         if ( h > rect.height() )

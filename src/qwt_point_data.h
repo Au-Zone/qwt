@@ -115,7 +115,7 @@ public:
         const QwtInterval & = QwtInterval() );
 
     void setSize( size_t size );
-    size_t size() const;
+    virtual size_t size() const;
 
     void setInterval( const QwtInterval& );
     QwtInterval interval() const;
