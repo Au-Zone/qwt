@@ -8,6 +8,7 @@
 ################################################################
 
 include ( ./qwtconfig.pri )
+include ( ./qwtfunctions.pri )
 
 contains(QWT_CONFIG, QwtDll) {
 
