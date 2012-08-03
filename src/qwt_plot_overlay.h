@@ -10,6 +10,7 @@
 #ifndef QWT_PLOT_OVERLAY_H
 #define QWT_PLOT_OVERLAY_H
 
+#include "qwt_global.h"
 #include <qwidget.h>
 #include <qregion.h>
 
@@ -32,7 +33,7 @@ class QPainter;
 
    \sa QwtPlotCanvas::BackingStore
  */
-class QwtPlotOverlay: public QWidget
+class QWT_EXPORT QwtPlotOverlay: public QWidget
 {
 public:
     /*!
