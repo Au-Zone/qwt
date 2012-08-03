@@ -71,6 +71,9 @@ public:
 
     virtual void setRectOfInterest( const QRectF & );
 
+protected:
+    QwtSeriesData<T> *swapData( QwtSeriesData<T> * );
+
 private:
     QwtSeriesData<T> *d_series;
 };
@@ -119,17 +122,17 @@ inline T QwtSeriesStore<T>::sample( int index ) const
 /*!
   Assign a series of samples
 
-  \param data Data
+  \param series Data
   \warning The item takes ownership of the data object, deleting
            it when its not used anymore.
 */
 template <typename T>
-void QwtSeriesStore<T>::setData( QwtSeriesData<T> *data )
+void QwtSeriesStore<T>::setData( QwtSeriesData<T> *series )
 {
-    if ( d_series != data )
+    if ( d_series != series )
     {
         delete d_series;
-        d_series = data;
+        d_series = series;
         dataChanged();
     }
 }
@@ -172,6 +175,21 @@ void QwtSeriesStore<T>::setRectOfInterest( const QRectF &rect )
 {
     if ( d_series )
         d_series->setRectOfInterest( rect );
+}
+
+/*!
+  Replace a series without deleting the previous one
+
+  \param series New series
+  \return Previously assigned series
+ */
+template <typename T>
+QwtSeriesData<T>* QwtSeriesStore<T>::swapData( QwtSeriesData<T> *series )
+{
+    QwtSeriesData<T> * swappedSeries = d_series;
+    d_series = series;
+
+    return swappedSeries;
 }
 
 #endif
