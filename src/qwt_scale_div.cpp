@@ -116,7 +116,10 @@ bool QwtScaleDiv::contains( double value ) const
     return value >= min && value <= max;
 }
 
-//! Invert the scale divison
+/*! 
+   Invert the scale divison
+   \sa inverted()
+ */
 void QwtScaleDiv::invert()
 {
     qSwap( d_lowerBound, d_upperBound );
@@ -131,6 +134,18 @@ void QwtScaleDiv::invert()
         for ( int j = 0; j < size2; j++ )
             qSwap( ticks[j], ticks[size - 1 - j] );
     }
+}
+
+/*! 
+  \return A scale division with inverted boundaries and ticks
+  \sa invert()
+ */
+QwtScaleDiv QwtScaleDiv::inverted() const
+{
+    QwtScaleDiv other = *this;
+    other.invert();
+
+    return other;
 }
 
 /*!

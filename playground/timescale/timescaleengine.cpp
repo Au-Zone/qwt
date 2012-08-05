@@ -160,8 +160,8 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
     if ( maxMajSteps < 1 )
         maxMajSteps = 1;
 
-    double min = qMin( x1, x2 );
-    double max = qMax( x1, x2 );
+    const double min = qMin( x1, x2 );
+    const double max = qMax( x1, x2 );
 
     if ( !qwtToDateTime( min ).isValid() )
     {
@@ -219,7 +219,7 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
         }
         case TimeDate::Millisecond:
         {
-            scaleDiv = QwtLinearScaleEngine::divideScale( x1, x2,
+            scaleDiv = QwtLinearScaleEngine::divideScale( min, max,
                 maxMajSteps, maxMinSteps, stepSize );
 
 #if DEBUG_ENGINE >= 2
@@ -232,6 +232,9 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
             break;
         }
     }
+
+	if ( x1 > x2 )
+		scaleDiv.invert();
 
 #if DEBUG_ENGINE >= 2
     qDebug() << scaleDiv;
