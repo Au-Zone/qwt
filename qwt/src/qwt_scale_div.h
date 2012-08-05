@@ -75,6 +75,7 @@ public:
     bool isIncreasing() const;
 
     void invert();
+    QwtScaleDiv inverted() const;
 
 private:
     double d_lowerBound;
