@@ -868,7 +868,10 @@ void QwtPlotRenderer::buildCanvasMaps( const QwtPlot *plot,
         }
         else
         {
-            int margin = plot->plotLayout()->canvasMargin( axisId );
+            int margin = 0;
+            if ( !plot->plotLayout()->alignCanvasToScales() )
+                margin = plot->plotLayout()->canvasMargin( axisId );
+
             if ( axisId == QwtPlot::yLeft || axisId == QwtPlot::yRight )
             {
                 from = canvasRect.bottom() - margin;
