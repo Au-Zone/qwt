@@ -678,7 +678,8 @@ void QwtLegend::renderItem( QPainter *painter,
         titleRect.setX( iconRect.right() + 2 * label->spacing() );
 
         painter->setFont( label->font() );
-        label->data().title().draw( painter, titleRect );
+        painter->setPen( label->palette().color( QPalette::Text ) );
+		const_cast< QwtLegendLabel *>( label )->drawText( painter, titleRect );
     }
 }
 

@@ -231,7 +231,7 @@ void QwtTextLabel::drawContents( QPainter *painter )
     painter->setFont( font() );
     painter->setPen( palette().color( QPalette::Active, QPalette::Text ) );
 
-    drawText( painter, r );
+    drawText( painter, QRectF( r ) );
 
     if ( hasFocus() )
     {
@@ -244,7 +244,7 @@ void QwtTextLabel::drawContents( QPainter *painter )
 }
 
 //! Redraw the text
-void QwtTextLabel::drawText( QPainter *painter, const QRect &textRect )
+void QwtTextLabel::drawText( QPainter *painter, const QRectF &textRect )
 {
     d_data->text.draw( painter, textRect );
 }

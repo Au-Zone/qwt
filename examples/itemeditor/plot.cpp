@@ -31,7 +31,9 @@ Plot::Plot( QWidget *parent ):
     setAutoReplot( false );
 
     setTitle( "Movable Items" );
-	setContentsMargins( 2, 2, 2, 2 );
+
+	const int margin = 5;
+	setContentsMargins( margin, margin, margin, margin );
 
     setAutoFillBackground( true );
     setPalette( QColor( "DimGray" ).lighter( 110 ) );
