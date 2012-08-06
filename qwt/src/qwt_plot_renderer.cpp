@@ -819,7 +819,7 @@ void QwtPlotRenderer::buildCanvasMaps( const QwtPlot *plot,
         {
             const int sDist = plot->axisWidget( axisId )->startBorderDist();
             const int eDist = plot->axisWidget( axisId )->endBorderDist();
-            const QRectF &scaleRect = plot->plotLayout()->scaleRect( axisId );
+            const QRectF scaleRect = plot->plotLayout()->scaleRect( axisId );
 
             if ( axisId == QwtPlot::xTop || axisId == QwtPlot::xBottom )
             {

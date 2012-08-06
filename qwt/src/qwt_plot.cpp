@@ -405,6 +405,23 @@ const QwtTextLabel *QwtPlot::footerLabel() const
     return d_data->footerLabel;
 }
 
+/*!
+   \brief Assign a new plot layout
+
+   \param layout Layout()
+   \sa plotLayout()
+ */
+void QwtPlot::setPlotLayout( QwtPlotLayout *layout )
+{
+	if ( layout != d_data->layout )
+	{
+		delete d_data->layout;
+		layout = d_data->layout;
+
+		updateLayout();
+	}
+}
+
 //! \return the plot's layout
 QwtPlotLayout *QwtPlot::plotLayout()
 {

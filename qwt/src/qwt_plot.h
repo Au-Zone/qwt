@@ -129,6 +129,8 @@ public:
 
     // Layout
 
+    void setPlotLayout( QwtPlotLayout * );
+
     QwtPlotLayout *plotLayout();
     const QwtPlotLayout *plotLayout() const;
 
