@@ -430,7 +430,14 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 
     QRectF layoutRect = transform.inverted().mapRect( plotRect );
 
-    // layout hacks for FrameWithScales
+	if ( !( d_data->discardFlags & DiscardBackground ) )
+	{
+		// subtract the contents margins
+
+    	int left, top, right, bottom;
+    	plot->getContentsMargins( &left, &top, &right, &bottom );
+		layoutRect.adjust( left, top, -right, -bottom );
+	}
 
     int baseLineDists[QwtPlot::axisCnt];
     if ( d_data->layoutFlags & FrameWithScales )
@@ -476,10 +483,12 @@ void QwtPlotRenderer::render( QwtPlot *plot,
             }
         }
     }
-    // Calculate the layout for the print.
+
+    // Calculate the layout for the document.
 
     QwtPlotLayout::Options layoutOptions = 
         QwtPlotLayout::IgnoreScrollbars | QwtPlotLayout::IgnoreFrames;
+
     if ( d_data->discardFlags & DiscardLegend )
         layoutOptions |= QwtPlotLayout::IgnoreLegend;
 
