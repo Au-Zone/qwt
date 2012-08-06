@@ -426,6 +426,15 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 
     QRectF layoutRect = transform.inverted().mapRect( plotRect );
 
+	if ( !( d_data->discardFlags & DiscardBackground ) )
+	{
+		// subtract the contents margins
+
+    	int left, top, right, bottom;
+    	plot->getContentsMargins( &left, &top, &right, &bottom );
+		layoutRect.adjust( left, top, -right, -bottom );
+	}
+
     QwtPlotLayout *layout = plot->plotLayout();
 
     int baseLineDists[QwtPlot::axisCnt];
@@ -834,7 +843,10 @@ void QwtPlotRenderer::buildCanvasMaps( const QwtPlot *plot,
         }
         else
         {
-            int margin = plot->plotLayout()->canvasMargin( axisId );
+            int margin = 0;
+            if ( !plot->plotLayout()->alignCanvasToScale( axisId ) )
+                margin = plot->plotLayout()->canvasMargin( axisId );
+
             if ( axisId == QwtPlot::yLeft || axisId == QwtPlot::yRight )
             {
                 from = canvasRect.bottom() - margin;
