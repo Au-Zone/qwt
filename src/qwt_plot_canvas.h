@@ -81,7 +81,7 @@ public:
 
           When HackStyledBackground is enabled the plot canvas tries
           to seperate the background from the background border
-          by reverse engeneering to paint the background before and
+          by reverse engineering to paint the background before and
           the border after the plot items. In this order the border
           gets prefectly antialiased and you can avoid some pixel
           artifacts in the corners.

@@ -416,30 +416,84 @@ double QwtPlotLayout::legendRatio() const
 }
 
 /*!
+  \brief Set the geometry for the title
+
+  This method is intended to be used from derived layouts
+  overloading activate()
+
+  \sa titleRect(), activate()
+ */
+void QwtPlotLayout::setTitleRect( const QRectF &rect )
+{
+    d_data->titleRect = rect;
+}
+
+/*!
   \return Geometry for the title
   \sa activate(), invalidate()
 */
-const QRectF &QwtPlotLayout::titleRect() const
+QRectF QwtPlotLayout::titleRect() const
 {
     return d_data->titleRect;
+}
+
+/*!
+  \brief Set the geometry for the footer
+
+  This method is intended to be used from derived layouts
+  overloading activate()
+
+  \sa footerRect(), activate()
+ */
+void QwtPlotLayout::setFooterRect( const QRectF &rect )
+{
+    d_data->footerRect = rect;
 }
 
 /*!
   \return Geometry for the footer
   \sa activate(), invalidate()
 */
-const QRectF &QwtPlotLayout::footerRect() const
+QRectF QwtPlotLayout::footerRect() const
 {
     return d_data->footerRect;
+}
+
+/*!
+  \brief Set the geometry for the legend
+
+  This method is intended to be used from derived layouts
+  overloading activate()
+
+  \sa legendRect(), activate()
+ */
+void QwtPlotLayout::setLegendRect( const QRectF &rect )
+{
+    d_data->legendRect = rect;
 }
 
 /*!
   \return Geometry for the legend
   \sa activate(), invalidate()
 */
-const QRectF &QwtPlotLayout::legendRect() const
+QRectF QwtPlotLayout::legendRect() const
 {
     return d_data->legendRect;
+}
+
+/*!
+  \brief Set the geometry for an axis
+
+  This method is intended to be used from derived layouts
+  overloading activate()
+
+  \sa scaleRect(), activate()
+ */
+void QwtPlotLayout::setScaleRect( int axis, const QRectF &rect )
+{
+    if ( axis >= 0 && axis < QwtPlot::axisCnt )
+        d_data->scaleRect[axis] = rect;
+
 }
 
 /*!
@@ -447,7 +501,7 @@ const QRectF &QwtPlotLayout::legendRect() const
   \return Geometry for the scale
   \sa activate(), invalidate()
 */
-const QRectF &QwtPlotLayout::scaleRect( int axis ) const
+QRectF QwtPlotLayout::scaleRect( int axis ) const
 {
     if ( axis < 0 || axis >= QwtPlot::axisCnt )
     {
@@ -458,10 +512,23 @@ const QRectF &QwtPlotLayout::scaleRect( int axis ) const
 }
 
 /*!
+  \brief Set the geometry for the canvas
+
+  This method is intended to be used from derived layouts
+  overloading activate()
+
+  \sa canvasRect(), activate()
+ */
+void QwtPlotLayout::setCanvasRect( const QRectF &rect )
+{
+    d_data->canvasRect = rect;
+}
+
+/*!
   \return Geometry for the canvas
   \sa activate(), invalidate()
 */
-const QRectF &QwtPlotLayout::canvasRect() const
+QRectF QwtPlotLayout::canvasRect() const
 {
     return d_data->canvasRect;
 }

@@ -31,9 +31,10 @@ Plot::Plot( QWidget *parent ):
     setAutoReplot( false );
 
     setTitle( "Movable Items" );
+	setContentsMargins( 2, 2, 2, 2 );
 
     setAutoFillBackground( true );
-    setPalette( QColor( "DimGray" ) );
+    setPalette( QColor( "DimGray" ).lighter( 110 ) );
 
     QwtPlotCanvas *canvas = new QwtPlotCanvas();
 #if 0
@@ -46,7 +47,7 @@ Plot::Plot( QWidget *parent ):
     );
 #else
     canvas->setStyleSheet(
-        "border: 2px solid Black;"
+        "border: 2px inset DimGray;"
         "border-radius: 15px;"
         "background: LemonChiffon;"
     );
@@ -107,6 +108,7 @@ void Plot::addShape( const QString &title,
 void Plot::exportPlot()
 {
     QwtPlotRenderer renderer;
+	renderer.setDiscardFlags( QwtPlotRenderer::DiscardNone );
     renderer.exportTo( this, "shapes.pdf" );
 }
 
