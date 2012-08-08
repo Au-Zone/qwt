@@ -5,7 +5,7 @@
 #include <qdatetime.h>
 #include <qdebug.h>
 
-#define DEBUG_ENGINE 0
+#define DEBUG_ENGINE 1
 
 static inline int qwtDivideInterval( double intervalSize, int numSteps, 
     const int limits[], size_t numLimits )
@@ -14,8 +14,10 @@ static inline int qwtDivideInterval( double intervalSize, int numSteps,
 
     for ( uint i = 0; i < numLimits - 1; i++ )
     {
+#if 1 // >= ??
         if ( v <= limits[i] )
             return limits[i];
+#endif
     }
 
     return limits[ numLimits - 1 ];
@@ -27,7 +29,7 @@ static inline int qwtDivideMonths(
     static int limits[] = { 1, 2, 3, 4, 6, 12 };
 
     return qwtDivideInterval( intervalSize, numSteps,
-        limits, sizeof( limits ) / sizeof( double ) );
+        limits, sizeof( limits ) / sizeof( int ) );
 }
 
 static inline int qwtDivideWeeks(
@@ -36,7 +38,7 @@ static inline int qwtDivideWeeks(
     static int limits[] = { 1, 2, 4, 8, 12, 26, 52 };
 
     return qwtDivideInterval( intervalSize, numSteps,
-        limits, sizeof( limits ) / sizeof( double ) );
+        limits, sizeof( limits ) / sizeof( int ) );
 }
 
 static inline int qwtDivideDays(
@@ -55,7 +57,7 @@ static inline double qwtDivideHours(
     static int limits[] = { 1, 2, 3, 4, 6, 12, 24 };
 
     return qwtDivideInterval( intervalSize, numSteps,
-        limits, sizeof( limits ) / sizeof( double ) );
+        limits, sizeof( limits ) / sizeof( int ) );
 }
 
 static inline double qwtDivide60(
@@ -64,7 +66,7 @@ static inline double qwtDivide60(
     static int limits[] = { 1, 2, 5, 10, 15, 20, 30, 60 };
     
     return qwtDivideInterval( intervalSize, numSteps,
-        limits, sizeof( limits ) / sizeof( double ) );
+        limits, sizeof( limits ) / sizeof( int ) );
 }   
 
 TimeScaleEngine::TimeScaleEngine():
@@ -267,6 +269,12 @@ QwtScaleDiv TimeScaleEngine::divideToSeconds( double min, double max,
         qDebug() << "Seconds: " << seconds << " -> " << stepSize;
 #endif
     }
+
+#if 1 // needs to be done in all divideTo methods
+	// align to step size
+	const int m = int( from.time().minute() / stepSize ) * stepSize;
+	from.setTime( QTime( from.time().hour(), m ) );
+#endif
 
     // calculate the major ticks
     QList<double> majorTicks;
