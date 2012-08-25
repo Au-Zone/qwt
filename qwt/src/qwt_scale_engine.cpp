@@ -232,9 +232,7 @@ double QwtScaleEngine::divideInterval(
     if ( v == 0.0 )
         return 0.0;
 
-    const double logBase = d_data->base;
-
-    const double lx = qwtLog( logBase, qFabs( v ) );
+    const double lx = qwtLog( d_data->base, qFabs( v ) );
     const double p = ::floor( lx );
 
     const double fraction = qPow( d_data->base, lx - p );
@@ -243,7 +241,7 @@ double QwtScaleEngine::divideInterval(
     while ( ( n > 1 ) && ( fraction <= n / 2 ) )
         n /= 2;
 
-    double stepSize = n * qPow( logBase, p );
+    double stepSize = n * qPow( d_data->base, p );
     if ( v < 0 )
         stepSize = -stepSize;
 
@@ -579,6 +577,9 @@ void QwtLinearScaleEngine::buildMinorTicks(
     QList<double> &minorTicks,
     QList<double> &mediumTicks ) const
 {
+#if 1
+	// bad result f.e when dividing: stepSize 15, maxMinorSteps 5 
+
     double minStep = divideInterval( stepSize, maxMinorSteps );
     if ( minStep == 0.0 )
         return;
@@ -590,9 +591,11 @@ void QwtLinearScaleEngine::buildMinorTicks(
     if ( qwtFuzzyCompare( ( numTicks +  1 ) * qAbs( minStep ),
         qAbs( stepSize ), stepSize ) > 0 )
     {
+		// The minor steps doesn't fit into the interval
         numTicks = 1;
         minStep = stepSize * 0.5;
     }
+#endif
 
     int medIndex = -1;
     if ( numTicks % 2 )
