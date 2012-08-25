@@ -47,12 +47,6 @@ private:
     QwtScaleDiv divideToYears( double x1, double x2,
         int maxMajSteps, int maxMinSteps, double stepSize ) const;
 
-    double minorStepSize( double stepSize, int maxMinSteps ) const;
-
-    QwtScaleDiv buildScaleDiv( double min, double max,
-        const QDateTime &from, const QDateTime &to, double stepSize,
-        int maxMinSteps ) const;
-
 private:
     int d_maxWeeks;
 };
