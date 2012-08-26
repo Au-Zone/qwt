@@ -36,6 +36,93 @@ static inline QwtInterval qwtPowInterval( double base, const QwtInterval &interv
             qPow( base, interval.maxValue() ) );
 }
 
+
+static double qwtDivideInterval( 
+    double intervalSize, int numSteps, uint base ) 
+{
+    if ( numSteps <= 0 )
+        return 0.0;
+
+    const double v = QwtScaleArithmetic::divideEps( intervalSize, numSteps );
+    if ( v == 0.0 )
+        return 0.0;
+
+    const double lx = qwtLog( base, qFabs( v ) );
+    const double p = ::floor( lx );
+
+    const double fraction = qPow( base, lx - p );
+
+    uint n = base;
+    while ( ( n > 1 ) && ( fraction <= n / 2 ) )
+        n /= 2;
+
+    double stepSize = n * qPow( base, p );
+    if ( v < 0 )
+        stepSize = -stepSize;
+
+    return stepSize;
+}
+
+#if 1
+
+// this version often doesn't find the best ticks: f.e for 15: 5, 10
+static double qwtStepSize( double intervalSize, int maxSteps, uint base )
+{
+    const double minStep = 
+        qwtDivideInterval( intervalSize, maxSteps, base );
+
+    if ( minStep != 0.0 )
+    {
+        // # ticks per interval
+        const int numTicks = qCeil( qAbs( intervalSize / minStep ) ) - 1;
+
+        // Do the minor steps fit into the interval?
+        if ( qwtFuzzyCompare( ( numTicks +  1 ) * qAbs( minStep ),
+            qAbs( intervalSize ), intervalSize ) > 0 )
+        {
+            // The minor steps doesn't fit into the interval
+            return 0.5 * intervalSize;
+        }
+    }
+
+    return minStep;
+}
+
+#else
+
+static double qwtStepSize( double intervalSize, int maxSteps, uint base )
+{
+    if ( maxSteps <= 0 )
+        return 0.0;
+
+    if ( maxSteps > 2 )
+    {
+        for ( int numSteps = maxSteps; numSteps > 1; numSteps-- )
+        {
+            const double stepSize = intervalSize / numSteps;
+
+            const double p = ::floor( ::log( stepSize ) / ::log( base ) );
+            const double fraction = qPow( base, p );
+
+            for ( uint n = base; n > 1; n /= 2 )
+            {
+                if ( qFuzzyCompare( stepSize, n * fraction ) )
+                    return stepSize;
+
+                if ( n == 3 && ( base % 2 ) == 0 )
+                {
+                    if ( qFuzzyCompare( stepSize, 2 * fraction ) )
+                        return stepSize;
+                }
+            }
+        }
+    }
+
+    return intervalSize * 0.5;
+}
+
+#endif
+
 static const double _eps = 1.0e-6;
 
 /*!
@@ -225,27 +312,7 @@ void QwtScaleEngine::setMargins( double lower, double upper )
 double QwtScaleEngine::divideInterval(
     double intervalSize, int numSteps ) const
 {
-    if ( numSteps <= 0 )
-        return 0.0;
-
-    const double v = QwtScaleArithmetic::divideEps( intervalSize, numSteps );
-    if ( v == 0.0 )
-        return 0.0;
-
-    const double lx = qwtLog( d_data->base, qFabs( v ) );
-    const double p = ::floor( lx );
-
-    const double fraction = qPow( d_data->base, lx - p );
-
-    uint n = d_data->base;
-    while ( ( n > 1 ) && ( fraction <= n / 2 ) )
-        n /= 2;
-
-    double stepSize = n * qPow( d_data->base, p );
-    if ( v < 0 )
-        stepSize = -stepSize;
-
-    return stepSize;
+    return qwtDivideInterval( intervalSize, numSteps, d_data->base );
 }
 
 /*!
@@ -437,7 +504,8 @@ void QwtLinearScaleEngine::autoScale( int maxNumSteps,
     if ( interval.width() == 0.0 )
         interval = buildInterval( interval.minValue() );
 
-    stepSize = divideInterval( interval.width(), qMax( maxNumSteps, 1 ) );
+    stepSize = qwtDivideInterval( 
+        interval.width(), qMax( maxNumSteps, 1 ), base() );
 
     if ( !testAttribute( QwtScaleEngine::Floating ) )
         interval = align( interval, stepSize );
@@ -477,7 +545,8 @@ QwtScaleDiv QwtLinearScaleEngine::divideScale( double x1, double x2,
         if ( maxMajorSteps < 1 )
             maxMajorSteps = 1;
 
-        stepSize = divideInterval( interval.width(), maxMajorSteps );
+        stepSize = qwtDivideInterval( 
+            interval.width(), maxMajorSteps, base() );
     }
 
     QwtScaleDiv scaleDiv;
@@ -577,25 +646,12 @@ void QwtLinearScaleEngine::buildMinorTicks(
     QList<double> &minorTicks,
     QList<double> &mediumTicks ) const
 {
-#if 1
-	// bad result f.e when dividing: stepSize 15, maxMinorSteps 5 
-
-    double minStep = divideInterval( stepSize, maxMinorSteps );
+    double minStep = qwtStepSize( stepSize, maxMinorSteps, base() );
     if ( minStep == 0.0 )
         return;
 
     // # ticks per interval
-    int numTicks = qCeil( qAbs( stepSize / minStep ) ) - 1;
-
-    // Do the minor steps fit into the interval?
-    if ( qwtFuzzyCompare( ( numTicks +  1 ) * qAbs( minStep ),
-        qAbs( stepSize ), stepSize ) > 0 )
-    {
-		// The minor steps doesn't fit into the interval
-        numTicks = 1;
-        minStep = stepSize * 0.5;
-    }
-#endif
+    const int numTicks = qCeil( qAbs( stepSize / minStep ) ) - 1;
 
     int medIndex = -1;
     if ( numTicks % 2 )
