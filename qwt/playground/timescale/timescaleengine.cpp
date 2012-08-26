@@ -12,6 +12,23 @@ static inline int qwtFloorToStep( int value, double stepSize )
     return qRound( int( value / stepSize ) * stepSize );
 }
 
+static inline int qwtStepCount( double intervalSize, int maxSteps,
+    const int limits[], size_t numLimits )
+{
+    for ( uint i = 0; i < numLimits; i++ )
+    {
+        const int numSteps = int( intervalSize / limits[ i ] );
+
+        if ( numSteps <= maxSteps &&
+            qFuzzyCompare( intervalSize, numSteps * limits[ i ] ) )
+        {
+            return numSteps;
+        }
+    }
+
+    return 0;
+}
+
 static inline int qwtDivideInterval( double intervalSize, int numSteps, 
     const int limits[], size_t numLimits )
 {
@@ -74,11 +91,8 @@ static inline int qwtDivide60(
         limits, sizeof( limits ) / sizeof( int ) );
 }   
 
-static double qwtDivideInterval( double intervalSize, 
-	int maxSteps, uint base ) 
+static double qwtStepSize( double intervalSize, int maxSteps, uint base ) 
 {
-	// this code should be used in QwtLinearScaleEngine too !
-
     if ( maxSteps <= 0 )
         return 0.0;
 
@@ -88,13 +102,19 @@ static double qwtDivideInterval( double intervalSize,
         {
             const double stepSize = intervalSize / numSteps;
 
-            const double p = ::floor( ::log( stepSize ) / ::log( base ) );
+            const double p = ::floor( ::log( stepSize ) / ::log( double( base ) ) );
             const double fraction = qPow( base, p );
 
-            for ( uint n = base; n > 1; n /= 2 )
+            for ( uint n = base; n >= 1; n /= 2 )
             {
                 if ( qFuzzyCompare( stepSize, n * fraction ) )
                     return stepSize;
+
+                if ( n == 3 && ( base % 2 ) == 0 )
+                {
+                    if ( qFuzzyCompare( stepSize, 2 * fraction ) )
+                        return stepSize;
+                }
             }
         }
     }
@@ -103,43 +123,33 @@ static double qwtDivideInterval( double intervalSize,
 }
 
 static QwtScaleDiv qwtBuildScaleDiv( double min, double max,
-    const QDateTime &from, const QDateTime &to, double stepSize,
-    int maxMinSteps ) 
+    const QDateTime &from, const QDateTime &to, 
+    double stepSize, double minStepSize )
 {
-    // calculate the major ticks
     QList<double> majorTicks;
+    QList<double> minorTicks;
+    QList<double> mediumTicks;
 
     for ( QDateTime dt = from; dt <= to; 
         dt = dt.addMSecs( qRound64( stepSize ) ) )
     {
-        const double value = qwtFromDateTime( dt );
-        if ( value >= min && value <= max )
-            majorTicks += value;
-    }
+        const double majorValue = qwtFromDateTime( dt );
+        if ( majorValue >= min && majorValue <= max )
+            majorTicks += majorValue;
 
-    // calculate the minor/medium ticks
-    QList<double> minorTicks;
-    QList<double> mediumTicks;
-
-    if ( maxMinSteps > 1 )
-    {
-        const double minStepSize = qwtDivideInterval( stepSize, maxMinSteps, 10 );
-        const int numSteps = stepSize / minStepSize;
-
-        for ( QDateTime dt = from; dt <= to; 
-            dt = dt.addMSecs( qRound64( stepSize ) ) )
+        if ( minStepSize > 0.0 )
         {
-            const double tick0 = qwtFromDateTime( dt );
+            const int numSteps = qFloor( stepSize / minStepSize );
 
             for ( int i = 1; i < numSteps; i++ )
             {
-                const double value = tick0 + i * minStepSize;
-                if ( value >= min && value <= max )
+                const double minorValue = majorValue + i * minStepSize;
+                if ( minorValue >= min && minorValue <= max )
                 {
                     if ( numSteps % 2 == 0 && i == numSteps / 2 )
-                        mediumTicks += value;
+                        mediumTicks += minorValue;
                     else
-                        minorTicks += value;
+                        minorTicks += minorValue;
                 }
             }
         }
@@ -196,21 +206,21 @@ TimeDate::IntervalType TimeScaleEngine::intervalType(
     {
         if ( weeks > d_maxWeeks )
         {
-            if ( days > 2 * maxSteps * 7 )
+            if ( days > 4 * maxSteps * 7 )
                 return TimeDate::Month;
         }
         else
         {
-            if ( days > 2 * maxSteps )
+            if ( days > maxSteps * 7 )
                 return TimeDate::Week;
         }
     }
     else
     {
-        if ( days > 2 * maxSteps * 7 )
+        if ( days > 4 * maxSteps * 7 )
             return TimeDate::Month;
 
-        if ( days > 2 * maxSteps )
+        if ( days > maxSteps * 7 )
             return TimeDate::Week;
     }
 
@@ -223,10 +233,10 @@ TimeDate::IntervalType TimeScaleEngine::intervalType(
 
     const int seconds = from.secsTo( to );
 
-    if ( seconds > maxSteps * 3600 )
+    if ( seconds >= maxSteps * 3600 )
         return TimeDate::Hour;
 
-    if ( seconds > maxSteps * 60 )
+    if ( seconds >= maxSteps * 60 )
         return TimeDate::Minute;
 
     if ( seconds >= maxSteps )
@@ -276,37 +286,44 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
     {
         case TimeDate::Year:
         {
-            scaleDiv = divideToYears( min, max, maxMajSteps, maxMinSteps, stepSize );
+            scaleDiv = divideToYears( min, max, 
+                maxMajSteps, maxMinSteps, stepSize );
             break;
         }
         case TimeDate::Month:
         {
-            scaleDiv = divideToMonths( min, max, maxMajSteps, maxMinSteps, stepSize );
+            scaleDiv = divideToMonths( min, max, 
+                maxMajSteps, maxMinSteps, stepSize );
             break;
         }
         case TimeDate::Week:
         {
-            scaleDiv = divideToWeeks( min, max, maxMajSteps, maxMinSteps, stepSize );
+            scaleDiv = divideToWeeks( min, max, 
+                maxMajSteps, maxMinSteps, stepSize );
             break;
         }
         case TimeDate::Day:
         {
-            scaleDiv = divideToDays( min, max, maxMajSteps, maxMinSteps, stepSize );
+            scaleDiv = divideToDays( min, max, 
+                maxMajSteps, maxMinSteps, stepSize );
             break;
         }
         case TimeDate::Hour:
         {
-            scaleDiv = divideToHours( min, max, maxMajSteps, maxMinSteps, stepSize );
+            scaleDiv = divideToHours( min, max, 
+                maxMajSteps, maxMinSteps, stepSize );
             break;
         }
         case TimeDate::Minute:
         {
-            scaleDiv = divideToMinutes( min, max, maxMajSteps, maxMinSteps, stepSize );
+            scaleDiv = divideToMinutes( min, max, 
+                maxMajSteps, maxMinSteps, stepSize );
             break;
         }
         case TimeDate::Second:
         {
-            scaleDiv = divideToSeconds( min, max, maxMajSteps, maxMinSteps, stepSize );
+            scaleDiv = divideToSeconds( min, max, 
+                maxMajSteps, maxMinSteps, stepSize );
             break;
         }
         case TimeDate::Millisecond:
@@ -316,9 +333,6 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
 
 #if DEBUG_ENGINE >= 2
             qDebug() << "Millisecond: " << max - min;
-            const QList<double> ticks = scaleDiv.ticks( QwtScaleDiv::MajorTick);
-            for ( int i = 0; i < ticks.size(); i++ )
-                qDebug() << i << qRound64( ticks[i] );
 #endif
 
             break;
@@ -339,6 +353,8 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
 QwtScaleDiv TimeScaleEngine::divideToSeconds( double min, double max,
     int maxMajSteps, int maxMinSteps, double stepSize ) const
 {
+    const double msSecond = 1000; // ms per second
+
     // round min/max to seconds
     QDateTime from = qwtToDateTime( min );
     from = qwtFloorDate( from, TimeDate::Second );
@@ -357,20 +373,25 @@ QwtScaleDiv TimeScaleEngine::divideToSeconds( double min, double max,
         qDebug() << "Seconds: " << seconds << " -> " << stepSize;
 #endif
 
-        stepSize *= 1000; // in ms
+        stepSize *= msSecond; // in ms
     }
 
     // align to step size
-    const int s = qwtFloorToStep( from.time().second(), stepSize / 1000 );
+    const int s = qwtFloorToStep( from.time().second(), stepSize / msSecond );
     from.setTime( QTime( from.time().hour(), from.time().minute(), s ) );
 
-    return qwtBuildScaleDiv( min, max, from, to, stepSize, maxMinSteps );
+    double minStepSize = 0.0;
+    if ( maxMinSteps > 1 )
+        minStepSize = qwtStepSize( stepSize, maxMinSteps, 10 );
+
+    return qwtBuildScaleDiv( min, max, from, to, stepSize, minStepSize );
 }
 
 QwtScaleDiv TimeScaleEngine::divideToMinutes( double min, double max,
     int maxMajSteps, int maxMinSteps, double stepSize ) const
 {
     const double msMinute = 60 * 1000; // ms per minute
+    const double msSecond = 1000; // ms per second
 
     QDateTime from = qwtToDateTime( min );
     from = qwtFloorDate( from, TimeDate::Minute );
@@ -394,7 +415,37 @@ QwtScaleDiv TimeScaleEngine::divideToMinutes( double min, double max,
         from.time().minute(), stepSize / msMinute );
     from.setTime( QTime( from.time().hour(), m ) );
 
-    return qwtBuildScaleDiv( min, max, from, to, stepSize, maxMinSteps );
+    double minStepSize = 0.0;
+    if ( maxMinSteps > 1 )
+    {
+        static int limits[] = { 1, 2, 5, 10, 15, 20, 30, 60 };
+
+        int numSteps = 0;
+        if ( stepSize / msSecond / maxMinSteps > 60 )
+        {
+            numSteps = qwtStepCount( 
+                stepSize / msMinute, maxMinSteps, 
+                limits, sizeof( limits ) / sizeof( int ) );
+        }
+        else
+        {
+            numSteps = qwtStepCount( 
+                stepSize / msSecond, maxMinSteps, 
+                limits, sizeof( limits ) / sizeof( int ) );
+        }
+
+        if ( numSteps > 0 )
+        {
+            minStepSize = stepSize / numSteps;
+        }
+        else 
+        {
+            // fallback ???
+            minStepSize = qwtStepSize( stepSize, maxMinSteps, 10 );
+        }
+    }
+
+    return qwtBuildScaleDiv( min, max, from, to, stepSize, minStepSize );
 }
 
 QwtScaleDiv TimeScaleEngine::divideToHours( double min, double max,
@@ -424,7 +475,11 @@ QwtScaleDiv TimeScaleEngine::divideToHours( double min, double max,
     const int h = qwtFloorToStep( from.time().hour(), stepSize / msHour );
     from.setTime( QTime( h, 0 ) );
 
-    return qwtBuildScaleDiv( min, max, from, to, stepSize, maxMinSteps );
+    double minStepSize = 0.0;
+    if ( maxMinSteps > 1 )
+        minStepSize = qwtStepSize( stepSize, maxMinSteps, 10 );
+
+    return qwtBuildScaleDiv( min, max, from, to, stepSize, minStepSize );
 }
 
 QwtScaleDiv TimeScaleEngine::divideToDays( double min, double max,
@@ -457,7 +512,11 @@ QwtScaleDiv TimeScaleEngine::divideToDays( double min, double max,
     from = QDateTime( QDate( from.date().year(), 1, 1 ) );
     from.addDays( d );
 
-    return qwtBuildScaleDiv( min, max, from, to, stepSize, maxMinSteps );
+    double minStepSize = 0.0;
+    if ( maxMinSteps > 1 )
+        minStepSize = qwtStepSize( stepSize, maxMinSteps, 10 );
+
+    return qwtBuildScaleDiv( min, max, from, to, stepSize, minStepSize );
 }
 
 QwtScaleDiv TimeScaleEngine::divideToWeeks( double min, double max,
@@ -473,7 +532,7 @@ QwtScaleDiv TimeScaleEngine::divideToWeeks( double min, double max,
 
     if ( stepSize == 0.0 )
     {
-        const int weeks = qFloor( from.daysTo( to ) / 7 );
+        const int weeks = from.daysTo( to ) / 7;
         stepSize = qwtDivideWeeks( weeks, maxMajSteps );
 
 #if DEBUG_ENGINE >= 2
@@ -483,7 +542,7 @@ QwtScaleDiv TimeScaleEngine::divideToWeeks( double min, double max,
     }
 
     // align to step size
-    const int weeks1 = int( from.date().daysInYear() / 7 );
+    const int weeks1 = from.date().daysInYear() / 7;
     const int weeks2 = qwtFloorToStep( weeks1, stepSize / msWeek );
 
     QDateTime dt( QDate( from.date().year(), 1, 1 ) );
@@ -491,7 +550,37 @@ QwtScaleDiv TimeScaleEngine::divideToWeeks( double min, double max,
 
     from = dt;
 
-    return qwtBuildScaleDiv( min, max, from, to, stepSize, maxMinSteps );
+    // calculate the minor step size
+    double minStepSize = 0.0;
+    if ( maxMinSteps > 1 )
+    {
+        const int daysInStep = qRound( stepSize / msWeek * 7 );
+
+        if ( maxMinSteps >= daysInStep )
+        {
+            // we want to have one tick per day
+            minStepSize = stepSize / daysInStep;
+        }
+        else
+        {
+            // when the stepSize is more than a week we want to
+            // have a tick for each week
+
+            const int stepSizeInWeeks = qRound( stepSize / msWeek );
+
+            if ( stepSizeInWeeks <= maxMinSteps )
+            {
+                minStepSize = msWeek;
+            }
+            else
+            {
+                minStepSize = divideInterval( stepSizeInWeeks, maxMinSteps );
+                minStepSize *= msWeek;
+            }
+        }
+    }
+
+    return qwtBuildScaleDiv( min, max, from, to, stepSize, minStepSize );
 }
 
 QwtScaleDiv TimeScaleEngine::divideToMonths( double min, double max,
@@ -518,7 +607,7 @@ QwtScaleDiv TimeScaleEngine::divideToMonths( double min, double max,
     stepSize = qMax( stepSize, 1.0 );
 
     // align to step size
-    const int m = qwtFloorToStep( from.date().month(), stepSize );
+    const int m = qwtFloorToStep( from.date().month() - 1, stepSize );
     from = QDateTime( QDate( from.date().year(), m + 1, 1 ) );
 
     QList<double> majorTicks;
@@ -563,7 +652,7 @@ QwtScaleDiv TimeScaleEngine::divideToYears( double min, double max,
     if ( stepSize == 0.0 )
     {
         const int years = to.date().year() - from.date().year();
-        stepSize = qwtDivideInterval( years, maxMajSteps, 10 );
+        stepSize = qwtStepSize( years, maxMajSteps, 10 );
 
 #if DEBUG_ENGINE >= 2
         qDebug() << "Years: " << from.date() << to.date() << years << " -> " << stepSize;
