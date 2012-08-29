@@ -40,6 +40,8 @@ QwtScaleDiv::QwtScaleDiv( const QwtInterval &interval,
   \param lowerBound First interval limit
   \param upperBound Second interval limit
   \param ticks List of major, medium and minor ticks
+
+  \note lowerBound might be greater than upperBound for inverted scales
 */
 QwtScaleDiv::QwtScaleDiv(
         double lowerBound, double upperBound,
@@ -146,6 +148,43 @@ QwtScaleDiv QwtScaleDiv::inverted() const
     other.invert();
 
     return other;
+}
+
+/*! 
+   Return a scale divison with an interval [lowerBound, upperBound]
+   where all ticks outside this interval are removed
+
+   \param lowerBound Lower bound
+   \param upperBound Upper bound
+
+   \note lowerBound might be greater than upperBound for inverted scales
+*/
+QwtScaleDiv QwtScaleDiv::bounded( 
+    double lowerBound, double upperBound ) const
+{
+    const double min = qMin( lowerBound, upperBound );
+    const double max = qMax( lowerBound, upperBound );
+
+    QwtScaleDiv sd;
+    sd.setInterval( lowerBound, upperBound );
+
+    for ( int tickType = 0; tickType < QwtScaleDiv::NTickTypes; tickType++ )
+    {
+        const QList<double> &ticks = d_ticks[ tickType ];
+
+        QList<double> boundedTicks;
+        for ( int i = 0; i < ticks.size(); i++ )
+        {
+            const double tick = ticks[i];
+            if ( tick >= min && tick <= max )
+                boundedTicks += tick;
+        }
+
+        sd.setTicks( tickType, boundedTicks );
+    }
+
+    return sd;
+
 }
 
 /*!

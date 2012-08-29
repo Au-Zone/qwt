@@ -77,6 +77,8 @@ public:
     void invert();
     QwtScaleDiv inverted() const;
 
+    QwtScaleDiv bounded( double lowerBound, double upperBound ) const;
+
 private:
     double d_lowerBound;
     double d_upperBound;
@@ -93,6 +95,8 @@ QWT_EXPORT QDebug operator<<( QDebug, const QwtScaleDiv & );
    Change the interval
    \param lowerBound lower bound
    \param upperBound upper bound
+
+   \note lowerBound might be greater than upperBound for inverted scales
 */
 inline void QwtScaleDiv::setInterval( double lowerBound, double upperBound )
 {

@@ -37,39 +37,13 @@ static inline QwtInterval qwtPowInterval( double base, const QwtInterval &interv
 }
 
 
-static double qwtDivideInterval( 
-    double intervalSize, int numSteps, uint base ) 
-{
-    if ( numSteps <= 0 )
-        return 0.0;
-
-    const double v = QwtScaleArithmetic::divideEps( intervalSize, numSteps );
-    if ( v == 0.0 )
-        return 0.0;
-
-    const double lx = qwtLog( base, qFabs( v ) );
-    const double p = ::floor( lx );
-
-    const double fraction = qPow( base, lx - p );
-
-    uint n = base;
-    while ( ( n > 1 ) && ( fraction <= n / 2 ) )
-        n /= 2;
-
-    double stepSize = n * qPow( base, p );
-    if ( v < 0 )
-        stepSize = -stepSize;
-
-    return stepSize;
-}
-
 #if 1
 
 // this version often doesn't find the best ticks: f.e for 15: 5, 10
 static double qwtStepSize( double intervalSize, int maxSteps, uint base )
 {
     const double minStep = 
-        qwtDivideInterval( intervalSize, maxSteps, base );
+        QwtScaleArithmetic::divideInterval( intervalSize, maxSteps, base );
 
     if ( minStep != 0.0 )
     {
@@ -173,6 +147,32 @@ double QwtScaleArithmetic::divideEps( double intervalSize, double numSteps )
         return 0.0;
 
     return ( intervalSize - ( _eps * intervalSize ) ) / numSteps;
+}
+
+double QwtScaleArithmetic::divideInterval( 
+    double intervalSize, int numSteps, uint base ) 
+{
+    if ( numSteps <= 0 )
+        return 0.0;
+
+    const double v = QwtScaleArithmetic::divideEps( intervalSize, numSteps );
+    if ( v == 0.0 )
+        return 0.0;
+
+    const double lx = qwtLog( base, qFabs( v ) );
+    const double p = ::floor( lx );
+
+    const double fraction = qPow( base, lx - p );
+
+    uint n = base;
+    while ( ( n > 1 ) && ( fraction <= n / 2 ) )
+        n /= 2;
+
+    double stepSize = n * qPow( base, p );
+    if ( v < 0 )
+        stepSize = -stepSize;
+
+    return stepSize;
 }
 
 class QwtScaleEngine::PrivateData
@@ -312,7 +312,8 @@ void QwtScaleEngine::setMargins( double lower, double upper )
 double QwtScaleEngine::divideInterval(
     double intervalSize, int numSteps ) const
 {
-    return qwtDivideInterval( intervalSize, numSteps, d_data->base );
+    return QwtScaleArithmetic::divideInterval( 
+		intervalSize, numSteps, d_data->base );
 }
 
 /*!
@@ -504,7 +505,7 @@ void QwtLinearScaleEngine::autoScale( int maxNumSteps,
     if ( interval.width() == 0.0 )
         interval = buildInterval( interval.minValue() );
 
-    stepSize = qwtDivideInterval( 
+    stepSize = QwtScaleArithmetic::divideInterval( 
         interval.width(), qMax( maxNumSteps, 1 ), base() );
 
     if ( !testAttribute( QwtScaleEngine::Floating ) )
@@ -545,7 +546,7 @@ QwtScaleDiv QwtLinearScaleEngine::divideScale( double x1, double x2,
         if ( maxMajorSteps < 1 )
             maxMajorSteps = 1;
 
-        stepSize = qwtDivideInterval( 
+        stepSize = QwtScaleArithmetic::divideInterval( 
             interval.width(), maxMajorSteps, base() );
     }
 
