@@ -13,6 +13,7 @@ TARGET       = timescale
 
 HEADERS = \
     timedate.h \
+    timeinterval.h \
     timescaleengine.h \
     timescaledraw.h \
     panel.h \
@@ -21,6 +22,7 @@ HEADERS = \
 
 SOURCES = \
     timedate.cpp \
+    timeinterval.cpp \
     timescaleengine.cpp \
     timescaledraw.cpp \
     panel.cpp \

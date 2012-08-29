@@ -9,8 +9,8 @@ MainWindow::MainWindow( QWidget *parent ):
     QMainWindow( parent )
 {
     Settings settings;
-    settings.startDateTime = QDateTime( QDate( 2012, 3, 10 ), QTime( 23, 59, 0 ) );
-    settings.endDateTime = QDateTime( QDate( 2012, 3, 11 ) );
+    settings.startDateTime = QDateTime( QDate( 2012, 3, 10 ), QTime( 0, 5, 0 ) );
+    settings.endDateTime = QDateTime( QDate( 2012, 3, 10 ), QTime( 0, 6, 0, 5 ) );
     settings.maxMajorSteps = 10;
     settings.maxMinorSteps = 8;
     settings.maxWeeks = -1;

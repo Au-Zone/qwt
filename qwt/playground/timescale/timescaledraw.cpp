@@ -1,7 +1,8 @@
 #include "timescaledraw.h"
 #include <qdatetime.h>
 
-static TimeDate::IntervalType qwtIntervalType( const QList<QDateTime> &dateTimes )
+static TimeDate::IntervalType qwtIntervalType( 
+    const QList<QDateTime> &dateTimes )
 {
     for ( int type = TimeDate::Second; type <= TimeDate::Year; type++ )
     {
@@ -33,12 +34,12 @@ TimeScaleDraw::~TimeScaleDraw()
 
 QwtText TimeScaleDraw::label( double value ) const
 {
-    static QDateTime time;
+    static QDateTime dt;
 
-    time.setMSecsSinceEpoch( qRound64( value ) );
+    dt.setMSecsSinceEpoch( qRound64( value ) );
 
     // the format string should be cached !!!
-    return time.toString( format( scaleDiv() ) );
+    return dt.toString( format( scaleDiv() ) );
 }
 
 QString TimeScaleDraw::format( const QwtScaleDiv &scaleDiv ) const

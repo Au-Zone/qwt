@@ -1,8 +1,8 @@
 #include "timedate.h"
 #include <math.h>
+#include <qlocale.h>
 #include <qdebug.h>
 
-static const Qt::DayOfWeek s_dayOfWeek0 = Qt::Monday;
 static const int s_julianDay0 = QDate(1970, 1, 1).toJulianDay();
 
 static inline double qwtToJulianDay( int year, int month, int day )
@@ -157,7 +157,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
             if ( dt < dateTime )
                 dt = dt.addDays( 1 );
 
-            int days = s_dayOfWeek0 - dt.date().dayOfWeek();
+            int days = QLocale().firstDayOfWeek() - dt.date().dayOfWeek();
             if ( days < 0 )
                 days += 7;
 
@@ -238,7 +238,7 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
         {
             dt = QDateTime( dateTime.date() );
 
-            int days = dt.date().dayOfWeek() - s_dayOfWeek0;
+            int days = dt.date().dayOfWeek() - QLocale().firstDayOfWeek();
             if ( days < 0 )
                 days += 7;
 
@@ -260,3 +260,33 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
 
     return dt;
 }
+
+QDate qwtDateOfWeek0( int year )
+{
+    const QLocale locale;
+
+    QDate dt0( year, 1, 1 );
+
+    // floor to the first day of the week
+    int days = dt0.dayOfWeek() - locale.firstDayOfWeek();
+    if ( days < 0 )
+        days += 7;
+
+    dt0 = dt0.addDays( -days );
+
+    if ( QLocale().country() != QLocale::UnitedStates )
+    {
+        // according to ISO 8601 the first week is defined
+        // by the first thursday. 
+
+        int d = Qt::Thursday - locale.firstDayOfWeek();
+        if ( d < 0 )
+            d += 7;
+
+        if ( dt0.addDays( d ).year() < year )
+            dt0 = dt0.addDays( 7 );
+    }
+
+    return dt0;
+}
+
