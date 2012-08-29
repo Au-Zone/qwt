@@ -30,4 +30,6 @@ extern QDateTime qwtCeilDate( const QDateTime &,
 extern QDateTime qwtFloorDate( const QDateTime &, 
     TimeDate::IntervalType );
 
+extern QDate qwtDateOfWeek0( int year );
+
 #endif

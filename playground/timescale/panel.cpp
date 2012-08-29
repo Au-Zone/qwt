@@ -11,9 +11,11 @@ Panel::Panel( QWidget *parent ):
     // create widgets
 
     d_startDateTime = new QDateTimeEdit();
+    d_startDateTime->setDisplayFormat( d_startDateTime->displayFormat() + ":zzz" );
     d_startDateTime->setCalendarPopup( true );
 
     d_endDateTime = new QDateTimeEdit();
+    d_endDateTime->setDisplayFormat( d_endDateTime->displayFormat() + ":zzz" );
     d_endDateTime->setCalendarPopup( true );
     
     d_maxMajorSteps = new QSpinBox();
