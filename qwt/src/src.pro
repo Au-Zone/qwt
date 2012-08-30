@@ -128,6 +128,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_tradingcurve.h \
         qwt_plot_layout.h \
         qwt_plot_marker.h \
+        qwt_plot_textlabel.h \
         qwt_plot_rasteritem.h \
         qwt_plot_spectrogram.h \
         qwt_plot_spectrocurve.h \
@@ -180,6 +181,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_seriesitem.cpp \
         qwt_plot_shapeitem.cpp \
         qwt_plot_marker.cpp \
+        qwt_plot_textlabel.cpp \
         qwt_plot_layout.cpp \
         qwt_plot_canvas.cpp \
         qwt_plot_overlay.cpp \
