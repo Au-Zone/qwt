@@ -5,6 +5,8 @@
 static QDateTime qwtFloorDateToStep( const QDateTime &dt,
     int stepSize, TimeDate::IntervalType intervalType )
 {
+	// what about: (year == 1582 && month == 10 && day > 4 && day < 15) ??
+
     switch( intervalType )
     {
         case TimeDate::Millisecond:
@@ -61,6 +63,14 @@ static QDateTime qwtFloorDateToStep( const QDateTime &dt,
         case TimeDate::Year:
         {
             const int y = ( dt.date().year() / stepSize ) * stepSize;
+            
+            if ( y == 0 )
+            {
+                // there is no year 0 in the Julian calendar
+
+                QDate d = QDate( stepSize, 1, 1 ).addYears( -stepSize );
+                return QDateTime( d );
+            }
             return QDateTime( QDate( y, 1, 1 ) );
         }
     }
