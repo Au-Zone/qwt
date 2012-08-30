@@ -3,6 +3,8 @@
 #include <qlocale.h>
 #include <qdebug.h>
 
+#define DEBUG_CONVERSION 0
+
 static const int s_julianDay0 = QDate(1970, 1, 1).toJulianDay();
 
 static inline double qwtToJulianDay( int year, int month, int day )
@@ -40,12 +42,11 @@ static inline QDate qwtToDate( int year, int month, int day )
 
 QDateTime qwtToDateTime( double value )
 {
-#if 0
     qint64 msecs = qRound64( value );
     if ( msecs < DATE_MIN )
         return QDateTime();
 
-    const int msecsPerDay = 86400000;
+    const int msecsPerDay = 24 * 60 * 60 * 1000;
 
     int days = msecs / msecsPerDay;
     msecs %= msecsPerDay;
@@ -64,23 +65,30 @@ QDateTime qwtToDateTime( double value )
     const QDate d = QDate::fromJulianDay( s_julianDay0 + days );
     const QTime t = QTime().addMSecs( msecs );
 
-    QDateTime dt( d, t, Qt::LocalTime );
-#if 1
+    const QDateTime dt = QDateTime( d, t, Qt::UTC ).toLocalTime();
+
+#if DEBUG_CONVERSION >= 1
     if ( !dt.isValid() )
     {
-        qDebug() << "Not valid: " << value << dt.date().isValid() << dt.time().isValid() << dt.date().toJulianDay();
+        qDebug() << "Not valid: " << value 
+            << dt.date().isValid() << dt.time().isValid() 
+            << dt.date().toJulianDay();
     }
 #endif
-#else
-    QDateTime dt;
-    dt.setMSecsSinceEpoch( qRound64( value ) );
+
+#if DEBUG_CONVERSION >= 2
+    QDateTime dt2;
+    dt2.setMSecsSinceEpoch( qRound64( value ) );
+
+    if ( dt != dt2 )
+        qDebug() << "qwtToDateTime: " << dt << dt2;
 #endif
+
     return dt;
 }
 
 double qwtFromDateTime( const QDateTime &dateTime )
 {
-#if 0
     const QDateTime dt = dateTime.toUTC();
 
     const qint64 jd = dt.date().toJulianDay();
@@ -89,10 +97,18 @@ double qwtFromDateTime( const QDateTime &dateTime )
     qint64 days = jd - s_julianDay0;
 
     const int msecsPerDay = 86400000;
-    return ( days * msecsPerDay ) + msecs;
-#else
-    return dateTime.toMSecsSinceEpoch();
+
+    const double value = ( days * msecsPerDay ) + msecs;
+
+#if DEBUG_CONVERSION >= 2
+    if ( value != dateTime.toMSecsSinceEpoch() )
+    {
+        qDebug() << "qwtFromDateTime: " << value 
+            << dateTime.toMSecsSinceEpoch();
+    }
 #endif
+
+    return value;
 }
 
 QDateTime qwtCeilDate( const QDateTime &dateTime, 

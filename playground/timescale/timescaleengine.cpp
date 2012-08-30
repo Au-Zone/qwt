@@ -72,6 +72,15 @@ static int qwtDivideInterval( int intervalSize, int numSteps,
 static int qwtDivideScale( int intervalSize, int numSteps,
     TimeDate::IntervalType intervalType )
 {
+    if ( intervalType != TimeDate::Day )
+    {
+        if ( ( intervalSize > numSteps ) && 
+            ( intervalSize <= 2 * numSteps ) )
+        {
+            return 2;
+        }
+    }
+
     int stepSize;
 
     switch( intervalType )
@@ -127,12 +136,8 @@ static int qwtDivideScale( int intervalSize, int numSteps,
         case TimeDate::Millisecond:
         default:
         {
-            // we should find a better algo. f.e 21, 10 should find a 2 !
-            stepSize = qwtStepSize( intervalSize, numSteps, 10 );
-            if ( stepSize == 0 )
-            {
-                stepSize = ( intervalSize + 1 ) / 2;
-            }
+            stepSize = QwtScaleArithmetic::divideInterval(
+                intervalSize, numSteps, 10 );
         }
     }
 
@@ -334,6 +339,15 @@ static QwtScaleDiv qwtBuildScaleDiv( const TimeInterval& interval,
     for ( QDateTime dt = interval.minDate(); dt <= interval.maxDate(); 
         dt = dt.addSecs( stepSize ) )
     {
+        if ( !dt.isValid() )
+        {
+#if DEBUG_ENGINE >= 1
+            qDebug() << "Invalid date in: " << interval.minDate()
+                << interval.maxDate();
+#endif
+            break;
+        }
+
         double majorValue = qwtFromDateTime( dt );
 
         if ( daylightSaving )
@@ -589,6 +603,15 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
             for ( QDateTime dt = interval.minDate(); 
                 dt <= interval.maxDate(); dt = dt.addMonths( stepSize ) )
             {
+                if ( !dt.isValid() )
+                {   
+#if DEBUG_ENGINE >= 1
+                    qDebug() << "Invalid date in: " << interval.minDate()
+                        << interval.maxDate();
+#endif  
+                    break;
+                }   
+
                 majorTicks += qwtFromDateTime( dt );
 
                 if ( minStepDays > 0 )
@@ -631,26 +654,48 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
                     stepSize, maxMinSteps, intervalType );
             }
 
+
+            int numMinorSteps = 0;
+            if ( minStepSize > 0.0 )
+                numMinorSteps = qFloor( stepSize / minStepSize );
+
+            bool dateBC = interval.minDate().date().year() < -1;
+
             for ( QDateTime dt = interval.minDate(); dt <= interval.maxDate();
-                dt = dt.addYears( qRound( stepSize ) ) )
+                dt = dt.addYears( stepSize ) )
             {
+                if ( dateBC && dt.date().year() > 1 )
+                {
+                    // there is no year 0 in the Julian calendar
+                    dt = dt.addYears( -1 );
+                    dateBC = false;
+                }
+
+                if ( !dt.isValid() )
+                {
+#if DEBUG_ENGINE >= 1
+                    qDebug() << "Invalid date in: " << interval.minDate()
+                        << interval.maxDate();
+#endif
+                    break;
+                }
+
                 majorTicks += qwtFromDateTime( dt );
 
-                if ( minStepSize > 0.0 )
+                for ( int i = 1; i < numMinorSteps; i++ )
                 {
-                    const int numMinorSteps = qFloor( stepSize / minStepSize );
+                    const int months = qRound( i * 12 * minStepSize );
+                    const double minorValue = 
+                        qwtFromDateTime( dt.addMonths( months ) );
 
-                    for ( int i = 1; i < numMinorSteps; i++ )
-                    {
-                        const int months = qRound( i * 12 * minStepSize );
-                        const double minorValue = 
-                            qwtFromDateTime( dt.addMonths( months ) );
+                    const bool isMedium = ( numMinorSteps > 2 ) &&
+                        ( numMinorSteps % 2 == 0 ) &&
+                        ( i == numMinorSteps / 2 );
 
-                        if ( ( numMinorSteps % 2 == 0 ) && ( i == numMinorSteps / 2 ) )
-                            mediumTicks += minorValue;
-                        else
-                            minorTicks += minorValue;
-                    }
+                    if ( isMedium )
+                        mediumTicks += minorValue;
+                    else
+                        minorTicks += minorValue;
                 }
             }   
         }
