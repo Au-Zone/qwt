@@ -276,19 +276,19 @@ protected:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawLines( QPainter *p,
+    virtual void drawLines( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawSticks( QPainter *p,
+    virtual void drawSticks( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawDots( QPainter *p,
+    virtual void drawDots( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawSteps( QPainter *p,
+    virtual void drawSteps( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
