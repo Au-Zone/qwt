@@ -46,7 +46,7 @@ public:
         mouseValue( 0.0 ),
         flyingValue( 0.0 ),
         minimum( 0.0 ),
-        maximum( 0.0 ),
+        maximum( 100.0 ),
         singleStep( 1.0 ),
         pageStepCount( 1 ),
         stepAlignment( true ),

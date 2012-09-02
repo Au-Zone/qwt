@@ -20,6 +20,8 @@
   in very small steps. Using the setMass member, it can be configured
   as a flywheel.
 
+  The default range of the wheel is [0.0, 100.0]
+
   \sa The radio example.
 */
 class QWT_EXPORT QwtWheel: public QWidget
