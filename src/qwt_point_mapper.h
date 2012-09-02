@@ -21,9 +21,10 @@ class QPolygon;
 /*!
   \brief A helper class for translating a series of points
 
-  QwtPointMapper is aA collection of methods for translating a 
-  series of points into paint device coordinates. It is used
-  by QwtPlotCurve.
+  QwtPointMapper is a collection of methods and optimizations
+  for translating a series of points into paint device coordinates. 
+  It is used by QwtPlotCurve but might also be useful for 
+  similar plot items displaying a QwtSeriesData<QPointF>.
  */
 class QWT_EXPORT QwtPointMapper
 {
