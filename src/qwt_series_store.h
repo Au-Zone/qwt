@@ -71,7 +71,6 @@ public:
 
     virtual void setRectOfInterest( const QRectF & );
 
-protected:
     QwtSeriesData<T> *swapData( QwtSeriesData<T> * );
 
 private:
