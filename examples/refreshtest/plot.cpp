@@ -129,8 +129,6 @@ void Plot::setSettings( const Settings &s )
 
     d_curve->setRenderHint( QwtPlotItem::RenderAntialiased,
         s.curve.renderHint & QwtPlotItem::RenderAntialiased );
-    d_curve->setRenderHint( QwtPlotItem::RenderFloats,
-        s.curve.renderHint & QwtPlotItem::RenderFloats );
 
 	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
 	if ( plotCanvas )

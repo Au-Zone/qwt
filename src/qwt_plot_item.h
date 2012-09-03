@@ -194,24 +194,7 @@ public:
     enum RenderHint
     {
         //! Enable antialiasing
-        RenderAntialiased = 0x1,
-
-        /*!
-          Certain painter operations are faster, when using integers
-          than floats ( f.e raster paint engine: drawPolyline() ) - even
-          if the corresponding paint engine doesn't support floats at all.
-          So a plot item might decide to transform coordinates into integers 
-          for these paint engines.
-
-          By setting RenderFloats this optimization can be suppressed.
-
-          \note For paint engines, that can use floats ( SVG, PDF ) this
-                flag has no effect, because these are rendered always
-                as floats.
-
-          \sa QwtPainter::roundingAlignment()
-         */
-        RenderFloats = 0x2
+        RenderAntialiased = 0x1
     };
 
     //! Render hints
