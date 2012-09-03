@@ -441,14 +441,15 @@ void QwtPlotCurve::drawLines( QPainter *painter,
         clipRect = canvasRect.adjusted(-pw, -pw, pw, pw);
     }
 
-    // The raster paint engine is significantly faster
-    // for rendering QPolygon than for QPolygonF. So let's
-    // see if we can use them.
-
     bool doIntegers = false;
 
-    if ( doAlign && !testRenderHint( QwtPlotItem::RenderFloats )
-        && !QwtPainter::isX11GraphicsSystem() )
+#if QT_VERSION < 0x040800
+
+    // For Qt <= 4.7 the raster paint engine is significantly faster
+    // for rendering QPolygon than for QPolygonF. So let's
+    // see if we can use it.
+
+    if ( painter->paintEngine()->type() == QPaintEngine::Raster )
     {
         // In case of filling or fitting performance doesn't count
         // because both operations are much more expensive
@@ -457,6 +458,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
         if ( !doFit && !doFill )
             doIntegers = true; 
     }
+#endif
 
     const bool noDuplicates = d_data->paintAttributes & FilterPoints;
 
@@ -641,7 +643,7 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     }
     else
     {
-        if ( doAlign && !testRenderHint( QwtPlotItem::RenderFloats ) )
+        if ( doAlign )
         {
             const QPolygon points = mapper.toPoints(
                 xMap, yMap, data(), from, to ); 

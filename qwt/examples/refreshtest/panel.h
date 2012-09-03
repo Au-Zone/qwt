@@ -43,7 +43,6 @@ private:
     CheckBox *d_curveClipping;
     CheckBox *d_curveFiltering;
     CheckBox *d_lineSplitting;
-    CheckBox *d_forceFloats;
     SpinBox  *d_curveWidth;
     QComboBox *d_curvePen;
     CheckBox *d_curveFilled;

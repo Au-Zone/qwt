@@ -7,6 +7,16 @@
 
 static const int s_julianDay0 = QDate(1970, 1, 1).toJulianDay();
 
+static Qt::DayOfWeek qwtFirstDayOfWeek()
+{
+	QLocale locale;
+#if QT_VERSION >= 0x040800
+	return locale.firstDayOfWeek();
+#else
+	return Qt::Monday;
+#endif
+}
+
 static inline double qwtToJulianDay( int year, int month, int day )
 {
     // code from QDate but using doubles to avoid overflows
@@ -173,7 +183,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
             if ( dt < dateTime )
                 dt = dt.addDays( 1 );
 
-            int days = QLocale().firstDayOfWeek() - dt.date().dayOfWeek();
+            int days = qwtFirstDayOfWeek() - dt.date().dayOfWeek();
             if ( days < 0 )
                 days += 7;
 
@@ -254,7 +264,7 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
         {
             dt = QDateTime( dateTime.date() );
 
-            int days = dt.date().dayOfWeek() - QLocale().firstDayOfWeek();
+            int days = dt.date().dayOfWeek() - qwtFirstDayOfWeek();
             if ( days < 0 )
                 days += 7;
 
@@ -284,7 +294,7 @@ QDate qwtDateOfWeek0( int year )
     QDate dt0( year, 1, 1 );
 
     // floor to the first day of the week
-    int days = dt0.dayOfWeek() - locale.firstDayOfWeek();
+    int days = dt0.dayOfWeek() - qwtFirstDayOfWeek();
     if ( days < 0 )
         days += 7;
 
@@ -295,7 +305,7 @@ QDate qwtDateOfWeek0( int year )
         // according to ISO 8601 the first week is defined
         // by the first thursday. 
 
-        int d = Qt::Thursday - locale.firstDayOfWeek();
+        int d = Qt::Thursday - qwtFirstDayOfWeek();
         if ( d < 0 )
             d += 7;
 
