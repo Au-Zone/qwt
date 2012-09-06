@@ -7,21 +7,16 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ################################################################
 
-include( $${PWD}/../qwtconfig.pri )
+include( $${PWD}/../playground.pri )
 
-TEMPLATE = subdirs
+TARGET       = curvetracker
 
-contains(QWT_CONFIG, QwtPlot) {
-    
-    SUBDIRS += \
-        knobs \
-        plotmatrix \
-        timescale \
-        scaleengine \
-        graphicscale \
-        rescaler \
-        shapes \
-        curvetracker \
-        symbols
+HEADERS = \
+    curvetracker.h \
+    plot.h
 
-}
+SOURCES = \
+    curvetracker.cpp \
+    plot.cpp \
+    main.cpp
+
