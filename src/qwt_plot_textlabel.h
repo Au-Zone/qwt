@@ -25,6 +25,23 @@
   As drawing a text is an expensive operation the label is cached
   in a pixmap to speed up replots.
 
+  \par Example
+  The following code shows how to add a title.
+
+\verbatim
+    QwtText title( "Plot Title" );
+    title.setRenderFlags( Qt::AlignHCenter | Qt::AlignTop );
+
+    QFont font;
+    font.setBold( true );
+    title.setFont( font );
+
+    QwtPlotTextLabel *titleItem = new QwtPlotTextLabel();
+    titleItem->setText( title );
+    titleItem->attach( this );
+\endverbatim
+
+
   \sa QwtPlotMarker
 */  
 

@@ -254,4 +254,93 @@ QWT_EXPORT QRectF qwtBoundingRect(
 QWT_EXPORT QRectF qwtBoundingRect(
     const QwtSeriesData<QwtOHLCSample> &, int from = 0, int to = -1 );
 
+/*!
+    Binary search for a sorted series of samples
+
+    qwtUpperSampleIndex returns the index of sample that is the upper bound
+    of value. Is the the value smaller than the smallest value the return
+    value will be 0. Is the value greater or equal than the largest
+    value the return value will be -1.
+
+  \par Example
+    The following example shows finds a point of curve from an x
+    coordinate
+
+  \verbatim
+#include <qwt_series_data.h>
+#include <qwt_plot_curve.h>
+
+struct compareX
+{
+    inline bool operator()( const double x, const QPointF &pos ) const
+    {
+        return ( x < pos.x() );
+    }
+};
+
+QLineF curveLineAt( const QwtPlotCurve *curve, double x )
+{
+    int index = qwtUpperSampleIndex<QPointF>( 
+        *curve->data(), x, compareX() );
+            
+    if ( index == -1 && 
+        x == curve->sample( curve->dataSize() - 1 ).x() )
+    {   
+        // the last sample is excluded from qwtUpperSampleIndex
+        index = curve->dataSize() - 1;
+    }
+
+    QLineF line; // invalid
+    if ( index > 0 )
+    {
+        line.setP1( curve->sample( index - 1 ) );
+        line.setP2( curve->sample( index ) );
+    }
+
+    return line;
+}
+
+\endverbatim
+
+
+    \param series Series of samples
+    \param value Value
+    \param lessThan Compare operation
+
+    \note The samples must be sorted according to the order specified 
+          by the lessThan object
+
+of the range [begin, end) and returns the position of the one-past-the-last occurrence of value. If no such item is found, returns the position where the item should be inserted.
+ */
+template <typename T, typename LessThan>
+inline int qwtUpperSampleIndex( const QwtSeriesData<T> &series,
+    double value, LessThan lessThan  ) 
+{
+    const int indexMax = series.size() - 1;
+
+    if ( indexMax < 0 || !lessThan( value, series.sample( indexMax ) )  )
+        return -1;
+
+    int indexMin = 0;
+    int n = indexMax;
+
+    while ( n > 0 )
+    {
+        const int half = n >> 1;
+        const int indexMid = indexMin + half;
+
+        if ( lessThan( value, series.sample( indexMid ) ) )
+        {
+            n = half;
+        }
+        else
+        {
+            indexMin = indexMid + 1;
+            n -= half + 1;
+        }
+    }
+
+    return indexMin;
+}
+
 #endif
