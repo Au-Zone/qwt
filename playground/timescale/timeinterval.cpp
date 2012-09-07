@@ -125,7 +125,15 @@ int TimeInterval::width( TimeDate::IntervalType intervalType ) const
     {
         case TimeDate::Millisecond:
         {
+#if QT_VERSION >= 0x070000
             return d_minDate.msecsTo( d_maxDate );
+#else
+			int secsTo = d_minDate.secsTo( d_maxDate );
+			int mesecs = d_maxDate.time().msec() -
+				d_minDate.time().msec();
+
+			return secsTo * 1000 + mesecs;
+#endif
         }
         case TimeDate::Second:
         {
