@@ -14,7 +14,6 @@ TEMPLATE = subdirs
 contains(QWT_CONFIG, QwtPlot) {
     
     SUBDIRS += \
-        knobs \
         plotmatrix \
         timescale \
         scaleengine \
