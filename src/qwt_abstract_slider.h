@@ -29,8 +29,9 @@ class QWT_EXPORT QwtAbstractSlider: public QwtAbstractScale
 
     Q_PROPERTY( double value READ value WRITE setValue )
 
-    Q_PROPERTY( double singleStep READ singleStep WRITE setSingleStep )
-    Q_PROPERTY( int pageStepCount READ pageStepCount WRITE setPageStepCount )
+    Q_PROPERTY( uint totalSteps READ totalSteps WRITE setTotalSteps )
+    Q_PROPERTY( uint singleSteps READ singleSteps WRITE setSingleSteps )
+    Q_PROPERTY( uint pageSteps READ pageSteps WRITE setPageSteps )
     Q_PROPERTY( bool stepAlignment READ stepAlignment WRITE setStepAlignment )
 
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
@@ -49,11 +50,14 @@ public:
     void setWrapping( bool tf );
     bool wrapping() const;
 
-    void setSingleStep( double );
-    double singleStep() const;
+    void setTotalSteps( uint );
+    uint totalSteps() const;
 
-    void setPageStepCount( int );
-    int pageStepCount() const;
+    void setSingleSteps( uint );
+    uint singleSteps() const;
+
+    void setPageSteps( uint );
+    uint pageSteps() const;
 
     void setStepAlignment( bool on ); 
     bool stepAlignment() const;
@@ -128,21 +132,25 @@ protected:
       \brief Determine what to do when the user presses a mouse button.
 
       This function is abstract and has to be implemented by derived classes.
-      It is called on a mousePress event. The derived class can determine
-      what should happen next in dependence of the position where the mouse
-      was pressed by returning scrolling mode and direction. 
+      It is called on a mousePress and mouseMove events. 
 
       \param pos point where the mouse was pressed
-      \retval scrollMode The scrolling mode
+      \param initial True for press and false for move events
+
+      \retval True, when pos is a valid scroll position
     */
     virtual bool isScrollPosition( const QPoint &pos ) const = 0;
 
     void setMouseOffset( double );
     double mouseOffset() const;
 
-    void incrementValue( double increment );
+    void incrementValue( int numSteps );
 
     virtual void scaleChange();
+
+protected:
+    double incrementedValue( 
+        double value, int stepCount ) const;
 
 private:
     double alignedValue( double ) const;

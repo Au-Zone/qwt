@@ -45,12 +45,17 @@ private:
 TunerFrame::TunerFrame( QWidget *parent ):
     QFrame( parent )
 {
+    const double freqMin = 87.5;
+    const double freqMax = 108;
+
     d_sliderFrequency = new QwtSlider( this );
     d_sliderFrequency->setOrientation( Qt::Horizontal );
     d_sliderFrequency->setScalePosition( QwtSlider::TrailingScale );
-    d_sliderFrequency->setScale( 87.5, 108 );
-    d_sliderFrequency->setSingleStep( 0.01 );
-    d_sliderFrequency->setPageStepCount( 10 );
+    d_sliderFrequency->setScale( freqMin, freqMax );
+    d_sliderFrequency->setTotalSteps( 
+        qRound( ( freqMax - freqMin ) / 0.01 ) );
+    d_sliderFrequency->setSingleSteps( 1 );
+    d_sliderFrequency->setPageSteps( 10 );
     d_sliderFrequency->setScaleMaxMinor( 5 );
     d_sliderFrequency->setScaleMaxMajor( 12 );
     d_sliderFrequency->setHandleSize( QSize( 80, 20 ) );

@@ -22,7 +22,7 @@ public:
     {
         d_knob = new QwtKnob( this );
         d_knob->setScale( min, max );
-        d_knob->setSingleStep( 0.0 ); // disable
+        d_knob->setTotalSteps( 0 ); // disable
         d_knob->setScaleMaxMajor( 10 );
 
         d_knob->setKnobStyle( QwtKnob::Raised );

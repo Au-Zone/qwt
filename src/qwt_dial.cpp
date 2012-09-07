@@ -106,8 +106,6 @@ QwtDial::QwtDial( QWidget* parent ):
     setScaleArc( 0.0, 360.0 ); // scale as a full circle
     setScale( 0.0, 360.0 ); // degrees as default
 
-    setSingleStep( 1.0 );
-    setPageStepCount( 10.0 );
     setValue( 0.0 );
 }
 
