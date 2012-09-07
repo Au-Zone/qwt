@@ -15,8 +15,18 @@ include ( $${QWT_ROOT}/qwtfunctions.pri )
 
 contains(QWT_CONFIG, QwtDesigner) {
 
-    CONFIG    += qt designer plugin 
+    CONFIG    += qt plugin 
     CONFIG    += warn_on
+
+    greaterThan(QT_MAJOR_VERSION, 4) {
+
+    	QT += designer
+    }
+    else {
+
+        CONFIG    += designer
+    }
+
 
     TEMPLATE        = lib
     TARGET          = qwt_designer_plugin
