@@ -120,6 +120,8 @@ public:
     QwtPowerTransform( double factor );
     virtual ~QwtPowerTransform();
 
+    virtual double bounded( double value ) const;
+
     virtual double transform( double value ) const;
     virtual double invTransform( double value ) const;
 

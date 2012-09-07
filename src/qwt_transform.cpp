@@ -108,6 +108,11 @@ double QwtPowerTransform::invTransform( double value ) const
     return qPow( value, d_factor );
 }
 
+double QwtPowerTransform::bounded( double value ) const
+{
+    return qMax( value, 0.0 );
+}
+
 QwtTransform *QwtPowerTransform::copy() const
 {
     return new QwtPowerTransform( d_factor );
