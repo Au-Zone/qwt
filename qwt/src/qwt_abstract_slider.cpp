@@ -16,6 +16,14 @@
 #define qFabs(x) ::fabs(x)
 #endif
 
+static inline double qwtSliderStepSize( const QwtAbstractSlider *slider ) 
+{
+    if ( slider->totalSteps() == 0 )
+        return 0.0;
+
+    return ( slider->maximum() - slider->minimum() ) / slider->totalSteps();
+}
+
 class QwtAbstractSlider::PrivateData
 {
 public:
@@ -25,8 +33,9 @@ public:
         tracking( true ),
         pendingValueChanged( false ),
         readOnly( false ),
-        singleStep( 1.0 ),
-        pageStepCount( 1 ),
+        totalSteps( 100 ),
+        singleSteps( 1 ),
+        pageSteps( 10 ),
         stepAlignment( true ),
         isValid( false ),
         value( 0.0 ),
@@ -41,8 +50,9 @@ public:
 
     bool readOnly;
 
-    double singleStep;
-    int pageStepCount;
+    uint totalSteps;
+    uint singleSteps;
+    uint pageSteps;
     bool stepAlignment;
 
     bool isValid;
@@ -171,20 +181,19 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
 
 /*!
    Mouse Move Event handler
-   \param e Mouse event
+   \param event Mouse event
 */
-void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *e )
+void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *event )
 {
     if ( isReadOnly() )
     {
-        e->ignore();
+        event->ignore();
         return;
     }
 
     if ( d_data->isValid && d_data->isScrolling )
     {
-        double value = valueAt( e->pos() ) - d_data->mouseOffset;
-
+        double value = valueAt( event->pos() ) - d_data->mouseOffset;
         value = boundedValue( value );
 
         if ( d_data->stepAlignment )
@@ -245,26 +254,23 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
     if ( !d_data->isValid || d_data->isScrolling )
         return;
 
-    double increment = 0.0;
+    int numSteps = 0;
 
     if ( ( event->modifiers() & Qt::ControlModifier) ||
         ( event->modifiers() & Qt::ShiftModifier ) )
     {
         // one page regardless of delta
-        increment = d_data->singleStep * d_data->pageStepCount;
+        numSteps = d_data->pageSteps;
         if ( event->delta() < 0 )
-            increment = -increment;
+            numSteps = -numSteps;
     }
     else
     {
-        const int numSteps = event->delta() / 120;
-        increment = d_data->singleStep * numSteps;
+        const int numTurns = ( event->delta() / 120 );
+        numSteps = numTurns * d_data->singleSteps;
     }
 
-    double value = boundedValue( d_data->value + increment );
-
-    if ( d_data->stepAlignment )
-        value = alignedValue( value );
+    const double value = incrementedValue( d_data->value, numSteps );
 
     if ( value != d_data->value )
     {
@@ -298,10 +304,8 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     if ( !d_data->isValid || d_data->isScrolling )
         return;
 
-    const double stepSize = qAbs( d_data->singleStep );
-
+    int numSteps = 0;
     double value = d_data->value;
-    double increment = 0.0;
 
 #if 1
     // better use key mapping from QAbstractSlider or QDial
@@ -310,23 +314,23 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
         case Qt::Key_Down:
         case Qt::Key_Left:
         {
-            increment = -stepSize;
+            numSteps = -d_data->singleSteps;
             break;
         }
         case Qt::Key_Up:
         case Qt::Key_Right:
         {
-            increment = stepSize;
+            numSteps = d_data->singleSteps;
             break;
         }
         case Qt::Key_PageUp:
         {
-            increment = d_data->pageStepCount * stepSize;
+            numSteps = d_data->pageSteps;
             break;
         }
         case Qt::Key_PageDown:
         {
-            increment = -d_data->pageStepCount * stepSize;
+            numSteps = -d_data->pageSteps;
             break;
         }
         case Qt::Key_Home:
@@ -346,12 +350,9 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     }
 #endif
 
-    if ( increment != 0.0 )
+    if ( numSteps > 0 )
     {
-        value = boundedValue( d_data->value + increment );
-
-        if ( d_data->stepAlignment )
-            value = alignedValue( value );
+        value = incrementedValue( d_data->value, numSteps );
     }
 
     if ( value != d_data->value )
@@ -364,66 +365,34 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     }
 }
 
-/*!
-  \brief Change the step raster
-  \param vstep new step width
-  \warning The value will \e not be adjusted to the new step raster.
-*/
-void QwtAbstractSlider::setSingleStep( double vstep )
+void QwtAbstractSlider::setTotalSteps( uint stepCount )
 {
-    const double range = upperBound() - lowerBound();
-    
-    double newStep;
-    if ( vstep == 0.0 )
-    {
-        const double defaultRelStep = 1.0e-2;
-        newStep = range * defaultRelStep;
-    }   
-    else
-    {
-        if ( ( range > 0.0 && vstep < 0.0 ) || ( range < 0.0 && vstep > 0.0 ) )
-            newStep = -vstep;
-        else
-            newStep = vstep;
-            
-        const double minRelStep = 1.0e-10;
-        if ( qFabs( newStep ) < qFabs( minRelStep * range ) )
-            newStep = minRelStep * range;
-    }       
-    
-    d_data->singleStep = newStep;
-}   
-
-/*!
-  \brief Set the page step count 
-
-  pageStepCount is a multiplicator for the single step size
-  that typically corresponds to the user pressing PageUp or PageDown.
-
-  A value of 0 disables page stepping. The value is floored to
-  ( upperBound() - lowerBound() ) / singleStep().
-
-  The default value is 1.
-
-  \param count Multiplicator for the single step size
-
-  \sa pageStepCount(), setSingleStep()
- */
-void QwtAbstractSlider::setPageStepCount( int count )
-{
-    const double range = upperBound() - lowerBound();
-
-    const int max = int( qAbs( range / d_data->singleStep ) );
-    d_data->pageStepCount = qBound( 0, count, max );
+    d_data->totalSteps = stepCount;
 }
 
-/*! 
-  \return Page step count
-  \sa setPageStepCount(), singleStep()
- */
-int QwtAbstractSlider::pageStepCount() const
+uint QwtAbstractSlider::totalSteps() const
 {
-    return d_data->pageStepCount;
+    return d_data->totalSteps;
+}
+
+void QwtAbstractSlider::setSingleSteps( uint stepCount )
+{
+    d_data->singleSteps = stepCount;
+}   
+
+uint QwtAbstractSlider::singleSteps() const
+{
+    return d_data->singleSteps;
+}   
+
+void QwtAbstractSlider::setPageSteps( uint stepCount )
+{
+    d_data->pageSteps = stepCount;
+}
+
+uint QwtAbstractSlider::pageSteps() const
+{
+    return d_data->pageSteps;
 }
 
 void QwtAbstractSlider::setStepAlignment( bool on )
@@ -438,15 +407,6 @@ bool QwtAbstractSlider::stepAlignment() const
 {
     return d_data->stepAlignment;
 }
-
-/*!
-  \return The absolute step size
-  \sa setStep(), setRange()
-*/
-double QwtAbstractSlider::singleStep() const
-{
-    return d_data->singleStep;
-}   
 
 /*!
   \brief Move the slider to a specified value
@@ -479,8 +439,8 @@ double QwtAbstractSlider::value() const
 }
 
 /*!
-  If wrapping is true stepping up from upperBound() value will take you to the minimum() 
-  value and vica versa. 
+  If wrapping is true stepping up from upperBound() value will 
+  take you to the minimum() value and vica versa. 
 
   \param on En/Disable wrapping
   \sa wrapping()
@@ -515,19 +475,31 @@ double QwtAbstractSlider::mouseOffset() const
     return d_data->mouseOffset;
 }
 
-void QwtAbstractSlider::incrementValue( double increment )
+void QwtAbstractSlider::incrementValue( int stepCount )
 {
-    double value = boundedValue( d_data->value + increment );
-#if 0
-    if ( d_data->stepAlignment )
-        value = alignedValue( value );
-#endif
+    const double value = incrementedValue( 
+        d_data->value, stepCount );
 
     if ( value != d_data->value )
     {
         d_data->value = value;
         update();
     }
+}
+
+double QwtAbstractSlider::incrementedValue( 
+    double value, int stepCount ) const
+{
+    if ( d_data->totalSteps == 0 )
+        return value;
+
+    value += stepCount * qwtSliderStepSize( this );
+    value = boundedValue( value );
+
+    if ( d_data->stepAlignment )
+        value = alignedValue( value );
+
+    return value;
 }
 
 double QwtAbstractSlider::boundedValue( double value ) const
@@ -558,8 +530,7 @@ double QwtAbstractSlider::boundedValue( double value ) const
 
 double QwtAbstractSlider::alignedValue( double value ) const
 {
-    const double stepSize = d_data->singleStep;
-
+    const double stepSize = qwtSliderStepSize( this );
     if ( stepSize > 0.0 )
     {
         value = lowerBound() + qRound( ( value - lowerBound() ) / stepSize ) * stepSize;
@@ -580,10 +551,7 @@ void QwtAbstractSlider::scaleChange()
 {
     const double value = qBound( minimum(), value, maximum() );
 
-    setSingleStep( singleStep() );
-
     const bool changed = ( value != d_data->value );
-
     if ( changed )
     {
         d_data->value = value;

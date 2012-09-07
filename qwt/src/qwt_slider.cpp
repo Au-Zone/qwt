@@ -72,7 +72,7 @@ public:
     PrivateData():
         repeatTimerId( 0 ),
         updateInterval( 150 ),
-        valueIncrement( 0.0 ),
+        stepsIncrement( 0 ),
         pendingValueChange( false ),
         borderWidth( 2 ),
         spacing( 4 )
@@ -82,7 +82,7 @@ public:
     int repeatTimerId;
     bool timerTick;
     int updateInterval;
-    double valueIncrement;
+    int stepsIncrement;
     bool pendingValueChange;
 
     QRect sliderRect;
@@ -133,7 +133,6 @@ QwtSlider::QwtSlider( QWidget *parent,
     scaleDraw()->setLength( 100 );
 
     setScale( 0.0, 100.0 );
-    setSingleStep( 1.0 );
     setValue( 0.0 );
 }
 
@@ -493,31 +492,30 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
         {
             const int markerPos = transform( value() );
 
-            d_data->valueIncrement = qAbs( singleStep() );
+            d_data->stepsIncrement = singleSteps();
+
+#if 0
+            if ( ( event->modifiers() & Qt::ControlModifier) ||
+                ( event->modifiers() & Qt::ShiftModifier ) )
+#endif
+            {
+                if ( pageSteps() > 0 )
+                    d_data->stepsIncrement = pageSteps();
+            }
+
             if ( d_data->orientation == Qt::Horizontal )
             {
                 if ( pos.x() < markerPos )
-                    d_data->valueIncrement = -d_data->valueIncrement;
+                    d_data->stepsIncrement = -d_data->stepsIncrement;
             }
             else
             {
                 if ( pos.y() < markerPos )
-                    d_data->valueIncrement = -d_data->valueIncrement;
+                    d_data->stepsIncrement = -d_data->stepsIncrement;
             }
 
             if ( isInverted() )
-                d_data->valueIncrement = -d_data->valueIncrement;
-
-            if ( pageStepCount() > 0 )
-            {
-#if 0
-                if ( ( event->modifiers() & Qt::ControlModifier) ||
-                    ( event->modifiers() & Qt::ShiftModifier ) )
-#endif
-                {
-                    d_data->valueIncrement *= pageStepCount();
-                }
-            }
+                d_data->stepsIncrement = -d_data->stepsIncrement;
 
             d_data->timerTick = false;
             d_data->repeatTimerId = startTimer( qMax( 250, 2 * updateInterval() ) );
@@ -536,7 +534,7 @@ void QwtSlider::mouseReleaseEvent( QMouseEvent *event )
         killTimer( d_data->repeatTimerId );
         d_data->repeatTimerId = 0;
         d_data->timerTick = false;
-        d_data->valueIncrement = 0.0;
+        d_data->stepsIncrement = 0;
     }
 
     if ( d_data->pendingValueChange )
@@ -580,7 +578,7 @@ void QwtSlider::timerEvent( QTimerEvent *event )
     }
 
     const double v = value();
-    incrementValue( d_data->valueIncrement );
+    incrementValue( d_data->stepsIncrement );
 
     if ( v != value() )
     {

@@ -70,7 +70,6 @@ QwtKnob::QwtKnob( QWidget* parent ):
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 
     setScale( 0.0, 10.0 );
-    setSingleStep( 1.0 );
     setValue( 0.0 );
 }
 
