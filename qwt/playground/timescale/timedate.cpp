@@ -1,7 +1,8 @@
 #include "timedate.h"
-#include <math.h>
 #include <qlocale.h>
 #include <qdebug.h>
+#include <limits.h>
+#include <math.h>
 
 #define DEBUG_CONVERSION 0
 
