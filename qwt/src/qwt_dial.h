@@ -169,10 +169,12 @@ protected:
     virtual void drawNeedle( QPainter *, const QPointF &,
         double radius, double direction, QPalette::ColorGroup ) const;
 
-    virtual double valueAt( const QPoint & );
+    virtual double scrolledTo( const QPoint & ) const;
     virtual bool isScrollPosition( const QPoint & ) const;
 
 private:
+    double valueAt( const QPoint & ) const;
+
     class PrivateData;
     PrivateData *d_data;
 };

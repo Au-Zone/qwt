@@ -114,7 +114,7 @@ public:
     int updateInterval() const;
 
 protected:
-    virtual double valueAt( const QPoint & );
+    virtual double scrolledTo( const QPoint & ) const;
     virtual bool isScrollPosition( const QPoint & ) const;
 
     virtual void drawSlider ( QPainter *, const QRect & ) const;

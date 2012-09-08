@@ -140,12 +140,14 @@ protected:
     virtual void drawMarker( QPainter *, 
         const QRectF &, double arc ) const;
 
-    virtual double valueAt( const QPoint & );
+    virtual double scrolledTo( const QPoint & ) const;
     virtual bool isScrollPosition( const QPoint & ) const;
 
     virtual void scaleChange();
 
 private:
+    double valueAt( const QPoint & ) const;
+
     class PrivateData;
     PrivateData *d_data;
 };

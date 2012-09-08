@@ -29,17 +29,18 @@
 class QwtKnob::PrivateData
 {
 public:
-    PrivateData()
+    PrivateData():
+        knobStyle( QwtKnob::Raised ),
+        markerStyle( QwtKnob::Notch ),
+        borderWidth( 2 ),
+        borderDist( 4 ),
+        scaleDist( 4 ),
+        maxScaleTicks( 11 ),
+        knobWidth( 50 ),
+        markerSize( 8 ),
+        totalAngle( 270.0 ),
+        mouseOffset( 0.0 )
     {
-        borderWidth = 2;
-        borderDist = 4;
-        totalAngle = 270.0;
-        scaleDist = 4;
-        markerStyle = QwtKnob::Notch;
-        maxScaleTicks = 11;
-        knobStyle = QwtKnob::Raised;
-        knobWidth = 50;
-        markerSize = 8;
     }
 
     QwtKnob::KnobStyle knobStyle;
@@ -53,6 +54,8 @@ public:
     int markerSize;
 
     double totalAngle;
+
+    double mouseOffset;
 };
 
 /*!
@@ -216,12 +219,30 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 }
 
 /*!
+  \brief Set the scrolling mode and direction
+
+  Called by QwtAbstractSlider
+  \param pos Point in question
+  \return Scrolling mode
+*/
+bool QwtKnob::isScrollPosition( const QPoint &pos ) const
+{
+    d_data->mouseOffset = valueAt( pos ) - value();
+    return true;
+}
+
+double QwtKnob::scrolledTo( const QPoint &pos ) const
+{
+    return valueAt( pos ) - d_data->mouseOffset;
+}
+
+/*!
   \brief Determine the value corresponding to a specified position
 
   Called by QwtAbstractSlider
   \param pos point
 */
-double QwtKnob::valueAt( const QPoint &pos )
+double QwtKnob::valueAt( const QPoint &pos ) const
 {
     const double angle = ( value() - 0.5 * ( lowerBound() + upperBound() ) )
         / ( upperBound() - lowerBound() ) * d_data->totalAngle;
@@ -237,7 +258,7 @@ double QwtKnob::valueAt( const QPoint &pos )
         / d_data->totalAngle;
 
     const double oneTurn = qFabs( upperBound() - lowerBound() ) * 360.0 / d_data->totalAngle;
-    const double eqValue = value() + mouseOffset();
+    const double eqValue = value() + d_data->mouseOffset;
 
     if ( qFabs( newValue - eqValue ) > 0.5 * oneTurn )
     {
@@ -248,19 +269,6 @@ double QwtKnob::valueAt( const QPoint &pos )
     }
 
     return newValue;
-}
-
-/*!
-  \brief Set the scrolling mode and direction
-
-  Called by QwtAbstractSlider
-  \param pos Point in question
-  \return Scrolling mode
-*/
-bool QwtKnob::isScrollPosition( const QPoint &pos ) const
-{
-    Q_UNUSED( pos )
-    return true;
 }
 
 /*!

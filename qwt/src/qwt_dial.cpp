@@ -41,6 +41,7 @@ public:
         minScaleArc( 0.0 ),
         maxScaleArc( 0.0 ),
         needle( NULL ),
+        mouseOffset( 0.0 ),
         previousDir( -1.0 )
     {
     }
@@ -62,6 +63,7 @@ public:
     double scalePenWidth;
     QwtDialNeedle *needle;
 
+    double mouseOffset;
     double previousDir;
 };
 
@@ -743,13 +745,18 @@ QSize QwtDial::minimumSizeHint() const
     return QSize( d, d );
 }
 
+double QwtDial::scrolledTo( const QPoint &pos ) const
+{
+    return valueAt( pos ) - d_data->mouseOffset;
+}
+
 /*!
   Find the value for a given position
 
   \param pos Position
   \return Value
 */
-double QwtDial::valueAt( const QPoint &pos )
+double QwtDial::valueAt( const QPoint &pos ) const
 {
     if ( d_data->maxScaleArc == d_data->minScaleArc || upperBound() == lowerBound() )
         return lowerBound();
@@ -782,61 +789,62 @@ double QwtDial::valueAt( const QPoint &pos )
 
         if ( clockWise )
         {
-            if ( dir < d_data->previousDir && mouseOffset() > 0.0 )
+            if ( ( dir < d_data->previousDir ) 
+                && ( d_data->mouseOffset > 0.0 ) )
             {
                 // We passed 360 -> 0
-                setMouseOffset( mouseOffset() - completeCircle );
+                d_data->mouseOffset -= completeCircle;
             }
 
             if ( wrapping() )
             {
-                if ( posValue - mouseOffset() > upperBound() )
+                if ( posValue - d_data->mouseOffset > upperBound() )
                 {
                     // We passed maximum and the value will be set
                     // to minimum. We have to adjust the mouseOffset.
 
-                    setMouseOffset( posValue - lowerBound() );
+                    d_data->mouseOffset = posValue - lowerBound();
                 }
             }
             else
             {
-                if ( posValue - mouseOffset() > upperBound() ||
-                        value() == upperBound() )
+                if ( ( posValue - d_data->mouseOffset > upperBound() ) ||
+                        ( value() == upperBound() ) )
                 {
                     // We fix the value at maximum by adjusting
                     // the mouse offset.
 
-                    setMouseOffset( posValue - upperBound() );
+                    d_data->mouseOffset = posValue - upperBound();
                 }
             }
         }
         else
         {
-            if ( dir > d_data->previousDir && mouseOffset() < 0.0 )
+            if ( dir > d_data->previousDir && d_data->mouseOffset < 0.0 )
             {
                 // We passed 0 -> 360
-                setMouseOffset( mouseOffset() + completeCircle );
+                d_data->mouseOffset += completeCircle;
             }
 
             if ( wrapping() )
             {
-                if ( posValue - mouseOffset() < lowerBound() )
+                if ( posValue - d_data->mouseOffset < lowerBound() )
                 {
                     // We passed minimum and the value will be set
                     // to maximum. We have to adjust the mouseOffset.
 
-                    setMouseOffset( posValue - upperBound() );
+                    d_data->mouseOffset = posValue - upperBound();
                 }
             }
             else
             {
-                if ( posValue - mouseOffset() < lowerBound() ||
+                if ( posValue - d_data->mouseOffset < lowerBound() ||
                     value() == lowerBound() )
                 {
                     // We fix the value at minimum by adjusting
                     // the mouse offset.
 
-                    setMouseOffset( posValue - lowerBound() );
+                    d_data->mouseOffset = posValue - lowerBound();
                 }
             }
         }
@@ -849,7 +857,13 @@ double QwtDial::valueAt( const QPoint &pos )
 bool QwtDial::isScrollPosition( const QPoint &pos ) const
 {
     const QRegion region( innerRect().toRect(), QRegion::Ellipse );
-    return region.contains( pos ) && ( pos != innerRect().center() );
+    if ( region.contains( pos ) && ( pos != innerRect().center() ) )
+    {
+        d_data->mouseOffset = valueAt( pos ) - value();
+        return true;
+    }
+
+    return false;
 }
 
 void QwtDial::mousePressEvent( QMouseEvent *event )
