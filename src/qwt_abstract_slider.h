@@ -119,14 +119,19 @@ protected:
     virtual void wheelEvent( QWheelEvent * );
 
     /*!
-      \brief Determine the value corresponding to a specified poind
+      \brief Determine the value for a new position while scrolling
 
       This is an abstract virtual function which is called when
-      the user presses or releases a mouse button or moves the
-      mouse. It has to be implemented by the derived class.
-      \param p point
+      the user is scrolling the slider with the mouse. 
+      It has to be implemented by the derived class.
+
+      \param pos Scroll poistion
+
+      \return Value for the scroll position
+
+      \sa isScrollPosition()
     */
-    virtual double valueAt( const QPoint & ) = 0;
+    virtual double scrolledTo( const QPoint &pos ) const = 0;
 
     /*!
       \brief Determine what to do when the user presses a mouse button.
@@ -138,11 +143,10 @@ protected:
       \param initial True for press and false for move events
 
       \retval True, when pos is a valid scroll position
+
+      \sa scrolledTo()
     */
     virtual bool isScrollPosition( const QPoint &pos ) const = 0;
-
-    void setMouseOffset( double );
-    double mouseOffset() const;
 
     void incrementValue( int numSteps );
 

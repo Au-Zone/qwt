@@ -75,7 +75,8 @@ public:
         stepsIncrement( 0 ),
         pendingValueChange( false ),
         borderWidth( 2 ),
-        spacing( 4 )
+        spacing( 4 ),
+        mouseOffset( 0 )
     {
     }
 
@@ -94,6 +95,8 @@ public:
     Qt::Orientation orientation;
     QwtSlider::ScalePosition scalePosition;
     QwtSlider::BackgroundStyles bgStyle;
+
+    int mouseOffset;
 
     mutable QSize sizeHintCache;
 };
@@ -461,19 +464,38 @@ void QwtSlider::drawHandle( QPainter *painter,
     }
 }
 
-/*!
-   Determine the value corresponding to a specified mouse location.
-   \param pos Mouse position
-*/
-double QwtSlider::valueAt( const QPoint &pos )
+double QwtSlider::scrolledTo( const QPoint &pos ) const
 {
-    return invTransform(
-        orientation() == Qt::Horizontal ? pos.x() : pos.y() );
+    int p = ( orientation() == Qt::Horizontal ) 
+        ? pos.x() : pos.y();
+
+    p -= d_data->mouseOffset;
+
+#if 0
+    int min = qRound( transform( lowerBound() ) );
+    int max = qRound( transform( upperBound() ) );
+    if ( min > max )
+        qSwap( min, max );
+
+    if ( p < min || p > max )
+        return value();
+#endif
+
+    return invTransform( p );
 }
 
 bool QwtSlider::isScrollPosition( const QPoint &pos ) const
 {
-    return handleRect().contains( pos );
+    if ( handleRect().contains( pos ) )
+    {
+        const double v = ( orientation() == Qt::Horizontal ) 
+            ? pos.x() : pos.y();
+
+        d_data->mouseOffset = v - transform( value() );
+        return true;
+    }
+
+    return false;
 }
 
 void QwtSlider::mousePressEvent( QMouseEvent *event )

@@ -29,7 +29,6 @@ class QwtAbstractSlider::PrivateData
 public:
     PrivateData():
         isScrolling( false ),
-        mouseOffset( 0.0 ),
         tracking( true ),
         pendingValueChanged( false ),
         readOnly( false ),
@@ -44,7 +43,6 @@ public:
     }
 
     bool isScrolling;
-    double mouseOffset;
     bool tracking;
     bool pendingValueChanged;
 
@@ -172,7 +170,6 @@ void QwtAbstractSlider::mousePressEvent( QMouseEvent *event )
 
     if ( d_data->isScrolling )
     {
-        d_data->mouseOffset = valueAt( event->pos() ) - d_data->value;
         d_data->pendingValueChanged = false;
 
         Q_EMIT sliderPressed();
@@ -193,24 +190,27 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *event )
 
     if ( d_data->isValid && d_data->isScrolling )
     {
-        double value = valueAt( event->pos() ) - d_data->mouseOffset;
-        value = boundedValue( value );
-
-        if ( d_data->stepAlignment )
-            value = alignedValue( value );
-
+        double value = scrolledTo( event->pos() );
         if ( value != d_data->value )
         {
-            d_data->value = value;
+            value = boundedValue( value );
 
-            update();
+            if ( d_data->stepAlignment )
+                value = alignedValue( value );
 
-            if ( d_data->tracking )
-                Q_EMIT valueChanged( d_data->value );
-            else
-                d_data->pendingValueChanged = true;
+            if ( value != d_data->value )
+            {
+                d_data->value = value;
 
-            Q_EMIT sliderMoved( d_data->value );
+                update();
+
+                if ( d_data->tracking )
+                    Q_EMIT valueChanged( d_data->value );
+                else
+                    d_data->pendingValueChanged = true;
+
+                Q_EMIT sliderMoved( d_data->value );
+            }
         }
     }
 }
@@ -229,7 +229,6 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
 
     if ( d_data->isScrolling && d_data->isValid )
     {
-        d_data->mouseOffset = 0.0;
         d_data->isScrolling = false;
 
         if ( d_data->pendingValueChanged )
@@ -457,22 +456,6 @@ void QwtAbstractSlider::setWrapping( bool on )
 bool QwtAbstractSlider::wrapping() const
 {
     return d_data->wrapping;
-}
-
-/*!
-  \sa mouseOffset()
-*/
-void QwtAbstractSlider::setMouseOffset( double offset )
-{
-    d_data->mouseOffset = offset;
-}
-
-/*!
-  \sa setMouseOffset()
-*/
-double QwtAbstractSlider::mouseOffset() const
-{
-    return d_data->mouseOffset;
 }
 
 void QwtAbstractSlider::incrementValue( int stepCount )
