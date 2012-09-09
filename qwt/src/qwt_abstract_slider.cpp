@@ -10,6 +10,7 @@
 #include "qwt_abstract_slider.h"
 #include "qwt_abstract_scale_draw.h"
 #include "qwt_math.h"
+#include "qwt_scale_map.h"
 #include <qevent.h>
 
 #if QT_VERSION < 0x040601
@@ -270,7 +271,6 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
     }
 
     const double value = incrementedValue( d_data->value, numSteps );
-
     if ( value != d_data->value )
     {
         d_data->value = value;
@@ -311,15 +311,34 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     switch ( event->key() )
     {
         case Qt::Key_Down:
+        {
+            numSteps = d_data->singleSteps;
+            if ( abstractScaleDraw()->scaleMap().isInverting() )
+                numSteps = -numSteps;
+            break;
+        }
         case Qt::Key_Left:
         {
             numSteps = -d_data->singleSteps;
+            if ( abstractScaleDraw()->scaleMap().isInverting() )
+                numSteps = -numSteps;
+
             break;
         }
         case Qt::Key_Up:
+        {
+            numSteps = -d_data->singleSteps;
+            if ( abstractScaleDraw()->scaleMap().isInverting() )
+                numSteps = -numSteps;
+
+            break;
+        }
         case Qt::Key_Right:
         {
             numSteps = d_data->singleSteps;
+            if ( abstractScaleDraw()->scaleMap().isInverting() )
+                numSteps = -numSteps;
+
             break;
         }
         case Qt::Key_PageUp:
@@ -349,7 +368,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     }
 #endif
 
-    if ( numSteps > 0 )
+    if ( numSteps != 0 )
     {
         value = incrementedValue( d_data->value, numSteps );
     }
@@ -492,15 +511,29 @@ double QwtAbstractSlider::boundedValue( double value ) const
 
     if ( d_data->wrapping && vmin != vmax )
     {
-        const double range = vmax - vmin;
+        const int fullCircle = 360 * 16;
 
-        if ( value < vmin )
+        const double pd = abstractScaleDraw()->scaleMap().pDist();
+        if ( int( pd / fullCircle ) * fullCircle == pd )
         {
-            value += ::ceil( ( vmin - value ) / range ) * range;
+            // full circle scales: min and max are the same
+            const double range = vmax - vmin;
+
+            if ( value < vmin )
+            {
+                value += ::ceil( ( vmin - value ) / range ) * range;
+            }
+            else if ( value > vmax )
+            {
+                value -= ::ceil( ( value - vmax ) / range ) * range;
+            }
         }
-        else if ( value > vmax )
+        else
         {
-            value -= ::ceil( ( value - vmax ) / range ) * range;
+            if ( value < vmin )
+                value = vmax;
+            else if ( value > vmax )
+                value = vmin;
         }
     }
     else
@@ -516,7 +549,8 @@ double QwtAbstractSlider::alignedValue( double value ) const
     const double stepSize = qwtSliderStepSize( this );
     if ( stepSize > 0.0 )
     {
-        value = lowerBound() + qRound( ( value - lowerBound() ) / stepSize ) * stepSize;
+        value = lowerBound() + 
+            qRound( ( value - lowerBound() ) / stepSize ) * stepSize;
 
         // correct rounding error at the border
         if ( qFuzzyCompare( value, upperBound() ) )
