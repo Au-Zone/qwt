@@ -118,7 +118,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             scaleEngine->setTransformation( new QwtPowerTransform( 2 ) );
             slider->setScaleEngine( scaleEngine );
             slider->setScale( 0.0, 128.0 );
-            slider->setTotalSteps( 70 );
+            slider->setTotalSteps( 64 );
             slider->setSingleSteps( 1 );
             slider->setPageSteps( 10 );
             break;
@@ -129,7 +129,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Groove );
-            slider->setScale( 0.0, 100.0 );
+            slider->setScale( 100.0, 0.0 );
             slider->setTotalSteps( 100 );
             slider->setPageSteps( 5 );
             slider->setScaleMaxMinor( 5 );
