@@ -17,12 +17,30 @@
 #define qFabs(x) ::fabs(x)
 #endif
 
-static inline double qwtSliderStepSize( const QwtAbstractSlider *slider ) 
+static double qwtAlignToScaleDiv( 
+	const QwtAbstractSlider *slider, double value )
 {
-    if ( slider->totalSteps() == 0 )
-        return 0.0;
+	const QwtScaleDiv &sd = slider->scaleDiv();
 
-    return ( slider->maximum() - slider->minimum() ) / slider->totalSteps();
+    const int tValue = qRound( slider->transform( value ) );
+
+	if ( tValue == qRound( slider->transform( sd.lowerBound() ) ) )
+		return sd.lowerBound();
+
+	if ( tValue == qRound( slider->transform( sd.lowerBound() ) ) )
+		return sd.upperBound();
+
+	for ( int i = 0; i < QwtScaleDiv::NTickTypes; i++ )
+	{
+		const QList<double> ticks = sd.ticks( i );
+		for ( int j = 0; j < ticks.size(); j++ )
+		{
+			if ( qRound( slider->transform( ticks[ j ] ) ) == tValue )
+				return ticks[ j ];
+		}
+	}
+
+	return value;
 }
 
 class QwtAbstractSlider::PrivateData
@@ -195,9 +213,7 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *event )
         if ( value != d_data->value )
         {
             value = boundedValue( value );
-
-            if ( d_data->stepAlignment )
-                value = alignedValue( value );
+            value = alignedValue( value );
 
             if ( value != d_data->value )
             {
@@ -313,14 +329,14 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
         case Qt::Key_Down:
         {
             numSteps = d_data->singleSteps;
-            if ( abstractScaleDraw()->scaleMap().isInverting() )
+            if ( isInverted() )
                 numSteps = -numSteps;
             break;
         }
         case Qt::Key_Left:
         {
             numSteps = -d_data->singleSteps;
-            if ( abstractScaleDraw()->scaleMap().isInverting() )
+            if ( isInverted() )
                 numSteps = -numSteps;
 
             break;
@@ -328,7 +344,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
         case Qt::Key_Up:
         {
             numSteps = -d_data->singleSteps;
-            if ( abstractScaleDraw()->scaleMap().isInverting() )
+            if ( isInverted() )
                 numSteps = -numSteps;
 
             break;
@@ -336,7 +352,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
         case Qt::Key_Right:
         {
             numSteps = d_data->singleSteps;
-            if ( abstractScaleDraw()->scaleMap().isInverting() )
+            if ( isInverted() )
                 numSteps = -numSteps;
 
             break;
@@ -495,11 +511,26 @@ double QwtAbstractSlider::incrementedValue(
     if ( d_data->totalSteps == 0 )
         return value;
 
-    value += stepCount * qwtSliderStepSize( this );
-    value = boundedValue( value );
+	if ( scaleMap().transformation() == NULL )
+	{
+		// we don't need to transform avoiding rounding errors
+    	const double range = maximum() - minimum();
+		value += stepCount * range / d_data->totalSteps;
+	}
+	else
+	{
+        // we need equidant steps according to
+        // paint device coordinates
+		const double range = transform( maximum() ) - transform( minimum() );
 
-    if ( d_data->stepAlignment )
-        value = alignedValue( value );
+		const double v = transform( value ) 
+			+ stepCount * range / d_data->totalSteps;
+
+		value = invTransform( v );
+	}
+
+   	value = boundedValue( value );
+    value = alignedValue( value );
 
     return value;
 }
@@ -513,7 +544,7 @@ double QwtAbstractSlider::boundedValue( double value ) const
     {
         const int fullCircle = 360 * 16;
 
-        const double pd = abstractScaleDraw()->scaleMap().pDist();
+        const double pd = scaleMap().pDist();
         if ( int( pd / fullCircle ) * fullCircle == pd )
         {
             // full circle scales: min and max are the same
@@ -546,20 +577,46 @@ double QwtAbstractSlider::boundedValue( double value ) const
 
 double QwtAbstractSlider::alignedValue( double value ) const
 {
-    const double stepSize = qwtSliderStepSize( this );
-    if ( stepSize > 0.0 )
-    {
-        value = lowerBound() + 
-            qRound( ( value - lowerBound() ) / stepSize ) * stepSize;
+    if ( d_data->stepAlignment && d_data->totalSteps != 0 )
+	{
+    	if ( scaleMap().transformation() == NULL )
+		{
+			const double stepSize = 
+				( maximum() - minimum() ) / d_data->totalSteps;
 
-        // correct rounding error at the border
-        if ( qFuzzyCompare( value, upperBound() ) )
-            value = upperBound();
+			if ( stepSize > 0.0 )
+			{
+				value = lowerBound() + 
+					qRound( ( value - lowerBound() ) / stepSize ) * stepSize;
+			}
+		}
+		else
+		{
+			// what are the values to align to f.e. for a logarithmic
+            // scale - at least we can align to the ticks
 
-        // correct rounding error if value = 0
-        if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-            value = 0.0;
-    }
+			value = qwtAlignToScaleDiv( this, value );
+		}
+
+		// correct rounding error if value = 0
+		if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+		{
+			value = 0.0;
+		}
+		else
+		{
+			// correct rounding error at the border
+			if ( qFuzzyCompare( value, upperBound() ) )
+				value = upperBound();
+			else if ( qFuzzyCompare( value, lowerBound() ) )
+				value = lowerBound();
+		}
+	}
+	else
+	{
+		// we always want to meet the ticks
+		value = qwtAlignToScaleDiv( this, value );
+	}
 
     return value;
 }

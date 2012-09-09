@@ -292,9 +292,14 @@ double QwtAbstractScale::scaleStepSize() const
     return d_data->stepSize;
 }
 
-const QwtScaleDiv& QwtAbstractScale::scaleDiv() const
+const QwtScaleDiv &QwtAbstractScale::scaleDiv() const
 {
     return d_data->scaleDraw->scaleDiv();
+}
+
+const QwtScaleMap &QwtAbstractScale::scaleMap() const
+{
+	return d_data->scaleDraw->scaleMap();
 }
 
 int QwtAbstractScale::transform( double value ) const

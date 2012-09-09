@@ -69,6 +69,8 @@ public:
     double minimum() const;
     double maximum() const;
 
+	const QwtScaleMap &scaleMap() const;
+
 protected:
     void rescale( double vmin, double vmax, double step = 0.0 );
 
