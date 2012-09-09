@@ -100,17 +100,19 @@ QwtPowerTransform::~QwtPowerTransform()
 
 double QwtPowerTransform::transform( double value ) const
 {
-    return qPow( value, 1.0 / d_factor );
+    if ( value < 0.0 )
+        return -qPow( -value, 1.0 / d_factor );
+    else
+        return qPow( value, 1.0 / d_factor );
+    
 }
 
 double QwtPowerTransform::invTransform( double value ) const
 {
-    return qPow( value, d_factor );
-}
-
-double QwtPowerTransform::bounded( double value ) const
-{
-    return qMax( value, 0.0 );
+    if ( value < 0.0 )
+        return -qPow( -value, d_factor );
+    else
+        return qPow( value, d_factor );
 }
 
 QwtTransform *QwtPowerTransform::copy() const
