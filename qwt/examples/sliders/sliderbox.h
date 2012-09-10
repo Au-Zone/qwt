@@ -1,14 +1,16 @@
+#ifndef _SLIDER_BOX_H_
+#define _SLIDER_BOX_H_ 1
+
 #include <qwidget.h>
 
 class QLabel;
-class QLayout;
 class QwtSlider;
 
 class SliderBox: public QWidget
 {
     Q_OBJECT
 public:
-    SliderBox( QWidget *parent, int sliderType );
+    SliderBox( int sliderType, QWidget *parent = NULL );
 
 private Q_SLOTS:
     void setNum( double v );
@@ -20,8 +22,4 @@ private:
     QLabel *d_label;
 };
 
-class SliderDemo : public QWidget
-{
-public:
-    SliderDemo( QWidget *p = NULL );
-};
+#endif

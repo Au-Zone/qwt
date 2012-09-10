@@ -12,8 +12,9 @@ include( $${PWD}/../examples.pri )
 TARGET  = sliders
 
 HEADERS = \
-    sliders.h
+    sliderbox.h
 
 SOURCES = \
-    sliders.cpp
+    sliderbox.cpp \
+    main.cpp
 

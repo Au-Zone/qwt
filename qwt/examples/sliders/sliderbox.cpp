@@ -1,26 +1,11 @@
-#include <qapplication.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qwt_slider.h>
 #include <qwt_scale_engine.h>
 #include <qwt_transform.h>
-#include "sliders.h"
+#include "sliderbox.h"
 
-class Layout: public QBoxLayout
-{
-public:
-    Layout( Qt::Orientation o, QWidget *parent = NULL ):
-        QBoxLayout( QBoxLayout::LeftToRight, parent )
-    {
-        if ( o == Qt::Vertical )
-            setDirection( QBoxLayout::TopToBottom );
-
-        setSpacing( 20 );
-        setMargin( 0 );
-    }
-};
-
-SliderBox::SliderBox( QWidget *parent, int sliderType ):
+SliderBox::SliderBox( int sliderType, QWidget *parent ):
     QWidget( parent )
 {
     d_slider = createSlider( sliderType );
@@ -61,7 +46,7 @@ SliderBox::SliderBox( QWidget *parent, int sliderType ):
     layout->addWidget( d_slider );
     layout->addWidget( d_label );
 
-	setNum( d_slider->value() );
+    setNum( d_slider->value() );
 }
 
 QwtSlider *SliderBox::createSlider( int sliderType ) const
@@ -175,51 +160,4 @@ void SliderBox::setNum( double v )
     text.setNum( v, 'f', 2 );
 
     d_label->setText( text );
-}
-
-SliderDemo::SliderDemo( QWidget *p ):
-    QWidget( p )
-{
-    int i;
-
-    Layout *hSliderLayout = new Layout( Qt::Vertical );
-    for ( i = 0; i < 4; i++ )
-        hSliderLayout->addWidget( new SliderBox( this, i ) );
-    hSliderLayout->addStretch();
-
-    Layout *vSliderLayout = new Layout( Qt::Horizontal );
-    for ( ; i < 7; i++ )
-        vSliderLayout->addWidget( new SliderBox( this, i ) );
-
-    QLabel *vTitle = new QLabel( "Vertical Sliders", this );
-    vTitle->setFont( QFont( "Helvetica", 14, QFont::Bold ) );
-    vTitle->setAlignment( Qt::AlignHCenter );
-
-    Layout *layout1 = new Layout( Qt::Vertical );
-    layout1->addWidget( vTitle, 0 );
-    layout1->addLayout( vSliderLayout, 10 );
-
-    QLabel *hTitle = new QLabel( "Horizontal Sliders", this );
-    hTitle->setFont( vTitle->font() );
-    hTitle->setAlignment( Qt::AlignHCenter );
-
-    Layout *layout2 = new Layout( Qt::Vertical );
-    layout2->addWidget( hTitle, 0 );
-    layout2->addLayout( hSliderLayout, 10 );
-
-    Layout *mainLayout = new Layout( Qt::Horizontal, this );
-    mainLayout->addLayout( layout1 );
-    mainLayout->addLayout( layout2, 10 );
-}
-
-int main ( int argc, char **argv )
-{
-    QApplication a( argc, argv );
-
-    QApplication::setFont( QFont( "Helvetica", 10 ) );
-
-    SliderDemo w;
-    w.show();
-
-    return a.exec();
 }
