@@ -53,5 +53,6 @@ contains(QWT_CONFIG, QwtWidgets) {
         radio \
         dials \
         knobs \
+        wheels \
         sliders
 }
