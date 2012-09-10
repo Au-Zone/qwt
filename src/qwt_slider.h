@@ -80,9 +80,8 @@ public:
     //! Background styles
     typedef QFlags<BackgroundStyle> BackgroundStyles;
 
-    explicit QwtSlider( QWidget *parent,
-        Qt::Orientation = Qt::Horizontal,
-        ScalePosition = NoScale, BackgroundStyles = Trough );
+    explicit QwtSlider( QWidget *parent = NULL );
+    explicit QwtSlider( Qt::Orientation, QWidget *parent = NULL );
 
     virtual ~QwtSlider();
 
@@ -138,6 +137,7 @@ private:
     QwtScaleDraw *scaleDraw();
 
     void layoutSlider( bool );
+    void initSlider( Qt::Orientation );
 
     class PrivateData;
     PrivateData *d_data;

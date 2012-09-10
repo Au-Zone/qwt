@@ -20,10 +20,10 @@ public:
     }
 };
 
-Slider::Slider( QWidget *parent, int sliderType ):
+SliderBox::SliderBox( QWidget *parent, int sliderType ):
     QWidget( parent )
 {
-    d_slider = createSlider( this, sliderType );
+    d_slider = createSlider( sliderType );
 
     QFlags<Qt::AlignmentFlag> alignment;
 
@@ -46,7 +46,7 @@ Slider::Slider( QWidget *parent, int sliderType ):
         alignment |= Qt::AlignVCenter;
     }
 
-    d_label = new QLabel( "0", this );
+    d_label = new QLabel( this );
     d_label->setAlignment( alignment );
     d_label->setFixedWidth( d_label->fontMetrics().width( "10000.9" ) );
 
@@ -60,17 +60,18 @@ Slider::Slider( QWidget *parent, int sliderType ):
 
     layout->addWidget( d_slider );
     layout->addWidget( d_label );
+
+	setNum( d_slider->value() );
 }
 
-QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
+QwtSlider *SliderBox::createSlider( int sliderType ) const
 {
-    QwtSlider *slider = NULL;
+    QwtSlider *slider = new QwtSlider();
 
     switch( sliderType )
     {
         case 0:
         {
-            slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Trough );
@@ -84,7 +85,6 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 1:
         {
-            slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::NoScale );
             slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
@@ -96,7 +96,6 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 2:
         {
-            slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::LeadingScale );
             slider->setBackgroundStyle( QwtSlider::Groove );
@@ -109,7 +108,6 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 3:
         {
-            slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
@@ -126,7 +124,6 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 4:
         {
-            slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Groove );
@@ -138,7 +135,6 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 5:
         {
-            slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::NoScale );
             slider->setBackgroundStyle( QwtSlider::Trough );
@@ -149,7 +145,6 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
         }
         case 6:
         {
-            slider = new QwtSlider( parent );
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::LeadingScale );
             slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
@@ -174,7 +169,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
     return slider;
 }
 
-void Slider::setNum( double v )
+void SliderBox::setNum( double v )
 {
     QString text;
     text.setNum( v, 'f', 2 );
@@ -189,12 +184,12 @@ SliderDemo::SliderDemo( QWidget *p ):
 
     Layout *hSliderLayout = new Layout( Qt::Vertical );
     for ( i = 0; i < 4; i++ )
-        hSliderLayout->addWidget( new Slider( this, i ) );
+        hSliderLayout->addWidget( new SliderBox( this, i ) );
     hSliderLayout->addStretch();
 
     Layout *vSliderLayout = new Layout( Qt::Horizontal );
     for ( ; i < 7; i++ )
-        vSliderLayout->addWidget( new Slider( this, i ) );
+        vSliderLayout->addWidget( new SliderBox( this, i ) );
 
     QLabel *vTitle = new QLabel( "Vertical Sliders", this );
     vTitle->setFont( QFont( "Helvetica", 14, QFont::Bold ) );

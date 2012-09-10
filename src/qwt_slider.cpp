@@ -101,22 +101,30 @@ public:
     mutable QSize sizeHintCache;
 };
 
+QwtSlider::QwtSlider( QWidget *parent ):
+    QwtAbstractSlider( parent )
+{
+    initSlider( Qt::Horizontal );
+}
+
 /*!
   \brief Constructor
   \param parent parent widget
   \param orientation Orientation of the slider. Can be Qt::Horizontal
          or Qt::Vertical. Defaults to Qt::Horizontal.
-  \param scalePosition Position of the scale.
-         Defaults to QwtSlider::NoScale.
-  \param bgStyle Background style. QwtSlider::Trough draws the
-         slider handle in a trough, QwtSlider::Slot draws
-         a slot underneath the handle. An or-combination of both
-         may also be used. The default is QwtSlider::Trough.
 */
-QwtSlider::QwtSlider( QWidget *parent,
-        Qt::Orientation orientation, ScalePosition scalePosition, 
-        BackgroundStyles bgStyle ):
+QwtSlider::QwtSlider( Qt::Orientation orientation, QWidget *parent ):
     QwtAbstractSlider( parent )
+{
+    initSlider( orientation );
+}
+
+QwtSlider::~QwtSlider()
+{
+    delete d_data;
+}
+
+void QwtSlider::initSlider( Qt::Orientation orientation )
 {
     if ( orientation == Qt::Vertical )
         setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding );
@@ -128,20 +136,15 @@ QwtSlider::QwtSlider( QWidget *parent,
     d_data = new QwtSlider::PrivateData;
 
     d_data->orientation = orientation;
-    d_data->scalePosition = scalePosition;
-    d_data->bgStyle = bgStyle;
+    d_data->scalePosition = QwtSlider::NoScale;
+    d_data->bgStyle = QwtSlider::Trough;
 
     scaleDraw()->setAlignment( 
-        qwtScaleDrawAlignment( orientation, scalePosition ) );
+        qwtScaleDrawAlignment( orientation, d_data->scalePosition ) );
     scaleDraw()->setLength( 100 );
 
     setScale( 0.0, 100.0 );
     setValue( 0.0 );
-}
-
-QwtSlider::~QwtSlider()
-{
-    delete d_data;
 }
 
 /*!
@@ -476,7 +479,7 @@ double QwtSlider::scrolledTo( const QPoint &pos ) const
     if ( min > max )
         qSwap( min, max );
 
-	p = qBound( min, p, max );
+    p = qBound( min, p, max );
 
     return invTransform( p );
 }
