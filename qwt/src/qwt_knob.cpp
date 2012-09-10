@@ -329,8 +329,12 @@ void QwtKnob::paintEvent( QPaintEvent *event )
     double angle = 0.0;
     if ( upperBound() != lowerBound() )
     {
-        angle = ( value() - 0.5 * ( lowerBound() + upperBound() ) )
-            / ( upperBound() - lowerBound() ) * d_data->totalAngle;
+        const double min = transform( lowerBound() );
+        const double max = transform( upperBound() );
+        const double tValue = transform( value() );
+
+        angle = ( tValue - 0.5 * ( min + max ) )
+            / ( max - min ) * d_data->totalAngle;
 
         const double numTurns = qFloor( ( angle + 180.0 ) / 360.0 );
         angle = angle - numTurns * 360.0;
