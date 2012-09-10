@@ -123,6 +123,14 @@ void QwtAbstractScale::setScale( const QwtScaleDiv &scaleDiv )
 {
     if ( scaleDiv != d_data->scaleDraw->scaleDiv() )
     {
+#if 1
+        if ( d_data->scaleEngine )
+        {
+            d_data->scaleDraw->setTransformation(
+                d_data->scaleEngine->transformation() );
+        }
+#endif
+
         d_data->scaleDraw->setScaleDiv( scaleDiv );
 
         scaleChange();
@@ -299,7 +307,7 @@ const QwtScaleDiv &QwtAbstractScale::scaleDiv() const
 
 const QwtScaleMap &QwtAbstractScale::scaleMap() const
 {
-	return d_data->scaleDraw->scaleMap();
+    return d_data->scaleDraw->scaleMap();
 }
 
 int QwtAbstractScale::transform( double value ) const
