@@ -76,9 +76,9 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setBackgroundStyle( QwtSlider::Trough );
             slider->setHandleSize( QSize( 30, 16 ) );
             slider->setScale( 10.0, -10.0 ); 
-            slider->setTotalSteps( 10 ); 
+            slider->setTotalSteps( 8 ); 
             slider->setSingleSteps( 1 ); 
-            slider->setPageSteps( 0 ); // paging disabled
+            slider->setPageSteps( 1 ); 
             slider->setWrapping( true );
             break;
         }
@@ -118,9 +118,10 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             scaleEngine->setTransformation( new QwtPowerTransform( 2 ) );
             slider->setScaleEngine( scaleEngine );
             slider->setScale( 0.0, 128.0 );
-            slider->setTotalSteps( 64 );
+            slider->setTotalSteps( 100 );
+            slider->setStepAlignment( false );
             slider->setSingleSteps( 1 );
-            slider->setPageSteps( 10 );
+            slider->setPageSteps( 5 );
             break;
         }
         case 4:
@@ -153,6 +154,7 @@ QwtSlider *Slider::createSlider( QWidget *parent, int sliderType ) const
             slider->setScalePosition( QwtSlider::LeadingScale );
             slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
             slider->setScaleEngine( new QwtLogScaleEngine );
+            slider->setStepAlignment( false );
             slider->setHandleSize( QSize( 20, 32 ) );
             slider->setBorderWidth( 1 );
             slider->setScale( 1.0, 1.0e4 );
