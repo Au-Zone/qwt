@@ -52,5 +52,6 @@ contains(QWT_CONFIG, QwtWidgets) {
         sysinfo \
         radio \
         dials \
+        knobs \
         sliders
 }
