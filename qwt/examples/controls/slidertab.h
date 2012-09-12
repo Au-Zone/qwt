@@ -8,7 +8,7 @@ class QBoxLayout;
 class SliderTab: public QWidget
 {
 public:
-	SliderTab( QWidget *parent = NULL );
+    SliderTab( QWidget *parent = NULL );
 
 private:
     QBoxLayout *createLayout( Qt::Orientation,

@@ -3,7 +3,7 @@
 #include <qlayout.h>
 
 KnobTab::KnobTab( QWidget *parent ):
-	QWidget( parent )
+    QWidget( parent )
 {
     QGridLayout *layout = new QGridLayout( this );
 
