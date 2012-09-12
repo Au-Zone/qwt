@@ -84,6 +84,9 @@ public:
         //! Paint a single tick in QPalette::ButtonText color
         Tick, 
 
+        //! Paint a triangle in QPalette::ButtonText color
+        Triangle, 
+
         //! Paint a circle in QPalette::ButtonText color
         Dot, 
 
@@ -146,7 +149,7 @@ protected:
     virtual void scaleChange();
 
 private:
-    double valueAt( const QPoint & ) const;
+    double angleAt( const QPoint & ) const;
 
     class PrivateData;
     PrivateData *d_data;
