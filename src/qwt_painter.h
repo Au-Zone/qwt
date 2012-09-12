@@ -108,6 +108,9 @@ public:
     static void fillPixmap( const QWidget *, 
         QPixmap &, const QPoint &offset = QPoint() );
 
+    static void drawBackgound( QPainter *painter,
+    	const QRectF &rect, const QWidget *widget );
+
 private:
     static bool d_polylineSplitting;
     static bool d_roundingAlignment;
