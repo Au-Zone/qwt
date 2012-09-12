@@ -17,7 +17,9 @@ HEADERS = \
     wheelbox.h \
     wheeltab.h \
     knobbox.h \
-    knobtab.h
+    knobtab.h \
+    dialbox.h \
+    dialtab.h
 
 SOURCES = \
     sliderbox.cpp \
@@ -26,5 +28,7 @@ SOURCES = \
     wheeltab.cpp \
     knobbox.cpp \
     knobtab.cpp \
+    dialbox.cpp \
+    dialtab.cpp \
     main.cpp
 

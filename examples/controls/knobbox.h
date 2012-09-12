@@ -4,7 +4,6 @@
 #include <qwidget.h>
 
 class QLabel;
-class QLayout;
 class QwtKnob;
 
 class KnobBox: public QWidget
