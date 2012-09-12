@@ -69,7 +69,7 @@ void AttitudeIndicator::setGradient( double gradient )
 }
 
 void AttitudeIndicator::drawScale( QPainter *painter, const QPointF &center,
-    double radius, double origin, double minArc, double maxArc ) const
+    double radius, double origin ) const
 {
     // counter clockwise, radian
 
@@ -90,7 +90,7 @@ void AttitudeIndicator::drawScale( QPainter *painter, const QPointF &center,
     painter->setClipPath( path ); // swallow 180 - 360 degrees
 
     QwtDial::drawScale( painter,
-        center, radius, origin, minArc, maxArc );
+        center, radius, origin );
 
     painter->restore();
 }

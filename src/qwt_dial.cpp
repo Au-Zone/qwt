@@ -409,39 +409,22 @@ void QwtDial::drawContents( QPainter *painter ) const
         painter->restore();
     }
 
+    QwtDial *that = const_cast< QwtDial * >( this );
+    that->setAngleRange( d_data->origin + d_data->minScaleArc, 
+        d_data->maxScaleArc - d_data->minScaleArc );
+
+    if ( mode() == RotateScale )
+    {
+        double a = transform( value() ) - d_data->origin;
+        that->setAngleRange( scaleMap().p1() - a, 
+            scaleMap().p2() - scaleMap().p1() );
+    }
+
     const QPointF center = insideScaleRect.center();
     const double radius = 0.5 * insideScaleRect.width();
 
-    double direction = d_data->origin;
-
-    if ( isValid() )
-    {
-        direction = d_data->minScaleArc;
-        if ( upperBound() > lowerBound() && 
-            d_data->maxScaleArc > d_data->minScaleArc )
-        {
-            const double ratio =
-                ( value() - lowerBound() ) / ( upperBound() - lowerBound() );
-            direction += ratio * ( d_data->maxScaleArc - d_data->minScaleArc );
-        }
-
-        direction += d_data->origin;
-        if ( direction >= 360.0 )
-            direction -= 360.0;
-        else if ( direction < 0.0 )
-            direction += 360.0;
-    }
-
-    double origin = d_data->origin;
-    if ( mode() == RotateScale )
-    {
-        origin -= direction - d_data->origin;
-        direction = d_data->origin;
-    }
-
     painter->save();
-    drawScale( painter, center, radius, origin,
-        d_data->minScaleArc, d_data->maxScaleArc );
+    drawScale( painter, center, radius, d_data->origin );
     painter->restore();
 
     painter->save();
@@ -456,8 +439,10 @@ void QwtDial::drawContents( QPainter *painter ) const
         else
             cg = QPalette::Disabled;
 
+        const double direction2 = transform( value() ) + 270.0;
+
         painter->save();
-        drawNeedle( painter, center, radius, direction, cg );
+        drawNeedle( painter, center, radius, direction2, cg );
         painter->restore();
     }
 }
@@ -488,49 +473,25 @@ void QwtDial::drawNeedle( QPainter *painter, const QPointF &center,
   \param center Center of the dial
   \param radius Radius of the scale
   \param origin Origin of the scale
-  \param minArc Minimum of the arc
-  \param maxArc Minimum of the arc
-
-  \sa QwtRoundScaleDraw::setAngleRange()
 */
 void QwtDial::drawScale( QPainter *painter, const QPointF &center,
-    double radius, double origin, double minArc, double maxArc ) const
+    double radius, double origin ) const
 {
-    QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
+    Q_UNUSED( origin );
 
+    QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
     if ( sd == NULL )
         return;
 
-    origin -= 270.0; // hardcoded origin of QwtScaleDraw
-
-    double angle = maxArc - minArc;
-    if ( angle > 360.0 )
-        angle = ::fmod( angle, 360.0 );
-
-    minArc += origin;
-    if ( minArc < -360.0 )
-        minArc = ::fmod( minArc, 360.0 );
-
-    maxArc = minArc + angle;
-    if ( maxArc > 360.0 )
-    {
-        // QwtRoundScaleDraw::setAngleRange accepts only values
-        // in the range [-360.0..360.0]
-        minArc -= 360.0;
-        maxArc -= 360.0;
-    }
-
-    painter->setFont( font() );
-
-    sd->setAngleRange( minArc, maxArc );
     sd->setRadius( radius );
     sd->moveCenter( center );
 
     QPalette pal = palette();
 
     const QColor textColor = pal.color( QPalette::Text );
-    pal.setColor( QPalette::WindowText, textColor ); //ticks, backbone
+    pal.setColor( QPalette::WindowText, textColor ); // ticks, backbone
 
+    painter->setFont( font() );
     painter->setPen( QPen( textColor, sd->penWidth() ) );
 
     painter->setBrush( Qt::red );
@@ -842,4 +803,26 @@ void QwtDial::wheelEvent( QWheelEvent *event )
     const QRegion region( innerRect().toRect(), QRegion::Ellipse );
     if ( region.contains( event->pos() ) )
         QwtAbstractSlider::wheelEvent( event );
+}
+
+void QwtDial::setAngleRange( double angle, double span )
+{
+    QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
+    if ( sd  )
+    {
+        double arc1 = angle - 270.0;
+        if ( arc1 < -360.0 )
+            arc1 = ::fmod( arc1, 360.0 );
+
+        double arc2 = arc1 + span;
+        if ( arc2 > 360.0 )
+        {
+            // QwtRoundScaleDraw::setAngleRange accepts only values
+            // in the range [-360.0..360.0]
+            arc1 -= 360.0;
+            arc2 -= 360.0;
+        }
+
+        sd->setAngleRange( arc1, arc2 );
+    }
 }

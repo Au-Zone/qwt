@@ -136,8 +136,7 @@ protected:
 
     virtual void drawScale( 
         QPainter *, const QPointF &center,
-        double radius, double origin, 
-        double arcMin, double arcMax ) const;
+        double radius, double origin ) const;
 
     /*!
       Draw the contents inside the scale
@@ -159,6 +158,7 @@ protected:
 
 private:
     double valueAt( const QPoint & ) const;
+	void setAngleRange( double angle, double span );
 
     class PrivateData;
     PrivateData *d_data;
