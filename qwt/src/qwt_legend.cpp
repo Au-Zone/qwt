@@ -12,33 +12,13 @@
 #include "qwt_dyngrid_layout.h"
 #include "qwt_math.h"
 #include "qwt_plot_item.h"
+#include "qwt_painter.h"
 #include <qapplication.h>
 #include <qscrollbar.h>
 #include <qscrollarea.h>
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
-
-static void qwtRenderBackground( QPainter *painter,
-    const QRectF &rect, const QWidget *widget )
-{
-    if ( widget->testAttribute( Qt::WA_StyledBackground ) )
-    {
-        QStyleOption opt;
-        opt.initFrom( widget );
-        opt.rect = rect.toAlignedRect();
-
-        widget->style()->drawPrimitive(
-            QStyle::PE_Widget, &opt, painter, widget);
-    }
-    else
-    {
-        const QBrush brush =
-            widget->palette().brush( widget->backgroundRole() );
-
-        painter->fillRect( rect, brush );
-    }
-}
 
 class QwtLegendMap: public QMap<const QwtPlotItem *, QList<QWidget *> >
 {
@@ -603,7 +583,7 @@ void QwtLegend::renderLegend( QPainter *painter,
         if ( autoFillBackground() ||
             testAttribute( Qt::WA_StyledBackground ) )
         {
-            qwtRenderBackground( painter, rect, this );
+            QwtPainter::drawBackgound( painter, rect, this );
         }
     }
 
@@ -654,7 +634,7 @@ void QwtLegend::renderItem( QPainter *painter,
         if ( widget->autoFillBackground() ||
             widget->testAttribute( Qt::WA_StyledBackground ) )
         {
-            qwtRenderBackground( painter, rect, widget );
+            QwtPainter::drawBackgound( painter, rect, widget );
         }
     }
 

@@ -46,27 +46,6 @@ public:
     QwtPlotRenderer::LayoutFlags layoutFlags;
 };
 
-static void qwtRenderBackground( QPainter *painter,
-    const QRectF &rect, const QWidget *widget )
-{
-    if ( widget->testAttribute( Qt::WA_StyledBackground ) )
-    {
-        QStyleOption opt;
-        opt.initFrom( widget );
-        opt.rect = rect.toAlignedRect();
-
-        widget->style()->drawPrimitive(
-            QStyle::PE_Widget, &opt, painter, widget);
-    }
-    else
-    {
-        const QBrush brush = 
-            widget->palette().brush( widget->backgroundRole() );
-
-        painter->fillRect( rect, brush );
-    }
-}
-
 /*! 
    Constructor
    \param parent Parent object
@@ -412,7 +391,7 @@ void QwtPlotRenderer::render( QwtPlot *plot,
         return;
 
     if ( !( d_data->discardFlags & DiscardBackground ) )
-        qwtRenderBackground( painter, plotRect, plot );
+        QwtPainter::drawBackgound( painter, plotRect, plot );
 
     /*
       The layout engine uses the same methods as they are used
@@ -766,7 +745,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
     {
         if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
         {
-            qwtRenderBackground( painter, r, canvas );
+            QwtPainter::drawBackgound( painter, r, canvas );
 
             if ( canvas->testAttribute( Qt::WA_StyledBackground ) )
             {
