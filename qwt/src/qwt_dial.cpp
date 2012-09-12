@@ -36,7 +36,6 @@ public:
         frameShadow( Sunken ),
         lineWidth( 0 ),
         mode( RotateNeedle ),
-        direction( Clockwise ),
         origin( 90.0 ),
         minScaleArc( 0.0 ),
         maxScaleArc( 0.0 ),
@@ -54,7 +53,6 @@ public:
     int lineWidth;
 
     QwtDial::Mode mode;
-    QwtDial::Direction direction;
 
     double origin;
     double minScaleArc;
@@ -258,33 +256,6 @@ QwtDial::Mode QwtDial::mode() const
 }
 
 /*!
-    Set the direction of the dial (clockwise/counterclockwise)
-
-    \param direction Direction
-    \sa direction()
-*/
-void QwtDial::setDirection( Direction direction )
-{
-    if ( direction != d_data->direction )
-    {
-        d_data->direction = direction;
-        update();
-    }
-}
-
-/*!
-   \return Direction of the dial
-
-   The default direction of a dial is QwtDial::Clockwise
-
-   \sa setDirection()
-*/
-QwtDial::Direction QwtDial::direction() const
-{
-    return d_data->direction;
-}
-
-/*!
    Paint the dial
    \param event Paint event
 */
@@ -454,9 +425,6 @@ void QwtDial::drawContents( QPainter *painter ) const
             direction += ratio * ( d_data->maxScaleArc - d_data->minScaleArc );
         }
 
-        if ( d_data->direction == QwtDial::CounterClockwise )
-            direction = d_data->maxScaleArc - ( direction - d_data->minScaleArc );
-
         direction += d_data->origin;
         if ( direction >= 360.0 )
             direction -= 360.0;
@@ -551,9 +519,6 @@ void QwtDial::drawScale( QPainter *painter, const QPointF &center,
         minArc -= 360.0;
         maxArc -= 360.0;
     }
-
-    if ( d_data->direction == QwtDial::CounterClockwise )
-        qSwap( minArc, maxArc );
 
     painter->setFont( font() );
 

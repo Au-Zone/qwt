@@ -212,12 +212,7 @@ void QwtAnalogClock::drawNeedle( QPainter *painter, const QPointF &center,
 
         for ( int hand = 0; hand < NHands; hand++ )
         {
-            double d = angle[hand];
-            if ( direction() == Clockwise )
-                d = 360.0 - d;
-
-            d -= origin();
-
+            const double d = 360.0 - angle[hand] - origin();
             drawHand( painter, static_cast<Hand>( hand ), 
                 center, radius, d, colorGroup );
         }
