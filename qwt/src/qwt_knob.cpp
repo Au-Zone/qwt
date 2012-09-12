@@ -11,6 +11,7 @@
 #include "qwt_round_scale_draw.h"
 #include "qwt_math.h"
 #include "qwt_painter.h"
+#include "qwt_scale_map.h"
 #include <qpainter.h>
 #include <qpalette.h>
 #include <qstyle.h>
@@ -25,6 +26,20 @@
 #define qFastCos(x) qCos(x)
 #define qFastSin(x) qSin(x)
 #endif
+
+static double qwtAngleOfValue( const QwtKnob *knob, double value )
+{
+    double angle = knob->transform( value ) / 16.0;
+
+    if ( knob->scaleMap().pDist() / 16.0 > 360.0 )
+    {
+        angle = ::fmod( angle, 360.0 );
+        if ( angle < 0 )
+            angle += 360.0;
+    }
+
+	return angle;
+}
 
 class QwtKnob::PrivateData
 {
@@ -227,48 +242,59 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 */
 bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
-    d_data->mouseOffset = valueAt( pos ) - value();
+	d_data->mouseOffset = 
+		angleAt( pos ) - qwtAngleOfValue( this, value() );
+
     return true;
+}
+
+double QwtKnob::angleAt( const QPoint &pos ) const
+{
+    const double dx = rect().center().x() - pos.x();
+    const double dy = rect().center().y() - pos.y();
+
+    double angle = qAtan2( -dx, dy ) * 180.0 / M_PI;
+
+	const double origin = 90.0;
+	angle -= origin;
+
+	return angle;
 }
 
 double QwtKnob::scrolledTo( const QPoint &pos ) const
 {
-    return valueAt( pos ) - d_data->mouseOffset;
-}
+    const double valueAngle = qwtAngleOfValue( this, value() );
 
-/*!
-  \brief Determine the value corresponding to a specified position
+    double angle = angleAt( pos );
+    angle -= d_data->mouseOffset;
 
-  Called by QwtAbstractSlider
-  \param pos point
-*/
-double QwtKnob::valueAt( const QPoint &pos ) const
-{
-    const double angle = ( value() - 0.5 * ( lowerBound() + upperBound() ) )
-        / ( upperBound() - lowerBound() ) * d_data->totalAngle;
-    const int numTurns = qFloor( ( angle + 180.0 ) / 360.0 );
+	if ( scaleMap().pDist() / 16.0 > 360.0 )
+	{
+		if ( angle < 0.0 )
+			angle += 360.0;
 
-    const double dx = rect().center().x() - pos.x();
-    const double dy = rect().center().y() - pos.y();
+		const double min = scaleMap().p1() / 16;
+		const double v = transform( value() ) / 16.0;
 
-    const double arc = qAtan2( -dx, dy ) * 180.0 / M_PI;
+		int numTurns = qFloor( ( v - min ) / 360.0 );
 
-    double newValue =  0.5 * ( lowerBound() + upperBound() )
-        + ( arc + numTurns * 360.0 ) * ( upperBound() - lowerBound() )
-        / d_data->totalAngle;
+		if ( qAbs( valueAngle - angle ) > 180.0 )
+			numTurns += ( angle > valueAngle ) ? 1 : -1;
 
-    const double oneTurn = qFabs( upperBound() - lowerBound() ) * 360.0 / d_data->totalAngle;
-    const double eqValue = value() + d_data->mouseOffset;
+		angle += min + numTurns * 360.0;
+	}
+	else
+	{
+		const double arc = valueAngle - angle;
 
-    if ( qFabs( newValue - eqValue ) > 0.5 * oneTurn )
-    {
-        if ( newValue < eqValue )
-            newValue += oneTurn;
-        else
-            newValue -= oneTurn;
-    }
+		if ( qAbs( arc ) > 180.0 )
+		{
+			const int numTurns = ( arc < 0 ) ? -1 : 1;
+			angle += numTurns * 360.0;
+		}
+	}
 
-    return newValue;
+    return invTransform( angle * 16 );
 }
 
 /*!
@@ -417,7 +443,8 @@ void QwtKnob::drawKnob( QPainter *painter, const QRectF &knobRect ) const
   \brief Draw the marker at the knob's front
   \param painter Painter
   \param rect Bounding rectangle of the knob without scale
-  \param angle Angle of the marker in degrees
+  \param angle Angle of the marker in degrees 
+               ( clockwise, 0 at the 12 o'clock position )
 */
 void QwtKnob::drawMarker( QPainter *painter, 
     const QRectF &rect, double angle ) const
@@ -508,7 +535,6 @@ void QwtKnob::drawMarker( QPainter *painter,
 
             break;
         }
-#if 0
         case Triangle:
         {
             const double rb = qMax( radius - d_data->markerSize, 1.0 );
@@ -525,9 +551,11 @@ void QwtKnob::drawMarker( QPainter *painter,
             painter->setPen( Qt::NoPen );
             painter->setBrush( palette().color( QPalette::Text ) );
             painter->drawPolygon( polygon );
+
+			painter->resetTransform();
+
             break;
         }
-#endif
         default:
             break;
     }
