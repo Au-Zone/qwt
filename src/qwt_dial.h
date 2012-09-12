@@ -55,9 +55,7 @@ class QWT_EXPORT QwtDial: public QwtAbstractSlider
     Q_PROPERTY( Shadow frameShadow READ frameShadow WRITE setFrameShadow )
     Q_PROPERTY( Mode mode READ mode WRITE setMode )
     Q_PROPERTY( double origin READ origin WRITE setOrigin )
-    Q_PROPERTY( Direction direction READ direction WRITE setDirection )
 
-    friend class QwtDialScaleDraw;
 public:
 
     /*!
@@ -90,16 +88,6 @@ public:
         RotateScale
     };
 
-    //! Direction of the dial
-    enum Direction
-    {
-        //! Clockwise
-        Clockwise,
-
-        //! Counter clockwise
-        CounterClockwise
-    };
-
     explicit QwtDial( QWidget *parent = NULL );
     virtual ~QwtDial();
 
@@ -119,9 +107,6 @@ public:
 
     virtual void setOrigin( double );
     double origin() const;
-
-    void setDirection( Direction );
-    Direction direction() const;
 
     void setNeedle( QwtDialNeedle * );
     const QwtDialNeedle *needle() const;

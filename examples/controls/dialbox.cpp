@@ -31,10 +31,7 @@ QwtDial *DialBox::createDial( int type ) const
     QwtDial *dial = new QwtDial();
     dial->setTracking( true );
 
-    QwtDialSimpleNeedle *needle = new QwtDialSimpleNeedle(
-        QwtDialSimpleNeedle::Arrow, true, Qt::red,
-        QColor( Qt::gray ).light( 130 ) );
-    dial->setNeedle( needle );
+    QColor needleColor( Qt::red );
 
     switch( type )
     {
@@ -43,7 +40,9 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setOrigin( 135.0 );
             dial->setScaleArc( 0.0, 270.0 );
             dial->setScaleMaxMinor( 4 );
-            dial->setScale( -180.0, 180.0, 20 );
+            dial->setScale( -100.0, 100.0, 20 );
+
+            needleColor = QColor( "Goldenrod" );
 
             break;
         }
@@ -108,20 +107,28 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setOrigin( 135.0 );
             dial->setScaleArc( 0.0, 270.0 );
             dial->setScaleMaxMinor( 5 );
-            dial->setScale( -100.0, 100.0, 20 );
+            dial->setScale( 100.0, -100.0, 20 );
+            //dial->setDirection( QwtDial::CounterClockwise );
+
+            needleColor = QColor( "DarkSlateBlue" );
 
             break;
         }
         case 5:
         {
-            dial->setOrigin( 135.0 );
-            dial->setScaleArc( 0.0, 270.0 );
+            dial->setOrigin( 45.0 );
+            dial->setScaleArc( 0.0, 225.0 );
             dial->setScaleMaxMinor( 5 );
-            dial->setScale( -100.0, 100.0, 20 );
+            dial->setScale( 0.0, 10.0, 1.0 );
 
             break;
         }
     }
+
+    QwtDialSimpleNeedle *needle = new QwtDialSimpleNeedle(
+        QwtDialSimpleNeedle::Arrow, true, needleColor,
+        QColor( Qt::gray ).light( 130 ) );
+    dial->setNeedle( needle );
 
     const QColor base( QColor( "DimGray" ) );
 
