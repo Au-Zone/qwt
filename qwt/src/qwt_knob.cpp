@@ -38,7 +38,7 @@ static double qwtAngleOfValue( const QwtKnob *knob, double value )
             angle += 360.0;
     }
 
-	return angle;
+    return angle;
 }
 
 class QwtKnob::PrivateData
@@ -242,8 +242,8 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 */
 bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
-	d_data->mouseOffset = 
-		angleAt( pos ) - qwtAngleOfValue( this, value() );
+    d_data->mouseOffset = 
+        angleAt( pos ) - qwtAngleOfValue( this, value() );
 
     return true;
 }
@@ -255,10 +255,10 @@ double QwtKnob::angleAt( const QPoint &pos ) const
 
     double angle = qAtan2( -dx, dy ) * 180.0 / M_PI;
 
-	const double origin = 90.0;
-	angle -= origin;
+    const double origin = 90.0;
+    angle -= origin;
 
-	return angle;
+    return angle;
 }
 
 double QwtKnob::scrolledTo( const QPoint &pos ) const
@@ -268,31 +268,32 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
     double angle = angleAt( pos );
     angle -= d_data->mouseOffset;
 
-	if ( scaleMap().pDist() > 360.0 )
-	{
-		if ( angle < 0.0 )
-			angle += 360.0;
+    if ( scaleMap().pDist() > 360.0 )
+    {
+        if ( angle < 0.0 )
+            angle += 360.0;
 
-		const double min = scaleMap().p1();
-		const double v = transform( value() );
+        const double min = scaleMap().p1();
+        const double v = transform( value() );
 
-		int numTurns = qFloor( ( v - min ) / 360.0 );
+        int numTurns = qFloor( ( v - min ) / 360.0 );
 
-		if ( qAbs( valueAngle - angle ) > 180.0 )
-			numTurns += ( angle > valueAngle ) ? 1 : -1;
+        if ( qAbs( valueAngle - angle ) > 180.0 )
+            numTurns += ( angle > valueAngle ) ? 1 : -1;
 
-		angle += min + numTurns * 360.0;
-	}
-	else
-	{
-		const double arc = valueAngle - angle;
+        angle += min + numTurns * 360.0;
+    }
+    else
+    {
+        angle = qBound( scaleMap().p1(), angle, scaleMap().p2() );
 
-		if ( qAbs( arc ) > 180.0 )
-		{
-			const int numTurns = ( arc < 0 ) ? -1 : 1;
-			angle += numTurns * 360.0;
-		}
-	}
+        const double arc = valueAngle - angle;
+        if ( qAbs( arc ) > 180.0 )
+        {
+            const int numTurns = ( arc < 0 ) ? -1 : 1;
+            angle += numTurns * 360.0;
+        }
+    }
 
     return invTransform( angle );
 }
@@ -552,7 +553,7 @@ void QwtKnob::drawMarker( QPainter *painter,
             painter->setBrush( palette().color( QPalette::Text ) );
             painter->drawPolygon( polygon );
 
-			painter->resetTransform();
+            painter->resetTransform();
 
             break;
         }
