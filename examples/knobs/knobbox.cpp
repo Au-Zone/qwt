@@ -17,8 +17,10 @@ KnobBox::KnobBox( QWidget *parent, int knobType ):
 	d_label->setAlignment( Qt::AlignCenter );
 
     QVBoxLayout *layout = new QVBoxLayout( this );;
+	layout->setSpacing( 0 );
     layout->addWidget( d_knob, 10 );
     layout->addWidget( d_label );
+	layout->addStretch( 10 );
 
     connect( d_knob, SIGNAL( valueChanged( double ) ), 
 		this, SLOT( setNum( double ) ) );
@@ -52,6 +54,30 @@ QwtKnob *KnobBox::createKnob( int knobType ) const
 		{
 			knob->setKnobStyle( QwtKnob::Sunken );
     		knob->setMarkerStyle( QwtKnob::Tick );
+			
+            QwtLinearScaleEngine *scaleEngine = new QwtLinearScaleEngine( 2 );
+            scaleEngine->setTransformation( new QwtPowerTransform( 2 ) );
+            knob->setScaleEngine( scaleEngine );
+
+			QList< double > ticks[ QwtScaleDiv::NTickTypes ];
+			ticks[ QwtScaleDiv::MajorTick ] << 0 << 4 
+				<< 16 << 32 << 64 << 96 << 128;
+			ticks[ QwtScaleDiv::MediumTick ] << 24 << 48 << 80 << 112;
+			ticks[ QwtScaleDiv::MinorTick ] 
+				<< 0.5 << 1 << 2 
+				<< 7 << 10 << 13
+				<< 20 << 28 
+				<< 40 << 56 
+				<< 72 << 88 
+				<< 104 << 120; 
+ 
+			knob->setScale( QwtScaleDiv( 0, 128, ticks ) );
+
+            knob->setTotalSteps( 100 );
+            knob->setStepAlignment( false );
+            knob->setSingleSteps( 1 );
+            knob->setPageSteps( 5 );
+
 			break;
 		}
         case 3:
@@ -67,12 +93,15 @@ QwtKnob *KnobBox::createKnob( int knobType ) const
 		{
 			knob->setKnobStyle( QwtKnob::Raised );
     		knob->setMarkerStyle( QwtKnob::Dot );
+            knob->setWrapping( true );
 			break;
 		}
         case 5:
 		{
 			knob->setKnobStyle( QwtKnob::Raised );
-    		knob->setMarkerStyle( QwtKnob::Tick );
+    		knob->setMarkerStyle( QwtKnob::Triangle );
+    		knob->setTotalAngle( 180.0 );
+    		knob->setScale( 100, -100 );
 			break;
 		}
     }
