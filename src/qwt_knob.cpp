@@ -29,9 +29,9 @@
 
 static double qwtAngleOfValue( const QwtKnob *knob, double value )
 {
-    double angle = knob->transform( value ) / 16.0;
+    double angle = knob->transform( value );
 
-    if ( knob->scaleMap().pDist() / 16.0 > 360.0 )
+    if ( knob->scaleMap().pDist() > 360.0 )
     {
         angle = ::fmod( angle, 360.0 );
         if ( angle < 0 )
@@ -268,13 +268,13 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
     double angle = angleAt( pos );
     angle -= d_data->mouseOffset;
 
-	if ( scaleMap().pDist() / 16.0 > 360.0 )
+	if ( scaleMap().pDist() > 360.0 )
 	{
 		if ( angle < 0.0 )
 			angle += 360.0;
 
-		const double min = scaleMap().p1() / 16;
-		const double v = transform( value() ) / 16.0;
+		const double min = scaleMap().p1();
+		const double v = transform( value() );
 
 		int numTurns = qFloor( ( v - min ) / 360.0 );
 
@@ -294,7 +294,7 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
 		}
 	}
 
-    return invTransform( angle * 16 );
+    return invTransform( angle );
 }
 
 /*!
