@@ -9,12 +9,22 @@
 
 include( $${PWD}/../examples.pri )
 
-TARGET  = sliders
+TARGET       = controls
 
 HEADERS = \
-    sliderbox.h
+    sliderbox.h \
+    slidertab.h \
+    wheelbox.h \
+    wheeltab.h \
+    knobbox.h \
+    knobtab.h
 
 SOURCES = \
     sliderbox.cpp \
+    slidertab.cpp \
+    wheelbox.cpp \
+    wheeltab.cpp \
+    knobbox.cpp \
+    knobtab.cpp \
     main.cpp
 
