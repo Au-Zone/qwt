@@ -28,8 +28,8 @@ public Q_SLOTS:
 protected:
     virtual void keyPressEvent( QKeyEvent * );
 
-    virtual void drawScale( QPainter *, const QPointF &center,
-        double radius, double origin ) const;
+    virtual void drawScale( QPainter *, 
+		const QPointF &center, double radius ) const;
 
     virtual void drawScaleContents( QPainter *painter,
         const QPointF &center, double radius ) const;
