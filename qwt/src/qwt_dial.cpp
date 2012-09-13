@@ -324,51 +324,11 @@ void QwtDial::drawFocusIndicator( QPainter *painter ) const
 */
 void QwtDial::drawFrame( QPainter *painter )
 {
-    if ( lineWidth() <= 0 )
-        return;
-
-    const double lw2 = 0.5 * lineWidth();
-
-    QRectF r = boundingRect();
-    r.adjust( lw2, lw2, -lw2, -lw2 );
-
-    QPen pen;
-
-    switch ( d_data->frameShadow )
-    {
-        case QwtDial::Raised:
-        case QwtDial::Sunken:
-        {
-            QColor c1 = palette().color( QPalette::Light );
-            QColor c2 = palette().color( QPalette::Dark );
-
-            if ( d_data->frameShadow == QwtDial::Sunken )
-                qSwap( c1, c2 );
-
-            QLinearGradient gradient( r.topLeft(), r.bottomRight() );
-            gradient.setColorAt( 0.0, c1 );
-#if 0
-            gradient.setColorAt( 0.3, c1 );
-            gradient.setColorAt( 0.7, c2 );
-#endif
-            gradient.setColorAt( 1.0, c2 );
-
-            pen = QPen( gradient, lineWidth() );
-            break;
-        }
-        default: // Plain
-        {
-            pen = QPen( palette().brush( QPalette::Dark ), lineWidth() );
-        }
-    }
-
-    painter->save();
-
-    painter->setPen( pen );
-    painter->setBrush( Qt::NoBrush );
-    painter->drawEllipse( r );
-
-    painter->restore();
+    if ( lineWidth() > 0 )
+	{
+		QwtPainter::drawRoundFrame( painter, boundingRect(),
+			palette(), lineWidth(), d_data->frameShadow );
+	}
 }
 
 /*!
@@ -424,7 +384,7 @@ void QwtDial::drawContents( QPainter *painter ) const
     const double radius = 0.5 * insideScaleRect.width();
 
     painter->save();
-    drawScale( painter, center, radius, d_data->origin );
+    drawScale( painter, center, radius );
     painter->restore();
 
     painter->save();
@@ -472,13 +432,10 @@ void QwtDial::drawNeedle( QPainter *painter, const QPointF &center,
   \param painter Painter
   \param center Center of the dial
   \param radius Radius of the scale
-  \param origin Origin of the scale
 */
-void QwtDial::drawScale( QPainter *painter, const QPointF &center,
-    double radius, double origin ) const
+void QwtDial::drawScale( QPainter *painter, 
+	const QPointF &center, double radius ) const
 {
-    Q_UNUSED( origin );
-
     QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
     if ( sd == NULL )
         return;

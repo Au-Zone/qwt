@@ -298,18 +298,6 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
     return invTransform( angle );
 }
 
-/*!
-  Qt Resize Event
-  \param event Resize event
-*/
-void QwtKnob::resizeEvent( QResizeEvent *event )
-{
-    Q_UNUSED( event );
-
-    scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
-    scaleDraw()->moveCenter( rect().center() );
-}
-
 /*! 
   Handle QEvent::StyleChange and QEvent::FontChange;
   \param event Change event
@@ -349,7 +337,12 @@ void QwtKnob::paintEvent( QPaintEvent *event )
     painter.setRenderHint( QPainter::Antialiasing, true );
 
     if ( !knobRect.contains( event->region().boundingRect() ) )
+	{
+    	scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
+    	scaleDraw()->moveCenter( rect().center() );
+
         scaleDraw()->draw( &painter, palette() );
+	}
 
     drawKnob( &painter, knobRect );
 
@@ -571,9 +564,6 @@ void QwtKnob::drawMarker( QPainter *painter,
 void QwtKnob::setKnobWidth( int width )
 {
     d_data->knobWidth = qMax( width, 5 );
-
-    scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
-    scaleDraw()->moveCenter( rect().center() );
     
     updateGeometry();
     update();
@@ -621,20 +611,6 @@ void QwtKnob::setMarkerSize( int size )
 int QwtKnob::markerSize() const
 {
     return d_data->markerSize;
-}
-
-/*!
-    Recalculates the layout
-*/
-void QwtKnob::scaleChange()
-{
-#if 1
-    // why here ???
-    scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
-    scaleDraw()->moveCenter( rect().center() );
-#endif
-
-    QwtAbstractSlider::scaleChange();
 }
 
 /*!

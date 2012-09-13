@@ -136,7 +136,6 @@ public:
 
 protected:
     virtual void paintEvent( QPaintEvent * );
-    virtual void resizeEvent( QResizeEvent * );
     virtual void changeEvent( QEvent * );
 
     virtual void drawKnob( QPainter *, const QRectF & ) const;
@@ -145,8 +144,6 @@ protected:
 
     virtual double scrolledTo( const QPoint & ) const;
     virtual bool isScrollPosition( const QPoint & ) const;
-
-    virtual void scaleChange();
 
 private:
     double angleAt( const QPoint & ) const;

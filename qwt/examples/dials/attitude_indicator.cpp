@@ -68,29 +68,25 @@ void AttitudeIndicator::setGradient( double gradient )
     }
 }
 
-void AttitudeIndicator::drawScale( QPainter *painter, const QPointF &center,
-    double radius, double origin ) const
+void AttitudeIndicator::drawScale( QPainter *painter, 
+	const QPointF &center, double radius ) const
 {
-    // counter clockwise, radian
-
-    const double dir = ( 360.0 - origin ) * M_PI / 180.0;
     const double offset = 4.0;
 
-    const QPointF p0 = qwtPolar2Pos( center, offset, dir + M_PI );
+    const QPointF p0 = qwtPolar2Pos( center, offset, 1.5 * M_PI );
 
     const double w = innerRect().width();
 
     QPainterPath path;
-    path.moveTo( qwtPolar2Pos( p0, w, dir - M_PI_2 ) );
-    path.lineTo( qwtPolar2Pos( path.currentPosition(), 2 * w, dir + M_PI_2 ) );
-    path.lineTo( qwtPolar2Pos( path.currentPosition(), w, dir ) );
-    path.lineTo( qwtPolar2Pos( path.currentPosition(), w, dir - M_PI_2 ) );
+    path.moveTo( qwtPolar2Pos( p0, w, 0.0 ) );
+    path.lineTo( qwtPolar2Pos( path.currentPosition(), 2 * w, M_PI ) );
+    path.lineTo( qwtPolar2Pos( path.currentPosition(), w, 0.5 * M_PI ) );
+    path.lineTo( qwtPolar2Pos( path.currentPosition(), w, 0.0 ) );
 
     painter->save();
     painter->setClipPath( path ); // swallow 180 - 360 degrees
 
-    QwtDial::drawScale( painter,
-        center, radius, origin );
+    QwtDial::drawScale( painter, center, radius );
 
     painter->restore();
 }

@@ -134,9 +134,8 @@ protected:
     virtual void drawContents( QPainter * ) const;
     virtual void drawFocusIndicator( QPainter * ) const;
 
-    virtual void drawScale( 
-        QPainter *, const QPointF &center,
-        double radius, double origin ) const;
+    virtual void drawScale( QPainter *, 
+		const QPointF &center, double radius ) const;
 
     /*!
       Draw the contents inside the scale

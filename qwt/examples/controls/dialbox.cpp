@@ -30,6 +30,8 @@ QwtDial *DialBox::createDial( int type ) const
 {
     QwtDial *dial = new QwtDial();
     dial->setTracking( true );
+	dial->setFocusPolicy( Qt::StrongFocus );
+
 
     QColor needleColor( Qt::red );
 

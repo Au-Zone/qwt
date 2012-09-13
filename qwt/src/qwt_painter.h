@@ -91,6 +91,9 @@ public:
     static void drawImage( QPainter *, const QRectF &, const QImage & );
     static void drawPixmap( QPainter *, const QRectF &, const QPixmap & );
 
+    static void drawRoundFrame( QPainter *,
+        const QRectF &, const QPalette &, int lineWidth, int frameStyle );
+
     static void drawRoundedFrame( QPainter *, 
         const QRectF &, double xRadius, double yRadius,
         const QPalette &, int lineWidth, int frameStyle );
@@ -109,7 +112,7 @@ public:
         QPixmap &, const QPoint &offset = QPoint() );
 
     static void drawBackgound( QPainter *painter,
-    	const QRectF &rect, const QWidget *widget );
+        const QRectF &rect, const QWidget *widget );
 
 private:
     static bool d_polylineSplitting;

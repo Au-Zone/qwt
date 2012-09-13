@@ -654,7 +654,73 @@ void QwtPainter::drawFocusRect( QPainter *painter, QWidget *widget,
 }
 
 /*!
-  Draw a frame with rounded borders
+  Draw a round frame 
+
+  \param painter Painter
+  \param rect Frame rectangle
+  \param palette QPalette::WindowText is used for plain borders
+                 QPalette::Dark and QPalette::Light for raised
+                 or sunken borders
+  \param lineWidth Line width
+  \param frameStyle bitwise OR´ed value of QFrame::Shape and QFrame::Shadow
+*/
+void QwtPainter::drawRoundFrame( QPainter *painter,
+    const QRectF &rect, const QPalette &palette, 
+    int lineWidth, int frameStyle )
+{
+    enum Style
+    {
+        Plain,
+        Sunken,
+        Raised
+    };
+
+    Style style = Plain;
+    if ( (frameStyle & QFrame::Sunken) == QFrame::Sunken )
+        style = Sunken;
+    else if ( (frameStyle & QFrame::Raised) == QFrame::Raised )
+        style = Raised;
+
+    const double lw2 = 0.5 * lineWidth;
+    QRectF r = rect.adjusted( lw2, lw2, -lw2, -lw2 );
+
+    QBrush brush;
+
+    if ( style != Plain )
+    {
+        QColor c1 = palette.color( QPalette::Light );
+        QColor c2 = palette.color( QPalette::Dark );
+
+        if ( style == Sunken )
+            qSwap( c1, c2 );
+
+        QLinearGradient gradient( r.topLeft(), r.bottomRight() );
+        gradient.setColorAt( 0.0, c1 );
+#if 0
+        gradient.setColorAt( 0.3, c1 );
+        gradient.setColorAt( 0.7, c2 );
+#endif
+        gradient.setColorAt( 1.0, c2 );
+
+        brush = QBrush( gradient );
+    }
+    else // Plain
+    {
+        brush = palette.brush( QPalette::WindowText );
+    }
+
+    painter->save();
+
+    painter->setPen( QPen( brush, lineWidth ) );
+    painter->setBrush( Qt::NoBrush );
+
+    painter->drawEllipse( r );
+
+    painter->restore();
+}
+
+/*!
+  Draw a rectangular frame with rounded borders
 
   \param painter Painter
   \param rect Frame rectangle
