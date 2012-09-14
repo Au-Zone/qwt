@@ -27,18 +27,32 @@
 #define qFastSin(x) qSin(x)
 #endif
 
-static double qwtAngleOfValue( const QwtKnob *knob, double value )
+static inline double qwtToScaleAngle( double angle )
 {
-    double angle = knob->transform( value );
+    // the map is counter clockwise with the origin
+    // at 90° using angles from -180° -> 180°
 
-    if ( knob->scaleMap().pDist() > 360.0 )
-    {
-        angle = ::fmod( angle, 360.0 );
-        if ( angle < 0 )
-            angle += 360.0;
-    }
+    double a = 90.0 - angle;
+    if ( a <= -180.0 )
+        a += 360.0;
+    else if ( a >= 180.0 )
+        a -= 360.0;
 
-    return angle;
+    return a;
+}
+
+static inline double qwtNormalizeDegrees( double angle )
+{
+    double a = ::fmod( angle, 360.0 );
+    if ( a < 0.0 )
+        a += 360.0;
+
+    return a;
+}
+
+static double qwtToDegrees( double value )
+{
+    return qwtNormalizeDegrees( 90.0 - value );
 }
 
 class QwtKnob::PrivateData
@@ -242,57 +256,53 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 */
 bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
-    d_data->mouseOffset = 
-        angleAt( pos ) - qwtAngleOfValue( this, value() );
+    const double angle = angleAt( pos );
+    const double valueAngle = qwtToDegrees( transform( value() ) );
+
+    const double arc = angle - valueAngle;
+
+    d_data->mouseOffset =  qwtNormalizeDegrees( arc );
 
     return true;
 }
 
 double QwtKnob::angleAt( const QPoint &pos ) const
 {
-    const double dx = rect().center().x() - pos.x();
-    const double dy = rect().center().y() - pos.y();
-
-    double angle = qAtan2( -dx, dy ) * 180.0 / M_PI;
-
-    const double origin = 90.0;
-    angle -= origin;
-
-    return angle;
+    return QLineF( rect().center(), pos ).angle();
 }
 
 double QwtKnob::scrolledTo( const QPoint &pos ) const
 {
-    const double valueAngle = qwtAngleOfValue( this, value() );
-
-    double angle = angleAt( pos );
-    angle -= d_data->mouseOffset;
+    double angle = qwtNormalizeDegrees( 
+        angleAt( pos ) - d_data->mouseOffset );
 
     if ( scaleMap().pDist() > 360.0 )
     {
-        if ( angle < 0.0 )
-            angle += 360.0;
+        angle = qwtNormalizeDegrees( 90 - angle );
 
-        const double min = scaleMap().p1();
         const double v = transform( value() );
 
-        int numTurns = qFloor( ( v - min ) / 360.0 );
+        int numTurns = qFloor( ( v - scaleMap().p1() ) / 360.0 );
 
+        double valueAngle = qwtNormalizeDegrees( v );
         if ( qAbs( valueAngle - angle ) > 180.0 )
-            numTurns += ( angle > valueAngle ) ? 1 : -1;
+        {
+            numTurns += ( angle > valueAngle ) ? -1 : 1;
+        }
 
-        angle += min + numTurns * 360.0;
+        angle += scaleMap().p1() + numTurns * 360.0;
     }
     else
     {
-        angle = qBound( scaleMap().p1(), angle, scaleMap().p2() );
+        angle = qwtToScaleAngle( angle );
 
-        const double arc = valueAngle - angle;
-        if ( qAbs( arc ) > 180.0 )
-        {
-            const int numTurns = ( arc < 0 ) ? -1 : 1;
-            angle += numTurns * 360.0;
-        }
+        const double boundedAngle = 
+            qBound( scaleMap().p1(), angle, scaleMap().p2() );
+
+        if ( !wrapping() )
+            d_data->mouseOffset += ( boundedAngle - angle );
+
+        angle = boundedAngle;
     }
 
     return invTransform( angle );
@@ -337,12 +347,12 @@ void QwtKnob::paintEvent( QPaintEvent *event )
     painter.setRenderHint( QPainter::Antialiasing, true );
 
     if ( !knobRect.contains( event->region().boundingRect() ) )
-	{
-    	scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
-    	scaleDraw()->moveCenter( rect().center() );
+    {
+        scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
+        scaleDraw()->moveCenter( rect().center() );
 
         scaleDraw()->draw( &painter, palette() );
-	}
+    }
 
     drawKnob( &painter, knobRect );
 
