@@ -247,38 +247,33 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
     return static_cast<QwtRoundScaleDraw *>( abstractScaleDraw() );
 }
 
-/*!
-  \brief Set the scrolling mode and direction
-
-  Called by QwtAbstractSlider
-  \param pos Point in question
-  \return Scrolling mode
-*/
 bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
-    const double angle = angleAt( pos );
-    const double valueAngle = qwtToDegrees( transform( value() ) );
+    QRect knobRect( 0, 0, d_data->knobWidth, d_data->knobWidth );
+    knobRect.moveCenter( rect().center() );
 
-    const double arc = angle - valueAngle;
+    const QRegion region( knobRect, QRegion::Ellipse );
+    if ( region.contains( pos ) && ( pos != knobRect.center() ) )
+    {
+        const double angle = QLineF( rect().center(), pos ).angle();
+        const double valueAngle = qwtToDegrees( transform( value() ) );
 
-    d_data->mouseOffset =  qwtNormalizeDegrees( arc );
+        d_data->mouseOffset = qwtNormalizeDegrees( angle - valueAngle );
 
-    return true;
-}
+        return true;
+    }
 
-double QwtKnob::angleAt( const QPoint &pos ) const
-{
-    return QLineF( rect().center(), pos ).angle();
+    return false;
 }
 
 double QwtKnob::scrolledTo( const QPoint &pos ) const
 {
-    double angle = qwtNormalizeDegrees( 
-        angleAt( pos ) - d_data->mouseOffset );
+    double angle = QLineF( rect().center(), pos ).angle();
+    angle = qwtNormalizeDegrees( angle - d_data->mouseOffset );
 
     if ( scaleMap().pDist() > 360.0 )
     {
-        angle = qwtNormalizeDegrees( 90 - angle );
+        angle = qwtToDegrees( angle );
 
         const double v = transform( value() );
 
@@ -291,6 +286,15 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
         }
 
         angle += scaleMap().p1() + numTurns * 360.0;
+
+        if ( !wrapping() )
+        {
+            const double boundedAngle = 
+                qBound( scaleMap().p1(), angle, scaleMap().p2() );
+
+            d_data->mouseOffset += ( boundedAngle - angle );
+            angle = boundedAngle;
+        }
     }
     else
     {
@@ -356,21 +360,8 @@ void QwtKnob::paintEvent( QPaintEvent *event )
 
     drawKnob( &painter, knobRect );
 
-    double angle = 0.0;
-    if ( upperBound() != lowerBound() )
-    {
-        const double min = transform( lowerBound() );
-        const double max = transform( upperBound() );
-        const double tValue = transform( value() );
-
-        angle = ( tValue - 0.5 * ( min + max ) )
-            / ( max - min ) * d_data->totalAngle;
-
-        const double numTurns = qFloor( ( angle + 180.0 ) / 360.0 );
-        angle = angle - numTurns * 360.0;
-    }
-
-    drawMarker( &painter, knobRect, angle );
+    drawMarker( &painter, knobRect, 
+        qwtNormalizeDegrees( transform( value() ) ) );
 
     painter.setRenderHint( QPainter::Antialiasing, false );
 
