@@ -116,8 +116,10 @@ QPointF QwtRoundScaleDraw::center() const
 */
 void QwtRoundScaleDraw::setAngleRange( double angle1, double angle2 )
 {
+#if 0
     angle1 = qBound( -360.0, angle1, 360.0 );
     angle2 = qBound( -360.0, angle2, 360.0 );
+#endif
 
     d_data->startAngle = angle1;
     d_data->endAngle = angle2;

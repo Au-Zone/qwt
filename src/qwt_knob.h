@@ -131,6 +131,7 @@ public:
     virtual QSize minimumSizeHint() const;
 
     void setScaleDraw( QwtRoundScaleDraw * );
+
     const QwtRoundScaleDraw *scaleDraw() const;
     QwtRoundScaleDraw *scaleDraw();
 
@@ -146,8 +147,6 @@ protected:
     virtual bool isScrollPosition( const QPoint & ) const;
 
 private:
-    double angleAt( const QPoint & ) const;
-
     class PrivateData;
     PrivateData *d_data;
 };

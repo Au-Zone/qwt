@@ -40,8 +40,9 @@ QwtKnob *KnobBox::createKnob( int knobType ) const
             knob->setKnobStyle( QwtKnob::Sunken );
             knob->setMarkerStyle( QwtKnob::Nub );
             knob->setWrapping( true );
-            knob->setNumTurns( 2 );
-            knob->setScale( 0, 100, 5.0 );
+            knob->setNumTurns( 4 );
+            knob->setScale( 0, 400, 10.0 );
+            knob->setTotalSteps( 400 );
             break;
         }
         case 1:
