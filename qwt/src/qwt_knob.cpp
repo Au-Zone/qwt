@@ -41,15 +41,6 @@ static inline double qwtToScaleAngle( double angle )
     return a;
 }
 
-static inline double qwtNormalizeDegrees( double angle )
-{
-    double a = ::fmod( angle, 360.0 );
-    if ( a < 0.0 )
-        a += 360.0;
-
-    return a;
-}
-
 static double qwtToDegrees( double value )
 {
     return qwtNormalizeDegrees( 90.0 - value );
@@ -447,7 +438,7 @@ void QwtKnob::drawMarker( QPainter *painter,
     if ( d_data->markerStyle == NoMarker || !isValid() )
         return;
 
-    const double radians = angle * M_PI / 180.0;
+    const double radians = qwtRadians( angle );
     const double sinA = -qFastSin( radians );
     const double cosA = qFastCos( radians );
 

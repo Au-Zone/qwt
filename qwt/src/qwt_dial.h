@@ -126,7 +126,6 @@ public:
     const QwtRoundScaleDraw *scaleDraw() const;
 
 protected:
-    virtual void mousePressEvent( QMouseEvent * );
     virtual void wheelEvent( QWheelEvent * );
     virtual void paintEvent( QPaintEvent * );
 

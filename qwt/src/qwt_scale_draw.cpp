@@ -229,7 +229,7 @@ int QwtScaleDraw::minLabelDist( const QFont &font ) const
             maxDist = dist;
     }
 
-    double angle = labelRotation() / 180.0 * M_PI;
+    double angle = qwtRadians( labelRotation() ); 
     if ( vertical )
         angle += M_PI / 2;
 

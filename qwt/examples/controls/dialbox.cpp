@@ -106,11 +106,11 @@ QwtDial *DialBox::createDial( int type ) const
         }
         case 4:
         {
-            dial->setOrigin( 135.0 );
-            dial->setScaleArc( 0.0, 270.0 );
+            dial->setOrigin( 0.0 );
+            dial->setScaleArc( 0.0, 360.0 );
             dial->setScaleMaxMinor( 5 );
             dial->setScale( 100.0, -100.0, 20 );
-            //dial->setDirection( QwtDial::CounterClockwise );
+            dial->setWrapping( true );
 
             needleColor = QColor( "DarkSlateBlue" );
 
