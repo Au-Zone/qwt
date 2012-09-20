@@ -848,7 +848,7 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
         for ( double tickValue = ::ceil( loValue / tickWidth ) * tickWidth;
             tickValue < hiValue; tickValue += tickWidth )
         {
-            const double angle = ( tickValue - value() ) * M_PI / 180.0;
+            const double angle = qwtRadians( tickValue - value() );
             const double s = qFastSin( angle * cnvFactor );
 
             const double off = radius * ( sinArc + s ) / sinArc;
@@ -889,7 +889,7 @@ void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
         for ( double tickValue = ::ceil( loValue / tickWidth ) * tickWidth;
             tickValue < hiValue; tickValue += tickWidth )
         {
-            const double angle = ( tickValue - value() ) * M_PI / 180.0;
+            const double angle = qwtRadians( tickValue - value() );
             const double s = qFastSin( angle * cnvFactor );
 
             const double off = radius * ( sinArc + s ) / sinArc;

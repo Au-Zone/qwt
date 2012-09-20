@@ -11,6 +11,7 @@
 #include "qwt_painter.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_map.h"
+#include "qwt_math.h"
 #include <qpen.h>
 #include <qpainter.h>
 #include <qfontmetrics.h>
@@ -165,12 +166,12 @@ void QwtRoundScaleDraw::drawLabel( QPainter *painter, double value ) const
         radius += tickLength( QwtScaleDiv::MajorTick );
 
     const QSizeF sz = label.textSize( painter->font() );
-    const double arc = tval / 360.0 * 2 * M_PI;
+    const double arc = qwtRadians( tval );
 
     const double x = d_data->center.x() +
         ( radius + sz.width() / 2.0 ) * qSin( arc );
     const double y = d_data->center.y() -
-        ( radius + sz.height() / 2.0 ) * cos( arc );
+        ( radius + sz.height() / 2.0 ) * qCos( arc );
 
     const QRectF r( x - sz.width() / 2, y - sz.height() / 2,
         sz.width(), sz.height() );
@@ -200,7 +201,7 @@ void QwtRoundScaleDraw::drawTick( QPainter *painter, double value, double len ) 
     if ( ( tval < d_data->startAngle + 360.0 )
         || ( tval > d_data->startAngle - 360.0 ) )
     {
-        const double arc = double( tval ) * M_PI / 180.0;
+        const double arc = qwtRadians( tval );
 
         const double sinArc = qSin( arc );
         const double cosArc = qCos( arc );
@@ -272,7 +273,7 @@ double QwtRoundScaleDraw::extent( const QFont &font ) const
             if ( ( tval < d_data->startAngle + 360 )
                 && ( tval > d_data->startAngle - 360 ) )
             {
-                const double arc = tval / 360.0 * 2 * M_PI;
+                const double arc = qwtRadians( tval );
 
                 const QSizeF sz = label.textSize( font );
                 const double off = qMax( sz.width(), sz.height() );

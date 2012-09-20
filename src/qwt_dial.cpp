@@ -25,9 +25,55 @@
 #include <qstyleoption.h>
 #include <qapplication.h>
 
-#if QT_VERSION < 0x040601
-#define qAtan(x) ::atan(x)
-#endif
+static inline double qwtAngleDist( double a1, double a2 )
+{
+	double dist = qAbs( a2 - a1 );
+	if ( dist > 360.0 )
+		dist -= 360.0;
+
+	return dist;
+}
+
+static inline bool qwtIsOnArc( double angle, double min, double max )
+{
+	if ( min < max )
+	{
+		return ( angle >= min ) && ( angle <= max );
+	}
+	else
+	{
+		return ( angle >= min ) || ( angle <= max );
+	}
+}
+
+static inline double qwtBoundedAngle( double min, double angle, double max )
+{
+	double from = qwtNormalizeDegrees( min );
+	double to = qwtNormalizeDegrees( max );
+
+	double a;
+
+	if ( qwtIsOnArc( angle, from, to ) )
+	{
+		a = angle;
+		if ( a < min )
+			a += 360.0;
+	}
+	else
+	{
+		if ( qwtAngleDist( angle, from ) <
+			qwtAngleDist( angle, to ) )
+		{
+			a = min;
+		}
+		else
+		{
+			a = max;
+		}
+	}
+
+	return a;
+}
 
 class QwtDial::PrivateData
 {
@@ -40,8 +86,7 @@ public:
         minScaleArc( 0.0 ),
         maxScaleArc( 0.0 ),
         needle( NULL ),
-        mouseOffset( 0.0 ),
-        previousDir( -1.0 )
+        mouseOffset( 0.0 )
     {
     }
 
@@ -62,7 +107,6 @@ public:
     QwtDialNeedle *needle;
 
     double mouseOffset;
-    double previousDir;
 };
 
 /*!
@@ -628,131 +672,58 @@ QSize QwtDial::minimumSizeHint() const
     return QSize( d, d );
 }
 
-double QwtDial::scrolledTo( const QPoint &pos ) const
-{
-    return valueAt( pos ) - d_data->mouseOffset;
-}
-
-/*!
-  Find the value for a given position
-
-  \param pos Position
-  \return Value
-*/
-double QwtDial::valueAt( const QPoint &pos ) const
-{
-    if ( d_data->maxScaleArc == d_data->minScaleArc || upperBound() == lowerBound() )
-        return lowerBound();
-
-    double dir = 360.0 - QLineF( innerRect().center(), pos ).angle() - d_data->origin;
-    if ( dir < 0.0 )
-        dir += 360.0;
-
-    if ( mode() == RotateScale )
-        dir = 360.0 - dir;
-
-    // The position might be in the area that is outside the scale arc.
-    // We need the range of the scale if it were a complete circle.
-
-    const double completeCircle = 360.0 / ( d_data->maxScaleArc - d_data->minScaleArc )
-        * ( upperBound() - lowerBound() );
-
-    double posValue = lowerBound() + completeCircle * dir / 360.0;
-
-    if ( d_data->previousDir >= 0.0 ) // valid direction
-    {
-        // We have to find out whether the mouse is moving
-        // clock or counter clockwise
-
-        bool clockWise = false;
-
-        const double angle = dir - d_data->previousDir;
-        if ( ( angle >= 0.0 && angle <= 180.0 ) || angle < -180.0 )
-            clockWise = true;
-
-        if ( clockWise )
-        {
-            if ( ( dir < d_data->previousDir ) 
-                && ( d_data->mouseOffset > 0.0 ) )
-            {
-                // We passed 360 -> 0
-                d_data->mouseOffset -= completeCircle;
-            }
-
-            if ( wrapping() )
-            {
-                if ( posValue - d_data->mouseOffset > upperBound() )
-                {
-                    // We passed maximum and the value will be set
-                    // to minimum. We have to adjust the mouseOffset.
-
-                    d_data->mouseOffset = posValue - lowerBound();
-                }
-            }
-            else
-            {
-                if ( ( posValue - d_data->mouseOffset > upperBound() ) ||
-                        ( value() == upperBound() ) )
-                {
-                    // We fix the value at maximum by adjusting
-                    // the mouse offset.
-
-                    d_data->mouseOffset = posValue - upperBound();
-                }
-            }
-        }
-        else
-        {
-            if ( dir > d_data->previousDir && d_data->mouseOffset < 0.0 )
-            {
-                // We passed 0 -> 360
-                d_data->mouseOffset += completeCircle;
-            }
-
-            if ( wrapping() )
-            {
-                if ( posValue - d_data->mouseOffset < lowerBound() )
-                {
-                    // We passed minimum and the value will be set
-                    // to maximum. We have to adjust the mouseOffset.
-
-                    d_data->mouseOffset = posValue - upperBound();
-                }
-            }
-            else
-            {
-                if ( posValue - d_data->mouseOffset < lowerBound() ||
-                    value() == lowerBound() )
-                {
-                    // We fix the value at minimum by adjusting
-                    // the mouse offset.
-
-                    d_data->mouseOffset = posValue - lowerBound();
-                }
-            }
-        }
-    }
-    d_data->previousDir = dir;
-
-    return posValue;
-}
-
 bool QwtDial::isScrollPosition( const QPoint &pos ) const
 {
     const QRegion region( innerRect().toRect(), QRegion::Ellipse );
     if ( region.contains( pos ) && ( pos != innerRect().center() ) )
     {
-        d_data->mouseOffset = valueAt( pos ) - value();
+        const double angle = QLineF( rect().center(), pos ).angle();
+        double valueAngle = 
+			qwtNormalizeDegrees( 90.0 - transform( value() ) );
+
+		d_data->mouseOffset = qwtNormalizeDegrees( angle - valueAngle );
         return true;
     }
 
     return false;
 }
 
-void QwtDial::mousePressEvent( QMouseEvent *event )
+
+double QwtDial::scrolledTo( const QPoint &pos ) const
 {
-    d_data->previousDir = -1.0;
-    QwtAbstractSlider::mousePressEvent( event );
+    double angle = QLineF( rect().center(), pos ).angle();
+    angle = qwtNormalizeDegrees( angle - d_data->mouseOffset );
+	angle = qwtNormalizeDegrees( 90.0 - angle );
+
+	if ( d_data->mode == QwtDial::RotateNeedle )
+	{
+		if ( scaleMap().pDist() >= 360.0 )
+		{
+			if ( angle < scaleMap().p1() )
+				angle += 360.0;
+	
+        	if ( !wrapping() )
+        	{
+				// ???
+        	}
+		}
+		else
+		{
+    		const double boundedAngle =
+        		qwtBoundedAngle( scaleMap().p1(), angle, scaleMap().p2() );
+
+    		if ( !wrapping() )
+        		d_data->mouseOffset += ( boundedAngle - angle );
+
+    		angle = boundedAngle;
+		}
+	}
+	else
+	{
+		// ???
+	}
+
+	return invTransform( angle );
 }
 
 void QwtDial::wheelEvent( QWheelEvent *event )
@@ -767,19 +738,7 @@ void QwtDial::setAngleRange( double angle, double span )
     QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
     if ( sd  )
     {
-        double arc1 = angle - 270.0;
-        if ( arc1 < -360.0 )
-            arc1 = ::fmod( arc1, 360.0 );
-
-        double arc2 = arc1 + span;
-        if ( arc2 > 360.0 )
-        {
-            // QwtRoundScaleDraw::setAngleRange accepts only values
-            // in the range [-360.0..360.0]
-            arc1 -= 360.0;
-            arc2 -= 360.0;
-        }
-
-        sd->setAngleRange( arc1, arc2 );
+        angle = qwtNormalizeDegrees( angle - 270.0 );
+        sd->setAngleRange( angle, angle + span );
     }
 }
