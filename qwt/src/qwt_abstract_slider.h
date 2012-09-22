@@ -73,14 +73,6 @@ public Q_SLOTS:
 
 Q_SIGNALS:
 
-   /*!
-      \brief Notify a change of value translated into 
-             scale coordinates.
-
-      \param value New value
-    */
-    void scaleValueChanged( double value );
-
     /*!
       \brief Notify a change of value.
 
@@ -153,6 +145,8 @@ protected:
     virtual void scaleChange();
 
 protected:
+    virtual void sliderChange();
+
     double incrementedValue( 
         double value, int stepCount ) const;
 

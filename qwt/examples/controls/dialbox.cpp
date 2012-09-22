@@ -30,8 +30,8 @@ QwtDial *DialBox::createDial( int type ) const
 {
     QwtDial *dial = new QwtDial();
     dial->setTracking( true );
-	dial->setFocusPolicy( Qt::StrongFocus );
-
+    dial->setFocusPolicy( Qt::StrongFocus );
+    dial->setObjectName( QString( "Dial %1" ).arg( type + 1 ) );
 
     QColor needleColor( Qt::red );
 
@@ -111,6 +111,11 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setScaleMaxMinor( 5 );
             dial->setScale( 100.0, -100.0, 20 );
             dial->setWrapping( true );
+#if 1
+            dial->setMode( QwtDial::RotateScale );
+            dial->setOrigin( 225.0 );
+            dial->setValue( 70.0 );
+#endif
 
             needleColor = QColor( "DarkSlateBlue" );
 
