@@ -112,10 +112,10 @@ public:
     const QwtDialNeedle *needle() const;
     QwtDialNeedle *needle();
 
-    QRectF boundingRect() const;
-    QRectF innerRect() const;
+    QRect boundingRect() const;
+    QRect innerRect() const;
 
-    virtual QRectF scaleInnerRect() const;
+    virtual QRect scaleInnerRect() const;
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -134,7 +134,7 @@ protected:
     virtual void drawFocusIndicator( QPainter * ) const;
 
     virtual void drawScale( QPainter *, 
-		const QPointF &center, double radius ) const;
+        const QPointF &center, double radius ) const;
 
     /*!
       Draw the contents inside the scale
@@ -154,9 +154,11 @@ protected:
     virtual double scrolledTo( const QPoint & ) const;
     virtual bool isScrollPosition( const QPoint & ) const;
 
+    virtual void sliderChange();
+
 private:
     double valueAt( const QPoint & ) const;
-	void setAngleRange( double angle, double span );
+    void setAngleRange( double angle, double span );
 
     class PrivateData;
     PrivateData *d_data;

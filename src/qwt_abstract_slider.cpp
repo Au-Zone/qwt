@@ -105,7 +105,7 @@ void QwtAbstractSlider::setValid( bool isValid )
     if ( isValid != d_data->isValid )
     {
         d_data->isValid = isValid;
-        update();
+        sliderChange();
 
         Q_EMIT valueChanged( d_data->value );
     }   
@@ -227,14 +227,14 @@ void QwtAbstractSlider::mouseMoveEvent( QMouseEvent *event )
             {
                 d_data->value = value;
 
-                update();
+                sliderChange();
+
+                Q_EMIT sliderMoved( d_data->value );
 
                 if ( d_data->tracking )
                     Q_EMIT valueChanged( d_data->value );
                 else
                     d_data->pendingValueChanged = true;
-
-                Q_EMIT sliderMoved( d_data->value );
             }
         }
     }
@@ -298,10 +298,10 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
     if ( value != d_data->value )
     {
         d_data->value = value;
-        update();
+        sliderChange();
 
-        Q_EMIT valueChanged( d_data->value );
         Q_EMIT sliderMoved( d_data->value );
+        Q_EMIT valueChanged( d_data->value );
     }
 }
 
@@ -400,10 +400,10 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     if ( value != d_data->value )
     {
         d_data->value = value;
-        update();
+        sliderChange();
 
-        Q_EMIT valueChanged( d_data->value );
         Q_EMIT sliderMoved( d_data->value );
+        Q_EMIT valueChanged( d_data->value );
     }
 }
 
@@ -469,7 +469,7 @@ void QwtAbstractSlider::setValue( double value )
 
     if ( changed )
     {
-        update();
+        sliderChange();
         Q_EMIT valueChanged( d_data->value );
     }
 }
@@ -509,7 +509,7 @@ void QwtAbstractSlider::incrementValue( int stepCount )
     if ( value != d_data->value )
     {
         d_data->value = value;
-        update();
+        sliderChange();
     }
 }
 
@@ -648,5 +648,10 @@ void QwtAbstractSlider::scaleChange()
         Q_EMIT valueChanged( d_data->value );
 
     updateGeometry();
+    update();
+}
+
+void QwtAbstractSlider::sliderChange()
+{
     update();
 }
