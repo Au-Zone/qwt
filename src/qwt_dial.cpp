@@ -706,7 +706,18 @@ double QwtDial::scrolledTo( const QPoint &pos ) const
 
         if ( !wrapping() )
         {
-            // ???
+            double boundedAngle = angle;
+
+            const double arc = angle - transform( value() );
+            if ( qAbs( arc ) > 180.0 )
+            {
+                boundedAngle = ( arc > 0 ) 
+                    ? scaleMap().p1() : scaleMap().p2();
+            }
+
+            d_data->mouseOffset += ( boundedAngle - angle );
+
+            angle = boundedAngle;
         }
     }
     else
