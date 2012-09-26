@@ -19,7 +19,6 @@ Ideas
 - QwtIntervalSymbol + QPainterPath/...
 - QwtPlotScene + breaking composite architecture
 - Using QStaticText for markers ( and scales ? )
-- Using QAbstractSlider as baseclass of QwtAbstractSlider
 - Scales/Grid item like in QwtPolarGrid
 - Container for a 2D matrix
 - Waterfall plots
@@ -36,4 +35,3 @@ Bugs/Change requests
 - Remove QwtScaleTransformation::copy()
 - Reference value for QwtThermo
 - Transparent canvas background + backingstore
-- Conflicts of qtAddLibrary with installed versions

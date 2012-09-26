@@ -4,6 +4,7 @@
 #include <qwt_thermo.h>
 #include <qwt_scale_engine.h>
 #include <qwt_transform.h>
+#include <qwt_color_map.h>
 #include "wheelbox.h"
 
 WheelBox::WheelBox( Qt::Orientation orientation,
@@ -29,6 +30,8 @@ QWidget *WheelBox::createBox(
 {
     d_wheel = new QwtWheel();
     d_wheel->setOrientation( orientation );
+    d_wheel->setValue( 80 );
+    d_wheel->setMass( 1.0 );
 
     d_thermo = new QwtThermo();
     if ( orientation == Qt::Horizontal )
@@ -40,14 +43,44 @@ QWidget *WheelBox::createBox(
     {
         case 0:
         {
+			QwtLinearColorMap *colorMap = new QwtLinearColorMap(); 
+			colorMap->setColorInterval( Qt::blue, Qt::red );
+			d_thermo->setColorMap( colorMap );
+
             break;
         }
         case 1:
         {
+			QwtLinearColorMap *colorMap = new QwtLinearColorMap();
+			colorMap->setMode( QwtLinearColorMap::FixedColors );
+
+			int idx = 4;
+
+			colorMap->setColorInterval( Qt::GlobalColor( idx ),
+				Qt::GlobalColor( idx + 10 ) );
+			for ( int i = 1; i < 10; i++ )
+			{
+				colorMap->addColorStop( i / 10.0, 
+					Qt::GlobalColor( idx + i ) );
+			}
+
+			d_thermo->setColorMap( colorMap );
             break;
         }
         case 2:
         {
+			d_wheel->setRange( 10, 1000 );
+			d_wheel->setSingleStep( 1.0 );
+
+			d_thermo->setScaleEngine( new QwtLogScaleEngine );
+			d_thermo->setScaleMaxMinor( 10 );
+
+			d_thermo->setFillBrush( Qt::darkCyan );
+			d_thermo->setAlarmBrush( Qt::magenta );
+			d_thermo->setAlarmLevel( 500.0 );
+
+    		d_wheel->setValue( 800 );
+
             break;
         }
         case 3:

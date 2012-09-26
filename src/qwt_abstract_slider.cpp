@@ -613,8 +613,18 @@ double QwtAbstractSlider::alignedValue( double value ) const
     }
     else
     {
-        // what are the values to align to f.e. for a logarithmic
-        // scale ? 
+        const double stepSize = 
+            ( scaleMap().p2() - scaleMap().p1() ) / d_data->totalSteps;
+
+        if ( stepSize > 0.0 )
+        {
+            double v = scaleMap().transform( value );
+
+            v = scaleMap().p1() +
+                qRound( ( v - scaleMap().p1() ) / stepSize ) * stepSize;
+
+            value = scaleMap().invTransform( v );
+        }
     }
 
     // correct rounding error if value = 0

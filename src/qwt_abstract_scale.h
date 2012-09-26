@@ -20,7 +20,7 @@ class QwtScaleMap;
 class QwtInterval;
 
 /*!
-  \brief An abstract base class for classes containing a scale
+  \brief An abstract base class for widgets having a scale
 
   QwtAbstractScale is used to provide classes with a QwtScaleDraw,
   and a QwtScaleDiv. The QwtScaleDiv might be set explicitely
@@ -75,6 +75,7 @@ protected:
     void rescale( double vmin, double vmax, double step = 0.0 );
 
     void setAbstractScaleDraw( QwtAbstractScaleDraw * );
+
     const QwtAbstractScaleDraw *abstractScaleDraw() const;
     QwtAbstractScaleDraw *abstractScaleDraw();
 
