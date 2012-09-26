@@ -113,7 +113,6 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setTotalSteps( 40 );
             dial->setMode( QwtDial::RotateScale );
             dial->setValue( 70.0 );
-#endif
 
             needleColor = QColor( "DarkSlateBlue" );
 
