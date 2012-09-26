@@ -98,7 +98,6 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setScale( -100.0, 100.0, 20 );
 
             dial->setScaleEngine( new QwtLogScaleEngine );
-            dial->setStepAlignment( false );
             dial->setScale( 1.0e-2, 1.0e2 );
             dial->setScaleMaxMinor( 9 );
 
@@ -106,14 +105,13 @@ QwtDial *DialBox::createDial( int type ) const
         }
         case 4:
         {
-            dial->setOrigin( 0.0 );
+            dial->setOrigin( 225.0 );
             dial->setScaleArc( 0.0, 360.0 );
             dial->setScaleMaxMinor( 5 );
             dial->setScale( 100.0, -100.0, 20 );
             dial->setWrapping( true );
-#if 1
+            dial->setTotalSteps( 40 );
             dial->setMode( QwtDial::RotateScale );
-            dial->setOrigin( 225.0 );
             dial->setValue( 70.0 );
 #endif
 
