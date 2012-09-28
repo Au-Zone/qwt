@@ -568,22 +568,6 @@ void QwtSlider::mouseReleaseEvent( QMouseEvent *event )
     QwtAbstractSlider::mouseReleaseEvent( event );
 }
 
-void QwtSlider::keyPressEvent( QKeyEvent *event )
-{
-    if ( d_data->orientation == Qt::Vertical )
-    {
-        if ( event->key() == Qt::Key_Left || event->key() == Qt::Key_Right )
-            return;
-    }
-    else
-    {
-        if ( event->key() == Qt::Key_Up || event->key() == Qt::Key_Down )
-            return;
-    }
-
-    QwtAbstractSlider::keyPressEvent( event );
-}
-
 void QwtSlider::timerEvent( QTimerEvent *event )
 {
     if ( event->timerId() != d_data->repeatTimerId )
@@ -620,12 +604,6 @@ void QwtSlider::timerEvent( QTimerEvent *event )
         
         d_data->timerTick = true;
     }   
-}
-
-void QwtSlider::wheelEvent( QWheelEvent *event )
-{
-    if ( d_data->sliderRect.contains( event->pos() ) )
-        QwtAbstractSlider::wheelEvent( event );
 }
 
 /*!

@@ -113,6 +113,7 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Groove );
             slider->setScale( 100.0, 0.0 );
+            slider->setInvertedControls( true );
             slider->setTotalSteps( 100 );
             slider->setPageSteps( 5 );
             slider->setScaleMaxMinor( 5 );

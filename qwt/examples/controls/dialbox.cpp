@@ -55,7 +55,7 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setScaleArc( 0.0, 270.0 );
             dial->setScaleMaxMinor( 10 );
             dial->setScaleMaxMajor( 10 );
-            dial->setScale( 0.0, 10.0 );
+            dial->setScale( 10.0, 0.0 );
 
             QwtRoundScaleDraw *scaleDraw = new QwtRoundScaleDraw();
             scaleDraw->setSpacing( 8 );
