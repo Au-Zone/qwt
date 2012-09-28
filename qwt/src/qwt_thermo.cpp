@@ -114,7 +114,7 @@ QwtThermo::QwtThermo( QWidget *parent ):
     QwtAbstractScale( parent )
 {
     d_data = new PrivateData;
-    setRange( 0.0, 1.0 );
+    setScale( 0.0, 1.0 );
 
     QSizePolicy policy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed );
     if ( d_data->orientation == Qt::Vertical )
@@ -162,40 +162,6 @@ void QwtThermo::setRangeFlags( QwtInterval::BorderFlags flags )
 QwtInterval::BorderFlags QwtThermo::rangeFlags() const
 {
     return d_data->rangeFlags;
-}
-
-/*!
-  Set the maximum value.
-
-  \param maxValue Maximum value
-  \sa maxValue(), setMinValue(), setRange()
-*/
-void QwtThermo::setMaxValue( double maxValue )
-{
-    setRange( minValue(), maxValue );
-}
-
-//! Return the maximum value.
-double QwtThermo::maxValue() const
-{
-    return scaleDiv().upperBound();
-}
-
-/*!
-  Set the minimum value.
-
-  \param minValue Minimum value
-  \sa minValue(), setMaxValue(), setRange()
-*/
-void QwtThermo::setMinValue( double minValue )
-{
-    setRange( minValue, maxValue() );
-}
-
-//! Return the minimum value.
-double QwtThermo::minValue() const
-{
-    return scaleDiv().lowerBound();
 }
 
 /*!
@@ -325,7 +291,7 @@ void QwtThermo::layoutThermo( bool update_geometry )
 {
     const QRect tRect = pipeRect();
     const int bw = d_data->borderWidth + d_data->spacing;
-    const bool inverted = ( maxValue() < minValue() );
+    const bool inverted = ( upperBound() < lowerBound() );
 
     int from, to;
 
@@ -607,7 +573,7 @@ void QwtThermo::drawLiquid(
     painter->save();
     painter->setClipRect( pipeRect, Qt::IntersectClip );
 
-    const bool inverted = ( maxValue() < minValue() );
+    const bool inverted = ( upperBound() < lowerBound() );
 
     const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
 
@@ -762,20 +728,6 @@ void QwtThermo::setBorderWidth( int width )
 int QwtThermo::borderWidth() const
 {
     return d_data->borderWidth;
-}
-
-/*!
-  \brief Set the range
-
-  \param minValue value corresponding lower or left end 
-                  of the thermometer
-  \param maxValue value corresponding to the upper or 
-                  right end of the thermometer
-*/
-void QwtThermo::setRange( double minValue, double maxValue )
-{
-    setScale( minValue, maxValue, scaleStepSize() );
-    layoutThermo( true );
 }
 
 /*!

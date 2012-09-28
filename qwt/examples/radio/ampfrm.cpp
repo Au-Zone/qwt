@@ -96,7 +96,7 @@ public:
     {
         d_thermo = new QwtThermo( this );
         d_thermo->setPipeWidth( 6 );
-        d_thermo->setRange( -40, 10 );
+        d_thermo->setScale( -40, 10 );
         d_thermo->setFillBrush( Qt::green );
         d_thermo->setAlarmBrush( Qt::red );
         d_thermo->setAlarmLevel( 0.0 );

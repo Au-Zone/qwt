@@ -22,9 +22,15 @@ class QwtInterval;
 /*!
   \brief An abstract base class for widgets having a scale
 
-  QwtAbstractScale is used to provide classes with a QwtScaleDraw,
-  and a QwtScaleDiv. The QwtScaleDiv might be set explicitely
-  or calculated by a QwtScaleEngine.
+  The scale of an QwtAbstractScale is determined by a QwtScaleDiv
+  definition, that contains the boundaries and the ticks of the scale.
+  The scale is painted using a QwtScaleDraw object.
+
+  The scale division might be assigned explicitely - but usually
+  it is calculated from the boundaries using a QwtScaleEngine. 
+
+  The scale engine also decides the type of transformation of the scale 
+  ( linear, logarithmic ... ).
 */
 
 class QWT_EXPORT QwtAbstractScale: public QWidget
@@ -34,22 +40,29 @@ class QWT_EXPORT QwtAbstractScale: public QWidget
     Q_PROPERTY( double lowerBound READ lowerBound WRITE setLowerBound )
     Q_PROPERTY( double upperBound READ upperBound WRITE setUpperBound )
 
+    Q_PROPERTY( int scaleMaxMajor READ scaleMaxMajor WRITE setScaleMaxMinor )
+    Q_PROPERTY( int scaleMaxMinor READ scaleMaxMinor WRITE setScaleMaxMajor )
+
+    Q_PROPERTY( double scaleStepSize READ scaleStepSize WRITE setScaleStepSize )
+
 public:
     QwtAbstractScale( QWidget *parent = NULL );
     virtual ~QwtAbstractScale();
 
-    void setScale( double vmin, double vmax, double step = 0.0 );
-    void setScale( const QwtInterval &, double step = 0.0 );
+    void setScale( double lowerBound, double upperBound );
+    void setScale( const QwtInterval & );
     void setScale( const QwtScaleDiv & );
 
-    void setLowerBound( double min );
+    const QwtScaleDiv& scaleDiv() const;
+
+    void setLowerBound( double value );
     double lowerBound() const;
 
-    void setUpperBound( double max );
+    void setUpperBound( double value );
     double upperBound() const;
 
+    void setScaleStepSize( double stepSize );
     double scaleStepSize() const;
-    const QwtScaleDiv& scaleDiv() const;
 
     void setScaleMaxMajor( int ticks );
     int scaleMaxMinor() const;
@@ -69,10 +82,11 @@ public:
     double minimum() const;
     double maximum() const;
 
-	const QwtScaleMap &scaleMap() const;
+    const QwtScaleMap &scaleMap() const;
 
 protected:
-    void rescale( double vmin, double vmax, double step = 0.0 );
+    void rescale( double lowerBound, 
+        double upperBound, double stepSize );
 
     void setAbstractScaleDraw( QwtAbstractScaleDraw * );
 

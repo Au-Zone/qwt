@@ -42,42 +42,6 @@ class QwtColorMap;
     For the axis of the scale
   - QPalette::Text
     For the labels of the scale
-
-  By default, the scale and range run over the same interval of values.
-  QwtAbstractScale::setScale() changes the interval of the scale and allows
-  easy conversion between physical units.
-
-  The example shows how to make the scale indicate in degrees Fahrenheit and
-  to set the value in degrees Kelvin:
-\code
-#include <qapplication.h>
-#include <qwt_thermo.h>
-
-double Kelvin2Fahrenheit(double kelvin)
-{
-    // see http://en.wikipedia.org/wiki/Kelvin
-    return 1.8*kelvin - 459.67;
-}
-
-int main(int argc, char **argv)
-{
-    const double minKelvin = 0.0;
-    const double maxKelvin = 500.0;
-
-    QApplication a(argc, argv);
-    QwtThermo t;
-    t.setRange(minKelvin, maxKelvin);
-    t.setScale(Kelvin2Fahrenheit(minKelvin), Kelvin2Fahrenheit(maxKelvin));
-    // set the value in Kelvin but the scale displays in Fahrenheit
-    // 273.15 Kelvin = 0 Celsius = 32 Fahrenheit
-    t.setValue(273.15);
-    a.setMainWidget(&t);
-    t.show();
-    return a.exec();
-}
-\endcode
-
-  \todo Improve the support for a logarithmic range and/or scale.
 */
 class QWT_EXPORT QwtThermo: public QwtAbstractScale
 {
@@ -91,8 +55,6 @@ class QWT_EXPORT QwtThermo: public QwtAbstractScale
         WRITE setScalePosition )
     Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
-    Q_PROPERTY( double maxValue READ maxValue WRITE setMaxValue )
-    Q_PROPERTY( double minValue READ minValue WRITE setMinValue )
     Q_PROPERTY( int pipeWidth READ pipeWidth WRITE setPipeWidth )
     Q_PROPERTY( double value READ value WRITE setValue )
 
@@ -160,15 +122,7 @@ public:
     void setRangeFlags( QwtInterval::BorderFlags );
     QwtInterval::BorderFlags rangeFlags() const;
 
-    void setMaxValue( double v );
-    double maxValue() const;
-
-    void setMinValue( double v );
-    double minValue() const;
-
     double value() const;
-
-    void setRange( double vmin, double vmax );
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
