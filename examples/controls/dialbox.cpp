@@ -42,7 +42,8 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setOrigin( 135.0 );
             dial->setScaleArc( 0.0, 270.0 );
             dial->setScaleMaxMinor( 4 );
-            dial->setScale( -100.0, 100.0, 20 );
+            dial->setScaleMaxMajor( 10 );
+            dial->setScale( -100.0, 100.0 );
 
             needleColor = QColor( "Goldenrod" );
 
@@ -53,7 +54,8 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setOrigin( 135.0 );
             dial->setScaleArc( 0.0, 270.0 );
             dial->setScaleMaxMinor( 10 );
-            dial->setScale( 0.0, 10.0, 1.0 );
+            dial->setScaleMaxMajor( 10 );
+            dial->setScale( 0.0, 10.0 );
 
             QwtRoundScaleDraw *scaleDraw = new QwtRoundScaleDraw();
             scaleDraw->setSpacing( 8 );
@@ -94,12 +96,9 @@ QwtDial *DialBox::createDial( int type ) const
         {
             dial->setOrigin( 135.0 );
             dial->setScaleArc( 0.0, 270.0 );
-            dial->setScaleMaxMinor( 5 );
-            dial->setScale( -100.0, 100.0, 20 );
-
+            dial->setScaleMaxMinor( 9 );
             dial->setScaleEngine( new QwtLogScaleEngine );
             dial->setScale( 1.0e-2, 1.0e2 );
-            dial->setScaleMaxMinor( 9 );
 
             break;
         }
@@ -108,7 +107,8 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setOrigin( 225.0 );
             dial->setScaleArc( 0.0, 360.0 );
             dial->setScaleMaxMinor( 5 );
-            dial->setScale( 100.0, -100.0, 20 );
+            dial->setScaleStepSize( 20 );
+            dial->setScale( 100.0, -100.0 );
             dial->setWrapping( true );
             dial->setTotalSteps( 40 );
             dial->setMode( QwtDial::RotateScale );
@@ -123,7 +123,8 @@ QwtDial *DialBox::createDial( int type ) const
             dial->setOrigin( 45.0 );
             dial->setScaleArc( 0.0, 225.0 );
             dial->setScaleMaxMinor( 5 );
-            dial->setScale( 0.0, 10.0, 1.0 );
+            dial->setScaleMaxMajor( 10 );
+            dial->setScale( 0.0, 10.0 );
 
             break;
         }
@@ -134,7 +135,8 @@ QwtDial *DialBox::createDial( int type ) const
         QColor( Qt::gray ).light( 130 ) );
     dial->setNeedle( needle );
 
-    const QColor base( QColor( "DimGray" ) );
+    //const QColor base( QColor( "DimGray" ) );
+    const QColor base( QColor( Qt::darkGray ).dark( 150 ) );
 
     QPalette palette;
     palette.setColor( QPalette::Base, base );

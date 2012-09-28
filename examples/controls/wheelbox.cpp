@@ -89,7 +89,7 @@ QWidget *WheelBox::createBox(
         }
     }
 
-    d_thermo->setRange( d_wheel->minimum(), d_wheel->maximum() );
+    d_thermo->setScale( d_wheel->minimum(), d_wheel->maximum() );
     d_thermo->setValue( d_wheel->value() );
 
     connect( d_wheel, SIGNAL( valueChanged( double ) ), 

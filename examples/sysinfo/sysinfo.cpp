@@ -18,7 +18,7 @@ public:
         d_label->setFont( QFont( "Helvetica", 10 ) );
 
         d_thermo = new QwtThermo( this );
-        d_thermo->setRange( 0.0, 100.0 );
+        d_thermo->setScale( 0.0, 100.0 );
         d_thermo->setValue( value );
         d_thermo->setFont( QFont( "Helvetica", 8 ) );
         d_thermo->setPipeWidth( 6 );

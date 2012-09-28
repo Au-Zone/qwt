@@ -41,7 +41,8 @@ QwtKnob *KnobBox::createKnob( int knobType ) const
             knob->setMarkerStyle( QwtKnob::Nub );
             knob->setWrapping( true );
             knob->setNumTurns( 4 );
-            knob->setScale( 0, 400, 10.0 );
+            knob->setScaleStepSize( 10.0 );
+            knob->setScale( 0, 400 );
             knob->setTotalSteps( 400 );
             break;
         }
@@ -86,7 +87,8 @@ QwtKnob *KnobBox::createKnob( int knobType ) const
             knob->setKnobStyle( QwtKnob::Raised );
             knob->setMarkerStyle( QwtKnob::Notch );
             knob->setScaleEngine( new QwtLogScaleEngine() );
-            knob->setScale( 0.1, 1000.0, 1.0 );
+            knob->setScaleStepSize( 1.0 );
+            knob->setScale( 0.1, 1000.0 );
             knob->setScaleMaxMinor( 10 );
             break;
         }
