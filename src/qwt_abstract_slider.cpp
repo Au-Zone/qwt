@@ -57,7 +57,8 @@ public:
         stepAlignment( true ),
         isValid( false ),
         value( 0.0 ),
-        wrapping( false )
+        wrapping( false ),
+		invertedControls( false )
     {
     }
 
@@ -76,6 +77,7 @@ public:
     double value;
 
     bool wrapping;
+    bool invertedControls;
 };
 
 /*!
@@ -280,7 +282,15 @@ void QwtAbstractSlider::mouseReleaseEvent( QMouseEvent *event )
 
 /*!
    Wheel Event handler
-   \param e Whell event
+
+   In/decreases the value by s number of steps. The direction 
+   depends on the invertedControls() property.
+
+   When the control or shift modifier is pressed the wheel delta
+   ( divided by 120 ) is mapped to an increment according to
+   pageSteps(). Otherwise it is mapped to singleSteps().
+
+   \param event Wheel event
 */
 void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
 {
@@ -309,6 +319,9 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
         numSteps = numTurns * d_data->singleSteps;
     }
 
+	if ( d_data->invertedControls )
+		numSteps = -numSteps;
+
     const double value = incrementedValue( d_data->value, numSteps );
     if ( value != d_data->value )
     {
@@ -322,6 +335,25 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
 
 /*!
   Handles key events
+
+  QwtAbstractSlider handles the following keys:
+
+  - Qt::Key_Left
+    Add/Subtract singleSteps() in direction to lowerBound();
+  - Qt::Key_Right
+    Add/Subtract singleSteps() in direction to upperBound();
+  - Qt::Key_Down
+    Subtract singleSteps(), when invertedControls() is false
+  - Qt::Key_Up
+    Add singleSteps(), when invertedControls() is false
+  - Qt::Key_PageDown
+    Subtract pageSteps(), when invertedControls() is false
+  - Qt::Key_PageUp
+    Add pageSteps(), when invertedControls() is false
+  - Qt::Key_Home
+    Set the value to the minimum()
+  - Qt::Key_End
+    Set the value to the maximum()
 
   \param event Key event
   \sa isReadOnly()
@@ -340,26 +372,9 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     int numSteps = 0;
     double value = d_data->value;
 
-#if 1
-    // better use key mapping from QAbstractSlider or QDial
     switch ( event->key() )
     {
-        case Qt::Key_Down:
-        {
-            numSteps = d_data->singleSteps;
-            if ( isInverted() )
-                numSteps = -numSteps;
-            break;
-        }
         case Qt::Key_Left:
-        {
-            numSteps = -d_data->singleSteps;
-            if ( isInverted() )
-                numSteps = -numSteps;
-
-            break;
-        }
-        case Qt::Key_Up:
         {
             numSteps = -d_data->singleSteps;
             if ( isInverted() )
@@ -375,24 +390,43 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
 
             break;
         }
+        case Qt::Key_Down:
+        {
+            numSteps = -d_data->singleSteps;
+			if ( d_data->invertedControls )
+				numSteps = -numSteps;
+            break;
+        }
+        case Qt::Key_Up:
+        {
+            numSteps = d_data->singleSteps;
+			if ( d_data->invertedControls )
+				numSteps = -numSteps;
+
+            break;
+        }
         case Qt::Key_PageUp:
         {
             numSteps = d_data->pageSteps;
+			if ( d_data->invertedControls )
+				numSteps = -numSteps;
             break;
         }
         case Qt::Key_PageDown:
         {
             numSteps = -d_data->pageSteps;
+			if ( d_data->invertedControls )
+				numSteps = -numSteps;
             break;
         }
         case Qt::Key_Home:
         {
-            value = lowerBound();
+            value = minimum();
             break;
         }
         case Qt::Key_End:
         {
-            value = upperBound();
+            value = maximum();
             break;
         }
         default:;
@@ -400,7 +434,6 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
             event->ignore();
         }
     }
-#endif
 
     if ( numSteps != 0 )
     {
@@ -564,6 +597,31 @@ void QwtAbstractSlider::setWrapping( bool on )
 bool QwtAbstractSlider::wrapping() const
 {
     return d_data->wrapping;
+}
+
+/*!
+  Invert wheel and key events
+
+  Usually scrolling the mouse wheel "up" and using keys like page 
+  up will increase the slider's value towards its maximum. 
+  When invertedControls() is enabled the value is scrolled
+  towards its minimum.
+
+  Inverting the controls might be f.e. useful for a vertical slider
+  with an inverted scale ( decreasing from top to bottom ).
+
+  \param on Invert controls, when true
+
+  \sa invertedControls(), keyEvent(), wheelEvent()
+ */
+void QwtAbstractSlider::setInvertedControls( bool on )
+{
+	d_data->invertedControls = on;
+}
+
+bool QwtAbstractSlider::invertedControls() const
+{
+	return d_data->invertedControls;
 }
 
 void QwtAbstractSlider::incrementValue( int stepCount )

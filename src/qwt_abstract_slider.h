@@ -44,6 +44,8 @@ class QWT_EXPORT QwtAbstractSlider: public QwtAbstractScale
     Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
     Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
 
+    Q_PROPERTY( bool invertedControls READ invertedControls WRITE setInvertedControls )
+
 public:
     explicit QwtAbstractSlider( QWidget *parent = NULL );
     virtual ~QwtAbstractSlider();
@@ -53,7 +55,7 @@ public:
 
     double value() const;
 
-    void setWrapping( bool tf );
+    void setWrapping( bool );
     bool wrapping() const;
 
     void setTotalSteps( uint );
@@ -65,14 +67,17 @@ public:
     void setPageSteps( uint );
     uint pageSteps() const;
 
-    void setStepAlignment( bool on ); 
+    void setStepAlignment( bool ); 
     bool stepAlignment() const;
 
-    void setTracking( bool enable );
+    void setTracking( bool );
     bool isTracking() const;
 
     void setReadOnly( bool );
     bool isReadOnly() const;
+
+	void setInvertedControls( bool );
+	bool invertedControls() const;
 
 public Q_SLOTS:
     void setValue( double val );
