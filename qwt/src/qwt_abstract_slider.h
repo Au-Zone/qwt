@@ -128,8 +128,7 @@ protected:
     /*!
       \brief Determine what to do when the user presses a mouse button.
 
-      \param pos point where the mouse was pressed
-      \param initial True for press and false for move events
+      \param pos Mouse position
 
       \retval True, when pos is a valid scroll position
       \sa scrolledTo()
@@ -138,7 +137,7 @@ protected:
 
     /*!
       \brief Determine the value for a new position of the
-             movalble part of the slider
+             movable part of the slider
 
       \param pos Mouse position
 

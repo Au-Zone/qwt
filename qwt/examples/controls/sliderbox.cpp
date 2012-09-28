@@ -60,6 +60,7 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::TrailingScale );
             slider->setBackgroundStyle( QwtSlider::Trough );
+            slider->setSpacing( 0 );
             slider->setHandleSize( QSize( 30, 16 ) );
             slider->setScale( 10.0, -10.0 ); 
             slider->setTotalSteps( 8 ); 

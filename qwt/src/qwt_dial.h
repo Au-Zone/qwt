@@ -31,16 +31,14 @@ class QwtRoundScaleDraw;
   of the dial. Depending on Mode one of them is fixed and the
   other is rotating. If not isReadOnly() the
   dial can be rotated by dragging the mouse or using keyboard inputs
-  (see keyPressEvent()). A dial might be wrapping, what means
+  (see QwtAbstractSlider::keyPressEvent()). A dial might be wrapping, what means
   a rotation below/above one limit continues on the other limit (f.e compass).
   The scale might cover any arc of the dial, its values are related to
   the origin() of the dial.
 
-  Qwt is missing a set of good looking needles (QwtDialNeedle).
-  Contributions are very welcome.
-
   \sa QwtCompass, QwtAnalogClock, QwtDialNeedle
-  \note The examples/dials example shows different types of dials.
+  \note The controls and dials examples shows different types of dials.
+  \note QDial is more similar to QwtKnob than to QwtDial
 */
 
 class QWT_EXPORT QwtDial: public QwtAbstractSlider
@@ -136,15 +134,6 @@ protected:
     virtual void drawScale( QPainter *, 
         const QPointF &center, double radius ) const;
 
-    /*!
-      Draw the contents inside the scale
-
-      Paints nothing.
-
-      \param painter Painter
-      \param center Center of the contents circle
-      \param radius Radius of the contents circle
-    */
     virtual void drawScaleContents( QPainter *painter, 
         const QPointF &center, double radius ) const;
 
@@ -157,7 +146,6 @@ protected:
     virtual void sliderChange();
 
 private:
-    double valueAt( const QPoint & ) const;
     void setAngleRange( double angle, double span );
 
     class PrivateData;

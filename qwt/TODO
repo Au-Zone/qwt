@@ -28,6 +28,7 @@ Ideas
 - quadtree
 - QwtText supporting Qt::TextElideMode
 - Multitouch events
+- Fix QwtKnob resize handling
 
 Bugs/Change requests
 --------------------
