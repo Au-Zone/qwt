@@ -19,14 +19,13 @@ class QwtRoundScaleDraw;
   \brief The Knob Widget
 
   The QwtKnob widget imitates look and behaviour of a volume knob on a radio.
-  It contains a scale around the knob which is set up automatically or can
-  be configured manually (see QwtAbstractScale).
-  For a description of signals, slots and other
-  members, see QwtAbstractSlider.
+  It looks similar to QDial - not to QwtDial.
+
+  The value range of a knob might be divided into several turns.
 
   \image html knob.png
-  \sa   QwtAbstractSlider and QwtAbstractScale for the descriptions
-    of the inherited members.
+  \sa QwtAbstractSlider and QwtAbstractScale for the descriptions
+      of the inherited members.
 */
 
 class QWT_EXPORT QwtKnob: public QwtAbstractSlider

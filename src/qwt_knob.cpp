@@ -79,8 +79,15 @@ public:
 };
 
 /*!
-  Constructor
+  \brief Contstructor
+
+  Construct a knob with an angle of 270°. The style is
+  QwtKnob::Raised and the marker style is QwtKnob::Notch.
+  The width of the knob is set to 50 pixels.
+
   \param parent Parent widget
+
+  \sa setTotalAngle()
 */
 QwtKnob::QwtKnob( QWidget* parent ):
     QwtAbstractSlider( parent )
@@ -142,8 +149,8 @@ void QwtKnob::setMarkerStyle( MarkerStyle markerStyle )
 }
 
 /*!
-    \return Marker type of the knob
-    \sa setMarkerStyle(), setMarkerSize()
+  \return Marker type of the knob
+  \sa setMarkerStyle(), setMarkerSize()
 */
 QwtKnob::MarkerStyle QwtKnob::markerStyle() const
 {
@@ -154,9 +161,13 @@ QwtKnob::MarkerStyle QwtKnob::markerStyle() const
   \brief Set the total angle by which the knob can be turned
   \param angle Angle in degrees.
 
-  The default angle is 270 degrees. It is possible to specify
-  an angle of more than 360 degrees so that the knob can be
-  turned several times around its axis.
+  The angle has to be between [10, 360] degrees. Angles above
+  360 ( so that the knob can be turned several times around its axis )
+  have to be set using setNumTurns().
+
+  The default angle is 270 degrees. 
+
+  \sa totalAngle(), setNumTurns()
 */
 void QwtKnob::setTotalAngle ( double angle )
 {
@@ -174,12 +185,24 @@ void QwtKnob::setTotalAngle ( double angle )
     }
 }
 
-//! Return the total angle
+/*! 
+  \return the total angle
+  \sa setTotalAngle(), setNumTurns(), numTurns()
+ */
 double QwtKnob::totalAngle() const
 {
     return d_data->totalAngle;
 }
 
+/*!
+  \brief Set the number of turns
+
+  When numTurns > 1 the knob can be turned several times around its axis
+  - otherwise the total angle is floored to 360°.
+
+  \sa numTurns(), totalAngle(), setTotalAngle()
+*/
+  
 void QwtKnob::setNumTurns( int numTurns )
 {
     numTurns = qMax( numTurns, 1 );
@@ -200,6 +223,12 @@ void QwtKnob::setNumTurns( int numTurns )
     }
 }
 
+/*!
+  \return Number of turns. 
+
+  When the total angle is below 360° numTurns() is ceiled to 1.
+  \sa setNumTurns(), setTotalAngle(), totalAngle()
+ */
 int QwtKnob::numTurns() const
 {
     return qCeil( d_data->totalAngle / 360.0 );
@@ -238,6 +267,14 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
     return static_cast<QwtRoundScaleDraw *>( abstractScaleDraw() );
 }
 
+/*!
+  \brief Determine what to do when the user presses a mouse button.
+
+  \param pos Mouse position
+
+  \retval True, when pos is inside the circle of the knob.
+  \sa scrolledTo()
+*/
 bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
     QRect knobRect( 0, 0, d_data->knobWidth, d_data->knobWidth );
@@ -257,6 +294,14 @@ bool QwtKnob::isScrollPosition( const QPoint &pos ) const
     return false;
 }
 
+/*!
+  \brief Determine the value for a new position of the mouse
+
+  \param pos Mouse position
+
+  \return Value for the mouse position
+  \sa isScrollPosition()
+*/
 double QwtKnob::scrolledTo( const QPoint &pos ) const
 {
     double angle = QLineF( rect().center(), pos ).angle();
@@ -362,6 +407,7 @@ void QwtKnob::paintEvent( QPaintEvent *event )
 
 /*!
   \brief Draw the knob
+
   \param painter painter
   \param knobRect Bounding rectangle of the knob (without scale)
 */
@@ -427,6 +473,7 @@ void QwtKnob::drawKnob( QPainter *painter, const QRectF &knobRect ) const
 
 /*!
   \brief Draw the marker at the knob's front
+
   \param painter Painter
   \param rect Bounding rectangle of the knob without scale
   \param angle Angle of the marker in degrees 
@@ -599,7 +646,10 @@ void QwtKnob::setMarkerSize( int size )
     }
 }
 
-//! Return the marker size
+/*! 
+  \return Marker size
+  \sa setMarkerSize()
+ */
 int QwtKnob::markerSize() const
 {
     return d_data->markerSize;
@@ -615,9 +665,8 @@ QSize QwtKnob::sizeHint() const
 }
 
 /*!
-  \brief Return a minimum size hint
-  \warning The return value of QwtKnob::minimumSizeHint() depends on the
-           font and the scale.
+  \return Minimum size hint
+  \sa sizeHint()
 */
 QSize QwtKnob::minimumSizeHint() const
 {
