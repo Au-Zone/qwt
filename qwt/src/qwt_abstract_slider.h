@@ -14,13 +14,19 @@
 #include "qwt_abstract_scale.h"
 
 /*!
-  \brief An abstract base class for slider widgets
+  \brief An abstract base class for slider widgets with a scale
 
-  QwtAbstractSlider is a base class for slider widgets. 
-  It handles mouse events and updates the slider's value accordingly. 
-  Derived classes only have to implement the valueAt() and
-  getScrollMode() members, and should react to a
-  valueChange(), which normally requires repainting.
+  A slider widget displays a value according to a scale.
+  The class is designed as a common super class for widgets like 
+  QwtKnob, QwtDial and QwtSlider.
+
+  When the slider is nor readOnly() its value can be modified 
+  by keybord, mouse and wheel inputs. 
+
+  The range of the slider is divided into a number of steps from
+  which the value increments according to user inputs depend. 
+  Only for linear scales the number of steps correspond with
+  a fixed step size.
 */
 
 class QWT_EXPORT QwtAbstractSlider: public QwtAbstractScale
@@ -76,17 +82,18 @@ Q_SIGNALS:
     /*!
       \brief Notify a change of value.
 
-      In the default setting
-      (tracking enabled), this signal will be emitted every
-      time the value changes ( see setTracking() ).
+      When tracking is enabled (default setting), 
+      this signal will be emitted every time the value changes. 
 
       \param value New value
+
+      \sa setTracking(), sliderMoved()
     */
     void valueChanged( double value );
 
     /*!
       This signal is emitted when the user presses the
-      movable part of the slider (start ScrMouse Mode).
+      movable part of the slider.
     */
     void sliderPressed();
 
@@ -94,12 +101,15 @@ Q_SIGNALS:
       This signal is emitted when the user releases the
       movable part of the slider.
     */
-
     void sliderReleased();
+
     /*!
       This signal is emitted when the user moves the
       slider with the mouse.
-      \param value new value
+
+      \param value New value
+
+      \sa valueChanged()
     */
     void sliderMoved( double value );
 
@@ -111,34 +121,26 @@ protected:
     virtual void wheelEvent( QWheelEvent * );
 
     /*!
-      \brief Determine the value for a new position while scrolling
-
-      This is an abstract virtual function which is called when
-      the user is scrolling the slider with the mouse. 
-      It has to be implemented by the derived class.
-
-      \param pos Scroll poistion
-
-      \return Value for the scroll position
-
-      \sa isScrollPosition()
-    */
-    virtual double scrolledTo( const QPoint &pos ) const = 0;
-
-    /*!
       \brief Determine what to do when the user presses a mouse button.
-
-      This function is abstract and has to be implemented by derived classes.
-      It is called on a mousePress and mouseMove events. 
 
       \param pos point where the mouse was pressed
       \param initial True for press and false for move events
 
       \retval True, when pos is a valid scroll position
-
       \sa scrolledTo()
     */
     virtual bool isScrollPosition( const QPoint &pos ) const = 0;
+
+    /*!
+      \brief Determine the value for a new position of the
+             movalble part of the slider
+
+      \param pos Mouse position
+
+      \return Value for the mouse position
+      \sa isScrollPosition()
+    */
+    virtual double scrolledTo( const QPoint &pos ) const = 0;
 
     void incrementValue( int numSteps );
 
