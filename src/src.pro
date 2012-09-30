@@ -67,7 +67,8 @@ HEADERS += \
     qwt_text_engine.h \
     qwt_text_label.h \
     qwt_text.h \
-    qwt_transform.h
+    qwt_transform.h \
+    qwt_widget_overlay.h
 
 SOURCES += \
     qwt_abstract_scale_draw.cpp \
@@ -101,7 +102,8 @@ SOURCES += \
     qwt_text_engine.cpp \
     qwt_text_label.cpp \
     qwt_text.cpp \
-    qwt_transform.cpp 
+    qwt_transform.cpp \
+    qwt_widget_overlay.cpp
 
  
 contains(QWT_CONFIG, QwtPlot) {
@@ -137,7 +139,6 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_seriesitem.h \
         qwt_plot_shapeitem.h \
         qwt_plot_canvas.h \
-        qwt_plot_overlay.h \
         qwt_plot_panner.h \
         qwt_plot_picker.h \
         qwt_plot_zoomer.h \
@@ -184,7 +185,6 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_textlabel.cpp \
         qwt_plot_layout.cpp \
         qwt_plot_canvas.cpp \
-        qwt_plot_overlay.cpp \
         qwt_plot_panner.cpp \
         qwt_plot_rasteritem.cpp \
         qwt_plot_picker.cpp \

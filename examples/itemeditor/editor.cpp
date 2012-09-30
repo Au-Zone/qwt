@@ -5,43 +5,43 @@
 #include <qwt_plot_shapeitem.h>
 #include <qevent.h>
 
-class Overlay: public QwtPlotOverlay
+class Overlay: public QwtWidgetOverlay
 {
 public:
     Overlay( QWidget *parent, Editor *editor ):
-        QwtPlotOverlay( parent ),
+        QwtWidgetOverlay( parent ),
         d_editor( editor )
     {
         switch( editor->mode() )
         {
             case Editor::NoMask:
             {
-                setMaskMode( QwtPlotOverlay::NoMask );
-                setRenderMode( QwtPlotOverlay::AutoRenderMode );
+                setMaskMode( QwtWidgetOverlay::NoMask );
+                setRenderMode( QwtWidgetOverlay::AutoRenderMode );
                 break;
             }
             case Editor::Mask:
             {
-                setMaskMode( QwtPlotOverlay::MaskHint );
-                setRenderMode( QwtPlotOverlay::AutoRenderMode );
+                setMaskMode( QwtWidgetOverlay::MaskHint );
+                setRenderMode( QwtWidgetOverlay::AutoRenderMode );
                 break;
             }
             case Editor::AlphaMask:
             {
-                setMaskMode( QwtPlotOverlay::AlphaMask );
-                setRenderMode( QwtPlotOverlay::AutoRenderMode );
+                setMaskMode( QwtWidgetOverlay::AlphaMask );
+                setRenderMode( QwtWidgetOverlay::AutoRenderMode );
                 break;
             }
             case Editor::AlphaMaskRedraw:
             {
-                setMaskMode( QwtPlotOverlay::AlphaMask );
-                setRenderMode( QwtPlotOverlay::DrawOverlay );
+                setMaskMode( QwtWidgetOverlay::AlphaMask );
+                setRenderMode( QwtWidgetOverlay::DrawOverlay );
                 break;
             }
             case Editor::AlphaMaskCopyMask:
             {
-                setMaskMode( QwtPlotOverlay::AlphaMask );
-                setRenderMode( QwtPlotOverlay::CopyAlphaMask );
+                setMaskMode( QwtWidgetOverlay::AlphaMask );
+                setRenderMode( QwtWidgetOverlay::CopyAlphaMask );
                 break;
             }
         }

@@ -4,7 +4,7 @@
 #include <qobject.h>
 #include <qregion.h>
 #include <qpointer.h>
-#include <qwt_plot_overlay.h>
+#include <qwt_widget_overlay.h>
 
 class QwtPlot;
 class QwtPlotShapeItem;
@@ -54,7 +54,7 @@ private:
     void setItemVisible( QwtPlotShapeItem *item, bool on );
 
     bool d_isEnabled;
-    QPointer<QwtPlotOverlay> d_overlay;
+    QPointer<QwtWidgetOverlay> d_overlay;
 
     // Mouse positions
     QPointF d_currentPos;

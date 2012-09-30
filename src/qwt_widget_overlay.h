@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_PLOT_OVERLAY_H
-#define QWT_PLOT_OVERLAY_H
+#ifndef QWT_WIDGET_OVERLAY_H
+#define QWT_WIDGET_OVERLAY_H
 
 #include "qwt_global.h"
 #include <qwidget.h>
@@ -17,29 +17,33 @@
 class QPainter;
 
 /*!
-   \brief An overlay widget for the plot canvas
+   \brief An overlay for a widget
 
-   In combination with the backingstore of the plot canvas
-   overlay widgets avoid expensive replots. Their main use case
-   is to support graphical interactions where it is unaccapteble, 
-   when the updates of the canvas is not in time with the mouse 
-   movements.
+   The main use case of an widget overlay is to avoid
+   heavy repaint operation of the widget below.
 
-   QwtPlotOverlay is an abstract base class. Deriving classes are
+   F.e. in combination with the plot canvas an overlay 
+   avoid replots as the content of the canvas can be restored from 
+   its backingstore.
+
+   QwtWidgetOverlay is an abstract base class. Deriving classes are
    supposed to reimplement the following methods:
 
    - drawOverlay()
    - maskHint()
 
+   Internally QwtPlotPicker uses overlays for displaying 
+   the rubberband and the tracker text.
+
    \sa QwtPlotCanvas::BackingStore
  */
-class QWT_EXPORT QwtPlotOverlay: public QWidget
+class QWT_EXPORT QwtWidgetOverlay: public QWidget
 {
 public:
     /*!
        \brief Mask mode
 
-       When using masks the canvas gets paint events for
+       When using masks the widget below gets paint events for
        the masked regions of the overlay only. Otherwise
        Qt triggers full repaints. On less powerful hardware
        ( f.e embedded systems ) - or when using the raster paint 
@@ -107,8 +111,8 @@ public:
         DrawOverlay
     };
 
-    QwtPlotOverlay( QWidget* canvas );
-    virtual ~QwtPlotOverlay();
+    QwtWidgetOverlay( QWidget* );
+    virtual ~QwtWidgetOverlay();
 
     void setMaskMode( MaskMode );
     MaskMode maskMode() const;
