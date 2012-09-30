@@ -320,7 +320,6 @@ private:
 
     void setMouseTracking( bool );
 
-    class PickerWidget;
     class PrivateData;
     PrivateData *d_data;
 };
