@@ -11,6 +11,7 @@
 #include "qwt_picker_machine.h"
 #include "qwt_painter.h"
 #include "qwt_math.h"
+#include "qwt_widget_overlay.h"
 #include <qapplication.h>
 #include <qevent.h>
 #include <qpainter.h>
@@ -21,35 +22,30 @@
 #include <qpaintengine.h>
 #include <qmath.h>
 
-class QwtPicker::PickerWidget: public QWidget
+class QwtPickerRubberband: public QwtWidgetOverlay
 {
 public:
-    enum Type
-    {
-        RubberBand,
-        Text
-    };
-
-    PickerWidget( QwtPicker *, QWidget *, Type );
-    void updateMask();
-
-    /*
-       For a tracker text with a background we can use the background
-       rect as mask. Also for "regular" Qt widgets >= 4.3.0 we
-       don't need to mask the text anymore.
-     */
-    bool d_hasTextMask;
+    QwtPickerRubberband( QwtPicker *, QWidget * );
 
 protected:
-    virtual void paintEvent( QPaintEvent * );
-    virtual void resizeEvent( QResizeEvent * );
-
-private:
-    void drawTrackerMask( QPaintDevice & ) const;
+    virtual void drawOverlay( QPainter * ) const;
+    virtual QRegion maskHint() const;
 
     QwtPicker *d_picker;
-    Type d_type;
 };
+
+class QwtPickerTracker: public QwtWidgetOverlay
+{                                  
+public:
+    QwtPickerTracker( QwtPicker *, QWidget * );
+    
+protected:
+    virtual void drawOverlay( QPainter * ) const;
+    virtual QRegion maskHint() const;
+    
+    QwtPicker *d_picker;
+};  
+
 
 class QwtPicker::PrivateData
 {
@@ -73,113 +69,46 @@ public:
 
     bool mouseTracking; // used to save previous value
 
-    /*
-      On X11 the widget below the picker widgets gets paint events
-      with a region that is the bounding rect of the mask, if it is complex.
-      In case of (f.e) a CrossRubberBand and a text this creates complete
-      repaints of the widget. So we better use two different widgets.
-     */
-
-    QPointer<PickerWidget> rubberBandWidget;
-    QPointer<PickerWidget> trackerWidget;
+    QPointer< QwtPickerRubberband > rubberBandWidget;
+    QPointer< QwtPickerTracker> trackerWidget;
 };
 
-QwtPicker::PickerWidget::PickerWidget(
-        QwtPicker *picker, QWidget *parent, Type type ):
-    QWidget( parent ),
-    d_hasTextMask( false ),
-    d_picker( picker ),
-    d_type( type )
+QwtPickerRubberband::QwtPickerRubberband(
+        QwtPicker *picker, QWidget *parent ):
+    QwtWidgetOverlay( parent ),
+    d_picker( picker )
 {
-    setAttribute( Qt::WA_TransparentForMouseEvents );
-    setAttribute( Qt::WA_NoSystemBackground );
-    setFocusPolicy( Qt::NoFocus );
+    setMaskMode( QwtWidgetOverlay::AlphaMask );
 }
 
-void QwtPicker::PickerWidget::updateMask()
+QRegion QwtPickerRubberband::maskHint() const
 {
-    QRegion mask;
-
-    if ( d_type == RubberBand )
-    {
-        QBitmap bm( width(), height() );
-        bm.fill( Qt::color0 );
-
-        QPainter painter( &bm );
-        QPen pen = d_picker->rubberBandPen();
-        pen.setColor( Qt::color1 );
-        painter.setPen( pen );
-
-        d_picker->drawRubberBand( &painter );
-
-        mask = QRegion( bm );
-    }
-    else if ( d_type == Text )
-    {
-        mask = d_picker->trackerRect( font() );
-    }
-
-    QWidget *w = parentWidget();
-    if ( w && !w->testAttribute( Qt::WA_PaintOnScreen ) )
-    {
-        // The parent widget gets an update for its complete rectangle
-        // when the mask is changed in visible state.
-        // With this hide/show we only get an update for the
-        // previous mask.
-
-        hide();
-    }
-    setMask( mask );
-    setVisible( !mask.isEmpty() );
+    return QRegion(); // could be some bounding rect !
 }
 
-void QwtPicker::PickerWidget::drawTrackerMask( QPaintDevice &device ) const
+void QwtPickerRubberband::drawOverlay( QPainter *painter ) const
 {
-    QPainter painter( &device );
-    painter.setFont( font() );
-
-    QPen pen = d_picker->trackerPen();
-    pen.setColor( Qt::color1 );
-    painter.setPen( pen );
-
-    d_picker->drawTracker( &painter );
+    painter->setPen( d_picker->rubberBandPen() );
+    d_picker->drawRubberBand( painter );
 }
 
-void QwtPicker::PickerWidget::paintEvent( QPaintEvent *e )
+QwtPickerTracker::QwtPickerTracker(
+        QwtPicker *picker, QWidget *parent ):
+    QwtWidgetOverlay( parent ),
+    d_picker( picker )
 {
-    QPainter painter( this );
-    painter.setClipRegion( e->region() );
-
-    if ( d_type == RubberBand )
-    {
-        painter.setPen( d_picker->rubberBandPen() );
-        d_picker->drawRubberBand( &painter );
-    }
-
-    if ( d_type == Text )
-    {
-        /*
-           If we have a text mask we simply fill the region of
-           the mask. This gives better results for antialiased fonts.
-         */
-        if ( d_hasTextMask )
-        {
-            painter.fillRect( e->rect(), 
-                QBrush( d_picker->trackerPen().color() ) );
-        }
-        else
-        {
-            painter.setPen( d_picker->trackerPen() );
-            d_picker->drawTracker( &painter );
-        }
-    }
+    setMaskMode( QwtWidgetOverlay::MaskHint );
 }
 
-void QwtPicker::PickerWidget::resizeEvent( QResizeEvent *event )
+QRegion QwtPickerTracker::maskHint() const
 {
-    QWidget::resizeEvent( event );
-    if ( isVisible() )
-        updateMask();
+    return d_picker->trackerRect( font() );
+}
+
+void QwtPickerTracker::drawOverlay( QPainter *painter ) const
+{
+    painter->setPen( d_picker->trackerPen() );
+    d_picker->drawTracker( painter );
 }
 
 /*!
@@ -1398,33 +1327,31 @@ void QwtPicker::updateDisplay()
         }
     }
 
-    QPointer<PickerWidget> &rw = d_data->rubberBandWidget;
+    QPointer< QwtPickerRubberband > &rw = d_data->rubberBandWidget;
     if ( showRubberband )
     {
         if ( rw.isNull() )
         {
-            rw = new PickerWidget( this, w, PickerWidget::RubberBand );
+            rw = new QwtPickerRubberband( this, w );
             rw->setObjectName( "PickerRubberBand" );
             rw->resize( w->size() );
         }
-        rw->updateMask();
-        rw->update(); // Needed, when the mask doesn't change
+        rw->updateOverlay();
     }
     else
         delete rw;
 
-    QPointer<PickerWidget> &tw = d_data->trackerWidget;
+    QPointer< QwtPickerTracker > &tw = d_data->trackerWidget;
     if ( showTracker )
     {
         if ( tw.isNull() )
         {
-            tw = new PickerWidget( this, w, PickerWidget::Text );
+            tw = new QwtPickerTracker( this, w );
             tw->setObjectName( "PickerTracker" );
             tw->resize( w->size() );
         }
         tw->setFont( d_data->trackerFont );
-        tw->updateMask();
-        tw->update(); // Needed, when the mask doesn't change
+        tw->updateOverlay();
     }
     else
         delete tw;
