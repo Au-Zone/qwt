@@ -7,7 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_plot_overlay.h"
+#include "qwt_widget_overlay.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
 #include <qpaintengine.h>
@@ -78,12 +78,12 @@ static QRegion qwtAlphaMask(
     return region;
 }
 
-class QwtPlotOverlay::PrivateData
+class QwtWidgetOverlay::PrivateData
 {
 public:
     PrivateData():
-        maskMode( QwtPlotOverlay::MaskHint ),
-        renderMode( QwtPlotOverlay::AutoRenderMode ),
+        maskMode( QwtWidgetOverlay::MaskHint ),
+        renderMode( QwtWidgetOverlay::AutoRenderMode ),
         rgbaBuffer( NULL )
     {
     }
@@ -109,10 +109,10 @@ public:
 
 /*!
    \brief Constructor
-   \param canvas Parent widget
+   \param widget Parent widget wger the overlay is aligned to
 */
-QwtPlotOverlay::QwtPlotOverlay( QWidget* canvas ):
-    QWidget( canvas ),
+QwtWidgetOverlay::QwtWidgetOverlay( QWidget* widget ):
+    QWidget( widget ),
     m_rgbaBuffer( NULL )
 {
     d_data = new PrivateData;
@@ -121,15 +121,15 @@ QwtPlotOverlay::QwtPlotOverlay( QWidget* canvas ):
     setAttribute( Qt::WA_NoSystemBackground );
     setFocusPolicy( Qt::NoFocus );
 
-    if ( canvas )
+    if ( widget )
     {
-        resize( canvas->size() );
-        canvas->installEventFilter( this );
+        resize( widget->size() );
+        widget->installEventFilter( this );
     }
 }
 
 //! Destructor
-QwtPlotOverlay::~QwtPlotOverlay()
+QwtWidgetOverlay::~QwtWidgetOverlay()
 {
     delete d_data;
 }
@@ -140,7 +140,7 @@ QwtPlotOverlay::~QwtPlotOverlay()
    \param mode New mode
    \sa maskMode()
  */
-void QwtPlotOverlay::setMaskMode( MaskMode mode )
+void QwtWidgetOverlay::setMaskMode( MaskMode mode )
 {
     if ( mode != d_data->maskMode )
     {
@@ -153,17 +153,17 @@ void QwtPlotOverlay::setMaskMode( MaskMode mode )
    \return Mode how to find the mask for the overlay
    \sa setMaskMode()
  */
-QwtPlotOverlay::MaskMode QwtPlotOverlay::maskMode() const
+QwtWidgetOverlay::MaskMode QwtWidgetOverlay::maskMode() const
 {
     return d_data->maskMode;
 }
 
-void QwtPlotOverlay::setRenderMode( RenderMode mode )
+void QwtWidgetOverlay::setRenderMode( RenderMode mode )
 {
     d_data->renderMode = mode;
 }
 
-QwtPlotOverlay::RenderMode QwtPlotOverlay::renderMode() const
+QwtWidgetOverlay::RenderMode QwtWidgetOverlay::renderMode() const
 {
     return d_data->renderMode;
 }
@@ -171,23 +171,23 @@ QwtPlotOverlay::RenderMode QwtPlotOverlay::renderMode() const
 /*!
    Recalculate the mask and repaint the overlay
  */
-void QwtPlotOverlay::updateOverlay()
+void QwtWidgetOverlay::updateOverlay()
 {
     updateMask();
     update();
 }
 
-void QwtPlotOverlay::updateMask()
+void QwtWidgetOverlay::updateMask()
 {
     d_data->resetRgbaBuffer();
 
     QRegion mask;
 
-    if ( d_data->maskMode == QwtPlotOverlay::MaskHint )
+    if ( d_data->maskMode == QwtWidgetOverlay::MaskHint )
     {
         mask = maskHint();
     }
-    else if ( d_data->maskMode == QwtPlotOverlay::AlphaMask )
+    else if ( d_data->maskMode == QwtWidgetOverlay::AlphaMask )
     {
         // TODO: the image doesn't need to be larger than
         //       the bounding rectangle of the hint !!
@@ -211,14 +211,14 @@ void QwtPlotOverlay::updateMask()
 
         mask = qwtAlphaMask( image, hint.rects() );
 
-        if ( d_data->renderMode == QwtPlotOverlay::DrawOverlay )
+        if ( d_data->renderMode == QwtWidgetOverlay::DrawOverlay )
         {
             // we don't need the buffer later
             d_data->resetRgbaBuffer();
         }
     }
 
-    // A bug in Qt initiates a full repaint of the canvas
+    // A bug in Qt initiates a full repaint of the widget
     // when we change the mask, while we are visible !
 
     setVisible( false );
@@ -237,18 +237,18 @@ void QwtPlotOverlay::updateMask()
 
   \sa drawOverlay()
 */
-void QwtPlotOverlay::paintEvent( QPaintEvent* event )
+void QwtWidgetOverlay::paintEvent( QPaintEvent* event )
 {
     const QRegion clipRegion = event->region();
 
     QPainter painter( this );
 
     bool useRgbaBuffer = false;
-    if ( d_data->renderMode == QwtPlotOverlay::CopyAlphaMask )
+    if ( d_data->renderMode == QwtWidgetOverlay::CopyAlphaMask )
     {
         useRgbaBuffer = true;
     }
-    else if ( d_data->renderMode == QwtPlotOverlay::AutoRenderMode )
+    else if ( d_data->renderMode == QwtWidgetOverlay::AutoRenderMode )
     {
         if ( painter.paintEngine()->type() == QPaintEngine::Raster )
             useRgbaBuffer = true;
@@ -288,24 +288,25 @@ void QwtPlotOverlay::paintEvent( QPaintEvent* event )
   Resize event
   \param event Resize event
 */
-void QwtPlotOverlay::resizeEvent( QResizeEvent* event )
+void QwtWidgetOverlay::resizeEvent( QResizeEvent* event )
 {
     Q_UNUSED( event );
 
     d_data->resetRgbaBuffer();
 }
 
-void QwtPlotOverlay::draw( QPainter *painter ) const
+void QwtWidgetOverlay::draw( QPainter *painter ) const
 {
-    QWidget *canvas = const_cast< QWidget *>( parentWidget() );
-    if ( canvas )
+    QWidget *widget = const_cast< QWidget *>( parentWidget() );
+    if ( widget )
     {
         painter->setClipRect( parentWidget()->contentsRect() );
 
+        // something special for the plot canvas
         QPainterPath clipPath;
 
         ( void )QMetaObject::invokeMethod(
-            canvas, "borderPath", Qt::DirectConnection,
+            widget, "borderPath", Qt::DirectConnection,
             Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, rect() ) );
 
         if (!clipPath.isEmpty())
@@ -333,7 +334,7 @@ void QwtPlotOverlay::draw( QPainter *painter ) const
    The default implementation returns an invalid region
    indicating no hint.
  */
-QRegion QwtPlotOverlay::maskHint() const
+QRegion QwtWidgetOverlay::maskHint() const
 {
     return QRegion();
 }
@@ -341,13 +342,13 @@ QRegion QwtPlotOverlay::maskHint() const
 /*!
   \brief Event filter
 
-  Resize the overlay according to the size of the canvas.
+  Resize the overlay according to the size of the parent widget.
 
   \param object Object to be filtered
   \param event Event
 */
 
-bool QwtPlotOverlay::eventFilter( QObject* object, QEvent* event )
+bool QwtWidgetOverlay::eventFilter( QObject* object, QEvent* event )
 {
     if ( object == parent() && event->type() == QEvent::Resize )
     {
