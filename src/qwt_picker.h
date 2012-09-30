@@ -24,6 +24,7 @@ class QMouseEvent;
 class QWheelEvent;
 class QKeyEvent;
 class QwtPickerMachine;
+class QwtWidgetOverlay;
 
 /*!
   \brief QwtPicker provides selections on a widget
@@ -221,6 +222,8 @@ public:
     virtual void drawRubberBand( QPainter * ) const;
     virtual void drawTracker( QPainter * ) const;
 
+    virtual QRegion rubberBandMask() const;
+
     virtual QwtText trackerText( const QPoint &pos ) const;
     QPoint trackerPosition() const;
     virtual QRect trackerRect( const QFont & ) const;
@@ -310,8 +313,8 @@ protected:
 
     virtual void updateDisplay();
 
-    const QWidget *rubberBandWidget() const;
-    const QWidget *trackerWidget() const;
+    const QwtWidgetOverlay *rubberBandOverlay() const;
+    const QwtWidgetOverlay *trackerOverlay() const;
 
     const QPolygon &pickedPoints() const;
 
