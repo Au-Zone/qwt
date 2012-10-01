@@ -402,7 +402,7 @@ void QwtKnob::paintEvent( QPaintEvent *event )
     painter.setRenderHint( QPainter::Antialiasing, false );
 
     if ( hasFocus() )
-        QwtPainter::drawFocusRect( &painter, this );
+        drawFocusIndicator( &painter );
 }
 
 /*!
@@ -593,6 +593,18 @@ void QwtKnob::drawMarker( QPainter *painter,
             break;
     }
 }
+
+/*!
+  Draw the focus indicator
+  \param painter Painter
+*/
+void QwtKnob::drawFocusIndicator( QPainter *painter ) const
+{       
+    QRect focusRect( QPoint(), minimumSizeHint() );
+    focusRect.moveCenter( rect().center() );
+
+    QwtPainter::drawFocusRect( painter, this, focusRect );
+}  
 
 /*!
   \brief Change the knob's width.

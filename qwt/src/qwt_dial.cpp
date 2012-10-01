@@ -321,36 +321,12 @@ void QwtDial::paintEvent( QPaintEvent *event )
 }
 
 /*!
-  Draw a dotted round circle, if !isReadOnly()
+  Draw the focus indicator
   \param painter Painter
 */
 void QwtDial::drawFocusIndicator( QPainter *painter ) const
 {
-    if ( !isReadOnly() )
-    {
-        QRectF focusRect = innerRect();
-
-        const int margin = 2;
-        focusRect.adjust( margin, margin, -margin, -margin );
-
-        QColor color = palette().color( QPalette::Base );
-        if ( color.isValid() )
-        {
-            const QColor gray( Qt::gray );
-
-            int h, s, v;
-            color.getHsv( &h, &s, &v );
-            color = ( v > 128 ) ? gray.dark( 120 ) : gray.light( 120 );
-        }
-        else
-            color = Qt::darkGray;
-
-        painter->save();
-        painter->setBrush( Qt::NoBrush );
-        painter->setPen( QPen( color, 0, Qt::DotLine ) );
-        painter->drawEllipse( focusRect );
-        painter->restore();
-    }
+    QwtPainter::drawFocusRect( painter, this, boundingRect() );
 }
 
 /*!

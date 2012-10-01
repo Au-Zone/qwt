@@ -139,6 +139,9 @@ protected:
     virtual void changeEvent( QEvent * );
 
     virtual void drawKnob( QPainter *, const QRectF & ) const;
+
+    virtual void drawFocusIndicator( QPainter * ) const;
+
     virtual void drawMarker( QPainter *, 
         const QRectF &, double arc ) const;
 
