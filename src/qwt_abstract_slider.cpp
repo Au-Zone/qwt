@@ -58,7 +58,7 @@ public:
         isValid( false ),
         value( 0.0 ),
         wrapping( false ),
-		invertedControls( false )
+        invertedControls( false )
     {
     }
 
@@ -138,12 +138,16 @@ bool QwtAbstractSlider::isValid() const
 
   \param on Enables in case of true
   \sa isReadOnly()
+
+  \warning The focus policy is set to Qt::StrongFocus or Qt::NoFocus
 */
 void QwtAbstractSlider::setReadOnly( bool on )
 {
     if ( d_data->readOnly != on )
     {
         d_data->readOnly = on;
+        setFocusPolicy( on ? Qt::StrongFocus : Qt::NoFocus );
+
         update();
     }
 }
@@ -319,8 +323,8 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
         numSteps = numTurns * d_data->singleSteps;
     }
 
-	if ( d_data->invertedControls )
-		numSteps = -numSteps;
+    if ( d_data->invertedControls )
+        numSteps = -numSteps;
 
     const double value = incrementedValue( d_data->value, numSteps );
     if ( value != d_data->value )
@@ -393,30 +397,30 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
         case Qt::Key_Down:
         {
             numSteps = -d_data->singleSteps;
-			if ( d_data->invertedControls )
-				numSteps = -numSteps;
+            if ( d_data->invertedControls )
+                numSteps = -numSteps;
             break;
         }
         case Qt::Key_Up:
         {
             numSteps = d_data->singleSteps;
-			if ( d_data->invertedControls )
-				numSteps = -numSteps;
+            if ( d_data->invertedControls )
+                numSteps = -numSteps;
 
             break;
         }
         case Qt::Key_PageUp:
         {
             numSteps = d_data->pageSteps;
-			if ( d_data->invertedControls )
-				numSteps = -numSteps;
+            if ( d_data->invertedControls )
+                numSteps = -numSteps;
             break;
         }
         case Qt::Key_PageDown:
         {
             numSteps = -d_data->pageSteps;
-			if ( d_data->invertedControls )
-				numSteps = -numSteps;
+            if ( d_data->invertedControls )
+                numSteps = -numSteps;
             break;
         }
         case Qt::Key_Home:
@@ -616,12 +620,12 @@ bool QwtAbstractSlider::wrapping() const
  */
 void QwtAbstractSlider::setInvertedControls( bool on )
 {
-	d_data->invertedControls = on;
+    d_data->invertedControls = on;
 }
 
 bool QwtAbstractSlider::invertedControls() const
 {
-	return d_data->invertedControls;
+    return d_data->invertedControls;
 }
 
 void QwtAbstractSlider::incrementValue( int stepCount )

@@ -98,8 +98,8 @@ public:
         const QRectF &, double xRadius, double yRadius,
         const QPalette &, int lineWidth, int frameStyle );
 
-    static void drawFocusRect( QPainter *, QWidget * );
-    static void drawFocusRect( QPainter *, QWidget *, const QRect & );
+    static void drawFocusRect( QPainter *, const QWidget * );
+    static void drawFocusRect( QPainter *, const QWidget *, const QRect & );
 
     static void drawColorBar( QPainter *painter,
         const QwtColorMap &, const QwtInterval &,

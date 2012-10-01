@@ -635,13 +635,13 @@ void QwtPainter::drawPixmap( QPainter *painter,
 }
 
 //! Draw a focus rectangle on a widget using its style.
-void QwtPainter::drawFocusRect( QPainter *painter, QWidget *widget )
+void QwtPainter::drawFocusRect( QPainter *painter, const QWidget *widget )
 {
     drawFocusRect( painter, widget, widget->rect() );
 }
 
 //! Draw a focus rectangle on a widget using its style.
-void QwtPainter::drawFocusRect( QPainter *painter, QWidget *widget,
+void QwtPainter::drawFocusRect( QPainter *painter, const QWidget *widget,
     const QRect &rect )
 {
     QStyleOptionFocusRect opt;
