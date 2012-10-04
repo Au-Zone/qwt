@@ -109,6 +109,8 @@ public:
 
     double arcOffset;
     double mouseOffset;
+
+    QPixmap framePixmap;
 };
 
 /*!
@@ -175,6 +177,7 @@ void QwtDial::setFrameShadow( Shadow shadow )
 {
     if ( shadow != d_data->frameShadow )
     {
+        d_data->framePixmap = QPixmap();
         d_data->frameShadow = shadow;
         if ( lineWidth() > 0 )
             update();
@@ -203,6 +206,8 @@ void QwtDial::setLineWidth( int lineWidth )
 
     if ( d_data->lineWidth != lineWidth )
     {
+        d_data->framePixmap = QPixmap();
+
         d_data->lineWidth = lineWidth;
         update();
     }
@@ -299,6 +304,11 @@ QwtDial::Mode QwtDial::mode() const
 */
 void QwtDial::paintEvent( QPaintEvent *event )
 {
+#if 1
+    // we need to introduce a cache for all 
+    // parts of the dial without the needle !
+#endif
+
     QPainter painter( this );
     painter.setClipRegion( event->region() );
 
@@ -312,9 +322,26 @@ void QwtDial::paintEvent( QPaintEvent *event )
     drawContents( &painter );
     painter.restore();
 
-    painter.save();
-    drawFrame( &painter );
-    painter.restore();
+    if ( lineWidth() > 0 )
+    {
+        const QRect r = contentsRect();
+
+        if ( r.size() != d_data->framePixmap.size() )
+        {
+            d_data->framePixmap = QPixmap( r.size() );
+            d_data->framePixmap.fill( Qt::transparent );
+
+            QPainter p( &d_data->framePixmap );
+            p.setRenderHints( painter.renderHints() );
+            p.translate( -r.topLeft() );
+
+            drawFrame( &p );
+
+            p.end();
+        }
+
+        painter.drawPixmap( r.topLeft(), d_data->framePixmap );
+    }
 
     if ( hasFocus() )
         drawFocusIndicator( &painter );
@@ -337,11 +364,8 @@ void QwtDial::drawFocusIndicator( QPainter *painter ) const
 */
 void QwtDial::drawFrame( QPainter *painter )
 {
-    if ( lineWidth() > 0 )
-    {
-        QwtPainter::drawRoundFrame( painter, boundingRect(),
-            palette(), lineWidth(), d_data->frameShadow );
-    }
+    QwtPainter::drawRoundFrame( painter, boundingRect(),
+        palette(), lineWidth(), d_data->frameShadow );
 }
 
 /*!
@@ -370,7 +394,6 @@ void QwtDial::drawContents( QPainter *painter ) const
         painter->drawEllipse( br );
         painter->restore();
     }
-
 
     const QRectF insideScaleRect = scaleInnerRect();
     if ( palette().brush( QPalette::WindowText ) !=
@@ -725,6 +748,20 @@ double QwtDial::scrolledTo( const QPoint &pos ) const
     }
 
     return invTransform( angle );
+}
+
+/*!
+   Change Event handler
+   \param event Change event
+
+   Invalidates internal paint caches, when the palette has changed
+*/
+void QwtDial::changeEvent( QEvent *event )
+{
+    if ( event->type() == QEvent::PaletteChange )
+        d_data->framePixmap = QPixmap();
+
+    QwtAbstractSlider::changeEvent( event );
 }
 
 /*!

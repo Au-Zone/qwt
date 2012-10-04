@@ -126,6 +126,7 @@ public:
 protected:
     virtual void wheelEvent( QWheelEvent * );
     virtual void paintEvent( QPaintEvent * );
+	virtual void changeEvent( QEvent * );
 
     virtual void drawFrame( QPainter *p );
     virtual void drawContents( QPainter * ) const;
