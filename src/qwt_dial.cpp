@@ -110,7 +110,7 @@ public:
     double arcOffset;
     double mouseOffset;
 
-    QPixmap framePixmap;
+    QPixmap pixmapCache;
 };
 
 /*!
@@ -177,7 +177,8 @@ void QwtDial::setFrameShadow( Shadow shadow )
 {
     if ( shadow != d_data->frameShadow )
     {
-        d_data->framePixmap = QPixmap();
+        invalidateCache();
+
         d_data->frameShadow = shadow;
         if ( lineWidth() > 0 )
             update();
@@ -206,7 +207,7 @@ void QwtDial::setLineWidth( int lineWidth )
 
     if ( d_data->lineWidth != lineWidth )
     {
-        d_data->framePixmap = QPixmap();
+        invalidateCache();
 
         d_data->lineWidth = lineWidth;
         update();
@@ -284,6 +285,8 @@ void QwtDial::setMode( Mode mode )
 {
     if ( mode != d_data->mode )
     {
+        invalidateCache();
+
         d_data->mode = mode;
         sliderChange();
     }
@@ -299,16 +302,19 @@ QwtDial::Mode QwtDial::mode() const
 }
 
 /*!
+  Invalidate the internal caches used to speed up repainting
+ */
+void QwtDial::invalidateCache()
+{
+    d_data->pixmapCache = QPixmap();
+}
+
+/*!
    Paint the dial
    \param event Paint event
 */
 void QwtDial::paintEvent( QPaintEvent *event )
 {
-#if 1
-    // we need to introduce a cache for all 
-    // parts of the dial without the needle !
-#endif
-
     QPainter painter( this );
     painter.setClipRegion( event->region() );
 
@@ -316,32 +322,40 @@ void QwtDial::paintEvent( QPaintEvent *event )
     opt.init(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
 
-    painter.setRenderHint( QPainter::Antialiasing, true );
-
-    painter.save();
-    drawContents( &painter );
-    painter.restore();
-
-    if ( lineWidth() > 0 )
+    if ( d_data->mode == QwtDial::RotateScale )
     {
-        const QRect r = contentsRect();
+        painter.save();
+        painter.setRenderHint( QPainter::Antialiasing, true );
 
-        if ( r.size() != d_data->framePixmap.size() )
-        {
-            d_data->framePixmap = QPixmap( r.size() );
-            d_data->framePixmap.fill( Qt::transparent );
+        drawContents( &painter );
 
-            QPainter p( &d_data->framePixmap );
-            p.setRenderHints( painter.renderHints() );
-            p.translate( -r.topLeft() );
+        painter.restore();
+    }
 
+    const QRect r = contentsRect();
+    if ( r.size() != d_data->pixmapCache.size() )
+    {
+        d_data->pixmapCache = QPixmap( r.size() );
+        d_data->pixmapCache.fill( Qt::transparent );
+
+        QPainter p( &d_data->pixmapCache );
+        p.setRenderHint( QPainter::Antialiasing, true );
+        p.translate( -r.topLeft() );
+            
+        if ( d_data->mode != QwtDial::RotateScale )
+            drawContents( &p );
+
+        if ( lineWidth() > 0 )
             drawFrame( &p );
 
-            p.end();
-        }
-
-        painter.drawPixmap( r.topLeft(), d_data->framePixmap );
+        if ( d_data->mode != QwtDial::RotateNeedle )
+            drawNeedle( &p );
     }
+
+    painter.drawPixmap( r.topLeft(), d_data->pixmapCache );
+
+    if ( d_data->mode == QwtDial::RotateNeedle )
+        drawNeedle( &painter );
 
     if ( hasFocus() )
         drawFocusIndicator( &painter );
@@ -416,21 +430,6 @@ void QwtDial::drawContents( QPainter *painter ) const
     painter->save();
     drawScaleContents( painter, center, radius );
     painter->restore();
-
-    if ( isValid() )
-    {
-        QPalette::ColorGroup cg;
-        if ( isEnabled() )
-            cg = hasFocus() ? QPalette::Active : QPalette::Inactive;
-        else
-            cg = QPalette::Disabled;
-
-        const double direction2 = transform( value() ) + 270.0;
-
-        painter->save();
-        drawNeedle( painter, center, radius, direction2, cg );
-        painter->restore();
-    }
 }
 
 /*!
@@ -450,6 +449,26 @@ void QwtDial::drawNeedle( QPainter *painter, const QPointF &center,
         direction = 360.0 - direction; // counter clockwise
         d_data->needle->draw( painter, center, radius, direction, colorGroup );
     }
+}
+
+void QwtDial::drawNeedle( QPainter *painter ) const
+{
+    if ( !isValid() )
+        return;
+
+    QPalette::ColorGroup colorGroup;
+    if ( isEnabled() )
+        colorGroup = hasFocus() ? QPalette::Active : QPalette::Inactive;
+    else
+        colorGroup = QPalette::Disabled;
+
+    const QRectF sr = scaleInnerRect();
+
+    painter->save();
+    painter->setRenderHint( QPainter::Antialiasing, true );
+    drawNeedle( painter, sr.center(), 0.5 * sr.width(),
+        transform( value() ) + 270.0, colorGroup );
+    painter->restore();
 }
 
 /*!
@@ -579,13 +598,21 @@ void QwtDial::setScaleArc( double minArc, double maxArc )
     if ( maxArc != 360.0 && maxArc != -360.0 )
         maxArc = ::fmod( maxArc, 360.0 );
 
-    d_data->minScaleArc = qMin( minArc, maxArc );
-    d_data->maxScaleArc = qMax( minArc, maxArc );
+    double minScaleArc = qMin( minArc, maxArc );
+    double maxScaleArc = qMax( minArc, maxArc );
 
-    if ( d_data->maxScaleArc - d_data->minScaleArc > 360.0 )
-        d_data->maxScaleArc = d_data->minScaleArc + 360.0;
+    if ( maxScaleArc - minScaleArc > 360.0 )
+        maxScaleArc = minScaleArc + 360.0;
 
-    sliderChange();
+    if ( ( minScaleArc != d_data->minScaleArc ) || 
+        ( maxScaleArc != d_data->maxScaleArc ) )
+    {
+        d_data->minScaleArc = minScaleArc;
+        d_data->maxScaleArc = maxScaleArc;
+
+        invalidateCache();
+        sliderChange();
+    }
 }
 
 /*! 
@@ -616,6 +643,8 @@ double QwtDial::maxScaleArc() const
 */
 void QwtDial::setOrigin( double origin )
 {
+    invalidateCache();
+
     d_data->origin = origin;
     sliderChange();
 }
@@ -751,22 +780,35 @@ double QwtDial::scrolledTo( const QPoint &pos ) const
 }
 
 /*!
-   Change Event handler
-   \param event Change event
+  Change Event handler
+  \param event Change event
 
-   Invalidates internal paint caches, when the palette has changed
+  Invalidates internal paint caches if necessary
 */
 void QwtDial::changeEvent( QEvent *event )
 {
-    if ( event->type() == QEvent::PaletteChange )
-        d_data->framePixmap = QPixmap();
-
+    switch( event->type() )
+    {
+        case QEvent::EnabledChange:
+        case QEvent::FontChange:
+        case QEvent::StyleChange:
+        case QEvent::PaletteChange:
+        case QEvent::LanguageChange:
+        case QEvent::LocaleChange:
+        {
+            invalidateCache();
+            break;
+        }
+        default:
+            break;
+    }
+    
     QwtAbstractSlider::changeEvent( event );
 }
 
 /*!
-   Wheel Event handler
-   \param event Wheel event
+  Wheel Event handler
+  \param event Wheel event
 */
 void QwtDial::wheelEvent( QWheelEvent *event )
 {
@@ -783,6 +825,16 @@ void QwtDial::setAngleRange( double angle, double span )
         angle = qwtNormalizeDegrees( angle - 270.0 );
         sd->setAngleRange( angle, angle + span );
     }
+}
+
+/*!
+  Invalidate the internal caches and call 
+  QwtAbstractSlider::scaleChange()
+ */
+void QwtDial::scaleChange()
+{
+    invalidateCache();
+    QwtAbstractSlider::scaleChange();
 }
 
 void QwtDial::sliderChange()
