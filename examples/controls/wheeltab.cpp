@@ -20,10 +20,9 @@ WheelTab::WheelTab( QWidget *parent ):
         WheelBox *box = new WheelBox( Qt::Horizontal, i + numBoxes );
         layout2->addWidget( box, i / 2, i % 2 );
     }
-    layout2->setRowStretch( layout2->rowCount(), 10 );
 
     QHBoxLayout *layout = new QHBoxLayout( this );
-    layout->addLayout( layout1 );
-    layout->addLayout( layout2, 10 );
+    layout->addLayout( layout1, 2 );
+    layout->addLayout( layout2, 5 );
 }
 
