@@ -29,10 +29,10 @@ Ideas
 - QwtText supporting Qt::TextElideMode
 - Multitouch events
 - QwtKnob/QwtDial fixed contents size mode
+- controls ( f.e QwtWheel ) with a very dark palette
 
 Bugs/Change requests
 --------------------
-- QwtPlotDict, performance of z sorting
 - Remove QwtScaleTransformation::copy()
 - Reference value for QwtThermo
 - Transparent canvas background + backingstore
