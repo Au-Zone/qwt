@@ -355,7 +355,7 @@ const QwtScaleMap &QwtAbstractScale::scaleMap() const
     return d_data->scaleDraw->scaleMap();
 }
 
-/*
+/*!
   Translate a value into widget coordinates
 
   \param value Value in scale coordinates
@@ -366,7 +366,7 @@ int QwtAbstractScale::transform( double value ) const
     return qRound( d_data->scaleDraw->scaleMap().transform( value ) );
 }
 
-/*
+/*!
   Translate a position into scale coordinates
 
   \param value Value in widget coordinates

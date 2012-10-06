@@ -875,8 +875,8 @@ QwtSymbol::QwtSymbol( QwtSymbol::Style style, const QBrush &brush,
   \sa setPath(), setBrush(), setPen(), setSize()
 */
 
-QwtSymbol::QwtSymbol( const QPainterPath &path, const QBrush &brush,
-    const QPen &pen )
+QwtSymbol::QwtSymbol( const QPainterPath &path, 
+    const QBrush &brush, const QPen &pen )
 {
     d_data = new PrivateData( QwtSymbol::Path, brush, pen, QSize() );
     setPath( path );
@@ -978,37 +978,77 @@ const QPainterPath &QwtSymbol::path() const
     return d_data->path.path;
 }
 
+/*!
+  Set a pixmap as symbol
+
+  \param pixmap Pixmap
+
+  \sa pixmap(), setGraphic()
+
+  \note the style() is set to QwtSymbol::Pixmap
+  \note brush() and pen() have no effect
+ */
 void QwtSymbol::setPixmap( const QPixmap &pixmap )
 {
     d_data->style = QwtSymbol::Pixmap;
     d_data->pixmap.pixmap = pixmap;
 }
 
+/*!
+  \return Assigned pixmap
+  \sa setPixmap()
+ */
 const QPixmap &QwtSymbol::pixmap() const
 {
     return d_data->pixmap.pixmap;
 }
 
+/*!
+  Set a graphic as symbol
+
+  \param graphic Graphic
+
+  \sa graphic(), setPixmap()
+
+  \note the style() is set to QwtSymbol::Graphic
+  \note brush() and pen() have no effect
+ */
 void QwtSymbol::setGraphic( const QwtGraphic &graphic )
 {
     d_data->style = QwtSymbol::Graphic;
     d_data->graphic.graphic = graphic;
 }
 
+/*!
+  \return Assigned graphic
+  \sa setGraphic()
+ */
 const QwtGraphic &QwtSymbol::graphic() const
 {
     return d_data->graphic.graphic;
 }
 
 #ifndef QWT_NO_SVG
-    void QwtSymbol::setSvgDocument( const QByteArray &svgDocument )
-    {
-        d_data->style = QwtSymbol::SvgDocument;
-        if ( d_data->svg.renderer == NULL )
-            d_data->svg.renderer = new QSvgRenderer();
 
-        d_data->svg.renderer->load( svgDocument );
-    }
+/*!
+  Set a SVG icon as symbol
+
+  \param svgDocument SVG icon
+
+  \sa setGraphic(), setPixmap()
+
+  \note the style() is set to QwtSymbol::SvgDocument
+  \note brush() and pen() have no effect
+ */
+void QwtSymbol::setSvgDocument( const QByteArray &svgDocument )
+{
+    d_data->style = QwtSymbol::SvgDocument;
+    if ( d_data->svg.renderer == NULL )
+        d_data->svg.renderer = new QSvgRenderer();
+
+    d_data->svg.renderer->load( svgDocument );
+}
+
 #endif
 
 /*!
@@ -1172,6 +1212,20 @@ void QwtSymbol::setColor( const QColor &color )
     }
 }
 
+/*!
+  \brief Set and enable a pin point
+
+  The position of a complex symbol is not always aligned to its center
+  ( f.e and arrow where the peak points toa position ). The pin point
+  defines the position inside of a Pixmap, Graphic, SvgDocument 
+  or PainterPath symbol where the represented point has to
+  be aligned to.
+  
+  \param pos Position
+  \param enable En/Disable the pin point tranlation
+
+  \sa pinPoint(), setPinPointEnabled()
+ */
 void QwtSymbol::setPinPoint( const QPointF &pos, bool enable )
 {
     if ( d_data->pinPoint != pos )
@@ -1186,11 +1240,21 @@ void QwtSymbol::setPinPoint( const QPointF &pos, bool enable )
     setPinPointEnabled( enable );
 }
 
+/*!
+  \return Pin point
+  \sa setPinPoint(), setPinPointEnabled()
+ */
 QPointF QwtSymbol::pinPoint() const
 {
     return d_data->pinPoint;
 }
 
+/*!
+  En/Disable the pin point tranlation
+
+  \param on Enabled, when on is true
+  \sa setPinPoint(), isPinPointEnabled()
+ */
 void QwtSymbol::setPinPointEnabled( bool on )
 {
     if ( d_data->isPinPointEnabled != on )
@@ -1200,6 +1264,10 @@ void QwtSymbol::setPinPointEnabled( bool on )
     }
 }
 
+/*!
+  \return True, when the pin point tranlation is enabled
+  \sa setPinPoint(), setPinPointEnabled()
+ */
 bool QwtSymbol::isPinPointEnabled() const
 {
     return d_data->isPinPointEnabled;
@@ -1316,7 +1384,6 @@ void QwtSymbol::drawSymbols( QPainter *painter,
   \param painter Painter
   \param rect Target rectangle for the symbol 
 */
-
 void QwtSymbol::drawSymbol( QPainter *painter, const QRectF &rect ) const
 {
     if ( d_data->style == QwtSymbol::NoSymbol )
@@ -1389,6 +1456,13 @@ void QwtSymbol::drawSymbol( QPainter *painter, const QRectF &rect ) const
     }
 }
 
+/*!
+  Render the symbol to series of points
+
+  \param painter Qt painter
+  \param points Positions of the symbols
+  \param numPoints Number of points
+ */
 void QwtSymbol::renderSymbols( QPainter *painter,
     const QPointF *points, int numPoints ) const
 {
@@ -1507,6 +1581,12 @@ void QwtSymbol::renderSymbols( QPainter *painter,
     }
 }
 
+/*!
+  Calculate the bounding rectangle for a symbol
+  at position (0,0).
+
+  \return Bounding rectangle
+ */
 QRect QwtSymbol::boundingRect() const
 {
     QRectF rect;

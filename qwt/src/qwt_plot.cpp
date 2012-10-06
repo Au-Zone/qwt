@@ -413,13 +413,13 @@ const QwtTextLabel *QwtPlot::footerLabel() const
  */
 void QwtPlot::setPlotLayout( QwtPlotLayout *layout )
 {
-	if ( layout != d_data->layout )
-	{
-		delete d_data->layout;
-		layout = d_data->layout;
+    if ( layout != d_data->layout )
+    {
+        delete d_data->layout;
+        layout = d_data->layout;
 
-		updateLayout();
-	}
+        updateLayout();
+    }
 }
 
 //! \return the plot's layout
@@ -977,6 +977,11 @@ void QwtPlot::insertLegend( QwtAbstractLegend *legend,
     updateLayout();
 }
 
+/*!
+  Emit legendDataChanged() for a plot item
+
+  \sa QwtPlotItem::legendData(), legendDataChanged()
+ */
 void QwtPlot::updateLegend()
 {
     const QwtPlotItemList& itmList = itemList();
@@ -987,6 +992,12 @@ void QwtPlot::updateLegend()
     }
 }
 
+/*!
+  Emit legendDataChanged() for a plot item
+
+  \param plotItem Plot item
+  \sa QwtPlotItem::legendData(), legendDataChanged()
+ */
 void QwtPlot::updateLegend( const QwtPlotItem *plotItem )
 {
     if ( plotItem == NULL )
@@ -1000,6 +1011,17 @@ void QwtPlot::updateLegend( const QwtPlotItem *plotItem )
     Q_EMIT legendDataChanged( plotItem, legendData );
 }
 
+/*!
+  \brief Update all plot items interested in legend attributes
+
+  Call QwtPlotItem::updateLegend(), when the QwtPlotItem::LegendInterest
+  flag is set.
+
+  \param plotItem Plot item
+
+  \sa QwtPlotItem::LegendInterest,
+      QwtPlotLegendItem, QwtPlotItem::updateLegend()
+ */
 void QwtPlot::updateLegendItems( const QwtPlotItem *plotItem,
     const QList<QwtLegendData> &data )
 {

@@ -136,7 +136,7 @@ bool QwtWheel::isTracking() const
 }
 
 /*!
-  \brief Specify the update interval for the flying wheel
+  \brief Specify the update interval when the wheel is flying
 
   Default and minimum value is 50 ms.
 
@@ -149,7 +149,7 @@ void QwtWheel::setUpdateInterval( int interval )
 }
 
 /*!
-  \return Update interval for the flying wheel
+  \return Update interval when the wheel is flying
   \sa setUpdateInterval(), mass(), isTracking()
  */
 int QwtWheel::updateInterval() const
@@ -319,9 +319,10 @@ void QwtWheel::timerEvent( QTimerEvent *event )
 
 
 /*!
-  Handle wheel events
+  \brief Handle wheel events
 
-  In/Decrement the value by 
+  In/Decrement the value 
+
   \param event Wheel event
 */
 void QwtWheel::wheelEvent( QWheelEvent *event )
@@ -1075,9 +1076,9 @@ void QwtWheel::setRange( double min, double max )
 
   \note The maximum is adjusted if necessary to ensure that the range remains valid.
 */
-void QwtWheel::setMinimum( double min )
+void QwtWheel::setMinimum( double value )
 {
-    setRange( min, maximum() );
+    setRange( value, maximum() );
 }
 
 /*!
@@ -1095,9 +1096,9 @@ double QwtWheel::minimum() const
   \param value Maximum value
   \sa setRange(), setMinimum(), maximum()
 */
-void QwtWheel::setMaximum( double max )
+void QwtWheel::setMaximum( double value )
 {
-    setRange( minimum(), max );
+    setRange( minimum(), value );
 }
 
 /*!

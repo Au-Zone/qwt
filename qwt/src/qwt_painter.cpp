@@ -960,6 +960,18 @@ static inline void qwtFillRect(QPainter *painter, const QRect &rect, const QBrus
 
 #endif
 
+/*!
+  Fill a pixmap with the content of a widget
+
+  In Qt >= 5.0 QPixmap::fill() is a nop. fillPixmap() does
+  an alternative implementation hiding this incompatibility.
+
+  \param widget Widget
+  \param pixmap Pixmap to be filled
+  \param offset Offset 
+
+  \sa QPixmap::fill()
+ */
 void QwtPainter::fillPixmap( const QWidget *widget, 
     QPixmap &pixmap, const QPoint &offset )
 {
@@ -1000,6 +1012,15 @@ void QwtPainter::fillPixmap( const QWidget *widget,
 #endif
 }
 
+/*!
+  Fill rect with the background of a widget
+
+  \param painter Painter
+  \param rect Rectangle to be filled
+  \param widget Widget
+
+  \sa QStyle::PE_Widget, QWidget::backgroundRole()
+ */
 void QwtPainter::drawBackgound( QPainter *painter,
     const QRectF &rect, const QWidget *widget )
 {

@@ -280,7 +280,7 @@ void QwtPlotLayout::setAlignCanvasToScales( bool on )
   is set, the left end of the the x-axes ( QwtPlot::xTop, QwtPlot::xBottom )
   is aligned.
 
-  \param axis Axis index
+  \param axisId Axis index
   \param on New align-canvas-to-axis-scales setting
 
   \sa setCanvasMargin(), alignCanvasToScale(), setAlignCanvasToScales()

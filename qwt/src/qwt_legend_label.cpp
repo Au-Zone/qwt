@@ -55,6 +55,12 @@ public:
     int spacing;
 };
 
+/*!
+  Set the attributes of the legend label
+
+  \param legendData Attributes of the label
+  \sa data()
+ */
 void QwtLegendLabel::setData( const QwtLegendData &legendData )
 {
     d_data->legendData = legendData;
@@ -75,6 +81,10 @@ void QwtLegendLabel::setData( const QwtLegendData &legendData )
     }
 }
 
+/*!
+  \return Attributes of the label
+  \sa setData(), QwtPlotItem::legendData()
+ */
 const QwtLegendData &QwtLegendLabel::data() const
 {
     return d_data->legendData;

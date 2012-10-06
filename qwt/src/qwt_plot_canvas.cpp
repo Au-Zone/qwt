@@ -262,11 +262,11 @@ static inline void qwtRevertPath( QPainterPath &path )
 {
     if ( path.elementCount() == 4 )
     {
-		QPainterPath::Element el0 = path.elementAt(0);
-		QPainterPath::Element el3 = path.elementAt(3);
+        QPainterPath::Element el0 = path.elementAt(0);
+        QPainterPath::Element el3 = path.elementAt(3);
 
-		path.setElementPositionAt( 0, el3.x, el3.y );
-		path.setElementPositionAt( 3, el0.x, el0.y );
+        path.setElementPositionAt( 0, el3.x, el3.y );
+        path.setElementPositionAt( 3, el0.x, el0.y );
     }
 }
 

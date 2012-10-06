@@ -230,14 +230,26 @@ QwtLegend::~QwtLegend()
     delete d_data;
 }
 
+/*!
+  \brief Set the maximum number of entries in a row
+
+  F.e when the maximum is set to 1 all items are aligned
+  vertically. 0 means unlimited
+
+  \sa maxColumns(), QwtDynGridLayout::setMaxColumns()
+ */
 void QwtLegend::setMaxColumns( uint numColums )
 {
     QwtDynGridLayout *tl = qobject_cast<QwtDynGridLayout *>(
         d_data->view->contentsWidget->layout() );
     if ( tl )
-        tl->setMaxCols( numColums );
+        tl->setMaxColumns( numColums );
 }
 
+/*!
+  \return Maximum number of entries in a row
+  \sa setMaxColumns(), QwtDynGridLayout::maxColumns()
+ */
 uint QwtLegend::maxColumns() const
 {
     uint maxCols = 0;
@@ -245,7 +257,7 @@ uint QwtLegend::maxColumns() const
     const QwtDynGridLayout *tl = qobject_cast<const QwtDynGridLayout *>(
         d_data->view->contentsWidget->layout() );
     if ( tl )
-        maxCols = tl->maxCols();
+        maxCols = tl->maxColumns();
 
     return maxCols;
 }
@@ -450,7 +462,7 @@ QSize QwtLegend::sizeHint() const
 }
 
 /*!
-  \return The preferred height, for the width w.
+  \return The preferred height, for a width.
   \param width Width
 */
 int QwtLegend::heightForWidth( int width ) const
@@ -659,7 +671,7 @@ void QwtLegend::renderItem( QPainter *painter,
 
         painter->setFont( label->font() );
         painter->setPen( label->palette().color( QPalette::Text ) );
-		const_cast< QwtLegendLabel *>( label )->drawText( painter, titleRect );
+        const_cast< QwtLegendLabel *>( label )->drawText( painter, titleRect );
     }
 }
 

@@ -513,7 +513,7 @@ QwtGraphic QwtPlotTradingCurve::legendIcon( int index,
 }
 
 /*!
-  \param Scale the symbol width into paint coordinates
+  Scale the symbol width into paint coordinates
 
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.

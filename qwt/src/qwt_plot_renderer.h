@@ -145,7 +145,7 @@ public:
 
     bool exportTo( QwtPlot *, const QString &documentName );
 
-protected:
+private:
     void buildCanvasMaps( const QwtPlot *,
         const QRectF &, QwtScaleMap maps[] ) const;
 

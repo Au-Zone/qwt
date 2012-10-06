@@ -105,11 +105,23 @@ bool QwtPlotDict::autoDelete() const
     return d_data->autoDelete;
 }
 
+/*!
+  Insert a plot item
+
+  \param item PlotItem
+  \sa removeItem()
+ */
 void QwtPlotDict::insertItem( QwtPlotItem *item )
 {
     d_data->itemList.insertItem( item );
 }
 
+/*!
+  Remove a plot item
+
+  \param item PlotItem
+  \sa insertItem()
+ */
 void QwtPlotDict::removeItem( QwtPlotItem *item )
 {
     d_data->itemList.removeItem( item );

@@ -36,9 +36,6 @@
 
   \endverbatim
 
-  Qwt is missing a set of good looking hands.
-  Contributions are very welcome.
-
   \note The examples/dials example shows how to use QwtAnalogClock.
 */
 
