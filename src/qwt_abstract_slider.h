@@ -76,8 +76,8 @@ public:
     void setReadOnly( bool );
     bool isReadOnly() const;
 
-	void setInvertedControls( bool );
-	bool invertedControls() const;
+    void setInvertedControls( bool );
+    bool invertedControls() const;
 
 public Q_SLOTS:
     void setValue( double val );

@@ -61,6 +61,7 @@ void QwtPlotScaleItem::PrivateData::updateBorders( const QRectF &canvasRect,
     scaleDiv.setInterval( interval );
     scaleDraw->setScaleDiv( scaleDiv );
 }
+
 /*!
    \brief Constructor for scale item at the position pos.
 

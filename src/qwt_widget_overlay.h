@@ -128,8 +128,13 @@ protected:
     virtual void paintEvent( QPaintEvent* event );
     virtual void resizeEvent( QResizeEvent* event );
 
-    virtual void drawOverlay( QPainter * ) const = 0;
     virtual QRegion maskHint() const;
+
+    /*!
+       Draw the widget overlay
+       \param painter Painter
+     */
+    virtual void drawOverlay( QPainter *painter ) const = 0;
 
 private:
     void updateMask();

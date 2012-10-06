@@ -312,7 +312,7 @@ void QwtScaleWidget::setLabelRotation( double rotation )
   scaleDraw will be initialized with the attributes of
   the previous scaleDraw object.
 
-  \param sd ScaleDraw object
+  \param scaleDraw ScaleDraw object
   \sa scaleDraw()
 */
 void QwtScaleWidget::setScaleDraw( QwtScaleDraw *scaleDraw )
@@ -826,6 +826,12 @@ void QwtScaleWidget::setScaleDiv( const QwtScaleDiv &scaleDiv )
     }
 }
 
+/*!
+  Set the transformation
+
+  \param transformation Transformation
+  \sa QwtAbstractScaleDraw::scaleDraw(), QwtScaleMap
+ */
 void QwtScaleWidget::setTransformation( QwtTransform *transformation )
 {
     d_data->scaleDraw->setTransformation( transformation );

@@ -378,8 +378,8 @@ void QwtPlotMultiBarChart::drawSeries( QPainter *painter,
   \param yMap y map
   \param canvasRect Contents rect of the canvas
   \param boundingInterval Bounding interval of sample values
-  \param from Index of the first point to be painted
-  \param to Index of the last point to be painted
+  \param index Index of the sample to be painted
+  \param sample Sample value
 
   \sa drawSeries()
 */

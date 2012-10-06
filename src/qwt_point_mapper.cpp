@@ -271,16 +271,34 @@ QwtPointMapper::~QwtPointMapper()
     delete d_data;
 }
 
+/*!
+  Set the flags affecting the transformation process
+
+  \param flags Flags
+  \sa flags(), setFlag()
+ */
 void QwtPointMapper::setFlags( TransformationFlags flags )
 {
     d_data->flags = flags;
 }
 
+/*
+  \return Flags affecting the transformation process
+  \sa setFlags(), setFlag()
+ */
 QwtPointMapper::TransformationFlags QwtPointMapper::flags() const
 {
     return d_data->flags;
 }
 
+/*!
+  Modify a flag affecting the transformation process
+
+  \param flag Flag type
+  \param on Value
+
+  \sa flag(), setFlags()
+ */
 void QwtPointMapper::setFlag( TransformationFlag flag, bool on )
 {
     if ( on )
@@ -289,16 +307,33 @@ void QwtPointMapper::setFlag( TransformationFlag flag, bool on )
         d_data->flags &= ~flag;
 }
 
+/*!
+  \return True, when the flag is set
+  \param flag Flag type
+  \sa setFlag(), setFlags()
+ */
 bool QwtPointMapper::testFlag( TransformationFlag flag ) const
 {
     return d_data->flags & flag;
 }
 
+/*!
+  Set a bounding rectangle for the point mapping algorithm
+
+  A valid bounding rectangle can be used for optimizations
+
+  \param rect Bounding rectangle
+  \sa boundingRect()
+ */
 void QwtPointMapper::setBoundingRect( const QRectF &rect )
 {
     d_data->boundingRect = rect;
 }
 
+/*!
+  \return Bounding rectangle
+  \sa setBoundingRect()
+ */
 QRectF QwtPointMapper::boundingRect() const
 {
     return d_data->boundingRect;

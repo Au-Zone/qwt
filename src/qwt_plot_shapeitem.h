@@ -52,9 +52,13 @@ public:
     //! Paint attributes
     typedef QFlags<PaintAttribute> PaintAttributes;
 
+    //! Mode how to display the item on the legend
     enum LegendMode
     {
+        //! Display a scaled down version of the shape
         LegendShape,
+
+        //! Display a filled rectangle 
         LegendColor
     };
 

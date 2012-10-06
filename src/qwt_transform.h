@@ -122,7 +122,7 @@ public:
 class QWT_EXPORT QwtPowerTransform: public QwtTransform
 {
 public:
-    QwtPowerTransform( double factor );
+    QwtPowerTransform( double exponent );
     virtual ~QwtPowerTransform();
 
     virtual double transform( double value ) const;
@@ -131,7 +131,7 @@ public:
     virtual QwtTransform *copy() const;
 
 private:
-    const double d_factor;
+    const double d_exponent;
 };
 
 #endif

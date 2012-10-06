@@ -405,14 +405,14 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 
     QRectF layoutRect = transform.inverted().mapRect( plotRect );
 
-	if ( !( d_data->discardFlags & DiscardBackground ) )
-	{
-		// subtract the contents margins
+    if ( !( d_data->discardFlags & DiscardBackground ) )
+    {
+        // subtract the contents margins
 
-    	int left, top, right, bottom;
-    	plot->getContentsMargins( &left, &top, &right, &bottom );
-		layoutRect.adjust( left, top, -right, -bottom );
-	}
+        int left, top, right, bottom;
+        plot->getContentsMargins( &left, &top, &right, &bottom );
+        layoutRect.adjust( left, top, -right, -bottom );
+    }
 
     QwtPlotLayout *layout = plot->plotLayout();
 

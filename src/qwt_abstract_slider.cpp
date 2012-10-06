@@ -623,11 +623,23 @@ void QwtAbstractSlider::setInvertedControls( bool on )
     d_data->invertedControls = on;
 }
 
+/*!
+ \return True, when the controls are inverted
+ \sa setInvertedControls()
+ */
 bool QwtAbstractSlider::invertedControls() const
 {
     return d_data->invertedControls;
 }
 
+/*!
+  Increment the slider
+
+  The step size depends on the number of totalSteps() and the range()
+
+  \param stepCount Number of steps
+  \sa setTotalSteps()
+ */
 void QwtAbstractSlider::incrementValue( int stepCount )
 {
     const double value = incrementedValue( 

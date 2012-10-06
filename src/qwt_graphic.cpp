@@ -492,6 +492,7 @@ QRectF QwtGraphic::scaledBoundingRect( double sx, double sy ) const
     return rect;
 }
 
+//! \return Ceiled defaultSize()
 QSize QwtGraphic::sizeMetrics() const
 {
     const QSizeF sz = defaultSize();

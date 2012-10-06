@@ -21,9 +21,7 @@
   of the label which can be used to increment or decrement
   the counter's value.
 
-  Even if QwtCounter is older than QDoubleSpinBox the API
-  has been modified to match its Qt counterpart as far as possible.
-  It has a range from a minimum value to a maximum value
+  A counter has a range from a minimum value to a maximum value
   and a step size. When the wrapping property is set
   the counter is circular.
  

@@ -149,6 +149,13 @@ double QwtScaleArithmetic::divideEps( double intervalSize, double numSteps )
     return ( intervalSize - ( _eps * intervalSize ) ) / numSteps;
 }
 
+/*!
+  Calculate a step size for a given interval
+
+  \param intervalSize Interval size
+  \param numSteps Number of steps
+  \param base Base for the division ( usually 10 )
+ */
 double QwtScaleArithmetic::divideInterval( 
     double intervalSize, int numSteps, uint base ) 
 {
@@ -205,7 +212,12 @@ public:
     QwtTransform* transform;
 };
 
-//! Constructor
+/*!
+  Constructor
+
+  \param base Base of the scale engine
+  \sa setBase()
+ */
 QwtScaleEngine::QwtScaleEngine( uint base )
 {
     d_data = new PrivateData;
@@ -313,7 +325,7 @@ double QwtScaleEngine::divideInterval(
     double intervalSize, int numSteps ) const
 {
     return QwtScaleArithmetic::divideInterval( 
-		intervalSize, numSteps, d_data->base );
+        intervalSize, numSteps, d_data->base );
 }
 
 /*!
@@ -450,29 +462,50 @@ void QwtScaleEngine::setReference( double r )
 }
 
 /*!
- \return the reference value
- \sa setReference(), setAttribute()
+  \return the reference value
+  \sa setReference(), setAttribute()
 */
 double QwtScaleEngine::reference() const
 {
     return d_data->referenceValue;
 }
 
+/*!
+  Set the base of the scale engine
+
+  While a base of 10 is what 99.9% of all applications need
+  certain scales might need a differnt base: f.e 2
+
+  The default setting is 10
+
+  \sa base()
+ */
 void QwtScaleEngine::setBase( uint base )
 { 
     d_data->base = qMax( base, 2U );
 }
 
+/*!
+  \return base Base of the scale engine
+  \sa setBase()
+ */
 uint QwtScaleEngine::base() const
 {
     return d_data->base;
 }
 
+/*!
+  Constructor
+
+  \param base Base of the scale engine
+  \sa setBase()
+ */
 QwtLinearScaleEngine::QwtLinearScaleEngine( uint base ):
     QwtScaleEngine( base )
 {
 }
 
+//! Destructor
 QwtLinearScaleEngine::~QwtLinearScaleEngine()
 {
 }
@@ -713,12 +746,19 @@ QwtInterval QwtLinearScaleEngine::align(
     return QwtInterval( x1, x2 );
 }
 
+/*!
+  Constructor
+
+  \param base Base of the scale engine
+  \sa setBase()
+ */
 QwtLogScaleEngine::QwtLogScaleEngine( uint base ):
     QwtScaleEngine( base )
 {
     setTransformation( new QwtLogTransform() );
 }
 
+//! Destructor
 QwtLogScaleEngine::~QwtLogScaleEngine()
 {
 }

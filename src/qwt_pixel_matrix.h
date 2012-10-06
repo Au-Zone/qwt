@@ -84,13 +84,13 @@ inline bool QwtPixelMatrix::testAndSetPixel( int x, int y, bool on )
  */
 inline int QwtPixelMatrix::index( int x, int y ) const
 {
-	const int dx = x - d_rect.x();
-	if ( dx < 0 || dx >= d_rect.width() )
-		return -1;
+    const int dx = x - d_rect.x();
+    if ( dx < 0 || dx >= d_rect.width() )
+        return -1;
 
-	const int dy = y - d_rect.y();
-	if ( dy < 0 || dy >= d_rect.height() )
-		return -1;
+    const int dy = y - d_rect.y();
+    if ( dy < 0 || dy >= d_rect.height() )
+        return -1;
 
     return dy * d_rect.width() + dx;
 }

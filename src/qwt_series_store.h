@@ -24,6 +24,7 @@
 class QwtAbstractSeriesStore
 {
 protected:
+    //! Destructor
     virtual ~QwtAbstractSeriesStore() {}
 
     //! dataChanged() indicates, that the series has been changed.

@@ -275,9 +275,9 @@ void QwtCounter::setRange( double min, double max )
 
   \note The maximum is adjusted if necessary to ensure that the range remains valid.
 */
-void QwtCounter::setMinimum( double min )
+void QwtCounter::setMinimum( double value )
 {
-    setRange( min, maximum() );
+    setRange( value, maximum() );
 }
 
 /*!
@@ -295,9 +295,9 @@ double QwtCounter::minimum() const
   \param value Maximum value
   \sa setRange(), setMinimum(), maximum()
 */
-void QwtCounter::setMaximum( double max )
+void QwtCounter::setMaximum( double value )
 {
-    setRange( minimum(), max );
+    setRange( minimum(), value );
 }
 
 /*!

@@ -28,7 +28,7 @@ public:
     static double divideEps( double interval, double steps );
 
     static double divideInterval( double interval, 
-		int numSteps, uint base );
+        int numSteps, uint base );
 };
 
 /*!

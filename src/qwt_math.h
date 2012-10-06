@@ -131,7 +131,7 @@ inline double qwtFastAtan2( double y, double x )
 // Translate degrees into radians
 inline double qwtRadians( double degrees )
 {
-	return degrees * M_PI / 180.0;
+    return degrees * M_PI / 180.0;
 }
 
 // Translate radians into degrees

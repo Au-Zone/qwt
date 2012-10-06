@@ -171,6 +171,12 @@ bool QwtPlotShapeItem::testPaintAttribute( PaintAttribute attribute ) const
     return ( d_data->paintAttributes & attribute );
 }
 
+/*!
+  Set the mode how to represent the item on the legend
+
+  \param mode Mode
+  \sa legendMode()
+ */
 void QwtPlotShapeItem::setLegendMode( LegendMode mode )
 {
     if ( mode != d_data->legendMode )
@@ -180,6 +186,10 @@ void QwtPlotShapeItem::setLegendMode( LegendMode mode )
     }
 }
 
+/*!
+  \return Mode how to represent the item on the legend
+  \sa legendMode()
+ */
 QwtPlotShapeItem::LegendMode QwtPlotShapeItem::legendMode() const
 {
     return d_data->legendMode;

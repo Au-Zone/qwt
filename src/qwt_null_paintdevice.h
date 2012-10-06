@@ -112,6 +112,7 @@ public:
     virtual void updateState( const QPaintEngineState &state );
 
 protected:
+    //! \return Size needed to implement metric()
     virtual QSize sizeMetrics() const = 0;
 
 private:

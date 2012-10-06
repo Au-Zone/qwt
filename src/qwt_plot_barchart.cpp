@@ -184,27 +184,27 @@ void QwtPlotBarChart::drawSeries( QPainter *painter,
   \param yMap y map
   \param canvasRect Contents rect of the canvas
   \param boundingInterval Bounding interval of sample values
-  \param from Index of the first point to be painted
-  \param to Index of the last point to be painted
+  \param index Index of the sample
+  \param sample Value of the sample
 
   \sa drawSeries()
 */
 void QwtPlotBarChart::drawSample( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, const QwtInterval &boundingInterval,
-    int index, const QPointF &point ) const
+    int index, const QPointF &sample ) const
 {
     QwtColumnRect barRect;
 
     if ( orientation() == Qt::Horizontal )
     {
         const double barHeight = sampleWidth( yMap, canvasRect.height(),
-            boundingInterval.width(), point.y() );
+            boundingInterval.width(), sample.y() );
 
         const double x1 = xMap.transform( baseline() );
-        const double x2 = xMap.transform( point.y() );
+        const double x2 = xMap.transform( sample.y() );
 
-        const double y = yMap.transform( point.x() );
+        const double y = yMap.transform( sample.x() );
         const double y1 = y - 0.5 * barHeight;
         const double y2 = y + 0.5 * barHeight;
 
@@ -217,14 +217,14 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
     else
     {
         const double barWidth = sampleWidth( xMap, canvasRect.width(),
-            boundingInterval.width(), point.y() );
+            boundingInterval.width(), sample.y() );
 
-        const double x = xMap.transform( point.x() );
+        const double x = xMap.transform( sample.x() );
         const double x1 = x - 0.5 * barWidth;
         const double x2 = x + 0.5 * barWidth;
 
         const double y1 = yMap.transform( baseline() );
-        const double y2 = yMap.transform( point.y() );
+        const double y2 = yMap.transform( sample.y() );
 
         barRect.direction = ( y1 < y2 ) ?
             QwtColumnRect::TopToBottom : QwtColumnRect::BottomToTop;
@@ -233,15 +233,23 @@ void QwtPlotBarChart::drawSample( QPainter *painter,
         barRect.vInterval = QwtInterval( y1, y2 ).normalized();
     }
 
-    drawBar( painter, index, point, barRect );
+    drawBar( painter, index, sample, barRect );
 }
 
+/*!
+  Draw a bar 
+
+  \param painter Painter
+  \param sampleIndex Index of the sample represented by the bar
+  \param sample Value of the sample
+  \param rect Bounding rectangle of the bar
+ */
 void QwtPlotBarChart::drawBar( QPainter *painter,
-    int sampleIndex, const QPointF &point, 
+    int sampleIndex, const QPointF &sample, 
     const QwtColumnRect &rect ) const
 {
     const QwtColumnSymbol *specialSym = 
-        specialSymbol( sampleIndex, point );
+        specialSymbol( sampleIndex, sample );
 
     const QwtColumnSymbol *sym = specialSym;
     if ( sym == NULL )
@@ -263,11 +271,20 @@ void QwtPlotBarChart::drawBar( QPainter *painter,
     delete specialSym;
 }
 
+/*!
+  Needs to be overloaded to return a 
+  non default symbol for a specific sample
+
+  \param sampleIndex Index of the sample represented by the bar
+  \param sample Value of the sample
+
+  \return NULL, indicating to use the default symbol
+ */
 QwtColumnSymbol *QwtPlotBarChart::specialSymbol( 
-    int index, const QPointF &point ) const
+    int sampleIndex, const QPointF &sample ) const
 {
-    Q_UNUSED( index );
-    Q_UNUSED( point );
+    Q_UNUSED( sampleIndex );
+    Q_UNUSED( sample );
 
     return NULL;
 }

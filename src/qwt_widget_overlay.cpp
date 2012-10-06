@@ -158,11 +158,21 @@ QwtWidgetOverlay::MaskMode QwtWidgetOverlay::maskMode() const
     return d_data->maskMode;
 }
 
+/*!
+   Set the render mode
+   \param mode Render mode
+
+   \sa RenderMode, renderMode()
+*/
 void QwtWidgetOverlay::setRenderMode( RenderMode mode )
 {
     d_data->renderMode = mode;
 }
 
+/*!
+   \return Render mode
+   \sa RenderMode, setRenderMode()
+ */
 QwtWidgetOverlay::RenderMode QwtWidgetOverlay::renderMode() const
 {
     return d_data->renderMode;
