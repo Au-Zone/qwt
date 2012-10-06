@@ -36,6 +36,11 @@ class QwtRoundScaleDraw;
   The scale might cover any arc of the dial, its values are related to
   the origin() of the dial.
 
+  Often dials have to be updated very often according to values from external
+  devices. For these high refresh rates QwtDial caches as much as possible.
+  For derived classes it might be necessary to clear these caches manually
+  according to attribute changes using invalidateCache().
+
   \sa QwtCompass, QwtAnalogClock, QwtDialNeedle
   \note The controls and dials examples shows different types of dials.
   \note QDial is more similar to QwtKnob than to QwtDial
@@ -126,11 +131,13 @@ public:
 protected:
     virtual void wheelEvent( QWheelEvent * );
     virtual void paintEvent( QPaintEvent * );
-	virtual void changeEvent( QEvent * );
+    virtual void changeEvent( QEvent * );
 
     virtual void drawFrame( QPainter *p );
     virtual void drawContents( QPainter * ) const;
     virtual void drawFocusIndicator( QPainter * ) const;
+
+    void invalidateCache();
 
     virtual void drawScale( QPainter *, 
         const QPointF &center, double radius ) const;
@@ -145,9 +152,11 @@ protected:
     virtual bool isScrollPosition( const QPoint & ) const;
 
     virtual void sliderChange();
+    virtual void scaleChange();
 
 private:
     void setAngleRange( double angle, double span );
+    void drawNeedle( QPainter * ) const;
 
     class PrivateData;
     PrivateData *d_data;
