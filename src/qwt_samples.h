@@ -124,7 +124,7 @@ inline bool QwtSetSample::operator!=( const QwtSetSample &other ) const
     return !( *this == other );
 }
 
-// \return All values of the set added
+//! \return All values of the set added
 inline double QwtSetSample::added() const
 {
     double y = 0.0;

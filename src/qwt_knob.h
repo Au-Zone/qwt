@@ -24,8 +24,6 @@ class QwtRoundScaleDraw;
   The value range of a knob might be divided into several turns.
 
   \image html knob.png
-  \sa QwtAbstractSlider and QwtAbstractScale for the descriptions
-      of the inherited members.
 */
 
 class QWT_EXPORT QwtKnob: public QwtAbstractSlider

@@ -23,9 +23,6 @@ class QwtScaleDraw;
   well as a scale.
 
   \image html sliders.png
-
-  \sa QwtAbstractSlider and QwtAbstractScale for the descriptions
-      of the inherited members.
 */
 
 class QWT_EXPORT QwtSlider: public QwtAbstractSlider

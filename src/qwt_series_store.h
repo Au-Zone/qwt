@@ -57,75 +57,101 @@ template <typename T>
 class QwtSeriesStore: public virtual QwtAbstractSeriesStore
 {
 public:
+	/*!
+	  \brief Constructor
+	  The store contains no series
+	*/
     explicit QwtSeriesStore<T>();
+
+	//! Destructor
     ~QwtSeriesStore<T>();
 
-    void setData( QwtSeriesData<T> * );
+	/*!
+	  Assign a series of samples
 
+	  \param series Data
+	  \warning The item takes ownership of the data object, deleting
+			   it when its not used anymore.
+	*/
+    void setData( QwtSeriesData<T> *series );
+
+	//! \return the the series data
     QwtSeriesData<T> *data();
+
+	//! \return the the series data
     const QwtSeriesData<T> *data() const;
 
+	/*!
+		\param index Index
+		\return Sample at position index
+	*/
     T sample( int index ) const;
 
+	/*!
+	  Return the number of samples of the series
+
+	  \sa setData(), QwtSeriesData<T>::size()
+	*/
     virtual size_t dataSize() const;
+
+	/*!
+	  Return the bounding rectangle of the series
+	  or an invalid rectangle, when no series is stored
+
+	  \sa QwtSeriesData<T>::boundingRect()
+	*/
     virtual QRectF dataRect() const;
 
-    virtual void setRectOfInterest( const QRectF & );
+	/*!
+	  Set a the "rect of interest" for the series
 
-    QwtSeriesData<T> *swapData( QwtSeriesData<T> * );
+      \param rect Rectangle of interest
+	  \sa QwtSeriesData<T>::setRectOfInterest()
+	*/
+    virtual void setRectOfInterest( const QRectF &rect );
+
+	/*!
+	  Replace a series without deleting the previous one
+
+	  \param series New series
+	  \return Previously assigned series
+	 */
+    QwtSeriesData<T> *swapData( QwtSeriesData<T> *series );
 
 private:
     QwtSeriesData<T> *d_series;
 };
 
-/*!
-  \brief Constructor
-  The store contains no series
-*/
 template <typename T>
 QwtSeriesStore<T>::QwtSeriesStore():
     d_series( NULL )
 {
 }
 
-//! Destructor
 template <typename T>
 QwtSeriesStore<T>::~QwtSeriesStore()
 {
     delete d_series;
 }
 
-//! \return the the series data
 template <typename T>
 inline QwtSeriesData<T> *QwtSeriesStore<T>::data()
 {
     return d_series;
 }
 
-//! \return the the series data
 template <typename T>
 inline const QwtSeriesData<T> *QwtSeriesStore<T>::data() const
 {
     return d_series;
 }
 
-/*!
-    \param index Index
-    \return Sample at position index
-*/
 template <typename T>
 inline T QwtSeriesStore<T>::sample( int index ) const
 {
     return d_series ? d_series->sample( index ) : T();
 }
 
-/*!
-  Assign a series of samples
-
-  \param series Data
-  \warning The item takes ownership of the data object, deleting
-           it when its not used anymore.
-*/
 template <typename T>
 void QwtSeriesStore<T>::setData( QwtSeriesData<T> *series )
 {
@@ -137,11 +163,6 @@ void QwtSeriesStore<T>::setData( QwtSeriesData<T> *series )
     }
 }
 
-/*!
-  Return the number of samples of the series
-
-  \sa setData(), QwtSeriesData<T>::size()
-*/
 template <typename T>
 size_t QwtSeriesStore<T>::dataSize() const
 {
@@ -151,12 +172,6 @@ size_t QwtSeriesStore<T>::dataSize() const
     return d_series->size();
 }
 
-/*!
-  Return the bounding rectangle of the series
-  or an invalid rectangle, when no series is stored
-
-  \sa QwtSeriesData<T>::boundingRect()
-*/
 template <typename T>
 QRectF QwtSeriesStore<T>::dataRect() const
 {
@@ -166,10 +181,6 @@ QRectF QwtSeriesStore<T>::dataRect() const
     return d_series->boundingRect();
 }
 
-/*!
-   Set a the "rect of interest" for the series
-   \sa QwtSeriesData<T>::setRectOfInterest()
-*/
 template <typename T>
 void QwtSeriesStore<T>::setRectOfInterest( const QRectF &rect )
 {
@@ -177,12 +188,6 @@ void QwtSeriesStore<T>::setRectOfInterest( const QRectF &rect )
         d_series->setRectOfInterest( rect );
 }
 
-/*!
-  Replace a series without deleting the previous one
-
-  \param series New series
-  \return Previously assigned series
- */
 template <typename T>
 QwtSeriesData<T>* QwtSeriesStore<T>::swapData( QwtSeriesData<T> *series )
 {
