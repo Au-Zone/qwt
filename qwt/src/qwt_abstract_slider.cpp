@@ -22,12 +22,12 @@ static double qwtAlignToScaleDiv(
 {
     const QwtScaleDiv &sd = slider->scaleDiv();
 
-    const int tValue = qRound( slider->transform( value ) );
+    const int tValue = slider->transform( value );
 
-    if ( tValue == qRound( slider->transform( sd.lowerBound() ) ) )
+    if ( tValue == slider->transform( sd.lowerBound() ) )
         return sd.lowerBound();
 
-    if ( tValue == qRound( slider->transform( sd.lowerBound() ) ) )
+    if ( tValue == slider->transform( sd.lowerBound() ) )
         return sd.upperBound();
 
     for ( int i = 0; i < QwtScaleDiv::NTickTypes; i++ )
@@ -35,7 +35,7 @@ static double qwtAlignToScaleDiv(
         const QList<double> ticks = sd.ticks( i );
         for ( int j = 0; j < ticks.size(); j++ )
         {
-            if ( qRound( slider->transform( ticks[ j ] ) ) == tValue )
+            if ( slider->transform( ticks[ j ] ) == tValue )
                 return ticks[ j ];
         }
     }

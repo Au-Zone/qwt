@@ -526,8 +526,8 @@ double QwtSlider::scrolledTo( const QPoint &pos ) const
 
     p -= d_data->mouseOffset;
 
-    int min = qRound( transform( lowerBound() ) );
-    int max = qRound( transform( upperBound() ) );
+    int min = transform( lowerBound() );
+    int max = transform( upperBound() );
     if ( min > max )
         qSwap( min, max );
 
