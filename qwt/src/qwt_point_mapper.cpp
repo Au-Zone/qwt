@@ -282,7 +282,7 @@ void QwtPointMapper::setFlags( TransformationFlags flags )
     d_data->flags = flags;
 }
 
-/*
+/*!
   \return Flags affecting the transformation process
   \sa setFlags(), setFlag()
  */
