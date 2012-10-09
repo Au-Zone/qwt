@@ -1011,7 +1011,7 @@ int QwtPlotCurve::closestPoint( const QPoint &pos, double *dist ) const
 }
 
 /*!
-    \return Icon representing the curve on the legend
+   \return Icon representing the curve on the legend
 
    \param index Index of the legend entry 
                 ( ignored as there is only one )
@@ -1088,9 +1088,10 @@ QwtGraphic QwtPlotCurve::legendIcon( int index,
 }
 
 /*!
-  Initialize data with an array of points (explicitly shared).
+  Initialize data with an array of points.
 
   \param samples Vector of points
+  \note QVector is implicitely shared
 */
 void QwtPlotCurve::setSamples( const QVector<QPointF> &samples )
 {

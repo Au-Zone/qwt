@@ -94,8 +94,6 @@ public:
 
     virtual QwtText barTitle( int sampleIndex ) const;
 
-    virtual QwtText label( int sampleIndex, const QPointF& ) const;
-
 protected:
     virtual void drawSample( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,

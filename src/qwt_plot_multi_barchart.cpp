@@ -254,6 +254,12 @@ QwtColumnSymbol *QwtPlotMultiBarChart::specialSymbol(
     return NULL;
 }
 
+/*!
+  Set the style of the chart
+
+  \param style Chart style
+  \sa style()
+ */
 void QwtPlotMultiBarChart::setStyle( ChartStyle style )
 {
     if ( style != d_data->style )
@@ -265,6 +271,10 @@ void QwtPlotMultiBarChart::setStyle( ChartStyle style )
     }
 }
 
+/*!
+  \return Style of the chart
+  \sa setStyle()
+ */
 QwtPlotMultiBarChart::ChartStyle QwtPlotMultiBarChart::style() const
 {
     return d_data->style;
@@ -416,6 +426,19 @@ void QwtPlotMultiBarChart::drawSample( QPainter *painter,
     }
 }
 
+/*!
+  Draw a grouped sample
+
+  \param painter Painter
+  \param xMap x map
+  \param yMap y map
+  \param canvasRect Contents rect of the canvas
+  \param index Index of the sample to be painted
+  \param sampleWidth Boundng width for all bars of the smaple
+  \param sample Sample 
+
+  \sa drawSeries(), sampleWidth()
+*/
 void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int index, double sampleWidth,
@@ -483,6 +506,19 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
     }
 }
 
+/*!
+  Draw a stacked sample
+
+  \param painter Painter
+  \param xMap x map
+  \param yMap y map
+  \param canvasRect Contents rect of the canvas
+  \param index Index of the sample to be painted
+  \param sampleWidth Width of the bars
+  \param sample Sample 
+
+  \sa drawSeries(), sampleWidth()
+*/
 void QwtPlotMultiBarChart::drawStackedBars( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect, int index, 
