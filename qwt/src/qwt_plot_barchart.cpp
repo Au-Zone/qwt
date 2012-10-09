@@ -31,18 +31,27 @@ public:
     QwtPlotBarChart::LegendMode legendMode;
 };
 
+/*!
+  Constructor
+  \param title Title of the curve
+*/
 QwtPlotBarChart::QwtPlotBarChart( const QwtText &title ):
     QwtPlotAbstractBarChart( title )
 {
     init();
 }
 
+/*!
+  Constructor
+  \param title Title of the curve
+*/
 QwtPlotBarChart::QwtPlotBarChart( const QString &title ):
     QwtPlotAbstractBarChart( QwtText( title ) )
 {
     init();
 }
 
+//! Destructor
 QwtPlotBarChart::~QwtPlotBarChart()
 {
     delete d_data;
@@ -60,12 +69,27 @@ int QwtPlotBarChart::rtti() const
     return QwtPlotItem::Rtti_PlotBarChart;
 }
 
+/*!
+  Initialize data with an array of points
+
+  \param samples Vector of points
+  \note QVector is implicitely shared
+*/
 void QwtPlotBarChart::setSamples(
     const QVector<QPointF> &samples )
 {
     setData( new QwtPointSeriesData( samples ) );
 }
 
+/*!
+  Initialize data with an array of doubles
+
+  The indices in the array are taken as x coordinate,
+  while the doubles are interpreted as y values.
+
+  \param samples Vector of y coordinates
+  \note QVector is implicitely shared
+*/
 void QwtPlotBarChart::setSamples(
     const QVector<double> &samples )
 {
@@ -76,6 +100,16 @@ void QwtPlotBarChart::setSamples(
     setData( new QwtPointSeriesData( points ) );
 }
 
+/*!
+  \brief Assign a symbol
+
+  The barchart will take the ownership of the symbol, hence the previously
+  set symbol will be delete by setting a new one. If \p symbol is 
+  \c NULL no symbol will be drawn.
+
+  \param symbol Symbol
+  \sa symbol()
+*/
 void QwtPlotBarChart::setSymbol( QwtColumnSymbol *symbol )
 {
     if ( symbol != d_data->symbol )
@@ -97,6 +131,15 @@ const QwtColumnSymbol *QwtPlotBarChart::symbol() const
     return d_data->symbol;
 }
 
+/*!
+  Set the mode that decides what to display on the legend
+
+  In case of LegendBarTitles barTitle() needs to be overloaded
+  to return individual titles for each bar.
+
+  \param mode New mode
+  \sa legendMode(), legendData(), barTitle(), QwtPlotItem::ItemAttribute
+ */
 void QwtPlotBarChart::setLegendMode( LegendMode mode )
 {
     if ( mode != d_data->legendMode )
@@ -106,6 +149,10 @@ void QwtPlotBarChart::setLegendMode( LegendMode mode )
     }
 }
 
+/*!
+  \return Legend mode
+  \sa setLegendMode()
+ */
 QwtPlotBarChart::LegendMode QwtPlotBarChart::legendMode() const
 {
     return d_data->legendMode;
@@ -289,21 +336,35 @@ QwtColumnSymbol *QwtPlotBarChart::specialSymbol(
     return NULL;
 }
 
+/*!
+  \brief Return the title of a bar
+
+  In LegendBarTitles mode the title is displayed on
+  the legend entry corresponding to a bar.
+
+  The default implementation is a dummy, that is intended
+  to be overloaded.
+
+  \param sampleIndex Index of the bar
+  \return An empty text
+  \sa LegendBarTitles
+ */
 QwtText QwtPlotBarChart::barTitle( int sampleIndex ) const
 {
     Q_UNUSED( sampleIndex );
     return QwtText();
 }
 
-QwtText QwtPlotBarChart::label( 
-    int sampleIndex, const QPointF& point ) const
-{
-    Q_UNUSED( sampleIndex );
-    Q_UNUSED( point );
+/*!
+   \brief Return all information, that is needed to represent
+          the item on the legend
 
-    return QwtText();
-}
+   In case of LegendBarTitles an entry for each bar is returned,
+   otherwise the chart is represented like any other plot item
+   from its title() and the legendIcon().
 
+   \sa title(), setLegendMode(), barTitle(), QwtLegend, QwtPlotLegendItem
+ */
 QList<QwtLegendData> QwtPlotBarChart::legendData() const
 {
     QList<QwtLegendData> list;
@@ -339,6 +400,19 @@ QList<QwtLegendData> QwtPlotBarChart::legendData() const
     return list;
 }
 
+/*!
+   \return Icon representing a bar or the chart on the legend
+
+   When the legendMode() is LegendBarTitles the icon shows
+   the bar corresponding to index - otherwise the bar
+   displays the default symbol.
+
+   \param index Index of the legend entry 
+   \param size Icon size
+
+   \sa setLegendMode(), drawBar(), 
+       QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
+ */
 QwtGraphic QwtPlotBarChart::legendIcon( 
     int index, const QSizeF &size ) const
 {
@@ -362,4 +436,3 @@ QwtGraphic QwtPlotBarChart::legendIcon(
 
     return icon;
 }
-
