@@ -84,7 +84,7 @@ QwtKnob *KnobBox::createKnob( int knobType ) const
         }
         case 3:
         {
-            knob->setKnobStyle( QwtKnob::Raised );
+            knob->setKnobStyle( QwtKnob::Flat );
             knob->setMarkerStyle( QwtKnob::Notch );
             knob->setScaleEngine( new QwtLogScaleEngine() );
             knob->setScaleStepSize( 1.0 );

@@ -53,7 +53,7 @@ public:
     enum KnobStyle
     {
         //! Fill the knob with a brush from QPalette::Button.
-        NoStyle = -1,
+        Flat,
 
         //! Build a gradient from QPalette::Midlight and QPalette::Button
         Raised,

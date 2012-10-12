@@ -461,6 +461,7 @@ void QwtKnob::drawKnob( QPainter *painter, const QRectF &knobRect ) const
 
             break;
         }
+        case QwtKnob::Flat:
         default:
             brush = palette().brush( QPalette::Button );
     }
