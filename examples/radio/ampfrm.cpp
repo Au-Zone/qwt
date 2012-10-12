@@ -135,10 +135,10 @@ AmpFrame::AmpFrame( QWidget *p ):
     QHBoxLayout *layout = new QHBoxLayout( this );
     layout->setSpacing( 0 );
     layout->setMargin( 10 );
-    layout->addWidget( d_knbVolume );
-    layout->addWidget( d_knbBalance );
-    layout->addWidget( d_knbTreble );
-    layout->addWidget( d_knbBass );
+    layout->addWidget( d_knbVolume, 0, Qt::AlignHCenter | Qt::AlignTop );
+    layout->addWidget( d_knbBalance, 0, Qt::AlignHCenter | Qt::AlignTop );
+    layout->addWidget( d_knbTreble, 0, Qt::AlignHCenter | Qt::AlignTop );
+    layout->addWidget( d_knbBass, 0, Qt::AlignHCenter | Qt::AlignTop );
     layout->addSpacing( 20 );
     layout->addStretch( 10 );
     layout->addWidget( d_thmLeft );
