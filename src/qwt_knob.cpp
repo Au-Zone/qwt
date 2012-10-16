@@ -27,6 +27,22 @@
 #define qFastSin(x) qSin(x)
 #endif
 
+static QSize qwtKnobSizeHint( const QwtKnob *knob, int min )
+{
+    int knobWidth = knob->knobWidth();
+    if ( knobWidth <= 0 )
+        knobWidth = qMax( 3 * knob->markerSize(), min );
+
+    // Add the scale radial thickness to the knobWidth
+    const int extent = qCeil( knob->scaleDraw()->extent( knob->font() ) );
+    const int d = 2 * ( extent + 4 ) + knobWidth;
+
+    int left, right, top, bottom;
+    knob->getContentsMargins( &left, &top, &right, &bottom );
+
+    return QSize( d + left + right, d + top + bottom );
+}
+
 static inline double qwtToScaleAngle( double angle )
 {
     // the map is counter clockwise with the origin
@@ -56,7 +72,8 @@ public:
         borderDist( 4 ),
         scaleDist( 4 ),
         maxScaleTicks( 11 ),
-        knobWidth( 50 ),
+        knobWidth( 0 ),
+        alignment( Qt::AlignCenter ),
         markerSize( 8 ),
         totalAngle( 270.0 ),
         mouseOffset( 0.0 )
@@ -71,6 +88,7 @@ public:
     int scaleDist;
     int maxScaleTicks;
     int knobWidth;
+    Qt::Alignment alignment;
     int markerSize;
 
     double totalAngle;
@@ -79,7 +97,7 @@ public:
 };
 
 /*!
-  \brief Contstructor
+  \brief Constructor
 
   Construct a knob with an angle of 270°. The style is
   QwtKnob::Raised and the marker style is QwtKnob::Notch.
@@ -97,10 +115,12 @@ QwtKnob::QwtKnob( QWidget* parent ):
     setScaleDraw( new QwtRoundScaleDraw() );
 
     setTotalAngle( 270.0 );
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 
     setScale( 0.0, 10.0 );
     setValue( 0.0 );
+
+    setSizePolicy( QSizePolicy::MinimumExpanding, 
+        QSizePolicy::MinimumExpanding );
 }
 
 //! Destructor
@@ -268,6 +288,59 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 }
 
 /*!
+  Calculate the bounding rectangle of the knob without the scale
+
+  \return Bounding rectangle of the knob
+  \sa knobWidth(), alignment(), QWidget::contentsRect()
+ */
+QRect QwtKnob::knobRect() const
+{
+    const QRect cr = contentsRect();
+
+    const int extent = qCeil( scaleDraw()->extent( font() ) );
+    const int d = extent + d_data->scaleDist;
+
+    int w = d_data->knobWidth;
+    if ( w <= 0 )
+    {
+        const int dim = qMin( cr.width(), cr.height() );
+
+        w = dim - 2 * ( d );
+        w = qMax( 0, w );
+    }
+
+    QRect r( 0, 0, w, w );
+
+    if ( d_data->alignment & Qt::AlignLeft )
+    {
+        r.moveLeft( cr.left() + d );
+    }
+    else if ( d_data->alignment & Qt::AlignRight )
+    {
+        r.moveRight( cr.right() - d );
+    }
+    else
+    {
+        r.moveCenter( QPoint( cr.center().x(), r.center().y() ) );
+    }
+
+    if ( d_data->alignment & Qt::AlignTop )
+    {
+        r.moveTop( cr.top() + d );
+    }
+    else if ( d_data->alignment & Qt::AlignBottom )
+    {
+        r.moveBottom( cr.bottom() - d );
+    }
+    else 
+    {
+        r.moveCenter( QPoint( r.center().x(), cr.center().y() ) );
+    }
+
+    return r;
+}
+
+/*!
   \brief Determine what to do when the user presses a mouse button.
 
   \param pos Mouse position
@@ -277,13 +350,12 @@ QwtRoundScaleDraw *QwtKnob::scaleDraw()
 */
 bool QwtKnob::isScrollPosition( const QPoint &pos ) const
 {
-    QRect knobRect( 0, 0, d_data->knobWidth, d_data->knobWidth );
-    knobRect.moveCenter( rect().center() );
+    const QRect kr = knobRect();
 
-    const QRegion region( knobRect, QRegion::Ellipse );
-    if ( region.contains( pos ) && ( pos != knobRect.center() ) )
+    const QRegion region( kr, QRegion::Ellipse );
+    if ( region.contains( pos ) && ( pos != kr.center() ) )
     {
-        const double angle = QLineF( rect().center(), pos ).angle();
+        const double angle = QLineF( kr.center(), pos ).angle();
         const double valueAngle = qwtToDegrees( transform( value() ) );
 
         d_data->mouseOffset = qwtNormalizeDegrees( angle - valueAngle );
@@ -374,8 +446,7 @@ void QwtKnob::changeEvent( QEvent *event )
 */
 void QwtKnob::paintEvent( QPaintEvent *event )
 {
-    QRectF knobRect( 0, 0, d_data->knobWidth, d_data->knobWidth );
-    knobRect.moveCenter( rect().center() );
+    const QRectF knobRect = this->knobRect();
 
     QPainter painter( this );
     painter.setClipRegion( event->region() );
@@ -388,8 +459,8 @@ void QwtKnob::paintEvent( QPaintEvent *event )
 
     if ( !knobRect.contains( event->region().boundingRect() ) )
     {
-        scaleDraw()->setRadius( 0.5 * d_data->knobWidth + d_data->scaleDist );
-        scaleDraw()->moveCenter( rect().center() );
+        scaleDraw()->setRadius( 0.5 * knobRect.width() + d_data->scaleDist );
+        scaleDraw()->moveCenter( knobRect.center() );
 
         scaleDraw()->draw( &painter, palette() );
     }
@@ -601,24 +672,85 @@ void QwtKnob::drawMarker( QPainter *painter,
 */
 void QwtKnob::drawFocusIndicator( QPainter *painter ) const
 {       
-    QRect focusRect( QPoint(), minimumSizeHint() );
-    focusRect.moveCenter( rect().center() );
+    const QRect cr = contentsRect();
+
+    int w = d_data->knobWidth;
+    if ( w <= 0 )
+    {
+        w = qMin( cr.width(), cr.height() );
+    }
+    else
+    {
+        const int extent = qCeil( scaleDraw()->extent( font() ) );
+        w += 2 * ( extent + d_data->scaleDist );
+    }
+
+    QRect focusRect( 0, 0, w, w );
+    focusRect.moveCenter( cr.center() );
 
     QwtPainter::drawFocusRect( painter, this, focusRect );
 }  
 
 /*!
+  \brief Set the alignment of the knob
+
+  Similar to a QLabel::alignment() the flags decide how
+  to align the knob inside of contentsRect(). 
+
+  The default setting is Qt::AlignCenter
+
+  \param alignment Or'd alignment flags
+
+  \sa alignment(), setKnobWidth(), knobRect()
+ */
+void QwtKnob::setAlignment( Qt::Alignment alignment )
+{
+    if ( d_data->alignment != alignment )
+    {
+        d_data->alignment = alignment;
+        update();
+    }
+}
+
+/*!
+  \return Alignment of the knob inside of contentsRect()
+  \sa setAlignment(), knobWidth(), knobRect()
+ */
+Qt::Alignment QwtKnob::alignment() const
+{
+    return d_data->alignment;
+}
+
+/*!
   \brief Change the knob's width.
 
-  The specified width must be >= 5, or it will be clipped.
+  Setting a fixed value for the diameter of the knob 
+  is helpful for aligning several knobs in a row.
+
   \param width New width
+
+  \sa knobWidth(), setAlignment()
+  \note Modifies the sizePolicy() 
 */
 void QwtKnob::setKnobWidth( int width )
 {
-    d_data->knobWidth = qMax( width, 5 );
-    
-    updateGeometry();
-    update();
+    width = qMax( width, 0 );
+
+    if ( width != d_data->knobWidth )
+    {
+        QSizePolicy::Policy policy;
+        if ( width > 0 )
+            policy = QSizePolicy::Minimum;
+        else
+            policy = QSizePolicy::MinimumExpanding;
+
+        setSizePolicy( policy, policy );
+
+        d_data->knobWidth = width;
+
+        updateGeometry();
+        update();
+    }
 }
 
 //! Return the width of the knob
@@ -669,11 +801,11 @@ int QwtKnob::markerSize() const
 }
 
 /*!
-  \return minimumSizeHint()
+  \return sizeHint()
 */
 QSize QwtKnob::sizeHint() const
 {
-    const QSize hint = minimumSizeHint();
+    const QSize hint = qwtKnobSizeHint( this, 50 );
     return hint.expandedTo( QApplication::globalStrut() );
 }
 
@@ -683,9 +815,5 @@ QSize QwtKnob::sizeHint() const
 */
 QSize QwtKnob::minimumSizeHint() const
 {
-    // Add the scale radial thickness to the knobWidth
-    const int extent = qCeil( scaleDraw()->extent( font() ) );
-    const int d = 2 * ( extent + d_data->scaleDist ) + d_data->knobWidth;
-
-    return QSize( d, d );
+    return qwtKnobSizeHint( this, 20 );
 }
