@@ -23,6 +23,19 @@ class QwtRoundScaleDraw;
 
   The value range of a knob might be divided into several turns.
 
+  The layout of the knob depends on the knobWidth().
+
+  - width > 0 
+    The diameter of the knob is fixed and the knob is aligned
+    according to the alignment() flags inside of the contentsRect(). 
+
+  - width <= 0
+    The knob is extended to the minimum of width/height of the contentsRect()
+    and aligned in the other direction according to alignment().
+
+  Setting a fixed knobWidth() is helpful to align several knobs with different
+  scale labels.
+  
   \image html knob.png
 */
 
@@ -35,6 +48,7 @@ class QWT_EXPORT QwtKnob: public QwtAbstractSlider
 
     Q_PROPERTY( KnobStyle knobStyle READ knobStyle WRITE setKnobStyle )
     Q_PROPERTY( int knobWidth READ knobWidth WRITE setKnobWidth )
+    Q_PROPERTY( Qt::Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( double totalAngle READ totalAngle WRITE setTotalAngle )
     Q_PROPERTY( int numTurns READ numTurns WRITE setNumTurns )
     Q_PROPERTY( MarkerStyle markerStyle READ markerStyle WRITE setMarkerStyle )
@@ -103,7 +117,10 @@ public:
     explicit QwtKnob( QWidget* parent = NULL );
     virtual ~QwtKnob();
 
-    void setKnobWidth( int w );
+    void setAlignment( Qt::Alignment );
+    Qt::Alignment alignment() const;
+
+    void setKnobWidth( int );
     int knobWidth() const;
 
     void setNumTurns( int );
@@ -131,6 +148,8 @@ public:
 
     const QwtRoundScaleDraw *scaleDraw() const;
     QwtRoundScaleDraw *scaleDraw();
+
+    QRect knobRect() const;
 
 protected:
     virtual void paintEvent( QPaintEvent * );

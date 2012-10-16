@@ -9,9 +9,7 @@ KnobBox::KnobBox( QWidget *parent, int knobType ):
     QWidget( parent )
 {
     d_knob = createKnob( knobType );
-#if 1
     d_knob->setKnobWidth( 100 );
-#endif
 
     d_label = new QLabel( this );
     d_label->setAlignment( Qt::AlignCenter );
