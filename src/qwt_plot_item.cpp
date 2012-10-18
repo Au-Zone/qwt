@@ -433,12 +433,12 @@ void QwtPlotItem::legendChanged()
 /*!
    Set X and Y axis
 
-   The item will painted according to the coordinates its Axes.
+   The item will painted according to the coordinates of its Axes.
 
-   \param xAxis X Axis
-   \param yAxis Y Axis
+   \param xAxis X Axis ( QwtPlot::xBottom or QwtPlot::xTop )
+   \param yAxis Y Axis ( QwtPlot::yLeft or QwtPlot::yRight )
 
-   \sa setXAxis(), setYAxis(), xAxis(), yAxis()
+   \sa setXAxis(), setYAxis(), xAxis(), yAxis(), QwtPlot::Axis
 */
 void QwtPlotItem::setAxes( int xAxis, int yAxis )
 {
@@ -456,8 +456,8 @@ void QwtPlotItem::setAxes( int xAxis, int yAxis )
 
    The item will painted according to the coordinates its Axes.
 
-   \param axis X Axis
-   \sa setAxes(), setYAxis(), xAxis()
+   \param axis X Axis ( QwtPlot::xBottom or QwtPlot::xTop )
+   \sa setAxes(), setYAxis(), xAxis(), QwtPlot::Axis
 */
 void QwtPlotItem::setXAxis( int axis )
 {
@@ -473,8 +473,8 @@ void QwtPlotItem::setXAxis( int axis )
 
    The item will painted according to the coordinates its Axes.
 
-   \param axis Y Axis
-   \sa setAxes(), setXAxis(), yAxis()
+   \param axis Y Axis ( QwtPlot::yLeft or QwtPlot::yRight )
+   \sa setAxes(), setXAxis(), yAxis(), QwtPlot::Axis
 */
 void QwtPlotItem::setYAxis( int axis )
 {
