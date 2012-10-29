@@ -37,6 +37,9 @@ private:
     CheckBox *d_paintCache;
     CheckBox *d_paintOnScreen;
     CheckBox *d_immediatePaint;
+#ifndef QWT_NO_OPENGL
+    CheckBox *d_openGL;
+#endif
 
     QComboBox *d_curveType;
     CheckBox *d_curveAntialiasing;

@@ -6,6 +6,10 @@
 #include <qwt_plot_layout.h>
 #include <qwt_scale_widget.h>
 #include <qwt_scale_draw.h>
+#ifndef QWT_NO_OPENGL
+#include <qevent.h>
+#include <qwt_plot_glcanvas.h>
+#endif
 #include "plot.h"
 #include "circularbuffer.h"
 #include "settings.h"
@@ -28,6 +32,32 @@ static double noise( double )
     return 2.0 * ( qrand() / ( static_cast<double>( RAND_MAX ) + 1 ) ) - 1.0;
 }
 
+#ifndef QWT_NO_OPENGL
+class GLCanvas: public QwtPlotGLCanvas
+{
+public:
+    GLCanvas( QwtPlot *parent = NULL ):
+        QwtPlotGLCanvas( parent )
+    {
+        setContentsMargins( 1, 1, 1, 1 );
+    }
+
+protected:
+    virtual void paintEvent( QPaintEvent *event )
+    {
+        QPainter painter( this );
+        painter.setClipRegion( event->region() );
+
+        QwtPlot *plot = qobject_cast< QwtPlot *>( parent() );
+        if ( plot )
+            plot->drawCanvas( &painter );
+
+        painter.setPen( palette().foreground().color() );
+        painter.drawRect( rect().adjusted( 0, 0, -1, -1 ) );
+    }
+};
+#endif
+
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent ),
     d_interval( 10.0 ), // seconds
@@ -36,12 +66,12 @@ Plot::Plot( QWidget *parent ):
     // Assign a title
     setTitle( "Testing Refresh Rates" );
 
-	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setFrameStyle( QFrame::Box | QFrame::Plain );
     canvas->setLineWidth( 1 );
-	canvas->setPalette( Qt::white );
+    canvas->setPalette( Qt::white );
 
-	setCanvas( canvas );
+    setCanvas( canvas );
 
     alignScales();
 
@@ -130,16 +160,39 @@ void Plot::setSettings( const Settings &s )
     d_curve->setRenderHint( QwtPlotItem::RenderAntialiased,
         s.curve.renderHint & QwtPlotItem::RenderAntialiased );
 
-	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
-	if ( plotCanvas )
-	{
-    	plotCanvas->setAttribute( Qt::WA_PaintOnScreen, s.canvas.paintOnScreen );
+#ifndef QWT_NO_OPENGL
+    if ( s.canvas.openGL )
+    {
+        QwtPlotGLCanvas *plotCanvas = qobject_cast<QwtPlotGLCanvas *>( canvas() );
+        if ( plotCanvas == NULL )
+        {
+            plotCanvas = new GLCanvas();
+            plotCanvas->setPalette( QColor( "khaki" ) );
 
-    	plotCanvas->setPaintAttribute(
-        	QwtPlotCanvas::BackingStore, s.canvas.useBackingStore );
-    	plotCanvas->setPaintAttribute(
-        	QwtPlotCanvas::ImmediatePaint, s.canvas.immediatePaint );
-	}
+            setCanvas( plotCanvas );
+        }
+    }
+    else
+#endif
+    {
+        QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
+        if ( plotCanvas == NULL )
+        {
+            plotCanvas = new QwtPlotCanvas();
+            plotCanvas->setFrameStyle( QFrame::Box | QFrame::Plain );
+            plotCanvas->setLineWidth( 1 );
+            plotCanvas->setPalette( Qt::white );
+
+            setCanvas( plotCanvas );
+        }
+
+        plotCanvas->setAttribute( Qt::WA_PaintOnScreen, s.canvas.paintOnScreen );
+
+        plotCanvas->setPaintAttribute(
+            QwtPlotCanvas::BackingStore, s.canvas.useBackingStore );
+        plotCanvas->setPaintAttribute(
+            QwtPlotCanvas::ImmediatePaint, s.canvas.immediatePaint );
+    }
 
     QwtPainter::setPolylineSplitting( s.curve.lineSplitting );
 
@@ -151,16 +204,15 @@ void Plot::timerEvent( QTimerEvent * )
     CircularBuffer *buffer = static_cast<CircularBuffer *>( d_curve->data() );
     buffer->setReferenceTime( d_clock.elapsed() / 1000.0 );
 
-	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
-	if ( plotCanvas && d_settings.updateType == Settings::RepaintCanvas )
-	{
-		// the axes in this example doesn't change. So all we need to do
-		// is to repaint the canvas.
+    if ( d_settings.updateType == Settings::RepaintCanvas )
+    {
+        // the axes in this example doesn't change. So all we need to do
+        // is to repaint the canvas.
 
-		plotCanvas->replot();
-	}
-	else
-	{
-		replot();
-	}
+        QMetaObject::invokeMethod( canvas(), "replot", Qt::DirectConnection );
+    }
+    else
+    {
+        replot();
+    }
 }
