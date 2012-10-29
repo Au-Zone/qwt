@@ -16,19 +16,19 @@
 class QwtPlot;
 
 /*!
-  \brief A alternative canvas of a QwtPlot derived from QGLWidget
+  \brief An alternative canvas for a QwtPlot derived from QGLWidget
   
-  QwtPlotGLCanvas implements the very basics to work as canvas
+  QwtPlotGLCanvas implements the very basics to act as canvas
   inside of a QwtPlot widget. It might be extended to a full
   featured alternative to QwtPlotCanvas in a future version of Qwt.
 
-  It is intended as start to develop full featured OpenGL canvas
-  in future versions of Qwt. Contributions are welcome.
-
   \sa QwtPlot::setCanvas(), QwtPlotCanvas
 
-  \note You might have to use the QPaintEngine::OpenGL paint engine
-        to make antialiasing working: see QGL::setPreferredPaintEngine().
+  \note You might want to use the QPaintEngine::OpenGL paint engine
+        ( see QGL::setPreferredPaintEngine() ). On a Linux test system 
+        QPaintEngine::OpenGL2 shows very basic problems ( wrong
+        geometries of rectangles ) but also more advanced stuff
+        like antialiasing doesn't work.
 
   \note Another way to introduce OpenGL rendering to Qwt
         is to use QGLPixelBuffer or QGLFramebufferObject. Both

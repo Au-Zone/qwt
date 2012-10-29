@@ -35,6 +35,9 @@ public:
         canvas.useBackingStore = false;
         canvas.paintOnScreen = false;
         canvas.immediatePaint = true;
+#ifndef QWT_NO_OPENGL
+        canvas.openGL = false;
+#endif
 
         updateType = RepaintCanvas;
         updateInterval = 20;
@@ -61,6 +64,10 @@ public:
         bool useBackingStore;
         bool paintOnScreen;
         bool immediatePaint;
+
+#ifndef QWT_NO_OPENGL
+        bool openGL;
+#endif
     } canvas;
 
     UpdateType updateType;

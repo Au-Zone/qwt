@@ -16,7 +16,6 @@ MainWindow::MainWindow( QWidget *parent ):
     d_panel = new Panel( w );
 
     d_plot = new Plot( w );
-    d_plot->canvas()->installEventFilter( this );
 
     QHBoxLayout *hLayout = new QHBoxLayout( w );
     hLayout->addWidget( d_panel );
@@ -27,10 +26,10 @@ MainWindow::MainWindow( QWidget *parent ):
     d_frameCount = new QLabel( this );
     statusBar()->addWidget( d_frameCount, 10 );
 
-    d_plot->setSettings( d_panel->settings() );
+    applySettings( d_panel->settings() );
 
     connect( d_panel, SIGNAL( settingsChanged( const Settings & ) ),
-        d_plot, SLOT( setSettings( const Settings & ) ) );
+        this, SLOT( applySettings( const Settings & ) ) );
 }
 
 bool MainWindow::eventFilter( QObject *object, QEvent *event )
@@ -65,4 +64,13 @@ bool MainWindow::eventFilter( QObject *object, QEvent *event )
     }
 
     return QMainWindow::eventFilter( object, event );
-};
+}
+
+void MainWindow::applySettings( const Settings &settings )
+{
+    d_plot->setSettings( settings );
+
+    // the canvas might have been recreated
+    d_plot->canvas()->removeEventFilter( this );
+    d_plot->canvas()->installEventFilter( this );
+}

@@ -50,9 +50,14 @@ Panel::Panel( QWidget *parent ):
     connect( d_numPoints, SIGNAL( valueChanged( int ) ), SLOT( edited() ) );
     connect( d_updateInterval, SIGNAL( valueChanged( int ) ), SLOT( edited() ) );
     connect( d_curveWidth, SIGNAL( valueChanged( int ) ), SLOT( edited() ) );
+
     connect( d_paintCache, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
     connect( d_paintOnScreen, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
     connect( d_immediatePaint, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
+#ifndef QWT_NO_OPENGL
+    connect( d_openGL, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
+#endif
+
     connect( d_curveAntialiasing, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
     connect( d_curveClipping, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
     connect( d_curveFiltering, SIGNAL( stateChanged( int ) ), SLOT( edited() ) );
@@ -110,6 +115,9 @@ QWidget *Panel::createCanvasTab( QWidget *parent )
     d_paintCache = new CheckBox( "Paint Cache", page );
     d_paintOnScreen = new CheckBox( "Paint On Screen", page );
     d_immediatePaint = new CheckBox( "Immediate Paint", page );
+#ifndef QWT_NO_OPENGL
+    d_openGL = new CheckBox( "OpenGL", page );
+#endif
 
     int row = 0;
 
@@ -120,6 +128,9 @@ QWidget *Panel::createCanvasTab( QWidget *parent )
     layout->addWidget( d_paintCache, row++, 0, 1, -1 );
     layout->addWidget( d_paintOnScreen, row++, 0, 1, -1 );
     layout->addWidget( d_immediatePaint, row++, 0, 1, -1 );
+#ifndef QWT_NO_OPENGL
+    layout->addWidget( d_openGL, row++, 0, 1, -1 );
+#endif
 
     layout->addLayout( new QHBoxLayout(), row++, 0 );
 
@@ -227,6 +238,9 @@ Settings Panel::settings() const
     s.canvas.useBackingStore = ( d_paintCache->isChecked() );
     s.canvas.paintOnScreen = ( d_paintOnScreen->isChecked() );
     s.canvas.immediatePaint = ( d_immediatePaint->isChecked() );
+#ifndef QWT_NO_OPENGL
+    s.canvas.openGL = ( d_openGL->isChecked() );
+#endif
 
     s.updateInterval = d_updateInterval->value();
     s.updateType = static_cast<Settings::UpdateType>( d_updateType->currentIndex() );
@@ -261,6 +275,9 @@ void Panel::setSettings( const Settings &s )
     d_paintCache->setChecked( s.canvas.useBackingStore );
     d_paintOnScreen->setChecked( s.canvas.paintOnScreen );
     d_immediatePaint->setChecked( s.canvas.immediatePaint );
+#ifndef QWT_NO_OPENGL
+    d_openGL->setChecked( s.canvas.openGL );
+#endif
 
     d_curveType->setCurrentIndex( s.curve.functionType );
     d_curveAntialiasing->setChecked(

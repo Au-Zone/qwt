@@ -41,6 +41,10 @@ contains(QWT_CONFIG, QwtOpenGL ) {
 
     QT += opengl
 }
+else {
+
+    DEFINES += QWT_NO_OPENGL
+}
 
 contains(QWT_CONFIG, QwtSvg) {
 
