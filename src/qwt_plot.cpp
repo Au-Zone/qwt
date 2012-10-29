@@ -225,6 +225,9 @@ void QwtPlot::setCanvas( QWidget *canvas )
     {
         canvas->setParent( this );
         canvas->installEventFilter( this );
+
+        if ( isVisible() )
+            canvas->show();
     }
 }
 
