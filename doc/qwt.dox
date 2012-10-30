@@ -35,7 +35,7 @@ to control or display values, arrays, or ranges of type double.
   \section platforms Platforms
 
   Qwt 6.x might be usable in all environments where you find
-  <a href="http://qt.nokia.com">Qt</a>.
+  <a href="https://qt-project.org">Qt</a>.
   It is compatible with Qt >= 4.4.
 
   \section screenshotsonmainpage Screenshots
@@ -64,9 +64,9 @@ to control or display values, arrays, or ranges of type double.
   Have a look at the qwt.pro project file. It is prepared for building
   dynamic libraries in Win32 and Unix/X11 environments. 
   If you don't know what to do with it, read the file \ref qwtinstall and/or 
-  Trolltechs 
-  <a href="http://www.trolltech.com/developer/documentation/index.html">qmake</a> documentation. Once you have build the library you have to install 
-  all files from the lib, include and doc directories.
+  the <a href="https://qt-project.org/doc">Qt</a> documentation.
+  Once you have build the library you have to install all files from the lib, 
+  include and doc directories.
 
   \section support Support
   - Mailing list\n
@@ -80,7 +80,7 @@ to control or display values, arrays, or ranges of type double.
 
   - Individual support\n
   If you are looking for individual support, or need someone who implements 
-  your Qwt component/application contact qwt-support@tigertal.de. But sending 
+  your Qwt component/application contact qwt-support@tigertal.de. Sending 
   requests to this address without a good reason for not using public 
   support channels might be silently ignored.
 
