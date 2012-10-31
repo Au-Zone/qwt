@@ -54,10 +54,10 @@ TVPlot::TVPlot( QWidget *parent ):
 {
     setTitle( "Watching TV during a weekend" );
 
-	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setPalette( Qt::gray );
     canvas->setBorderRadius( 10 );
-	setCanvas( canvas );
+    setCanvas( canvas );
 
     plotLayout()->setAlignCanvasToScales( true );
 

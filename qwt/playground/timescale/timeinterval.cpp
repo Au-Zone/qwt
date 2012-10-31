@@ -5,7 +5,7 @@
 static QDateTime qwtFloorDateToStep( const QDateTime &dt,
     int stepSize, TimeDate::IntervalType intervalType )
 {
-	// what about: (year == 1582 && month == 10 && day > 4 && day < 15) ??
+    // what about: (year == 1582 && month == 10 && day > 4 && day < 15) ??
 
     switch( intervalType )
     {
@@ -128,11 +128,11 @@ int TimeInterval::width( TimeDate::IntervalType intervalType ) const
 #if QT_VERSION >= 0x070000
             return d_minDate.msecsTo( d_maxDate );
 #else
-			int secsTo = d_minDate.secsTo( d_maxDate );
-			int mesecs = d_maxDate.time().msec() -
-				d_minDate.time().msec();
+            int secsTo = d_minDate.secsTo( d_maxDate );
+            int mesecs = d_maxDate.time().msec() -
+                d_minDate.time().msec();
 
-			return secsTo * 1000 + mesecs;
+            return secsTo * 1000 + mesecs;
 #endif
         }
         case TimeDate::Second:

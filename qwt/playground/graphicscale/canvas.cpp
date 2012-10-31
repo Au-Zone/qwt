@@ -9,35 +9,35 @@ Canvas::Canvas( Mode mode, QWidget *parent ):
     const int m = 10;
     setContentsMargins( m, m, m, m );
 
-	if ( d_mode == Svg )
-		d_renderer = new QSvgRenderer( this );
-	else
-		d_graphic = new QwtGraphic();
+    if ( d_mode == Svg )
+        d_renderer = new QSvgRenderer( this );
+    else
+        d_graphic = new QwtGraphic();
 }
 
 Canvas::~Canvas()
 {
-	if ( d_mode == VectorGraphic )
-		delete d_graphic;
+    if ( d_mode == VectorGraphic )
+        delete d_graphic;
 }
 
 void Canvas::setSvg( const QByteArray &data )
 {
     if ( d_mode == VectorGraphic )
-	{
-		d_graphic->reset();
+    {
+        d_graphic->reset();
 
-		QSvgRenderer renderer;
-		renderer.load( data );
+        QSvgRenderer renderer;
+        renderer.load( data );
 
-		QPainter p( d_graphic );
-		renderer.render( &p, renderer.viewBoxF() );
-		p.end();
-	}
-	else
-	{
-		d_renderer->load( data );
-	}
+        QPainter p( d_graphic );
+        renderer.render( &p, renderer.viewBoxF() );
+        p.end();
+    }
+    else
+    {
+        d_renderer->load( data );
+    }
 
     update();
 }
@@ -54,8 +54,8 @@ void Canvas::paintEvent( QPaintEvent * )
 
     painter.restore();
 
-	painter.setPen( Qt::NoPen );
-	painter.setBrush( Qt::NoBrush );
+    painter.setPen( Qt::NoPen );
+    painter.setBrush( Qt::NoBrush );
     render( &painter, contentsRect() );
 }
 
@@ -63,10 +63,10 @@ void Canvas::render( QPainter *painter, const QRect &rect ) const
 {
     if ( d_mode == Svg )
     {
-		d_renderer->render( painter, rect );
-	}
-	else
-	{
-		d_graphic->render( painter, rect );
+        d_renderer->render( painter, rect );
+    }
+    else
+    {
+        d_graphic->render( painter, rect );
     }
 }

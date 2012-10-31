@@ -114,7 +114,7 @@ void RandomPlot::append( int timeout, int count )
     Q_EMIT running( true );
     d_timeStamp.start();
 
-	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
+    QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
     plotCanvas->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
 
     d_timer->start( timeout );
@@ -130,7 +130,7 @@ void RandomPlot::stop()
         Q_EMIT running( false );
     }
 
-	QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
+    QwtPlotCanvas *plotCanvas = qobject_cast<QwtPlotCanvas *>( canvas() );
     plotCanvas->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
 }
 

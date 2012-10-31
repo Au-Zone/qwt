@@ -47,9 +47,9 @@ AttitudeIndicator::AttitudeIndicator(
 
     setOrigin( 270.0 );
 
-	setScaleMaxMinor( 0 );
-	setScaleStepSize( 30.0 );
-	setScale( 0.0, 360.0 );
+    setScaleMaxMinor( 0 );
+    setScaleStepSize( 30.0 );
+    setScale( 0.0, 360.0 );
 
     const QColor color = palette().color( QPalette::Text );
     setNeedle( new AttitudeIndicatorNeedle( color ) );
@@ -70,7 +70,7 @@ void AttitudeIndicator::setGradient( double gradient )
 }
 
 void AttitudeIndicator::drawScale( QPainter *painter, 
-	const QPointF &center, double radius ) const
+    const QPointF &center, double radius ) const
 {
     const double offset = 4.0;
 

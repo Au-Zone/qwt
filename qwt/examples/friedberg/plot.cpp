@@ -76,11 +76,11 @@ Plot::Plot( QWidget *parent ):
     setAxisTitle( QwtPlot::yLeft,
         QString( "Temperature [%1C]" ).arg( QChar( 0x00B0 ) ) );
 
-	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setPalette( Qt::darkGray );
     canvas->setBorderRadius( 10 );
 
-	setCanvas( canvas );
+    setCanvas( canvas );
 
     // grid
     QwtPlotGrid *grid = new Grid;
@@ -207,7 +207,5 @@ void Plot::setMode( int style )
 void Plot::exportPlot()
 {
     QwtPlotRenderer renderer;
-    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
-
     renderer.exportTo( this, "friedberg.pdf" );
 }

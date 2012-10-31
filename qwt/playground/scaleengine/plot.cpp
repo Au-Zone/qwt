@@ -48,8 +48,8 @@ void Plot::populate()
 
 void Plot::setTransformation( QwtTransform *transform )
 {
-	QwtLinearScaleEngine *scaleEngine = new QwtLinearScaleEngine();
-	scaleEngine->setTransformation( transform );
+    QwtLinearScaleEngine *scaleEngine = new QwtLinearScaleEngine();
+    scaleEngine->setTransformation( transform );
 
     setAxisScaleEngine( QwtPlot::xBottom, scaleEngine );
 

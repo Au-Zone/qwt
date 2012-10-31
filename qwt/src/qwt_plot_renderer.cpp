@@ -37,7 +37,7 @@ class QwtPlotRenderer::PrivateData
 {
 public:
     PrivateData():
-        discardFlags( QwtPlotRenderer::DiscardBackground ),
+        discardFlags( QwtPlotRenderer::DiscardNone ),
         layoutFlags( QwtPlotRenderer::DefaultLayout )
     {
     }
@@ -767,6 +767,30 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                     Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, r ) );
             }
         }
+
+#if 0
+        if ( !( d_data->discardFlags & DiscardCanvasFrame ) 
+            && !canvas->testAttribute( Qt::WA_StyledBackground ) )
+        {
+            const QVariant frameWidth = canvas->property( "frameWidth" );
+            if ( frameWidth.type() == QVariant::Int )
+            {
+                const int fw = frameWidth.toInt();
+                const int frameStyle =
+                    canvas->property( "frameShadow" ).toInt() |
+                    canvas->property( "frameShape" ).toInt();
+
+                const QVariant borderRadius = canvas->property( "borderRadius" );
+                if ( borderRadius.type() == QVariant::Double )
+                {
+                    const double r = borderRadius.toDouble();
+
+                    QwtPainter::drawRoundedFrame( painter, canvasRect,
+                        r, r, canvas->palette(), fw, frameStyle );
+                }
+            }
+        }
+#endif
     }
 
     painter->restore();

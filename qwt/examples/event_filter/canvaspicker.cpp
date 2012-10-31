@@ -277,8 +277,8 @@ void CanvasPicker::move( const QPoint &pos )
        Enable QwtPlotCanvas::ImmediatePaint, so that the canvas has been
        updated before we paint the cursor on it.
      */
-	QwtPlotCanvas *plotCanvas = 
-		qobject_cast<QwtPlotCanvas *>( plot()->canvas() );
+    QwtPlotCanvas *plotCanvas = 
+        qobject_cast<QwtPlotCanvas *>( plot()->canvas() );
 
     plotCanvas->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, true );
     plot()->replot();

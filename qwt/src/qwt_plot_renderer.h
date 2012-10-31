@@ -58,7 +58,16 @@ public:
         DiscardCanvasBackground = 0x08,
 
         //! Don't render the footer of the plot
-        DiscardFooter           = 0x10
+        DiscardFooter           = 0x10,
+
+        /*! 
+            Don't render the frame of the canvas
+
+            \note This flag has no effect when using
+                  stylesheets, where the frame is part
+                  of the background
+         */
+        DiscardCanvasFrame           = 0x20
 
     };
 
@@ -71,17 +80,14 @@ public:
      */
     enum LayoutFlag
     {
-        //! Use the default layout without margins and frames
+        //! Use the default layout as on screen
         DefaultLayout   = 0x00,
-
-        //! Render all frames of the plot
-        KeepFrames      = 0x01,
 
         /*!
           Instead of the scales a box is painted around the plot canvas,
           where the scale ticks are aligned to.
          */
-        FrameWithScales = 0x02
+        FrameWithScales = 0x01
     };
 
     //! Layout flags

@@ -6,7 +6,6 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
-#include <qwt_plot_renderer.h>
 #include <qwt_symbol.h>
 #include <qwt_graphic.h>
 #include <qwt_legend.h>
@@ -209,17 +208,5 @@ int main( int argc, char **argv )
     plot.resize( 600, 400 );
     plot.show();
 
-    bool ok = a.exec();
-
-#if 0
-    QwtPlotRenderer renderer;
-
-    // flags to make the document look like the widget
-    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
-    renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
-
-    renderer.renderDocument( &plot, "symbols.pdf", QSizeF( 300, 200 ) );
-#endif
-
-    return ok;
+    return a.exec();
 }

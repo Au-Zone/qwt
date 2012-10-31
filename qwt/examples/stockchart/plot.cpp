@@ -133,6 +133,5 @@ void Plot::showItem( QwtPlotItem *item, bool on )
 void Plot::exportPlot()
 {
     QwtPlotRenderer renderer;
-    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
     renderer.exportTo( this, "stockchart.pdf" );
 }

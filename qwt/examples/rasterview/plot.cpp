@@ -54,9 +54,9 @@ public:
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
-	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setBorderRadius( 10 );
-	setCanvas( canvas );
+    setCanvas( canvas );
 
 #if 0
     QwtPlotGrid *grid = new QwtPlotGrid();

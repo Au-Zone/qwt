@@ -52,8 +52,8 @@ WheelBox::WheelBox( const QString &title,
     d_wheel->setOrientation( Qt::Vertical );
     d_wheel->setInverted( true );
     d_wheel->setRange( min, max );
-	d_wheel->setSingleStep( stepSize );
-	d_wheel->setPageStepCount( 5 );
+    d_wheel->setSingleStep( stepSize );
+    d_wheel->setPageStepCount( 5 );
     d_wheel->setFixedSize(
         qRound( d_number->height() / 2.5 ), d_number->height() );
 
