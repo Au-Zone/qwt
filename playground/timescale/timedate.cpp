@@ -10,11 +10,11 @@ static const int s_julianDay0 = QDate(1970, 1, 1).toJulianDay();
 
 static Qt::DayOfWeek qwtFirstDayOfWeek()
 {
-	QLocale locale;
+    QLocale locale;
 #if QT_VERSION >= 0x040800
-	return locale.firstDayOfWeek();
+    return locale.firstDayOfWeek();
 #else
-	return Qt::Monday;
+    return Qt::Monday;
 #endif
 }
 

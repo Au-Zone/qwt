@@ -143,20 +143,22 @@ void Plot::setAlpha( int alpha )
 
 void Plot::printPlot()
 {
-#if 1
-    QPrinter printer;
-#else
     QPrinter printer( QPrinter::HighResolution );
-#endif
     printer.setOrientation( QPrinter::Landscape );
     printer.setOutputFileName( "spectrogram.pdf" );
+
     QPrintDialog dialog( &printer );
     if ( dialog.exec() )
     {
         QwtPlotRenderer renderer;
 
-        renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
-        renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
+        if ( printer.colorMode() == QPrinter::GrayScale )
+        {
+            renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground );
+            renderer.setDiscardFlag( QwtPlotRenderer::DiscardCanvasBackground );
+            renderer.setDiscardFlag( QwtPlotRenderer::DiscardCanvasFrame );
+            renderer.setLayoutFlag( QwtPlotRenderer::FrameWithScales );
+        }
 
         renderer.renderTo( this, printer );
     }

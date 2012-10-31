@@ -26,7 +26,7 @@ Plot::Plot( QWidget *parent ):
     // Here we don't have them and the internal
     // backing store of QWidget is good enough.
 
-	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
 
     if ( QwtPainter::isX11GraphicsSystem() )
@@ -53,7 +53,7 @@ Plot::Plot( QWidget *parent ):
         }
     }
 
-	setCanvas( canvas );
+    setCanvas( canvas );
 
     initGradient();
 

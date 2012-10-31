@@ -32,8 +32,8 @@ Plot::Plot( QWidget *parent ):
 
     setTitle( "Movable Items" );
 
-	const int margin = 5;
-	setContentsMargins( margin, margin, margin, margin );
+    const int margin = 5;
+    setContentsMargins( margin, margin, margin, margin );
 
     setAutoFillBackground( true );
     setPalette( QColor( "DimGray" ).lighter( 110 ) );
@@ -110,7 +110,6 @@ void Plot::addShape( const QString &title,
 void Plot::exportPlot()
 {
     QwtPlotRenderer renderer;
-	renderer.setDiscardFlags( QwtPlotRenderer::DiscardNone );
     renderer.exportTo( this, "shapes.pdf" );
 }
 

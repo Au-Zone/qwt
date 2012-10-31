@@ -101,7 +101,7 @@ Plot::Plot( QWidget *parent ):
     setAxisScale( yLeft, -1.0, 1.0 );
 
     // canvas
-	QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setLineWidth( 1 );
     canvas->setFrameStyle( QFrame::Box | QFrame::Plain );
     canvas->setBorderRadius( 15 );
@@ -110,7 +110,7 @@ Plot::Plot( QWidget *parent ):
     canvasPalette.setColor( QPalette::Foreground, QColor( 133, 190, 232 ) );
     canvas->setPalette( canvasPalette );
 
-	setCanvas( canvas );
+    setCanvas( canvas );
 
     // panning with the left mouse button
     ( void ) new QwtPlotPanner( canvas );

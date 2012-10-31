@@ -57,10 +57,5 @@ void MainWindow::updatePlot()
 void MainWindow::exportPlot()
 {
     QwtPlotRenderer renderer;
-
-    // flags to make the document look like the widget
-    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
-    renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
-
     renderer.exportTo( d_plot, "legends.pdf" );
 }

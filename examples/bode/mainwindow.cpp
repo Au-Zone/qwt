@@ -119,7 +119,7 @@ MainWindow::MainWindow( QWidget *parent ):
 
     QwtCounter *cntDamp = new QwtCounter( hBox );
     cntDamp->setRange( 0.0, 5.0 );
-	cntDamp->setSingleStep( 0.01 );
+    cntDamp->setSingleStep( 0.01 );
     cntDamp->setValue( 0.0 );
 
     layout->addWidget( cntDamp, 0 );
@@ -166,7 +166,9 @@ void MainWindow::print()
 
         if ( printer.colorMode() == QPrinter::GrayScale )
         {
+            renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground );
             renderer.setDiscardFlag( QwtPlotRenderer::DiscardCanvasBackground );
+            renderer.setDiscardFlag( QwtPlotRenderer::DiscardCanvasFrame );
             renderer.setLayoutFlag( QwtPlotRenderer::FrameWithScales );
         }
 
@@ -179,11 +181,6 @@ void MainWindow::print()
 void MainWindow::exportDocument()
 {
     QwtPlotRenderer renderer;
-
-    // flags to make the document look like the widget
-    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, false );
-    renderer.setLayoutFlag( QwtPlotRenderer::KeepFrames, true );
-
     renderer.exportTo( d_plot, "bode.pdf" );
 }
 

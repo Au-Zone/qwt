@@ -227,7 +227,7 @@ bool Editor::moved( const QPoint& pos )
     for ( int i = 0; i < shape.elementCount(); i++ )
     {
         const QPainterPath::Element &el = shape.elementAt( i );
-		shape.setElementPositionAt( i, el.x + dx, el.y + dy );
+        shape.setElementPositionAt( i, el.x + dx, el.y + dy );
     }
 #endif
 
