@@ -259,11 +259,11 @@ static inline void qwtRevertPath( QPainterPath &path )
 {
     if ( path.elementCount() == 4 )
     {
-		QPainterPath::Element el0 = path.elementAt(0);
-		QPainterPath::Element el3 = path.elementAt(3);
+        QPainterPath::Element el0 = path.elementAt(0);
+        QPainterPath::Element el3 = path.elementAt(3);
 
-		path.setElementPositionAt( 0, el3.x, el3.y );
-		path.setElementPositionAt( 3, el0.x, el0.y );
+        path.setElementPositionAt( 0, el3.x, el3.y );
+        path.setElementPositionAt( 3, el0.x, el0.y );
     }
 }
 
@@ -439,11 +439,11 @@ static void qwtFillBackground( QPainter *painter,
         const QRect rect = fillRects[i].toAlignedRect();
         if ( clipRegion.intersects( rect ) )
         {
-			const QPoint topLeft = widget->mapTo( bgWidget, rect.topLeft() );
+            const QPoint topLeft = widget->mapTo( bgWidget, rect.topLeft() );
 
             QPixmap pm( rect.size() );
 #if QT_VERSION >= 0x050000
-        	QwtPainter::fillPixmap( bgWidget, pm, topLeft );
+            QwtPainter::fillPixmap( bgWidget, pm, topLeft );
 #else
             pm.fill( bgWidget, topLeft );
 #endif
@@ -526,8 +526,12 @@ public:
 
 };
 
-//! Sets a cross cursor, enables QwtPlotCanvas::BackingStore
+/*! 
+  \brief Constructor
 
+  \param plot Parent plot widget
+  \sa QwtPlot::setCanvas()
+*/
 QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
     QFrame( plot )
 {
@@ -853,7 +857,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
             painter->setPen( Qt::NoPen );
             painter->setBrush( palette().brush( backgroundRole() ) );
 
-            if ( d_data->borderRadius > 0.0 )
+            if ( d_data->borderRadius > 0.0 && ( rect() == frameRect() ) )
             {
                 if ( frameWidth() > 0 )
                 {
@@ -868,7 +872,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
             }
             else
             {
-                painter->drawRect( contentsRect() );
+                painter->drawRect( rect() );
             }
         }
 
@@ -885,7 +889,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
     else
     {
         if ( d_data->borderRadius > 0.0 )
-            painter->setClipPath( borderPath( rect() ), Qt::IntersectClip );
+            painter->setClipPath( borderPath( frameRect() ), Qt::IntersectClip );
         else
             painter->setClipRect( contentsRect(), Qt::IntersectClip );
     }
