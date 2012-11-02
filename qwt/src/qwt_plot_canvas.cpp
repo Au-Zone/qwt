@@ -853,7 +853,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
             painter->setPen( Qt::NoPen );
             painter->setBrush( palette().brush( backgroundRole() ) );
 
-            if ( d_data->borderRadius > 0.0 )
+            if ( d_data->borderRadius > 0.0 && ( rect() == frameRect() ) )
             {
                 if ( frameWidth() > 0 )
                 {
@@ -868,7 +868,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
             }
             else
             {
-                painter->drawRect( contentsRect() );
+                painter->drawRect( rect() );
             }
         }
 
@@ -885,7 +885,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
     else
     {
         if ( d_data->borderRadius > 0.0 )
-            painter->setClipPath( borderPath( rect() ), Qt::IntersectClip );
+            painter->setClipPath( borderPath( frameRect() ), Qt::IntersectClip );
         else
             painter->setClipRect( contentsRect(), Qt::IntersectClip );
     }
@@ -907,7 +907,7 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
   Draw the border of the plot canvas
 
   \param painter Painter
-  \sa setBorderRadius(), QFrame::drawFrame()
+  \sa setBorderRadius()
 */
 void QwtPlotCanvas::drawBorder( QPainter *painter )
 {
@@ -915,14 +915,47 @@ void QwtPlotCanvas::drawBorder( QPainter *painter )
     {
         if ( frameWidth() > 0 )
         {
-            QwtPainter::drawRoundedFrame( painter, QRectF( rect() ), 
+            QwtPainter::drawRoundedFrame( painter, QRectF( frameRect() ), 
                 d_data->borderRadius, d_data->borderRadius,
                 palette(), frameWidth(), frameStyle() );
         }
     }
     else
     {
-        drawFrame( painter );
+        QStyleOptionFrameV3 opt;
+        opt.init(this);
+
+        int frameShape  = frameStyle() & QFrame::Shape_Mask;
+        int frameShadow = frameStyle() & QFrame::Shadow_Mask;
+
+        opt.frameShape = QFrame::Shape( int( opt.frameShape ) | frameShape );
+        opt.rect = frameRect();
+
+        switch (frameShape) 
+        {
+            case QFrame::Box:
+            case QFrame::HLine:
+            case QFrame::VLine:
+            case QFrame::StyledPanel:
+            case QFrame::Panel:
+            {
+                opt.lineWidth = lineWidth();
+                opt.midLineWidth = midLineWidth();
+                break; 
+            }
+            default: 
+            {
+                opt.lineWidth = frameWidth();
+                break;
+            }
+        }
+    
+        if ( frameShadow == Sunken )
+            opt.state |= QStyle::State_Sunken;
+        else if ( frameShadow == Raised )
+            opt.state |= QStyle::State_Raised;
+
+        style()->drawControl(QStyle::CE_ShapedFrame, &opt, painter, this);
     }
 }
 

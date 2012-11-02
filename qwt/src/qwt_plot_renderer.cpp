@@ -33,6 +33,30 @@
 #endif
 #endif
 
+static QPainterPath qwtCanvasClip( 
+    const QWidget* canvas, const QRectF &canvasRect )
+{
+    // The clip region is calculated in integers
+    // To avoid too much rounding errors better
+    // calculate it in target device resolution
+
+    int x1 = qCeil( canvasRect.left() );
+    int x2 = qFloor( canvasRect.right() );
+    int y1 = qCeil( canvasRect.top() );
+    int y2 = qFloor( canvasRect.bottom() );
+
+    const QRect r( x1, y1, x2 - x1 - 1, y2 - y1 - 1 );
+
+    QPainterPath clipPath;
+
+    ( void ) QMetaObject::invokeMethod(
+        const_cast< QWidget *>( canvas ), "borderPath",
+        Qt::DirectConnection,
+        Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, r ) );
+
+    return clipPath;
+}
+
 class QwtPlotRenderer::PrivateData
 {
 public:
@@ -388,7 +412,9 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 {
     if ( painter == 0 || !painter->isActive() ||
             !plotRect.isValid() || plot->size().isNull() )
+    {
         return;
+    }
 
     if ( !( d_data->discardFlags & DiscardBackground ) )
         QwtPainter::drawBackgound( painter, plotRect, plot );
@@ -723,8 +749,6 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
 
     painter->save();
 
-    QPainterPath clipPath;
-
     QRectF r = canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 );
 
     if ( d_data->layoutFlags & FrameWithScales )
@@ -746,32 +770,12 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
         if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
         {
             QwtPainter::drawBackgound( painter, r, canvas );
-
-            if ( canvas->testAttribute( Qt::WA_StyledBackground ) )
-            {
-                // The clip region is calculated in integers
-                // To avoid too much rounding errors better
-                // calculate it in target device resolution
-                // TODO ...
-
-                int x1 = qCeil( canvasRect.left() );
-                int x2 = qFloor( canvasRect.right() );
-                int y1 = qCeil( canvasRect.top() );
-                int y2 = qFloor( canvasRect.bottom() );
-
-                const QRect r( x1, y1, x2 - x1 - 1, y2 - y1 - 1 );
-
-                ( void ) QMetaObject::invokeMethod(
-                    const_cast< QWidget *>( canvas ), "borderPath", 
-                    Qt::DirectConnection,
-                    Q_RETURN_ARG( QPainterPath, clipPath ), Q_ARG( QRect, r ) );
-            }
         }
 
-#if 0
         if ( !( d_data->discardFlags & DiscardCanvasFrame ) 
             && !canvas->testAttribute( Qt::WA_StyledBackground ) )
         {
+#if 0
             const QVariant frameWidth = canvas->property( "frameWidth" );
             if ( frameWidth.type() == QVariant::Int )
             {
@@ -789,13 +793,15 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                         r, r, canvas->palette(), fw, frameStyle );
                 }
             }
-        }
 #endif
+        }
     }
 
     painter->restore();
 
     painter->save();
+
+    const QPainterPath clipPath = qwtCanvasClip( canvas, canvasRect );
 
     if ( clipPath.isEmpty() )
         painter->setClipRect( canvasRect );
