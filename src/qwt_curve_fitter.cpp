@@ -390,7 +390,7 @@ QPolygonF QwtWeedingCurveFitter::fitCurve( const QPolygonF &points ) const
         }
     }
 
-    QPolygonF stripped( nPoints );
+    QPolygonF stripped;
     for ( int i = 0; i < nPoints; i++ )
     {
         if ( usePoint[i] )
