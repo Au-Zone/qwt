@@ -20,8 +20,12 @@
 
 static inline bool qwtIsLogarithmic( const QwtThermo *thermo )
 {
-    const QwtScaleTransformation::Type scaleType =
-        thermo->scaleEngine()->transformation()->type();
+    const QwtScaleTransformation* transform =
+        thermo->scaleEngine()->transformation();
+
+    const QwtScaleTransformation::Type scaleType = transform->type();
+
+    delete transform;
 
     return ( scaleType == QwtScaleTransformation::Log10 );
 }
