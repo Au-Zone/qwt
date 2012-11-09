@@ -430,14 +430,14 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 
     QRectF layoutRect = transform.inverted().mapRect( plotRect );
 
-	if ( !( d_data->discardFlags & DiscardBackground ) )
-	{
-		// subtract the contents margins
+    if ( !( d_data->discardFlags & DiscardBackground ) )
+    {
+        // subtract the contents margins
 
-    	int left, top, right, bottom;
-    	plot->getContentsMargins( &left, &top, &right, &bottom );
-		layoutRect.adjust( left, top, -right, -bottom );
-	}
+        int left, top, right, bottom;
+        plot->getContentsMargins( &left, &top, &right, &bottom );
+        layoutRect.adjust( left, top, -right, -bottom );
+    }
 
     int baseLineDists[QwtPlot::axisCnt];
     if ( d_data->layoutFlags & FrameWithScales )
@@ -695,12 +695,7 @@ void QwtPlotRenderer::renderScale( const QwtPlot *plot,
         && scaleWidget->colorBarWidth() > 0 )
     {
         scaleWidget->drawColorBar( painter, scaleWidget->colorBarRect( rect ) );
-
-        const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
-        if ( scaleWidget->scaleDraw()->orientation() == Qt::Horizontal )
-            baseDist += off;
-        else
-            baseDist += off;
+        baseDist += scaleWidget->colorBarWidth() + scaleWidget->spacing();
     }
 
     painter->save();
