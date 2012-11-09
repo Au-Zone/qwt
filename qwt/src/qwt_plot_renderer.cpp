@@ -660,12 +660,7 @@ void QwtPlotRenderer::renderScale( const QwtPlot *plot,
         && scaleWidget->colorBarWidth() > 0 )
     {
         scaleWidget->drawColorBar( painter, scaleWidget->colorBarRect( rect ) );
-
-        const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
-        if ( scaleWidget->scaleDraw()->orientation() == Qt::Horizontal )
-            baseDist += off;
-        else
-            baseDist += off;
+        baseDist += scaleWidget->colorBarWidth() + scaleWidget->spacing();
     }
 
     painter->save();
