@@ -493,8 +493,14 @@ void QwtPlotRenderer::render( QwtPlot *plot,
 
     // Calculate the layout for the document.
 
-    QwtPlotLayout::Options layoutOptions = 
-        QwtPlotLayout::IgnoreScrollbars | QwtPlotLayout::IgnoreFrames;
+    QwtPlotLayout::Options layoutOptions = QwtPlotLayout::IgnoreScrollbars;
+
+    if ( ( d_data->layoutFlags & FrameWithScales ) ||
+        ( d_data->discardFlags & DiscardCanvasFrame ) )
+    {
+        layoutOptions |= QwtPlotLayout::IgnoreFrames;
+    } 
+
 
     if ( d_data->discardFlags & DiscardLegend )
         layoutOptions |= QwtPlotLayout::IgnoreLegend;
@@ -742,12 +748,12 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
 {
     const QWidget *canvas = plot->canvas();
 
-    painter->save();
-
     QRectF r = canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 );
 
     if ( d_data->layoutFlags & FrameWithScales )
     {
+        painter->save();
+
         r.adjust( -1.0, -1.0, 1.0, 1.0 );
         painter->setPen( QPen( Qt::black ) );
 
@@ -759,53 +765,118 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
         }
 
         QwtPainter::drawRect( painter, r );
+
+        painter->restore();
+        painter->save();
+
+        painter->setClipRect( canvasRect );
+        plot->drawItems( painter, canvasRect, map );
+
+        painter->restore();
     }
-    else
+    else if ( canvas->testAttribute( Qt::WA_StyledBackground ) )
     {
+        QPainterPath clipPath;
+
+        painter->save();
+
         if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
         {
             QwtPainter::drawBackgound( painter, r, canvas );
+            clipPath = qwtCanvasClip( canvas, canvasRect );
         }
 
-        if ( !( d_data->discardFlags & DiscardCanvasFrame ) 
-            && !canvas->testAttribute( Qt::WA_StyledBackground ) )
+        painter->restore();
+        painter->save();
+
+        if ( clipPath.isEmpty() )
+            painter->setClipRect( canvasRect );
+        else
+            painter->setClipPath( clipPath );
+
+        plot->drawItems( painter, canvasRect, map );
+
+        painter->restore();
+    }
+    else
+    {
+        QPainterPath clipPath;
+        if ( !( d_data->discardFlags & DiscardCanvasFrame ) )
+            clipPath = qwtCanvasClip( canvas, canvasRect );
+
+        if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
         {
-#if 0
+            painter->save();
+
+            if ( !clipPath.isEmpty() )
+                painter->setClipPath( clipPath );
+
+            QwtPainter::drawBackgound( painter, r, canvas );
+
+            painter->restore();
+        }
+
+        painter->save();
+
+        if ( clipPath.isEmpty() )
+            painter->setClipRect( canvasRect );
+        else
+            painter->setClipPath( clipPath );
+
+        plot->drawItems( painter, canvasRect, map );
+
+        painter->restore();
+
+        if ( !( d_data->discardFlags & DiscardCanvasFrame ) )
+        {
             const QVariant frameWidth = canvas->property( "frameWidth" );
             if ( frameWidth.type() == QVariant::Int )
             {
+                painter->save();
+
+                painter->setRenderHint( QPainter::NonCosmeticDefaultPen, true );
+
                 const int fw = frameWidth.toInt();
                 const int frameStyle =
                     canvas->property( "frameShadow" ).toInt() |
                     canvas->property( "frameShape" ).toInt();
 
                 const QVariant borderRadius = canvas->property( "borderRadius" );
-                if ( borderRadius.type() == QVariant::Double )
+                if ( borderRadius.type() == QVariant::Double 
+                    && borderRadius.toDouble() > 0.0 )
                 {
                     const double r = borderRadius.toDouble();
 
                     QwtPainter::drawRoundedFrame( painter, canvasRect,
                         r, r, canvas->palette(), fw, frameStyle );
                 }
+                else
+                {
+                    const QVariant lineWidth = canvas->property( "lineWidth" );
+                    const QVariant midLineWidth = canvas->property( "midLineWidth" );
+
+                    if ( frameStyle & QFrame::Box )
+                    {
+                        qDrawShadeRect( painter, canvasRect.toRect(), canvas->palette(), 
+                            frameStyle & QFrame::Sunken, 
+                            lineWidth.toInt(), midLineWidth.toInt() );
+                    }
+                    if ( frameStyle & QFrame::WinPanel )
+                    {
+                        qDrawWinPanel ( painter, canvasRect.toRect(), canvas->palette(), 
+                            frameStyle & QFrame::Sunken );
+                    }
+                    else 
+                    {
+                        qDrawShadePanel ( painter, canvasRect.toRect(), canvas->palette(), 
+                            frameStyle & QFrame::Sunken, lineWidth.toInt() );
+                    }
+                }
+
+                painter->restore();
             }
-#endif
         }
     }
-
-    painter->restore();
-
-    painter->save();
-
-    const QPainterPath clipPath = qwtCanvasClip( canvas, canvasRect );
-
-    if ( clipPath.isEmpty() )
-        painter->setClipRect( canvasRect );
-    else
-        painter->setClipPath( clipPath );
-
-    plot->drawItems( painter, canvasRect, map );
-
-    painter->restore();
 }
 
 /*!
