@@ -720,6 +720,55 @@ void QwtPainter::drawRoundFrame( QPainter *painter,
 }
 
 /*!
+  Draw a rectangular frame
+
+  \param painter Painter
+  \param rect Frame rectangle
+  \param palette Palette
+  \param foregroundRole Foreground role used for QFrame::Plain
+  \param lineWidth Line width
+  \param midLineWidth Used for QFrame::Box
+  \param frameStyle bitwise OR´ed value of QFrame::Shape and QFrame::Shadow
+*/
+void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
+    const QPalette &palette, QPalette::ColorRole foregroundRole,
+    int lineWidth, int midLineWidth, int frameStyle )
+{
+    painter->save();
+
+    // the qDraw methods draws frames by a series of lines.
+    painter->setRenderHint( QPainter::NonCosmeticDefaultPen, true );
+
+    if ( frameStyle & QFrame::Plain )
+    {
+        qDrawPlainRect( painter, rect.toRect(),
+            palette.color( foregroundRole ), lineWidth );
+    }
+    else
+    {
+        if ( frameStyle & QFrame::Box )
+        {
+            qDrawShadeRect( painter, rect.toRect(), palette,
+                frameStyle & QFrame::Sunken,
+                lineWidth, midLineWidth );
+        }
+        else if ( frameStyle & QFrame::WinPanel )
+        {
+            qDrawWinPanel ( painter, rect.toRect(), palette,
+                frameStyle & QFrame::Sunken );
+        }
+        else
+        {
+            qDrawShadePanel ( painter, rect.toRect(), palette,
+                frameStyle & QFrame::Sunken, lineWidth );
+        }
+
+    }
+
+    painter->restore();
+}
+
+/*!
   Draw a rectangular frame with rounded borders
 
   \param painter Painter
