@@ -91,9 +91,9 @@ QList<QStandardItem *> LegendTreeView::itemList(
         
             const QVariant key = item->data();
         
-            if ( qVariantCanConvert<qlonglong>( key ) )
+            if ( key.canConvert<qlonglong>() )
             {
-                const qlonglong ptr = qVariantValue<qlonglong>( key );
+                const qlonglong ptr = key.value<qlonglong>();
                 if ( ptr == qlonglong( plotItem ) )
                     itemList += item;
             }
@@ -306,22 +306,22 @@ void Legend::updateItem( QStandardItem *item, const QwtLegendData &data )
     const QVariant titleValue = data.value( QwtLegendData::TitleRole );
 
     QwtText title;
-    if ( qVariantCanConvert<QwtText>( titleValue ) )
+    if ( titleValue.canConvert<QwtText>() )
     {
         item->setText( title.text() );
-        title = qVariantValue<QwtText>( titleValue );
+        title = titleValue.value<QwtText>();
     }
-    else if ( qVariantCanConvert<QString>( titleValue ) )
+    else if ( titleValue.canConvert<QString>() )
     {
-        title.setText( qVariantValue<QString>( titleValue ) );
+        title.setText( titleValue.value<QString>() );
     }
     item->setText( title.text() );
 
     const QVariant iconValue = data.value( QwtLegendData::IconRole );
 
     QPixmap pm;
-    if ( qVariantCanConvert<QPixmap>( iconValue ) )
-        pm = qVariantValue<QPixmap>( iconValue );
+    if ( iconValue.canConvert<QPixmap>() )
+        pm = iconValue.value<QPixmap>();
 
     item->setData(pm, Qt::DecorationRole);
 }
@@ -334,7 +334,7 @@ void Legend::handleClick( const QModelIndex &index )
     const QStandardItem *item = model->itemFromIndex( index );
     if ( item->isCheckable() )
     {
-        const qlonglong ptr = qVariantValue<qlonglong>( item->data() );
+        const qlonglong ptr = item->data().value<qlonglong>();
     
         Q_EMIT checked( (QwtPlotItem *)ptr, 
             item->checkState() == Qt::Checked, 0 );

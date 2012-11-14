@@ -27,6 +27,7 @@
 #include <qpaintengine.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
+#include <string.h>
 
 bool QwtPainter::d_polylineSplitting = true;
 bool QwtPainter::d_roundingAlignment = true;
@@ -265,7 +266,7 @@ void QwtPainter::fillRect( QPainter *painter,
 
     QRectF r = rect;
     if ( deviceClipping )
-        r = r.intersect( clipRect );
+        r = r.intersected( clipRect );
 
     if ( r.isValid() )
         painter->fillRect( r, brush );
@@ -439,7 +440,7 @@ void QwtPainter::drawPolyline( QPainter *painter,
     if ( deviceClipping )
     {
         QPolygonF polygon( pointCount );
-        qMemCopy( polygon.data(), points, pointCount * sizeof( QPointF ) );
+        ::memcpy( polygon.data(), points, pointCount * sizeof( QPointF ) );
 
         polygon = QwtClipper::clipPolygonF( clipRect, polygon );
         qwtDrawPolyline<QPointF>( painter,
@@ -488,7 +489,7 @@ void QwtPainter::drawPolyline( QPainter *painter,
     if ( deviceClipping )
     {
         QPolygon polygon( pointCount );
-        qMemCopy( polygon.data(), points, pointCount * sizeof( QPoint ) );
+        ::memcpy( polygon.data(), points, pointCount * sizeof( QPoint ) );
 
         polygon = QwtClipper::clipPolygon( clipRect, polygon );
         qwtDrawPolyline<QPoint>( painter,
@@ -760,9 +761,11 @@ void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
 
         if ( shape == QFrame::WinPanel )
         {
+#if 0
             painter->setRenderHint( QPainter::NonCosmeticDefaultPen, true );
             qDrawWinPanel ( painter, rect.toRect(), palette,
                 frameStyle & QFrame::Sunken );
+#endif
         }
         if ( shape == QFrame::Box )
         {

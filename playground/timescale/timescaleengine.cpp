@@ -232,7 +232,7 @@ static double qwtDivideMajorStep( int stepSize, int maxMinSteps,
         }
         case TimeDate::Week:
         {
-            const int daysInStep = qRound( stepSize * 7 );
+            const int daysInStep = stepSize * 7;
 
             if ( maxMinSteps >= daysInStep )
             {
@@ -244,7 +244,7 @@ static double qwtDivideMajorStep( int stepSize, int maxMinSteps,
                 // when the stepSize is more than a week we want to
                 // have a tick for each week
 
-                const int stepSizeInWeeks = qRound( stepSize );
+                const int stepSizeInWeeks = stepSize;
 
                 if ( stepSizeInWeeks <= maxMinSteps )
                 {
@@ -629,7 +629,7 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
                 }
                 else if ( minStepSize > 0.0 )
                 {
-                    const int numMinorSteps = qRound( stepSize / minStepSize );
+                    const int numMinorSteps = qRound( stepSize / (double) minStepSize );
 
                     for ( int i = 1; i < numMinorSteps; i++ )
                     {

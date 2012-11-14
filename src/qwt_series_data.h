@@ -75,17 +75,17 @@ public:
      */
     virtual QRectF boundingRect() const = 0;
 
-	/*!
-	   Set a the "rect of interest"
+    /*!
+       Set a the "rect of interest"
 
-	   QwtPlotSeriesItem defines the current area of the plot canvas
-	   as "rect of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
-	   It can be used to implement different levels of details.
+       QwtPlotSeriesItem defines the current area of the plot canvas
+       as "rect of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
+       It can be used to implement different levels of details.
 
-	   The default implementation does nothing.
+       The default implementation does nothing.
    
        \param rect Rectangle of interest
-	*/
+    */
     virtual void setRectOfInterest( const QRectF &rect );
 
 protected:
@@ -125,30 +125,30 @@ public:
     //! Constructor
     QwtArraySeriesData();
 
-	/*!
-	   Constructor
-	   \param samples Array of samples
-	*/
+    /*!
+       Constructor
+       \param samples Array of samples
+    */
     QwtArraySeriesData( const QVector<T> &samples );
 
-	/*!
-	  Assign an array of samples
-	  \param samples Array of samples
-	*/
+    /*!
+      Assign an array of samples
+      \param samples Array of samples
+    */
     void setSamples( const QVector<T> &samples );
 
-	//! \return Array of samples
+    //! \return Array of samples
     const QVector<T> samples() const;
 
-	//! \return Number of samples
+    //! \return Number of samples
     virtual size_t size() const;
 
-	/*!
-	  \return Sample at a specific position
+    /*!
+      \return Sample at a specific position
 
-	  \param index Index
-	  \return Sample at position i
-	*/
+      \param index Index
+      \return Sample at position i
+    */
     virtual T sample( size_t index ) const;
 
 protected:
