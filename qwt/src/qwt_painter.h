@@ -16,6 +16,7 @@
 #include <qrect.h>
 #include <qpen.h>
 #include <qline.h>
+#include <qpalette.h>
 
 class QPainter;
 class QBrush;
@@ -29,7 +30,6 @@ class QwtScaleMap;
 class QwtColorMap;
 class QwtInterval;
 
-class QPalette;
 class QTextDocument;
 class QPainterPath;
 
@@ -96,6 +96,10 @@ public:
     static void drawRoundedFrame( QPainter *, 
         const QRectF &, double xRadius, double yRadius,
         const QPalette &, int lineWidth, int frameStyle );
+
+    static void drawFrame( QPainter *, const QRectF &rect,
+        const QPalette &palette, QPalette::ColorRole foregroundRole,
+        int lineWidth, int midLineWidth, int frameStyle ); 
 
     static void drawFocusRect( QPainter *, const QWidget * );
     static void drawFocusRect( QPainter *, const QWidget *, const QRect & );

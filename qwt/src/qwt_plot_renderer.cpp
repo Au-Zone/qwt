@@ -832,10 +832,6 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
             const QVariant frameWidth = canvas->property( "frameWidth" );
             if ( frameWidth.type() == QVariant::Int )
             {
-                painter->save();
-
-                painter->setRenderHint( QPainter::NonCosmeticDefaultPen, true );
-
                 const int fw = frameWidth.toInt();
                 const int frameStyle =
                     canvas->property( "frameShadow" ).toInt() |
@@ -855,25 +851,10 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                     const QVariant lineWidth = canvas->property( "lineWidth" );
                     const QVariant midLineWidth = canvas->property( "midLineWidth" );
 
-                    if ( frameStyle & QFrame::Box )
-                    {
-                        qDrawShadeRect( painter, canvasRect.toRect(), canvas->palette(), 
-                            frameStyle & QFrame::Sunken, 
-                            lineWidth.toInt(), midLineWidth.toInt() );
-                    }
-                    if ( frameStyle & QFrame::WinPanel )
-                    {
-                        qDrawWinPanel ( painter, canvasRect.toRect(), canvas->palette(), 
-                            frameStyle & QFrame::Sunken );
-                    }
-                    else 
-                    {
-                        qDrawShadePanel ( painter, canvasRect.toRect(), canvas->palette(), 
-                            frameStyle & QFrame::Sunken, lineWidth.toInt() );
-                    }
+					QwtPainter::drawFrame( painter, canvasRect,
+						canvas->palette(), canvas->foregroundRole(),
+						lineWidth.toInt(), midLineWidth.toInt(), frameStyle );
                 }
-
-                painter->restore();
             }
         }
     }
