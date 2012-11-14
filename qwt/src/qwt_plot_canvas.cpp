@@ -922,6 +922,7 @@ void QwtPlotCanvas::drawBorder( QPainter *painter )
     }
     else
     {
+#if 1
         QStyleOptionFrameV3 opt;
         opt.init(this);
 
@@ -929,7 +930,9 @@ void QwtPlotCanvas::drawBorder( QPainter *painter )
         int frameShadow = frameStyle() & QFrame::Shadow_Mask;
 
         opt.frameShape = QFrame::Shape( int( opt.frameShape ) | frameShape );
+#if 0
         opt.rect = frameRect();
+#endif
 
         switch (frameShape) 
         {
@@ -956,6 +959,9 @@ void QwtPlotCanvas::drawBorder( QPainter *painter )
             opt.state |= QStyle::State_Raised;
 
         style()->drawControl(QStyle::CE_ShapedFrame, &opt, painter, this);
+#else
+        drawFrame( painter );
+#endif
     }
 }
 

@@ -734,33 +734,134 @@ void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
     const QPalette &palette, QPalette::ColorRole foregroundRole,
     int lineWidth, int midLineWidth, int frameStyle )
 {
+    if ( lineWidth <= 0 || rect.isEmpty() )
+        return;
+
+    const int shadow = frameStyle & QFrame::Shadow_Mask;
+
     painter->save();
 
-    // the qDraw methods draws frames by a series of lines.
-    painter->setRenderHint( QPainter::NonCosmeticDefaultPen, true );
-
-    if ( frameStyle & QFrame::Plain )
+    if ( shadow == QFrame::Plain )
     {
-        qDrawPlainRect( painter, rect.toRect(),
-            palette.color( foregroundRole ), lineWidth );
+        QPen pen( palette.color( foregroundRole ), lineWidth );
+        pen.setJoinStyle( Qt::MiterJoin );
+
+        painter->setPen( pen );
+        painter->setBrush( Qt::NoBrush );
+
+        const double lw2 = 0.5 * ( lineWidth - 1 );
+
+        painter->drawRect( 
+            rect.adjusted( lw2, lw2, -lw2 - 1.0, -lw2 - 1.0 )  );
     }
     else
     {
-        if ( frameStyle & QFrame::Box )
+        const int shape = frameStyle & QFrame::Shape_Mask;
+
+        if ( shape == QFrame::WinPanel )
         {
-            qDrawShadeRect( painter, rect.toRect(), palette,
-                frameStyle & QFrame::Sunken,
-                lineWidth, midLineWidth );
-        }
-        else if ( frameStyle & QFrame::WinPanel )
-        {
+            painter->setRenderHint( QPainter::NonCosmeticDefaultPen, true );
             qDrawWinPanel ( painter, rect.toRect(), palette,
                 frameStyle & QFrame::Sunken );
         }
+        if ( shape == QFrame::Box )
+        {
+            const QRectF midRect = rect.adjusted( 
+                lineWidth, lineWidth, -lineWidth, -lineWidth );
+
+            const QRectF innerRect = midRect.adjusted( 
+                lineWidth, lineWidth, -lineWidth, -lineWidth );
+
+            QPainterPath path1;
+            path1.moveTo( rect.bottomLeft() );
+            path1.lineTo( rect.topLeft() );
+            path1.lineTo( rect.topRight() );
+            path1.lineTo( midRect.topRight() );
+            path1.lineTo( midRect.topLeft() );
+            path1.lineTo( midRect.bottomLeft() );
+
+            QPainterPath path2;
+            path2.moveTo( rect.bottomLeft() );
+            path2.lineTo( rect.bottomRight() );
+            path2.lineTo( rect.topRight() );
+            path2.lineTo( midRect.topRight() );
+            path2.lineTo( midRect.bottomRight() );
+            path2.lineTo( midRect.bottomLeft() );
+
+            QPainterPath path3;
+            path3.moveTo( midRect.bottomLeft() );
+            path3.lineTo( midRect.topLeft() );
+            path3.lineTo( midRect.topRight() );
+            path3.lineTo( innerRect.topRight() );
+            path3.lineTo( innerRect.topLeft() );
+            path3.lineTo( innerRect.bottomLeft() );
+
+            QPainterPath path4;
+            path4.moveTo( midRect.bottomLeft() );
+            path4.lineTo( midRect.bottomRight() );
+            path4.lineTo( midRect.topRight() );
+            path4.lineTo( innerRect.topRight() );
+            path4.lineTo( innerRect.bottomRight() );
+            path4.lineTo( innerRect.bottomLeft() );
+
+            painter->setPen( Qt::NoPen );
+
+            QBrush brush1 = palette.dark().color();
+            QBrush brush2 = palette.light().color();
+
+            if ( shadow == QFrame::Raised )
+                qSwap( brush1, brush2 );
+
+            painter->setBrush( brush1 );
+            painter->drawPath( path1 );
+            painter->drawPath( path4 );
+
+            painter->setBrush( brush2 );
+            painter->drawPath( path2 );
+            painter->drawPath( path3 );
+
+            QPen pen( palette.mid(), midLineWidth );
+            pen.setJoinStyle( Qt::MiterJoin );
+
+            painter->setBrush( Qt::NoBrush );
+            painter->setPen( pen );
+            painter->drawRect( midRect );
+        }
         else
         {
-            qDrawShadePanel ( painter, rect.toRect(), palette,
-                frameStyle & QFrame::Sunken, lineWidth );
+            const QRectF innerRect = rect.adjusted( 
+                lineWidth, lineWidth, -lineWidth, -lineWidth );
+
+            QPainterPath path1;
+            path1.moveTo( rect.bottomLeft() );
+            path1.lineTo( rect.topLeft() );
+            path1.lineTo( rect.topRight() );
+            path1.lineTo( innerRect.topRight() );
+            path1.lineTo( innerRect.topLeft() );
+            path1.lineTo( innerRect.bottomLeft() );
+
+
+            QPainterPath path2;
+            path2.moveTo( rect.bottomLeft() );
+            path2.lineTo( rect.bottomRight() );
+            path2.lineTo( rect.topRight() );
+            path2.lineTo( innerRect.topRight() );
+            path2.lineTo( innerRect.bottomRight() );
+            path2.lineTo( innerRect.bottomLeft() );
+
+            painter->setPen( Qt::NoPen );
+
+            QBrush brush1 = palette.dark().color();
+            QBrush brush2 = palette.light().color();
+
+            if ( shadow == QFrame::Raised )
+                qSwap( brush1, brush2 );
+
+            painter->setBrush( brush1 );
+            painter->drawPath( path1 );
+
+            painter->setBrush( brush2 );
+            painter->drawPath( path2 );
         }
 
     }
