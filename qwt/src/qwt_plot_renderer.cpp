@@ -851,9 +851,9 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                     const QVariant lineWidth = canvas->property( "lineWidth" );
                     const QVariant midLineWidth = canvas->property( "midLineWidth" );
 
-					QwtPainter::drawFrame( painter, canvasRect,
-						canvas->palette(), canvas->foregroundRole(),
-						lineWidth.toInt(), midLineWidth.toInt(), frameStyle );
+                    QwtPainter::drawFrame( painter, canvasRect,
+                        canvas->palette(), canvas->foregroundRole(),
+                        lineWidth.toInt(), midLineWidth.toInt(), frameStyle );
                 }
             }
         }

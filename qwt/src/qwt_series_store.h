@@ -57,65 +57,65 @@ template <typename T>
 class QwtSeriesStore: public virtual QwtAbstractSeriesStore
 {
 public:
-	/*!
-	  \brief Constructor
-	  The store contains no series
-	*/
+    /*!
+      \brief Constructor
+      The store contains no series
+    */
     explicit QwtSeriesStore<T>();
 
-	//! Destructor
+    //! Destructor
     ~QwtSeriesStore<T>();
 
-	/*!
-	  Assign a series of samples
+    /*!
+      Assign a series of samples
 
-	  \param series Data
-	  \warning The item takes ownership of the data object, deleting
-			   it when its not used anymore.
-	*/
+      \param series Data
+      \warning The item takes ownership of the data object, deleting
+               it when its not used anymore.
+    */
     void setData( QwtSeriesData<T> *series );
 
-	//! \return the the series data
+    //! \return the the series data
     QwtSeriesData<T> *data();
 
-	//! \return the the series data
+    //! \return the the series data
     const QwtSeriesData<T> *data() const;
 
-	/*!
-		\param index Index
-		\return Sample at position index
-	*/
+    /*!
+        \param index Index
+        \return Sample at position index
+    */
     T sample( int index ) const;
 
-	/*!
-	  Return the number of samples of the series
+    /*!
+      Return the number of samples of the series
 
-	  \sa setData(), QwtSeriesData<T>::size()
-	*/
+      \sa setData(), QwtSeriesData<T>::size()
+    */
     virtual size_t dataSize() const;
 
-	/*!
-	  Return the bounding rectangle of the series
-	  or an invalid rectangle, when no series is stored
+    /*!
+      Return the bounding rectangle of the series
+      or an invalid rectangle, when no series is stored
 
-	  \sa QwtSeriesData<T>::boundingRect()
-	*/
+      \sa QwtSeriesData<T>::boundingRect()
+    */
     virtual QRectF dataRect() const;
 
-	/*!
-	  Set a the "rect of interest" for the series
+    /*!
+      Set a the "rect of interest" for the series
 
       \param rect Rectangle of interest
-	  \sa QwtSeriesData<T>::setRectOfInterest()
-	*/
+      \sa QwtSeriesData<T>::setRectOfInterest()
+    */
     virtual void setRectOfInterest( const QRectF &rect );
 
-	/*!
-	  Replace a series without deleting the previous one
+    /*!
+      Replace a series without deleting the previous one
 
-	  \param series New series
-	  \return Previously assigned series
-	 */
+      \param series New series
+      \return Previously assigned series
+     */
     QwtSeriesData<T> *swapData( QwtSeriesData<T> *series );
 
 private:
