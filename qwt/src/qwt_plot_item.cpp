@@ -499,6 +499,7 @@ int QwtPlotItem::yAxis() const
 
 /*!
    \return An invalid bounding rect: QRectF(1.0, 1.0, -2.0, -2.0)
+   \note A width or height < 0.0 is ignored by the autoscaler
 */
 QRectF QwtPlotItem::boundingRect() const
 {
