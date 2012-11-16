@@ -141,7 +141,8 @@ public:
 
         /*!
            The boundingRect() of the item is included in the
-           autoscaling calculation.
+           autoscaling calculation as long as its width or height
+           is >= 0.0.
          */
         AutoScale = 0x02,
 
