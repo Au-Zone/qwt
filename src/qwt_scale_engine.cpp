@@ -786,7 +786,7 @@ void QwtLogScaleEngine::autoScale( int maxNumSteps,
 
     if ( interval.maxValue() / interval.minValue() < logBase )
     {
-        // scale width is less than one step -> build linear scale
+        // scale width is less than one step -> try to build a linear scale
 
         QwtLinearScaleEngine linearScaler;
         linearScaler.setAttributes( attributes() );
@@ -795,12 +795,19 @@ void QwtLogScaleEngine::autoScale( int maxNumSteps,
 
         linearScaler.autoScale( maxNumSteps, x1, x2, stepSize );
 
-        if ( stepSize < 0.0 )
-            stepSize = -qwtLog( logBase, qAbs( stepSize ) );
-        else
-            stepSize = qwtLog( logBase, stepSize );
+        QwtInterval linearInterval = QwtInterval( x1, x2 ).normalized();
+        linearInterval = linearInterval.limited( LOG_MIN, LOG_MAX );
 
-        return;
+        if ( linearInterval.maxValue() / linearInterval.minValue() < logBase )
+        {
+            // the aligned scale is still less than one step
+            if ( stepSize < 0.0 )
+                stepSize = -qwtLog( logBase, qAbs( stepSize ) );
+            else
+                stepSize = qwtLog( logBase, stepSize );
+
+            return;
+        }
     }
 
     double logRef = 1.0;
