@@ -103,7 +103,7 @@ void QwtAnalogClock::setNeedle(QwtDialNeedle *)
 */
 void QwtAnalogClock::setHand(Hand hand, QwtDialNeedle *needle)
 {
-    if ( hand >= 0 || hand < NHands )
+    if ( hand >= 0 && hand < NHands )
     {
         delete d_hand[hand];
         d_hand[hand] = needle;
