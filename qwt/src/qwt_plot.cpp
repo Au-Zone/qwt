@@ -739,6 +739,11 @@ void QwtPlot::drawCanvas( QPainter *painter )
   \param painter Painter used for drawing
   \param canvasRect Bounding rectangle where to paint
   \param map QwtPlot::axisCnt maps, mapping between plot and paint device coordinates
+
+  \note Usually canvasRect is contentsRect() of the plot canvas.
+        Due to a bug in Qt this rectangle might be wrong for certain 
+        frame styles ( f.e QFrame::Box ) and it might be necessary to 
+        fix the margins manually using QWidget::setContentsMargins()
 */
 
 void QwtPlot::drawItems( QPainter *painter, const QRectF &canvasRect,
