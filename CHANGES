@@ -13,7 +13,8 @@ Release 6.0.2
 10) QwtPlotRenderer: several minor fixes
 11) QwtRasterData: CONREC algorithm fixed
 12) QwtThermo: layout code fixed
-13) QwtMmlDocument: compiler issues
+13) QwtThermo: memory leak fixed
+14) QwtMmlDocument: compiler issues
 
 Release 6.0.1
 ===================

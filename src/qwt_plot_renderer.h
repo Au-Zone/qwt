@@ -70,7 +70,10 @@ public:
         //! Use the default layout without margins and frames
         DefaultLayout   = 0x00,
 
-        //! Render all frames of the plot
+        /*! 
+          Render all frames of the plot
+          \note Not supported yet
+         */
         KeepFrames      = 0x01,
 
         /*!
