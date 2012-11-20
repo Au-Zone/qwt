@@ -15,6 +15,7 @@ Release 6.0.2
 12) QwtThermo: layout code fixed
 13) QwtThermo: memory leak fixed
 14) QwtMmlDocument: compiler issues
+15) Logarithmic autoscaler fixed for intervals close below a decade
 
 Release 6.0.1
 ===================

@@ -643,7 +643,7 @@ void QwtLog10ScaleEngine::autoScale( int maxNumSteps,
 
     if ( interval.maxValue() / interval.minValue() < 10.0 )
     {
-        // scale width is less than one decade -> build linear scale
+        // scale width is less than one decade -> try to build a linear scale
 
         QwtLinearScaleEngine linearScaler;
         linearScaler.setAttributes( attributes() );
@@ -652,12 +652,20 @@ void QwtLog10ScaleEngine::autoScale( int maxNumSteps,
 
         linearScaler.autoScale( maxNumSteps, x1, x2, stepSize );
 
-        if ( stepSize < 0.0 )
-            stepSize = -::log10( qAbs( stepSize ) );
-        else
-            stepSize = ::log10( stepSize );
+        QwtInterval linearInterval = QwtInterval( x1, x2 ).normalized();
+        linearInterval = linearInterval.limited( LOG_MIN, LOG_MAX );
 
-        return;
+        if ( linearInterval.maxValue() / linearInterval.minValue() < 10.0 )
+        {
+            // the aligned scale is still less than a decade
+    
+            if ( stepSize < 0.0 )
+                stepSize = -::log10( qAbs( stepSize ) );
+            else
+                stepSize = ::log10( stepSize );
+
+            return;
+        }
     }
 
     double logRef = 1.0;
