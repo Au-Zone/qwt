@@ -15,11 +15,6 @@ include( $${PWD}/../textengines.pri )
 TARGET    = $$qwtLibraryTarget(qwtmathml)
 QT       += xml
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-
-	QT       += widgets
-}
-
 HEADERS = \
     qwt_mathml_text_engine.h
 

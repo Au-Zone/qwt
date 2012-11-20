@@ -166,11 +166,7 @@ static void qwtDrawBackground( QPainter *painter, QWidget *widget )
     if ( brush.style() == Qt::TexturePattern )
     {
         QPixmap pm( widget->size() );
-#if QT_VERSION >= 0x050000
-        QwtPainter::fillPixmap( widget, pm );
-#else
         pm.fill( widget, 0, 0 );
-#endif
         painter->drawPixmap( 0, 0, pm );
     }
     else if ( brush.gradient() )
@@ -439,14 +435,8 @@ static void qwtFillBackground( QPainter *painter,
         const QRect rect = fillRects[i].toAlignedRect();
         if ( clipRegion.intersects( rect ) )
         {
-            const QPoint topLeft = widget->mapTo( bgWidget, rect.topLeft() );
-
             QPixmap pm( rect.size() );
-#if QT_VERSION >= 0x050000
-            QwtPainter::fillPixmap( bgWidget, pm, topLeft );
-#else
-            pm.fill( bgWidget, topLeft );
-#endif
+            pm.fill( bgWidget, widget->mapTo( bgWidget, rect.topLeft() ) );
             painter->drawPixmap( rect, pm );
         }
     }
@@ -528,9 +518,7 @@ public:
 
 /*! 
   \brief Constructor
-
   \param plot Parent plot widget
-  \sa QwtPlot::setCanvas()
 */
 QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
     QFrame( plot )
@@ -594,12 +582,8 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 
                 if ( isVisible() )
                 {
-#if QT_VERSION >= 0x050000
-                    *d_data->backingStore = grab( rect() );
-#else
                     *d_data->backingStore = 
                         QPixmap::grabWidget( this, rect() );
-#endif
                 }
             }
             else
@@ -749,11 +733,7 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
                 QPainter p;
                 if ( d_data->borderRadius <= 0.0 )
                 {
-#if QT_VERSION >= 0x050000
-                    QwtPainter::fillPixmap( this, bs );
-#else
                     bs.fill( this, 0, 0 );
-#endif
                     p.begin( &bs );
                     drawCanvas( &p, false );
                 }
