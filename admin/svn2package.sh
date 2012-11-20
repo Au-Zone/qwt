@@ -60,7 +60,6 @@ function cleanQwt {
     rm -f TODO
     rm -rf admin
     rm -rf doc/tex
-	rm textengines/mathml/qtmmlwidget.cpp.diff
 
     PROFILES="qwtbuild.pri"
     for PROFILE in $PROFILES
