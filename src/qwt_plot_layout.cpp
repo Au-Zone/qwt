@@ -928,7 +928,7 @@ void QwtPlotLayout::expandLineBreaks( Options options, const QRectF &rect,
                 d_data->layoutData.scale[axis];
 
             if ( scaleData.isEnabled )
-        {
+            {
                 double length;
                 if ( axis == QwtPlot::xTop || axis == QwtPlot::xBottom )
                 {
