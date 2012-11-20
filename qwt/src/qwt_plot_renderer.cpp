@@ -844,36 +844,36 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 canvas->property( "frameShadow" ).toInt() |
                 canvas->property( "frameShape" ).toInt();
 
+           	const int lineWidth = canvas->property( "lineWidth" ).toInt();
+
+
             const QVariant borderRadius = canvas->property( "borderRadius" );
             if ( borderRadius.type() == QVariant::Double 
                 && borderRadius.toDouble() > 0.0 )
             {
                 const double r = borderRadius.toDouble();
 
-                    QwtPainter::drawFrame( painter, canvasRect,
-                        canvas->palette(), canvas->foregroundRole(),
-                        lineWidth.toInt(), midLineWidth.toInt(), frameStyle );
-                }
+				QwtPainter::drawRoundedFrame( painter, canvasRect,
+					r, r, canvas->palette(), lineWidth, frameStyle );
             }
             else
             {
-                const QVariant lineWidth = canvas->property( "lineWidth" );
-                const QVariant midLineWidth = canvas->property( "midLineWidth" );
+                const int midLineWidth = canvas->property( "midLineWidth" ).toInt();
 
                 QwtPainter::drawFrame( painter, canvasRect,
                     canvas->palette(), canvas->foregroundRole(),
-                    lineWidth.toInt(), midLineWidth.toInt(), frameStyle );
+                    lineWidth, midLineWidth, frameStyle );
             }
             painter->restore();
         }
 #if 0
-    painter->setBrush( Qt::NoBrush );
-    painter->setPen( Qt::yellow );
-    painter->drawRect( canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 ) );
+        painter->setBrush( Qt::NoBrush );
+        painter->setPen( Qt::yellow );
+        painter->drawRect( canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 ) );
 
-    painter->setPen( Qt::green );
-    const int off = frameWidth - 1.0;
-    painter->drawRect( canvasRect.adjusted( off, off, -off - 1.0, -off - 1.0 ) );
+        painter->setPen( Qt::green );
+        const int off = frameWidth - 1.0;
+        painter->drawRect( canvasRect.adjusted( off, off, -off - 1.0, -off - 1.0 ) );
 #endif
     }
 }
