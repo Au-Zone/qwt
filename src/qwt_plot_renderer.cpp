@@ -801,62 +801,80 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
     else
     {
         QPainterPath clipPath;
+
+        int frameWidth = 0;
+
         if ( !( d_data->discardFlags & DiscardCanvasFrame ) )
-            clipPath = qwtCanvasClip( canvas, canvasRect );
-
-        if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
         {
-            painter->save();
+            const QVariant fw = canvas->property( "frameWidth" );
+            if ( fw.type() == QVariant::Int )
+                frameWidth = fw.toInt();
 
-            if ( !clipPath.isEmpty() )
-                painter->setClipPath( clipPath );
-
-            QwtPainter::drawBackgound( painter, r, canvas );
-
-            painter->restore();
+            clipPath = qwtCanvasClip( canvas, canvasRect );
         }
+
+        QRectF innerRect = canvasRect.adjusted( 
+            frameWidth, frameWidth, -frameWidth, -frameWidth );
 
         painter->save();
 
         if ( clipPath.isEmpty() )
-            painter->setClipRect( canvasRect );
+        {
+            painter->setClipRect( innerRect );
+        }
         else
+        {
             painter->setClipPath( clipPath );
+        }
 
-        plot->drawItems( painter, canvasRect, map );
+        if ( !( d_data->discardFlags & DiscardCanvasBackground ) )
+        {
+            QwtPainter::drawBackgound( painter, innerRect, canvas );
+        }
+
+        plot->drawItems( painter, innerRect, map );
 
         painter->restore();
 
-        if ( !( d_data->discardFlags & DiscardCanvasFrame ) )
+        if ( frameWidth > 0 )
         {
-            const QVariant frameWidth = canvas->property( "frameWidth" );
-            if ( frameWidth.type() == QVariant::Int )
+            painter->save();
+
+            const int frameStyle =
+                canvas->property( "frameShadow" ).toInt() |
+                canvas->property( "frameShape" ).toInt();
+
+            const QVariant borderRadius = canvas->property( "borderRadius" );
+            if ( borderRadius.type() == QVariant::Double 
+                && borderRadius.toDouble() > 0.0 )
             {
-                const int fw = frameWidth.toInt();
-                const int frameStyle =
-                    canvas->property( "frameShadow" ).toInt() |
-                    canvas->property( "frameShape" ).toInt();
-
-                const QVariant borderRadius = canvas->property( "borderRadius" );
-                if ( borderRadius.type() == QVariant::Double 
-                    && borderRadius.toDouble() > 0.0 )
-                {
-                    const double r = borderRadius.toDouble();
-
-                    QwtPainter::drawRoundedFrame( painter, canvasRect,
-                        r, r, canvas->palette(), fw, frameStyle );
-                }
-                else
-                {
-                    const QVariant lineWidth = canvas->property( "lineWidth" );
-                    const QVariant midLineWidth = canvas->property( "midLineWidth" );
+                const double r = borderRadius.toDouble();
 
                     QwtPainter::drawFrame( painter, canvasRect,
                         canvas->palette(), canvas->foregroundRole(),
                         lineWidth.toInt(), midLineWidth.toInt(), frameStyle );
                 }
             }
+            else
+            {
+                const QVariant lineWidth = canvas->property( "lineWidth" );
+                const QVariant midLineWidth = canvas->property( "midLineWidth" );
+
+                QwtPainter::drawFrame( painter, canvasRect,
+                    canvas->palette(), canvas->foregroundRole(),
+                    lineWidth.toInt(), midLineWidth.toInt(), frameStyle );
+            }
+            painter->restore();
         }
+#if 0
+    painter->setBrush( Qt::NoBrush );
+    painter->setPen( Qt::yellow );
+    painter->drawRect( canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 ) );
+
+    painter->setPen( Qt::green );
+    const int off = frameWidth - 1.0;
+    painter->drawRect( canvasRect.adjusted( off, off, -off - 1.0, -off - 1.0 ) );
+#endif
     }
 }
 
