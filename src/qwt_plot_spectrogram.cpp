@@ -573,8 +573,6 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QwtRasterData::ContourLines &contourLines) const
 {
-    const QwtDoubleInterval intensityRange = d_data->data->range();
-
     const int numLevels = (int)d_data->contourLevels.size();
     for (int l = 0; l < numLevels; l++)
     {
