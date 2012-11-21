@@ -1,0 +1,34 @@
+QwtPlot
+{
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 Gainsboro, stop: 1 Silver );
+}
+
+QwtPlotCanvas
+{
+    border: 1px solid SlateGray;
+    border-radius: 10px;
+    background-color: qlineargradient( x1: 0, y1: 0, x2: 1, y2: 1,
+        stop: 0 #055F89, stop: 1 #0F1F37 );
+}
+
+QwtScaleWidget
+{
+    color: palette(black);
+}
+
+QwtTextLabel#QwtPlotTitle
+{
+    color: palette(black);
+}
+
+QwtLegend
+{
+    border: 1px solid SlateGray;
+    border-radius: 10px;
+    padding: 2px;
+    background: LightGray;
+}
