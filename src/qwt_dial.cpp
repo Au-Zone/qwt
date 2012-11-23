@@ -15,7 +15,6 @@
 #include "qwt_round_scale_draw.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
-#include <qbitmap.h>
 #include <qpalette.h>
 #include <qpixmap.h>
 #include <qevent.h>
@@ -335,7 +334,7 @@ void QwtDial::paintEvent( QPaintEvent *event )
     const QRect r = contentsRect();
     if ( r.size() != d_data->pixmapCache.size() )
     {
-        d_data->pixmapCache = QPixmap( r.size() );
+        d_data->pixmapCache = QwtPainter::backingStore( r.size() );
         d_data->pixmapCache.fill( Qt::transparent );
 
         QPainter p( &d_data->pixmapCache );
