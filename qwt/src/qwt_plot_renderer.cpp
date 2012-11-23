@@ -844,7 +844,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 canvas->property( "frameShadow" ).toInt() |
                 canvas->property( "frameShape" ).toInt();
 
-           	const int lineWidth = canvas->property( "lineWidth" ).toInt();
+            const int lineWidth = canvas->property( "lineWidth" ).toInt();
 
 
             const QVariant borderRadius = canvas->property( "borderRadius" );
@@ -853,8 +853,8 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
             {
                 const double r = borderRadius.toDouble();
 
-				QwtPainter::drawRoundedFrame( painter, canvasRect,
-					r, r, canvas->palette(), lineWidth, frameStyle );
+                QwtPainter::drawRoundedFrame( painter, canvasRect,
+                    r, r, canvas->palette(), lineWidth, frameStyle );
             }
             else
             {

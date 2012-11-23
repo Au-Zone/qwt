@@ -117,6 +117,8 @@ public:
     static void drawBackgound( QPainter *painter,
         const QRectF &rect, const QWidget *widget );
 
+    static QPixmap backingStore( const QSize & );
+
 private:
     static bool d_polylineSplitting;
     static bool d_roundingAlignment;

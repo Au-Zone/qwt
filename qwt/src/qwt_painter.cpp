@@ -29,6 +29,13 @@
 #include <qdesktopwidget.h>
 #include <string.h>
 
+#if 0
+#ifdef Q_WS_X11
+#include <qx11info_x11.h>
+#endif
+#endif
+
+
 bool QwtPainter::d_polylineSplitting = true;
 bool QwtPainter::d_roundingAlignment = true;
 
@@ -812,9 +819,9 @@ void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
             path4.lineTo( innerRect.bottomRight() );
             path4.lineTo( innerRect.bottomLeft() );
 
-			QPainterPath path5;
-			path5.addRect( midRect1 );
-			path5.addRect( midRect2 );
+            QPainterPath path5;
+            path5.addRect( midRect1 );
+            path5.addRect( midRect2 );
 
             painter->setPen( Qt::NoPen );
 
@@ -1201,3 +1208,29 @@ void QwtPainter::drawBackgound( QPainter *painter,
         painter->fillRect( rect, brush );
     }
 }
+
+QPixmap QwtPainter::backingStore( const QSize &size )
+{
+    QPixmap pm;
+
+#if QT_VERSION >= 0x050000 && QWT_HIGH_DPI
+    static qReal pixelRatio = 0.0;
+    if ( pixelRatio <= 0.0 )
+        pixelRatio = qApp->devicePixelRatio();
+
+    pm = QPixmap( size * pixelRation );
+    pm.setDevicePixelRatio( pixelRatio );
+#else
+    pm = QPixmap( size );
+#endif
+
+#if 0
+#ifdef Q_WS_X11
+            if ( bs.x11Info().screen() != x11Info().screen() )
+                bs.x11SetScreen( x11Info().screen() );
+#endif
+#endif
+
+    return pm;
+}
+
