@@ -50,11 +50,14 @@ to control or display values, arrays, or ranges of type double.
   \section downloads Downloads
   Stable releases, prereleases and snapshots are available at the Qwt <a href="http://sourceforge.net/projects/qwt">project page</a>.
 
+  For getting a snapshot with all bugfixes for the latest 5.0 release:
+  \code svn checkout svn://svn.code.sf.net/p/qwt/code/branches/qwt-5.2 \endcode
+
   For getting a snapshot with all bugfixes for the latest 6.0 release:
-  \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-6.0 \endcode
+  \code svn checkout svn://svn.code.sf.net/p/qwt/code/branches/qwt-6.0 \endcode
 
   For getting a development snapshot from the SVN repository:
-  \code svn co https://qwt.svn.sourceforge.net/svnroot/qwt/trunk/qwt \endcode
+  \code svn checkout svn://svn.code.sf.net/p/qwt/code/trunk/qwt \endcode
 
   Qwt doesn't distribute binary packages, but today all major Linux distributors
   offer one. Note, that these packages often don't include the examples.
