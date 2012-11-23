@@ -9,10 +9,10 @@ QwtPlot
 
 QwtPlotCanvas
 {
-    border: 1px solid SlateGray;
+    border: 2px solid SlateGray;
     border-radius: 10px;
     background-color: qlineargradient( x1: 0, y1: 0, x2: 1, y2: 1,
-        stop: 0 #055F89, stop: 1 #0F1F37 );
+        stop: 0 #055F89, stop: 1 #173056 );
 }
 
 QwtScaleWidget
@@ -30,5 +30,11 @@ QwtLegend
     border: 1px solid SlateGray;
     border-radius: 10px;
     padding: 2px;
-    background: LightGray;
+    background: DimGray
 }
+
+QwtLegendLabel
+{
+    color: palette(light);
+}
+
