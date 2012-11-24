@@ -285,6 +285,22 @@ void QwtPlotHistogram::setSamples(
 }
 
 /*!
+  Assign a series of samples
+    
+  setSamples() is just a wrapper for setData() without any additional
+  value - beside that it is easier to find for the developer.
+    
+  \param data Data
+  \warning The item takes ownership of the data object, deleting
+           it when its not used anymore.
+*/
+void QwtPlotHistogram::setSamples( 
+    QwtSeriesData<QwtIntervalSample> *data )
+{
+    setData( data );
+}
+
+/*!
   Draw a subset of the histogram samples
 
   \param painter Painter

@@ -76,6 +76,7 @@ public:
 
     void setSamples( const QVector<QPointF> & );
     void setSamples( const QVector<double> & );
+    void setSamples( QwtSeriesData<QPointF> *series );
 
     void setSymbol( QwtColumnSymbol * );
     const QwtColumnSymbol *symbol() const;

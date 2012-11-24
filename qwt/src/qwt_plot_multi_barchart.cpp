@@ -107,6 +107,22 @@ void QwtPlotMultiBarChart::setSamples(
 }
 
 /*!
+  Assign a series of samples
+    
+  setSamples() is just a wrapper for setData() without any additional
+  value - beside that it is easier to find for the developer.
+    
+  \param data Data
+  \warning The item takes ownership of the data object, deleting
+           it when its not used anymore.
+*/  
+void QwtPlotMultiBarChart::setSamples( 
+    QwtSeriesData<QwtSetSample> *data )
+{       
+    setData( data );
+}       
+
+/*!
   \brief Set the titles for the bars
 
   The titles are used for the legend.
