@@ -73,6 +73,7 @@ public:
 
     void setSamples( const QVector<QwtSetSample> & );
     void setSamples( const QVector< QVector<double> > & );
+    void setSamples( QwtSeriesData<QwtSetSample> * );
 
     void setStyle( ChartStyle style );
     ChartStyle style() const;

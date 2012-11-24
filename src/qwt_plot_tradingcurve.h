@@ -98,6 +98,7 @@ public:
     bool testPaintAttribute( PaintAttribute ) const;
 
     void setSamples( const QVector<QwtOHLCSample> & );
+    void setSamples( QwtSeriesData<QwtOHLCSample> * );
 
     void setSymbolStyle( SymbolStyle style );
     SymbolStyle symbolStyle() const;

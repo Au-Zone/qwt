@@ -1092,10 +1092,26 @@ QwtGraphic QwtPlotCurve::legendIcon( int index,
 
   \param samples Vector of points
   \note QVector is implicitely shared
+  \note QPolygonF is derived from QVector<QPointF>
 */
 void QwtPlotCurve::setSamples( const QVector<QPointF> &samples )
 {
     setData( new QwtPointSeriesData( samples ) );
+}
+
+/*!
+  Assign a series of points
+
+  setSamples() is just a wrapper for setData() without any additional
+  value - beside that it is easier to find for the developer.
+
+  \param data Data
+  \warning The item takes ownership of the data object, deleting
+           it when its not used anymore.
+*/
+void QwtPlotCurve::setSamples( QwtSeriesData<QPointF> *data )
+{
+    setData( data );
 }
 
 #ifndef QWT_NO_COMPAT

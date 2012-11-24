@@ -89,6 +89,7 @@ public:
     const QBrush &brush() const;
 
     void setSamples( const QVector<QwtIntervalSample> & );
+    void setSamples( QwtSeriesData<QwtIntervalSample> * );
 
     void setBaseline( double reference );
     double baseline() const;

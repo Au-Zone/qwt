@@ -229,6 +229,7 @@ public:
     void setSamples( const QVector<double> &xData, const QVector<double> &yData );
 #endif
     void setSamples( const QVector<QPointF> & );
+    void setSamples( QwtSeriesData<QPointF> * );
 
     int closestPoint( const QPoint &pos, double *dist = NULL ) const;
 

@@ -74,6 +74,7 @@ int QwtPlotBarChart::rtti() const
 
   \param samples Vector of points
   \note QVector is implicitely shared
+  \note QPolygonF is derived from QVector<QPointF>
 */
 void QwtPlotBarChart::setSamples(
     const QVector<QPointF> &samples )
@@ -98,6 +99,21 @@ void QwtPlotBarChart::setSamples(
         points += QPointF( i, samples[ i ] );
 
     setData( new QwtPointSeriesData( points ) );
+}
+
+/*!
+  Assign a series of samples
+
+  setSamples() is just a wrapper for setData() without any additional
+  value - beside that it is easier to find for the developer.
+
+  \param data Data
+  \warning The item takes ownership of the data object, deleting
+           it when its not used anymore.
+*/
+void QwtPlotBarChart::setSamples( QwtSeriesData<QPointF> *data )
+{
+    setData( data );
 }
 
 /*!

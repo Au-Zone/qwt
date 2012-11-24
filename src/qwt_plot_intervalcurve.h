@@ -87,6 +87,7 @@ public:
     bool testPaintAttribute( PaintAttribute ) const;
 
     void setSamples( const QVector<QwtIntervalSample> & );
+    void setSamples( QwtSeriesData<QwtIntervalSample> * );
 
     void setPen( const QPen & );
     const QPen &pen() const;
