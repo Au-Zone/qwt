@@ -604,9 +604,18 @@ void QwtLegend::renderLegend( QPainter *painter,
     if ( legendLayout == NULL )
         return;
 
-    uint numCols = legendLayout->columnsForWidth( qFloor( rect.width() ) );
+    int left, right, top, bottom;
+    getContentsMargins( &left, &top, &right, &bottom );
+
+    QRect layoutRect; 
+    layoutRect.setLeft( qCeil( rect.left() ) + left );
+    layoutRect.setTop( qCeil( rect.top() ) + top );
+    layoutRect.setRight( qFloor( rect.right() ) - right );
+    layoutRect.setBottom( qFloor( rect.bottom() ) - bottom );
+
+    uint numCols = legendLayout->columnsForWidth( layoutRect.width() );
     QList<QRect> itemRects =
-        legendLayout->layoutItems( rect.toRect(), numCols );
+        legendLayout->layoutItems( layoutRect, numCols );
 
     int index = 0;
 
