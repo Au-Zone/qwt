@@ -783,6 +783,23 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
                     qwtDrawBackground( &painter, this );
                 }
             }
+            else
+            {
+                if ( borderRadius() > 0.0 )
+                {
+                    QPainterPath clipPath;
+                    clipPath.addRect( rect() );
+                    clipPath -= borderPath( rect() );
+
+                    painter.save();
+
+                    painter.setClipPath( clipPath, Qt::IntersectClip );
+                    qwtFillBackground( &painter, this );
+                    qwtDrawBackground( &painter, this );
+
+                    painter.restore();
+                }
+            }
 
             drawCanvas( &painter, false );
 
