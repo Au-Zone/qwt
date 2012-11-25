@@ -158,15 +158,21 @@ private:
     QPointF d_origin;
 };
 
-static void qwtDrawBackground( QPainter *painter, QWidget *widget )
+static void qwtDrawBackground( QPainter *painter, QwtPlotCanvas *canvas )
 {
+    painter->save();
+
+    const QPainterPath borderClip = canvas->borderPath( canvas->rect() );
+    if ( !borderClip.isEmpty() )
+        painter->setClipPath( borderClip, Qt::IntersectClip );
+
     const QBrush &brush = 
-        widget->palette().brush( widget->backgroundRole() );
+        canvas->palette().brush( canvas->backgroundRole() );
 
     if ( brush.style() == Qt::TexturePattern )
     {
-        QPixmap pm( widget->size() );
-        pm.fill( widget, 0, 0 );
+        QPixmap pm( canvas->size() );
+        pm.fill( canvas, 0, 0 );
         painter->drawPixmap( 0, 0, pm );
     }
     else if ( brush.gradient() )
@@ -175,7 +181,7 @@ static void qwtDrawBackground( QPainter *painter, QWidget *widget )
 
         if ( brush.gradient()->coordinateMode() == QGradient::ObjectBoundingMode )
         {
-            rects += widget->rect();
+            rects += canvas->rect();
         } 
         else 
         {
@@ -214,7 +220,7 @@ static void qwtDrawBackground( QPainter *painter, QWidget *widget )
                 }
             }
             
-            QImage image( widget->size(), format );
+            QImage image( canvas->size(), format );
 
             QPainter p( &image );
             p.setPen( Qt::NoPen );
@@ -228,27 +234,22 @@ static void qwtDrawBackground( QPainter *painter, QWidget *widget )
         }
         else
         {
-            painter->save();
-
             painter->setPen( Qt::NoPen );
             painter->setBrush( brush );
 
             painter->drawRects( rects );
-
-            painter->restore();
         }
     }
     else
     {
-        painter->save();
-
         painter->setPen( Qt::NoPen );
         painter->setBrush( brush );
 
         painter->drawRects( painter->clipRegion().rects() );
 
-        painter->restore();
     }
+
+    painter->restore();
 }
 
 static inline void qwtRevertPath( QPainterPath &path )
@@ -770,7 +771,10 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
             if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
             {
                 if ( autoFillBackground() )
+                {
+                    qwtFillBackground( &painter, this );
                     qwtDrawBackground( &painter, this );
+                }
             }
 
             drawCanvas( &painter, false );
