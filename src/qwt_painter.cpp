@@ -27,7 +27,6 @@
 #include <qpaintengine.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
-#include <string.h>
 
 #if 0
 #ifdef Q_WS_X11
@@ -1101,22 +1100,26 @@ void QwtPainter::drawColorBar( QPainter *painter,
     drawPixmap( painter, rect, pixmap );
 }
 
-#if QT_VERSION >= 0x050000
-
-static inline void qwtFillRect(QPainter *painter, const QRect &rect, const QBrush &brush)
+static inline void qwtFillRect( const QWidget *widget, QPainter *painter, 
+    const QRect &rect, const QBrush &brush)
 {
     if ( brush.style() == Qt::TexturePattern ) 
     {
+        painter->save();
+
         painter->setClipRect( rect );
         painter->drawTiledPixmap(rect, brush.texture(), rect.topLeft());
+
+        painter->restore();
     } 
-    else if (brush.gradient()
-        && brush.gradient()->coordinateMode() == QGradient::ObjectBoundingMode) 
+    else if ( brush.gradient() )
     {
         painter->save();
+
         painter->setClipRect( rect );
-        painter->fillRect(0, 0, painter->device()->width(), 
-            painter->device()->height(), brush);
+        painter->fillRect(0, 0, widget->width(), 
+            widget->height(), brush);
+
         painter->restore();
     } 
     else 
@@ -1125,13 +1128,12 @@ static inline void qwtFillRect(QPainter *painter, const QRect &rect, const QBrus
     }
 }
 
-#endif
-
 /*!
   Fill a pixmap with the content of a widget
 
-  In Qt >= 5.0 QPixmap::fill() is a nop. fillPixmap() does
-  an alternative implementation hiding this incompatibility.
+  In Qt >= 5.0 QPixmap::fill() is a nop, in Qt 4.x it is buggy
+  for backgrounds with gradients. Thus fillPixmap() offers 
+  an alternative implementation.
 
   \param widget Widget
   \param pixmap Pixmap to be filled
@@ -1142,12 +1144,6 @@ static inline void qwtFillRect(QPainter *painter, const QRect &rect, const QBrus
 void QwtPainter::fillPixmap( const QWidget *widget, 
     QPixmap &pixmap, const QPoint &offset )
 {
-#if QT_VERSION >= 0x050000
-
-    // Qwt 5.0.0 Alpha offers an empty dummy implementation
-    // of QPixmap::fill, that does nothing helpful beside converting
-    // a compiler into a runtime error
-
     const QRect rect( offset, pixmap.size() );
 
     QPainter painter( &pixmap );
@@ -1159,11 +1155,11 @@ void QwtPainter::fillPixmap( const QWidget *widget,
     if ( !( widget->autoFillBackground() && autoFillBrush.isOpaque() ) ) 
     {
         const QBrush bg = widget->palette().brush( QPalette::Window );
-        qwtFillRect( &painter, rect, bg);
+        qwtFillRect( widget, &painter, rect, bg);
     }
 
     if ( widget->autoFillBackground() )
-        qwtFillRect( &painter, rect, autoFillBrush);
+        qwtFillRect( widget, &painter, rect, autoFillBrush);
 
     if ( widget->testAttribute(Qt::WA_StyledBackground) ) 
     {
@@ -1174,9 +1170,6 @@ void QwtPainter::fillPixmap( const QWidget *widget,
         widget->style()->drawPrimitive( QStyle::PE_Widget, 
             &opt, &painter, widget );
     }
-#else
-    pixmap.fill( widget, offset );
-#endif
 }
 
 /*!
