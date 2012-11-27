@@ -27,6 +27,8 @@ Plot::Plot( QWidget *parent ):
     // backing store of QWidget is good enough.
 
     canvas()->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+    canvas()->setBorderRadius( 10 );
+
 
 
 #if defined(Q_WS_X11)
