@@ -28,6 +28,7 @@ Plot::Plot( QWidget *parent ):
 
     QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+    canvas->setBorderRadius( 10 );
 
     if ( QwtPainter::isX11GraphicsSystem() )
     {

@@ -52,7 +52,7 @@ QSize Knob::sizeHint() const
     const int h = sz1.height() + sz2.height();
 
     int off = qCeil( d_knob->scaleDraw()->extent( d_knob->font() ) );
-    off -= 10; // spacing
+    off -= 15; // spacing
 
     return QSize( w, h - off );
 }
@@ -78,7 +78,7 @@ void Knob::resizeEvent( QResizeEvent *event )
     const int knobHeight = d_knob->sizeHint().height();
 
     int off = qCeil( d_knob->scaleDraw()->extent( d_knob->font() ) );
-    off -= 10; // spacing
+    off -= 15; // spacing
 
     d_knob->setGeometry( 0, d_label->pos().y() - knobHeight + off,
         sz.width(), knobHeight );
