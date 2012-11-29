@@ -91,7 +91,7 @@ Plot::Plot( QWidget *parent ):
     d_marker2->setLabelAlignment( Qt::AlignRight | Qt::AlignBottom );
     d_marker2->setLinePen( QPen( QColor( 200, 150, 0 ), 0, Qt::DashDotLine ) );
     d_marker2->setSymbol( new QwtSymbol( QwtSymbol::Diamond,
-        QColor( Qt::yellow ), QColor( Qt::green ), QSize( 7, 7 ) ) );
+        QColor( Qt::yellow ), QColor( Qt::green ), QSize( 8, 8 ) ) );
     d_marker2->attach( this );
 
     setDamp( 0.0 );
