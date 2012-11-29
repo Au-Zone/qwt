@@ -39,8 +39,8 @@ QwtTextLabel#QwtPlotFooter
 QwtLegend
 {
     border: 1px solid white;
-    border-radius: 2px;
-    padding: 10px;
+    border-radius: 10px;
+    padding: 2px;
     background: brown;
 }
 
