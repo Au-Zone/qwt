@@ -54,8 +54,7 @@ WheelBox::WheelBox( const QString &title,
     d_wheel->setRange( min, max );
     d_wheel->setSingleStep( stepSize );
     d_wheel->setPageStepCount( 5 );
-    d_wheel->setFixedSize(
-        qRound( d_number->height() / 2.5 ), d_number->height() );
+    d_wheel->setFixedHeight( d_number->height() );
 
     d_number->setFocusProxy( d_wheel );
 
@@ -79,6 +78,16 @@ WheelBox::WheelBox( const QString &title,
         d_number, SLOT( display( double ) ) );
     connect( d_wheel, SIGNAL( valueChanged( double ) ),
         this, SIGNAL( valueChanged( double ) ) );
+}
+
+void WheelBox::setTheme( const QColor &color )
+{
+	d_wheel->setPalette( color );
+}
+
+QColor WheelBox::theme() const
+{
+	return d_wheel->palette().color( QPalette::Window );
 }
 
 void WheelBox::setValue( double value )

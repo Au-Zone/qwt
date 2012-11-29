@@ -17,6 +17,8 @@ public:
     void start();
     virtual void replot();
 
+	virtual bool eventFilter( QObject *, QEvent * );
+
 public Q_SLOTS:
     void setIntervalLength( double );
 
@@ -26,8 +28,6 @@ protected:
     virtual void timerEvent( QTimerEvent * );
 
 private:
-    void initGradient();
-
     void updateCurve();
     void incrementInterval();
 

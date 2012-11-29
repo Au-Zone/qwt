@@ -10,6 +10,8 @@ class Knob: public QWidget
 {
     Q_OBJECT
 
+	Q_PROPERTY( QColor theme READ theme WRITE setTheme )
+
 public:
     Knob( const QString &title,
         double min, double max, QWidget *parent = NULL );
@@ -18,6 +20,9 @@ public:
 
     void setValue( double value );
     double value() const;
+
+	void setTheme( const QColor & );
+	QColor theme() const;
 
 Q_SIGNALS:
     double valueChanged( double );
