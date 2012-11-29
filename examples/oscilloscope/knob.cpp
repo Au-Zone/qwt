@@ -67,6 +67,16 @@ double Knob::value() const
     return d_knob->value();
 }
 
+void Knob::setTheme( const QColor &color )
+{
+	d_knob->setPalette( color );
+}
+
+QColor Knob::theme() const
+{
+	return d_knob->palette().color( QPalette::Window );
+}
+
 void Knob::resizeEvent( QResizeEvent *event )
 {
     const QSize sz = event->size();

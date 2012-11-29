@@ -11,6 +11,70 @@
 #include <qwt_painter.h>
 #include <qevent.h>
 
+class Canvas: public QwtPlotCanvas
+{
+public:
+	Canvas( QwtPlot *plot = NULL ):
+		QwtPlotCanvas( plot )
+	{
+        // The backing store is important, when working with widget
+        // overlays ( f.e rubberbands for zooming ).
+        // Here we don't have them and the internal
+        // backing store of QWidget is good enough.
+
+        setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+        setBorderRadius( 10 );
+
+        if ( QwtPainter::isX11GraphicsSystem() )
+		{
+#if QT_VERSION < 0x050000
+			// Even if not liked by the Qt development, Qt::WA_PaintOutsidePaintEvent
+			// works on X11. This has a nice effect on the performance.
+
+			setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
+#endif
+
+			// Disabling the backing store of Qt improves the performance
+			// for the direct painter even more, but the canvas becomes
+			// a native window of the window system, receiving paint events
+			// for resize and expose operations. Those might be expensive
+			// when there are many points and the backing store of
+			// the canvas is disabled. So in this application
+			// we better don't both backing stores.
+
+			if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) )
+			{
+				setAttribute( Qt::WA_PaintOnScreen, true );
+				setAttribute( Qt::WA_NoSystemBackground, true );
+			}
+		}
+
+		setupPalette();
+    }
+
+private:
+	void setupPalette()
+	{
+    	QPalette pal = palette();
+
+#if QT_VERSION >= 0x040400
+    	QLinearGradient gradient;
+    	gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
+    	gradient.setColorAt( 0.0, QColor( 0, 49, 110 ) );
+    	gradient.setColorAt( 1.0, QColor( 0, 87, 174 ) );
+
+    	pal.setBrush( QPalette::Window, QBrush( gradient ) );
+#else
+    	pal.setBrush( QPalette::Window, QBrush( color ) );
+#endif
+
+        // QPalette::WindowText is used for the curve color
+    	pal.setColor( QPalette::WindowText, Qt::green );
+
+    	setPalette( pal );
+	}
+};
+
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent ),
     d_paintedPoints( 0 ),
@@ -20,43 +84,7 @@ Plot::Plot( QWidget *parent ):
     d_directPainter = new QwtPlotDirectPainter();
 
     setAutoReplot( false );
-
-    // The backing store is important, when working with widget
-    // overlays ( f.e rubberbands for zooming ).
-    // Here we don't have them and the internal
-    // backing store of QWidget is good enough.
-
-    QwtPlotCanvas *canvas = new QwtPlotCanvas();
-    canvas->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
-    canvas->setBorderRadius( 10 );
-
-    if ( QwtPainter::isX11GraphicsSystem() )
-    {
-#if QT_VERSION < 0x050000
-        // Even if not recommended by TrollTech, Qt::WA_PaintOutsidePaintEvent
-        // works on X11. This has a nice effect on the performance.
-
-        canvas->setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
-#endif
-
-        // Disabling the backing store of Qt improves the performance
-        // for the direct painter even more, but the canvas becomes
-        // a native window of the window system, receiving paint events
-        // for resize and expose operations. Those might be expensive
-        // when there are many points and the backing store of
-        // the canvas is disabled. So in this application
-        // we better don't both backing stores.
-
-        if ( canvas->testPaintAttribute( QwtPlotCanvas::BackingStore ) )
-        {
-            canvas->setAttribute( Qt::WA_PaintOnScreen, true );
-            canvas->setAttribute( Qt::WA_NoSystemBackground, true );
-        }
-    }
-
-    setCanvas( canvas );
-
-    initGradient();
+    setCanvas( new Canvas() );
 
     plotLayout()->setAlignCanvasToScales( true );
 
@@ -80,13 +108,9 @@ Plot::Plot( QWidget *parent ):
 
     d_curve = new QwtPlotCurve();
     d_curve->setStyle( QwtPlotCurve::Lines );
-    d_curve->setPen( QPen( Qt::green ) );
-#if 1
+    d_curve->setPen( canvas()->palette().color( QPalette::WindowText ) );
     d_curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-#endif
-#if 1
     d_curve->setPaintAttribute( QwtPlotCurve::ClipPolygons, false );
-#endif
     d_curve->setData( new CurveData() );
     d_curve->attach( this );
 }
@@ -94,24 +118,6 @@ Plot::Plot( QWidget *parent ):
 Plot::~Plot()
 {
     delete d_directPainter;
-}
-
-void Plot::initGradient()
-{
-    QPalette pal = canvas()->palette();
-
-#if QT_VERSION >= 0x040400
-    QLinearGradient gradient( 0.0, 0.0, 1.0, 0.0 );
-    gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
-    gradient.setColorAt( 0.0, QColor( 0, 49, 110 ) );
-    gradient.setColorAt( 1.0, QColor( 0, 87, 174 ) );
-
-    pal.setBrush( QPalette::Window, QBrush( gradient ) );
-#else
-    pal.setBrush( QPalette::Window, QBrush( color ) );
-#endif
-
-    canvas()->setPalette( pal );
 }
 
 void Plot::start()
@@ -234,4 +240,15 @@ void Plot::resizeEvent( QResizeEvent *event )
 void Plot::showEvent( QShowEvent * )
 {
     replot();
+}
+
+bool Plot::eventFilter( QObject *object, QEvent *event )
+{
+	if ( object == canvas() && 
+		event->type() == QEvent::PaletteChange )
+	{
+        d_curve->setPen( canvas()->palette().color( QPalette::WindowText ) );
+	}
+
+    return QwtPlot::eventFilter( object, event );
 }
