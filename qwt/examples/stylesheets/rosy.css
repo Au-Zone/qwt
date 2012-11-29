@@ -23,17 +23,17 @@ QwtPlotGLCanvas
 
 QwtScaleWidget
 {
-    color: palette(light);
+    color: white;
 }
 
 QwtTextLabel#QwtPlotTitle
 {
-    color: palette(light);
+    color: white;
 }
 
 QwtTextLabel#QwtPlotFooter
 {
-    color: palette(light);
+    color: white;
 }
 
 QwtLegend
@@ -46,6 +46,6 @@ QwtLegend
 
 QwtLegendLabel
 {
-    color: palette(light);
+    color: white;
 }
 

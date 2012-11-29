@@ -25,31 +25,31 @@ QwtPlot
 
 QwtPlotCanvas
 {
-    border: 1px solid White;
+    border: 1px solid white;
     border-radius: 10px;
     background-color: #616d7e;
 }
 
 QwtPlotGLCanvas
 {
-    border: 1px solid White;
+    border: 1px solid white;
     border-radius: 10px;
     background-color: #616d7e;
 }
 
 QwtScaleWidget
 {
-    color: palette(light);
+    color: white;
 }
 
 QwtTextLabel#QwtPlotTitle
 {
-    color: palette(light);
+    color: white;
 }
 
 QwtTextLabel#QwtPlotFooter
 {
-    color: palette(light);
+    color: white;
 }
 
 QwtLegend
@@ -62,6 +62,6 @@ QwtLegend
 
 QwtLegendLabel
 {
-    color: palette(light);
+    color: white;
 }
 
