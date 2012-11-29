@@ -654,7 +654,7 @@ void QwtKnob::drawMarker( QPainter *painter,
             polygon += QPointF( rb, -0.5 * ( re - rb ) );
 
             painter->setPen( Qt::NoPen );
-            painter->setBrush( palette().color( QPalette::Text ) );
+            painter->setBrush( palette().color( QPalette::ButtonText ) );
             painter->drawPolygon( polygon );
 
             painter->resetTransform();

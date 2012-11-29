@@ -762,7 +762,7 @@ void QwtWheel::drawWheelBackground(
     QLinearGradient gradient( rect.topLeft(), 
         ( d_data->orientation == Qt::Horizontal ) ? rect.topRight() : rect.bottomLeft() );
     gradient.setColorAt( 0.0, pal.color( QPalette::Button ) );
-    gradient.setColorAt( 0.2, pal.color( QPalette::Light ) );
+    gradient.setColorAt( 0.2, pal.color( QPalette::Midlight ) );
     gradient.setColorAt( 0.7, pal.color( QPalette::Mid ) );
     gradient.setColorAt( 1.0, pal.color( QPalette::Dark ) );
 
