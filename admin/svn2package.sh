@@ -29,7 +29,7 @@ function checkoutQwt() {
         fi
     fi
 
-    svn -q co https://qwt.svn.sourceforge.net/svnroot/qwt/$1/$2
+    svn -q co https://svn.code.sf.net/p/qwt/code/$1/$2
     if [ $? -ne 0 ]
     then
         echo "Can't access sourceforge SVN"
