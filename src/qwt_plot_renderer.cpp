@@ -844,7 +844,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 canvas->property( "frameShadow" ).toInt() |
                 canvas->property( "frameShape" ).toInt();
 
-            const int lineWidth = canvas->property( "lineWidth" ).toInt();
+            const int frameWidth = canvas->property( "frameWidth" ).toInt();
 
 
             const QVariant borderRadius = canvas->property( "borderRadius" );
@@ -854,7 +854,7 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
                 const double r = borderRadius.toDouble();
 
                 QwtPainter::drawRoundedFrame( painter, canvasRect,
-                    r, r, canvas->palette(), lineWidth, frameStyle );
+                    r, r, canvas->palette(), frameWidth, frameStyle );
             }
             else
             {
@@ -862,19 +862,10 @@ void QwtPlotRenderer::renderCanvas( const QwtPlot *plot,
 
                 QwtPainter::drawFrame( painter, canvasRect,
                     canvas->palette(), canvas->foregroundRole(),
-                    lineWidth, midLineWidth, frameStyle );
+                    frameWidth, midLineWidth, frameStyle );
             }
             painter->restore();
         }
-#if 0
-        painter->setBrush( Qt::NoBrush );
-        painter->setPen( Qt::yellow );
-        painter->drawRect( canvasRect.adjusted( 0.0, 0.0, -1.0, -1.0 ) );
-
-        painter->setPen( Qt::green );
-        const int off = frameWidth - 1.0;
-        painter->drawRect( canvasRect.adjusted( off, off, -off - 1.0, -off - 1.0 ) );
-#endif
     }
 }
 

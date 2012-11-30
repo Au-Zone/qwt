@@ -739,9 +739,9 @@ void QwtPainter::drawRoundFrame( QPainter *painter,
 */
 void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
     const QPalette &palette, QPalette::ColorRole foregroundRole,
-    int lineWidth, int midLineWidth, int frameStyle )
+    int frameWidth, int midLineWidth, int frameStyle )
 {
-    if ( lineWidth <= 0 || rect.isEmpty() )
+    if ( frameWidth <= 0 || rect.isEmpty() )
         return;
 
     const int shadow = frameStyle & QFrame::Shadow_Mask;
@@ -752,7 +752,7 @@ void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
     {
         const QRectF outerRect = rect.adjusted( 0.0, 0.0, -1.0, -1.0 );
         const QRectF innerRect = outerRect.adjusted( 
-            lineWidth, lineWidth, -lineWidth, -lineWidth );
+            frameWidth, frameWidth, -frameWidth, -frameWidth );
 
         QPainterPath path;
         path.addRect( outerRect );
@@ -767,24 +767,16 @@ void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
     {
         const int shape = frameStyle & QFrame::Shape_Mask;
 
-        if ( shape == QFrame::WinPanel )
-        {
-#if 0
-            painter->setRenderHint( QPainter::NonCosmeticDefaultPen, true );
-            qDrawWinPanel ( painter, rect.toRect(), palette,
-                frameStyle & QFrame::Sunken );
-#endif
-        }
         if ( shape == QFrame::Box )
         {
             const QRectF outerRect = rect.adjusted( 0.0, 0.0, -1.0, -1.0 );
             const QRectF midRect1 = outerRect.adjusted( 
-                lineWidth, lineWidth, -lineWidth, -lineWidth );
+                frameWidth, frameWidth, -frameWidth, -frameWidth );
             const QRectF midRect2 = midRect1.adjusted( 
                 midLineWidth, midLineWidth, -midLineWidth, -midLineWidth );
 
             const QRectF innerRect = midRect2.adjusted( 
-                lineWidth, lineWidth, -lineWidth, -lineWidth );
+                frameWidth, frameWidth, -frameWidth, -frameWidth );
 
             QPainterPath path1;
             path1.moveTo( outerRect.bottomLeft() );
@@ -841,12 +833,27 @@ void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
             painter->setBrush( palette.mid() );
             painter->drawPath( path5 );
         }
+#if 0
+        // qDrawWinPanel doesn't result in something nice
+        // on a scalable document like Pdf. Better draw a
+        // Panel.
+
+        else if ( shape == QFrame::WinPanel )
+        {
+            painter->setRenderHint( QPainter::NonCosmeticDefaultPen, true );
+            qDrawWinPanel ( painter, rect.toRect(), palette,
+                frameStyle & QFrame::Sunken );
+        }
+        else if ( shape == QFrame::StyledPanel )
+        {
+        }
+#endif
         else
         {
             const QRectF outerRect = rect.adjusted( 0.0, 0.0, -1.0, -1.0 );
             const QRectF innerRect = outerRect.adjusted( 
-                lineWidth - 1.0, lineWidth - 1.0, 
-                -( lineWidth - 1.0 ), -( lineWidth - 1.0 ) );
+                frameWidth - 1.0, frameWidth - 1.0, 
+                -( frameWidth - 1.0 ), -( frameWidth - 1.0 ) );
 
             QPainterPath path1;
             path1.moveTo( outerRect.bottomLeft() );
