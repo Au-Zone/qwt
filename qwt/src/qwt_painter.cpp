@@ -963,9 +963,11 @@ void QwtPainter::drawRoundedFrame( QPainter *painter,
             QRectF r = pathList[2 * i].controlPointRect();
 
             QPen arcPen;
+            arcPen.setCapStyle( Qt::FlatCap );
             arcPen.setWidth( lineWidth );
 
             QPen linePen;
+            linePen.setCapStyle( Qt::FlatCap );
             linePen.setWidth( lineWidth );
 
             switch( i )
