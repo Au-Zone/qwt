@@ -9,6 +9,7 @@
 
 #include "qwt_analog_clock.h"
 #include <qmath.h>
+#include <qlocale.h>
 
 /*!
   Constructor
@@ -154,7 +155,7 @@ QwtText QwtAnalogClock::scaleLabel( double value ) const
     if ( qFuzzyCompare( value + 1.0, 1.0 ) )
         value = 60.0 * 60.0 * 12.0;
 
-    return QString::number( qRound( value / ( 60.0 * 60.0 ) ) );
+    return QLocale().toString( qRound( value / ( 60.0 * 60.0 ) ) );
 }
 
 /*!

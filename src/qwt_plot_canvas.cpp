@@ -842,7 +842,7 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
                 {
                     QPainterPath clipPath;
                     clipPath.addRect( rect() );
-                    clipPath -= borderPath( rect() );
+                    clipPath = clipPath.subtracted( borderPath( rect() ) );
 
                     painter.save();
 
