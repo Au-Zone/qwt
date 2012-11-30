@@ -6,6 +6,7 @@
 #include <qwt_plot_curve.h>
 #include <qwt_legend.h>
 #include <qwt_text.h>
+#include <qwt_plot_canvas.h>
 #include <qmath.h>
 #include "complexnumber.h"
 #include "plot.h"
@@ -40,7 +41,11 @@ Plot::Plot( QWidget *parent ):
 
     setTitle( "Frequency Response of a Second-Order System" );
 
-    setCanvasBackground( QColor( Qt::darkBlue ) );
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setBorderRadius( 10 );
+
+    setCanvas( canvas );
+    setCanvasBackground( QColor( "MidnightBlue" ) );
 
     // legend
     QwtLegend *legend = new QwtLegend;
