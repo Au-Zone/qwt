@@ -789,7 +789,7 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
                 {
                     QPainterPath clipPath;
                     clipPath.addRect( rect() );
-                    clipPath -= borderPath( rect() );
+                    clipPath = clipPath.subtracted( borderPath( rect() ) );
 
                     painter.save();
 
@@ -934,7 +934,7 @@ void QwtPlotCanvas::drawBorder( QPainter *painter )
     }
     else
     {
-#if 1
+#if QT_VERSION >= 0x040500
         QStyleOptionFrameV3 opt;
         opt.init(this);
 
