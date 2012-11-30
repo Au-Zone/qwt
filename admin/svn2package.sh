@@ -29,7 +29,7 @@ function checkoutQwt() {
         fi
     fi
 
-    svn -q co https://qwt.svn.sourceforge.net/svnroot/qwt/$1/$2
+    svn -q co https://svn.code.sf.net/p/qwt/code/$1/$2
     if [ $? -ne 0 ]
     then
         echo "Can't access sourceforge SVN"
@@ -84,12 +84,12 @@ function cleanQwt {
         sed -i -e '/#warning/d' $SRCFILE 
     done 
 
-	if [ "$SUFFIX" != "" ]
-	then
-    	sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-$SUFFIX/" qwtconfig.pri 
-	else
-    	sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION/" qwtconfig.pri
-	fi
+    if [ "$SUFFIX" != "" ]
+    then
+        sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-$SUFFIX/" qwtconfig.pri 
+    else
+        sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION/" qwtconfig.pri
+    fi
 
     cd - > /dev/null
 }
@@ -108,13 +108,13 @@ function createDocs {
         exit $?
     fi
 
-	if [ "$SUFFIX" != "" ]
-	then
-		sed -i -e "s/svn/$VERSION-$SUFFIX/" Doxyfile
-	else
-		sed -i -e "s/svn/$VERSION/" Doxyfile
-	fi
-	cp Doxyfile Doxyfile.doc
+    if [ "$SUFFIX" != "" ]
+    then
+        sed -i -e "s/svn/$VERSION-$SUFFIX/" Doxyfile
+    else
+        sed -i -e "s/svn/$VERSION/" Doxyfile
+    fi
+    cp Doxyfile Doxyfile.doc
 
     if [ $GENERATE_MAN -ne 0 ]
     then
@@ -281,19 +281,19 @@ echo done
 
 if [ $GENERATE_DOC -ne 0 ]
 then
-	echo -n "generate documentation ... "
-	createDocs $TMPDIR/doc
+    echo -n "generate documentation ... "
+    createDocs $TMPDIR/doc
 
-	if [ $GENERATE_PDF -ne 0 ]
-	then
-    	mv $TMPDIR/doc/pdf/qwtdoc-$VERSION.pdf $QWTDIR.pdf
-    	rmdir $TMPDIR/doc/pdf
-	fi
+    if [ $GENERATE_PDF -ne 0 ]
+    then
+        mv $TMPDIR/doc/pdf/qwtdoc-$VERSION.pdf $QWTDIR.pdf
+        rmdir $TMPDIR/doc/pdf
+    fi
 
-	if [ $GENERATE_QCH -ne 0 ]
-	then
-    	mv $TMPDIR/doc/html/qwtdoc.qch $QWTDIR.qch
-	fi
+    if [ $GENERATE_QCH -ne 0 ]
+    then
+        mv $TMPDIR/doc/html/qwtdoc.qch $QWTDIR.qch
+    fi
 fi
 
 echo done
