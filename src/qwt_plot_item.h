@@ -118,6 +118,10 @@ public:
 
         //! For QwtPlotTextLabel
         Rtti_PlotTextLabel,
+
+        //! For QwtPlotZoneItem
+        Rtti_PlotZone,
+
         /*! 
            Values >= Rtti_PlotUserItem are reserved for plot items
            not implemented in the Qwt library.
