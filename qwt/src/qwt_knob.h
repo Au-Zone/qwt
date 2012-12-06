@@ -43,8 +43,7 @@ class QWT_EXPORT QwtKnob: public QwtAbstractSlider
 {
     Q_OBJECT
 
-    Q_ENUMS ( KnobStyle )
-    Q_ENUMS ( MarkerStyle )
+    Q_ENUMS ( KnobStyle MarkerStyle )
 
     Q_PROPERTY( KnobStyle knobStyle READ knobStyle WRITE setKnobStyle )
     Q_PROPERTY( int knobWidth READ knobWidth WRITE setKnobWidth )

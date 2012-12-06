@@ -29,8 +29,7 @@ class QWT_EXPORT QwtSlider: public QwtAbstractSlider
 {
     Q_OBJECT
 
-    Q_ENUMS( ScalePosition )
-    Q_ENUMS( BackgroundStyle )
+    Q_ENUMS( ScalePosition BackgroundStyle )
 
     Q_PROPERTY( Qt::Orientation orientation
                 READ orientation WRITE setOrientation )
