@@ -130,6 +130,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_tradingcurve.h \
         qwt_plot_layout.h \
         qwt_plot_marker.h \
+        qwt_plot_zoneitem.h \
         qwt_plot_textlabel.h \
         qwt_plot_rasteritem.h \
         qwt_plot_spectrogram.h \
@@ -174,6 +175,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_barchart.cpp \
         qwt_plot_multi_barchart.cpp \
         qwt_plot_intervalcurve.cpp \
+        qwt_plot_zoneitem.cpp \
         qwt_plot_tradingcurve.cpp \
         qwt_plot_spectrogram.cpp \
         qwt_plot_spectrocurve.cpp \

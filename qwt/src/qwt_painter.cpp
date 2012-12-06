@@ -733,7 +733,7 @@ void QwtPainter::drawRoundFrame( QPainter *painter,
   \param rect Frame rectangle
   \param palette Palette
   \param foregroundRole Foreground role used for QFrame::Plain
-  \param lineWidth Line width
+  \param frameWidth Frame width
   \param midLineWidth Used for QFrame::Box
   \param frameStyle bitwise OR´ed value of QFrame::Shape and QFrame::Shadow
 */
@@ -1211,6 +1211,10 @@ void QwtPainter::drawBackgound( QPainter *painter,
     }
 }
 
+/*!
+  \return A pixmap that can be used as backingstore
+  \param size Size of the pixmap
+ */
 QPixmap QwtPainter::backingStore( const QSize &size )
 {
     QPixmap pm;
@@ -1228,8 +1232,8 @@ QPixmap QwtPainter::backingStore( const QSize &size )
 
 #if 0
 #ifdef Q_WS_X11
-            if ( bs.x11Info().screen() != x11Info().screen() )
-                bs.x11SetScreen( x11Info().screen() );
+    if ( bs.x11Info().screen() != x11Info().screen() )
+         bs.x11SetScreen( x11Info().screen() );
 #endif
 #endif
 
