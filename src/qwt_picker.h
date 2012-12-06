@@ -96,9 +96,7 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
 {
     Q_OBJECT
 
-    Q_ENUMS( RubberBand )
-    Q_ENUMS( DisplayMode )
-    Q_ENUMS( ResizeMode )
+    Q_ENUMS( RubberBand DisplayMode ResizeMode )
 
     Q_PROPERTY( bool isEnabled READ isEnabled WRITE setEnabled )
     Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )

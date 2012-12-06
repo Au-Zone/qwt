@@ -50,9 +50,7 @@ class QWT_EXPORT QwtDial: public QwtAbstractSlider
 {
     Q_OBJECT
 
-    Q_ENUMS( Shadow )
-    Q_ENUMS( Mode )
-    Q_ENUMS( Direction )
+    Q_ENUMS( Shadow Mode Direction )
 
     Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
     Q_PROPERTY( Shadow frameShadow READ frameShadow WRITE setFrameShadow )
