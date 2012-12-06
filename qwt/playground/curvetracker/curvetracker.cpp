@@ -55,9 +55,9 @@ QwtText CurveTracker::trackerTextF( const QPointF &pos ) const
 
     trackerText.setColor( Qt::black );
 
-    QColor c( "DimGray" );
+    QColor c( "#333333" );
     trackerText.setBackgroundPen( QPen( c, 2 ) );
-    c.setAlpha( 150 );
+    c.setAlpha( 200 );
     trackerText.setBackgroundBrush( c );
 
     QString info;

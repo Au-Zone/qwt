@@ -5,13 +5,22 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_textlabel.h>
+#include <qwt_plot_zoneitem.h>
 #include <qwt_plot_curve.h>
+#include <qwt_plot_layout.h>
+#include <qwt_scale_widget.h>
 #include <qwt_symbol.h>
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent)
 {
     setPalette( Qt::black );
+
+    // we want to have the axis scales like a frame around the
+    // canvas
+    plotLayout()->setAlignCanvasToScales( true );
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+        axisWidget( axis )->setMargin( 0 );
 
     QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setAutoFillBackground( false );
@@ -33,12 +42,26 @@ Plot::Plot( QWidget *parent ):
     titleItem->setText( title );
     titleItem->attach( this );
 
+#if 1
+    // section
+
+    //QColor c( "PaleVioletRed" );
+
+    QwtPlotZoneItem* zone = new QwtPlotZoneItem();
+    zone->setPen( QPen( Qt::darkGray ) );
+    zone->setBrush( QColor( "#834358" ) );
+    zone->setOrientation( Qt::Horizontal );
+    zone->setInterval( 3.8, 5.7 );
+    zone->attach( this );
+
+#else
     // grid
 
     QwtPlotGrid *grid = new QwtPlotGrid();
     grid->setMajPen( QPen( Qt::white, 0, Qt::DotLine ) );
     grid->setMinPen( QPen( Qt::gray, 0 , Qt::DotLine ) );
     grid->attach( this );
+#endif
 
     // curves
 
