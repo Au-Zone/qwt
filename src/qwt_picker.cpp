@@ -92,6 +92,19 @@ protected:
 class QwtPicker::PrivateData
 {
 public:
+    PrivateData():
+        enabled( false ),
+        stateMachine( NULL ),
+        resizeMode( QwtPicker::Stretch ),
+        rubberBand( QwtPicker::NoRubberBand ),
+        trackerMode( QwtPicker::AlwaysOff ),
+        isActive( false ),
+        trackerPosition( -1, -1 ),
+        mouseTracking( false ),
+        openGL( false )
+    {
+    }
+        
     bool enabled;
 
     QwtPickerMachine *stateMachine;
@@ -113,6 +126,8 @@ public:
 
     QPointer< QwtPickerRubberband > rubberBandOverlay;
     QPointer< QwtPickerTracker> trackerOverlay;
+
+    bool openGL;
 };
 
 QwtPickerRubberband::QwtPickerRubberband(
@@ -201,24 +216,19 @@ void QwtPicker::init( QWidget *parent,
     d_data = new PrivateData;
 
     d_data->rubberBand = rubberBand;
-    d_data->enabled = false;
-    d_data->resizeMode = Stretch;
-    d_data->trackerMode = AlwaysOff;
-    d_data->isActive = false;
-    d_data->trackerPosition = QPoint( -1, -1 );
-    d_data->mouseTracking = false;
-
-    d_data->stateMachine = NULL;
 
     if ( parent )
     {
         if ( parent->focusPolicy() == Qt::NoFocus )
             parent->setFocusPolicy( Qt::WheelFocus );
 
+        d_data->openGL = parent->inherits( "QGLWidget" );
         d_data->trackerFont = parent->font();
         d_data->mouseTracking = parent->hasMouseTracking();
+
         setEnabled( true );
     }
+
     setTrackerMode( trackerMode );
 }
 
@@ -1462,6 +1472,7 @@ void QwtPicker::updateDisplay()
 
     bool showRubberband = false;
     bool showTracker = false;
+
     if ( w && w->isVisible() && d_data->enabled )
     {
         if ( rubberBand() != NoRubberBand && isActive() &&
@@ -1473,8 +1484,11 @@ void QwtPicker::updateDisplay()
         if ( trackerMode() == AlwaysOn ||
             ( trackerMode() == ActiveOnly && isActive() ) )
         {
-            if ( trackerPen() != Qt::NoPen )
+            if ( trackerPen() != Qt::NoPen 
+                && !trackerRect( QFont() ).isEmpty() )
+            {
                 showTracker = true;
+            }
         }
     }
 
@@ -1496,7 +1510,22 @@ void QwtPicker::updateDisplay()
         rw->updateOverlay();
     }
     else
-        delete rw;
+    {
+        if ( d_data->openGL )
+        {
+            // Qt 4.8 crashes for a delete
+            if ( !rw.isNull() )
+            {
+                rw->hide();
+                rw->deleteLater();
+                rw = NULL;
+            }
+        }
+        else
+        {
+            delete rw;
+        }
+    }
 
     QPointer< QwtPickerTracker > &tw = d_data->trackerOverlay;
     if ( showTracker )
@@ -1511,7 +1540,22 @@ void QwtPicker::updateDisplay()
         tw->updateOverlay();
     }
     else
-        delete tw;
+    {
+        if ( d_data->openGL )
+        {
+            // Qt 4.8 crashes for a delete
+            if ( !tw.isNull() )
+            {
+                tw->hide();
+                tw->deleteLater();
+                tw = NULL;
+            }
+        }
+        else
+        {
+            delete tw;
+        }
+    }
 }
 
 //! \return Overlay displaying the rubberband
