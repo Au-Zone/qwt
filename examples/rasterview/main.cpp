@@ -4,7 +4,6 @@
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qlabel.h>
-#include <qwindowsstyle.h>
 #include "plot.h"
 
 class MainWindow: public QMainWindow
@@ -22,7 +21,6 @@ MainWindow::MainWindow( QWidget *parent ):
     QToolBar *toolBar = new QToolBar( this );
 
     QComboBox *rasterBox = new QComboBox( toolBar );
-    rasterBox->setStyle( new QWindowsStyle() );
     rasterBox->addItem( "Wikipedia" );
 
     toolBar->addWidget( new QLabel( "Data ", toolBar ) );
@@ -30,7 +28,6 @@ MainWindow::MainWindow( QWidget *parent ):
     toolBar->addSeparator();
 
     QComboBox *modeBox = new QComboBox( toolBar );
-    modeBox->setStyle( new QWindowsStyle() );
     modeBox->addItem( "Nearest Neighbour" );
     modeBox->addItem( "Bilinear Interpolation" );
 
