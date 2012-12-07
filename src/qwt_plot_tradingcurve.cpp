@@ -303,7 +303,7 @@ QBrush QwtPlotTradingCurve::symbolBrush( Direction direction ) const
   \brief Set the width of the symbol
 
   The width of the symbol is given in scale coordinates. When painting
-  a the symbols the width is scaled into paint device coordinates
+  a symbol the width is scaled into paint device coordinates
   by scaledSymbolWidth().
 
   \param width Symbol width in scale coordinates
