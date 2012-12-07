@@ -37,6 +37,15 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += concurrent
 }   
 
+contains(QWT_CONFIG, QwtOpenGL ) {
+
+    QT += opengl
+}
+else {
+
+    DEFINES += QWT_NO_OPENGL
+}
+
 contains(QWT_CONFIG, QwtSvg) {
 
     QT += svg
