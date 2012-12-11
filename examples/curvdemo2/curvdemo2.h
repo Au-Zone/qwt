@@ -1,22 +1,24 @@
 #include <qframe.h>
-#include <qwt_plot_curve.h>
-#include <qwt_scale_map.h>
 
-class MainWin : public QFrame
+class QPainter;
+class Curve;
+
+class MainWindow: public QFrame
 {
 public:
-    MainWin();
+    MainWindow( QWidget * = NULL);
+    virtual ~MainWindow();
 
 protected:
     virtual void timerEvent( QTimerEvent * );
     virtual void paintEvent( QPaintEvent * );
 
 private:
-    void newValues();
+    void updateCurves();
+    void drawCurves( QPainter *, const QRect & );
 
-    enum { curveCount = 4 };
+    enum { CurveCount = 4 };
+    Curve *d_curves[CurveCount];
 
-    QwtScaleMap xMap[curveCount];
-    QwtScaleMap yMap[curveCount];
-    QwtPlotCurve curve[curveCount];
+    double d_phase;
 };

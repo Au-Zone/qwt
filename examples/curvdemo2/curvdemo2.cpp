@@ -3,205 +3,258 @@
 #include <qwt_math.h>
 #include <qwt_symbol.h>
 #include <qwt_curve_fitter.h>
+#include <qwt_plot_curve.h>
+#include <qwt_scale_map.h>
+#include <qevent.h>
 #include "curvdemo2.h"
 
+class Curve: public QwtPlotCurve
+{
+public:
+    virtual void updateSamples( double phase )
+    {
+        setSamples( points( phase ) );
+    }
 
-//------------------------------------------------------------
-//      curvdemo2
-//
-//  This example shows a simple animation featuring
-//  with several QwtPlotCurves
-//
-//------------------------------------------------------------
+private:
+    virtual QPolygonF points( double phase ) const = 0;
+};
 
-//
-//   Array Sizes
-//
-static const int Size = 15;
-static const int USize = 13;
+class Curve1: public Curve
+{
+public:
+    Curve1()
+    {
+        setPen( QPen( QColor( 150, 150, 200 ), 2 ) );
+        setStyle( QwtPlotCurve::Lines );
 
-//
-//   Arrays holding the values
-//
-static double xval[Size];
-static double yval[Size];
-static double zval[Size];
-static double uval[USize];
-static double vval[USize];
+        QwtSplineCurveFitter *curveFitter = new QwtSplineCurveFitter();
+        curveFitter->setSplineSize( 150 );
+        setCurveFitter( curveFitter );
 
+        setCurveAttribute( QwtPlotCurve::Fitted, true );
 
-//
-//  CONSTRUCT MAIN WINDOW
-//
-MainWin::MainWin():
-    QFrame()
+        QwtSymbol *symbol = new QwtSymbol( QwtSymbol::XCross );
+        symbol->setPen( QPen( Qt::yellow, 2 ) );
+        symbol->setSize( 7 );
+
+        setSymbol( symbol );
+    }
+
+    virtual QPolygonF points( double phase ) const
+    {
+        QPolygonF points;
+
+        const int numSamples = 15;
+        for ( int i = 0; i < numSamples; i++ )
+        {
+            const double v = 6.28 * double( i ) / double( numSamples - 1 );
+            points += QPointF( qSin( v - phase ), v );
+        }
+
+        return points;
+    }
+};
+
+class Curve2: public Curve
+{
+public:
+    Curve2()
+    {
+        setStyle( QwtPlotCurve::Sticks );
+        setPen( QPen( QColor( 200, 150, 50 ) ) );
+
+        setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+            QColor( Qt::blue ), QColor( Qt::yellow ), QSize( 5, 5 ) ) );
+    }
+
+private:
+    virtual QPolygonF points( double phase ) const
+    {
+        QPolygonF points;
+
+        const int numSamples = 15;
+        for ( int i = 0; i < numSamples; i++ )
+        {
+            const double v = 6.28 * double( i ) / double( numSamples - 1 );
+            points += QPointF( v, qCos( 3.0 * ( v + phase ) ) );
+        }
+
+        return points;
+    }
+};
+
+class Curve3: public Curve
+{       
+public: 
+    Curve3()
+    {
+        setStyle( QwtPlotCurve::Lines );
+        setPen( QColor( 100, 200, 150 ) );
+
+        QwtSplineCurveFitter* curveFitter = new QwtSplineCurveFitter();
+        curveFitter->setFitMode( QwtSplineCurveFitter::ParametricSpline );
+        curveFitter->setSplineSize( 200 );
+        setCurveFitter( curveFitter );
+
+        setCurveAttribute( QwtPlotCurve::Fitted, true );
+    }   
+
+private:
+    virtual QPolygonF points( double phase ) const
+    {
+        QPolygonF points;
+
+        const int numSamples = 15;
+        for ( int i = 0; i < numSamples; i++ )
+        {
+            const double v = 6.28 * double( i ) / double( numSamples - 1 );
+            points += QPointF( qSin( v - phase ), qCos( 3.0 * ( v + phase ) ) );
+        }
+
+        return points;
+    }
+};  
+
+class Curve4: public Curve
+{       
+public: 
+    Curve4()
+    {
+        setStyle( QwtPlotCurve::Lines );
+        setPen( QColor( Qt::red ) );
+
+        QwtSplineCurveFitter *curveFitter = new QwtSplineCurveFitter();
+        curveFitter->setSplineSize( 200 );
+        setCurveFitter( curveFitter );
+
+        setCurveAttribute( QwtPlotCurve::Fitted, true );
+
+        initSamples();
+    }   
+
+private:
+    virtual QPolygonF points( double phase ) const
+    {
+        const double s = 0.25 * qSin( phase );
+        const double c = qSqrt( 1.0 - s * s );
+
+        QPolygonF points;
+        for ( size_t i = 0; i < dataSize(); i++ )
+        {
+            const QPointF p = sample( i );
+
+            const double u = p.x();
+            const double v = p.y();
+
+            points += QPointF( u * c - v * s, 
+                v * c + u * s );
+        }
+
+        return points;
+    }
+
+    void initSamples()
+    {
+        const int numSamples = 13;
+
+        QPolygonF points;
+        for ( int i = 0; i < numSamples; i++ )
+        {
+            const double angle = i * ( 2.0 * M_PI / ( numSamples - 1 ) );
+
+            const double f = ( i % 2 ) ? 0.5 : 1.0;
+            points += f * QPointF( qCos( angle ), qSin( angle ) );
+        }
+
+        setSamples( points );
+    }
+};  
+
+MainWindow::MainWindow( QWidget *parent ):
+    QFrame( parent),
+    d_phase( 0.0 )
 {
     setFrameStyle( QFrame::Box | QFrame::Raised );
     setLineWidth( 2 );
     setMidLineWidth( 3 );
 
-    const QColor bgColor( 30, 30, 50 );
-
     QPalette p = palette();
-    p.setColor( backgroundRole(), bgColor );
+    p.setColor( backgroundRole(), QColor( 30, 30, 50 ) );
     setPalette( p );
 
-    QwtSplineCurveFitter* curveFitter;
+    d_curves[0] = new Curve1();
+    d_curves[1] = new Curve2();
+    d_curves[2] = new Curve3();
+    d_curves[3] = new Curve4();
 
-    //
-    //  curve 1
-    //
-    int i = 0;
-    xMap[i].setScaleInterval( -1.5, 1.5 );
-    yMap[i].setScaleInterval( 0.0, 6.28 );
+    updateCurves();
 
-    curve[i].setPen( QPen( QColor( 150, 150, 200 ), 2 ) );
-    curve[i].setStyle( QwtPlotCurve::Lines );
-    curve[i].setCurveAttribute( QwtPlotCurve::Fitted, true );
-    curveFitter = new QwtSplineCurveFitter();
-    curveFitter->setSplineSize( 150 );
-    curve[i].setCurveFitter( curveFitter );
-
-    QwtSymbol *symbol = new QwtSymbol( QwtSymbol::XCross );
-    symbol->setPen( QPen( Qt::yellow, 2 ) );
-    symbol->setSize( 7 );
-
-    curve[i].setSymbol( symbol );
-
-    curve[i].setRawSamples( yval, xval, Size );
-
-    //
-    // curve 2
-    //
-    i++;
-    xMap[i].setScaleInterval( 0.0, 6.28 );
-    yMap[i].setScaleInterval( -3.0, 1.1 );
-    curve[i].setPen( QPen( QColor( 200, 150, 50 ) ) );
-    curve[i].setStyle( QwtPlotCurve::Sticks );
-    curve[i].setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-        QColor( Qt::blue ), QColor( Qt::yellow ), QSize( 5, 5 ) ) );
-
-    curve[i].setRawSamples( xval, zval, Size );
-
-
-    //
-    //  curve 3
-    //
-    i++;
-    xMap[i].setScaleInterval( -1.1, 3.0 );
-    yMap[i].setScaleInterval( -1.1, 3.0 );
-    curve[i].setStyle( QwtPlotCurve::Lines );
-    curve[i].setCurveAttribute( QwtPlotCurve::Fitted, true );
-    curve[i].setPen( QColor( 100, 200, 150 ) );
-    curveFitter = new QwtSplineCurveFitter();
-    curveFitter->setFitMode( QwtSplineCurveFitter::ParametricSpline );
-    curveFitter->setSplineSize( 200 );
-    curve[i].setCurveFitter( curveFitter );
-
-    curve[i].setRawSamples( yval, zval, Size );
-
-
-    //
-    //  curve 4
-    //
-    i++;
-    xMap[i].setScaleInterval( -5, 1.1 );
-    yMap[i].setScaleInterval( -1.1, 5.0 );
-    curve[i].setStyle( QwtPlotCurve::Lines );
-    curve[i].setCurveAttribute( QwtPlotCurve::Fitted, true );
-    curve[i].setPen( QColor( Qt::red ) );
-    curveFitter = new QwtSplineCurveFitter();
-    curveFitter->setSplineSize( 200 );
-    curve[i].setCurveFitter( curveFitter );
-
-    curve[i].setRawSamples( uval, vval, USize );
-
-    //
-    //  initialize values
-    //
-    double base = 2.0 * M_PI / double( USize - 1 );
-    double toggle = 1.0;
-    for ( i = 0; i < USize; i++ )
-    {
-        uval[i] =  toggle * qCos( double( i ) * base );
-        vval[i] =  toggle * qSin( double( i ) * base );
-
-        if ( toggle == 1.0 )
-            toggle = 0.5;
-        else
-            toggle = 1.0;
-    }
-
-    newValues();
-
-    //
-    // start timer
-    //
     ( void )startTimer( 250 );
 }
 
-void MainWin::paintEvent( QPaintEvent *event )
+MainWindow::~MainWindow()
 {
-    QFrame::paintEvent( event );
-
-    const QRect cr = contentsRect();
-
-    QPainter painter( this );
-    painter.setClipRect( cr );
-
-    for ( int i = 0; i < curveCount; i++ )
-    {
-        xMap[i].setPaintInterval( cr.left(), cr.right() );
-        yMap[i].setPaintInterval( cr.top(), cr.bottom() );
-        curve[i].draw( &painter, xMap[i], yMap[i], cr );
-    }
+    for ( int i = 0; i < CurveCount; i++ )
+        delete d_curves[ i ];
 }
 
-//
-//  TIMER EVENT
-//
-void MainWin::timerEvent( QTimerEvent * )
+void MainWindow::paintEvent( QPaintEvent *event )
 {
-    newValues();
+    QPainter painter( this );
+    painter.setRenderHint( QPainter::Antialiasing, true );
+    painter.setClipRegion( event->region() );
+
+    drawCurves( &painter, contentsRect() );
+    drawFrame( &painter );
+}
+
+void MainWindow::drawCurves( QPainter *painter, const QRect &canvasRect )
+{
+    QwtScaleMap xMap;
+    xMap.setPaintInterval( canvasRect.left(), canvasRect.right() );
+
+    QwtScaleMap yMap;
+    yMap.setPaintInterval( canvasRect.top(), canvasRect.bottom() );
+
+    xMap.setScaleInterval( -1.5, 1.5 );
+    yMap.setScaleInterval( 0.0, 6.28 );
+    d_curves[0]->draw( painter, xMap, yMap, canvasRect );
+
+    xMap.setScaleInterval( 0.0, 6.28 );
+    yMap.setScaleInterval( -3.0, 1.1 );
+    d_curves[1]->draw( painter, xMap, yMap, canvasRect );
+
+    xMap.setScaleInterval( -1.1, 3.0 );
+    yMap.setScaleInterval( -1.1, 3.0 );
+    d_curves[2]->draw( painter, xMap, yMap, canvasRect );
+
+    xMap.setScaleInterval( -5, 1.1 );
+    yMap.setScaleInterval( -1.1, 5.0 );
+    d_curves[3]->draw( painter, xMap, yMap, canvasRect );
+}
+
+void MainWindow::timerEvent( QTimerEvent * )
+{
+    updateCurves();
     repaint();
 }
 
-//
-//  RE-CALCULATE VALUES
-//
-void MainWin::newValues()
+void MainWindow::updateCurves()
 {
-    int i;
-    static double phs = 0.0;
-    double s, c, u;
+    for ( int i = 0; i < CurveCount; i++ )
+        d_curves[i]->updateSamples( d_phase );
 
-    for ( i = 0; i < Size; i++ )
-    {
-        xval[i] = 6.28 * double( i ) / double( Size - 1 );
-        yval[i] = qSin( xval[i] - phs );
-        zval[i] = qCos( 3.0 * ( xval[i] + phs ) );
-    }
-
-    s = 0.25 * qSin( phs );
-    c = qSqrt( 1.0 - s * s );
-    for ( i = 0; i < USize; i++ )
-    {
-        u = uval[i];
-        uval[i] = uval[i] * c - vval[i] * s;
-        vval[i] = vval[i] * c + u * s;
-    }
-
-    phs += 0.0628;
-    if ( phs > 6.28 )
-        phs = 0.0;
-
+    d_phase += 0.0628;
+    if ( d_phase > 6.28 )
+        d_phase = 0.0;
 }
 
 int main ( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    MainWin w;
+    MainWindow w;
 
     w.resize( 300, 300 );
     w.show();
