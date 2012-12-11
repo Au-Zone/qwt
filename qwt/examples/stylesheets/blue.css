@@ -33,7 +33,6 @@ QwtPlotCanvas
 QwtPlotGLCanvas
 {
     border: 1px solid white;
-    border-radius: 10px;
     background-color: #616d7e;
 }
 
