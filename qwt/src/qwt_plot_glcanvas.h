@@ -23,6 +23,10 @@ class QwtPlot;
   inside of a QwtPlot widget. It might be extended to a full
   featured alternative to QwtPlotCanvas in a future version of Qwt.
 
+  Even if QwtPlotGLCanvas is not derived from QFrame it imitates
+  its API. When using style sheets it supports the box model - beside
+  backgrounds with rounded borders.
+
   \sa QwtPlot::setCanvas(), QwtPlotCanvas
 
   \note You might want to use the QPaintEngine::OpenGL paint engine
@@ -44,10 +48,10 @@ class QWT_EXPORT QwtPlotGLCanvas: public QGLWidget
 
     Q_PROPERTY( Shadow frameShadow READ frameShadow WRITE setFrameShadow )
     Q_PROPERTY( Shape frameShape READ frameShape WRITE setFrameShape )
-    Q_PROPERTY( double borderRadius READ borderRadius WRITE setBorderRadius )
     Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
     Q_PROPERTY( int midLineWidth READ midLineWidth WRITE setMidLineWidth )
     Q_PROPERTY( int frameWidth READ frameWidth )
+    Q_PROPERTY( QRect frameRect READ frameRect DESIGNABLE false )
 
 public:
     /*!
@@ -70,6 +74,17 @@ public:
         Sunken = QFrame::Sunken
     };
 
+    /*!
+        \brief Frame shape
+
+        Unfortunately it is not possible to use QFrame::Shape
+        as a property of a widget that is not derived from QFrame.
+        The following enum is made for the designer only. It is safe
+        to use QFrame::Shadow instead.
+
+        \note QFrame::StyledPanel and QFrame::WinPanel are unsuported 
+              and will be displayed as QFrame::Panel.
+     */
     enum Shape
     {
         NoFrame = QFrame::NoFrame,
@@ -97,18 +112,21 @@ public:
     int midLineWidth() const;
 
     int frameWidth() const;
-
-    void setBorderRadius( double );
-    double borderRadius() const;
+    QRect frameRect() const;
 
     Q_INVOKABLE QPainterPath borderPath( const QRect & ) const;
+
+    virtual bool event( QEvent * );
 
 public Q_SLOTS:
     void replot();
 
 protected:
     virtual void paintEvent( QPaintEvent * );
+
+    virtual void drawBackground( QPainter * );
     virtual void drawBorder( QPainter * );
+    virtual void drawItems( QPainter * );
 
 private:
     class PrivateData;
