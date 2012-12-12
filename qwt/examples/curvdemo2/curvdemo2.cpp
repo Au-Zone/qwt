@@ -1,23 +1,36 @@
 #include <qapplication.h>
-#include <qpainter.h>
 #include <qwt_math.h>
 #include <qwt_symbol.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_plot_curve.h>
-#include <qwt_scale_map.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_plot_layout.h>
 #include <qevent.h>
 #include "curvdemo2.h"
 
 class Curve: public QwtPlotCurve
 {
 public:
+    Curve()
+    {
+        setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    }
+
+    void setTransformation( const QTransform &transform )
+    {
+        d_transform = transform;
+    }
+
     virtual void updateSamples( double phase )
     {
-        setSamples( points( phase ) );
+        setSamples( d_transform.map( points( phase ) ) );
     }
 
 private:
     virtual QPolygonF points( double phase ) const = 0;
+
+private:
+    QTransform d_transform;
 };
 
 class Curve1: public Curve
@@ -39,6 +52,13 @@ public:
         symbol->setSize( 7 );
 
         setSymbol( symbol );
+
+        // somewhere to the left
+        QTransform transform;
+        transform.scale( 1.5, 1.0 );
+        transform.translate( 1.5, 3.0 );
+
+        setTransformation( transform );
     }
 
     virtual QPolygonF points( double phase ) const
@@ -73,10 +93,10 @@ private:
     {
         QPolygonF points;
 
-        const int numSamples = 15;
+        const int numSamples = 50;
         for ( int i = 0; i < numSamples; i++ )
         {
-            const double v = 6.28 * double( i ) / double( numSamples - 1 );
+            const double v = 10.0 * i / double( numSamples - 1 );
             points += QPointF( v, qCos( 3.0 * ( v + phase ) ) );
         }
 
@@ -90,7 +110,7 @@ public:
     Curve3()
     {
         setStyle( QwtPlotCurve::Lines );
-        setPen( QColor( 100, 200, 150 ) );
+        setPen( QPen( QColor( 100, 200, 150 ), 2 ) );
 
         QwtSplineCurveFitter* curveFitter = new QwtSplineCurveFitter();
         curveFitter->setFitMode( QwtSplineCurveFitter::ParametricSpline );
@@ -98,6 +118,13 @@ public:
         setCurveFitter( curveFitter );
 
         setCurveAttribute( QwtPlotCurve::Fitted, true );
+
+        // somewhere in the top right corner
+        QTransform transform;
+        transform.translate( 7.0, 7.5 );
+        transform.scale( 2.0, 2.0 );
+
+        setTransformation( transform );
     }   
 
 private:
@@ -105,10 +132,10 @@ private:
     {
         QPolygonF points;
 
-        const int numSamples = 15;
+        const int numSamples = 9;
         for ( int i = 0; i < numSamples; i++ )
         {
-            const double v = 6.28 * double( i ) / double( numSamples - 1 );
+            const double v = i * 2.0 * M_PI / ( numSamples - 1 );
             points += QPointF( qSin( v - phase ), qCos( 3.0 * ( v + phase ) ) );
         }
 
@@ -122,66 +149,80 @@ public:
     Curve4()
     {
         setStyle( QwtPlotCurve::Lines );
-        setPen( QColor( Qt::red ) );
-
-        QwtSplineCurveFitter *curveFitter = new QwtSplineCurveFitter();
-        curveFitter->setSplineSize( 200 );
-        setCurveFitter( curveFitter );
-
-        setCurveAttribute( QwtPlotCurve::Fitted, true );
+        setPen( QPen( Qt::red, 2 ) );
 
         initSamples();
+
+        // somewhere in the center
+        QTransform transform;
+        transform.translate( 7.0, 3.0 );
+        transform.scale( 1.5, 1.5 );
+
+        setTransformation( transform );
     }   
 
 private:
     virtual QPolygonF points( double phase ) const
     {
-        const double s = 0.25 * qSin( phase );
+        const double speed = 0.05;
+
+        const double s = speed * qSin( phase );
         const double c = qSqrt( 1.0 - s * s );
 
-        QPolygonF points;
-        for ( size_t i = 0; i < dataSize(); i++ )
+        for ( int i = 0; i < d_points.size(); i++ )
         {
-            const QPointF p = sample( i );
+            const QPointF p = d_points[i];
 
             const double u = p.x();
             const double v = p.y();
 
-            points += QPointF( u * c - v * s, 
-                v * c + u * s );
+            d_points[i].setX( u * c - v * s );
+            d_points[i].setY( v * c + u * s );
         }
 
-        return points;
+        return d_points;
     }
 
     void initSamples()
     {
-        const int numSamples = 13;
+        const int numSamples = 15;
 
-        QPolygonF points;
         for ( int i = 0; i < numSamples; i++ )
         {
             const double angle = i * ( 2.0 * M_PI / ( numSamples - 1 ) );
 
-            const double f = ( i % 2 ) ? 0.5 : 1.0;
-            points += f * QPointF( qCos( angle ), qSin( angle ) );
+            QPointF p( qCos( angle ), qSin( angle ) );
+            if ( i % 2 )
+                p *= 0.4;
+            
+            d_points += p;
         }
-
-        setSamples( points );
     }
+
+private:
+    mutable QPolygonF d_points;
 };  
 
-MainWindow::MainWindow( QWidget *parent ):
-    QFrame( parent),
-    d_phase( 0.0 )
+Plot::Plot( QWidget *parent ):
+    QwtPlot( parent)
 {
-    setFrameStyle( QFrame::Box | QFrame::Raised );
-    setLineWidth( 2 );
-    setMidLineWidth( 3 );
+    setAutoReplot( false );
 
-    QPalette p = palette();
-    p.setColor( backgroundRole(), QColor( 30, 30, 50 ) );
-    setPalette( p );
+    setTitle( "Animated Curves" );
+
+	// hide all axes
+	for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+		enableAxis( axis, false );
+
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->setFrameStyle( QFrame::Box | QFrame::Raised );
+    canvas->setLineWidth( 2 );
+    canvas->setMidLineWidth( 2 );
+
+    setCanvas( canvas );
+    setCanvasBackground( QColor( 30, 30, 50 ) );
+
+    plotLayout()->setCanvasMargin( 10 );
 
     d_curves[0] = new Curve1();
     d_curves[1] = new Curve2();
@@ -190,74 +231,36 @@ MainWindow::MainWindow( QWidget *parent ):
 
     updateCurves();
 
-    ( void )startTimer( 250 );
-}
-
-MainWindow::~MainWindow()
-{
     for ( int i = 0; i < CurveCount; i++ )
-        delete d_curves[ i ];
+        d_curves[i]->attach( this );
+
+    d_time.start();
+    ( void )startTimer( 40 );
 }
 
-void MainWindow::paintEvent( QPaintEvent *event )
-{
-    QPainter painter( this );
-    painter.setRenderHint( QPainter::Antialiasing, true );
-    painter.setClipRegion( event->region() );
-
-    drawCurves( &painter, contentsRect() );
-    drawFrame( &painter );
-}
-
-void MainWindow::drawCurves( QPainter *painter, const QRect &canvasRect )
-{
-    QwtScaleMap xMap;
-    xMap.setPaintInterval( canvasRect.left(), canvasRect.right() );
-
-    QwtScaleMap yMap;
-    yMap.setPaintInterval( canvasRect.top(), canvasRect.bottom() );
-
-    xMap.setScaleInterval( -1.5, 1.5 );
-    yMap.setScaleInterval( 0.0, 6.28 );
-    d_curves[0]->draw( painter, xMap, yMap, canvasRect );
-
-    xMap.setScaleInterval( 0.0, 6.28 );
-    yMap.setScaleInterval( -3.0, 1.1 );
-    d_curves[1]->draw( painter, xMap, yMap, canvasRect );
-
-    xMap.setScaleInterval( -1.1, 3.0 );
-    yMap.setScaleInterval( -1.1, 3.0 );
-    d_curves[2]->draw( painter, xMap, yMap, canvasRect );
-
-    xMap.setScaleInterval( -5, 1.1 );
-    yMap.setScaleInterval( -1.1, 5.0 );
-    d_curves[3]->draw( painter, xMap, yMap, canvasRect );
-}
-
-void MainWindow::timerEvent( QTimerEvent * )
+void Plot::timerEvent( QTimerEvent * )
 {
     updateCurves();
-    repaint();
+    replot();
 }
 
-void MainWindow::updateCurves()
+void Plot::updateCurves()
 {
-    for ( int i = 0; i < CurveCount; i++ )
-        d_curves[i]->updateSamples( d_phase );
+    const double speed = 2 * M_PI / 25000.0; // a cycle every 25 seconds
 
-    d_phase += 0.0628;
-    if ( d_phase > 6.28 )
-        d_phase = 0.0;
+    const double phase = d_time.elapsed() * speed;
+    for ( int i = 0; i < CurveCount; i++ )
+        d_curves[i]->updateSamples( phase );
 }
 
 int main ( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    MainWindow w;
+    Plot plot;
 
-    w.resize( 300, 300 );
-    w.show();
+    plot.resize( 300, 300 );
+    plot.show();
 
     return a.exec();
 }
