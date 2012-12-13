@@ -82,12 +82,12 @@ WheelBox::WheelBox( const QString &title,
 
 void WheelBox::setTheme( const QColor &color )
 {
-	d_wheel->setPalette( color );
+    d_wheel->setPalette( color );
 }
 
 QColor WheelBox::theme() const
 {
-	return d_wheel->palette().color( QPalette::Window );
+    return d_wheel->palette().color( QPalette::Window );
 }
 
 void WheelBox::setValue( double value )

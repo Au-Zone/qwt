@@ -17,8 +17,8 @@ public:
         double min, double max, double stepSize,
         QWidget *parent = NULL );
 
-	void setTheme( const QColor & );
-	QColor theme() const;
+    void setTheme( const QColor & );
+    QColor theme() const;
 
     void setUnit( const QString & );
     QString unit() const;

@@ -9,10 +9,11 @@
 
 include( $${PWD}/../examples.pri )
 
-TARGET  = curvdemo2
+TARGET  = animation
 
 HEADERS = \
-    curvdemo2.h
+    plot.h
 
 SOURCES = \
-    curvdemo2.cpp
+    plot.cpp \
+    main.cpp

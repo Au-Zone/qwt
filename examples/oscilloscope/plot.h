@@ -17,7 +17,7 @@ public:
     void start();
     virtual void replot();
 
-	virtual bool eventFilter( QObject *, QEvent * );
+    virtual bool eventFilter( QObject *, QEvent * );
 
 public Q_SLOTS:
     void setIntervalLength( double );
