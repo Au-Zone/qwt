@@ -11,11 +11,6 @@
 class Curve: public QwtPlotCurve
 {
 public:
-    Curve()
-    {
-        setRenderHint( QwtPlotItem::RenderAntialiased, true );
-    }
-
     void setTransformation( const QTransform &transform )
     {
         d_transform = transform;
@@ -85,7 +80,7 @@ public:
         setPen( QPen( QColor( 200, 150, 50 ) ) );
 
         setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-            QColor( Qt::blue ), QColor( Qt::yellow ), QSize( 6, 6 ) ) );
+            QColor( Qt::gray ), QColor( Qt::yellow ), QSize( 5, 5 ) ) );
     }
 
 private:
