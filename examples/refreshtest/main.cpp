@@ -2,7 +2,7 @@
 #include <qapplication.h>
 
 #ifndef QWT_NO_OPENGL
-#if QT_VERSION > 0x040600 && QT_VERSION < 0x050000
+#if QT_VERSION >= 0x040600 && QT_VERSION < 0x050000
 #define USE_OPENGL 1
 #endif
 #endif
