@@ -6,7 +6,7 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
 #include <qevent.h>
-#include "curvdemo2.h"
+#include "plot.h"
 
 class Curve: public QwtPlotCurve
 {
@@ -48,7 +48,7 @@ public:
         setCurveAttribute( QwtPlotCurve::Fitted, true );
 
         QwtSymbol *symbol = new QwtSymbol( QwtSymbol::XCross );
-        symbol->setPen( QPen( Qt::yellow, 2 ) );
+        symbol->setPen( QPen( Qt::yellow, 0 ) );
         symbol->setSize( 7 );
 
         setSymbol( symbol );
@@ -85,7 +85,7 @@ public:
         setPen( QPen( QColor( 200, 150, 50 ) ) );
 
         setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-            QColor( Qt::blue ), QColor( Qt::yellow ), QSize( 5, 5 ) ) );
+            QColor( Qt::blue ), QColor( Qt::yellow ), QSize( 6, 6 ) ) );
     }
 
 private:
@@ -210,17 +210,9 @@ Plot::Plot( QWidget *parent ):
 
     setTitle( "Animated Curves" );
 
-	// hide all axes
-	for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
-		enableAxis( axis, false );
-
-    QwtPlotCanvas *canvas = new QwtPlotCanvas();
-    canvas->setFrameStyle( QFrame::Box | QFrame::Raised );
-    canvas->setLineWidth( 2 );
-    canvas->setMidLineWidth( 2 );
-
-    setCanvas( canvas );
-    setCanvasBackground( QColor( 30, 30, 50 ) );
+    // hide all axes
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
+        enableAxis( axis, false );
 
     plotLayout()->setCanvasMargin( 10 );
 
@@ -251,16 +243,4 @@ void Plot::updateCurves()
     const double phase = d_time.elapsed() * speed;
     for ( int i = 0; i < CurveCount; i++ )
         d_curves[i]->updateSamples( phase );
-}
-
-int main ( int argc, char **argv )
-{
-    QApplication a( argc, argv );
-
-    Plot plot;
-
-    plot.resize( 300, 300 );
-    plot.show();
-
-    return a.exec();
 }

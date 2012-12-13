@@ -14,9 +14,9 @@
 class Canvas: public QwtPlotCanvas
 {
 public:
-	Canvas( QwtPlot *plot = NULL ):
-		QwtPlotCanvas( plot )
-	{
+    Canvas( QwtPlot *plot = NULL ):
+        QwtPlotCanvas( plot )
+    {
         // The backing store is important, when working with widget
         // overlays ( f.e rubberbands for zooming ).
         // Here we don't have them and the internal
@@ -26,53 +26,53 @@ public:
         setBorderRadius( 10 );
 
         if ( QwtPainter::isX11GraphicsSystem() )
-		{
+        {
 #if QT_VERSION < 0x050000
-			// Even if not liked by the Qt development, Qt::WA_PaintOutsidePaintEvent
-			// works on X11. This has a nice effect on the performance.
+            // Even if not liked by the Qt development, Qt::WA_PaintOutsidePaintEvent
+            // works on X11. This has a nice effect on the performance.
 
-			setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
+            setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
 #endif
 
-			// Disabling the backing store of Qt improves the performance
-			// for the direct painter even more, but the canvas becomes
-			// a native window of the window system, receiving paint events
-			// for resize and expose operations. Those might be expensive
-			// when there are many points and the backing store of
-			// the canvas is disabled. So in this application
-			// we better don't both backing stores.
+            // Disabling the backing store of Qt improves the performance
+            // for the direct painter even more, but the canvas becomes
+            // a native window of the window system, receiving paint events
+            // for resize and expose operations. Those might be expensive
+            // when there are many points and the backing store of
+            // the canvas is disabled. So in this application
+            // we better don't both backing stores.
 
-			if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) )
-			{
-				setAttribute( Qt::WA_PaintOnScreen, true );
-				setAttribute( Qt::WA_NoSystemBackground, true );
-			}
-		}
+            if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) )
+            {
+                setAttribute( Qt::WA_PaintOnScreen, true );
+                setAttribute( Qt::WA_NoSystemBackground, true );
+            }
+        }
 
-		setupPalette();
+        setupPalette();
     }
 
 private:
-	void setupPalette()
-	{
-    	QPalette pal = palette();
+    void setupPalette()
+    {
+        QPalette pal = palette();
 
 #if QT_VERSION >= 0x040400
-    	QLinearGradient gradient;
-    	gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
-    	gradient.setColorAt( 0.0, QColor( 0, 49, 110 ) );
-    	gradient.setColorAt( 1.0, QColor( 0, 87, 174 ) );
+        QLinearGradient gradient;
+        gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
+        gradient.setColorAt( 0.0, QColor( 0, 49, 110 ) );
+        gradient.setColorAt( 1.0, QColor( 0, 87, 174 ) );
 
-    	pal.setBrush( QPalette::Window, QBrush( gradient ) );
+        pal.setBrush( QPalette::Window, QBrush( gradient ) );
 #else
-    	pal.setBrush( QPalette::Window, QBrush( color ) );
+        pal.setBrush( QPalette::Window, QBrush( color ) );
 #endif
 
         // QPalette::WindowText is used for the curve color
-    	pal.setColor( QPalette::WindowText, Qt::green );
+        pal.setColor( QPalette::WindowText, Qt::green );
 
-    	setPalette( pal );
-	}
+        setPalette( pal );
+    }
 };
 
 Plot::Plot( QWidget *parent ):
@@ -244,11 +244,11 @@ void Plot::showEvent( QShowEvent * )
 
 bool Plot::eventFilter( QObject *object, QEvent *event )
 {
-	if ( object == canvas() && 
-		event->type() == QEvent::PaletteChange )
-	{
+    if ( object == canvas() && 
+        event->type() == QEvent::PaletteChange )
+    {
         d_curve->setPen( canvas()->palette().color( QPalette::WindowText ) );
-	}
+    }
 
     return QwtPlot::eventFilter( object, event );
 }

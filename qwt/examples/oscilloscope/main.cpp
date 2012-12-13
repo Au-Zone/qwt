@@ -5,7 +5,7 @@
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
-	app.setPalette( Qt::darkGray );
+    app.setPalette( Qt::darkGray );
 
     MainWindow window;
     window.resize( 800, 400 );

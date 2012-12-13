@@ -14,10 +14,10 @@ TEMPLATE = subdirs
 contains(QWT_CONFIG, QwtPlot) {
     
     SUBDIRS += \
+        animation \
         barchart \
         cpuplot \
         curvdemo1   \
-        curvdemo2 \
         distrowatch \
         friedberg \
         itemeditor \
