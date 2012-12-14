@@ -334,7 +334,7 @@ void QwtDial::paintEvent( QPaintEvent *event )
     const QRect r = contentsRect();
     if ( r.size() != d_data->pixmapCache.size() )
     {
-        d_data->pixmapCache = QwtPainter::backingStore( r.size() );
+        d_data->pixmapCache = QwtPainter::backingStore( this, r.size() );
         d_data->pixmapCache.fill( Qt::transparent );
 
         QPainter p( &d_data->pixmapCache );
