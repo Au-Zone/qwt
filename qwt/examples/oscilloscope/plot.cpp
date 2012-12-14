@@ -93,7 +93,7 @@ Plot::Plot( QWidget *parent ):
     setAxisScale( QwtPlot::yLeft, -200.0, 200.0 );
 
     QwtPlotGrid *grid = new QwtPlotGrid();
-    grid->setPen( QPen( Qt::gray, 0.0, Qt::DotLine ) );
+    grid->setPen( Qt::gray, 0.0, Qt::DotLine );
     grid->enableX( true );
     grid->enableXMin( true );
     grid->enableY( true );
@@ -103,7 +103,7 @@ Plot::Plot( QWidget *parent ):
     d_origin = new QwtPlotMarker();
     d_origin->setLineStyle( QwtPlotMarker::Cross );
     d_origin->setValue( d_interval.minValue() + d_interval.width() / 2.0, 0.0 );
-    d_origin->setLinePen( QPen( Qt::gray, 0.0, Qt::DashLine ) );
+    d_origin->setLinePen( Qt::gray, 0.0, Qt::DashLine );
     d_origin->attach( this );
 
     d_curve = new QwtPlotCurve();

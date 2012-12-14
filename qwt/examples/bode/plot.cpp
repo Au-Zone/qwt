@@ -88,13 +88,13 @@ Plot::Plot( QWidget *parent ):
     d_marker1->setValue( 0.0, 0.0 );
     d_marker1->setLineStyle( QwtPlotMarker::VLine );
     d_marker1->setLabelAlignment( Qt::AlignRight | Qt::AlignBottom );
-    d_marker1->setLinePen( QPen( Qt::green, 0, Qt::DashDotLine ) );
+    d_marker1->setLinePen( Qt::green, 0, Qt::DashDotLine );
     d_marker1->attach( this );
 
     d_marker2 = new QwtPlotMarker();
     d_marker2->setLineStyle( QwtPlotMarker::HLine );
     d_marker2->setLabelAlignment( Qt::AlignRight | Qt::AlignBottom );
-    d_marker2->setLinePen( QPen( QColor( 200, 150, 0 ), 0, Qt::DashDotLine ) );
+    d_marker2->setLinePen( QColor( 200, 150, 0 ), 0, Qt::DashDotLine );
     d_marker2->setSymbol( new QwtSymbol( QwtSymbol::Diamond,
         QColor( Qt::yellow ), QColor( Qt::green ), QSize( 8, 8 ) ) );
     d_marker2->attach( this );

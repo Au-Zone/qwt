@@ -81,6 +81,7 @@ public:
     void setShape( const QPainterPath & );
     QPainterPath shape() const;
 
+    void setPen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
     void setPen( const QPen & );
     QPen pen() const;
 

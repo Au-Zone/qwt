@@ -87,6 +87,7 @@ public:
     void setLineStyle( LineStyle st );
     LineStyle lineStyle() const;
 
+    void setLinePen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
     void setLinePen( const QPen &p );
     const QPen &linePen() const;
 

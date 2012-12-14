@@ -60,7 +60,7 @@ Plot::Plot( QWidget *parent ):
 
 #if 0
     QwtPlotGrid *grid = new QwtPlotGrid();
-    grid->setPen( QPen( Qt::DotLine ) );
+    grid->setPen( Qt::DotLine );
     grid->attach( this );
 #endif
 

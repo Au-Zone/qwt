@@ -44,6 +44,7 @@ public:
     void setInterval( const QwtInterval & );
     QwtInterval interval() const;
 
+    void setPen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
     void setPen( const QPen & );
     const QPen &pen() const;
 

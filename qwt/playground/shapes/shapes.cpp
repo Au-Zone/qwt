@@ -79,7 +79,7 @@ void Plot::populate()
     item->setRenderTolerance( 1.0 );
 #endif
     item->setShape( path );
-    item->setPen( QPen( Qt::yellow ) );
+    item->setPen( Qt::yellow );
 
     QColor c = Qt::darkRed;
     c.setAlpha( 100 );

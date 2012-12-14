@@ -199,7 +199,7 @@ Settings Panel::settings() const
 {
     Settings s;
 
-    s.grid.pen = QPen( Qt::black );
+    s.grid.pen = QPen( Qt::black, 0 );
 
     switch( d_gridStyle->currentIndex() )
     {

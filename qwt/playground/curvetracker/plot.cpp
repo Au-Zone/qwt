@@ -48,7 +48,7 @@ Plot::Plot( QWidget *parent ):
     //QColor c( "PaleVioletRed" );
 
     QwtPlotZoneItem* zone = new QwtPlotZoneItem();
-    zone->setPen( QPen( Qt::darkGray ) );
+    zone->setPen( Qt::darkGray );
     zone->setBrush( QColor( "#834358" ) );
     zone->setOrientation( Qt::Horizontal );
     zone->setInterval( 3.8, 5.7 );
@@ -58,8 +58,8 @@ Plot::Plot( QWidget *parent ):
     // grid
 
     QwtPlotGrid *grid = new QwtPlotGrid();
-    grid->setMajPen( QPen( Qt::white, 0, Qt::DotLine ) );
-    grid->setMinPen( QPen( Qt::gray, 0 , Qt::DotLine ) );
+    grid->setMajorPen( Qt::white, 0, Qt::DotLine );
+    grid->setMinorPen( Qt::gray, 0 , Qt::DotLine );
     grid->attach( this );
 #endif
 

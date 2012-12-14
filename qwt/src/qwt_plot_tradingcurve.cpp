@@ -232,6 +232,25 @@ QwtPlotTradingCurve::SymbolStyle QwtPlotTradingCurve::symbolStyle() const
     return d_data->symbolStyle;
 }
 
+/*! 
+  Build and assign the symbol pen
+    
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  to hide this incompatibility.
+    
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+    
+  \sa pen(), brush()
+ */ 
+void QwtPlotTradingCurve::setSymbolPen( 
+    const QColor &color, qreal width, Qt::PenStyle style )
+{   
+    setSymbolPen( QPen( color, width, style ) );
+}
+
 /*!
   \brief Set the symbol pen
 
