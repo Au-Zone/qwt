@@ -38,12 +38,6 @@ contains(QWT_CONFIG, QwtPlot) {
             event_filter \
             oscilloscope  
     }
-    
-    contains(QWT_CONFIG, QwtSvg) {
-
-        SUBDIRS += \
-            svgmap
-    }
 }
 
 contains(QWT_CONFIG, QwtWidgets) {

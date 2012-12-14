@@ -23,4 +23,10 @@ contains(QWT_CONFIG, QwtPlot) {
         curvetracker \
         symbols
 
+    contains(QWT_CONFIG, QwtSvg) {
+
+        SUBDIRS += \
+            svgmap
+    }
+
 }
