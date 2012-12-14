@@ -92,7 +92,7 @@ void Plot::insertCurve( const QString &title,
 {
     QwtPlotCurve *curve = new QwtPlotCurve();
     curve->setTitle( title );
-    curve->setPen( QPen( color, 2 ) ),
+    curve->setPen( color, 2 ),
     curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
     QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,

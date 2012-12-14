@@ -254,6 +254,24 @@ const QwtSymbol *QwtPlotCurve::symbol() const
 }
 
 /*!
+  Build and assign a pen
+
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  to hide this incompatibility.
+
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+
+  \sa pen(), brush()
+ */
+void QwtPlotCurve::setPen( const QColor &color, qreal width, Qt::PenStyle style )
+{
+    setPen( QPen( color, width, style ) );
+}
+
+/*!
   Assign a pen
 
   \param pen New pen

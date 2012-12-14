@@ -35,8 +35,8 @@ public:
     QwtScaleDiv xScaleDiv;
     QwtScaleDiv yScaleDiv;
 
-    QPen majPen;
-    QPen minPen;
+    QPen majorPen;
+    QPen minorPen;
 };
 
 //! Enables major grid, disables minor grid
@@ -62,10 +62,10 @@ int QwtPlotGrid::rtti() const
 }
 
 /*!
-  \brief Enable or disable vertical gridlines
+  \brief Enable or disable vertical grid lines
   \param tf Enable (true) or disable
 
-  \sa Minor gridlines can be enabled or disabled with
+  \sa Minor grid lines can be enabled or disabled with
       enableXMin()
 */
 void QwtPlotGrid::enableX( bool tf )
@@ -80,9 +80,9 @@ void QwtPlotGrid::enableX( bool tf )
 }
 
 /*!
-  \brief Enable or disable horizontal gridlines
+  \brief Enable or disable horizontal grid lines
   \param tf Enable (true) or disable
-  \sa Minor gridlines can be enabled or disabled with enableYMin()
+  \sa Minor grid lines can be enabled or disabled with enableYMin()
 */
 void QwtPlotGrid::enableY( bool tf )
 {
@@ -96,7 +96,7 @@ void QwtPlotGrid::enableY( bool tf )
 }
 
 /*!
-  \brief Enable or disable  minor vertical gridlines.
+  \brief Enable or disable  minor vertical grid lines.
   \param tf Enable (true) or disable
   \sa enableX()
 */
@@ -112,7 +112,7 @@ void QwtPlotGrid::enableXMin( bool tf )
 }
 
 /*!
-  \brief Enable or disable minor horizontal gridlines
+  \brief Enable or disable minor horizontal grid lines
   \param tf Enable (true) or disable
   \sa enableY()
 */
@@ -156,17 +156,35 @@ void QwtPlotGrid::setYDiv( const QwtScaleDiv &scaleDiv )
 }
 
 /*!
-  Assign a pen for both major and minor gridlines
+  Build and assign a pen for both major and minor grid lines
+
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  to hide this incompatibility.
+
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+
+  \sa pen(), brush()
+ */
+void QwtPlotGrid::setPen( const QColor &color, qreal width, Qt::PenStyle style )
+{
+    setPen( QPen( color, width, style ) );
+}
+
+/*!
+  Assign a pen for both major and minor grid lines
 
   \param pen Pen
-  \sa setMajPen(), setMinPen()
+  \sa setMajorPen(), setMinorPen()
 */
 void QwtPlotGrid::setPen( const QPen &pen )
 {
-    if ( d_data->majPen != pen || d_data->minPen != pen )
+    if ( d_data->majorPen != pen || d_data->minorPen != pen )
     {
-        d_data->majPen = pen;
-        d_data->minPen = pen;
+        d_data->majorPen = pen;
+        d_data->minorPen = pen;
 
         legendChanged();
         itemChanged();
@@ -174,16 +192,34 @@ void QwtPlotGrid::setPen( const QPen &pen )
 }
 
 /*!
-  Assign a pen for the major gridlines
+  Build and assign a pen for both major grid lines
+
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  to hide this incompatibility.
+
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+
+  \sa pen(), brush()
+ */
+void QwtPlotGrid::setMajorPen( const QColor &color, qreal width, Qt::PenStyle style )
+{
+    setMajorPen( QPen( color, width, style ) );
+}
+
+/*!
+  Assign a pen for the major grid lines
 
   \param pen Pen
-  \sa majPen(), setMinPen(), setPen()
+  \sa majorPen(), setMinorPen(), setPen()
 */
-void QwtPlotGrid::setMajPen( const QPen &pen )
+void QwtPlotGrid::setMajorPen( const QPen &pen )
 {
-    if ( d_data->majPen != pen )
+    if ( d_data->majorPen != pen )
     {
-        d_data->majPen = pen;
+        d_data->majorPen = pen;
 
         legendChanged();
         itemChanged();
@@ -191,16 +227,34 @@ void QwtPlotGrid::setMajPen( const QPen &pen )
 }
 
 /*!
-  Assign a pen for the minor gridlines
+  Build and assign a pen for the minor grid lines
+
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  to hide this incompatibility.
+
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+
+  \sa pen(), brush()
+ */
+void QwtPlotGrid::setMinorPen( const QColor &color, qreal width, Qt::PenStyle style )
+{
+    setMinorPen( QPen( color, width, style ) );
+}
+
+/*!
+  Assign a pen for the minor grid lines
 
   \param pen Pen
-  \sa minPen(), setMajPen(), setPen()
+  \sa minorPen(), setMajorPen(), setPen()
 */
-void QwtPlotGrid::setMinPen( const QPen &pen )
+void QwtPlotGrid::setMinorPen( const QPen &pen )
 {
-    if ( d_data->minPen != pen )
+    if ( d_data->minorPen != pen )
     {
-        d_data->minPen = pen;
+        d_data->minorPen = pen;
 
         legendChanged();
         itemChanged();
@@ -211,7 +265,7 @@ void QwtPlotGrid::setMinPen( const QPen &pen )
   \brief Draw the grid
 
   The grid is drawn into the bounding rectangle such that
-  gridlines begin and end at the rectangle's borders. The X and Y
+  grid lines begin and end at the rectangle's borders. The X and Y
   maps are used to map the scale divisions into the drawing region
   screen.
   \param painter  Painter
@@ -223,11 +277,11 @@ void QwtPlotGrid::draw( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRectF &canvasRect ) const
 {
-    //  draw minor gridlines
-    QPen minPen = d_data->minPen;
-    minPen.setCapStyle( Qt::FlatCap );
+    //  draw minor grid lines
+    QPen minorPen = d_data->minorPen;
+    minorPen.setCapStyle( Qt::FlatCap );
 
-    painter->setPen( minPen );
+    painter->setPen( minorPen );
 
     if ( d_data->xEnabled && d_data->xMinEnabled )
     {
@@ -245,11 +299,11 @@ void QwtPlotGrid::draw( QPainter *painter,
             d_data->yScaleDiv.ticks( QwtScaleDiv::MediumTick ) );
     }
 
-    //  draw major gridlines
-    QPen majPen = d_data->majPen;
-    majPen.setCapStyle( Qt::FlatCap );
+    //  draw major grid lines
+    QPen majorPen = d_data->majorPen;
+    majorPen.setCapStyle( Qt::FlatCap );
 
-    painter->setPen( majPen );
+    painter->setPen( majorPen );
 
     if ( d_data->xEnabled )
     {
@@ -301,25 +355,25 @@ void QwtPlotGrid::drawLines( QPainter *painter, const QRectF &canvasRect,
 }
 
 /*!
-  \return the pen for the major gridlines
-  \sa setMajPen(), setMinPen(), setPen()
+  \return the pen for the major grid lines
+  \sa setMajorPen(), setMinorPen(), setPen()
 */
-const QPen &QwtPlotGrid::majPen() const
+const QPen &QwtPlotGrid::majorPen() const
 {
-    return d_data->majPen;
+    return d_data->majorPen;
 }
 
 /*!
-  \return the pen for the minor gridlines
-  \sa setMinPen(), setMajPen(), setPen()
+  \return the pen for the minor grid lines
+  \sa setMinorPen(), setMajorPen(), setPen()
 */
-const QPen &QwtPlotGrid::minPen() const
+const QPen &QwtPlotGrid::minorPen() const
 {
-    return d_data->minPen;
+    return d_data->minorPen;
 }
 
 /*!
-  \return true if vertical gridlines are enabled
+  \return true if vertical grid lines are enabled
   \sa enableX()
 */
 bool QwtPlotGrid::xEnabled() const
@@ -328,7 +382,7 @@ bool QwtPlotGrid::xEnabled() const
 }
 
 /*!
-  \return true if minor vertical gridlines are enabled
+  \return true if minor vertical grid lines are enabled
   \sa enableXMin()
 */
 bool QwtPlotGrid::xMinEnabled() const
@@ -337,7 +391,7 @@ bool QwtPlotGrid::xMinEnabled() const
 }
 
 /*!
-  \return true if horizontal gridlines are enabled
+  \return true if horizontal grid lines are enabled
   \sa enableY()
 */
 bool QwtPlotGrid::yEnabled() const
@@ -346,7 +400,7 @@ bool QwtPlotGrid::yEnabled() const
 }
 
 /*!
-  \return true if minor horizontal gridlines are enabled
+  \return true if minor horizontal grid lines are enabled
   \sa enableYMin()
 */
 bool QwtPlotGrid::yMinEnabled() const

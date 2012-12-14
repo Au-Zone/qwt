@@ -54,8 +54,8 @@ Plot::Plot( QWidget *parent ):
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
     grid->enableXMin( true );
-    grid->setMajPen( QPen( Qt::white, 0, Qt::DotLine ) );
-    grid->setMinPen( QPen( Qt::gray, 0 , Qt::DotLine ) );
+    grid->setMajorPen( Qt::white, 0, Qt::DotLine );
+    grid->setMinorPen( Qt::gray, 0 , Qt::DotLine );
     grid->attach( this );
 
     // axes
@@ -71,14 +71,14 @@ Plot::Plot( QWidget *parent ):
     // curves
     d_curve1 = new QwtPlotCurve( "Amplitude" );
     d_curve1->setRenderHint( QwtPlotItem::RenderAntialiased );
-    d_curve1->setPen( QPen( Qt::yellow ) );
+    d_curve1->setPen( Qt::yellow );
     d_curve1->setLegendAttribute( QwtPlotCurve::LegendShowLine );
     d_curve1->setYAxis( QwtPlot::yLeft );
     d_curve1->attach( this );
 
     d_curve2 = new QwtPlotCurve( "Phase" );
     d_curve2->setRenderHint( QwtPlotItem::RenderAntialiased );
-    d_curve2->setPen( QPen( Qt::cyan ) );
+    d_curve2->setPen( Qt::cyan );
     d_curve2->setLegendAttribute( QwtPlotCurve::LegendShowLine );
     d_curve2->setYAxis( QwtPlot::yRight );
     d_curve2->attach( this );

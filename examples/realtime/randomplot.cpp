@@ -67,7 +67,7 @@ RandomPlot::RandomPlot( QWidget *parent ):
     plotLayout()->setAlignCanvasToScales( true );
 
     QwtPlotGrid *grid = new QwtPlotGrid;
-    grid->setMajPen( QPen( Qt::gray, 0, Qt::DotLine ) );
+    grid->setMajorPen( Qt::gray, 0, Qt::DotLine );
     grid->attach( this );
 
     setCanvasBackground( QColor( 29, 100, 141 ) ); // nice blue

@@ -88,8 +88,8 @@ Plot::Plot( QWidget *parent ):
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
     grid->enableXMin( true );
-    grid->setMajPen( QPen( Qt::gray, 0, Qt::DotLine ) );
-    grid->setMinPen( QPen( Qt::darkGray, 0 , Qt::DotLine ) );
+    grid->setMajorPen( Qt::gray, 0, Qt::DotLine );
+    grid->setMinorPen( Qt::darkGray, 0, Qt::DotLine );
     grid->attach( this );
 
     // axis
@@ -122,7 +122,7 @@ void Plot::insertCurve()
     const int numColors = sizeof( colors ) / sizeof( colors[0] );
 
     QwtPlotCurve *curve = new Curve( counter++ );
-    curve->setPen( QPen( QColor( colors[ counter % numColors ] ), 2 ) );
+    curve->setPen( QColor( colors[ counter % numColors ] ), 2 );
     curve->attach( this );
 }
 

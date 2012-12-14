@@ -81,7 +81,7 @@ Plot::Plot( QWidget *parent ):
 
     // Insert curve
     d_curve = new QwtPlotCurve( "Data Moving Right" );
-    d_curve->setPen( QPen( Qt::black ) );
+    d_curve->setPen( Qt::black );
     d_curve->setData( new CircularBuffer( d_interval, 10 ) );
     d_curve->attach( this );
 

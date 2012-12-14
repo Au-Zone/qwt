@@ -120,8 +120,8 @@ Plot::Plot( QWidget *parent, const QwtInterval &interval ):
     // grid
     QwtPlotGrid *grid = new QwtPlotGrid;
     //grid->enableXMin(true);
-    grid->setMajPen( QPen( Qt::white, 0, Qt::DotLine ) );
-    grid->setMinPen( QPen( Qt::gray, 0 , Qt::DotLine ) );
+    grid->setMajorPen( Qt::white, 0, Qt::DotLine );
+    grid->setMinorPen( Qt::gray, 0 , Qt::DotLine );
     grid->attach( this );
 
     const int numEllipses = 10;

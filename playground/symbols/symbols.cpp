@@ -157,7 +157,7 @@ int main( int argc, char **argv )
     {
         QwtPlotCurve *curve = new QwtPlotCurve();
         curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-        curve->setPen( QPen( Qt::blue, 0 ) );
+        curve->setPen( Qt::blue );
 
         QBrush brush;
         QwtSymbol::Style style = QwtSymbol::NoSymbol;

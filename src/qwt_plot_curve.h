@@ -241,6 +241,7 @@ public:
     void setCurveAttribute( CurveAttribute, bool on = true );
     bool testCurveAttribute( CurveAttribute ) const;
 
+    void setPen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
     void setPen( const QPen & );
     const QPen &pen() const;
 
