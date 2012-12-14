@@ -34,7 +34,6 @@
 #endif
 #endif
 
-
 bool QwtPainter::d_polylineSplitting = true;
 bool QwtPainter::d_roundingAlignment = true;
 
@@ -1219,12 +1218,14 @@ QPixmap QwtPainter::backingStore( const QSize &size )
 {
     QPixmap pm;
 
+#define QWT_HIGH_DPI 1
+
 #if QT_VERSION >= 0x050000 && QWT_HIGH_DPI
-    static qReal pixelRatio = 0.0;
+    static qreal pixelRatio = 0.0;
     if ( pixelRatio <= 0.0 )
         pixelRatio = qApp->devicePixelRatio();
 
-    pm = QPixmap( size * pixelRation );
+    pm = QPixmap( size * pixelRatio );
     pm.setDevicePixelRatio( pixelRatio );
 #else
     pm = QPixmap( size );
