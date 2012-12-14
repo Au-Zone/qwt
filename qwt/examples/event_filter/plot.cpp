@@ -18,7 +18,7 @@ Plot::Plot( QWidget *parent ):
     setCanvasColor( Qt::darkCyan );
 
     QwtPlotGrid *grid = new QwtPlotGrid;
-    grid->setMajPen( QPen( Qt::white, 0, Qt::DotLine ) );
+    grid->setMajorPen( Qt::white, 0, Qt::DotLine );
     grid->attach( this );
 
     // axes

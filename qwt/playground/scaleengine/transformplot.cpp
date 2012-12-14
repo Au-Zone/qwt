@@ -65,7 +65,7 @@ void TransformPlot::insertTransformation(
 {
     QwtPlotCurve *curve = new QwtPlotCurve( title );
     curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-    curve->setPen( QPen( color, 2 ) );
+    curve->setPen( color, 2 );
     curve->setData( new TransformData( transform ) );
     curve->attach( this );
 }

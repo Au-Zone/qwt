@@ -103,7 +103,7 @@ void TVPlot::populate()
     grid->enableY( true );
     grid->enableXMin( false );
     grid->enableYMin( false );
-    grid->setMajPen( QPen( Qt::black, 0, Qt::DotLine ) );
+    grid->setMajorPen( Qt::black, 0, Qt::DotLine );
     grid->attach( this );
 
     const double juneValues[] = { 7, 19, 24, 32, 10, 5, 3 };

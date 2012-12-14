@@ -22,13 +22,13 @@ Plot::Plot( QWidget *parent ):
 void Plot::populate()
 {
     QwtPlotGrid *grid = new QwtPlotGrid();
-    grid->setMinPen( Qt::DashLine );
+    grid->setMinorPen( Qt::black, 0, Qt::DashLine );
     grid->enableXMin( true );
     grid->attach( this );
 
     QwtPlotCurve *curve = new QwtPlotCurve();
     curve->setTitle("Some Points");
-    curve->setPen( QPen( Qt::blue, 4 ) ),
+    curve->setPen( Qt::blue, 4 ),
     curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
     QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse, 

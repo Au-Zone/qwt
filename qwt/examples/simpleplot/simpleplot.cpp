@@ -20,7 +20,7 @@ int main( int argc, char **argv )
 
     QwtPlotCurve *curve = new QwtPlotCurve();
     curve->setTitle( "Some Points" );
-    curve->setPen( QPen( Qt::blue, 4 ) ),
+    curve->setPen( Qt::blue, 4 ),
     curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
     QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,

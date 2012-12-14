@@ -115,7 +115,7 @@ void IncrementalPlot::showSymbols( bool on )
     }
     else
     {
-        d_curve->setPen( QPen( Qt::white ) );
+        d_curve->setPen( Qt::white );
         d_curve->setStyle( QwtPlotCurve::Dots );
         d_curve->setSymbol( NULL );
     }

@@ -33,7 +33,7 @@ class Curve1: public Curve
 public:
     Curve1()
     {
-        setPen( QPen( QColor( 150, 150, 200 ), 2 ) );
+        setPen( QColor( 150, 150, 200 ), 2 );
         setStyle( QwtPlotCurve::Lines );
 
         QwtSplineCurveFitter *curveFitter = new QwtSplineCurveFitter();
@@ -77,7 +77,7 @@ public:
     Curve2()
     {
         setStyle( QwtPlotCurve::Sticks );
-        setPen( QPen( QColor( 200, 150, 50 ) ) );
+        setPen( QColor( 200, 150, 50 ) );
 
         setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
             QColor( Qt::gray ), QColor( Qt::yellow ), QSize( 5, 5 ) ) );
@@ -105,7 +105,7 @@ public:
     Curve3()
     {
         setStyle( QwtPlotCurve::Lines );
-        setPen( QPen( QColor( 100, 200, 150 ), 2 ) );
+        setPen( QColor( 100, 200, 150 ), 2 );
 
         QwtSplineCurveFitter* curveFitter = new QwtSplineCurveFitter();
         curveFitter->setFitMode( QwtSplineCurveFitter::ParametricSpline );
@@ -144,7 +144,7 @@ public:
     Curve4()
     {
         setStyle( QwtPlotCurve::Lines );
-        setPen( QPen( Qt::red, 2 ) );
+        setPen( Qt::red, 2 );
 
         initSamples();
 

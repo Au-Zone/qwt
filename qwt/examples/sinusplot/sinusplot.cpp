@@ -127,13 +127,13 @@ void Plot::populate()
     QwtPlotCurve *cSin = new QwtPlotCurve( "y = sin(x)" );
     cSin->setRenderHint( QwtPlotItem::RenderAntialiased );
     cSin->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
-    cSin->setPen( QPen( Qt::red ) );
+    cSin->setPen( Qt::red );
     cSin->attach( this );
 
     QwtPlotCurve *cCos = new QwtPlotCurve( "y = cos(x)" );
     cCos->setRenderHint( QwtPlotItem::RenderAntialiased );
     cCos->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
-    cCos->setPen( QPen( Qt::blue ) );
+    cCos->setPen( Qt::blue );
     cCos->attach( this );
 
     // Create sin and cos data

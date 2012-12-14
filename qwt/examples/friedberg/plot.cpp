@@ -22,8 +22,8 @@ public:
     Grid()
     {
         enableXMin( true );
-        setMajPen( QPen( Qt::white, 0, Qt::DotLine ) );
-        setMinPen( QPen( Qt::gray, 0 , Qt::DotLine ) );
+        setMajorPen( Qt::white, 0, Qt::DotLine );
+        setMinorPen( Qt::gray, 0, Qt::DotLine );
     }
 
     virtual void updateScaleDiv( const QwtScaleDiv &xMap,

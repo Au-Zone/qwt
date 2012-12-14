@@ -75,27 +75,27 @@ MainWin::MainWin()
 
     d_curves[i].setSymbol( new QwtSymbol( QwtSymbol::Cross, Qt::NoBrush,
         QPen( Qt::black ), QSize( 5, 5 ) ) );
-    d_curves[i].setPen( QColor( Qt::darkGreen ) );
+    d_curves[i].setPen( Qt::darkGreen );
     d_curves[i].setStyle( QwtPlotCurve::Lines );
     d_curves[i].setCurveAttribute( QwtPlotCurve::Fitted );
     i++;
 
     d_curves[i].setSymbol( new QwtSymbol( QwtSymbol::Ellipse, Qt::yellow,
         QPen( Qt::blue ), QSize( 5, 5 ) ) );
-    d_curves[i].setPen( QColor( Qt::red ) );
+    d_curves[i].setPen( Qt::red );
     d_curves[i].setStyle( QwtPlotCurve::Sticks );
     i++;
 
-    d_curves[i].setPen( QColor( Qt::darkBlue ) );
+    d_curves[i].setPen( Qt::darkBlue );
     d_curves[i].setStyle( QwtPlotCurve::Lines );
     i++;
 
-    d_curves[i].setPen( QColor( Qt::darkBlue ) );
+    d_curves[i].setPen( Qt::darkBlue );
     d_curves[i].setStyle( QwtPlotCurve::Lines );
     d_curves[i].setRenderHint( QwtPlotItem::RenderAntialiased );
     i++;
 
-    d_curves[i].setPen( QColor( Qt::darkCyan ) );
+    d_curves[i].setPen( Qt::darkCyan );
     d_curves[i].setStyle( QwtPlotCurve::Steps );
     i++;
 
