@@ -43,7 +43,7 @@ public:
         setCurveAttribute( QwtPlotCurve::Fitted, true );
 
         QwtSymbol *symbol = new QwtSymbol( QwtSymbol::XCross );
-        symbol->setPen( QPen( Qt::yellow, 0 ) );
+        symbol->setPen( Qt::yellow );
         symbol->setSize( 7 );
 
         setSymbol( symbol );

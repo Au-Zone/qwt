@@ -843,7 +843,7 @@ public:
 QwtSymbol::QwtSymbol( Style style )
 {
     d_data = new PrivateData( style, QBrush( Qt::gray ),
-        QPen( Qt::black ), QSize() );
+        QPen( Qt::black, 0 ), QSize() );
 }
 
 /*!
@@ -1122,6 +1122,24 @@ void QwtSymbol::setBrush( const QBrush &brush )
 const QBrush& QwtSymbol::brush() const
 {
     return d_data->brush;
+}
+
+/*!
+  Build and assign a pen
+
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  to hide this incompatibility.
+
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+
+  \sa pen(), brush()
+ */
+void QwtSymbol::setPen( const QColor &color, qreal width, Qt::PenStyle style )
+{
+    setPen( QPen( color, width, style ) );
 }
 
 /*!
