@@ -155,6 +155,25 @@ const QwtColorMap *QwtPlotSpectrogram::colorMap() const
     return d_data->colorMap;
 }
 
+/*! 
+  Build and assign the default pen for the contour lines
+    
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  to hide this incompatibility.
+    
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+    
+  \sa pen(), brush()
+ */ 
+void QwtPlotSpectrogram::setDefaultContourPen( 
+    const QColor &color, qreal width, Qt::PenStyle style )
+{   
+    setDefaultContourPen( QPen( color, width, style ) );
+}
+
 /*!
    \brief Set the default pen for the contour lines
 

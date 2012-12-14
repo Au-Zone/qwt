@@ -502,6 +502,24 @@ int QwtPlotMarker::spacing() const
     return d_data->spacing;
 }
 
+/*! 
+  Build and assign a line pen
+    
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  to hide this incompatibility.
+    
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+    
+  \sa pen(), brush()
+ */ 
+void QwtPlotMarker::setLinePen( const QColor &color, qreal width, Qt::PenStyle style )
+{   
+    setLinePen( QPen( color, width, style ) );
+}
+
 /*!
   Specify a pen for the line.
 

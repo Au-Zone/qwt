@@ -156,7 +156,7 @@ void Plot::populate()
     mX->setLabelAlignment( Qt::AlignLeft | Qt::AlignBottom );
     mX->setLabelOrientation( Qt::Vertical );
     mX->setLineStyle( QwtPlotMarker::VLine );
-    mX->setLinePen( QPen( Qt::black, 0, Qt::DashDotLine ) );
+    mX->setLinePen( Qt::black, 0, Qt::DashDotLine );
     mX->setXValue( 2.0 * M_PI );
     mX->attach( this );
 

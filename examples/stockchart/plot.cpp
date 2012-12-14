@@ -81,7 +81,7 @@ void Plot::populate()
 
         const Qt::GlobalColor color = colors[ i % numColors ];
 
-        curve->setSymbolPen( QPen( color ) );
+        curve->setSymbolPen( color );
         curve->setSymbolBrush( QwtPlotTradingCurve::Decreasing, color );
         curve->setSymbolBrush( QwtPlotTradingCurve::Increasing, Qt::white );
         curve->attach( this );
@@ -92,17 +92,14 @@ void Plot::populate()
     for ( int i = 0; i < 4; i++ )
     {
         QwtPlotMarker *marker = new QwtPlotMarker();
+
         marker->setTitle( QString( "Event %1" ).arg( i + 1 ) );
         marker->setLineStyle( QwtPlotMarker::VLine );
-        marker->setItemAttribute( QwtPlotItem::Legend, true );
-
-        QPen pen;
-        pen.setStyle( Qt::DashLine );
-        pen.setColor( colors[ i % numColors ] );
-
-        marker->setLinePen( pen );
+        marker->setLinePen( colors[ i % numColors ], 0, Qt::DashLine );
         marker->setValue( 77.0 * ( i + 1 ), 0.0 );
         marker->setVisible( false );
+
+        marker->setItemAttribute( QwtPlotItem::Legend, true );
 
         marker->attach( this );
     }

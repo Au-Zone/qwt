@@ -103,6 +103,8 @@ public:
     void setSymbolStyle( SymbolStyle style );
     SymbolStyle symbolStyle() const;
 
+    void setSymbolPen( const QColor &, 
+        qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
     void setSymbolPen( const QPen & );
     QPen symbolPen() const;
 

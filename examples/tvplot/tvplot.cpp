@@ -138,7 +138,7 @@ void TVPlot::setMode( int mode )
             histogram->setStyle( static_cast<QwtPlotHistogram::HistogramStyle>( mode ) );
             histogram->setSymbol( NULL );
 
-            QPen pen( Qt::black );
+            QPen pen( Qt::black, 0 );
             if ( mode == QwtPlotHistogram::Lines )
                 pen.setBrush( histogram->brush() );
 

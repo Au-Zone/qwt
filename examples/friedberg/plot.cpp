@@ -153,7 +153,7 @@ void Plot::insertCurve( const QString& title,
 
     QwtSymbol *symbol = new QwtSymbol( QwtSymbol::XCross );
     symbol->setSize( 4 );
-    symbol->setPen( QPen( color ) );
+    symbol->setPen( color );
     d_curve->setSymbol( symbol );
 
     d_curve->setSamples( samples );
@@ -167,7 +167,7 @@ void Plot::insertErrorBars(
 {
     d_intervalCurve = new QwtPlotIntervalCurve( title );
     d_intervalCurve->setRenderHint( QwtPlotItem::RenderAntialiased );
-    d_intervalCurve->setPen( QPen( Qt::white ) );
+    d_intervalCurve->setPen( Qt::white );
 
     QColor bg( color );
     bg.setAlpha( 150 );
