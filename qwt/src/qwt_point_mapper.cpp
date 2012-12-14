@@ -593,8 +593,8 @@ QImage QwtPointMapper::toImage(
         const int x = qwtRoundValue( xMap.transform( sample.x() ) ) - x0;
         const int y = qwtRoundValue( yMap.transform( sample.y() ) ) - y0;
 
-        if ( x >= 0 && x < w && y >= 0 && y < w )
-            bits[ y * h + x ] = rgb;
+        if ( x >= 0 && x < w && y >= 0 && y < h )
+            bits[ y * w + x ] = rgb;
     }
 
     return image;
