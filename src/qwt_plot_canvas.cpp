@@ -728,7 +728,7 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
         QPixmap &bs = *d_data->backingStore;
         if ( bs.size() != size() )
         {
-            bs = QwtPainter::backingStore( size() );
+            bs = QwtPainter::backingStore( this, size() );
 
             if ( testAttribute(Qt::WA_StyledBackground) )
             {

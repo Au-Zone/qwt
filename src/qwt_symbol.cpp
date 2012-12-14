@@ -1360,7 +1360,7 @@ void QwtSymbol::drawSymbols( QPainter *painter,
         
         if ( d_data->cache.pixmap.isNull() )
         {
-            d_data->cache.pixmap = QwtPainter::backingStore( br.size() );
+            d_data->cache.pixmap = QwtPainter::backingStore( NULL, br.size() );
             d_data->cache.pixmap.fill( Qt::transparent );
 
             QPainter p( &d_data->cache.pixmap );

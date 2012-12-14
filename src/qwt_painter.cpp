@@ -28,6 +28,10 @@
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 
+#if QT_VERSION >= 0x050000
+#include <qwindow.h>
+#endif
+
 #if 0
 #ifdef Q_WS_X11
 #include <qx11info_x11.h>
@@ -1212,29 +1216,40 @@ void QwtPainter::drawBackgound( QPainter *painter,
 
 /*!
   \return A pixmap that can be used as backingstore
+
+  \param widget Widget, for which the backinstore is intended
   \param size Size of the pixmap
  */
-QPixmap QwtPainter::backingStore( const QSize &size )
+QPixmap QwtPainter::backingStore( QWidget *widget, const QSize &size )
 {
     QPixmap pm;
 
 #define QWT_HIGH_DPI 1
 
 #if QT_VERSION >= 0x050000 && QWT_HIGH_DPI
-    static qreal pixelRatio = 0.0;
-    if ( pixelRatio <= 0.0 )
-        pixelRatio = qApp->devicePixelRatio();
+    qreal pixelRatio = 1.0;
+
+    if ( widget && widget->windowHandle() )
+    {
+        pixelRatio = widget->windowHandle()->devicePixelRatio();
+    }
+    else
+    {
+        if ( qApp )
+            pixelRatio = qApp->devicePixelRatio();
+    }
 
     pm = QPixmap( size * pixelRatio );
     pm.setDevicePixelRatio( pixelRatio );
 #else
+    Q_UNUSED( widget )
     pm = QPixmap( size );
 #endif
 
 #if 0
 #ifdef Q_WS_X11
-    if ( bs.x11Info().screen() != x11Info().screen() )
-         bs.x11SetScreen( x11Info().screen() );
+    if ( pm.x11Info().screen() != x11Info().screen() )
+         pm.x11SetScreen( x11Info().screen() );
 #endif
 #endif
 
