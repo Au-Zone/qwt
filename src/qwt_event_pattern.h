@@ -139,17 +139,18 @@ public:
     {
     public:
         //! Constructor
-        MousePattern( int btn = Qt::NoButton, int st = Qt::NoButton )
+        MousePattern( Qt::MouseButton btn = Qt::NoButton, 
+				Qt::KeyboardModifiers modifierCodes = Qt::NoModifier ):
+			button( btn ),
+			modifiers( modifierCodes )
         {
-            button = btn;
-            state = st;
         }
 
-        //! Button code
-        int button;
+        //! Button 
+        Qt::MouseButton button;
 
-        //! State
-        int state;
+        //! Keyboard modifier
+        Qt::KeyboardModifiers modifiers;
     };
 
     //! A pattern for key events
@@ -157,17 +158,18 @@ public:
     {
     public:
         //! Constructor
-        KeyPattern( int k = 0, int st = Qt::NoButton )
+        KeyPattern( int keyCode = Qt::Key_unknown, 
+				Qt::KeyboardModifiers modifierCodes = Qt::NoModifier ):
+			key( keyCode ),
+			modifiers( modifierCodes )
         {
-            key = k;
-            state = st;
         }
 
         //! Key code
         int key;
 
-        //! State
-        int state;
+        //! Modifiers
+        Qt::KeyboardModifiers modifiers;
     };
 
     QwtEventPattern();
@@ -176,8 +178,10 @@ public:
     void initMousePattern( int numButtons );
     void initKeyPattern();
 
-    void setMousePattern( uint pattern, int button, int state = Qt::NoButton );
-    void setKeyPattern( uint pattern, int key, int state = Qt::NoButton );
+    void setMousePattern( uint pattern, Qt::MouseButton button, 
+		Qt::KeyboardModifiers = Qt::NoModifier );
+    void setKeyPattern( uint pattern, int keyCode, 
+		Qt::KeyboardModifiers modifierCodes = Qt::NoModifier );
 
     void setMousePattern( const QVector<MousePattern> & );
     void setKeyPattern( const QVector<KeyPattern> & );
@@ -212,14 +216,14 @@ private:
 inline bool operator==( QwtEventPattern::MousePattern b1,
     QwtEventPattern::MousePattern  b2 )
 {
-    return b1.button == b2.button && b1.state == b2.state;
+    return b1.button == b2.button && b1.modifiers == b2.modifiers;
 }
 
 //! Compare operator
 inline bool operator==( QwtEventPattern::KeyPattern b1,
    QwtEventPattern::KeyPattern  b2 )
 {
-    return b1.key == b2.key && b1.state == b2.state;
+    return b1.key == b2.key && b1.modifiers == b2.modifiers;
 }
 
 #endif
