@@ -246,7 +246,8 @@ void QwtArrowButton::drawArrow( QPainter *painter,
 
     painter->save();
 
-    painter->setPen( palette().color( QPalette::ButtonText ) );
+    painter->setRenderHint( QPainter::Antialiasing, true );
+    painter->setPen( Qt::NoPen );
     painter->setBrush( palette().brush( QPalette::ButtonText ) );
     painter->drawPolygon( pa );
 
