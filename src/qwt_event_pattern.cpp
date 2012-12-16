@@ -217,7 +217,7 @@ bool QwtEventPattern::mouseMatch( const MousePattern &pattern,
 
     const bool matched =
         ( event->modifiers() & Qt::KeyboardModifierMask ) ==
-            ( int )( pattern.state & Qt::KeyboardModifierMask );
+            ( pattern.state & Qt::KeyboardModifierMask );
 
     return matched;
 }
@@ -268,7 +268,7 @@ bool QwtEventPattern::keyMatch(
 
     const bool matched =
         ( event->modifiers() & Qt::KeyboardModifierMask ) ==
-            ( int )( pattern.state & Qt::KeyboardModifierMask );
+            ( pattern.state & Qt::KeyboardModifierMask );
 
     return matched;
 }

@@ -331,7 +331,7 @@ void QwtMagnifier::widgetMousePressEvent( QMouseEvent *mouseEvent )
     }
 
     if ( ( mouseEvent->modifiers() & Qt::KeyboardModifierMask ) !=
-        ( int )( d_data->mouseButtonState & Qt::KeyboardModifierMask ) )
+        ( d_data->mouseButtonState & Qt::KeyboardModifierMask ) )
     {
         return;
     }
@@ -393,7 +393,7 @@ void QwtMagnifier::widgetMouseMoveEvent( QMouseEvent *mouseEvent )
 void QwtMagnifier::widgetWheelEvent( QWheelEvent *wheelEvent )
 {
     if ( ( wheelEvent->modifiers() & Qt::KeyboardModifierMask ) !=
-        ( int )( d_data->wheelButtonState & Qt::KeyboardModifierMask ) )
+        ( d_data->wheelButtonState & Qt::KeyboardModifierMask ) )
     {
         return;
     }

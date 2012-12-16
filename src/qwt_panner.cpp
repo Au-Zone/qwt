@@ -376,7 +376,7 @@ void QwtPanner::widgetMousePressEvent( QMouseEvent *mouseEvent )
         return;
 
     if ( ( mouseEvent->modifiers() & Qt::KeyboardModifierMask ) !=
-        ( int )( d_data->buttonState & Qt::KeyboardModifierMask ) )
+        ( d_data->buttonState & Qt::KeyboardModifierMask ) )
     {
         return;
     }
@@ -476,7 +476,7 @@ void QwtPanner::widgetKeyPressEvent( QKeyEvent *keyEvent )
     {
         const bool matched =
             ( keyEvent->modifiers() & Qt::KeyboardModifierMask ) ==
-                ( int )( d_data->abortKeyState & Qt::KeyboardModifierMask );
+                ( d_data->abortKeyState & Qt::KeyboardModifierMask );
         if ( matched )
         {
             hide();
