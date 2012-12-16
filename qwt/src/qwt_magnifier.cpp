@@ -186,7 +186,7 @@ double QwtMagnifier::mouseFactor() const
    \sa getMouseButton()
 */
 void QwtMagnifier::setMouseButton( 
-	Qt::MouseButton button, Qt::KeyboardModifiers modifiers )
+    Qt::MouseButton button, Qt::KeyboardModifiers modifiers )
 {
     d_data->mouseButton = button;
     d_data->mouseButtonModifiers = modifiers;
@@ -234,7 +234,7 @@ double QwtMagnifier::keyFactor() const
    \sa getZoomInKey(), setZoomOutKey()
 */
 void QwtMagnifier::setZoomInKey( int key, 
-	Qt::KeyboardModifiers modifiers )
+    Qt::KeyboardModifiers modifiers )
 {
     d_data->zoomInKey = key;
     d_data->zoomInKeyModifiers = modifiers;
@@ -242,7 +242,7 @@ void QwtMagnifier::setZoomInKey( int key,
 
 //! \sa setZoomInKey()
 void QwtMagnifier::getZoomInKey( int &key, 
-	Qt::KeyboardModifiers &modifiers ) const
+    Qt::KeyboardModifiers &modifiers ) const
 {
     key = d_data->zoomInKey;
     modifiers = d_data->zoomInKeyModifiers;
@@ -257,7 +257,7 @@ void QwtMagnifier::getZoomInKey( int &key,
    \sa getZoomOutKey(), setZoomOutKey()
 */
 void QwtMagnifier::setZoomOutKey( int key, 
-	Qt::KeyboardModifiers modifiers )
+    Qt::KeyboardModifiers modifiers )
 {
     d_data->zoomOutKey = key;
     d_data->zoomOutKeyModifiers = modifiers;
@@ -265,7 +265,7 @@ void QwtMagnifier::setZoomOutKey( int key,
 
 //! \sa setZoomOutKey()
 void QwtMagnifier::getZoomOutKey( int &key, 
-	Qt::KeyboardModifiers &modifiers ) const
+    Qt::KeyboardModifiers &modifiers ) const
 {
     key = d_data->zoomOutKey;
     modifiers = d_data->zoomOutKeyModifiers;
@@ -333,11 +333,11 @@ bool QwtMagnifier::eventFilter( QObject *object, QEvent *event )
 */
 void QwtMagnifier::widgetMousePressEvent( QMouseEvent *mouseEvent )
 {
-	if ( parentWidget() == NULL )
-		return;
+    if ( parentWidget() == NULL )
+        return;
 
     if ( ( mouseEvent->button() != d_data->mouseButton ) ||
-		( mouseEvent->modifiers() != d_data->mouseButtonModifiers ) )
+        ( mouseEvent->modifiers() != d_data->mouseButtonModifiers ) )
     {
         return;
     }
@@ -433,16 +433,13 @@ void QwtMagnifier::widgetWheelEvent( QWheelEvent *wheelEvent )
 */
 void QwtMagnifier::widgetKeyPressEvent( QKeyEvent *keyEvent )
 {
-    const int key = keyEvent->key();
-    const int state = keyEvent->modifiers();
-
-    if ( key == d_data->zoomInKey &&
-        state == d_data->zoomInKeyModifiers )
+    if ( keyEvent->key() == d_data->zoomInKey &&
+        keyEvent->modifiers() == d_data->zoomInKeyModifiers )
     {
         rescale( d_data->keyFactor );
     }
-    else if ( key == d_data->zoomOutKey &&
-        state == d_data->zoomOutKeyModifiers )
+    else if ( keyEvent->key() == d_data->zoomOutKey &&
+        keyEvent->modifiers() == d_data->zoomOutKeyModifiers )
     {
         rescale( 1.0 / d_data->keyFactor );
     }
