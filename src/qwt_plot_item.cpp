@@ -24,6 +24,7 @@ public:
         attributes( 0 ),
         interests( 0 ),
         renderHints( 0 ),
+        renderThreadCount( 1 ),
         z( 0.0 ),
         xAxis( QwtPlot::xBottom ),
         yAxis( QwtPlot::yLeft ),
@@ -34,9 +35,13 @@ public:
     mutable QwtPlot *plot;
 
     bool isVisible;
+
     QwtPlotItem::ItemAttributes attributes;
     QwtPlotItem::ItemInterests interests;
+
     QwtPlotItem::RenderHints renderHints;
+    uint renderThreadCount;
+
     double z;
 
     int xAxis;
@@ -296,6 +301,34 @@ void QwtPlotItem::setRenderHint( RenderHint hint, bool on )
 bool QwtPlotItem::testRenderHint( RenderHint hint ) const
 {
     return d_data->renderHints.testFlag( hint );
+}
+
+/*!
+   On multicore systems rendering of certain plot item 
+   ( f.e QwtPlotRasterItem ) can be done in parallel in 
+   several threads.
+
+   The default setting is set to 1.
+
+   \param numThreads Number of threads to be used for rendering.
+                     If numThreads is set to 0, the system specific
+                     ideal thread count is used.
+
+   The default thread count is 1 ( = no additional threads )
+*/
+void QwtPlotItem::setRenderThreadCount( uint numThreads )
+{
+    d_data->renderThreadCount = numThreads;
+}
+
+/*!
+   \return Number of threads to be used for rendering.
+           If numThreads is set to 0, the system specific
+           ideal thread count is used.
+*/
+uint QwtPlotItem::renderThreadCount() const
+{
+    return d_data->renderThreadCount;
 }
 
 /*!

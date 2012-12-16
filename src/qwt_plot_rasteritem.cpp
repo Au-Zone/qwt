@@ -27,14 +27,12 @@ class QwtPlotRasterItem::PrivateData
 public:
     PrivateData():
         alpha( -1 ),
-        renderThreadCount( 1 ),
         paintAttributes( QwtPlotRasterItem::PaintInDeviceResolution )
     {
         cache.policy = QwtPlotRasterItem::NoCache;
     }
 
     int alpha;
-    uint renderThreadCount;
 
     QwtPlotRasterItem::PaintAttributes paintAttributes;
 
@@ -568,37 +566,6 @@ void QwtPlotRasterItem::invalidateCache()
     d_data->cache.image = QImage();
     d_data->cache.area = QRect();
     d_data->cache.size = QSize();
-}
-
-/*!
-   Rendering an image from the raster data can often be done
-   parallel on a multicore system.
-
-   \param numThreads Number of threads to be used for rendering.
-                     If numThreads is set to 0, the system specific
-                     ideal thread count is used.
-
-   The default thread count is 1 ( = no additional threads )
-
-   \warning Rendering in multiple threads is only supported for Qt >= 4.4
-   \sa renderThreadCount(), renderImage(), renderTile()
-*/
-void QwtPlotRasterItem::setRenderThreadCount( uint numThreads )
-{
-    d_data->renderThreadCount = numThreads;
-}
-
-/*!
-   \return Number of threads to be used for rendering.
-           If numThreads is set to 0, the system specific
-           ideal thread count is used.
-
-   \warning Rendering in multiple threads is only supported for Qt >= 4.4
-   \sa setRenderThreadCount(), renderImage(), renderTile()
-*/
-uint QwtPlotRasterItem::renderThreadCount() const
-{
-    return d_data->renderThreadCount;
 }
 
 /*!

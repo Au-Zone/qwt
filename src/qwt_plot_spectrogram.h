@@ -24,11 +24,15 @@ class QwtColorMap;
   ( the intensity ) is displayed using colors. The colors are calculated
   from the values using a color map.
 
+  On multicore systems the performance of the image composition
+  can often be improved by dividing the area into tiles - each of them
+  rendered in a different thread ( see QwtPlotItem::setRenderThreadCount() ).
+
   In ContourMode contour lines are painted for the contour levels.
 
   \image html spectrogram3.png
 
-  \sa QwtRasterData, QwtColorMap
+  \sa QwtRasterData, QwtColorMap, QwtPlotItem::setRenderThreadCount()
 */
 
 class QWT_EXPORT QwtPlotSpectrogram: public QwtPlotRasterItem

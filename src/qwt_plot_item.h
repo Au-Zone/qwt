@@ -228,6 +228,9 @@ public:
     void setRenderHint( RenderHint, bool on = true );
     bool testRenderHint( RenderHint ) const;
 
+    void setRenderThreadCount( uint numThreads );
+    uint renderThreadCount() const;
+
     void setLegendIconSize( const QSize & );
     QSize legendIconSize() const;
 
