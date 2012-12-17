@@ -6,6 +6,7 @@
 #endif
 
 #if USE_OPENGL
+#include <qgl.h>
 #include <qwt_plot_glcanvas.h>
 #else
 #include <qwt_plot_canvas.h>
@@ -13,6 +14,13 @@
 
 int main ( int argc, char **argv )
 {
+#if USE_OPENGL
+    // on my box QPaintEngine::OpenGL2 has serious problems, f.e:
+    // the lines of a simple drawRect are wrong.
+
+    QGL::setPreferredPaintEngine( QPaintEngine::OpenGL );
+#endif
+
     QApplication a( argc, argv );
 
     Plot plot;
