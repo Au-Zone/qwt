@@ -27,6 +27,7 @@ contains(QWT_CONFIG, QwtPlot) {
         sinusplot \
         realtime \
         refreshtest \
+        scatterplot \
         spectrogram \
         rasterview \
         tvplot 
