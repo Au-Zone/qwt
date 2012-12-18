@@ -15,10 +15,12 @@
 int main ( int argc, char **argv )
 {
 #if USE_OPENGL
+#if QT_VERSION < 0x050000
     // on my box QPaintEngine::OpenGL2 has serious problems, f.e:
     // the lines of a simple drawRect are wrong.
 
     QGL::setPreferredPaintEngine( QPaintEngine::OpenGL );
+#endif
 #endif
 
     QApplication a( argc, argv );
