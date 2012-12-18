@@ -12,8 +12,58 @@
 #include "qwt_pixel_matrix.h"
 #include <qpolygon.h>
 #include <qimage.h>
+#include <qpen.h>
+#include <qpainter.h>
+
+#if QT_VERSION >= 0x040400
+
+#include <qthread.h>
+#include <qfuture.h>
+#include <qtconcurrentrun.h>
+
+#if !defined(QT_NO_QFUTURE)
+#define QWT_USE_THREADS 0
+#endif
+
+#endif
 
 static QRectF qwtInvalidRect( 0.0, 0.0, -1.0, -1.0 );
+
+// Helper class to work around the 5 parameters
+// limitation of QtConcurrent::run
+class QwtDotsCommand
+{
+public:
+    const QwtSeriesData<QPointF> *series;
+    int from;
+    int to;
+    QRgb rgb;
+};
+
+static void qwtRenderDots(
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QwtDotsCommand command, const QPoint &pos, QImage *image ) 
+{
+    const QRgb rgb = command.rgb;
+    QRgb *bits = reinterpret_cast<QRgb *>( image->bits() );
+
+    const int w = image->width();
+    const int h = image->height();
+
+    const int x0 = pos.x();
+    const int y0 = pos.y();
+
+    for ( int i = command.from; i <= command.to; i++ )
+    {
+        const QPointF sample = command.series->sample( i );
+
+        const int x = static_cast<int>( xMap.transform( sample.x() ) + 0.5 ) - x0;
+        const int y = static_cast<int>( yMap.transform( sample.y() ) + 0.5 ) - y0;
+
+        if ( x >= 0 && x < w && y >= 0 && y < h )
+            bits[ y * w + x ] = rgb;
+    }
+}
 
 static inline int qwtRoundValue( double value )
 {
@@ -564,13 +614,32 @@ QPolygon QwtPointMapper::toPoints(
   \param series Series of points to be mapped
   \param from Index of the first point to be painted
   \param to Index of the last point to be painted
-  \param rgb RGB value, that will be set for all pixels
+  \param pen Pen used for drawing a point
              of the image, where a point is mapped to
+  \param antialiased True, when the dots should be displayed
+                     antialiased
+  \param numThreads Number of threads to be used for rendering.
+                   If numThreads is set to 0, the system specific
+                   ideal thread count is used.
+
 */
 QImage QwtPointMapper::toImage(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QwtSeriesData<QPointF> *series, int from, int to, QRgb rgb ) const
+    const QwtSeriesData<QPointF> *series, int from, int to, 
+    const QPen &pen, bool antialiased, uint numThreads ) const
 {
+    Q_UNUSED( antialiased )
+
+#if QWT_USE_THREADS
+    if ( numThreads == 0 )
+        numThreads = QThread::idealThreadCount();
+
+    if ( numThreads <= 0 )
+        numThreads = 1;
+#else
+    Q_UNUSED( numThreads )
+#endif
+
     // a very special optimization for scatter plots
     // where every sample is mapped to one pixel only.
 
@@ -579,22 +648,64 @@ QImage QwtPointMapper::toImage(
     QImage image( rect.size(), QImage::Format_ARGB32 );
     image.fill( Qt::transparent );
 
-    const int w = image.width();
-    const int h = image.height();
-
-    const int x0 = rect.x();
-    const int y0 = rect.y();
-
-    QRgb *bits = reinterpret_cast<QRgb *>( image.bits() );
-    for ( int i = from; i <= to; i++ )
+    if ( pen.width() <= 1 && pen.color().alpha() == 255 )
     {
-        const QPointF sample = series->sample( i );
+        QwtDotsCommand command;
+        command.series = series;
+        command.rgb = pen.color().rgba();
 
-        const int x = qwtRoundValue( xMap.transform( sample.x() ) ) - x0;
-        const int y = qwtRoundValue( yMap.transform( sample.y() ) ) - y0;
+#if QWT_USE_THREADS
+        const int numPoints = ( to - from + 1 ) / numThreads;
 
-        if ( x >= 0 && x < w && y >= 0 && y < h )
-            bits[ y * w + x ] = rgb;
+        QList< QFuture<void> > futures;
+        for ( uint i = 0; i < numThreads; i++ )
+        {
+            const QPoint pos = rect.topLeft();
+
+            const int index0 = from + i * numPoints;
+            if ( i == numThreads - 1 )
+            {
+                command.from = index0;
+                command.to = to;
+
+                qwtRenderDots( xMap, yMap, command, pos, &image );
+            }
+            else
+            {
+                command.from = index0;
+                command.to = index0 + numPoints - 1;
+
+                futures += QtConcurrent::run( &qwtRenderDots, 
+                    xMap, yMap, command, pos, &image );
+            }
+        }
+        for ( int i = 0; i < futures.size(); i++ )
+            futures[i].waitForFinished();
+#else
+        command.from = from;
+        command.to = to;
+
+        qwtRenderDots( xMap, yMap, command, rect.topLeft(), &image );
+#endif
+    }
+    else
+    {
+        // fallback implementation: to be replaced later by
+        // setting the pixels of the image like above, TODO ...
+
+        QPainter painter( &image );
+        painter.setPen( pen );
+        painter.setRenderHint( QPainter::Antialiasing, antialiased );
+
+        const int chunkSize = 1000;
+        for ( int i = from; i <= to; i += chunkSize )
+        {
+            const int indexTo = qMin( i + chunkSize - 1, to );
+            const QPolygon points = toPoints(
+                xMap, yMap, series, i, indexTo );
+
+            painter.drawPoints( points );
+        }
     }
 
     return image;

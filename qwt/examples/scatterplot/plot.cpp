@@ -16,12 +16,15 @@ Plot::Plot( QWidget *parent ):
 
     // attach curve
     d_curve = new QwtPlotCurve( "Scattered Points" );
-	d_curve->setPen( QColor( "Purple" ) );
-	d_curve->setRenderThreadCount( 0 );
+    d_curve->setPen( QColor( "Purple" ) );
+
+    // when using QwtPlotCurve::ImageBuffer simple dots can be
+    // rendered in parallel on multicore systems.
+    d_curve->setRenderThreadCount( 0 ); // 0: use QThread::idealThreadCount()
 
     d_curve->attach( this );
 
-	setSymbol( NULL );
+    setSymbol( NULL );
 
     // zoom in/out with the wheel, panning with the left mouse button
     (void )new QwtPlotPanner( canvas() );
@@ -30,18 +33,18 @@ Plot::Plot( QWidget *parent ):
 
 void Plot::setSymbol( QwtSymbol *symbol )
 {
-	d_curve->setSymbol( symbol );
+    d_curve->setSymbol( symbol );
 
-	if ( symbol == NULL )
-	{
-		d_curve->setStyle( QwtPlotCurve::Dots );
-	}
+    if ( symbol == NULL )
+    {
+        d_curve->setStyle( QwtPlotCurve::Dots );
+    }
 }
 
 void Plot::setSamples( const QVector<QPointF> &samples )
 {
-   	d_curve->setPaintAttribute( 
-		QwtPlotCurve::ImageBuffer, samples.size() > 1000 );
+    d_curve->setPaintAttribute( 
+        QwtPlotCurve::ImageBuffer, samples.size() > 1000 );
 
-	d_curve->setSamples( samples );
+    d_curve->setSamples( samples );
 }

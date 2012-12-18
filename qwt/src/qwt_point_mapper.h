@@ -76,7 +76,8 @@ public:
         const QwtSeriesData<QPointF> *series, int from, int to ) const;
 
     QImage toImage( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QwtSeriesData<QPointF> *series, int from, int to, QRgb rgb ) const;
+        const QwtSeriesData<QPointF> *series, int from, int to, 
+        const QPen &, bool antialiased, uint numThreads ) const;
 
 private:
     class PrivateData;
