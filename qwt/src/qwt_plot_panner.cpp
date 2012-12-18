@@ -26,7 +26,18 @@ static QBitmap qwtBorderMask( const QWidget *canvas, const QSize &size )
         Q_RETURN_ARG( QPainterPath, borderPath ), Q_ARG( QRect, r ) );
 
     if ( borderPath.isEmpty() )
-        return QBitmap();
+    {
+        if ( canvas->contentsRect() == canvas->rect() )
+            return QBitmap();
+
+        QBitmap mask( size );
+        mask.fill( Qt::color0 );
+
+        QPainter painter( &mask );
+        painter.fillRect( canvas->contentsRect(), Qt::color1 );
+
+        return mask;
+    }
 
     QImage image( size, QImage::Format_ARGB32_Premultiplied );
     image.fill( Qt::color0 );
