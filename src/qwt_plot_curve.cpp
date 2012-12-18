@@ -635,7 +635,9 @@ void QwtPlotCurve::drawDots( QPainter *painter,
     else if ( d_data->paintAttributes & ImageBuffer )
     {
         const QImage image = mapper.toImage( xMap, yMap,
-            data(), from, to, color.rgba() );
+            data(), from, to, d_data->pen, 
+            painter->testRenderHint( QPainter::Antialiasing ),
+            renderThreadCount() );
 
         painter->drawImage( canvasRect.toAlignedRect(), image );
     }
