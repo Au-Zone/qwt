@@ -5,10 +5,13 @@
 #include "timescaledraw.h"
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
+#include <qwt_plot_grid.h>
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
+	setCanvasBackground( Qt::white );
+
     const int axis = QwtPlot::yLeft;
 
     TimeScaleDraw *scaleDraw = new TimeScaleDraw();
@@ -23,9 +26,20 @@ Plot::Plot( QWidget *parent ):
     for ( int i = 0; i < QwtPlot::axisCnt; i++ )
     {
         const bool on = ( i == axis );
+		enableAxis( i, on );
         panner->setAxisEnabled( i, on );
         magnifier->setAxisEnabled( i, on );
     }
+
+	QwtPlotGrid *grid = new QwtPlotGrid();
+    grid->setMajorPen( Qt::black, 0, Qt::SolidLine );
+    grid->setMinorPen( Qt::gray, 0 , Qt::SolidLine );
+	grid->enableX( false );
+	grid->enableXMin( false );
+	grid->enableY( true );
+	grid->enableYMin( true );
+
+	grid->attach( this );
 }
 
 void Plot::applySettings( const Settings &settings )
@@ -40,6 +54,10 @@ void Plot::applySettings( const Settings &settings )
     setAxisMaxMajor( axis, settings.maxMajorSteps );
     setAxisScale( axis, qwtFromDateTime( settings.startDateTime ), 
         qwtFromDateTime( settings.endDateTime ) );
+
+	QString title = settings.startDateTime.toString() + " - " 
+		+ settings.endDateTime.toString();
+	setTitle( title );
 
     replot();
 }

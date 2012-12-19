@@ -34,28 +34,7 @@ TimeScaleDraw::~TimeScaleDraw()
 
 QwtText TimeScaleDraw::label( double value ) const
 {
-	qint64 msecs = qRound64( value );
-
-    static QDateTime dt;
-
-#if QT_VERSION >= 0x040700
-    dt.setMSecsSinceEpoch( msecs );
-#else
-    // code copied from Qt sources
-	const uint msecs_per_day = 86400000;
-
-    int ddays = msecs / msecs_per_day;
-    msecs %= msecs_per_day;
-
-    if ( msecs < 0 ) 
-    {
-        --ddays;
-        msecs += msecs_per_day;
-    }
-
-	dt.setDate( QDate(1970, 1, 1).addDays(ddays) );
-	dt.setTime( QTime().addMSecs(msecs) );
-#endif
+    const QDateTime dt = qwtToDateTime( value );;
 
     // the format string should be cached !!!
     return dt.toString( format( scaleDiv() ) );

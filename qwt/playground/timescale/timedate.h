@@ -1,10 +1,8 @@
 #ifndef _TIME_DATE_H
 #define _TIME_DATE_H
 
-#include <qglobal.h>
+#include <qwt_global.h>
 #include <qdatetime.h>
-
-#define DATE_MIN Q_INT64_C(-210866716800000)
 
 namespace TimeDate
 {
@@ -19,6 +17,12 @@ namespace TimeDate
         Month,
         Year
     };
+
+    QWT_EXPORT double minJulianDay();
+    QWT_EXPORT double maxJulianDay();
+
+    QWT_EXPORT QDate minDate();
+    QWT_EXPORT QDate maxDate();
 };
 
 extern QDateTime qwtToDateTime( double value );

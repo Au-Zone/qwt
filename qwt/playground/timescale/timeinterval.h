@@ -15,11 +15,11 @@ public:
 
     TimeInterval rounded( TimeDate::IntervalType ) const;
 
-    TimeInterval adjusted( int stepSize,
+    TimeInterval adjusted( double stepSize,
         TimeDate::IntervalType ) const;
 
-    int width( TimeDate::IntervalType ) const;
-    int roundedWidth( TimeDate::IntervalType ) const;
+    double width( TimeDate::IntervalType ) const;
+    double roundedWidth( TimeDate::IntervalType ) const;
 
 private:
     QDateTime d_minDate;
