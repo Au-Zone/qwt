@@ -73,8 +73,8 @@ static QDateTime qwtFloorDateToStep( const QDateTime &dt,
         }
         case TimeDate::Year:
         {
-            const int y = qwtAlignValue( dt.date().year(), stepSize );
-            
+            const int y = static_cast<int>( qwtAlignValue( dt.date().year(), stepSize ) );
+
             if ( y == 0 )
             {
                 // there is no year 0 in the Julian calendar
