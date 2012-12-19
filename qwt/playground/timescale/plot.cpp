@@ -55,9 +55,5 @@ void Plot::applySettings( const Settings &settings )
     setAxisScale( axis, qwtFromDateTime( settings.startDateTime ), 
         qwtFromDateTime( settings.endDateTime ) );
 
-	QString title = settings.startDateTime.toString() + " - " 
-		+ settings.endDateTime.toString();
-	setTitle( title );
-
     replot();
 }

@@ -693,7 +693,11 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
                     break;
                 }
 
-                majorTicks += qwtFromDateTime( dt );
+				const double tick = qwtFromDateTime( dt );
+				if ( tick >= min )
+				{
+                	majorTicks += tick;
+				}
 
                 for ( int i = 1; i < numMinorSteps; i++ )
                 {

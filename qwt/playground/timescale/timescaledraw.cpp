@@ -34,7 +34,7 @@ TimeScaleDraw::~TimeScaleDraw()
 
 QwtText TimeScaleDraw::label( double value ) const
 {
-    const QDateTime dt = qwtToDateTime( value );;
+    const QDateTime dt = qwtToDateTime( value );
 
     // the format string should be cached !!!
     return dt.toString( format( scaleDiv() ) );
