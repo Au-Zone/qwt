@@ -1,5 +1,6 @@
 #include "panel.h"
 #include "settings.h"
+#include "timedate.h"
 #include <qdatetimeedit.h>
 #include <qspinbox.h>
 #include <qlayout.h>
@@ -11,11 +12,11 @@ Panel::Panel( QWidget *parent ):
     // create widgets
 
     d_startDateTime = new QDateTimeEdit();
-    d_startDateTime->setDisplayFormat( d_startDateTime->displayFormat() + ":zzz" );
+    d_startDateTime->setDisplayFormat( "M/d/yyyy h:mm AP :zzz" );
     d_startDateTime->setCalendarPopup( true );
 
     d_endDateTime = new QDateTimeEdit();
-    d_endDateTime->setDisplayFormat( d_endDateTime->displayFormat() + ":zzz" );
+    d_endDateTime->setDisplayFormat( "M/d/yyyy h:mm AP :zzz" );
     d_endDateTime->setCalendarPopup( true );
     
     d_maxMajorSteps = new QSpinBox();
@@ -83,8 +84,14 @@ Settings Panel::settings() const
 {
     Settings settings;
 
+#if 1
     settings.startDateTime = d_startDateTime->dateTime();
     settings.endDateTime = d_endDateTime->dateTime();
+#else
+	settings.startDateTime = QDateTime( QDate::fromJulianDay( -700000000000.0 ) );
+	settings.endDateTime = QDateTime( QDate::fromJulianDay( 700000000000.0 ) );
+#endif
+
     settings.maxMajorSteps = d_maxMajorSteps->value();
     settings.maxMinorSteps = d_maxMinorSteps->value();
     settings.maxWeeks = d_maxWeeks->value();

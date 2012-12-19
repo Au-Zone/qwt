@@ -4,9 +4,39 @@
 #include <limits.h>
 #include <math.h>
 
-#define DEBUG_CONVERSION 0
+static const qint64 s_julianDay0 = QDate(1970, 1, 1).toJulianDay();
+static const int s_msecsPerDay = 86400000;
 
-static const int s_julianDay0 = QDate(1970, 1, 1).toJulianDay();
+static inline QDateTime qwtToTimeSpec( const QDateTime &dt, Qt::TimeSpec spec )
+{
+	if ( dt.timeSpec() == spec )
+		return dt;
+
+	const qint64 jd = dt.date().toJulianDay();
+
+	if ( jd < 0 || jd >= INT_MAX )
+	{
+		QDateTime dt2 = dt;
+		dt2.setTimeSpec( spec );
+		return dt2;
+	}
+
+	return dt.toTimeSpec( spec );
+}
+
+static inline double qwtDateToDays( const QDate &date )
+{
+    return static_cast<double>( date.toJulianDay() ) - s_julianDay0;
+}
+
+static inline QDate qwtDaysToDate( double days )
+{
+	const double jd = s_julianDay0 + days;
+	if ( jd > TimeDate::maxJulianDay() || jd < TimeDate::minJulianDay() )
+		return QDate();
+
+    return QDate::fromJulianDay( static_cast<qint64>( jd ) );
+}
 
 static Qt::DayOfWeek qwtFirstDayOfWeek()
 {
@@ -36,14 +66,17 @@ static inline QDate qwtToDate( int year, int month, int day )
     if ( year > 100000 )
     {
         const double jd = qwtToJulianDay( year, month, day );
-
-        if ( jd > INT_MAX )
+		if ( jd < TimeDate::minJulianDay() || jd > TimeDate::maxJulianDay() )
         {
-            qDebug() << "Floor: overrun";
+            qWarning() << "qwtToDate: overflow";
             return QDate();
         }
 
+#if QT_VERSION >= 0x050000
+        return QDate::fromJulianDay( static_cast<qint64>( jd ) );
+#else
         return QDate::fromJulianDay( static_cast<int>( jd ) );
+#endif
     }
     else
     {
@@ -53,78 +86,37 @@ static inline QDate qwtToDate( int year, int month, int day )
 
 QDateTime qwtToDateTime( double value )
 {
-    qint64 msecs = qRound64( value );
-    if ( msecs < DATE_MIN )
-        return QDateTime();
+    const double days = value / s_msecsPerDay;
 
-    const int msecsPerDay = 24 * 60 * 60 * 1000;
+    const QDate d = qwtDaysToDate( days );
+	if ( !d.isValid() )
+	{
+		qWarning() << "qwtToDateTime: value out of range: " << value;
+		return QDateTime();
+	}
 
-    int days = msecs / msecsPerDay;
-    msecs %= msecsPerDay;
-    if ( msecs < 0) 
-    {
-        --days;
-        msecs += msecsPerDay;
-    }
-
-    if ( double( s_julianDay0 ) + days > double( INT_MAX ) )
-    {
-        qDebug() << "Overflow";
-        //return QDateTime();
-    }
-
-    const QDate d = QDate::fromJulianDay( s_julianDay0 + days );
+    const int msecs = static_cast<int>( value - days * s_msecsPerDay );
     const QTime t = QTime().addMSecs( msecs );
 
-    const QDateTime dt = QDateTime( d, t, Qt::UTC ).toLocalTime();
-
-#if DEBUG_CONVERSION >= 1
-    if ( !dt.isValid() )
-    {
-        qDebug() << "Not valid: " << value 
-            << dt.date().isValid() << dt.time().isValid() 
-            << dt.date().toJulianDay();
-    }
-#endif
-
-#if DEBUG_CONVERSION >= 2
-    QDateTime dt2;
-    dt2.setMSecsSinceEpoch( qRound64( value ) );
-
-    if ( dt != dt2 )
-        qDebug() << "qwtToDateTime: " << dt << dt2;
-#endif
-
-    return dt;
+    return qwtToTimeSpec( QDateTime( d, t, Qt::UTC ), Qt::LocalTime );
 }
 
 double qwtFromDateTime( const QDateTime &dateTime )
 {
-    const QDateTime dt = dateTime.toUTC();
+	const QDateTime dt = qwtToTimeSpec( dateTime, Qt::UTC );
 
-    const qint64 jd = dt.date().toJulianDay();
-    int msecs = QTime( 0, 0, 0 ).msecsTo( dt.time() );
+    const int msecs = QTime( 0, 0, 0 ).msecsTo( dt.time() );
+    const double days = qwtDateToDays( dt.date() );
 
-    qint64 days = jd - s_julianDay0;
-
-    const int msecsPerDay = 86400000;
-
-    const double value = ( days * msecsPerDay ) + msecs;
-
-#if DEBUG_CONVERSION >= 2
-    if ( value != dateTime.toMSecsSinceEpoch() )
-    {
-        qDebug() << "qwtFromDateTime: " << value 
-            << dateTime.toMSecsSinceEpoch();
-    }
-#endif
-
-    return value;
+    return days * s_msecsPerDay + msecs;
 }
 
 QDateTime qwtCeilDate( const QDateTime &dateTime, 
     TimeDate::IntervalType type )
 {
+	if ( dateTime.date() >= TimeDate::maxDate() )
+		return dateTime;
+
     QDateTime dt;
 
     switch ( type )
@@ -209,7 +201,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
                 year++;
 
             if ( year == 0 )
-                year++; // ther is no year 0
+                year++; // there is no year 0
 
             dt = QDateTime( qwtToDate( year, 1, 1 ) );
             break;
@@ -221,6 +213,9 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
 
 QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
 {
+	if ( dateTime.date() <= TimeDate::minDate() )
+		return dateTime;
+
     QDateTime dt;
 
     switch ( type )
@@ -315,5 +310,49 @@ QDate qwtDateOfWeek0( int year )
     }
 
     return dt0;
+}
+
+double TimeDate::minJulianDay()
+{
+#if QT_VERSION >= 0x050000
+	// Q_INT64_C(-784350574879) )
+	return -784350574879.0;
+#else
+	return 0.0;
+#endif
+
+}
+
+double TimeDate::maxJulianDay()
+{
+#if QT_VERSION >= 0x050000
+	return 784354017364.0;
+#else
+	return UINT_MAX;
+#endif
+}
+
+QDate TimeDate::minDate()
+{
+	static QDate dt;
+	if ( !dt.isValid() )
+	{
+		const qint64 jd = static_cast<qint64>( minJulianDay() );
+		dt = QDate::fromJulianDay( jd );
+	}
+
+	return dt;
+}
+
+QDate TimeDate::maxDate()
+{
+    static QDate dt;
+    if ( !dt.isValid() )
+    {
+        const qint64 jd = static_cast<qint64>( maxJulianDay() );
+        dt = QDate::fromJulianDay( jd );
+    }
+
+    return dt;
 }
 

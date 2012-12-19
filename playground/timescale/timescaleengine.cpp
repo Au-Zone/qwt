@@ -55,7 +55,7 @@ static int qwtStepSize( int intervalSize, int maxSteps, uint base )
     return 0;
 }
 
-static int qwtDivideInterval( int intervalSize, int numSteps, 
+static int qwtDivideInterval( double intervalSize, int numSteps, 
     const int limits[], size_t numLimits )
 {
     const int v = qCeil( intervalSize / double( numSteps ) );
@@ -69,7 +69,7 @@ static int qwtDivideInterval( int intervalSize, int numSteps,
     return limits[ numLimits - 1 ];
 }
 
-static int qwtDivideScale( int intervalSize, int numSteps,
+static double qwtDivideScale( double intervalSize, int numSteps,
     TimeDate::IntervalType intervalType )
 {
     if ( intervalType != TimeDate::Day )
@@ -77,11 +77,11 @@ static int qwtDivideScale( int intervalSize, int numSteps,
         if ( ( intervalSize > numSteps ) && 
             ( intervalSize <= 2 * numSteps ) )
         {
-            return 2;
+            return 2.0;
         }
     }
 
-    int stepSize;
+    double stepSize;
 
     switch( intervalType )
     {
@@ -144,7 +144,7 @@ static int qwtDivideScale( int intervalSize, int numSteps,
     return stepSize;
 }
 
-static double qwtDivideMajorStep( int stepSize, int maxMinSteps,
+static double qwtDivideMajorStep( double stepSize, int maxMinSteps,
     TimeDate::IntervalType intervalType )
 {
     double minStepSize = 0.0;
@@ -262,7 +262,8 @@ static double qwtDivideMajorStep( int stepSize, int maxMinSteps,
         {
             // fractions of months doesn't make any sense
 
-            maxMinSteps = qMin( stepSize, maxMinSteps );
+			if ( stepSize < maxMinSteps )
+				maxMinSteps = static_cast<int>( stepSize );
 
             static int limits[] = { 1, 2, 3, 4, 6, 12 };
 
@@ -418,6 +419,18 @@ int TimeScaleEngine::maxWeeks() const
 TimeDate::IntervalType TimeScaleEngine::intervalType( 
     double min, double max, int maxSteps ) const
 {
+	const double i0 = maxSteps * 366.0 * 24.0 * 60.0 * 60.0 * 1000.0;
+	if ( min < 0 && max > 0 )
+	{
+		if ( max - i0 > min )
+			return TimeDate::Year;
+	}
+	else
+	{
+		if ( max - min > i0 )
+			return TimeDate::Year;
+	}
+
     const TimeInterval interval( qwtToDateTime( min ), qwtToDateTime( max ) );
 
     const int months = interval.roundedWidth( TimeDate::Month );
@@ -474,14 +487,14 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
     const QDateTime from = qwtToDateTime( min );
     if ( !from.isValid() )
     {
-        qDebug() << "Invalid: " << min << from;
+        qWarning() << "Invalid: " << min << from;
         return QwtScaleDiv();
     }
 
     const QDateTime to = qwtToDateTime( max );
     if ( !to.isValid() )
     {
-        qDebug() << "Invalid: " << max << to;
+        qWarning() << "Invalid: " << max << to;
         return QwtScaleDiv();
     }
 
@@ -533,7 +546,7 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
     interval = interval.rounded( intervalType );
 
     // calculate the step size
-    const int stepSize = qwtDivideScale( interval.width( intervalType ), 
+    const double stepSize = qwtDivideScale( interval.width( intervalType ), 
         maxMajSteps, intervalType );
 
     // align to step size
@@ -684,19 +697,30 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
 
                 for ( int i = 1; i < numMinorSteps; i++ )
                 {
-                    const int months = qRound( i * 12 * minStepSize );
-                    const double minorValue = 
-                        qwtFromDateTime( dt.addMonths( months ) );
+					QDateTime tickDate;
+
+                    const double years = qRound( i * minStepSize );
+					if ( years >= INT_MAX / 12 )
+					{
+					    tickDate = dt.addYears( years );
+					}
+					else
+					{
+					    tickDate = dt.addMonths( qRound( years * 12 ) );
+					}
 
                     const bool isMedium = ( numMinorSteps > 2 ) &&
-                        ( numMinorSteps % 2 == 0 ) &&
-                        ( i == numMinorSteps / 2 );
+                        ( numMinorSteps % 2 == 0 ) && ( i == numMinorSteps / 2 );
 
+                    const double minorValue = qwtFromDateTime( tickDate );
                     if ( isMedium )
                         mediumTicks += minorValue;
                     else
                         minorTicks += minorValue;
                 }
+
+				if ( TimeDate::maxDate().addYears( -stepSize ) < dt.date() )
+					break;
             }   
         }
 
