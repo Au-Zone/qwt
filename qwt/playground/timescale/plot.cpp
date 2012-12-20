@@ -1,6 +1,6 @@
 #include "plot.h"
 #include "settings.h"
-#include "timedate.h"
+#include "qwt_date.h"
 #include "timescaleengine.h"
 #include "timescaledraw.h"
 #include <qwt_plot_panner.h>
