@@ -1,7 +1,7 @@
 #ifndef _TIME_SCALE_ENGINE_H_
 #define _TIME_SCALE_ENGINE_H_ 1
 
-#include "timedate.h"
+#include "qwt_date.h"
 #include <qwt_scale_engine.h>
 
 class TimeScaleEngine: public QwtLinearScaleEngine

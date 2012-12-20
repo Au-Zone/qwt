@@ -49,6 +49,10 @@ public:
 	static QDateTime floor( const QDateTime &, IntervalType );
 
 	static QDate dateOfWeek0( int year );
+
+	static QDateTime toTimeSpec( const QDateTime &, Qt::TimeSpec );
+	static double toJulianDay( int year, int month, int day );
+	static QDate toDate( int year, int month, int day );
 };
 
 #endif

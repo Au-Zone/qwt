@@ -1,7 +1,7 @@
 #ifndef _TIME_INTERVAL_H_
 #define _TIME_INTERVAL_H_ 1
 
-#include "timedate.h"
+#include "qwt_date.h"
 #include <qdatetime.h>
 
 class TimeInterval

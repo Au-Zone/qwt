@@ -1,5 +1,5 @@
 #include "timeinterval.h"
-#include "timedate.h"
+#include "qwt_date.h"
 #include <qmath.h>
 #include <qdebug.h>
 
