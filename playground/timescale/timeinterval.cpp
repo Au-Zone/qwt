@@ -14,38 +14,38 @@ static inline double qwtAlignValue( double value, double stepSize )
 }
 
 static QDateTime qwtFloorDateToStep( const QDateTime &dt,
-    double stepSize, TimeDate::IntervalType intervalType )
+    double stepSize, QwtDate::IntervalType intervalType )
 {
     // what about: (year == 1582 && month == 10 && day > 4 && day < 15) ??
 
     switch( intervalType )
     {
-        case TimeDate::Millisecond:
+        case QwtDate::Millisecond:
         {
             const QTime t = dt.time();
             const int ms = qwtAlignValue( t.msec(), stepSize ) ;
             return QDateTime( dt.date(),
                 QTime( t.hour(), t.minute(), t.second(), ms ) );
         }
-        case TimeDate::Second:
+        case QwtDate::Second:
         {
             const QTime t = dt.time();
             const int s = qwtAlignValue( t.second(), stepSize );
             return QDateTime( dt.date(), QTime( t.hour(), t.minute(), s ) );
         }
-        case TimeDate::Minute:
+        case QwtDate::Minute:
         {
             const QTime t = dt.time();
             const int m = qwtAlignValue( t.minute(), stepSize );
             return QDateTime( dt.date(), QTime( t.hour(), m, 0 ) );
         }
-        case TimeDate::Hour:
+        case QwtDate::Hour:
         {
             const QTime t = dt.time();
             const int h = qwtAlignValue( t.hour(), stepSize );
             return QDateTime( dt.date(), QTime( h, 0, 0 ) );
         }
-        case TimeDate::Day:
+        case QwtDate::Day:
         {
 #if 1
             // ????
@@ -57,21 +57,21 @@ static QDateTime qwtFloorDateToStep( const QDateTime &dt,
 
             return QDateTime( date );
         }
-        case TimeDate::Week:
+        case QwtDate::Week:
         {
-            QDate date = qwtDateOfWeek0( dt.date().year() );
+            QDate date = QwtDate::dateOfWeek0( dt.date().year() );
 
             const int numWeeks = date.daysTo( dt.date() ) / 7;
             date = date.addDays( qwtAlignValue( numWeeks, stepSize ) * 7 );
 
             return QDateTime( date );
         }
-        case TimeDate::Month:
+        case QwtDate::Month:
         {
             const double m = qwtAlignValue( dt.date().month() - 1, stepSize );
             return QDateTime( QDate( dt.date().year(), static_cast<int>( m + 1 ), 1 ) );
         }
-        case TimeDate::Year:
+        case QwtDate::Year:
         {
             const int y = static_cast<int>( qwtAlignValue( dt.date().year(), stepSize ) );
 
@@ -97,8 +97,8 @@ TimeInterval::TimeInterval(
 }
 
 TimeInterval::TimeInterval( double from, double to ):
-    d_minDate( qwtToDateTime( from ) ),
-    d_maxDate( qwtToDateTime( to ) )
+    d_minDate( QwtDate::toDateTime( from ) ),
+    d_maxDate( QwtDate::toDateTime( to ) )
 {
 }
 
@@ -113,16 +113,16 @@ QDateTime TimeInterval::maxDate() const
 }
 
 TimeInterval TimeInterval::rounded( 
-    TimeDate::IntervalType intervalType ) const
+    QwtDate::IntervalType intervalType ) const
 {
-    const QDateTime minDate = qwtFloorDate( d_minDate, intervalType );
-    const QDateTime maxDate = qwtCeilDate( d_maxDate, intervalType );
+    const QDateTime minDate = QwtDate::floor( d_minDate, intervalType );
+    const QDateTime maxDate = QwtDate::ceil( d_maxDate, intervalType );
 
     return TimeInterval( minDate, maxDate );
 }
 
 TimeInterval TimeInterval::adjusted( double stepSize,
-    TimeDate::IntervalType intervalType ) const
+    QwtDate::IntervalType intervalType ) const
 {
     const QDateTime minDate = qwtFloorDateToStep( d_minDate,
         stepSize, intervalType );
@@ -130,11 +130,11 @@ TimeInterval TimeInterval::adjusted( double stepSize,
     return TimeInterval( minDate, d_maxDate );
 }
 
-double TimeInterval::width( TimeDate::IntervalType intervalType ) const
+double TimeInterval::width( QwtDate::IntervalType intervalType ) const
 {
     switch( intervalType )
     {
-        case TimeDate::Millisecond:
+        case QwtDate::Millisecond:
         {
             const double secsTo = d_minDate.secsTo( d_maxDate );
             const double msecs = d_maxDate.time().msec() -
@@ -142,29 +142,29 @@ double TimeInterval::width( TimeDate::IntervalType intervalType ) const
 
             return secsTo * 1000 + msecs;
         }
-        case TimeDate::Second:
+        case QwtDate::Second:
         {
             return d_minDate.secsTo( d_maxDate );
         }
-        case TimeDate::Minute:
+        case QwtDate::Minute:
         {
             const double secsTo = d_minDate.secsTo( d_maxDate );
             return qwtFloorValue( secsTo / 60 );
         }
-        case TimeDate::Hour:
+        case QwtDate::Hour:
         {
             const double secsTo = d_minDate.secsTo( d_maxDate );
             return qwtFloorValue( secsTo / 3600 );
         }
-        case TimeDate::Day:
+        case QwtDate::Day:
         {
             return d_minDate.daysTo( d_maxDate );
         }
-        case TimeDate::Week:
+        case QwtDate::Week:
         {
             return qwtFloorValue( d_minDate.daysTo( d_maxDate ) / 7.0 );
         }
-        case TimeDate::Month:
+        case QwtDate::Month:
         {
             const double years = double( d_maxDate.date().year() ) - d_minDate.date().year();
 
@@ -174,7 +174,7 @@ double TimeInterval::width( TimeDate::IntervalType intervalType ) const
 
             return years * 12 + months;
         }
-        case TimeDate::Year:
+        case QwtDate::Year:
         {
             double years = double( d_maxDate.date().year() ) - d_minDate.date().year();
             if ( d_maxDate.date().month() < d_minDate.date().month() )
@@ -188,7 +188,7 @@ double TimeInterval::width( TimeDate::IntervalType intervalType ) const
 }
 
 double TimeInterval::roundedWidth( 
-    TimeDate::IntervalType intervalType ) const
+    QwtDate::IntervalType intervalType ) const
 {
     return rounded( intervalType ).width( intervalType );
 }

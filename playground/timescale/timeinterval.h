@@ -13,13 +13,13 @@ public:
     QDateTime minDate() const;
     QDateTime maxDate() const;
 
-    TimeInterval rounded( TimeDate::IntervalType ) const;
+    TimeInterval rounded( QwtDate::IntervalType ) const;
 
     TimeInterval adjusted( double stepSize,
-        TimeDate::IntervalType ) const;
+        QwtDate::IntervalType ) const;
 
-    double width( TimeDate::IntervalType ) const;
-    double roundedWidth( TimeDate::IntervalType ) const;
+    double width( QwtDate::IntervalType ) const;
+    double roundedWidth( QwtDate::IntervalType ) const;
 
 private:
     QDateTime d_minDate;

@@ -22,18 +22,18 @@ public:
 
     virtual QwtTransform *transformation() const;
 
-    virtual TimeDate::IntervalType intervalType( 
+    virtual QwtDate::IntervalType intervalType( 
         double x1, double x2, int maxSteps ) const;
 
 protected:
     virtual double divideInterval(
         const QDateTime &, const QDateTime &,
-        TimeDate::IntervalType, int numSteps ) const;
+        QwtDate::IntervalType, int numSteps ) const;
 
 private:
     QwtScaleDiv divideTo( double min, double max,
         int maxMajSteps, int maxMinSteps,
-        TimeDate::IntervalType intervalType ) const;
+        QwtDate::IntervalType intervalType ) const;
 
 private:
     Qt::TimeSpec d_timeSpec;

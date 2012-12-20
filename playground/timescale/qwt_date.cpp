@@ -1,16 +1,10 @@
-#include "timedate.h"
+#include "qwt_date.h"
 #include <qlocale.h>
 #include <qdebug.h>
 #include <limits.h>
 #include <math.h>
 
-#if QT_VERSION >= 0x050000
-typedef qint64 QwtJulianDay;
-#else
-typedef int QwtJulianDay;
-#endif
-
-static const QwtJulianDay s_julianDay0 = 
+static const QwtDate::JulianDay s_julianDay0 = 
     QDateTime( QDate(1970, 1, 1) ).toUTC().date().toJulianDay();
 
 static const int s_msecsPerDay = 86400000;
@@ -64,13 +58,14 @@ static inline QDate qwtToDate( int year, int month, int day )
     if ( year > 100000 )
     {
         const double jd = qwtToJulianDay( year, month, day );
-        if ( jd < TimeDate::minJulianDay() || jd > TimeDate::maxJulianDay() )
+        if ( ( jd < QwtDate::minJulianDay() ) || 
+			( jd > QwtDate::maxJulianDay() ) )
         {
             qWarning() << "qwtToDate: overflow";
             return QDate();
         }
 
-        return QDate::fromJulianDay( static_cast<QwtJulianDay>( jd ) );
+        return QDate::fromJulianDay( static_cast<QwtDate::JulianDay>( jd ) );
     }
     else
     {
@@ -78,18 +73,20 @@ static inline QDate qwtToDate( int year, int month, int day )
     }
 }
 
-QDateTime qwtToDateTime( double value )
+// UTC/LocalTime
+QDateTime QwtDate::toDateTime( double value )
 {
     const double days = static_cast<qint64>( value / s_msecsPerDay );
 
     const double jd = s_julianDay0 + days;
-    if ( jd > TimeDate::maxJulianDay() || jd < TimeDate::minJulianDay() )
+    if ( ( jd > QwtDate::maxJulianDay() ) || 
+		( jd < QwtDate::minJulianDay() ) )
     {
-        qWarning() << "qwtToDateTime: overflow";
+        qWarning() << "QwtDate::toDateTime: overflow";
         return QDateTime();
     }
 
-    const QDate d = QDate::fromJulianDay( static_cast<QwtJulianDay>( jd ) );
+    const QDate d = QDate::fromJulianDay( static_cast<QwtDate::JulianDay>( jd ) );
     if ( !d.isValid() )
     {
         qWarning() << "qwtToDateTime: value out of range: " << value;
@@ -105,7 +102,7 @@ QDateTime qwtToDateTime( double value )
     return qwtToTimeSpec( dt, Qt::LocalTime );
 }
 
-double qwtFromDateTime( const QDateTime &dateTime )
+double QwtDate::toDouble( const QDateTime &dateTime )
 {
     const QDateTime dt = qwtToTimeSpec( dateTime, Qt::UTC );
 
@@ -117,22 +114,21 @@ double qwtFromDateTime( const QDateTime &dateTime )
     return days * s_msecsPerDay + time.msec() + 1000.0 * secs;
 }
 
-QDateTime qwtCeilDate( const QDateTime &dateTime, 
-    TimeDate::IntervalType type )
+QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType type )
 {
-    if ( dateTime.date() >= TimeDate::maxDate() )
+    if ( dateTime.date() >= QwtDate::maxDate() )
         return dateTime;
 
     QDateTime dt;
 
     switch ( type )
     {
-        case TimeDate::Millisecond:
+        case QwtDate::Millisecond:
         {
             dt = dateTime;
             break;
         }
-        case TimeDate::Second:
+        case QwtDate::Second:
         {
             dt.setDate( dateTime.date() );
 
@@ -144,7 +140,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
 
             break;
         }
-        case TimeDate::Minute:
+        case QwtDate::Minute:
         {
             dt.setDate( dateTime.date() );
 
@@ -156,7 +152,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
 
             break;
         }
-        case TimeDate::Hour:
+        case QwtDate::Hour:
         {
             dt.setDate( dateTime.date() );
             
@@ -168,7 +164,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
 
             break;
         }
-        case TimeDate::Day:
+        case QwtDate::Day:
         {
             dt = QDateTime( dateTime.date() );
             if ( dt < dateTime )
@@ -176,7 +172,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
 
             break;
         }
-        case TimeDate::Week:
+        case QwtDate::Week:
         {
             dt = QDateTime( dateTime.date() );
             if ( dt < dateTime )
@@ -190,7 +186,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
 
             break;
         }
-        case TimeDate::Month:
+        case QwtDate::Month:
         {
             dt = QDateTime( qwtToDate( dateTime.date().year(), dateTime.date().month(), 1 ) );
             if ( dt < dateTime )
@@ -198,7 +194,7 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
 
             break;
         }
-        case TimeDate::Year:
+        case QwtDate::Year:
         {
             const QDate d = dateTime.date();
 
@@ -217,21 +213,21 @@ QDateTime qwtCeilDate( const QDateTime &dateTime,
     return dt;
 }
 
-QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
+QDateTime QwtDate::floor( const QDateTime &dateTime, IntervalType type )
 {
-    if ( dateTime.date() <= TimeDate::minDate() )
+    if ( dateTime.date() <= QwtDate::minDate() )
         return dateTime;
 
     QDateTime dt;
 
     switch ( type )
     {
-        case TimeDate::Millisecond:
+        case QwtDate::Millisecond:
         {
             dt = dateTime;
             break;
         }
-        case TimeDate::Second:
+        case QwtDate::Second:
         {
             dt.setDate( dateTime.date() );
 
@@ -240,7 +236,7 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
 
             break;
         }
-        case TimeDate::Minute:
+        case QwtDate::Minute:
         {
             dt.setDate( dateTime.date() );
 
@@ -249,7 +245,7 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
 
             break;
         }
-        case TimeDate::Hour:
+        case QwtDate::Hour:
         {
             dt.setDate( dateTime.date() );
 
@@ -257,12 +253,12 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
             dt.setTime( QTime( t.hour(), 0, 0, 0 ) );
             break;
         }
-        case TimeDate::Day:
+        case QwtDate::Day:
         {
             dt = QDateTime( dateTime.date() );
             break;
         }
-        case TimeDate::Week:
+        case QwtDate::Week:
         {
             dt = QDateTime( dateTime.date() );
 
@@ -274,12 +270,12 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
 
             break;
         }
-        case TimeDate::Month:
+        case QwtDate::Month:
         {
             dt = QDateTime( qwtToDate( dateTime.date().year(), dateTime.date().month(), 1 ) );
             break;
         }
-        case TimeDate::Year:
+        case QwtDate::Year:
         {
             dt = QDateTime( qwtToDate( dateTime.date().year(), 1, 1 ) );
             break;
@@ -289,7 +285,7 @@ QDateTime qwtFloorDate( const QDateTime &dateTime, TimeDate::IntervalType type )
     return dt;
 }
 
-QDate qwtDateOfWeek0( int year )
+QDate QwtDate::dateOfWeek0( int year )
 {
     const QLocale locale;
 
@@ -318,10 +314,9 @@ QDate qwtDateOfWeek0( int year )
     return dt0;
 }
 
-double TimeDate::minJulianDay()
+double QwtDate::minJulianDay()
 {
 #if QT_VERSION >= 0x050000
-    // Q_INT64_C(-784350574879) )
     return -784350574879.0;
 #else
     return 0.0;
@@ -329,7 +324,7 @@ double TimeDate::minJulianDay()
 
 }
 
-double TimeDate::maxJulianDay()
+double QwtDate::maxJulianDay()
 {
 #if QT_VERSION >= 0x050000
     return 784354017364.0;
@@ -338,7 +333,7 @@ double TimeDate::maxJulianDay()
 #endif
 }
 
-QDate TimeDate::minDate()
+QDate QwtDate::minDate()
 {
     static QDate dt;
     if ( !dt.isValid() )
@@ -350,7 +345,7 @@ QDate TimeDate::minDate()
     return dt;
 }
 
-QDate TimeDate::maxDate()
+QDate QwtDate::maxDate()
 {
     static QDate dt;
     if ( !dt.isValid() )
@@ -362,7 +357,7 @@ QDate TimeDate::maxDate()
     return dt;
 }
 
-double TimeDate::msecsOfType( IntervalType type )
+double QwtDate::msecsOfType( IntervalType type )
 {
     static const double msecs[] =
     {

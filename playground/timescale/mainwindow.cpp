@@ -46,8 +46,8 @@ void MainWindow::updatePanel()
     const QwtScaleDiv scaleDiv = d_plot->axisScaleDiv( QwtPlot::yLeft );
 
     Settings settings = d_panel->settings();
-    settings.startDateTime = qwtToDateTime( scaleDiv.lowerBound() );
-    settings.endDateTime = qwtToDateTime( scaleDiv.upperBound() );
+    settings.startDateTime = QwtDate::toDateTime( scaleDiv.lowerBound() );
+    settings.endDateTime = QwtDate::toDateTime( scaleDiv.upperBound() );
 
     d_panel->setSettings( settings );
 }

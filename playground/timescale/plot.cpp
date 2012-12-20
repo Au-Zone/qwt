@@ -52,8 +52,8 @@ void Plot::applySettings( const Settings &settings )
     scaleEngine->setMaxWeeks( settings.maxWeeks );
     setAxisMaxMinor( axis, settings.maxMinorSteps );
     setAxisMaxMajor( axis, settings.maxMajorSteps );
-    setAxisScale( axis, qwtFromDateTime( settings.startDateTime ), 
-        qwtFromDateTime( settings.endDateTime ) );
+    setAxisScale( axis, QwtDate::toDouble( settings.startDateTime ), 
+        QwtDate::toDouble( settings.endDateTime ) );
 
     replot();
 }
