@@ -84,13 +84,8 @@ Settings Panel::settings() const
 {
     Settings settings;
 
-#if 1
     settings.startDateTime = d_startDateTime->dateTime();
     settings.endDateTime = d_endDateTime->dateTime();
-#else
-	settings.startDateTime = QDateTime( QDate::fromJulianDay( -700000000000.0 ) );
-	settings.endDateTime = QDateTime( QDate::fromJulianDay( 700000000000.0 ) );
-#endif
 
     settings.maxMajorSteps = d_maxMajorSteps->value();
     settings.maxMinorSteps = d_maxMinorSteps->value();

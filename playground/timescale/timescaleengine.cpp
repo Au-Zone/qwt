@@ -7,6 +7,18 @@
 
 #define DEBUG_ENGINE 0
 
+static inline QwtInterval qwtRoundInterval( 
+    const QwtInterval &interval, TimeDate::IntervalType type )
+{
+    const QDateTime d1 = qwtFloorDate( 
+        qwtToDateTime( interval.minValue() ), type );
+
+    const QDateTime d2 = qwtCeilDate( 
+        qwtToDateTime( interval.maxValue() ), type );
+
+    return QwtInterval( qwtFromDateTime( d1 ), qwtFromDateTime( d2 ) );
+}
+
 static inline int qwtStepCount( int intervalSize, int maxSteps,
     const int limits[], size_t numLimits )
 {
@@ -262,8 +274,8 @@ static double qwtDivideMajorStep( double stepSize, int maxMinSteps,
         {
             // fractions of months doesn't make any sense
 
-			if ( stepSize < maxMinSteps )
-				maxMinSteps = static_cast<int>( stepSize );
+            if ( stepSize < maxMinSteps )
+                maxMinSteps = static_cast<int>( stepSize );
 
             static int limits[] = { 1, 2, 3, 4, 6, 12 };
 
@@ -419,17 +431,17 @@ int TimeScaleEngine::maxWeeks() const
 TimeDate::IntervalType TimeScaleEngine::intervalType( 
     double min, double max, int maxSteps ) const
 {
-	const double i0 = maxSteps * 366.0 * 24.0 * 60.0 * 60.0 * 1000.0;
-	if ( min < 0 && max > 0 )
-	{
-		if ( max - i0 > min )
-			return TimeDate::Year;
-	}
-	else
-	{
-		if ( max - min > i0 )
-			return TimeDate::Year;
-	}
+    const double i0 = maxSteps * TimeDate::msecsOfType( TimeDate::Year );
+    if ( min < 0 && max > 0 )
+    {
+        if ( max - i0 > min )
+            return TimeDate::Year;
+    }
+    else
+    {
+        if ( max - min > i0 )
+            return TimeDate::Year;
+    }
 
     const TimeInterval interval( qwtToDateTime( min ), qwtToDateTime( max ) );
 
@@ -470,7 +482,63 @@ TimeDate::IntervalType TimeScaleEngine::intervalType(
 void TimeScaleEngine::autoScale( int maxNumSteps,
     double &x1, double &x2, double &stepSize ) const
 {
-    QwtLinearScaleEngine::autoScale( maxNumSteps, x1, x2, stepSize );
+    stepSize = 0.0;
+
+    QwtInterval interval( x1, x2 );
+    interval = interval.normalized();
+
+    interval.setMinValue( interval.minValue() - lowerMargin() );
+    interval.setMaxValue( interval.maxValue() + upperMargin() );
+
+    if ( testAttribute( QwtScaleEngine::Symmetric ) )
+        interval = interval.symmetrize( reference() );
+
+    if ( testAttribute( QwtScaleEngine::IncludeReference ) )
+        interval = interval.extend( reference() );
+
+    if ( interval.width() == 0.0 )
+        interval = buildInterval( interval.minValue() );
+
+    const QDateTime from = qwtToDateTime( interval.minValue() );
+    const QDateTime to = qwtToDateTime( interval.maxValue() );
+
+    if ( from.isValid() && to.isValid() )
+    {
+        if ( maxNumSteps < 1 )
+            maxNumSteps = 1;
+
+        const TimeDate::IntervalType type =
+            intervalType( interval.minValue(), interval.maxValue(), maxNumSteps );
+qDebug() << "IntervalType: " << type;
+
+        stepSize = divideInterval( from, to, type, maxNumSteps );
+
+        if ( stepSize != 0.0 && !testAttribute( QwtScaleEngine::Floating ) )
+        {
+            interval = align( interval, stepSize );
+            interval = qwtRoundInterval( interval, type );
+        }
+    }
+
+    x1 = interval.minValue();
+    x2 = interval.maxValue();
+
+    if ( testAttribute( QwtScaleEngine::Inverted ) )
+    {
+        qSwap( x1, x2 );
+        stepSize = -stepSize;
+    }
+}
+
+double TimeScaleEngine::divideInterval( 
+    const QDateTime &from, const QDateTime &to,
+    TimeDate::IntervalType type, int numSteps ) const
+{
+    const double width = TimeInterval( from, to ).width( type );
+    
+    double stepSize = QwtScaleArithmetic::divideInterval( width, numSteps, 10 );
+
+    return stepSize * TimeDate::msecsOfType( type );
 }
 
 QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
@@ -693,25 +761,25 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
                     break;
                 }
 
-				const double tick = qwtFromDateTime( dt );
-				if ( tick >= min )
-				{
-                	majorTicks += tick;
-				}
+                const double tick = qwtFromDateTime( dt );
+                if ( tick >= min )
+                {
+                    majorTicks += tick;
+                }
 
                 for ( int i = 1; i < numMinorSteps; i++ )
                 {
-					QDateTime tickDate;
+                    QDateTime tickDate;
 
                     const double years = qRound( i * minStepSize );
-					if ( years >= INT_MAX / 12 )
-					{
-					    tickDate = dt.addYears( years );
-					}
-					else
-					{
-					    tickDate = dt.addMonths( qRound( years * 12 ) );
-					}
+                    if ( years >= INT_MAX / 12 )
+                    {
+                        tickDate = dt.addYears( years );
+                    }
+                    else
+                    {
+                        tickDate = dt.addMonths( qRound( years * 12 ) );
+                    }
 
                     const bool isMedium = ( numMinorSteps > 2 ) &&
                         ( numMinorSteps % 2 == 0 ) && ( i == numMinorSteps / 2 );
@@ -723,8 +791,8 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
                         minorTicks += minorValue;
                 }
 
-				if ( TimeDate::maxDate().addYears( -stepSize ) < dt.date() )
-					break;
+                if ( TimeDate::maxDate().addYears( -stepSize ) < dt.date() )
+                    break;
             }   
         }
 

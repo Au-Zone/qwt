@@ -362,3 +362,23 @@ QDate TimeDate::maxDate()
     return dt;
 }
 
+double TimeDate::msecsOfType( IntervalType type )
+{
+    static const double msecs[] =
+    {
+        1.0, 
+        1000.0,
+        60.0 * 1000.0,
+        3600.0 * 1000.0,
+        24.0 * 3600.0 * 1000.0,
+        7.0 * 24.0 * 3600.0 * 1000.0,
+        30.0 * 24.0 * 3600.0 * 1000.0,
+        365.0 * 24.0 * 3600.0 * 1000.0,
+    };
+
+    if ( type < 0 || type >= sizeof( msecs ) / sizeof( msecs[0] ) )
+        return 1.0;
+
+    return msecs[ type ];
+}
+

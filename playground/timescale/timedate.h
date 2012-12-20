@@ -23,6 +23,8 @@ namespace TimeDate
 
     QWT_EXPORT QDate minDate();
     QWT_EXPORT QDate maxDate();
+
+    QWT_EXPORT double msecsOfType( IntervalType );
 };
 
 extern QDateTime qwtToDateTime( double value );
