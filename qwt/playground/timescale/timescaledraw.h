@@ -14,7 +14,7 @@ public:
 
 protected:
     virtual QString format( const QwtScaleDiv & ) const;
-    virtual QString format( TimeDate::IntervalType ) const;
+    virtual QString format( QwtDate::IntervalType ) const;
 };
 
 #endif
