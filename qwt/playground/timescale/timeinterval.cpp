@@ -5,12 +5,12 @@
 
 static inline double qwtFloorValue( double value )
 {
-	return ::floor( value );
+    return ::floor( value );
 }
 
 static inline double qwtAlignValue( double value, double stepSize )
 {
-	return qwtFloorValue( value / stepSize ) * stepSize;
+    return qwtFloorValue( value / stepSize ) * stepSize;
 }
 
 static QDateTime qwtFloorDateToStep( const QDateTime &dt,
@@ -148,12 +148,12 @@ double TimeInterval::width( TimeDate::IntervalType intervalType ) const
         }
         case TimeDate::Minute:
         {
-			const double secsTo = d_minDate.secsTo( d_maxDate );
+            const double secsTo = d_minDate.secsTo( d_maxDate );
             return qwtFloorValue( secsTo / 60 );
         }
         case TimeDate::Hour:
         {
-			const double secsTo = d_minDate.secsTo( d_maxDate );
+            const double secsTo = d_minDate.secsTo( d_maxDate );
             return qwtFloorValue( secsTo / 3600 );
         }
         case TimeDate::Day:

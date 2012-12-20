@@ -25,6 +25,11 @@ public:
     virtual TimeDate::IntervalType intervalType( 
         double x1, double x2, int maxSteps ) const;
 
+protected:
+    virtual double divideInterval(
+        const QDateTime &, const QDateTime &,
+        TimeDate::IntervalType, int numSteps ) const;
+
 private:
     QwtScaleDiv divideTo( double min, double max,
         int maxMajSteps, int maxMinSteps,

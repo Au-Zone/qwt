@@ -10,7 +10,7 @@
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
-	setCanvasBackground( Qt::white );
+    setCanvasBackground( Qt::white );
 
     const int axis = QwtPlot::yLeft;
 
@@ -26,20 +26,20 @@ Plot::Plot( QWidget *parent ):
     for ( int i = 0; i < QwtPlot::axisCnt; i++ )
     {
         const bool on = ( i == axis );
-		enableAxis( i, on );
+        enableAxis( i, on );
         panner->setAxisEnabled( i, on );
         magnifier->setAxisEnabled( i, on );
     }
 
-	QwtPlotGrid *grid = new QwtPlotGrid();
+    QwtPlotGrid *grid = new QwtPlotGrid();
     grid->setMajorPen( Qt::black, 0, Qt::SolidLine );
     grid->setMinorPen( Qt::gray, 0 , Qt::SolidLine );
-	grid->enableX( false );
-	grid->enableXMin( false );
-	grid->enableY( true );
-	grid->enableYMin( true );
+    grid->enableX( false );
+    grid->enableXMin( false );
+    grid->enableY( true );
+    grid->enableYMin( true );
 
-	grid->attach( this );
+    grid->attach( this );
 }
 
 void Plot::applySettings( const Settings &settings )
