@@ -1,6 +1,9 @@
 #include "timeinterval.h"
 #include "qwt_date.h"
 #include <qmath.h>
+#if QT_VERSION >= 0x040800
+#include <qlocale.h>
+#endif
 #include <qdebug.h>
 
 static inline double qwtFloorValue( double value )
@@ -11,6 +14,39 @@ static inline double qwtFloorValue( double value )
 static inline double qwtAlignValue( double value, double stepSize )
 {
     return qwtFloorValue( value / stepSize ) * stepSize;
+}
+
+static QDate qwtDateOfWeek0( int year )
+{
+#if QT_VERSION >= 0x040800
+    Qt::DayOfWeek firstDayOfWeek = QLocale().firstDayOfWeek();
+#else
+    Qt::DayOfWeek firstDayOfWeek = Qt::Monday;
+#endif
+
+    QDate dt0( year, 1, 1 );
+
+    // floor to the first day of the week
+    int days = dt0.dayOfWeek() - firstDayOfWeek;
+    if ( days < 0 )
+        days += 7;
+
+    dt0 = dt0.addDays( -days );
+
+    if ( QLocale().country() != QLocale::UnitedStates )
+    {
+        // according to ISO 8601 the first week is defined
+        // by the first thursday. 
+
+        int d = Qt::Thursday - firstDayOfWeek;
+        if ( d < 0 )
+            d += 7;
+
+        if ( dt0.addDays( d ).year() < year )
+            dt0 = dt0.addDays( 7 );
+    }
+
+    return dt0;
 }
 
 static QDateTime qwtFloorDateToStep( const QDateTime &dt,
@@ -59,7 +95,7 @@ static QDateTime qwtFloorDateToStep( const QDateTime &dt,
         }
         case QwtDate::Week:
         {
-            QDate date = QwtDate::dateOfWeek0( dt.date().year() );
+            QDate date = qwtDateOfWeek0( dt.date().year() );
 
             const int numWeeks = date.daysTo( dt.date() ) / 7;
             date = date.addDays( qwtAlignValue( numWeeks, stepSize ) * 7 );
@@ -97,8 +133,8 @@ TimeInterval::TimeInterval(
 }
 
 TimeInterval::TimeInterval( double from, double to ):
-    d_minDate( QwtDate::toDateTime( from ) ),
-    d_maxDate( QwtDate::toDateTime( to ) )
+    d_minDate( QwtDate::toDateTime( from, Qt::LocalTime ) ),
+    d_maxDate( QwtDate::toDateTime( to, Qt::LocalTime ) )
 {
 }
 

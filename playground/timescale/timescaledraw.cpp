@@ -34,7 +34,7 @@ TimeScaleDraw::~TimeScaleDraw()
 
 QwtText TimeScaleDraw::label( double value ) const
 {
-    const QDateTime dt = QwtDate::toDateTime( value );
+    const QDateTime dt = QwtDate::toDateTime( value, Qt::LocalTime );
 
     // the format string should be cached !!!
     return dt.toString( format( scaleDiv() ) );
@@ -46,7 +46,7 @@ QString TimeScaleDraw::format( const QwtScaleDiv &scaleDiv ) const
 
     QList<QDateTime> dates;
     for ( int i = 0; i < ticks.size(); i++ )
-        dates += QwtDate::toDateTime( ticks[i] );
+        dates += QwtDate::toDateTime( ticks[i], Qt::LocalTime );
 
     return format( qwtIntervalType( dates ) );
 }

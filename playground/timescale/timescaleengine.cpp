@@ -28,13 +28,14 @@ static inline double qwtMsecsForType( QwtDate::IntervalType type )
 }
 
 static inline QwtInterval qwtRoundInterval( 
-    const QwtInterval &interval, QwtDate::IntervalType type )
+    const QwtInterval &interval, QwtDate::IntervalType type,
+	Qt::TimeSpec timeSpec )
 {
     const QDateTime d1 = QwtDate::floor( 
-        QwtDate::toDateTime( interval.minValue() ), type );
+        QwtDate::toDateTime( interval.minValue(), timeSpec ), type );
 
     const QDateTime d2 = QwtDate::ceil( 
-        QwtDate::toDateTime( interval.maxValue() ), type );
+        QwtDate::toDateTime( interval.maxValue(), timeSpec ), type );
 
     return QwtInterval( QwtDate::toDouble( d1 ), QwtDate::toDouble( d2 ) );
 }
@@ -463,7 +464,9 @@ QwtDate::IntervalType TimeScaleEngine::intervalType(
             return QwtDate::Year;
     }
 
-    const TimeInterval interval( QwtDate::toDateTime( min ), QwtDate::toDateTime( max ) );
+    const TimeInterval interval( 
+		QwtDate::toDateTime( min, d_timeSpec ), 
+		QwtDate::toDateTime( max, d_timeSpec ) );
 
     const int months = interval.roundedWidth( QwtDate::Month );
     if ( months > maxSteps * 6 )
@@ -519,8 +522,8 @@ void TimeScaleEngine::autoScale( int maxNumSteps,
     if ( interval.width() == 0.0 )
         interval = buildInterval( interval.minValue() );
 
-    const QDateTime from = QwtDate::toDateTime( interval.minValue() );
-    const QDateTime to = QwtDate::toDateTime( interval.maxValue() );
+    const QDateTime from = QwtDate::toDateTime( interval.minValue(), d_timeSpec );
+    const QDateTime to = QwtDate::toDateTime( interval.maxValue(), d_timeSpec );
 
     if ( from.isValid() && to.isValid() )
     {
@@ -535,7 +538,7 @@ void TimeScaleEngine::autoScale( int maxNumSteps,
         if ( stepSize != 0.0 && !testAttribute( QwtScaleEngine::Floating ) )
         {
             interval = align( interval, stepSize );
-            interval = qwtRoundInterval( interval, type );
+            interval = qwtRoundInterval( interval, type, d_timeSpec );
         }
     }
 
@@ -571,14 +574,14 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
     const double min = qMin( x1, x2 );
     const double max = qMax( x1, x2 );
 
-    const QDateTime from = QwtDate::toDateTime( min );
+    const QDateTime from = QwtDate::toDateTime( min, d_timeSpec );
     if ( !from.isValid() )
     {
         qWarning() << "Invalid: " << min << from;
         return QwtScaleDiv();
     }
 
-    const QDateTime to = QwtDate::toDateTime( max );
+    const QDateTime to = QwtDate::toDateTime( max, d_timeSpec );
     if ( !to.isValid() )
     {
         qWarning() << "Invalid: " << max << to;
