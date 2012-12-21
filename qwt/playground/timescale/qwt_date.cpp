@@ -5,13 +5,21 @@
 #include <math.h>
 
 #if QT_VERSION >= 0x050000
-static const QwtDate::JulianDay minJulianDayD = Q_INT64_C( -784350574879 );
-static const QwtDate::JulianDay maxJulianDayD = Q_INT64_C( 784354017364 );
-#else
-static const QwtDate::JulianDay minJulianDayD = 0.0;
-static const QwtDate::JulianDay maxJulianDayD = std::numeric_limits<int>::max();
-#endif
 
+typedef qint64 QwtJulianDay;
+static const QwtJulianDay minJulianDayD = Q_INT64_C( -784350574879 );
+static const QwtJulianDay maxJulianDayD = Q_INT64_C( 784354017364 );
+
+#else
+
+// QDate stores the julian day as unsigned int, but
+// but it is QDate::fromJulianDay( int ). That's why
+// we have the range [ 0, INT_MAX ]
+typedef int QwtJulianDay;
+static const QwtJulianDay minJulianDayD = 0;
+static const QwtJulianDay maxJulianDayD = std::numeric_limits<int>::max();
+
+#endif
 
 static inline Qt::DayOfWeek qwtFirstDayOfWeek()
 {
@@ -26,6 +34,7 @@ QDate QwtDate::toDate( int year, int month, int day )
 {
     if ( year > 100000 )
     {
+        // avoid overflows for large values
         const double jd = toJulianDay( year, month, day );
         if ( jd > maxJulianDayD )
         {
@@ -33,7 +42,7 @@ QDate QwtDate::toDate( int year, int month, int day )
             return QDate();
         }
 
-        return QDate::fromJulianDay( static_cast<QwtDate::JulianDay>( jd ) );
+        return QDate::fromJulianDay( static_cast<QwtJulianDay>( jd ) );
     }
     else
     {
@@ -75,6 +84,16 @@ QDateTime QwtDate::toTimeSpec( const QDateTime &dt, Qt::TimeSpec spec )
     return dt.toTimeSpec( spec );
 }
 
+/*!
+  Translate from double to QDateTime
+
+  \param value Number of milliseconds since the epoch, 
+               1970-01-01T00:00:00 UTC
+  \param timeSpec Time specification
+  \return datetime value
+
+  \sa toDouble()
+ */
 QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
 {
     const int msecsPerDay = 86400000;
@@ -88,7 +107,7 @@ QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
         return QDateTime();
     }
 
-    const QDate d = QDate::fromJulianDay( static_cast<QwtDate::JulianDay>( jd ) );
+    const QDate d = QDate::fromJulianDay( static_cast<QwtJulianDay>( jd ) );
 
     const int msecs = static_cast<int>( value - days * msecsPerDay );
 
@@ -101,6 +120,16 @@ QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
     return dt;
 }
 
+/*!
+  Translate from QDateTime to double
+
+  \param dateTime Datetime value
+  \return Number of milliseconds since 1970-01-01T00:00:00 UTC has passed.
+
+  \sa toDateTime()
+  \warning For values very far below or above 1970-01-01 UTC rounding errors
+           will happen due to the limited significance of a double.
+ */
 double QwtDate::toDouble( const QDateTime &dateTime )
 {
     const int msecsPerDay = 86400000;
@@ -115,14 +144,26 @@ double QwtDate::toDouble( const QDateTime &dateTime )
     return days * msecsPerDay + time.msec() + 1000.0 * secs;
 }
 
-QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType type )
+/*!
+  Ceil a datetime according the interval type
+
+  \param dateTime Datetime value
+  \param intervalType Interval type, how to ceil. 
+                      F.e. when intervalType = QwtDate::Months, the result
+                      will be ceiled to the next beginning of a month
+  \sa floor()
+ */
+QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
 {
+#if 0
+    dateTime.timeSpec() ???
+#endif
     if ( dateTime.date() >= QwtDate::maxDate() )
         return dateTime;
 
     QDateTime dt;
 
-    switch ( type )
+    switch ( intervalType )
     {
         case QwtDate::Millisecond:
         {
@@ -214,6 +255,15 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType type )
     return dt;
 }
 
+/*!
+  Floor a datetime according the interval type
+
+  \param dateTime Datetime value
+  \param intervalType Interval type, how to ceil. 
+                      F.e. when intervalType = QwtDate::Months, the result
+                      will be ceiled to the next beginning of a month
+  \sa floor()
+ */
 QDateTime QwtDate::floor( const QDateTime &dateTime, IntervalType type )
 {
     if ( dateTime.date() <= QwtDate::minDate() )
@@ -286,33 +336,12 @@ QDateTime QwtDate::floor( const QDateTime &dateTime, IntervalType type )
     return dt;
 }
 
-QDate QwtDate::dateOfWeek0( int year )
-{
-    QDate dt0( year, 1, 1 );
-
-    // floor to the first day of the week
-    int days = dt0.dayOfWeek() - qwtFirstDayOfWeek();
-    if ( days < 0 )
-        days += 7;
-
-    dt0 = dt0.addDays( -days );
-
-    if ( QLocale().country() != QLocale::UnitedStates )
-    {
-        // according to ISO 8601 the first week is defined
-        // by the first thursday. 
-
-        int d = Qt::Thursday - qwtFirstDayOfWeek();
-        if ( d < 0 )
-            d += 7;
-
-        if ( dt0.addDays( d ).year() < year )
-            dt0 = dt0.addDays( 7 );
-    }
-
-    return dt0;
-}
-
+/*!
+  \return Minimum for the supported date range, that depends
+          on how QDate stores the julian day internally
+  \sa maxDate()
+  \note The minimum differs between Qt4 and Qt5
+ */
 QDate QwtDate::minDate()
 {
     static QDate date;
@@ -322,6 +351,12 @@ QDate QwtDate::minDate()
     return date;
 }
 
+/*!
+  \return Maximum of the supported date range, that depends
+          on how QDate stores the julian day internally
+  \sa minDate()
+  \note The maximum differs between Qt4 and Qt5
+ */
 QDate QwtDate::maxDate()
 {
     static QDate date;
