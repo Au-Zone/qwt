@@ -27,9 +27,21 @@ static inline double qwtMsecsForType( QwtDate::IntervalType type )
     return msecs[ type ];
 }
 
+static inline QDateTime qwtToDateTime( double value, Qt::TimeSpec timeSpec )
+{
+    QDateTime dt = QwtDate::toDateTime( value, timeSpec );
+    if ( !dt.isValid() )
+    {
+        const QDate date = ( value <= 0.0 ) ? QwtDate::minDate() : QwtDate::maxDate();
+        dt = QDateTime( date, QTime( 0, 0 ), timeSpec );
+    }
+
+    return dt;
+}
+
 static inline QwtInterval qwtRoundInterval( 
     const QwtInterval &interval, QwtDate::IntervalType type,
-	Qt::TimeSpec timeSpec )
+    Qt::TimeSpec timeSpec )
 {
     const QDateTime d1 = QwtDate::floor( 
         QwtDate::toDateTime( interval.minValue(), timeSpec ), type );
@@ -465,8 +477,8 @@ QwtDate::IntervalType TimeScaleEngine::intervalType(
     }
 
     const TimeInterval interval( 
-		QwtDate::toDateTime( min, d_timeSpec ), 
-		QwtDate::toDateTime( max, d_timeSpec ) );
+        QwtDate::toDateTime( min, d_timeSpec ), 
+        QwtDate::toDateTime( max, d_timeSpec ) );
 
     const int months = interval.roundedWidth( QwtDate::Month );
     if ( months > maxSteps * 6 )
@@ -571,22 +583,14 @@ QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
 
     stepSize = qAbs( stepSize );
 
-    const double min = qMin( x1, x2 );
+    double min = qMin( x1, x2 );
     const double max = qMax( x1, x2 );
 
-    const QDateTime from = QwtDate::toDateTime( min, d_timeSpec );
-    if ( !from.isValid() )
-    {
-        qWarning() << "Invalid: " << min << from;
-        return QwtScaleDiv();
-    }
+    const QDateTime from = qwtToDateTime( min, d_timeSpec );
+    const QDateTime to = qwtToDateTime( max, d_timeSpec );
 
-    const QDateTime to = QwtDate::toDateTime( max, d_timeSpec );
-    if ( !to.isValid() )
-    {
-        qWarning() << "Invalid: " << max << to;
+    if ( from == to )
         return QwtScaleDiv();
-    }
 
     if ( stepSize > 0.0 )
     {
@@ -630,7 +634,8 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
     int maxMajSteps, int maxMinSteps,
     QwtDate::IntervalType intervalType ) const
 {
-    TimeInterval interval( min, max );
+    TimeInterval interval( qwtToDateTime( min, d_timeSpec ),
+        qwtToDateTime( max, d_timeSpec ) );
 
     // round the interval
     interval = interval.rounded( intervalType );
