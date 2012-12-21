@@ -132,12 +132,6 @@ TimeInterval::TimeInterval(
 {
 }
 
-TimeInterval::TimeInterval( double from, double to ):
-    d_minDate( QwtDate::toDateTime( from, Qt::LocalTime ) ),
-    d_maxDate( QwtDate::toDateTime( to, Qt::LocalTime ) )
-{
-}
-
 QDateTime TimeInterval::minDate() const
 {
     return d_minDate;
@@ -160,8 +154,14 @@ TimeInterval TimeInterval::rounded(
 TimeInterval TimeInterval::adjusted( double stepSize,
     QwtDate::IntervalType intervalType ) const
 {
-    const QDateTime minDate = qwtFloorDateToStep( d_minDate,
+    QDateTime minDate = qwtFloorDateToStep( d_minDate,
         stepSize, intervalType );
+    if ( !minDate.isValid() )
+    {
+#if 0
+        minDate = qwtCeilDateToStep( d_minDate );
+#endif
+    }
 
     return TimeInterval( minDate, d_maxDate );
 }

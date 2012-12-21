@@ -7,7 +7,6 @@
 class TimeInterval
 {
 public:
-    TimeInterval( double from, double to );
     TimeInterval( const QDateTime &, const QDateTime & );
 
     QDateTime minDate() const;

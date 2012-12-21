@@ -14,9 +14,9 @@ static const QwtJulianDay maxJulianDayD = Q_INT64_C( 784354017364 );
 
 // QDate stores the julian day as unsigned int, but
 // but it is QDate::fromJulianDay( int ). That's why
-// we have the range [ 0, INT_MAX ]
+// we have the range [ 1, INT_MAX ]
 typedef int QwtJulianDay;
-static const QwtJulianDay minJulianDayD = 0;
+static const QwtJulianDay minJulianDayD = 1;
 static const QwtJulianDay maxJulianDayD = std::numeric_limits<int>::max();
 
 #endif
@@ -103,7 +103,7 @@ static inline QDate qwtToDate( int year, int month = 1, int day = 1 )
             return QDate();
         }
 
-        return QDate::fromJulianDay( static_cast<QwtDate::JulianDay>( jd ) );
+        return QDate::fromJulianDay( static_cast<QwtJulianDay>( jd ) );
     }
     else
     {
