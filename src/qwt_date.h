@@ -91,10 +91,6 @@ public:
 
     static QDateTime ceil( const QDateTime &, IntervalType );
     static QDateTime floor( const QDateTime &, IntervalType );
-
-    static QDateTime toTimeSpec( const QDateTime &, Qt::TimeSpec );
-    static double toJulianDay( int year, int month, int day );
-    static QDate toDate( int year, int month, int day );
 };
 
 #endif

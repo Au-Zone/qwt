@@ -12,7 +12,6 @@ include( $${PWD}/../playground.pri )
 TARGET       = timescale
 
 HEADERS = \
-    qwt_date.h \
     timeinterval.h \
     timescaleengine.h \
     timescaledraw.h \
@@ -21,7 +20,6 @@ HEADERS = \
     mainwindow.h
 
 SOURCES = \
-    qwt_date.cpp \
     timeinterval.cpp \
     timescaleengine.cpp \
     timescaledraw.cpp \

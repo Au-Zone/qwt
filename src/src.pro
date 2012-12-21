@@ -40,6 +40,7 @@ HEADERS += \
     qwt_color_map.h \
     qwt_compat.h \
     qwt_column_symbol.h \
+    qwt_date.h \
     qwt_dyngrid_layout.h \
     qwt_global.h \
     qwt_graphic.h \
@@ -75,6 +76,7 @@ SOURCES += \
     qwt_clipper.cpp \
     qwt_color_map.cpp \
     qwt_column_symbol.cpp \
+    qwt_date.cpp \
     qwt_dyngrid_layout.cpp \
     qwt_event_pattern.cpp \
     qwt_graphic.cpp \
