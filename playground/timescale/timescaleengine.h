@@ -7,8 +7,11 @@
 class TimeScaleEngine: public QwtLinearScaleEngine
 {
 public:
-    TimeScaleEngine();
+    TimeScaleEngine( Qt::TimeSpec d_timeSpec = Qt::LocalTime );
     virtual ~TimeScaleEngine();
+
+    void setTimeSpec( Qt::TimeSpec );
+    Qt::TimeSpec timeSpec() const;
 
     void setMaxWeeks( int );
     int maxWeeks() const;

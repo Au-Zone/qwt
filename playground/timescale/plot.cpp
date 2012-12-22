@@ -18,6 +18,9 @@ Plot::Plot( QWidget *parent ):
     setAxisScaleDraw( axis, scaleDraw );
 
     TimeScaleEngine *scaleEngine = new TimeScaleEngine();
+#if 0
+    scaleEngine->setTimeSpec( Qt::UTC );
+#endif
     setAxisScaleEngine( axis, scaleEngine );
 
     QwtPlotPanner *panner = new QwtPlotPanner( canvas() );

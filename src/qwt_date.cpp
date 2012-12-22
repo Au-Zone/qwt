@@ -364,10 +364,16 @@ QDateTime QwtDate::floor( const QDateTime &dateTime, IntervalType type )
 }
 
 /*!
-  \return Minimum for the supported date range, that depends
-          on how QDate stores the julian day internally
+  Minimum for the supported date range
+
+  The range of valid dates depends on how QDate stores the 
+  julian day internally.
+
+  - For Qt4 it is "Tue Jan 2 -4713"
+  - For Qt5 it is "Thu Jan 1 -2147483648"
+
+  \return minimum of the date ramge
   \sa maxDate()
-  \note The minimum differs between Qt4 and Qt5
  */
 QDate QwtDate::minDate()
 {
@@ -379,8 +385,15 @@ QDate QwtDate::minDate()
 }
 
 /*!
-  \return Maximum of the supported date range, that depends
-          on how QDate stores the julian day internally
+  Maximum for the supported date range
+
+  The range of valid dates depends on how QDate stores the 
+  julian day internally.
+
+  - For Qt4 it is "Tue Jun 3 5874898"
+  - For Qt5 it is "Tue Dec 31 2147483647"
+
+  \return maximum of the date ramge
   \sa minDate()
   \note The maximum differs between Qt4 and Qt5
  */
@@ -392,3 +405,50 @@ QDate QwtDate::maxDate()
 
     return date;
 }
+
+/*!
+  \brief Date of the first day of the first week for a year
+
+  The first day of a week depends on the current locale
+  ( QLocale::firstDayOfWeek() ). For Qt versions < 4.8.0
+  it is always Monday.
+
+  \param year Year
+  \param type Option how to identify the first week
+  \return First day of week 0
+
+  \sa QLocale::firstDayOfWeek()
+ */ 
+QDate QwtDate::dateOfWeek0( int year, Week0Type type )
+{
+#if QT_VERSION >= 0x040800
+    Qt::DayOfWeek firstDayOfWeek = QLocale().firstDayOfWeek();
+#else
+    Qt::DayOfWeek firstDayOfWeek = Qt::Monday;
+#endif
+
+    QDate dt0( year, 1, 1 );
+
+    // floor to the first day of the week
+    int days = dt0.dayOfWeek() - firstDayOfWeek;
+    if ( days < 0 )
+        days += 7;
+
+    dt0 = dt0.addDays( -days );
+
+    if ( type == QwtDate::FirstThursday )
+    {
+        // according to ISO 8601 the first week is defined
+        // by the first thursday. 
+
+        int d = Qt::Thursday - firstDayOfWeek;
+        if ( d < 0 )
+            d += 7;
+
+        if ( dt0.addDays( d ).year() < year )
+            dt0 = dt0.addDays( 7 );
+    }
+
+    return dt0;
+}
+

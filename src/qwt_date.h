@@ -43,6 +43,28 @@ class QWT_EXPORT QwtDate
 {
 public:
     /*! 
+       How to identify the first week of year differs between
+       countries. 
+     */
+    enum Week0Type
+    {
+        /*!
+           According to ISO 8601 the first week of a year is defined
+           as "the week with the year's first Thursday in it".
+        */
+
+        FirstThursday,
+
+        /*!
+            "The week with January 1.1 in it."
+           
+            In the U.S. this definition is more common than
+            FirstThursday.
+        */
+        FirstDay
+    };
+
+    /*! 
       Classification of an time interval
 
       Time intervals needs to be classified to decide how to
@@ -91,6 +113,8 @@ public:
 
     static QDateTime ceil( const QDateTime &, IntervalType );
     static QDateTime floor( const QDateTime &, IntervalType );
+
+    static QDate dateOfWeek0( int year, Week0Type );
 };
 
 #endif

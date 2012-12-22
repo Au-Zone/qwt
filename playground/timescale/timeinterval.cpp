@@ -6,51 +6,22 @@
 #endif
 #include <qdebug.h>
 
-static inline double qwtFloorValue( double value )
+static inline double qwtAlignValue( 
+    double value, double stepSize, bool up )
 {
-    return ::floor( value );
+    if ( up )
+        return ::ceil( value / stepSize ) * stepSize;
+    else
+        return ::floor( value / stepSize ) * stepSize;
 }
 
-static inline double qwtAlignValue( double value, double stepSize )
+static inline double qwtCeilValue( double value, double stepSize )
 {
-    return qwtFloorValue( value / stepSize ) * stepSize;
+    return ::ceil( value / stepSize ) * stepSize;
 }
 
-static QDate qwtDateOfWeek0( int year )
-{
-#if QT_VERSION >= 0x040800
-    Qt::DayOfWeek firstDayOfWeek = QLocale().firstDayOfWeek();
-#else
-    Qt::DayOfWeek firstDayOfWeek = Qt::Monday;
-#endif
-
-    QDate dt0( year, 1, 1 );
-
-    // floor to the first day of the week
-    int days = dt0.dayOfWeek() - firstDayOfWeek;
-    if ( days < 0 )
-        days += 7;
-
-    dt0 = dt0.addDays( -days );
-
-    if ( QLocale().country() != QLocale::UnitedStates )
-    {
-        // according to ISO 8601 the first week is defined
-        // by the first thursday. 
-
-        int d = Qt::Thursday - firstDayOfWeek;
-        if ( d < 0 )
-            d += 7;
-
-        if ( dt0.addDays( d ).year() < year )
-            dt0 = dt0.addDays( 7 );
-    }
-
-    return dt0;
-}
-
-static QDateTime qwtFloorDateToStep( const QDateTime &dt,
-    double stepSize, QwtDate::IntervalType intervalType )
+static QDateTime qwtAlignDate( const QDateTime &dt,
+    double stepSize, QwtDate::IntervalType intervalType, bool up )
 {
     // what about: (year == 1582 && month == 10 && day > 4 && day < 15) ??
 
@@ -59,33 +30,33 @@ static QDateTime qwtFloorDateToStep( const QDateTime &dt,
         case QwtDate::Millisecond:
         {
             const QTime t = dt.time();
-            const int ms = qwtAlignValue( t.msec(), stepSize ) ;
+            const int ms = qwtAlignValue( t.msec(), stepSize, up ) ;
             return QDateTime( dt.date(),
                 QTime( t.hour(), t.minute(), t.second(), ms ) );
         }
         case QwtDate::Second:
         {
             const QTime t = dt.time();
-            const int s = qwtAlignValue( t.second(), stepSize );
+            const int s = qwtAlignValue( t.second(), stepSize, up );
             return QDateTime( dt.date(), QTime( t.hour(), t.minute(), s ) );
         }
         case QwtDate::Minute:
         {
             const QTime t = dt.time();
-            const int m = qwtAlignValue( t.minute(), stepSize );
+            const int m = qwtAlignValue( t.minute(), stepSize, up );
             return QDateTime( dt.date(), QTime( t.hour(), m, 0 ) );
         }
         case QwtDate::Hour:
         {
             const QTime t = dt.time();
-            const int h = qwtAlignValue( t.hour(), stepSize );
+            const int h = qwtAlignValue( t.hour(), stepSize, up );
             return QDateTime( dt.date(), QTime( h, 0, 0 ) );
         }
         case QwtDate::Day:
         {
 #if 1
             // ????
-            const double d = qwtAlignValue( dt.date().dayOfYear(), stepSize );
+            const double d = qwtAlignValue( dt.date().dayOfYear(), stepSize, up );
 
             QDate date( dt.date().year(), 1, 1 );
             date.addDays( static_cast<int>( d ) );
@@ -95,21 +66,25 @@ static QDateTime qwtFloorDateToStep( const QDateTime &dt,
         }
         case QwtDate::Week:
         {
-            QDate date = qwtDateOfWeek0( dt.date().year() );
+            QwtDate::Week0Type type = QwtDate::FirstThursday;
+            if ( QLocale().country() == QLocale::UnitedStates )
+                type = QwtDate::FirstDay;
+            
+            QDate date = QwtDate::dateOfWeek0( dt.date().year(), type );
 
             const int numWeeks = date.daysTo( dt.date() ) / 7;
-            date = date.addDays( qwtAlignValue( numWeeks, stepSize ) * 7 );
+            date = date.addDays( qwtAlignValue( numWeeks, stepSize, up ) * 7 );
 
             return QDateTime( date );
         }
         case QwtDate::Month:
         {
-            const double m = qwtAlignValue( dt.date().month() - 1, stepSize );
+            const double m = qwtAlignValue( dt.date().month() - 1, stepSize, up );
             return QDateTime( QDate( dt.date().year(), static_cast<int>( m + 1 ), 1 ) );
         }
         case QwtDate::Year:
         {
-            const int y = static_cast<int>( qwtAlignValue( dt.date().year(), stepSize ) );
+            const int y = static_cast<int>( qwtAlignValue( dt.date().year(), stepSize, up ) );
 
             if ( y == 0 )
             {
@@ -154,13 +129,12 @@ TimeInterval TimeInterval::rounded(
 TimeInterval TimeInterval::adjusted( double stepSize,
     QwtDate::IntervalType intervalType ) const
 {
-    QDateTime minDate = qwtFloorDateToStep( d_minDate,
-        stepSize, intervalType );
+    QDateTime minDate = qwtAlignDate( d_minDate,
+        stepSize, intervalType, false );
     if ( !minDate.isValid() )
     {
-#if 0
-        minDate = qwtCeilDateToStep( d_minDate );
-#endif
+        minDate = qwtAlignDate( d_minDate,
+            stepSize, intervalType, true );
     }
 
     return TimeInterval( minDate, d_maxDate );
@@ -185,12 +159,12 @@ double TimeInterval::width( QwtDate::IntervalType intervalType ) const
         case QwtDate::Minute:
         {
             const double secsTo = d_minDate.secsTo( d_maxDate );
-            return qwtFloorValue( secsTo / 60 );
+            return ::floor( secsTo / 60 );
         }
         case QwtDate::Hour:
         {
             const double secsTo = d_minDate.secsTo( d_maxDate );
-            return qwtFloorValue( secsTo / 3600 );
+            return ::floor( secsTo / 3600 );
         }
         case QwtDate::Day:
         {
@@ -198,7 +172,7 @@ double TimeInterval::width( QwtDate::IntervalType intervalType ) const
         }
         case QwtDate::Week:
         {
-            return qwtFloorValue( d_minDate.daysTo( d_maxDate ) / 7.0 );
+            return ::floor( d_minDate.daysTo( d_maxDate ) / 7.0 );
         }
         case QwtDate::Month:
         {
