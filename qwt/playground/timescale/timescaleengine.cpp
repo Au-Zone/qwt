@@ -441,14 +441,24 @@ static QwtScaleDiv qwtBuildScaleDiv( const TimeInterval& interval,
     return scaleDiv;
 }
 
-TimeScaleEngine::TimeScaleEngine():
-    d_timeSpec( Qt::LocalTime ),
+TimeScaleEngine::TimeScaleEngine( Qt::TimeSpec timeSpec ):
+    d_timeSpec( timeSpec ),
     d_maxWeeks( 4 )
 {
 }
 
 TimeScaleEngine::~TimeScaleEngine()
 {
+}
+
+void TimeScaleEngine::setTimeSpec( Qt::TimeSpec timeSpec )
+{
+    d_timeSpec = timeSpec;
+}
+
+Qt::TimeSpec TimeScaleEngine::timeSpec() const
+{
+    return d_timeSpec;
 }
 
 void TimeScaleEngine::setMaxWeeks( int weeks )
