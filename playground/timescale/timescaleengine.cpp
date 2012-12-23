@@ -1,11 +1,195 @@
 #include "timescaleengine.h"
-#include "timeinterval.h"
 #include <qwt_math.h>
 #include <qwt_transform.h>
 #include <qdatetime.h>
 #include <qdebug.h>
 
 #define DEBUG_ENGINE 0
+
+static inline int qwtAlignValue(
+    double value, double stepSize, bool up )
+{
+    double d = value / stepSize;
+    d = up ? ceil( d ) : floor( d );
+
+    return static_cast<int>( d * stepSize );
+}
+
+static QDateTime qwtAlignDate( const QDateTime &dateTime,
+    double stepSize, QwtDate::IntervalType intervalType, bool up )
+{
+    // what about: (year == 1582 && month == 10 && day > 4 && day < 15) ??
+
+    QDateTime dt( dateTime.date(), QTime( 0, 0, 0 ), dateTime.timeSpec() );
+
+    switch( intervalType )
+    {
+        case QwtDate::Millisecond:
+        {
+            const QTime t = dateTime.time();
+            const int ms = qwtAlignValue( t.msec(), stepSize, up ) ;
+
+            dt.setTime( QTime( t.hour(), t.minute(), t.second() ) );
+            dt = dt.addMSecs( ms );
+
+            break;
+        }
+        case QwtDate::Second:
+        {
+            const QTime t = dateTime.time();
+            const int s = qwtAlignValue( t.second(), stepSize, up );
+
+            dt.setTime( QTime( t.hour(), t.minute() ) );
+            dt = dt.addSecs( s );
+
+            break;
+        }
+        case QwtDate::Minute:
+        {
+            const QTime t = dateTime.time();
+            const int m = qwtAlignValue( t.minute(), stepSize, up );
+
+            dt.setTime( QTime( t.hour(), 0 ) );
+            dt = dt.addSecs( m * 60 );
+
+            break;
+        }
+        case QwtDate::Hour:
+        {
+            const QTime t = dateTime.time();
+            const int h = qwtAlignValue( t.hour(), stepSize, up );
+
+            dt = dt.addSecs( h * 3600 );
+
+            break;
+        }
+        case QwtDate::Day:
+        {
+            // ????
+#if 1
+            const int d = qwtAlignValue(
+                dateTime.date().dayOfYear(), stepSize, up );
+
+            dt.setDate( QDate( dateTime.date().year(), 1, 1 ) );
+            dt = dt.addDays( d );
+
+            break;
+#endif
+        }
+        case QwtDate::Week:
+        {
+#if 1
+            QwtDate::Week0Type week0Type = QwtDate::FirstThursday;
+#endif
+            const QDate date = QwtDate::dateOfWeek0(
+                dateTime.date().year(), week0Type );
+
+            const int numWeeks = date.daysTo( dateTime.date() ) / 7;
+            const int d = qwtAlignValue( numWeeks, stepSize, up ) * 7;
+
+            dt.setDate( date );
+            dt = dt.addDays( d );
+
+            break;
+        }
+        case QwtDate::Month:
+        {
+            const QDate date = dateTime.date();
+
+            const int m = qwtAlignValue( date.month() - 1, stepSize, up );
+
+            dt.setDate( QDate( date.year(), m + 1, 1 ) );
+
+            break;
+        }
+        case QwtDate::Year:
+        {
+            const int y = qwtAlignValue( dateTime.date().year(), stepSize, up );
+
+            if ( y == 0 )
+            {
+                // there is no year 0 in the Julian calendar
+                dt.setDate( QDate( stepSize, 1, 1 ).addYears( -stepSize ) );
+            }
+            else
+            {
+                dt.setDate( QDate( y, 1, 1 ) );
+            }
+
+            break;
+        }
+    }
+
+    return dt;
+}
+
+static double qwtIntervalWidth( const QDateTime &minDate,
+    const QDateTime &maxDate, QwtDate::IntervalType intervalType ) 
+{
+    switch( intervalType )
+    {
+        case QwtDate::Millisecond:
+        {
+            const double secsTo = minDate.secsTo( maxDate );
+            const double msecs = maxDate.time().msec() -
+                minDate.time().msec();
+
+            return secsTo * 1000 + msecs;
+        }
+        case QwtDate::Second:
+        {
+            return minDate.secsTo( maxDate );
+        }
+        case QwtDate::Minute:
+        {
+            const double secsTo = minDate.secsTo( maxDate );
+            return ::floor( secsTo / 60 );
+        }
+        case QwtDate::Hour:
+        {
+            const double secsTo = minDate.secsTo( maxDate );
+            return ::floor( secsTo / 3600 );
+        }
+        case QwtDate::Day:
+        {
+            return minDate.daysTo( maxDate );
+        }
+        case QwtDate::Week:
+        {
+            return ::floor( minDate.daysTo( maxDate ) / 7.0 );
+        }
+        case QwtDate::Month:
+        {
+            const double years = double( maxDate.date().year() ) - minDate.date().year();
+
+            int months = maxDate.date().month() - minDate.date().month();
+            if ( maxDate.date().day() < minDate.date().day() )
+                months--;
+
+            return years * 12 + months;
+        }
+        case QwtDate::Year:
+        {
+            double years = double( maxDate.date().year() ) - minDate.date().year();
+            if ( maxDate.date().month() < minDate.date().month() )
+                years -= 1.0;
+
+            return years;
+        }
+    }
+
+    return 0.0;
+}
+
+static double qwtRoundedIntervalWidth( 
+    const QDateTime &minDate, const QDateTime &maxDate, 
+    QwtDate::IntervalType intervalType ) 
+{
+    const QDateTime minD = QwtDate::floor( minDate, intervalType );
+    const QDateTime maxD = QwtDate::ceil( maxDate, intervalType );
+
+    return qwtIntervalWidth( minD, maxD, intervalType );
+}
 
 static inline double qwtMsecsForType( QwtDate::IntervalType type )
 {
@@ -369,27 +553,27 @@ static inline int qwtHoursUTC( const QDateTime &date )
 }
 
 // stepSize, minStepSize in seconds
-static QwtScaleDiv qwtBuildScaleDiv( const TimeInterval& interval,
+static QwtScaleDiv qwtBuildScaleDiv( 
+    const QDateTime &minDate, const QDateTime &maxDate,
     int stepSize, double minStepSize, bool daylightSaving )
 {
     // UTC excludes daylight savings. So from the difference
     // of a date and its UTC counterpart we can find out
     // the daylight saving hours
 
-    const int hourDST = qwtHoursUTC( interval.minDate() );
+    const int hourDST = qwtHoursUTC( minDate );
 
     QList<double> majorTicks;
     QList<double> minorTicks;
     QList<double> mediumTicks;
 
-    for ( QDateTime dt = interval.minDate(); dt <= interval.maxDate(); 
+    for ( QDateTime dt = minDate; dt <= maxDate; 
         dt = dt.addSecs( stepSize ) )
     {
         if ( !dt.isValid() )
         {
 #if DEBUG_ENGINE >= 1
-            qDebug() << "Invalid date in: " << interval.minDate()
-                << interval.maxDate();
+            qDebug() << "Invalid date in: " << minDate << maxDate();
 #endif
             break;
         }
@@ -431,8 +615,8 @@ static QwtScaleDiv qwtBuildScaleDiv( const TimeInterval& interval,
 
     QwtScaleDiv scaleDiv;
 
-    scaleDiv.setInterval( QwtDate::toDouble( interval.minDate() ),
-        QwtDate::toDouble( interval.maxDate() ) );
+    scaleDiv.setInterval( QwtDate::toDouble( minDate ),
+        QwtDate::toDouble( maxDate ) );
 
     scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
     scaleDiv.setTicks( QwtScaleDiv::MediumTick, mediumTicks );
@@ -486,16 +670,15 @@ QwtDate::IntervalType TimeScaleEngine::intervalType(
             return QwtDate::Year;
     }
 
-    const TimeInterval interval( 
-        QwtDate::toDateTime( min, d_timeSpec ), 
-        QwtDate::toDateTime( max, d_timeSpec ) );
+    const QDateTime minDate = QwtDate::toDateTime( min, d_timeSpec );
+    const QDateTime maxDate = QwtDate::toDateTime( max, d_timeSpec );
 
-    const int months = interval.roundedWidth( QwtDate::Month );
+    const int months = qwtRoundedIntervalWidth( minDate, maxDate, QwtDate::Month );
     if ( months > maxSteps * 6 )
         return QwtDate::Year;
 
-    const int days = interval.roundedWidth( QwtDate::Day );
-    const int weeks = interval.roundedWidth( QwtDate::Week );
+    const int days = qwtRoundedIntervalWidth( minDate, maxDate, QwtDate::Day );
+    const int weeks = qwtRoundedIntervalWidth( minDate, maxDate, QwtDate::Week );
 
     if ( weeks > d_maxWeeks )
     {
@@ -506,11 +689,11 @@ QwtDate::IntervalType TimeScaleEngine::intervalType(
     if ( days > maxSteps * 7 )
         return QwtDate::Week;
 
-    const int hours = interval.roundedWidth( QwtDate::Hour );
+    const int hours = qwtRoundedIntervalWidth( minDate, maxDate, QwtDate::Hour );
     if ( hours > maxSteps * 24 )
         return QwtDate::Day;
 
-    const int seconds = interval.roundedWidth( QwtDate::Second );
+    const int seconds = qwtRoundedIntervalWidth( minDate, maxDate, QwtDate::Second );
 
     if ( seconds >= maxSteps * 3600 )
         return QwtDate::Hour;
@@ -576,13 +759,13 @@ void TimeScaleEngine::autoScale( int maxNumSteps,
 
 double TimeScaleEngine::divideInterval( 
     const QDateTime &from, const QDateTime &to,
-    QwtDate::IntervalType type, int numSteps ) const
+    QwtDate::IntervalType intervalType, int numSteps ) const
 {
-    const double width = TimeInterval( from, to ).width( type );
+    const double width = qwtIntervalWidth( from, to, intervalType );
     
     double stepSize = QwtScaleArithmetic::divideInterval( width, numSteps, 10 );
 
-    return stepSize * qwtMsecsForType( type );
+    return stepSize * qwtMsecsForType( intervalType );
 }
 
 QwtScaleDiv TimeScaleEngine::divideScale( double x1, double x2,
@@ -644,18 +827,25 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
     int maxMajSteps, int maxMinSteps,
     QwtDate::IntervalType intervalType ) const
 {
-    TimeInterval interval( qwtToDateTime( min, d_timeSpec ),
-        qwtToDateTime( max, d_timeSpec ) );
+    QDateTime minDate = qwtToDateTime( min, d_timeSpec );
+    QDateTime maxDate = qwtToDateTime( max, d_timeSpec );
 
     // round the interval
-    interval = interval.rounded( intervalType );
+    minDate = QwtDate::floor( minDate, intervalType );
+    maxDate = QwtDate::ceil( maxDate, intervalType );
 
     // calculate the step size
-    const double stepSize = qwtDivideScale( interval.width( intervalType ), 
+    const double stepSize = qwtDivideScale( 
+        qwtIntervalWidth( minDate, maxDate, intervalType ), 
         maxMajSteps, intervalType );
 
     // align to step size
-    interval = interval.adjusted( stepSize, intervalType );
+    QDateTime dt0 = qwtAlignDate( minDate, stepSize, intervalType, false );
+    if ( !dt0.isValid() )
+    {
+        dt0 = qwtAlignDate( minDate, stepSize, intervalType, true );
+    }
+    minDate = dt0;
 
     QwtScaleDiv scaleDiv;
 
@@ -680,7 +870,7 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
             daylightSaving = stepSize > 1;
         }
     
-        scaleDiv = qwtBuildScaleDiv( interval,
+        scaleDiv = qwtBuildScaleDiv( minDate, maxDate,
             stepSize * s, minStepSize * s, daylightSaving );
     }
     else
@@ -718,14 +908,13 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
             }
 
                 
-            for ( QDateTime dt = interval.minDate(); 
-                dt <= interval.maxDate(); dt = dt.addMonths( stepSize ) )
+            for ( QDateTime dt = minDate; 
+                dt <= maxDate; dt = dt.addMonths( stepSize ) )
             {
                 if ( !dt.isValid() )
                 {   
 #if DEBUG_ENGINE >= 1
-                    qDebug() << "Invalid date in: " << interval.minDate()
-                        << interval.maxDate();
+                    qDebug() << "Invalid date in: " << minDate << maxDate;
 #endif  
                     break;
                 }   
@@ -777,9 +966,9 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
             if ( minStepSize > 0.0 )
                 numMinorSteps = qFloor( stepSize / minStepSize );
 
-            bool dateBC = interval.minDate().date().year() < -1;
+            bool dateBC = minDate.date().year() < -1;
 
-            for ( QDateTime dt = interval.minDate(); dt <= interval.maxDate();
+            for ( QDateTime dt = minDate; dt <= maxDate;
                 dt = dt.addYears( stepSize ) )
             {
                 if ( dateBC && dt.date().year() > 1 )
@@ -792,8 +981,7 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
                 if ( !dt.isValid() )
                 {
 #if DEBUG_ENGINE >= 1
-                    qDebug() << "Invalid date in: " << interval.minDate()
-                        << interval.maxDate();
+                    qDebug() << "Invalid date in: " << minDate << maxDate;
 #endif
                     break;
                 }
@@ -835,8 +1023,8 @@ QwtScaleDiv TimeScaleEngine::divideTo( double min, double max,
             }   
         }
 
-        scaleDiv.setInterval( QwtDate::toDouble( interval.minDate() ),
-            QwtDate::toDouble( interval.maxDate() ) );
+        scaleDiv.setInterval( QwtDate::toDouble( minDate ),
+            QwtDate::toDouble( maxDate ) );
 
         scaleDiv.setTicks( QwtScaleDiv::MajorTick, majorTicks );
         scaleDiv.setTicks( QwtScaleDiv::MediumTick, mediumTicks );
