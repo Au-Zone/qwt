@@ -51,8 +51,10 @@ public:
         /*!
            According to ISO 8601 the first week of a year is defined
            as "the week with the year's first Thursday in it".
-        */
 
+           FirstThursday corresponds to the numbering that is
+           implemented in QDate::weekNumber().
+        */
         FirstThursday,
 
         /*!
