@@ -26,7 +26,78 @@ static inline Qt::DayOfWeek qwtFirstDayOfWeek()
 #if QT_VERSION >= 0x040800
     return QLocale().firstDayOfWeek();
 #else
-    return Qt::Monday;
+
+    switch( QLocale().country() )
+    {
+        case QLocale::Maldives:
+            return Qt::Friday;
+
+        case QLocale::Afghanistan:
+        case QLocale::Algeria:
+        case QLocale::Bahrain:
+        case QLocale::Djibouti:
+        case QLocale::Egypt:
+        case QLocale::Eritrea:
+        case QLocale::Ethiopia:
+        case QLocale::Iran:
+        case QLocale::Iraq:
+        case QLocale::Jordan:
+        case QLocale::Kenya:
+        case QLocale::Kuwait:
+        case QLocale::LibyanArabJamahiriya:
+        case QLocale::Morocco:
+        case QLocale::Oman:
+        case QLocale::Qatar:
+        case QLocale::SaudiArabia:
+        case QLocale::Somalia:
+        case QLocale::Sudan:
+        case QLocale::Tunisia:
+        case QLocale::Yemen:
+            return Qt::Saturday;
+
+        case QLocale::AmericanSamoa:
+        case QLocale::Argentina:
+        case QLocale::Azerbaijan:
+        case QLocale::Botswana:
+        case QLocale::Canada:
+        case QLocale::China:
+        case QLocale::FaroeIslands:
+        case QLocale::Georgia:
+        case QLocale::Greenland:
+        case QLocale::Guam:
+        case QLocale::HongKong:
+        case QLocale::Iceland:
+        case QLocale::India:
+        case QLocale::Ireland:
+        case QLocale::Israel:
+        case QLocale::Jamaica:
+        case QLocale::Japan:
+        case QLocale::Kyrgyzstan:
+        case QLocale::Lao:
+        case QLocale::Malta:
+        case QLocale::MarshallIslands:
+        case QLocale::Macau:
+        case QLocale::Mongolia:
+        case QLocale::NewZealand:
+        case QLocale::NorthernMarianaIslands:
+        case QLocale::Pakistan:
+        case QLocale::Philippines:
+        case QLocale::RepublicOfKorea:
+        case QLocale::Singapore:
+        case QLocale::SyrianArabRepublic:
+        case QLocale::Taiwan:
+        case QLocale::Thailand:
+        case QLocale::TrinidadAndTobago:
+        case QLocale::UnitedStates:
+        case QLocale::UnitedStatesMinorOutlyingIslands:
+        case QLocale::USVirginIslands:
+        case QLocale::Uzbekistan:
+        case QLocale::Zimbabwe:
+            return Qt::Sunday;
+
+        default:
+            return Qt::Monday;
+    }
 #endif
 }
 
@@ -167,7 +238,8 @@ double QwtDate::toDouble( const QDateTime &dateTime )
     const double days = dt.date().toJulianDay() - QwtDate::JulianDayForEpoch;
 
     const QTime time = dt.time();
-    const double secs = 3600.0 * time.hour() + 60.0 * time.minute() + time.second();
+    const double secs = 3600.0 * time.hour() + 
+        60.0 * time.minute() + time.second();
 
     return days * msecsPerDay + time.msec() + 1000.0 * secs;
 }
@@ -256,7 +328,9 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Month:
         {
-            dt = QDateTime( qwtToDate( dateTime.date().year(), dateTime.date().month() ) );
+            dt = QDateTime( qwtToDate( dateTime.date().year(), 
+                dateTime.date().month() ) );
+
             if ( dt < dateTime )
                 dt.addMonths( 1 );
 
@@ -350,7 +424,8 @@ QDateTime QwtDate::floor( const QDateTime &dateTime, IntervalType type )
         }
         case QwtDate::Month:
         {
-            dt = QDateTime( qwtToDate( dateTime.date().year(), dateTime.date().month() ) );
+            dt = QDateTime( qwtToDate( dateTime.date().year(), 
+                dateTime.date().month() ) );
             break;
         }
         case QwtDate::Year:
@@ -410,8 +485,7 @@ QDate QwtDate::maxDate()
   \brief Date of the first day of the first week for a year
 
   The first day of a week depends on the current locale
-  ( QLocale::firstDayOfWeek() ). For Qt versions < 4.8.0
-  it is always Monday.
+  ( QLocale::firstDayOfWeek() ). 
 
   \param year Year
   \param type Option how to identify the first week
@@ -421,11 +495,7 @@ QDate QwtDate::maxDate()
  */ 
 QDate QwtDate::dateOfWeek0( int year, Week0Type type )
 {
-#if QT_VERSION >= 0x040800
-    Qt::DayOfWeek firstDayOfWeek = QLocale().firstDayOfWeek();
-#else
-    Qt::DayOfWeek firstDayOfWeek = Qt::Monday;
-#endif
+    const Qt::DayOfWeek firstDayOfWeek = qwtFirstDayOfWeek();
 
     QDate dt0( year, 1, 1 );
 
