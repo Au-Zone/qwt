@@ -16,21 +16,21 @@
 /*!
   \brief A collection of methods around date/time values
 
-  Qt offers convenient classes for dealing date/time values.
-  As the coordinate system is based on doubles QwtDate offers
-  methods to translate QDateTime to double and v.v.
+  Qt offers convenient classes for dealing with date/time values,
+  but Qwt uses coordinate systems that are based on doubles.
+  QwtDate offers methods to translate from QDateTime to double and v.v.
 
   A double is interpreted as the number of milliseconds since
   1970-01-01T00:00:00 Universal Coordinated Time - also known
-  as "The Epoch". As the significance of a double is below
-  the available in QDateTime the translation is not bijective with
-  rounding errors for dates very far from Epoch.
+  as "The Epoch". 
 
-  While the range of the julian day in Qt4 is limited in the range
-  between [0, MAX_INT], Qt5 stores it as qint64 offering a huge range
-  of valid dates. As the significance of a double is below
-  the available in QDateTime the translation is not bijective with
-  rounding errors for dates very far from Epoch.
+  While the range of the julian day in Qt4 is limited to [0, MAX_INT], 
+  Qt5 stores it as qint64 offering a huge range of valid dates. 
+  As the significance of a double is below this ( assuming a 
+  fraction of 52 bits ) the translation is not 
+  bijective with rounding errors for dates very far from Epoch. 
+  For a resolution of 1 ms those start to happen for dates above the 
+  year 144683. 
 
   An axis for a date/time interval is expected to be aligned
   and divided in time/date units like seconds, minutes, ...
