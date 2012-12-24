@@ -19,14 +19,13 @@ public:
     virtual void autoScale( int maxNumSteps,
         double &x1, double &x2, double &stepSize ) const;
 
-    virtual QwtScaleDiv divideScale( double x1, double x2,
+    virtual QwtScaleDiv divideScale( 
+        double x1, double x2,
         int maxMajSteps, int maxMinSteps,
         double stepSize = 0.0 ) const;
 
-    virtual QwtTransform *transformation() const;
-
     virtual QwtDate::IntervalType intervalType( 
-        double x1, double x2, int maxSteps ) const;
+        const QDateTime &, const QDateTime &, int maxSteps ) const;
 
 protected:
     virtual double divideInterval(
@@ -34,7 +33,8 @@ protected:
         QwtDate::IntervalType, int numSteps ) const;
 
 private:
-    QwtScaleDiv divideTo( double min, double max,
+    QwtScaleDiv divideTo( 
+        const QDateTime &, const QDateTime &,
         int maxMajSteps, int maxMinSteps,
         QwtDate::IntervalType intervalType ) const;
 
