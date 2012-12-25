@@ -14,10 +14,10 @@ Plot::Plot( QWidget *parent ):
 
     const int axis = QwtPlot::yLeft;
 
-    TimeScaleDraw *scaleDraw = new TimeScaleDraw();
+    QwtDateTimeScaleDraw *scaleDraw = new QwtDateTimeScaleDraw();
     setAxisScaleDraw( axis, scaleDraw );
 
-    TimeScaleEngine *scaleEngine = new TimeScaleEngine();
+    QwtDateTimeScaleEngine *scaleEngine = new QwtDateTimeScaleEngine();
 #if 0
     scaleEngine->setTimeSpec( Qt::UTC );
 #endif
@@ -49,8 +49,8 @@ void Plot::applySettings( const Settings &settings )
 {
     const int axis = QwtPlot::yLeft;
 
-    TimeScaleEngine *scaleEngine = 
-        static_cast<TimeScaleEngine *>( axisScaleEngine( axis ) );
+    QwtDateTimeScaleEngine *scaleEngine = 
+        static_cast<QwtDateTimeScaleEngine *>( axisScaleEngine( axis ) );
 
     scaleEngine->setMaxWeeks( settings.maxWeeks );
     setAxisMaxMinor( axis, settings.maxMinorSteps );

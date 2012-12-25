@@ -522,3 +522,44 @@ QDate QwtDate::dateOfWeek0( int year, Week0Type type )
     return dt0;
 }
 
+/*!
+   Offset in seconds from Coordinated Universal Time
+
+   The offset depends on the time specification of dateTime:
+
+   - Qt::UTC
+     0, dateTime has no offset
+   - Qt::OffsetFromUTC
+     returns dateTime.utcOffset()
+   - Qt::LocalTime:
+     number of seconds from the UTC
+
+   For Qt::LocalTime the offset depends on the timezone and
+   daylight savings.
+
+   \param dateTime Datetime value
+   \return Ofsset in seconfs
+ */
+int QwtDate::utcOffset( const QDateTime &dateTime )
+{
+    int seconds = 0;
+
+    switch( dateTime.timeSpec() )
+    {
+        case Qt::UTC:
+        {
+            break;
+        }
+        case Qt::OffsetFromUTC:
+        {
+            seconds = dateTime.utcOffset();
+        }
+        default:
+        {
+            const QDateTime dt1( dateTime.date(), dateTime.time(), Qt::UTC );
+            seconds = dateTime.secsTo( dt1 );
+        }
+    }
+
+    return seconds;
+}

@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef _QWT_DATE_H
-#define _QWT_DATE_H
+#ifndef _QWT_DATE_H_
+#define _QWT_DATE_H_
 
 #include <qwt_global.h>
 #include <qdatetime.h>
@@ -117,6 +117,8 @@ public:
     static QDateTime floor( const QDateTime &, IntervalType );
 
     static QDate dateOfWeek0( int year, Week0Type );
+
+    static int utcOffset( const QDateTime & );
 };
 
 #endif
