@@ -27,7 +27,7 @@ public:
 
     virtual QwtScaleDiv divideScale( 
         double x1, double x2,
-        int maxMajSteps, int maxMinSteps,
+        int maxMajorSteps, int maxMinorSteps,
         double stepSize = 0.0 ) const;
 
     virtual QwtDate::IntervalType intervalType( 
