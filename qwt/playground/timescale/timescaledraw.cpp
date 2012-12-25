@@ -24,15 +24,22 @@ static QwtDate::IntervalType qwtIntervalType(
     return QwtDate::Year;
 }
 
-TimeScaleDraw::TimeScaleDraw()
+class QwtDateTimeScaleDraw::PrivateData
 {
+public:
+};
+
+QwtDateTimeScaleDraw::QwtDateTimeScaleDraw()
+{
+	d_data = new PrivateData();
 }
 
-TimeScaleDraw::~TimeScaleDraw()
+QwtDateTimeScaleDraw::~QwtDateTimeScaleDraw()
 {
+	delete d_data;
 }
 
-QwtText TimeScaleDraw::label( double value ) const
+QwtText QwtDateTimeScaleDraw::label( double value ) const
 {
     const QDateTime dt = QwtDate::toDateTime( value, Qt::LocalTime );
 
@@ -40,7 +47,7 @@ QwtText TimeScaleDraw::label( double value ) const
     return dt.toString( format( scaleDiv() ) );
 }
 
-QString TimeScaleDraw::format( const QwtScaleDiv &scaleDiv ) const
+QString QwtDateTimeScaleDraw::format( const QwtScaleDiv &scaleDiv ) const
 {
     const QList<double> ticks = scaleDiv.ticks( QwtScaleDiv::MajorTick );
 
@@ -51,7 +58,7 @@ QString TimeScaleDraw::format( const QwtScaleDiv &scaleDiv ) const
     return format( qwtIntervalType( dates ) );
 }
 
-QString TimeScaleDraw::format( QwtDate::IntervalType intervalType ) const
+QString QwtDateTimeScaleDraw::format( QwtDate::IntervalType intervalType ) const
 {
     QString format;
 

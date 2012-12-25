@@ -171,7 +171,7 @@ protected:
 
     void buildMinorTicks(
         const QList<double>& majorTicks,
-        int maxMinMark, double step,
+        int maxMinorSteps, double stepSize,
         QList<double> &minorTicks, 
         QList<double> &mediumTicks ) const;
 };
@@ -212,7 +212,7 @@ protected:
 
     void buildMinorTicks(
         const QList<double>& majorTicks,
-        int maxMinMark, double step,
+        int maxMinorSteps, double stepSize,
         QList<double> &minorTicks, 
         QList<double> &mediumTicks ) const;
 };
