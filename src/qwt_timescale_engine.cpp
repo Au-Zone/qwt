@@ -1,6 +1,6 @@
-#include "timescaleengine.h"
-#include <qwt_math.h>
-#include <qwt_transform.h>
+#include "qwt_timescale_engine.h"
+#include "qwt_math.h"
+#include "qwt_transform.h"
 #include <qdatetime.h>
 #include <qdebug.h>
 

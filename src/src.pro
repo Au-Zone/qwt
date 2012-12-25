@@ -68,6 +68,7 @@ HEADERS += \
     qwt_text_engine.h \
     qwt_text_label.h \
     qwt_text.h \
+    qwt_timescale_engine.h \
     qwt_transform.h \
     qwt_widget_overlay.h
 
@@ -104,6 +105,7 @@ SOURCES += \
     qwt_text_engine.cpp \
     qwt_text_label.cpp \
     qwt_text.cpp \
+    qwt_timescale_engine.cpp \
     qwt_transform.cpp \
     qwt_widget_overlay.cpp
 

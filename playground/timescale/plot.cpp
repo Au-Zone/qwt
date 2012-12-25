@@ -1,8 +1,8 @@
 #include "plot.h"
 #include "settings.h"
 #include "qwt_date.h"
-#include "timescaleengine.h"
 #include "timescaledraw.h"
+#include <qwt_timescale_engine.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_grid.h>
