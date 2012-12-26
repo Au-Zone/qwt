@@ -360,11 +360,13 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
 
   \param dateTime Datetime value
   \param intervalType Interval type, how to ceil. 
-                      F.e. when intervalType = QwtDate::Months, the result
-                      will be ceiled to the next beginning of a month
+                      F.e. when intervalType = QwtDate::Months,
+                      the result will be ceiled to the next 
+                      beginning of a month
   \sa floor()
  */
-QDateTime QwtDate::floor( const QDateTime &dateTime, IntervalType type )
+QDateTime QwtDate::floor( const QDateTime &dateTime, 
+    IntervalType intervalType )
 {
     if ( dateTime.date() <= QwtDate::minDate() )
         return dateTime;
@@ -372,7 +374,7 @@ QDateTime QwtDate::floor( const QDateTime &dateTime, IntervalType type )
     QDateTime dt;
     dt.setTimeSpec( dateTime.timeSpec() );
 
-    switch ( type )
+    switch ( intervalType )
     {
         case QwtDate::Millisecond:
         {

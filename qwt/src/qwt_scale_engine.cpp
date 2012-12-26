@@ -511,14 +511,14 @@ QwtLinearScaleEngine::~QwtLinearScaleEngine()
 }
 
 /*!
-    Align and divide an interval
+  Align and divide an interval
 
-   \param maxNumSteps Max. number of steps
-   \param x1 First limit of the interval (In/Out)
-   \param x2 Second limit of the interval (In/Out)
-   \param stepSize Step size (Out)
+  \param maxNumSteps Max. number of steps
+  \param x1 First limit of the interval (In/Out)
+  \param x2 Second limit of the interval (In/Out)
+  \param stepSize Step size (Out)
 
-   \sa setAttribute()
+  \sa setAttribute()
 */
 void QwtLinearScaleEngine::autoScale( int maxNumSteps,
     double &x1, double &x2, double &stepSize ) const
@@ -563,8 +563,6 @@ void QwtLinearScaleEngine::autoScale( int maxNumSteps,
    \param maxMinorSteps Maximum number of minor steps
    \param stepSize Step size. If stepSize == 0, the scaleEngine
                    calculates one.
-
-   \sa QwtScaleEngine::stepSize(), QwtScaleEngine::subDivide()
 */
 QwtScaleDiv QwtLinearScaleEngine::divideScale( double x1, double x2,
     int maxMajorSteps, int maxMinorSteps, double stepSize ) const
@@ -856,8 +854,6 @@ void QwtLogScaleEngine::autoScale( int maxNumSteps,
    \param maxMinorSteps Maximum number of minor steps
    \param stepSize Step size. If stepSize == 0, the scaleEngine
                    calculates one.
-
-   \sa QwtScaleEngine::stepSize(), QwtLogScaleEngine::subDivide()
 */
 QwtScaleDiv QwtLogScaleEngine::divideScale( double x1, double x2,
     int maxMajorSteps, int maxMinorSteps, double stepSize ) const

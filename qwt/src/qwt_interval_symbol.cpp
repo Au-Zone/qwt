@@ -166,7 +166,7 @@ const QBrush& QwtIntervalSymbol::brush() const
   \sa pen(), brush()
  */ 
 void QwtIntervalSymbol::setPen( const QColor &color, 
-	qreal width, Qt::PenStyle style )
+    qreal width, Qt::PenStyle style )
 {   
     setPen( QPen( color, width, style ) );
 }

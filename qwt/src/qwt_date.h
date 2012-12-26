@@ -74,7 +74,7 @@ public:
      */
     enum IntervalType
     {
-        //! The interval is related to miliseconds
+        //! The interval is related to milliseconds
         Millisecond,
 
         //! The interval is related to seconds

@@ -38,7 +38,7 @@ protected:
     /*!
        Collect a sample
 
-       \param elapsed Time since the thread was started in miliseconds
+       \param elapsed Time since the thread was started in milliseconds
      */
     virtual void sample( double elapsed ) = 0;
 
