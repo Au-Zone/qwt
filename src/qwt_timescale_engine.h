@@ -4,6 +4,30 @@
 #include "qwt_date.h"
 #include "qwt_scale_engine.h"
 
+/*!
+  \brief A scale engine for date/time values
+
+  QwtDateTimeScaleEngine builds scales from a time intervals.
+  Together with QwtDateTimeScaleDraw it can be used for
+  axes according to date/time values.
+
+  Years, months, weeks, days, hours and minutes are organized
+  in steps with non constant intervals. QwtDateTimeScaleEngine
+  classifies intervals and aligns the boundaries and tick positions
+  according to this classification.
+
+  QwtDateTimeScaleEngine supports representations depending
+  on Qt::TimeSpec specifications. The valid range for scales
+  is limited by the range of QDateTime, that differs 
+  between Qt5 and Qt5.
+  
+  Date/time values are expected as the number of milliseconds since
+  1970-01-01T00:00:00 Universal Coordinated Time - also known
+  as "The Epoch", that can be converted to QDateTime using 
+  QwtDate::toDateTime().
+
+  \sa QwtDate, QwtTimeIntervalScaleEngine
+*/
 class QWT_EXPORT QwtDateTimeScaleEngine: public QwtLinearScaleEngine
 {
 public:
@@ -16,9 +40,9 @@ public:
     void setUtcOffset( int seconds );
     int utcOffset() const;
 
-	void setWeek0Type( QwtDate::Week0Type );
-	QwtDate::Week0Type week0Type() const;
-	
+    void setWeek0Type( QwtDate::Week0Type );
+    QwtDate::Week0Type week0Type() const;
+    
     void setMaxWeeks( int );
     int maxWeeks() const;
 
@@ -33,20 +57,20 @@ public:
     virtual QwtDate::IntervalType intervalType( 
         const QDateTime &, const QDateTime &, int maxSteps ) const;
 
+    QDateTime toDateTime( double ) const;
+
 protected:
-    virtual double divideInterval(
+    virtual double autoScaleStepSize(
         const QDateTime &, const QDateTime &,
         QwtDate::IntervalType, int numSteps ) const;
 
-	QDateTime toDateTime( double ) const;
+    virtual QDateTime alignDate( const QDateTime &, double stepSize,
+        QwtDate::IntervalType, bool up ) const;
 
 private:
-    QwtScaleDiv divideTo( const QDateTime &, const QDateTime &,
+    QwtScaleDiv buildScaleDiv( const QDateTime &, const QDateTime &,
         int maxMajorSteps, int maxMinorSteps, 
-		QwtDate::IntervalType ) const;
-
-	QDateTime alignDate( const QDateTime &, double stepSize,
-    	QwtDate::IntervalType, bool up ) const;
+        QwtDate::IntervalType ) const;
 
 private:
     class PrivateData;

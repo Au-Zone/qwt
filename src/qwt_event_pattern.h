@@ -140,9 +140,9 @@ public:
     public:
         //! Constructor
         MousePattern( Qt::MouseButton btn = Qt::NoButton, 
-				Qt::KeyboardModifiers modifierCodes = Qt::NoModifier ):
-			button( btn ),
-			modifiers( modifierCodes )
+                Qt::KeyboardModifiers modifierCodes = Qt::NoModifier ):
+            button( btn ),
+            modifiers( modifierCodes )
         {
         }
 
@@ -159,9 +159,9 @@ public:
     public:
         //! Constructor
         KeyPattern( int keyCode = Qt::Key_unknown, 
-				Qt::KeyboardModifiers modifierCodes = Qt::NoModifier ):
-			key( keyCode ),
-			modifiers( modifierCodes )
+                Qt::KeyboardModifiers modifierCodes = Qt::NoModifier ):
+            key( keyCode ),
+            modifiers( modifierCodes )
         {
         }
 
@@ -179,9 +179,9 @@ public:
     void initKeyPattern();
 
     void setMousePattern( uint pattern, Qt::MouseButton button, 
-		Qt::KeyboardModifiers = Qt::NoModifier );
+        Qt::KeyboardModifiers = Qt::NoModifier );
     void setKeyPattern( uint pattern, int keyCode, 
-		Qt::KeyboardModifiers modifierCodes = Qt::NoModifier );
+        Qt::KeyboardModifiers modifierCodes = Qt::NoModifier );
 
     void setMousePattern( const QVector<MousePattern> & );
     void setKeyPattern( const QVector<KeyPattern> & );

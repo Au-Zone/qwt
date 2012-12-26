@@ -103,7 +103,7 @@ void QwtEventPattern::initKeyPattern()
   \sa QMouseEvent
 */
 void QwtEventPattern::setMousePattern( uint pattern, 
-	Qt::MouseButton button, Qt::KeyboardModifiers modifiers )
+    Qt::MouseButton button, Qt::KeyboardModifiers modifiers )
 {
     if ( pattern < static_cast<uint>( d_mousePattern.count() ) )
     {
@@ -122,7 +122,7 @@ void QwtEventPattern::setMousePattern( uint pattern,
   \sa QKeyEvent
 */
 void QwtEventPattern::setKeyPattern( uint pattern, 
-	int key, Qt::KeyboardModifiers modifiers )
+    int key, Qt::KeyboardModifiers modifiers )
 {
     if ( pattern < static_cast<uint>( d_keyPattern.count() ) )
     {
@@ -208,8 +208,8 @@ bool QwtEventPattern::mouseMatch( uint pattern,
 bool QwtEventPattern::mouseMatch( const MousePattern &pattern,
     const QMouseEvent *event ) const
 {
-	const MousePattern mousePattern( event->button(), event->modifiers() );
-	return mousePattern == pattern;
+    const MousePattern mousePattern( event->button(), event->modifiers() );
+    return mousePattern == pattern;
 }
 
 /*!
@@ -251,6 +251,6 @@ bool QwtEventPattern::keyMatch( uint pattern,
 bool QwtEventPattern::keyMatch(
     const KeyPattern &pattern, const QKeyEvent *event ) const
 {
-	const KeyPattern keyPattern( event->key(), event->modifiers() );
-	return keyPattern == pattern;
+    const KeyPattern keyPattern( event->key(), event->modifiers() );
+    return keyPattern == pattern;
 }

@@ -107,7 +107,7 @@ QwtPanner::~QwtPanner()
    The defaults are Qt::LeftButton and Qt::NoModifier
 */
 void QwtPanner::setMouseButton( Qt::MouseButton button,
-	Qt::KeyboardModifiers modifiers )
+    Qt::KeyboardModifiers modifiers )
 {
     d_data->button = button;
     d_data->buttonModifiers = modifiers;
@@ -115,7 +115,7 @@ void QwtPanner::setMouseButton( Qt::MouseButton button,
 
 //! Get mouse button and modifiers used for panning
 void QwtPanner::getMouseButton( Qt::MouseButton &button,
-	Qt::KeyboardModifiers &modifiers ) const
+    Qt::KeyboardModifiers &modifiers ) const
 {
     button = d_data->button;
     modifiers = d_data->buttonModifiers;
@@ -129,7 +129,7 @@ void QwtPanner::getMouseButton( Qt::MouseButton &button,
    \param modifiers Keyboard modifiers
 */
 void QwtPanner::setAbortKey( int key, 
-	Qt::KeyboardModifiers modifiers )
+    Qt::KeyboardModifiers modifiers )
 {
     d_data->abortKey = key;
     d_data->abortKeyModifiers = modifiers;
@@ -137,7 +137,7 @@ void QwtPanner::setAbortKey( int key,
 
 //! Get the abort key and modifiers
 void QwtPanner::getAbortKey( int &key, 
-	Qt::KeyboardModifiers &modifiers ) const
+    Qt::KeyboardModifiers &modifiers ) const
 {
     key = d_data->abortKey;
     modifiers = d_data->abortKeyModifiers;
@@ -374,10 +374,10 @@ bool QwtPanner::eventFilter( QObject *object, QEvent *event )
 void QwtPanner::widgetMousePressEvent( QMouseEvent *mouseEvent )
 {
     if ( ( mouseEvent->button() != d_data->button )
-		|| ( mouseEvent->modifiers() != d_data->buttonModifiers ) )
-	{
+        || ( mouseEvent->modifiers() != d_data->buttonModifiers ) )
+    {
         return;
-	}
+    }
 
     QWidget *w = parentWidget();
     if ( w == NULL )
@@ -475,14 +475,14 @@ void QwtPanner::widgetMouseReleaseEvent( QMouseEvent *mouseEvent )
 void QwtPanner::widgetKeyPressEvent( QKeyEvent *keyEvent )
 {
     if ( ( keyEvent->key() == d_data->abortKey )
-		&& ( keyEvent->modifiers() == d_data->abortKeyModifiers ) )
+        && ( keyEvent->modifiers() == d_data->abortKeyModifiers ) )
     {
-		hide();
+        hide();
 
 #ifndef QT_NO_CURSOR
-		showCursor( false );
+        showCursor( false );
 #endif
-		d_data->pixmap = QPixmap();
+        d_data->pixmap = QPixmap();
     }
 }
 
