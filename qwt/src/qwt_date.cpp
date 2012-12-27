@@ -218,7 +218,7 @@ QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
     if ( timeSpec != Qt::UTC )
         dt = qwtToTimeSpec( dt, timeSpec );
 
-#if QT_VERSION < 0x050000
+#if 1
     // without the detach below I had wrong results
     // for the first call of QDateTime::operator==() 
     // in QwtDateTimeScaleDraw::intervalType(). Looks
