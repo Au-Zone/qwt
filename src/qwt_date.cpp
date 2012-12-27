@@ -120,7 +120,21 @@ static inline QDateTime qwtToTimeSpec(
         return dt2;
     }
 
-    return dt.toTimeSpec( spec );
+    QDateTime dt2 = dt.toTimeSpec( spec );
+    if ( dt2.timeSpec() == Qt::LocalTime )
+    {
+        // QDateTime internally has LocalUnknown, LocalStandard 
+        // and LocalDST that all are mapped to Qt::LocalTime.
+        // Unfortunately QDateTime::operator==() returns false
+        // when those are different - looks like a bug to me. 
+        // To avoid these problem we explicitely set LocalUnknown.
+        // Issue was detected with a datetime close to when
+        // the daylight saving changes.
+
+        dt2.setTimeSpec( Qt::LocalTime );
+    }
+
+    return dt2;
 }
 
 static inline double qwtToJulianDay( int year, int month, int day )
@@ -217,15 +231,6 @@ QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
 
     if ( timeSpec != Qt::UTC )
         dt = qwtToTimeSpec( dt, timeSpec );
-
-#if 1
-    // without the detach below I had wrong results
-    // for the first call of QDateTime::operator==() 
-    // in QwtDateTimeScaleDraw::intervalType(). Looks
-    // like a compiler bug to me.
-
-    dt.setTimeSpec( dt.timeSpec() ); // => dt.detach()
-#endif
 
     return dt;
 }
