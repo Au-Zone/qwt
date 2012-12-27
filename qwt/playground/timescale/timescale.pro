@@ -12,13 +12,11 @@ include( $${PWD}/../playground.pri )
 TARGET       = timescale
 
 HEADERS = \
-    timescaledraw.h \
     panel.h \
     plot.h \
     mainwindow.h
 
 SOURCES = \
-    timescaledraw.cpp \
     panel.cpp \
     plot.cpp \
     mainwindow.cpp \

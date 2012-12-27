@@ -101,7 +101,8 @@ static inline Qt::DayOfWeek qwtFirstDayOfWeek()
 #endif
 }
 
-static inline QDateTime qwtToTimeSpec( const QDateTime &dt, Qt::TimeSpec spec )
+static inline QDateTime qwtToTimeSpec( 
+    const QDateTime &dt, Qt::TimeSpec spec )
 {
     if ( dt.timeSpec() == spec )
         return dt;
@@ -213,8 +214,18 @@ QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
     static const QTime timeNull( 0, 0, 0, 0 );
 
     QDateTime dt( d, timeNull.addMSecs( msecs ), Qt::UTC );
+
     if ( timeSpec != Qt::UTC )
         dt = qwtToTimeSpec( dt, timeSpec );
+
+#if QT_VERSION < 0x050000
+    // without the detach below I had wrong results
+    // for the first call of QDateTime::operator==() 
+    // in QwtDateTimeScaleDraw::intervalType(). Looks
+    // like a compiler bug to me.
+
+    dt.setTimeSpec( dt.timeSpec() ); // => dt.detach()
+#endif
 
     return dt;
 }
@@ -258,21 +269,17 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
     if ( dateTime.date() >= QwtDate::maxDate() )
         return dateTime;
 
-    QDateTime dt;
-    dt.setTimeSpec( dateTime.timeSpec() );
+    QDateTime dt = dateTime;
 
     switch ( intervalType )
     {
         case QwtDate::Millisecond:
         {
-            dt = dateTime;
             break;
         }
         case QwtDate::Second:
         {
-            dt.setDate( dateTime.date() );
-
-            const QTime t = dateTime.time();
+            const QTime t = dt.time();
             dt.setTime( QTime( t.hour(), t.minute(), t.second(), 0 ) );
 
             if ( dt < dateTime )
@@ -282,9 +289,7 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Minute:
         {
-            dt.setDate( dateTime.date() );
-
-            const QTime t = dateTime.time();
+            const QTime t = dt.time();
             dt.setTime( QTime( t.hour(), t.minute(), 0, 0 ) );
 
             if ( dt < dateTime )
@@ -294,10 +299,8 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Hour:
         {
-            dt.setDate( dateTime.date() );
-            
             const QTime t = dateTime.time();
-            dt.setTime( QTime( t.hour(), 0, 0, 0 ) );
+            dt.setTime( QTime( t.hour(), 0 ) );
 
             if ( dt < dateTime )
                 dt.addSecs( 3600 );
@@ -306,7 +309,7 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Day:
         {
-            dt = QDateTime( dateTime.date() );
+            dt.setTime( QTime( 0, 0 ) );
             if ( dt < dateTime )
                 dt = dt.addDays( 1 );
 
@@ -314,7 +317,7 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Week:
         {
-            dt = QDateTime( dateTime.date() );
+            dt.setTime( QTime( 0, 0 ) );
             if ( dt < dateTime )
                 dt = dt.addDays( 1 );
 
@@ -328,7 +331,8 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Month:
         {
-            dt = QDateTime( qwtToDate( dateTime.date().year(), 
+            dt.setTime( QTime( 0, 0 ) );
+            dt.setDate( qwtToDate( dateTime.date().year(), 
                 dateTime.date().month() ) );
 
             if ( dt < dateTime )
@@ -338,6 +342,8 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Year:
         {
+            dt.setTime( QTime( 0, 0 ) );
+
             const QDate d = dateTime.date();
 
             int year = d.year();
@@ -347,7 +353,7 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
             if ( year == 0 )
                 year++; // there is no year 0
 
-            dt = QDateTime( qwtToDate( year ) );
+            dt.setDate( qwtToDate( year ) );
             break;
         }
     }
@@ -371,50 +377,42 @@ QDateTime QwtDate::floor( const QDateTime &dateTime,
     if ( dateTime.date() <= QwtDate::minDate() )
         return dateTime;
 
-    QDateTime dt;
-    dt.setTimeSpec( dateTime.timeSpec() );
+    QDateTime dt = dateTime;
 
     switch ( intervalType )
     {
         case QwtDate::Millisecond:
         {
-            dt = dateTime;
             break;
         }
         case QwtDate::Second:
         {
-            dt.setDate( dateTime.date() );
-
-            const QTime t = dateTime.time();
+            const QTime t = dt.time();
             dt.setTime( QTime( t.hour(), t.minute(), t.second(), 0 ) );
 
             break;
         }
         case QwtDate::Minute:
         {
-            dt.setDate( dateTime.date() );
-
-            const QTime t = dateTime.time();
+            const QTime t = dt.time();
             dt.setTime( QTime( t.hour(), t.minute(), 0, 0 ) );
 
             break;
         }
         case QwtDate::Hour:
         {
-            dt.setDate( dateTime.date() );
-
-            const QTime t = dateTime.time();
+            const QTime t = dt.time();
             dt.setTime( QTime( t.hour(), 0, 0, 0 ) );
             break;
         }
         case QwtDate::Day:
         {
-            dt = QDateTime( dateTime.date() );
+            dt.setTime( QTime( 0, 0 ) );
             break;
         }
         case QwtDate::Week:
         {
-            dt = QDateTime( dateTime.date() );
+            dt.setTime( QTime( 0, 0 ) );
 
             int days = dt.date().dayOfWeek() - qwtFirstDayOfWeek();
             if ( days < 0 )
@@ -426,13 +424,21 @@ QDateTime QwtDate::floor( const QDateTime &dateTime,
         }
         case QwtDate::Month:
         {
-            dt = QDateTime( qwtToDate( dateTime.date().year(), 
-                dateTime.date().month() ) );
+            dt.setTime( QTime( 0, 0 ) );
+
+            const QDate date = qwtToDate( dt.date().year(), 
+                dt.date().month() );
+            dt.setDate( date );
+
             break;
         }
         case QwtDate::Year:
         {
-            dt = QDateTime( qwtToDate( dateTime.date().year() ) );
+            dt.setTime( QTime( 0, 0 ) );
+
+            const QDate date = qwtToDate( dt.date().year() );
+            dt.setDate( date );
+
             break;
         }
     }
