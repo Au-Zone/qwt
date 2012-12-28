@@ -101,6 +101,44 @@ static inline Qt::DayOfWeek qwtFirstDayOfWeek()
 #endif
 }
 
+static inline void qwtFloorTime( 
+    QwtDate::IntervalType intervalType, QDateTime &dt )
+{
+    // when dt is inside the special hour where DST is ending
+    // an hour is no unique. Therefore we have to
+    // use UTC time.
+
+    const Qt::TimeSpec timeSpec = dt.timeSpec();
+
+    if ( timeSpec == Qt::LocalTime )
+        dt = dt.toTimeSpec( Qt::UTC );
+
+    const QTime t = dt.time();
+    switch( intervalType )
+    {
+        case QwtDate::Second:
+        {
+            dt.setTime( QTime( t.hour(), t.minute(), t.second() ) );
+            break;
+        }
+        case QwtDate::Minute:
+        {
+            dt.setTime( QTime( t.hour(), t.minute(), 0 ) );
+            break;
+        }
+        case QwtDate::Hour:
+        {
+            dt.setTime( QTime( t.hour(), 0, 0 ) );
+            break;
+        }   
+        default:
+            break;
+    }
+
+    if ( timeSpec == Qt::LocalTime )
+        dt = dt.toTimeSpec( Qt::LocalTime );
+}
+
 static inline QDateTime qwtToTimeSpec( 
     const QDateTime &dt, Qt::TimeSpec spec )
 {
@@ -120,21 +158,7 @@ static inline QDateTime qwtToTimeSpec(
         return dt2;
     }
 
-    QDateTime dt2 = dt.toTimeSpec( spec );
-    if ( dt2.timeSpec() == Qt::LocalTime )
-    {
-        // QDateTime internally has LocalUnknown, LocalStandard 
-        // and LocalDST that all are mapped to Qt::LocalTime.
-        // Unfortunately QDateTime::operator==() returns false
-        // when those are different - looks like a bug to me. 
-        // To avoid these problem we explicitely set LocalUnknown.
-        // Issue was detected with a datetime close to when
-        // the daylight saving changes.
-
-        dt2.setTimeSpec( Qt::LocalTime );
-    }
-
-    return dt2;
+    return dt.toTimeSpec( spec );
 }
 
 static inline double qwtToJulianDay( int year, int month, int day )
@@ -284,9 +308,7 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Second:
         {
-            const QTime t = dt.time();
-            dt.setTime( QTime( t.hour(), t.minute(), t.second(), 0 ) );
-
+            qwtFloorTime( QwtDate::Second, dt );
             if ( dt < dateTime )
                 dt.addSecs( 1 );
 
@@ -294,9 +316,7 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Minute:
         {
-            const QTime t = dt.time();
-            dt.setTime( QTime( t.hour(), t.minute(), 0, 0 ) );
-
+            qwtFloorTime( QwtDate::Minute, dt );
             if ( dt < dateTime )
                 dt.addSecs( 60 );
 
@@ -304,9 +324,7 @@ QDateTime QwtDate::ceil( const QDateTime &dateTime, IntervalType intervalType )
         }
         case QwtDate::Hour:
         {
-            const QTime t = dateTime.time();
-            dt.setTime( QTime( t.hour(), 0 ) );
-
+            qwtFloorTime( QwtDate::Hour, dt );
             if ( dt < dateTime )
                 dt.addSecs( 3600 );
 
@@ -391,23 +409,10 @@ QDateTime QwtDate::floor( const QDateTime &dateTime,
             break;
         }
         case QwtDate::Second:
-        {
-            const QTime t = dt.time();
-            dt.setTime( QTime( t.hour(), t.minute(), t.second(), 0 ) );
-
-            break;
-        }
         case QwtDate::Minute:
-        {
-            const QTime t = dt.time();
-            dt.setTime( QTime( t.hour(), t.minute(), 0, 0 ) );
-
-            break;
-        }
         case QwtDate::Hour:
         {
-            const QTime t = dt.time();
-            dt.setTime( QTime( t.hour(), 0, 0, 0 ) );
+            qwtFloorTime( intervalType, dt );
             break;
         }
         case QwtDate::Day:

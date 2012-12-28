@@ -69,6 +69,11 @@ QwtDate::IntervalType QwtDateTimeScaleDraw::intervalType(
         const QDateTime dt = toDateTime( ticks[i] );
         for ( int j = QwtDate::Second; j <= intvType; j++ )
         {
+#if 1
+            if ( j == QwtDate::Week )
+                continue;
+#endif
+
             const QDateTime dt0 = QwtDate::floor( dt, 
                 static_cast<QwtDate::IntervalType>( j ) );
 
