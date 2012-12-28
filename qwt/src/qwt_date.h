@@ -117,8 +117,12 @@ public:
     static QDateTime floor( const QDateTime &, IntervalType );
 
     static QDate dateOfWeek0( int year, Week0Type );
+    static int weekNumber( const QDate &, Week0Type );
 
     static int utcOffset( const QDateTime & );
+
+    static QString toString( const QDateTime &, 
+        const QString & format, Week0Type );
 };
 
 #endif

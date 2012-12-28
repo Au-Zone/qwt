@@ -26,7 +26,8 @@
   as "The Epoch", that can be converted to QDateTime using 
   QwtDate::toDateTime().
 
-  \sa QwtDate, QwtTimeIntervalScaleEngine
+  \sa QwtDate, QwtTimeIntervalScaleEngine, QwtPlot::setAxisScaleEngine(),
+      QwtAbstractScale::setAxisScaleEngine()
 */
 class QWT_EXPORT QwtDateTimeScaleEngine: public QwtLinearScaleEngine
 {
