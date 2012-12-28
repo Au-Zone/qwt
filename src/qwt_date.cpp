@@ -509,7 +509,7 @@ QDate QwtDate::maxDate()
   \param type Option how to identify the first week
   \return First day of week 0
 
-  \sa QLocale::firstDayOfWeek()
+  \sa QLocale::firstDayOfWeek(), weekNumber()
  */ 
 QDate QwtDate::dateOfWeek0( int year, Week0Type type )
 {
@@ -541,6 +541,37 @@ QDate QwtDate::dateOfWeek0( int year, Week0Type type )
 }
 
 /*!
+  Find the week number of a date
+
+  - QwtDate::FirstThursday\n
+    Corresponding to ISO 8601 ( see QDate::weekNumber() ). 
+
+  - QwtDate::FirstDay\n
+    Number of weeks that have begun since dateOfWeek0().
+
+  \param date Date
+  \param type Option how to identify the first week
+
+  \return Week number, starting with 1
+ */
+int QwtDate::weekNumber( const QDate &date, Week0Type type )
+{
+    int weekNo;
+
+    if ( type == QwtDate::FirstDay )
+    {
+        const QDate day0 = dateOfWeek0( date.year(), type );
+        weekNo = day0.daysTo( date ) / 7 + 1;
+    }
+    else
+    {
+        weekNo = date.weekNumber();
+    }
+
+    return weekNo;
+}
+
+/*!
    Offset in seconds from Coordinated Universal Time
 
    The offset depends on the time specification of dateTime:
@@ -556,7 +587,7 @@ QDate QwtDate::dateOfWeek0( int year, Week0Type type )
    daylight savings.
 
    \param dateTime Datetime value
-   \return Ofsset in seconfs
+   \return Offset in seconds
  */
 int QwtDate::utcOffset( const QDateTime &dateTime )
 {
@@ -580,4 +611,39 @@ int QwtDate::utcOffset( const QDateTime &dateTime )
     }
 
     return seconds;
+}
+
+/*!
+  Translate a datetime into a string
+
+  Beside the format expressions documented in QDateTime::toString()
+  the following expressions are supported:
+
+  - w\n
+    week number: ( 1 - 53 )
+  - ww\n
+    week number with a leading zero ( 01 - 53 )
+
+  \param dateTime Datetime value
+  \param format Format string
+  \param week0Type Specification of week 0
+
+  \sa QDateTime::toString(), weekNumber(), QwtDateTimeScaleDraw
+ */
+QString QwtDate::toString( const QDateTime &dateTime,
+	const QString & format, Week0Type week0Type )
+{
+	QString weekNo;
+	weekNo.setNum( QwtDate::weekNumber( dateTime.date(), week0Type ) );
+
+	QString weekNoWW;
+	if ( weekNo.length() == 1 )
+		weekNoWW += "0";
+	weekNoWW += weekNo;
+
+	QString fmt = format;
+	fmt.replace( "ww", weekNoWW );
+	fmt.replace( "w", weekNo );
+
+	return dateTime.toString( fmt );
 }

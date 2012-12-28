@@ -792,8 +792,8 @@ int QwtDateTimeScaleEngine::utcOffset() const
   Sets how to identify the first week of a year.
 
   \param week0Type Mode how to identify the first week of a year
-  \sa week0Type(), setMaxWeeks()
 
+  \sa week0Type(), setMaxWeeks()
   \note week0Type has no effect beside for intervals clissified as
         QwtDate::Week. 
  */
