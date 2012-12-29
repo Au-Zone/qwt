@@ -9,6 +9,8 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_legend_label.h>
+#include <qwt_timescale_engine.h>
+#include <qwt_timescale_draw.h>
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
@@ -16,9 +18,12 @@ Plot::Plot( QWidget *parent ):
     setTitle( "Financial Chart 2010" );
 
     setAxisTitle( QwtPlot::xBottom, "2010" );
-    setAxisTitle( QwtPlot::yLeft, QString( "Price [EUR]" ) );
+	setAxisScaleDraw( QwtPlot::xBottom, new QwtDateTimeScaleDraw() );
+	setAxisScaleEngine( QwtPlot::xBottom, new QwtDateTimeScaleEngine() );
+    setAxisLabelRotation( QwtPlot::xBottom, -50.0 );
+    setAxisLabelAlignment( QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom );
 
-    setAxisScale( QwtPlot::xBottom, 0.0, 365.0 );
+    setAxisTitle( QwtPlot::yLeft, QString( "Price [EUR]" ) );
 
 #if 0
     QwtLegend *legend = new QwtLegend;
@@ -79,6 +84,15 @@ void Plot::populate()
         curve->setOrientation( Qt::Vertical );
         curve->setSamples( QuoteFactory::samples2010( stock ) );
 
+        // as we have one sample per day a symbol width of
+        // 12h avoids overlapping symbols. We also bound
+        // the width, so that is is not scaled below 3 and
+        // above 15 pixels.
+
+        curve->setSymbolExtent( 12 * 3600 * 1000.0 );
+        curve->setMinSymbolWidth( 3 );
+        curve->setMaxSymbolWidth( 15 );
+
         const Qt::GlobalColor color = colors[ i % numColors ];
 
         curve->setSymbolPen( color );
@@ -96,8 +110,12 @@ void Plot::populate()
         marker->setTitle( QString( "Event %1" ).arg( i + 1 ) );
         marker->setLineStyle( QwtPlotMarker::VLine );
         marker->setLinePen( colors[ i % numColors ], 0, Qt::DashLine );
-        marker->setValue( 77.0 * ( i + 1 ), 0.0 );
         marker->setVisible( false );
+
+		QDateTime dt( QDate( 2010, 1, 1 ) );
+		dt = dt.addDays( 77 * ( i + 1 ) );
+		
+        marker->setValue( QwtDate::toDouble( dt ), 0.0 );
 
         marker->setItemAttribute( QwtPlotItem::Legend, true );
 
