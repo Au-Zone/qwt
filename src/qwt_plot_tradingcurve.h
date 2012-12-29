@@ -20,6 +20,20 @@
 
   QwtPlotTradingCurve supports candlestick or bar ( OHLC ) charts
   that are used in the domain of technical analysis.
+
+  While the length ( height or width depending on orientation() ) 
+  of each symbol depends on the corresponding OHLC sample the size
+  of the other dimension can be controlled using:
+
+  - setSymbolExtent()
+  - setSymbolMinWidth()
+  - setSymbolMaxWidth()
+
+  The extent is a size in scale coordinates, so that the symbol width
+  is increasing when the plot is zoomed in. Minimum/Maximum width
+  is in widget coordinates independent from the zoom level. 
+  When setting the minimum and maximum to the same value, the width of 
+  the symbol is fixed. 
 */
 class QWT_EXPORT QwtPlotTradingCurve: 
     public QwtPlotSeriesItem, QwtSeriesStore<QwtOHLCSample>
@@ -111,8 +125,14 @@ public:
     void setSymbolBrush( Direction, const QBrush & );
     QBrush symbolBrush( Direction ) const;
 
-    void setSymbolWidth( double width );
-    double symbolWidth() const;
+    void setSymbolExtent( double width );
+    double symbolExtent() const;
+
+    void setMinSymbolWidth( double );
+    double minSymbolWidth() const;
+
+    void setMaxSymbolWidth( double );
+    double maxSymbolWidth() const;
 
     virtual void drawSeries( QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,

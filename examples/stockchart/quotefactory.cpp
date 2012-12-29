@@ -1,4 +1,5 @@
 #include "quotefactory.h"
+#include <qwt_date.h>
 
 typedef struct
 {
@@ -823,10 +824,14 @@ QVector<QwtOHLCSample> QuoteFactory::samples2010( Stock stock )
     QVector<QwtOHLCSample> samples;
     samples.reserve( numSamples );
 
+	QDateTime year2010( QDate( 2010, 1, 1 ) );
+
     for ( int i = 0; i < numSamples; i++ )
     {
         const t_Data2010 &ohlc = data[ i ];
-        samples += QwtOHLCSample( ohlc.day,
+
+        samples += QwtOHLCSample( 
+			QwtDate::toDouble( year2010.addDays( ohlc.day ) ),
             ohlc.open, ohlc.high, ohlc.low, ohlc.close );
     }
 

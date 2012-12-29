@@ -90,7 +90,9 @@ class QwtPlotTradingCurve::PrivateData
 public:
     PrivateData():
         symbolStyle( QwtPlotTradingCurve::CandleStick ),
-        symbolWidth( 0.6 ),
+        symbolExtent( 0.6 ),
+        minSymbolWidth( 2.0 ),
+        maxSymbolWidth( -1.0 ),
         paintAttributes( QwtPlotTradingCurve::ClipSymbols )
     {
         symbolBrush[0] = QBrush( Qt::white );
@@ -98,7 +100,9 @@ public:
     }
 
     QwtPlotTradingCurve::SymbolStyle symbolStyle;
-    double symbolWidth;
+    double symbolExtent;
+    double minSymbolWidth;
+    double maxSymbolWidth;
 
     QPen symbolPen;
     QBrush symbolBrush[2]; // Increasing/Decreasing
@@ -209,7 +213,7 @@ void QwtPlotTradingCurve::setSamples(
 
   \param style Symbol style
 
-  \sa symbolStyle(), setSymbolWidth(),
+  \sa symbolStyle(), setSymbolExtent(),
       setSymbolPen(), setSymbolBrush()
 */
 void QwtPlotTradingCurve::setSymbolStyle( SymbolStyle style )
@@ -225,7 +229,7 @@ void QwtPlotTradingCurve::setSymbolStyle( SymbolStyle style )
 
 /*!
   \return Symbol style
-  \sa setSymbolStyle(), symbolWidth(), symbolPen(), symbolBrush()
+  \sa setSymbolStyle(), symbolExtent(), symbolPen(), symbolBrush()
 */
 QwtPlotTradingCurve::SymbolStyle QwtPlotTradingCurve::symbolStyle() const
 {
@@ -319,22 +323,24 @@ QBrush QwtPlotTradingCurve::symbolBrush( Direction direction ) const
 }
 
 /*!
-  \brief Set the width of the symbol
+  \brief Set the extent of the symbol
 
   The width of the symbol is given in scale coordinates. When painting
   a symbol the width is scaled into paint device coordinates
-  by scaledSymbolWidth().
+  by scaledSymbolWidth(). The scaled width is bounded by
+  minSymbolWidth(), maxSymbolWidth()
 
-  \param width Symbol width in scale coordinates
+  \param extent Symbol width in scale coordinates
 
-  \sa symbolWidth(), scaledSymbolWidth()
+  \sa symbolExtent(), scaledSymbolWidth(), 
+      setMinSymbolWidth(), setMaxSymbolWidth()
 */
-void QwtPlotTradingCurve::setSymbolWidth( double width )
+void QwtPlotTradingCurve::setSymbolExtent( double extent )
 {
-    width = qMax( 0.0, width );
-    if ( width != d_data->symbolWidth )
+    extent = qMax( 0.0, extent );
+    if ( extent != d_data->symbolExtent )
     {
-        d_data->symbolWidth = width;
+        d_data->symbolExtent = extent;
 
         legendChanged();
         itemChanged();
@@ -342,12 +348,68 @@ void QwtPlotTradingCurve::setSymbolWidth( double width )
 }
 
 /*!
-  \return Symbol width in scale coordinates
-  \sa setSymbolWidth(), scaledSymbolWidth()
+  \return Extent of a symbol in scale coordinates
+  \sa setSymbolExtent(), scaledSymbolWidth(),
+      minSymbolWidth(), maxSymbolWidth()
 */
-double QwtPlotTradingCurve::symbolWidth() const
+double QwtPlotTradingCurve::symbolExtent() const
 {
-    return d_data->symbolWidth;
+    return d_data->symbolExtent;
+}
+
+/*!
+  Set a minmum for the symbol width
+
+  \param width Width in paint device coordinates
+  \sa minSymbolWidth(), setMaxSymbolWidth(), setSymbolExtent()
+ */
+void QwtPlotTradingCurve::setMinSymbolWidth( double width )
+{
+    width = qMax( width, 0.0 );
+    if ( width != d_data->minSymbolWidth )
+    {
+        d_data->minSymbolWidth = width;
+
+        legendChanged();
+        itemChanged();
+    }
+}
+
+/*!
+  \return Minmum for the symbol width
+  \sa setMinSymbolWidth(), maxSymbolWidth(), symbolExtent()
+ */
+double QwtPlotTradingCurve::minSymbolWidth() const
+{
+    return d_data->minSymbolWidth;
+}
+
+/*!
+  Set a maximum for the symbol width
+
+  A value <= 0.0 means an unlimited width
+
+  \param width Width in paint device coordinates
+  \sa maxSymbolWidth(), setMinSymbolWidth(), setSymbolExtent()
+ */
+void QwtPlotTradingCurve::setMaxSymbolWidth( double width )
+{
+    if ( width != d_data->maxSymbolWidth )
+    {
+        d_data->maxSymbolWidth = width;
+    
+        legendChanged();
+        itemChanged();
+    }
+}
+
+/*!
+  \return Maximum for the symbol width
+  \sa setMaxSymbolWidth(), minSymbolWidth(), symbolExtent()
+ */
+double QwtPlotTradingCurve::maxSymbolWidth() const
+{
+    return d_data->maxSymbolWidth;
 }
 
 /*!
@@ -518,7 +580,7 @@ void QwtPlotTradingCurve::drawSymbols( QPainter *painter,
 
   \param painter Qt painter, initialized with pen/brush
   \param symbolStyle Symbol style
-  \param symbolWidth Width of the symbol in paint device metrics
+  \param symbolWidth Width of the symbol in paint device coordinates
   \param sample Samples already translated into paint device coordinates
 */
 void QwtPlotTradingCurve::drawUserSymbol( QPainter *painter,
@@ -548,16 +610,19 @@ QwtGraphic QwtPlotTradingCurve::legendIcon( int index,
 }
 
 /*!
-  Scale the symbol width into paint coordinates
+  Calculate the symbol width in paint coordinates
+
+  The width is calculated by scaling the symbol extent into
+  paint device coordinates bounded by the minimum/maximum
+  symbol width.
 
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
   \param canvasRect Contents rect of the canvas
 
-  \return Scaled symbol width, or a a minimum of 2,
-          when it gets too small
+  \return Symbol width in paint coordinates
 
-  \sa setSymbolWidth()
+  \sa symbolExtent(), minSymbolWidth(), maxSymbolWidth()
 */
 double QwtPlotTradingCurve::scaledSymbolWidth(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -565,13 +630,22 @@ double QwtPlotTradingCurve::scaledSymbolWidth(
 {
     Q_UNUSED( canvasRect );
 
+    if ( d_data->maxSymbolWidth > 0.0 &&
+        d_data->minSymbolWidth >= d_data->maxSymbolWidth )
+    {
+        return d_data->minSymbolWidth;
+    }
+
     const QwtScaleMap *map =
         ( orientation() == Qt::Vertical ) ? &xMap : &yMap;
 
-    double w = map->transform( d_data->symbolWidth ) - map->transform( 0.0 );
-    w = qAbs( w );
-    if ( w < 2.0 )
-        w = 2.0;
+    const double pos = map->transform( map->s1() + d_data->symbolExtent ); 
 
-    return qAbs( w );
+    double width = qAbs( pos - map->p1() );
+
+    width = qMax( width,  d_data->minSymbolWidth );
+    if ( d_data->maxSymbolWidth > 0.0 )
+        width = qMin( width, d_data->maxSymbolWidth );
+
+    return width;
 }
