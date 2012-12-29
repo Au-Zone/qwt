@@ -937,21 +937,19 @@ void QwtDateTimeScaleEngine::autoScale( int maxNumSteps,
         const QwtDate::IntervalType intvType = 
             intervalType( from, to, maxNumSteps );
 
-        stepSize = autoScaleStepSize( from, to, intvType, maxNumSteps );
+        double width = qwtIntervalWidth( from, to, intvType );
+        width = QwtScaleArithmetic::divideInterval( width, maxNumSteps, 10 );
 
-        if ( stepSize != 0.0 && !testAttribute( QwtScaleEngine::Floating ) )
+        if ( width != 0.0 && !testAttribute( QwtScaleEngine::Floating ) )
         {
-            interval = align( interval, stepSize );
-
-            const QDateTime d1 = QwtDate::floor(
-                toDateTime( interval.minValue() ), intvType );
-
-            const QDateTime d2 = QwtDate::ceil(
-                toDateTime( interval.maxValue() ), intvType );
+            const QDateTime d1 = alignDate( from, width, intvType, false );
+            const QDateTime d2 = alignDate( to, width, intvType, true );
 
             interval.setMinValue( QwtDate::toDouble( d1 ) );
             interval.setMaxValue( QwtDate::toDouble( d2 ) );
         }
+
+        stepSize = width * qwtMsecsForType( intvType );
     }
 
     x1 = interval.minValue();
@@ -962,29 +960,6 @@ void QwtDateTimeScaleEngine::autoScale( int maxNumSteps,
         qSwap( x1, x2 );
         stepSize = -stepSize;
     }
-}
-
-/*!
-  Calculate a step size for an interval division
-
-  \param minDate Minimum ( = earlier ) of the interval
-  \param maxDate Maximum ( = later ) of the interval
-  \param intervalType Interval type
-  \param numSteps Number of steps
-
-  \return Step size in milliseconds
- */
-double QwtDateTimeScaleEngine::autoScaleStepSize( 
-    const QDateTime &minDate, const QDateTime &maxDate,
-    QwtDate::IntervalType intervalType, int numSteps ) const
-{
-    const double width = qwtIntervalWidth( 
-        minDate, maxDate, intervalType );
-    
-    const double stepSize = 
-        QwtScaleArithmetic::divideInterval( width, numSteps, 10 );
-
-    return stepSize * qwtMsecsForType( intervalType );
 }
 
 /*!
@@ -1233,12 +1208,12 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
         }
         case QwtDate::Month:
         {
-            const QDate date = dateTime.date();
-
-            const int m = qwtAlignValue( date.month() - 1, stepSize, up );
+            const int m = qwtAlignValue( 
+                dt.date().month() - 1, stepSize, up );
 
             dt.setTime( QTime( 0, 0, 0 ) );
-            dt.setDate( QDate( date.year(), m + 1, 1 ) );
+            dt.setDate( QDate( dt.date().year(), 1, 1 ) );
+            dt = dt.addMonths( m );
 
             break;
         }

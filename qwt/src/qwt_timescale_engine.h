@@ -61,10 +61,6 @@ public:
     QDateTime toDateTime( double ) const;
 
 protected:
-    virtual double autoScaleStepSize(
-        const QDateTime &, const QDateTime &,
-        QwtDate::IntervalType, int numSteps ) const;
-
     virtual QDateTime alignDate( const QDateTime &, double stepSize,
         QwtDate::IntervalType, bool up ) const;
 
