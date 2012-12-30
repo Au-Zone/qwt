@@ -112,11 +112,20 @@ QStandardItem *LegendTreeView::insertRootItem( int rtti )
     switch( rtti )
     {
         case QwtPlotItem::Rtti_PlotTradingCurve:
+        {
             item->setText( "Curves" );
             break;
+        }
+        case QwtPlotItem::Rtti_PlotZone:
+        {
+            item->setText( "Zones" );
+            break;
+        }
         case QwtPlotItem::Rtti_PlotMarker:
+        {
             item->setText( "Events" );
             break;
+        }
         default:
             break;
     }

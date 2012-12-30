@@ -5,6 +5,7 @@
 #include <qwt_legend.h>
 #include <qwt_plot_tradingcurve.h>
 #include <qwt_plot_marker.h>
+#include <qwt_plot_zoneitem.h>
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
@@ -12,14 +13,68 @@
 #include <qwt_timescale_engine.h>
 #include <qwt_timescale_draw.h>
 
+class ScaleDraw: public QwtDateTimeScaleDraw
+{
+public:
+    ScaleDraw( Qt::TimeSpec timeSpec ):
+        QwtDateTimeScaleDraw( timeSpec )
+    {
+        // as we have dates from 2010 only we use
+        // format strings without the year
+
+        setDateFormat( QwtDate::Millisecond, "hh:mm:ss:zzz\nddd dd MMM" );
+        setDateFormat( QwtDate::Second, "hh:mm:ss\nddd dd MMM" );
+        setDateFormat( QwtDate::Minute, "hh:mm\nddd dd MMM" );
+        setDateFormat( QwtDate::Hour, "hh:mm\nddd dd MMM" );
+        setDateFormat( QwtDate::Day, "ddd dd MMM" );
+        setDateFormat( QwtDate::Week, "Www" );
+        setDateFormat( QwtDate::Month, "MMM" );
+    }
+};
+
+class ZoneItem: public QwtPlotZoneItem
+{
+public:
+    ZoneItem( const QString &title )
+    {
+        setTitle( title );
+        setZ( 11 ); // on top the the grid
+        setOrientation( Qt::Vertical );
+        setItemAttribute( QwtPlotItem::Legend, true );
+    }
+
+    void setColor( const QColor &color )
+    {
+        QColor c = color;
+
+        c.setAlpha( 100 );
+        setPen( c );
+
+        c.setAlpha( 20 );
+        setBrush( c );
+    }
+
+    void setInterval( const QDate &date1, const QDate &date2 )
+    {
+        const QDateTime dt1( date1, QTime(), Qt::UTC );
+        const QDateTime dt2( date2, QTime(), Qt::UTC );
+
+        QwtPlotZoneItem::setInterval( QwtDate::toDouble( dt1 ),
+            QwtDate::toDouble( dt2 ) );
+    }
+};
+
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
-    setTitle( "Financial Chart 2010" );
+    setTitle( "Trading Chart" );
 
-    setAxisTitle( QwtPlot::xBottom, "2010" );
-	setAxisScaleDraw( QwtPlot::xBottom, new QwtDateTimeScaleDraw() );
-	setAxisScaleEngine( QwtPlot::xBottom, new QwtDateTimeScaleEngine() );
+    QwtDateTimeScaleDraw *scaleDraw = new ScaleDraw( Qt::UTC );
+    QwtDateTimeScaleEngine *scaleEngine = new QwtDateTimeScaleEngine( Qt::UTC );
+
+    setAxisTitle( QwtPlot::xBottom, QString( "2010" ) );
+    setAxisScaleDraw( QwtPlot::xBottom, scaleDraw );
+    setAxisScaleEngine( QwtPlot::xBottom, scaleEngine );
     setAxisLabelRotation( QwtPlot::xBottom, -50.0 );
     setAxisLabelAlignment( QwtPlot::xBottom, Qt::AlignLeft | Qt::AlignBottom );
 
@@ -103,7 +158,7 @@ void Plot::populate()
         showItem( curve, true );
     }
 
-    for ( int i = 0; i < 4; i++ )
+    for ( int i = 0; i < 2; i++ )
     {
         QwtPlotMarker *marker = new QwtPlotMarker();
 
@@ -112,15 +167,30 @@ void Plot::populate()
         marker->setLinePen( colors[ i % numColors ], 0, Qt::DashLine );
         marker->setVisible( false );
 
-		QDateTime dt( QDate( 2010, 1, 1 ) );
-		dt = dt.addDays( 77 * ( i + 1 ) );
-		
+        QDateTime dt( QDate( 2010, 1, 1 ) );
+        dt = dt.addDays( 77 * ( i + 1 ) );
+        
         marker->setValue( QwtDate::toDouble( dt ), 0.0 );
 
         marker->setItemAttribute( QwtPlotItem::Legend, true );
 
         marker->attach( this );
     }
+
+    // to show how QwtPlotZoneItem works
+
+    ZoneItem *zone1 = new ZoneItem( "Zone 1");
+    zone1->setColor( Qt::darkBlue );
+    zone1->setInterval( QDate( 2010, 3, 10 ), QDate( 2010, 3, 27 ) );
+    zone1->setVisible( false );
+    zone1->attach( this );
+
+    ZoneItem *zone2 = new ZoneItem( "Zone 2");
+    zone2->setColor( Qt::darkMagenta );
+    zone2->setInterval( QDate( 2010, 8, 1 ), QDate( 2010, 8, 24 ) );
+    zone2->setVisible( false );
+    zone2->attach( this );
+
 }
 
 void Plot::setMode( int style )
