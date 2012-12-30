@@ -14,6 +14,10 @@ public:
 
 public Q_SLOTS:
     void applySettings( const Settings & );
+
+private:
+    void initAxis( int axis, const QString& title, Qt::TimeSpec );
+    void applyAxisSettings( int axis, const Settings & );
 };
 
 #endif

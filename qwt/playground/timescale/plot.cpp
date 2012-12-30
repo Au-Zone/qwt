@@ -6,32 +6,32 @@
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_grid.h>
+#include <qwt_plot_layout.h>
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
+    setAutoFillBackground( true );
+    setPalette( Qt::darkGray );
     setCanvasBackground( Qt::white );
 
-    const int axis = QwtPlot::yLeft;
+    plotLayout()->setAlignCanvasToScales( true );
 
-    QwtDateTimeScaleDraw *scaleDraw = new QwtDateTimeScaleDraw();
-    setAxisScaleDraw( axis, scaleDraw );
-
-    QwtDateTimeScaleEngine *scaleEngine = new QwtDateTimeScaleEngine();
-#if 0
-    scaleEngine->setTimeSpec( Qt::UTC );
-#endif
-    setAxisScaleEngine( axis, scaleEngine );
+    initAxis( QwtPlot::yLeft, "Local Time", Qt::LocalTime );
+    initAxis( QwtPlot::yRight, 
+        "Coordinated Universal Time ( UTC )", Qt::UTC );
 
     QwtPlotPanner *panner = new QwtPlotPanner( canvas() );
     QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas() );
 
-    for ( int i = 0; i < QwtPlot::axisCnt; i++ )
+    for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
     {
-        const bool on = ( i == axis );
-        enableAxis( i, on );
-        panner->setAxisEnabled( i, on );
-        magnifier->setAxisEnabled( i, on );
+        const bool on = axis == QwtPlot::yLeft ||
+            axis == QwtPlot::yRight;
+
+        enableAxis( axis, on );
+        panner->setAxisEnabled( axis, on );
+        magnifier->setAxisEnabled( axis, on );
     }
 
     QwtPlotGrid *grid = new QwtPlotGrid();
@@ -45,18 +45,53 @@ Plot::Plot( QWidget *parent ):
     grid->attach( this );
 }
 
+void Plot::initAxis( int axis, 
+    const QString& title, Qt::TimeSpec timeSpec )
+{
+    setAxisTitle( axis, title );
+
+    QwtDateTimeScaleDraw *scaleDraw 
+        = new QwtDateTimeScaleDraw( timeSpec );
+
+    QwtDateTimeScaleEngine *scaleEngine = 
+        new QwtDateTimeScaleEngine( timeSpec );
+
+#if 0
+    if ( timeSpec == Qt::LocalTime )
+    {
+        scaleDraw->setTimeSpec( Qt::OffsetFromUTC );
+        scaleDraw->setUtcOffset( 10 );
+
+        scaleEngine->setTimeSpec( Qt::OffsetFromUTC );
+        scaleEngine->setUtcOffset( 10 );
+    }
+#endif
+    setAxisScaleDraw( axis, scaleDraw );
+    setAxisScaleEngine( axis, scaleEngine );
+
+}
+
 void Plot::applySettings( const Settings &settings )
 {
-    const int axis = QwtPlot::yLeft;
+    applyAxisSettings( QwtPlot::yLeft, settings );
+    applyAxisSettings( QwtPlot::yRight, settings );
 
+    replot();
+}
+
+void Plot::applyAxisSettings( int axis, const Settings &settings )
+{
     QwtDateTimeScaleEngine *scaleEngine = 
         static_cast<QwtDateTimeScaleEngine *>( axisScaleEngine( axis ) );
 
     scaleEngine->setMaxWeeks( settings.maxWeeks );
     setAxisMaxMinor( axis, settings.maxMinorSteps );
     setAxisMaxMajor( axis, settings.maxMajorSteps );
+
+qDebug() << "--";
+qDebug() << settings.startDateTime << " -> " << settings.endDateTime;
+qDebug() << settings.startDateTime.toUTC() << " -> " << settings.endDateTime.toUTC();
+
     setAxisScale( axis, QwtDate::toDouble( settings.startDateTime ), 
         QwtDate::toDouble( settings.endDateTime ) );
-
-    replot();
 }
