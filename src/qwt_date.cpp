@@ -228,9 +228,10 @@ static inline QDate qwtToDate( int year, int month = 1, int day = 1 )
   \param value Number of milliseconds since the epoch, 
                1970-01-01T00:00:00 UTC
   \param timeSpec Time specification
-  \return datetime value
+  \return Datetime value
 
   \sa toDouble(), QDateTime::setMSecsSinceEpoch()
+  \note The return datetime for Qt::OffsetFromUTC will be Qt::UTC
  */
 QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
 {
@@ -253,7 +254,7 @@ QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
 
     QDateTime dt( d, timeNull.addMSecs( msecs ), Qt::UTC );
 
-    if ( timeSpec != Qt::UTC )
+    if ( timeSpec == Qt::LocalTime )
         dt = qwtToTimeSpec( dt, timeSpec );
 
     return dt;
