@@ -448,10 +448,14 @@ static QwtScaleDiv qwtDivideToSeconds(
             maxMinSteps, intervalType );
     }
 
-    bool daylightSaving = intervalType > QwtDate::Hour;
-    if ( intervalType == QwtDate::Hour )
+    bool daylightSaving = false;
+    if ( minDate.timeSpec() == Qt::LocalTime )
     {
-        daylightSaving = stepSize > 1;
+        daylightSaving = intervalType > QwtDate::Hour;
+        if ( intervalType == QwtDate::Hour )
+        {
+            daylightSaving = stepSize > 1;
+        }
     }
 
     const double s = qwtMsecsForType( intervalType ) / 1000;
@@ -484,7 +488,8 @@ static QwtScaleDiv qwtDivideToSeconds(
 
             if ( offset > dstOff )
             {
-                // we add some minor ticks for the DST hour
+                // we add some minor ticks for the DST hour,
+                // otherwise the ticks will be unaligned: 0, 2, 3, 5 ...
                 minorTicks += qwtDstTicks( 
                     dt, secondsMajor, qRound( secondsMinor ) );
             }
@@ -1068,41 +1073,6 @@ QwtScaleDiv QwtDateTimeScaleEngine::buildScaleDiv(
         }
     }
 
-#if 1
-    if ( dt0 > minDate && maxMinorSteps > 1 )
-    {
-        // we have to add minor ticks for the interval 
-        // [ dt0 - stepSize -> dt0 ] we have lost because of 
-        // ceiling instead of flooring. As we usually
-        // have QwtDate::Year intervals QwtLinearScaleEngine
-        // will result in something not too bad
-
-        const double s0 = QwtDate::toDouble( dt0 );
-
-        QList<double> majorTicks;
-        majorTicks += s0 - stepSize;
-        majorTicks += s0;
-
-        QList<double> minorTicks;
-        QList<double> mediumTicks;
-
-        QwtLinearScaleEngine::buildMinorTicks(
-            majorTicks, maxMinorSteps, stepSize,
-            minorTicks, mediumTicks );
-
-        if ( minorTicks.size() != 0 )
-        {
-            minorTicks += scaleDiv.ticks( QwtScaleDiv::MinorTick );
-            scaleDiv.setTicks( QwtScaleDiv::MinorTick, minorTicks );
-        }
-
-        if ( mediumTicks.size() != 0 )
-        {
-            mediumTicks += scaleDiv.ticks( QwtScaleDiv::MediumTick );
-            scaleDiv.setTicks( QwtScaleDiv::MediumTick, mediumTicks );
-        } 
-    }
-#endif
 
     return scaleDiv;
 }
@@ -1129,14 +1099,19 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
 {
     // what about: (year == 1582 && month == 10 && day > 4 && day < 15) ??
 
-    QDateTime dt;
+    QDateTime dt = dateTime;
+
+    if ( dateTime.timeSpec() == Qt::OffsetFromUTC )
+    {
+        dt.setUtcOffset( 0 );
+    }
 
     switch( intervalType )
     {
         case QwtDate::Millisecond:
         {
             const int ms = qwtAlignValue( 
-                dateTime.time().msec(), stepSize, up ) ;
+                dt.time().msec(), stepSize, up ) ;
 
             dt = QwtDate::floor( dateTime, QwtDate::Second );
             dt = dt.addMSecs( ms );
@@ -1146,9 +1121,9 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
         case QwtDate::Second:
         {
             const int s = qwtAlignValue( 
-                dateTime.time().second(), stepSize, up );
+                dt.time().second(), stepSize, up );
 
-            dt = QwtDate::floor( dateTime, QwtDate::Minute );
+            dt = QwtDate::floor( dt, QwtDate::Minute );
             dt = dt.addSecs( s );
 
             break;
@@ -1156,9 +1131,9 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
         case QwtDate::Minute:
         {
             const int m = qwtAlignValue( 
-                dateTime.time().minute(), stepSize, up );
+                dt.time().minute(), stepSize, up );
 
-            dt = QwtDate::floor( dateTime, QwtDate::Hour );
+            dt = QwtDate::floor( dt, QwtDate::Hour );
             dt = dt.addSecs( m * 60 );
 
             break;
@@ -1166,9 +1141,9 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
         case QwtDate::Hour:
         {
             const int h = qwtAlignValue( 
-                dateTime.time().hour(), stepSize, up );
+                dt.time().hour(), stepSize, up );
 
-            dt = QwtDate::floor( dateTime, QwtDate::Day );
+            dt = QwtDate::floor( dt, QwtDate::Day );
             dt = dt.addSecs( h * 3600 );
 
             break;
@@ -1180,9 +1155,9 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
             // jumping major ticks when panning
 
             const int d = qwtAlignValue(
-                dateTime.date().dayOfYear(), stepSize, up );
+                dt.date().dayOfYear(), stepSize, up );
 
-            dt = QwtDate::floor( dateTime, QwtDate::Year );
+            dt = QwtDate::floor( dt, QwtDate::Year );
             dt = dt.addDays( d - 1 );
 
             break;
@@ -1190,12 +1165,12 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
         case QwtDate::Week:
         {
             const QDate date = QwtDate::dateOfWeek0(
-                dateTime.date().year(), d_data->week0Type );
+                dt.date().year(), d_data->week0Type );
 
-            const int numWeeks = date.daysTo( dateTime.date() ) / 7;
+            const int numWeeks = date.daysTo( dt.date() ) / 7;
             const int d = qwtAlignValue( numWeeks, stepSize, up ) * 7;
 
-            dt = QwtDate::floor( dateTime, QwtDate::Day );
+            dt = QwtDate::floor( dt, QwtDate::Day );
             dt.setDate( date );
             dt = dt.addDays( d );
 
@@ -1206,7 +1181,7 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
             const int m = qwtAlignValue( 
                 dt.date().month() - 1, stepSize, up );
 
-            dt = QwtDate::floor( dateTime, QwtDate::Year );
+            dt = QwtDate::floor( dt, QwtDate::Year );
             dt = dt.addMonths( m );
 
             break;
@@ -1216,7 +1191,7 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
             const int y = qwtAlignValue(
                 dateTime.date().year(), stepSize, up );
 
-            dt = QwtDate::floor( dateTime, QwtDate::Day );
+            dt = QwtDate::floor( dt, QwtDate::Day );
             if ( y == 0 )
             {
                 // there is no year 0 in the Julian calendar
@@ -1229,6 +1204,11 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
 
             break;
         }
+    }
+
+    if ( dateTime.timeSpec() == Qt::OffsetFromUTC )
+    {
+        dt.setUtcOffset( dateTime.utcOffset() );
     }
 
     return dt;
@@ -1254,7 +1234,10 @@ QDateTime QwtDateTimeScaleEngine::toDateTime( double value ) const
     }
 
     if ( d_data->timeSpec == Qt::OffsetFromUTC )
+    {
+        dt = dt.addSecs( d_data->utcOffset );
         dt.setUtcOffset( d_data->utcOffset );
+    }
 
     return dt;
 }

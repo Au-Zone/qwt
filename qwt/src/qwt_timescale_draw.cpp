@@ -140,7 +140,7 @@ void QwtDateTimeScaleDraw::setDateFormat(
   \sa setDateFormat(), dateFormatOfDate()
  */
 QString QwtDateTimeScaleDraw::dateFormat( 
-	QwtDate::IntervalType intervalType ) const
+    QwtDate::IntervalType intervalType ) const
 {
     if ( intervalType >= QwtDate::Millisecond && 
         intervalType <= QwtDate::Year )
@@ -195,8 +195,8 @@ QString QwtDateTimeScaleDraw::dateFormatOfDate( const QDateTime &dateTime,
 QwtText QwtDateTimeScaleDraw::label( double value ) const
 {
     const QDateTime dt = toDateTime( value );
-	const QString fmt = dateFormatOfDate( 
-		dt, intervalType( scaleDiv() ) );
+    const QString fmt = dateFormatOfDate( 
+        dt, intervalType( scaleDiv() ) );
 
     return QwtDate::toString( dt, fmt, d_data->week0Type );
 }
@@ -260,7 +260,10 @@ QDateTime QwtDateTimeScaleDraw::toDateTime( double value ) const
 {
     QDateTime dt = QwtDate::toDateTime( value, d_data->timeSpec );
     if ( d_data->timeSpec == Qt::OffsetFromUTC )
+    {
+        dt = dt.addSecs( d_data->utcOffset );
         dt.setUtcOffset( d_data->utcOffset );
+    }
 
     return dt;
 }

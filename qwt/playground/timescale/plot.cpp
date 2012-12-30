@@ -68,7 +68,6 @@ void Plot::initAxis( int axis,
 #endif
     setAxisScaleDraw( axis, scaleDraw );
     setAxisScaleEngine( axis, scaleEngine );
-
 }
 
 void Plot::applySettings( const Settings &settings )
@@ -88,9 +87,6 @@ void Plot::applyAxisSettings( int axis, const Settings &settings )
     setAxisMaxMinor( axis, settings.maxMinorSteps );
     setAxisMaxMajor( axis, settings.maxMajorSteps );
 
-qDebug() << "--";
-qDebug() << settings.startDateTime << " -> " << settings.endDateTime;
-qDebug() << settings.startDateTime.toUTC() << " -> " << settings.endDateTime.toUTC();
 
     setAxisScale( axis, QwtDate::toDouble( settings.startDateTime ), 
         QwtDate::toDouble( settings.endDateTime ) );
