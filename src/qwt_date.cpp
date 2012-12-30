@@ -230,7 +230,7 @@ static inline QDate qwtToDate( int year, int month = 1, int day = 1 )
   \param timeSpec Time specification
   \return datetime value
 
-  \sa toDouble()
+  \sa toDouble(), QDateTime::setMSecsSinceEpoch()
  */
 QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
 {
@@ -265,7 +265,7 @@ QDateTime QwtDate::toDateTime( double value, Qt::TimeSpec timeSpec )
   \param dateTime Datetime value
   \return Number of milliseconds since 1970-01-01T00:00:00 UTC has passed.
 
-  \sa toDateTime()
+  \sa toDateTime(), QDateTime::toMSecsSinceEpoch()
   \warning For values very far below or above 1970-01-01 UTC rounding errors
            will happen due to the limited significance of a double.
  */
@@ -631,19 +631,19 @@ int QwtDate::utcOffset( const QDateTime &dateTime )
   \sa QDateTime::toString(), weekNumber(), QwtDateTimeScaleDraw
  */
 QString QwtDate::toString( const QDateTime &dateTime,
-	const QString & format, Week0Type week0Type )
+    const QString & format, Week0Type week0Type )
 {
-	QString weekNo;
-	weekNo.setNum( QwtDate::weekNumber( dateTime.date(), week0Type ) );
+    QString weekNo;
+    weekNo.setNum( QwtDate::weekNumber( dateTime.date(), week0Type ) );
 
-	QString weekNoWW;
-	if ( weekNo.length() == 1 )
-		weekNoWW += "0";
-	weekNoWW += weekNo;
+    QString weekNoWW;
+    if ( weekNo.length() == 1 )
+        weekNoWW += "0";
+    weekNoWW += weekNo;
 
-	QString fmt = format;
-	fmt.replace( "ww", weekNoWW );
-	fmt.replace( "w", weekNo );
+    QString fmt = format;
+    fmt.replace( "ww", weekNoWW );
+    fmt.replace( "w", weekNo );
 
-	return dateTime.toString( fmt );
+    return dateTime.toString( fmt );
 }

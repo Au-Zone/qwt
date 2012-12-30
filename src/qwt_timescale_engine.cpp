@@ -1129,51 +1129,47 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
 {
     // what about: (year == 1582 && month == 10 && day > 4 && day < 15) ??
 
-    QDateTime dt = dateTime;
+    QDateTime dt;
 
     switch( intervalType )
     {
         case QwtDate::Millisecond:
         {
-            const QTime t = dateTime.time();
+            const int ms = qwtAlignValue( 
+                dateTime.time().msec(), stepSize, up ) ;
 
-            const int ms = qwtAlignValue( t.msec(), stepSize, up ) ;
-            dt = dt.addMSecs( ms - t.msec() );
+            dt = QwtDate::floor( dateTime, QwtDate::Second );
+            dt = dt.addMSecs( ms );
 
             break;
         }
         case QwtDate::Second:
         {
-            const QTime t = dateTime.time();
+            const int s = qwtAlignValue( 
+                dateTime.time().second(), stepSize, up );
 
-            const int s = qwtAlignValue( t.second(), stepSize, up );
-            const int msecs = ( s - t.second() ) * 1000 - t.msec();
-
-            dt = dt.addMSecs( msecs );
+            dt = QwtDate::floor( dateTime, QwtDate::Minute );
+            dt = dt.addSecs( s );
 
             break;
         }
         case QwtDate::Minute:
         {
-            const QTime t = dateTime.time();
+            const int m = qwtAlignValue( 
+                dateTime.time().minute(), stepSize, up );
 
-            const int m = qwtAlignValue( t.minute(), stepSize, up );
-            const int msecs = ( m - t.minute() ) * 60 * 1000 
-                - t.second() * 1000 - t.msec();
-
-            dt = dt.addMSecs( msecs );
+            dt = QwtDate::floor( dateTime, QwtDate::Hour );
+            dt = dt.addSecs( m * 60 );
 
             break;
         }
         case QwtDate::Hour:
         {
-            const QTime t = dateTime.time();
+            const int h = qwtAlignValue( 
+                dateTime.time().hour(), stepSize, up );
 
-            const int h = qwtAlignValue( t.hour(), stepSize, up );
-            const int msecs = ( h - t.hour() ) * 3600 * 1000
-                - t.minute() * 60 * 1000 - t.second() * 1000 - t.msec();
-
-            dt = dt.addMSecs( msecs );
+            dt = QwtDate::floor( dateTime, QwtDate::Day );
+            dt = dt.addSecs( h * 3600 );
 
             break;
         }
@@ -1186,8 +1182,7 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
             const int d = qwtAlignValue(
                 dateTime.date().dayOfYear(), stepSize, up );
 
-            dt.setTime( QTime( 0, 0, 0 ) );
-            dt.setDate( QDate( dateTime.date().year(), 1, 1 ) );
+            dt = QwtDate::floor( dateTime, QwtDate::Year );
             dt = dt.addDays( d - 1 );
 
             break;
@@ -1200,7 +1195,7 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
             const int numWeeks = date.daysTo( dateTime.date() ) / 7;
             const int d = qwtAlignValue( numWeeks, stepSize, up ) * 7;
 
-            dt.setTime( QTime( 0, 0, 0 ) );
+            dt = QwtDate::floor( dateTime, QwtDate::Day );
             dt.setDate( date );
             dt = dt.addDays( d );
 
@@ -1211,17 +1206,17 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
             const int m = qwtAlignValue( 
                 dt.date().month() - 1, stepSize, up );
 
-            dt.setTime( QTime( 0, 0, 0 ) );
-            dt.setDate( QDate( dt.date().year(), 1, 1 ) );
+            dt = QwtDate::floor( dateTime, QwtDate::Year );
             dt = dt.addMonths( m );
 
             break;
         }
         case QwtDate::Year:
         {
-            dt.setTime( QTime( 0, 0, 0 ) );
-            const int y = qwtAlignValue( dateTime.date().year(), stepSize, up );
+            const int y = qwtAlignValue(
+                dateTime.date().year(), stepSize, up );
 
+            dt = QwtDate::floor( dateTime, QwtDate::Day );
             if ( y == 0 )
             {
                 // there is no year 0 in the Julian calendar
