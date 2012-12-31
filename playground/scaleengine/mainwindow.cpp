@@ -92,22 +92,26 @@ MainWindow::MainWindow( QWidget *parent ):
 
     d_transformPlot = new TransformPlot( splitter );
 
-    d_transformPlot->insertTransformation( "Linear", 
-        QColor( "Peru" ), new QwtNullTransform() );
     d_transformPlot->insertTransformation( "Square Root", 
         QColor( "DarkSlateGray" ), new QwtPowerTransform( 0.5 ) );
+    d_transformPlot->insertTransformation( "Linear", 
+        QColor( "Peru" ), new QwtNullTransform() );
     d_transformPlot->insertTransformation( "Cubic", 
         QColor( "OliveDrab" ), new QwtPowerTransform( 3.0 ) );
     d_transformPlot->insertTransformation( "Power 10", 
         QColor( "Indigo" ), new QwtPowerTransform( 10.0 ) );
+    d_transformPlot->insertTransformation( "Log", 
+        QColor( "SteelBlue" ), new QwtLogTransform() );
     d_transformPlot->insertTransformation( "At 400", 
         QColor( "Crimson" ), new TransformPos( 400.0, 100.0, 1.4 ) );
 
-    d_transformPlot->insertTransformation( "Log", 
-        QColor( "SteelBlue" ), new QwtLogTransform() );
+    const QwtPlotItemList curves = 
+        d_transformPlot->itemList( QwtPlotItem::Rtti_PlotCurve );
+    if ( !curves.isEmpty() )
+        d_transformPlot->setLegendChecked( curves[ 2 ] );
 
     d_plot = new Plot( splitter );
-    d_plot->setTransformation( new QwtNullTransform() );
+    d_plot->setTransformation( new QwtPowerTransform( 3.0 ) );
 
     setCentralWidget( splitter );
 
