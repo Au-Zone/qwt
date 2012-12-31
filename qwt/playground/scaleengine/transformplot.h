@@ -12,6 +12,8 @@ public:
     void insertTransformation( const QString &, 
         const QColor &, QwtTransform * );
 
+    void setLegendChecked( QwtPlotItem * );
+
 Q_SIGNALS:
     void selected( QwtTransform * );
 
@@ -19,7 +21,6 @@ private Q_SLOTS:
     void legendChecked( QwtPlotItem *, bool on );
 
 private:
-    void setLegendChecked( QwtPlotItem * );
 };
 
 #endif
