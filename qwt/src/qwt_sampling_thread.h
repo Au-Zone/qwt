@@ -11,7 +11,7 @@
   collecting samples at regular intervals. A discrete signal
   can be displayed by a QwtPlotSeriesItem on a QwtPlot widget.
 
-  QwtSamplingThread starts a thread calling perodically sample(),
+  QwtSamplingThread starts a thread calling periodically sample(),
   to collect and store ( or emit ) a single sample.
 
   \sa QwtPlotCurve, QwtPlotSeriesItem

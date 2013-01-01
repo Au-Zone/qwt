@@ -21,7 +21,7 @@ class QResizeEvent;
 /*!
     \brief QwtPlotRescaler takes care of fixed aspect ratios for plot scales
 
-    QwtPlotRescaler autoadjusts the axes of a QwtPlot according
+    QwtPlotRescaler auto adjusts the axes of a QwtPlot according
     to fixed aspect ratios.
 */
 
@@ -44,7 +44,7 @@ public:
         Fixed,
 
         /*!
-          The interval of the reference axis will be shrinked/expanded,
+          The interval of the reference axis will be shrunk/expanded,
           when the geometry of the canvas changes. All other axes
           will be adjusted according to their aspect ratio.
 

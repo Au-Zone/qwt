@@ -34,8 +34,8 @@ public:
         AlignScales = 0x01,
 
         /*!
-          Ignore the dimension of the scrollbars. There are no
-          scrollbars, when the plot is not rendered to widgets.
+          Ignore the dimension of the scroll bars. There are no
+          scrol lbars, when the plot is not rendered to widgets.
          */
         IgnoreScrollbars = 0x02,
 

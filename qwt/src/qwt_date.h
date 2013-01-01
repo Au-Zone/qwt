@@ -24,7 +24,7 @@
   1970-01-01T00:00:00 Universal Coordinated Time - also known
   as "The Epoch". 
 
-  While the range of the julian day in Qt4 is limited to [0, MAX_INT], 
+  While the range of the Julian day in Qt4 is limited to [0, MAX_INT], 
   Qt5 stores it as qint64 offering a huge range of valid dates. 
   As the significance of a double is below this ( assuming a 
   fraction of 52 bits ) the translation is not 
@@ -101,7 +101,7 @@ public:
 
     enum
     {
-        //! The julian day of "The Epoch"
+        //! The Julian day of "The Epoch"
         JulianDayForEpoch = 2440588
     };
 

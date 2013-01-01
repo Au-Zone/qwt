@@ -155,7 +155,7 @@ public:
         Cache,
 
         /*! 
-           Use a cache wehn one of the following condiditions is true:
+           Use a cache when one of the following conditions is true:
 
            - The symbol is rendered with the software 
              renderer ( QPaintEngine::Raster )

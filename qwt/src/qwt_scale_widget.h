@@ -53,7 +53,7 @@ public:
     virtual ~QwtScaleWidget();
 
 Q_SIGNALS:
-    //! Signal emitted, whenever the scale divison changes
+    //! Signal emitted, whenever the scale division changes
     void scaleDivChanged();
 
 public:

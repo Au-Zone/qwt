@@ -31,7 +31,7 @@ protected:
     virtual void dataChanged() = 0;
 
     /*!
-      Set a the "rect of interest" for the stored series
+      Set a the "rectangle of interest" for the stored series
       \sa QwtSeriesData<T>::setRectOfInterest()
      */
     virtual void setRectOfInterest( const QRectF & ) = 0;

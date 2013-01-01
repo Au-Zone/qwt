@@ -24,7 +24,7 @@ class QPainter;
 
    F.e. in combination with the plot canvas an overlay 
    avoid replots as the content of the canvas can be restored from 
-   its backingstore.
+   its backing store.
 
    QwtWidgetOverlay is an abstract base class. Deriving classes are
    supposed to reimplement the following methods:
@@ -33,7 +33,7 @@ class QPainter;
    - maskHint()
 
    Internally QwtPlotPicker uses overlays for displaying 
-   the rubberband and the tracker text.
+   the rubber band and the tracker text.
 
    \sa QwtPlotCanvas::BackingStore
  */

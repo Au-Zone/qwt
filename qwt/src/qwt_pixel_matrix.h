@@ -15,7 +15,7 @@
 #include <qrect.h>
 
 /*!
-  \brief A bitfield corresponding to the pixels of a rectangle
+  \brief A bit field corresponding to the pixels of a rectangle
 
   QwtPixelMatrix is intended to filter out duplicates in an
   unsorted array of points.
@@ -76,7 +76,7 @@ inline bool QwtPixelMatrix::testAndSetPixel( int x, int y, bool on )
 }
 
 /*!
-  \brief Calculate the index in the bitfield correxponding to a position
+  \brief Calculate the index in the bit field corresponding to a position
 
   \param x X-coordinate
   \param y Y-coordinate

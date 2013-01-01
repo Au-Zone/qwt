@@ -33,7 +33,7 @@ public:
     enum LayoutPolicy
     {
         /*!
-          The sample width is calculated by deviding the bounding rectangle
+          The sample width is calculated by dividing the bounding rectangle
           by the number of samples.
 
           \sa boundingRectangle()

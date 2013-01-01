@@ -63,7 +63,7 @@ public:
           When QwtPlotCanvas::BackingStore is enabled the painter
           has to paint to the backing store and the widget. In certain 
           situations/environments it might be faster to paint to 
-          the backing store only and then copy the backingstore to the canvas.
+          the backing store only and then copy the backing store to the canvas.
           This flag can also be useful for settings, where Qt fills the
           the clip region with the widget background.
          */

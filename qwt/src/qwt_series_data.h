@@ -38,7 +38,7 @@
      Should return the bounding rectangle of the data series.
      It is used for autoscaling and might help certain algorithms for displaying
      the data. You can use qwtBoundingRect() for an implementation
-     but often it is possible to implement a more efficient alogrithm 
+     but often it is possible to implement a more efficient algorithm 
      depending on the characteristics of the series.
      The member d_boundingRect is intended for caching the calculated rectangle.
     
@@ -71,7 +71,7 @@ public:
 
        qwtBoundingRect(...) offers slow implementations iterating
        over the samples. For large sets it is recommended to implement
-       something faster f.e. by caching the bounding rect.
+       something faster f.e. by caching the bounding rectangle.
      */
     virtual QRectF boundingRect() const = 0;
 
@@ -79,7 +79,7 @@ public:
        Set a the "rect of interest"
 
        QwtPlotSeriesItem defines the current area of the plot canvas
-       as "rect of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
+       as "rectangle of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
        It can be used to implement different levels of details.
 
        The default implementation does nothing.
@@ -147,7 +147,7 @@ public:
       \return Sample at a specific position
 
       \param index Index
-      \return Sample at position i
+      \return Sample at position index
     */
     virtual T sample( size_t index ) const;
 

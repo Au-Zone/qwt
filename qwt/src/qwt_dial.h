@@ -79,7 +79,7 @@ public:
         Sunken = QFrame::Sunken
     };
 
-    //! Mode controlling wether the needle or the scale is rotating
+    //! Mode controlling whether the needle or the scale is rotating
     enum Mode
     {
         //! The needle is rotating

@@ -59,7 +59,7 @@ public:
         Bar,
 
         /*!
-          The range between openeing/closing price are displayed as
+          The range between opening/closing price are displayed as
           a filled box. The fill brush depends on the direction of the
           price movement. The box is connected to the highest/lowest
           values by lines.
@@ -81,10 +81,10 @@ public:
      */
     enum Direction
     {
-        //! The closing price is higher than the openening price
+        //! The closing price is higher than the opening price
         Increasing,
 
-        //! The closing price is lower than the openening price
+        //! The closing price is lower than the opening price
         Decreasing
     };
 
