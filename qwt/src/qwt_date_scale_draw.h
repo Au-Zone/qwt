@@ -1,5 +1,5 @@
-#ifndef _QWT_TIME_SCALE_DRAW_H_
-#define _QWT_TIME_SCALE_DRAW_H_ 1
+#ifndef _QWT_DATE_SCALE_DRAW_H_
+#define _QWT_DATE_SCALE_DRAW_H_ 1
 
 #include "qwt_global.h"
 #include "qwt_scale_draw.h"
@@ -8,7 +8,7 @@
 /*!
   \brief A class for drawing datetime scales
 
-  QwtDateTimeScaleDraw displays values as datetime labels.
+  QwtDateScaleDraw displays values as datetime labels.
   The format of the labels depends on the alignment of
   the major tick labels.
 
@@ -34,17 +34,17 @@
   The format strings can be modified using setDateFormat()
   or individually for each tick label by overloading dateFormatOfDate(),
 
-  Usually QwtDateTimeScaleDraw is used in combination with
-  QwtDateTimeScaleEngine, that calculates scales for datetime
+  Usually QwtDateScaleDraw is used in combination with
+  QwtDateScaleEngine, that calculates scales for datetime
   intervals.
 
-  \sa QwtDateTimeScaleEngine, QwtPlot::setAxisScaleDraw()
+  \sa QwtDateScaleEngine, QwtPlot::setAxisScaleDraw()
 */
-class QWT_EXPORT QwtDateTimeScaleDraw: public QwtScaleDraw
+class QWT_EXPORT QwtDateScaleDraw: public QwtScaleDraw
 {
 public:
-    QwtDateTimeScaleDraw( Qt::TimeSpec = Qt::LocalTime );
-    virtual ~QwtDateTimeScaleDraw();
+    QwtDateScaleDraw( Qt::TimeSpec = Qt::LocalTime );
+    virtual ~QwtDateScaleDraw();
 
     void setDateFormat( QwtDate::IntervalType, const QString & );
     QString dateFormat( QwtDate::IntervalType ) const;

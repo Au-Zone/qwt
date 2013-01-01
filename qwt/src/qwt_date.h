@@ -37,7 +37,7 @@
   QwtDate offers several algorithms that are needed to
   calculate these axes.
 
-  \sa QwtDateTimeScaleEngine, QwtTimeScaleDraw, QDate, QTime
+  \sa QwtDateScaleEngine, QwtDateScaleDraw, QDate, QTime
 */
 class QWT_EXPORT QwtDate
 {

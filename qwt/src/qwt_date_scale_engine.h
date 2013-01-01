@@ -1,5 +1,5 @@
-#ifndef _QWT_TIME_SCALE_ENGINE_H_
-#define _QWT_TIME_SCALE_ENGINE_H_ 1
+#ifndef _QWT_DATE_SCALE_ENGINE_H_
+#define _QWT_DATE_SCALE_ENGINE_H_ 1
 
 #include "qwt_date.h"
 #include "qwt_scale_engine.h"
@@ -7,16 +7,16 @@
 /*!
   \brief A scale engine for date/time values
 
-  QwtDateTimeScaleEngine builds scales from a time intervals.
-  Together with QwtDateTimeScaleDraw it can be used for
+  QwtDateScaleEngine builds scales from a time intervals.
+  Together with QwtDateScaleDraw it can be used for
   axes according to date/time values.
 
   Years, months, weeks, days, hours and minutes are organized
-  in steps with non constant intervals. QwtDateTimeScaleEngine
+  in steps with non constant intervals. QwtDateScaleEngine
   classifies intervals and aligns the boundaries and tick positions
   according to this classification.
 
-  QwtDateTimeScaleEngine supports representations depending
+  QwtDateScaleEngine supports representations depending
   on Qt::TimeSpec specifications. The valid range for scales
   is limited by the range of QDateTime, that differs 
   between Qt5 and Qt5.
@@ -26,14 +26,14 @@
   as "The Epoch", that can be converted to QDateTime using 
   QwtDate::toDateTime().
 
-  \sa QwtDate, QwtTimeIntervalScaleEngine, QwtPlot::setAxisScaleEngine(),
+  \sa QwtDate, QwtPlot::setAxisScaleEngine(),
       QwtAbstractScale::setAxisScaleEngine()
 */
-class QWT_EXPORT QwtDateTimeScaleEngine: public QwtLinearScaleEngine
+class QWT_EXPORT QwtDateScaleEngine: public QwtLinearScaleEngine
 {
 public:
-    QwtDateTimeScaleEngine( Qt::TimeSpec = Qt::LocalTime );
-    virtual ~QwtDateTimeScaleEngine();
+    QwtDateScaleEngine( Qt::TimeSpec = Qt::LocalTime );
+    virtual ~QwtDateScaleEngine();
 
     void setTimeSpec( Qt::TimeSpec );
     Qt::TimeSpec timeSpec() const;

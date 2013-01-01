@@ -41,6 +41,8 @@ HEADERS += \
     qwt_compat.h \
     qwt_column_symbol.h \
     qwt_date.h \
+    qwt_date_scale_draw.h \
+    qwt_date_scale_engine.h \
     qwt_dyngrid_layout.h \
     qwt_global.h \
     qwt_graphic.h \
@@ -68,8 +70,6 @@ HEADERS += \
     qwt_text_engine.h \
     qwt_text_label.h \
     qwt_text.h \
-    qwt_timescale_draw.h \
-    qwt_timescale_engine.h \
     qwt_transform.h \
     qwt_widget_overlay.h
 
@@ -79,6 +79,8 @@ SOURCES += \
     qwt_color_map.cpp \
     qwt_column_symbol.cpp \
     qwt_date.cpp \
+    qwt_date_scale_draw.cpp \
+    qwt_date_scale_engine.cpp \
     qwt_dyngrid_layout.cpp \
     qwt_event_pattern.cpp \
     qwt_graphic.cpp \
@@ -106,8 +108,6 @@ SOURCES += \
     qwt_text_engine.cpp \
     qwt_text_label.cpp \
     qwt_text.cpp \
-    qwt_timescale_draw.cpp \
-    qwt_timescale_engine.cpp \
     qwt_transform.cpp \
     qwt_widget_overlay.cpp
 
