@@ -10,14 +10,14 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_legend_label.h>
-#include <qwt_timescale_engine.h>
-#include <qwt_timescale_draw.h>
+#include <qwt_date_scale_engine.h>
+#include <qwt_date_scale_draw.h>
 
-class ScaleDraw: public QwtDateTimeScaleDraw
+class DateScaleDraw: public QwtDateScaleDraw
 {
 public:
-    ScaleDraw( Qt::TimeSpec timeSpec ):
-        QwtDateTimeScaleDraw( timeSpec )
+    DateScaleDraw( Qt::TimeSpec timeSpec ):
+        QwtDateScaleDraw( timeSpec )
     {
         // as we have dates from 2010 only we use
         // format strings without the year
@@ -69,8 +69,8 @@ Plot::Plot( QWidget *parent ):
 {
     setTitle( "Trading Chart" );
 
-    QwtDateTimeScaleDraw *scaleDraw = new ScaleDraw( Qt::UTC );
-    QwtDateTimeScaleEngine *scaleEngine = new QwtDateTimeScaleEngine( Qt::UTC );
+    QwtDateScaleDraw *scaleDraw = new DateScaleDraw( Qt::UTC );
+    QwtDateScaleEngine *scaleEngine = new QwtDateScaleEngine( Qt::UTC );
 
     setAxisTitle( QwtPlot::xBottom, QString( "2010" ) );
     setAxisScaleDraw( QwtPlot::xBottom, scaleDraw );

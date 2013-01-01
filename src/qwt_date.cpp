@@ -629,7 +629,7 @@ int QwtDate::utcOffset( const QDateTime &dateTime )
   \param format Format string
   \param week0Type Specification of week 0
 
-  \sa QDateTime::toString(), weekNumber(), QwtDateTimeScaleDraw
+  \sa QDateTime::toString(), weekNumber(), QwtDateScaleDraw
  */
 QString QwtDate::toString( const QDateTime &dateTime,
     const QString & format, Week0Type week0Type )

@@ -1,4 +1,4 @@
-#include "qwt_timescale_engine.h"
+#include "qwt_date_scale_engine.h"
 #include "qwt_math.h"
 #include "qwt_transform.h"
 #include <qdatetime.h>
@@ -704,7 +704,7 @@ static QwtScaleDiv qwtDivideToYears(
     return scaleDiv;
 }
 
-class QwtDateTimeScaleEngine::PrivateData
+class QwtDateScaleEngine::PrivateData
 {
 public:
     PrivateData( Qt::TimeSpec spec ):
@@ -734,14 +734,14 @@ public:
 
   \sa setTimeSpec(), setMaxWeeks(), setWeek0Type()
  */
-QwtDateTimeScaleEngine::QwtDateTimeScaleEngine( Qt::TimeSpec timeSpec ):
+QwtDateScaleEngine::QwtDateScaleEngine( Qt::TimeSpec timeSpec ):
     QwtLinearScaleEngine( 10 )
 {
     d_data = new PrivateData( timeSpec );
 }
 
 //! Destructor
-QwtDateTimeScaleEngine::~QwtDateTimeScaleEngine()
+QwtDateScaleEngine::~QwtDateScaleEngine()
 {
     delete d_data;
 }
@@ -752,7 +752,7 @@ QwtDateTimeScaleEngine::~QwtDateTimeScaleEngine()
   \param timeSpec Time specification
   \sa timeSpec(), setUtcOffset(), toDateTime()
  */
-void QwtDateTimeScaleEngine::setTimeSpec( Qt::TimeSpec timeSpec )
+void QwtDateScaleEngine::setTimeSpec( Qt::TimeSpec timeSpec )
 {
     d_data->timeSpec = timeSpec;
 }
@@ -761,7 +761,7 @@ void QwtDateTimeScaleEngine::setTimeSpec( Qt::TimeSpec timeSpec )
   \return Time specification used by the engine
   \sa setTimeSpec(), utcOffset(), toDateTime()
  */
-Qt::TimeSpec QwtDateTimeScaleEngine::timeSpec() const
+Qt::TimeSpec QwtDateScaleEngine::timeSpec() const
 {
     return d_data->timeSpec;
 }
@@ -776,7 +776,7 @@ Qt::TimeSpec QwtDateTimeScaleEngine::timeSpec() const
 
   \sa QDate::utcOffset(), setTimeSpec(), toDateTime()
  */
-void QwtDateTimeScaleEngine::setUtcOffset( int seconds )
+void QwtDateScaleEngine::setUtcOffset( int seconds )
 {
     d_data->utcOffset = seconds;
 }
@@ -788,7 +788,7 @@ void QwtDateTimeScaleEngine::setUtcOffset( int seconds )
 
   \sa QDate::setUtcOffset(), setTimeSpec(), toDateTime()
  */
-int QwtDateTimeScaleEngine::utcOffset() const
+int QwtDateScaleEngine::utcOffset() const
 {
     return d_data->utcOffset;
 }
@@ -802,7 +802,7 @@ int QwtDateTimeScaleEngine::utcOffset() const
   \note week0Type has no effect beside for intervals clissified as
         QwtDate::Week. 
  */
-void QwtDateTimeScaleEngine::setWeek0Type( QwtDate::Week0Type week0Type )
+void QwtDateScaleEngine::setWeek0Type( QwtDate::Week0Type week0Type )
 {
     d_data->week0Type = week0Type;
 }
@@ -811,7 +811,7 @@ void QwtDateTimeScaleEngine::setWeek0Type( QwtDate::Week0Type week0Type )
   \return Setting how to identify the first week of a year. 
   \sa setWeek0Type(), maxWeeks()
  */
-QwtDate::Week0Type QwtDateTimeScaleEngine::week0Type() const
+QwtDate::Week0Type QwtDateScaleEngine::week0Type() const
 {
     return d_data->week0Type;
 }
@@ -828,7 +828,7 @@ QwtDate::Week0Type QwtDateTimeScaleEngine::week0Type() const
         into weeks [1-52]
   \sa maxWeeks(), setWeek0Type() 
  */
-void QwtDateTimeScaleEngine::setMaxWeeks( int weeks )
+void QwtDateScaleEngine::setMaxWeeks( int weeks )
 {
     d_data->maxWeeks = qMax( weeks, 0 );
 }
@@ -838,7 +838,7 @@ void QwtDateTimeScaleEngine::setMaxWeeks( int weeks )
           can be classified as Qt::Week.
   \sa setMaxWeeks(), week0Type()
  */
-int QwtDateTimeScaleEngine::maxWeeks() const
+int QwtDateScaleEngine::maxWeeks() const
 {
     return d_data->maxWeeks;
 }
@@ -850,7 +850,7 @@ int QwtDateTimeScaleEngine::maxWeeks() const
   \param maxDate Maximum ( = later ) of the interval
   \param maxSteps Maximum for the number of steps
  */
-QwtDate::IntervalType QwtDateTimeScaleEngine::intervalType( 
+QwtDate::IntervalType QwtDateScaleEngine::intervalType( 
     const QDateTime &minDate, const QDateTime &maxDate, 
     int maxSteps ) const
 {
@@ -911,7 +911,7 @@ QwtDate::IntervalType QwtDateTimeScaleEngine::intervalType(
 
   \sa autoScaleStepSize(), QwtScaleEngine::setAttribute()
 */
-void QwtDateTimeScaleEngine::autoScale( int maxNumSteps,
+void QwtDateScaleEngine::autoScale( int maxNumSteps,
     double &x1, double &x2, double &stepSize ) const
 {
     stepSize = 0.0;
@@ -977,7 +977,7 @@ void QwtDateTimeScaleEngine::autoScale( int maxNumSteps,
    \param stepSize Step size. If stepSize == 0, the scaleEngine
                    calculates one.
 */
-QwtScaleDiv QwtDateTimeScaleEngine::divideScale( double x1, double x2,
+QwtScaleDiv QwtDateScaleEngine::divideScale( double x1, double x2,
     int maxMajorSteps, int maxMinorSteps, double stepSize ) const
 {
     if ( maxMajorSteps < 1 )
@@ -1033,7 +1033,7 @@ QwtScaleDiv QwtDateTimeScaleEngine::divideScale( double x1, double x2,
     return scaleDiv;
 }
 
-QwtScaleDiv QwtDateTimeScaleEngine::buildScaleDiv( 
+QwtScaleDiv QwtDateScaleEngine::buildScaleDiv( 
     const QDateTime &minDate, const QDateTime &maxDate,
     int maxMajorSteps, int maxMinorSteps,
     QwtDate::IntervalType intervalType ) const
@@ -1093,7 +1093,7 @@ QwtScaleDiv QwtDateTimeScaleEngine::buildScaleDiv(
 
   \return Aligned date/time value
  */
-QDateTime QwtDateTimeScaleEngine::alignDate( 
+QDateTime QwtDateScaleEngine::alignDate( 
     const QDateTime &dateTime, double stepSize, 
     QwtDate::IntervalType intervalType, bool up ) const
 {
@@ -1222,7 +1222,7 @@ QDateTime QwtDateTimeScaleEngine::alignDate(
   \return QDateTime object initialized with timeSpec() and utcOffset().
   \sa timeSpec(), utcOffset(), QwtDate::toDateTime()
  */
-QDateTime QwtDateTimeScaleEngine::toDateTime( double value ) const
+QDateTime QwtDateScaleEngine::toDateTime( double value ) const
 {
     QDateTime dt = QwtDate::toDateTime( value, d_data->timeSpec );
     if ( !dt.isValid() )

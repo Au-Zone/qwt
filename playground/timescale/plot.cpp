@@ -1,8 +1,8 @@
 #include "plot.h"
 #include "settings.h"
 #include <qwt_date.h>
-#include <qwt_timescale_draw.h>
-#include <qwt_timescale_engine.h>
+#include <qwt_date_scale_draw.h>
+#include <qwt_date_scale_engine.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_grid.h>
@@ -50,11 +50,8 @@ void Plot::initAxis( int axis,
 {
     setAxisTitle( axis, title );
 
-    QwtDateTimeScaleDraw *scaleDraw 
-        = new QwtDateTimeScaleDraw( timeSpec );
-
-    QwtDateTimeScaleEngine *scaleEngine = 
-        new QwtDateTimeScaleEngine( timeSpec );
+    QwtDateScaleDraw *scaleDraw = new QwtDateScaleDraw( timeSpec );
+    QwtDateScaleEngine *scaleEngine = new QwtDateScaleEngine( timeSpec );
 
 #if 0
     if ( timeSpec == Qt::LocalTime )
@@ -80,8 +77,8 @@ void Plot::applySettings( const Settings &settings )
 
 void Plot::applyAxisSettings( int axis, const Settings &settings )
 {
-    QwtDateTimeScaleEngine *scaleEngine = 
-        static_cast<QwtDateTimeScaleEngine *>( axisScaleEngine( axis ) );
+    QwtDateScaleEngine *scaleEngine = 
+        static_cast<QwtDateScaleEngine *>( axisScaleEngine( axis ) );
 
     scaleEngine->setMaxWeeks( settings.maxWeeks );
     setAxisMaxMinor( axis, settings.maxMinorSteps );
