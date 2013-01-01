@@ -94,14 +94,26 @@ public:
         Path,
 
         /*!
+          The symbol is represented by a pixmap. The pixmap is centered
+          or aligned to its pin point.
+
+          \sa setPinPoint()
          */
         Pixmap,
 
         /*!
+          The symbol is represented by a graphic. The graphic is centered
+          or aligned to its pin point.
+
+          \sa setPinPoint()
          */
         Graphic,
 
         /*!
+          The symbol is represented by a SVG graphic. The graphic is centered
+          or aligned to its pin point.
+
+          \sa setPinPoint()
          */
         SvgDocument,
 
