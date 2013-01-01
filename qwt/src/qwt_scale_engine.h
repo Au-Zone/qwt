@@ -169,11 +169,9 @@ protected:
     QList<double> buildMajorTicks(
         const QwtInterval &interval, double stepSize ) const;
 
-    void buildMinorTicks(
-        const QList<double>& majorTicks,
+    void buildMinorTicks( const QList<double>& majorTicks,
         int maxMinorSteps, double stepSize,
-        QList<double> &minorTicks, 
-        QList<double> &mediumTicks ) const;
+        QList<double> &minorTicks, QList<double> &mediumTicks ) const;
 };
 
 /*!
@@ -210,11 +208,9 @@ protected:
     QList<double> buildMajorTicks(
         const QwtInterval &interval, double stepSize ) const;
 
-    void buildMinorTicks(
-        const QList<double>& majorTicks,
+    void buildMinorTicks( const QList<double>& majorTicks,
         int maxMinorSteps, double stepSize,
-        QList<double> &minorTicks, 
-        QList<double> &mediumTicks ) const;
+        QList<double> &minorTicks, QList<double> &mediumTicks ) const;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtScaleEngine::Attributes )

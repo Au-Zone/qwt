@@ -1240,7 +1240,7 @@ void QwtSymbol::setColor( const QColor &color )
   be aligned to.
   
   \param pos Position
-  \param enable En/Disable the pin point tranlation
+  \param enable En/Disable the pin point alignment
 
   \sa pinPoint(), setPinPointEnabled()
  */
@@ -1268,7 +1268,7 @@ QPointF QwtSymbol::pinPoint() const
 }
 
 /*!
-  En/Disable the pin point tranlation
+  En/Disable the pin point alignment
 
   \param on Enabled, when on is true
   \sa setPinPoint(), isPinPointEnabled()

@@ -35,8 +35,7 @@ public:
     explicit QwtPlotPicker( int xAxis, int yAxis, QWidget * );
 
     explicit QwtPlotPicker( int xAxis, int yAxis,
-        RubberBand rubberBand, DisplayMode trackerMode,
-        QWidget * );
+        RubberBand rubberBand, DisplayMode trackerMode, QWidget * );
 
     virtual void setAxis( int xAxis, int yAxis );
 
