@@ -49,12 +49,12 @@ class QwtWidgetOverlay;
   it is also possible to implement individual machines as well.
 
   QwtPicker translates the picked points into a selection using the
-  adjustedPoints method. adjustedPoints is intended to be reimplemented
-  to fixup the selection according to application specific requirements.
+  adjustedPoints() method. adjustedPoints() is intended to be reimplemented
+  to fix up the selection according to application specific requirements.
   (F.e. when an application accepts rectangles of a fixed aspect ratio only.)
 
   Optionally QwtPicker support the process of collecting points by a
-  rubberband and tracker displaying a text for the current mouse
+  rubber band and tracker displaying a text for the current mouse
   position.
 
   \par Example
@@ -80,7 +80,7 @@ picker->setRubberBand(QwtPicker::RectRubberBand); \endverbatim\n
     Terminate the selection and call accept to validate the picked points.
 
   The picker is active (isActive()), between begin() and end().
-  In active state the rubberband is displayed, and the tracker is visible
+  In active state the rubber band is displayed, and the tracker is visible
   in case of trackerMode is ActiveOnly or AlwaysOn.
 
   The cursor can be moved using the arrow keys. All selections can be aborted
@@ -110,7 +110,7 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
 
 public:
     /*!
-      Rubberband style
+      Rubber band style
 
       The default value is QwtPicker::NoRubberBand.
       \sa setRubberBand(), rubberBand()

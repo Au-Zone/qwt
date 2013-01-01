@@ -17,8 +17,8 @@
   \brief The Wheel Widget
 
   The wheel widget can be used to change values over a very large range
-  in very small steps. Using the setMass member, it can be configured
-  as a flywheel.
+  in very small steps. Using the setMass() member, it can be configured
+  as a flying wheel.
 
   The default range of the wheel is [0.0, 100.0]
 
@@ -109,10 +109,10 @@ public:
     double mass() const;
 
 public Q_SLOTS:
-    void setValue( double val );
+    void setValue( double );
     void setTotalAngle ( double );
     void setViewAngle( double );
-    void setMass( double val );
+    void setMass( double );
 
 Q_SIGNALS:
 

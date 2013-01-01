@@ -57,7 +57,7 @@ public:
       \param flags Bitwise OR of the flags like in for QPainter::drawText
       \param text Text to be rendered
 
-      \return Caluclated size
+      \return Calculated size
      */
     virtual QSizeF textSize( const QFont &font, int flags,
         const QString &text ) const = 0;
@@ -75,7 +75,7 @@ public:
 
       The textSize might include margins around the
       text, like QFontMetrics::descent. In situations
-      where texts need to be aligend in detail, knowing
+      where texts need to be aligned in detail, knowing
       these margins might improve the layout calculations.
 
       \param font Font of the text

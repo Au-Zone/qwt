@@ -22,7 +22,7 @@ class QScrollBar;
   items might be any type of widget, but in general they will be
   a QwtLegendLabel.
 
-  \sa QwtLegendLabel, QwtPlotItem QwtPlot
+  \sa QwtLegendLabel, QwtPlotItem, QwtPlot
 */
 
 class QWT_EXPORT QwtLegend : public QwtAbstractLegend

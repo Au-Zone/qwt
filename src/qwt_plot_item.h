@@ -49,7 +49,7 @@ class QwtPlot;
     - ...
 
   Depending on the QwtPlotItem::ItemAttribute flags, an item is included
-  into autoscaling or has an entry on the legnd.
+  into autoscaling or has an entry on the legend.
 
   Before misusing the existing item classes it might be better to
   implement a new type of plot item
@@ -166,7 +166,7 @@ public:
 
        Plot items might depend on the situation of the corresponding
        plot widget. By enabling an interest the plot item will be
-       notified, when the corrsponding attribute of the plot widgets
+       notified, when the corresponding attribute of the plot widgets
        has changed.
 
        \sa setItemAttribute(), testItemAttribute(), ItemInterest

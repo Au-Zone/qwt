@@ -63,7 +63,7 @@ private:
   The points are calculated in equidistant steps in x-direction.
 
   If the interval is invalid, the points are calculated for
-  the "rect of interest", what normally is the displayed area on the
+  the "rectangle of interest", what normally is the displayed area on the
   plot canvas. In this mode you get different levels of detail, when
   zooming in/out.
 

@@ -21,7 +21,7 @@
   QwtKnob, QwtDial and QwtSlider.
 
   When the slider is nor readOnly() its value can be modified 
-  by keybord, mouse and wheel inputs. 
+  by keyboard, mouse and wheel inputs. 
 
   The range of the slider is divided into a number of steps from
   which the value increments according to user inputs depend. 

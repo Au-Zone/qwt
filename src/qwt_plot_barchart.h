@@ -33,7 +33,7 @@ class QwtColumnSymbol;
   The most common use case of a bar chart is to display a
   list of y coordinates, where the x coordinate is simply the index
   in the list. But for other situations ( f.e. when values are related
-  to dates ) it is also possible to set x coordinates explicitely.
+  to dates ) it is also possible to set x coordinates explicitly.
 
   \sa QwtPlotMultiBarChart, QwtPlotHistogram, QwtPlotCurve::Sticks,
       QwtPlotSeriesItem::orientation(), QwtPlotAbstractBarChart::baseline()

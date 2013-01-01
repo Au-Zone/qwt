@@ -64,7 +64,7 @@ public:
             Don't render the frame of the canvas
 
             \note This flag has no effect when using
-                  stylesheets, where the frame is part
+                  style sheets, where the frame is part
                   of the background
          */
         DiscardCanvasFrame           = 0x20

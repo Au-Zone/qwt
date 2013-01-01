@@ -46,7 +46,7 @@ public:
                  of the pixmap buffer when possible. 
 
           Using a backing store might improve the performance
-          significantly, when workin with widget overlays ( like rubberbands ).
+          significantly, when working with widget overlays ( like rubber bands ).
           Disabling the cache might improve the performance for
           incremental paints (using QwtPlotDirectPainter ).
 
@@ -80,10 +80,10 @@ public:
           handle backgrounds with rounded corners - beside of padding.
 
           When HackStyledBackground is enabled the plot canvas tries
-          to seperate the background from the background border
+          to separate the background from the background border
           by reverse engineering to paint the background before and
           the border after the plot items. In this order the border
-          gets prefectly antialiased and you can avoid some pixel
+          gets perfectly antialiased and you can avoid some pixel
           artifacts in the corners.
          */
         HackStyledBackground = 4,

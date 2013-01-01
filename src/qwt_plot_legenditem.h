@@ -25,7 +25,7 @@ class QFont;
 
   In opposite to QwtLegend the legend item is not interactive. 
   To identify mouse clicks on a legend item an event filter
-  needs to be installed catching mouse events ob th e plot canvas.
+  needs to be installed catching mouse events ob the plot canvas.
   The geometries of the legend items are available using
   legendGeometries().
   

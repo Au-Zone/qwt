@@ -120,7 +120,7 @@ public:
           A QwtCurveFitter tries to
           interpolate/smooth the curve, before it is painted.
 
-          \note Curve fitting requires temorary memory
+          \note Curve fitting requires temporary memory
           for calculating coefficients and additional points.
           If painting in QwtPlotCurve::Fitted mode is slow it might be better
           to fit the points, before they are passed to QwtPlotCurve.
@@ -186,7 +186,7 @@ public:
           Tries to reduce the data that has to be painted, by sorting out
           duplicates, or paintings outside the visible area. Might have a
           notable impact on curves with many close points.
-          Only a couple of very basic filtering algos are implemented.
+          Only a couple of very basic filtering algorithms are implemented.
          */
         FilterPoints = 0x02,
 

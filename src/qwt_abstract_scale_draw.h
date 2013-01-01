@@ -82,7 +82,7 @@ public:
     /*!
       Calculate the extent
 
-      The extent is the distcance from the baseline to the outermost
+      The extent is the distance from the baseline to the outermost
       pixel of the scale draw in opposite to its orientation.
       It is at least minimumExtent() pixels.
 
@@ -99,7 +99,7 @@ protected:
 
        \param painter Painter
        \param value Value of the tick
-       \param len Lenght of the tick
+       \param len Length of the tick
 
        \sa drawBackbone(), drawLabel()
     */

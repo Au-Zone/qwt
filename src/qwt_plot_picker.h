@@ -21,7 +21,7 @@ class QwtPlot;
 
   QwtPlotPicker is a QwtPicker tailored for selections on
   a plot canvas. It is set to a x-Axis and y-Axis and
-  translates all pixel coordinates into this coodinate system.
+  translates all pixel coordinates into this coordinate system.
 */
 
 class QWT_EXPORT QwtPlotPicker: public QwtPicker

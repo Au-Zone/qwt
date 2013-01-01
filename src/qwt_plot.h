@@ -35,7 +35,7 @@ class QwtTextLabel;
   (QwtPlotMarker), the grid (QwtPlotGrid), or anything else derived
   from QwtPlotItem.
   A plot can have up to four axes, with each plot item attached to an x- and
-  a y axis. The scales at the axes can be explicitely set (QwtScaleDiv), or
+  a y axis. The scales at the axes can be explicitly set (QwtScaleDiv), or
   are calculated from the plot items, using algorithms (QwtScaleEngine) which
   can be configured separately for each axis.
 

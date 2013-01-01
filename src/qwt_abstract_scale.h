@@ -26,7 +26,7 @@ class QwtInterval;
   definition, that contains the boundaries and the ticks of the scale.
   The scale is painted using a QwtScaleDraw object.
 
-  The scale division might be assigned explicitely - but usually
+  The scale division might be assigned explicitly - but usually
   it is calculated from the boundaries using a QwtScaleEngine. 
 
   The scale engine also decides the type of transformation of the scale 
