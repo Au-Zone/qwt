@@ -26,19 +26,18 @@ public:
         setMinorPen( Qt::gray, 0, Qt::DotLine );
     }
 
-    virtual void updateScaleDiv( const QwtScaleDiv &xMap,
-        const QwtScaleDiv &yMap )
+    virtual void updateScaleDiv( const QwtScaleDiv &xScaleDiv,
+        const QwtScaleDiv &yScaleDiv )
     {
-        QList<double> ticks[QwtScaleDiv::NTickTypes];
+        QwtScaleDiv scaleDiv( xScaleDiv.lowerBound(), 
+            xScaleDiv.upperBound() );
 
-        ticks[QwtScaleDiv::MajorTick] =
-            xMap.ticks( QwtScaleDiv::MediumTick );
-        ticks[QwtScaleDiv::MinorTick] =
-            xMap.ticks( QwtScaleDiv::MinorTick );
+        scaleDiv.setTicks( QwtScaleDiv::MinorTick,
+            xScaleDiv.ticks( QwtScaleDiv::MinorTick ) );
+        scaleDiv.setTicks( QwtScaleDiv::MajorTick,
+            xScaleDiv.ticks( QwtScaleDiv::MediumTick ) );
 
-        QwtPlotGrid::updateScaleDiv(
-            QwtScaleDiv( xMap.lowerBound(), xMap.upperBound(), ticks ),
-            yMap );
+        QwtPlotGrid::updateScaleDiv( scaleDiv, yScaleDiv );
     }
 };
 
@@ -124,22 +123,21 @@ QwtScaleDiv Plot::yearScaleDiv() const
 {
     const int days[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-    QList<double> ticks[QwtScaleDiv::NTickTypes];
-
-    QList<double> &mediumTicks = ticks[QwtScaleDiv::MediumTick];
+    QList<double> mediumTicks;
     mediumTicks += 0.0;
     for ( uint i = 0; i < sizeof( days ) / sizeof( days[0] ); i++ )
         mediumTicks += mediumTicks.last() + days[i];
 
-    QList<double> &minorTicks = ticks[QwtScaleDiv::MinorTick];
+    QList<double> minorTicks;
     for ( int i = 1; i <= 365; i += 7 )
         minorTicks += i;
 
-    QList<double> &majorTicks = ticks[QwtScaleDiv::MajorTick];
+    QList<double> majorTicks;
     for ( int i = 0; i < 12; i++ )
         majorTicks += i * 30 + 15;
 
-    QwtScaleDiv scaleDiv( mediumTicks.first(), mediumTicks.last() + 1, ticks );
+    QwtScaleDiv scaleDiv( mediumTicks.first(), mediumTicks.last() + 1, 
+        minorTicks, mediumTicks, majorTicks );
     return scaleDiv;
 }
 

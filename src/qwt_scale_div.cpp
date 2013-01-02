@@ -9,15 +9,19 @@
 
 #include "qwt_scale_div.h"
 #include "qwt_math.h"
-#include "qwt_interval.h"
 #include <qalgorithms.h>
 
 /*!
   Construct a division without ticks
+
+  \param lowerBound First boundary
+  \param upperBound Second boundary
+
+  \note lowerBound might be greater than upperBound for inverted scales
  */
-QwtScaleDiv::QwtScaleDiv():
-    d_lowerBound( 0.0 ),
-    d_upperBound( 0.0 )
+QwtScaleDiv::QwtScaleDiv( double lowerBound, double upperBound ):
+    d_lowerBound( lowerBound ),
+    d_upperBound( upperBound )
 {
 }
 
@@ -37,16 +41,15 @@ QwtScaleDiv::QwtScaleDiv( const QwtInterval &interval,
 }
 
 /*!
-  Construct QwtScaleDiv instance.
+  Construct a scale division
 
-  \param lowerBound First interval limit
-  \param upperBound Second interval limit
+  \param lowerBound First boundary
+  \param upperBound Second boundary
   \param ticks List of major, medium and minor ticks
 
   \note lowerBound might be greater than upperBound for inverted scales
 */
-QwtScaleDiv::QwtScaleDiv(
-        double lowerBound, double upperBound,
+QwtScaleDiv::QwtScaleDiv( double lowerBound, double upperBound,
         QList<double> ticks[NTickTypes] ):
     d_lowerBound( lowerBound ),
     d_upperBound( upperBound )
@@ -56,12 +59,107 @@ QwtScaleDiv::QwtScaleDiv(
 }
 
 /*!
+  Construct a scale division
+
+  \param lowerBound First boundary
+  \param upperBound Second boundary
+  \param minorTicks List of minor ticks
+  \param mediumTicks List medium ticks
+  \param majorTicks List of major ticks
+
+  \note lowerBound might be greater than upperBound for inverted scales
+*/
+QwtScaleDiv::QwtScaleDiv( double lowerBound, double upperBound,
+        const QList<double> &minorTicks, 
+        const QList<double> &mediumTicks,
+        const QList<double> &majorTicks ):
+    d_lowerBound( lowerBound ),
+    d_upperBound( upperBound )
+{
+    d_ticks[ MinorTick ] = minorTicks;
+    d_ticks[ MediumTick ] = mediumTicks;
+    d_ticks[ MajorTick ] = majorTicks;
+}
+
+/*!
+  Change the interval
+
+  \param lowerBound First boundary
+  \param upperBound Second boundary
+
+  \note lowerBound might be greater than upperBound for inverted scales
+*/
+void QwtScaleDiv::setInterval( double lowerBound, double upperBound )
+{
+    d_lowerBound = lowerBound;
+    d_upperBound = upperBound;
+}
+
+/*!
    Change the interval
+
    \param interval Interval
 */
 void QwtScaleDiv::setInterval( const QwtInterval &interval )
 {
-    setInterval( interval.minValue(), interval.maxValue() );
+    d_lowerBound = interval.minValue();
+    d_upperBound = interval.maxValue();
+}
+
+/*!
+  \return lowerBound -> upperBound
+*/
+QwtInterval QwtScaleDiv::interval() const
+{
+    return QwtInterval( d_lowerBound, d_upperBound );
+}
+
+/*!
+  Set the first boundary
+
+  \param lowerBound First boundary
+  \sa lowerBiound(), setUpperBound()
+ */
+void QwtScaleDiv::setLowerBound( double lowerBound  )
+{
+    d_lowerBound = lowerBound;
+}
+
+/*!
+  \return First boundary
+  \sa upperBound()
+*/
+double QwtScaleDiv::lowerBound() const
+{
+    return d_lowerBound;
+}   
+
+/*!
+  Set the second boundary
+
+  \param upperBound Second boundary
+  \sa upperBound(), setLowerBound()
+ */
+void QwtScaleDiv::setUpperBound( double upperBound  )
+{
+    d_upperBound = upperBound;
+} 
+
+/*!
+  \return upper bound
+  \sa lowerBound()
+*/
+double QwtScaleDiv::upperBound() const
+{
+    return d_upperBound;
+}
+
+/*!
+  \return upperBound() - lowerBound()
+*/
+double QwtScaleDiv::range() const
+{
+    return d_upperBound - d_lowerBound;
 }
 
 /*!
@@ -218,7 +316,7 @@ QList<double> QwtScaleDiv::ticks( int type ) const
 
 QDebug operator<<( QDebug debug, const QwtScaleDiv &scaleDiv )
 {
-    debug << scaleDiv.interval();
+    debug << scaleDiv.lowerBound() << "<->" << scaleDiv.upperBound();
     debug << "Major: " << scaleDiv.ticks( QwtScaleDiv::MajorTick );
     debug << "Medium: " << scaleDiv.ticks( QwtScaleDiv::MediumTick );
     debug << "Minor: " << scaleDiv.ticks( QwtScaleDiv::MinorTick );
