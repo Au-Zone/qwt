@@ -38,6 +38,9 @@ to control or display values, arrays, or ranges of type double.
   <a href="https://qt-project.org">Qt</a>.
   It is compatible with Qt >= 4.4.
 
+  \section changelogonmainpage What's new
+  \ref qwtchangelog
+
   \section screenshotsonmainpage Screenshots
   - \ref curvescreenshots\n
   - \ref scatterscreenshots\n
