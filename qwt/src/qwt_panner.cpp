@@ -224,7 +224,7 @@ Qt::Orientations QwtPanner::orientations() const
 }
 
 /*!
-   Return true if a orientatio is enabled
+   Return true if a orientation is enabled
    \sa orientations(), setOrientations()
 */
 bool QwtPanner::isOrientationEnabled( Qt::Orientation o ) const
@@ -312,7 +312,7 @@ QPixmap QwtPanner::grab() const
 /*!
   \brief Event filter
 
-  When isEnabled() is true, the mouse events of the
+  When isEnabled() is true mouse events of the
   observed widget are filtered.
 
   \param object Object to be filtered

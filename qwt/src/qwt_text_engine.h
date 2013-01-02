@@ -74,7 +74,7 @@ public:
       Return margins around the texts
 
       The textSize might include margins around the
-      text, like QFontMetrics::descent. In situations
+      text, like QFontMetrics::descent(). In situations
       where texts need to be aligned in detail, knowing
       these margins might improve the layout calculations.
 
@@ -93,7 +93,7 @@ public:
 
       \param painter Painter
       \param rect Clipping rectangle
-      \param flags Bitwise OR of the flags like in for QPainter::drawText
+      \param flags Bitwise OR of the flags like in for QPainter::drawText()
       \param text Text to be rendered
      */
     virtual void draw( QPainter *painter, const QRectF &rect,

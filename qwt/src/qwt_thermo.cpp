@@ -220,7 +220,7 @@ QwtScaleDraw *QwtThermo::scaleDraw()
 }
 
 /*!
-  Qt paint event handler
+  Paint event handler
   \param event Paint event
 */
 void QwtThermo::paintEvent( QPaintEvent *event )
@@ -252,7 +252,7 @@ void QwtThermo::paintEvent( QPaintEvent *event )
 }
 
 /*! 
-  Qt resize event handler
+  Resize event handler
   \param event Resize event
 */
 void QwtThermo::resizeEvent( QResizeEvent *event )

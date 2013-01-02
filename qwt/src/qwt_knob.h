@@ -18,7 +18,7 @@ class QwtRoundScaleDraw;
 /*!
   \brief The Knob Widget
 
-  The QwtKnob widget imitates look and behaviour of a volume knob on a radio.
+  The QwtKnob widget imitates look and behavior of a volume knob on a radio.
   It looks similar to QDial - not to QwtDial.
 
   The value range of a knob might be divided into several turns.

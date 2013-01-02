@@ -54,7 +54,7 @@ public:
         AtomicPainter = 0x01,
 
         /*!
-          When FullRepaint is set the plot canvas is explicitely repainted
+          When FullRepaint is set the plot canvas is explicitly repainted
           after the samples have been rendered.
          */
         FullRepaint = 0x02,

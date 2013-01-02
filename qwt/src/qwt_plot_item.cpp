@@ -683,7 +683,7 @@ QRectF QwtPlotItem::scaleRect( const QwtScaleMap &xMap,
    \param xMap Maps x-values into pixel coordinates.
    \param yMap Maps y-values into pixel coordinates.
 
-   \return Bounding paint rect of the scale maps, not normalized
+   \return Bounding paint rectangle of the scale maps, not normalized
 */
 QRectF QwtPlotItem::paintRect( const QwtScaleMap &xMap,
     const QwtScaleMap &yMap ) const

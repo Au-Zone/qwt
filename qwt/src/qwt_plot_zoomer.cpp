@@ -31,11 +31,11 @@ public:
   enabled, it is set to QwtPlot::yLeft.
 
   The zoomer is initialized with a QwtPickerDragRectMachine,
-  the tracker mode is set to QwtPicker::ActiveOnly and the rubberband
+  the tracker mode is set to QwtPicker::ActiveOnly and the rubber band
   is set to QwtPicker::RectRubberBand
 
   \param canvas Plot canvas to observe, also the parent object
-  \param doReplot Call replot for the attached plot before initializing
+  \param doReplot Call QwtPlot::replot() for the attached plot before initializing
                   the zoomer with its scales. This might be necessary,
                   when the plot is in a state with pending scale changes.
 
@@ -58,7 +58,7 @@ QwtPlotZoomer::QwtPlotZoomer( QWidget *canvas, bool doReplot ):
   \param xAxis X axis of the zoomer
   \param yAxis Y axis of the zoomer
   \param canvas Plot canvas to observe, also the parent object
-  \param doReplot Call replot for the attached plot before initializing
+  \param doReplot Call QwtPlot::replot() for the attached plot before initializing
                   the zoomer with its scales. This might be necessary,
                   when the plot is in a state with pending scale changes.
 
@@ -161,7 +161,7 @@ QRectF QwtPlotZoomer::zoomBase() const
 /*!
   Reinitialized the zoom stack with scaleRect() as base.
 
-  \param doReplot Call replot for the attached plot before initializing
+  \param doReplot Call QwtPlot::replot() for the attached plot before initializing
                   the zoomer with its scales. This might be necessary,
                   when the plot is in a state with pending scale changes.
 
@@ -342,7 +342,7 @@ void QwtPlotZoomer::setZoomStack(
 /*!
   Adjust the observed plot to zoomRect()
 
-  \note Initiates QwtPlot::replot
+  \note Initiates QwtPlot::replot()
 */
 
 void QwtPlotZoomer::rescale()

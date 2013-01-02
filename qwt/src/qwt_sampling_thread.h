@@ -7,7 +7,7 @@
 /*!
   \brief A thread collecting samples at regular intervals.
 
-  Contiounous signals are converted into a discrete signal by
+  Continuous signals are converted into a discrete signal by
   collecting samples at regular intervals. A discrete signal
   can be displayed by a QwtPlotSeriesItem on a QwtPlot widget.
 
