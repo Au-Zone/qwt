@@ -139,7 +139,7 @@ void QwtArrowButton::paintEvent( QPaintEvent *event )
   \brief Draw the button label
 
   \param painter Painter
-  \sa The Qt Manual on QPushButton
+  \sa The Qt Manual for QPushButton
 */
 void QwtArrowButton::drawButtonLabel( QPainter *painter )
 {

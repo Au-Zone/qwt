@@ -260,7 +260,7 @@ QString QwtText::text() const
 
    The default setting is Qt::AlignCenter
 
-   \param renderFlags Bitwise OR of the flags used like in QPainter::drawText
+   \param renderFlags Bitwise OR of the flags used like in QPainter::drawText()
 
    \sa renderFlags(), QwtTextEngine::draw()
    \note Some renderFlags might have no effect, depending on the text format.

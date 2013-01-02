@@ -310,7 +310,7 @@ bool QwtPlotDirectPainter::eventFilter( QObject *, QEvent *event )
                     d_data->seriesItem, d_data->from, d_data->to );
             }
 
-            return true;
+            return true; // don't call QwtPlotCanvas::paintEvent()
         }
     }
 

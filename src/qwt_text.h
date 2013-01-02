@@ -42,7 +42,7 @@ class QwtTextEngine;
     A text might have an individual color.
   - Render Flags\n
     Flags from Qt::AlignmentFlag and Qt::TextFlag used like in
-    QPainter::drawText.
+    QPainter::drawText().
 
   \sa QwtTextEngine, QwtTextLabel
 */
@@ -63,7 +63,7 @@ public:
     enum TextFormat
     {
         /*!
-          The text format is determined using QwtTextEngine::mightRender for
+          The text format is determined using QwtTextEngine::mightRender() for
           all available text engines in increasing order > PlainText.
           If none of the text engines can render the text is rendered
           like QwtText::PlainText.

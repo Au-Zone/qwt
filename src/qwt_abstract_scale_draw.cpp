@@ -356,7 +356,7 @@ double QwtAbstractScaleDraw::maxTickLength() const
   \brief Convert a value into its representing label
 
   The value is converted to a plain text using
-  QLocale::system().toString(value).
+  QLocale().toString(value).
   This method is often overloaded by applications to have individual
   labels.
 

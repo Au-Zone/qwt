@@ -183,7 +183,7 @@ QwtPlotRenderer::LayoutFlags QwtPlotRenderer::layoutFlags() const
 /*!
   Render a plot to a file
 
-  The format of the document will be autodetected from the
+  The format of the document will be auto-detected from the
   suffix of the file name.
 
   \param plot Plot widget

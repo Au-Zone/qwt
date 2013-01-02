@@ -1266,8 +1266,8 @@ void QwtPlotLayout::activate( const QwtPlot *plot,
 
     QRectF rect( plotRect );  // undistributed rest of the plot rect
 
-    // We extract all layout relevant data from the widgets,
-    // filter them through pfilter and save them to d_data->layoutData.
+    // We extract all layout relevant parameters from the widgets,
+    // and save them to d_data->layoutData.
 
     d_data->layoutData.init( plot, rect );
 
