@@ -74,7 +74,7 @@ QwtPlotDict::QwtPlotDict()
 /*!
    Destructor
 
-   If autoDelete is on, all attached items will be deleted
+   If autoDelete() is on, all attached items will be deleted
    \sa setAutoDelete(), autoDelete(), attachItem()
 */
 QwtPlotDict::~QwtPlotDict()

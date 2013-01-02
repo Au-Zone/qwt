@@ -502,7 +502,7 @@ void QwtWheel::keyPressEvent( QKeyEvent *event )
 /*!
   \brief Adjust the number of grooves in the wheel's surface.
 
-  The number of grooves is limited to 6 <= cnt <= 50.
+  The number of grooves is limited to 6 <= count <= 50.
   Values outside this range will be clipped.
   The default value is 10.
 
@@ -749,7 +749,7 @@ void QwtWheel::paintEvent( QPaintEvent *event )
    Draw the Wheel's background gradient
 
    \param painter Painter
-   \param rect Rectangle for the wheel
+   \param rect Geometry for the wheel
 */
 void QwtWheel::drawWheelBackground( 
     QPainter *painter, const QRectF &rect )
@@ -805,7 +805,7 @@ void QwtWheel::drawWheelBackground(
    Draw the Wheel's ticks
 
    \param painter Painter
-   \param rect Rectangle for the wheel
+   \param rect Geometry for the wheel
 */
 void QwtWheel::drawTicks( QPainter *painter, const QRectF &rect )
 {
@@ -1176,7 +1176,7 @@ bool QwtWheel::isInverted() const
   \brief En/Disable wrapping
 
   If wrapping is true stepping up from maximum() value will take 
-  you to the minimum() value and vica versa. 
+  you to the minimum() value and vice versa. 
 
   \param on En/Disable wrapping
   \sa wrapping()

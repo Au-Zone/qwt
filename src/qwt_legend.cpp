@@ -291,7 +291,7 @@ QwtLegendData::Mode QwtLegend::defaultItemMode() const
 
 /*!
   The contents widget is the only child of the viewport of 
-  the internal QScrollArea  and the parent widget of all legend items.
+  the internal QScrollArea and the parent widget of all legend items.
 
   \return Container widget of the legend items
 */
@@ -320,7 +320,7 @@ QScrollBar *QwtLegend::verticalScrollBar() const
 
 /*!
   The contents widget is the only child of the viewport of 
-  the internal QScrollArea  and the parent widget of all legend items.
+  the internal QScrollArea and the parent widget of all legend items.
 
   \return Container widget of the legend items
 
@@ -713,10 +713,10 @@ bool QwtLegend::isEmpty() const
 }
 
 /*!
-    Return the extent, that is needed for the scroll bars
+    Return the extent, that is needed for the scrollbars
 
     \param orientation Orientation ( 
-    \return The width of the vertical scroll bar for Qt::Horizontal and v.v.
+    \return The width of the vertical scrollbar for Qt::Horizontal and v.v.
  */
 int QwtLegend::scrollExtent( Qt::Orientation orientation ) const
 {

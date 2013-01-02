@@ -99,7 +99,7 @@ int QwtDateScaleDraw::utcOffset() const
   \param week0Type Mode how to identify the first week of a year
 
   \sa week0Type().
-  \note week0Type has no effect beside for intervals clissified as
+  \note week0Type has no effect beside for intervals classified as
         QwtDate::Week. 
  */
 void QwtDateScaleDraw::setWeek0Type( QwtDate::Week0Type week0Type )

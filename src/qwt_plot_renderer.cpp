@@ -184,7 +184,7 @@ QwtPlotRenderer::LayoutFlags QwtPlotRenderer::layoutFlags() const
   Render a plot to a file
 
   The format of the document will be autodetected from the
-  suffix of the filename.
+  suffix of the file name.
 
   \param plot Plot widget
   \param fileName Path of the file, where the document will be stored
@@ -952,7 +952,7 @@ bool QwtPlotRenderer::updateCanvasMargins( QwtPlot *plot,
 /*!
    \brief Execute a file dialog and render the plot to the selected file
 
-   The document will be rendered in 85dpi for a size 30x20cm
+   The document will be rendered in 85 dpi for a size 30x20 cm
 
    \param plot Plot widget
    \param documentName Default document name

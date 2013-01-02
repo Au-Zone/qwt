@@ -352,13 +352,13 @@ QwtText QwtPlot::title() const
     return d_data->titleLabel->text();
 }
 
-//! \return Titel label widget.
+//! \return Title label widget.
 QwtTextLabel *QwtPlot::titleLabel()
 {
     return d_data->titleLabel;
 }
 
-//! \return Titel label widget.
+//! \return Title label widget.
 const QwtTextLabel *QwtPlot::titleLabel() const
 {
     return d_data->titleLabel;
@@ -830,7 +830,7 @@ QwtScaleMap QwtPlot::canvasMap( int axisId ) const
 /*!
   \brief Change the background of the plotting area
 
-  Sets brush to QPalette::Window of all colorgroups of
+  Sets brush to QPalette::Window of all color groups of
   the palette of the canvas. Using canvas()->setPalette()
   is a more powerful way to set these colors.
 
@@ -887,11 +887,11 @@ bool QwtPlot::axisValid( int axisId )
 
   \param legend Legend
   \param pos The legend's position. For top/left position the number
-             of colums will be limited to 1, otherwise it will be set to
+             of columns will be limited to 1, otherwise it will be set to
              unlimited.
 
-  \param ratio Ratio between legend and the bounding rect
-               of title, canvas and axes. The legend will be shrinked
+  \param ratio Ratio between legend and the bounding rectangle
+               of title, canvas and axes. The legend will be shrunk
                if it would need more space than the given ratio.
                The ratio is limited to ]0.0 .. 1.0]. In case of <= 0.0
                it will be reset to the default ratio.

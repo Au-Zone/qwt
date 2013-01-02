@@ -45,7 +45,7 @@ QwtPointArrayData::QwtPointArrayData( const double *x,
 }
 
 /*!
-  \brief Calculate the bounding rect
+  \brief Calculate the bounding rectangle
 
   The bounding rectangle is calculated once by iterating over all
   points and is stored for all following requests.
@@ -69,12 +69,12 @@ size_t QwtPointArrayData::size() const
 /*!
   Return the sample at position i
 
-  \param i Index
+  \param index Index
   \return Sample at position i
 */
-QPointF QwtPointArrayData::sample( size_t i ) const
+QPointF QwtPointArrayData::sample( size_t index ) const
 {
-    return QPointF( d_x[int( i )], d_y[int( i )] );
+    return QPointF( d_x[int( index )], d_y[int( index )] );
 }
 
 //! \return Array of the x-values
@@ -111,7 +111,7 @@ QwtCPointerData::QwtCPointerData(
 }
 
 /*!
-  \brief Calculate the bounding rect
+  \brief Calculate the bounding rectangle
 
   The bounding rectangle is calculated once by iterating over all
   points and is stored for all following requests.
@@ -135,12 +135,12 @@ size_t QwtCPointerData::size() const
 /*!
   Return the sample at position i
 
-  \param i Index
+  \param index Index
   \return Sample at position i
 */
-QPointF QwtCPointerData::sample( size_t i ) const
+QPointF QwtCPointerData::sample( size_t index ) const
 {
-    return QPointF( d_x[int( i )], d_y[int( i )] );
+    return QPointF( d_x[int( index )], d_y[int( index )] );
 }
 
 //! \return Array of the x-values
@@ -211,7 +211,7 @@ QwtInterval QwtSyntheticPointData::interval() const
 }
 
 /*!
-   Set a the "rect of interest"
+   Set a the "rectangle of interest"
 
    QwtPlotSeriesItem defines the current area of the plot canvas
    as "rect of interest" ( QwtPlotSeriesItem::updateScaleDiv() ).
@@ -229,7 +229,7 @@ void QwtSyntheticPointData::setRectOfInterest( const QRectF &rect )
 }
 
 /*!
-   \return "rect of interest"
+   \return "rectangle of interest"
    \sa setRectOfInterest()
 */
 QRectF QwtSyntheticPointData::rectOfInterest() const
@@ -238,7 +238,7 @@ QRectF QwtSyntheticPointData::rectOfInterest() const
 }
 
 /*!
-  \brief Calculate the bounding rect
+  \brief Calculate the bounding rectangle
 
   This implementation iterates over all points, what could often
   be implemented much faster using the characteristics of the series.
@@ -282,9 +282,9 @@ QPointF QwtSyntheticPointData::sample( size_t index ) const
 /*!
    Calculate a x-value from an index
 
-   x values are calculated by deviding an interval into
+   x values are calculated by dividing an interval into
    equidistant steps. If !interval().isValid() the
-   interval is calculated from the "rect of interest".
+   interval is calculated from the "rectangle of interest".
 
    \sa interval(), rectOfInterest(), y()
 */

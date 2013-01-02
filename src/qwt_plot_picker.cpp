@@ -77,7 +77,7 @@ QwtPlotPicker::QwtPlotPicker( int xAxis, int yAxis, QWidget *canvas ):
 
   \param xAxis X axis of the picker
   \param yAxis Y axis of the picker
-  \param rubberBand Rubberband style
+  \param rubberBand Rubber band style
   \param trackerMode Tracker mode
   \param canvas Plot canvas to observe, also the parent object
 
@@ -100,19 +100,19 @@ QwtPlotPicker::~QwtPlotPicker()
 {
 }
 
-//! Return observed plot canvas
+//! \return Observed plot canvas
 QWidget *QwtPlotPicker::canvas()
 {
     return parentWidget();
 }
 
-//! Return Observed plot canvas
+//! \return Observed plot canvas
 const QWidget *QwtPlotPicker::canvas() const
 {
     return parentWidget();
 }
 
-//! Return plot widget, containing the observed plot canvas
+//! \return Plot widget, containing the observed plot canvas
 QwtPlot *QwtPlotPicker::plot()
 {
     QWidget *w = canvas();
@@ -122,7 +122,7 @@ QwtPlot *QwtPlotPicker::plot()
     return qobject_cast<QwtPlot *>( w );
 }
 
-//! Return plot widget, containing the observed plot canvas
+//! \return Plot widget, containing the observed plot canvas
 const QwtPlot *QwtPlotPicker::plot() const
 {
     const QWidget *w = canvas();
@@ -133,7 +133,7 @@ const QwtPlot *QwtPlotPicker::plot() const
 }
 
 /*!
-  Return normalized bounding rect of the axes
+  Return normalized bounding rectangle of the axes
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot().
 */
@@ -227,7 +227,7 @@ QwtText QwtPlotPicker::trackerTextF( const QPointF &pos ) const
 }
 
 /*!
-  Append a point to the selection and update rubberband and tracker.
+  Append a point to the selection and update rubber band and tracker.
 
   \param pos Additional point
   \sa isActive, begin(), end(), move(), appended()

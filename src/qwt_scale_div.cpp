@@ -12,7 +12,9 @@
 #include "qwt_interval.h"
 #include <qalgorithms.h>
 
-//! Construct an invalid QwtScaleDiv instance.
+/*!
+  Construct a division without ticks
+ */
 QwtScaleDiv::QwtScaleDiv():
     d_lowerBound( 0.0 ),
     d_upperBound( 0.0 )
@@ -20,7 +22,7 @@ QwtScaleDiv::QwtScaleDiv():
 }
 
 /*!
-  Construct QwtScaleDiv instance.
+  Construct a scale division
 
   \param interval Interval
   \param ticks List of major, medium and minor ticks
@@ -85,11 +87,11 @@ bool QwtScaleDiv::operator==( const QwtScaleDiv &other ) const
 
 /*!
   \brief Inequality
-  \return true if this instance is not equal to s
+  \return true if this instance is not equal to other
 */
-bool QwtScaleDiv::operator!=( const QwtScaleDiv &s ) const
+bool QwtScaleDiv::operator!=( const QwtScaleDiv &other ) const
 {
-    return ( !( *this == s ) );
+    return ( !( *this == other ) );
 }
 
 //! Check if the scale division is empty( lowerBound() == upperBound() )
@@ -119,7 +121,7 @@ bool QwtScaleDiv::contains( double value ) const
 }
 
 /*! 
-   Invert the scale divison
+   Invert the scale division
    \sa inverted()
  */
 void QwtScaleDiv::invert()
@@ -151,7 +153,7 @@ QwtScaleDiv QwtScaleDiv::inverted() const
 }
 
 /*! 
-   Return a scale divison with an interval [lowerBound, upperBound]
+   Return a scale division with an interval [lowerBound, upperBound]
    where all ticks outside this interval are removed
 
    \param lowerBound Lower bound
@@ -204,13 +206,12 @@ void QwtScaleDiv::setTicks( int type, const QList<double> &ticks )
 
    \param type MinorTick, MediumTick or MajorTick
 */
-const QList<double> &QwtScaleDiv::ticks( int type ) const
+QList<double> QwtScaleDiv::ticks( int type ) const
 {
     if ( type >= 0 && type < NTickTypes )
         return d_ticks[type];
 
-    static QList<double> noTicks;
-    return noTicks;
+    return QList<double>();
 }
 
 #ifndef QT_NO_DEBUG_STREAM

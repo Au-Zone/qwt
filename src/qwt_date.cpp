@@ -12,7 +12,7 @@ static const QwtJulianDay maxJulianDayD = Q_INT64_C( 784354017364 );
 
 #else
 
-// QDate stores the julian day as unsigned int, but
+// QDate stores the Julian day as unsigned int, but
 // but it is QDate::fromJulianDay( int ). That's why
 // we have the range [ 1, INT_MAX ]
 typedef int QwtJulianDay;
@@ -461,12 +461,12 @@ QDateTime QwtDate::floor( const QDateTime &dateTime,
   Minimum for the supported date range
 
   The range of valid dates depends on how QDate stores the 
-  julian day internally.
+  Julian day internally.
 
   - For Qt4 it is "Tue Jan 2 -4713"
   - For Qt5 it is "Thu Jan 1 -2147483648"
 
-  \return minimum of the date ramge
+  \return minimum of the date range
   \sa maxDate()
  */
 QDate QwtDate::minDate()
@@ -482,12 +482,12 @@ QDate QwtDate::minDate()
   Maximum for the supported date range
 
   The range of valid dates depends on how QDate stores the 
-  julian day internally.
+  Julian day internally.
 
   - For Qt4 it is "Tue Jun 3 5874898"
   - For Qt5 it is "Tue Dec 31 2147483647"
 
-  \return maximum of the date ramge
+  \return maximum of the date range
   \sa minDate()
   \note The maximum differs between Qt4 and Qt5
  */

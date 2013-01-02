@@ -223,7 +223,7 @@ int QwtDial::lineWidth() const
 }
 
 /*!
-  \return bounding rect of the circle inside the frame
+  \return bounding rectangle of the circle inside the frame
   \sa setLineWidth(), scaleInnerRect(), boundingRect()
 */
 QRect QwtDial::innerRect() const
@@ -233,7 +233,7 @@ QRect QwtDial::innerRect() const
 }
 
 /*!
-  \return bounding rect of the dial including the frame
+  \return bounding rectangle of the dial including the frame
   \sa setLineWidth(), scaleInnerRect(), innerRect()
 */
 QRect QwtDial::boundingRect() const
@@ -249,7 +249,7 @@ QRect QwtDial::boundingRect() const
 }
 
 /*!
-  \return rect inside the scale
+  \return rectangle inside the scale
   \sa setLineWidth(), boundingRect(), innerRect()
 */
 QRect QwtDial::scaleInnerRect() const

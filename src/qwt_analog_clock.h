@@ -73,7 +73,7 @@ public:
 
 public Q_SLOTS:
     void setCurrentTime();
-    void setTime( const QTime & = QTime::currentTime() );
+    void setTime( const QTime & );
 
 protected:
     virtual void drawNeedle( QPainter *, const QPointF &,

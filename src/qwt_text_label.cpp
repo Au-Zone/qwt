@@ -250,8 +250,8 @@ void QwtTextLabel::drawText( QPainter *painter, const QRectF &textRect )
 }
 
 /*!
-  Calculate the rect for the text in widget coordinates
-  \return Text rect
+  Calculate geometry for the text in widget coordinates
+  \return Geometry for the text
 */
 QRect QwtTextLabel::textRect() const
 {

@@ -339,8 +339,8 @@ QwtScaleEngine *QwtAbstractScale::scaleEngine()
 /*!
   \return Scale boundaries and positions of the ticks
 
-  The scale division might have been assigned explicitely
-  or calculated implicitely by rescale(). 
+  The scale division might have been assigned explicitly
+  or calculated implicitly by rescale(). 
  */
 const QwtScaleDiv &QwtAbstractScale::scaleDiv() const
 {

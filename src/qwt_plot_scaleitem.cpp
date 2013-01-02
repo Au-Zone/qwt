@@ -282,7 +282,7 @@ double QwtPlotScaleItem::position() const
    \brief Align the scale to the canvas
 
    If distance is >= 0 the scale will be aligned to a
-   border of the contents rect of the canvas. If
+   border of the contents rectangle of the canvas. If
    alignment() is QwtScaleDraw::LeftScale, the scale will
    be aligned to the right border, if it is QwtScaleDraw::TopScale
    it will be aligned to the bottom (and vice versa),

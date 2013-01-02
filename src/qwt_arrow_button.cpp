@@ -49,7 +49,7 @@ static QStyleOptionButton styleOpt( const QwtArrowButton* btn )
 
 /*!
   \param num Number of arrows
-  \param arrowType see Qt::ArowType in the Qt docs.
+  \param arrowType see Qt::ArrowType in the Qt docs.
   \param parent Parent widget
 */
 QwtArrowButton::QwtArrowButton( int num,
@@ -100,7 +100,7 @@ int QwtArrowButton::num() const
 }
 
 /*!
-  \return the bounding rect for the label
+  \return the bounding rectangle for the label
 */
 QRect QwtArrowButton::labelRect() const
 {
@@ -207,7 +207,7 @@ void QwtArrowButton::drawButtonLabel( QPainter *painter )
 }
 
 /*!
-    Draw an arrow int a bounding rect
+    Draw an arrow int a bounding rectangle
 
     \param painter Painter
     \param r Rectangle where to paint the arrow
@@ -288,7 +288,7 @@ QSize QwtArrowButton::minimumSizeHint() const
 }
 
 /*!
-   Calculate the size for a arrow that fits into a rect of a given size
+   Calculate the size for a arrow that fits into a rectangle of a given size
 
    \param arrowType Arrow type
    \param boundingSize Bounding size

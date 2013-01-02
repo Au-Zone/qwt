@@ -35,7 +35,7 @@
   allowed to attach a second QwtPlotZoomer for the other axes.
 
   \note The realtime example includes an derived zoomer class that adds
-        scroll bars to the plot canvas.
+        scrollbars to the plot canvas.
 */
 
 class QWT_EXPORT QwtPlotZoomer: public QwtPlotPicker

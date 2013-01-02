@@ -100,7 +100,7 @@ public:
 };
 
 /*!
-  \brief Create a plot panner
+  \brief A panner for the canvas of a QwtPlot
 
   The panner is enabled for all axes
 

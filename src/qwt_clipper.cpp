@@ -492,7 +492,7 @@ QPolygonF QwtClipper::clipPolygonF(
 /*!
    Circle clipping
 
-   clipCircle() devides a circle into intervals of angles representing arcs
+   clipCircle() divides a circle into intervals of angles representing arcs
    of the circle. When the circle is completely inside the clip rectangle
    an interval [0.0, 2 * M_PI] is returned.
 

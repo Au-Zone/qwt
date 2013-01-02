@@ -63,16 +63,16 @@ int QwtPlotGrid::rtti() const
 
 /*!
   \brief Enable or disable vertical grid lines
-  \param tf Enable (true) or disable
+  \param on Enable (true) or disable
 
   \sa Minor grid lines can be enabled or disabled with
       enableXMin()
 */
-void QwtPlotGrid::enableX( bool tf )
+void QwtPlotGrid::enableX( bool on )
 {
-    if ( d_data->xEnabled != tf )
+    if ( d_data->xEnabled != on )
     {
-        d_data->xEnabled = tf;
+        d_data->xEnabled = on;
 
         legendChanged();
         itemChanged();
@@ -81,14 +81,14 @@ void QwtPlotGrid::enableX( bool tf )
 
 /*!
   \brief Enable or disable horizontal grid lines
-  \param tf Enable (true) or disable
+  \param on Enable (true) or disable
   \sa Minor grid lines can be enabled or disabled with enableYMin()
 */
-void QwtPlotGrid::enableY( bool tf )
+void QwtPlotGrid::enableY( bool on )
 {
-    if ( d_data->yEnabled != tf )
+    if ( d_data->yEnabled != on )
     {
-        d_data->yEnabled = tf;
+        d_data->yEnabled = on;
 
         legendChanged();
         itemChanged();
@@ -97,14 +97,14 @@ void QwtPlotGrid::enableY( bool tf )
 
 /*!
   \brief Enable or disable  minor vertical grid lines.
-  \param tf Enable (true) or disable
+  \param on Enable (true) or disable
   \sa enableX()
 */
-void QwtPlotGrid::enableXMin( bool tf )
+void QwtPlotGrid::enableXMin( bool on )
 {
-    if ( d_data->xMinEnabled != tf )
+    if ( d_data->xMinEnabled != on )
     {
-        d_data->xMinEnabled = tf;
+        d_data->xMinEnabled = on;
 
         legendChanged();
         itemChanged();
@@ -113,14 +113,14 @@ void QwtPlotGrid::enableXMin( bool tf )
 
 /*!
   \brief Enable or disable minor horizontal grid lines
-  \param tf Enable (true) or disable
+  \param on Enable (true) or disable
   \sa enableY()
 */
-void QwtPlotGrid::enableYMin( bool tf )
+void QwtPlotGrid::enableYMin( bool on )
 {
-    if ( d_data->yMinEnabled != tf )
+    if ( d_data->yMinEnabled != on )
     {
-        d_data->yMinEnabled = tf;
+        d_data->yMinEnabled = on;
 
         legendChanged();
         itemChanged();
@@ -159,7 +159,7 @@ void QwtPlotGrid::setYDiv( const QwtScaleDiv &scaleDiv )
   Build and assign a pen for both major and minor grid lines
 
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
 
   \param color Pen color
@@ -195,7 +195,7 @@ void QwtPlotGrid::setPen( const QPen &pen )
   Build and assign a pen for both major grid lines
 
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
 
   \param color Pen color
@@ -230,7 +230,7 @@ void QwtPlotGrid::setMajorPen( const QPen &pen )
   Build and assign a pen for the minor grid lines
 
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
 
   \param color Pen color
@@ -268,10 +268,11 @@ void QwtPlotGrid::setMinorPen( const QPen &pen )
   grid lines begin and end at the rectangle's borders. The X and Y
   maps are used to map the scale divisions into the drawing region
   screen.
+
   \param painter  Painter
   \param xMap X axis map
   \param yMap Y axis
-  \param canvasRect Contents rect of the plot canvas
+  \param canvasRect Contents rectangle of the plot canvas
 */
 void QwtPlotGrid::draw( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,

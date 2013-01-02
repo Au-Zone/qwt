@@ -71,7 +71,7 @@ int QwtPlotZoneItem::rtti() const
   Build and assign a pen
     
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
     
   \param color Pen color
@@ -214,7 +214,7 @@ QwtInterval QwtPlotZoneItem::interval() const
   \param painter Painter
   \param xMap x Scale Map
   \param yMap y Scale Map
-  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param canvasRect Contents rectangle of the canvas in painter coordinates
 */
 
 void QwtPlotZoneItem::draw( QPainter *painter,

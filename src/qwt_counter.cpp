@@ -335,7 +335,7 @@ double QwtCounter::singleStep() const
   \brief En/Disable wrapping
 
   If wrapping is true stepping up from maximum() value will take 
-  you to the minimum() value and vica versa. 
+  you to the minimum() value and vice versa. 
 
   \param on En/Disable wrapping
   \sa wrapping()
@@ -397,14 +397,14 @@ int QwtCounter::numButtons() const
   is pushed.
 
   \param button Button index
-  \param nSteps Number of steps
+  \param numSteps Number of steps
 
   \sa incSteps()
 */
-void QwtCounter::setIncSteps( QwtCounter::Button button, int nSteps )
+void QwtCounter::setIncSteps( QwtCounter::Button button, int numSteps )
 {
     if ( button >= 0 && button < QwtCounter::ButtonCnt )
-        d_data->increment[ button ] = nSteps;
+        d_data->increment[ button ] = numSteps;
 }
 
 /*!
@@ -479,7 +479,7 @@ void QwtCounter::textChanged()
 }
 
 /*!
-   Handle PolishRequest events
+   Handle QEvent::PolishRequest events
    \param event Event
 */
 bool QwtCounter::event( QEvent *event )

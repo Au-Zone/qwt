@@ -267,7 +267,7 @@ double QwtPlotAbstractBarChart::sampleWidth( const QwtScaleMap &map,
 
    \param xMap Maps x-values into pixel coordinates.
    \param yMap Maps y-values into pixel coordinates.
-   \param canvasRect Contents rect of the canvas in painter coordinates
+   \param canvasRect Contents rectangle of the canvas in painter coordinates
    \param left Returns the left margin
    \param top Returns the top margin
    \param right Returns the right margin

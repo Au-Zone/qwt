@@ -257,7 +257,7 @@ const QwtSymbol *QwtPlotCurve::symbol() const
   Build and assign a pen
 
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
 
   \param color Pen color
@@ -338,7 +338,7 @@ const QBrush& QwtPlotCurve::brush() const
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first point to be painted
   \param to Index of the last point to be painted. If to < 0 the
          curve will be painted to its last point.
@@ -388,7 +388,7 @@ void QwtPlotCurve::drawSeries( QPainter *painter,
   \param style curve style, see QwtPlotCurve::CurveStyle
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
   \sa draw(), drawDots(), drawLines(), drawSteps(), drawSticks()
@@ -433,7 +433,7 @@ void QwtPlotCurve::drawCurve( QPainter *painter, int style,
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -471,7 +471,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     {
         // In case of filling or fitting performance doesn't count
         // because both operations are much more expensive
-        // then drawing the polyline itsself
+        // then drawing the polyline itself
 
         if ( !doFit && !doFill )
             doIntegers = true; 
@@ -535,7 +535,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -588,7 +588,7 @@ void QwtPlotCurve::drawSticks( QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -688,7 +688,7 @@ void QwtPlotCurve::drawDots( QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from index of the first point to be painted
   \param to index of the last point to be painted
 
@@ -833,7 +833,7 @@ QwtCurveFitter *QwtPlotCurve::curveFitter() const
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param polygon Polygon - will be modified !
 
   \sa setBrush(), setBaseline(), setStyle()
@@ -919,7 +919,7 @@ void QwtPlotCurve::closePolyline( QPainter *painter,
   \param symbol Curve symbol
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first point to be painted
   \param to Index of the last point to be painted
 
@@ -989,7 +989,7 @@ double QwtPlotCurve::baseline() const
 
   \param pos Position, where to look for the closest curve point
   \param dist If dist != NULL, closestPoint() returns the distance between
-              the position and the clostest curve point
+              the position and the closest curve point
   \return Index of the closest curve point, or -1 if none can be found
           ( f.e when the curve has no points )
   \note closestPoint() implements a dumb algorithm, that iterates
@@ -1111,7 +1111,7 @@ QwtGraphic QwtPlotCurve::legendIcon( int index,
   Initialize data with an array of points.
 
   \param samples Vector of points
-  \note QVector is implicitely shared
+  \note QVector is implicitly shared
   \note QPolygonF is derived from QVector<QPointF>
 */
 void QwtPlotCurve::setSamples( const QVector<QPointF> &samples )

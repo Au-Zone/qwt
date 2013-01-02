@@ -204,7 +204,7 @@ QwtLinearColorMap::QwtLinearColorMap( QwtColorMap::Format format ):
 
    \param color1 Color used for the minimum value of the value interval
    \param color2 Color used for the maximum value of the value interval
-   \param format Preferred format of the coor map
+   \param format Preferred format for the color map
 */
 QwtLinearColorMap::QwtLinearColorMap( const QColor &color1,
         const QColor &color2, QwtColorMap::Format format ):
@@ -305,10 +305,10 @@ QColor QwtLinearColorMap::color2() const
 }
 
 /*!
-  Map a value of a given interval into a rgb value
+  Map a value of a given interval into a RGB value
 
   \param interval Range for all values
-  \param value Value to map into a rgb value
+  \param value Value to map into a RGB value
 */
 QRgb QwtLinearColorMap::rgb(
     const QwtInterval &interval, double value ) const
@@ -406,8 +406,8 @@ QColor QwtAlphaColorMap::color() const
   alpha := (value - interval.minValue()) / interval.width();
 
   \param interval Range for all values
-  \param value Value to map into a rgb value
-  \return rgb value, with an alpha value
+  \param value Value to map into a RGB value
+  \return RGB value, with an alpha value
 */
 QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval, double value ) const
 {

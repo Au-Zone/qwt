@@ -109,7 +109,7 @@ public:
 
 /*!
    \brief Constructor
-   \param widget Parent widget wger the overlay is aligned to
+   \param widget Parent widget, where the overlay is aligned to
 */
 QwtWidgetOverlay::QwtWidgetOverlay( QWidget* widget ):
     QWidget( widget ),
@@ -329,7 +329,7 @@ void QwtWidgetOverlay::draw( QPainter *painter ) const
 }
 
 /*!
-   \brief Calculate an approximaion for the mask
+   \brief Calculate an approximation for the mask
 
    - MaskHint
      The hint is used as mask.
