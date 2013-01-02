@@ -361,7 +361,7 @@ QRectF QwtPlotMultiBarChart::boundingRect() const
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first point to be painted
   \param to Index of the last point to be painted. If to < 0 the
          curve will be painted to its last point.
@@ -402,7 +402,7 @@ void QwtPlotMultiBarChart::drawSeries( QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param boundingInterval Bounding interval of sample values
   \param index Index of the sample to be painted
   \param sample Sample value
@@ -448,7 +448,7 @@ void QwtPlotMultiBarChart::drawSample( QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param index Index of the sample to be painted
   \param sampleWidth Boundng width for all bars of the smaple
   \param sample Sample 
@@ -528,7 +528,7 @@ void QwtPlotMultiBarChart::drawGroupedBars( QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param index Index of the sample to be painted
   \param sampleWidth Width of the bars
   \param sample Sample 

@@ -150,7 +150,7 @@ uint QwtDynGridLayout::itemCount() const
 }
 
 /*!
-  Find the item at a spcific index
+  Find the item at a specific index
 
   \param index Index
   \sa takeAt()
@@ -164,7 +164,7 @@ QLayoutItem *QwtDynGridLayout::itemAt( int index ) const
 }
 
 /*!
-  Find the item at a spcific index and remove it from the layout
+  Find the item at a specific index and remove it from the layout
 
   \param index Index
   \sa itemAt()
@@ -212,7 +212,7 @@ Qt::Orientations QwtDynGridLayout::expandingDirections() const
 
 /*!
   Reorganizes columns and rows and resizes managed items within
-  the rectangle rect.
+  a rectangle.
 
   \param rect Layout geometry
 */
@@ -326,7 +326,7 @@ int QwtDynGridLayout::maxItemWidth() const
 
 /*!
   Calculate the geometries of the layout items for a layout
-  with numColumns columns and a given rect.
+  with numColumns columns and a given rectangle.
 
   \param rect Rect where to place the items
   \param numColumns Number of columns
@@ -428,7 +428,7 @@ void QwtDynGridLayout::layoutGrid( uint numColumns,
 }
 
 /*!
-  \return true: QwtDynGridLayout implements heightForWidth.
+  \return true: QwtDynGridLayout implements heightForWidth().
   \sa heightForWidth()
 */
 bool QwtDynGridLayout::hasHeightForWidth() const
@@ -437,7 +437,7 @@ bool QwtDynGridLayout::hasHeightForWidth() const
 }
 
 /*!
-  \return The preferred height for this layout, given the width w.
+  \return The preferred height for this layout, given a width.
   \sa hasHeightForWidth()
 */
 int QwtDynGridLayout::heightForWidth( int width ) const

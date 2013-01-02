@@ -105,7 +105,7 @@ QwtAnalogClock::~QwtAnalogClock()
 }
 
 /*!
-  Nop method, use setHand instead
+  Nop method, use setHand() instead
   \sa setHand()
 */
 void QwtAnalogClock::setNeedle( QwtDialNeedle * )
@@ -115,7 +115,7 @@ void QwtAnalogClock::setNeedle( QwtDialNeedle * )
 }
 
 /*!
-   Set a clockhand
+   Set a clock hand
    \param hand Specifies the type of hand
    \param needle Hand
    \sa hand()
@@ -154,9 +154,6 @@ const QwtDialNeedle *QwtAnalogClock::hand( Hand hd ) const
 
 /*!
   \brief Set the current time
-
-  This is the same as QwtAnalogClock::setTime(), but Qt < 3.0
-  can't handle default parameters for slots.
 */
 void QwtAnalogClock::setCurrentTime()
 {
@@ -181,7 +178,7 @@ void QwtAnalogClock::setTime( const QTime &time )
 /*!
   \brief Draw the needle
 
-  A clock has no single needle but three hands instead. drawNeedle
+  A clock has no single needle but three hands instead. drawNeedle()
   translates value() into directions for the hands and calls
   drawHand().
 

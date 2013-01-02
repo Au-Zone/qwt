@@ -224,7 +224,7 @@ const QwtIntervalSymbol *QwtPlotIntervalCurve::symbol() const
   Build and assign a pen
     
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
     
   \param color Pen color
@@ -310,7 +310,7 @@ QRectF QwtPlotIntervalCurve::boundingRect() const
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
@@ -359,7 +359,7 @@ void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
@@ -478,7 +478,7 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
   \param symbol Interval symbol
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted
 

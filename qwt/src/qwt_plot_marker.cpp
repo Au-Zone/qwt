@@ -128,7 +128,7 @@ void QwtPlotMarker::setYValue( double y )
   \param painter Painter
   \param xMap x Scale Map
   \param yMap y Scale Map
-  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param canvasRect Contents rectangle of the canvas in painter coordinates
 */
 void QwtPlotMarker::draw( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -161,7 +161,7 @@ void QwtPlotMarker::draw( QPainter *painter,
   Draw the lines marker
 
   \param painter Painter
-  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param canvasRect Contents rectangle of the canvas in painter coordinates
   \param pos Position of the marker, translated into widget coordinates
 
   \sa drawLabel(), QwtSymbol::drawSymbol()
@@ -201,7 +201,7 @@ void QwtPlotMarker::drawLines( QPainter *painter,
   Align and draw the text label of the marker
 
   \param painter Painter
-  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param canvasRect Contents rectangle of the canvas in painter coordinates
   \param pos Position of the marker, translated into widget coordinates
 
   \sa drawLabel(), QwtSymbol::drawSymbol()
@@ -391,7 +391,7 @@ const QwtSymbol *QwtPlotMarker::symbol() const
 
 /*!
   \brief Set the label
-  \param label label text
+  \param label Label text
   \sa label()
 */
 void QwtPlotMarker::setLabel( const QwtText& label )
@@ -506,7 +506,7 @@ int QwtPlotMarker::spacing() const
   Build and assign a line pen
     
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
     
   \param color Pen color

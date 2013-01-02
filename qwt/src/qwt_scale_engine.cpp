@@ -102,7 +102,7 @@ static const double _eps = 1.0e-6;
 /*!
   Ceil a value, relative to an interval
 
-  \param value Value to ceil
+  \param value Value to be ceiled
   \param intervalSize Interval size
 
   \sa floorEps()
@@ -119,7 +119,7 @@ double QwtScaleArithmetic::ceilEps( double value,
 /*!
   Floor a value, relative to an interval
 
-  \param value Value to floor
+  \param value Value to be floored
   \param intervalSize Interval size
 
   \sa floorEps()
@@ -200,12 +200,12 @@ public:
         delete transform;
     }
 
-    QwtScaleEngine::Attributes attributes;       // scale attributes
+    QwtScaleEngine::Attributes attributes;
 
-    double lowerMargin;      // margins
+    double lowerMargin;
     double upperMargin;
 
-    double referenceValue; // reference value
+    double referenceValue;
 
     uint base;
 
@@ -255,7 +255,7 @@ void QwtScaleEngine::setTransformation( QwtTransform *transform )
 
 /*!
    Create and return a clone of the transformation 
-   of the engine. When the engine has ne special transformation
+   of the engine. When the engine has no special transformation
    NULL is returned, indicating no transformation.
 
    \sa setTransformation
@@ -474,7 +474,7 @@ double QwtScaleEngine::reference() const
   Set the base of the scale engine
 
   While a base of 10 is what 99.9% of all applications need
-  certain scales might need a differnt base: f.e 2
+  certain scales might need a different base: f.e 2
 
   The default setting is 10
 
@@ -561,7 +561,7 @@ void QwtLinearScaleEngine::autoScale( int maxNumSteps,
    \param x2 Second interval limit
    \param maxMajorSteps Maximum for the number of major steps
    \param maxMinorSteps Maximum number of minor steps
-   \param stepSize Step size. If stepSize == 0, the scaleEngine
+   \param stepSize Step size. If stepSize == 0, the engine
                    calculates one.
 */
 QwtScaleDiv QwtLinearScaleEngine::divideScale( double x1, double x2,
@@ -852,7 +852,7 @@ void QwtLogScaleEngine::autoScale( int maxNumSteps,
    \param x2 Second interval limit
    \param maxMajorSteps Maximum for the number of major steps
    \param maxMinorSteps Maximum number of minor steps
-   \param stepSize Step size. If stepSize == 0, the scaleEngine
+   \param stepSize Step size. If stepSize == 0, the engine
                    calculates one.
 */
 QwtScaleDiv QwtLogScaleEngine::divideScale( double x1, double x2,

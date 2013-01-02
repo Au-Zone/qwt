@@ -584,7 +584,7 @@ double QwtAbstractSlider::value() const
 
 /*!
   If wrapping is true stepping up from upperBound() value will 
-  take you to the minimum() value and vica versa. 
+  take you to the minimum() value and vice versa. 
 
   \param on En/Disable wrapping
   \sa wrapping()

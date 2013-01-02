@@ -1127,9 +1127,9 @@ const QBrush& QwtSymbol::brush() const
 /*!
   Build and assign a pen
 
-  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
-  to hide this incompatibility.
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 )
+  what makes it non cosmetic ( see QPen::isCosmetic() ).
+  This method has been introduced to hide this incompatibility.
 
   \param color Pen color
   \param width Pen width
@@ -1137,7 +1137,8 @@ const QBrush& QwtSymbol::brush() const
 
   \sa pen(), brush()
  */
-void QwtSymbol::setPen( const QColor &color, qreal width, Qt::PenStyle style )
+void QwtSymbol::setPen( const QColor &color,
+    qreal width, Qt::PenStyle style )
 {
     setPen( QPen( color, width, style ) );
 }
@@ -1234,7 +1235,7 @@ void QwtSymbol::setColor( const QColor &color )
   \brief Set and enable a pin point
 
   The position of a complex symbol is not always aligned to its center
-  ( f.e and arrow where the peak points toa position ). The pin point
+  ( f.e an arrow, where the peak points to a position ). The pin point
   defines the position inside of a Pixmap, Graphic, SvgDocument 
   or PainterPath symbol where the represented point has to
   be aligned to.
@@ -1283,7 +1284,7 @@ void QwtSymbol::setPinPointEnabled( bool on )
 }
 
 /*!
-  \return True, when the pin point tranlation is enabled
+  \return True, when the pin point translation is enabled
   \sa setPinPoint(), setPinPointEnabled()
  */
 bool QwtSymbol::isPinPointEnabled() const
@@ -1729,7 +1730,7 @@ QRect QwtSymbol::boundingRect() const
 
   The symbol invalidates its cache, whenever an attribute is changed
   that has an effect ob how to display a symbol. In case of derived
-  classes with indidividual styles ( >= QwtSymbol::UserStyle ) it
+  classes with individual styles ( >= QwtSymbol::UserStyle ) it
   might be necessary to call invalidateCache() for attributes
   that are relevant for this style.
 

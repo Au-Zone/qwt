@@ -125,7 +125,7 @@ static inline void qwtUnscaleFont( QPainter *painter )
   that has some special capabilities that can be used for incremental
   painting to a widget.
 
-  \return True, when the graphicssystem is X11
+  \return True, when the graphics system is X11
 */
 bool QwtPainter::isX11GraphicsSystem()
 {
@@ -182,8 +182,8 @@ bool QwtPainter::isAligning( QPainter *painter )
 /*!
   Enable whether coordinates should be rounded, before they are painted
   to a paint engine that floors to integer values. For other paint engines
-  this ( Pdf, SVG ), this flag has no effect.
-  QwtPainter stores this flag only, the rounding itsself is done in 
+  this ( PDF, SVG ), this flag has no effect.
+  QwtPainter stores this flag only, the rounding itself is done in 
   the painting code ( f.e the plot items ).
 
   The default setting is true. 
@@ -198,8 +198,8 @@ void QwtPainter::setRoundingAlignment( bool enable )
 /*!
   \brief En/Disable line splitting for the raster paint engine
 
-  The raster paint engine paints polylines of many points
-  much faster when they are splitted in smaller chunks.
+  In some Qt versions the raster paint engine paints polylines of many points
+  much faster when they are split in smaller chunks.
 
   \sa polylineSplitting()
 */
@@ -260,8 +260,8 @@ void QwtPainter::fillRect( QPainter *painter,
     const bool deviceClipping = qwtIsClippingNeeded( painter, clipRect );
 
     /*
-      Performance of Qt4 is horrible for non trivial brushs. Without
-      clipping expect minutes or hours for repainting large rects
+      Performance of Qt4 is horrible for a non trivial brush. Without
+      clipping expect minutes or hours for repainting large rectangles
       (might result from zooming)
     */
 
@@ -838,7 +838,7 @@ void QwtPainter::drawFrame( QPainter *painter, const QRectF &rect,
         }
 #if 0
         // qDrawWinPanel doesn't result in something nice
-        // on a scalable document like Pdf. Better draw a
+        // on a scalable document like PDF. Better draw a
         // Panel.
 
         else if ( shape == QFrame::WinPanel )
@@ -1215,7 +1215,7 @@ void QwtPainter::drawBackgound( QPainter *painter,
 }
 
 /*!
-  \return A pixmap that can be used as backingstore
+  \return A pixmap that can be used as backing store
 
   \param widget Widget, for which the backinstore is intended
   \param size Size of the pixmap

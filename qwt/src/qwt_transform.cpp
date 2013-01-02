@@ -51,7 +51,7 @@ QwtNullTransform::~QwtNullTransform()
 }
 
 /*! 
-  \param value Value to be transformd
+  \param value Value to be transformed
   \return value unmodified
  */
 double QwtNullTransform::transform( double value ) const
@@ -60,7 +60,7 @@ double QwtNullTransform::transform( double value ) const
 }
 
 /*! 
-  \param value Value to be transformd
+  \param value Value to be transformed
   \return value unmodified
  */
 double QwtNullTransform::invTransform( double value ) const
@@ -86,7 +86,7 @@ QwtLogTransform::~QwtLogTransform()
 }
 
 /*! 
-  \param value Value to be transformd
+  \param value Value to be transformed
   \return log( value )
  */
 double QwtLogTransform::transform( double value ) const
@@ -95,7 +95,7 @@ double QwtLogTransform::transform( double value ) const
 }
 
 /*! 
-  \param value Value to be transformd
+  \param value Value to be transformed
   \return exp( value )
  */
 double QwtLogTransform::invTransform( double value ) const
@@ -134,7 +134,7 @@ QwtPowerTransform::~QwtPowerTransform()
 }
 
 /*! 
-  \param value Value to be transformd
+  \param value Value to be transformed
   \return Exponentiation preserving the sign
  */
 double QwtPowerTransform::transform( double value ) const
@@ -147,7 +147,7 @@ double QwtPowerTransform::transform( double value ) const
 }
 
 /*! 
-  \param value Value to be transformd
+  \param value Value to be transformed
   \return Inverse exponentiation preserving the sign
  */
 double QwtPowerTransform::invTransform( double value ) const

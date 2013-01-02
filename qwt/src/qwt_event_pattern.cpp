@@ -143,27 +143,27 @@ void QwtEventPattern::setKeyPattern( const QVector<KeyPattern> &pattern )
     d_keyPattern = pattern;
 }
 
-//! Return mouse patterns
+//! \return Mouse pattern
 const QVector<QwtEventPattern::MousePattern> &
 QwtEventPattern::mousePattern() const
 {
     return d_mousePattern;
 }
 
-//! Return key patterns
+//! \return Key pattern
 const QVector<QwtEventPattern::KeyPattern> &
 QwtEventPattern::keyPattern() const
 {
     return d_keyPattern;
 }
 
-//! Return ,ouse patterns
+//! \return Mouse pattern
 QVector<QwtEventPattern::MousePattern> &QwtEventPattern::mousePattern()
 {
     return d_mousePattern;
 }
 
-//! Return Key patterns
+//! \return Key pattern
 QVector<QwtEventPattern::KeyPattern> &QwtEventPattern::keyPattern()
 {
     return d_keyPattern;

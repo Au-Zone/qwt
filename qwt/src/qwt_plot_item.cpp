@@ -304,7 +304,7 @@ bool QwtPlotItem::testRenderHint( RenderHint hint ) const
 }
 
 /*!
-   On multicore systems rendering of certain plot item 
+   On multi core systems rendering of certain plot item 
    ( f.e QwtPlotRasterItem ) can be done in parallel in 
    several threads.
 
@@ -323,7 +323,7 @@ void QwtPlotItem::setRenderThreadCount( uint numThreads )
 
 /*!
    \return Number of threads to be used for rendering.
-           If numThreads is set to 0, the system specific
+           If numThreads() is set to 0, the system specific
            ideal thread count is used.
 */
 uint QwtPlotItem::renderThreadCount() const
@@ -442,7 +442,7 @@ bool QwtPlotItem::isVisible() const
 }
 
 /*!
-   Update the legend and call QwtPlot::autoRefresh for the
+   Update the legend and call QwtPlot::autoRefresh() for the
    parent plot.
 
    \sa QwtPlot::legendChanged(), QwtPlot::autoRefresh()
@@ -551,7 +551,7 @@ QRectF QwtPlotItem::boundingRect() const
 
    \param xMap Maps x-values into pixel coordinates.
    \param yMap Maps y-values into pixel coordinates.
-   \param canvasRect Contents rect of the canvas in painter coordinates
+   \param canvasRect Contents rectangle of the canvas in painter coordinates
    \param left Returns the left margin
    \param top Returns the top margin
    \param right Returns the right margin
@@ -625,7 +625,7 @@ QList<QwtLegendData> QwtPlotItem::legendData() const
    updateScaleDiv()
 
    updateScaleDiv() is only called when the ScaleInterest interest
-   is enabled. The default implemention does nothing.
+   is enabled. The default implementation does nothing.
 
    \param xScaleDiv Scale division of the x-axis
    \param yScaleDiv Scale division of the y-axis
@@ -646,7 +646,7 @@ void QwtPlotItem::updateScaleDiv( const QwtScaleDiv &xScaleDiv,
    be displayed on a legend ! ) will have to implement updateLegend().
 
    updateLegend() is only called when the LegendInterest interest
-   is enabled. The default implemention does nothing.
+   is enabled. The default implementation does nothing.
 
    \param item Plot item to be displayed on a legend
    \param data Attributes how to display item on the legend
@@ -663,7 +663,7 @@ void QwtPlotItem::updateLegend( const QwtPlotItem *item,
 }
 
 /*!
-   \brief Calculate the bounding scale rect of 2 maps
+   \brief Calculate the bounding scale rectangle of 2 maps
 
    \param xMap Maps x-values into pixel coordinates.
    \param yMap Maps y-values into pixel coordinates.
@@ -678,7 +678,7 @@ QRectF QwtPlotItem::scaleRect( const QwtScaleMap &xMap,
 }
 
 /*!
-   \brief Calculate the bounding paint rect of 2 maps
+   \brief Calculate the bounding paint rectangle of 2 maps
 
    \param xMap Maps x-values into pixel coordinates.
    \param yMap Maps y-values into pixel coordinates.

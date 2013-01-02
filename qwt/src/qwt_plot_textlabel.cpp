@@ -165,7 +165,7 @@ int QwtPlotTextLabel::margin() const
   \param painter Painter
   \param xMap x Scale Map
   \param yMap y Scale Map
-  \param canvasRect Contents rect of the canvas in painter coordinates
+  \param canvasRect Contents rectangle of the canvas in painter coordinates
 */
 
 void QwtPlotTextLabel::draw( QPainter *painter,

@@ -240,7 +240,7 @@ QwtPlotTradingCurve::SymbolStyle QwtPlotTradingCurve::symbolStyle() const
   Build and assign the symbol pen
     
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
     
   \param color Pen color
@@ -358,7 +358,7 @@ double QwtPlotTradingCurve::symbolExtent() const
 }
 
 /*!
-  Set a minmum for the symbol width
+  Set a minimum for the symbol width
 
   \param width Width in paint device coordinates
   \sa minSymbolWidth(), setMaxSymbolWidth(), setSymbolExtent()
@@ -431,7 +431,7 @@ QRectF QwtPlotTradingCurve::boundingRect() const
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first point to be painted
   \param to Index of the last point to be painted. If to < 0 the
          curve will be painted to its last point.
@@ -465,7 +465,7 @@ void QwtPlotTradingCurve::drawSeries( QPainter *painter,
   \param painter Painter
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first point to be painted
   \param to Index of the last point to be painted
 
@@ -618,7 +618,7 @@ QwtGraphic QwtPlotTradingCurve::legendIcon( int index,
 
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
 
   \return Symbol width in paint coordinates
 

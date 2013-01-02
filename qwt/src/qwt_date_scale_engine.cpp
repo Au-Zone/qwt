@@ -799,7 +799,7 @@ int QwtDateScaleEngine::utcOffset() const
   \param week0Type Mode how to identify the first week of a year
 
   \sa week0Type(), setMaxWeeks()
-  \note week0Type has no effect beside for intervals clissified as
+  \note week0Type has no effect beside for intervals classified as
         QwtDate::Week. 
  */
 void QwtDateScaleEngine::setWeek0Type( QwtDate::Week0Type week0Type )
@@ -1151,7 +1151,7 @@ QDateTime QwtDateScaleEngine::alignDate(
         case QwtDate::Day:
         {
             // What date do we expect f.e. from an alignment of 5 days ??
-            // Aligning them to the beginningof the year avoids at least
+            // Aligning them to the beginning of the year avoids at least
             // jumping major ticks when panning
 
             const int d = qwtAlignValue(

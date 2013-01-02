@@ -30,7 +30,7 @@
 static QRectF qwtInvalidRect( 0.0, 0.0, -1.0, -1.0 );
 
 // Helper class to work around the 5 parameters
-// limitation of QtConcurrent::run
+// limitation of QtConcurrent::run()
 class QwtDotsCommand
 {
 public:
@@ -70,7 +70,7 @@ static inline int qwtRoundValue( double value )
 #if 1
     return qRound( value );
 #else
-    // A little bit faster, but differs from qRound
+    // A little bit faster, but differs from qRound()
     // for negative values. Should be no problem as we are
     // rounding widgets coordinates, where negative values 
     // are clipped off anyway ( at least when there is no 
@@ -188,7 +188,7 @@ static inline QPolygonF qwtToPointsF(
 }
 
 // Mapping points with filtering out consecutive
-// points mapped to the same poistion
+// points mapped to the same position
 
 template<class Polygon, class Point, class Round>
 static inline Polygon qwtToPolylineFiltered( 
@@ -449,7 +449,7 @@ QPolygonF QwtPointMapper::toPolygonF(
 
   \param xMap x map
   \param yMap y map
-  \param series Seies of points to be mapped
+  \param series Series of points to be mapped
   \param from Index of the first point to be painted
   \param to Index of the last point to be painted
 */
@@ -481,7 +481,7 @@ QPolygon QwtPointMapper::toPolygon(
     will be one point. Points outside of the bounding
     rectangle are ignored.
  
-  - WeedOutPoints & RoundPoints !boundingRect().isValid()
+  - WeedOutPoints & RoundPoints & !boundingRect().isValid()
     All consecutive points that are mapped to the same position 
     will one point
 

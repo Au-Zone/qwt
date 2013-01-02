@@ -289,7 +289,7 @@ QwtWeedingCurveFitter::~QwtWeedingCurveFitter()
 /*!
  Assign the tolerance
 
- The tolerance is the maximum distance, that is accaptable
+ The tolerance is the maximum distance, that is acceptable
  between the original curve and the smoothed curve.
 
  Increasing the tolerance will reduce the number of the

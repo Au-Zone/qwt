@@ -240,7 +240,7 @@ double QwtPlotRescaler::aspectRatio( int axis ) const
   Set an interval hint for an axis
 
   In Fitting mode, the hint is used as minimal interval
-  taht always needs to be displayed.
+  that always needs to be displayed.
 
   \param axis Axis, see QwtPlot::Axis
   \param interval Axis

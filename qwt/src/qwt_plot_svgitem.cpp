@@ -117,7 +117,7 @@ bool QwtPlotSvgItem::loadData( const QRectF &rect,
     return ok;
 }
 
-//! Bounding rect of the item
+//! Bounding rectangle of the item
 QRectF QwtPlotSvgItem::boundingRect() const
 {
     return d_data->boundingRect;
@@ -166,7 +166,7 @@ void QwtPlotSvgItem::draw( QPainter *painter,
 
   \param painter Painter
   \param viewBox View Box, see QSvgRenderer::viewBox
-  \param rect Traget rectangle on the paint device
+  \param rect Target rectangle on the paint device
 */
 void QwtPlotSvgItem::render( QPainter *painter,
     const QRectF &viewBox, const QRectF &rect ) const
@@ -189,10 +189,10 @@ void QwtPlotSvgItem::render( QPainter *painter,
 }
 
 /*!
-  Calculate the viewBox from an rect and boundingRect().
+  Calculate the viewBox from rect and boundingRect().
 
   \param rect Rectangle in scale coordinates
-  \return viewBox View Box, see QSvgRenderer::viewBox
+  \return View box, see QSvgRenderer::viewBox()
 */
 QRectF QwtPlotSvgItem::viewBox( const QRectF &rect ) const
 {

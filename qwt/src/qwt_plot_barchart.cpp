@@ -73,7 +73,7 @@ int QwtPlotBarChart::rtti() const
   Initialize data with an array of points
 
   \param samples Vector of points
-  \note QVector is implicitely shared
+  \note QVector is implicitly shared
   \note QPolygonF is derived from QVector<QPointF>
 */
 void QwtPlotBarChart::setSamples(
@@ -89,7 +89,7 @@ void QwtPlotBarChart::setSamples(
   while the doubles are interpreted as y values.
 
   \param samples Vector of y coordinates
-  \note QVector is implicitely shared
+  \note QVector is implicitly shared
 */
 void QwtPlotBarChart::setSamples(
     const QVector<double> &samples )
@@ -119,7 +119,7 @@ void QwtPlotBarChart::setSamples( QwtSeriesData<QPointF> *data )
 /*!
   \brief Assign a symbol
 
-  The barchart will take the ownership of the symbol, hence the previously
+  The bar chart will take the ownership of the symbol, hence the previously
   set symbol will be delete by setting a new one. If \p symbol is 
   \c NULL no symbol will be drawn.
 

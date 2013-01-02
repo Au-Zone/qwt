@@ -19,6 +19,8 @@
   It is used by the QwtPlot widget to organize its internal widgets
   or by QwtPlot::print() to render its content to a QPaintDevice like
   a QPrinter, QPixmap/QImage or QSvgRenderer.
+
+  \sa QwtPlot::setPlotLayout()
 */
 
 class QWT_EXPORT QwtPlotLayout
@@ -34,8 +36,8 @@ public:
         AlignScales = 0x01,
 
         /*!
-          Ignore the dimension of the scroll bars. There are no
-          scrol lbars, when the plot is not rendered to widgets.
+          Ignore the dimension of the scrollbars. There are no
+          scrollbars, when the plot is not rendered to widgets.
          */
         IgnoreScrollbars = 0x02,
 

@@ -312,7 +312,8 @@ QPixmap QwtPanner::grab() const
 /*!
   \brief Event filter
 
-  When isEnabled() the mouse events of the observed widget are filtered.
+  When isEnabled() is true, the mouse events of the
+  observed widget are filtered.
 
   \param object Object to be filtered
   \param event Event

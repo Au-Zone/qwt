@@ -69,7 +69,7 @@ public:
     bool contains( double v ) const;
 
     void setTicks( int type, const QList<double> & );
-    const QList<double> &ticks( int type ) const;
+    QList<double> ticks( int type ) const;
 
     bool isEmpty() const;
     bool isIncreasing() const;

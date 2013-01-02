@@ -159,7 +159,7 @@ double QwtHighResolutionClock::msecsTo(
         mach_timebase_info_data_t info;
         kern_return_t err = mach_timebase_info( &info );
 
-        //Convert the timebase into ms
+        // convert the timebase into ms
         if ( err == 0  )
             conversion = 1e-6 * ( double ) info.numer / ( double ) info.denom;
     }

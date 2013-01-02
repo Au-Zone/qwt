@@ -450,7 +450,7 @@ void QwtScaleWidget::draw( QPainter *painter ) const
   Calculate the the rectangle for the color bar
 
   \param rect Bounding rectangle for all components of the scale
-  \return Rectabgle for the color bar
+  \return Rectangle for the color bar
 */
 QRectF QwtScaleWidget::colorBarRect( const QRectF& rect ) const
 {
@@ -504,7 +504,7 @@ QRectF QwtScaleWidget::colorBarRect( const QRectF& rect ) const
 }
 
 /*!
-  Event handler for resize event
+  Event handler for resize events
   \param event Resize event
 */
 void QwtScaleWidget::resizeEvent( QResizeEvent *event )
@@ -515,7 +515,7 @@ void QwtScaleWidget::resizeEvent( QResizeEvent *event )
 
 /*!
   Recalculate the scale's geometry and layout based on
-  the current rect and fonts.
+  the current geometry and fonts.
 
   \param update_geometry Notify the layout system and call update
                          to redraw the scale

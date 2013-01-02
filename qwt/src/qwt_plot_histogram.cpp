@@ -60,7 +60,6 @@ public:
   Constructor
   \param title Title of the histogram.
 */
-
 QwtPlotHistogram::QwtPlotHistogram( const QwtText &title ):
     QwtPlotSeriesItem( title )
 {
@@ -125,7 +124,7 @@ QwtPlotHistogram::HistogramStyle QwtPlotHistogram::style() const
   Build and assign a pen
     
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
     
   \param color Pen color
@@ -202,7 +201,7 @@ const QBrush &QwtPlotHistogram::brush() const
   \sa style(), symbol(), drawColumn(), pen(), brush()
 
   \note In applications, where different intervals need to be displayed
-        in a different way ( f.e different colors or even using differnt symbols)
+        in a different way ( f.e different colors or even using different symbols)
         it is recommended to overload drawColumn().
 */
 void QwtPlotHistogram::setSymbol( const QwtColumnSymbol *symbol )
@@ -324,7 +323,7 @@ void QwtPlotHistogram::setSamples(
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
@@ -642,7 +641,7 @@ QwtColumnRect QwtPlotHistogram::columnRect( const QwtIntervalSample &sample,
   \param sample Sample to be displayed
 
   \note In applications, where different intervals need to be displayed
-        in a different way ( f.e different colors or even using differnt symbols)
+        in a different way ( f.e different colors or even using different symbols)
         it is recommended to overload drawColumn().
 */
 void QwtPlotHistogram::drawColumn( QPainter *painter,

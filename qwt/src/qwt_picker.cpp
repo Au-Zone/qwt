@@ -172,7 +172,7 @@ void QwtPickerTracker::drawOverlay( QPainter *painter ) const
   Constructor
 
   Creates an picker that is enabled, but without a state machine.
-  rubberband and tracker are disabled.
+  rubber band and tracker are disabled.
 
   \param parent Parent widget, that will be observed
  */
@@ -186,7 +186,7 @@ QwtPicker::QwtPicker( QWidget *parent ):
 /*!
   Constructor
 
-  \param rubberBand Rubberband style
+  \param rubberBand Rubber band style
   \param trackerMode Tracker mode
   \param parent Parent widget, that will be observed
  */
@@ -209,7 +209,7 @@ QwtPicker::~QwtPicker()
     delete d_data;
 }
 
-//! Init the picker, used by the constructors
+//! Initialize the picker - used by the constructors
 void QwtPicker::init( QWidget *parent,
     RubberBand rubberBand, DisplayMode trackerMode )
 {
@@ -291,9 +291,9 @@ const QWidget *QwtPicker::parentWidget() const
 }
 
 /*!
-  Set the rubberband style
+  Set the rubber band style
 
-  \param rubberBand Rubberband style
+  \param rubberBand Rubber band style
          The default value is NoRubberBand.
 
   \sa rubberBand(), RubberBand, setRubberBandPen()
@@ -304,7 +304,7 @@ void QwtPicker::setRubberBand( RubberBand rubberBand )
 }
 
 /*!
-  \return Rubberband style
+  \return Rubber band style
   \sa setRubberBand(), RubberBand, rubberBandPen()
 */
 QwtPicker::RubberBand QwtPicker::rubberBand() const
@@ -465,7 +465,7 @@ QPen QwtPicker::trackerPen() const
 /*!
   Set the pen for the rubberband
 
-  \param pen Rubberband pen
+  \param pen Rubber band pen
   \sa rubberBandPen(), setRubberBand()
 */
 void QwtPicker::setRubberBandPen( const QPen &pen )
@@ -478,7 +478,7 @@ void QwtPicker::setRubberBandPen( const QPen &pen )
 }
 
 /*!
-  \return Rubberband pen
+  \return Rubber band pen
   \sa setRubberBandPen(), rubberBand()
 */
 QPen QwtPicker::rubberBandPen() const
@@ -518,7 +518,7 @@ QwtText QwtPicker::trackerText( const QPoint &pos ) const
 }
 
 /*!
-  Calculate the mask for the rubberband overlay
+  Calculate the mask for the rubber band overlay
 
   \return Region for the mask
   \sa QWidget::setMask()
@@ -628,9 +628,9 @@ QRegion QwtPicker::rubberBandMask() const
 }
 
 /*!
-   Draw a rubberband, depending on rubberBand()
+   Draw a rubber band, depending on rubberBand()
 
-   \param painter Painter, initialized with clip rect
+   \param painter Painter, initialized with a clip region
 
    \sa rubberBand(), RubberBand
 */
@@ -869,10 +869,10 @@ QRect QwtPicker::trackerRect( const QFont &font ) const
 /*!
   \brief Event filter
 
-  When isEnabled() == true all events of the observed widget are filtered.
+  When isEnabled() is true all events of the observed widget are filtered.
   Mouse and keyboard events are translated into widgetMouse- and widgetKey-
   and widgetWheel-events. Paint and Resize events are handled to keep
-  rubberband and tracker up to date.
+  rubber band and tracker up to date.
 
   \param object Object to be filtered
   \param event Event
@@ -1018,7 +1018,7 @@ void QwtPicker::widgetLeaveEvent( QEvent *event )
 }
 
 /*!
-  Handle a mouse relase event for the observed widget.
+  Handle a mouse release event for the observed widget.
 
   \param mouseEvent Mouse event
 
@@ -1143,7 +1143,7 @@ void QwtPicker::widgetKeyReleaseEvent( QKeyEvent *keyEvent )
 /*!
   Passes an event to the state machine and executes the resulting
   commands. Append and Move commands use the current position
-  of the cursor (QCursor::pos()).
+  of the cursor ( QCursor::pos() ).
 
   \param event Event
 */
@@ -1272,7 +1272,7 @@ bool QwtPicker::end( bool ok )
 }
 
 /*!
-   Reset the state machine and terminate (end(false)) the selection
+   Reset the state machine and terminate ( end(false) ) the selection
 */
 void QwtPicker::reset()
 {
@@ -1284,7 +1284,7 @@ void QwtPicker::reset()
 }
 
 /*!
-  Append a point to the selection and update rubberband and tracker.
+  Append a point to the selection and update rubber band and tracker.
   The appended() signal is emitted.
 
   \param pos Additional point
@@ -1354,11 +1354,11 @@ void QwtPicker::remove()
 }
 
 /*!
-  \brief Validate and fixup the selection
+  \brief Validate and fix up the selection
 
   Accepts all selections unmodified
 
-  \param selection Selection to validate and fixup
+  \param selection Selection to validate and fix up
   \return true, when accepted, false otherwise
 */
 bool QwtPicker::accept( QPolygon &selection ) const
@@ -1465,7 +1465,7 @@ QPainterPath QwtPicker::pickArea() const
     return path;
 }
 
-//! Update the state of rubberband and tracker label
+//! Update the state of rubber band and tracker label
 void QwtPicker::updateDisplay()
 {
     QWidget *w = parentWidget();
@@ -1558,7 +1558,7 @@ void QwtPicker::updateDisplay()
     }
 }
 
-//! \return Overlay displaying the rubberband
+//! \return Overlay displaying the rubber band
 const QwtWidgetOverlay *QwtPicker::rubberBandOverlay() const
 {
     return d_data->rubberBandOverlay;

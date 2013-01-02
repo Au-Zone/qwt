@@ -106,7 +106,7 @@ public:
   Construct vertical slider in QwtSlider::Trough style
   with a scale to the left. 
 
-  The scale is initalized to [0.0, 100.0] and the value set to 0.0.
+  The scale is initialized to [0.0, 100.0] and the value set to 0.0.
 
   \param parent Parent widget
 
@@ -124,7 +124,7 @@ QwtSlider::QwtSlider( QWidget *parent ):
   When orientation is Qt::Vertical the scale will be aligned to
   the left - otherwise at the the top of the slider.
 
-  The scale is initalized to [0.0, 100.0] and the value set to 0.0.
+  The scale is initialized to [0.0, 100.0] and the value set to 0.0.
 
   \param parent Parent widget
   \param orientation Orientation of the slider. 
@@ -332,7 +332,7 @@ QSize QwtSlider::handleSize() const
   overload QwtScaleDraw::label().
 
   \param scaleDraw ScaleDraw object, that has to be created with
-                   new and will be deleted in ~QwtSlider or the next
+                   new and will be deleted in ~QwtSlider() or the next
                    call of setScaleDraw().
 
   \sa scaleDraw()
@@ -652,7 +652,7 @@ void QwtSlider::timerEvent( QTimerEvent *event )
 }
 
 /*!
-   Qt paint event
+   Qt paint event handler
    \param event Paint event
 */
 void QwtSlider::paintEvent( QPaintEvent *event )
@@ -677,7 +677,7 @@ void QwtSlider::paintEvent( QPaintEvent *event )
 }
 
 /*!
-   Qt resize event
+   Qt resize event handler
    \param event Resize event
 */
 void QwtSlider::resizeEvent( QResizeEvent *event )
@@ -705,7 +705,7 @@ void QwtSlider::changeEvent( QEvent *event )
 
 /*!
   Recalculate the slider's geometry and layout based on
-  the current rect and fonts.
+  the current geometry and fonts.
 
   \param update_geometry  notify the layout system and call update
          to redraw the scale
@@ -731,7 +731,7 @@ void QwtSlider::layoutSlider( bool update_geometry )
        backbone.
 
        Now it depends on what needs more margins. If it is the
-       slider the scale gets shrinked, otherwise the slider.
+       slider the scale gets shrunk, otherwise the slider.
      */
 
     int scaleMargin = 0;

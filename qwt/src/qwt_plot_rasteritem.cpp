@@ -575,7 +575,7 @@ void QwtPlotRasterItem::invalidateCache()
    alignment of the rendered image. 
 
    Width and height of the hint need to be the horizontal  
-   and vertical distances between 2 neighboured points. 
+   and vertical distances between 2 neighbored points. 
    The center of the hint has to be the position of any point 
    ( it doesn't matter which one ).
 
@@ -605,7 +605,7 @@ QRectF QwtPlotRasterItem::pixelHint( const QRectF &area ) const
   \param painter Painter
   \param xMap X-Scale Map
   \param yMap Y-Scale Map
-  \param canvasRect Contents rect of the plot canvas
+  \param canvasRect Contents rectangle of the plot canvas
 */
 void QwtPlotRasterItem::draw( QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -620,7 +620,7 @@ void QwtPlotRasterItem::draw( QPainter *painter,
     const QwtInterval yInterval = interval( Qt::YAxis );
 
     /*
-        Scaling a rastered image always results in a loss of
+        Scaling an image always results in a loss of
         precision/quality. So we always render the image in
         paint device resolution.
     */
@@ -763,7 +763,7 @@ QwtInterval QwtPlotRasterItem::interval(Qt::Axis axis) const
 }
 
 /*!
-   \return Bounding rect of the data
+   \return Bounding rectangle of the data
    \sa QwtPlotRasterItem::interval()
 */
 QRectF QwtPlotRasterItem::boundingRect() const

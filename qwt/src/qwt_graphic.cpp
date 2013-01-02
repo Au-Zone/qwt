@@ -465,7 +465,7 @@ QRectF QwtGraphic::controlPointRect() const
     \brief Calculate the target rectangle for scaling the graphic
 
     \param sx Horizontal scaling factor 
-    \param sy Vertival scaling factor 
+    \param sy Vertical scaling factor 
 
     \note In case of paths that are painted with a cosmetic pen 
     ( see QPen::isCosmetic() ) the target rectangle is different to

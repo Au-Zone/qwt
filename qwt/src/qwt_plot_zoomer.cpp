@@ -52,7 +52,7 @@ QwtPlotZoomer::QwtPlotZoomer( QWidget *canvas, bool doReplot ):
   \brief Create a zoomer for a plot canvas.
 
   The zoomer is initialized with a QwtPickerDragRectMachine,
-  the tracker mode is set to QwtPicker::ActiveOnly and the rubberband
+  the tracker mode is set to QwtPicker::ActiveOnly and the rubber band
   is set to QwtPicker;;RectRubberBand
 
   \param xAxis X axis of the zoomer
@@ -187,7 +187,7 @@ void QwtPlotZoomer::setZoomBase( bool doReplot )
   \brief Set the initial size of the zoomer.
 
   base is united with the current scaleRect() and the zoom stack is
-  reinitalized with it as zoom base. plot is zoomed to scaleRect().
+  reinitialized with it as zoom base. plot is zoomed to scaleRect().
 
   \param base Zoom base
 
@@ -237,7 +237,7 @@ uint QwtPlotZoomer::zoomRectIndex() const
   \brief Zoom in
 
   Clears all rectangles above the current position of the
-  zoom stack and pushs the normalized rect on it.
+  zoom stack and pushes the normalized rectangle on it.
 
   \note If the maximal stack depth is reached, zoom is ignored.
   \note The zoomed signal is emitted.
@@ -273,7 +273,7 @@ void QwtPlotZoomer::zoom( const QRectF &rect )
   \brief Zoom in or out
 
   Activate a rectangle on the zoom stack with an offset relative
-  to the current position. Negative values of offest will zoom out,
+  to the current position. Negative values of offset will zoom out,
   positive zoom in. A value of 0 zooms out to the zoom base.
 
   \param offset Offset relative to the current position of the zoom stack.
@@ -488,12 +488,12 @@ void QwtPlotZoomer::moveTo( const QPointF &pos )
 /*!
   \brief Check and correct a selected rectangle
 
-  Reject rectangles with a hight or width < 2, otherwise
+  Reject rectangles with a height or width < 2, otherwise
   expand the selected rectangle to a minimum size of 11x11
   and accept it.
 
-  \return true If rect is accepted, or has been changed
-          to a accepted rectangle.
+  \return true If the rectangle is accepted, or has been changed
+          to an accepted one.
 */
 
 bool QwtPlotZoomer::accept( QPolygon &pa ) const

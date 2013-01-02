@@ -15,7 +15,7 @@ QwtPainterCommand::QwtPainterCommand():
 {
 }
 
-//! Copy contructor
+//! Copy constructor
 QwtPainterCommand::QwtPainterCommand( const QPainterPath &path ):
     d_type( Path )
 {

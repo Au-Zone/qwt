@@ -157,7 +157,7 @@ QRegion QwtPlotDirectPainter::clipRegion() const
   \brief Draw a set of points of a seriesItem.
 
   When observing an measurement while it is running, new points have to be
-  added to an existing seriesItem. drawSeries can be used to display them avoiding
+  added to an existing seriesItem. drawSeries() can be used to display them avoiding
   a complete redraw of the canvas.
 
   Setting plot()->canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);

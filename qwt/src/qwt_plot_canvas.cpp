@@ -622,10 +622,10 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 }
 
 /*!
-  Test wether a paint attribute is enabled
+  Test whether a paint attribute is enabled
 
   \param attribute Paint attribute
-  \return true if the attribute is enabled
+  \return True if the attribute is enabled
   \sa setPaintAttribute()
 */
 bool QwtPlotCanvas::testPaintAttribute( PaintAttribute attribute ) const
@@ -1016,7 +1016,7 @@ void QwtPlotCanvas::replot()
         update( contentsRect() );
 }
 
-//! Update the cached informations about the current style sheet
+//! Update the cached information about the current style sheet
 void QwtPlotCanvas::updateStyleSheetInfo()
 {
     if ( !testAttribute(Qt::WA_StyledBackground ) )

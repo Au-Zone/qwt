@@ -45,7 +45,7 @@ public:
 
         /*!
           The map is intended to map into 8 bit values, that
-          are indexes into the color table.
+          are indices into the color table.
          */
         Indexed
     };

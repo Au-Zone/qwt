@@ -112,7 +112,7 @@ QPointF QwtRoundScaleDraw::center() const
       this range will be clipped.
   <li>For angles more or equal than 360 degrees above or below min(angle1, angle2),
       scale marks will not be drawn.
-  <li>If you need a counterclockwise scale, use QwtScaleDiv::setRange
+  <li>If you need a counterclockwise scale, use QwtScaleDiv::setInterval()
   </ul>
 */
 void QwtRoundScaleDraw::setAngleRange( double angle1, double angle2 )
@@ -247,7 +247,7 @@ void QwtRoundScaleDraw::drawBackbone( QPainter *painter ) const
    \param font Font used for painting the labels
 
    \sa setMinimumExtent(), minimumExtent()
-   \warning The implemented algo is not too smart and
+   \warning The implemented algorithm is not too smart and
             calculates only an upper limit, that might be a
             few pixels too large
 */
@@ -295,7 +295,7 @@ double QwtRoundScaleDraw::extent( const QFont &font ) const
 
     if ( hasComponent( QwtAbstractScaleDraw::Backbone ) )
     {
-        const double pw = qMax( 1, penWidth() );  // penwidth can be zero
+        const double pw = qMax( 1, penWidth() );  // pen width can be zero
         d += pw;
     }
 

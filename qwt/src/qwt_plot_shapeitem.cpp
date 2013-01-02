@@ -266,7 +266,7 @@ QPainterPath QwtPlotShapeItem::shape() const
   Build and assign a pen
     
   In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
-  non cosmetic ( see QPen::isCosmetic ). This method has been introduced
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
   to hide this incompatibility.
     
   \param color Pen color

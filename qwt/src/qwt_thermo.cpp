@@ -193,7 +193,7 @@ double QwtThermo::value() const
   overload QwtScaleDraw::label().
 
   \param scaleDraw ScaleDraw object, that has to be created with
-                   new and will be deleted in ~QwtThermo or the next
+                   new and will be deleted in ~QwtThermo() or the next
                    call of setScaleDraw().
 */
 void QwtThermo::setScaleDraw( QwtScaleDraw *scaleDraw )
@@ -220,7 +220,7 @@ QwtScaleDraw *QwtThermo::scaleDraw()
 }
 
 /*!
-  Qt paint event.
+  Qt paint event handler
   \param event Paint event
 */
 void QwtThermo::paintEvent( QPaintEvent *event )
@@ -874,14 +874,14 @@ int QwtThermo::pipeWidth() const
 
 /*!
   \brief Enable or disable the alarm threshold
-  \param tf true (disabled) or false (enabled)
+  \param on true (disabled) or false (enabled)
 
   \warning The alarm threshold has no effect, when
            a color map has been assigned
 */
-void QwtThermo::setAlarmEnabled( bool tf )
+void QwtThermo::setAlarmEnabled( bool on )
 {
-    d_data->alarmEnabled = tf;
+    d_data->alarmEnabled = on;
     update();
 }
 
