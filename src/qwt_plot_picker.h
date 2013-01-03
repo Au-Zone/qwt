@@ -51,13 +51,13 @@ public:
 Q_SIGNALS:
 
     /*!
-      A signal emitted in case of selectionFlags() & PointSelection.
+      A signal emitted in case of QwtPickerMachine::PointSelection.
       \param pos Selected point
     */
     void selected( const QPointF &pos );
 
     /*!
-      A signal emitted in case of selectionFlags() & RectSelection.
+      A signal emitted in case of QwtPickerMachine::RectSelection.
       \param rect Selected rectangle
     */
     void selected( const QRectF &rect );

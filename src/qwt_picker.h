@@ -121,22 +121,22 @@ public:
         //! No rubberband.
         NoRubberBand = 0,
 
-        //! A horizontal line ( only for QwtPicker::PointSelection )
+        //! A horizontal line ( only for QwtPickerMachine::PointSelection )
         HLineRubberBand,
 
-        //! A vertical line ( only for QwtPicker::PointSelection )
+        //! A vertical line ( only for QwtPickerMachine::PointSelection )
         VLineRubberBand,
 
-        //! A crosshair ( only for QwtPicker::PointSelection )
+        //! A crosshair ( only for QwtPickerMachine::PointSelection )
         CrossRubberBand,
 
-        //! A rectangle ( only for QwtPicker::RectSelection )
+        //! A rectangle ( only for QwtPickerMachine::RectSelection )
         RectRubberBand,
 
-        //! An ellipse ( only for QwtPicker::RectSelection )
+        //! An ellipse ( only for QwtPickerMachine::RectSelection )
         EllipseRubberBand,
 
-        //! A polygon ( only for QwtPicker::&PolygonSelection )
+        //! A polygon ( only for QwtPickerMachine::PolygonSelection )
         PolygonRubberBand,
 
         /*!

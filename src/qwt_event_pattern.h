@@ -32,105 +32,115 @@ public:
     /*!
       \brief Symbolic mouse input codes
 
-      The default initialization for 3 button mice is:
-      - MouseSelect1\n
-        Qt::LeftButton
-      - MouseSelect2\n
-        Qt::RightButton
-      - MouseSelect3\n
-        Qt::MidButton
-      - MouseSelect4\n
-        Qt::LeftButton + Qt::ShiftButton
-      - MouseSelect5\n
-        Qt::RightButton + Qt::ShiftButton
-      - MouseSelect6\n
-        Qt::MidButton + Qt::ShiftButton
+      QwtEventPattern implements 3 different settings for
+      mice with 1, 2, or 3 buttons that can be activated
+      using initMousePattern(). The default setting is for
+      3 button mice.
 
-      The default initialization for 2 button mice is:
-      - MouseSelect1\n
-        Qt::LeftButton
-      - MouseSelect2\n
-        Qt::RightButton
-      - MouseSelect3\n
-        Qt::LeftButton + Qt::AltButton
-      - MouseSelect4\n
-        Qt::LeftButton + Qt::ShiftButton
-      - MouseSelect5\n
-        Qt::RightButton + Qt::ShiftButton
-      - MouseSelect6\n
-        Qt::LeftButton + Qt::AltButton + Qt::ShiftButton
+      Individual settings can be configured using setMousePattern().
 
-      The default initialization for 1 button mice is:
-      - MouseSelect1\n
-        Qt::LeftButton
-      - MouseSelect2\n
-        Qt::LeftButton + Qt::ControlButton
-      - MouseSelect3\n
-        Qt::LeftButton + Qt::AltButton
-      - MouseSelect4\n
-        Qt::LeftButton + Qt::ShiftButton
-      - MouseSelect5\n
-        Qt::LeftButton + Qt::ControlButton + Qt::ShiftButton
-      - MouseSelect6\n
-        Qt::LeftButton + Qt::AltButton + Qt::ShiftButton
-
-      \sa initMousePattern()
+      \sa initMousePattern(), setMousePattern(), setKeyPattern()
     */
-
     enum MousePatternCode
     {
+        /*! 
+          The default setting for 1, 2 and 3 button mice is:
+
+          - Qt::LeftButton 
+          - Qt::LeftButton 
+          - Qt::LeftButton 
+         */
         MouseSelect1,
+
+        /*!
+          The default setting for 1, 2 and 3 button mice is:
+
+          - Qt::LeftButton + Qt::ControlModifier
+          - Qt::RightButton
+          - Qt::RightButton
+         */
         MouseSelect2,
+
+        /*!
+          The default setting for 1, 2 and 3 button mice is:
+
+          - Qt::LeftButton + Qt::AltModifier
+          - Qt::LeftButton + Qt::AltModifier
+          - Qt::MidButton
+         */
         MouseSelect3,
+
+        /*!
+          The default setting for 1, 2 and 3 button mice is:
+
+          - Qt::LeftButton + Qt::ShiftModifier
+          - Qt::LeftButton + Qt::ShiftModifier
+          - Qt::LeftButton + Qt::ShiftModifier
+         */
         MouseSelect4,
+
+        /*!
+          The default setting for 1, 2 and 3 button mice is:
+
+          - Qt::LeftButton + Qt::ControlButton | Qt::ShiftModifier
+          - Qt::RightButton + Qt::ShiftModifier
+          - Qt::RightButton + Qt::ShiftModifier
+         */
         MouseSelect5,
+
+        /*!
+          The default setting for 1, 2 and 3 button mice is:
+
+          - Qt::LeftButton + Qt::AltModifier + Qt::ShiftModifier
+          - Qt::LeftButton + Qt::AltModifier | Qt::ShiftModifier
+          - Qt::MidButton + Qt::ShiftModifier
+         */
         MouseSelect6,
 
+        //! Number of mouse patterns
         MousePatternCount
     };
 
     /*!
       \brief Symbolic keyboard input codes
 
-      Default initialization:
-      - KeySelect1\n
-        Qt::Key_Return
-      - KeySelect2\n
-        Qt::Key_Space
-      - KeyAbort\n
-        Qt::Key_Escape
+      Individual settings can be configured using setKeyPattern()
 
-      - KeyLeft\n
-        Qt::Key_Left
-      - KeyRight\n
-        Qt::Key_Right
-      - KeyUp\n
-        Qt::Key_Up
-      - KeyDown\n
-        Qt::Key_Down
-
-      - KeyUndo\n
-        Qt::Key_Minus
-      - KeyRedo\n
-        Qt::Key_Plus
-      - KeyHome\n
-        Qt::Key_Escape
+      \sa setKeyPattern(), setMousePattern()
     */
     enum KeyPatternCode
     {
+        //! Qt::Key_Return
         KeySelect1,
+
+        //! Qt::Key_Space
         KeySelect2,
+
+        //! Qt::Key_Escape
         KeyAbort,
 
+        //! Qt::Key_Left
         KeyLeft,
+
+        //! Qt::Key_Right
         KeyRight,
+
+        //! Qt::Key_Up
         KeyUp,
+
+        //! Qt::Key_Down
         KeyDown,
 
+        //! Qt::Key_Plus
         KeyRedo,
+
+        //! Qt::Key_Minus
         KeyUndo,
+
+        //! Qt::Key_Escape
         KeyHome,
 
+        //! Number of key patterns
         KeyPatternCount
     };
 
@@ -178,9 +188,10 @@ public:
     void initMousePattern( int numButtons );
     void initKeyPattern();
 
-    void setMousePattern( uint pattern, Qt::MouseButton button, 
+    void setMousePattern( MousePatternCode, Qt::MouseButton button, 
         Qt::KeyboardModifiers = Qt::NoModifier );
-    void setKeyPattern( uint pattern, int keyCode, 
+
+    void setKeyPattern( KeyPatternCode, int keyCode, 
         Qt::KeyboardModifiers modifierCodes = Qt::NoModifier );
 
     void setMousePattern( const QVector<MousePattern> & );
@@ -192,8 +203,8 @@ public:
     QVector<MousePattern> &mousePattern();
     QVector<KeyPattern> &keyPattern();
 
-    bool mouseMatch( uint pattern, const QMouseEvent * ) const;
-    bool keyMatch( uint pattern, const QKeyEvent * ) const;
+    bool mouseMatch( MousePatternCode, const QMouseEvent * ) const;
+    bool keyMatch( KeyPatternCode, const QKeyEvent * ) const;
 
 protected:
     virtual bool mouseMatch( const MousePattern &, const QMouseEvent * ) const;
