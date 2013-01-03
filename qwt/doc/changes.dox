@@ -1,0 +1,209 @@
+/*!
+\page qwtchangelog What's new in Qwt 6.1
+
+\section ITEMS New plot items
+
+  - bar chart
+  - multi bar chart
+  - trading curve
+  - zone item
+  - shape item
+  - text label
+  - legend item
+
+\section TRANSFORMATION An extended transformation system for the scales 
+
+Qwt 6.1 introduces a more powerful and flexible system for scales
+beyond linear and logarithmic scales.
+ 
+\subsection TRANSFORM Transformations
+
+QwtScaleTransformation has been replaced by QwtTransform and its derived classes
+
+  - QwtTransform 
+  - QwtNullTransform
+  - QwtLogTransform
+  - QwtPowerTransform
+
+Individual transformations can be implemented easily: see playground/scaleengine
+
+\subsection ENGINE Scale engines
+
+QwtLinearScaleEngine and QwtLogScaleEngine are not limited to base 10 anymore.
+Ane scale engine for datetime values has been introduced.
+
+\section LEGEND A new system for plot legends
+
+examples/legends
+examples/stockchart
+
+\section OPENGL Basic support for an OpenGL plot canvas
+
+\section CONTROLS Redesign of the dial and meter widgets
+
+Many parts of the class design of the dial and meter widgets was left over 
+from Qwt 0.2 and Qt 1.1. In the course of extending these widgets with
+the new transformation system the APi has been cleaned up.
+
+\subsection DERIVATIONTREE A simpler and more logical derivation tree
+
+  - QwtAbstractScale is a QWidget 
+  - QwtAbstractSlider is a QwtAbstractScale. 
+      ( for sliders without scales QAbstractSlider should be the base class )
+  - QwtThermo is also a QwtAbstractScale
+  - QwtDial, QwtKnob, QwtSlider are derived from QwtAbstractSlider
+  - QwtCounter is derived from QWidget
+
+All APIs use the terminology known from QAbstractSlider - as far as possible.
+All classes derived from QwtAbstractScale support all scale engines and transformation
+available - no limitation for linear scales anymore. 
+The redundant ranges for scales and sliders are gone.
+
+\section CLASSES New classes
+
+  - QwtAbstractLegend
+  - QwtDate
+  - QwtDateScaleDraw
+  - QwtDateScaleEngine
+  - QwtGraphic
+  - QwtLegendData
+  - QwtLegendLabel
+  - QwtPainterCommand
+  - QwtPixelMatrix
+  - QwtPlotAbstractBarChart
+  - QwtPlotBarChart
+  - QwtPlotMultiBarChart
+  - QwtPlotGLCanvas
+  - QwtPlotLegendItem
+  - QwtPlotShapeItem
+  - QwtPlotTextLabel
+  - QwtPlotTradingCurve
+  - QwtPlotZoneItem
+  - QwtPointData
+  - QwtPointMapper
+  - QwtTransform, QwtNullTransform, QwtLogTransform, QwtPowerTransform
+  - QwtWidgetOverlay
+
+\section REMOVED Removed classes
+  - QwtDoubleRange
+
+\section DATE Datetime scales
+
+  - QwtDate
+  - QwtDateScaleEngine 
+  - QwtDateScaleDraw
+
+\section GRAPHIC A paint device for vector graphics
+    QwtGraphic
+
+\section PLOT QwtPlot 
+
+  - footer
+  - new system for the legend
+    ExternalLegend removed
+  - OpenGL support
+  - setCanvas(), setPlotLayout()
+  - QwtScaleDiv *axisScaleDiv() -> QwtScaleDiv &axisScaleDiv() 
+  - legendClicked(), legendChecked() removed
+
+\section OTHER Other
+
+\subsection SCALEDIV QwtScaleDiv
+
+  - isValid()/invalidate() removed
+  - inverted() bounded() added
+  - isEmpty(), isIncreasing() added
+  - QDebug operator
+
+\subsection SCALEENGINE QwtScaleEngine
+  - setBase() added
+  - setTransformation() added
+
+  
+\subsection SCALEWIDGET QwtScaleWidget
+  - setScaleDiv() -> setScaleDiv() + setTransformation()
+
+\subsection PLOTLAYOUT QwtPlotLayout
+  - IgnoreTitle, IgnoreFooter added
+  - setAlignCanvasToScale( int axisId, bool ); added
+
+\subsection PLOTCANVAS  QwtPlotCanvas
+  - border radius
+
+\subsection PLOTDICT QwtPlotDict
+   insertItem(), removeItem() added
+
+
+\subsection PLOTCURVE  QwtPlotCurve
+
+  - new PaintAttributes: FilterPoints, MinimizeMemory, ImageBuffer
+  - obsolete CacheSymbols attribute removed ( use QwtSymbol pixmap caching instead )
+  - drawLines, drawDots, drawSteps, drawSticks are virtual now
+  - setSymbol takes ownership
+  - internal optimizations
+
+\subsection Symbol QwtSymbol extended
+
+  - new symbol types: Path, Pixmap, Graphic, SVGDocument
+  - optional caching in a QPixmap
+  - pin point alignment
+  - assignment operator, copy constructor removed and disabled
+  - boundingSize() -> boundingRect()
+  - drawSymbols not virtual anymore, overload renderSymbols instead
+
+\subsection WEEDINGCURVEFITTER QwtWeedingCurveFitter
+
+    - QwtWeedingCurveFitter::chunkSize()
+
+\subsection RENDERER QwtPlotRenderer 
+
+ - frames
+ - exportTo
+ - DiscardFooter, DiscardCanvasFrame added
+
+T) QwtPlotAbstractSeriesItem replaced 
+   by QwtPlotSeriesItem/QwtPlotAbstractSeriesStore
+
+T) QwtScaleDiv::isValid() qDebug()
+
+T) QwtSystemClock::precision()
+
+T) QwtText::metaType declaration
+
+T) Performance optimizations
+
+T) QwtClipper::clipPolygon( QPolygon, ... ) added
+
+
+T) QwtEventPattern, QwtPanner, QwtMagnifier
+   - Qt3 leftovers removed. int -> Qt::KeyboardModifiers
+
+T) QPen Qt5/Qt4 incompatibility hider
+
+T) qwt_math.h qwt_point_polar.h
+  - constants that might be not available for compilers
+    from the 80s removed
+  - qwtRadians(), qwtDegrees(), qwtNormalizeDegrees(), qwtNormalizeRadians added
+  - qwtFastAtan(), qwtFastAtan2() added
+  - qwtRoundF(), qwtFloorF(), qwtCeilF() removed
+  - qwtFastPos2Polar() added
+  
+T) QwtMatrixRasterData::setValue() added
+
+T) QwtPicker
+
+   - using QwtPlotOverlay() internally -> overloading easier
+     rubberBandWidget(), trackerWidget() -> rubberBandOverlay(), trackerOverlay()
+   - rubberBandMask() added
+   - pickRect() -> pickArea()
+
+T) QwtPlotItem
+  - ItemAttribute::Margin added
+  - ItemInterst added
+  - setRenderThreadCount added
+  - API for legend modified
+
+T) qwt_series_data.h ???
+T) Qt5 compatibility
+
+*/

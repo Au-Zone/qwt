@@ -62,12 +62,15 @@ void QwtEventPattern::initMousePattern( int numButtons )
             setMousePattern( MouseSelect3, Qt::MidButton );
         }
     }
-    for ( int i = 0; i < 3; i++ )
-    {
-        setMousePattern( MouseSelect4 + i,
-            d_mousePattern[MouseSelect1 + i].button,
-            d_mousePattern[MouseSelect1 + i].modifiers | Qt::ShiftModifier );
-    }
+
+    setMousePattern( MouseSelect4, d_mousePattern[MouseSelect1].button,
+        d_mousePattern[MouseSelect1].modifiers | Qt::ShiftModifier );
+
+    setMousePattern( MouseSelect5, d_mousePattern[MouseSelect2].button,
+        d_mousePattern[MouseSelect2].modifiers | Qt::ShiftModifier );
+
+    setMousePattern( MouseSelect6, d_mousePattern[MouseSelect3].button,
+        d_mousePattern[MouseSelect3].modifiers | Qt::ShiftModifier );
 }
 
 /*!
@@ -102,10 +105,10 @@ void QwtEventPattern::initKeyPattern()
 
   \sa QMouseEvent
 */
-void QwtEventPattern::setMousePattern( uint pattern, 
+void QwtEventPattern::setMousePattern( MousePatternCode pattern, 
     Qt::MouseButton button, Qt::KeyboardModifiers modifiers )
 {
-    if ( pattern < static_cast<uint>( d_mousePattern.count() ) )
+    if ( pattern >= 0 && pattern < MousePatternCount )
     {
         d_mousePattern[ pattern ].button = button;
         d_mousePattern[ pattern ].modifiers = modifiers;
@@ -121,10 +124,10 @@ void QwtEventPattern::setMousePattern( uint pattern,
 
   \sa QKeyEvent
 */
-void QwtEventPattern::setKeyPattern( uint pattern, 
+void QwtEventPattern::setKeyPattern( KeyPatternCode pattern, 
     int key, Qt::KeyboardModifiers modifiers )
 {
-    if ( pattern < static_cast<uint>( d_keyPattern.count() ) )
+    if ( pattern >= 0 && pattern < KeyPatternCount )
     {
         d_keyPattern[ pattern ].key = key;
         d_keyPattern[ pattern ].modifiers = modifiers;
@@ -176,17 +179,17 @@ QVector<QwtEventPattern::KeyPattern> &QwtEventPattern::keyPattern()
   value and in the state value the same key flags(Qt::KeyButtonMask)
   are set.
 
-  \param pattern Index of the event pattern
+  \param code Index of the event pattern
   \param event Mouse event
   \return true if matches
 
   \sa keyMatch()
 */
-bool QwtEventPattern::mouseMatch( uint pattern, 
+bool QwtEventPattern::mouseMatch( MousePatternCode code, 
     const QMouseEvent *event ) const
 {
-    if ( event && pattern < static_cast<uint>( d_mousePattern.count() ) )
-        return mouseMatch( d_mousePattern[ pattern ], event );
+    if ( code >= 0 && code < MousePatternCount )
+        return mouseMatch( d_mousePattern[ code ], event );
 
     return false;
 }
@@ -208,6 +211,9 @@ bool QwtEventPattern::mouseMatch( uint pattern,
 bool QwtEventPattern::mouseMatch( const MousePattern &pattern,
     const QMouseEvent *event ) const
 {
+    if ( event == NULL )
+        return false;
+
     const MousePattern mousePattern( event->button(), event->modifiers() );
     return mousePattern == pattern;
 }
@@ -219,17 +225,17 @@ bool QwtEventPattern::mouseMatch( const MousePattern &pattern,
   value and in the state value the same key flags (Qt::KeyButtonMask)
   are set.
 
-  \param pattern Index of the event pattern
+  \param code Index of the event pattern
   \param event Key event
   \return true if matches
 
   \sa mouseMatch()
 */
-bool QwtEventPattern::keyMatch( uint pattern, 
+bool QwtEventPattern::keyMatch( KeyPatternCode code, 
     const QKeyEvent *event ) const
 {
-    if ( event && pattern < static_cast<uint>( d_keyPattern.count() ) )
-        return keyMatch( d_keyPattern[ pattern ], event );
+    if ( code >= 0 && code < KeyPatternCount )
+        return keyMatch( d_keyPattern[ code ], event );
 
     return false;
 }
@@ -251,6 +257,9 @@ bool QwtEventPattern::keyMatch( uint pattern,
 bool QwtEventPattern::keyMatch(
     const KeyPattern &pattern, const QKeyEvent *event ) const
 {
+    if ( event == NULL )
+        return false;
+
     const KeyPattern keyPattern( event->key(), event->modifiers() );
     return keyPattern == pattern;
 }
