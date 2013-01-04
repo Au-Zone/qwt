@@ -2,6 +2,7 @@
 #include "qwt_math.h"
 #include "qwt_transform.h"
 #include <qdatetime.h>
+#include <limits.h>
 
 static inline double qwtMsecsForType( QwtDate::IntervalType type )
 {

@@ -1,8 +1,9 @@
 #include "qwt_date.h"
 #include <qdebug.h>
 #include <qlocale.h>
-#include <limits>
 #include <math.h>
+#include <limits>
+#include <limits.h>
 
 #if QT_VERSION >= 0x050000
 

@@ -15,7 +15,7 @@
 int main ( int argc, char **argv )
 {
 #if USE_OPENGL
-#if QT_VERSION < 0x050000
+#if QT_VERSION >= 0x040600 && QT_VERSION < 0x050000
     // on my box QPaintEngine::OpenGL2 has serious problems, f.e:
     // the lines of a simple drawRect are wrong.
 
