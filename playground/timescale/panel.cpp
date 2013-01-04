@@ -1,6 +1,6 @@
 #include "panel.h"
 #include "settings.h"
-#include "qwt_date.h"
+#include <qwt_date.h>
 #include <qdatetimeedit.h>
 #include <qspinbox.h>
 #include <qlayout.h>
