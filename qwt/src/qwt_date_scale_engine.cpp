@@ -897,10 +897,9 @@ QwtDate::IntervalType QwtDateScaleEngine::intervalType(
 /*!
   Align and divide an interval
 
-  The algorithm aligns and divides the interval according
-  to the step size calculated by autoScaleStepSize().
+  The algorithm aligns and divides the interval into steps. 
 
-  Date/time interval divisions are usually not equidistant and the
+  Datetime interval divisions are usually not equidistant and the
   calculated stepSize is can only be used as an approximation
   for the steps calculated by divideScale(). 
 
@@ -909,7 +908,7 @@ QwtDate::IntervalType QwtDateScaleEngine::intervalType(
   \param x2 Second limit of the interval (In/Out)
   \param stepSize Step size (Out)
 
-  \sa autoScaleStepSize(), QwtScaleEngine::setAttribute()
+  \sa QwtScaleEngine::setAttribute()
 */
 void QwtDateScaleEngine::autoScale( int maxNumSteps,
     double &x1, double &x2, double &stepSize ) const

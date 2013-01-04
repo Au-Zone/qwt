@@ -19,15 +19,15 @@
   QwtDateScaleEngine supports representations depending
   on Qt::TimeSpec specifications. The valid range for scales
   is limited by the range of QDateTime, that differs 
-  between Qt5 and Qt5.
+  between Qt4 and Qt5.
   
-  Date/time values are expected as the number of milliseconds since
+  Datetime values are expected as the number of milliseconds since
   1970-01-01T00:00:00 Universal Coordinated Time - also known
   as "The Epoch", that can be converted to QDateTime using 
   QwtDate::toDateTime().
 
   \sa QwtDate, QwtPlot::setAxisScaleEngine(),
-      QwtAbstractScale::setAxisScaleEngine()
+      QwtAbstractScale::setScaleEngine()
 */
 class QWT_EXPORT QwtDateScaleEngine: public QwtLinearScaleEngine
 {

@@ -186,7 +186,7 @@ void QwtDial::setFrameShadow( Shadow shadow )
 
 /*!
   \return Frame shadow
-  /sa setFrameShadow(), lineWidth(), QFrame::frameShadow
+  /sa setFrameShadow(), lineWidth(), QFrame::frameShadow()
 */
 QwtDial::Shadow QwtDial::frameShadow() const
 {
