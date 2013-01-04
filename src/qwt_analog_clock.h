@@ -21,7 +21,8 @@
   \image html analogclock.png
 
   \par Example
-  \verbatim #include <qwt_analog_clock.h>
+  \code 
+  #include <qwt_analog_clock.h>
 
   QwtAnalogClock *clock = new QwtAnalogClock(...);
   clock->scaleDraw()->setPenWidth(3);
@@ -34,7 +35,7 @@
   timer->connect(timer, SIGNAL(timeout()), clock, SLOT(setCurrentTime()));
   timer->start(1000);
 
-  \endverbatim
+  \endcode
 
   \note The examples/dials example shows how to use QwtAnalogClock.
 */

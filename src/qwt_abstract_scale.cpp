@@ -266,7 +266,7 @@ double QwtAbstractScale::scaleStepSize() const
   \brief Set a scale draw
 
   scaleDraw has to be created with new and will be deleted in
-  the destructor or the next call of setAbstractScaleDraw.
+  the destructor or the next call of setAbstractScaleDraw().
 
   \sa abstractScaleDraw()
 */
@@ -378,7 +378,7 @@ double QwtAbstractScale::invTransform( int value ) const
 }
 
 /*!
-  \return True, when the scale is increasing in opposit direction
+  \return True, when the scale is increasing in opposite direction
           to the widget coordinates
  */
 bool QwtAbstractScale::isInverted() const

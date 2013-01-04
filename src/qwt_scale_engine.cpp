@@ -258,7 +258,7 @@ void QwtScaleEngine::setTransformation( QwtTransform *transform )
    of the engine. When the engine has no special transformation
    NULL is returned, indicating no transformation.
 
-   \sa setTransformation
+   \sa setTransformation()
  */
 QwtTransform *QwtScaleEngine::transformation() const
 {
@@ -333,8 +333,6 @@ double QwtScaleEngine::divideInterval(
 
   \param interval Interval
   \param value Value
-
-  \sa QwtScaleArithmetic::compareEps()
 */
 bool QwtScaleEngine::contains(
     const QwtInterval &interval, double value ) const

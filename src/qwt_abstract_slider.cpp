@@ -342,21 +342,21 @@ void QwtAbstractSlider::wheelEvent( QWheelEvent *event )
 
   QwtAbstractSlider handles the following keys:
 
-  - Qt::Key_Left
+  - Qt::Key_Left\n
     Add/Subtract singleSteps() in direction to lowerBound();
-  - Qt::Key_Right
+  - Qt::Key_Right\n
     Add/Subtract singleSteps() in direction to upperBound();
-  - Qt::Key_Down
+  - Qt::Key_Down\n
     Subtract singleSteps(), when invertedControls() is false
-  - Qt::Key_Up
+  - Qt::Key_Up\n
     Add singleSteps(), when invertedControls() is false
-  - Qt::Key_PageDown
+  - Qt::Key_PageDown\n
     Subtract pageSteps(), when invertedControls() is false
-  - Qt::Key_PageUp
+  - Qt::Key_PageUp\n
     Add pageSteps(), when invertedControls() is false
-  - Qt::Key_Home
+  - Qt::Key_Home\n
     Set the value to the minimum()
-  - Qt::Key_End
+  - Qt::Key_End\n
     Set the value to the maximum()
 
   \param event Key event
@@ -635,10 +635,10 @@ bool QwtAbstractSlider::invertedControls() const
 /*!
   Increment the slider
 
-  The step size depends on the number of totalSteps() and the range()
+  The step size depends on the number of totalSteps()
 
   \param stepCount Number of steps
-  \sa setTotalSteps()
+  \sa setTotalSteps(), incrementedValue()
  */
 void QwtAbstractSlider::incrementValue( int stepCount )
 {

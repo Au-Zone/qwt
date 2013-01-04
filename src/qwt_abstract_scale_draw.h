@@ -26,8 +26,7 @@ class QwtScaleMap;
   QwtAbstractScaleDraw can be used to draw linear or logarithmic scales.
 
   After a scale division has been specified as a QwtScaleDiv object
-  using QwtAbstractScaleDraw::setScaleDiv(const QwtScaleDiv &s),
-  the scale can be drawn with the QwtAbstractScaleDraw::draw() member.
+  using setScaleDiv(), the scale can be drawn with the draw() member.
 */
 class QWT_EXPORT QwtAbstractScaleDraw
 {
