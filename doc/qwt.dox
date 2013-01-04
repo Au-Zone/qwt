@@ -39,7 +39,7 @@ to control or display values, arrays, or ranges of type double.
   It is compatible with Qt >= 4.4.
 
   \section changelogonmainpage What's new
-  \ref qwtchangelog
+  Read the \ref qwtchangelog "summary" of the most important changes.
 
   \section screenshotsonmainpage Screenshots
   - \ref curvescreenshots\n
