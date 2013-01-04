@@ -1,7 +1,7 @@
 #include "plot.h"
 #include "panel.h"
 #include "mainwindow.h"
-#include "qwt_date.h"
+#include <qwt_date.h>
 #include <qwt_scale_widget.h>
 #include <qlayout.h>
 
