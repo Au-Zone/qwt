@@ -686,7 +686,7 @@ void QwtLegend::renderItem( QPainter *painter,
 
 /*!
   \return List of widgets associated to a plot item
-  \sa legendWidget()
+  \sa legendWidget(), plotItem()
  */
 QList<QWidget *> QwtLegend::legendWidgets( const QwtPlotItem *item ) const
 {
@@ -695,6 +695,7 @@ QList<QWidget *> QwtLegend::legendWidgets( const QwtPlotItem *item ) const
 
 /*!
   \return First widget in the list of widgets associated to a plot item
+  \sa plotItem()
   \note Almost all types of plot items have only one widget
 */
 QWidget *QwtLegend::legendWidget( const QwtPlotItem *item ) const
@@ -704,6 +705,18 @@ QWidget *QwtLegend::legendWidget( const QwtPlotItem *item ) const
         return NULL;
 
     return list[0];
+}
+
+/*!
+  Find the plot item that is associated to a widget
+
+  \param widget Widget on the legend
+  \return Associated plot item 
+  \sa legendWidget()
+ */
+QwtPlotItem *QwtLegend::plotItem( const QWidget *widget ) const
+{
+    return d_data->itemMap.plotItem( widget );
 }
 
 //! \return True, when no plot item is inserted
