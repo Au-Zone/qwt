@@ -25,6 +25,7 @@
 #ifndef NO_QWT_PLOT
 #include "qwt_designer_plotdialog.h"
 #include "qwt_plot.h"
+#include "qwt_plot_canvas.h"
 #include "qwt_scale_widget.h"
 #endif
 
@@ -138,6 +139,31 @@ PlotInterface::PlotInterface( QObject *parent ):
 QWidget *PlotInterface::createWidget( QWidget *parent )
 {
     return new QwtPlot( parent );
+}
+
+
+PlotCanvasInterface::PlotCanvasInterface( QObject *parent ):
+    CustomWidgetInterface( parent )
+{
+    d_name = "QwtPlotCanvas";
+    d_include = "qwt_plot_canvas.h";
+    d_icon = QPixmap( ":/pixmaps/qwtplot.png" );
+    d_domXml =
+        "<widget class=\"QwtPlotCanvas\" name=\"qwtPlotCanvas\">\n"
+        " <property name=\"geometry\">\n"
+        "  <rect>\n"
+        "   <x>0</x>\n"
+        "   <y>0</y>\n"
+        "   <width>400</width>\n"
+        "   <height>200</height>\n"
+        "  </rect>\n"
+        " </property>\n"
+        "</widget>\n";
+}
+
+QWidget *PlotCanvasInterface::createWidget( QWidget *parent )
+{
+    return new QwtPlotCanvas( qobject_cast<QwtPlot *>( parent ) );
 }
 
 #endif
@@ -326,13 +352,7 @@ SliderInterface::SliderInterface( QObject *parent ):
 
 QWidget *SliderInterface::createWidget( QWidget *parent )
 {
-    QwtSlider *slider = new QwtSlider( parent );
-#if 0
-    slider->setScalePosition( QwtSlider::Bottom );
-    slider->setRange( 0.0, 10.0, 1.0, 0 );
-    slider->setValue( 3.0 );
-#endif
-    return slider;
+    return new QwtSlider( parent );
 }
 
 #endif
@@ -408,6 +428,7 @@ CustomWidgetCollectionInterface::CustomWidgetCollectionInterface(
 {
 #ifndef NO_QWT_PLOT
     d_plugins.append( new PlotInterface( this ) );
+    d_plugins.append( new PlotCanvasInterface( this ) );
     d_plugins.append( new ScaleWidgetInterface( this ) );
 #endif
 
