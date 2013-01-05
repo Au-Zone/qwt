@@ -10,7 +10,7 @@
 #ifndef _QWT_DATE_H_
 #define _QWT_DATE_H_
 
-#include <qwt_global.h>
+#include "qwt_global.h"
 #include <qdatetime.h>
 
 /*!
