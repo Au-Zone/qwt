@@ -42,8 +42,10 @@ public:
     QWidget *contentsWidget();
     const QWidget *contentsWidget() const;
 
-    QWidget * legendWidget( const QwtPlotItem *item ) const;
-    QList<QWidget *> legendWidgets( const QwtPlotItem *item ) const;
+    QWidget *legendWidget( const QwtPlotItem * ) const;
+    QList<QWidget *> legendWidgets( const QwtPlotItem * ) const;
+
+    QwtPlotItem *plotItem( const QWidget * ) const;
 
     virtual bool eventFilter( QObject *, QEvent * );
 
