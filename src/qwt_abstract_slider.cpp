@@ -796,7 +796,7 @@ double QwtAbstractSlider::alignedValue( double value ) const
  */
 void QwtAbstractSlider::scaleChange()
 {
-    const double value = qBound( minimum(), value, maximum() );
+    const double value = qBound( minimum(), d_data->value, maximum() );
 
     const bool changed = ( value != d_data->value );
     if ( changed )
