@@ -520,8 +520,8 @@ void QwtPlotTradingCurve::drawSymbols( QPainter *painter,
   \param symbolStyle Symbol style
   \param sample Samples already translated into paint device coordinates
   \param orientation Vertical or horizontal
-  \param inverted True, when the corresponding scale 
-                  ( Qt::Vertical; y, Qt::Horizontal: x ) is increasing
+  \param inverted True, when the opposite scale 
+                  ( Qt::Vertical: x, Qt::Horizontal: y ) is increasing
                   in the opposite direction as QPainter coordinates.
   \param symbolWidth Width of the symbol in paint device coordinates
 */
