@@ -36,7 +36,7 @@ to control or display values, arrays, or ranges of type double.
 
   Qwt 6.1 might be usable in all environments where you find
   <a href="https://qt-project.org">Qt</a>.
-  It is compatible with Qt >= 4.4.
+  It is compatible with Qt4 ( >= 4.4 ) and Qt5.
 
   \section changelogonmainpage What's new
   Read the \ref qwtchangelog "summary" of the most important changes.
