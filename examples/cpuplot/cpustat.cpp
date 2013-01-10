@@ -10,7 +10,7 @@ CpuStat::CpuStat()
 
 QTime CpuStat::upTime() const
 {
-    QTime t;
+    QTime t( 0, 0, 0 );
     for ( int i = 0; i < NValues; i++ )
         t = t.addSecs( int( procValues[i] / 100 ) );
 
