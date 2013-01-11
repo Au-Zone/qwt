@@ -301,4 +301,6 @@ Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemAttributes )
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemInterests )
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::RenderHints )
 
+Q_DECLARE_METATYPE( QwtPlotItem * )
+
 #endif
