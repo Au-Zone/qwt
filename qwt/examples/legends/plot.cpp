@@ -148,10 +148,10 @@ void Plot::applySettings( const Settings &settings )
 
                 connect( 
                     this, 
-                    SIGNAL( legendDataChanged( const QwtPlotItem *, 
+                    SIGNAL( legendDataChanged( const QVariant &, 
                         const QList<QwtLegendData> & ) ),
                     d_externalLegend, 
-                    SLOT( updateLegend( const QwtPlotItem *, 
+                    SLOT( updateLegend( const QVariant &, 
                         const QList<QwtLegendData> & ) ) );
 
                 d_externalLegend->show();

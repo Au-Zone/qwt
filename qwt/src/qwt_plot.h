@@ -17,6 +17,7 @@
 #include "qwt_interval.h"
 #include <qframe.h>
 #include <qlist.h>
+#include <qvariant.h>
 
 class QwtPlotLayout;
 class QwtAbstractLegend;
@@ -242,6 +243,9 @@ public:
     virtual void drawItems( QPainter *, const QRectF &,
         const QwtScaleMap maps[axisCnt] ) const;
 
+    virtual QVariant itemToInfo( QwtPlotItem * ) const;
+    virtual QwtPlotItem *infoToItem( const QVariant & ) const;
+
 Q_SIGNALS:
     /*!
       A signal indicating, that an item has been attached/detached
@@ -255,10 +259,11 @@ Q_SIGNALS:
       A signal with the attributes how to update 
       the legend entries for a plot item.
 
-      \param plotItem Plot item
-      \param data List of attributes for items on a legend
+      \param itemInfo Info about a plot, build from itemToInfo()
+
+      \sa itemToInfo(), infoToItem(), QwtAbstractLegend::updateLegend()
      */
-    void legendDataChanged( const QwtPlotItem *plotItem, 
+    void legendDataChanged( const QVariant &itemInfo, 
         const QList<QwtLegendData> &data );
 
 public Q_SLOTS:
@@ -271,7 +276,7 @@ protected:
     virtual void resizeEvent( QResizeEvent *e );
 
 private Q_SLOTS:
-    void updateLegendItems( const QwtPlotItem *plotItem,
+    void updateLegendItems( const QVariant &itemInfo,
         const QList<QwtLegendData> &data );
 
 private:

@@ -56,8 +56,8 @@ TransformPlot::TransformPlot( QWidget *parent ):
     legend->setDefaultItemMode( QwtLegendData::Checkable );
     insertLegend( legend, QwtPlot::RightLegend );
 
-    connect( legend, SIGNAL( checked( QwtPlotItem *, bool, int ) ),
-        this, SLOT( legendChecked( QwtPlotItem *, bool ) ) );
+    connect( legend, SIGNAL( checked( const QVariant &, bool, int ) ),
+        this, SLOT( legendChecked( const QVariant &, bool ) ) );
 }
 
 void TransformPlot::insertTransformation( 
@@ -70,8 +70,10 @@ void TransformPlot::insertTransformation(
     curve->attach( this );
 }
 
-void TransformPlot::legendChecked( QwtPlotItem *plotItem, bool on )
+void TransformPlot::legendChecked( const QVariant &itemInfo, bool on )
 {
+	QwtPlotItem *plotItem = infoToItem( itemInfo );
+
     setLegendChecked( plotItem );
 
     if ( on && plotItem->rtti() == QwtPlotItem::Rtti_PlotCurve )
@@ -93,8 +95,8 @@ void TransformPlot::setLegendChecked( QwtPlotItem *plotItem )
         {
             QwtLegend *lgd = qobject_cast<QwtLegend *>( legend() );
 
-            QwtLegendLabel *label =
-                qobject_cast< QwtLegendLabel *>( lgd->legendWidget( item ) );
+            QwtLegendLabel *label = qobject_cast< QwtLegendLabel *>( 
+				lgd->legendWidget( itemToInfo( item ) ) );
             if ( label )
             {
                 lgd->blockSignals( true );

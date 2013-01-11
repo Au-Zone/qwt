@@ -70,8 +70,8 @@ TVPlot::TVPlot( QWidget *parent ):
 
     populate();
 
-    connect( legend, SIGNAL( checked( QwtPlotItem *, bool, int ) ),
-        SLOT( showItem( QwtPlotItem *, bool ) ) );
+    connect( legend, SIGNAL( checked( const QVariant &, bool, int ) ),
+        SLOT( showItem( const QVariant &, bool ) ) );
 
     replot(); // creating the legend items
 
@@ -80,8 +80,10 @@ TVPlot::TVPlot( QWidget *parent ):
     {
         if ( i == 0 )
         {
+            const QVariant itemInfo = itemToInfo( items[i] );
+
             QwtLegendLabel *legendLabel =
-                qobject_cast<QwtLegendLabel *>( legend->legendWidget( items[i] ) );
+                qobject_cast<QwtLegendLabel *>( legend->legendWidget( itemInfo ) );
             if ( legendLabel )
                 legendLabel->setChecked( true );
 
@@ -158,8 +160,10 @@ void TVPlot::setMode( int mode )
     }
 }
 
-void TVPlot::showItem( QwtPlotItem *item, bool on )
+void TVPlot::showItem( const QVariant &itemInfo, bool on )
 {
-    item->setVisible( on );
+    QwtPlotItem *plotItem = infoToItem( itemInfo );
+    if ( plotItem )
+        plotItem->setVisible( on );
 }
 
