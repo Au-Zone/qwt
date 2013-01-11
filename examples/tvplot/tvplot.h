@@ -17,7 +17,7 @@ private:
     void populate();
 
 private Q_SLOTS:
-    void showItem( QwtPlotItem *, bool on );
+    void showItem( const QVariant &, bool on );
 };
 
 #endif

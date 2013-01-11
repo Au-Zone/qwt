@@ -18,7 +18,7 @@ Q_SIGNALS:
     void selected( QwtTransform * );
 
 private Q_SLOTS:
-    void legendChecked( QwtPlotItem *, bool on );
+    void legendChecked( const QVariant &, bool on );
 
 private:
 };

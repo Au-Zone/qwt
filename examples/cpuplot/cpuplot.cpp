@@ -159,8 +159,8 @@ CpuPlot::CpuPlot( QWidget *parent ):
 
     ( void )startTimer( 1000 ); // 1 second
 
-    connect( legend, SIGNAL( checked( QwtPlotItem *, bool, int ) ),
-        SLOT( showCurve( QwtPlotItem *, bool ) ) );
+    connect( legend, SIGNAL( checked( const QVariant &, bool, int ) ),
+        SLOT( legendChecked( const QVariant &, bool ) ) );
 }
 
 void CpuPlot::timerEvent( QTimerEvent * )
@@ -197,12 +197,21 @@ void CpuPlot::timerEvent( QTimerEvent * )
     replot();
 }
 
+void CpuPlot::legendChecked( const QVariant &itemInfo, bool on )
+{
+    QwtPlotItem *plotItem = infoToItem( itemInfo );
+    if ( plotItem )
+        showCurve( plotItem, on );
+}
+
 void CpuPlot::showCurve( QwtPlotItem *item, bool on )
 {
     item->setVisible( on );
 
+    QwtLegend *lgd = qobject_cast<QwtLegend *>( legend() );
+
     QList<QWidget *> legendWidgets = 
-        qobject_cast<QwtLegend *>( legend() )->legendWidgets( item );
+        lgd->legendWidgets( itemToInfo( item ) );
 
     if ( legendWidgets.size() == 1 )
     {

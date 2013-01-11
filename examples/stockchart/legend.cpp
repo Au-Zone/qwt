@@ -268,9 +268,11 @@ int Legend::scrollExtent( Qt::Orientation orientation ) const
     return style()->pixelMetric( QStyle::PM_ScrollBarExtent );
 }
 
-void Legend::updateLegend( const QwtPlotItem *plotItem,
+void Legend::updateLegend( const QVariant &itemInfo,
     const QList<QwtLegendData> &data )
 {
+    QwtPlotItem *plotItem = qvariant_cast<QwtPlotItem *>( itemInfo );
+
     QStandardItem *rootItem = d_treeView->rootItem( plotItem->rtti() );
     QList<QStandardItem *> itemList = d_treeView->itemList( plotItem );
 

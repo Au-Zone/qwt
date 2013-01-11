@@ -27,7 +27,7 @@ Q_SIGNALS:
     void checked( QwtPlotItem *plotItem, bool on, int index );
 
 public Q_SLOTS:
-    virtual void updateLegend( const QwtPlotItem *,
+    virtual void updateLegend( const QVariant &,
         const QList<QwtLegendData> & );
 
 private Q_SLOTS:

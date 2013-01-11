@@ -29,9 +29,11 @@ protected:
     void timerEvent( QTimerEvent *e );
 
 private Q_SLOTS:
-    void showCurve( QwtPlotItem *, bool on );
+    void legendChecked( const QVariant &, bool on );
 
 private:
+    void showCurve( QwtPlotItem *, bool on );
+
     struct
     {
         QwtPlotCurve *curve;
