@@ -10,8 +10,40 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_legend_label.h>
+#include <qwt_date.h>
 #include <qwt_date_scale_engine.h>
 #include <qwt_date_scale_draw.h>
+
+class Zoomer: public QwtPlotZoomer
+{
+public:
+    Zoomer( QWidget *canvas ):
+        QwtPlotZoomer( canvas )
+    {
+        setRubberBandPen( QColor( Qt::darkGreen ) );
+        setTrackerMode( QwtPlotPicker::AlwaysOn );
+    }
+
+protected:
+    virtual QwtText trackerTextF( const QPointF &pos ) const
+    {
+        const QDateTime dt = QwtDate::toDateTime( pos.x() );
+
+        QString s;
+        s += QwtDate::toString( QwtDate::toDateTime( pos.x() ),
+            "MMM dd hh:mm ", QwtDate::FirstThursday );
+
+        QwtText text( s );
+        text.setColor( Qt::white );
+
+        QColor c = rubberBandPen().color();
+        text.setBackgroundPen( c );
+        c.setAlpha( 170 );
+        text.setBackgroundBrush( c );
+
+        return text;
+    }
+};
 
 class DateScaleDraw: public QwtDateScaleDraw
 {
@@ -96,9 +128,7 @@ Plot::Plot( QWidget *parent ):
     // RightButton: zoom out by 1
     // Ctrl+RighButton: zoom out to full size
 
-    QwtPlotZoomer* zoomer = new QwtPlotZoomer( canvas() );
-    zoomer->setRubberBandPen( QColor( Qt::black ) );
-    zoomer->setTrackerPen( QColor( Qt::black ) );
+    Zoomer* zoomer = new Zoomer( canvas() );
     zoomer->setMousePattern( QwtEventPattern::MouseSelect2,
         Qt::RightButton, Qt::ControlModifier );
     zoomer->setMousePattern( QwtEventPattern::MouseSelect3,
