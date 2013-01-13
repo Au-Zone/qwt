@@ -59,7 +59,8 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
         {
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::TrailingScale );
-            slider->setBackgroundStyle( QwtSlider::Trough );
+            slider->setTrough( true );
+            slider->setGroove( false );
             slider->setSpacing( 0 );
             slider->setHandleSize( QSize( 30, 16 ) );
             slider->setScale( 10.0, -10.0 ); 
@@ -73,7 +74,8 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
         {
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::NoScale );
-            slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
+            slider->setTrough( true );
+            slider->setGroove( true );
             slider->setScale( 0.0, 1.0 );
             slider->setTotalSteps( 100 );
             slider->setSingleSteps( 1 );
@@ -84,7 +86,8 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
         {
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::LeadingScale );
-            slider->setBackgroundStyle( QwtSlider::Groove );
+            slider->setTrough( false );
+            slider->setGroove( true );
             slider->setHandleSize( QSize( 12, 25 ) );
             slider->setScale( 1000.0, 3000.0 );
             slider->setTotalSteps( 200.0 );
@@ -96,7 +99,8 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
         {
             slider->setOrientation( Qt::Horizontal );
             slider->setScalePosition( QwtSlider::TrailingScale );
-            slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
+            slider->setTrough( true );
+            slider->setGroove( true );
 
             QwtLinearScaleEngine *scaleEngine = new QwtLinearScaleEngine( 2 );
             scaleEngine->setTransformation( new QwtPowerTransform( 2 ) );
@@ -112,7 +116,8 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
         {
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::TrailingScale );
-            slider->setBackgroundStyle( QwtSlider::Groove );
+            slider->setTrough( false );
+            slider->setGroove( true );
             slider->setScale( 100.0, 0.0 );
             slider->setInvertedControls( true );
             slider->setTotalSteps( 100 );
@@ -124,7 +129,8 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
         {
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::NoScale );
-            slider->setBackgroundStyle( QwtSlider::Trough );
+            slider->setTrough( true );
+            slider->setGroove( false );
             slider->setScale( 0.0, 100.0 );
             slider->setTotalSteps( 100 );
             slider->setPageSteps( 10 );
@@ -134,7 +140,8 @@ QwtSlider *SliderBox::createSlider( int sliderType ) const
         {
             slider->setOrientation( Qt::Vertical );
             slider->setScalePosition( QwtSlider::LeadingScale );
-            slider->setBackgroundStyle( QwtSlider::Trough | QwtSlider::Groove );
+            slider->setTrough( true );
+            slider->setGroove( true );
             slider->setScaleEngine( new QwtLogScaleEngine );
             slider->setStepAlignment( false );
             slider->setHandleSize( QSize( 20, 32 ) );
