@@ -74,8 +74,19 @@ myPlot->replot();
 class QWT_EXPORT QwtPlot: public QFrame, public QwtPlotDict
 {
     Q_OBJECT
+
+    Q_PROPERTY( QBrush canvasBackground 
+        READ canvasBackground WRITE setCanvasBackground )
+    Q_PROPERTY( bool autoReplot READ autoReplot WRITE setAutoReplot )
+
+#if 0
+    // This property is intended to configure the plot
+    // widget from a special dialog in the deigner plugin.
+    // Disabled until such a dialog has been implemented.
+
     Q_PROPERTY( QString propertiesDocument
         READ grabProperties WRITE applyProperties )
+#endif
 
 public:
     //! \brief Axis index
@@ -118,14 +129,14 @@ public:
     };
 
     explicit QwtPlot( QWidget * = NULL );
-    explicit QwtPlot( const QwtText &title, QWidget *p = NULL );
+    explicit QwtPlot( const QwtText &title, QWidget * = NULL );
 
     virtual ~QwtPlot();
 
     void applyProperties( const QString & );
     QString grabProperties() const;
 
-    void setAutoReplot( bool tf = true );
+    void setAutoReplot( bool = true );
     bool autoReplot() const;
 
     // Layout
