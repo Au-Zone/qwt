@@ -986,7 +986,7 @@ void QwtPlot::insertLegend( QwtAbstractLegend *legend,
 }
 
 /*!
-  Emit legendDataChanged() for a plot item
+  Emit legendDataChanged() for all plot item
 
   \sa QwtPlotItem::legendData(), legendDataChanged()
  */
