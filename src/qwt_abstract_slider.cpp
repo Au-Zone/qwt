@@ -460,6 +460,8 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
   The range of the slider is divided into a number of steps from
   which the value increments according to user inputs depend. 
 
+  The default setting is 100.
+
   \param stepCount Number of steps
 
   \sa totalSteps(), setSingleSteps(), setPageSteps()
