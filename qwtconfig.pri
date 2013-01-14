@@ -125,7 +125,7 @@ QWT_CONFIG     += QwtExamples
 QWT_CONFIG     += QwtPlayground
 
 ######################################################################
-# When Qt has been built as framework qmake ( qtAddLibrary ) wants 
+# When Qt has been built as framework qmake wants 
 # to link frameworks instead of regular libs
 ######################################################################
 
