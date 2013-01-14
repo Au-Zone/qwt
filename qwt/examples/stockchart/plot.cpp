@@ -37,7 +37,8 @@ protected:
         text.setColor( Qt::white );
 
         QColor c = rubberBandPen().color();
-        text.setBackgroundPen( c );
+        text.setBorderPen( QPen( c ) );
+        text.setBorderRadius( 6 );
         c.setAlpha( 170 );
         text.setBackgroundBrush( c );
 
