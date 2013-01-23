@@ -380,7 +380,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
     {
         case Qt::Key_Left:
         {
-            numSteps = -d_data->singleSteps;
+            numSteps = -static_cast<int>( d_data->singleSteps );
             if ( isInverted() )
                 numSteps = -numSteps;
 
@@ -396,7 +396,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
         }
         case Qt::Key_Down:
         {
-            numSteps = -d_data->singleSteps;
+            numSteps = -static_cast<int>( d_data->singleSteps );
             if ( d_data->invertedControls )
                 numSteps = -numSteps;
             break;
@@ -418,7 +418,7 @@ void QwtAbstractSlider::keyPressEvent( QKeyEvent *event )
         }
         case Qt::Key_PageDown:
         {
-            numSteps = -d_data->pageSteps;
+            numSteps = -static_cast<int>( d_data->pageSteps );
             if ( d_data->invertedControls )
                 numSteps = -numSteps;
             break;
