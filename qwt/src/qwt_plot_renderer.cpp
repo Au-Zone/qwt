@@ -244,6 +244,7 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
     {
 #ifndef QT_NO_PRINTER
         QPrinter printer;
+        printer.setColorMode( QPrinter::Color );
         printer.setFullPage( true );
         printer.setPaperSize( sizeMM, QPrinter::Millimeter );
         printer.setDocName( title );
@@ -260,6 +261,7 @@ void QwtPlotRenderer::renderDocument( QwtPlot *plot,
 #if QT_VERSION < 0x050000
 #ifndef QT_NO_PRINTER
         QPrinter printer;
+        printer.setColorMode( QPrinter::Color );
         printer.setFullPage( true );
         printer.setPaperSize( sizeMM, QPrinter::Millimeter );
         printer.setDocName( title );
