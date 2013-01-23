@@ -612,7 +612,7 @@ void QwtDial::setScaleArc( double minArc, double maxArc )
     }
 }
 
-// \sa setScaleArc()
+//! \sa setScaleArc()
 void QwtDial::setMinScaleArc( double min )
 {
     setScaleArc( min, d_data->maxScaleArc );
