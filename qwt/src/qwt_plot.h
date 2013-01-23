@@ -270,7 +270,9 @@ Q_SIGNALS:
       A signal with the attributes how to update 
       the legend entries for a plot item.
 
-      \param itemInfo Info about a plot, build from itemToInfo()
+      \param itemInfo Info about a plot item, build from itemToInfo()
+      \param data Attributes of the entries ( usually <= 1 ) for
+                  the plot item.
 
       \sa itemToInfo(), infoToItem(), QwtAbstractLegend::updateLegend()
      */
