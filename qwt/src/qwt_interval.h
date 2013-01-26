@@ -11,6 +11,8 @@
 #define QWT_INTERVAL_H
 
 #include "qwt_global.h"
+#include <qmetatype.h>
+
 #ifndef QT_NO_DEBUG_STREAM
 #include <qdebug.h>
 #endif
