@@ -16,6 +16,7 @@
 #include "qwt_graphic.h"
 #include <qrect.h>
 #include <qlist.h>
+#include <qmetatype.h>
 
 class QPainter;
 class QwtScaleMap;
