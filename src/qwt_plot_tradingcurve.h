@@ -151,7 +151,7 @@ protected:
         const QRectF &canvasRect, int from, int to ) const;
 
     virtual void drawUserSymbol( QPainter *, 
-		SymbolStyle, const QwtOHLCSample &,
+        SymbolStyle, const QwtOHLCSample &,
         Qt::Orientation, bool inverted, double width ) const;
 
     void drawBar( QPainter *painter, const QwtOHLCSample &, 
