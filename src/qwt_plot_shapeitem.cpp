@@ -242,7 +242,7 @@ void QwtPlotShapeItem::setShape( const QPainterPath &shape )
         d_data->shape = shape;
         if ( shape.isEmpty() )
         {
-            d_data->boundingRect == QwtPlotItem::boundingRect();
+            d_data->boundingRect = QwtPlotItem::boundingRect();
         }
         else
         {
