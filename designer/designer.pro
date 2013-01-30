@@ -13,6 +13,14 @@ include ( $${QWT_ROOT}/qwtconfig.pri )
 include ( $${QWT_ROOT}/qwtbuild.pri )
 include ( $${QWT_ROOT}/qwtfunctions.pri )
 
+
+CONFIG(debug_and_release, debug|release|debug_and_release) {
+
+    # build the plugin for release only, when debug_and_release
+
+    CONFIG(debug, debug|release): QWT_CONFIG -= QwtDesigner
+}
+
 contains(QWT_CONFIG, QwtDesigner) {
 
     CONFIG    += qt plugin 
@@ -20,7 +28,7 @@ contains(QWT_CONFIG, QwtDesigner) {
 
     greaterThan(QT_MAJOR_VERSION, 4) {
 
-    	QT += designer
+        QT += designer
     }
     else {
 
