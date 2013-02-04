@@ -553,7 +553,7 @@ void QwtLinearScaleEngine::autoScale( int maxNumSteps,
 }
 
 /*!
-   \brief Calculate a scale division
+   \brief Calculate a scale division for an interval
 
    \param x1 First interval limit
    \param x2 Second interval limit
@@ -561,6 +561,8 @@ void QwtLinearScaleEngine::autoScale( int maxNumSteps,
    \param maxMinorSteps Maximum number of minor steps
    \param stepSize Step size. If stepSize == 0, the engine
                    calculates one.
+
+   \return Calculated scale division
 */
 QwtScaleDiv QwtLinearScaleEngine::divideScale( double x1, double x2,
     int maxMajorSteps, int maxMinorSteps, double stepSize ) const
@@ -844,7 +846,7 @@ void QwtLogScaleEngine::autoScale( int maxNumSteps,
 }
 
 /*!
-   \brief Calculate a scale division
+   \brief Calculate a scale division for an interval
 
    \param x1 First interval limit
    \param x2 Second interval limit
@@ -852,6 +854,8 @@ void QwtLogScaleEngine::autoScale( int maxNumSteps,
    \param maxMinorSteps Maximum number of minor steps
    \param stepSize Step size. If stepSize == 0, the engine
                    calculates one.
+
+   \return Calculated scale division
 */
 QwtScaleDiv QwtLogScaleEngine::divideScale( double x1, double x2,
     int maxMajorSteps, int maxMinorSteps, double stepSize ) const

@@ -156,7 +156,7 @@ inline void QwtPainter::drawLine( QPainter *painter, const QLineF &line )
 }
 
 /*!
-  Returns whether line splitting for the raster paint engine is enabled.
+  \return True, when line splitting for the raster paint engine is enabled.
   \sa setPolylineSplitting()
 */
 inline bool QwtPainter::polylineSplitting()
