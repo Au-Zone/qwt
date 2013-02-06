@@ -129,7 +129,7 @@ QWT_CONFIG     += QwtPlayground
 # to link frameworks instead of regular libs
 ######################################################################
 
-macx:CONFIG(qt_framework, qt_framework|qt_no_framework) {
+macx:!static:CONFIG(qt_framework, qt_framework|qt_no_framework) {
 
     QWT_CONFIG += QwtFramework
 }  
