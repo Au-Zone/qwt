@@ -36,14 +36,23 @@ defineTest(qwtAddLibrary) {
 
     unset(LINKAGE)
 
-    if(!debug_and_release|build_pass):CONFIG(debug, debug|release) {
-	   win32:LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}d
-	   mac:LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}_debug
+    mac:!static:contains(QT_CONFIG, qt_framework) {
+        LINKAGE = -framework $${LIB_NAME}$${QT_LIBINFIX}
     }
 
-   	isEmpty(LINKAGE):LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}
+    isEmpty(LINKAGE) {
+        if(!debug_and_release|build_pass):CONFIG(debug, debug|release) {
 
-	!isEmpty(QMAKE_LSB) {
+            win32:LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}d
+            mac:LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}_debug
+        }
+    }
+
+    isEmpty(LINKAGE) {
+        LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}
+    }
+
+    !isEmpty(QMAKE_LSB) {
         QMAKE_LFLAGS *= --lsb-shared-libs=$${LIB_NAME}$${QT_LIBINFIX}
     }
 
