@@ -199,7 +199,10 @@ void QwtPainter::setRoundingAlignment( bool enable )
   \brief En/Disable line splitting for the raster paint engine
 
   In some Qt versions the raster paint engine paints polylines of many points
-  much faster when they are split in smaller chunks.
+  much faster when they are split in smaller chunks: f.e all supported Qt versions
+  >= Qt 5.0 when drawing an antialiased polyline with a pen width >=2.
+
+  The default setting is true.
 
   \sa polylineSplitting()
 */
