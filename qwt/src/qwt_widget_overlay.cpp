@@ -112,8 +112,7 @@ public:
    \param widget Parent widget, where the overlay is aligned to
 */
 QwtWidgetOverlay::QwtWidgetOverlay( QWidget* widget ):
-    QWidget( widget ),
-    m_rgbaBuffer( NULL )
+    QWidget( widget )
 {
     d_data = new PrivateData;
 
