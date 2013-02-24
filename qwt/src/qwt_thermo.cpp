@@ -72,7 +72,7 @@ class QwtThermo::PrivateData
 public:
     PrivateData():
         orientation( Qt::Vertical ),
-        scalePos( QwtThermo::LeftScale ),
+        scalePosition( QwtThermo::TrailingScale ),
         spacing( 3 ),
         borderWidth( 2 ),
         pipeWidth( 10 ),
@@ -91,7 +91,7 @@ public:
     }
 
     Qt::Orientation orientation;
-    ScalePos scalePos;
+    ScalePosition scalePosition;
     int spacing;
     int borderWidth;
     int pipeWidth;
@@ -236,7 +236,7 @@ void QwtThermo::paintEvent( QPaintEvent *event )
 
     if ( !tRect.contains( event->rect() ) )
     {
-        if ( d_data->scalePos != NoScale )
+        if ( d_data->scalePosition != QwtThermo::NoScale )
             scaleDraw()->draw( &painter, palette() );
     }
 
@@ -282,7 +282,7 @@ void QwtThermo::changeEvent( QEvent *event )
 
 /*!
   Recalculate the QwtThermo geometry and layout based on
-  the QwtThermo::contentsRect() and the fonts.
+  pipeRect() and the fonts.
 
   \param update_geometry notify the layout system and call update
          to redraw the scale
@@ -315,26 +315,18 @@ void QwtThermo::layoutThermo( bool update_geometry )
                 to++;
         }
 
-        switch ( d_data->scalePos )
+        if ( d_data->scalePosition == QwtThermo::TrailingScale )
         {
-            case TopScale:
-            {
-                scaleDraw()->setAlignment( QwtScaleDraw::TopScale );
-                scaleDraw()->move( from, tRect.top() - bw );
-                scaleDraw()->setLength( to - from );
-                break;
-            }
-
-            case BottomScale:
-            case NoScale: 
-            default:
-            {
-                scaleDraw()->setAlignment( QwtScaleDraw::BottomScale );
-                scaleDraw()->move( from, tRect.bottom() + bw );
-                scaleDraw()->setLength( to - from );
-                break;
-            }
+            scaleDraw()->setAlignment( QwtScaleDraw::TopScale );
+            scaleDraw()->move( from, tRect.top() - bw );
         }
+        else
+        {
+            scaleDraw()->setAlignment( QwtScaleDraw::BottomScale );
+            scaleDraw()->move( from, tRect.bottom() + bw );
+        }
+
+        scaleDraw()->setLength( to - from );
     }
     else // Qt::Vertical
     {
@@ -356,26 +348,18 @@ void QwtThermo::layoutThermo( bool update_geometry )
                 from--;
         }
 
-        switch ( d_data->scalePos )
+        if ( d_data->scalePosition == QwtThermo::LeadingScale )
         {
-            case RightScale:
-            {
-                scaleDraw()->setAlignment( QwtScaleDraw::RightScale );
-                scaleDraw()->move( tRect.right() + bw, from );
-                scaleDraw()->setLength( to - from );
-                break;
-            }
-
-            case LeftScale:
-            case NoScale: 
-            default:
-            {
-                scaleDraw()->setAlignment( QwtScaleDraw::LeftScale );
-                scaleDraw()->move( tRect.left() - bw, from );
-                scaleDraw()->setLength( to - from );
-                break;
-            }
+            scaleDraw()->setAlignment( QwtScaleDraw::RightScale );
+            scaleDraw()->move( tRect.right() + bw, from );
         }
+        else
+        {
+            scaleDraw()->setAlignment( QwtScaleDraw::LeftScale );
+            scaleDraw()->move( tRect.left() - bw, from );
+        }
+
+        scaleDraw()->setLength( to - from );
     }
 
     if ( update_geometry )
@@ -391,169 +375,106 @@ void QwtThermo::layoutThermo( bool update_geometry )
 */
 QRect QwtThermo::pipeRect() const
 {
-    const QRect cr = contentsRect();
-
     int mbd = 0;
-    if ( d_data->scalePos != NoScale )
+    if ( d_data->scalePosition != QwtThermo::NoScale )
     {
         int d1, d2;
         scaleDraw()->getBorderDistHint( font(), d1, d2 );
         mbd = qMax( d1, d2 );
     }
     const int bw = d_data->borderWidth;
+    const int scaleOff = bw + mbd;
 
-    QRect tRect;
+    const QRect cr = contentsRect();
+
+    QRect pipeRect = cr;
     if ( d_data->orientation == Qt::Horizontal )
     {
-        switch ( d_data->scalePos )
-        {
-            case TopScale:
-            {
-                tRect.setRect(
-                    cr.x() + mbd + bw,
-                    cr.y() + cr.height() - d_data->pipeWidth - bw,
-                    cr.width() - 2 * ( bw + mbd ),
-                    d_data->pipeWidth 
-                );
-                break;
-            }
+        pipeRect.adjust( scaleOff, 0, -scaleOff, 0 );
 
-            case BottomScale:
-            case NoScale: 
-            default:   
-            {
-                tRect.setRect(
-                    cr.x() + mbd + bw,
-                    cr.y() + bw,
-                    cr.width() - 2 * ( bw + mbd ),
-                    d_data->pipeWidth 
-                );
-                break;
-            }
-        }
+        if ( d_data->scalePosition == QwtThermo::TrailingScale )
+            pipeRect.setTop( cr.top() + cr.height() - bw - d_data->pipeWidth );
+        else
+            pipeRect.setTop( bw );
+
+        pipeRect.setHeight( d_data->pipeWidth );
     }
     else // Qt::Vertical
     {
-        switch ( d_data->scalePos )
-        {
-            case RightScale:
-            {
-                tRect.setRect(
-                    cr.x() + bw,
-                    cr.y() + mbd + bw,
-                    d_data->pipeWidth,
-                    cr.height() - 2 * ( bw + mbd ) 
-                );
-                break;
-            }
-            case LeftScale:
-            case NoScale: 
-            default:   
-            {
-                tRect.setRect(
-                    cr.x() + cr.width() - bw - d_data->pipeWidth,
-                    cr.y() + mbd + bw,
-                    d_data->pipeWidth,
-                    cr.height() - 2 * ( bw + mbd ) );
-                break;
-            }
-        }
+        pipeRect.adjust( 0, scaleOff, 0, -scaleOff );
+
+        if ( d_data->scalePosition == QwtThermo::LeadingScale )
+            pipeRect.setLeft( bw );
+        else 
+            pipeRect.setLeft( cr.left() + cr.width() - bw - d_data->pipeWidth );
+
+        pipeRect.setWidth( d_data->pipeWidth );
     }
 
-    return tRect;
+    return pipeRect;
 }
 
 /*!
-   \brief Set the thermometer orientation and the scale position.
+  \brief Set the orientation.
+  \param orientation Allowed values are Qt::Horizontal and Qt::Vertical.
 
-   The scale position NoScale disables the scale.
-   \param o orientation. Possible values are Qt::Horizontal and Qt::Vertical.
-         The default value is Qt::Vertical.
-   \param s Position of the scale.
-         The default value is NoScale.
-
-   A valid combination of scale position and orientation is enforced:
-   - a horizontal thermometer can have the scale positions TopScale,
-     BottomScale or NoScale;
-   - a vertical thermometer can have the scale positions LeftScale,
-     RightScale or NoScale;
-   - an invalid scale position will default to NoScale.
-
-   \sa setScalePosition()
+  \sa orientation(), scalePosition()
 */
-void QwtThermo::setOrientation( Qt::Orientation o, ScalePos s )
+void QwtThermo::setOrientation( Qt::Orientation orientation )
 {
-    if ( o == d_data->orientation && s == d_data->scalePos )
+    if ( orientation == d_data->orientation )
         return;
 
-    switch ( o )
+    d_data->orientation = orientation;
+
+    if ( !testAttribute( Qt::WA_WState_OwnSizePolicy ) )
     {
-        case Qt::Horizontal:
-        {
-            if ( ( s == NoScale ) || ( s == BottomScale ) || ( s == TopScale ) )
-                d_data->scalePos = s;
-            else
-                d_data->scalePos = NoScale;
-            break;
-        }
-        case Qt::Vertical:
-        {
-            if ( ( s == NoScale ) || ( s == LeftScale ) || ( s == RightScale ) )
-                d_data->scalePos = s;
-            else
-                d_data->scalePos = NoScale;
-            break;
-        }
+        QSizePolicy sp = sizePolicy();
+        sp.transpose();
+        setSizePolicy( sp );
+
+        setAttribute( Qt::WA_WState_OwnSizePolicy, false );
     }
 
-    if ( o != d_data->orientation )
-    {
-        if ( !testAttribute( Qt::WA_WState_OwnSizePolicy ) )
-        {
-            QSizePolicy sp = sizePolicy();
-            sp.transpose();
-            setSizePolicy( sp );
-
-            setAttribute( Qt::WA_WState_OwnSizePolicy, false );
-        }
-    }
-
-    d_data->orientation = o;
-    layoutThermo( true );
+#if 0
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+#endif
+        layoutThermo( true );
 }
 
 /*!
-  \brief Change the scale position (and thermometer orientation).
-
-  \param scalePos Position of the scale.
-
-  A valid combination of scale position and orientation is enforced:
-  - if the new scale position is LeftScale or RightScale, the
-    scale orientation will become Qt::Vertical;
-  - if the new scale position is BottomScale or TopScale, the scale
-    orientation will become Qt::Horizontal;
-  - if the new scale position is NoScale, the scale orientation 
-    will not change.
-
-  \sa setOrientation(), scalePosition()
+  \return Orientation
+  \sa setOrientation()
 */
-void QwtThermo::setScalePosition( ScalePos scalePos )
+Qt::Orientation QwtThermo::orientation() const
 {
-    if ( ( scalePos == BottomScale ) || ( scalePos == TopScale ) )
-        setOrientation( Qt::Horizontal, scalePos );
-    else if ( ( scalePos == LeftScale ) || ( scalePos == RightScale ) )
-        setOrientation( Qt::Vertical, scalePos );
-    else
-        setOrientation( d_data->orientation, NoScale );
+    return d_data->orientation;
+}
+
+/*!
+  \brief Change the position of the scale
+  \param scalePosition Position of the scale.
+
+  \sa ScalePosition, scalePosition()
+*/
+void QwtThermo::setScalePosition( ScalePosition scalePosition )
+{
+    if ( d_data->scalePosition == scalePosition )
+        return;
+
+    d_data->scalePosition = scalePosition;
+
+    if ( testAttribute( Qt::WA_WState_Polished ) )
+        layoutThermo( true );
 }
 
 /*!
    Return the scale position.
    \sa setScalePosition()
 */
-QwtThermo::ScalePos QwtThermo::scalePosition() const
+QwtThermo::ScalePosition QwtThermo::scalePosition() const
 {
-    return d_data->scalePos;
+    return d_data->scalePosition;
 }
 
 //! Notify a scale change.
@@ -914,7 +835,7 @@ QSize QwtThermo::minimumSizeHint() const
 {
     int w = 0, h = 0;
 
-    if ( d_data->scalePos != NoScale )
+    if ( d_data->scalePosition != NoScale )
     {
         const int sdExtent = qCeil( scaleDraw()->extent( font() ) );
         const int sdLength = scaleDraw()->minLength( font() );

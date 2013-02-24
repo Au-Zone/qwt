@@ -34,14 +34,16 @@ QWidget *WheelBox::createBox(
     d_wheel->setMass( 1.0 );
 
     d_thermo = new QwtThermo();
+    d_thermo->setOrientation( orientation );
+
     if ( orientation == Qt::Horizontal )
     {
-        d_thermo->setOrientation( orientation, QwtThermo::TopScale );
+        d_thermo->setScalePosition( QwtThermo::LeadingScale );
         d_wheel->setOrientation( Qt::Vertical );
     }
     else
     {
-        d_thermo->setOrientation( orientation, QwtThermo::LeftScale );
+        d_thermo->setScalePosition( QwtThermo::TrailingScale );
         d_wheel->setOrientation( Qt::Horizontal );
     }
 

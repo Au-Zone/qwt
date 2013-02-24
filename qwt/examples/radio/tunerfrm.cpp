@@ -18,7 +18,8 @@ public:
         QWidget( parent )
     {
         d_thermo = new QwtThermo( this );
-        d_thermo->setOrientation( Qt::Horizontal, QwtThermo::NoScale );
+        d_thermo->setOrientation( Qt::Horizontal );
+        d_thermo->setScalePosition( QwtThermo::NoScale );
         d_thermo->setScale( 0.0, 1.0 );
         d_thermo->setFillBrush( Qt::green );
 

@@ -51,7 +51,9 @@ class QWT_EXPORT QwtThermo: public QwtAbstractScale
 
     Q_PROPERTY( bool alarmEnabled READ alarmEnabled WRITE setAlarmEnabled )
     Q_PROPERTY( double alarmLevel READ alarmLevel WRITE setAlarmLevel )
-    Q_PROPERTY( ScalePos scalePosition READ scalePosition
+    Q_PROPERTY( Qt::Orientation orientation
+                READ orientation WRITE setOrientation )
+    Q_PROPERTY( ScalePosition scalePosition READ scalePosition
         WRITE setScalePosition )
     Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
@@ -59,40 +61,31 @@ class QWT_EXPORT QwtThermo: public QwtAbstractScale
     Q_PROPERTY( double value READ value WRITE setValue )
 
 public:
+
     /*!
-      Scale position. QwtThermo tries to enforce valid combinations of its
-      orientation and scale position:
-
-      - Qt::Horizontal combines with NoScale, TopScale and BottomScale
-      - Qt::Vertical combines with NoScale, LeftScale and RightScale
-
-      \sa setOrientation(), setScalePosition()
-    */
-    enum ScalePos
+      Position of the scale
+      \sa setScalePosition(), setOrientation()
+     */
+    enum ScalePosition
     {
-        //! No scale
+        //! The slider has no scale
         NoScale,
 
-        //! The scale is left of the pipe
-        LeftScale,
+        //! The scale is right of a vertical or below of a horizontal slider
+        LeadingScale,
 
-        //! The scale is right of the pipe
-        RightScale,
-
-        //! The scale is above the pipe
-        TopScale,
-
-        //! The scale is below the pipe
-        BottomScale
+        //! The scale is left of a vertical or above of a horizontal slider
+        TrailingScale
     };
 
     explicit QwtThermo( QWidget *parent = NULL );
     virtual ~QwtThermo();
 
-    void setOrientation( Qt::Orientation, ScalePos );
+    void setOrientation( Qt::Orientation );
+    Qt::Orientation orientation() const;
 
-    void setScalePosition( ScalePos s );
-    ScalePos scalePosition() const;
+    void setScalePosition( ScalePosition );
+    ScalePosition scalePosition() const;
 
     void setSpacing( int );
     int spacing() const;

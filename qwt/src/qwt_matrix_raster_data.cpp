@@ -180,7 +180,7 @@ int QwtMatrixRasterData::numRows() const
 */
 QRectF QwtMatrixRasterData::pixelHint( const QRectF &area ) const
 {
-	Q_UNUSED( area )
+    Q_UNUSED( area )
 
     QRectF rect;
     if ( d_data->resampleMode == NearestNeighbour )
