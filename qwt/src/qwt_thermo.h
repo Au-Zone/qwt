@@ -48,13 +48,17 @@ class QWT_EXPORT QwtThermo: public QwtAbstractScale
     Q_OBJECT
 
     Q_ENUMS( ScalePos )
+    Q_ENUMS( OriginMode )
+
+    Q_PROPERTY( Qt::Orientation orientation
+        READ orientation WRITE setOrientation )
+    Q_PROPERTY( ScalePosition scalePosition 
+        READ scalePosition WRITE setScalePosition )
+    Q_PROPERTY( OriginMode originMode READ originMode WRITE setOriginMode )
 
     Q_PROPERTY( bool alarmEnabled READ alarmEnabled WRITE setAlarmEnabled )
     Q_PROPERTY( double alarmLevel READ alarmLevel WRITE setAlarmLevel )
-    Q_PROPERTY( Qt::Orientation orientation
-                READ orientation WRITE setOrientation )
-    Q_PROPERTY( ScalePosition scalePosition READ scalePosition
-        WRITE setScalePosition )
+    Q_PROPERTY( double origin READ origin WRITE setOrigin )
     Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
     Q_PROPERTY( int pipeWidth READ pipeWidth WRITE setPipeWidth )
@@ -78,6 +82,24 @@ public:
         TrailingScale
     };
 
+    /*!
+      Origin mode. This property specifies where the beginning of the liquid
+      is placed.
+
+      \sa setOriginMode(), setOrigin()
+    */
+    enum OriginMode
+    {
+        //! The origin is the minimum of the scale
+        OriginMinimum,
+
+        //! The origin is the maximum of the scale
+        OriginMaximum,
+
+        //! The origin is specified using the origin() property
+        OriginCustom
+    };
+
     explicit QwtThermo( QWidget *parent = NULL );
     virtual ~QwtThermo();
 
@@ -92,6 +114,12 @@ public:
 
     void setBorderWidth( int w );
     int borderWidth() const;
+
+    void setOriginMode( OriginMode );
+    OriginMode originMode() const;
+
+    void setOrigin( double );
+    double origin() const;
 
     void setFillBrush( const QBrush &b );
     QBrush fillBrush() const;

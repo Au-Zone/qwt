@@ -31,9 +31,12 @@ static inline void qwtDrawLine(
         painter->drawLine( pipeRect.left(), pos, pipeRect.right(), pos );
 }
 
-QVector<double> qwtTickList( const QwtScaleDiv &scaleDiv, double value )
+QVector<double> qwtTickList( const QwtScaleDiv &scaleDiv, double origin, double value )
 {
     QVector<double> values;
+
+    if ( value < origin )
+        qSwap( value, origin );
 
     double lowerLimit = scaleDiv.interval().minValue();
     double upperLimit = scaleDiv.interval().maxValue();
@@ -79,6 +82,8 @@ public:
         alarmLevel( 0.0 ),
         alarmEnabled( false ),
         autoFillPipe( true ),
+        originMode( QwtThermo::OriginMinimum ),
+        origin( 0.0 ),
         colorMap( NULL ),
         value( 0.0 )
     {
@@ -101,6 +106,8 @@ public:
     double alarmLevel;
     bool alarmEnabled;
     bool autoFillPipe;
+    QwtThermo::OriginMode originMode;
+    double origin;
 
     QwtColorMap *colorMap;
 
@@ -450,6 +457,56 @@ Qt::Orientation QwtThermo::orientation() const
 }
 
 /*!
+  \brief Change how the origin level is determined.
+  \sa originMode(), serOrigin(), origin()
+ */
+void QwtThermo::setOriginMode( OriginMode m )
+{
+    if ( m == d_data->originMode )
+        return;
+
+    d_data->originMode = m;
+    update();
+}
+
+/*!
+  \brief Custom origin level.
+  \sa setOriginMode(), serOrigin(), origin()
+ */
+QwtThermo::OriginMode QwtThermo::originMode() const
+{
+    return d_data->originMode;
+}
+
+/*!
+  \brief Specifies the custom origin level.
+
+  If originMode is set to OriginCustom this property controls where the
+  liquid starts.
+
+  \param o New origin level
+  \sa setOriginMode(), originMode(), origin()
+ */
+void QwtThermo::setOrigin( double origin )
+{
+    if ( origin == d_data->origin )
+        return;
+
+    d_data->origin = origin;
+    update();
+}
+
+/*!
+  \brief Returns the current custom origin level
+
+  \sa serOrigin(), setOriginMode(), originMode()
+ */
+double QwtThermo::origin() const
+{
+    return d_data->origin;
+}
+
+/*!
   \brief Change the position of the scale
   \param scalePosition Position of the scale.
 
@@ -491,18 +548,34 @@ void QwtThermo::drawLiquid(
 {
     painter->save();
     painter->setClipRect( pipeRect, Qt::IntersectClip );
+    painter->setPen( Qt::NoPen );
 
     const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
 
     if ( d_data->colorMap != NULL )
     {
+        double origin;
+        
+        if ( d_data->originMode == OriginMinimum )
+        {
+            origin = qMin(lowerBound(), upperBound());
+        }
+        else if ( d_data->originMode == OriginMaximum )
+        {
+            origin = qMax(lowerBound(), upperBound());
+        }
+        else
+        {
+            origin = d_data->origin;
+        }
+
         const QwtInterval interval = scaleDiv().interval().normalized();
 
         // Because the positions of the ticks are rounded
         // we calculate the colors for the rounded tick values
 
         QVector<double> values = qwtTickList(
-            scaleDraw()->scaleDiv(), d_data->value );
+            scaleDraw()->scaleDiv(), origin, d_data->value );
 
         if ( scaleMap.isInverting() )
             qSort( values.begin(), values.end(), qGreater<double>() );
@@ -541,15 +614,14 @@ void QwtThermo::drawLiquid(
     {
         QRect rect = fillRect( pipeRect );
 
-        if ( d_data->alarmEnabled &&
-            d_data->value >= d_data->alarmLevel )
+        if ( !rect.isEmpty() && d_data->alarmEnabled )
         {
             const QRect r = alarmRect( rect );
-			if ( !r.isEmpty() )
-			{
-            	painter->fillRect( r, palette().brush( QPalette::Highlight ) );
-            	rect = QRegion( rect ).subtracted( r ).boundingRect();
-			}
+            if ( !r.isEmpty() )
+            {
+                painter->fillRect( r, palette().brush( QPalette::Highlight ) );
+                rect = QRegion( rect ).subtracted( r ).boundingRect();
+            }
         }
 
         painter->fillRect( rect, palette().brush( QPalette::ButtonText ) );
@@ -844,40 +916,53 @@ QRect QwtThermo::fillRect( const QRect &pipeRect ) const
 
     const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
 
-	const int tval = qRound( scaleMap.transform( d_data->value ) );
+    const int tval = qRound( scaleMap.transform( d_data->value ) );
 
-	const int torigin = qRound( scaleMap.transform( 
-			inverted ? upperBound() : lowerBound() ) );
-	
-	QRect fillRect = pipeRect;
-	if ( d_data->orientation == Qt::Horizontal )
-	{
-		if ( inverted )
-		{
-			fillRect.setLeft( tval );
-			fillRect.setRight( torigin );
-		}
-		else
-		{
-			fillRect.setRight( tval );
-			fillRect.setLeft( torigin );
-		}
-	}
-	else // Qt::Vertical
-	{
-		if ( inverted )
-		{
-			fillRect.setTop( torigin );
-			fillRect.setBottom( tval );
-		}
-		else
-		{
-			fillRect.setBottom( torigin );
-			fillRect.setTop( tval );
-		}
-	}
+    int torigin;        
+    if ( d_data->originMode == OriginMinimum )
+    {
+        torigin = qRound( scaleMap.transform( 
+            inverted ? upperBound() : lowerBound() ) );
+    }
+    else if ( d_data->originMode == OriginMaximum )
+    {
+        torigin = qRound( scaleMap.transform( 
+            inverted ? lowerBound() : upperBound() ) );
+    }
+    else // OriginCustom
+    {
+        torigin = qRound( scaleMap.transform( d_data->origin ) );
+    }
+    
+    QRect fillRect = pipeRect;
+    if ( d_data->orientation == Qt::Horizontal )
+    {
+        if ( inverted )
+        {
+            fillRect.setLeft( tval );
+            fillRect.setRight( torigin );
+        }
+        else
+        {
+            fillRect.setRight( tval );
+            fillRect.setLeft( torigin );
+        }
+    }
+    else // Qt::Vertical
+    {
+        if ( inverted )
+        {
+            fillRect.setTop( torigin );
+            fillRect.setBottom( tval );
+        }
+        else
+        {
+            fillRect.setBottom( torigin );
+            fillRect.setTop( tval );
+        }
+    }
 
-	return fillRect;
+    return fillRect.normalized();
 }
 /*!
   \brief Calculate the alarm rectangle of the pipe
@@ -889,29 +974,66 @@ QRect QwtThermo::fillRect( const QRect &pipeRect ) const
  */
 QRect QwtThermo::alarmRect( const QRect &fillRect ) const
 {
-	if ( !d_data->alarmEnabled || d_data->value < d_data->alarmLevel )
-		return QRect( 0, 0, -1, -1); // something invalid
+    QRect alarmRect( 0, 0, -1, -1); // something invalid
 
-    const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
+    if ( !d_data->alarmEnabled )
+        return alarmRect;
+
     const bool inverted = ( upperBound() < lowerBound() );
+    
+    bool increasing;
+    if ( d_data->originMode == OriginCustom )
+    {
+        increasing = d_data->value > d_data->origin;
+    }
+    else
+    {
+        increasing = d_data->originMode == OriginMinimum;
+    }
 
-	QRect alarmRect = fillRect;
+    const QwtScaleMap map = scaleDraw()->scaleMap();
+    const int alarmPos = qRound( map.transform( d_data->alarmLevel ) );
+    const int valuePos = qRound( map.transform( d_data->value ) );
+    
+    if ( d_data->orientation == Qt::Horizontal )
+    {
+        int v1, v2;
+        if ( inverted )
+        {
+            v1 = fillRect.left();
 
-	const int taval = qRound( scaleMap.transform( d_data->alarmLevel ) );
-	if ( d_data->orientation == Qt::Horizontal )
-	{
-		if ( inverted )
-			alarmRect.setRight( taval );
-		else
-			alarmRect.setLeft( taval );
-	}
-	else
-	{
-		if ( inverted )
-			alarmRect.setTop( taval );
-		else
-			alarmRect.setBottom( taval );
-	}
+            v2 = alarmPos - 1;
+            v2 = qMin( v2, increasing ? fillRect.right() : valuePos );
+        }
+        else
+        {
+            v1 = alarmPos + 1;
+            v1 = qMax( v1, increasing ? fillRect.left() : valuePos );
 
-	return alarmRect;
+            v2 = fillRect.right();
+
+        }
+        alarmRect.setRect( v1, fillRect.top(), v2 - v1 + 1, fillRect.height() );
+    }
+    else
+    {
+        int v1, v2;
+        if ( inverted )
+        {
+            v1 = alarmPos + 1;
+            v1 = qMax( v1, increasing ? fillRect.top() : valuePos );
+
+            v2 = fillRect.bottom();
+        }
+        else
+        {
+            v1 = fillRect.top();
+
+            v2 = alarmPos - 1;
+            v2 = qMin( v2, increasing ? fillRect.bottom() : valuePos );
+        }
+        alarmRect.setRect( fillRect.left(), v1, fillRect.width(), v2 - v1 + 1 );
+    }
+
+    return alarmRect;
 } 

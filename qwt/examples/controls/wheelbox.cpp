@@ -133,6 +133,7 @@ QWidget *WheelBox::createBox(
         }
         case 6:
         {
+            d_thermo->setOriginMode( QwtThermo::OriginMinimum );
             d_thermo->setFillBrush( QBrush( "DarkSlateBlue" ) );
             d_thermo->setAlarmBrush( QBrush( "DarkOrange" ) );
             d_thermo->setAlarmLevel( 60.0 );
@@ -141,10 +142,11 @@ QWidget *WheelBox::createBox(
         }
         case 7:
         {
-            d_wheel->setInverted( true );
-            d_thermo->setFillBrush( Qt::darkGreen ),
-            d_thermo->setAlarmBrush( Qt::darkRed );
-            d_thermo->setAlarmLevel( 60.0 );
+            d_wheel->setRange( -100, 100 );
+
+            d_thermo->setOriginMode( QwtThermo::OriginCustom );
+			d_thermo->setOrigin( 0.0 );
+            d_thermo->setFillBrush( Qt::darkBlue );
 
             break;
         }
