@@ -94,10 +94,10 @@ public:
     int borderWidth() const;
 
     void setFillBrush( const QBrush &b );
-    const QBrush &fillBrush() const;
+    QBrush fillBrush() const;
 
     void setAlarmBrush( const QBrush &b );
-    const QBrush &alarmBrush() const;
+    QBrush alarmBrush() const;
 
     void setAlarmLevel( double v );
     double alarmLevel() const;
@@ -137,6 +137,8 @@ protected:
     QwtScaleDraw *scaleDraw();
 
     QRect pipeRect() const;
+    QRect fillRect( const QRect & ) const;
+    QRect alarmRect( const QRect & ) const;
 
 private:
     void layoutThermo( bool );

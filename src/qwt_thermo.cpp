@@ -91,7 +91,8 @@ public:
     }
 
     Qt::Orientation orientation;
-    ScalePosition scalePosition;
+    QwtThermo::ScalePosition scalePosition;
+
     int spacing;
     int borderWidth;
     int pipeWidth;
@@ -436,10 +437,7 @@ void QwtThermo::setOrientation( Qt::Orientation orientation )
         setAttribute( Qt::WA_WState_OwnSizePolicy, false );
     }
 
-#if 0
-    if ( testAttribute( Qt::WA_WState_Polished ) )
-#endif
-        layoutThermo( true );
+    layoutThermo( true );
 }
 
 /*!
@@ -494,8 +492,6 @@ void QwtThermo::drawLiquid(
     painter->save();
     painter->setClipRect( pipeRect, Qt::IntersectClip );
 
-    const bool inverted = ( upperBound() < lowerBound() );
-
     const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
 
     if ( d_data->colorMap != NULL )
@@ -543,51 +539,20 @@ void QwtThermo::drawLiquid(
     }
     else
     {
-        const int tval = qRound( scaleMap.transform( d_data->value ) );
-
-        QRect fillRect = pipeRect;
-        if ( d_data->orientation == Qt::Horizontal )
-        {
-            if ( inverted )
-                fillRect.setLeft( tval );
-            else
-                fillRect.setRight( tval );
-        }
-        else // Qt::Vertical
-        {
-            if ( inverted )
-                fillRect.setBottom( tval );
-            else
-                fillRect.setTop( tval );
-        }
+        QRect rect = fillRect( pipeRect );
 
         if ( d_data->alarmEnabled &&
             d_data->value >= d_data->alarmLevel )
         {
-            QRect alarmRect = fillRect;
-
-            const int taval = qRound( scaleMap.transform( d_data->alarmLevel ) );
-            if ( d_data->orientation == Qt::Horizontal )
-            {
-                if ( inverted )
-                    alarmRect.setRight( taval );
-                else
-                    alarmRect.setLeft( taval );
-            }
-            else
-            {
-                if ( inverted )
-                    alarmRect.setTop( taval );
-                else
-                    alarmRect.setBottom( taval );
-            }
-
-            fillRect = QRegion( fillRect ).subtracted( alarmRect ).boundingRect();
-
-            painter->fillRect( alarmRect, palette().brush( QPalette::Highlight ) );
+            const QRect r = alarmRect( rect );
+			if ( !r.isEmpty() )
+			{
+            	painter->fillRect( r, palette().brush( QPalette::Highlight ) );
+            	rect = QRegion( rect ).subtracted( r ).boundingRect();
+			}
         }
 
-        painter->fillRect( fillRect, palette().brush( QPalette::ButtonText ) );
+        painter->fillRect( rect, palette().brush( QPalette::ButtonText ) );
     }
 
     painter->restore();
@@ -706,7 +671,7 @@ void QwtThermo::setFillBrush( const QBrush& brush )
   Return the liquid ( QPalette::ButtonText ) brush. 
   \sa setFillBrush(), QWidget::palette()
 */
-const QBrush& QwtThermo::fillBrush() const
+QBrush QwtThermo::fillBrush() const
 {
     return palette().brush( QPalette::ButtonText );
 }
@@ -736,7 +701,7 @@ void QwtThermo::setAlarmBrush( const QBrush& brush )
   \warning The alarm threshold has no effect, when
            a color map has been assigned
 */
-const QBrush& QwtThermo::alarmBrush() const
+QBrush QwtThermo::alarmBrush() const
 {
     return palette().brush( QPalette::Highlight );
 }
@@ -864,3 +829,89 @@ QSize QwtThermo::minimumSizeHint() const
 
     return QSize( w, h );
 }
+
+/*!
+  \brief Calculate the filled rectangle of the pipe
+
+  \param pipeRect Rectangle of the pipe
+  \return Rectangle to be filled ( fill and alarm brush )
+
+  \sa pipeRect(), alarmRect()
+ */
+QRect QwtThermo::fillRect( const QRect &pipeRect ) const
+{
+    const bool inverted = ( upperBound() < lowerBound() );
+
+    const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
+
+	const int tval = qRound( scaleMap.transform( d_data->value ) );
+
+	const int torigin = qRound( scaleMap.transform( 
+			inverted ? upperBound() : lowerBound() ) );
+	
+	QRect fillRect = pipeRect;
+	if ( d_data->orientation == Qt::Horizontal )
+	{
+		if ( inverted )
+		{
+			fillRect.setLeft( tval );
+			fillRect.setRight( torigin );
+		}
+		else
+		{
+			fillRect.setRight( tval );
+			fillRect.setLeft( torigin );
+		}
+	}
+	else // Qt::Vertical
+	{
+		if ( inverted )
+		{
+			fillRect.setTop( torigin );
+			fillRect.setBottom( tval );
+		}
+		else
+		{
+			fillRect.setBottom( torigin );
+			fillRect.setTop( tval );
+		}
+	}
+
+	return fillRect;
+}
+/*!
+  \brief Calculate the alarm rectangle of the pipe
+
+  \param fillRect Filled rectangle in the pipe
+  \return Rectangle to be filled with the alarm brush
+
+  \sa pipeRect(), fillRect(), alarmLevel(), alarmBrush()
+ */
+QRect QwtThermo::alarmRect( const QRect &fillRect ) const
+{
+	if ( !d_data->alarmEnabled || d_data->value < d_data->alarmLevel )
+		return QRect( 0, 0, -1, -1); // something invalid
+
+    const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
+    const bool inverted = ( upperBound() < lowerBound() );
+
+	QRect alarmRect = fillRect;
+
+	const int taval = qRound( scaleMap.transform( d_data->alarmLevel ) );
+	if ( d_data->orientation == Qt::Horizontal )
+	{
+		if ( inverted )
+			alarmRect.setRight( taval );
+		else
+			alarmRect.setLeft( taval );
+	}
+	else
+	{
+		if ( inverted )
+			alarmRect.setTop( taval );
+		else
+			alarmRect.setBottom( taval );
+	}
+
+	return alarmRect;
+} 
