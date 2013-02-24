@@ -112,11 +112,51 @@ QWidget *WheelBox::createBox(
         }
         case 4:
         {
+            d_wheel->setRange( -100, 300 );
+            d_wheel->setInverted( true );
+
+            QwtLinearColorMap *colorMap = new QwtLinearColorMap(); 
+            colorMap->setColorInterval( Qt::darkCyan, Qt::yellow );
+            d_thermo->setColorMap( colorMap );
+
+            d_wheel->setValue( 243 );
+
+            break;
+        }
+        case 5:
+        {
+            d_thermo->setFillBrush( Qt::darkCyan );
+            d_thermo->setAlarmBrush( Qt::magenta );
+            d_thermo->setAlarmLevel( 60.0 );
+
+            break;
+        }
+        case 6:
+        {
+            d_thermo->setFillBrush( QBrush( "DarkSlateBlue" ) );
+            d_thermo->setAlarmBrush( QBrush( "DarkOrange" ) );
+            d_thermo->setAlarmLevel( 60.0 );
+
+            break;
+        }
+        case 7:
+        {
+            d_wheel->setInverted( true );
+            d_thermo->setFillBrush( Qt::darkGreen ),
+            d_thermo->setAlarmBrush( Qt::darkRed );
+            d_thermo->setAlarmLevel( 60.0 );
+
             break;
         }
     }
 
-    d_thermo->setScale( d_wheel->minimum(), d_wheel->maximum() );
+    double min = d_wheel->minimum();
+    double max = d_wheel->maximum();
+
+    if ( d_wheel->isInverted() )
+        qSwap( min, max );
+
+    d_thermo->setScale( min, max );
     d_thermo->setValue( d_wheel->value() );
 
     connect( d_wheel, SIGNAL( valueChanged( double ) ), 
