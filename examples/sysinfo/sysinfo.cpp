@@ -18,6 +18,7 @@ public:
         d_label->setFont( QFont( "Helvetica", 10 ) );
 
         d_thermo = new QwtThermo( this );
+        d_thermo->setOrientation( orientation );
         d_thermo->setScale( 0.0, 100.0 );
         d_thermo->setValue( value );
         d_thermo->setFont( QFont( "Helvetica", 8 ) );
@@ -45,14 +46,14 @@ public:
         if ( orientation == Qt::Horizontal )
         {
             d_label->setAlignment( Qt::AlignCenter );
-            d_thermo->setOrientation( orientation, QwtThermo::BottomScale );
+            d_thermo->setScalePosition( QwtThermo::LeadingScale );
             layout->addWidget( d_label );
             layout->addWidget( d_thermo );
         }
         else
         {
             d_label->setAlignment( Qt::AlignRight );
-            d_thermo->setOrientation( orientation, QwtThermo::LeftScale );
+            d_thermo->setScalePosition( QwtThermo::TrailingScale );
             layout->addWidget( d_thermo, 10, Qt::AlignHCenter );
             layout->addWidget( d_label, 0 );
         }
@@ -62,6 +63,7 @@ public:
     {
         d_thermo->setValue( value );
     }
+
 private:
     QLabel *d_label;
     QwtThermo *d_thermo;
