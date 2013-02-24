@@ -19,36 +19,32 @@
 #include <qstyleoption.h>
 #include <qmath.h>
 
-static inline void qwtDrawLine( 
-    QPainter *painter, int pos, 
-    const QColor &color, const QRect pipeRect, 
+static inline void qwtDrawLine( QPainter *painter, int pos, 
+    const QColor &color, const QRect &pipeRect, const QRect &liquidRect,
     Qt::Orientation orientation )
 {
     painter->setPen( color );
     if ( orientation == Qt::Horizontal )
-        painter->drawLine( pos, pipeRect.top(), pos, pipeRect.bottom() );
+    {
+        if ( pos >= liquidRect.left() && pos < liquidRect.right() )
+            painter->drawLine( pos, pipeRect.top(), pos, pipeRect.bottom() );
+    }
     else
-        painter->drawLine( pipeRect.left(), pos, pipeRect.right(), pos );
+    {
+        if ( pos >= liquidRect.top() && pos < liquidRect.bottom() )
+            painter->drawLine( pipeRect.left(), pos, pipeRect.right(), pos );
+    }
 }
 
-QVector<double> qwtTickList( const QwtScaleDiv &scaleDiv, double origin, double value )
+QVector<double> qwtTickList( const QwtScaleDiv &scaleDiv )
 {
     QVector<double> values;
-
-    if ( value < origin )
-        qSwap( value, origin );
 
     double lowerLimit = scaleDiv.interval().minValue();
     double upperLimit = scaleDiv.interval().maxValue();
 
     if ( upperLimit < lowerLimit )
         qSwap( lowerLimit, upperLimit );
-
-    if ( value < lowerLimit )
-        return values;
-
-    if ( value < upperLimit )
-        upperLimit = value;
 
     values += lowerLimit;
 
@@ -552,30 +548,16 @@ void QwtThermo::drawLiquid(
 
     const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
 
+    QRect liquidRect = fillRect( pipeRect );
+
     if ( d_data->colorMap != NULL )
     {
-        double origin;
-        
-        if ( d_data->originMode == OriginMinimum )
-        {
-            origin = qMin(lowerBound(), upperBound());
-        }
-        else if ( d_data->originMode == OriginMaximum )
-        {
-            origin = qMax(lowerBound(), upperBound());
-        }
-        else
-        {
-            origin = d_data->origin;
-        }
-
         const QwtInterval interval = scaleDiv().interval().normalized();
 
         // Because the positions of the ticks are rounded
         // we calculate the colors for the rounded tick values
 
-        QVector<double> values = qwtTickList(
-            scaleDraw()->scaleDiv(), origin, d_data->value );
+        QVector<double> values = qwtTickList( scaleDraw()->scaleDiv() );
 
         if ( scaleMap.isInverting() )
             qSort( values.begin(), values.end(), qGreater<double>() );
@@ -588,7 +570,7 @@ void QwtThermo::drawLiquid(
             from = qRound( scaleMap.transform( values[0] ) );
             qwtDrawLine( painter, from,
                 d_data->colorMap->color( interval, values[0] ),
-                pipeRect, d_data->orientation );
+                pipeRect, liquidRect, d_data->orientation );
         }
 
         for ( int i = 1; i < values.size(); i++ )
@@ -601,30 +583,29 @@ void QwtThermo::drawLiquid(
 
                 qwtDrawLine( painter, pos, 
                     d_data->colorMap->color( interval, v ),
-                    pipeRect, d_data->orientation );
+                    pipeRect, liquidRect, d_data->orientation );
             }
+
             qwtDrawLine( painter, to,
                 d_data->colorMap->color( interval, values[i] ),
-                pipeRect, d_data->orientation );
+                pipeRect, liquidRect, d_data->orientation );
 
             from = to;
         }
     }
     else
     {
-        QRect rect = fillRect( pipeRect );
-
-        if ( !rect.isEmpty() && d_data->alarmEnabled )
+        if ( !liquidRect.isEmpty() && d_data->alarmEnabled )
         {
-            const QRect r = alarmRect( rect );
+            const QRect r = alarmRect( liquidRect );
             if ( !r.isEmpty() )
             {
                 painter->fillRect( r, palette().brush( QPalette::Highlight ) );
-                rect = QRegion( rect ).subtracted( r ).boundingRect();
+                liquidRect = QRegion( liquidRect ).subtracted( r ).boundingRect();
             }
         }
 
-        painter->fillRect( rect, palette().brush( QPalette::ButtonText ) );
+        painter->fillRect( liquidRect, palette().brush( QPalette::ButtonText ) );
     }
 
     painter->restore();
@@ -964,6 +945,7 @@ QRect QwtThermo::fillRect( const QRect &pipeRect ) const
 
     return fillRect.normalized();
 }
+
 /*!
   \brief Calculate the alarm rectangle of the pipe
 
