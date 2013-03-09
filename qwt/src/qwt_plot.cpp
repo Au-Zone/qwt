@@ -537,8 +537,7 @@ void QwtPlot::resizeEvent( QResizeEvent *e )
   or if any curves are attached to raw data, the plot has to
   be refreshed explicitly in order to make changes visible.
 
-  \sa setAutoReplot()
-  \warning Calls canvas()->repaint, take care of infinite recursions
+  \sa updateAxes(), setAutoReplot()
 */
 void QwtPlot::replot()
 {
