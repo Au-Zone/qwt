@@ -572,8 +572,11 @@ void QwtPlotHistogram::flushPolygon( QPainter *painter,
             polygon += QPointF( baseLine, polygon.last().y() );
             polygon += QPointF( baseLine, polygon.first().y() );
         }
+
         QwtPainter::drawPolygon( painter, polygon );
-        polygon.resize( polygon.size() - 2 );
+
+        polygon.pop_back();
+        polygon.pop_back();
     }
     if ( d_data->pen.style() != Qt::NoPen )
     {
