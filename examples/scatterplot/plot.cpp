@@ -1,7 +1,40 @@
 #include "plot.h"
 #include <qwt_plot_magnifier.h>
 #include <qwt_plot_panner.h>
+#include <qwt_plot_picker.h>
+#include <qwt_picker_machine.h>
 #include <qwt_plot_curve.h>
+
+class DistancePicker: public QwtPlotPicker
+{
+public:
+    DistancePicker( QWidget *canvas ):
+        QwtPlotPicker( canvas )
+    {
+        setTrackerMode( QwtPicker::ActiveOnly );
+        setStateMachine( new QwtPickerDragLineMachine() );
+        setRubberBand( QwtPlotPicker::PolygonRubberBand );
+    }
+
+    virtual QwtText trackerTextF( const QPointF &pos ) const
+    {
+        QwtText text;
+
+        const QPolygon points = selection();
+        if ( !points.isEmpty() )
+        {
+            QString num;
+            num.setNum( QLineF( pos, invTransform( points[0] ) ).length() );
+
+            QColor bg( Qt::white );
+            bg.setAlpha( 200 );
+
+            text.setBackgroundBrush( QBrush( bg ) );
+            text.setText( num );
+        }
+        return text;
+    }
+};
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent ),
@@ -26,9 +59,17 @@ Plot::Plot( QWidget *parent ):
 
     setSymbol( NULL );
 
-    // zoom in/out with the wheel, panning with the left mouse button
+    // panning with the left mouse button
     (void )new QwtPlotPanner( canvas() );
-    (void )new QwtPlotMagnifier( canvas() );
+
+    // zoom in/out with the wheel
+    QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( canvas() );
+    magnifier->setMouseButton( Qt::NoButton );
+
+    // distanve measurement with the right mouse button
+    DistancePicker *picker = new DistancePicker( canvas() );
+    picker->setMousePattern( QwtPlotPicker::MouseSelect1, Qt::RightButton );
+    picker->setRubberBandPen( QPen( Qt::blue ) );
 }
 
 void Plot::setSymbol( QwtSymbol *symbol )
