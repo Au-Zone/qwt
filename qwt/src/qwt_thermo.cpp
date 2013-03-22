@@ -893,54 +893,38 @@ QSize QwtThermo::minimumSizeHint() const
  */
 QRect QwtThermo::fillRect( const QRect &pipeRect ) const
 {
-    const bool inverted = ( upperBound() < lowerBound() );
-
-    const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
-
-    const int tval = qRound( scaleMap.transform( d_data->value ) );
-
-    int torigin;        
+    double origin;        
     if ( d_data->originMode == OriginMinimum )
     {
-        torigin = qRound( scaleMap.transform( 
-            inverted ? upperBound() : lowerBound() ) );
+        origin = qMin( lowerBound(), upperBound() );
     }
     else if ( d_data->originMode == OriginMaximum )
     {
-        torigin = qRound( scaleMap.transform( 
-            inverted ? lowerBound() : upperBound() ) );
+        origin = qMax( lowerBound(), upperBound() );
     }
     else // OriginCustom
     {
-        torigin = qRound( scaleMap.transform( d_data->origin ) );
+        origin = d_data->origin;
     }
+
+    const QwtScaleMap scaleMap = scaleDraw()->scaleMap();
+
+    int from = qRound( scaleMap.transform( d_data->value ) );
+    int to = qRound( scaleMap.transform( origin ) );
+
+    if ( to < from )
+        qSwap( from, to );
     
     QRect fillRect = pipeRect;
     if ( d_data->orientation == Qt::Horizontal )
     {
-        if ( inverted )
-        {
-            fillRect.setLeft( tval );
-            fillRect.setRight( torigin );
-        }
-        else
-        {
-            fillRect.setRight( tval );
-            fillRect.setLeft( torigin );
-        }
+        fillRect.setLeft( from );
+        fillRect.setRight( to );
     }
     else // Qt::Vertical
     {
-        if ( inverted )
-        {
-            fillRect.setTop( torigin );
-            fillRect.setBottom( tval );
-        }
-        else
-        {
-            fillRect.setBottom( torigin );
-            fillRect.setTop( tval );
-        }
+        fillRect.setTop( from );
+        fillRect.setBottom( to );
     }
 
     return fillRect.normalized();

@@ -145,7 +145,7 @@ QWidget *WheelBox::createBox(
             d_wheel->setRange( -100, 100 );
 
             d_thermo->setOriginMode( QwtThermo::OriginCustom );
-			d_thermo->setOrigin( 0.0 );
+            d_thermo->setOrigin( 0.0 );
             d_thermo->setFillBrush( Qt::darkBlue );
 
             break;
