@@ -521,6 +521,24 @@ void QwtKnob::drawKnob( QPainter *painter, const QRectF &knobRect ) const
 
             break;
         }
+        case QwtKnob::Styled:
+        {
+            QRadialGradient gradient(knobRect.center().x() - knobRect.width() / 3,
+                knobRect.center().y() - knobRect.height() / 2,
+                knobRect.width() * 1.3,
+                knobRect.center().x(),
+                knobRect.center().y() - knobRect.height() / 2);
+
+            const QColor c = palette().color( QPalette::Button );
+            gradient.setColorAt(0, c.lighter(110));
+            gradient.setColorAt(qreal(0.5), c);
+            gradient.setColorAt(qreal(0.501), c.darker(102));
+            gradient.setColorAt(1, c.darker(115));
+
+            brush = QBrush( gradient );
+
+            break;
+        }
         case QwtKnob::Sunken:
         {
             QLinearGradient gradient( 
@@ -569,9 +587,9 @@ void QwtKnob::drawMarker( QPainter *painter,
     if ( radius < 1.0 )
         radius = 1.0;
 
-	int markerSize = d_data->markerSize;
-	if ( markerSize <= 0 )
-		markerSize = qRound( 0.4 * radius );
+    int markerSize = d_data->markerSize;
+    if ( markerSize <= 0 )
+        markerSize = qRound( 0.4 * radius );
 
     switch ( d_data->markerStyle )
     {

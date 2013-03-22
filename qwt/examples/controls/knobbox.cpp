@@ -99,7 +99,7 @@ QwtKnob *KnobBox::createKnob( int knobType ) const
         }
         case 5:
         {
-            knob->setKnobStyle( QwtKnob::Raised );
+            knob->setKnobStyle( QwtKnob::Styled );
             knob->setMarkerStyle( QwtKnob::Triangle );
             knob->setTotalAngle( 180.0 );
             knob->setScale( 100, -100 );
