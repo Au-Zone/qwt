@@ -111,7 +111,7 @@ QWT_CONFIG     += QwtDesigner
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-QWT_CONFIG     += QwtExamples
+#QWT_CONFIG     += QwtExamples
 
 ######################################################################
 # The playground is primarily intended for the Qwt development 
@@ -122,7 +122,7 @@ QWT_CONFIG     += QwtExamples
 # Otherwise you have to build them from the playground directory.
 ######################################################################
 
-QWT_CONFIG     += QwtPlayground
+#QWT_CONFIG     += QwtPlayground
 
 ######################################################################
 # When Qt has been built as framework qmake wants 
