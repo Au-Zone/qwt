@@ -16,7 +16,21 @@ TEMPLATE     = app
 
 INCLUDEPATH += $${QWT_ROOT}/src
 DEPENDPATH  += $${QWT_ROOT}/src
-DESTDIR      = $${QWT_ROOT}/examples/bin
+
+!debug_and_release {
+
+    DESTDIR      = $${QWT_ROOT}/examples/bin
+}
+else {
+    CONFIG(debug, debug|release) {
+
+        DESTDIR      = $${QWT_ROOT}/examples/bin_debug
+    }
+    else {
+
+        DESTDIR      = $${QWT_ROOT}/examples/bin
+    }
+}
 
 QMAKE_RPATHDIR *= $${QWT_ROOT}/lib
 

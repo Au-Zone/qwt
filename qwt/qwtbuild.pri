@@ -63,7 +63,11 @@ linux-g++ | linux-g++-64 {
 
 MOC_DIR      = moc
 RCC_DIR      = resources
+
 !debug_and_release {
+
+    # in case of debug_and_release object files
+    # are built in the release and debug subdirectories
     OBJECTS_DIR       = obj
 }
 
