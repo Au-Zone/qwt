@@ -1,0 +1,87 @@
+/*!
+\page qwtinstall Installing Qwt
+
+\tableofcontents
+
+\section INTRODUCTION Introduction
+
+\section DOWNLOAD Download
+
+Stable Qwt releases are available from the Qwt <a href="http://sourceforge.net/projects/qwt/files/qwt">project page</a>.
+
+Qwt-$(PROJECT_NUMBER) consists of 4 files:
+
+  - qwt-$(PROJECT_NUMBER).zip\n
+    Zip file with the Qwt sources and the html documentation for Windows
+
+  - qwt-$(PROJECT_NUMBER).tar.bz2\n
+    Compressed tar file with the Qwt sources and the html documentation
+    for UNIX systems ( Linux, Mac, ... )
+
+  - qwt-$(PROJECT_NUMBER).pdf\n
+    Qwt class documentation as PDF document. 
+
+  - qwt-$(PROJECT_NUMBER).qch\n
+    Documentation as Qt Compressed Help document, that can be used in
+    in the Qt Creator/Assistant. 
+
+\section INSTALL Installing Qwt
+
+   1.) Installing Qwt for Qt 4.8
+
+    <ul>
+    <li> UNIX-like system
+
+      <ul>
+      <li> \ref INSTALL_UNIX_SHELL "Installing Qwt from the shell"
+      <li> \ref INSTALL_UNIX_CREATOR "Installing Qwt with the Qt Creator"
+      </ul>
+
+      <li> Windows
+
+        <ul>
+        <li> MinGW Compiler
+          <ul>
+          <li> \ref INSTALL_WINDOWS_MINGW_CLI "Installing Qwt from the command line"
+          <li> \ref INSTALL_WINDOWS_MINGW_CREATOR "Installing Qwt with the Qt Creator"
+          </ul>
+
+        <li> MSVC
+          <ul>
+          <li> \ref INSTALL_WINDOWS_MSVC_CLI "Installing Qwt from the command line"
+          <li> \ref INSTALL_WINDOWS_MSVC_CREATOR "Installing Qwt with the Qt Creator"
+          </ul>
+        </ul>
+      </ul>
+
+   2.) Installing Qwt for Qt 5.0
+
+    <ul>
+    <li> UNIX-like system
+    
+      <ul>
+      <li> \ref INSTALL_UNIX_SHELL "Installing Qwt from the shell"
+      <li> \ref INSTALL_UNIX_CREATOR "Installing Qwt with the Qt Creator"
+      </ul>
+      
+      <li> Windows
+      
+        <ul>
+        <li> MinGW Compiler
+          <ul>
+          <li> \ref INSTALL_WINDOWS_MINGW_CLI "Installing Qwt from the command line"
+          <li> \ref INSTALL_WINDOWS_MINGW_CREATOR "Installing Qwt with the Qt Creator"
+          </ul>
+          
+        <li> MSVC
+          <ul>
+          <li> \ref INSTALL_WINDOWS_MSVC_CLI "Installing Qwt from the command line"
+          <li> \ref INSTALL_WINDOWS_MSVC_CREATOR "Installing Qwt with the Qt Creator"
+          </ul>
+        </ul>
+      </ul>
+
+
+\section USING Building and running a Qwt application
+
+*/
