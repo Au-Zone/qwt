@@ -110,9 +110,9 @@ function createDocs {
 
     if [ "$SUFFIX" != "" ]
     then
-        sed -i -e "s/svn/$VERSION-$SUFFIX/" Doxyfile
+		export QWTVERSION=$VERSION-$SUFFIX
     else
-        sed -i -e "s/svn/$VERSION/" Doxyfile
+		export QWTVERSION=$VERSION
     fi
     cp Doxyfile Doxyfile.doc
 
@@ -282,6 +282,8 @@ echo done
 if [ $GENERATE_DOC -ne 0 ]
 then
     echo -n "generate documentation ... "
+
+	export VERSION # used in the doxygen files
     createDocs $TMPDIR/doc
 
     if [ $GENERATE_PDF -ne 0 ]

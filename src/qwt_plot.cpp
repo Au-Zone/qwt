@@ -234,6 +234,8 @@ void QwtPlot::setCanvas( QWidget *canvas )
 /*!
   \brief Adds handling of layout requests
   \param event Event
+
+  \return See QFrame::event()
 */
 bool QwtPlot::event( QEvent *event )
 {
@@ -264,6 +266,8 @@ bool QwtPlot::event( QEvent *event )
 
   \param object Object to be filtered
   \param event Event
+
+  \return See QFrame::eventFilter()
 
   \sa updateCanvasMargins(), updateLayout()
 */
@@ -473,10 +477,9 @@ const QWidget *QwtPlot::canvas() const
 }
 
 /*!
-  Return sizeHint
+  \return Size hint for the plot widget
   \sa minimumSizeHint()
 */
-
 QSize QwtPlot::sizeHint() const
 {
     int dw = 0;
@@ -1115,6 +1118,7 @@ void QwtPlot::attachItem( QwtPlotItem *plotItem, bool on )
 \endcode
 
   \param plotItem Plot item
+  \return Plot item embedded in a QVariant
   \sa infoToItem()
  */
 QVariant QwtPlot::itemToInfo( QwtPlotItem *plotItem ) const

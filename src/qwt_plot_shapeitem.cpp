@@ -163,7 +163,7 @@ void QwtPlotShapeItem::setPaintAttribute( PaintAttribute attribute, bool on )
 }
 
 /*!
-  \brief Return if a paint attributes is enabled
+  \return True, when attribute is enabled
   \sa setPaintAttribute()
 */
 bool QwtPlotShapeItem::testPaintAttribute( PaintAttribute attribute ) const

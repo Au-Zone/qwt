@@ -165,10 +165,11 @@ inline bool QwtPainter::polylineSplitting()
 }
 
 /*!
-  Returns whether coordinates should be rounded, before they are painted
-  to a paint engine that floors to integer values.  For other paint engines
-  this ( PDF, SVG ), this flag has no effect.
+  Check whether coordinates should be rounded, before they are painted
+  to a paint engine that rounds to integer values. For other paint engines
+  ( PDF, SVG ), this flag has no effect.
 
+  \return True, when rounding is enabled
   \sa setRoundingAlignment(), isAligning()
 */
 inline bool QwtPainter::roundingAlignment()

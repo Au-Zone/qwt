@@ -105,6 +105,8 @@ static const double _eps = 1.0e-6;
   \param value Value to be ceiled
   \param intervalSize Interval size
 
+  \return Rounded value
+
   \sa floorEps()
 */
 double QwtScaleArithmetic::ceilEps( double value,
@@ -122,6 +124,7 @@ double QwtScaleArithmetic::ceilEps( double value,
   \param value Value to be floored
   \param intervalSize Interval size
 
+  \return Rounded value
   \sa floorEps()
 */
 double QwtScaleArithmetic::floorEps( double value, double intervalSize )
@@ -155,6 +158,8 @@ double QwtScaleArithmetic::divideEps( double intervalSize, double numSteps )
   \param intervalSize Interval size
   \param numSteps Number of steps
   \param base Base for the division ( usually 10 )
+
+  \return Calculated step size
  */
 double QwtScaleArithmetic::divideInterval( 
     double intervalSize, int numSteps, uint base ) 

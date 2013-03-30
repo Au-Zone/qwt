@@ -363,6 +363,9 @@ void QwtPlot::enableAxis( int axisId, bool tf )
 
   \param axisId Axis index
   \param pos position
+
+  \return Position as axis coordinate
+
   \warning The position can be an x or a y coordinate,
            depending on the specified axis.
 */
