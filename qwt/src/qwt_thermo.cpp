@@ -480,7 +480,7 @@ QwtThermo::OriginMode QwtThermo::originMode() const
   If originMode is set to OriginCustom this property controls where the
   liquid starts.
 
-  \param o New origin level
+  \param origin New origin level
   \sa setOriginMode(), originMode(), origin()
  */
 void QwtThermo::setOrigin( double origin )

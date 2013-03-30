@@ -112,7 +112,7 @@ void QwtPlotHistogram::setStyle( HistogramStyle style )
 }
 
 /*!
-    Return the current style
+    \return Style of the histogram
     \sa HistogramStyle, setStyle()
 */
 QwtPlotHistogram::HistogramStyle QwtPlotHistogram::style() const
@@ -673,13 +673,14 @@ void QwtPlotHistogram::drawColumn( QPainter *painter,
 }
 
 /*!
-   A plain rectangle without pen using the brush()
+  A plain rectangle without pen using the brush()
 
-   \param index Index of the legend entry 
+  \param index Index of the legend entry 
                 ( ignored as there is only one )
-   \param size Icon size
+  \param size Icon size
+  \return A graphic displaying the icon
     
-   \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
+  \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
 */
 QwtGraphic QwtPlotHistogram::legendIcon( int index,
     const QSizeF &size ) const

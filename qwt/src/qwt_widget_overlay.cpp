@@ -342,6 +342,8 @@ void QwtWidgetOverlay::draw( QPainter *painter ) const
 
    The default implementation returns an invalid region
    indicating no hint.
+
+   \return Hint for the mask
  */
 QRegion QwtWidgetOverlay::maskHint() const
 {
@@ -355,6 +357,8 @@ QRegion QwtWidgetOverlay::maskHint() const
 
   \param object Object to be filtered
   \param event Event
+
+  \return See QObject::eventFilter()
 */
 
 bool QwtWidgetOverlay::eventFilter( QObject* object, QEvent* event )

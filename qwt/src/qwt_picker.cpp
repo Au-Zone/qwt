@@ -877,6 +877,8 @@ QRect QwtPicker::trackerRect( const QFont &font ) const
   \param object Object to be filtered
   \param event Event
 
+  \return Always false.
+
   \sa widgetEnterEvent(), widgetLeaveEvent(),
       widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
