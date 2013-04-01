@@ -453,7 +453,7 @@ Qt::Orientation QwtThermo::orientation() const
 }
 
 /*!
-  \brief Change how the origin level is determined.
+  \brief Change how the origin is determined.
   \sa originMode(), serOrigin(), origin()
  */
 void QwtThermo::setOriginMode( OriginMode m )
@@ -466,7 +466,7 @@ void QwtThermo::setOriginMode( OriginMode m )
 }
 
 /*!
-  \brief Custom origin level.
+  \return Mode, how the origin is determined.
   \sa setOriginMode(), serOrigin(), origin()
  */
 QwtThermo::OriginMode QwtThermo::originMode() const
@@ -475,7 +475,7 @@ QwtThermo::OriginMode QwtThermo::originMode() const
 }
 
 /*!
-  \brief Specifies the custom origin level.
+  \brief Specifies the custom origin.
 
   If originMode is set to OriginCustom this property controls where the
   liquid starts.
@@ -493,9 +493,8 @@ void QwtThermo::setOrigin( double origin )
 }
 
 /*!
-  \brief Returns the current custom origin level
-
-  \sa serOrigin(), setOriginMode(), originMode()
+  \return Origin of the thermo, when OriginCustom is enabled
+  \sa setOrigin(), setOriginMode(), originMode()
  */
 double QwtThermo::origin() const
 {
@@ -520,7 +519,7 @@ void QwtThermo::setScalePosition( ScalePosition scalePosition )
 }
 
 /*!
-   Return the scale position.
+   \return Scale position.
    \sa setScalePosition()
 */
 QwtThermo::ScalePosition QwtThermo::scalePosition() const
@@ -661,7 +660,7 @@ void QwtThermo::setBorderWidth( int width )
 }
 
 /*!
-   Return the border width of the thermometer pipe.
+   \return Border width of the thermometer pipe.
    \sa setBorderWidth()
 */
 int QwtThermo::borderWidth() const
@@ -721,7 +720,7 @@ void QwtThermo::setFillBrush( const QBrush& brush )
 }
 
 /*!
-  Return the liquid ( QPalette::ButtonText ) brush. 
+  \return Liquid ( QPalette::ButtonText ) brush. 
   \sa setFillBrush(), QWidget::palette()
 */
 QBrush QwtThermo::fillBrush() const
@@ -748,7 +747,7 @@ void QwtThermo::setAlarmBrush( const QBrush& brush )
 }
 
 /*!
-  Return the liquid brush ( QPalette::Highlight ) above the alarm threshold.
+  \return Liquid brush ( QPalette::Highlight ) above the alarm threshold.
   \sa setAlarmBrush(), QWidget::palette()
 
   \warning The alarm threshold has no effect, when
@@ -776,7 +775,7 @@ void QwtThermo::setAlarmLevel( double level )
 }
 
 /*!
-  Return the alarm threshold.
+  \return Alarm threshold.
   \sa setAlarmLevel()
 
   \warning The alarm threshold has no effect, when
@@ -803,7 +802,7 @@ void QwtThermo::setPipeWidth( int width )
 }
 
 /*!
-  Return the width of the pipe.
+  \return Width of the pipe.
   \sa setPipeWidth()
 */
 int QwtThermo::pipeWidth() const
@@ -845,7 +844,7 @@ QSize QwtThermo::sizeHint() const
 }
 
 /*!
-  \brief Return a minimum size hint
+  \return Minimum size hint
   \warning The return value depends on the font and the scale.
   \sa sizeHint()
 */

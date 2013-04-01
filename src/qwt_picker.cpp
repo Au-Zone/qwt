@@ -774,6 +774,9 @@ void QwtPicker::drawTracker( QPainter *painter ) const
     }
     return adjusted;
 }\endverbatim\n
+
+  \param points Selected points
+  \return Selected points unmodified
 */
 QPolygon QwtPicker::adjustedPoints( const QPolygon &points ) const
 {
