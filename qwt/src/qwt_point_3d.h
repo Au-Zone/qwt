@@ -167,7 +167,7 @@ inline void QwtPoint3D::setZ( double z )
 }
 
 /*!
-   Rounds 2D point, where the z coordinate is dropped.
+   \return 2D point, where the z coordinate is dropped.
 */
 inline QPointF QwtPoint3D::toPoint() const
 {
