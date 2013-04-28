@@ -24,7 +24,7 @@ Qwt-$(QWTVERSION) consists of 4 files:
     the Qt Assistant or Creator. When loaded into the Creator tooltips
     or autocompletion for Qwt classes is enabled like for Qt classes.
 
-\section INSTALL Installing Qwt
+\section INSTALL Installation
 
    A proper installation of Qwt copies files from the downloaded packages
    to a target directory. Beside headers, libraries and the html version
@@ -35,65 +35,96 @@ Qwt-$(QWTVERSION) consists of 4 files:
    Note that it is not unlikely, to have more than one installation of Qwt 
    on the same system. F.e when the Qwt designer plugin has to be loaded
    into a current version of the Qt Creator it needs to be compiled for Qt5 - 
-   even if the application is for Qt4.
+   even if an application is for Qt4.
 
-   1.) Installing Qwt for Qt 4.8
+   Installing Qwt is done in 3 steps, that are quite common on UNIX systems.
 
-    <ul>
-    <li> UNIX-like system
+   -# Configuration
+      In the configuration step all parameters are set to control how
+      to build and install Qwt
+   -# Build
+      In the build step binaries are built from the source files.
+   -# Installation
+      The installation copies and rearranges all files that are necessary to build
+      Qwt applications to a target directory. Beside creating this directory
+      no changes are applied to the system.
 
-      <ul>
-      <li> \ref INSTALL_UNIX_SHELL "Installing Qwt from the shell"
-      <li> \ref INSTALL_UNIX_CREATOR "Installing Qwt with the Qt Creator"
-      </ul>
+\subsection CONFIGSUBSECTION Configuration
 
-      <li> Windows
+Configuring Qwt has to be done by editing the Project files used for building:
 
-        <ul>
-        <li> MinGW Compiler
-          <ul>
-          <li> \ref INSTALL_WINDOWS_MINGW_CLI "Installing Qwt from the command line"
-          <li> \ref INSTALL_WINDOWS_MINGW_CREATOR "Installing Qwt with the Qt Creator"
-          </ul>
+  - qwtbuild.pri\n
+    qwtbuild.pri contains settings for how to build Qwt. All settings
+    of this file are only for building Qwt itself and doesn't have an impact
+    on how an application using Qwt is built. Usually its default settings
+    doesn't need to be modified.
 
-        <li> MSVC
-          <ul>
-          <li> \ref INSTALL_WINDOWS_MSVC_CLI "Installing Qwt from the command line"
-          <li> \ref INSTALL_WINDOWS_MSVC_CREATOR "Installing Qwt with the Qt Creator"
-          </ul>
-        </ul>
-      </ul>
+  - qwtconfig.pri\n
+    qwtconfig.pri defines what modules of Qwt will be built and where to
+    install them. qwtconfig.pri gets installed together with the Qwt features
+    file qwt.prf and all its settings are known to project files for building
+    Qwt applications.
 
-   2.) Installing Qwt for Qt 5.0
+Often it is necessary to install more than one version of Qwt on the same system. This can
+be organized by setting different directories to QWT_INSTALL_PREFIX for each installation.
 
-    <ul>
-    <li> UNIX-like system
-    
-      <ul>
-      <li> \ref INSTALL_UNIX_SHELL "Installing Qwt from the shell"
-      <li> \ref INSTALL_UNIX_CREATOR "Installing Qwt with the Qt Creator"
-      </ul>
-      
-      <li> Windows
-      
-        <ul>
-        <li> MinGW Compiler
-          <ul>
-          <li> \ref INSTALL_WINDOWS_MINGW_CLI "Installing Qwt from the command line"
-          <li> \ref INSTALL_WINDOWS_MINGW_CREATOR "Installing Qwt with the Qt Creator"
-          </ul>
-          
-        <li> MSVC
-          <ul>
-          <li> \ref INSTALL_WINDOWS_MSVC_CLI "Installing Qwt from the command line"
-          <li> \ref INSTALL_WINDOWS_MSVC_CREATOR "Installing Qwt with the Qt Creator"
-          </ul>
-        </ul>
-      </ul>
+\subsection BUILDSUBSECTION Build and installation
+
+Compiling the Qwt sources and linking its libraries can be done easily from the 
+command line. Below is a list of step by step instructions for the most
+popular environments.
+
+  - \ref qwtinstall-unix 
+  - \ref qwtinstall-windows-mingw 
+  - \ref qwtinstall-windows-msvc 
+
+The Qt creator is a graphical frontend for calling qmake/make and can be used
+in all environments as well. There is no advantage in doing it, but as Windows users 
+sometimes feel uncomfortable with the command line ...
+
+  - \ref qwtinstall-windows-creator
 
 \section USING Building and running a Qwt application
 
-	- PLUGIN
-	- QMAKEFEATURES
-	- .qch: file completion, ...
+\subsection USEPLUGIN Use the designer plugin
+
+\subsection USEHELP Qwt Online Help
+
+The Qwt class documentation can be loaded into the creator: 
+
+- open the settings dialog from the "Tools->Options" menu 
+- raise the tab "Help->Documentation". 
+- press the "Add" butten and select qwt-$(QWTVERSION).qch.
+
+Now the context sensitive help ( F1 ) in the Qt creator works for Qwt classes.
+
+For browsing the documentation in the Qt assistant:
+
+- open the settings dialog from the "Edit->Preferences" menu 
+- raise the tab "Documentation". 
+- press the "Add" butten and select qwt-$(QWTVERSION).qch.
+
+\subsection COMPILEANDLINKAPP Building and running an Qwt application
+
+\page qwtinstall-unix Installing Qwt on UNIX like systems
+
+The first step before creating the Makefile is to decide which version of qmake to use.
+F.e using qmake from a Qt 4.7 installation will build Qwt for Qt 4.7.
+
+The default setting for executing qmake is to build Qwt for the same environment the
+corresponding Qt version has been built for. So creating a Makefile usually means something like:
+
+\code/usr/local/Qt-5.0.1/bin/qmake qwt.pro\endcode
+
+The generated Makefile includes all paths related to the chosen Qt version and the next step
+is:
+
+\codemake\endcode
+
+On multicore systems you can speed up building the Qwt libraries with using the -j option.
+
+
+\page qwtinstall-windows-mingw Installing Qwt on Windows ( MingGW )
+\page qwtinstall-windows-msvc Installing Qwt on Windows ( VS 2010 )
+\page qwtinstall-windows-creator Installing Qwt on Windows with the Qt Creator
 */
