@@ -47,7 +47,7 @@ class QWT_EXPORT QwtThermo: public QwtAbstractScale
 {
     Q_OBJECT
 
-    Q_ENUMS( ScalePos )
+    Q_ENUMS( ScalePosition )
     Q_ENUMS( OriginMode )
 
     Q_PROPERTY( Qt::Orientation orientation
