@@ -1253,11 +1253,11 @@ QPixmap QwtPainter::backingStore( QWidget *widget, const QSize &size )
 
 #if QT_VERSION < 0x050000 
 #ifdef Q_WS_X11
-	if ( isX11GraphicsSystem() )
-	{
-    	if ( pm.x11Info().screen() != x11Info().screen() )
-        	pm.x11SetScreen( x11Info().screen() );
-	}
+    if ( widget && isX11GraphicsSystem() )
+    {
+        if ( pm.x11Info().screen() != widget->x11Info().screen() )
+            pm.x11SetScreen( widget->x11Info().screen() );
+    }
 #endif
 #endif
 
