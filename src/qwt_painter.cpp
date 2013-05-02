@@ -32,10 +32,12 @@
 #include <qwindow.h>
 #endif
 
-#if 0
+#if QT_VERSION < 0x050000 
+
 #ifdef Q_WS_X11
 #include <qx11info_x11.h>
 #endif
+
 #endif
 
 bool QwtPainter::d_polylineSplitting = true;
@@ -1249,10 +1251,13 @@ QPixmap QwtPainter::backingStore( QWidget *widget, const QSize &size )
     pm = QPixmap( size );
 #endif
 
-#if 0
+#if QT_VERSION < 0x050000 
 #ifdef Q_WS_X11
-    if ( pm.x11Info().screen() != x11Info().screen() )
-         pm.x11SetScreen( x11Info().screen() );
+	if ( isX11GraphicsSystem() )
+	{
+    	if ( pm.x11Info().screen() != x11Info().screen() )
+        	pm.x11SetScreen( x11Info().screen() );
+	}
 #endif
 #endif
 
