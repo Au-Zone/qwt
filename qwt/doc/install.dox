@@ -86,7 +86,41 @@ sometimes feel uncomfortable with the command line ...
 
 \section USING Building and running a Qwt application
 
-\subsection USEPLUGIN Use the designer plugin
+\subsection USEPLUGIN Designer plugin
+
+Using Qt designer plugins is unfortunately something that requires a certain understanding
+of shared libraries and is often a source for frustration.
+So before spending time on it note, that the plugin only optional and its value 
+is not signifcant for applications using QwtPlot only. But all other Qwt widgets offer 
+properties comparable to standard Qt widgets 
+
+Often the creator/designer executable is incompatible with the Qt version of the
+application. F.e the latest version of the creator might be built for Qt 5, but
+the application might be Qt 4 based. On Windows it is not possible
+to load a debug library ( beside the creator/designer itself
+had been built in debug mode ) - even if both use the same Qt version.
+
+In such situations 2 version of Qwt need to be built an installed - 
+one for the creator, the other for the application. The Qwt designer plugin is only
+necessary for the version, that is compatible with the designer/creator.
+
+Like any application using Qwt libraries the designer/creator needs to locate and load
+the Qwt libraries, when loading the Qwt designer plugin. How to configure the loader
+depends on the operating system:
+
+- Windows\n
+  PATH environment variable
+- Linux\n
+  LD_LIBRARY_PATH or see "man ldconfig"
+- Mac\n
+  Read about DYLD_LIBRARY_PATH
+  
+For finding the Qwt designer plugin itself you have to set the environment variable
+QT_PLUGIN_PATH or modify qt.conf. The Qt documentation explains it in detail:
+http://qt-project.org/doc/qt-5.0/qtdoc/deployment-plugins.html
+
+In case of problems setting the environment variable QT_DEBUG_PLUGINS helps to 
+identify the reason, why the plugin has not been loaded..
 
 \subsection USEHELP Qwt Online Help
 
