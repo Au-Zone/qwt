@@ -14,10 +14,11 @@ CONFIG   += ordered
 
 SUBDIRS = \
     src \
-    textengines
+    textengines \
+    doc
 
 contains(QWT_CONFIG, QwtDesigner ) {
-   	SUBDIRS += designer 
+    SUBDIRS += designer 
 }
 
 contains(QWT_CONFIG, QwtExamples ) {
