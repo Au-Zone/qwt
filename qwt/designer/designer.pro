@@ -50,6 +50,11 @@ contains(QWT_CONFIG, QwtDesigner) {
     INCLUDEPATH    += $${QWT_ROOT}/src 
     DEPENDPATH     += $${QWT_ROOT}/src 
 
+    # compile the path for finding the Qwt library
+    # into the plugin. Not supported on Windows !
+
+    QMAKE_RPATHDIR *= $${QWT_INSTALL_PREFIX}/lib
+
     contains(QWT_CONFIG, QwtFramework) {
 
         LIBS      += -F$${QWT_ROOT}/lib 
