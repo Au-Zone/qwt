@@ -14,17 +14,16 @@ include ( $${QWT_ROOT}/qwtbuild.pri )
 include ( $${QWT_ROOT}/qwtfunctions.pri )
 
 
-CONFIG(debug_and_release, debug|release|debug_and_release) {
+CONFIG( debug_and_release ) {
 
     # When building debug_and_release the designer plugin is built
-    # for release only. If you want to have a debug version it has to been
+    # for release only. If you want to have a debug version it has to be
     # done with "CONFIG += debug" only.
 
-    CONFIG(debug, debug|release) {
+    message("debug_and_release: building the Qwt designer plugin in release mode only")
 
-        message("debug_and_release: building the Qwt designer plugin in release mode only")
-        QWT_CONFIG -= QwtDesigner
-    }
+    CONFIG -= debug_and_release
+    CONFIG += release
 }
 
 contains(QWT_CONFIG, QwtDesigner) {
