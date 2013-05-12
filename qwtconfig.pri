@@ -32,10 +32,30 @@ QWT_INSTALL_LIBS      = $${QWT_INSTALL_PREFIX}/lib
 
 ######################################################################
 # Designer plugin
+# creator/designer load designer plugins from certain default
+# directories ( f.e the path below QT_INSTALL_PREFIX ) and the 
+# directories listed in the QT_PLUGIN_PATH environment variable.
+# When using the path below QWT_INSTALL_PREFIX you need to
+# add $${QWT_INSTALL_PREFIX}/plugins to QT_PLUGIN_PATH in the 
+# runtime environment of designer/creator.
 ######################################################################
 
-QWT_INSTALL_PLUGINS   = $${QWT_INSTALL_PREFIX}/plugins/designer
-# QWT_INSTALL_PLUGINS   = $$[QT_INSTALL_PREFIX]/plugins/designer
+win32 {
+    # on windows many users seem to have problems with
+    # seting up up a runtime environment. So better install
+    # into one of the preconfigured directories.
+
+    QWT_INSTALL_PLUGINS   = $$[QT_INSTALL_PREFIX]/plugins/designer
+
+} else {
+
+    # linux distributors often organize the Qt installation
+    # their way and QT_INSTALL_PREFIX doesn't offer a good
+    # path. But for self-compiled Qt installations ( or precompiled
+    # packages offered by qt-project ) this should be different.
+
+    QWT_INSTALL_PLUGINS   = $${QWT_INSTALL_PREFIX}/plugins/designer
+}
 
 ######################################################################
 # Features
@@ -105,6 +125,22 @@ QWT_CONFIG     += QwtOpenGL
 ######################################################################
 
 QWT_CONFIG     += QwtDesigner
+
+######################################################################
+# Compile all Qwt classes into the designer plugin instead
+# of linking it against the shared Qwt library. Has no effect
+# when QwtDesigner or QwtDll are not both enabled.
+#
+# On systems where rpath is supported ( all Unixoids ) the 
+# location of the installed Qwt library is compiled into the plugin,
+# but on Windows it might be easier to have a self contained
+# plugin to avoid any hassle with configuring the runtime
+# environment of the designer/creator.
+######################################################################
+
+win32 {
+    QWT_CONFIG     += QwtDesignerSelfContained
+}
 
 ######################################################################
 # If you want to auto build the examples, enable the line below
