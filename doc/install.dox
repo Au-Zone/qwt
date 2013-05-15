@@ -5,9 +5,10 @@
 
 \section DOWNLOAD Download
 
-Stable Qwt releases are available from the Qwt <a href="http://sourceforge.net/projects/qwt/files/qwt">project page</a>.
+  Stable Qwt releases are available from the 
+  Qwt <a href="http://sourceforge.net/projects/qwt/files/qwt">project page</a>.
 
-Qwt-$(QWTVERSION) consists of 4 files:
+  Qwt-$(QWTVERSION) consists of 4 files:
 
   - qwt-$(QWTVERSION).zip\n
     Zip file with the Qwt sources and the html documentation for Windows
@@ -17,41 +18,49 @@ Qwt-$(QWTVERSION) consists of 4 files:
     for UNIX systems ( Linux, Mac, ... )
 
   - qwt-$(QWTVERSION).pdf\n
-    Qwt class documentation as PDF document. 
+    Qwt documentation as PDF document. 
 
   - qwt-$(QWTVERSION).qch\n
     Qwt documentation as Qt Compressed Help document, that can be loaded into
-    the Qt Assistant or Creator. When loaded into the Creator tooltips
-    or autocompletion for Qwt classes is enabled like for Qt classes.
+    the Qt Assistant or Creator. In the creator context sensitive help will be
+    available like for Qt classes.
+
+  The precompiled Qwt designer plugins, are compatible with the Qt libraries used 
+  for building the current Qt creator binary packages:
+
+  - qwtdesigner-$(QWTVERSION)-*.zip
+
 
 \section INSTALL Installation
 
-   A proper installation of Qwt copies files from the downloaded packages
-   to a target directory. Beside headers, libraries and the html version
-   of the class documentation it contains a designer plugin that can be loaded
-   by the Qt Creator. Also a qmake features file is installed that can be loaded
-   from the qmake project file for an application using Qwt.
+  A proper installation of Qwt copies files from the downloaded packages
+  to a target directory. Beside headers, libraries and the html version
+  of the class documentation it contains a designer plugin that can be loaded
+  by the Qt Creator. Also qwt.prf - a qmake features file - is installed, so
+  that all settings for building a Qwt application with qmake can easily
+  included by "CONFIG += qwt".
 
-   Note that it is not unlikely, to have more than one installation of Qwt 
-   on the same system. F.e when the Qwt designer plugin has to be loaded
-   into a current version of the Qt Creator it needs to be compiled for Qt5 - 
-   even if an application is for Qt4.
+  Note that it is not unlikely, to have more than one installation of Qwt 
+  on the same system. F.e for using the Qwt designer plugin in the Qt creator 
+  you need a version with a Qt version and compiler combination, that is 
+  compatible with how the creator had been built. The information is available from
+  "Help->About Qt Creator ...".
 
-   Installing Qwt is done in 3 steps, that are quite common on UNIX systems.
+  Installing Qwt is done in 3 steps, that are quite common on UNIX systems.
 
-   -# Configuration
-      In the configuration step all parameters are set to control how
-      to build and install Qwt
-   -# Build
-      In the build step binaries are built from the source files.
-   -# Installation
-      The installation copies and rearranges all files that are necessary to build
-      Qwt applications to a target directory. Beside creating this directory
-      no changes are applied to the system.
+  -# Configuration\n
+     In the configuration step all parameters are set to control how
+     to build and install Qwt
+  -# Build\n
+     In the build step binaries are built from the source files.
+  -# Installation\n
+     The installation copies and rearranges all files that are necessary to build
+     Qwt applications to a target directory. Beside creating this directory
+     no changes are applied to the system.
 
 \subsection CONFIGSUBSECTION Configuration
 
-Configuring Qwt has to be done by editing the Project files used for building:
+  Configuring Qwt has to be done by editing the Project files used for building:
 
   - qwtbuild.pri\n
     qwtbuild.pri contains settings for how to build Qwt. All settings
@@ -65,100 +74,122 @@ Configuring Qwt has to be done by editing the Project files used for building:
     file qwt.prf and all its settings are known to project files for building
     Qwt applications.
 
-Often it is necessary to install more than one version of Qwt on the same system. This can
-be organized by setting different directories to QWT_INSTALL_PREFIX for each installation.
+  In qwtconfig.pri the meaning of each option is explained in detail - it's worth
+  reading it before running into problems later.
+
 
 \subsection BUILDSUBSECTION Build and installation
 
-Compiling the Qwt sources and linking its libraries can be done easily from the 
-command line. Below is a list of step by step instructions for the most
-popular environments.
+  Compiling the Qwt sources and linking its libraries can be done easily from the 
+  command line. Below is a list of step by step instructions for the most
+  popular environments.
 
   - \ref qwtinstall-unix 
   - \ref qwtinstall-windows-mingw 
   - \ref qwtinstall-windows-msvc 
 
-The Qt creator is a graphical frontend for calling qmake/make and can be used
-in all environments as well. There is no advantage in doing it, but as Windows users 
-sometimes feel uncomfortable with the command line ...
+  The Qt creator is a graphical frontend for calling qmake/make and - technically -
+  it could be used for building and installing Qwt. But as this way requires a lot
+  more understanding of details than what is necessary for using the the 
+  command line it is not further explained here.
 
-  - \ref qwtinstall-windows-creator
-
-\section USING Building and running a Qwt application
+\section INTEGRATION Integration in the Qt tool chain
 
 \subsection USEPLUGIN Designer plugin
 
-Using Qt designer plugins is unfortunately something that requires a certain understanding
-of shared libraries and is often a source for frustration.
-So before spending time on it note, that the plugin only optional and its value 
-is not signifcant for applications using QwtPlot only. But all other Qwt widgets offer 
-properties comparable to standard Qt widgets 
+  Using Qt designer plugins is unfortunately something that requires a certain understanding
+  of shared libraries and is often the reason for frustration. 
 
-Often the creator/designer executable is incompatible with the Qt version of the
-application. F.e the latest version of the creator might be built for Qt 5, but
-the application might be Qt 4 based. On Windows it is not possible
-to load a debug library ( beside the creator/designer itself
-had been built in debug mode ) - even if both use the same Qt version.
+  The designer plugin and the Qwt library for it ( if the plugin has not 
+  been built containing it completely ) has to be compatible with the Qt creator
+  not the version of the Qt libraries you want to build your application.
 
-In such situations 2 version of Qwt need to be built an installed - 
-one for the creator, the other for the application. The Qwt designer plugin is only
-necessary for the version, that is compatible with the designer/creator.
+  For finding the Qwt designer plugin itself you have to set the environment variable
+  QT_PLUGIN_PATH, modify qt.conf - or install the plugin to one of the default
+  paths for the Qt Creator or designer. The Qt documentation explains it in detail:
+  http://qt-project.org/doc/qt-5.0/qtdoc/deployment-plugins.html
 
-Like any application using Qwt libraries the designer/creator needs to locate and load
-the Qwt libraries, when loading the Qwt designer plugin. How to configure the loader
-depends on the operating system:
+  ( export QT_PLUGIN_PATH=/usr/local/qwt-$(QWTVERSION)/plugins:$QT_PLUGIN_PATH )
 
-- Windows\n
-  PATH environment variable
-- Linux\n
-  LD_LIBRARY_PATH or see "man ldconfig"
-- Mac\n
-  Read about DYLD_LIBRARY_PATH
-  
-For finding the Qwt designer plugin itself you have to set the environment variable
-QT_PLUGIN_PATH or modify qt.conf. The Qt documentation explains it in detail:
-http://qt-project.org/doc/qt-5.0/qtdoc/deployment-plugins.html
+  When the designer has not been built including the Qwt library ( see qwtconfig.pri )
+  the designer/creator needs to locate the Qwt libraries, when loading the Qwt 
+  designer plugin. On Unix systems the path to the installed library is compiled
+  into the plugin ( see ldd ), but on Windows the creator needs to be configured 
+  ( ( \ref RUNAPP ) in the same way as for any application using Qwt.
 
-In case of problems setting the environment variable QT_DEBUG_PLUGINS helps to 
-identify the reason, why the plugin has not been loaded..
+  In case of problems setting the environment variable QT_DEBUG_PLUGINS might help to 
+  identify the reason, why the plugin has not been loaded. In the Qt creator
+  it is possible to check which plugins were loaded successfully and which failed, 
+  choosing "Tools > Form Editor > About Qt Designer Plugins".
 
-\subsection USEHELP Qwt Online Help
+\subsection USEHELP Online Help
 
-The Qwt class documentation can be loaded into the creator: 
+  The Qwt class documentation can be loaded into the creator: 
 
-- open the settings dialog from the "Tools->Options" menu 
-- raise the tab "Help->Documentation". 
-- press the "Add" butten and select qwt-$(QWTVERSION).qch.
+  - open the settings dialog from the "Tools->Options" menu 
+  - raise the tab "Help->Documentation". 
+  - press the "Add" butten and select qwt-$(QWTVERSION).qch.
 
-Now the context sensitive help ( F1 ) in the Qt creator works for Qwt classes.
+  Now the context sensitive help ( F1 ) in the Qt creator works for Qwt classes.
 
-For browsing the documentation in the Qt assistant:
+  For browsing the documentation in the Qt assistant:
 
-- open the settings dialog from the "Edit->Preferences" menu 
-- raise the tab "Documentation". 
-- press the "Add" butten and select qwt-$(QWTVERSION).qch.
+  - open the settings dialog from the "Edit->Preferences" menu 
+  - raise the tab "Documentation". 
+  - press the "Add" butten and select qwt-$(QWTVERSION).qch.
 
-\subsection COMPILEANDLINKAPP Building and running an Qwt application
+\section COMPILEANDLINKAPP Building an application
+
+  QMAKE_RPATHDIR
+
+\section RUNAPP Running an application
+
+  When using Qwt as shared library ( DLL ) the application has to locate it, when being executed.
+  Where the program loader searches for shared libraries is configurable and depends on the
+  operating system. 
+
+  On Unix platforms it is possible to compile a hardcoded run-time search path into the executable
+  ( see \ref COMPILEANDLINKAPP ). 
+
+\subsection RUNWINDOWS Windows
+
+  -# The directory where the executable module for the current process is located.
+  -# The current directory.
+  -# The Windows system directory.
+  -# The Windows directory.
+  -# The directories listed in the PATH environment variable. 
+
+\subsection RUNLINUX GNU/Linux
+
+  Read the documentation about ldconfig, /etc/ld.so.conf and LD_LIBRARY_PATH.
+  Using the ldd command you can check your configuration.
+
+  http://en.wikipedia.org/wiki/Rpath explains the algorithm for searching 
+  for shared libraries in detail..
 
 \page qwtinstall-unix Installing Qwt on UNIX like systems
 
-The first step before creating the Makefile is to decide which version of qmake to use.
-F.e using qmake from a Qt 4.7 installation will build Qwt for Qt 4.7.
+  The first step before creating the Makefile is to decide which version of qmake to use.
+  F.e using qmake from a Qt 4.7 installation will build Qwt for Qt 4.7.
 
-The default setting for executing qmake is to build Qwt for the same environment the
-corresponding Qt version has been built for. So creating a Makefile usually means something like:
+  The default setting for executing qmake is to build Qwt for the same environment the
+  corresponding Qt version has been built for. So creating a Makefile usually means something like:
 
 \code/usr/local/Qt-5.0.1/bin/qmake qwt.pro\endcode
 
-The generated Makefile includes all paths related to the chosen Qt version and the next step
-is:
+  The generated Makefile includes all paths related to the chosen Qt version 
+  and the next step is:
 
 \codemake\endcode
 
-On multicore systems you can speed up building the Qwt libraries with using the -j option.
-
+  On multicore systems you can speed up building the Qwt libraries with using the -j option.
 
 \page qwtinstall-windows-mingw Installing Qwt on Windows ( MingGW )
+
+  - minw32-make
+
 \page qwtinstall-windows-msvc Installing Qwt on Windows ( VS 2010 )
-\page qwtinstall-windows-creator Installing Qwt on Windows with the Qt Creator
+
+  - nmake
+  - jom
 */
