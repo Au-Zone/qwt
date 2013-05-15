@@ -40,22 +40,14 @@ QWT_INSTALL_LIBS      = $${QWT_INSTALL_PREFIX}/lib
 # runtime environment of designer/creator.
 ######################################################################
 
-win32 {
-    # on windows many users seem to have problems with
-    # seting up up a runtime environment. So better install
-    # into one of the preconfigured directories.
+QWT_INSTALL_PLUGINS   = $${QWT_INSTALL_PREFIX}/plugins/designer
 
-    QWT_INSTALL_PLUGINS   = $$[QT_INSTALL_PREFIX]/plugins/designer
+# linux distributors often organize the Qt installation
+# their way and QT_INSTALL_PREFIX doesn't offer a good
+# path. Also QT_INSTALL_PREFIX is only one of the default
+# search paths of the designer - not the Qt creator
 
-} else {
-
-    # linux distributors often organize the Qt installation
-    # their way and QT_INSTALL_PREFIX doesn't offer a good
-    # path. But for self-compiled Qt installations ( or precompiled
-    # packages offered by qt-project ) this should be different.
-
-    QWT_INSTALL_PLUGINS   = $${QWT_INSTALL_PREFIX}/plugins/designer
-}
+#QWT_INSTALL_PLUGINS   = $$[QT_INSTALL_PREFIX]/plugins/designer
 
 ######################################################################
 # Features
