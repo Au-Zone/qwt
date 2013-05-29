@@ -22,28 +22,37 @@
 
   - qwt-$(QWTVERSION).qch\n
     Qwt documentation as Qt Compressed Help document, that can be loaded into
-    the Qt Assistant or Creator. In the Creator context sensitive help will be
+    the Qt Assistant or Creator. In the Qt Creator context sensitive help will be
     available like for Qt classes.
 
-  The available precompiled Qwt Designer plugins, are compatible with the Qt libraries used 
-  for building some of the current Qt Creator binary packages:
+  Precompiled Qwt Designer plugins, that are compatible with some binary packages
+  of the Qt Creator:
 
   - qwtdesigner-$(QWTVERSION)-*.zip
 
 
 \section INSTALL Installing Qwt
 
-  A proper installation of Qwt copies files from the downloaded packages
-  to a target directory. Beside headers, libraries and the html version
-  of the class documentation it contains a Designer plugin that can be loaded
-  by a compatible Qt Creator. Also qwt.prf - a qmake features file - is installed, so
-  that all settings for building an application using Qwt can easily
-  be included from qmake project files.
+  Beside headers, libraries and the html version of the class documentation a proper
+  Qwt installation contains a Designer plugin and a Qwt features file for building 
+  applications using Qwt.
+
+  All files will be copied to an installation directory, that is configurable
+  by editing qwtconfig.pri. Its default settings is:
+
+  - Windows\n
+    C:\\Qwt-$(QWTVERSION)
+
+  - Unix like systems\n
+    /usr/local/qwt-$(QWTVERSION)
+
+  For the rest of the document this install path will be written as <i>${QWT_ROOT}</i> 
+  and needs to be replaced by the real path in all commands below.
 
   It is not unlikely, to have more than one installation of Qwt 
   on the same system. F.e for using the Qwt Designer plugin in the Qt Creator 
-  aa version of Qwt is necessary with the same Qt and compiler combination, that had 
-  been used for building the Creator ( see "Help->About Qt Creator ..." ). 
+  a version of Qwt is necessary with the same Qt and compiler combination, that had 
+  been used for building the Qt Creator ( see "Help->About Qt Creator ..." ). 
 
   Installing Qwt is done in 3 steps, that are quite common on UNIX systems.
 
@@ -97,7 +106,7 @@
   So creating a makefile usually means something like:
 
 \code
-  cd qwt-x.y.z
+  cd qwt-$(QWTVERSION)
   /usr/local/Qt-5.0.1/bin/qmake qwt.pro
 \endcode
 
@@ -128,19 +137,18 @@
   probably the easiest way as it offers an environment, where everything is 
   initialized for a version of Qt ( f.e qmake is in the PATH ).
 
-  Creating a Makefile usually means something like:
+  Creating a makefile usually means something like:
 
 \code
-  cd qwt-x.y.z
+  cd qwt-$(QWTVERSION)
   qmake qwt.pro
 \endcode
 
-  The generated Makefile includes all paths related to the chosen Qt version.
+  The generated makefile includes all paths related to the chosen Qt version.
 
 \paragraph qwtinstall-windows-mingw MinGW
 
   For MinGW builds the name of the make tool is "mingw32-make" 
-  ( offering the -j option to speed up the build process ). 
 
 \code
   mingw32-make
@@ -179,15 +187,16 @@
 \subsection USEPLUGIN Designer plugin
 
   The Designer plugin and the corresponding Qwt library ( if the plugin has not 
-  been built self containing ) has to be compatible with Qt version of the application 
-  loading it - not the version of the Qt libraries you want to build your application with. 
-  In case of the Qt Creator this is often a different one.
+  been built self containing ) have to be compatible with Qt version of the application 
+  loading it ( usually the Qt Creator )  - what is often a different version of the 
+  Qt libraries you want to build your application with. F.e on Windows the Qt Creator
+  is usually built with a MSVC compiler - even if included in a MinGW package !
 
   To help Qt Designer/Creator with locating the Qwt Designer plugin 
   you have to set the environment variable QT_PLUGIN_PATH, modify qt.conf - 
   or install the plugin to one of the application default paths.
 
-  The Qt documentation explains it in detail:
+  The Qt documentation explains all options in detail:
 
   - http://qt-project.org/doc/qt-5.0/qtdoc/deployment-plugins.html
   - http://qt-project.org/doc/qtcreator-2.7/adding-plugins.html.
@@ -195,42 +204,43 @@
   F.e. on a Linux system you could add the following lines to .bashrc:
 
 \code
-  QT_PLUGIN_PATH="/usr/local/qwt-$(QWTVERSION)/plugins:$QT_PLUGIN_PATH"
+  QT_PLUGIN_PATH="${QWT_ROOT}/plugins:$QT_PLUGIN_PATH"
   export QT_PLUGIN_PATH
 \endcode
 
-  When the plugin has not been built including the Qwt library ( see qwtconfig.pri )
+  When the plugin has not been built including the Qwt library 
+  ( see QwtDesignerSelfContained in qwtconfig.pri )
   the Qt Designer/Creator also needs to locate the Qwt libraries. On Unix systems the 
   path to the installed library is compiled into the plugin ( see rpath, ldd ), but on 
-  Windows the Creator needs to be configured ( ( \ref RUNAPP ) in the same way as for 
+  Windows the Qt Creator needs to be configured ( ( \ref RUNAPP ) in the same way as for 
   any application using Qwt. 
 
-  In case of problems the diagnostics of Creator and Designer are very limited 
+  In case of problems the diagnostics of Qt Creator and Designer are very limited 
   ( usually none ), but setting the environment variable QT_DEBUG_PLUGINS might help. 
   In the Qt Creator it is possible to check which plugins were loaded 
   successfully and for certain problems it also lists those that were recognized
-  but failed  ( "Tools > Form Editor > About Qt Designer Plugins" ).
+  but failed  ( <i>Tools > Form Editor > About Qt Designer Plugins</i> ).
 
 \subsection USEHELP Online Help
 
-  The Qwt class documentation can be loaded into the Creator: 
+  The Qwt class documentation can be loaded into the Qt Creator: 
 
-  - open the settings dialog from the "Tools->Options" menu 
+  - open the settings dialog from the <i>Tools->Options</i> menu 
   - raise the tab "Help->Documentation". 
-  - press the "Add" butten and select qwt-$(QWTVERSION).qch.
+  - press the <i>Add</i> button and select qwt-$(QWTVERSION).qch.
 
-  Now the context sensitive help ( F1 ) works for Qwt classes.
+  Now the context sensitive help ( <i>F1</i> ) works for Qwt classes.
 
   For browsing the documentation in the Qt Assistant:
 
-  - open the settings dialog from the "Edit->Preferences" menu 
-  - raise the tab "Documentation". 
-  - press the "Add" butten and select qwt-$(QWTVERSION).qch.
+  - open the settings dialog from the <i>Edit->Preferences</i> menu 
+  - raise the tab <i>Documentation</i>. 
+  - press the <i>Add</i> button and select qwt-$(QWTVERSION).qch.
 
 \section COMPILEANDLINKAPP Building a Qwt application
 
 All flags and settings that are necessary to compile and link an application using Qwt 
-can be found in the file .../features/qwt.prf. 
+can be found in the file ${QWT_ROOT}/features/qwt.prf. 
 
 When using qmake it can included from the application project file in 2 different ways:
 
@@ -238,23 +248,23 @@ When using qmake it can included from the application project file in 2 differen
     When using the qmake feature mechanism you can bind a special version
     of qmake to a special installation of Qwt without having to add
     this dependency to the application project.
-    How to add Qwt as feature to qmake is documented in the 
+    How to add Qwt as feature is documented in the 
     <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-advanced-usage.html#adding-new-configuration-features">qmake docs</a>.
 
-    After adding Qwt as a feature f.e as a persistent property ....
-\code
-    qmake -set QMAKEFEATURES ...
-\endcode
+    After adding Qwt as a feature f.e on Linux as a persistent property ....
+@code
+    qmake -set QMAKEFEATURES ${QWT_ROOT}/features
+@endcode
     .. the following line can be added to the application project file:
 \code
     CONFIG += qwt
 \endcode 
 
   - Including qwt.prf in the application project file\n\n
-    Instead of using qwt.prf as qmake feature it can be included in from
+    Instead of using qwt.prf as qmake feature it can be included from
     the application project file:\n\n
 \code
-include ( .../features/qwt.prf )
+include ( ${QWT_ROOT}/features/qwt.prf )
 \endcode \n
     The advantage of using a direct include is, that all settings of qwt.prf 
     are known to the application project file ( qmake features are included after the
@@ -262,34 +272,34 @@ include ( .../features/qwt.prf )
     f.e. settings made in qwtconfig.pri.
 
 On Unix platforms it is possible to link a runtime path into the executable, so that the
-location of the Qwt libraries can be found without configuring a runtime environment:
+location of the Qwt libraries can be found without having to configure a runtime environment:
   - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-lflags-rpath">QMAKE_LFLAGS_RPATH</a> 
   - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-rpath">QMAKE_RPATH</a> 
   - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-rpathdir">QMAKE_RPATHDIR</a> 
 
 \section RUNAPP Running a Qwt application
 
-  When using Qwt as shared library ( DLL ) the application has to locate it, when being executed.
-  Where the program loader searches for shared libraries is configurable and depends on the
-  <a href="http://en.wikipedia.org/wiki/Dynamic_linker">dynamic linker</a> of your operating system.
+  When using Qwt as shared library ( DLL ) the 
+  <a href="http://en.wikipedia.org/wiki/Dynamic_linker">dynamic linker</a> has to find
+  it according to the rules of the operating system.
 
 \subsection RUNWINDOWS Windows
 
-The only reasonable way to configure the runtime environment without having to copy the
-Qwt libraries around is to modify the PATH variable - f.e. by adding
+The only reasonable way to configure the runtime environment - without having to copy the
+Qwt libraries around - is to modify the PATH variable. F.e. this could be done by adding
 the following line to some batch file:
 
 \code
-set PATH=%PATH%;C:\Qwt-$(QWTVERSION)\lib
+set PATH=%PATH%;${QWT_ROOT}\lib
 \endcode
 
 \subsection RUNLINUX GNU/Linux
 
   Read the documentation about:
 
-  - ldconfig 
-  - /etc/ld.so.conf 
-  - LD_LIBRARY_PATH
+  - <i>ldconfig</i>
+  - <i>/etc/ld.so.conf</i>
+  - <i>LD_LIBRARY_PATH</i>
 
-  Using the ldd command you can check your configuration.
+  Using the <i>ldd</i> command a configuration can be tested.
 */
