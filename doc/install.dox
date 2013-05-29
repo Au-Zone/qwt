@@ -31,7 +31,7 @@
   - qwtdesigner-$(QWTVERSION)-*.zip
 
 
-\section INSTALL Installation
+\section INSTALL Installing Qwt
 
   A proper installation of Qwt copies files from the downloaded packages
   to a target directory. Beside headers, libraries and the html version
@@ -86,7 +86,7 @@
   more understanding of details the following step by step instructions are for 
   the easier way using the command line.
 
-\subsection qwtinstall-unix Installing Qwt on UNIX like systems
+\subsubsection qwtinstall-unix Unix-like systems
 
   The first step before creating the Makefile is to check that the correct version
   of qmake is used. F.e. on older Linux distribution you often find a Qt3 qmake 
@@ -121,7 +121,7 @@
 \endcode
   ( On systems where sudo is not supported you can do the same with: su -c "make install" )
 
-\subsection qwtinstall-windows Installing Qwt on Windows 
+\subsubsection qwtinstall-windows Windows 
 
   Qt packages offer a command line interface, that can be found in the Qt application 
   menu: f.e "All Programs -> Qt -> Command Prompt".  It is not mandatory to use it, but 
@@ -137,7 +137,7 @@
 
   The generated Makefile includes all paths related to the chosen Qt version.
 
-\subsubsection qwtinstall-windows-mingw MinGW
+\paragraph qwtinstall-windows-mingw MinGW
 
   For MinGW builds the name of the make tool is "mingw32-make" 
   ( offering the -j option to speed up the build process ). 
@@ -156,7 +156,7 @@
 \endcode
 
 
-\subsubsection qwtinstall-windows-msvc MSVC
+\paragraph qwtinstall-windows-msvc MSVC
 
   For MSVC builds the name of the make tool is "nmake". Alternatively
   it is possible to use "jom" ( http://qt-project.org/wiki/jom ),
@@ -174,7 +174,7 @@
 \endcode
 
 
-\section INTEGRATION Integration in the Qt tool chain
+\section INTEGRATION Qwt and the Qt tool chain
 
 \subsection USEPLUGIN Designer plugin
 
@@ -227,35 +227,69 @@
   - raise the tab "Documentation". 
   - press the "Add" butten and select qwt-$(QWTVERSION).qch.
 
-\section COMPILEANDLINKAPP Building an application
+\section COMPILEANDLINKAPP Building a Qwt application
 
-  - QMAKE_RPATHDIR
-  - qwt.prf\n
-    CONFIG += qwt, qmake -set QMAKEFEATURES ...\n
-    include ( qwt.prf ) )
+All flags and settings that are necessary to compile and link an application using Qwt 
+can be found in the file .../features/qwt.prf. 
 
-\section RUNAPP Running an application
+When using qmake it can included from the application project file in 2 different ways:
+
+  - Adding Qwt as qmake feature\n\n
+    When using the qmake feature mechanism you can bind a special version
+    of qmake to a special installation of Qwt without having to add
+    this dependency to the application project.
+    How to add Qwt as feature to qmake is documented in the 
+    <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-advanced-usage.html#adding-new-configuration-features">qmake docs</a>.
+
+    After adding Qwt as a feature f.e as a persistent property ....
+\code
+    qmake -set QMAKEFEATURES ...
+\endcode
+    .. the following line can be added to the application project file:
+\code
+    CONFIG += qwt
+\endcode 
+
+  - Including qwt.prf in the application project file\n\n
+    Instead of using qwt.prf as qmake feature it can be included in from
+    the application project file:\n\n
+\code
+include ( .../features/qwt.prf )
+\endcode \n
+    The advantage of using a direct include is, that all settings of qwt.prf 
+    are known to the application project file ( qmake features are included after the
+    application project file has been parsed ) and it can be implemented depending on - 
+    f.e. settings made in qwtconfig.pri.
+
+On Unix platforms it is possible to link a runtime path into the executable, so that the
+location of the Qwt libraries can be found without configuring a runtime environment:
+  - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-lflags-rpath">QMAKE_LFLAGS_RPATH</a> 
+  - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-rpath">QMAKE_RPATH</a> 
+  - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-rpathdir">QMAKE_RPATHDIR</a> 
+
+\section RUNAPP Running a Qwt application
 
   When using Qwt as shared library ( DLL ) the application has to locate it, when being executed.
   Where the program loader searches for shared libraries is configurable and depends on the
-  operating system. 
+  <a href="http://en.wikipedia.org/wiki/Dynamic_linker">dynamic linker</a> of your operating system.
 
 \subsection RUNWINDOWS Windows
 
-  -# The directory where the executable module for the current process is located.
-  -# The current directory.
-  -# The Windows system directory.
-  -# The Windows directory.
-  -# The directories listed in the PATH environment variable. 
+The only reasonable way to configure the runtime environment without having to copy the
+Qwt libraries around is to modify the PATH variable - f.e. by adding
+the following line to some batch file:
+
+\code
+set PATH=%PATH%;C:\Qwt-$(QWTVERSION)\lib
+\endcode
 
 \subsection RUNLINUX GNU/Linux
 
-  Read the documentation about ldconfig, /etc/ld.so.conf and LD_LIBRARY_PATH.
+  Read the documentation about:
+
+  - ldconfig 
+  - /etc/ld.so.conf 
+  - LD_LIBRARY_PATH
+
   Using the ldd command you can check your configuration.
-
-  http://en.wikipedia.org/wiki/Rpath explains the algorithm for searching 
-  for shared libraries in detail..
-
-  On Unix platforms it is also possible to compile a hardcoded run-time search 
-  path into the executable ( see \ref COMPILEANDLINKAPP ). 
 */
