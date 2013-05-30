@@ -87,8 +87,10 @@ function cleanQwt {
     if [ "$SUFFIX" != "" ]
     then
         sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION-$SUFFIX/" qwtconfig.pri 
+    	sed -i -e "s/\$(QWTVERSION)/$VERSION-$SUFFIX/" doc/install.dox
     else
         sed -i -e "s/\$\$QWT_VERSION-svn/\$\$QWT_VERSION/" qwtconfig.pri
+    	sed -i -e "s/\$(QWTVERSION)/$VERSION/" doc/install.dox
     fi
 
     cd - > /dev/null
