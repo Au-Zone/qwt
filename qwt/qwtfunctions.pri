@@ -23,7 +23,7 @@ defineReplace(qwtLibraryTarget) {
     contains(TEMPLATE, .*lib):CONFIG(debug, debug|release) {
 
         !debug_and_release|build_pass {
-            unix:RET = $$member(LIBRARY_NAME, 0)_debug
+
             mac:RET = $$member(LIBRARY_NAME, 0)_debug
             win32:RET = $$member(LIBRARY_NAME, 0)d
         }
@@ -48,7 +48,6 @@ defineTest(qwtAddLibrary) {
 
         if(!debug_and_release|build_pass):CONFIG(debug, debug|release) {
 
-            unix:LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}_debug
             mac:LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}_debug
             win32:LINKAGE = -l$${LIB_NAME}$${QT_LIBINFIX}d
         }
