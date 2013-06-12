@@ -23,7 +23,7 @@ class QwtPainterCommand;
 
     QwtGraphic is the representation of a graphic that is tailored for
     scalability. Like QPicture it will be initialized by QPainter
-    operations and replayed later to any target paint device.
+    operations and can be replayed later to any target paint device.
 
     While the usual image representations QImage and QPixmap are not
     scalable Qt offers two paint devices, that might be candidates
@@ -36,18 +36,16 @@ class QwtPainterCommand;
 
     - QSvgRenderer/QSvgGenerator\n
       Unfortunately QSvgRenderer hides to much information about
-      its nodes in internal APIs, that are necessary proper 
+      its nodes in internal APIs, that are necessary for proper 
       layout calculations. Also it is derived from QObject and 
       can't be copied like QImage/QPixmap.
-      Also QSvgRenderer/QSvgGenerator are no complete SVG implementations
-      with a questionable future in Qt 5.
 
     QwtGraphic maps all scalable drawing primitives to a QPainterPath
     and stores them together with the painter state changes 
     ( pen, brush, transformation ... ) in a list of QwtPaintCommands. 
     For being a complete QPaintDevice it also stores pixmaps or images, 
     what is somehow against the idea of the class, because these objects 
-    can be scaled without a loss in quality.
+    can't be scaled without a loss in quality.
 
     The main issue about scaling a QwtGraphic object are the pens used for
     drawing the outlines of the painter paths. While non cosmetic pens 
