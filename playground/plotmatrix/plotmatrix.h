@@ -24,11 +24,13 @@ public:
     void setAxisScale( int axisId, int rowOrColumn,
         double min, double max, double step = 0 );
 
+protected:
+    void updateLayout();
+
 private Q_SLOTS:
     void scaleDivChanged();
 
 private:
-    void updateLayout();
     void alignAxes( int rowOrColumn, int axis );
     void alignScaleBorder( int rowOrColumn, int axis );
 

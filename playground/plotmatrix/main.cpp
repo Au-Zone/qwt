@@ -1,5 +1,6 @@
 #include "plotmatrix.h"
 #include <qwt_plot_grid.h>
+#include <qwt_scale_widget.h>
 #include <qapplication.h>
 #include <qpen.h>
 #include <qmath.h>
@@ -45,6 +46,11 @@ MainWindow::MainWindow():
             grid->attach( plot );
         }
     }
+
+    plotAt( 1, 0 )->axisWidget( QwtPlot::yLeft )->setLabelRotation( 45 );
+    plotAt( 1, numColumns() - 1 )->axisWidget( QwtPlot::yRight )->setLabelRotation( -45 );
+
+    updateLayout();
 }
 
 int main( int argc, char **argv )
