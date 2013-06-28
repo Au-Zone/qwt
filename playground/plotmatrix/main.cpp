@@ -35,14 +35,14 @@ MainWindow::MainWindow():
     {
         for ( int col = 0; col < numColumns(); col++ )
         {
-            QwtPlot *plt = plot( row, col );
-            plt->setCanvasBackground( QColor( Qt::darkBlue ) );
+            QwtPlot *plot = plotAt( row, col );
+            plot->setCanvasBackground( QColor( Qt::darkGray ) );
 
             QwtPlotGrid *grid = new QwtPlotGrid();
             grid->enableXMin( true );
             grid->setMajorPen( Qt::white, 0, Qt::DotLine );
             grid->setMinorPen( Qt::gray, 0 , Qt::DotLine );
-            grid->attach( plt );
+            grid->attach( plot );
         }
     }
 }
