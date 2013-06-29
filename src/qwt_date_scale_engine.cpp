@@ -1123,8 +1123,14 @@ QDateTime QwtDateScaleEngine::alignDate(
         }
         case QwtDate::Second:
         {
-            const int s = qwtAlignValue( 
-                dt.time().second(), stepSize, up );
+            int second = dt.time().second();
+            if ( up )
+            {
+                if ( dt.time().msec() > 0 )
+                    second++;
+            }
+
+            const int s = qwtAlignValue( second, stepSize, up );
 
             dt = QwtDate::floor( dt, QwtDate::Minute );
             dt = dt.addSecs( s );
@@ -1133,8 +1139,14 @@ QDateTime QwtDateScaleEngine::alignDate(
         }
         case QwtDate::Minute:
         {
-            const int m = qwtAlignValue( 
-                dt.time().minute(), stepSize, up );
+            int minute = dt.time().minute();
+            if ( up )
+            {
+                if ( dt.time().msec() > 0 || dt.time().second() > 0 )
+                    minute++;
+            }
+
+            const int m = qwtAlignValue( minute, stepSize, up );
 
             dt = QwtDate::floor( dt, QwtDate::Hour );
             dt = dt.addSecs( m * 60 );
@@ -1143,8 +1155,16 @@ QDateTime QwtDateScaleEngine::alignDate(
         }
         case QwtDate::Hour:
         {
-            const int h = qwtAlignValue( 
-                dt.time().hour(), stepSize, up );
+            int hour = dt.time().hour();
+            if ( up )
+            {
+                if ( dt.time().msec() > 0 || dt.time().second() > 0
+                    || dt.time().minute() > 0 )
+                {
+                    hour++;
+                }
+            }
+            const int h = qwtAlignValue( hour, stepSize, up );
 
             dt = QwtDate::floor( dt, QwtDate::Day );
             dt = dt.addSecs( h * 3600 );
@@ -1157,8 +1177,14 @@ QDateTime QwtDateScaleEngine::alignDate(
             // Aligning them to the beginning of the year avoids at least
             // jumping major ticks when panning
 
-            const int d = qwtAlignValue(
-                dt.date().dayOfYear(), stepSize, up );
+            int day = dt.date().dayOfYear();
+            if ( up )
+            {
+                if ( dt.time() > QTime( 0, 0 ) )
+                    day++;
+            }
+
+            const int d = qwtAlignValue( day, stepSize, up );
 
             dt = QwtDate::floor( dt, QwtDate::Year );
             dt = dt.addDays( d - 1 );
@@ -1170,7 +1196,16 @@ QDateTime QwtDateScaleEngine::alignDate(
             const QDate date = QwtDate::dateOfWeek0(
                 dt.date().year(), d_data->week0Type );
 
-            const int numWeeks = date.daysTo( dt.date() ) / 7;
+            int numWeeks = date.daysTo( dt.date() ) / 7;
+            if ( up )
+            {
+                if ( dt.time() > QTime( 0, 0 ) ||
+                    date.daysTo( dt.date() ) % 7 )
+                {
+                    numWeeks++;
+                }
+            }
+
             const int d = qwtAlignValue( numWeeks, stepSize, up ) * 7;
 
             dt = QwtDate::floor( dt, QwtDate::Day );
@@ -1181,8 +1216,17 @@ QDateTime QwtDateScaleEngine::alignDate(
         }
         case QwtDate::Month:
         {
-            const int m = qwtAlignValue( 
-                dt.date().month() - 1, stepSize, up );
+            int month = dt.date().month();
+            if ( up )
+            {
+                if ( dt.date().day() > 1 ||
+                    dt.time() > QTime( 0, 0 ) )
+                {
+                    month++;
+                }
+            }
+
+            const int m = qwtAlignValue( month - 1, stepSize, up );
 
             dt = QwtDate::floor( dt, QwtDate::Year );
             dt = dt.addMonths( m );
@@ -1191,8 +1235,17 @@ QDateTime QwtDateScaleEngine::alignDate(
         }
         case QwtDate::Year:
         {
-            const int y = qwtAlignValue(
-                dateTime.date().year(), stepSize, up );
+            int year = dateTime.date().year();
+            if ( up )
+            {
+                if ( dateTime.date().dayOfYear() > 1 ||
+                    dt.time() > QTime( 0, 0 ) )
+                {
+                    year++;
+                }
+            }
+
+            const int y = qwtAlignValue( year, stepSize, up );
 
             dt = QwtDate::floor( dt, QwtDate::Day );
             if ( y == 0 )
