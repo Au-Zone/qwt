@@ -903,7 +903,7 @@ QwtDate::IntervalType QwtDateScaleEngine::intervalType(
   The algorithm aligns and divides the interval into steps. 
 
   Datetime interval divisions are usually not equidistant and the
-  calculated stepSize is can only be used as an approximation
+  calculated stepSize can only be used as an approximation
   for the steps calculated by divideScale(). 
 
   \param maxNumSteps Max. number of steps
@@ -944,19 +944,19 @@ void QwtDateScaleEngine::autoScale( int maxNumSteps,
         const QwtDate::IntervalType intvType = 
             intervalType( from, to, maxNumSteps );
 
-        double width = qwtIntervalWidth( from, to, intvType );
-        width = QwtScaleArithmetic::divideInterval( width, maxNumSteps, 10 );
+        const double width = qwtIntervalWidth( from, to, intvType );
 
-        if ( width != 0.0 && !testAttribute( QwtScaleEngine::Floating ) )
+        const double stepWidth = qwtDivideScale( width, maxNumSteps, intvType );
+        if ( stepWidth != 0.0 && !testAttribute( QwtScaleEngine::Floating ) )
         {
-            const QDateTime d1 = alignDate( from, width, intvType, false );
-            const QDateTime d2 = alignDate( to, width, intvType, true );
+            const QDateTime d1 = alignDate( from, stepWidth, intvType, false );
+            const QDateTime d2 = alignDate( to, stepWidth, intvType, true );
 
             interval.setMinValue( QwtDate::toDouble( d1 ) );
             interval.setMaxValue( QwtDate::toDouble( d2 ) );
         }
 
-        stepSize = width * qwtMsecsForType( intvType );
+        stepSize = stepWidth * qwtMsecsForType( intvType );
     }
 
     x1 = interval.minValue();
