@@ -108,7 +108,7 @@ QWT_CONFIG     += QwtOpenGL
 # to your qmake project file.
 ######################################################################
 
-#QWT_CONFIG     += QwtMathML
+QWT_CONFIG     += QwtMathML
 
 ######################################################################
 # If you want to build the Qwt designer plugin, 
@@ -139,7 +139,7 @@ win32 {
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-#QWT_CONFIG     += QwtExamples
+QWT_CONFIG     += QwtExamples
 
 ######################################################################
 # The playground is primarily intended for the Qwt development 
@@ -150,7 +150,7 @@ win32 {
 # Otherwise you have to build them from the playground directory.
 ######################################################################
 
-#QWT_CONFIG     += QwtPlayground
+QWT_CONFIG     += QwtPlayground
 
 ######################################################################
 # When Qt has been built as framework qmake wants 
