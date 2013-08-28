@@ -29,14 +29,14 @@ public:
 
     bool setContent( QString text, QString *errorMsg = 0,
                      int *errorLine = 0, int *errorColumn = 0 );
-    void paint( QPainter *p, const QPoint &pos ) const;
-    QSize size() const;
+    void paint( QPainter *, const QPointF &pos ) const;
+    QSizeF size() const;
 
     QString fontName( MmlFont type ) const;
     void setFontName( MmlFont type, const QString &name );
 
-    int baseFontPointSize() const;
-    void setBaseFontPointSize( int size );
+    qreal baseFontPointSize() const;
+    void setBaseFontPointSize( qreal size );
 
 private:
     QwtMmlDocument *m_doc;
