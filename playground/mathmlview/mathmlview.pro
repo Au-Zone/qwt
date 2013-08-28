@@ -24,5 +24,3 @@ SOURCES = \
     formulaview.cpp \
     mainwindow.cpp \
     main.cpp
-
-CONFIG -= silent

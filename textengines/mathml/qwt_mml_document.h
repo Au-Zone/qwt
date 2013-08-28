@@ -1,11 +1,12 @@
 #ifndef _QWT_MML_DOCUMENT_H_
-#define _QWT_MML_DOCUMENT_H_ 1
+#define _QWT_MML_DOCUMENT_H_
 
 #include <qwt_global.h>
-#include <QString>
+#include <qstring.h>
+#include <qsize.h>
 
 class QPainter;
-class QPoint;
+class QPointF;
 
 class QwtMmlDocument;
 
