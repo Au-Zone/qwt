@@ -33,5 +33,15 @@ void FormulaView::renderFormula( QPainter *painter ) const
     doc.setContent( d_formula );
     doc.setBaseFontPointSize( painter->font().pointSize() );
 
-    doc.paint( painter, rect().center() );
+	QRectF docRect;
+	docRect.setSize( doc.size() );
+	docRect.moveCenter( rect().center() );
+
+#if 1
+	painter->save();
+	painter->translate( docRect.topLeft() );
+	painter->restore();
+#else
+    doc.paint( painter, docRect.topLeft().toPoint() );
+#endif
 }
