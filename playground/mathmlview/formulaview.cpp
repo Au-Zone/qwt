@@ -38,11 +38,19 @@ void FormulaView::renderFormula( QPainter *painter ) const
     docRect.moveCenter( rect().center() );
 
 #if 1
+    const double scaleF = 2.0;
+
     painter->save();
-    painter->translate( docRect.topLeft() );
-    doc.paint( painter, QPoint( 0, 0 ) );
+
+    painter->translate( docRect.center() );
+    painter->scale( scaleF, scaleF );
+    painter->translate( docRect.topLeft() - docRect.center() );
+    doc.paint( painter, QPointF( 0, 0 ) );
+
     painter->restore();
-#else
+#endif
+
+#if 0
     doc.paint( painter, docRect.topLeft().toPoint() );
 #endif
 }

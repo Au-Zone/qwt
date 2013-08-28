@@ -1586,14 +1586,14 @@ QwtMmlNode *QwtMmlDocument::createImplicitMrowNode( const QDomNode &dom_node,
     return mml_node;
 }
 
-void QwtMmlDocument::paint( QPainter *p, const QPointF &pos ) const
+void QwtMmlDocument::paint( QPainter *painter, const QPointF &pos ) const
 {
     if ( m_root_node == 0 )
         return;
 
     QRectF mr = m_root_node->myRect();
     m_root_node->setRelOrigin( pos - mr.topLeft() );
-    m_root_node->paint( p );
+    m_root_node->paint( painter );
 }
 
 QSizeF QwtMmlDocument::size() const
@@ -2040,40 +2040,45 @@ void QwtMmlNode::layoutSymbol()
     }
 }
 
-void QwtMmlNode::paint( QPainter *p )
+void QwtMmlNode::paint( QPainter *painter )
 {
     if ( !myRect().isValid() )
         return;
-    p->save();
 
-    QColor fg = color();
-    QColor bg = background();
+    painter->save();
+
+    const QColor bg = background();
     if ( bg.isValid() )
-        p->fillRect( myRect(), bg );
+        painter->fillRect( myRect(), bg );
+
+    const QColor fg = color();
     if ( fg.isValid() )
-        p->setPen( QPen( color(), 0 ) );
+        painter->setPen( QPen( color(), 1 ) );
 
     QwtMmlNode *child = firstChild();
     for ( ; child != 0; child = child->nextSibling() )
-        child->paint( p );
+        child->paint( painter );
 
-    paintSymbol( p );
+    paintSymbol( painter );
 
-    p->restore();
+    painter->restore();
 }
 
-void QwtMmlNode::paintSymbol( QPainter *p ) const
+void QwtMmlNode::paintSymbol( QPainter *painter ) const
 {
     if ( g_draw_frames && myRect().isValid() )
     {
-        p->save();
-        p->setPen( QPen( Qt::red, 0 ) );
-        p->drawRect( m_my_rect );
-        QPen pen = p->pen();
+        painter->save();
+
+        painter->setPen( QPen( Qt::red, 0 ) );
+        painter->drawRect( m_my_rect );
+
+        QPen pen = painter->pen();
         pen.setStyle( Qt::DotLine );
-        p->setPen( pen );
-        p->drawLine( myRect().left(), 0.0, myRect().right(), 0.0 );
-        p->restore();
+        painter->setPen( pen );
+        painter->drawLine( myRect().left(), 0.0, myRect().right(), 0.0 );
+
+        painter->restore();
     }
 }
 
@@ -2151,7 +2156,7 @@ static bool zeroLineThickness( const QString &s )
     return true;
 }
 
-void QwtMmlMfracNode::paintSymbol( QPainter *p ) const
+void QwtMmlMfracNode::paintSymbol( QPainter *painter ) const
 {
     QString linethickness_str = inheritAttributeFromMrow( "linethickness", "1" );
 
@@ -2166,13 +2171,18 @@ void QwtMmlMfracNode::paintSymbol( QPainter *p ) const
         if ( !ok )
             linethickness = 1.0;
 
-        p->save();
-        QPen pen = p->pen();
+        painter->save();
+
+        QPen pen = painter->pen();
         pen.setWidthF( linethickness );
-        p->setPen( pen );
-        QSizeF s = myRect().size();
-        p->drawLine( -0.5 * s.width(), 0.0, 0.5 * s.width(), 0.0 );
-        p->restore();
+        painter->setPen( pen );
+
+    	QRectF r = symbolRect();
+    	r.moveTopLeft( devicePoint( r.topLeft() ) );
+
+        painter->drawLine( r.left(), r.center().y(), r.right(), r.center().y() );
+
+        painter->restore();
     }
 }
 
@@ -2251,22 +2261,21 @@ void QwtMmlRootBaseNode::layoutSymbol()
 
 void QwtMmlRootBaseNode::paintSymbol( QPainter *painter ) const
 {
-    const QRectF sr = symbolRect();
+    QRectF r = symbolRect();
+    r.moveTopLeft( devicePoint( r.topLeft() ) );
 
-    QRectF r = sr;
-    r.moveTopLeft( devicePoint( sr.topLeft() ) );
+	const QSizeF radixSize = QFontMetricsF( font() ).boundingRect( g_radical_char ).size();
 
-#if 1
-    QFont fn = font();
     painter->save();
-    painter->setViewport( r.toRect() );
-    painter->setWindow( QFontMetrics( fn ).boundingRect( g_radical_char ) );
-    painter->setFont( fn );
-    painter->drawText( 0, 0, QString( g_radical_char ) );
-    painter->restore();
-#endif
 
-    painter->drawLine( sr.right(), sr.top(), myRect().right(), sr.top() );
+	painter->translate( r.bottomLeft() );
+	painter->scale( r.width() / radixSize.width(), r.height() / radixSize.height() );
+    painter->setFont( font() );
+    painter->drawText( 0, 0, QString( g_radical_char ) );
+
+    painter->restore();
+
+    painter->drawLine( r.right(), r.top(), r.right() + myRect().width(), r.top() );
 }
 
 QwtMmlTextNode::QwtMmlTextNode( const QString &text, QwtMmlDocument *document )
@@ -2288,31 +2297,25 @@ QString QwtMmlTextNode::toStr() const
     return QwtMmlNode::toStr() + ", text=\"" + m_text + "\"";
 }
 
-void QwtMmlTextNode::paintSymbol( QPainter *p ) const
+void QwtMmlTextNode::paintSymbol( QPainter *painter ) const
 {
-    QwtMmlNode::paintSymbol( p );
+    QwtMmlNode::paintSymbol( painter );
 
     QFont fn = font();
 
-#if 0
-    QFontInfo fi( fn );
-    qWarning("MmlTextNode::paintSymbol(): requested: %s, used: %s, size=%d, italic=%d, bold=%d, text=\"%s\" sl=%d",
-        fn.family().latin1(), fi.family().latin1(), fi.pointSize(), (int)fi.italic(), (int)fi.bold(), m_text.latin1(), scriptlevel());
-#endif
-
     QFontMetricsF fm( fn );
 
-    p->save();
-    p->setFont( fn );
+    painter->save();
+    painter->setFont( fn );
 
 #if 1
     const QPointF dPos = devicePoint( relOrigin() );
-    p->drawText( dPos.x(), dPos.y() + fm.strikeOutPos(), m_text );
+    painter->drawText( dPos.x(), dPos.y() + fm.strikeOutPos(), m_text );
 #else
-    p->drawText( 0.0, fm.strikeOutPos(), m_text );
+    painter->drawText( 0.0, fm.strikeOutPos(), m_text );
 #endif
 
-    p->restore();
+    painter->restore();
 }
 
 QRectF QwtMmlTextNode::symbolRect() const
@@ -2802,30 +2805,30 @@ QwtMml::FrameType QwtMmlMtableNode::rowlines( int idx ) const
     return mmlInterpretFrameType( value, idx, 0 );
 }
 
-void QwtMmlMtableNode::paintSymbol( QPainter *p ) const
+void QwtMmlMtableNode::paintSymbol( QPainter *painter ) const
 {
     FrameType f = frame();
     if ( f != FrameNone )
     {
-        p->save();
+        painter->save();
 
-        QPen pen = p->pen();
+        QPen pen = painter->pen();
         if ( f == FrameDashed )
             pen.setStyle( Qt::DashLine );
         else
             pen.setStyle( Qt::SolidLine );
-        p->setPen( pen );
-        p->drawRect( myRect() );
+        painter->setPen( pen );
+        painter->drawRect( myRect() );
 
-        p->restore();
+        painter->restore();
     }
 
-    p->save();
+    painter->save();
 
     qreal col_spc = columnspacing();
     qreal row_spc = rowspacing();
 
-    QPen pen = p->pen();
+    QPen pen = painter->pen();
     qreal col_offset = 0.0;
     int i;
     for ( i = 0; i < m_cell_size_data.numCols() - 1; ++i )
@@ -2840,9 +2843,9 @@ void QwtMmlMtableNode::paintSymbol( QPainter *p ) const
             else if ( f == FrameSolid )
                 pen.setStyle( Qt::SolidLine );
 
-            p->setPen( pen );
+            painter->setPen( pen );
             qreal x = col_offset + 0.5 * col_spc;
-            p->drawLine( x, -0.5 * m_content_height, x, 0.5 * m_content_height );
+            painter->drawLine( x, -0.5 * m_content_height, x, 0.5 * m_content_height );
         }
         col_offset += col_spc;
     }
@@ -2860,14 +2863,14 @@ void QwtMmlMtableNode::paintSymbol( QPainter *p ) const
             else if ( f == FrameSolid )
                 pen.setStyle( Qt::SolidLine );
 
-            p->setPen( pen );
+            painter->setPen( pen );
             qreal y = row_offset + 0.5 * ( row_spc - m_content_height );
-            p->drawLine( 0, y, m_content_width, y );
+            painter->drawLine( 0, y, m_content_width, y );
         }
         row_offset += row_spc;
     }
 
-    p->restore();
+    painter->restore();
 }
 
 qreal QwtMmlMtableNode::framespacing_ver() const
@@ -4163,11 +4166,11 @@ bool QwtMathMLDocument::setContent( QString text, QString *errorMsg,
 }
 
 /*!
-  Renders this MML document with the painter \a p at position \a pos.
+  Renders this MML document with the painter \a painter at position \a pos.
 */
-void QwtMathMLDocument::paint( QPainter *p, const QPointF &pos ) const
+void QwtMathMLDocument::paint( QPainter *painter, const QPointF &pos ) const
 {
-    m_doc->paint( p, pos );
+    m_doc->paint( painter, pos );
 }
 
 /*!
