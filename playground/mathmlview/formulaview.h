@@ -11,11 +11,15 @@ class FormulaView: public QWidget
 
 public:
     FormulaView( QWidget *parent = NULL );
-    
+
     QString formula() const;
 
 public Q_SLOTS:
     void setFormula( const QString & );
+    void setFontSize( const qreal & );
+    void setTransformation( const bool &transformation );
+    void setScale( const bool &scale );
+    void setRotation( const qreal & );
 
 protected:
     virtual void paintEvent( QPaintEvent * );
@@ -25,6 +29,10 @@ private:
 
 private:
     QString d_formula;
+    qreal d_fontSize;
+    bool d_transformation;
+    bool d_scale;
+    qreal d_rotation;
 };
 
 #endif

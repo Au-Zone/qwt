@@ -8,7 +8,6 @@
 #include <QDomNode>
 #include <QDebug>
 
-
 // *******************************************************************
 // Declarations
 // *******************************************************************
@@ -221,9 +220,9 @@ private:
     QwtMmlDocument *m_document;
 
     QwtMmlNode *m_parent,
-            *m_first_child,
-            *m_next_sibling,
-            *m_previous_sibling;
+               *m_first_child,
+               *m_next_sibling,
+               *m_previous_sibling;
 };
 
 class QwtMmlTokenNode : public QwtMmlNode
@@ -594,7 +593,7 @@ static bool mmlCheckAttributes( QwtMml::NodeType child_type,
 static QString mmlDictAttribute( const QString &name, const QwtMmlOperSpec *spec );
 static const QwtMmlOperSpec *mmlFindOperSpec( const QString &name, QwtMml::FormType form );
 static qreal mmlInterpretSpacing( QString name, int em, int ex, bool *ok );
-static int mmlInterpretPercentSpacing( QString value, int base, bool *ok );
+static qreal mmlInterpretPercentSpacing( QString value, int base, bool *ok );
 static uint mmlInterpretMathVariant( const QString &value, bool *ok );
 static QwtMml::FormType mmlInterpretForm( const QString &value, bool *ok );
 static QwtMml::FrameType mmlInterpretFrameType( const QString &value_list, uint idx, bool *ok );
@@ -605,6 +604,7 @@ static QwtMml::FrameType mmlInterpretFrameType( const QString &value_list, uint 
 static QFont mmlInterpretDepreciatedFontAttr( const QwtMmlAttributeMap &font_attr, QFont &fn, int em, int ex );
 static QFont mmlInterpretMathSize( QString value, QFont &fn, int em, int ex, bool *ok );
 static QString mmlInterpretListAttr( const QString &value_list, int idx, const QString &def );
+static qreal mmlQstringToQreal( const QString &string, bool *ok = 0 );
 
 #define MML_ATT_COMMON      " class style id xref actiontype "
 #define MML_ATT_FONTSIZE    " fontsize fontweight fontstyle fontfamily color "
@@ -1098,7 +1098,7 @@ QwtMml::NodeType domToQwtMmlNodeType( const QDomNode &dom_node )
 
         case QDomNode::EntityReferenceNode:
 #if 0
-            qWarning("EntityReferenceNode: name=\"" + dom_node.nodeName() + "\" value=\"" + dom_node.nodeValue() + "\"");
+            qWarning( "EntityReferenceNode: name=\"" + dom_node.nodeName() + "\" value=\"" + dom_node.nodeValue() + "\"" );
 #endif
             break;
 
@@ -1525,7 +1525,7 @@ QwtMmlNode *QwtMmlDocument::domToMml( const QDomNode &dom_node, bool *ok,
                 if ( i < child_cnt - 1 && mml_type == MfencedNode && !separator_list.isEmpty() )
                 {
                     QChar separator;
-                    if ( i >= ( int )separator_list.length() )
+                    if ( i >= separator_list.length() )
                         separator = separator_list.at( separator_list.length() - 1 );
                     else
                         separator = separator_list[i];
@@ -1760,10 +1760,14 @@ QPointF QwtMmlNode::devicePoint( const QPointF &pos ) const
     QRectF dr = deviceRect();
 
     if ( isStretched() )
-        return dr.topLeft() + QPoint( ( pos.x() - mr.left() ) * dr.width() / mr.width(),
-                                      ( pos.y() - mr.top() ) * dr.height() / mr.height() );
+    {
+        return dr.topLeft() + QPointF( ( pos.x() - mr.left() ) * dr.width() / mr.width(),
+                                       ( pos.y() - mr.top() ) * dr.height() / mr.height() );
+    }
     else
+    {
         return dr.topLeft() + pos - mr.topLeft();
+    }
 }
 
 QString QwtMmlNode::inheritAttributeFromMrow( const QString &name,
@@ -1996,16 +2000,16 @@ QRectF QwtMmlNode::deviceRect() const
         return QRectF( relOrigin() + myRect().topLeft(), myRect().size() );
 
 #if 0
-    if ( !isStretched() ) 
+    if ( !isStretched() )
     {
         QRectF pdr = parent()->deviceRect();
         QRectF pmr = parent()->myRect();
         QRectF pr = parentRect();
         QRectF mr = myRect();
 
-        return QRectF(pdr.left() + pr.left() - pmr.left(),
+        return QRectF( pdr.left() + pr.left() - pmr.left(),
             pdr.top()  + pr.top() - pmr.top(),
-            mr.width(), mr.height());
+            mr.width(), mr.height() );
     }
 #endif
 
@@ -2177,8 +2181,8 @@ void QwtMmlMfracNode::paintSymbol( QPainter *painter ) const
         pen.setWidthF( linethickness );
         painter->setPen( pen );
 
-    	QRectF r = symbolRect();
-    	r.moveTopLeft( devicePoint( r.topLeft() ) );
+        QRectF r = symbolRect();
+        r.moveTopLeft( devicePoint( r.topLeft() ) );
 
         painter->drawLine( r.left(), r.center().y(), r.right(), r.center().y() );
 
@@ -2264,12 +2268,12 @@ void QwtMmlRootBaseNode::paintSymbol( QPainter *painter ) const
     QRectF r = symbolRect();
     r.moveTopLeft( devicePoint( r.topLeft() ) );
 
-	const QSizeF radixSize = QFontMetricsF( font() ).boundingRect( g_radical_char ).size();
+    const QSizeF radixSize = QFontMetricsF( font() ).boundingRect( g_radical_char ).size();
 
     painter->save();
 
-	painter->translate( r.bottomLeft() );
-	painter->scale( r.width() / radixSize.width(), r.height() / radixSize.height() );
+    painter->translate( r.bottomLeft() );
+    painter->scale( r.width() / radixSize.width(), r.height() / radixSize.height() );
     painter->setFont( font() );
     painter->drawText( 0, 0, QString( g_radical_char ) );
 
@@ -2621,6 +2625,16 @@ void QwtMmlMtableNode::CellSizeData::init( const QwtMmlNode *first_row )
     }
 }
 
+static qreal mmlQstringToQreal( const QString &string, bool *ok )
+{
+    static const int SizeOfDouble = sizeof( double );
+
+    if ( sizeof( qreal ) == SizeOfDouble )
+        return string.toDouble( ok );
+    else
+        return string.toFloat( ok );
+}
+
 void QwtMmlMtableNode::layoutSymbol()
 {
     // Obtain natural widths of columns
@@ -2683,7 +2697,7 @@ void QwtMmlMtableNode::layoutSymbol()
         if ( value.endsWith( "%" ) )
         {
             value.truncate( value.length() - 1 );
-            double factor = value.toDouble( &ok );
+            qreal factor = mmlQstringToQreal( value, &ok );
             if ( ok && !value.isEmpty() )
             {
                 factor *= 0.01;
@@ -2726,7 +2740,7 @@ void QwtMmlMtableNode::layoutSymbol()
     }
 
     // Ratio by which we have to shring/grow all auto sized columns to make it all fit
-    double auto_width_scale = 1.0;
+    qreal auto_width_scale = 1.0;
     if ( auto_width_sum > 0.0 )
         auto_width_scale = required_auto_width_sum / auto_width_sum;
 
@@ -2947,9 +2961,8 @@ void QwtMmlMtdNode::setMyRect( const QRectF &rect )
                 && child->font().pointSize() > g_min_font_point_size )
         {
 #if 0
-
-            qWarning("QwtMmlMtdNode::setMyRect(): rect.width()=%d, child()->myRect().width=%d sl=%d",
-                rect.width(), child->myRect().width(), m_scriptlevel_adjust);
+            qWarning( "QwtMmlMtdNode::setMyRect(): rect.width()=%d, child()->myRect().width=%d sl=%d",
+                rect.width(), child->myRect().width(), m_scriptlevel_adjust );
 #endif
 
             ++m_scriptlevel_adjust;
@@ -2957,8 +2970,8 @@ void QwtMmlMtdNode::setMyRect( const QRectF &rect )
         }
 
 #if 0
-            qWarning("QwtMmlMtdNode::setMyRect(): rect.width()=%d, child()->myRect().width=%d sl=%d",
-                rect.width(), child->myRect().width(), m_scriptlevel_adjust);
+        qWarning( "QwtMmlMtdNode::setMyRect(): rect.width()=%d, child()->myRect().width=%d sl=%d",
+            rect.width(), child->myRect().width(), m_scriptlevel_adjust );
 #endif
     }
 
@@ -3201,9 +3214,9 @@ qreal QwtMmlMpaddedNode::interpretSpacing( QString value, qreal base_value,
     // extract the pseudo-unit
     pseudo_unit = value.mid( idx );
 
-    bool float_ok;
-    double factor = factor_str.toFloat( &float_ok );
-    if ( !float_ok || factor < 0.0 )
+    bool qreal_ok;
+    qreal factor = mmlQstringToQreal( factor_str, &qreal_ok );
+    if ( !qreal_ok || factor < 0.0 )
     {
         qWarning( "QwtMmlMpaddedNode::interpretSpacing(): could not parse \"%s\"", value.toLatin1().data() );
         return 0.0;
@@ -3385,9 +3398,9 @@ static qreal mmlInterpretSpacing( QString value, int em, int ex, bool *ok )
     if ( value.endsWith( "em" ) )
     {
         value.truncate( value.length() - 2 );
-        bool float_ok;
-        float factor = value.toFloat( &float_ok );
-        if ( float_ok && factor >= 0.0 )
+        bool qreal_ok;
+        qreal factor = mmlQstringToQreal( value, &qreal_ok );
+        if ( qreal_ok && factor >= 0.0 )
             return em * factor;
         else
         {
@@ -3401,25 +3414,25 @@ static qreal mmlInterpretSpacing( QString value, int em, int ex, bool *ok )
     if ( value.endsWith( "ex" ) )
     {
         value.truncate( value.length() - 2 );
-        bool float_ok;
-        float factor = value.toFloat( &float_ok );
-        if ( float_ok && factor >= 0.0 )
+        bool qreal_ok;
+        qreal factor = mmlQstringToQreal( value, &qreal_ok );
+        if ( qreal_ok && factor >= 0.0 )
             return ex * factor;
         else
         {
             qWarning( "interpretSpacing(): could not parse \"%sex\"", value.toLatin1().data() );
             if ( ok != 0 )
                 *ok = false;
-            return 0;
+            return 0.0;
         }
     }
 
     if ( value.endsWith( "cm" ) )
     {
         value.truncate( value.length() - 2 );
-        bool float_ok;
-        float factor = value.toFloat( &float_ok );
-        if ( float_ok && factor >= 0.0 )
+        bool qreal_ok;
+        qreal factor = mmlQstringToQreal( value, &qreal_ok );
+        if ( qreal_ok && factor >= 0.0 )
         {
             Q_ASSERT( qApp->desktop() != 0 );
             QDesktopWidget *dw = qApp->desktop();
@@ -3439,9 +3452,9 @@ static qreal mmlInterpretSpacing( QString value, int em, int ex, bool *ok )
     if ( value.endsWith( "mm" ) )
     {
         value.truncate( value.length() - 2 );
-        bool float_ok;
-        float factor = value.toFloat( &float_ok );
-        if ( float_ok && factor >= 0.0 )
+        bool qreal_ok;
+        qreal factor = mmlQstringToQreal( value, &qreal_ok );
+        if ( qreal_ok && factor >= 0.0 )
         {
             Q_ASSERT( qApp->desktop() != 0 );
             QDesktopWidget *dw = qApp->desktop();
@@ -3461,9 +3474,9 @@ static qreal mmlInterpretSpacing( QString value, int em, int ex, bool *ok )
     if ( value.endsWith( "in" ) )
     {
         value.truncate( value.length() - 2 );
-        bool float_ok;
-        float factor = value.toFloat( &float_ok );
-        if ( float_ok && factor >= 0.0 )
+        bool qreal_ok;
+        qreal factor = mmlQstringToQreal( value, &qreal_ok );
+        if ( qreal_ok && factor >= 0.0 )
         {
             Q_ASSERT( qApp->desktop() != 0 );
             QDesktopWidget *dw = qApp->desktop();
@@ -3483,9 +3496,9 @@ static qreal mmlInterpretSpacing( QString value, int em, int ex, bool *ok )
     if ( value.endsWith( "px" ) )
     {
         value.truncate( value.length() - 2 );
-        bool float_ok;
-        int i = ( int ) value.toFloat( &float_ok );
-        if ( float_ok && i >= 0 )
+        bool qreal_ok;
+        int i = mmlQstringToQreal( value, &qreal_ok );
+        if ( qreal_ok && i >= 0 )
             return i;
         else
         {
@@ -3496,9 +3509,9 @@ static qreal mmlInterpretSpacing( QString value, int em, int ex, bool *ok )
         }
     }
 
-    bool float_ok;
-    int i = ( int )value.toFloat( &float_ok );
-    if ( float_ok && i >= 0 )
+    bool qreal_ok;
+    int i = mmlQstringToQreal( value, &qreal_ok );
+    if ( qreal_ok && i >= 0 )
         return i;
 
     qWarning( "interpretSpacing(): could not parse \"%s\"", value.toLatin1().data() );
@@ -3507,7 +3520,7 @@ static qreal mmlInterpretSpacing( QString value, int em, int ex, bool *ok )
     return 0.0;
 }
 
-static int mmlInterpretPercentSpacing( QString value, int base, bool *ok )
+static qreal mmlInterpretPercentSpacing( QString value, int base, bool *ok )
 {
     if ( !value.endsWith( "%" ) )
     {
@@ -3517,9 +3530,9 @@ static int mmlInterpretPercentSpacing( QString value, int base, bool *ok )
     }
 
     value.truncate( value.length() - 1 );
-    bool float_ok;
-    float factor = value.toFloat( &float_ok );
-    if ( float_ok && factor >= 0.0 )
+    bool qreal_ok;
+    qreal factor = mmlQstringToQreal( value, &qreal_ok );
+    if ( qreal_ok && factor >= 0.0 )
     {
         if ( ok != 0 )
             *ok = true;
@@ -3532,7 +3545,7 @@ static int mmlInterpretPercentSpacing( QString value, int base, bool *ok )
     return 0.0;
 }
 
-static int mmlInterpretPointSize( QString value, bool *ok )
+static qreal mmlInterpretPointSize( QString value, bool *ok )
 {
     if ( !value.endsWith( "pt" ) )
     {
@@ -3542,9 +3555,9 @@ static int mmlInterpretPointSize( QString value, bool *ok )
     }
 
     value.truncate( value.length() - 2 );
-    bool float_ok;
-    int pt_size = ( int ) value.toFloat( &float_ok );
-    if ( float_ok && pt_size > 0.0 )
+    bool qreal_ok;
+    qreal pt_size = mmlQstringToQreal( value, &qreal_ok );
+    if ( qreal_ok && pt_size > 0.0 )
     {
         if ( ok != 0 )
             *ok = true;
@@ -3897,7 +3910,7 @@ static QwtMml::FormType mmlInterpretForm( const QString &value, bool *ok )
 }
 
 static QwtMml::ColAlign mmlInterpretColAlign( const QString &value_list,
-                                           uint colnum, bool *ok )
+                                              uint colnum, bool *ok )
 {
     const QString value = mmlInterpretListAttr( value_list, colnum, "center" );
 
@@ -3943,8 +3956,7 @@ static QwtMml::RowAlign mmlInterpretRowAlign( const QString &value_list, uint ro
     return QwtMml::RowAlignAxis;
 }
 
-static QString mmlInterpretListAttr( const QString &value_list, int idx,
-                                  const QString &def )
+static QString mmlInterpretListAttr( const QString &value_list, int idx, const QString &def )
 {
     QStringList l = value_list.split( ' ' );
 
@@ -3957,8 +3969,7 @@ static QString mmlInterpretListAttr( const QString &value_list, int idx,
         return l[idx];
 }
 
-static QwtMml::FrameType mmlInterpretFrameType( const QString &value_list,
-                                             uint idx, bool *ok )
+static QwtMml::FrameType mmlInterpretFrameType( const QString &value_list, uint idx, bool *ok )
 {
     if ( ok != 0 )
         *ok = true;
@@ -4004,8 +4015,8 @@ static QwtMml::FrameSpacing mmlInterpretFrameSpacing( const QString &value_list,
     return fs;
 }
 
-static QFont mmlInterpretDepreciatedFontAttr( const QwtMmlAttributeMap &font_attr,
-                                           QFont &fn, int em, int ex )
+static QFont mmlInterpretDepreciatedFontAttr( 
+    const QwtMmlAttributeMap &font_attr, QFont &fn, int em, int ex )
 {
     if ( font_attr.contains( "fontsize" ) )
     {
@@ -4072,8 +4083,7 @@ static QFont mmlInterpretDepreciatedFontAttr( const QwtMmlAttributeMap &font_att
     return fn;
 }
 
-static QFont mmlInterpretMathSize( QString value, QFont &fn, int em, int ex,
-                                bool *ok )
+static QFont mmlInterpretMathSize( QString value, QFont &fn, int em, int ex, bool *ok )
 {
     if ( ok != 0 )
         *ok = true;

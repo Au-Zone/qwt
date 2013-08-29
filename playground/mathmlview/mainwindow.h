@@ -5,6 +5,9 @@
 
 class FormulaView;
 
+class QCheckBox;
+class QComboBox;
+
 class MainWindow: public QMainWindow
 {
     Q_OBJECT
@@ -14,12 +17,19 @@ public:
 
 private Q_SLOTS:
     void load();
-
-private:
     void loadFormula( const QString & );
+    void updateFontSize( const QString & );
+    void updateTransformation( const bool & );
+    void updateScaling( const bool & );
+    void updateRotation( const QString & );
 
 private:
     FormulaView *d_view;
+
+    QCheckBox *d_checkScale;
+    QComboBox *d_comboRotations;
+
+    QString d_mmlDir;
 };
 
 #endif
