@@ -159,7 +159,7 @@ QwtPickerTracker::QwtPickerTracker(
 
 QRegion QwtPickerTracker::maskHint() const
 {
-    return d_picker->trackerRect( font() );
+    return d_picker->trackerMask();
 }
 
 void QwtPickerTracker::drawOverlay( QPainter *painter ) const
@@ -515,6 +515,17 @@ QwtText QwtPicker::trackerText( const QPoint &pos ) const
             label.sprintf( "%d, %d", pos.x(), pos.y() );
     }
     return label;
+}
+
+/*!
+  Calculate the mask for the tracker overlay
+
+  \return Region with one rectangle: trackerRect( trackerFont() );
+  \sa QWidget::setMask(), trackerRect()
+*/
+QRegion QwtPicker::trackerMask() const
+{
+    return trackerRect( d_data->trackerFont );
 }
 
 /*!
