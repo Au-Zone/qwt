@@ -28,7 +28,7 @@ MainWindow::MainWindow()
     for ( int i = 8; i <= 128; i += 2 )
         fontSizes << QString::number( i );
     comboFontSizes->addItems( fontSizes );
-    comboFontSizes->setCurrentText( "32" );
+    comboFontSizes->setCurrentIndex( 3 );
     toolBar->addWidget( comboFontSizes );
 
     QCheckBox *checkTransformation = new QCheckBox( toolBar );
@@ -45,7 +45,7 @@ MainWindow::MainWindow()
     for ( int i = 0; i < 360; i += 15 )
         rotations << QString::number( i );
     d_comboRotations->addItems( rotations );
-    d_comboRotations->setCurrentText( "0" );
+    d_comboRotations->setCurrentIndex( 0 );
     toolBar->addWidget( d_comboRotations );
 
     addToolBar( toolBar );
