@@ -369,9 +369,6 @@ double QwtAbstractScaleDraw::maxTickLength() const
 */
 QwtText QwtAbstractScaleDraw::label( double value ) const
 {
-    if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-        value = 0.0; 
-
     return QLocale().toString( value );
 }
 
