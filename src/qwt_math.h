@@ -73,17 +73,6 @@ inline int qwtFuzzyCompare( double value1, double value2, double intervalSize )
     return 0;
 }
 
-
-inline bool qwtFuzzyGreaterOrEqual( double d1, double d2 )
-{
-    return ( d1 >= d2 ) || qFuzzyCompare( d1, d2 );
-}
-
-inline bool qwtFuzzyLessOrEqual( double d1, double d2 )
-{
-    return ( d1 <= d2 ) || qFuzzyCompare( d1, d2 );
-}
-
 //! Return the sign
 inline int qwtSign( double x )
 {
