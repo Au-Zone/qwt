@@ -65,7 +65,7 @@ MainWindow::MainWindow()
 void MainWindow::load()
 {
     const QString fileName = QFileDialog::getOpenFileName( NULL,
-        "Load a MathML File", d_mmlDir, "MathML Files (*.mml)" );
+        "Load a MathML File", QString::null, "MathML Files (*.mml)" );
 
     if ( !fileName.isEmpty() )
         loadFormula( fileName );

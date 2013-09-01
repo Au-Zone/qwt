@@ -28,8 +28,6 @@ private:
 
     QCheckBox *d_checkScale;
     QComboBox *d_comboRotations;
-
-    QString d_mmlDir;
 };
 
 #endif
