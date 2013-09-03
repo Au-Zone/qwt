@@ -2,6 +2,7 @@
 #define _QWT_MML_ENTITY_TABLE_H_
 
 #include <qwt_global.h>
+#include <qstring.h>
 
 class QWT_EXPORT QwtMMLEntityTable
 {
