@@ -94,7 +94,33 @@ public:
 
           \sa replot(), QWidget::repaint(), QWidget::update()
          */
-        ImmediatePaint = 8
+        ImmediatePaint = 8,
+
+        /*!
+          \brief Render the canvas via an OpenGL pbuffer
+
+          In PixelBuffer mode the plot scene will be rendered to a temporary QGLPixelBuffer, that
+          will be translated to a QImage afterwards. Then this image will be painted to the canvas.
+
+          This mode might be useful for "heavy" plots on platforms, where the raster
+          paint engine ( = software renderer ) is used to make use of hardware acceleration.
+          But the penalty of copying out the image makes this mode less optimal for
+          "normal" plots or when high refresh rates are important.
+
+          On a hardware accelerated graphics system ( f.e. Qt4/X11 "native" ) using this mode does not 
+          make much sense. Unfortunately those systems have been removed from Qt5.
+
+          \note Using QwtPlotGLCanvas is an hardware accelerated alternative without 
+                suffering from the extra roundtrip of the rendered image. But this type of 
+                canvas does not have a backing store, that is important for the repaints because
+                of overlay widgets like the rubberband of a zoomer.
+
+          \note The PixelBuffer mode has no effect, when "QwtOpenGL" has been disabled in 
+                qwtconfig.pri.
+
+          \sa QwtPlotGLCanvas
+         */
+		PixelBuffer = 16
     };
 
     //! Paint attributes

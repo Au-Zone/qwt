@@ -18,6 +18,10 @@
 #include <qpaintengine.h>
 #include <qevent.h>
 
+#ifndef QWT_NO_OPENGL
+#include <QGLPixelBuffer>
+#endif
+
 class QwtStyleSheetRecorder: public QwtNullPaintDevice
 {
 public:
@@ -613,8 +617,7 @@ void QwtPlotCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
 
             break;
         }
-        case HackStyledBackground:
-        case ImmediatePaint:
+        default:
         {
             break;
         }
@@ -732,6 +735,28 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
         {
             bs = QwtPainter::backingStore( this, size() );
 
+#ifndef QWT_NO_OPENGL
+        	if ( testPaintAttribute( PixelBuffer ) )
+			{
+				QGLPixelBuffer pixelBuffer( size() );
+
+				QPainter p;
+				p.begin( &pixelBuffer );
+
+				qwtFillBackground( &p, this );
+				drawCanvas( &p, true );
+
+				if ( frameWidth() > 0 )
+					drawBorder( &p );
+
+				p.end();
+
+				p.begin( &bs );
+				p.drawImage( 0, 0, pixelBuffer.toImage() );
+				p.end();
+			}
+			else
+#endif
             if ( testAttribute(Qt::WA_StyledBackground) )
             {
                 QPainter p( &bs );
@@ -763,6 +788,25 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
     }
     else
     {
+#ifndef QWT_NO_OPENGL
+    	if ( testPaintAttribute( PixelBuffer ) )
+		{
+            QGLPixelBuffer pixelBuffer( size() );
+
+			QPainter p;
+			p.begin( &pixelBuffer );
+
+			qwtFillBackground( &p, this );
+			drawCanvas( &p, true );
+
+			if ( frameWidth() > 0 )
+				drawBorder( &p );
+
+			p.end();
+			painter.drawImage( 0, 0, pixelBuffer.toImage() );
+		}
+		else
+#endif
         if ( testAttribute(Qt::WA_StyledBackground ) )
         {
             if ( testAttribute( Qt::WA_OpaquePaintEvent ) )
