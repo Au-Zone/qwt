@@ -762,7 +762,7 @@ double QwtAbstractSlider::alignedValue( double value ) const
     }
     else
     {
-        double stepSize = ( scaleMap().p2() - scaleMap().p1() ) / d_data->totalSteps;
+        stepSize = ( scaleMap().p2() - scaleMap().p1() ) / d_data->totalSteps;
 
         if ( stepSize > 0.0 )
         {
