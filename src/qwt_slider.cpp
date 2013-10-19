@@ -690,13 +690,15 @@ void QwtSlider::resizeEvent( QResizeEvent *event )
 }
 
 /*!
-   Qt show event handler
-   \param event Show event
+   Qt event handler
+   \param event Event
 */
-void QwtSlider::showEvent( QShowEvent *event )
+bool QwtSlider::event( QEvent *event )
 {
-    layoutSlider( false );
-    QwtAbstractSlider::showEvent( event );
+    if ( event->type() == QEvent::PolishRequest )
+        layoutSlider( false );
+
+    return QwtAbstractSlider::event( event );
 }
 
 /*!
