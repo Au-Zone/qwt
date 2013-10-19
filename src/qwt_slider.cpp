@@ -685,9 +685,18 @@ void QwtSlider::paintEvent( QPaintEvent *event )
 */
 void QwtSlider::resizeEvent( QResizeEvent *event )
 {
-    Q_UNUSED( event );
-
     layoutSlider( false );
+    QwtAbstractSlider::resizeEvent( event );
+}
+
+/*!
+   Qt show event handler
+   \param event Show event
+*/
+void QwtSlider::showEvent( QShowEvent *event )
+{
+    layoutSlider( false );
+    QwtAbstractSlider::showEvent( event );
 }
 
 /*!
