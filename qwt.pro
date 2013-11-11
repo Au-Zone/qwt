@@ -10,23 +10,30 @@
 include( qwtconfig.pri )
 
 TEMPLATE = subdirs
-CONFIG   += ordered
 
 SUBDIRS = \
     src \
     textengines \
     doc
 
+textengines.depends = src
+
 contains(QWT_CONFIG, QwtDesigner ) {
+
     SUBDIRS += designer 
+	designer.depends = src textengines
 }
 
 contains(QWT_CONFIG, QwtExamples ) {
+
     SUBDIRS += examples 
+	examples.depends = src textengines
 }
 
 contains(QWT_CONFIG, QwtPlayground ) {
+
     SUBDIRS += playground 
+	playground.depends = src textengines
 }
  
 qwtspec.files  = qwtconfig.pri qwtfunctions.pri qwt.prf
