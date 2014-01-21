@@ -423,7 +423,7 @@ void QwtPlot::setPlotLayout( QwtPlotLayout *layout )
     if ( layout != d_data->layout )
     {
         delete d_data->layout;
-        layout = d_data->layout;
+        d_data->layout = layout;
 
         updateLayout();
     }
