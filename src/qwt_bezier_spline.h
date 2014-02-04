@@ -71,9 +71,6 @@ public:
     bool isValid() const;
     double value( double x ) const;
 
-    void controlPointsBz0() const;
-    void controlPointsBz1() const;
-
 protected:
     bool buildBezier( const QPolygonF & );
 

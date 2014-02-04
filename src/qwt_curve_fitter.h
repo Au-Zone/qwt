@@ -43,6 +43,7 @@ private:
 
 /*!
   \brief A curve fitter using cubic splines
+  \sa QwtBezierSplineCurveFitter
 */
 class QWT_EXPORT QwtSplineCurveFitter: public QwtCurveFitter
 {
@@ -94,6 +95,10 @@ private:
 
 /*!
   \brief A curve fitter interpolating with Bezier curves
+
+  \note Bezier curve interpolation is used in certain office packages
+        for diaplaying charts.
+  \sa QwtSplineCurveFitter
 */
 class QWT_EXPORT QwtBezierSplineCurveFitter: public QwtCurveFitter
 {

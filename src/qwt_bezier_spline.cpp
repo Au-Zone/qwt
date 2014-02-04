@@ -212,18 +212,6 @@ QPolygonF QwtBezierSpline::points() const
     return d_data->points;
 }
 
-//! \return bz0 control points
-void QwtBezierSpline::controlPointsBz0() const
-{
-    //todo: return vector of calculated Bezier control points
-}
-
-//! \return bz1 control points
-void QwtBezierSpline::controlPointsBz1() const
-{
-    //todo: return vector of calculated Bezier control points
-}
-
 //! Free allocated memory and set size to 0
 void QwtBezierSpline::reset()
 {
@@ -272,7 +260,7 @@ double QwtBezierSpline::value( double x ) const
 */
 bool QwtBezierSpline::buildBezier( const QPolygonF &points )
 {
-    const QPointF * p = points.constData();
+    const QPointF *p = points.constData();
     const int n = d_data->points.size() - 2;
 
     for( int i = 0; i <= n; i++ )
