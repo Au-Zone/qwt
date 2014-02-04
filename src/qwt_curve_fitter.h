@@ -69,7 +69,7 @@ public:
         ParametricSpline
     };
 
-    QwtSplineCurveFitter();
+    QwtSplineCurveFitter( int splineSize = 250 );
     virtual ~QwtSplineCurveFitter();
 
     void setFitMode( FitMode );
@@ -103,7 +103,7 @@ private:
 class QWT_EXPORT QwtBezierSplineCurveFitter: public QwtCurveFitter
 {
 public:
-    QwtBezierSplineCurveFitter();
+    QwtBezierSplineCurveFitter( int splineSize = 250 );
     virtual ~QwtBezierSplineCurveFitter();
 
     void setSpline( const QwtBezierSpline& );
@@ -111,8 +111,8 @@ public:
     const QwtBezierSpline &spline() const;
     QwtBezierSpline &spline();
 
-    void setBezierSize( int size );
-    int bezierSize() const;
+    void setSplineSize( int size );
+    int splineSize() const;
 
     virtual QPolygonF fitCurve( const QPolygonF & ) const;
 

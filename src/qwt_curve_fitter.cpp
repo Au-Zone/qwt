@@ -43,9 +43,10 @@ public:
 };
 
 //! Constructor
-QwtSplineCurveFitter::QwtSplineCurveFitter()
+QwtSplineCurveFitter::QwtSplineCurveFitter( int splineSize )
 {
     d_data = new PrivateData;
+	setSplineSize( splineSize );
 }
 
 //! Destructor
@@ -247,18 +248,19 @@ class QwtBezierSplineCurveFitter::PrivateData
 {
 public:
     PrivateData():
-        bezierSize( 250 )
+        splineSize( 250 )
     {
     }
 
     QwtBezierSpline spline;
-    int bezierSize;
+    int splineSize;
 };
 
 //! Constructor
-QwtBezierSplineCurveFitter::QwtBezierSplineCurveFitter()
+QwtBezierSplineCurveFitter::QwtBezierSplineCurveFitter( int splineSize )
 {
     d_data = new PrivateData;
+	setSplineSize( splineSize );
 }
 
 //! Destructor
@@ -300,21 +302,21 @@ QwtBezierSpline &QwtBezierSplineCurveFitter::spline()
 /*!
    Assign a bezier size ( has to be at least 10 points )
 
-   \param bezierSize Bezier size
-   \sa bezierSize()
+   \param splineSize Spline size
+   \sa splineSize()
 */
-void QwtBezierSplineCurveFitter::setBezierSize( int bezierSize )
+void QwtBezierSplineCurveFitter::setSplineSize( int splineSize )
 {
-    d_data->bezierSize = qMax( bezierSize, 10 );
+    d_data->splineSize = qMax( splineSize, 10 );
 }
 
 /*!
   \return Bezier size
-  \sa bezierSize()
+  \sa setSplineSize()
 */
-int QwtBezierSplineCurveFitter::bezierSize() const
+int QwtBezierSplineCurveFitter::splineSize() const
 {
-    return d_data->bezierSize;
+    return d_data->splineSize;
 }
 
 /*!
@@ -338,14 +340,14 @@ QPolygonF QwtBezierSplineCurveFitter::fitSpline( const QPolygonF &points ) const
     if ( !d_data->spline.isValid() )
         return points;
 
-    QPolygonF fittedPoints( d_data->bezierSize );
+    QPolygonF fittedPoints( d_data->splineSize );
 
     const double x1 = points[0].x();
     const double x2 = points[int( points.size() - 1 )].x();
     const double dx = x2 - x1;
-    const double delta = dx / ( d_data->bezierSize - 1 );
+    const double delta = dx / ( d_data->splineSize - 1 );
 
-    for ( int i = 0; i < d_data->bezierSize; i++ )
+    for ( int i = 0; i < d_data->splineSize; i++ )
     {
         QPointF &p = fittedPoints[i];
 
