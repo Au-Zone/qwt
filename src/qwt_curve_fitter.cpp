@@ -10,6 +10,7 @@
 #include "qwt_curve_fitter.h"
 #include "qwt_math.h"
 #include "qwt_spline.h"
+#include "qwt_bezier_spline.h"
 #include <qstack.h>
 #include <qvector.h>
 
@@ -238,6 +239,123 @@ QPolygonF QwtSplineCurveFitter::fitParametric( const QPolygonF &points ) const
         const double dtmp = i * deltaY;
         fittedPoints[i].setY( d_data->spline.value( dtmp ) );
     }
+
+    return fittedPoints;
+}
+
+class QwtBezierSplineCurveFitter::PrivateData
+{
+public:
+    PrivateData():
+        bezierSize( 250 )
+    {
+    }
+
+    QwtBezierSpline spline;
+    int bezierSize;
+};
+
+//! Constructor
+QwtBezierSplineCurveFitter::QwtBezierSplineCurveFitter()
+{
+    d_data = new PrivateData;
+}
+
+//! Destructor
+QwtBezierSplineCurveFitter::~QwtBezierSplineCurveFitter()
+{
+    delete d_data;
+}
+
+/*!
+  Assign a bezier
+
+  \param bezier Bezier
+  \sa bezier()
+*/
+void QwtBezierSplineCurveFitter::setSpline( const QwtBezierSpline &spline )
+{
+    d_data->spline = spline;
+    d_data->spline.reset();
+}
+
+/*!
+  \return Bezier
+  \sa setBezier()
+*/
+const QwtBezierSpline &QwtBezierSplineCurveFitter::spline() const
+{
+    return d_data->spline;
+}
+
+/*!
+  \return Bezier
+  \sa setBezier()
+*/
+QwtBezierSpline &QwtBezierSplineCurveFitter::spline()
+{
+    return d_data->spline;
+}
+
+/*!
+   Assign a bezier size ( has to be at least 10 points )
+
+   \param bezierSize Bezier size
+   \sa bezierSize()
+*/
+void QwtBezierSplineCurveFitter::setBezierSize( int bezierSize )
+{
+    d_data->bezierSize = qMax( bezierSize, 10 );
+}
+
+/*!
+  \return Bezier size
+  \sa bezierSize()
+*/
+int QwtBezierSplineCurveFitter::bezierSize() const
+{
+    return d_data->bezierSize;
+}
+
+/*!
+  Find a curve which has the best fit to a series of data points
+
+  \param points Series of data points
+  \return Curve points
+*/
+QPolygonF QwtBezierSplineCurveFitter::fitCurve( const QPolygonF &points ) const
+{
+    const int size = points.size();
+    if ( size <= 2 )
+        return points;
+
+    return fitSpline( points );
+}
+
+QPolygonF QwtBezierSplineCurveFitter::fitSpline( const QPolygonF &points ) const
+{
+    d_data->spline.setPoints( points );
+    if ( !d_data->spline.isValid() )
+        return points;
+
+    QPolygonF fittedPoints( d_data->bezierSize );
+
+    const double x1 = points[0].x();
+    const double x2 = points[int( points.size() - 1 )].x();
+    const double dx = x2 - x1;
+    const double delta = dx / ( d_data->bezierSize - 1 );
+
+    for ( int i = 0; i < d_data->bezierSize; i++ )
+    {
+        QPointF &p = fittedPoints[i];
+
+        const double v = x1 + i * delta;
+        const double sv = d_data->spline.value( v );
+
+        p.setX( v );
+        p.setY( sv );
+    }
+    d_data->spline.reset();
 
     return fittedPoints;
 }

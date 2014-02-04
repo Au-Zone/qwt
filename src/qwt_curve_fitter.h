@@ -15,6 +15,7 @@
 #include <qrect.h>
 
 class QwtSpline;
+class QwtBezierSpline;
 
 /*!
   \brief Abstract base class for a curve fitter
@@ -74,6 +75,7 @@ public:
     FitMode fitMode() const;
 
     void setSpline( const QwtSpline& );
+
     const QwtSpline &spline() const;
     QwtSpline &spline();
 
@@ -85,6 +87,32 @@ public:
 private:
     QPolygonF fitSpline( const QPolygonF & ) const;
     QPolygonF fitParametric( const QPolygonF & ) const;
+
+    class PrivateData;
+    PrivateData *d_data;
+};
+
+/*!
+  \brief A curve fitter interpolating with Bezier curves
+*/
+class QWT_EXPORT QwtBezierSplineCurveFitter: public QwtCurveFitter
+{
+public:
+    QwtBezierSplineCurveFitter();
+    virtual ~QwtBezierSplineCurveFitter();
+
+    void setSpline( const QwtBezierSpline& );
+
+    const QwtBezierSpline &spline() const;
+    QwtBezierSpline &spline();
+
+    void setBezierSize( int size );
+    int bezierSize() const;
+
+    virtual QPolygonF fitCurve( const QPolygonF & ) const;
+
+private:
+    QPolygonF fitSpline( const QPolygonF & ) const;
 
     class PrivateData;
     PrivateData *d_data;
