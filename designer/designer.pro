@@ -8,6 +8,7 @@
 ################################################################
 
 QWT_ROOT = $${PWD}/..
+QWT_OUT_ROOT = $${OUT_PWD}/..
 
 include ( $${QWT_ROOT}/qwtconfig.pri )
 include ( $${QWT_ROOT}/qwtbuild.pri )
@@ -88,11 +89,11 @@ contains(QWT_CONFIG, QwtDesigner) {
 
         contains(QWT_CONFIG, QwtFramework) {
 
-            LIBS      += -F$${QWT_ROOT}/lib 
+            LIBS      += -F$${QWT_OUT_ROOT}/lib 
         }
         else {
 
-            LIBS      += -L$${QWT_ROOT}/lib
+            LIBS      += -L$${QWT_OUT_ROOT}/lib
         }
 
         qwtAddLibrary(qwt)
