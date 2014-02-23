@@ -12,43 +12,20 @@
 
 #include "qwt_curve_fitter.h"
 
-class QwtBezierSpline;
-
 /*!
   \brief A curve fitter interpolating with Bezier curves
 
-  \note Bezier curve interpolation is used in certain office packages
-        for diaplaying charts.
+  QwtBezierSplineCurveFitter implements a spline interpolation algorithm
+  like it is done in certain office packages.
+
   \sa QwtSplineCurveFitter
 */
+
 class QWT_EXPORT QwtBezierSplineCurveFitter: public QwtCurveFitter
 {
 public:
     QwtBezierSplineCurveFitter( int splineSize = 250 );
     virtual ~QwtBezierSplineCurveFitter();
-
-    void setSpline( const QwtBezierSpline& );
-
-    const QwtBezierSpline &spline() const;
-    QwtBezierSpline &spline();
-
-    void setSplineSize( int size );
-    int splineSize() const;
-
-    virtual QPolygonF fitCurve( const QPolygonF & ) const;
-
-private:
-    QPolygonF fitSpline( const QPolygonF & ) const;
-
-    class PrivateData;
-    PrivateData *d_data;
-};
-
-class QWT_EXPORT QwtBezierSplineCurveFitter2: public QwtCurveFitter
-{
-public:
-    QwtBezierSplineCurveFitter2( int splineSize = 250 );
-    virtual ~QwtBezierSplineCurveFitter2();
 
     void setSplineSize( int size );
     int splineSize() const;
