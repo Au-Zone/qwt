@@ -1,7 +1,7 @@
 #include <qapplication.h>
 #include <qwt_math.h>
 #include <qwt_symbol.h>
-#include <qwt_curve_fitter.h>
+#include <qwt_spline_curve_fitter.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
