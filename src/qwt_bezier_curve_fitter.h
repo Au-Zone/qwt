@@ -44,4 +44,20 @@ private:
     PrivateData *d_data;
 };
 
+class QWT_EXPORT QwtBezierSplineCurveFitter2: public QwtCurveFitter
+{
+public:
+    QwtBezierSplineCurveFitter2( int splineSize = 250 );
+    virtual ~QwtBezierSplineCurveFitter2();
+
+    void setSplineSize( int size );
+    int splineSize() const;
+
+    virtual QPolygonF fitCurve( const QPolygonF & ) const;
+
+private:
+    class PrivateData;
+    PrivateData *d_data;
+};
+
 #endif
