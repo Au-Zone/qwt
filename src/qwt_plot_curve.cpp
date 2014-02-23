@@ -14,7 +14,7 @@
 #include "qwt_painter.h"
 #include "qwt_scale_map.h"
 #include "qwt_plot.h"
-#include "qwt_curve_fitter.h"
+#include "qwt_spline_curve_fitter.h"
 #include "qwt_symbol.h"
 #include "qwt_point_mapper.h"
 #include <qpainter.h>
