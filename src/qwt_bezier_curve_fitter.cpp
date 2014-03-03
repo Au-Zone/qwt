@@ -19,7 +19,46 @@ static inline double qwtLineLength( const QPointF &p_start, const QPointF &p_end
     return qSqrt( dx * dx + dy * dy );
 }
 
-static inline QwtInterval qwtBezierInterval( const QPointF &p0, const QPointF &p1,
+static inline QwtInterval qwtBezierIntervalX( const QPointF &p0, const QPointF &p1,
+        const QPointF &p2, const QPointF &p3 )
+{
+    const double d02 = qwtLineLength( p0, p2 );
+    const double d13 = qwtLineLength( p1, p3 );
+    const double d12_2 = 0.5 * qwtLineLength( p1, p2 );
+
+    const bool b1 = ( d02 / 6.0 ) < d12_2;
+    const bool b2 = ( d13 / 6.0 ) < d12_2;
+
+    double s1, s2;
+
+    if( b1 && b2 )
+    {
+        s1 = ( p0 != p1 ) ? 1.0 / 6.0 : 1.0 / 3.0;
+        s2 = ( p2 != p3 ) ? 1.0 / 6.0 : 1.0 / 3.0;
+    }
+    else if( !b1 && b2 )
+    {
+        s1 = d12_2 / d02;
+        s2 = s1;
+    }
+    else if ( b1 && !b2 )
+    {
+        s1 = d12_2 / d13;
+        s2 = s1;
+    }
+    else
+    {
+        s1 = d12_2 / d02;
+        s2 = d12_2 / d13;
+    }
+
+    const double x1 = p1.x() + ( p2.x() - p0.x() ) * s1;
+    const double x2 = p2.x() + ( p1.x() - p3.x() ) * s2;
+
+    return QwtInterval( 3.0 * x1, 3.0 * x2 );
+}
+
+static inline QwtInterval qwtBezierIntervalY( const QPointF &p0, const QPointF &p1,
         const QPointF &p2, const QPointF &p3 )
 {
     const double d02 = qwtLineLength( p0, p2 );
@@ -58,7 +97,20 @@ static inline QwtInterval qwtBezierInterval( const QPointF &p0, const QPointF &p
     return QwtInterval( 3.0 * y1, 3.0 * y2 );
 }
 
-static inline double qwtBezierValue( const QPointF &p1, const QPointF &p2,
+static inline double qwtBezierValueX( const QPointF &p1, const QPointF &p2,
+    const QwtInterval &interval, double x )
+{
+    const double s1 = ( x - p1.x() ) / ( p2.x() - p1.x() );
+    const double s2  = 1.0 - s1;
+
+    const double a1 = s1 * interval.minValue();
+    const double a2 = s1 * s1 * interval.maxValue();
+    const double a3 = s1 * s1 * s1 * p2.x();
+
+    return ( ( s2 * p1.x() + a1 ) * s2 + a2 ) * s2 + a3;
+}
+
+static inline double qwtBezierValueY( const QPointF &p1, const QPointF &p2,
     const QwtInterval &interval, double x )
 {
     const double s1 = ( x - p1.x() ) / ( p2.x() - p1.x() );
@@ -85,7 +137,8 @@ static QPolygonF qwtFitBezier( const QPolygonF &points, int numPoints )
     const double x2 = points.last().x();
     const double delta = ( x2 - x1 ) / ( numPoints - 1 );
 
-    QwtInterval intv = qwtBezierInterval( p[0], p[0], p[1], p[2] );
+    QwtInterval intvX = qwtBezierIntervalX( p[0], p[0], p[1], p[2] );
+    QwtInterval intvY = qwtBezierIntervalY( p[0], p[0], p[1], p[2] );
 
     QPolygonF fittedPoints;
     for ( int i = 0, j = 0; i < numPoints; i++ )
@@ -100,12 +153,14 @@ static QPolygonF qwtFitBezier( const QPolygonF &points, int numPoints )
                 j++;
 
             const int j2 = qMin( psize - 1, j + 2 );
-            intv = qwtBezierInterval( p[j - 1], p[j], p[j + 1], p[j2] );
+            intvX = qwtBezierIntervalX( p[j - 1], p[j], p[j + 1], p[j2] );
+            intvY = qwtBezierIntervalY( p[j - 1], p[j], p[j + 1], p[j2] );
         }
 
-        const double y = qwtBezierValue( points[j], points[j + 1], intv, x );
+        const double x_ = qwtBezierValueX( points[j], points[j + 1], intvX, x );
+        const double y = qwtBezierValueY( points[j], points[j + 1], intvY, x );
 
-        fittedPoints += QPointF( x, y );
+        fittedPoints += QPointF( x_, y );
     }
 
     return fittedPoints;
