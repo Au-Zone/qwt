@@ -9,161 +9,143 @@
 
 #include "qwt_spline_curve_fitter.h"
 #include "qwt_math.h"
-#include "qwt_interval.h"
+#include <qline.h>
 
 // - bezier
 
 static inline double qwtLineLength( const QPointF &p_start, const QPointF &p_end )
 {
-    const double dx = p_start.x() - p_end.x();
-    const double dy = p_start.y() - p_end.y();
+   const double dx = p_start.x() - p_end.x();
+   const double dy = p_start.y() - p_end.y();
 
-    return qSqrt( dx * dx + dy * dy );
+   return qSqrt( dx * dx + dy * dy );
 }
 
-static inline QwtInterval qwtBezierIntervalX( const QPointF &p0, const QPointF &p1,
-        const QPointF &p2, const QPointF &p3 )
+static inline QLineF qwtControlLine(const QPointF &p0, const QPointF &p1, 
+    const QPointF &p2, const QPointF &p3 )
 {
-    const double d02 = qwtLineLength( p0, p2 );
-    const double d13 = qwtLineLength( p1, p3 );
-    const double d12_2 = 0.5 * qwtLineLength( p1, p2 );
+    static const double one_third  = 1.0/3.0;
+    static const double one_sixth = 1.0/6.0;
+
+    const double d02 = qwtLineLength(p0, p2);
+    const double d13 = qwtLineLength(p1, p3);
+    const double d12_2 = 0.5 * qwtLineLength(p1, p2);
 
     const bool b1 = ( d02 / 6.0 ) < d12_2;
     const bool b2 = ( d13 / 6.0 ) < d12_2;
 
-    double s1, s2;
+    QPointF off1, off2;
 
     if( b1 && b2 )
     {
-        s1 = ( p0 != p1 ) ? 1.0 / 6.0 : 1.0 / 3.0;
-        s2 = ( p2 != p3 ) ? 1.0 / 6.0 : 1.0 / 3.0;
+        // this is the normal case where both 1/6th 
+        // vectors are less than half of d12_2
+
+        const double s1 = (p0 != p1) ? one_sixth : one_third;
+        off1 = (p2 - p0) * s1;
+
+        const double s2 = (p2 != p3) ? one_sixth : one_third;
+        off2 = (p1 - p3) * s2;
     }
-    else if( !b1 && b2 )
+    else if ( !b1 && b2 )
     {
-        s1 = d12_2 / d02;
-        s2 = s1;
+        // for this case d02/6 is more than half of d12_2, so
+        // the d13/6 vector needs to be reduced
+        off1 = (p2 - p0) * (d12_2 / d02);
+        off2 = (p1 - p3) * (d12_2 / d02);
     }
     else if ( b1 && !b2 )
     {
-        s1 = d12_2 / d13;
-        s2 = s1;
+        off1 = (p2 - p0) * (d12_2 / d13);
+        off2 = (p1 - p3) * (d12_2 / d13);
     }
     else
     {
-        s1 = d12_2 / d02;
-        s2 = d12_2 / d13;
-    }
+        off1 = (p2 - p0) * (d12_2 / d02);
+        off2 = (p1 - p3) * (d12_2 / d13); 
+    }   
 
-    const double x1 = p1.x() + ( p2.x() - p0.x() ) * s1;
-    const double x2 = p2.x() + ( p1.x() - p3.x() ) * s2;
-
-    return QwtInterval( 3.0 * x1, 3.0 * x2 );
+    return QLineF( p1 + off1, p2 + off2 );
 }
 
-static inline QwtInterval qwtBezierIntervalY( const QPointF &p0, const QPointF &p1,
-        const QPointF &p2, const QPointF &p3 )
+
+static inline double qwtBezierValue( double diff, double v1, double v2, double pv1, double pv2 )
 {
-    const double d02 = qwtLineLength( p0, p2 );
-    const double d13 = qwtLineLength( p1, p3 );
-    const double d12_2 = 0.5 * qwtLineLength( p1, p2 );
+    const double d1 = diff;
+    const double d2 = d1 * d1;
+    const double d3 = d2 * d1;
 
-    const bool b1 = ( d02 / 6.0 ) < d12_2;
-    const bool b2 = ( d13 / 6.0 ) < d12_2;
+    const double s  = 1.0 - d1;  // range from 0 to 1, knot[i] -> knot[i+1]
 
-    double s1, s2;
-
-    if( b1 && b2 )
-    {
-        s1 = ( p0 != p1 ) ? 1.0 / 6.0 : 1.0 / 3.0;
-        s2 = ( p2 != p3 ) ? 1.0 / 6.0 : 1.0 / 3.0;
-    }
-    else if( !b1 && b2 )
-    {
-        s1 = d12_2 / d02;
-        s2 = s1;
-    }
-    else if ( b1 && !b2 )
-    {
-        s1 = d12_2 / d13;
-        s2 = s1;
-    }
-    else
-    {
-        s1 = d12_2 / d02;
-        s2 = d12_2 / d13;
-    }
-
-    const double y1 = p1.y() + ( p2.y() - p0.y() ) * s1;
-    const double y2 = p2.y() + ( p1.y() - p3.y() ) * s2;
-
-    return QwtInterval( 3.0 * y1, 3.0 * y2 );
+    return (( s * pv1 + 3.0 * d1 * v1 ) * s + 3.0 * d2 * v2 ) * s + d3 * pv2;
 }
 
-static inline double qwtBezierValueX( const QPointF &p1, const QPointF &p2,
-    const QwtInterval &interval, double x )
+static inline double qwtBezierParametricCurveLength(const QPolygonF &points)
 {
-    const double s1 = ( x - p1.x() ) / ( p2.x() - p1.x() );
-    const double s2  = 1.0 - s1;
-
-    const double a1 = s1 * interval.minValue();
-    const double a2 = s1 * s1 * interval.maxValue();
-    const double a3 = s1 * s1 * s1 * p2.x();
-
-    return ( ( s2 * p1.x() + a1 ) * s2 + a2 ) * s2 + a3;
+   double length = 0;
+   for( int i = 0; i < (points.size()-1); i++ )
+   {
+       length += qwtLineLength( points[i], points[i+1] );
+   }
+   return length;
 }
 
-static inline double qwtBezierValueY( const QPointF &p1, const QPointF &p2,
-    const QwtInterval &interval, double x )
+static QPolygonF qwtFitBezier( const QPolygonF& points, int interpolPoints )
 {
-    const double s1 = ( x - p1.x() ) / ( p2.x() - p1.x() );
-    const double s2  = 1.0 - s1;
-
-    const double a1 = s1 * interval.minValue();
-    const double a2 = s1 * s1 * interval.maxValue();
-    const double a3 = s1 * s1 * s1 * p2.y();
-
-    return ( ( s2 * p1.y() + a1 ) * s2 + a2 ) * s2 + a3;
-}
-
-static QPolygonF qwtFitBezier( const QPolygonF &points, int numPoints )
-{
-    const int psize = points.size();
-    if ( psize <= 2 )
+    const int size = points.size();
+    if ( size <= 2 )
         return points;
 
     const QPointF *p = points.constData();
 
-    // --- 
+    QVector<QLineF> controlLines;
+    controlLines += qwtControlLine( p[0], p[0], p[1], p[2]);
+    for( int i = 1; i < size - 2; ++i )
+        controlLines += qwtControlLine( p[i-1], p[i], p[i+1], p[i+2]);
+    controlLines += qwtControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
 
-    const double x1 = points.first().x();
-    const double x2 = points.last().x();
-    const double delta = ( x2 - x1 ) / ( numPoints - 1 );
+    // ---
+    const double total_length = qwtBezierParametricCurveLength(points);
+    const double delta = total_length / interpolPoints;
 
-    QwtInterval intvX = qwtBezierIntervalX( p[0], p[0], p[1], p[2] );
-    QwtInterval intvY = qwtBezierIntervalY( p[0], p[0], p[1], p[2] );
+    double sum_of_deltas = 0;       // incrementing along the curve
+    double sum_of_passed_subcurves = 0;
 
     QPolygonF fittedPoints;
-    for ( int i = 0, j = 0; i < numPoints; i++ )
+    for ( int i = 0; i < points.size() - 1; i++ )
     {
-        double x = x1 + i * delta;
-        if ( x > x2 )
-            x = x2;
+        const QPointF &p1 = points[i];
+        const QPointF &p2 = points[i + 1];
 
-        if ( x > p[j + 1].x() )
+        // iterate over subcurves - index 'i'
+        const double length = qwtLineLength( p1, p2);
+
+        const QLineF &line = controlLines[i];
+
+        for(;;) // generate samples of the subcurve
         {
-            while ( x > p[j + 1].x() )
-                j++;
+            const double offset = sum_of_deltas - sum_of_passed_subcurves;
+            const double offset_percent = offset / length;
 
-            const int j2 = qMin( psize - 1, j + 2 );
-            intvX = qwtBezierIntervalX( p[j - 1], p[j], p[j + 1], p[j2] );
-            intvY = qwtBezierIntervalY( p[j - 1], p[j], p[j + 1], p[j2] );
+            const double x = qwtBezierValue( offset_percent, 
+                line.p1().x(), line.p2().x(), p1.x(), p2.x() );
+
+            const double y = qwtBezierValue( offset_percent, 
+                line.p1().y(), line.p2().y(), p1.y(), p2.y() );
+
+            fittedPoints += QPointF( x, y );
+
+            sum_of_deltas += delta;
+            if( sum_of_deltas >= sum_of_passed_subcurves + length )
+            {
+                sum_of_passed_subcurves += length;
+                break; // next subcurve
+            }
         }
-
-        const double x_ = qwtBezierValueX( points[j], points[j + 1], intvX, x );
-        const double y = qwtBezierValueY( points[j], points[j + 1], intvY, x );
-
-        fittedPoints += QPointF( x_, y );
     }
+#if 1
+    fittedPoints += points.last();
+#endif
 
     return fittedPoints;
 }
@@ -451,8 +433,8 @@ QwtSplineCurveFitter::QwtSplineCurveFitter( int splineSize, FitMode fitMode )
 {
     d_data = new PrivateData;
 
-	d_data->fitMode = fitMode;
-	setSplineSize( splineSize );
+    d_data->fitMode = fitMode;
+    setSplineSize( splineSize );
 }
 
 //! Destructor
@@ -513,30 +495,30 @@ QPolygonF QwtSplineCurveFitter::fitCurve( const QPolygonF &points ) const
     if ( size <= 2 )
         return points;
 
-	QPolygonF fittedPoints;
+    QPolygonF fittedPoints;
 
-	switch( d_data->fitMode )
-	{
-      	case BezierSpline:
-		{
-			fittedPoints = qwtFitBezier( points, d_data->splineSize );
-			break;
-		}
+    switch( d_data->fitMode )
+    {
+        case BezierSpline:
+        {
+            fittedPoints = qwtFitBezier( points, d_data->splineSize );
+            break;
+        }
         case NaturalSpline:
-		{
-			fittedPoints = qwtFitNatural( points, d_data->splineSize );
-			break;
-		}
+        {
+            fittedPoints = qwtFitNatural( points, d_data->splineSize );
+            break;
+        }
         case ParametricSpline:
-		{
-			fittedPoints = qwtFitParametric( points, d_data->splineSize );
-			break;
-		}
-		default:
-		{
-			fittedPoints = points;
-		}
-	}
+        {
+            fittedPoints = qwtFitParametric( points, d_data->splineSize );
+            break;
+        }
+        default:
+        {
+            fittedPoints = points;
+        }
+    }
 
-	return fittedPoints;
+    return fittedPoints;
 }
