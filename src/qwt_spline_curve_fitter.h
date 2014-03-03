@@ -12,8 +12,6 @@
 
 #include "qwt_curve_fitter.h"
 
-class QwtSpline;
-
 /*!
   \brief A curve fitter using cubic splines
   \sa QwtBezierSplineCurveFitter
@@ -23,35 +21,28 @@ class QWT_EXPORT QwtSplineCurveFitter: public QwtCurveFitter
 public:
     /*!
       Spline type
-      The default setting is Auto
       \sa setFitMode(), FitMode()
      */
     enum FitMode
     {
         /*!
-          Use the default spline algorithm for polygons with
-          increasing x values ( p[i-1] < p[i] ), otherwise use
-          a parametric spline algorithm.
+          A spline algorithm using Bezier interpolation like
+          it is used in certain office packages
          */
-        Auto,
+        BezierSpline,
 
         //! Use a default spline algorithm
-        Spline,
+        NaturalSpline,
 
         //! Use a parametric spline algorithm
         ParametricSpline
     };
 
-    QwtSplineCurveFitter( int splineSize = 250 );
+    QwtSplineCurveFitter( int splineSize = 250, FitMode = BezierSpline );
     virtual ~QwtSplineCurveFitter();
 
     void setFitMode( FitMode );
     FitMode fitMode() const;
-
-    void setSpline( const QwtSpline& );
-
-    const QwtSpline &spline() const;
-    QwtSpline &spline();
 
     void setSplineSize( int size );
     int splineSize() const;
@@ -59,9 +50,6 @@ public:
     virtual QPolygonF fitCurve( const QPolygonF & ) const;
 
 private:
-    QPolygonF fitSpline( const QPolygonF & ) const;
-    QPolygonF fitParametric( const QPolygonF & ) const;
-
     class PrivateData;
     PrivateData *d_data;
 };
