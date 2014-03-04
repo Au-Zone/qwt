@@ -10,6 +10,7 @@
 #include "qwt_spline_curve_fitter.h"
 #include "qwt_math.h"
 #include <qline.h>
+#include <qpainterpath.h>
 
 // - bezier
 
@@ -99,11 +100,16 @@ static QPolygonF qwtFitBezier( const QPolygonF& points, int interpolPoints )
     const QPointF *p = points.constData();
 
     QVector<QLineF> controlLines;
+
     controlLines += qwtControlLine( p[0], p[0], p[1], p[2]);
+
     for( int i = 1; i < size - 2; ++i )
         controlLines += qwtControlLine( p[i-1], p[i], p[i+1], p[i+2]);
+
     controlLines += qwtControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
 
+    QPolygonF fittedPoints;
+#if 1
     // ---
     const double total_length = qwtBezierParametricCurveLength(points);
     const double delta = total_length / interpolPoints;
@@ -111,14 +117,13 @@ static QPolygonF qwtFitBezier( const QPolygonF& points, int interpolPoints )
     double sum_of_deltas = 0;       // incrementing along the curve
     double sum_of_passed_subcurves = 0;
 
-    QPolygonF fittedPoints;
     for ( int i = 0; i < points.size() - 1; i++ )
     {
         const QPointF &p1 = points[i];
         const QPointF &p2 = points[i + 1];
 
         // iterate over subcurves - index 'i'
-        const double length = qwtLineLength( p1, p2);
+        const double length = qwtLineLength( p1, p2 );
 
         const QLineF &line = controlLines[i];
 
@@ -143,8 +148,19 @@ static QPolygonF qwtFitBezier( const QPolygonF& points, int interpolPoints )
             }
         }
     }
-#if 1
     fittedPoints += points.last();
+
+#else
+    QPainterPath path;
+    path.moveTo( points[0] );
+    for ( int i = 1; i < points.size(); i++ )
+    {
+        const QLineF &l = controlLines[i - 1];
+        path.cubicTo( l.p1(), l.p2(), points[i] );
+    }
+    
+    const QList<QPolygonF> subPaths = path.toSubpathPolygons();
+    return subPaths[0];
 #endif
 
     return fittedPoints;
