@@ -132,19 +132,30 @@ static QPolygonF qwtFitBezier( const QPolygonF& points, int interpolPoints )
             const double offset = sum_of_deltas - sum_of_passed_subcurves;
             const double offset_percent = offset / length;
 
-            const double x = qwtBezierValue( offset_percent, 
-                line.p1().x(), line.p2().x(), p1.x(), p2.x() );
-
-            const double y = qwtBezierValue( offset_percent, 
-                line.p1().y(), line.p2().y(), p1.y(), p2.y() );
-
-            fittedPoints += QPointF( x, y );
-
-            sum_of_deltas += delta;
-            if( sum_of_deltas >= sum_of_passed_subcurves + length )
+            // is sampling rate smaller than distance between current points
+            if( offset_percent < 1.0 )
             {
-                sum_of_passed_subcurves += length;
-                break; // next subcurve
+                const double x = qwtBezierValue( offset_percent,
+                    line.p1().x(), line.p2().x(), p1.x(), p2.x() );
+
+                const double y = qwtBezierValue( offset_percent,
+                    line.p1().y(), line.p2().y(), p1.y(), p2.y() );
+
+                fittedPoints += QPointF( x, y );
+                sum_of_deltas += delta;
+                if( sum_of_deltas >= sum_of_passed_subcurves + length )
+                {
+                    sum_of_passed_subcurves += length;
+                    break; // next subcurve
+                }
+            }
+            else
+            {
+                if( sum_of_deltas >= sum_of_passed_subcurves + length )
+                {
+                    sum_of_passed_subcurves += length;
+                    break; // next subcurve
+                }
             }
         }
     }
