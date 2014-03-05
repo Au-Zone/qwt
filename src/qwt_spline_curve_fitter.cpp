@@ -109,70 +109,75 @@ static QPolygonF qwtFitBezier( const QPolygonF& points, int interpolPoints )
     controlLines += qwtControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
 
     QPolygonF fittedPoints;
-#if 1
-    // ---
-    const double total_length = qwtBezierParametricCurveLength(points);
-    const double delta = total_length / interpolPoints;
 
-    double sum_of_deltas = 0;       // incrementing along the curve
-    double sum_of_passed_subcurves = 0;
-
-    for ( int i = 0; i < points.size() - 1; i++ )
+    if ( interpolPoints > 0 )
     {
-        const QPointF &p1 = points[i];
-        const QPointF &p2 = points[i + 1];
+        // ---
+        const double total_length = qwtBezierParametricCurveLength(points);
+        const double delta = total_length / interpolPoints;
 
-        // iterate over subcurves - index 'i'
-        const double length = qwtLineLength( p1, p2 );
+        double sum_of_deltas = 0;       // incrementing along the curve
+        double sum_of_passed_subcurves = 0;
 
-        const QLineF &line = controlLines[i];
-
-        for(;;) // generate samples of the subcurve
+        for ( int i = 0; i < points.size() - 1; i++ )
         {
-            const double offset = sum_of_deltas - sum_of_passed_subcurves;
-            const double offset_percent = offset / length;
+                const QPointF &p1 = points[i];
+                const QPointF &p2 = points[i + 1];
 
-            // is sampling rate smaller than distance between current points
-            if( offset_percent < 1.0 )
-            {
-                const double x = qwtBezierValue( offset_percent,
-                    line.p1().x(), line.p2().x(), p1.x(), p2.x() );
+                // iterate over subcurves - index 'i'
+                const double length = qwtLineLength( p1, p2 );
 
-                const double y = qwtBezierValue( offset_percent,
-                    line.p1().y(), line.p2().y(), p1.y(), p2.y() );
+                const QLineF &line = controlLines[i];
 
-                fittedPoints += QPointF( x, y );
-                sum_of_deltas += delta;
-                if( sum_of_deltas >= sum_of_passed_subcurves + length )
+                for(;;) // generate samples of the subcurve
                 {
-                    sum_of_passed_subcurves += length;
-                    break; // next subcurve
+                    const double offset = sum_of_deltas - sum_of_passed_subcurves;
+                    const double offset_percent = offset / length;
+
+                    // is sampling rate smaller than distance between current points
+                    if( offset_percent < 1.0 )
+                    {
+                        const double x = qwtBezierValue( offset_percent,
+                            line.p1().x(), line.p2().x(), p1.x(), p2.x() );
+
+                        const double y = qwtBezierValue( offset_percent,
+                            line.p1().y(), line.p2().y(), p1.y(), p2.y() );
+
+                        fittedPoints += QPointF( x, y );
+                        sum_of_deltas += delta;
+                        if( sum_of_deltas >= sum_of_passed_subcurves + length )
+                        {
+                            sum_of_passed_subcurves += length;
+                            break; // next subcurve
+                        }
+                    }
+                    else
+                    {
+                        if( sum_of_deltas >= sum_of_passed_subcurves + length )
+                        {
+                            sum_of_passed_subcurves += length;
+                            break; // next subcurve
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if( sum_of_deltas >= sum_of_passed_subcurves + length )
-                {
-                    sum_of_passed_subcurves += length;
-                    break; // next subcurve
-                }
-            }
         }
+        fittedPoints += points.last();
     }
-    fittedPoints += points.last();
-
-#else
-    QPainterPath path;
-    path.moveTo( points[0] );
-    for ( int i = 1; i < points.size(); i++ )
+    else
     {
-        const QLineF &l = controlLines[i - 1];
-        path.cubicTo( l.p1(), l.p2(), points[i] );
+        QPainterPath path;
+        path.moveTo( points[0] );
+
+        for ( int i = 1; i < points.size(); i++ )
+        {
+            const QLineF &l = controlLines[i - 1];
+            path.cubicTo( l.p1(), l.p2(), points[i] );
+        }
+
+        const QList<QPolygonF> subPaths = path.toSubpathPolygons();
+        if ( !subPaths.isEmpty() )
+            fittedPoints = subPaths.first();
     }
-    
-    const QList<QPolygonF> subPaths = path.toSubpathPolygons();
-    return subPaths[0];
-#endif
 
     return fittedPoints;
 }
@@ -529,6 +534,11 @@ QPolygonF QwtSplineCurveFitter::fitCurve( const QPolygonF &points ) const
         case BezierSpline:
         {
             fittedPoints = qwtFitBezier( points, d_data->splineSize );
+            break;
+        }
+        case BezierSpline1:
+        {
+            fittedPoints = qwtFitBezier( points, 0 );
             break;
         }
         case NaturalSpline:

@@ -31,6 +31,8 @@ public:
          */
         BezierSpline,
 
+        BezierSpline1,
+
         //! Use a default spline algorithm
         NaturalSpline,
 
