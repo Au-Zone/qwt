@@ -7,22 +7,17 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_SPLINE_CURVE_FITTER_H
-#define QWT_SPLINE_CURVE_FITTER_H
+#ifndef QWT_SPLINE_H
+#define QWT_SPLINE_H 1
 
-#include "qwt_curve_fitter.h"
+#include "qwt_global.h"
+#include <qpolygon.h>
 
-/*!
-  \brief A curve fitter using cubic splines
-  \sa QwtSpline
-*/
-class QWT_EXPORT QwtSplineCurveFitter: public QwtCurveFitter
+namespace QwtSpline
 {
-public:
-    QwtSplineCurveFitter();
-    virtual ~QwtSplineCurveFitter();
-
-    virtual QPolygonF fitCurve( const QPolygonF & ) const;
+    QWT_EXPORT QPolygonF fitBezier( const QPolygonF &, int numPoints );
+    QWT_EXPORT QPolygonF fitNatural( const QPolygonF &, int numPoints );
+    QWT_EXPORT QPolygonF fitParametric( const QPolygonF &, int numPoints );
 };
 
 #endif
