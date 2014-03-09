@@ -24,9 +24,6 @@ static inline double qwtLineLength( const QPointF &p_start, const QPointF &p_end
 static inline QLineF qwtBezierControlLine(const QPointF &p0, const QPointF &p1, 
     const QPointF &p2, const QPointF &p3 )
 {
-    static const double one_third  = 1.0/3.0;
-    static const double one_sixth = 1.0/6.0;
-
     const double d02 = qwtLineLength(p0, p2);
     const double d13 = qwtLineLength(p1, p3);
     const double d12_2 = 0.5 * qwtLineLength(p1, p2);
@@ -36,34 +33,45 @@ static inline QLineF qwtBezierControlLine(const QPointF &p0, const QPointF &p1,
 
     QPointF off1, off2;
 
-    if( b1 && b2 )
+    if( b1 )
     {
-        // this is the normal case where both 1/6th 
-        // vectors are less than half of d12_2
+        if ( b2 )
+        {
+            // this is the normal case where both 1/6th 
+            // vectors are less than half of d12_2
 
-        const double s1 = (p0 != p1) ? one_sixth : one_third;
-        off1 = (p2 - p0) * s1;
+            const double s1 = ( p0 != p1 ) ? 6 : 3;
+            off1 = ( p2 - p0 ) / s1;
 
-        const double s2 = (p2 != p3) ? one_sixth : one_third;
-        off2 = (p1 - p3) * s2;
-    }
-    else if ( !b1 && b2 )
-    {
-        // for this case d02/6 is more than half of d12_2, so
-        // the d13/6 vector needs to be reduced
-        off1 = (p2 - p0) * (d12_2 / d02);
-        off2 = (p1 - p3) * (d12_2 / d02);
-    }
-    else if ( b1 && !b2 )
-    {
-        off1 = (p2 - p0) * (d12_2 / d13);
-        off2 = (p1 - p3) * (d12_2 / d13);
+            const double s2 = ( p2 != p3 ) ? 6 : 3;
+            off2 = ( p1 - p3 ) / s2;
+        }
+        else
+        {
+            const double s = d12_2 / d13;
+
+            off1 = ( p2 - p0 ) * s;
+            off2 = ( p1 - p3 ) * s;
+        }
     }
     else
     {
-        off1 = (p2 - p0) * (d12_2 / d02);
-        off2 = (p1 - p3) * (d12_2 / d13); 
-    }   
+        if ( b2 )
+        {
+            // for this case d02/6 is more than half of d12_2, so
+            // the d13/6 vector needs to be reduced
+
+            const double s = d12_2 / d02;
+
+            off1 = (p2 - p0) * s;
+            off2 = (p1 - p3) * s;
+        }
+        else
+        {
+            off1 = (p2 - p0) * ( d12_2 / d02 );
+            off2 = (p1 - p3) * ( d12_2 / d13 ); 
+        }   
+    }
 
     return QLineF( p1 + off1, p2 + off2 );
 }
@@ -152,6 +160,49 @@ QPolygonF QwtSpline::fitBezier( const QPolygonF& points, int numPoints )
     fittedPoints += points.last();
 
     return fittedPoints;
+}
+
+QLineF QwtSpline::bezierControlLine( 
+    const QPointF &p0, const QPointF &p1,
+    const QPointF &p2, const QPointF &p3 )
+{
+    return qwtBezierControlLine( p0, p1, p2, p3 );
+}
+
+QPainterPath QwtSpline::bezierPath( const QPolygonF &points )
+{
+    const int size = points.size();
+
+    QPainterPath path;
+    if ( size == 0 )
+        return path;
+
+    const QPointF *p = points.constData();
+
+    path.moveTo( p[0] );
+    if ( size == 1 )
+        return path;
+
+    if ( size == 2 )
+    {
+        path.lineTo( p[1] );
+    }
+    else
+    {
+        QLineF l = qwtBezierControlLine( p[0], p[0], p[1], p[2]);
+        path.cubicTo( l.p1(), l.p2(), p[1] );
+
+        for ( int i = 1; i < size - 2; i++ )
+        {
+            l = qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
+            path.cubicTo( l.p1(), l.p2(), p[i + 1] );
+        }
+
+        l = qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
+        path.cubicTo( l.p1(), l.p2(), p[size - 1 ] );
+    }
+
+    return path;
 }
 
 // - natural

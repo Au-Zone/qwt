@@ -12,12 +12,18 @@
 
 #include "qwt_global.h"
 #include <qpolygon.h>
+#include <qline.h>
+#include <qpainterpath.h>
 
 namespace QwtSpline
 {
     QWT_EXPORT QPolygonF fitBezier( const QPolygonF &, int numPoints );
     QWT_EXPORT QPolygonF fitNatural( const QPolygonF &, int numPoints );
     QWT_EXPORT QPolygonF fitParametric( const QPolygonF &, int numPoints );
+
+    QWT_EXPORT QLineF bezierControlLine( const QPointF &p0, const QPointF &p1,
+        const QPointF &p2, const QPointF &p3 );
+    QWT_EXPORT QPainterPath bezierPath( const QPolygonF & );
 };
 
 #endif
