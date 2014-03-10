@@ -23,6 +23,9 @@ namespace QwtSpline
 
     QWT_EXPORT QLineF bezierControlLine( const QPointF &p0, const QPointF &p1,
         const QPointF &p2, const QPointF &p3 );
+    QPointF bezierPoint( const QLineF &controlLine, 
+        const QPointF &p0, const QPointF &p1, double t );
+
     QWT_EXPORT QPainterPath bezierPath( const QPolygonF & );
 };
 

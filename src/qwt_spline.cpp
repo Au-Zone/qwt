@@ -13,10 +13,10 @@
 
 // - bezier
 
-static inline double qwtLineLength( const QPointF &p_start, const QPointF &p_end )
+static inline double qwtLineLength( const QPointF &p1, const QPointF &p2 )
 {
-   const double dx = p_start.x() - p_end.x();
-   const double dy = p_start.y() - p_end.y();
+   const double dx = p1.x() - p2.x();
+   const double dy = p1.y() - p2.y();
 
    return qSqrt( dx * dx + dy * dy );
 }
@@ -76,16 +76,18 @@ static inline QLineF qwtBezierControlLine(const QPointF &p0, const QPointF &p1,
     return QLineF( p1 + off1, p2 + off2 );
 }
 
-
-static inline double qwtBezierValue( double diff, double v1, double v2, double pv1, double pv2 )
+static inline QPointF qwtBezierPoint( const QLineF &ctrlLine, 
+    const QPointF &p1, const QPointF &p2, double t )
 {
-    const double d1 = diff;
-    const double d2 = d1 * d1;
-    const double d3 = d2 * d1;
+    const double d1 = 3.0 * t;
+    const double d2 = 3.0 * t * t;
+    const double d3 = t * t * t;
+    const double s  = 1.0 - t;
 
-    const double s  = 1.0 - d1;  // range from 0 to 1, knot[i] -> knot[i+1]
+    const double x = (( s * p1.x() + d1 * ctrlLine.x1() ) * s + d2 * ctrlLine.x2() ) * s + d3 * p2.x();
+    const double y = (( s * p1.y() + d1 * ctrlLine.y1() ) * s + d2 * ctrlLine.y2() ) * s + d3 * p2.y();
 
-    return (( s * pv1 + 3.0 * d1 * v1 ) * s + 3.0 * d2 * v2 ) * s + d3 * pv2;
+    return QPointF( x, y );
 }
 
 QPolygonF QwtSpline::fitBezier( const QPolygonF& points, int numPoints )
@@ -96,55 +98,46 @@ QPolygonF QwtSpline::fitBezier( const QPolygonF& points, int numPoints )
 
     const QPointF *p = points.constData();
 
-    QVector<QLineF> controlLines;
-
-    controlLines += qwtBezierControlLine( p[0], p[0], p[1], p[2]);
-
-    for( int i = 1; i < size - 2; ++i )
-        controlLines += qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
-
-    controlLines += qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
-
     double total_length = 0;
-    for( int i = 0; i < (points.size()-1); i++ )
-        total_length += qwtLineLength( points[i], points[i+1] );
+    for( int i = 0; i < size - 1; i++ )
+        total_length += qwtLineLength( p[i], p[i+1] );
 
     const double delta = total_length / numPoints;
 
     double sum_of_deltas = 0;       // incrementing along the curve
     double sum_of_passed_subcurves = 0;
 
-    QPolygonF fittedPoints;
-    for ( int i = 0; i < points.size() - 1; i++ )
-    {
-        const QPointF &p1 = points[i];
-        const QPointF &p2 = points[i + 1];
+	QLineF controlLine;
 
-        // iterate over subcurves - index 'i'
+    QPolygonF fittedPoints;
+    for ( int i = 0; i < size - 1; i++ )
+    {
+		if ( i == 0 )
+			controlLine = qwtBezierControlLine( p[0], p[0], p[1], p[2]);
+		else if ( i == points.size() - 2 )
+			controlLine = qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
+		else
+			controlLine = qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
+
+        const QPointF &p1 = p[i];
+        const QPointF &p2 = p[i + 1];
         const double length = qwtLineLength( p1, p2 );
 
-        const QLineF &line = controlLines[i];
-
-        for(;;) // generate samples of the subcurve
+        for(;;) 
         {
             const double offset = sum_of_deltas - sum_of_passed_subcurves;
-            const double offset_percent = offset / length;
+            const double t = offset / length;
 
             // is sampling rate smaller than distance between current points
-            if( offset_percent < 1.0 )
+            if( t < 1.0 )
             {
-                const double x = qwtBezierValue( offset_percent,
-                    line.p1().x(), line.p2().x(), p1.x(), p2.x() );
+                fittedPoints += qwtBezierPoint( controlLine, p1, p2, t );
 
-                const double y = qwtBezierValue( offset_percent,
-                    line.p1().y(), line.p2().y(), p1.y(), p2.y() );
-
-                fittedPoints += QPointF( x, y );
                 sum_of_deltas += delta;
                 if( sum_of_deltas >= sum_of_passed_subcurves + length )
                 {
                     sum_of_passed_subcurves += length;
-                    break; // next subcurve
+                    break;
                 }
             }
             else
@@ -152,7 +145,7 @@ QPolygonF QwtSpline::fitBezier( const QPolygonF& points, int numPoints )
                 if( sum_of_deltas >= sum_of_passed_subcurves + length )
                 {
                     sum_of_passed_subcurves += length;
-                    break; // next subcurve
+                    break; 
                 }
             }
         }
@@ -167,6 +160,12 @@ QLineF QwtSpline::bezierControlLine(
     const QPointF &p2, const QPointF &p3 )
 {
     return qwtBezierControlLine( p0, p1, p2, p3 );
+}
+
+QPointF QwtSpline::bezierPoint( const QLineF &controlLine, 
+    const QPointF &p1, const QPointF &p2, double t )
+{
+    return qwtBezierPoint( controlLine, p1, p2, t );
 }
 
 QPainterPath QwtSpline::bezierPath( const QPolygonF &points )
