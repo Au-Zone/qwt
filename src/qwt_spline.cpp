@@ -107,17 +107,17 @@ QPolygonF QwtSpline::fitBezier( const QPolygonF& points, int numPoints )
     double sum_of_deltas = 0;       // incrementing along the curve
     double sum_of_passed_subcurves = 0;
 
-	QLineF controlLine;
+    QLineF controlLine;
 
     QPolygonF fittedPoints;
     for ( int i = 0; i < size - 1; i++ )
     {
-		if ( i == 0 )
-			controlLine = qwtBezierControlLine( p[0], p[0], p[1], p[2]);
-		else if ( i == points.size() - 2 )
-			controlLine = qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
-		else
-			controlLine = qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
+        if ( i == 0 )
+            controlLine = qwtBezierControlLine( p[0], p[0], p[1], p[2]);
+        else if ( i == points.size() - 2 )
+            controlLine = qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
+        else
+            controlLine = qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
 
         const QPointF &p1 = p[i];
         const QPointF &p2 = p[i + 1];
@@ -168,7 +168,14 @@ QPointF QwtSpline::bezierPoint( const QLineF &controlLine,
     return qwtBezierPoint( controlLine, p1, p2, t );
 }
 
-QPainterPath QwtSpline::bezierPath( const QPolygonF &points )
+static inline void qwtCubicTo( const QPointF *p, 
+    int i1, int i2, int i3, int i4, QPainterPath &path )
+{
+    const QLineF l = qwtBezierControlLine( p[i1], p[i2], p[i3], p[i4]);
+    path.cubicTo( l.p1(), l.p2(), p[i3] );
+}
+
+QPainterPath QwtSpline::bezierPath( const QPolygonF &points, bool isClosed )
 {
     const int size = points.size();
 
@@ -188,17 +195,27 @@ QPainterPath QwtSpline::bezierPath( const QPolygonF &points )
     }
     else
     {
-        QLineF l = qwtBezierControlLine( p[0], p[0], p[1], p[2]);
-        path.cubicTo( l.p1(), l.p2(), p[1] );
-
-        for ( int i = 1; i < size - 2; i++ )
+        if ( isClosed )
         {
-            l = qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
-            path.cubicTo( l.p1(), l.p2(), p[i + 1] );
+            qwtCubicTo( p, size - 1, 0, 1, 2, path );
+        }
+        else
+        {
+            qwtCubicTo( p, 0, 0, 1, 2, path );
         }
 
-        l = qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
-        path.cubicTo( l.p1(), l.p2(), p[size - 1 ] );
+        for ( int i = 1; i < size - 2; i++ )
+            qwtCubicTo( p, i - 1, i, i + 1, i + 2, path );
+
+        if ( isClosed )
+        {
+            qwtCubicTo( p, size - 3, size - 2, size - 1, 0, path );
+            qwtCubicTo( p, size - 2, size - 1, 0, 1, path );
+        }
+        else
+        {
+            qwtCubicTo( p, size - 3, size - 2, size - 1, size - 1, path );
+        }
     }
 
     return path;

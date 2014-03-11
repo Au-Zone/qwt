@@ -26,7 +26,7 @@ namespace QwtSpline
     QPointF bezierPoint( const QLineF &controlLine, 
         const QPointF &p0, const QPointF &p1, double t );
 
-    QWT_EXPORT QPainterPath bezierPath( const QPolygonF & );
+    QWT_EXPORT QPainterPath bezierPath( const QPolygonF &, bool isClosed = false );
 };
 
 #endif
