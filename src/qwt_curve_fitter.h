@@ -12,6 +12,7 @@
 
 #include "qwt_global.h"
 #include <qpolygon.h>
+#include <qpainterpath.h>
 
 /*!
   \brief Abstract base class for a curve fitter
@@ -19,15 +20,57 @@
 class QWT_EXPORT QwtCurveFitter
 {
 public:
+    /*!
+      \brief Preferred mode of the fitting algorithm
+
+      Even if a QPainterPath can always be created from a QPolygonF
+      the overhead of the conversion can be avoided by indicating
+      the preference of the implementation to the application
+      code.
+     */
+    enum Mode
+    {
+        /*!
+          The fitting algorithm creates a polygon - the implementation
+          of fitCurvePath() simply wraps the polygon into a path.
+
+          \sa QwtWeedingCurveFitter
+         */
+        Polygon,
+
+        /*!
+          The fitting algorithm creates a painter path - the implementation
+          of fitCurve() extracts a polygon from the path.
+
+          \sa QwtSplineCurveFitter
+         */ 
+        Path
+    };
+
+    QwtCurveFitter( Mode mode );
     virtual ~QwtCurveFitter();
+
+    Mode mode() const;
 
     /*!
         Find a curve which has the best fit to a series of data points
 
         \param polygon Series of data points
         \return Curve points
+
+        \sa fitCurvePath()
      */
     virtual QPolygonF fitCurve( const QPolygonF &polygon ) const = 0;
+
+    /*!
+        Find a curve path which has the best fit to a series of data points
+
+        \param polygon Series of data points
+        \return Curve path
+
+        \sa fitCurve()
+     */
+    virtual QPainterPath fitCurvePath( const QPolygonF &polygon ) const = 0;
 
 protected:
     QwtCurveFitter();
@@ -35,6 +78,8 @@ protected:
 private:
     QwtCurveFitter( const QwtCurveFitter & );
     QwtCurveFitter &operator=( const QwtCurveFitter & );
+
+    const Mode d_mode;
 };
 
 #endif

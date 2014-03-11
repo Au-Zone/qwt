@@ -23,6 +23,7 @@ public:
     virtual ~QwtSplineCurveFitter();
 
     virtual QPolygonF fitCurve( const QPolygonF & ) const;
+    virtual QPainterPath fitCurvePath( const QPolygonF & ) const;
 };
 
 #endif

@@ -9,12 +9,22 @@
 
 #include "qwt_curve_fitter.h"
 
-//! Constructor
-QwtCurveFitter::QwtCurveFitter()
+/*! 
+   Constructor
+   \param mode Preferred fitting mode
+ */
+QwtCurveFitter::QwtCurveFitter( Mode mode ):
+    d_mode( mode )
 {
 }
 
 //! Destructor
 QwtCurveFitter::~QwtCurveFitter()
 {
+}
+
+//! \return Preferred fitting mode
+QwtCurveFitter::Mode QwtCurveFitter::mode() const
+{
+    return d_mode;
 }

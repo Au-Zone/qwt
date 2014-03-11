@@ -48,7 +48,8 @@ public:
    \param tolerance Tolerance
    \sa setTolerance(), tolerance()
 */
-QwtWeedingCurveFitter::QwtWeedingCurveFitter( double tolerance )
+QwtWeedingCurveFitter::QwtWeedingCurveFitter( double tolerance ):
+    QwtCurveFitter( QwtCurveFitter::Polygon )
 {
     d_data = new PrivateData;
     setTolerance( tolerance );
@@ -120,6 +121,7 @@ uint QwtWeedingCurveFitter::chunkSize() const
 /*!
   \param points Series of data points
   \return Curve points
+   \sa fitCurvePath()
 */
 QPolygonF QwtWeedingCurveFitter::fitCurve( const QPolygonF &points ) const
 {
@@ -139,6 +141,18 @@ QPolygonF QwtWeedingCurveFitter::fitCurve( const QPolygonF &points ) const
     }
 
     return fittedPoints;
+}
+
+/*!
+  \param points Series of data points
+  \return Curve path
+  \sa fitCurve()
+*/
+QPainterPath QwtWeedingCurveFitter::fitCurvePath( const QPolygonF &points ) const
+{
+    QPainterPath path;
+    path.addPolygon( fitCurve( points ) );
+    return path;
 }
 
 QPolygonF QwtWeedingCurveFitter::simplify( const QPolygonF &points ) const

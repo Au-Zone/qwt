@@ -48,6 +48,7 @@ public:
     uint chunkSize() const;
 
     virtual QPolygonF fitCurve( const QPolygonF & ) const;
+    virtual QPainterPath fitCurvePath( const QPolygonF & ) const;
 
 private:
     virtual QPolygonF simplify( const QPolygonF & ) const;

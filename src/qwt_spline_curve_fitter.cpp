@@ -11,7 +11,8 @@
 #include "qwt_spline.h"
 
 //! Constructor
-QwtSplineCurveFitter::QwtSplineCurveFitter()
+QwtSplineCurveFitter::QwtSplineCurveFitter():
+    QwtCurveFitter( QwtCurveFitter::Path )
 {
 }
 
@@ -24,20 +25,30 @@ QwtSplineCurveFitter::~QwtSplineCurveFitter()
   Find a curve which has the best fit to a series of data points
 
   \param points Series of data points
-  \return Curve points
+  \return Fitted Curve
+
+  \sa fitCurvePath()
 */
 QPolygonF QwtSplineCurveFitter::fitCurve( const QPolygonF &points ) const
 {
-    if ( points.size() <= 2 )
-        return points;
+    const QPainterPath path = fitCurvePath( points );
 
-    const QPainterPath path = QwtSpline::bezierPath( points );
+    const QList<QPolygonF> subPaths = fitCurvePath( points ).toSubpathPolygons();
+    if ( subPaths.size() == 1 )
+        subPaths.first();
 
-    QPolygonF fittedPoints;
+    return QPolygonF();
+}
 
-    const QList<QPolygonF> subPaths = path.toSubpathPolygons();
-    if ( !subPaths.isEmpty() )
-        fittedPoints = subPaths.first();
+/*!
+  Find a curve path which has the best fit to a series of data points
 
-    return fittedPoints;
+  \param points Series of data points
+  \return Fitted Curve
+
+  \sa fitCurve()
+*/
+QPainterPath QwtSplineCurveFitter::fitCurvePath( const QPolygonF &points ) const
+{
+    return QwtSpline::bezierPath( points );
 }
