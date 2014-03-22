@@ -113,11 +113,17 @@ QPolygonF QwtSpline::fitBezier( const QPolygonF& points, int numPoints )
     for ( int i = 0; i < size - 1; i++ )
     {
         if ( i == 0 )
+        {
             controlLine = qwtBezierControlLine( p[0], p[0], p[1], p[2]);
+        }
         else if ( i == points.size() - 2 )
+        {
             controlLine = qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
+        }
         else
+        {
             controlLine = qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
+        }
 
         const QPointF &p1 = p[i];
         const QPointF &p2 = p[i + 1];
@@ -263,6 +269,9 @@ static QVector<double> qwtCofficientNatural( const QPolygonF &points )
         s[i] = bb0[i] - cc0[i-1] * s[i-1];
     }
 
+    bb0.clear();
+    cc0.clear();
+
     // backward elimination
     s[size - 2] = - s[size - 2] / aa0[size - 2];
     for ( int i = size - 3; i > 0; i-- )
@@ -273,6 +282,17 @@ static QVector<double> qwtCofficientNatural( const QPolygonF &points )
     s[size - 1] = s[0] = 0.0;
 
     return s;
+}
+
+static inline void qwtNaturalCoeff(double s1, double s2, 
+    const QPointF &p1, const QPointF &p2, double &a, double &b, double &c )
+{
+    const double dx = p2.x() - p1.x();
+    const double dy = p2.y() - p1.y();
+
+    a = ( s2 - s1 ) / ( 6.0 * dx );
+    b = 0.5 * s1;
+    c = dy / dx - ( s2 + 2.0 * s1 ) * dx / 6.0;
 }
 
 QPolygonF QwtSpline::fitNatural( const QPolygonF &points, int numPoints )
@@ -289,27 +309,23 @@ QPolygonF QwtSpline::fitNatural( const QPolygonF &points, int numPoints )
 
     const QPointF *p = points.constData();
 
-    double ai, bi, ci;
     QPointF pi;
 
     QPolygonF fittedPoints;
+
     for ( int i = 0, j = 0; i < numPoints; i++ )
     {
         double x = x1 + i * delta;
         if ( x > x2 )
             x = x2;
 
+        double ai, bi, ci;
         if ( i == 0 || x > p[j + 1].x() )
         {
             while ( x > p[j + 1].x() )
                 j++;
 
-            const double dx = p[j + 1].x() - p[j].x();
-            const double dy = p[j + 1].y() - p[j].y();
-
-            ai = ( s[j+1] - s[j] ) / ( 6.0 * dx );
-            bi = 0.5 * s[j];
-            ci = dy / dx - ( s[j+1] + 2.0 * s[j] ) * dx / 6.0;
+            qwtNaturalCoeff( s[j], s[j+1], p[j], p[j + 1], ai, bi, ci );
             pi = p[j];
         }
 
