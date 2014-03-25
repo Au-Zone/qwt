@@ -1,7 +1,7 @@
 #include <qwt_plot.h>
 
-class ColorBar;
 class QwtWheel;
+class QwtPlotMarker;
 
 class Plot: public QwtPlot
 {
@@ -11,15 +11,16 @@ public:
     virtual bool eventFilter( QObject *, QEvent * );
 
 public Q_SLOTS:
-    void setCanvasColor( const QColor & );
-    void insertCurve( int axis, double base );
+    void updateMarker( int axis, double base );
+
+#ifndef QT_NO_PRINTER 
+    void printPlot();
+#endif
 
 private Q_SLOTS:
     void scrollLeftAxis( double );
 
 private:
-    void insertCurve( Qt::Orientation, const QColor &, double base );
-
-    ColorBar *d_colorBar;
+    QwtPlotMarker *d_marker;
     QwtWheel *d_wheel;
 };

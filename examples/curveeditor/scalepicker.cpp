@@ -36,7 +36,7 @@ void ScalePicker::mouseClicked( const QwtScaleWidget *scale, const QPoint &pos )
 {
     QRect rect = scaleRect( scale );
 
-    int margin = 10; // 10 pixels tolerance
+    int margin = 20; // 20 pixels tolerance
     rect.setRect( rect.x() - margin, rect.y() - margin,
         rect.width() + 2 * margin, rect.height() +  2 * margin );
 

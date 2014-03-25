@@ -9,17 +9,15 @@
 
 include( $${PWD}/../examples.pri )
 
-TARGET       = event_filter
+TARGET       = curveeditor
 
 HEADERS = \
-    colorbar.h \
     scalepicker.h \
     canvaspicker.h \
     plot.h 
 
 SOURCES = \
-    colorbar.cpp \
     scalepicker.cpp \
     canvaspicker.cpp \
     plot.cpp \
-    event_filter.cpp 
+    main.cpp 
