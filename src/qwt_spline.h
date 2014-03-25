@@ -27,4 +27,9 @@ namespace QwtSplineBezier
     QWT_EXPORT QPainterPath path( const QPolygonF &, bool isClosed = false );
 };
 
+namespace QwtSplineNatural
+{
+    QWT_EXPORT QPolygonF polygon( const QPolygonF &, int numPoints );
+}
+
 #endif
