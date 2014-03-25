@@ -50,5 +50,5 @@ QPolygonF QwtSplineCurveFitter::fitCurve( const QPolygonF &points ) const
 */
 QPainterPath QwtSplineCurveFitter::fitCurvePath( const QPolygonF &points ) const
 {
-    return QwtSpline::bezierPath( points );
+    return QwtSplineBezier::path( points );
 }

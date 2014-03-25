@@ -15,18 +15,16 @@
 #include <qline.h>
 #include <qpainterpath.h>
 
-namespace QwtSpline
+namespace QwtSplineBezier
 {
-    QWT_EXPORT QPolygonF fitBezier( const QPolygonF &, int numPoints );
-    QWT_EXPORT QPolygonF fitNatural( const QPolygonF &, int numPoints );
-    QWT_EXPORT QPolygonF fitParametric( const QPolygonF &, int numPoints );
-
-    QWT_EXPORT QLineF bezierControlLine( const QPointF &p0, const QPointF &p1,
+    QWT_EXPORT QLineF controlLine( const QPointF &p0, const QPointF &p1,
         const QPointF &p2, const QPointF &p3 );
-    QPointF bezierPoint( const QLineF &controlLine, 
+
+    QPointF point( const QLineF &controlLine, 
         const QPointF &p0, const QPointF &p1, double t );
 
-    QWT_EXPORT QPainterPath bezierPath( const QPolygonF &, bool isClosed = false );
+    QWT_EXPORT QPolygonF polygon( const QPolygonF &, double distance );
+    QWT_EXPORT QPainterPath path( const QPolygonF &, bool isClosed = false );
 };
 
 #endif
