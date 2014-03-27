@@ -13,6 +13,14 @@
 #include "qwt_global.h"
 #include <qpolygon.h>
 
+namespace QwtSpline
+{
+	// General spline interpolation according to 
+	// "Smoothing with Cubic Splines" by D. S. G. Pollock
+
+    QWT_EXPORT QPolygonF polygon( const QPolygonF &, double lambda, int numPoints );
+}
+
 namespace QwtSplineNatural
 {
 	QWT_EXPORT QVector<double> quadraticCoefficients( const QPolygonF & );
@@ -21,11 +29,6 @@ namespace QwtSplineNatural
 		double b, double bnext, double &a, double &c );
 
     QWT_EXPORT QPolygonF polygon( const QPolygonF &, int numPoints );
-}
-
-namespace QwtSpline
-{
-    QWT_EXPORT QPolygonF polygon( const QPolygonF &, double lambda, int numPoints );
 }
 
 inline void QwtSplineNatural::coefficients( const QPointF &p1, const QPointF &p2, 

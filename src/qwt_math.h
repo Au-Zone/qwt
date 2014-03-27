@@ -130,12 +130,14 @@ inline double qwtFastAtan2( double y, double x )
    \param a Cubic coefficient
    \param b Quadratic coefficient
    \param c Linear coefficient
+   \param d Connstant offset
 
    \return Value of the polyonom for x
 */
-inline double qwtCubicPolynom( double x, double a, double b, double c )
+inline double qwtCubicPolynom( double x, 
+	double a, double b, double c, double d )
 {
-    return ( ( ( a * x ) + b ) * x + c ) * x;
+    return ( ( ( a * x ) + b ) * x + c ) * x + d;
 }
 
 // Translate degrees into radians
