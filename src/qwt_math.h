@@ -123,6 +123,21 @@ inline double qwtFastAtan2( double y, double x )
     return 0.0;
 }
 
+/* 
+   \brief Calculate a value of a cubic polynom 
+
+   \param x Value
+   \param a Cubic coefficient
+   \param b Quadratic coefficient
+   \param c Linear coefficient
+
+   \return Value of the polyonom for x
+*/
+inline double qwtCubicPolynom( double x, double a, double b, double c )
+{
+    return ( ( ( a * x ) + b ) * x + c ) * x;
+}
+
 // Translate degrees into radians
 inline double qwtRadians( double degrees )
 {

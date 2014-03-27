@@ -9,198 +9,8 @@
 
 #include "qwt_spline.h"
 #include "qwt_math.h"
-#include <qline.h>
 
-// - bezier
-
-static inline double qwtLineLength( const QPointF &p1, const QPointF &p2 )
-{
-   const double dx = p1.x() - p2.x();
-   const double dy = p1.y() - p2.y();
-
-   return qSqrt( dx * dx + dy * dy );
-}
-
-static inline QLineF qwtBezierControlLine(const QPointF &p0, const QPointF &p1, 
-    const QPointF &p2, const QPointF &p3 )
-{
-    const double d02 = qwtLineLength(p0, p2);
-    const double d13 = qwtLineLength(p1, p3);
-    const double d12_2 = 0.5 * qwtLineLength(p1, p2);
-
-    const bool b1 = ( d02 / 6.0 ) < d12_2;
-    const bool b2 = ( d13 / 6.0 ) < d12_2;
-
-    QPointF off1, off2;
-
-    if( b1 )
-    {
-        if ( b2 )
-        {
-            // this is the normal case where both 1/6th 
-            // vectors are less than half of d12_2
-
-            const double s1 = ( p0 != p1 ) ? 6 : 3;
-            off1 = ( p2 - p0 ) / s1;
-
-            const double s2 = ( p2 != p3 ) ? 6 : 3;
-            off2 = ( p1 - p3 ) / s2;
-        }
-        else
-        {
-            const double s = d12_2 / d13;
-
-            off1 = ( p2 - p0 ) * s;
-            off2 = ( p1 - p3 ) * s;
-        }
-    }
-    else
-    {
-        if ( b2 )
-        {
-            // for this case d02/6 is more than half of d12_2, so
-            // the d13/6 vector needs to be reduced
-
-            const double s = d12_2 / d02;
-
-            off1 = (p2 - p0) * s;
-            off2 = (p1 - p3) * s;
-        }
-        else
-        {
-            off1 = (p2 - p0) * ( d12_2 / d02 );
-            off2 = (p1 - p3) * ( d12_2 / d13 ); 
-        }   
-    }
-
-    return QLineF( p1 + off1, p2 + off2 );
-}
-
-static inline QPointF qwtBezierPoint( const QLineF &ctrlLine, 
-    const QPointF &p1, const QPointF &p2, double t )
-{
-    const double d1 = 3.0 * t;
-    const double d2 = 3.0 * t * t;
-    const double d3 = t * t * t;
-    const double s  = 1.0 - t;
-
-    const double x = (( s * p1.x() + d1 * ctrlLine.x1() ) * s + d2 * ctrlLine.x2() ) * s + d3 * p2.x();
-    const double y = (( s * p1.y() + d1 * ctrlLine.y1() ) * s + d2 * ctrlLine.y2() ) * s + d3 * p2.y();
-
-    return QPointF( x, y );
-}
-
-QPolygonF QwtSplineBezier::polygon( const QPolygonF& points, double dist )
-{
-    const int size = points.size();
-    if ( size <= 2 || dist <= 0.0 )
-        return points;
-
-    const QPointF *p = points.constData();
-
-    QLineF controlLine;
-
-    QPolygonF fittedPoints;
-    fittedPoints += p[0];
-
-    for ( int i = 0; i < size - 1; i++ )
-    {
-        const double length = qwtLineLength( p[i], p[i + 1] );
-        if ( dist < length )
-        {
-            if ( i == 0 )
-            {
-                controlLine = qwtBezierControlLine( p[0], p[0], p[1], p[2]);
-            }
-            else if ( i == points.size() - 2 )
-            {
-                controlLine = qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
-            }
-            else
-            {
-                controlLine = qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
-            }
-
-            const double off = dist / length;
-            for( double t = off; t < 1.0; t += off ) 
-            {
-                fittedPoints += qwtBezierPoint( controlLine, p[i], p[i + 1], t );
-            }
-        }
-
-        fittedPoints += p[i + 1];
-    }
-
-    return fittedPoints;
-}
-
-QLineF QwtSplineBezier::controlLine( 
-    const QPointF &p0, const QPointF &p1,
-    const QPointF &p2, const QPointF &p3 )
-{
-    return qwtBezierControlLine( p0, p1, p2, p3 );
-}
-
-QPointF QwtSplineBezier::point( const QLineF &controlLine, 
-    const QPointF &p1, const QPointF &p2, double t )
-{
-    return qwtBezierPoint( controlLine, p1, p2, t );
-}
-
-static inline void qwtCubicTo( const QPointF *p, 
-    int i1, int i2, int i3, int i4, QPainterPath &path )
-{
-    const QLineF l = qwtBezierControlLine( p[i1], p[i2], p[i3], p[i4]);
-    path.cubicTo( l.p1(), l.p2(), p[i3] );
-}
-
-QPainterPath QwtSplineBezier::path( const QPolygonF &points, bool isClosed )
-{
-    const int size = points.size();
-
-    QPainterPath path;
-    if ( size == 0 )
-        return path;
-
-    const QPointF *p = points.constData();
-
-    path.moveTo( p[0] );
-    if ( size == 1 )
-        return path;
-
-    if ( size == 2 )
-    {
-        path.lineTo( p[1] );
-    }
-    else
-    {
-        if ( isClosed )
-        {
-            qwtCubicTo( p, size - 1, 0, 1, 2, path );
-        }
-        else
-        {
-            qwtCubicTo( p, 0, 0, 1, 2, path );
-        }
-
-        for ( int i = 1; i < size - 2; i++ )
-            qwtCubicTo( p, i - 1, i, i + 1, i + 2, path );
-
-        if ( isClosed )
-        {
-            qwtCubicTo( p, size - 3, size - 2, size - 1, 0, path );
-            qwtCubicTo( p, size - 2, size - 1, 0, 1, path );
-        }
-        else
-        {
-            qwtCubicTo( p, size - 3, size - 2, size - 1, size - 1, path );
-        }
-    }
-
-    return path;
-}
-
-static QVector<double> qwtCofficientNatural( const QPolygonF &points )
+QVector<double> QwtSplineNatural::quadraticCoefficients( const QPolygonF &points )
 {
     const int size = points.size();
 
@@ -252,20 +62,26 @@ static QVector<double> qwtCofficientNatural( const QPolygonF &points )
         const double dx = points[i+1].x() - points[i].x();
         s[i] = - ( s[i] + dx * s[i+1] ) / aa0[i];
     }
+
+#if 1
+	// todo: do it in the lopp above
+	for ( int i = 1; i < size - 1; i++ )
+		s[i] *= 0.5;
+#endif
+
     s[size - 1] = s[0] = 0.0;
 
     return s;
 }
 
-static inline void qwtNaturalCoeff(double s1, double s2,
-    const QPointF &p1, const QPointF &p2, double &a, double &b, double &c )
+static inline void qwtNaturalCoeff(double b1, double b2,
+    const QPointF &p1, const QPointF &p2, double &a, double &c )
 {
     const double dx = p2.x() - p1.x();
     const double dy = p2.y() - p1.y();
 
-    a = ( s2 - s1 ) / ( 6.0 * dx );
-    b = 0.5 * s1;
-    c = dy / dx - ( s2 + 2.0 * s1 ) * dx / 6.0;
+    a = ( b2 - b1 ) / ( 3.0 * dx );
+    c = dy / dx - ( b2 + 2.0 * b1 ) * dx / 3.0;
 }
 
 QPolygonF QwtSplineNatural::polygon( const QPolygonF &points, int numPoints )
@@ -274,7 +90,7 @@ QPolygonF QwtSplineNatural::polygon( const QPolygonF &points, int numPoints )
     if ( size <= 2 )
         return points;
 
-    const QVector<double> s = qwtCofficientNatural( points );
+    const QVector<double> b = quadraticCoefficients( points );
 
     const QPointF *p = points.constData();
 
@@ -282,7 +98,7 @@ QPolygonF QwtSplineNatural::polygon( const QPolygonF &points, int numPoints )
     const double x2 = points.last().x();
     const double delta = ( x2 - x1 ) / ( numPoints - 1 );
 
-    QPointF pi;
+    double a, c, x0, y0;
 
     QPolygonF fittedPoints;
 
@@ -292,21 +108,169 @@ QPolygonF QwtSplineNatural::polygon( const QPolygonF &points, int numPoints )
         if ( x > x2 )
             x = x2;
 
-        double ai, bi, ci;
         if ( i == 0 || x > p[j + 1].x() )
         {
             while ( x > p[j + 1].x() )
                 j++;
 
-            qwtNaturalCoeff( s[j], s[j+1], p[j], p[j + 1], ai, bi, ci );
-            pi = p[j];
+            coefficients( p[j], p[j + 1], b[j], b[j+1], a, c );
+            x0 = p[j].x();
+            y0 = p[j].y();
         }
 
-        const double dx = x - pi.x();
-        const double y = ( ( ( ai * dx ) + bi ) * dx + ci ) * dx + pi.y();
+        const double y = qwtCubicPolynom( x - x0, a, b[j], c );
+        fittedPoints += QPointF( x, y0 + y );
+    }
+
+    return fittedPoints;
+}
+
+// ---
+
+struct Spline
+{
+	double a;
+	double b;
+	double c;
+	double d;
+};
+
+static QVector<Spline> qwtCoefficients( const QPolygonF &points, 
+	const QVector<double> &sigma, double lambda )
+{
+	const int n = points.size();
+
+	QVector<double> h(n-1, 0.0);
+	QVector<double> p(n-1, 0.0);
+	QVector<double> q(n, 0.0);
+
+	QVector<double> ff(n, 0.0);
+	QVector<double> rr(n, 0.0);
+
+	const double mu = 2 * ( 1 - lambda ) / ( 3 * lambda );
+	h[0] = points[1].x() - points[0].x();
+	rr[0] = 3 / h[0];
+
+	for ( int i = 1; i < n - 1; i++ )
+	{
+		h[i] = points[i+1].x() - points[i].x();
+		rr[i] = 3 / h[i];
+		ff[i] = -( rr[i-1] + rr[i]);
+		p[i] = 2 * ( points[i+1].x() - points[i-1].x());
+		q[i] = 3 * ( points[i+1].y() - points[i].y()) / h[i] - 3 * ( points[i].y() - points[i-1].y() ) / h[i-1];
+	}
+
+	// diagonals of the matrix: W + LAMBDA T' SIGMA T
+	QVector<double> u(n, 0.0);
+	QVector<double> v(n, 0.0);
+	QVector<double> w(n, 0.0);
+
+#if 1
+	u[0] = v[0] = w[0] = 0.0;
+#endif
+	for ( int i = 1; i < n - 1; i++ )
+	{
+		u[i] = qwtSqr(rr[i-1]) * sigma[i-1] + qwtSqr(ff[i]) * sigma[i] + qwtSqr(rr[i]) * sigma[i+1];
+		u[i] = mu * u[i] + p[i];
+		v[i] = ff[i] * rr[i] * sigma[i] + rr[i] * ff[i+1] * sigma[i+1];
+		v[i] = mu * v[i] + h[i];
+		w[i] = mu * rr[i] * rr[i+1] * sigma[i+1];
+	}
+
+	{
+		// factorisation
+
+		v[1] = v[1] / u[1];
+		w[1] = w[1] / u[1];
+
+		for ( int j = 2; j < n - 1; j++ )
+		{
+			u[j] = u[j] - u[j-2] * qwtSqr( w[j-2] ) - u[j-1] * qwtSqr( v[j-1] );
+			v[j] = ( v[j] - u[j-1] * v[j-1] * w[j-1] ) / u[j];
+			w[j] = w[j] / u[j];
+		}
+
+		// forward substitution
+		q[0] = 0.0;
+		for ( int j = 2; j < n - 1; j++ )
+			q[j] = q[j] - v[j - 1] * q[j - 1] - w[j - 2] * q [j - 2];
+		for ( int j = 1; j < n - 1; j++ )
+			q[j] = q[j] / u[j];
+
+		// back substitution
+		q[n-2] = q[n-2] - v[n-2] * q[n-1];
+		for ( int j = n - 3; j > 1; j-- )
+			q[j] = q[j] - v[j] * q[j + 1] - w[j] * q[j + 2];
+	}
+
+	// Spline Parameters
+
+	QVector<Spline> s( n - 1 );
+
+	s[0].d = points[0].y() - mu * rr[0] * q[1] * sigma[0];
+	s[1].d = points[1].y() - mu * ( ff[1] * q[1] + rr[1] * q[2]) * sigma[0];
+	s[0].a = q[1] / ( 3 * h[0] );
+	s[0].b = 0; 
+	s[0].c = ( s[1].d - s[0].d ) / h[0] - q[1] * h[0] / 3;
+
+	rr[0] = 0;
+	for( int j = 1; j < n - 1; j++ )
+	{
+		s[j].a = ( q[j+1] - q[j]) / ( 3 * h[j] );
+		s[j].b = q[j];
+		s[j].c = ( q[j]+ q[j-1] ) * h[j-1] + s[j-1].c;
+		s[j].d = rr[j-1] * q[j-1] + ff[j] * q[j]+ rr[j] * q[j+1];
+		s[j].d = points[j].y() - mu * s[j].d * sigma[j];
+	}
+
+	return s;
+}
+
+static QVector<Spline> qwtCoefficients( const QPolygonF &points, double lambda )
+{
+	QVector<double> sigma(points.size());
+	for ( int i = 0; i < points.size(); i++ )
+		sigma[i] = 1.0;
+
+	return qwtCoefficients( points, sigma, lambda );
+}
+
+QPolygonF QwtSpline::polygon( const QPolygonF &points, double lambda, int numPoints )
+{
+    const int size = points.size();
+    if ( size <= 2 )
+        return points;
+
+	const QVector<Spline> splines = qwtCoefficients( points, lambda );
+
+    const QPointF *p = points.constData();
+
+    const double x1 = points.first().x();
+    const double x2 = points.last().x();
+    const double delta = ( x2 - x1 ) / ( numPoints - 1 );
+
+    QPolygonF fittedPoints;
+
+    for ( int i = 0, j = 0; i < numPoints; i++ )
+    {
+        double x = x1 + i * delta;
+        if ( x > x2 )
+            x = x2;
+
+        if ( i == 0 || x > p[j + 1].x() )
+        {
+            while ( x > p[j + 1].x() )
+                j++;
+        }
+
+        const double dx = x - p[j].x();
+
+		const Spline &s = splines[j];
+        const double y = ( ( ( s.a * dx ) + s.b ) * dx + s.c ) * dx + s.d;
 
         fittedPoints += QPointF( x, y );
     }
 
     return fittedPoints;
 }
+
