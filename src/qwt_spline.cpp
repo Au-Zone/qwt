@@ -9,6 +9,9 @@
 
 #include "qwt_spline.h"
 #include "qwt_math.h"
+#if 1
+#include <QDebug>
+#endif
 
 QVector<double> QwtSplineNatural::quadraticCoefficients( const QPolygonF &points )
 {
@@ -125,21 +128,61 @@ QPolygonF QwtSplineNatural::polygon( const QPolygonF &points, int numPoints )
     return fittedPoints;
 }
 
+QPainterPath QwtSplineNatural::path( const QPolygonF &points )
+{
+    QPainterPath path;
+
+    const int size = points.size();
+    if ( size <= 2 )
+    {
+        path.addPolygon( points );
+        return path;
+    }
+
+    const QVector<double> b = quadraticCoefficients( points );
+
+    const QPointF *p = points.constData();
+
+    path.moveTo( points[0] );
+
+    for ( int i = 0; i < size - 1; i++ )
+    {
+        const QPointF &p1 = p[i];
+        const QPointF &p2 = p[i+1];
+
+        const double dx = p2.x() - p1.x();
+        const double dy = p2.y() - p1.y();
+        const double step = dx / 3.0;
+
+        // a cubic polynomial can be translated into
+        // a bezier curve
+
+        const double c = dy / dx - ( b[i+1] + 2.0 * b[i] ) * step;
+
+        const double cy1 = p1.y() + c * step;
+        const double cy2 = cy1 + ( c + b[i] * dx ) * step;
+
+        path.cubicTo( p1.x() + step, cy1, p2.x() - step, cy2, p2.x(), p2.y() );
+    }
+
+    return path;
+}
+
 // ---
 
 namespace QwtSpline
 {
-	struct Polynomial
-	{
-		double a;
-		double b;
-		double c;
-		double d;
-	};
+    struct Polynomial
+    {
+        double a;
+        double b;
+        double c;
+        double d;
+    };
 }
 
 static QVector<QwtSpline::Polynomial> 
-	qwtSplinePolynomials( const QPolygonF &points, 
+    qwtSplinePolynomials( const QPolygonF &points, 
     const QVector<double> &sigma, double lambda )
 {
     const int n = points.size();
@@ -150,14 +193,14 @@ static QVector<QwtSpline::Polynomial>
 
     const double mu = 2 * ( 1 - lambda ) / ( 3 * lambda );
 
-	h[0] = points[1].x() - points[0].x();
+    h[0] = points[1].x() - points[0].x();
 
-	for ( int i = 1; i < n - 1; i++ )
-	{
-		h[i] = points[i+1].x() - points[i].x();
-		p[i] = 2 * ( points[i+1].x() - points[i-1].x());
-		q[i] = 3 * ( points[i+1].y() - points[i].y()) / h[i] - 3 * ( points[i].y() - points[i-1].y() ) / h[i-1];
-	}
+    for ( int i = 1; i < n - 1; i++ )
+    {
+        h[i] = points[i+1].x() - points[i].x();
+        p[i] = 2 * ( points[i+1].x() - points[i-1].x());
+        q[i] = 3 * ( points[i+1].y() - points[i].y()) / h[i] - 3 * ( points[i].y() - points[i-1].y() ) / h[i-1];
+    }
 
     // diagonals of the matrix: W + LAMBDA T' SIGMA T
     QVector<double> u(n - 1, 0.0);
@@ -167,39 +210,39 @@ static QVector<QwtSpline::Polynomial>
 #if 1
     u[0] = v[0] = w[0] = 0.0;
 #endif
-	{
-		double dx0 = 3 / ( points[1].x() - points[0].x() );
-		double dx1 = 3 / ( points[2].x() - points[1].x() );
+    {
+        double dx0 = 3 / ( points[1].x() - points[0].x() );
+        double dx1 = 3 / ( points[2].x() - points[1].x() );
 
-    	for ( int i = 1; i < n - 1; i++ )
-		{
-			const double ff1 = -( dx0 + dx1 );
+        for ( int i = 1; i < n - 1; i++ )
+        {
+            const double ff1 = -( dx0 + dx1 );
 
-			u[i] = qwtSqr(dx0) * sigma[i-1] + qwtSqr( ff1 ) * sigma[i] + qwtSqr(dx1) * sigma[i+1];
-			u[i] = mu * u[i] + p[i];
+            u[i] = qwtSqr(dx0) * sigma[i-1] + qwtSqr( ff1 ) * sigma[i] + qwtSqr(dx1) * sigma[i+1];
+            u[i] = mu * u[i] + p[i];
 
-			if ( i == n - 2 )
-			{
-				const double ff2 = -( dx1 + dx1 );
+            if ( i == n - 2 )
+            {
+                const double ff2 = -( dx1 + dx1 );
 
-				v[i] = ff1 * dx1 * sigma[i] + dx1 * ff2 * sigma[i+1];
-				v[i] = mu * v[i] + h[i];
+                v[i] = ff1 * dx1 * sigma[i] + dx1 * ff2 * sigma[i+1];
+                v[i] = mu * v[i] + h[i];
 
-				break;
-			}
+                break;
+            }
 
-			const double dx2 = 3 / ( points[i+2].x() - points[i+1].x() );
+            const double dx2 = 3 / ( points[i+2].x() - points[i+1].x() );
 
-			const double ff2 = -( dx1 + dx2 );
-			v[i] = ff1 * dx1 * sigma[i] + dx1 * ff2 * sigma[i+1];
-			v[i] = mu * v[i] + h[i];
+            const double ff2 = -( dx1 + dx2 );
+            v[i] = ff1 * dx1 * sigma[i] + dx1 * ff2 * sigma[i+1];
+            v[i] = mu * v[i] + h[i];
 
-			w[i] = mu * dx1 * dx2 * sigma[i+1];
+            w[i] = mu * dx1 * dx2 * sigma[i+1];
 
-			dx0 = dx1;
-			dx1 = dx2;
-		}
-	}
+            dx0 = dx1;
+            dx1 = dx2;
+        }
+    }
 
     {
         // factorisation
@@ -212,8 +255,8 @@ static QVector<QwtSpline::Polynomial>
             u[j] = u[j] - u[j-2] * qwtSqr( w[j-2] ) - u[j-1] * qwtSqr( v[j-1] );
             v[j] = ( v[j] - u[j-1] * v[j-1] * w[j-1] ) / u[j];
 
-			if ( j == n - 2 )
-				break;
+            if ( j == n - 2 )
+                break;
 
             w[j] = w[j] / u[j];
         }
@@ -232,7 +275,7 @@ static QVector<QwtSpline::Polynomial>
             q[j] = q[j] - v[j] * q[j + 1] - w[j] * q[j + 2];
     }
 
-	w.clear();
+    w.clear();
 
     // Spline Parameters
 
@@ -243,7 +286,7 @@ static QVector<QwtSpline::Polynomial>
 
     s[0].d = points[0].y() - mu * dxx1 * q[1] * sigma[0];
 
-	const double ff0 = -( dxx1 + dxx2 );
+    const double ff0 = -( dxx1 + dxx2 );
 
     s[1].d = points[1].y() - mu * ( ff0 * q[1] + dxx2 * q[2]) * sigma[0];
     s[0].a = q[1] / ( 3 * h[0] );
@@ -253,8 +296,8 @@ static QVector<QwtSpline::Polynomial>
     double dx1 = 0.0;
     for( int j = 1; j < n - 1; j++ )
     {
-		const double dx2 = 3 / ( points[j+1].x() - points[j].x() );
-		const double ff = -( dx1 + dx2 );
+        const double dx2 = 3 / ( points[j+1].x() - points[j].x() );
+        const double ff = -( dx1 + dx2 );
 
         s[j].a = ( q[j+1] - q[j]) / ( 3 * h[j] );
         s[j].b = q[j];
@@ -262,7 +305,7 @@ static QVector<QwtSpline::Polynomial>
         s[j].d = dx1 * q[j-1] + ff * q[j] + dx2 * q[j+1];
         s[j].d = points[j].y() - mu * s[j].d * sigma[j];
 
-		dx1 = dx2;
+        dx1 = dx2;
     }
 
     return s;
@@ -316,3 +359,43 @@ QPolygonF QwtSpline::polygon( const QPolygonF &points, double lambda, int numPoi
     return fittedPoints;
 }
 
+QPainterPath QwtSpline::path( const QPolygonF &points, double lambda )
+{
+    QPainterPath path;
+
+    const int size = points.size();
+    if ( size <= 2 )
+    {
+        path.addPolygon( points );
+        return path;
+    }
+
+    const QVector<Polynomial> polynomials = qwtSplinePolynomials( points, lambda );
+
+    const QPointF *p = points.constData();
+
+    path.moveTo( p[0] );
+
+    for ( int i = 0; i < size - 1; i++ )
+    {
+        const QPointF &p1 = p[i];
+        const QPointF &p2 = p[i+1];
+        const Polynomial s = polynomials[i];
+
+        // a cubic polynomial can be translated into
+        // a bezier curve
+
+        const double dx = p2.x() - p1.x();
+        const double step = dx / 3.0;
+
+        const double cy1 = s.d + s.c * step;
+        const double cy2 = cy1 + ( s.c + s.b * dx ) * step;
+    
+        const double y2 = size - 1 ? p2.y() : polynomials[i+1].d;
+
+        path.cubicTo( p1.x() + step, cy1, 
+            p2.x() - step, cy2, p2.x(), y2 );
+    }
+
+    return path;
+}

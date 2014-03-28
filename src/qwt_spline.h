@@ -12,27 +12,34 @@
 
 #include "qwt_global.h"
 #include <qpolygon.h>
+#include <qpainterpath.h>
 
 namespace QwtSpline
 {
-	// General spline interpolation according to 
-	// "Smoothing with Cubic Splines" by D. S. G. Pollock
+    // General spline interpolation according to 
+    // "Smoothing with Cubic Splines" by D. S. G. Pollock
 
     QWT_EXPORT QPolygonF polygon( const QPolygonF &, double lambda, int numPoints );
+    QWT_EXPORT QPainterPath path( const QPolygonF &, double lambda );
 }
 
 namespace QwtSplineNatural
 {
-	QWT_EXPORT QVector<double> quadraticCoefficients( const QPolygonF & );
+    // all b's
+    QWT_EXPORT QVector<double> quadraticCoefficients( const QPolygonF & );
 
-	QWT_EXPORT void coefficients( const QPointF &p1, const QPointF &p2, 
-		double b, double bnext, double &a, double &c );
+    // calculate a, b from b[i] and b[i+1]
+    QWT_EXPORT void coefficients( const QPointF &p1, const QPointF &p2, 
+        double b, double bnext, double &a, double &c );
 
     QWT_EXPORT QPolygonF polygon( const QPolygonF &, int numPoints );
+
+    // interpolated spline as bezier curve
+    QWT_EXPORT QPainterPath path( const QPolygonF & );
 }
 
 inline void QwtSplineNatural::coefficients( const QPointF &p1, const QPointF &p2, 
-	double b, double bnext, double &a, double &c )
+    double b, double bnext, double &a, double &c )
 {
     const double dx = p2.x() - p1.x();
     const double dy = p2.y() - p1.y();
