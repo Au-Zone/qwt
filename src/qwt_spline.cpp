@@ -399,3 +399,93 @@ QPainterPath QwtSpline::path( const QPolygonF &points, double lambda )
 
     return path;
 }
+
+QPainterPath QwtSplineAkima::path( const QPolygonF &points )
+{
+    QPainterPath path;
+
+    const int size = points.size();
+    if ( size <= 2 )
+    {
+        path.addPolygon( points );
+        return path;
+    }
+
+    QVector<double> u(size + 3);
+    double *m = u.data() + 2;
+
+    for ( int i = 0; i < size - 1; i++ )
+    {
+        m[i] = ( points[i + 1].y() - points[i].y() ) / ( points[i + 1].x() - points[i].x() );
+    }
+
+    /* non-periodic boundary conditions */
+    m[-2] = 3.0 * m[0] - 2.0 * m[1];
+    m[-1] = 2.0 * m[0] - m[1];
+    m[size - 1] = 2.0 * m[size - 2] - m[size - 3];
+    m[size] = 3.0 * m[size - 2] - 2.0 * m[size - 3];
+
+    const QPointF *p = points.constData();
+    path.moveTo( p[0] );
+
+    for ( int i = 0; i < size - 1; i++ )
+    {
+        const QPointF &p1 = p[i];
+        const QPointF &p2 = p[i+1];
+
+        const double dx = p2.x() - p1.x();
+
+        double m1 = m[i - 2];
+        double m2 = m[i - 1];
+        double m3 = m[i];
+        double m4 = m[i + 1];
+        double m5 = m[i + 2];
+
+        double b, c;
+
+        const double ry = qAbs( m4 - m3 ) + qAbs( m2 - m1 );
+        if ( ry == 0.0 )
+        {
+            b = 0.0;
+            c = m3;
+#if 0
+            d = 0.0;
+#endif
+        }
+        else
+        {
+            double t;
+
+            const double ry_next = qAbs ( m5 - m4 ) + qAbs ( m3 - m2 );
+            if ( ry_next == 0.0 )
+            {
+                t = m3;
+            }
+            else
+            {
+                double alpha_next = fabs ( m3 - m2 ) / ry_next;
+                t = ( 1.0 - alpha_next ) * m3 + alpha_next * m4;
+            }
+
+            const double alpha = qAbs ( m2 - m1 ) / ry;
+            c = ( 1.0 - alpha ) * m2 + alpha * m3;
+            b = ( 3.0 * m3 - 2.0 * c - t ) / dx;
+#if 0
+            a = ( c + t - 2.0 * m3 ) / ( dx * dx );
+#endif
+        }
+
+        // a cubic polynomial can be translated into
+        // a bezier curve
+
+        const double step = dx / 3.0;
+
+        const double cy1 = p1.y() + c * step;
+        const double cy2 = cy1 + ( c + b * dx ) * step;
+
+        path.cubicTo( p1.x() + step, cy1,
+            p2.x() - step, cy2, p2.x(), p2.y() );
+    }
+
+    return path;
+}

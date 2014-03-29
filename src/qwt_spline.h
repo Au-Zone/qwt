@@ -23,6 +23,11 @@ namespace QwtSpline
     QWT_EXPORT QPainterPath path( const QPolygonF &, double lambda );
 }
 
+namespace QwtSplineAkima
+{
+    QWT_EXPORT QPainterPath path( const QPolygonF & );
+}
+
 namespace QwtSplineNatural
 {
     // all b's
