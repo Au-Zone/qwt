@@ -36,7 +36,7 @@ contains(QWT_CONFIG, QwtPlot) {
 
         SUBDIRS += \
             bode \
-            curveeditor \
+            splineeditor \
             oscilloscope  
     }
 }

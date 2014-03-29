@@ -9,15 +9,34 @@
 #include <qwt_wheel.h>
 #include <qwt_spline.h>
 #include <qwt_curve_fitter.h>
+#include <qwt_legend.h>
 #include <qevent.h>
 #include <qprinter.h>
 #include <qprintdialog.h>
 
-class CurveFitter1: public QwtCurveFitter
+static QPolygonF points( double offset )
+{
+    QPolygonF points;
+    points << QPointF( 10, 30 ) << QPointF( 20, 90 ) << QPointF( 25, 60 )
+        << QPointF( 35, 38 ) << QPointF( 42, 40 ) << QPointF( 55, 60 )
+        << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
+        << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 70 );
+
+	return points.translated( 0.0, offset );
+}
+
+class SplineFitter: public QwtCurveFitter
 {
 public:
-    CurveFitter1():
-        QwtCurveFitter( QwtCurveFitter::Path )
+	enum Mode
+	{
+		AkimaSpline,
+		NaturalSpline
+	};
+
+    SplineFitter( Mode mode ):
+        QwtCurveFitter( QwtCurveFitter::Path ),
+		d_mode( mode )
     {
     }
 
@@ -34,16 +53,14 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-#if 1
-        return QwtSplineAkima::path( points );
-#endif
-#if 0
-        return QwtSplineNatural::path( points );
-#endif
-#if 0
-        return QwtSpline::path( points, 0.01 );
-#endif
+		if ( d_mode == AkimaSpline )
+        	return QwtSplineAkima::path( points );
+		else
+        	return QwtSplineNatural::path( points );
     }
+private:
+	const Mode d_mode;
+	
 };
 
 class CurveFitter2: public QwtCurveFitter
@@ -73,6 +90,23 @@ public:
     }
 };
 
+class Curve: public QwtPlotCurve
+{
+public:
+	Curve( const QString &title, const QColor &color ):
+		QwtPlotCurve( title )
+	{
+    	setCurveAttribute( QwtPlotCurve::Fitted, true );
+    	setRenderHint( QwtPlotItem::RenderAntialiased );
+
+    	setPen( color );
+    	setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+        	Qt::gray, QPen( Qt::darkBlue ) , QSize( 8, 8 ) ) );
+
+    	setZ( 100 ); // on top of the marker
+	}
+};
+
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
 {
@@ -83,11 +117,13 @@ Plot::Plot( QWidget *parent ):
     canvas()->setCursor( Qt::PointingHandCursor );
 #endif
 
+	insertLegend( new QwtLegend(), QwtPlot::RightLegend );
+
     d_marker = new QwtPlotMarker( "Marker" );
     d_marker->setLineStyle( QwtPlotMarker::VLine );
     d_marker->setLinePen( QPen( Qt::darkRed, 0, Qt::DotLine ) );
 
-    QwtText text( "Showing a click on the axes" );
+    QwtText text( "click on the axes" );
     text.setBackgroundBrush( Qt::white );
     text.setColor( Qt::darkRed );
 
@@ -108,27 +144,20 @@ Plot::Plot( QWidget *parent ):
 
     plotLayout()->setAlignCanvasToScales( true );
 
-    // curve 
-    QwtPlotCurve *curve = new QwtPlotCurve();
-#if 0
-    curve->setCurveFitter( new CurveFitter1 );
-#endif
-    curve->setCurveAttribute( QwtPlotCurve::Fitted, true );
-    curve->setRenderHint( QwtPlotItem::RenderAntialiased );
+    // curves 
+    Curve *curve1 = new Curve( "Qwt Spline", Qt::darkBlue);
+    curve1->setSamples( points( -20.0 ) );
+    curve1->attach( this );
 
-    curve->setPen( Qt::darkBlue );
-    curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-        Qt::gray, QPen( Qt::darkBlue ) , QSize( 8, 8 ) ) );
+    Curve *curve2 = new Curve( "Natural Spline", Qt::darkRed);
+	curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
+    curve2->setSamples( points( 0.0 ) );
+    curve2->attach( this );
 
-    QPolygonF points;
-    points << QPointF( 10, 30 ) << QPointF( 20, 90 ) << QPointF( 25, 60 )
-        << QPointF( 35, 38 ) << QPointF( 42, 40 ) << QPointF( 55, 60 )
-        << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
-        << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 70 );
-
-    curve->setSamples( points );
-    curve->setZ( 100 ); // on top of the marker
-    curve->attach( this );
+    Curve *curve3 = new Curve( "Akima Spline", Qt::darkGreen);
+	curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
+    curve3->setSamples( points( -10.0 ) );
+    curve3->attach( this );
 
     // --
 

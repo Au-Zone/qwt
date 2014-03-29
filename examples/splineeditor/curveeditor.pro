@@ -9,7 +9,7 @@
 
 include( $${PWD}/../examples.pri )
 
-TARGET       = curveeditor
+TARGET       = splineeditor
 
 HEADERS = \
     scalepicker.h \

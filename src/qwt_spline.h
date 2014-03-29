@@ -30,12 +30,14 @@ namespace QwtSplineAkima
 
 namespace QwtSplineNatural
 {
-    // all b's
-    QWT_EXPORT QVector<double> quadraticCoefficients( const QPolygonF & );
+    // curvatures at each point
+    QWT_EXPORT QVector<double> curvatures( const QPolygonF & );
 
-    // calculate a, b from b[i] and b[i+1]
-    QWT_EXPORT void coefficients( const QPointF &p1, const QPointF &p2, 
-        double b, double bnext, double &a, double &c );
+    // calculate a, b, c
+    QWT_EXPORT void coefficients( 
+        const QPointF &p1, double curvature1,
+        const QPointF &p2, double curvature2, 
+        double &a, double &b, double &c );
 
     QWT_EXPORT QPolygonF polygon( const QPolygonF &, int numPoints );
 
@@ -43,14 +45,17 @@ namespace QwtSplineNatural
     QWT_EXPORT QPainterPath path( const QPolygonF & );
 }
 
-inline void QwtSplineNatural::coefficients( const QPointF &p1, const QPointF &p2, 
-    double b, double bnext, double &a, double &c )
+inline void QwtSplineNatural::coefficients( 
+    const QPointF &p1, double curvature1, 
+    const QPointF &p2, double curvature2, 
+    double &a, double &b, double &c )
 {
     const double dx = p2.x() - p1.x();
     const double dy = p2.y() - p1.y();
 
-    a = ( bnext - b ) / ( 3.0 * dx );
-    c = dy / dx - ( bnext + 2.0 * b ) * dx / 3.0;
+    a = ( curvature2 - curvature1 ) / ( 6.0 * dx );
+    b = 0.5 * curvature1;
+    c = dy / dx - ( curvature2 + 2.0 * curvature1 ) * dx / 6.0;
 }
 
 #endif
