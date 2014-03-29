@@ -7,9 +7,71 @@
 #include <qwt_symbol.h>
 #include <qwt_scale_widget.h>
 #include <qwt_wheel.h>
+#include <qwt_spline.h>
+#include <qwt_curve_fitter.h>
 #include <qevent.h>
 #include <qprinter.h>
 #include <qprintdialog.h>
+
+class CurveFitter1: public QwtCurveFitter
+{
+public:
+    CurveFitter1():
+        QwtCurveFitter( QwtCurveFitter::Path )
+    {
+    }
+
+    virtual QPolygonF fitCurve( const QPolygonF &points ) const
+    {
+        const QPainterPath path = fitCurvePath( points );
+
+        const QList<QPolygonF> subPaths = fitCurvePath( points ).toSubpathPolygons();
+        if ( subPaths.size() == 1 )
+            subPaths.first();
+
+        return QPolygonF();
+    }
+
+    virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
+    {
+#if 1
+        return QwtSplineAkima::path( points );
+#endif
+#if 0
+        return QwtSplineNatural::path( points );
+#endif
+#if 0
+        return QwtSpline::path( points, 0.01 );
+#endif
+    }
+};
+
+class CurveFitter2: public QwtCurveFitter
+{
+public:
+    CurveFitter2():
+        QwtCurveFitter( QwtCurveFitter::Polygon )
+    {
+    }
+
+    virtual QPolygonF fitCurve( const QPolygonF &polygon ) const
+    {
+#if 0
+        return QwtSpline::polygon( polygon, 1.0, 500 );
+#else
+        return QwtSplineNatural::polygon( polygon, 500 );
+#endif
+    }
+
+    virtual QPainterPath fitCurvePath( const QPolygonF &polygon ) const
+    {
+        const QPolygonF fittedPoints = QwtSplineNatural::polygon( polygon, 500 );
+
+        QPainterPath path;
+        path.addPolygon( fittedPoints );
+        return path;
+    }
+};
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent )
@@ -48,6 +110,9 @@ Plot::Plot( QWidget *parent ):
 
     // curve 
     QwtPlotCurve *curve = new QwtPlotCurve();
+#if 0
+    curve->setCurveFitter( new CurveFitter1 );
+#endif
     curve->setCurveAttribute( QwtPlotCurve::Fitted, true );
     curve->setRenderHint( QwtPlotItem::RenderAntialiased );
 
