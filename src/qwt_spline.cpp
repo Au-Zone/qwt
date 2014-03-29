@@ -411,21 +411,13 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
         return path;
     }
 
-    QVector<double> u(size + 3);
-    double *m = u.data() + 2;
-
-    for ( int i = 0; i < size - 1; i++ )
-    {
-        m[i] = ( points[i + 1].y() - points[i].y() ) / ( points[i + 1].x() - points[i].x() );
-    }
-
-    /* non-periodic boundary conditions */
-    m[-2] = 3.0 * m[0] - 2.0 * m[1];
-    m[-1] = 2.0 * m[0] - m[1];
-    m[size - 1] = 2.0 * m[size - 2] - m[size - 3];
-    m[size] = 3.0 * m[size - 2] - 2.0 * m[size - 3];
-
     const QPointF *p = points.constData();
+
+    double m4 = ( p[2].y() - p[1].y() ) / ( p[2].x() - p[1].x() );
+    double m3 = ( p[1].y() - p[0].y() ) / ( p[1].x() - p[0].x() );
+    double m2 = 2.0 * m3 - m4;
+    double m1 = 3.0 * m3 - 2.0 * m4;
+
     path.moveTo( p[0] );
 
     for ( int i = 0; i < size - 1; i++ )
@@ -435,45 +427,63 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
 
         const double dx = p2.x() - p1.x();
 
-        double m1 = m[i - 2];
-        double m2 = m[i - 1];
-        double m3 = m[i];
-        double m4 = m[i + 1];
-        double m5 = m[i + 2];
-
-        double b, c;
-
-        const double ry = qAbs( m4 - m3 ) + qAbs( m2 - m1 );
-        if ( ry == 0.0 )
+        double m5;
+        if ( i == size - 2 )
         {
-            b = 0.0;
-            c = m3;
-#if 0
-            d = 0.0;
-#endif
+            m5 = 3.0 * m4 - 2.0 * m3;
+        }
+        else if ( i == size - 3 )
+        {
+            m5 = 2.0 * m4 - m3;
         }
         else
         {
-            double t;
+            m5 = ( p[i+3].y() - p[i+2].y() ) / ( p[i+3].x() - p[i+2].x() );
+        }
 
-            const double ry_next = qAbs ( m5 - m4 ) + qAbs ( m3 - m2 );
+        double b, c;
+
+        const double d12 = qAbs( m2 - m1 );
+        const double d34 = qAbs( m4 - m3 );
+
+        const double ry = d34 + d12;
+        if ( ry == 0.0 )
+        {
+#if 0
+            a = 0.0;
+#endif
+            b = 0.0;
+            c = m3;
+        }
+        else
+        {
+            const double d23 = qAbs( m3 - m2 );
+            const double d45 = qAbs( m5 - m4 );
+
+            double t;
+            const double ry_next = d45 + d23;
             if ( ry_next == 0.0 )
             {
                 t = m3;
             }
             else
             {
-                double alpha_next = fabs ( m3 - m2 ) / ry_next;
+                double alpha_next = d23 / ry_next;
                 t = ( 1.0 - alpha_next ) * m3 + alpha_next * m4;
             }
 
-            const double alpha = qAbs ( m2 - m1 ) / ry;
+            const double alpha = d12 / ry;
             c = ( 1.0 - alpha ) * m2 + alpha * m3;
             b = ( 3.0 * m3 - 2.0 * c - t ) / dx;
 #if 0
             a = ( c + t - 2.0 * m3 ) / ( dx * dx );
 #endif
         }
+
+        m1 = m2;
+        m2 = m3;
+        m3 = m4;
+        m4 = m5;
 
         // a cubic polynomial can be translated into
         // a bezier curve
