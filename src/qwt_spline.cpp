@@ -9,9 +9,34 @@
 
 #include "qwt_spline.h"
 #include "qwt_math.h"
-#if 1
-#include <QDebug>
-#endif
+
+static inline void qwtCubicTo( const QPointF &p1, double cv1,
+    const QPointF &p2, double cv2, QPainterPath &path )
+{
+    const double dx = p2.x() - p1.x();
+    const double dy = p2.y() - p1.y();
+    const double stepX = dx / 3.0;
+
+    const double c = dy / dx - ( 0.5 * cv2 + cv1 ) * stepX;
+
+    const double cy1 = p1.y() + c * stepX;
+    const double cy2 = cy1 + ( c + 0.5 * cv1 * dx ) * stepX; 
+
+    path.cubicTo( p1.x() + stepX, cy1, 
+        p2.x() - stepX, cy2, p2.x(), p2.y() );
+}
+
+static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2, 
+    double dx, double b, double c, QPainterPath &path )
+{
+    const double stepX = dx / 3.0;
+
+    const double cy1 = p1.y() + c * stepX;
+    const double cy2 = cy1 + ( c + b * dx ) * stepX;
+
+    path.cubicTo( p1.x() + stepX, cy1,
+        p2.x() - stepX, cy2, p2.x(), p2.y() );
+}
 
 QVector<double> QwtSplineNatural::curvatures( const QPolygonF &points )
 {
@@ -87,7 +112,7 @@ QPolygonF QwtSplineNatural::polygon( const QPolygonF &points, int numPoints )
     if ( size <= 2 )
         return points;
 
-    const QVector<double> curvatures = QwtSplineNatural::curvatures( points );
+    const QVector<double> cv = curvatures( points );
 
     const QPointF *p = points.constData();
 
@@ -110,8 +135,10 @@ QPolygonF QwtSplineNatural::polygon( const QPolygonF &points, int numPoints )
             while ( x > p[j + 1].x() )
                 j++;
 
-            coefficients( p[j], curvatures[j], 
-                p[j + 1], curvatures[j+1], a, b, c );
+            QwtSpline::toCoefficients( 
+                p[j].x(), p[j].y(), cv[j],
+                p[j + 1].x(), p[j + 1].y(), cv[j + 1], 
+                a, b, c );
 
             x0 = p[j].x();
             y0 = p[j].y();
@@ -135,31 +162,13 @@ QPainterPath QwtSplineNatural::path( const QPolygonF &points )
         return path;
     }
 
-    const QVector<double> curvatures = QwtSplineNatural::curvatures( points );
 
+    const QVector<double> cv = curvatures( points );
     const QPointF *p = points.constData();
 
-    path.moveTo( points[0] );
-
+    path.moveTo( p[0] );
     for ( int i = 0; i < size - 1; i++ )
-    {
-        const QPointF &p1 = p[i];
-        const QPointF &p2 = p[i+1];
-
-        const double dx = p2.x() - p1.x();
-        const double dy = p2.y() - p1.y();
-        const double step = dx / 3.0;
-
-        // a cubic polynomial can be translated into
-        // a bezier curve
-
-        const double c = dy / dx - ( 0.5 * curvatures[i+1] + curvatures[i] ) * step;
-
-        const double cy1 = p1.y() + c * step;
-        const double cy2 = cy1 + ( c + 0.5 * curvatures[i] * dx ) * step;
-
-        path.cubicTo( p1.x() + step, cy1, p2.x() - step, cy2, p2.x(), p2.y() );
-    }
+        qwtCubicTo( p[i], cv[i], p[i+1], cv[i+1], path );
 
     return path;
 }
@@ -481,16 +490,7 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
         m3 = m4;
         m4 = m5;
 
-        // a cubic polynomial can be translated into
-        // a bezier curve
-
-        const double step = dx / 3.0;
-
-        const double cy1 = p1.y() + c * step;
-        const double cy2 = cy1 + ( c + b * dx ) * step;
-
-        path.cubicTo( p1.x() + step, cy1,
-            p2.x() - step, cy2, p2.x(), p2.y() );
+        qwtCubicTo( p1, p2, dx, b, c, path );
     }
 
     return path;

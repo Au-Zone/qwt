@@ -18,17 +18,17 @@ static inline double qwtLineLength( const QPointF &p1, const QPointF &p2 )
    return qSqrt( dx * dx + dy * dy );
 }
 
-static inline QLineF qwtBezierControlLine(const QPointF &p0, const QPointF &p1, 
-    const QPointF &p2, const QPointF &p3 )
+static inline void qwtBezierInterpolate(
+    const QPointF &p1, const QPointF &p2, 
+    const QPointF &p3, const QPointF &p4, 
+    double &s1, double &s2 )
 {
-    const double d02 = qwtLineLength(p0, p2);
     const double d13 = qwtLineLength(p1, p3);
-    const double d12_2 = 0.5 * qwtLineLength(p1, p2);
+    const double d24 = qwtLineLength(p2, p4);
+    const double d23_2 = 0.5 * qwtLineLength(p2, p3);
 
-    const bool b1 = ( d02 / 6.0 ) < d12_2;
-    const bool b2 = ( d13 / 6.0 ) < d12_2;
-
-    QPointF off1, off2;
+    const bool b1 = ( d13 / 6.0 ) < d23_2;
+    const bool b2 = ( d24 / 6.0 ) < d23_2;
 
     if( b1 )
     {
@@ -36,19 +36,13 @@ static inline QLineF qwtBezierControlLine(const QPointF &p0, const QPointF &p1,
         {
             // this is the normal case where both 1/6th 
             // vectors are less than half of d12_2
-
-            const double s1 = ( p0 != p1 ) ? 6 : 3;
-            off1 = ( p2 - p0 ) / s1;
-
-            const double s2 = ( p2 != p3 ) ? 6 : 3;
-            off2 = ( p1 - p3 ) / s2;
+            
+            s1 = ( p1 != p2 ) ? ( 1.0 / 6.0 ) : ( 1.0 / 3.0 );
+            s2 = ( p3 != p4 ) ? ( 1.0 / 6.0 ) : ( 1.0 / 3.0 );
         }
         else
         {
-            const double s = d12_2 / d13;
-
-            off1 = ( p2 - p0 ) * s;
-            off2 = ( p1 - p3 ) * s;
+            s1 = s2 = d23_2 / d24;
         }
     }
     else
@@ -58,31 +52,38 @@ static inline QLineF qwtBezierControlLine(const QPointF &p0, const QPointF &p1,
             // for this case d02/6 is more than half of d12_2, so
             // the d13/6 vector needs to be reduced
 
-            const double s = d12_2 / d02;
-
-            off1 = (p2 - p0) * s;
-            off2 = (p1 - p3) * s;
+            s1 = s2 = d23_2 / d13;
         }
         else
         {
-            off1 = (p2 - p0) * ( d12_2 / d02 );
-            off2 = (p1 - p3) * ( d12_2 / d13 ); 
+            s1 = ( d23_2 / d13 );
+            s2 = ( d23_2 / d24 ); 
         }   
     }
-
-    return QLineF( p1 + off1, p2 + off2 );
 }
 
-static inline QPointF qwtBezierPoint( const QLineF &ctrlLine, 
-    const QPointF &p1, const QPointF &p2, double t )
+static inline void qwtBezierControlPoints( 
+    const QPointF &p1, const QPointF &p2,
+    const QPointF &p3, const QPointF &p4,
+    QPointF &cp1, QPointF &cp2 )
+{
+    double s1, s2;
+    qwtBezierInterpolate( p1, p2, p3, p4, s1, s2 );
+
+    cp1 = p2 + ( p3 - p1 ) * s1;
+    cp2 = p3 + ( p2 - p4 ) * s2;
+}
+
+static inline QPointF qwtBezierPoint( const QPointF &p1,
+    const QPointF &cp1, const QPointF &cp2, const QPointF &p2, double t )
 {
     const double d1 = 3.0 * t;
     const double d2 = 3.0 * t * t;
     const double d3 = t * t * t;
     const double s  = 1.0 - t;
 
-    const double x = (( s * p1.x() + d1 * ctrlLine.x1() ) * s + d2 * ctrlLine.x2() ) * s + d3 * p2.x();
-    const double y = (( s * p1.y() + d1 * ctrlLine.y1() ) * s + d2 * ctrlLine.y2() ) * s + d3 * p2.y();
+    const double x = (( s * p1.x() + d1 * cp1.x() ) * s + d2 * cp2.x() ) * s + d3 * p2.x();
+    const double y = (( s * p1.y() + d1 * cp1.y() ) * s + d2 * cp2.y() ) * s + d3 * p2.y();
 
     return QPointF( x, y );
 }
@@ -95,7 +96,7 @@ QPolygonF QwtBezier::polygon( const QPolygonF& points, double dist )
 
     const QPointF *p = points.constData();
 
-    QLineF controlLine;
+    QPointF cp1, cp2;
 
     QPolygonF fittedPoints;
     fittedPoints += p[0];
@@ -107,21 +108,22 @@ QPolygonF QwtBezier::polygon( const QPolygonF& points, double dist )
         {
             if ( i == 0 )
             {
-                controlLine = qwtBezierControlLine( p[0], p[0], p[1], p[2]);
+                qwtBezierControlPoints( p[0], p[0], p[1], p[2], cp1, cp2 );
             }
             else if ( i == points.size() - 2 )
             {
-                controlLine = qwtBezierControlLine( p[size - 3], p[size - 2], p[size - 1], p[size - 1] );
+                qwtBezierControlPoints( p[size - 3], p[size - 2], 
+                    p[size - 1], p[size - 1], cp1, cp2 );
             }
             else
             {
-                controlLine = qwtBezierControlLine( p[i-1], p[i], p[i+1], p[i+2]);
+                qwtBezierControlPoints( p[i-1], p[i], p[i+1], p[i+2], cp1, cp2);
             }
 
             const double off = dist / length;
             for( double t = off; t < 1.0; t += off ) 
             {
-                fittedPoints += qwtBezierPoint( controlLine, p[i], p[i + 1], t );
+                fittedPoints += qwtBezierPoint( p[i], cp1, cp2, p[i + 1], t );
             }
         }
 
@@ -131,24 +133,34 @@ QPolygonF QwtBezier::polygon( const QPolygonF& points, double dist )
     return fittedPoints;
 }
 
-QLineF QwtBezier::controlLine( 
+
+QLineF QwtBezier::controlLine(
     const QPointF &p0, const QPointF &p1,
     const QPointF &p2, const QPointF &p3 )
 {
-    return qwtBezierControlLine( p0, p1, p2, p3 );
+    QPointF cp1, cp2;
+    qwtBezierControlPoints( p0, p1, p2, p3, cp1, cp2 );
+
+    return QLineF( cp1, cp2 );
 }
 
 QPointF QwtBezier::point( const QLineF &controlLine, 
     const QPointF &p1, const QPointF &p2, double t )
 {
-    return qwtBezierPoint( controlLine, p1, p2, t );
+    return qwtBezierPoint( 
+        p1, controlLine.p1(), controlLine.p2(), p2, t );
 }
 
 static inline void qwtCubicTo( const QPointF *p, 
     int i1, int i2, int i3, int i4, QPainterPath &path )
 {
-    const QLineF l = qwtBezierControlLine( p[i1], p[i2], p[i3], p[i4]);
-    path.cubicTo( l.p1(), l.p2(), p[i3] );
+    double s1, s2;
+    qwtBezierInterpolate( p[i1], p[i2], p[i3], p[i4], s1, s2 );
+
+    const QPointF cp1 = p[i2] + ( p[i3] - p[i1] ) * s1;
+    const QPointF cp2 = p[i3] - ( p[i4] - p[i2] ) * s2;
+
+    path.cubicTo( cp1, cp2, p[i3] );
 }
 
 QPainterPath QwtBezier::path( const QPolygonF &points, bool isClosed )
