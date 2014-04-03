@@ -39,6 +39,11 @@ namespace QwtSplineAkima
     QWT_EXPORT QPainterPath path( const QPolygonF & );
 }
 
+namespace QwtSplineFritschButland
+{
+    QWT_EXPORT QPainterPath path( const QPolygonF & );
+}
+
 namespace QwtSplineNatural
 {
     // curvatures at each point

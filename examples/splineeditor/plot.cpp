@@ -30,6 +30,7 @@ class SplineFitter: public QwtCurveFitter
 public:
 	enum Mode
 	{
+		FritschButlandSpline,
 		AkimaSpline,
 		NaturalSpline
 	};
@@ -55,8 +56,10 @@ public:
     {
 		if ( d_mode == AkimaSpline )
         	return QwtSplineAkima::path( points );
-		else
+		else if ( d_mode == NaturalSpline )
         	return QwtSplineNatural::path( points );
+		else
+        	return QwtSplineFritschButland::path( points );
     }
 private:
 	const Mode d_mode;
@@ -146,18 +149,23 @@ Plot::Plot( QWidget *parent ):
 
     // curves 
     Curve *curve1 = new Curve( "Qwt Spline", Qt::darkBlue);
-    curve1->setSamples( points( -20.0 ) );
+    curve1->setSamples( points( -10.0 ) );
     curve1->attach( this );
 
     Curve *curve2 = new Curve( "Natural Spline", Qt::darkRed);
 	curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
-    curve2->setSamples( points( 0.0 ) );
+    curve2->setSamples( points( 10.0 ) );
     curve2->attach( this );
 
     Curve *curve3 = new Curve( "Akima Spline", Qt::darkGreen);
 	curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
-    curve3->setSamples( points( -10.0 ) );
+    curve3->setSamples( points( 0.0 ) );
     curve3->attach( this );
+
+    Curve *curve4 = new Curve( "Pchip", Qt::darkYellow);
+	curve4->setCurveFitter( new SplineFitter( SplineFitter::FritschButlandSpline ) );
+    curve4->setSamples( points( -20.0 ) );
+    curve4->attach( this );
 
     // --
 

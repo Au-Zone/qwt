@@ -9,8 +9,30 @@
 
 #include "qwt_spline.h"
 #include "qwt_math.h"
+#include <QDebug>
 
-static inline void qwtCubicTo( const QPointF &p1, double cv1,
+static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2, 
+    double dx, double b, double c, QPainterPath &path )
+{
+    const double stepX = dx / 3.0;
+
+    const double cy1 = p1.y() + c * stepX;
+    const double cy2 = cy1 + ( c + b * dx ) * stepX;
+
+    path.cubicTo( p1.x() + stepX, cy1,
+        p2.x() - stepX, cy2, p2.x(), p2.y() );
+}
+
+static inline void qwtHermiteCubicTo( const QPointF &p1, double m1,
+    const QPointF &p2, double m2, QPainterPath &path )
+{
+    const double stepX = ( p2.x() - p1.x() ) / 3.0;
+
+    path.cubicTo( p1.x() + stepX, p1.y() + stepX * m1,
+        p2.x() - stepX, p2.y() - stepX * m2, p2.x(), p2.y() );
+}
+
+static inline void qwtNaturalCubicTo( const QPointF &p1, double cv1,
     const QPointF &p2, double cv2, QPainterPath &path )
 {
     const double dx = p2.x() - p1.x();
@@ -23,18 +45,6 @@ static inline void qwtCubicTo( const QPointF &p1, double cv1,
     const double cy2 = cy1 + ( c + 0.5 * cv1 * dx ) * stepX; 
 
     path.cubicTo( p1.x() + stepX, cy1, 
-        p2.x() - stepX, cy2, p2.x(), p2.y() );
-}
-
-static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2, 
-    double dx, double b, double c, QPainterPath &path )
-{
-    const double stepX = dx / 3.0;
-
-    const double cy1 = p1.y() + c * stepX;
-    const double cy2 = cy1 + ( c + b * dx ) * stepX;
-
-    path.cubicTo( p1.x() + stepX, cy1,
         p2.x() - stepX, cy2, p2.x(), p2.y() );
 }
 
@@ -168,7 +178,7 @@ QPainterPath QwtSplineNatural::path( const QPolygonF &points )
 
     path.moveTo( p[0] );
     for ( int i = 0; i < size - 1; i++ )
-        qwtCubicTo( p[i], cv[i], p[i+1], cv[i+1], path );
+        qwtNaturalCubicTo( p[i], cv[i], p[i+1], cv[i+1], path );
 
     return path;
 }
@@ -454,9 +464,6 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
         const double ry = d34 + d12;
         if ( ry == 0.0 )
         {
-#if 0
-            a = 0.0;
-#endif
             b = 0.0;
             c = m3;
         }
@@ -480,9 +487,6 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
             const double alpha = d12 / ry;
             c = ( 1.0 - alpha ) * m2 + alpha * m3;
             b = ( 3.0 * m3 - 2.0 * c - t ) / dx;
-#if 0
-            a = ( c + t - 2.0 * m3 ) / ( dx * dx );
-#endif
         }
 
         m1 = m2;
@@ -492,6 +496,60 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
 
         qwtCubicTo( p1, p2, dx, b, c, path );
     }
+
+    return path;
+}
+
+QPainterPath QwtSplineFritschButland::path( const QPolygonF &points )
+{
+    QPainterPath path;
+
+    const int size = points.size();
+    if ( size <= 2 )
+    {
+        path.addPolygon( points );
+        return path;
+    }
+
+    const QPointF *p = points.constData();
+
+    path.moveTo( p[0] );
+
+    double dx1 = p[1].x() - p[0].x();
+    double s1 = ( p[1].y() - p[0].y() ) / dx1;
+
+    double m1 = 0.0;
+
+    for ( int i = 1; i < size - 1; i++ )
+    {
+        const double dx2 = p[i+1].x() - p[i].x();
+        const double s2 = ( p[i+1].y() - p[i].y() ) / dx2;
+
+        double m2 = 0.0;
+        if ( s1 != 0.0 && s2 != 0.0 )
+        {
+            if ( ( s1 > 0.0 ) == ( s2 > 0.0 ) )
+            {
+                const double sMax = qMax( qAbs( s1 ), qAbs( s2 ) );
+                const double sMin = qMin( qAbs( s1 ), qAbs( s2 ) );
+
+                const double dx12 = dx1 + dx2;
+                const double d3 = 3.0 * dx12;
+                const double w1 = ( dx12 + dx1 ) / d3;
+                const double w2 = ( dx12 + dx2 ) / d3;
+
+                m2 = sMin / ( w1 * s1 / sMax + w2 * s2 / sMax );
+            }
+        }
+
+        qwtHermiteCubicTo( p[i-1], m1, p[i], m2, path );
+
+        dx1 = dx2;
+        s1 = s2;
+        m1 = m2;
+    }
+
+    qwtHermiteCubicTo( p[size - 2], m1, p[size - 1], 0.0, path );
 
     return path;
 }
