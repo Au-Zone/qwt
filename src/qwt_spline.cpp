@@ -57,17 +57,17 @@ QVector<double> QwtSplineNatural::curvatures( const QPolygonF &points )
 
     {
         double dx1 = points[1].x() - points[0].x();
-        double dy1 = ( points[1].y() - points[0].y() ) / dx1;
+        double slope1 = ( points[1].y() - points[0].y() ) / dx1;
 
         for ( int i = 1; i < size - 1; i++ )
         {
             const double dx2 = points[i+1].x() - points[i].x();
-            const double dy2 = ( points[i+1].y() - points[i].y() ) / dx2;
+            const double slope2 = ( points[i+1].y() - points[i].y() ) / dx2;
 
             aa0[i] = 2.0 * ( dx1 + dx2 );
-            bb0[i] = 6.0 * ( dy1 - dy2 );
+            bb0[i] = 6.0 * ( slope1 - slope2 );
 
-            dy1 = dy2;
+            slope1 = slope2;
             dx1 = dx2;
         }
     }
@@ -500,7 +500,20 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
     return path;
 }
 
-QPainterPath QwtSplineFritschButland::path( const QPolygonF &points )
+static inline double qwtSlope( const QPointF &p1, const QPointF &p2 )
+{
+    return ( p2.y() - p1.y() ) / ( p2.x() - p1.x() );
+}
+
+static inline double qwtIsMonotonic( double slope1, double slope2 )
+{
+    if ( ( slope1 != 0.0 ) && ( slope2 != 0.0 ) )
+        return ( slope1 > 0.0 ) == ( slope2 > 0.0 );
+
+    return false; // ???
+}
+
+QPainterPath QwtSplineHarmonic::path( const QPolygonF &points )
 {
     QPainterPath path;
 
@@ -515,41 +528,29 @@ QPainterPath QwtSplineFritschButland::path( const QPolygonF &points )
 
     path.moveTo( p[0] );
 
-    double dx1 = p[1].x() - p[0].x();
-    double s1 = ( p[1].y() - p[0].y() ) / dx1;
+    double slope1 = qwtSlope( p[0], p[1] );
+    double slope2 = qwtSlope( p[1], p[2] );
 
-    double m1 = 0.0;
+    double m1 = 1.5 * slope1;
+    if ( qwtIsMonotonic( slope1, slope2 ) )
+        m1 -= 1 / ( 1 / slope1 + 1 / slope2 );
 
     for ( int i = 1; i < size - 1; i++ )
     {
-        const double dx2 = p[i+1].x() - p[i].x();
-        const double s2 = ( p[i+1].y() - p[i].y() ) / dx2;
+        double slope2 = qwtSlope( p[i], p[i+1] );
 
         double m2 = 0.0;
-        if ( s1 != 0.0 && s2 != 0.0 )
-        {
-            if ( ( s1 > 0.0 ) == ( s2 > 0.0 ) )
-            {
-                const double sMax = qMax( qAbs( s1 ), qAbs( s2 ) );
-                const double sMin = qMin( qAbs( s1 ), qAbs( s2 ) );
-
-                const double dx12 = dx1 + dx2;
-                const double d3 = 3.0 * dx12;
-                const double w1 = ( dx12 + dx1 ) / d3;
-                const double w2 = ( dx12 + dx2 ) / d3;
-
-                m2 = sMin / ( w1 * s1 / sMax + w2 * s2 / sMax );
-            }
-        }
-
+        if ( qwtIsMonotonic( slope1, slope2 ) )
+            m2 = 2 / ( 1 / slope1 + 1 / slope2 );
+        
         qwtHermiteCubicTo( p[i-1], m1, p[i], m2, path );
 
-        dx1 = dx2;
-        s1 = s2;
+        slope1 = slope2;
         m1 = m2;
     }
 
-    qwtHermiteCubicTo( p[size - 2], m1, p[size - 1], 0.0, path );
+    qwtHermiteCubicTo( p[size - 2], m1, p[size - 1], 
+        1.5 * slope1 - 0.5 * m1, path );
 
     return path;
 }

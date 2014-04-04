@@ -135,7 +135,7 @@ inline double qwtFastAtan2( double y, double x )
    \return Value of the polyonom for x
 */
 inline double qwtCubicPolynom( double x, 
-	double a, double b, double c, double d )
+    double a, double b, double c, double d )
 {
     return ( ( ( a * x ) + b ) * x + c ) * x + d;
 }

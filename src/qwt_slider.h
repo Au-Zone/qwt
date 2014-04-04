@@ -112,7 +112,7 @@ protected:
     virtual void changeEvent( QEvent * );
     virtual void timerEvent( QTimerEvent * );
 
-	virtual bool event( QEvent * );
+    virtual bool event( QEvent * );
 
 
     virtual void scaleChange();

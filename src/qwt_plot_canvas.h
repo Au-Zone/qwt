@@ -120,7 +120,7 @@ public:
 
           \sa QwtPlotGLCanvas
          */
-		PixelBuffer = 16
+        PixelBuffer = 16
     };
 
     //! Paint attributes

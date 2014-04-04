@@ -34,9 +34,6 @@ static inline void qwtBezierInterpolate(
     {
         if ( b2 )
         {
-            // this is the normal case where both 1/6th 
-            // vectors are less than half of d12_2
-            
             s1 = ( p1 != p2 ) ? ( 1.0 / 6.0 ) : ( 1.0 / 3.0 );
             s2 = ( p3 != p4 ) ? ( 1.0 / 6.0 ) : ( 1.0 / 3.0 );
         }
@@ -49,9 +46,6 @@ static inline void qwtBezierInterpolate(
     {
         if ( b2 )
         {
-            // for this case d02/6 is more than half of d12_2, so
-            // the d13/6 vector needs to be reduced
-
             s1 = s2 = d23_2 / d13;
         }
         else
@@ -71,7 +65,7 @@ static inline void qwtBezierControlPoints(
     qwtBezierInterpolate( p1, p2, p3, p4, s1, s2 );
 
     cp1 = p2 + ( p3 - p1 ) * s1;
-    cp2 = p3 + ( p2 - p4 ) * s2;
+    cp2 = p3 - ( p4 - p2 ) * s2;
 }
 
 static inline QPointF qwtBezierPoint( const QPointF &p1,

@@ -39,7 +39,7 @@ namespace QwtSplineAkima
     QWT_EXPORT QPainterPath path( const QPolygonF & );
 }
 
-namespace QwtSplineFritschButland
+namespace QwtSplineHarmonic
 {
     QWT_EXPORT QPainterPath path( const QPolygonF & );
 }

@@ -31,7 +31,7 @@ class SplineFitter: public QwtCurveFitter
 public:
     enum Mode
     {
-        FritschButlandSpline,
+        HarmonicSpline,
         AkimaSpline,
         NaturalSpline
     };
@@ -60,7 +60,7 @@ public:
         else if ( d_mode == NaturalSpline )
             return QwtSplineNatural::path( points );
         else
-            return QwtSplineFritschButland::path( points );
+            return QwtSplineHarmonic::path( points );
     }
 private:
     const Mode d_mode;
@@ -171,8 +171,8 @@ Plot::Plot( QWidget *parent ):
     curve3->attach( this );
     showCurve( curve3, true );
 
-    Curve *curve4 = new Curve( "Pchip", Qt::darkYellow);
-    curve4->setCurveFitter( new SplineFitter( SplineFitter::FritschButlandSpline ) );
+    Curve *curve4 = new Curve( "Harmonic Spline", Qt::darkYellow);
+    curve4->setCurveFitter( new SplineFitter( SplineFitter::HarmonicSpline ) );
     curve4->setSamples( points( -20.0 ) );
     curve4->attach( this );
     showCurve( curve4, true );
