@@ -12,6 +12,7 @@ public:
 
 public Q_SLOTS:
     void updateMarker( int axis, double base );
+    void legendChecked( const QVariant &, bool on );
 
 #ifndef QT_NO_PRINTER 
     void printPlot();
@@ -21,6 +22,8 @@ private Q_SLOTS:
     void scrollLeftAxis( double );
 
 private:
+    void showCurve( QwtPlotItem *, bool on );
+
     QwtPlotMarker *d_marker;
     QwtWheel *d_wheel;
 };

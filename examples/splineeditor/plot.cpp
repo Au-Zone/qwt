@@ -10,6 +10,7 @@
 #include <qwt_spline.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_legend.h>
+#include <qwt_legend_label.h>
 #include <qevent.h>
 #include <qprinter.h>
 #include <qprintdialog.h>
@@ -22,22 +23,22 @@ static QPolygonF points( double offset )
         << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
         << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 70 );
 
-	return points.translated( 0.0, offset );
+    return points.translated( 0.0, offset );
 }
 
 class SplineFitter: public QwtCurveFitter
 {
 public:
-	enum Mode
-	{
-		FritschButlandSpline,
-		AkimaSpline,
-		NaturalSpline
-	};
+    enum Mode
+    {
+        FritschButlandSpline,
+        AkimaSpline,
+        NaturalSpline
+    };
 
     SplineFitter( Mode mode ):
         QwtCurveFitter( QwtCurveFitter::Path ),
-		d_mode( mode )
+        d_mode( mode )
     {
     }
 
@@ -54,16 +55,16 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-		if ( d_mode == AkimaSpline )
-        	return QwtSplineAkima::path( points );
-		else if ( d_mode == NaturalSpline )
-        	return QwtSplineNatural::path( points );
-		else
-        	return QwtSplineFritschButland::path( points );
+        if ( d_mode == AkimaSpline )
+            return QwtSplineAkima::path( points );
+        else if ( d_mode == NaturalSpline )
+            return QwtSplineNatural::path( points );
+        else
+            return QwtSplineFritschButland::path( points );
     }
 private:
-	const Mode d_mode;
-	
+    const Mode d_mode;
+    
 };
 
 class CurveFitter2: public QwtCurveFitter
@@ -96,18 +97,18 @@ public:
 class Curve: public QwtPlotCurve
 {
 public:
-	Curve( const QString &title, const QColor &color ):
-		QwtPlotCurve( title )
-	{
-    	setCurveAttribute( QwtPlotCurve::Fitted, true );
-    	setRenderHint( QwtPlotItem::RenderAntialiased );
+    Curve( const QString &title, const QColor &color ):
+        QwtPlotCurve( title )
+    {
+        setCurveAttribute( QwtPlotCurve::Fitted, true );
+        setRenderHint( QwtPlotItem::RenderAntialiased );
 
-    	setPen( color );
-    	setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-        	Qt::gray, QPen( Qt::darkBlue ) , QSize( 8, 8 ) ) );
+        setPen( color );
+        setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+            Qt::gray, QPen( Qt::darkBlue ) , QSize( 8, 8 ) ) );
 
-    	setZ( 100 ); // on top of the marker
-	}
+        setZ( 100 ); // on top of the marker
+    }
 };
 
 Plot::Plot( QWidget *parent ):
@@ -120,7 +121,12 @@ Plot::Plot( QWidget *parent ):
     canvas()->setCursor( Qt::PointingHandCursor );
 #endif
 
-	insertLegend( new QwtLegend(), QwtPlot::RightLegend );
+    QwtLegend *legend = new QwtLegend;
+    legend->setDefaultItemMode( QwtLegendData::Checkable );
+    insertLegend( legend, QwtPlot::RightLegend );
+
+    connect( legend, SIGNAL( checked( const QVariant &, bool, int ) ),
+        SLOT( legendChecked( const QVariant &, bool ) ) );
 
     d_marker = new QwtPlotMarker( "Marker" );
     d_marker->setLineStyle( QwtPlotMarker::VLine );
@@ -151,21 +157,25 @@ Plot::Plot( QWidget *parent ):
     Curve *curve1 = new Curve( "Qwt Spline", Qt::darkBlue);
     curve1->setSamples( points( -10.0 ) );
     curve1->attach( this );
+    showCurve( curve1, true );
 
     Curve *curve2 = new Curve( "Natural Spline", Qt::darkRed);
-	curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
+    curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
     curve2->setSamples( points( 10.0 ) );
     curve2->attach( this );
+    showCurve( curve2, true );
 
     Curve *curve3 = new Curve( "Akima Spline", Qt::darkGreen);
-	curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
+    curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
     curve3->setSamples( points( 0.0 ) );
     curve3->attach( this );
+    showCurve( curve3, true );
 
     Curve *curve4 = new Curve( "Pchip", Qt::darkYellow);
-	curve4->setCurveFitter( new SplineFitter( SplineFitter::FritschButlandSpline ) );
+    curve4->setCurveFitter( new SplineFitter( SplineFitter::FritschButlandSpline ) );
     curve4->setSamples( points( -20.0 ) );
     curve4->attach( this );
+    showCurve( curve4, true );
 
     // --
 
@@ -237,6 +247,35 @@ void Plot::updateMarker( int axis, double value )
     replot();
 }
 
+
+void Plot::legendChecked( const QVariant &itemInfo, bool on )
+{
+    QwtPlotItem *plotItem = infoToItem( itemInfo );
+    if ( plotItem )
+        showCurve( plotItem, on );
+}
+
+void Plot::showCurve( QwtPlotItem *item, bool on )
+{
+    item->setVisible( on );
+
+    QwtLegend *lgd = qobject_cast<QwtLegend *>( legend() );
+
+    QList<QWidget *> legendWidgets =
+        lgd->legendWidgets( itemToInfo( item ) );
+
+    if ( legendWidgets.size() == 1 )
+    {
+        QwtLegendLabel *legendLabel =
+            qobject_cast<QwtLegendLabel *>( legendWidgets[0] );
+
+        if ( legendLabel )
+            legendLabel->setChecked( on );
+    }
+
+    replot();
+}
+
 #ifndef QT_NO_PRINTER
 
 void Plot::printPlot()
@@ -263,4 +302,3 @@ void Plot::printPlot()
 }
 
 #endif
-
