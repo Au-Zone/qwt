@@ -42,30 +42,15 @@ static inline void qwtBezierInterpolate(
     const bool b1 = ( d13 / 3.0 ) < d23;
     const bool b2 = ( d24 / 3.0 ) < d23;
 
-    if( b1 )
+    if ( b1 & b2 )
     {
-        if ( b2 )
-        {
-            s1 = ( p1 != p2 ) ? ( 1.0 / 6.0 ) : ( 1.0 / 3.0 );
-            s2 = ( p3 != p4 ) ? ( 1.0 / 6.0 ) : ( 1.0 / 3.0 );
-        }
-        else
-        {
-            s1 = s2 = 0.5 * d23 / d24;
-        }
+        s1 = ( p1 != p2 ) ? ( 1.0 / 3.0 ) : ( 2.0 / 3.0 );
+        s2 = ( p3 != p4 ) ? ( 1.0 / 3.0 ) : ( 2.0 / 3.0 );
     }
     else
     {
-        if ( b2 )
-        {
-            s1 = s2 = 0.5 * d23 / d13;
-        }
-        else
-        {
-            const double d23_2 = 0.5 * d23;
-            s1 = d23_2 / d13;
-            s2 = d23_2 / d24; 
-        }   
+        s1 = d23 / ( b1 ? d24 : d13 );
+        s2 = d23 / ( b2 ? d13 : d24 );
     }
 }
 
@@ -82,8 +67,8 @@ static inline void qwtBezierControlPoints(
     qwtBezierInterpolate( d13, d23, d24, p1, p2, p3, p4, s1, s2 );
 
     const double smoothness = 1.0;
-    cp1 = p2 + ( p3 - p1 ) * s1 * smoothness;
-    cp2 = p3 - ( p4 - p2 ) * s2 * smoothness;
+    cp1 = p2 + 0.5 * ( p3 - p1 ) * s1 * smoothness;
+    cp2 = p3 - 0.5 * ( p4 - p2 ) * s2 * smoothness;
 }
 
 static inline QPointF qwtBezierPoint( const QPointF &p1,
@@ -146,23 +131,6 @@ QPolygonF QwtBezier::polygon( const QPolygonF& points, double dist )
 }
 
 
-QLineF QwtBezier::controlLine(
-    const QPointF &p1, const QPointF &p2,
-    const QPointF &p3, const QPointF &p4 )
-{
-    QPointF cp1, cp2;
-    qwtBezierControlPoints( p1, p2, p3, p4, cp1, cp2 );
-
-    return QLineF( cp1, cp2 );
-}
-
-QPointF QwtBezier::point( const QLineF &controlLine, 
-    const QPointF &p1, const QPointF &p2, double t )
-{
-    return qwtBezierPoint( 
-        p1, controlLine.p1(), controlLine.p2(), p2, t );
-}
-
 static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2, 
     const QPointF &p3, const QPointF &p4, QPainterPath &path )
 {
@@ -174,13 +142,14 @@ static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2,
     qwtBezierInterpolate( d13, d23, d24, p1, p2, p3, p4, s1, s2 );
 
     const double smoothness = 1.0;
-    const QPointF cp1 = p2 + ( p3 - p1 ) * s1 * smoothness;
-    const QPointF cp2 = p3 - ( p4 - p2 ) * s2 * smoothness;
+    const QPointF cp1 = p2 + 0.5 * ( p3 - p1 ) * s1 * smoothness;
+    const QPointF cp2 = p3 - 0.5 * ( p4 - p2 ) * s2 * smoothness;
 
     path.cubicTo( cp1, cp2, p3 );
 }
 
-#if 1
+#define NEW 0
+
 QPainterPath QwtBezier::path( const QPolygonF &points, bool isClosed )
 {
     const double smoothness = 1.0;
@@ -212,97 +181,46 @@ QPainterPath QwtBezier::path( const QPolygonF &points, bool isClosed )
             qwtCubicTo( p[0], p[0], p[1], p[2], path );
         }
 
+        const double a = 0.5 * smoothness;
+
+        QPointF vec1 = ( p[2] - p[0] ) * a;
+
+#if NEW
+        double d12 = qwtLineLength(p[0], p[1]);
+        double d23 = qwtLineLength(p[1], p[2]);
+        double s1 = 1.0 - d12 / ( d12 + d23 );
+#else
         double d13 = qwtLineLength(p[0], p[2]);
-        QPointF off1 = p[2] - p[0];
+#endif
 
         for ( int i = 1; i < size - 2; i++ )
         {
+#if NEW
+            const double d34 = qwtLineLength(p[i+1], p[i+2]);
+            const double s2 = d23 / ( d23 + d34 );
+#else
             const double d23 = qwtLineLength(p[i], p[i+1]);
             const double d24 = qwtLineLength(p[i], p[i+2]);
 
             double s1, s2;
             qwtBezierInterpolate( d13, d23, d24, p[i-1], p[i], p[i+1], p[i+2], s1, s2 );
+#endif
 
-            const QPointF off2 = p[i+2] - p[i];
+            const QPointF vec2 = ( p[i+2] - p[i] ) * a;
 
-            const QPointF cp1 = p[i] + off1 * s1 * smoothness;
-            const QPointF cp2 = p[i+1] - off2 * s2 * smoothness;
-
-            path.cubicTo( cp1, cp2, p[i+1] );
-
-            d13 = d24;
-            off1 = off2;
-        }
-
-        if ( isClosed )
-        {
-            qwtCubicTo( p[size - 3], p[size - 2], p[size - 1], p[0], path );
-            qwtCubicTo( p[size - 2], p[size - 1], p[0], p[1], path );
-        }
-        else
-        {
-            qwtCubicTo( p[size - 3], p[size - 2], p[size - 1], p[size - 1], path );
-        }
-    }
-
-    return path;
-}
-#else
-
-QPainterPath QwtBezier::path( const QPolygonF &points, bool isClosed )
-{
-    const double smoothness = 1.0;
-
-    const int size = points.size();
-
-    QPainterPath path;
-    if ( size == 0 )
-        return path;
-
-    const QPointF *p = points.constData();
-
-    path.moveTo( p[0] );
-    if ( size == 1 )
-        return path;
-
-    if ( size == 2 )
-    {
-        path.lineTo( p[1] );
-    }
-    else
-    {
-        if ( isClosed )
-        {
-            qwtCubicTo( p[size - 1], p[0], p[1], p[2], path );
-        }
-        else
-        {
-            qwtCubicTo( p[0], p[0], p[1], p[2], path );
-        }
-
-        double d12 = qwtLineLength(p[0], p[1]);
-        double d23 = qwtLineLength(p[1], p[2]);
-        double s1 = 1.0 - d12 / ( d12 + d23 );
-        QPointF off1 = p[2] - p[0];
-
-        const double a = 0.5 * smoothness;
-
-        for ( int i = 1; i < size - 2; i++ )
-        {
-            const double d34 = qwtLineLength(p[i+1], p[i+2]);
-            const double s2 = d23 / ( d23 + d34 );
-
-            const QPointF off2 = p[i+2] - p[i];
-
-            const QPointF cp1 = p[i] + off1 * s1 * a;
-            const QPointF cp2 = p[i+1] - off2 * s2 * a;
+            const QPointF cp1 = p[i] + vec1 * s1;
+            const QPointF cp2 = p[i+1] - vec2 * s2;
 
             path.cubicTo( cp1, cp2, p[i+1] );
 
+#if NEW
             d12 = d23;
             d23 = d34;
             s1 = 1.0 - s2;
-            off1 = off2;
+#else
+            d13 = d24;
+#endif
+            vec1 = vec2;
         }
 
         if ( isClosed )
@@ -318,5 +236,3 @@ QPainterPath QwtBezier::path( const QPolygonF &points, bool isClosed )
 
     return path;
 }
-
-#endif

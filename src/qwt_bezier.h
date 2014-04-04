@@ -17,12 +17,6 @@
 
 namespace QwtBezier
 {
-    QWT_EXPORT QLineF controlLine( const QPointF &p0, const QPointF &p1,
-        const QPointF &p2, const QPointF &p3 );
-
-    QPointF point( const QLineF &controlLine, 
-        const QPointF &p0, const QPointF &p1, double t );
-
     QWT_EXPORT QPolygonF polygon( const QPolygonF &, double distance );
     QWT_EXPORT QPainterPath path( const QPolygonF &, bool isClosed = false );
 };
