@@ -9,7 +9,6 @@
 
 #include "qwt_spline.h"
 #include "qwt_math.h"
-#include <QDebug>
 
 static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2, 
     double dx, double b, double c, QPainterPath &path )
@@ -513,7 +512,12 @@ static inline double qwtIsMonotonic( double slope1, double slope2 )
     return false; // ???
 }
 
-QPainterPath QwtSplineHarmonic::path( const QPolygonF &points )
+static inline double qwtHarmonicMean( double d1, double d2 )
+{
+    return 2 / ( 1 / d1 + 1 / d2 );
+}
+
+QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
 {
     QPainterPath path;
 
@@ -528,29 +532,61 @@ QPainterPath QwtSplineHarmonic::path( const QPolygonF &points )
 
     path.moveTo( p[0] );
 
-    double slope1 = qwtSlope( p[0], p[1] );
-    double slope2 = qwtSlope( p[1], p[2] );
+    double dx1 = p[1].x() - p[0].x();
+    double dy1 = p[1].y() - p[0].y();
 
-    double m1 = 1.5 * slope1;
-    if ( qwtIsMonotonic( slope1, slope2 ) )
-        m1 -= 1 / ( 1 / slope1 + 1 / slope2 );
+    const double dy2 = p[2].y() - p[1].y();
+
+    double dy0 = 0.0;
+    if ( ( dy1 > 0 ) == ( dy2 > 0 ) )
+    {
+        const double dx2 = p[2].x() - p[1].x();
+        dy0 = dx1 * 0.5 * qwtHarmonicMean( dy1 / dx1, dy2 / dx2 );
+    }
+
+    QPointF vec1 = QPointF( dx1, 1.5 * dy1 - dy0 ) / 3.0;
 
     for ( int i = 1; i < size - 1; i++ )
     {
-        double slope2 = qwtSlope( p[i], p[i+1] );
+        const double dx2 = p[i+1].x() - p[i].x();
+        const double dy2 = p[i+1].y() - p[i].y();
 
-        double m2 = 0.0;
-        if ( qwtIsMonotonic( slope1, slope2 ) )
-            m2 = 2 / ( 1 / slope1 + 1 / slope2 );
-        
-        qwtHermiteCubicTo( p[i-1], m1, p[i], m2, path );
+        QPointF vec2;
+        QPointF vec3;
 
-        slope1 = slope2;
-        m1 = m2;
+        if ( ( dx1 > 0 ) == ( dx2 > 0 ) )
+        {
+            double m2 = 0.0;
+            if ( ( dy1 > 0 ) == ( dy2 > 0 ) )
+                m2 = qwtHarmonicMean( dy1 / dx1, dy2 / dx2 );
+
+            vec2 = QPointF( dx1, dx1 * m2 ) / 3.0;
+            vec3 = QPointF( dx2, dx2 * m2 ) / 3.0;
+        }
+        else
+        {
+            double vecX2 = qAbs( dx1 );
+            double vecX3 = qAbs( dx2 );
+
+            if ( p[i-1].y() > p[i+1].y() )
+            {
+                vecX2 = -vecX2;
+                vecX3 = -vecX3;
+            }
+
+            vec2 = QPointF( 0, vecX2 ) / 3.0;
+            vec3 = QPointF( 0, vecX3 ) / 3.0;
+        }
+        path.cubicTo( p[i-1] + vec1, p[i] - vec2, p[i] );
+
+        dx1 = dx2;
+        dy1 = dy2;
+
+        vec1 = vec3;
     }
 
-    qwtHermiteCubicTo( p[size - 2], m1, p[size - 1], 
-        1.5 * slope1 - 0.5 * m1, path );
+    QPointF vec2 = QPointF( dx1, 1.5 * ( dy1 - vec1.y() ) ) / 3.0;
+    path.cubicTo( p[size - 2] + vec1, p[size - 1] - vec2, p[size - 1] );
 
     return path;
 }

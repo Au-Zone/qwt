@@ -63,7 +63,7 @@ public:
         else if ( d_mode == NaturalSpline )
             return QwtSplineNatural::path( points );
         else
-            return QwtSplineHarmonic::path( points );
+            return QwtSplineHarmonicMean::path( points );
     }
 private:
     const Mode d_mode;

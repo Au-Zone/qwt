@@ -39,7 +39,7 @@ namespace QwtSplineAkima
     QWT_EXPORT QPainterPath path( const QPolygonF & );
 }
 
-namespace QwtSplineHarmonic
+namespace QwtSplineHarmonicMean
 {
     QWT_EXPORT QPainterPath path( const QPolygonF & );
 }
