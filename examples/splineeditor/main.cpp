@@ -14,18 +14,26 @@ int main ( int argc, char **argv )
 
     Plot *plot = new Plot( &mainWindow );
 
-#ifndef QT_NO_PRINTER
     QToolBar *toolBar = new QToolBar( &mainWindow );
 
+#ifndef QT_NO_PRINTER
     QToolButton *btnPrint = new QToolButton( toolBar );
     btnPrint->setText( "Print" );
     btnPrint->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
     toolBar->addWidget( btnPrint );
     QObject::connect( btnPrint, SIGNAL( clicked() ),
         plot, SLOT( printPlot() ) );
+#endif
+
+    QToolButton *btnOverlay = new QToolButton( toolBar );
+    btnOverlay->setCheckable( true );
+    btnOverlay->setText( "Overlay" );
+    btnOverlay->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
+    toolBar->addWidget( btnOverlay );
+    QObject::connect( btnOverlay, SIGNAL( toggled( bool ) ),
+        plot, SLOT( setOverlaying( bool ) ) );
 
     mainWindow.addToolBar( toolBar );
-#endif
 
     // The canvas picker handles all mouse and key
     // events on the plot canvas

@@ -2,6 +2,7 @@
 
 class QwtWheel;
 class QwtPlotMarker;
+class QwtPlotCurve;
 
 class Plot: public QwtPlot
 {
@@ -13,6 +14,7 @@ public:
 public Q_SLOTS:
     void updateMarker( int axis, double base );
     void legendChecked( const QVariant &, bool on );
+    void setOverlaying( bool );
 
 #ifndef QT_NO_PRINTER 
     void printPlot();
@@ -25,5 +27,6 @@ private:
     void showCurve( QwtPlotItem *, bool on );
 
     QwtPlotMarker *d_marker;
+    QwtPlotCurve *d_curve;
     QwtWheel *d_wheel;
 };

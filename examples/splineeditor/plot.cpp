@@ -9,22 +9,25 @@
 #include <qwt_wheel.h>
 #include <qwt_spline.h>
 #include <qwt_curve_fitter.h>
+#include <qwt_spline_curve_fitter.h>
 #include <qwt_legend.h>
 #include <qwt_legend_label.h>
 #include <qevent.h>
 #include <qprinter.h>
 #include <qprintdialog.h>
 
-static QPolygonF points( double offset )
+class Symbol: public QwtSymbol
 {
-    QPolygonF points;
-    points << QPointF( 10, 30 ) << QPointF( 20, 90 ) << QPointF( 25, 60 )
-        << QPointF( 35, 38 ) << QPointF( 42, 40 ) << QPointF( 55, 60 )
-        << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
-        << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 70 );
+public:
+    Symbol():
+        QwtSymbol( QwtSymbol::Ellipse )
+    {
+        setBrush( Qt::gray );
+        setPen( Qt::black );
+        setSize( 8 );
+    }
 
-    return points.translated( 0.0, offset );
-}
+};
 
 class SplineFitter: public QwtCurveFitter
 {
@@ -104,9 +107,6 @@ public:
         setRenderHint( QwtPlotItem::RenderAntialiased );
 
         setPen( color );
-        setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-            Qt::gray, QPen( Qt::darkBlue ) , QSize( 8, 8 ) ) );
-
         setZ( 100 ); // on top of the marker
     }
 };
@@ -154,32 +154,48 @@ Plot::Plot( QWidget *parent ):
     plotLayout()->setAlignCanvasToScales( true );
 
     // curves 
-    Curve *curve1 = new Curve( "Qwt Spline", Qt::darkBlue);
-    curve1->setSamples( points( -10.0 ) );
+    d_curve = new Curve( "Linear", QColor() );
+    d_curve->setStyle( QwtPlotCurve::NoCurve );
+    d_curve->setSymbol( new Symbol() );
+    d_curve->setItemAttribute( QwtPlotItem::Legend, false );
+    d_curve->setZ( 1000 ); 
+
+    QPolygonF points;
+    points << QPointF( 10, 30 ) << QPointF( 20, 90 ) << QPointF( 25, 60 )
+        << QPointF( 35, 38 ) << QPointF( 42, 40 ) << QPointF( 55, 60 )
+        << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
+        << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 70 );
+
+    d_curve->setSamples( points );
+    d_curve->attach( this );
+
+    // 
+
+    Curve *curve0 = new Curve( "Linear", Qt::black);
+    curve0->setCurveAttribute( QwtPlotCurve::Fitted, false );
+    curve0->attach( this );
+
+    Curve *curve1 = new Curve( "Pleasing", Qt::darkBlue);
+    curve1->setCurveFitter( new QwtSplineCurveFitter() );
     curve1->attach( this );
-    showCurve( curve1, true );
 
     Curve *curve2 = new Curve( "Natural Spline", Qt::darkRed);
     curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
-    curve2->setSamples( points( 10.0 ) );
     curve2->attach( this );
-    showCurve( curve2, true );
 
     Curve *curve3 = new Curve( "Akima Spline", Qt::darkGreen);
     curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
-    curve3->setSamples( points( 0.0 ) );
     curve3->attach( this );
-    showCurve( curve3, true );
 
     Curve *curve4 = new Curve( "Harmonic Spline", Qt::darkYellow);
     curve4->setCurveFitter( new SplineFitter( SplineFitter::HarmonicSpline ) );
-    curve4->setSamples( points( -20.0 ) );
     curve4->attach( this );
-    showCurve( curve4, true );
 
-    // --
+    QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
+    for ( int i = 0; i < curves.size(); i++ )
+        showCurve( curves[i], true );
 
-    replot();
+    setOverlaying( false );
 
     // ------------------------------------
     // We add a wheel to the canvas
@@ -272,6 +288,41 @@ void Plot::showCurve( QwtPlotItem *item, bool on )
         if ( legendLabel )
             legendLabel->setChecked( on );
     }
+
+    replot();
+}
+
+void Plot::setOverlaying( bool on )
+{
+    QPolygonF points;
+    for ( size_t i = 0; i < d_curve->dataSize(); i++ )
+        points += d_curve->sample( i );
+
+    QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
+
+    const int off0 = 0 - 10 * curves.count() / 2;
+
+    for ( int i = 0; i < curves.size(); i++ )
+    {
+        QwtPlotCurve *curve = static_cast<QwtPlotCurve *>( curves[i] );
+        if ( curve == d_curve )
+            continue;
+
+        if ( on )
+        {
+            curve->setSymbol( NULL );
+            curve->setSamples( points );
+        }
+        else
+        {
+            curve->setSymbol( new Symbol() );
+
+            curve->setSamples( points.translated( 0, off0 + i * 10 ) );
+        }
+
+    }
+
+    d_curve->setVisible( on );
 
     replot();
 }
