@@ -533,10 +533,21 @@ QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
         const double dx2 = p[i+1].x() - p[i].x();
         const double dy2 = p[i+1].y() - p[i].y();
 
-        double vy2, vy3;
+        double vy3;
 
-        if ( ( dx1 > 0 ) == ( dx2 > 0 ) )
+        if ( ( dx2 == 0 ) && ( dx1 == 0 ) )
         {
+            if ( dy2 < 0 )
+                vy3 = -vy3;
+
+            path.cubicTo( p[i-1] + QPointF( vx1, vy1 ) / 3.0, p[i], p[i] );
+
+            vx1 = 0.0;
+        }
+        else if ( ( dx1 >= 0 ) == ( dx2 >= 0 ) )
+        {
+            double vy2;
+
             if ( ( dy1 > 0 ) == ( dy2 > 0 ) )
             {
                 const double m = 2 / ( dx1 / dy1 + dx2 / dy2 );
@@ -555,17 +566,37 @@ QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
         }
         else
         {
-            vy2 = qAbs( dy1 );
-            vy3 = qAbs( dy2 );
-
-            if ( ( dx2 > 0 ) == ( dy2 / dx2 < dy1 / dx1 ) )
+            if ( ( ( dy1 > 0 ) == ( dy2 > 0 ) ) || ( dx1 == 0 ) || ( dx2 == 0 ) )
             {
-                vy2 = -vy2;
-                vy3 = -vy3;
-            }
+                double vy2 = 2 * dy1;
 
-            path.cubicTo( p[i-1] + QPointF( vx1, vy1 ) / 3.0, 
-                p[i] - QPointF( 0.0, vy2 ) / 3.0, p[i] );
+                path.cubicTo( p[i-1] + QPointF( vx1, vy1 ) / 3.0, 
+                    p[i] - QPointF( dx1, vy2 ) / 3.0, p[i] );
+
+                vy3 = dy2;
+            }
+            else
+            {
+                const double m1 = dy1 / dx1;
+                const double m2 = dy2 / dx2;
+
+                const double m = 0.5 * ( m1 + m2 );
+
+                double x1 = qMin( qAbs( dx1) , qAbs( dx2 ) );
+                double x2 = x1;
+
+                if ( dx1 < 0.0 )
+                    x1 = -x1;
+                else
+                    x2 = -x2;
+
+                const double vy2 = x1 * ( m1 - m );
+
+                path.cubicTo( p[i-1] + QPointF( vx1, vy1 ) / 3.0, 
+                    p[i] - QPointF( 0.0, vy2 ) / 3.0, p[i] );
+
+                vy3 = x2 * ( m2 - m );
+            }
 
             vx1 = 0.0;
         }
@@ -573,7 +604,6 @@ QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
         vy1 = vy3;
         dx1 = dx2;
         dy1 = dy2;
-
     }
 
     QPointF vec2 = QPointF( dx1, 0.5 * ( 3.0 * dy1 - vy1 ) );

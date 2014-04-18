@@ -64,14 +64,16 @@ void CanvasPicker::select( const QPoint &pos )
         if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
             QwtPlotCurve *c = static_cast<QwtPlotCurve *>( *it );
-
-            double d;
-            int idx = c->closestPoint( pos, &d );
-            if ( d < dist )
+            if ( c->isVisible() )
             {
-                curve = c;
-                index = idx;
-                dist = d;
+                double d;
+                int idx = c->closestPoint( pos, &d );
+                if ( d < dist )
+                {
+                    curve = c;
+                    index = idx;
+                    dist = d;
+                }
             }
         }
     }
