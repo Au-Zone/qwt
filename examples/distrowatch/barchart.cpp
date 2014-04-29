@@ -36,7 +36,7 @@ public:
         QwtText lbl;
 
         const int index = qRound( value );
-        if ( index >= 0 && index <= d_labels.size() )
+        if ( index >= 0 && index < d_labels.size() )
         {
             lbl = d_labels[ index ];
         }
