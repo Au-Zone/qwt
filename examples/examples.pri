@@ -72,8 +72,6 @@ else {
 }
 
 
-win32 {
-    contains(QWT_CONFIG, QwtDll) {
-        DEFINES    += QT_DLL QWT_DLL
-    }
+contains(QWT_CONFIG, QwtDll) {
+    DEFINES    += QT_DLL QWT_DLL
 }
