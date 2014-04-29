@@ -53,7 +53,6 @@ contains(QWT_CONFIG, QwtDesigner) {
     contains(QWT_CONFIG, QwtDll) {
 
         contains(QWT_CONFIG, QwtDesignerSelfContained) {
-
             QWT_CONFIG += include_src
         }
 
@@ -100,9 +99,7 @@ contains(QWT_CONFIG, QwtDesigner) {
 
         contains(QWT_CONFIG, QwtDll) {
 
-            win32 {
-                DEFINES += QT_DLL QWT_DLL
-            }
+			DEFINES += QT_DLL QWT_DLL
         }
     }
 

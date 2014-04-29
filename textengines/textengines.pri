@@ -23,7 +23,7 @@ DEPENDPATH     += $${QWT_ROOT}/src
 
 contains(QWT_CONFIG, QwtDll) {
     CONFIG += dll
-    win32|symbian: DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
+    DEFINES += QT_DLL QWT_DLL QWT_MAKEDLL
 }   
 else {
     CONFIG += staticlib
