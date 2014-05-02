@@ -9,6 +9,7 @@
 
 #include "qwt_spline.h"
 #include "qwt_math.h"
+#include <QDebug>
 
 static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2, 
     double dx, double b, double c, QPainterPath &path )
@@ -20,15 +21,6 @@ static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2,
 
     path.cubicTo( p1.x() + stepX, cy1,
         p2.x() - stepX, cy2, p2.x(), p2.y() );
-}
-
-static inline void qwtHermiteCubicTo( const QPointF &p1, double m1,
-    const QPointF &p2, double m2, QPainterPath &path )
-{
-    const double stepX = ( p2.x() - p1.x() ) / 3.0;
-
-    path.cubicTo( p1.x() + stepX, p1.y() + stepX * m1,
-        p2.x() - stepX, p2.y() - stepX * m2, p2.x(), p2.y() );
 }
 
 static inline void qwtNaturalCubicTo( const QPointF &p1, double cv1,
@@ -499,19 +491,6 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
     return path;
 }
 
-static inline void vectorX( const QPointF &p1, const QPointF &p2, const QPointF &p3,
-    double m, double &vx1, double &vx2 )
-{
-    const double m0 = -1.0 / m;
-
-    const double t0 = p2.y() - m * p2.x();
-    const double t1 = p1.y() - m0 * p1.x();
-    const double t2 = p3.y() - m0 * p3.x();
-
-    vx1 = p2.x() - ( t1 - t0 ) / ( m - m0 );
-    vx2 = ( t2 - t0 ) / ( m - m0 ) - p2.x();
-}
-
 QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
 {
     QPainterPath path;
@@ -530,15 +509,19 @@ QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
     double dx1 = p[1].x() - p[0].x();
     double dy1 = p[1].y() - p[0].y();
 
-    const double dy2 = p[2].y() - p[1].y();
-
-    double vx1 = dx1;
-    double vy1 = 1.5 * dy1;
-
-    if ( ( dy1 > 0 ) == ( dy2 > 0 ) )
+    double m1 = 0.0;
+    if ( dx1 != 0.0 )
     {
+        m1 = 1.5 * dy1 / dx1;   
+
         const double dx2 = p[2].x() - p[1].x();
-        vy1 -= dx1 / ( dx1 / dy1 + dx2 / dy2 );
+        const double dy2 = p[2].y() - p[1].y();
+
+        if ( ( dy1 > 0.0 ) == ( dy2 > 0.0 ) )
+        {
+            if ( ( dy1 != 0.0 ) && ( dy2 != 0.0 ) )
+                m1 -= 1 / ( dx1 / dy1 + dx2 / dy2 );
+        }
     }
 
     for ( int i = 1; i < size - 1; i++ )
@@ -546,76 +529,27 @@ QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
         const double dx2 = p[i+1].x() - p[i].x();
         const double dy2 = p[i+1].y() - p[i].y();
 
-        double vy3;
-
-        if ( ( dx2 == 0 ) && ( dx1 == 0 ) )
+        double m2 = 0.0;
+        if ( ( dy1 > 0.0 ) == ( dy2 > 0.0 ) )
         {
-            if ( dy2 < 0 )
-                vy3 = -vy3;
-
-            path.cubicTo( p[i-1] + QPointF( vx1, vy1 ) / 3.0, p[i], p[i] );
-
-            vx1 = 0.0;
-        }
-        else if ( ( dx1 >= 0 ) == ( dx2 >= 0 ) )
-        {
-            double vy2;
-
-            if ( ( dy1 > 0 ) == ( dy2 > 0 ) )
-            {
-                const double m = 2 / ( dx1 / dy1 + dx2 / dy2 );
-                vy2 = dx1 * m;
-                vy3 = dx2 * m;
-            }
-            else
-            {
-                vy2 = vy3 = 0.0;
-            }
-
-            path.cubicTo( p[i-1] + QPointF( vx1, vy1 ) / 3.0, 
-                p[i] - QPointF( dx1, vy2 ) / 3.0, p[i] );
-
-            vx1 = dx2;
-        }
-        else
-        {
-            const double m1 = dy1 / dx1;
-            const double m2 = dy2 / dx2;
-
-            double m;
-
-            if ( ( dy1 > 0 ) == ( dy2 > 0 ) )
-            {
-                m = -2.0 / ( m1 + m2 );
-
-                const double m0 = ( qAbs( m1 ) < qAbs( m2 ) ) ? m1 : m0;
-                if ( qAbs( m ) < qAbs( m0 ) )
-                    m = m0;
-            }
-            else
-            {
-                m = -2.0 / ( m1 + m2 );
-            }
-
-
-            double vx2, vx3;
-            vectorX( p[i-1], p[i], p[i+1], m, vx2, vx3 );
-
-            path.cubicTo( p[i-1] + QPointF( vx1, vy1 ) / 3.0, 
-                p[i] - QPointF( vx2, m * vx2 ) / 3.0, p[i] );
-
-            vx1 = vx3;
-            vy3 = m * vx1;
+            if ( ( dy1 != 0.0 ) && ( dy2 != 0.0 ) )
+                m2 = 2 / ( dx1 / dy1 + dx2 / dy2 );
         }
 
-        vy1 = vy3;
+        path.cubicTo( p[i-1] + QPointF( dx1, dx1 * m1 ) / 3.0,
+            p[i] - QPointF( dx1, dx1 * m2 ) / 3.0, p[i] );
+
         dx1 = dx2;
         dy1 = dy2;
+        m1 = m2;
     }
 
-    QPointF vec2 = QPointF( dx1, 0.5 * ( 3.0 * dy1 - vy1 ) );
-    path.cubicTo( p[size - 2] + QPointF( vx1, vy1 ) / 3.0, 
-        p[size - 1] - vec2 / 3.0, p[size - 1] );
+    double m2 = -0.5 * m1;
+    if ( dx1 != 0.0 )
+        m2 += 1.5 * dy1 / dx1;
+    
+    path.cubicTo( p[size - 2] + QPointF( dx1, dx1 * m1 ) / 3.0,
+        p[size - 1] - QPointF( dx1, dx1 * m2 ) / 3.0, p[size - 1] );
 
-    return path;
+    return path; 
 }
