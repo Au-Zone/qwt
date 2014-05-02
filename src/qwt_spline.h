@@ -14,26 +14,6 @@
 #include <qpolygon.h>
 #include <qpainterpath.h>
 
-namespace QwtSpline
-{
-    // General spline interpolation according to 
-    // "Smoothing with Cubic Splines" by D. S. G. Pollock
-
-    QWT_EXPORT QPolygonF polygon( const QPolygonF &, double lambda, int numPoints );
-    QWT_EXPORT QPainterPath path( const QPolygonF &, double lambda );
-
-    // calculate a, b, c
-    QWT_EXPORT void toCoefficients( 
-        double x1, double x2, double cv1,
-        double y1, double y2, double cv2, 
-        double &a, double &b, double &c );
-
-    QWT_EXPORT void toBezier( 
-        double x1, double x2, double cv1,
-        double y1, double y2, double cv2, 
-        double &cpx1, double &cpy1, double &cpx2, double &cpy2 );
-}
-
 namespace QwtSplineAkima
 {
     QWT_EXPORT QPainterPath path( const QPolygonF & );
@@ -53,9 +33,16 @@ namespace QwtSplineNatural
 
     // interpolated spline as bezier curve
     QWT_EXPORT QPainterPath path( const QPolygonF & );
+
+    // calculate a, b, c
+    QWT_EXPORT void toCoefficients( 
+        double x1, double x2, double cv1,
+        double y1, double y2, double cv2, 
+        double &a, double &b, double &c );
+
 }
 
-inline void QwtSpline::toCoefficients( 
+inline void QwtSplineNatural::toCoefficients( 
     double x1, double y1, double cv1, 
     double x2, double y2, double cv2, 
     double &a, double &b, double &c )
@@ -66,24 +53,6 @@ inline void QwtSpline::toCoefficients(
     a = ( cv2 - cv1 ) / ( 6.0 * dx );
     b = 0.5 * cv1;
     c = dy / dx - ( 0.5 * cv2 + cv1 ) * dx / 3.0;
-}
-
-inline void QwtSpline::toBezier(
-    double x1, double y1, double cv1, 
-    double x2, double y2, double cv2, 
-    double &cpx1, double &cpy1, double &cpx2, double &cpy2 )
-{
-    const double dx = x2 - x1;
-    const double dy = y2 - y1;
-    const double stepX = dx / 3.0;
-
-    const double c = dy / dx - ( 0.5 * cv2 + cv1 ) * stepX;
-
-    cpx1 = x1 + stepX;
-    cpy1 = y1 + c * stepX;
-
-    cpx2 = x2 - stepX;
-    cpy2 = cpy1 + ( c + 0.5 * cv1 * dx ) * stepX;
 }
 
 #endif
