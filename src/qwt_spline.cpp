@@ -206,12 +206,35 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
 
     const QPointF *p = points.constData();
 
-    double m4 = ( p[2].y() - p[1].y() ) / ( p[2].x() - p[1].x() );
-    double m3 = ( p[1].y() - p[0].y() ) / ( p[1].x() - p[0].x() );
-    double m2 = 2.0 * m3 - m4;
-    double m1 = 3.0 * m3 - 2.0 * m4;
-
     path.moveTo( p[0] );
+
+    if ( size == 3 )
+    {
+        const double dx1 = p[1].x() - p[0].x();
+        const double dx2 = p[2].x() - p[1].x();
+
+        const double s1 = ( p[1].y() - p[0].y() ) / dx1;
+        const double s2 = ( p[2].y() - p[1].y() ) / dx2;
+
+        const double m1 = 1.5 * s1 - 0.5 * s2;
+        const double m2 = 0.5 * ( s1 + s2 );
+        const double m3 = ( 4.0 * s2 - s1 ) / 3.0;
+
+        path.cubicTo( p[0] + QPointF( dx1, m1 * dx1 ) / 3.0,
+            p[1] - QPointF( dx1, m2 * dx1 ) / 3.0, p[1] );
+
+        path.cubicTo( p[1] + QPointF( dx2, m2 * dx2 ) / 3.0,
+            p[2] - QPointF( dx2, m3 * dx2 ) / 3.0, p[2] );
+
+        return path;
+    }
+
+    double s4 = ( p[2].y() - p[1].y() ) / ( p[2].x() - p[1].x() );
+    double s3 = ( p[1].y() - p[0].y() ) / ( p[1].x() - p[0].x() );
+    double s2 = 2.0 * s3 - s4;
+    double s1 = 3.0 * s3 - 2.0 * s4;
+
+    double m1 = ( 4.0 * s4 - s3 ) / 3.0;
 
     for ( int i = 0; i < size - 1; i++ )
     {
@@ -219,60 +242,50 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
         const QPointF &p2 = p[i+1];
 
         const double dx = p2.x() - p1.x();
+        const double dy = p2.y() - p1.y();
 
-        double m5;
+        double s5;
         if ( i == size - 2 )
         {
-            m5 = 3.0 * m4 - 2.0 * m3;
+            s5 = 3.0 * s4 - 2.0 * s3;
         }
         else if ( i == size - 3 )
         {
-            m5 = 2.0 * m4 - m3;
+            s5 = 2.0 * s4 - s3;
         }
         else
         {
-            m5 = ( p[i+3].y() - p[i+2].y() ) / ( p[i+3].x() - p[i+2].x() );
+            s5 = ( p[i+3].y() - p[i+2].y() ) / ( p[i+3].x() - p[i+2].x() );
         }
 
-        double b, c;
+        double m2;
 
-        const double d12 = qAbs( m2 - m1 );
-        const double d34 = qAbs( m4 - m3 );
-
-        const double ry = d34 + d12;
-        if ( ry == 0.0 )
+        if ( ( s1 == s2 ) && ( s3 == s4 ) )
         {
-            b = 0.0;
-            c = m3;
+            m2 = 3 * dy / dx - 2.0 * m1;
+        }
+        else if ( ( s2 == s3 ) && ( s4 == s5 ) )
+        {
+            m2 = 3 * dy / dx - 2.0 * s3;
         }
         else
         {
-            const double d23 = qAbs( m3 - m2 );
-            const double d45 = qAbs( m5 - m4 );
+            const double s23 = qAbs( s3 - s2 );
+            const double s45 = qAbs( s5 - s4 );
 
-            double t;
-            const double ry_next = d45 + d23;
-            if ( ry_next == 0.0 )
-            {
-                t = m3;
-            }
-            else
-            {
-                double alpha_next = d23 / ry_next;
-                t = ( 1.0 - alpha_next ) * m3 + alpha_next * m4;
-            }
-
-            const double alpha = d12 / ry;
-            c = ( 1.0 - alpha ) * m2 + alpha * m3;
-            b = ( 3.0 * m3 - 2.0 * c - t ) / dx;
+            const double a = s23 / ( s45 + s23 );
+            m2 = 3.0 * ( dy / dx - s3 ) + ( 1.0 - a ) * s3 + a * s4;
         }
+
+        path.cubicTo( p1 + QPointF( dx, m1 * dx ) / 3.0,
+            p2 - QPointF( dx, m2 * dx ) / 3.0, p2 );
+
+        s1 = s2;
+        s2 = s3;
+        s3 = s4;
+        s4 = s5;
 
         m1 = m2;
-        m2 = m3;
-        m3 = m4;
-        m4 = m5;
-
-        qwtCubicTo( p1, p2, dx, b, c, path );
     }
 
     return path;
