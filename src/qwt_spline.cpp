@@ -213,6 +213,7 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
         const double dx1 = p[1].x() - p[0].x();
         const double dx2 = p[2].x() - p[1].x();
 
+		// dx1 == 0, dx2 == 0 ?
         const double s1 = ( p[1].y() - p[0].y() ) / dx1;
         const double s2 = ( p[2].y() - p[1].y() ) / dx2;
 
@@ -242,7 +243,6 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
         const QPointF &p2 = p[i+1];
 
         const double dx = p2.x() - p1.x();
-        const double dy = p2.y() - p1.y();
 
         double s5;
         if ( i == size - 2 )
@@ -255,18 +255,18 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
         }
         else
         {
+			// p[i+3].x == p[i+2].x() ???
             s5 = ( p[i+3].y() - p[i+2].y() ) / ( p[i+3].x() - p[i+2].x() );
         }
 
         double m2;
-
         if ( ( s1 == s2 ) && ( s3 == s4 ) )
         {
-            m2 = 3 * dy / dx - 2.0 * m1;
+            m2 = 3 * s3 - 2.0 * m1;
         }
         else if ( ( s2 == s3 ) && ( s4 == s5 ) )
         {
-            m2 = 3 * dy / dx - 2.0 * s3;
+            m2 = s3;
         }
         else
         {
@@ -274,7 +274,7 @@ QPainterPath QwtSplineAkima::path( const QPolygonF &points )
             const double s45 = qAbs( s5 - s4 );
 
             const double a = s23 / ( s45 + s23 );
-            m2 = 3.0 * ( dy / dx - s3 ) + ( 1.0 - a ) * s3 + a * s4;
+            m2 = ( 1.0 - a ) * s3 + a * s4;
         }
 
         path.cubicTo( p1 + QPointF( dx, m1 * dx ) / 3.0,
