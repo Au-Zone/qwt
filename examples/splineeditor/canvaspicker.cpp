@@ -97,8 +97,8 @@ void CanvasPicker::move( const QPoint &pos )
     QVector<double> xData( d_selectedCurve->dataSize() );
     QVector<double> yData( d_selectedCurve->dataSize() );
 
-    double dx;
-    double dy;
+    double dx = 0.0;
+    double dy = 0.0;
 
     int numPoints = static_cast<int>( d_selectedCurve->dataSize() );
     for ( int i = 0; i < numPoints; i++ )

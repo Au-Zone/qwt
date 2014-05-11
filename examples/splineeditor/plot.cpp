@@ -22,7 +22,10 @@ public:
     Symbol():
         QwtSymbol( QwtSymbol::Ellipse )
     {
-        setBrush( Qt::gray );
+        QColor c( Qt::gray );
+        c.setAlpha( 100 );
+        setBrush( c );
+
         setPen( Qt::black );
         setSize( 8 );
     }
@@ -34,6 +37,7 @@ class SplineFitter: public QwtCurveFitter
 public:
     enum Mode
     {
+        BesselSpline,
         HarmonicSpline,
         AkimaSpline,
         NaturalSpline
@@ -58,16 +62,22 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        if ( d_mode == AkimaSpline )
-            return QwtSplineAkima::path( points );
-        else if ( d_mode == NaturalSpline )
-            return QwtSplineNatural::path( points );
-        else
-            return QwtSplineHarmonicMean::path( points );
+        switch( d_mode )
+        {
+            case AkimaSpline:
+                return QwtSplineAkima::path( points );
+            case NaturalSpline:
+                return QwtSplineNatural::path( points );
+            case HarmonicSpline:
+                return QwtSplineHarmonicMean::path( points );
+            case BesselSpline:
+            default:
+                return QwtSplineBessel::path( points, 0.0, 0.0 );
+        }
     }
+
 private:
     const Mode d_mode;
-    
 };
 
 class CurveFitter2: public QwtCurveFitter
@@ -191,9 +201,21 @@ Plot::Plot( QWidget *parent ):
     curve4->setCurveFitter( new SplineFitter( SplineFitter::HarmonicSpline ) );
     curve4->attach( this );
 
+    Curve *curve5 = new Curve( "Bessel Spline", Qt::darkCyan );
+    curve5->setCurveFitter( new SplineFitter( SplineFitter::BesselSpline ) );
+    curve5->attach( this );
+
     QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
+#if 1
     for ( int i = 0; i < curves.size(); i++ )
         showCurve( curves[i], true );
+#else
+    for ( int i = 0; i < curves.size(); i++ )
+        showCurve( curves[i], false );
+
+    showCurve( curve4, true );
+    showCurve( curve5, true );
+#endif
 
     setOverlaying( false );
 

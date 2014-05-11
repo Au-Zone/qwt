@@ -195,135 +195,165 @@ static inline double qwtSlope( const QPointF &p1, const QPointF &p2 )
     return dx ? ( p2.y() - p1.y() ) / dx : 0.0;
 }
 
+static inline double qwtAkima( double s1, double s2, double s3, double s4 )
+{
+    if ( ( s1 == s2 ) && ( s3 == s4 ) )
+    {
+        return 0.5 * ( s2 + s3 );
+    }
+
+    const double ds12 = qAbs( s2 - s1 );
+    const double ds34 = qAbs( s4 - s3 );
+
+    return ( s2 * ds34 + s3 * ds12 ) / ( ds12 + ds34 );
+}
+
 QPainterPath QwtSplineAkima::path( const QPolygonF &points )
+{
+    const int size = points.size();
+    if ( size == 0 )
+        return QPainterPath();
+
+    if ( size == 1 )
+    {
+        QPainterPath path;
+        path.moveTo( points[0] );
+        return path;
+    }
+
+    const double m1 = qwtSlope( points[0], points[1] );
+    const double m2 = qwtSlope( points[size-2], points[size-1] );
+
+    return path( points, m1, m2 );
+}
+
+QPainterPath QwtSplineAkima::path( const QPolygonF &points, 
+    double slopeStart, double slopeEnd )
 {
     QPainterPath path;
 
     const int size = points.size();
-    if ( size <= 2 )
-    {
-        path.addPolygon( points );
+    if ( size == 0 )
         return path;
-    }
 
     const QPointF *p = points.constData();
-
     path.moveTo( p[0] );
 
-    if ( size == 3 )
+    if ( size == 1 )
+        return path;
+
+    if ( size == 2 )
     {
-        const double s1 = qwtSlope( p[0], p[1] );
-        const double s2 = qwtSlope( p[1], p[2] );
-
-        const double m1 = 1.5 * s1 - 0.5 * s2;
-        const double m2 = 0.5 * ( s1 + s2 );
-        const double m3 = ( 4.0 * s2 - s1 ) / 3.0;
-
-        qwtCubicTo( p[0], m1, p[1], m2, path );
-        qwtCubicTo( p[1], m2, p[2], m3, path );
-
+        qwtCubicTo( points[0], slopeStart, points[1], slopeEnd, path );
         return path;
     }
 
-    double s2 = qwtSlope( p[0], p[1] );
-    double s3 = qwtSlope( p[1], p[2] );
-    double s1 = 2.0 * s2 - s3;
+    double slope1 = slopeStart;
+    double slope2 = qwtSlope( p[0], p[1] );
+    double slope3 = qwtSlope( p[1], p[2] );
 
-    double m1 = ( 4.0 * s3 - s2 ) / 3.0;
+    double m1 = slope1;
 
     for ( int i = 0; i < size - 3; i++ )
     {
-        const double s4 = qwtSlope( p[i+2],  p[i+3] );
+        const double slope4 = qwtSlope( p[i+2],  p[i+3] );
 
-        double m2;
-        if ( ( s1 == s2 ) && ( s3 == s4 ) )
-        {
-            m2 = 0.5 * ( s2 + s3 );
-        }
-        else
-        {
-            const double ds12 = qAbs( s2 - s1 );
-            const double ds34 = qAbs( s4 - s3 );
-
-            m2 = ( s2 * ds34 + s3 * ds12 ) / ( ds12 + ds34 );
-        }
-
+        const double m2 = qwtAkima( slope1, slope2, slope3, slope4 );
         qwtCubicTo( p[i], m1, p[i+1], m2, path );
 
-        s1 = s2;
-        s2 = s3;
-        s3 = s4;
+        slope1 = slope2;
+        slope2 = slope3;
+        slope3 = slope4;
 
         m1 = m2;
     }
 
-    // the last 2 points, where we can't look ahead
-
-    double m2, m3;
-    if ( s2 == s3 )
-    {
-        m3 = m2 = s2;
-    }
-    else
-    {
-        const double ds12 = qAbs( s2 - s1 );
-        const double ds23 = qAbs( s3 - s2 );
-
-        m2 = ( s2 * ds23 + s3 * ds12 ) / ( ds12 + ds23 );
-        m3 = ( s3 * 2.0 * ds12 + ( 2.0 * s3 - s2 ) * ds12 ) / ( ds12 + 2.0 * ds12 );
-    }
+    const double m2 = qwtAkima( slope1, slope2, slope3, slopeEnd );
 
     qwtCubicTo( p[size - 3], m1, p[size - 2], m2, path );
-    qwtCubicTo( p[size - 2], m2, p[size - 1], m3, path );
+    qwtCubicTo( p[size - 2], m2, p[size - 1], slopeEnd, path );
 
     return path;
 }
 
+static inline double qwtHarmonicMean( 
+    double dx1, double dy1, double dx2, double dy2 )
+{
+    if ( ( dy1 > 0.0 ) == ( dy2 > 0.0 ) )
+    {
+        if ( ( dy1 != 0.0 ) && ( dy2 != 0.0 ) )
+            return 2.0 / ( dx1 / dy1 + dx2 / dy2 );
+    }
+
+    return 0.0;
+}
+
+static inline double qwtHarmonicMean( double s1, double s2 )
+{
+    if ( ( s1 > 0.0 ) == ( s2 > 0.0 ) )
+    {
+        if ( ( s1 != 0.0 ) && ( s2 != 0.0 ) )
+            return 2 / ( 1 / s1 + 1 / s2 );
+    }
+
+    return 0.0;
+}
+
 QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
+{
+    const int size = points.size();
+    if ( size == 0 )
+        return QPainterPath();
+
+    if ( size == 1 )
+    {
+        QPainterPath path;
+        path.moveTo( points[0] );
+        return path;
+    }
+
+    const double s1 = qwtSlope( points[0], points[1] );
+    const double s2 = qwtSlope( points[1], points[2] );
+    const double s3 = qwtSlope( points[size-3], points[size-2] );
+    const double s4 = qwtSlope( points[size-2], points[size-1] );
+
+    const double m1 = 1.5 * s1 - 0.5 * qwtHarmonicMean( s1, s2 );
+    const double m2 = 1.5 * s4 - 0.5 * qwtHarmonicMean( s3, s4 );
+
+    return path( points, m1, m2 );
+}
+
+QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points, 
+    double slopeStart, double slopeEnd )
 {
     QPainterPath path;
 
     const int size = points.size();
-    if ( size <= 2 )
+    if ( size == 0 )
+        return path;
+
+    const QPointF *p = points.constData();
+    path.moveTo( p[0] );
+
+    if ( size == 1 )
+        return path;
+
+    if ( size == 2 )
     {
-        path.addPolygon( points );
+        qwtCubicTo( points[0], slopeStart, points[1], slopeEnd, path );
         return path;
     }
 
-    const QPointF *p = points.constData();
-
-    path.moveTo( p[0] );
-
     double dx1 = p[1].x() - p[0].x();
     double dy1 = p[1].y() - p[0].y();
-
-    double m1 = 0.0;
-    if ( dx1 != 0.0 )
-    {
-        m1 = 1.5 * dy1 / dx1;   
-
-        const double dx2 = p[2].x() - p[1].x();
-        const double dy2 = p[2].y() - p[1].y();
-
-        if ( ( dy1 > 0.0 ) == ( dy2 > 0.0 ) )
-        {
-            if ( ( dy1 != 0.0 ) && ( dy2 != 0.0 ) )
-                m1 -= 1 / ( dx1 / dy1 + dx2 / dy2 );
-        }
-    }
+    double m1 = slopeStart;
 
     for ( int i = 1; i < size - 1; i++ )
     {
         const double dx2 = p[i+1].x() - p[i].x();
         const double dy2 = p[i+1].y() - p[i].y();
 
-        double m2 = 0.0;
-        if ( ( dy1 > 0.0 ) == ( dy2 > 0.0 ) )
-        {
-            if ( ( dy1 != 0.0 ) && ( dy2 != 0.0 ) )
-                m2 = 2 / ( dx1 / dy1 + dx2 / dy2 );
-        }
-
+        const double m2 = qwtHarmonicMean( dx1, dy1, dx2, dy2 );
         path.cubicTo( p[i-1] + QPointF( dx1, dx1 * m1 ) / 3.0,
             p[i] - QPointF( dx1, dx1 * m2 ) / 3.0, p[i] );
 
@@ -332,12 +362,52 @@ QPainterPath QwtSplineHarmonicMean::path( const QPolygonF &points )
         m1 = m2;
     }
 
-    double m2 = -0.5 * m1;
-    if ( dx1 != 0.0 )
-        m2 += 1.5 * dy1 / dx1;
-    
     path.cubicTo( p[size - 2] + QPointF( dx1, dx1 * m1 ) / 3.0,
-        p[size - 1] - QPointF( dx1, dx1 * m2 ) / 3.0, p[size - 1] );
+        p[size - 1] - QPointF( dx1, dx1 * slopeEnd ) / 3.0, p[size - 1] );
+
+    return path; 
+}
+
+QPainterPath QwtSplineBessel::path( const QPolygonF &points, 
+    double slopeStart, double slopeEnd )
+{
+    QPainterPath path;
+
+    const int size = points.size();
+    if ( size == 0 )
+        return path;
+
+    const QPointF *p = points.constData();
+    path.moveTo( p[0] );
+
+    if ( size == 1 )
+        return path;
+
+    if ( size == 2 )
+    {
+        qwtCubicTo( points[0], slopeStart, points[1], slopeEnd, path );
+        return path;
+    }
+
+    double slope1 = slopeStart;
+    double dx1 = p[1].x() - p[0].x();
+    double m1 = slopeStart;
+
+    for ( int i = 0; i < size - 2; i++ )
+    {
+        const double dx2 = p[i+1].x() - p[i].x();
+        double slope2 = ( p[i+1].y() - p[i].y() ) / dx2;
+
+        const double m2 = ( dx2 * slope1 + dx1 * slope2 ) / ( dx1 + dx2 );
+        qwtCubicTo( points[i], m1, points[i+1], m2, path );
+
+        dx1 = dx2;
+        slope1 = slope2;
+        m1 = m2;
+    }
+
+    const double m2 = 0.5 * ( slope1 + slopeEnd ); 
+    qwtCubicTo( points[size-2], m1, points[size-1], m2, path );
 
     return path; 
 }
