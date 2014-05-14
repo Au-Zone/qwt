@@ -37,7 +37,6 @@ class SplineFitter: public QwtCurveFitter
 public:
     enum Mode
     {
-        BesselSpline,
         HarmonicSpline,
         AkimaSpline,
         NaturalSpline
@@ -68,11 +67,9 @@ public:
                 return QwtSplineAkima::path( points );
             case NaturalSpline:
                 return QwtSplineNatural::path( points );
+            default:
             case HarmonicSpline:
                 return QwtSplineHarmonicMean::path( points );
-            case BesselSpline:
-            default:
-                return QwtSplineBessel::path( points, 0.0, 0.0 );
         }
     }
 
@@ -153,7 +150,7 @@ Plot::Plot( QWidget *parent ):
     // axes
 
     setAxisScale( QwtPlot::xBottom, 0.0, 100.0 );
-    setAxisScale( QwtPlot::yLeft, 0.0, 100.0 );
+    setAxisScale( QwtPlot::yLeft, 0.0, 120.0 );
 
     // Avoid jumping when label with 3 digits
     // appear/disappear when scrolling vertically
@@ -161,10 +158,8 @@ Plot::Plot( QWidget *parent ):
     QwtScaleDraw *sd = axisScaleDraw( QwtPlot::yLeft );
     sd->setMinimumExtent( sd->extent( axisWidget( QwtPlot::yLeft )->font() ) );
 
-    plotLayout()->setAlignCanvasToScales( true );
-
     // curves 
-    d_curve = new Curve( "Linear", QColor() );
+    d_curve = new Curve( "Lines", QColor() );
     d_curve->setStyle( QwtPlotCurve::NoCurve );
     d_curve->setSymbol( new Symbol() );
     d_curve->setItemAttribute( QwtPlotItem::Legend, false );
@@ -193,7 +188,7 @@ Plot::Plot( QWidget *parent ):
     curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
     curve2->attach( this );
 
-    Curve *curve3 = new Curve( "Akima Spline", Qt::darkGreen);
+    Curve *curve3 = new Curve( "Akima Spline", Qt::darkCyan);
     curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
     curve3->attach( this );
 
@@ -201,20 +196,15 @@ Plot::Plot( QWidget *parent ):
     curve4->setCurveFitter( new SplineFitter( SplineFitter::HarmonicSpline ) );
     curve4->attach( this );
 
-    Curve *curve5 = new Curve( "Bessel Spline", Qt::darkCyan );
-    curve5->setCurveFitter( new SplineFitter( SplineFitter::BesselSpline ) );
-    curve5->attach( this );
-
     QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
 #if 1
     for ( int i = 0; i < curves.size(); i++ )
-        showCurve( curves[i], true );
+        showCurve( curves[i], i != 0 );
 #else
     for ( int i = 0; i < curves.size(); i++ )
         showCurve( curves[i], false );
 
     showCurve( curve4, true );
-    showCurve( curve5, true );
 #endif
 
     setOverlaying( false );
@@ -229,6 +219,12 @@ Plot::Plot( QWidget *parent ):
     d_wheel->setValue( 0.0 );
     d_wheel->setMass( 0.2 );
     d_wheel->setTotalAngle( 4 * 360.0 );
+    d_wheel->resize( 16, 60 );
+
+    plotLayout()->setAlignCanvasToScale( QwtPlot::xTop, true );
+    plotLayout()->setAlignCanvasToScale( QwtPlot::xBottom, true );
+    plotLayout()->setAlignCanvasToScale( QwtPlot::yLeft, true );
+	plotLayout()->setCanvasMargin( d_wheel->width() + 4, QwtPlot::yRight );
 
     connect( d_wheel, SIGNAL( valueChanged( double ) ),
         SLOT( scrollLeftAxis( double ) ) );
@@ -254,13 +250,11 @@ bool Plot::eventFilter( QObject *object, QEvent *e )
     {
         if ( object == canvas() )
         {
-            const int w = 16;
-            const int h = 50;
             const int margin = 2;
 
             const QRect cr = canvas()->contentsRect();
-            d_wheel->setGeometry(
-                cr.right() - margin - w, cr.center().y() - h / 2, w, h );
+            d_wheel->move( cr.right() - margin - d_wheel->width(), 
+				cr.center().y() - ( d_wheel->height() ) / 2 );
         }
     }
 

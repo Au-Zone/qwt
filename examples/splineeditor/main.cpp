@@ -1,4 +1,5 @@
 #include <qapplication.h>
+#include <qdesktopwidget.h>
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
@@ -48,7 +49,9 @@ int main ( int argc, char **argv )
         plot, SLOT( updateMarker( int, double ) ) );
 
     mainWindow.setCentralWidget( plot );
-    mainWindow.resize( 540, 400 );
+
+	const QSize sz = 0.6 * QApplication::desktop()->size();
+    mainWindow.resize( sz.boundedTo( QSize( 800, 600 ) ) );
     mainWindow.show();
 
     return a.exec();

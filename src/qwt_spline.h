@@ -21,12 +21,6 @@ namespace QwtSplineAkima
         double slopeStart, double slopeEnd );
 }
 
-namespace QwtSplineBessel
-{
-    QWT_EXPORT QPainterPath path( const QPolygonF &, 
-        double slopeStart, double slopeEnd );
-}
-
 namespace QwtSplineHarmonicMean
 {
     QWT_EXPORT QPainterPath path( const QPolygonF & );
