@@ -64,12 +64,17 @@ public:
         switch( d_mode )
         {
             case AkimaSpline:
+            {
                 return QwtSplineAkima::path( points );
+            }
             case NaturalSpline:
+            {
                 return QwtSplineNatural::path( points );
+            }
             default:
-            case HarmonicSpline:
+            {
                 return QwtSplineHarmonicMean::path( points );
+            }
         }
     }
 
@@ -85,22 +90,14 @@ public:
     {
     }
 
-    virtual QPolygonF fitCurve( const QPolygonF &polygon ) const
+    virtual QPolygonF fitCurve( const QPolygonF &points ) const
     {
-#if 0
-        return QwtSpline::polygon( polygon, 1.0, 500 );
-#else
-        return QwtSplineNatural::polygon( polygon, 500 );
-#endif
+        return QwtSplineNatural::polygon( points, 500 );
     }
 
-    virtual QPainterPath fitCurvePath( const QPolygonF &polygon ) const
+    virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        const QPolygonF fittedPoints = QwtSplineNatural::polygon( polygon, 500 );
-
-        QPainterPath path;
-        path.addPolygon( fittedPoints );
-        return path;
+        return QwtSplineNatural::path( points );
     }
 };
 
@@ -204,7 +201,8 @@ Plot::Plot( QWidget *parent ):
     for ( int i = 0; i < curves.size(); i++ )
         showCurve( curves[i], false );
 
-    showCurve( curve4, true );
+    showCurve( curve2, true );
+    showCurve( curve3, true );
 #endif
 
     setOverlaying( false );
@@ -224,7 +222,7 @@ Plot::Plot( QWidget *parent ):
     plotLayout()->setAlignCanvasToScale( QwtPlot::xTop, true );
     plotLayout()->setAlignCanvasToScale( QwtPlot::xBottom, true );
     plotLayout()->setAlignCanvasToScale( QwtPlot::yLeft, true );
-	plotLayout()->setCanvasMargin( d_wheel->width() + 4, QwtPlot::yRight );
+    plotLayout()->setCanvasMargin( d_wheel->width() + 4, QwtPlot::yRight );
 
     connect( d_wheel, SIGNAL( valueChanged( double ) ),
         SLOT( scrollLeftAxis( double ) ) );
@@ -254,7 +252,7 @@ bool Plot::eventFilter( QObject *object, QEvent *e )
 
             const QRect cr = canvas()->contentsRect();
             d_wheel->move( cr.right() - margin - d_wheel->width(), 
-				cr.center().y() - ( d_wheel->height() ) / 2 );
+                cr.center().y() - ( d_wheel->height() ) / 2 );
         }
     }
 
