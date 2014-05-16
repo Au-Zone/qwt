@@ -86,7 +86,7 @@ class CurveFitter2: public QwtCurveFitter
 {
 public:
     CurveFitter2():
-        QwtCurveFitter( QwtCurveFitter::Polygon )
+        QwtCurveFitter( QwtCurveFitter::Path )
     {
     }
 
@@ -186,7 +186,11 @@ Plot::Plot( QWidget *parent ):
     curve2->attach( this );
 
     Curve *curve3 = new Curve( "Akima Spline", Qt::darkCyan);
+#if 1
     curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
+#else
+    curve3->setCurveFitter( new CurveFitter2 );
+#endif
     curve3->attach( this );
 
     Curve *curve4 = new Curve( "Harmonic Spline", Qt::darkYellow);
@@ -238,7 +242,8 @@ Plot::Plot( QWidget *parent ):
 
 void Plot::scrollLeftAxis( double value )
 {
-    setAxisScale( yLeft, value, value + 100.0 );
+    const double range = axisScaleDiv( QwtPlot::yLeft ).range();
+    setAxisScale( QwtPlot::yLeft, value, value + range );
     replot();
 }
 
