@@ -28,15 +28,36 @@ namespace QwtSplineHarmonicMean
         double slopeStart, double slopeEnd );
 }
 
-namespace QwtSplineNatural
+namespace QwtSplineCubic
 {
-    // derivatives at each point
-    QWT_EXPORT QVector<double> derivatives( const QPolygonF & );
+    enum EndpointCondition 
+    {
+        Natural,
+        NotAKnot,
 
-    QWT_EXPORT QPolygonF polygon( const QPolygonF &, int numPoints );
+        Test
+    };
 
-    // interpolated spline as bezier curve
-    QWT_EXPORT QPainterPath path( const QPolygonF & );
-}
+    // spline with endpoint conditions
+    QWT_EXPORT QVector<double> derivatives( 
+        const QPolygonF &, EndpointCondition = Natural );
+
+    QWT_EXPORT QPainterPath path( 
+        const QPolygonF &, EndpointCondition = Natural );
+
+    QWT_EXPORT QPolygonF polygon( int numPoints,
+        const QPolygonF &, EndpointCondition = Natural );
+
+    // clamped spline
+
+    QWT_EXPORT QVector<double> derivatives( 
+        const QPolygonF &, double slopeBegin, double slopeEnd );
+
+    QWT_EXPORT QPainterPath path( 
+        const QPolygonF &, double slopeBegin, double slopeEnd );
+
+    QWT_EXPORT QPolygonF polygon( int numPoints,
+        const QPolygonF &, double slopeBegin, double slopeEnd );
+};
 
 #endif

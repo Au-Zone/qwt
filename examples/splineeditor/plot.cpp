@@ -69,7 +69,7 @@ public:
             }
             case NaturalSpline:
             {
-                return QwtSplineNatural::path( points );
+                return QwtSplineCubic::path( points, QwtSplineCubic::Natural );
             }
             default:
             {
@@ -92,12 +92,18 @@ public:
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
     {
-        return QwtSplineNatural::polygon( points, 500 );
+        const QPainterPath path = fitCurvePath( points );
+
+        const QList<QPolygonF> subPaths = fitCurvePath( points ).toSubpathPolygons();
+        if ( subPaths.size() == 1 )
+            subPaths.first();
+
+        return QPolygonF();
     }
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        return QwtSplineNatural::path( points );
+        return QwtSplineCubic::path( points, 0.5, 2.0 );
     }
 };
 
@@ -163,10 +169,14 @@ Plot::Plot( QWidget *parent ):
     d_curve->setZ( 1000 ); 
 
     QPolygonF points;
+#if 1
     points << QPointF( 10, 30 ) << QPointF( 20, 90 ) << QPointF( 25, 60 )
         << QPointF( 35, 38 ) << QPointF( 42, 40 ) << QPointF( 55, 60 )
         << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
         << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 70 );
+#else
+    points << QPointF( 10, 30 ) << QPointF( 60, 50 ) << QPointF( 95, 70 );
+#endif
 
     d_curve->setSamples( points );
     d_curve->attach( this );
@@ -185,10 +195,11 @@ Plot::Plot( QWidget *parent ):
     curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
     curve2->attach( this );
 
-    Curve *curve3 = new Curve( "Akima Spline", Qt::darkCyan);
 #if 1
+    Curve *curve3 = new Curve( "Akima Spline", Qt::darkCyan);
     curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
 #else
+    Curve *curve3 = new Curve( "Cubic Spline", Qt::darkCyan);
     curve3->setCurveFitter( new CurveFitter2 );
 #endif
     curve3->attach( this );
