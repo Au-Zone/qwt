@@ -76,35 +76,12 @@ public:
                 return QwtSplineHarmonicMean::path( points );
             }
         }
+
+		return QPainterPath();
     }
 
 private:
     const Mode d_mode;
-};
-
-class CurveFitter2: public QwtCurveFitter
-{
-public:
-    CurveFitter2():
-        QwtCurveFitter( QwtCurveFitter::Path )
-    {
-    }
-
-    virtual QPolygonF fitCurve( const QPolygonF &points ) const
-    {
-        const QPainterPath path = fitCurvePath( points );
-
-        const QList<QPolygonF> subPaths = fitCurvePath( points ).toSubpathPolygons();
-        if ( subPaths.size() == 1 )
-            subPaths.first();
-
-        return QPolygonF();
-    }
-
-    virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
-    {
-        return QwtSplineCubic::path( points, 0.5, 2.0 );
-    }
 };
 
 class Curve: public QwtPlotCurve
@@ -195,13 +172,8 @@ Plot::Plot( QWidget *parent ):
     curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
     curve2->attach( this );
 
-#if 1
     Curve *curve3 = new Curve( "Akima Spline", Qt::darkCyan);
     curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
-#else
-    Curve *curve3 = new Curve( "Cubic Spline", Qt::darkCyan);
-    curve3->setCurveFitter( new CurveFitter2 );
-#endif
     curve3->attach( this );
 
     Curve *curve4 = new Curve( "Harmonic Spline", Qt::darkYellow);
