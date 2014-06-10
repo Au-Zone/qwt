@@ -35,7 +35,9 @@ namespace QwtSplineCubic
         Natural,
         NotAKnot,
 
-        Test
+        Test1,
+        Test2,
+        Test3
     };
 
     // spline with endpoint conditions
