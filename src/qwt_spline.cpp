@@ -720,16 +720,70 @@ static QVector<double> qwtDerivatives2( const QPolygonF &p,
 
     if ( n == 3 )
     {
-        // TODO
-        const double v0 = 3.0 * ( s1 - s0 ) - h0 * 0.5 * cvStart;
-        const double w0 = 2.0 * ( h0 + h1 );
+        // 2. Ableitung
+        //   0) 2 * b1 = cvStart;
+        //   1) 6 * a2 * x2 + 2 * b2 = cvEnd;
+        //   2) 6 * a1 * x1 + 2 * b1 = 2 * b2;
 
-        const double cv = 2.0 * v0 / w0;
+        // 1. Ableitung
+        //   3) c2 = 3 * a1 * x1 * x1 + 2 * b1 * x1 + c1;
+
+        // Polynome
+        //   4) a1 * x1 * x1 + b1 * x1 + c1 = s1
+        //   5) a2 * x2 * x2 + b2 * x2 + c2 = s2
+
+        // ---
+
+#if 0
+        // c2 eliminieren: 3 in 5
+        a2 * x2 * x2 + b2 * x2 + 3 * a1 * x1 * x1 + 2 * b1 * x1 + c1 = s2;
+        c1 = s2 - a2 * x2 * x2 - b2 * x2 - 3 * a1 * x1 * x1 - 2 * b1 * x1;
+
+        // c1 eliminieren -> 4
+
+        a1 * x1 * x1 + b1 * x1 + s2 - a2 * x2 * x2 - b2 * x2 - 3 * a1 * x1 * x1 - 2 * b1 * x1 = s1
+        s2 - a2 * x2 * x2 - b2 * x2 - 2 * a1 * x1 * x1 - b1 * x1 = s1
+        s2 - b2 * x2 - 2 * a1 * x1 * x1 - b1 * x1 = s1 + a2 * x2 * x2;
+        a2 * x2 * x2 = s2 - s1 - b2 * x2 - 2 * a1 * x1 * x1 - b1 * x1;
+        a2 = ( s2 - s1 - b2 * x2 - 2 * a1 * x1 * x1 - b1 * x1 ) / ( x2 * x2 );
+
+        // a2 eliminieren -> 1
+
+        6 * ( s2 - s1 - b2 * x2 - 2 * a1 * x1 * x1 - b1 * x1 ) / x2 + 2 * b2 = cvEnd;
+        6 * ( s2 - s1 - 2 * a1 * x1 * x1 - b1 * x1 ) / x2 - 4 * b2 = cvEnd;
+        3 * ( s2 - s1 - 2 * a1 * x1 * x1 - b1 * x1 ) / x2 - 2 * b2 = 0.5 * cvEnd;
+
+        3 * ( s2 - s1 - 2 * a1 * x1 * x1 - b1 * x1 ) / x2 - 0.5 * cvEnd = 2 * b2;
+
+        // b2 eliminieren -> 2
+
+        6 * a1 * x1 + 2 * b1 = 3 * ( s2 - s1 - 2 * a1 * x1 * x1 - b1 * x1 ) / x2 - 0.5 * cvEnd
+        6 * a1 * x1 + 2 * b1 = 3 * ( s2 - s1 - b1 * x1 ) / x2 - 0.5 * cvEnd - 6 * a1 * x1 * x1 / x2
+        6 * a1 * x1 + 6 * a1 * x1 * x1 / x2 = 3 * ( s2 - s1 - b1 * x1 ) / x2 - 0.5 * cvEnd - 2 * b1
+        6 * a1 * ( x1 + x1 * x1 / x2 ) = 3 * ( s2 - s1 - b1 * x1 ) / x2 - 0.5 * cvEnd - 2 * b1
+        a1 = ( 3 * ( s2 - s1 - b1 * x1 ) / x2 - 0.5 * cvEnd - 2 * b1 ) / ( 6 * ( x1 + x1 * x1 / x2 ) )
+#endif
+
+        const double b1 = 0.5 * cvStart;
+        const double b3 = 0.5 * cvEnd;
+
+        const double a1 = ( 3.0 * ( s1 - s0 - b1 * h0 ) / h1 - 0.5 * cvEnd - 2 * b1 ) / ( 6 * ( h0 + h0 * h0 / h1 ) );
+        const double b2 = 1.5 * ( s1 - s0 - 2 * a1 * h0 * h0 - b1 * h0 ) / h1 - 0.5 * b3;
+
+#if 0
+        double m1, m2, m3, m4;
+        qwtToHermite2( p[0], b1, p[1], b2, m1, m2 );
+        qwtToHermite2( p[1], b2, p[2], b3, m3, m4 );
+#endif
+
+        const double a2 = ( s1 - s0 - b2 * h1 - 2 * a1 * h0 * h0 - b1 * h0 ) / ( h1 * h1 );
+        const double c1 = s1 - a2 * h1 * h1 - b2 * h1 - 3 * a1 * h0 * h0 - 2 * b1 * h0;
+        const double c2 = 3 * a1 * h0 * h0 + 2 * b1 * h0 + c1;
 
         QVector<double> m(3);
-        m[0] = s0 - 0.5 * ( cvStart + ( cv - cvStart ) / 3.0 ) * h0;
-        m[1] = m[0] + 0.5 * ( cv + cvStart ) * h0;
-        m[2] = s0 - h0 * ( 0.5 * cv + cvStart ) / 3.0;
+        m[0] = c1;
+        m[1] = c2;
+        m[2] = 3.0 * a2 * h1 * h1 + 2 * b2 * h1 + c2;
 
 #if TEST_SPLINE
         qDebug() << "COMPARE 2:" << test_2( p, m, cvStart, cvEnd );
