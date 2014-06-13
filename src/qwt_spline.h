@@ -28,12 +28,19 @@ namespace QwtSplineHarmonicMean
         double slopeStart, double slopeEnd );
 }
 
+namespace QwtSplinePchip
+{
+}
+
 namespace QwtSplineCubic
 {
     enum EndpointCondition 
     {
         Natural,
+        ParabolicRunout,
+        CubicRunout,
         NotAKnot,
+        Periodic,
 
         Test1,
         Test2,
