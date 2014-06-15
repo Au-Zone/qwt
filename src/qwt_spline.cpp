@@ -988,37 +988,7 @@ static QVector<double> qwtDerivatives4( const QPolygonF &p )
         return m;
     }
 
-    if ( n == 4 )
-    {
-        const double h2 = p[3].x() - p[2].x();
-        const double s2 = ( p[3].y() - p[2].y() ) / h2;
-
-        const double v0 = 2.0 * ( h0 + h1 );
-        const double d1 = 2.0 * ( h1 + h2 ) - h1 * h1 / v0;
-        const double ln = h2 - h0 * h1 / v0;
-        const double dn = 2.0 * ( h0 + h2 ) - h0 * h0 / v0 - ln * ( h2 - h1 * h0 / v0 ) / d1;
-
-        const double k0 = 3.0 * ( s1 - s0 ) / v0;
-        const double k1 = ( 3.0 * ( s2 - s1 ) - k0 * h1 ) / d1;
-
-        const double c3 = ( 3.0 * ( s0 - s2 ) - h0 * k0 - ln * k1 ) / dn;
-        const double c2 = k1 - c3 * ( h2 - h1 * h0 / v0 ) / d1;
-        const double c1 = k0 - h1 / v0 * c2 - h0 / v0 * c3;
-
-        QVector<double> m( 4 );
-        m[0] = s0 - h0 * ( c1 + 2.0 * c3 ) / 3.0;
-        m[1] = s1 - h1 * ( c2 + 2.0 * c1 ) / 3.0;
-        m[2] = s2 - h2 * ( c3 + 2.0 * c2 ) / 3.0;
-        m[3] = m[2] + ( c3 + c2 ) * h2;
-
-#if TEST_SPLINE
-        qDebug() << "COMPARE 4:" << test_4( p, m );
-#endif
-
-        return m;
-    }
-
-    const double h2 = ( p[3].x() - p[2].x() );
+    const double h2 = p[3].x() - p[2].x();
     const double s2 = ( p[3].y() - p[2].y() ) / h2;
 
     const double h4 = p[n-2].x() - p[n-3].x();
@@ -1027,68 +997,78 @@ static QVector<double> qwtDerivatives4( const QPolygonF &p )
     const double h5 = p[n-1].x() - p[n-2].x();
     const double s5 = ( p[n-1].y() - p[n-2].y() ) / h5;
 
-    double off0;
-    double off1;
-    double off3;
+    // --
 
     QVector<double> w( n-2 );
-    QVector<double> v( n-3 );
-    QVector<double> col( n-3 );
+    QVector<double> u( n-2 );
+    QVector<double> r( n-2 );
+
+    w[0] = 2.0 * ( h0 + h1 );
+    u[0] = h0 / w[0];
+    r[0] = 3.0 * ( s1 - s0 ) / w[0];
+
+    double offH = h0;
+    double offW = -offH * u[0];
+    double offR = -offH * r[0];
+
+    double dx1 = h1;
+    double slope1 = s1;
+
+    for ( int i = 1; i < n-3; i++ )
     {
-        const double w0 = 2.0 * ( h0 + h1 );
+        const double dx2 = p[i+2].x() - p[i+1].x();
+        const double slope2 = ( p[i+2].y() - p[i+1].y() ) / dx2;
 
-        w[0] = w0;
-        w[1] = 2.0 * ( h1 + h2 ) - h1 * h1 / w0;
-        col[1] = -h1 * h0 / ( w0 * w[1] );
+        w[i] = 2.0 * ( dx1 + dx2 ) - dx1 * dx1 / w[i-1];
+        u[i] = -u[i-1] * dx1 / w[i];
+        r[i] = ( 3.0 * ( slope2 - slope1 ) - r[i-1] * dx1 ) / w[i];
 
-        off0 = -h0 * h1 / w0;
-        off1 = -h0 * h0 / w0; 
-        off1 -= off0 * col[1];
+        offH *= -dx1 / w[i-1];
+        offW -= offH * u[i];
+        offR -= offH * r[i];
 
-        const double k0 = 3.0 * ( s1 - s0 ) / ( 2.0 * ( h0 + h1 ) );
-        const double k1 = ( 3.0 * ( s2 - s1 ) - k0 * h1 ) / w[1];
-
-        v[0] = k0;
-        v[1] = k1;
-
-        off3 = -h0 * k0;
-        off3 -= off0 * k1;
-
-        double dx1 = h2;
-        double slope1 = s2;
-
-        for ( int i = 2; i < n-3; i++ )
-        {
-            const double dx2 = p[i+2].x() - p[i+1].x();
-            const double slope2 = ( p[i+2].y() - p[i+1].y() ) / dx2;
-
-            w[i] = 2.0 * ( dx1 + dx2 ) - dx1 * dx1 / w[i-1];
-            v[i] = ( 3.0 * ( slope2 - slope1 ) - v[i-1] * dx1 ) / w[i];
-
-            col[i] = -col[i-1] * dx1 / w[i];
-
-            off0 *= -dx1 / w[i-1];
-            off1 -= off0 * col[i];
-            off3 -= off0 * v[i];
-
-            dx1 = dx2;
-            slope1 = slope2;
-        }
-        w[n-3] = 2.0 * ( h4 + h5 ) - h4 * h4 / w[n-4];
+        dx1 = dx2;
+        slope1 = slope2;
     }
 
-    QVector<double> m( n );
+    w[n-3] = 2.0 * ( h4 + h5 ) - h4 * h4 / w[n-4];
+    u[n-3] = -u[n-4] * h4 / w[n-3];
+    r[n-3] = ( 3.0 * ( s5 - s4 ) - r[n-4] * h4 ) / w[n-3];
+
+    QVector<double> m(n);
+    if ( n == 4 )
     {
-        const double ln = h5 - off0 * h4 / w[n-4];
-        const double dn = 2.0 * ( h0 + h5 ) + off1 - 
-            ln * ( h5 - h4 * col[n-4] ) / w[n-3];
+        // h1 := h4, h2 := h5
 
-        const double cx = ( 3.0 * ( s5 - s4 ) - v[n-4] * h4 ) / w[n-3];
-        const double cn = ( 3.0 * ( s0 - s5 ) + off3 - ln * cx ) / dn;
-        const double cn2 = cx - cn * ( h5 - h4 * col[n-4] ) / w[n-3];
+        const double un = u[1] + h2 / w[1];
 
-        m[n-2] = s5 - h5 * ( cn + 2.0 * cn2 ) / 3.0;
-        m[n-1] = m[n-2] + ( cn + cn2 ) * h5;
+        const double k = h2 - h1 * u[0];
+        const double wn = 2.0 * ( h0 + h2 ) + offW - k * ( h2 / w[1] + u[1] );
+        const double vn = 3.0 * ( s0 - s2 ) - offR - k * r[1];
+
+        const double c3 = vn / wn;
+        const double c2 = r[1] - c3 * un;
+        const double c1 = r[0] - h1 / w[0] * c2 - u[0] * c3;
+
+        m[0] = s0 - h0 * ( c1 + 2.0 * c3 ) / 3.0;
+        m[1] = s1 - h1 * ( c2 + 2.0 * c1 ) / 3.0;
+        m[2] = s2 - h2 * ( c3 + 2.0 * c2 ) / 3.0;
+        m[3] = m[2] + ( c3 + c2 ) * h2;
+    }
+    else
+    {
+        offH *= -h4 / w[n-4];
+
+        const double un = u[n-3] + h5 / w[n-3];
+        const double wn = 2.0 * ( h0 + h5 ) + offW - ( h5 + offH ) * un;
+        const double vn = 3.0 * ( s0 - s5 ) + offR - ( h5 + offH ) * r[n-3];
+
+        const double cn = vn / wn;
+        const double cn2 = r[n-3] - cn * un;
+        const double mn = s5 - h5 * ( cn + 2.0 * cn2 ) / 3.0;
+
+        m[n-1] = mn + ( cn + cn2 ) * h5;
+        m[n-2] = mn;
 
         double c2 = cn2;
         for ( int i = n - 3; i > 1; i-- )
@@ -1096,13 +1076,13 @@ static QVector<double> qwtDerivatives4( const QPolygonF &p )
             const double dx = p[i+1].x() - p[i].x();
             const double slope = ( p[i+1].y() - p[i].y() ) / dx;
 
-            const double c1 = v[i-1] - dx / w[i-1] * c2 - col[i-1] * cn;
+            const double c1 = r[i-1] - dx / w[i-1] * c2 - u[i-1] * cn;
             m[i] = slope - dx * ( c2 + 2.0 * c1 ) / 3.0;
 
             c2 = c1;
         }
 
-        const double c0 = v[0] - h1 / w[0] * c2 - h0 / w[0] * cn;
+        const double c0 = r[0] - h1 / w[0] * c2 - u[0] * cn;
         m[1] = s1 - h1 * ( c2 + 2.0 * c0 ) / 3.0;
         m[0] = s0 - h0 * ( c0 + 2.0 * cn ) / 3.0;
     }
