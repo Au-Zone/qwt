@@ -10,7 +10,7 @@
 #include "qwt_spline.h"
 #include "qwt_math.h"
 
-#define TEST_SPLINE 1
+#define TEST_SPLINE 0
 
 #if TEST_SPLINE
 #include <QDebug>
@@ -336,7 +336,7 @@ static bool testNodes( const QPolygonF &p, const QVector<double> &m )
 
     bool ok = true;
 
-    for ( int i = 1; i <= size - 2; i++ )
+    for ( int i = 1; i < size - 1; i++ )
     {
         double a1, b1, c1;
         double a2, b2, c2;
@@ -346,42 +346,12 @@ static bool testNodes( const QPolygonF &p, const QVector<double> &m )
 
         if ( !qFuzzyCompare( 3.0 * a1 * ( p[i].x() - p[i-1].x() ) + b1, b2 ) )
         {
-            //qDebug() << 3.0 * a1 * ( p[i].x() - p[i-1].x() ) + b1 << b2;
-            //qDebug() << "invalid node condition" << i;
+#if 1
+            qDebug() << "invalid node condition" << i << 3.0 * a1 * ( p[i].x() - p[i-1].x() ) + b1 << b2;
+#endif
             ok = false;
         }
     }
-
-    return ok;
-}
-
-static bool test_0( const QPolygonF &p, const QVector<double> &m )
-{
-    bool ok = true;
-
-    const int size = p.size();
-
-    double a1, b1, c1;
-    double a2, b2, c2;
-
-    qwtToCoefficients( p[0], m[0], p[1], m[1], a1, b1, c1 );
-    qwtToCoefficients( p[1], m[1], p[2], m[2], a2, b2, c2 );
-
-    if ( !qFuzzyCompare( a1, a2 ) )
-    {
-        ok = false;
-    }
-
-    qwtToCoefficients( p[size-3], m[size-3], p[size-2], m[size-2], a1, b1, c1 );
-    qwtToCoefficients( p[size-2], m[size-2], p[size-1], m[size-1], a2, b2, c2 );
-
-    if ( !qFuzzyCompare( a1, a2 ) )
-    {
-        ok = false;
-    } 
-
-    if ( !testNodes( p, m ) )
-        ok = false;
 
     return ok;
 }
@@ -509,125 +479,107 @@ static bool test_4( const QPolygonF &p, const QVector<double> &m )
     return ok;
 }
 
-#endif // TEST_SPLINE
-
-static QVector<double> qwtDerivatives0( const QPolygonF &p )
+static bool test_5( const QPolygonF &p, const QVector<double> &m )
 {
-    /* not-a-node condition ?             */
+    bool ok = true;
 
+    const int size = p.size();
+
+    double a1, b1, c1;
+    double a2, b2, c2;
+
+    qwtToCoefficients( p[0], m[0], p[1], m[1], a1, b1, c1 );
+    qwtToCoefficients( p[1], m[1], p[2], m[2], a2, b2, c2 );
+
+    if ( !qFuzzyCompare( a1, a2 ) )
+    {
+        ok = false;
+    }
+
+    qwtToCoefficients( p[size-3], m[size-3], p[size-2], m[size-2], a1, b1, c1 );
+    qwtToCoefficients( p[size-2], m[size-2], p[size-1], m[size-1], a2, b2, c2 );
+
+    if ( !qFuzzyCompare( a1, a2 ) )
+    {
+        ok = false;
+    } 
+
+    if ( !testNodes( p, m ) )
+        ok = false;
+
+    return ok;
+}
+
+static bool test_6( const QPolygonF &p, const QVector<double> &m )
+{
     const int n = p.size();
 
-    const double h0 = p[1].x() - p[0].x();
-    const double h1 = p[2].x() - p[1].x();
+    bool ok = true;
 
-    const double s0 = ( p[1].y() - p[0].y() ) / h0;
-    const double s1 = ( p[2].y() - p[1].y() ) / h1;
+    double a, b, c;
 
-    if ( n == 3 )
+    qwtToCoefficients( p[0], m[0], p[1], m[1], a, b, c );
+    if ( !qFuzzyCompare( a + 1.0, 1.0 ) )
     {
-        /*
-          the system is under-determined and we only 
-          compute a quadratic spline.                   
-         */
-
-        const double c = ( s1 - s0 ) / ( h0 + h1 );
-
-        QVector<double> m( 3 );
-        m[0] = s0 - h0 * c;
-        m[1] = s1 - h1 * c;
-        m[2] = s1 + h1 * c;
-
-#if TEST_SPLINE
-        qDebug() << "COMPARE 0: under-determined";
-#endif
-
-        return m;
+        qDebug() << "bad start";
+        ok = false;
     }
 
-    if ( n == 4 )
+    if ( !testNodes( p, m ) )
     {
-        // TODO ...
-
-        return QVector<double>( 4, 0.0 );
+        qDebug() << "bad node";
+        ok = false;
     }
 
-    const double h2 = p[3].x() - p[2].x();
-
-    const double h4 = ( p[n-2].x() - p[n-3].x() );
-    const double h5 = ( p[n-1].x() - p[n-2].x() );
-
-    const double s2 = ( p[3].y() - p[2].y() ) / h2;
-
-    const double s3 = ( p[n-2].y() - p[n-3].y() ) / h4;
-    const double s4 = ( p[n-1].y() - p[n-2].y() ) / h5;
-
-    QVector<double> w(n-3);
-    QVector<double> v(n-3);
-
-    w[0] = h0 + 2.0 * h1;
-    v[0] = 3.0 * ( s1 - s0 ) * h1 / ( h0 + h1 );
-
-    w[1] = 2.0 * ( h1 + h2 ) - h1 / w[0] * ( h1 - h0 );
-    v[1] = 3.0 * ( s2 - s1 ) - h1 / w[0] * v[0];
-
-    double dx1 = h2;
-    double slope1 = s2;
-
-    for ( int i = 2; i < n - 3; i++ )
+    qwtToCoefficients( p[n-2], m[n-2], p[n-1], m[n-1], a, b, c );
+    if ( !qFuzzyCompare( a + 1.0, 1.0 ) )
     {
-        const double dx2 = p[i+2].x() - p[i+1].x();
-        const double slope2 = ( p[i+2].y() - p[i+1].y() ) / dx2;
-
-        v[i] = 3.0 * ( slope2 - slope1 ) - dx1 / w[i-1] * v[i-1];
-        w[i] = 2.0 * ( dx1 + dx2 ) - dx1 * dx1 / w[i-1];
-
-        dx1 = dx2;
-        slope1 = slope2;
+        qDebug() << "bad end";
+        ok = false;
     }
 
-    // --
-
-    const double vn = 3.0 * ( s4 - s3 ) * h4 / ( h5 + h4 );
-    const double k0 = 2.0 * h4 + h5 - ( h4 - h5 ) * h4 / w[n-4];
-    const double q0 = ( h4 - h5 ) * v[n-4] / w[n-4];
-
-    const double ce1 = ( vn - q0 ) / k0; // resolved: c of the last spline !
-    const double ce2 = ( vn - ( 2.0 * h4 + h5 ) * ce1 ) / ( h4 - h5 );
-    // also: ce2 = ( v[n-4] - h4 * ce1 ) / w[n-4]; 
-
-    const double m3 = s3 - h4 * ( ce1 + 2.0 * ce2 ) / 3.0; 
-
-    QVector<double> m( n );
-
-    // m[n-1]: 3.0 * ( s5 - cv * h5 - m ) + cv * h5 + m[n-2];
-    m[n-1] = s4 + h5 * ( ce1 + h5 * ( 2.0 * ( ce1 - ce2 ) / h4 ) / 3.0 );
-    m[n-2] = m3 + ( ce2 + ce1 ) * h4;
-    m[n-3] = m3;
-
-    double c2 = ce2;
-    for ( int i = n - 4; i > 1; i-- )
-    {
-        const double dx = p[i+1].x() - p[i].x();
-        const double slope = ( p[i + 1].y() - p[i].y() ) / dx;
-
-        const double c1 = ( v[i-1] - dx * c2 ) / w[i-1];
-        m[i] = slope - dx * ( c2 + 2.0 * c1 ) / 3.0;
-
-        c2 = c1;
-    }
-
-    const double cb0 = ( v[0] - ( h1 - h0 ) * c2 ) / w[0];
-    const double cb1 = cb0 + h0 * ( cb0 - c2 ) / h1;
-
-    m[1] = s1 - h1 * ( c2 + 2.0 * cb0 ) / 3.0;
-    m[0] = s0 - h0 * ( cb0 + 2.0 * cb1 ) / 3.0;
-
-#if TEST_SPLINE
-    qDebug() << "COMPARE 0:" << test_0( p, m );
-#endif
-
-    return m;
+    return ok;
 }
+
+static bool test_7( const QPolygonF &p, const QVector<double> &m )
+{
+    const int n = p.size();
+    bool ok = true;
+
+    double a1, b1, c1;
+    double a2, b2, c2;
+    double b3;
+
+    qwtToCoefficients( p[0], m[0], p[1], m[1], a1, b1, c1 );
+    qwtToCoefficients( p[1], m[1], p[2], m[2], a2, b2, c2 );
+    b3 = 3 * a2 * ( p[2].x() - p[1].x() ) + b2;
+
+    if ( !qFuzzyCompare( b1, 2 * b2 - b3 ) )
+    {
+        qDebug() << "invalid start condition";
+        ok = false;
+    }
+
+    if ( !testNodes( p, m ) )
+    {
+        qDebug() << "invalid nodes";
+        ok = false;
+    }
+
+    qwtToCoefficients( p[n-2], m[n-2], p[n-1], m[n-1], a1, b1, c1 );
+    qwtToCoefficients( p[n-3], m[n-3], p[n-2], m[n-2], a2, b2, c2 );
+    b3 = 3 * a1 * ( p[n-1].x() - p[n-2].x() ) + b1;
+
+    if ( !qFuzzyCompare( b3, 2 * b1 - b2 ) )
+    {
+        qDebug() << "invalid end condition";
+        ok = false;
+    }
+
+    return ok;
+}
+
+#endif // TEST_SPLINE
 
 static QVector<double> qwtDerivatives1( const QPolygonF &p,
     double slopeBegin, double slopeEnd )
@@ -664,10 +616,10 @@ static QVector<double> qwtDerivatives1( const QPolygonF &p,
     const double s5 = ( p[n-1].y() - p[n-2].y() ) / h5;
 
     QVector<double> w(n-3);
-    QVector<double> v(n-3);
+    QVector<double> r(n-3);
 
     w[0] = 2.0 * ( h0 + h1 ) - 0.5 * h0;
-    v[0] = 3.0 * ( s1 - s0 ) - 1.5 * ( s0 - slopeBegin );
+    r[0] = 3.0 * ( s1 - s0 ) - 1.5 * ( s0 - slopeBegin );
 
     double dx1 = h1;
     double slope1 = s1;
@@ -677,18 +629,18 @@ static QVector<double> qwtDerivatives1( const QPolygonF &p,
         double dx2 = p[i+2].x() - p[i+1].x();
         double slope2 = ( p[i+2].y() - p[i+1].y() ) / dx2;
 
-        v[i] = 3.0 * ( slope2 - slope1 ) - dx1 * v[i - 1] / w[i-1];
+        r[i] = 3.0 * ( slope2 - slope1 ) - dx1 * r[i-1] / w[i-1];
         w[i] = 2.0 * ( dx1 + dx2 ) - dx1 * dx1 / w[i-1];
 
         dx1 = dx2;
         slope1 = slope2;
     }
 
-    const double vn = 3.0 * ( ( s5 - s4 ) - 0.5 * ( slopeEnd - s5 ) ) - h4 * v[n-4] / w[n-4];
+    const double rn = 3.0 * ( ( s5 - s4 ) - 0.5 * ( slopeEnd - s5 ) ) - h4 * r[n-4] / w[n-4];
     const double wn = 2.0 * ( h4 + h5 ) - 0.5 * h5 - h4 * h4 / w[n-4];
 
-    const double ce1 = -( 1.5 * ( s5 - slopeEnd ) + vn / wn * h5 * 0.5 ) / h5;
-    const double ce2 = vn / wn;
+    const double ce1 = -( 1.5 * ( s5 - slopeEnd ) + rn / wn * h5 * 0.5 ) / h5;
+    const double ce2 = rn / wn;
 
     QVector<double> m( n );
 
@@ -699,10 +651,14 @@ static QVector<double> qwtDerivatives1( const QPolygonF &p,
     for ( int i = n-3; i > 0; i-- )
     {
         const double dx = p[i+1].x() - p[i].x();
-        const double slope = ( p[i + 1].y() - p[i].y() ) / dx;
+        const double c1 = ( r[i-1] - dx * c2 ) / w[i-1];
 
-        const double c1 = ( v[i-1] - dx * c2 ) / w[i - 1];
+#if 0
+        const double slope = ( p[i+1].y() - p[i].y() ) / dx;
         m[i] = slope - dx * ( c2 + 2.0 * c1 ) / 3.0;
+#else
+        m[i] = m[i+1] - ( c1 + c2 ) * dx;
+#endif
 
         c2 = c1;
     }
@@ -769,12 +725,12 @@ static QVector<double> qwtDerivatives2( const QPolygonF &p,
     const double s5 = ( p[n-1].y() - p[n-2].y() ) / h5;
 
     QVector<double> w(n-3);
-    QVector<double> v(n-3);
+    QVector<double> r(n-3);
 
-    const double v0 = 3.0 * ( s1 - s0 ) - h0 * 0.5 * cvStart;
     const double w0 = 2.0 * ( h0 + h1 );
+    const double r0 = 3.0 * ( s1 - s0 ) - h0 * 0.5 * cvStart;
 
-    v[0] = v0;
+    r[0] = r0;
     w[0] = w0;
 
     double dx1 = h1;
@@ -787,14 +743,14 @@ static QVector<double> qwtDerivatives2( const QPolygonF &p,
 
         const double l = dx1 / w[i - 1];
 
-        v[i] = 3.0 * ( slope2 - slope1 ) - l * v[i-1];
+        r[i] = 3.0 * ( slope2 - slope1 ) - l * r[i-1];
         w[i] = 2.0 * ( dx1 + dx2 ) - l * dx1;
 
         dx1 = dx2;
         slope1 = slope2;
     }
 
-    const double vn = 3.0 * ( s5 - s4 ) - h5 * 0.5 * cvEnd - h4 / w[n-4] * v[n-4];
+    const double vn = 3.0 * ( s5 - s4 ) - h5 * 0.5 * cvEnd - h4 / w[n-4] * r[n-4];
     const double wn = 2.0 * ( h4 + h5 ) - h4 / w[n-4] * h4;
 
     QVector<double> m( n );
@@ -813,7 +769,7 @@ static QVector<double> qwtDerivatives2( const QPolygonF &p,
         const double dx = p[i+1].x() - p[i].x();
         const double slope = ( p[i + 1].y() - p[i].y() ) / dx;
 
-        double c1 = ( v[i-1] - dx * c2 ) / w[i-1];
+        double c1 = ( r[i-1] - dx * c2 ) / w[i-1];
         m[i] = slope - dx * ( c2 + 2.0 * c1 ) / 3.0;
 
         c2 = c1;
@@ -847,9 +803,9 @@ static QVector<double> qwtDerivatives3( const QPolygonF &p,
         const double m0 = marg_0 * h0;
         const double m1 = marg_n * h1;
 
-        double v = 3.0 * ( s1 - s0 ) + 0.5 * ( m0 * h0 - m1 * h1 );
+        double r = 3.0 * ( s1 - s0 ) + 0.5 * ( m0 * h0 - m1 * h1 );
 
-        const double c2 = v / ( h0 + h1 );
+        const double c2 = r / ( h0 + h1 );
 
         QVector<double> m( 3 );
         m[0] = s0 - h0 * ( c2 - m0 ) / 3.0;
@@ -869,9 +825,9 @@ static QVector<double> qwtDerivatives3( const QPolygonF &p,
     const double s5 = ( p[n-1].y() - p[n-2].y() ) / h5;
 
     QVector<double> w(n-3);
-    QVector<double> v(n-3);
+    QVector<double> r(n-3);
 
-    v[0] = 3.0 * ( s1 - s0 ) + 0.5 * marg_0 * h0 * h0;
+    r[0] = 3.0 * ( s1 - s0 ) + 0.5 * marg_0 * h0 * h0;
     w[0] = 2.0 * ( h0 + h1 ) + h0;
 
     double dx1 = h1;
@@ -884,20 +840,20 @@ static QVector<double> qwtDerivatives3( const QPolygonF &p,
 
         const double l = dx1 / w[i - 1];
 
-        v[i] = 3.0 * ( slope2 - slope1 ) - l * v[i-1];
+        r[i] = 3.0 * ( slope2 - slope1 ) - l * r[i-1];
         w[i] = 2.0 * ( dx1 + dx2 ) - l * dx1;
 
         dx1 = dx2;
         slope1 = slope2;
     }
 
-    const double vn = 3.0 * ( s5 - s4 ) - 0.5 * marg_n * h5 * h5 - h4 / w[n-4] * v[n-4];
+    const double rn = 3.0 * ( s5 - s4 ) - 0.5 * marg_n * h5 * h5 - h4 / w[n-4] * r[n-4];
     const double wn = 2.0 * ( h4 + h5 ) + h5 - h4 / w[n-4] * h4;
 
     QVector<double> m( n );
 
-    const double ce1 = vn / wn + marg_n * 0.5 * h5;
-    const double ce2 = vn / wn;
+    const double ce1 = rn / wn + marg_n * 0.5 * h5;
+    const double ce2 = rn / wn;
 
     m[n-2] = s5 - h5 * ( ce1 + 2.0 * ce2 ) / 3.0;
     const double d = ( ce1 - ce2 ) / ( 3.0 * h5 );
@@ -909,7 +865,7 @@ static QVector<double> qwtDerivatives3( const QPolygonF &p,
         const double dx = p[i+1].x() - p[i].x();
         const double slope = ( p[i + 1].y() - p[i].y() ) / dx;
 
-        const double c1 = ( v[i-1] - dx * c2 ) / w[i - 1];
+        const double c1 = ( r[i-1] - dx * c2 ) / w[i - 1];
         m[i] = slope - dx * ( c2 + 2.0 * c1 ) / 3.0;
 
         c2 = c1;
@@ -957,7 +913,7 @@ static QVector<double> qwtDerivatives4( const QPolygonF &p )
         m[2] = m[1] + ( c0 + c1 ) * h1;
 
 #if TEST_SPLINE
-        qDebug() << "COMPARE 4:" << test_4( p, m );
+        qDebug() << "PERIODIC:" << test_4( p, m );
 #endif
         return m;
     }
@@ -1018,11 +974,333 @@ static QVector<double> qwtDerivatives4( const QPolygonF &p )
     m[n-1] = m[0];
 
 #if TEST_SPLINE
-    qDebug() << "COMPARE 4:" << test_4( p, m );
+    qDebug() << "PERIODIC:" << test_4( p, m );
 #endif
 
     return m;
 }
+
+static QVector<double> qwtDerivatives5( const QPolygonF &p )
+{
+    /* not-a-node condition ?             */
+
+    const int n = p.size();
+
+    const double h0 = p[1].x() - p[0].x();
+    const double h1 = p[2].x() - p[1].x();
+
+    const double s0 = ( p[1].y() - p[0].y() ) / h0;
+    const double s1 = ( p[2].y() - p[1].y() ) / h1;
+
+    if ( n == 3 )
+    {
+        /*
+          the system is under-determined and we only 
+          compute a quadratic spline.                   
+         */
+
+        const double c = ( s1 - s0 ) / ( h0 + h1 );
+
+        QVector<double> m( 3 );
+        m[0] = s0 - h0 * c;
+        m[1] = s1 - h1 * c;
+        m[2] = s1 + h1 * c;
+
+#if TEST_SPLINE
+        qDebug() << "NOT A NODE: under-determined";
+#endif
+
+        return m;
+    }
+
+    if ( n == 4 )
+    {
+        // TODO ...
+
+        return QVector<double>( 4, 0.0 );
+    }
+
+    const double h2 = p[3].x() - p[2].x();
+    const double s2 = ( p[3].y() - p[2].y() ) / h2;
+
+    const double h4 = ( p[n-2].x() - p[n-3].x() );
+    const double s3 = ( p[n-2].y() - p[n-3].y() ) / h4;
+
+    const double h5 = ( p[n-1].x() - p[n-2].x() );
+    const double s4 = ( p[n-1].y() - p[n-2].y() ) / h5;
+
+    QVector<double> w(n-3);
+    QVector<double> r(n-3);
+
+    w[0] = h0 + 2.0 * h1;
+    r[0] = 3.0 * ( s1 - s0 ) * h1 / ( h0 + h1 );
+
+    w[1] = 2.0 * ( h1 + h2 ) - h1 / w[0] * ( h1 - h0 );
+    r[1] = 3.0 * ( s2 - s1 ) - h1 / w[0] * r[0];
+
+    double dx1 = h2;
+    double slope1 = s2;
+
+    for ( int i = 2; i < n - 3; i++ )
+    {
+        const double dx2 = p[i+2].x() - p[i+1].x();
+        const double slope2 = ( p[i+2].y() - p[i+1].y() ) / dx2;
+
+        r[i] = 3.0 * ( slope2 - slope1 ) - dx1 / w[i-1] * r[i-1];
+        w[i] = 2.0 * ( dx1 + dx2 ) - dx1 * dx1 / w[i-1];
+
+        dx1 = dx2;
+        slope1 = slope2;
+    }
+
+    // --
+
+    const double rn = 3.0 * ( s4 - s3 ) * h4 / ( h5 + h4 );
+    const double k0 = 2.0 * h4 + h5 - ( h4 - h5 ) * h4 / w[n-4];
+    const double q0 = ( h4 - h5 ) * r[n-4] / w[n-4];
+
+    const double ce1 = ( rn - q0 ) / k0; // resolved: c of the last spline !
+    const double ce2 = ( rn - ( 2.0 * h4 + h5 ) * ce1 ) / ( h4 - h5 );
+    // also: ce2 = ( v[n-4] - h4 * ce1 ) / w[n-4]; 
+
+    const double m3 = s3 - h4 * ( ce1 + 2.0 * ce2 ) / 3.0; 
+
+    QVector<double> m( n );
+
+    // m[n-1]: 3.0 * ( s5 - cv * h5 - m ) + cv * h5 + m[n-2];
+    m[n-1] = s4 + h5 * ( ce1 + h5 * ( 2.0 * ( ce1 - ce2 ) / h4 ) / 3.0 );
+    m[n-2] = m3 + ( ce2 + ce1 ) * h4;
+    m[n-3] = m3;
+
+    double c2 = ce2;
+    for ( int i = n - 4; i > 1; i-- )
+    {
+        const double dx = p[i+1].x() - p[i].x();
+        const double slope = ( p[i + 1].y() - p[i].y() ) / dx;
+
+        const double c1 = ( r[i-1] - dx * c2 ) / w[i-1];
+        m[i] = slope - dx * ( c2 + 2.0 * c1 ) / 3.0;
+
+        c2 = c1;
+    }
+
+    const double cb0 = ( r[0] - ( h1 - h0 ) * c2 ) / w[0];
+    const double cb1 = cb0 + h0 * ( cb0 - c2 ) / h1;
+
+    m[1] = s1 - h1 * ( c2 + 2.0 * cb0 ) / 3.0;
+    m[0] = s0 - h0 * ( cb0 + 2.0 * cb1 ) / 3.0;
+
+#if TEST_SPLINE
+    qDebug() << "NOT A NODE:" << test_5( p, m );
+#endif
+
+    return m;
+}
+
+static QVector<double> qwtDerivatives6( const QPolygonF &p )
+{
+    // parabolic runout
+
+    const int n = p.size();
+
+    const double h0 = p[1].x() - p[0].x();
+    const double h1 = p[2].x() - p[1].x();
+
+    const double s0 = ( p[1].y() - p[0].y() ) / h0;
+    const double s1 = ( p[2].y() - p[1].y() ) / h1;
+
+    if ( n == 3 )
+    {
+        const double c = s0 / h0 - ( s0 * ( 2 + h1 / h0 ) - s1 ) / ( h0 + h1 );
+
+        QVector<double> m(3);
+        m[0] = s0 - h0 * c;
+        m[1] = m[0] + 2.0 * h0 * c;
+        m[2] = m[1] + 2.0 * h1 * c;
+
+#if TEST_SPLINE
+        qDebug() << "PARABOLIC RUNOUT:" << test_6( p, m );
+#endif
+
+        return m;
+    }
+
+    const double h4 = ( p[n-2].x() - p[n-3].x() );
+    const double s4 = ( p[n-2].y() - p[n-3].y() ) / h4;
+
+    const double h5 = ( p[n-1].x() - p[n-2].x() );
+    const double s5 = ( p[n-1].y() - p[n-2].y() ) / h5;
+
+    QVector<double> w(n-1);
+    QVector<double> r(n-1);
+
+    w[0] = 3.0 * h0 + 2.0 * h1;
+    r[0] = 3.0 * ( s1 - s0 );
+
+    double dx1 = h1;
+    double slope1 = s1;
+
+    for ( int i = 1; i < n - 3; i++ )
+    {
+        double dx2 = p[i+2].x() - p[i+1].x();
+        double slope2 = ( p[i+2].y() - p[i+1].y() ) / dx2;
+
+        r[i] = 3.0 * ( slope2 - slope1 ) - dx1 * r[i-1] / w[i-1];
+        w[i] = 2.0 * ( dx1 + dx2 ) - dx1 * dx1 / w[i-1];
+
+        dx1 = dx2;
+        slope1 = slope2;
+    }
+
+    const double rn = 3.0 * ( s5 - s4 ) - h4 * r[n-4] / w[n-4];
+    const double wn = 2.0 * h4 + 3.0 * h5 - h4 * h4 / w[n-4];
+
+    const double ce = rn / wn;
+
+    QVector<double> m( n );
+
+    m[n-1] = s5 + ce * h5;
+    m[n-2] = s5 - ce * h5;
+
+    double c2 = ce;
+    for ( int i = n - 3; i > 0; i-- )
+    {
+        const double dx = p[i+1].x() - p[i].x();
+        const double slope = ( p[i+1].y() - p[i].y() ) / dx;
+
+        const double c1 = ( r[i-1] - dx * c2 ) / w[i-1];
+        m[i] = slope - dx * ( c2 + 2.0 * c1 ) / 3.0;
+
+        c2 = c1;
+    }
+
+    m[0] = m[1] - 2 * c2 * h0;
+
+#if TEST_SPLINE
+    qDebug() << "PARABOLIC RUNOUT:" << test_6( p, m );
+#endif
+
+    return m;
+}
+
+static QVector<double> qwtDerivatives7( const QPolygonF &p )
+{
+    // cubic runout
+
+    const int n = p.size();
+
+    const double h0 = p[1].x() - p[0].x();
+    const double h1 = p[2].x() - p[1].x();
+    const double h2 = p[3].x() - p[2].x();
+
+    const double s0 = ( p[1].y() - p[0].y() ) / h0;
+    const double s1 = ( p[2].y() - p[1].y() ) / h1;
+    const double s2 = ( p[3].y() - p[2].y() ) / h2;
+
+#if 1
+    if ( n == 3 )
+    {
+        const double c = 1.0;
+
+        QVector<double> m(3);
+        m[2] = m[1] = m[0] = s0 - h0 * c;
+
+#if TEST_SPLINE
+        qDebug() << "CUBIC RUNOUT:" << test_7( p, m );
+#endif
+
+        return m;
+    }
+#endif
+
+    const double h4 = ( p[n-2].x() - p[n-3].x() );
+    const double s4 = ( p[n-2].y() - p[n-3].y() ) / h4;
+
+    const double h5 = ( p[n-1].x() - p[n-2].x() );
+
+    QVector<double> w(n-1);
+    QVector<double> r(n-1);
+
+    // h0 * c0 + 2 * c1 * ( h0 + h1 ) + h1 * c2 = 3 * ( s1 - s0 );
+    // c0 = 2 * c1 - c2;
+
+    // h0 * ( 2 * c1 - c2 ) + 2 * c1 * ( h0 + h1 ) + h1 * c2 = 3 * ( s1 - s0 );
+    // 2 * h0 * c1 - h0 * c2 + 2 * c1 * ( h0 + h1 ) + h1 * c2 = 3 * ( s1 - s0 );
+    // 2 * h0 * c1 + 2 * c1 * ( h0 + h1 ) - h0 * c2 + h1 * c2 = 3 * ( s1 - s0 );
+    // c1 * ( 4 * h0 + 2 * h1 ) + c2 * ( h1 - h0 ) = 3 * ( s1 - s0 );
+    // c1 * ( 4 * h0 + 2 * h1 ) = 3 * ( s1 - s0 ) - c2 * ( h1 - h0 );
+    // c1 = 3 * ( s1 - s0 ) / ( 4 * h0 + 2 * h1 ) - c2 * ( h1 - h0 ) / ( 4 * h0 + 2 * h1 );
+    // k0 = 3 * ( s1 - s0 ); k1 = 4 * h0 + 2 * h1:
+    // c1 = k0 / k1 - c2 * ( h1 - h0 ) / k1;
+
+    // h1 * c1 + 2 * c2 * ( h1 + h2 ) + h2 * c3 = 3 * ( s2 - s1 );
+    // h1 * k0 / k1 - c2 * h1 * ( h1 - h0 ) / k1 + 2 * c2 * ( h1 + h2 ) + h2 * c3 = 3 * ( s2 - s1 );
+    // c2 * 2 * ( h1 + h2 ) - c2 * h1 * ( h1 - h0 ) / k1 + h1 * k0 / k1 + h2 * c3 = 3 * ( s2 - s1 );
+    // c2 * ( 2 * ( h1 + h2 ) - h1 * ( h1 - h0 ) / k1 ) + h2 * c3 = 3 * ( s2 - s1 ) - h1 * k0 / k1;
+
+    const double k0 = 3 * ( s1 - s0 ); 
+    const double k1 = 4 * h0 + 2 * h1;
+
+    w[1] = 2 * ( h1 + h2 ) - h1 * ( h1 - h0 ) / k1;
+    r[1] = 3 * ( s2 - s1 ) - h1 * k0 / k1;
+
+    double dx1 = h2;
+    double slope1 = s2;
+
+    for ( int i = 2; i < n - 2; i++ )
+    {
+        double dx2 = p[i+2].x() - p[i+1].x();
+        double slope2 = ( p[i+2].y() - p[i+1].y() ) / dx2;
+
+        r[i] = 3.0 * ( slope2 - slope1 ) - dx1 * r[i-1] / w[i-1];
+        w[i] = 2.0 * ( dx1 + dx2 ) - dx1 * dx1 / w[i-1];
+
+        dx1 = dx2;
+        slope1 = slope2;
+    }
+
+    const double rn = r[n-3] + h5 * r[n-4] / w[n-4];
+    const double wn = w[n-3] + h5 * ( 2 + h4 / w[n-4] );
+
+    const double ce2 = rn / wn;
+    const double ce3 = ( r[n-4] - h4 * ce2 ) / w[n-4];
+    const double ce1 = 2 * ce2 - ce3;
+
+    QVector<double> m( n );
+
+    m[n-3] = s4 - h4 * ( ce2 + 2.0 * ce3 ) / 3.0;
+    m[n-2] = ( ce2 + ce3 ) * h4 + m[n-3];
+    m[n-1] = ( ce1 + ce2 ) * h5 + m[n-2];
+
+    double c2 = ce3;
+    for ( int i = n - 4; i > 1; i-- )
+    {
+        const double dx = p[i+1].x() - p[i].x();
+
+        const double c1 = ( r[i-1] - dx * c2 ) / w[i-1];
+
+#if 0
+        const double slope = ( p[i+1].y() - p[i].y() ) / dx;
+        m[i] = slope - dx * ( c2 + 2.0 * c1 ) / 3.0;
+#else
+        m[i] = m[i+1] - ( c1 + c2 ) * dx;
+#endif
+
+        c2 = c1;
+    }
+
+    const double cb2 = k0 / k1 - c2 * ( h1 - h0 ) / k1;
+    const double cb1 = 2 * cb2 - c2;
+
+    m[1] = m[2] - ( c2 + cb2 ) * h1;
+    m[0] = m[1] - ( cb2 + cb1 ) * h0;
+
+#if TEST_SPLINE
+    qDebug() << "CUBIC RUNOUT:" << test_7( p, m );
+#endif
+
+    return m;
+}   
 
 QVector<double> QwtSplineCubic::derivatives( 
     const QPolygonF &points, EndpointCondition condition )
@@ -1036,11 +1314,17 @@ QVector<double> QwtSplineCubic::derivatives(
         case Natural:
             m = qwtDerivatives2( points, 0.0, 0.0 );
             break;
-        case NotAKnot:
-            m = qwtDerivatives0( points );
-            break;
         case Periodic:
             m = qwtDerivatives4( points );
+            break;
+        case NotAKnot:
+            m = qwtDerivatives5( points );
+            break;
+        case ParabolicRunout:
+            m = qwtDerivatives6( points );
+            break;
+        case CubicRunout:
+            m = qwtDerivatives7( points );
             break;
         case Test1:
             m = qwtDerivatives1( points, 2.0, 0.5 );
@@ -1050,9 +1334,6 @@ QVector<double> QwtSplineCubic::derivatives(
             break;
         case Test3:
             m = qwtDerivatives3( points, 0.001, 0.001 );
-            break;
-        case ParabolicRunout:
-        case CubicRunout:
             break;
     }
 
