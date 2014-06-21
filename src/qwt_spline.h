@@ -40,11 +40,7 @@ namespace QwtSplineCubic
         ParabolicRunout,
         CubicRunout,
         NotAKnot,
-        Periodic,
-
-        Test1,
-        Test2,
-        Test3
+        Periodic
     };
 
     // spline with endpoint conditions
