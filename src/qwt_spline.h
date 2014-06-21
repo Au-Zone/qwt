@@ -62,6 +62,12 @@ namespace QwtSplineCubic
     QWT_EXPORT QVector<double> derivatives( 
         const QPolygonF &, double slopeBegin, double slopeEnd );
 
+    QWT_EXPORT QVector<double> derivatives2( 
+        const QPolygonF &, double curvatureBegin, double curvatureEnd );
+
+    QWT_EXPORT QVector<double> derivatives3( 
+        const QPolygonF &, double slopeBegin, double slopeEnd );
+
     QWT_EXPORT QPainterPath path( 
         const QPolygonF &, double slopeBegin, double slopeEnd );
 

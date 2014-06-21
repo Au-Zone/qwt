@@ -21,7 +21,8 @@ contains(QWT_CONFIG, QwtPlot) {
         rescaler \
         shapes \
         curvetracker \
-        symbols
+        symbols \
+        splinetest
 
     contains(QWT_CONFIG, QwtSvg) {
 
