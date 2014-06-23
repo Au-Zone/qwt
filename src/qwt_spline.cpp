@@ -410,15 +410,27 @@ namespace QwtSplineCubic
             }
         }
 
-        void resolve( const QPolygonF &p, int from, int to,
+        void resolve3( const QPolygonF &p, int from, int to,
             double &c2, QVector<double> &m )
         {
             resolve2( p, from, to, c2, m );
 
-            // p * c1 + q * c2 = r0
-            const double c1 = ( d_r0 - d_q0 * c2 ) / d_p0;
-
             const double dx = p[from].x() - p[from-1].x();
+
+            double c1;
+			if ( d_p0 != 0.0 )
+			{
+                // p0 * c1 + q0 * c2 = r0
+				c1 = ( d_r0 - d_q0 * c2 ) / d_p0;
+			}
+			else
+			{
+                // c2 = r0 / q0
+#if 1
+                c1 = ( d_r[from] - dx * d_r0 / d_q0 ) / d_w[from]; // ???
+#endif
+			}
+
             m[from - 1] = m[from] - ( c1 + c2 ) * dx;
 
             c2 = c1;
@@ -436,14 +448,23 @@ namespace QwtSplineCubic
             substitute( points, 0, n - 3, w, r ); 
 
             const double c2 = ( d_rn - d_pn * r / w ) / ( d_qn - d_pn * dx / w );
-            double c1 = ( d_rn - d_qn * c2 ) / d_pn;
+			double c1;
+			if ( d_pn != 0.0 )
+			{
+            	c1 = ( d_rn - d_qn * c2 ) / d_pn;
+			}
+			else
+			{
+            	// d_pn = 0 => c2 = d_rn / d_qn
+                c1 = ( r - dx * d_rn / d_qn ) / w;
+			}
 
             QVector<double> m(n);
 
             m[n-1] = ( c1 + c2 ) * dx + s - dx * ( 2.0 * c1 + c2 ) / 3.0;
             m[n-2] = m[n-1] - ( c1 + c2 ) * dx;
 
-            resolve( points, 1, n - 3, c1, m );
+            resolve3( points, 1, n - 3, c1, m );
 
             return m;
         }
@@ -541,7 +562,6 @@ static QVector<double> qwtDerivatives1( const QPolygonF &points,
 
     // 3 * a1 * h + b1 = b2
     // a1 * h * h + b1 * h + c1 = s
-    // 3 * a1 * h * h + 2 * b1 * h + c1 = c2
 
     // c1 = slopeBegin
     // => b1 * ( 2 * h / 3.0 ) + b2 * ( h / 3.0 ) = s - slopeBegin
@@ -556,39 +576,22 @@ static QVector<double> qwtDerivatives1( const QPolygonF &points,
     return eqs.resolve( points );
 }
 
-static QVector<double> qwtDerivatives2( const QPolygonF &p,
+static QVector<double> qwtDerivatives2( const QPolygonF &points,
     double cvStart, double cvEnd )
 {
     /* second derivative at end points ?  */
 
-    const int n = p.size();
-
-    const double h5 = ( p[n-1].x() - p[n-2].x() );
-    const double s5 = ( p[n-1].y() - p[n-2].y() ) / h5;
-
     // b0 = 0.5 * cvStart
     // => b0 * 1.0 + b1 * 0.0 = 0.5 * cvStart
-    double w, r;
+
+    // b1 = 0.5 * cvEnd
+    // => b0 * 0.0 + b1 * 1.0 = 0.5 * cvEnd
 
     QwtSplineCubic::EquationSystem eqs;
     eqs.setStartCondition( 1.0, 0.0, 0.5 * cvStart ); 
-    eqs.substitute( p, 0, n - 3, w, r ); 
+    eqs.setEndCondition( 0.0, 1.0, 0.5 * cvEnd ); 
 
-    const double rn = r - h5 * 0.5 * cvEnd;
-    const double wn = w;
-
-    QVector<double> m( n );
-
-    const double ce1 = cvEnd * 0.5;
-    const double ce2 = rn / wn;
-
-    m[n-2] = s5 - h5 * ( ce1 + 2.0 * ce2 ) / 3.0;
-    m[n-1] = m[n-2] + ( ce1 + ce2 ) * h5;
-    
-    double c2 = ce2;
-    eqs.resolve( p, 1, n - 3, c2, m );
-
-    return m;
+    return eqs.resolve( points );
 }
 
 static QVector<double> qwtDerivatives3( const QPolygonF &p,
@@ -599,34 +602,21 @@ static QVector<double> qwtDerivatives3( const QPolygonF &p,
     const int n = p.size();
 
     const double h0 = p[1].x() - p[0].x();
+    const double hn = ( p[n-1].x() - p[n-2].x() );
 
-    const double h5 = ( p[n-1].x() - p[n-2].x() );
-    const double s5 = ( p[n-1].y() - p[n-2].y() ) / h5;
+    // 3 * a * h0 + b[0] = b[1]
 
-    // a[0] = marg_0 / 6.0
-    // 3 * a[0] * h0 + b[0] = b[1]
+    // a = marg_0 / 6.0
     // => b[0] * 1.0 + b[1] * ( -1.0 ) = -0.5 * marg_0 * h0
-    double r, w;
+
+    // a = marg_n / 6.0
+    // => b[n-2] * 1.0 + b[n-1] * ( -1.0 ) = -0.5 * marg_n * h5
 
     QwtSplineCubic::EquationSystem eqs;
     eqs.setStartCondition( 1.0, -1.0, -0.5 * marg_0 * h0 ); 
-    eqs.substitute( p, 0, n - 3, w, r ); 
+    eqs.setEndCondition( 1.0, -1.0, -0.5 * marg_n * hn ); 
 
-    const double rn = r - 0.5 * marg_n * h5 * h5;
-    const double wn = w + h5;
-
-    QVector<double> m( n );
-
-    const double ce1 = rn / wn + marg_n * 0.5 * h5;
-    const double ce2 = rn / wn;
-
-    m[n-2] = s5 - h5 * ( ce1 + 2.0 * ce2 ) / 3.0;
-    m[n-1] = m[n-2] + ( ce1 + ce2 ) * h5;
-
-    double c2 = ce2;
-    eqs.resolve( p, 1, n - 3, c2, m );
-
-    return m;
+    return eqs.resolve( p );
 }
 
 static QVector<double> qwtDerivatives4( const QPolygonF &p )
@@ -770,29 +760,13 @@ static QVector<double> qwtDerivatives6( const QPolygonF &p )
 {
     // parabolic runout
 
-    const int n = p.size();
-
-    const double h5 = ( p[n-1].x() - p[n-2].x() );
-    const double s5 = ( p[n-1].y() - p[n-2].y() ) / h5;
-
-    // b0 = b1 -> ( 1.0 ) * b0 + ( -1.0 ) * b1 = 0.0;
-    double w, r;
+    // b0 = b1 => ( 1.0 ) * b0 + ( -1.0 ) * b1 = 0.0;
 
     QwtSplineCubic::EquationSystem eqs;
     eqs.setStartCondition( 1.0, -1.0, 0.0 ); 
-    eqs.substitute( p, 0, n - 3, w, r ); 
+    eqs.setEndCondition( 1.0, -1.0, 0.0 ); 
 
-    const double ce = r / ( w + h5 );
-
-    QVector<double> m( n );
-
-    m[n-1] = s5 + ce * h5;
-    m[n-2] = s5 - ce * h5;
-
-    double c2 = ce;
-    eqs.resolve( p, 1, n - 3, c2, m );
-
-    return m;
+    return eqs.resolve( p );
 }
 
 static QVector<double> qwtDerivatives7( const QPolygonF &p )
