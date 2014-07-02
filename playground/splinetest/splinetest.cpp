@@ -68,7 +68,7 @@ protected:
             toPolynom( p[i-1], m[i-1], p[i], m[i], a1, b1, c1 );
             toPolynom( p[i], m[i], p[i+1], m[i+1], a2, b2, c2 );
 
-            if ( !qFuzzyCompare( 3.0 * a1 * ( p[i].x() - p[i-1].x() ) + b1, b2 ) )
+            if ( !fuzzyCompare( 3.0 * a1 * ( p[i].x() - p[i-1].x() ) + b1, b2 ) )
             {
 #if 0
                 qDebug() << "invalid node condition" << i << 
@@ -93,6 +93,10 @@ protected:
         a = ( ( m2 - m1 ) / dx - 2.0 * b ) / ( 3.0 * dx );
     }
 
+	inline bool fuzzyCompare( double a, double b ) const
+	{
+		return ( qFuzzyIsNull(a) && qFuzzyIsNull(b) ) || qFuzzyCompare(a, b);
+	}
 private:
     const QString d_name;
     const int d_minPoints;
@@ -118,7 +122,7 @@ protected:
         double a, b, c;
         toPolynom( points[0], m[0], points[1], m[1], a, b, c );
 
-        return qFuzzyCompare( a + 1.0, 1.0 );
+        return fuzzyCompare( a, 0.0 );
     }
 
     virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
@@ -128,7 +132,7 @@ protected:
         double a, b, c;
         toPolynom( points[n-2], m[n-2], points[n-1], m[n-1], a, b, c );
 
-        return qFuzzyCompare( a + 1.0, 1.0 );
+        return fuzzyCompare( a, 0.0 );
     }
 };
 
@@ -157,7 +161,7 @@ protected:
 
         const double b3 = 3 * a2 * ( points[2].x() - points[1].x() ) + b2;
 
-        return qFuzzyCompare( b1, 2 * b2 - b3 );
+        return fuzzyCompare( b1, 2 * b2 - b3 );
     }
     
     virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
@@ -172,7 +176,7 @@ protected:
 
         const double b3 = 3 * a1 * ( points[n-1].x() - points[n-2].x() ) + b1;
 
-        return qFuzzyCompare( b3, 2 * b1 - b2 );
+        return fuzzyCompare( b3, 2 * b1 - b2 );
     }
 };
 
@@ -197,7 +201,7 @@ protected:
         toPolynom( points[0], m[0], points[1], m[1], a1, b, c );
         toPolynom( points[1], m[1], points[2], m[2], a2, b, c );
 
-        return qFuzzyCompare( a1, a2 );
+        return fuzzyCompare( a1, a2 );
     }
     
     virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
@@ -208,7 +212,7 @@ protected:
         toPolynom( points[n-3], m[n-3], points[n-2], m[n-2], a1, b, c );
         toPolynom( points[n-2], m[n-2], points[n-1], m[n-1], a2, b, c );
 
-        return qFuzzyCompare( a1, a2 );
+        return fuzzyCompare( a1, a2 );
     }
 };
 
@@ -238,8 +242,8 @@ protected:
         toPolynom( points[0], m[0], points[1], m[1], a2, b2, c2 );
 
         const double dx = points[n-1].x() - points[n-2].x();
-        return( qFuzzyCompare( 6.0 * a1 * dx + 2 * b1, 2 * b2 ) &&
-            qFuzzyCompare( 3 * a1 * dx * dx + 2 * b1 * dx + c1, m[0] ) );
+        return( fuzzyCompare( 6.0 * a1 * dx + 2 * b1, 2 * b2 ) &&
+            fuzzyCompare( 3 * a1 * dx * dx + 2 * b1 * dx + c1, m[0] ) );
     }
     
     virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
@@ -267,12 +271,12 @@ protected:
     
     virtual bool verifyStart( const QPolygonF &, const QVector<double> &m ) const
     {
-        return qFuzzyCompare( m.first(), d_slopeBegin );
+        return fuzzyCompare( m.first(), d_slopeBegin );
     }
     
     virtual bool verifyEnd( const QPolygonF &, const QVector<double> &m ) const
     {
-        return qFuzzyCompare( m.last(), d_slopeEnd );
+        return fuzzyCompare( m.last(), d_slopeEnd );
     }
 
 private:
@@ -303,7 +307,7 @@ protected:
         const double dy = points[1].y() - points[0].y();
 
         const double cv = 2 * ( 3 * dy / dx - 2 * m[0] - m[1] ) / dx;
-        return qFuzzyCompare( d_cvBegin, cv );
+        return fuzzyCompare( d_cvBegin, cv );
     }
 
     virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
@@ -314,7 +318,7 @@ protected:
         const double dy = points[n-1].y() - points[n-2].y();
 
         const double cv = 2 * ( -3 * dy / dx + m[n-2] + 2 * m[n-1] ) / dx;
-        return qFuzzyCompare( d_cvEnd, cv );
+        return fuzzyCompare( d_cvEnd, cv );
     }
 
 private:
@@ -349,7 +353,7 @@ protected:
         const double cv1 = 2 * ( 3 * slope - 2 * m[0] - m[1] ) / dx;
         const double cv2 = 2 * ( -3 * slope + m[0] + 2 * m[1] ) / dx;
 
-        return qFuzzyCompare( d_valueBegin, ( cv2 - cv1 ) / dx );
+        return fuzzyCompare( d_valueBegin, ( cv2 - cv1 ) / dx );
     }
     
     virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
@@ -364,7 +368,7 @@ protected:
         const double cv1 = 2 * ( 3 * slope - 2 * m[n-2] - m[n-1] ) / dx;
         const double cv2 = 2 * ( -3 * slope + m[n-2] + 2 * m[n-1] ) / dx;
 
-        return qFuzzyCompare( d_valueEnd, ( cv2 - cv1 ) / dx );
+        return fuzzyCompare( d_valueEnd, ( cv2 - cv1 ) / dx );
     }
     
 private:
@@ -394,13 +398,24 @@ int main()
     
     QPolygonF points;
 
+	// 3 points
+
     points << QPointF( 10, 50 ) << QPointF( 60, 30 ) 
         << QPointF( 82, 50 );
 
     testSplines( splines, points );
 
+	// 4 points
+
     points.clear();
     points << QPointF( 10, 50 ) << QPointF( 60, 30 )
+        << QPointF( 70, 5 ) << QPointF( 82, 50 );
+
+    testSplines( splines, points );
+
+	// 5 points
+    points.clear();
+    points << QPointF( 10, 50 ) << QPointF( 20, 20 ) << QPointF( 60, 30 )
         << QPointF( 70, 5 ) << QPointF( 82, 50 );
 
     testSplines( splines, points );
