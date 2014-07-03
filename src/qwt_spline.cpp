@@ -700,21 +700,20 @@ namespace QwtSplineCubic
             double dx1 = points[2].x() - points[1].x();
             double slope1 = ( points[2].y() - points[1].y() ) / dx1;
 
-            // we know:
-            // a) p1 * b[0] + q1 * b[1] + dx2 * b[2] = r1
-            // b) p2 * b[n-2] + q2 * b[0] + p1 * b[1] = r2
-            // c) h[i-1] * b[i-1] + 2 * ( h[i-1] + h[i] ) * b[i] + h[i] * b[i+1] = 3 * ( s[i] - s[i-1] )
-
-            // using c) we can substitute b[i] by b[i+1]  starting from 2 until w e reach n - 1. As we know,
-            // that b[0] == b[n-1] we have an equation where only 2 parameters are left unknown.
+            // a) p1 * b[0] + q1 * b[1] + u1 * b[2] = r1
+            // b) p2 * b[n-2] + q2 * b[0] + u2 * b[1] = r2
+            // c) pi * b[i-1] + qi * b[i] + ui * b[i+1] = ri
+            //
+            // Using c) we can substitute b[i] ( starting from 2 ) by b[i+1] 
+            // until we reach n-1. As we know, that b[0] == b[n-1] we found 
+            // an equation where only 2 coefficients ( for b[n-2], b[0] ) are left unknown.
+            // Each step we have an equation that depends on b[0], b[i] and b[i+1] 
+            // that can also be used to substitute b[i] in b). Ding so we end up with another
+            // equation depending on b[n-2], b[0] only.
+            // Finally 2 equations with 2 coefficients can be solved.
 
             for ( int i = 2; i < n - 1; i++ )
             {
-                // a) p1 * b[0] + q1 * b[1] + dx2 * b[2] = r1
-                // b) p2 * b[n-2] + q2 * b[0] + p1 * b[1] = r2
-                // substitute b[1] by b[2] in b) =>
-                // => eqSplineN.p * d_b[n-2] + ( eqSplineN.q - dq ) * d_b[0] - d_p[i] / d_q[i] * dx2 * d_b[i+1] = eqSplineN.r - dr
-
                 dq += d_p[i-1] * d_p[i-1] / d_q[i-1];
                 dr += d_p[i-1] * d_r[i-1] / d_q[i-1];
 
@@ -723,7 +722,6 @@ namespace QwtSplineCubic
 
                 const double k = dx1 / d_q[i-1];
 
-                // b[0] * d_p[i] + b[i] * d_q[i] + b[i+1] * h[i] = d_r[i]
                 d_p[i] = -d_p[i-1] * k;
                 d_q[i] = 2.0 * ( dx1 + dx2 ) - dx1 * k;
                 d_r[i] = 3.0 * ( slope2 - slope1 ) - d_r[i-1] * k;
@@ -732,7 +730,6 @@ namespace QwtSplineCubic
                 slope1 = slope2;
             }
 
-            // b[0] = b[n-1]
 
             // b[0] * d_p[n-2] + b[n-2] * d_q[n-2] + b[n-1] * pN = d_r[n-2]
             eqn.setup( d_q[n-2], d_p[n-2] + eqSplineN.p , d_r[n-2] );
@@ -740,7 +737,6 @@ namespace QwtSplineCubic
             // b[n-2] * pN + b[0] * ( qN - dq ) + b[n-2] * d_p[n-2] = rN - dr
             eqX.setup( d_p[n-2] + eqSplineN.p, eqSplineN.q - dq, eqSplineN.r - dr );
         }
-
 
         void resolveSpline( const QPolygonF &points, 
             double bn, double b2, QVector<double> &m )
