@@ -383,6 +383,10 @@ namespace QwtSplineCubic
     class Equation3
     {
     public:
+        Equation3()
+        {
+        }
+
         Equation3( const QPointF &p1, const QPointF &p2, const QPointF &p3 )
         {
             const double h1 = p2.x() - p1.x();
@@ -397,7 +401,7 @@ namespace QwtSplineCubic
             r = 3 * ( s2 - s1 );
         }
 
-        Equation3( double cp = 0.0, double cq = 0.0, double du = 0.0, double dr = 0.0 ):
+        Equation3( double cp, double cq, double du, double dr ):
             p( cp ),
             q( cq ),
             u( du ),
@@ -430,14 +434,14 @@ namespace QwtSplineCubic
             return c;
         }
 
-        Equation2 substituted1( const Equation3 eq ) const
+        Equation2 substituted1( const Equation3 &eq ) const
         {
             // eliminate x1
             const double k = p / eq.p;
             return Equation2( q - k * eq.q, u - k * eq.u, r - k * eq.r );
         }
 
-        Equation2 substituted3( const Equation3 eq ) const
+        Equation2 substituted3( const Equation3 &eq ) const
         {
             // eliminate x3
 
@@ -445,7 +449,7 @@ namespace QwtSplineCubic
             return Equation2 ( p - k * eq.p, q - k * eq.q, r - k * eq.r );
         }
 
-        Equation2 substituted1( const Equation2 eq ) const
+        Equation2 substituted1( const Equation2 &eq ) const
         {
             // eliminate x1
             const double k = p / eq.p;
@@ -649,82 +653,96 @@ namespace QwtSplineCubic
                 return m;
             }
 
-            const Equation3 eqSpline0( p[0], p[1], p[2] );
-
-            double w = eqSpline0.q;
-            double u = eqSpline0.p;
-            double r = eqSpline0.r;
-            
-            double dh = h0;
-            double dw = 0;
-            double dr = 0;
-
-            substitute( p, w, u, r, dh, dw, dr );
-
             const double hn = p[n-1].x() - p[n-2].x();
             const double sn = ( p[n-1].y() - p[n-2].y() ) / hn;
 
-            const double wn = 2.0 * ( h0 + hn ) - ( hn + dh ) * ( u + hn ) / w;
-            const double rn = 3.0 * ( s0 - sn ) - ( hn + dh ) * r / w;
-            const double bn = ( rn + dr ) / ( wn + dw );
+            Equation2 eqn, eqX;
+            substitute( p, eqn, eqX );
+
+            const double bn = eqn.resolved2( eqX );
+            const double b1 = eqn.resolved1( bn );
 
             QVector<double> m(n);
 
-            const double b1 = ( d_r[n-2] - hn * bn - d_u[n-2] * bn ) / d_w[n-2];
+            m[n-1] = sn + hn * ( b1 + 2.0 * bn ) / 3.0;
+            m[n-2] = m[n-1] - ( bn + b1 ) * hn;
 
-            m[n-2] = sn - hn * ( bn + 2.0 * b1 ) / 3.0;
+            resolveSpline( p, bn, b1, m );
 
-            const double bi = resolveSpline( p, bn, b1, m );
-
-            m[0] = s0 - h0 * ( bi + 2.0 * bn ) / 3.0; 
-            m[n-1] = m[0];
+            m[0] = m[n-1];
 
             return m;
         }
 
     private:
 
-        void substitute( const QPolygonF &points, 
-            double &w, double &u, double &r, double &dh, double &dw, double &dr )
+        void substitute( const QPolygonF &points, Equation2 &eqn, Equation2 &eqX )
         {
             const int n = points.size();
 
-            d_w.resize( n - 1 );
+            const double hn = points[n-1].x() - points[n-2].x();
+
+            const Equation3 eqSpline0( points[0], points[1], points[2] );
+            const Equation3 eqSplineN( 
+                QPointF( points[0].x() - hn, points[n-2].y() ), points[0], points[1] );
+
+            d_p.resize( n - 1 );
+            d_q.resize( n - 1 );
             d_r.resize( n - 1 );
-            d_u.resize( n - 1 );
             
-            d_w[1] = w;
-            d_r[1] = r;
-            d_u[1] = u;
+            double dq = 0;
+            double dr = 0;
+
+            d_p[1] = eqSpline0.p;
+            d_q[1] = eqSpline0.q;
+            d_r[1] = eqSpline0.r;
 
             double dx1 = points[2].x() - points[1].x();
             double slope1 = ( points[2].y() - points[1].y() ) / dx1;
 
-            for ( int i = 1; i < n - 2; i++ )
+            // we know:
+            // a) p1 * b[0] + q1 * b[1] + dx2 * b[2] = r1
+            // b) p2 * b[n-2] + q2 * b[0] + p1 * b[1] = r2
+            // c) h[i-1] * b[i-1] + 2 * ( h[i-1] + h[i] ) * b[i] + h[i] * b[i+1] = 3 * ( s[i] - s[i-1] )
+
+            // using c) we can substitute b[i] by b[i+1]  starting from 2 until w e reach n - 1. As we know,
+            // that b[0] == b[n-1] we have an equation where only 2 parameters are left unknown.
+
+            for ( int i = 2; i < n - 1; i++ )
             {
-                dw -= dh * d_u[i] / d_w[i];
-                dr -= dh * d_r[i] / d_w[i];
-                dh *= -dx1 / d_w[i];
+                // a) p1 * b[0] + q1 * b[1] + dx2 * b[2] = r1
+                // b) p2 * b[n-2] + q2 * b[0] + p1 * b[1] = r2
+                // substitute b[1] by b[2] in b) =>
+                // => eqSplineN.p * d_b[n-2] + ( eqSplineN.q - dq ) * d_b[0] - d_p[i] / d_q[i] * dx2 * d_b[i+1] = eqSplineN.r - dr
 
-                const double dx2 = points[i+2].x() - points[i+1].x();
-                const double slope2 = ( points[i+2].y() - points[i+1].y() ) / dx2;
+                dq += d_p[i-1] * d_p[i-1] / d_q[i-1];
+                dr += d_p[i-1] * d_r[i-1] / d_q[i-1];
 
-                const double wx = dx1 / d_w[i];
+                const double dx2 = points[i+1].x() - points[i].x();
+                const double slope2 = ( points[i+1].y() - points[i].y() ) / dx2;
 
-                d_w[i+1] = 2.0 * ( dx1 + dx2 ) - dx1 * wx;
-                d_u[i+1] = -d_u[i] * wx;
-                d_r[i+1] = ( 3.0 * ( slope2 - slope1 ) - d_r[i] * wx );
+                const double k = dx1 / d_q[i-1];
+
+                // b[0] * d_p[i] + b[i] * d_q[i] + b[i+1] * h[i] = d_r[i]
+                d_p[i] = -d_p[i-1] * k;
+                d_q[i] = 2.0 * ( dx1 + dx2 ) - dx1 * k;
+                d_r[i] = 3.0 * ( slope2 - slope1 ) - d_r[i-1] * k;
 
                 dx1 = dx2;
                 slope1 = slope2;
             }
 
-            w = d_w[n-2];
-            r = d_r[n-2];
-            u = d_u[n-2];
+            // b[0] = b[n-1]
+
+            // b[0] * d_p[n-2] + b[n-2] * d_q[n-2] + b[n-1] * pN = d_r[n-2]
+            eqn.setup( d_q[n-2], d_p[n-2] + eqSplineN.p , d_r[n-2] );
+
+            // b[n-2] * pN + b[0] * ( qN - dq ) + b[n-2] * d_p[n-2] = rN - dr
+            eqX.setup( d_p[n-2] + eqSplineN.p, eqSplineN.q - dq, eqSplineN.r - dr );
         }
 
-        double resolveSpline( const QPolygonF &points, 
+
+        void resolveSpline( const QPolygonF &points, 
             double bn, double b2, QVector<double> &m )
         {
             const int n = points.size();
@@ -732,20 +750,18 @@ namespace QwtSplineCubic
             for ( int i = n - 3; i >= 1; i-- )
             {
                 const double dx = points[i+1].x() - points[i].x();
-                const double b1 = ( d_r[i] - dx * b2 - d_u[i] * bn ) / d_w[i];
+                const double b1 = ( d_r[i] - dx * b2 - d_p[i] * bn ) / d_q[i];
 
                 m[i] = m[i+1] - ( b1 + b2 ) * dx;
 
                 b2 = b1;
             }
-
-            return b2;
         }
 
     public:
-        QVector<double> d_w;
+        QVector<double> d_p;
+        QVector<double> d_q;
         QVector<double> d_r;
-        QVector<double> d_u;
     };
 }
 
