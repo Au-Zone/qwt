@@ -50,7 +50,7 @@ int main ( int argc, char **argv )
 
     mainWindow.setCentralWidget( plot );
 
-	const QSize sz = 0.6 * QApplication::desktop()->size();
+    const QSize sz = 0.6 * QApplication::desktop()->size();
     mainWindow.resize( sz.boundedTo( QSize( 800, 600 ) ) );
     mainWindow.show();
 

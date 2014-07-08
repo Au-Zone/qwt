@@ -7,7 +7,8 @@
 #include <qwt_symbol.h>
 #include <qwt_scale_widget.h>
 #include <qwt_wheel.h>
-#include <qwt_spline.h>
+#include <qwt_spline_local.h>
+#include <qwt_spline_cubic.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_spline_curve_fitter.h>
 #include <qwt_legend.h>
@@ -43,16 +44,40 @@ public:
     };
 
     SplineFitter( Mode mode ):
-        QwtCurveFitter( QwtCurveFitter::Path ),
-        d_mode( mode )
+        QwtCurveFitter( QwtCurveFitter::Path )
     {
+        switch( mode )
+        {   
+            case AkimaSpline:
+            {   
+                d_spline = new QwtSplineLocal( QwtSplineLocal::Akima );
+                break;
+            }
+            case NaturalSpline:
+            {   
+                QwtSplineCubic *cubicSpline = new QwtSplineCubic();
+                cubicSpline->setEndConditions( QwtSplineCubic::Natural );
+
+                d_spline = cubicSpline;
+                break;
+            }
+            default:
+            {   
+                d_spline = new QwtSplineLocal( QwtSplineLocal::HarmonicMean );
+            }
+        }
+    }
+
+    ~SplineFitter()
+    {
+        delete d_spline;
     }
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
     {
-        const QPainterPath path = fitCurvePath( points );
+        const QPainterPath path = d_spline->path( points );
 
-        const QList<QPolygonF> subPaths = fitCurvePath( points ).toSubpathPolygons();
+        const QList<QPolygonF> subPaths = path.toSubpathPolygons();
         if ( subPaths.size() == 1 )
             subPaths.first();
 
@@ -61,27 +86,11 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        switch( d_mode )
-        {
-            case AkimaSpline:
-            {
-                return QwtSplineAkima::path( points );
-            }
-            case NaturalSpline:
-            {
-                return QwtSplineCubic::path( points, QwtSplineCubic::Natural );
-            }
-            default:
-            {
-                return QwtSplineHarmonicMean::path( points );
-            }
-        }
-
-		return QPainterPath();
+        return d_spline->path( points );
     }
 
 private:
-    const Mode d_mode;
+    QwtSpline *d_spline;
 };
 
 class Curve: public QwtPlotCurve

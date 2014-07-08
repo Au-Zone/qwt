@@ -1,8 +1,10 @@
-#include <qwt_spline.h>
+#include <qwt_spline_cubic.h>
 #include <qpolygon.h>
 #include <qdebug.h>
 
-class CubicSpline
+#define DEBUG_ERRORS 0
+
+class CubicSpline: public QwtSplineCubic
 {
 public:
     CubicSpline( const char* name, int minPoints = 3 ):
@@ -22,7 +24,7 @@ public:
 
     void testSpline( const QPolygonF &points ) const
     {
-        const QVector<double> &m = derivativesAt( points );
+        const QVector<double> m = slopes( points );
         if ( m.size() != points.size() )
         {
             qDebug() << qPrintable( d_name ) << "("
@@ -33,13 +35,28 @@ public:
         bool ok = true;
 
         if ( !verifyStart( points, m ) )
+        {
+#if DEBUG_ERRORS > 0
+            qDebug() << "invalid start condition";
+#endif
             ok = false;
+        }
 
         if ( !verifyNodes( points, m ) )
+        {
+#if DEBUG_ERRORS > 0
+            qDebug() << "invalid node conditions";
+#endif
             ok = false;
+        }
 
         if ( !verifyEnd( points, m ) )
+        {
+#if DEBUG_ERRORS > 0
+            qDebug() << "invalid end condition";
+#endif
             ok = false;
+        }
 
         if ( !ok )
         {
@@ -49,8 +66,6 @@ public:
     }
     
 protected:
-    virtual QVector<double> derivativesAt( const QPolygonF &points ) const = 0;
-
     virtual bool verifyStart( const QPolygonF &, const QVector<double> & ) const = 0;
     virtual bool verifyEnd( const QPolygonF &, const QVector<double> & ) const = 0;
 
@@ -68,11 +83,12 @@ protected:
             toPolynom( p[i-1], m[i-1], p[i], m[i], a1, b1, c1 );
             toPolynom( p[i], m[i], p[i+1], m[i+1], a2, b2, c2 );
 
-            if ( !fuzzyCompare( 3.0 * a1 * ( p[i].x() - p[i-1].x() ) + b1, b2 ) )
+            const double bX = 3.0 * a1 * ( p[i].x() - p[i-1].x() ) + b1;
+            if ( !fuzzyCompare( bX, b2 ) )
             {
-#if 0
+#if DEBUG_ERRORS > 1
                 qDebug() << "invalid node condition" << i << 
-                    3.0 * a1 * ( p[i].x() - p[i-1].x() ) + b1 << b2;
+                    bX << b2 << bX - b2;
 #endif
 
                 ok = false;
@@ -93,10 +109,10 @@ protected:
         a = ( ( m2 - m1 ) / dx - 2.0 * b ) / ( 3.0 * dx );
     }
 
-	inline bool fuzzyCompare( double a, double b ) const
-	{
-		return ( qFuzzyIsNull(a) && qFuzzyIsNull(b) ) || qFuzzyCompare(a, b);
-	}
+    inline bool fuzzyCompare( double a, double b ) const
+    {
+        return ( qFuzzyIsNull(a) && qFuzzyIsNull(b) ) || qFuzzyCompare(a, b);
+    }
 private:
     const QString d_name;
     const int d_minPoints;
@@ -108,14 +124,10 @@ public:
     SplineParabolicRunout():
         CubicSpline( "Parabolic Runout Spline" )
     {
+        setEndConditions( QwtSplineCubic::ParabolicRunout );
     }
 
 protected:
-    virtual QVector<double> derivativesAt( const QPolygonF &points ) const
-    {
-        using namespace QwtSplineCubic;
-        return derivatives( points, ParabolicRunout );
-    }
 
     virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
     {
@@ -142,15 +154,10 @@ public:
     SplineCubicRunout():
         CubicSpline( "Cubic Runout Spline" )
     {
+        setEndConditions( QwtSplineCubic::CubicRunout );
     }
 
 protected:
-    virtual QVector<double> derivativesAt( const QPolygonF &points ) const 
-    {
-        using namespace QwtSplineCubic;
-        return derivatives( points, CubicRunout );
-    }
-
     virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
     {
         double a1, b1, c1;
@@ -186,15 +193,10 @@ public:
     SplineNotAKnot():
         CubicSpline( "Not A Knot Spline", 4 )
     {
+        setEndConditions( QwtSplineCubic::NotAKnot );
     }
 
 protected:
-    virtual QVector<double> derivativesAt( const QPolygonF &points ) const
-    {
-        using namespace QwtSplineCubic;
-        return derivatives( points, NotAKnot );
-    }
-    
     virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
     {
         double a1, a2, b, c;
@@ -222,15 +224,10 @@ public:
     SplinePeriodic():
         CubicSpline( "Periodic Spline" )
     {
+        setEndConditions( QwtSplineCubic::Periodic );
     }
 
 protected:
-    virtual QVector<double> derivativesAt( const QPolygonF &points ) const
-    {
-        using namespace QwtSplineCubic;
-        return derivatives( points, Periodic );
-    }
-    
     virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
     {
         const int n = points.size();
@@ -260,14 +257,10 @@ public:
         d_slopeBegin( slopeBegin ),
         d_slopeEnd( slopeEnd )
     {
+        setClamped( slopeBegin, slopeEnd );
     }
 
 protected:
-    virtual QVector<double> derivativesAt( const QPolygonF &points ) const
-    {
-        using namespace QwtSplineCubic;
-        return derivatives( points, d_slopeBegin, d_slopeEnd );
-    }
     
     virtual bool verifyStart( const QPolygonF &, const QVector<double> &m ) const
     {
@@ -292,15 +285,10 @@ public:
         d_cvBegin( cvBegin ),
         d_cvEnd( cvEnd )
     {
+        setClamped2( cvBegin, cvEnd );
     }
 
 protected:
-    virtual QVector<double> derivativesAt( const QPolygonF &points ) const
-    {
-        using namespace QwtSplineCubic;
-        return derivatives2( points, d_cvBegin, d_cvEnd );
-    }
-    
     virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
     {
         const double dx = points[1].x() - points[0].x();
@@ -334,15 +322,10 @@ public:
         d_valueBegin( valueBegin ),
         d_valueEnd( valueEnd )
     {
+        setClamped3( valueBegin, valueEnd );
     }   
 
 protected:
-    virtual QVector<double> derivativesAt( const QPolygonF &points ) const
-    {
-        using namespace QwtSplineCubic;
-        return derivatives3( points, d_valueBegin, d_valueEnd );
-    }
-    
     virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
     {
         const double dx = points[1].x() - points[0].x();
@@ -376,7 +359,7 @@ private:
     const double d_valueEnd;
 };
 
-static void testSplines( QVector<CubicSpline *> splines, const QPolygonF &points )
+void testSplines( QVector<CubicSpline *> splines, const QPolygonF &points )
 {
     for ( int i = 0; i < splines.size(); i++ )
     {
@@ -398,14 +381,14 @@ int main()
     
     QPolygonF points;
 
-	// 3 points
+    // 3 points
 
     points << QPointF( 10, 50 ) << QPointF( 60, 30 ) 
         << QPointF( 82, 50 );
 
     testSplines( splines, points );
 
-	// 4 points
+    // 4 points
 
     points.clear();
     points << QPointF( 10, 50 ) << QPointF( 60, 30 )
@@ -413,7 +396,7 @@ int main()
 
     testSplines( splines, points );
 
-	// 5 points
+    // 5 points
     points.clear();
     points << QPointF( 10, 50 ) << QPointF( 20, 20 ) << QPointF( 60, 30 )
         << QPointF( 70, 5 ) << QPointF( 82, 50 );
@@ -429,6 +412,33 @@ int main()
         << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 50 );
 
     testSplines( splines, points );
+
+    points.clear();
+
+#if 0
+    // 100 points
+
+    const double x1 = 10.0;
+    const double x2 = 1000.0;
+    const double y1 = -10000.0;
+    const double y2 = 10000.0;
+
+    points += QPointF( x1, y1 );
+
+    const int n = 100;
+    const double dx = ( x2 - x1 ) / n;
+    const int mod = y2 - y1;
+    for ( int i = 1; i < n; i++ )
+    {
+        const double r = random() % mod;
+        points += QPointF( x1 + i * dx, y1 + r );
+    }
+    points += QPointF( x2, y1 );
+
+    testSplines( splines, points );
+    points.clear();
+
+#endif
 
     for ( int i = 0; i < splines.size(); i++ )
         delete splines[i];

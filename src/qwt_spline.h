@@ -14,61 +14,64 @@
 #include <qpolygon.h>
 #include <qpainterpath.h>
 
-namespace QwtSplineAkima
+class QWT_EXPORT QwtSpline
 {
-    QWT_EXPORT QPainterPath path( const QPolygonF & );
-    QWT_EXPORT QPainterPath path( const QPolygonF &,
-        double slopeStart, double slopeEnd );
-}
+public:
+    QwtSpline();
+    virtual ~QwtSpline();
 
-namespace QwtSplineHarmonicMean
-{
-    QWT_EXPORT QPainterPath path( const QPolygonF & );
-    QWT_EXPORT QPainterPath path( const QPolygonF &, 
-        double slopeStart, double slopeEnd );
-}
+    virtual QPainterPath path( const QPolygonF & ) const;
+    virtual QPolygonF polygon( int numPoints, const QPolygonF & ) const;
 
-namespace QwtSplinePchip
-{
-}
+    virtual QVector<double> slopes( const QPolygonF & ) const = 0;
 
-namespace QwtSplineCubic
-{
-    enum EndpointCondition 
-    {
-        Natural,
-        ParabolicRunout,
-        CubicRunout,
-        NotAKnot,
-        Periodic
-    };
+    static void toPolynom( const QPointF &p1, double m1,
+        const QPointF &p2, double m2, double &a, double &b, double &c );
 
-    // spline with endpoint conditions
-    QWT_EXPORT QVector<double> derivatives( 
-        const QPolygonF &, EndpointCondition = Natural );
+    static void toSlopes( const QPointF &p1, const QPointF &p2,
+        double a, double b, double c, double &m1, double &m2 );
 
-    QWT_EXPORT QPainterPath path( 
-        const QPolygonF &, EndpointCondition = Natural );
+    static void toSlopes( double dx,
+        double a, double b, double c, double &m1, double &m2 );
 
-    QWT_EXPORT QPolygonF polygon( int numPoints,
-        const QPolygonF &, EndpointCondition = Natural );
-
-    // clamped spline
-
-    QWT_EXPORT QVector<double> derivatives( 
-        const QPolygonF &, double slopeBegin, double slopeEnd );
-
-    QWT_EXPORT QVector<double> derivatives2( 
-        const QPolygonF &, double curvatureBegin, double curvatureEnd );
-
-    QWT_EXPORT QVector<double> derivatives3( 
-        const QPolygonF &, double slopeBegin, double slopeEnd );
-
-    QWT_EXPORT QPainterPath path( 
-        const QPolygonF &, double slopeBegin, double slopeEnd );
-
-    QWT_EXPORT QPolygonF polygon( int numPoints,
-        const QPolygonF &, double slopeBegin, double slopeEnd );
+    static inline void cubicTo( const QPointF &p1, double m1,
+        const QPointF &p2, double m2, QPainterPath &path );
 };
+
+inline void QwtSpline::toPolynom(
+    const QPointF &p1, double m1,
+    const QPointF &p2, double m2,
+    double &a, double &b, double &c )
+{
+    const double dx = p2.x() - p1.x();
+    const double slope = ( p2.y() - p1.y() ) / dx;
+
+    c = m1;
+    b = ( 3.0 * slope - 2 * m1 - m2 ) / dx;
+    a = ( ( m2 - m1 ) / dx - 2.0 * b ) / ( 3.0 * dx );
+}
+
+inline void QwtSpline::toSlopes( const QPointF &p1, const QPointF &p2,
+    double a, double b, double c, double &m1, double &m2 )
+{   
+    return toSlopes( p2.x() - p1.x(), a, b, c, m1, m2 ); 
+}
+
+inline void QwtSpline::toSlopes( double dx, 
+    double a, double b, double c, double &m1, double &m2 )
+{   
+    m1 = c; 
+    m2 = ( ( 3.0 * a * dx ) + 2.0 * b ) * dx + c;
+} 
+
+inline void QwtSpline::cubicTo( const QPointF &p1, double m1,
+    const QPointF &p2, double m2, QPainterPath &path )
+{   
+    const double dx = ( p2.x() - p1.x() ) / 3.0;
+
+    path.cubicTo( p1.x() + dx, p1.y() + m1 * dx,
+        p2.x() - dx, p2.y() - m2 * dx,
+        p2.x(), p2.y() );
+}
 
 #endif
