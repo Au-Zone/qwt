@@ -9,9 +9,7 @@
 
 #include "qwt_spline.h"
 #include "qwt_math.h"
-#if 1
 #include <QDebug>
-#endif
 
 static inline double qwtSlope( const QPointF &p1, const QPointF &p2 )
 {
@@ -351,6 +349,16 @@ namespace QwtSplineCubic
             r = r0;
         }
             
+        inline Equation2 normalized() const
+        {
+            Equation2 c;
+            c.p = 1.0;
+            c.q = q / p;
+            c.r = r / p;
+
+            return c;
+        }
+
         inline double resolved1( double x2 ) const
         {
             return ( r - q * x2 ) / p;
@@ -373,11 +381,6 @@ namespace QwtSplineCubic
             // find x2
             const double k = p / eq.p;
             return ( r - k * eq.r ) / ( q - k * eq.q );
-        }
-
-        void debug() const
-        {
-            qDebug() << "EQS2(" << p << "," << q << "," << r << ")";
         }
 
         // p * x1 + q * x2 = r
@@ -445,12 +448,20 @@ namespace QwtSplineCubic
             return Equation2( q - k * eq.q, u - k * eq.u, r - k * eq.r );
         }
 
+        inline Equation2 substituted2( const Equation3 &eq ) const
+        {
+            // eliminate x2
+
+            const double k = q / eq.q;
+            return Equation2( p - k * eq.p, u - k * eq.u, r - k * eq.r );
+        }
+
         inline Equation2 substituted3( const Equation3 &eq ) const
         {
             // eliminate x3
 
             const double k = u / eq.u;
-            return Equation2 ( p - k * eq.p, q - k * eq.q, r - k * eq.r );
+            return Equation2( p - k * eq.p, q - k * eq.q, r - k * eq.r );
         }
 
         inline Equation2 substituted1( const Equation2 &eq ) const
@@ -484,16 +495,26 @@ namespace QwtSplineCubic
             return ( r - p * x1 - q * x2 ) / u;
         }
 
-
-        void debug() const
-        {
-            qDebug() << "EQS3(" << p << "," << q << "," << u << "," << r << ")";
-        }
-
         // p * x1 + q * x2 + u * x3 = r
         double p, q, u, r;
     };
+};
+         
+QDebug operator<<( QDebug debug, const QwtSplineCubic::Equation2 &eq )
+{
+    debug.nospace() << "EQ2(" << eq.p << ", " << eq.q << ", " << eq.r << ")";
+    return debug.space();
+}
 
+QDebug operator<<( QDebug debug, const QwtSplineCubic::Equation3 &eq )
+{
+    debug.nospace() << "EQ3(" << eq.p << ", " 
+        << eq.q << ", " << eq.u << ", " << eq.r << ")";
+    return debug.space();
+}
+
+namespace QwtSplineCubic
+{
     class EquationSystem
     {
     public:
@@ -513,6 +534,18 @@ namespace QwtSplineCubic
             if ( n < 3 )
                 return QVector<double>();
 
+            if ( d_conditionsEQ[0].p == 0.0 ||
+                ( d_conditionsEQ[0].q == 0.0 && d_conditionsEQ[0].u != 0.0 ) )
+            {
+                return QVector<double>();
+            }
+
+            if ( d_conditionsEQ[1].u == 0.0 ||
+                ( d_conditionsEQ[1].q == 0.0 && d_conditionsEQ[1].p != 0.0 ) )
+            {
+                return QVector<double>();
+            }
+
             const double h0 = p[1].x() - p[0].x();
             const double s0 = ( p[1].y() - p[0].y() ) / h0;
 
@@ -522,14 +555,18 @@ namespace QwtSplineCubic
             const double hn = p[n-1].x() - p[n-2].x();
             const double sn = ( p[n-1].y() - p[n-2].y() ) / hn;
 
-            const Equation3 eqSpline0( p[0], p[1], p[2] );
-            const Equation2 eq0 = d_conditionsEQ[0].substituted1( eqSpline0 );
-            const Equation2 eq02 = d_conditionsEQ[0].substituted3( eqSpline0 );
-
             QVector<double> m( n );
 
             if ( n == 3 )
             {
+                // For certain conditions the first/last point does not 
+                // necessarily meet the spline equation and we would
+                // have many solutions. In this case we resolve using
+                // the spline equation - as for all other conditions.
+
+                const Equation3 eqSpline0( p[0], p[1], p[2] ); // ???
+                const Equation2 eq0 = d_conditionsEQ[0].substituted1( eqSpline0 );
+
                 // The equation system can be solved without substitution
                 // from the start/end conditions and eqSpline0 ( = eqSplineN ).
 
@@ -571,8 +608,25 @@ namespace QwtSplineCubic
                 eq = substituteSpline( p, eq );
             }
 
-            const double b1 = eq0.resolved1( eq );
-            const double b0 = eq02.resolved1( b1 );
+            const Equation3 eqSpline0( p[0], p[1], p[2] ); 
+
+            double b0, b1;
+            if ( d_conditionsEQ[0].u == 0.0 )
+            {
+                eq = eqSpline0.substituted3( eq );
+
+                const Equation3 &eq0 = d_conditionsEQ[0];
+                b0 = Equation2( eq0.p, eq0.q, eq0.r ).resolved1( eq );
+                b1 = eq.resolved2( b0 );
+            }
+            else
+            {
+                const Equation2 eqX = d_conditionsEQ[0].substituted3( eq );
+                const Equation2 eqY = eqSpline0.substituted3( eq );
+
+                b0 = eqY.resolved1( eqX );
+                b1 = eqY.resolved2( b0 );
+            }
 
             m[0] = s0 - h0 * ( b1 + 2.0 * b0 ) / 3.0;
             m[1] = m[0] + ( b0 + b1 ) * h0;
@@ -673,15 +727,15 @@ namespace QwtSplineCubic
             Equation2 eqn, eqX;
             substitute( p, eqn, eqX );
 
-            const double bn = eqn.resolved2( eqX );
-            const double b1 = eqn.resolved1( bn );
+            const double b0 = eqn.resolved2( eqX );
+            const double bn = eqn.resolved1( b0 );
 
             QVector<double> m(n);
 
-            m[n-1] = sn + hn * ( b1 + 2.0 * bn ) / 3.0;
-            m[n-2] = m[n-1] - ( bn + b1 ) * hn;
+            m[n-1] = sn + hn * ( bn + 2.0 * b0 ) / 3.0;
+            m[n-2] = m[n-1] - ( bn + b0 ) * hn;
 
-            resolveSpline( p, bn, b1, m );
+            resolveSpline( p, b0, bn, m );
 
             m[0] = m[n-1];
 
@@ -762,6 +816,78 @@ namespace QwtSplineCubic
                 m[i] = m[i+1] - ( b + bi ) * eq.u;
 
                 bi = b;
+            }
+        }
+
+        void resolveSpline2( const QPolygonF &points,
+            double b0, double bi, QVector<double> &m )
+        {
+            const int n = points.size();
+
+            bi = d_eq[0].resolved3( b0, bi );
+
+            for ( int i = 1; i < n - 2; i++ )
+            {
+                const Equation3 &eq = d_eq[i];
+
+                const double b = eq.resolved3( b0, bi );
+                m[i+1] = m[i] + ( b + bi ) * d_eq[i].u;
+
+                bi = b;
+            }
+        }
+
+        void resolveSpline3( const QPolygonF &points,
+            double b0, double b1, QVector<double> &m )
+        {
+            const int n = points.size();
+
+            double h0 = ( points[1].x() - points[0].x() );
+            double s0 = ( points[1].y() - points[0].y() ) / h0;
+
+            m[1] = m[0] + ( b0 + b1 ) * h0;
+
+            for ( int i = 1; i < n - 1; i++ )
+            {
+                const double h1 = ( points[i+1].x() - points[i].x() );
+                const double s1 = ( points[i+1].y() - points[i].y() ) / h1;
+
+                const double r = 3.0 * ( s1 - s0 );
+
+                const double b2 = ( r - h0 * b0 - 2.0 * ( h0 + h1 ) * b1 ) / h1;
+                m[i+1] = m[i] + ( b1 + b2 ) * h1;
+
+                h0 = h1;
+                s0 = s1;
+                b0 = b1;
+                b1 = b2;
+            }
+        }
+
+        void resolveSpline4( const QPolygonF &points,
+            double b2, double b1, QVector<double> &m )
+        {
+            const int n = points.size();
+
+            double h2 = ( points[n-1].x() - points[n-2].x() );
+            double s2 = ( points[n-1].y() - points[n-2].y() ) / h2;
+
+            for ( int i = n - 2; i > 1; i-- )
+            {
+                const double h1 = ( points[i].x() - points[i-1].x() );
+                const double s1 = ( points[i].y() - points[i-1].y() ) / h1;
+
+                const double r = 3.0 * ( s2 - s1 );
+                const double k = 2.0 * ( h1 + h2 );
+
+                const double b0 = ( r - h2 * b2 - k * b1 ) / h1;
+
+                m[i-1] = m[i] - ( b0 + b1 ) * h1;
+
+                h2 = h1;
+                s2 = s1;
+                b2 = b1;
+                b1 = b0;
             }
         }
 
