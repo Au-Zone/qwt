@@ -8,7 +8,118 @@
  *****************************************************************************/
 
 #include "qwt_spline_cubic.h"
-#include <QDebug>
+#include <qdebug.h>
+
+#define SLOPES_INCREMENTAL 0
+
+namespace QwtSplineCubicP
+{
+    class CurvatureStore
+    {
+    public:
+        inline void setup( int size )
+        {
+            d_curvatures.resize( size );
+            d_cv = d_curvatures.data();
+        }
+
+        inline void storeFirst( double, 
+            const QPointF &, const QPointF &, double b1, double )
+        {
+            d_cv[0] = 2.0 * b1;
+        }
+
+        inline void storeNext( int index, double,
+            const QPointF &, const QPointF &, double, double b2 )
+        {
+            d_cv[index] = 2.0 * b2;
+        }
+
+        inline void storeLast( double,
+            const QPointF &, const QPointF &, double, double b2 )
+        {
+            d_cv[d_curvatures.size() - 1] = 2.0 * b2;
+        }
+
+        inline void storePrevious( int index, double,
+            const QPointF &, const QPointF &, double b1, double )
+        {
+            d_cv[index] = 2.0 * b1;
+        }
+
+        inline void closeR()
+        {
+            d_cv[0] = d_cv[d_curvatures.size() - 1];
+        }
+
+        QVector<double> curvatures() const { return d_curvatures; }
+
+    private:
+        QVector<double> d_curvatures;
+        double *d_cv;
+    };
+
+    class SlopeStore
+    {
+    public:
+        inline void setup( int size )
+        {
+            d_slopes.resize( size );
+            d_m = d_slopes.data();
+        }
+        
+        inline void storeFirst( double h, 
+            const QPointF &p1, const QPointF &p2, double b1, double b2 )
+        {  
+            const double s = ( p2.y() - p1.y() ) / h;
+            d_m[0] = s - h * ( 2.0 * b1 + b2 ) / 3.0;
+        }
+        
+        inline void storeNext( int index, double h,
+            const QPointF &p1, const QPointF &p2, double b1, double b2 )
+        {
+#if SLOPES_INCREMENTAL
+            Q_UNUSED( p1 )
+            Q_UNUSED( p2 )
+            d_m[index] = d_m[index-1] + ( b1 + b2 ) * h;
+#else
+            const double s = ( p2.y() - p1.y() ) / h;
+            d_m[index] = s + h * ( b1 + 2.0 * b2 ) / 3.0;
+#endif
+        }
+
+        inline void storeLast( double h,
+            const QPointF &p1, const QPointF &p2, double b1, double b2 )
+        {   
+            const double s = ( p2.y() - p1.y() ) / h;
+            d_m[d_slopes.size() - 1] = s + h * ( b1 + 2.0 * b2 ) / 3.0;
+        }
+
+        inline void storePrevious( int index, double h,
+            const QPointF &p1, const QPointF &p2, double b1, double b2 )
+        {
+#if SLOPES_INCREMENTAL
+            Q_UNUSED( p1 )
+            Q_UNUSED( p2 )
+            d_m[index] = d_m[index+1] - ( b1 + b2 ) * h;
+#else
+            const double s = ( p2.y() - p1.y() ) / h;
+            d_m[index] = s - h * ( 2.0 * b1 + b2 ) / 3.0;
+#endif
+        }
+
+        inline void closeR()
+        {
+            d_m[0] = d_m[d_slopes.size() - 1];
+        }
+
+        QVector<double> slopes() const { return d_slopes; }
+    
+    private:
+        QVector<double> d_slopes;
+        double *d_m;
+    };
+};
 
 namespace QwtSplineCubicP
 {
@@ -199,6 +310,7 @@ QDebug operator<<( QDebug debug, const QwtSplineCubicP::Equation3 &eq )
 
 namespace QwtSplineCubicP
 {
+    template <typename T>
     class EquationSystem
     {
     public:
@@ -212,34 +324,35 @@ namespace QwtSplineCubicP
             d_conditionsEQ[1].setup( p, q, u, r );
         }
 
-        QVector<double> resolve( const QPolygonF &p ) 
+        const T &store() const 
+        { 
+            return d_store;
+        }
+
+        void resolve( const QPolygonF &p ) 
         {
             const int n = p.size();
             if ( n < 3 )
-                return QVector<double>();
+                return;
 
             if ( d_conditionsEQ[0].p == 0.0 ||
                 ( d_conditionsEQ[0].q == 0.0 && d_conditionsEQ[0].u != 0.0 ) )
             {
-                return QVector<double>();
+                return;
             }
 
             if ( d_conditionsEQ[1].u == 0.0 ||
                 ( d_conditionsEQ[1].q == 0.0 && d_conditionsEQ[1].p != 0.0 ) )
             {
-                return QVector<double>();
+                return;
             }
 
             const double h0 = p[1].x() - p[0].x();
-            const double s0 = ( p[1].y() - p[0].y() ) / h0;
-
             const double h1 = p[2].x() - p[1].x();
-            const double hn1 = p[n-2].x() - p[n-3].x();
-
             const double hn = p[n-1].x() - p[n-2].x();
-            const double sn = ( p[n-1].y() - p[n-2].y() ) / hn;
 
-            QVector<double> m( n );
+            d_store.setup( n );
+            
 
             if ( n == 3 )
             {
@@ -274,11 +387,11 @@ namespace QwtSplineCubicP
                 const double b2 = eq0.resolved2( b1 );
                 const double b0 = eqSpline0.resolved1( b1, b2 );
 
-                m[0] = s0 - h0 * ( b1 + 2.0 * b0 ) / 3.0;
-                m[1] = m[0] + ( b0 + b1 ) * h0;
-                m[2] = m[1] + ( b1 + b2 ) * h1;
+                d_store.storeFirst( h0, p[0], p[1], b0, b1 );
+                d_store.storeNext( 1, h0, p[0], p[1], b0, b1 );
+                d_store.storeNext( 2, h1, p[1], p[2], b1, b2 );
 
-                return m;
+                return; 
             }
 
             const Equation3 eqSplineN( p[n-3], p[n-2], p[n-1] );
@@ -312,18 +425,17 @@ namespace QwtSplineCubicP
                 b1 = eqY.resolved2( b0 );
             }
 
-            m[0] = s0 - h0 * ( b1 + 2.0 * b0 ) / 3.0;
-            m[1] = m[0] + ( b0 + b1 ) * h0;
+            d_store.storeFirst( h0, p[0], p[1], b0, b1 );
+            d_store.storeNext( 1, h0, p[0], p[1], b0, b1 );
 
-            const double bn2 = resolveSpline( p, b1, m );
+            const double bn2 = resolveSpline( p, b1 );
 
             const double bn1 = eqN.resolved2( bn2 );
             const double bn0 = d_conditionsEQ[1].resolved3( bn2, bn1 );
 
-            m[n-2] = m[n-3] + ( bn2 + bn1 ) * hn1;
-            m[n-1] = sn + hn * ( bn1 + 2.0 * bn0 ) / 3.0;
-
-            return m;
+            const double hx = p[n-2].x() - p[n-3].x();
+            d_store.storeNext( n - 2, hx, p[n-3], p[n-2], bn2, bn1 );
+            d_store.storeNext( n - 1, hn, p[n-2], p[n-1], bn1, bn0 );
         }
 
     private:
@@ -357,17 +469,16 @@ namespace QwtSplineCubicP
             return d_eq[2];
         }
 
-        double resolveSpline( const QPolygonF &points,
-            double b1, QVector<double> &m )
+        double resolveSpline( const QPolygonF &points, double b1 )
         {
             const int n = points.size();
+            const QPointF *p = points.constData();
 
             for ( int i = 2; i < n - 2; i++ )
             {
                 // eq[i].resolved2( b[i-1] ) => b[i]
                 const double b2 = d_eq[i].resolved2( b1 );
-
-                m[i] = m[i-1] + ( b1 + b2 ) * d_eq[i].p;
+                d_store.storeNext( i, d_eq[i].p, p[i-1], p[i], b1, b2 );
 
                 b1 = b2;
             }
@@ -378,12 +489,19 @@ namespace QwtSplineCubicP
     private:
         Equation3 d_conditionsEQ[2];
         QVector<Equation2> d_eq;
+        T d_store;
     };
 
+    template <typename T>
     class EquationSystem2
     {
     public:
-        QVector<double> resolve( const QPolygonF &p )
+        const T &store() const
+        {
+            return d_store;
+        }
+
+        void resolve( const QPolygonF &p )
         {
             const int n = p.size();
 
@@ -398,15 +516,19 @@ namespace QwtSplineCubicP
             if ( n == 3 )
             {
                 const double h1 = p[2].x() - p[1].x();
+                const double s1 = ( p[2].y() - p[1].y() ) / h1;
 
-                QVector<double> m( 3 );
-                m[0] = m[1] = m[2] = s0 - s0 * h0 / h1;
+                const double b = 3.0 * ( s0 - s1 ) / ( h0 + h1 );
 
-                return m;
+                d_store.setup( 3 );
+                d_store.storeLast( h1, p[1], p[2], -b, b );
+                d_store.storePrevious( 1, h1, p[1], p[2], -b, b );
+                d_store.closeR();
+
+                return;
             }
 
             const double hn = p[n-1].x() - p[n-2].x();
-            const double sn = ( p[n-1].y() - p[n-2].y() ) / hn;
 
             Equation2 eqn, eqX;
             substitute( p, eqn, eqX );
@@ -414,16 +536,13 @@ namespace QwtSplineCubicP
             const double b0 = eqn.resolved2( eqX );
             const double bn = eqn.resolved1( b0 );
 
-            QVector<double> m(n);
+            d_store.setup( n );
+            d_store.storeLast( hn, p[n-2], p[n-1], bn, b0 );
+            d_store.storePrevious( n - 2, hn, p[n-2], p[n-1], bn, b0 );
 
-            m[n-1] = sn + hn * ( bn + 2.0 * b0 ) / 3.0;
-            m[n-2] = m[n-1] - ( bn + b0 ) * hn;
+            resolveSpline( p, b0, bn );
 
-            resolveSpline( p, b0, bn, m );
-
-            m[0] = m[n-1];
-
-            return m;
+            d_store.closeR();
         }
 
     private:
@@ -487,8 +606,7 @@ namespace QwtSplineCubicP
             eqX.setup( d_eq[n-2].p + eqSplineN.p, eqSplineN.q - dq, eqSplineN.r - dr );
         }
 
-        void resolveSpline( const QPolygonF &points, 
-            double b0, double bi, QVector<double> &m )
+        void resolveSpline( const QPolygonF &points, double b0, double bi )
         {
             const int n = points.size();
 
@@ -497,7 +615,7 @@ namespace QwtSplineCubicP
                 const Equation3 &eq = d_eq[i];
 
                 const double b = eq.resolved2( b0, bi );
-                m[i] = m[i+1] - ( b + bi ) * eq.u;
+                d_store.storePrevious( i, eq.u, points[i], points[i+1], b, bi );
 
                 bi = b;
             }
@@ -577,154 +695,112 @@ namespace QwtSplineCubicP
 
     public:
         QVector<Equation3> d_eq;
+        T d_store;
     };
 }
 
-static QVector<double> qwtDerivatives1( const QPolygonF &points,
-    double slopeBegin, double slopeEnd )
+static void qwtSetupEndEquations( int type, const QPolygonF &points, 
+    double values[2], QwtSplineCubicP::Equation3 eq[2] )
 {
-    /* first end point derivative given ? */
-
-    const int n = points.size();
-
-    const double dx0 = points[1].x() - points[0].x();
-    const double s0 = ( points[1].y() - points[0].y() ) / dx0;
-
-    const double dxn = ( points[n-1].x() - points[n-2].x() ); 
-    const double sn = ( points[n-1].y() - points[n-2].y() ) / dxn;
-
-    // 3 * a1 * h + b1 = b2
-    // a1 * h * h + b1 * h + c1 = s
-
-    // c1 = slopeBegin
-    // => b1 * ( 2 * h / 3.0 ) + b2 * ( h / 3.0 ) = s - slopeBegin
-
-    // c2 = slopeEnd
-    // => b1 * ( 1.0 / 3.0 ) + b2 * ( 2.0 / 3.0 ) = ( slopeEnd - s ) / h;
-
-    QwtSplineCubicP::EquationSystem eqs;
-    eqs.setStartCondition( 2 * dx0 / 3.0, dx0 / 3.0, 0.0, s0 - slopeBegin ); 
-    eqs.setEndCondition( 0.0, 1.0 / 3.0 * dxn, 2.0 / 3.0 * dxn, slopeEnd - sn );
-
-    return eqs.resolve( points );
-}
-
-static QVector<double> qwtDerivatives2( const QPolygonF &points,
-    double cvStart, double cvEnd )
-{
-    /* second derivative at end points ?  */
-
-    // b0 = 0.5 * cvStart
-    // => b0 * 1.0 + b1 * 0.0 = 0.5 * cvStart
-
-    // b1 = 0.5 * cvEnd
-    // => b0 * 0.0 + b1 * 1.0 = 0.5 * cvEnd
-
-    QwtSplineCubicP::EquationSystem eqs;
-    eqs.setStartCondition( 1.0, 0.0, 0.0, 0.5 * cvStart ); 
-    eqs.setEndCondition( 0.0, 0.0, 1.0, 0.5 * cvEnd ); 
-
-    return eqs.resolve( points );
-}
-
-static QVector<double> qwtDerivatives3( const QPolygonF &p,
-    double marg_0, double marg_n )
-{
-    /* third derivative at end point ?    */
-
-    const int n = p.size();
-
-    const double h0 = p[1].x() - p[0].x();
-    const double hn = ( p[n-1].x() - p[n-2].x() );
-
-    // 3 * a * h0 + b[0] = b[1]
-
-    // a = marg_0 / 6.0
-    // => b[0] * 1.0 + b[1] * ( -1.0 ) = -0.5 * marg_0 * h0
-
-    // a = marg_n / 6.0
-    // => b[n-2] * 1.0 + b[n-1] * ( -1.0 ) = -0.5 * marg_n * h5
-
-    QwtSplineCubicP::EquationSystem eqs;
-    eqs.setStartCondition( 1.0, -1.0, 0.0, -0.5 * marg_0 * h0 ); 
-    eqs.setEndCondition( 0.0, 1.0, -1.0, -0.5 * marg_n * hn ); 
-
-    return eqs.resolve( p );
-}
-
-static QVector<double> qwtDerivatives4( const QPolygonF &points )
-{
-    // periodic spline
-
-    QwtSplineCubicP::EquationSystem2 eqs;
-    return eqs.resolve( points );
-}
-
-static QVector<double> qwtDerivatives5( const QPolygonF &points )
-{
-    /* not-a-node condition ?             */
-
     const int n = points.size();
 
     const double h0 = points[1].x() - points[0].x();
-    const double h1 = points[2].x() - points[1].x();
-
     const double s0 = ( points[1].y() - points[0].y() ) / h0;
-    const double s1 = ( points[2].y() - points[1].y() ) / h1;
 
-    if ( n == 3 )
+    const double hn = ( points[n-1].x() - points[n-2].x() );
+    const double sn = ( points[n-1].y() - points[n-2].y() ) / hn;
+
+    switch( type )
     {
-        /*
-          the system is under-determined and we only 
-          compute a quadratic spline.                   
-         */
+        case -1:
+        {
+            // first derivative at end points given
 
-        const double b = ( s1 - s0 ) / ( h0 + h1 );
+            // 3 * a1 * h + b1 = b2
+            // a1 * h * h + b1 * h + c1 = s
 
-        QVector<double> m( 3 );
-        m[0] = s0 - h0 * b;
-        m[1] = s1 - h1 * b;
-        m[2] = s1 + h1 * b;
+            // c1 = slopeBegin
+            // => b1 * ( 2 * h / 3.0 ) + b2 * ( h / 3.0 ) = s - slopeBegin
 
-        return m;
+            // c2 = slopeEnd
+            // => b1 * ( 1.0 / 3.0 ) + b2 * ( 2.0 / 3.0 ) = ( slopeEnd - s ) / h;
+
+            eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, s0 - values[0] );
+            eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, values[1] - sn );
+
+            break;
+        }
+        case -2:
+        {
+            // second derivative at end points given
+
+            // b0 = 0.5 * cvStart
+            // => b0 * 1.0 + b1 * 0.0 = 0.5 * cvStart
+
+            // b1 = 0.5 * cvEnd
+            // => b0 * 0.0 + b1 * 1.0 = 0.5 * cvEnd
+
+            eq[0].setup( 1.0, 0.0, 0.0, 0.5 * values[0] ); 
+            eq[1].setup( 0.0, 0.0, 1.0, 0.5 * values[1] ); 
+            break;
+        }
+        case -3:
+        {
+            // third derivative at end point given
+
+            // 3 * a * h0 + b[0] = b[1]
+
+            // a = marg_0 / 6.0
+            // => b[0] * 1.0 + b[1] * ( -1.0 ) = -0.5 * v0 * h0
+
+            // a = marg_n / 6.0
+            // => b[n-2] * 1.0 + b[n-1] * ( -1.0 ) = -0.5 * v1 * h5
+
+            eq[0].setup( 1.0, -1.0, 0.0, -0.5 * values[0] * h0 ); 
+            eq[1].setup( 0.0, 1.0, -1.0, -0.5 * values[1] * hn ); 
+
+            break;
+        }
+        case QwtSplineCubic::NotAKnot:
+        {
+            // not-a-node condition
+
+            const double h1 = points[2].x() - points[1].x();
+            const double hn1 = ( points[n-2].x() - points[n-3].x() );
+
+            eq[0].setup( 1.0, -( 1.0 + h0 / h1 ), h0 / h1, 0.0 );
+            eq[1].setup( hn / hn1, -( 1.0 + hn / hn1 ), 1.0, 0.0 );
+
+            break;
+        }
+        case QwtSplineCubic::ParabolicRunout:
+        {
+            // parabolic runout
+            // b0 = b1 => ( 1.0 ) * b0 + ( -1.0 ) * b1 = 0.0;
+
+            eq[0].setup( 1.0, -1.0, 0.0, 0.0 ); 
+            eq[1].setup( 0.0, 1.0, -1.0, 0.0 ); 
+            break;
+        }
+        case QwtSplineCubic::CubicRunout:
+        {
+            // b0 = 2 * b1 - b2
+            // => 1.0 * b0 - 2 * b1 + 1.0 * b2 = 0.0
+
+            eq[0].setup( 1.0, -2.0, 1.0, 0.0 ); 
+            eq[1].setup( 1.0, -2.0, 1.0, 0.0 ); 
+            break;
+        }
+        case QwtSplineCubic::Natural:
+        default:
+        {
+            // second derivative at end points set to 0.0
+            eq[0].setup( 1.0, 0.0, 0.0, 0.0 ); 
+            eq[1].setup( 0.0, 0.0, 1.0, 0.0 ); 
+            break;
+        }
     }
-
-    const double h4 = ( points[n-2].x() - points[n-3].x() );
-    const double h5 = ( points[n-1].x() - points[n-2].x() );
-
-    QwtSplineCubicP::EquationSystem eqs;
-    eqs.setStartCondition( 1.0, -( 1.0 + h0 / h1 ), h0 / h1, 0.0 );
-    eqs.setEndCondition( h5 / h4, -( 1.0 + h5 / h4 ), 1.0, 0.0 );
-
-    return eqs.resolve( points );
 }
-
-static QVector<double> qwtDerivatives6( const QPolygonF &p )
-{
-    // parabolic runout
-
-    // b0 = b1 => ( 1.0 ) * b0 + ( -1.0 ) * b1 = 0.0;
-
-    QwtSplineCubicP::EquationSystem eqs;
-    eqs.setStartCondition( 1.0, -1.0, 0.0, 0.0 ); 
-    eqs.setEndCondition( 0.0, 1.0, -1.0, 0.0 ); 
-
-    return eqs.resolve( p );
-}
-
-static QVector<double> qwtDerivatives7( const QPolygonF &points )
-{
-    // cubic runout
-
-    // b0 = 2 * b1 - b2
-    // => 1.0 * b0 - 2 * b1 + 1.0 * b2 = 0.0
-
-    QwtSplineCubicP::EquationSystem eqs;
-    eqs.setStartCondition( 1.0, -2.0, 1.0, 0.0 ); 
-    eqs.setEndCondition( 1.0, -2.0, 1.0, 0.0 ); 
-
-    return eqs.resolve( points );
-}   
 
 class QwtSplineCubic::PrivateData
 {
@@ -788,57 +864,92 @@ void QwtSplineCubic::setClamped3( double valueBegin, double valueEnd )
 
 QVector<double> QwtSplineCubic::slopes( const QPolygonF &points ) const
 {
+    using namespace QwtSplineCubicP;
+
     if ( points.size() <= 2 )
         return QVector<double>();
 
-    QVector<double> m;
-    switch( d_data->endCondition.type )
+    if ( d_data->endCondition.type == QwtSplineCubic::NotAKnot )
     {
-        case -1:
+        const int n = points.size();
+        if ( n == 3 )
         {
-            m = qwtDerivatives1( points, 
-                d_data->endCondition.value[0], d_data->endCondition.value[1] );
-            break;
-        }
-        case -2:
-        {
-            m = qwtDerivatives2( points, 
-                d_data->endCondition.value[0], d_data->endCondition.value[1] );
-            break;
-        }
-        case -3:
-        {
-            m = qwtDerivatives3( points, 
-                d_data->endCondition.value[0], d_data->endCondition.value[1] );
-            break;
-        }
-        case Periodic:
-        {
-            m = qwtDerivatives4( points );
-            break;
-        }
-        case NotAKnot:
-        {
-            m = qwtDerivatives5( points );
-            break;
-        }
-        case ParabolicRunout:
-        {
-            m = qwtDerivatives6( points );
-            break;
-        }
-        case CubicRunout:
-        {
-            m = qwtDerivatives7( points );
-            break;
-        }
-        case Natural:
-        default:
-        {
-            m = qwtDerivatives2( points, 0.0, 0.0 );
-            break;
+#if 0
+            const double h0 = points[1].x() - points[0].x();
+            const double h1 = points[2].x() - points[1].x();
+
+            const double s0 = ( points[1].y() - points[0].y() ) / h0;
+            const double s1 = ( points[2].y() - points[1].y() ) / h1;
+
+            /*
+              the system is under-determined and we only 
+              compute a quadratic spline.                   
+             */
+
+            const double b = ( s1 - s0 ) / ( h0 + h1 );
+
+            QVector<double> m( 3 );
+            m[0] = s0 - h0 * b;
+            m[1] = s1 - h1 * b;
+            m[2] = s1 + h1 * b;
+
+            return m;
+#else
+            return QVector<double>();
+#endif
         }
     }
 
-    return m;
+    if ( d_data->endCondition.type == QwtSplineCubic::Periodic )
+    {
+        EquationSystem2<SlopeStore> eqs;
+        eqs.resolve( points );
+
+        return eqs.store().slopes();
+    }
+
+    Equation3 eq[2];
+    qwtSetupEndEquations( d_data->endCondition.type, points, 
+        d_data->endCondition.value, eq );
+
+    EquationSystem<SlopeStore> eqs;
+    eqs.setStartCondition( eq[0].p, eq[0].q, eq[0].u, eq[0].r );
+    eqs.setEndCondition( eq[1].p, eq[1].q, eq[1].u, eq[1].r );
+    eqs.resolve( points );
+
+    return eqs.store().slopes();
 }
+
+QVector<double> QwtSplineCubic::curvatures( const QPolygonF &points ) const
+{
+    using namespace QwtSplineCubicP;
+
+    if ( points.size() <= 2 )
+        return QVector<double>();
+
+    if ( points.size() == 3 )
+    {
+        if ( d_data->endCondition.type == QwtSplineCubic::NotAKnot )
+            return QVector<double>();
+    }
+
+    if ( d_data->endCondition.type == QwtSplineCubic::Periodic )
+    {
+        EquationSystem2<CurvatureStore> eqs;
+        eqs.resolve( points );
+
+        return eqs.store().curvatures();
+    }
+
+    Equation3 eq[2];
+    qwtSetupEndEquations( d_data->endCondition.type, points, 
+        d_data->endCondition.value, eq );
+
+    EquationSystem<CurvatureStore> eqs;
+    eqs.setStartCondition( eq[0].p, eq[0].q, eq[0].u, eq[0].r );
+    eqs.setEndCondition( eq[1].p, eq[1].q, eq[1].u, eq[1].r );
+    eqs.resolve( points );
+
+    return eqs.store().curvatures();
+}
+

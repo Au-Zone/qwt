@@ -35,13 +35,11 @@ public:
     void setClamped3( double valueBegin, double valueEnd );
 
     virtual QVector<double> slopes( const QPolygonF & ) const;
-#if 0
     virtual QVector<double> curvatures( const QPolygonF & ) const;
-#endif
 
-    void toPolynom2( const QPointF &p1, double cv1,
+    static void toPolynom2( const QPointF &p1, double cv1,
         const QPointF &p2, double cv2, double &a, double &b, double &c );
-    void toCurvatures( const QPointF &p1, const QPointF &p2,
+    static void toCurvatures( const QPointF &p1, const QPointF &p2,
         double a, double b, double c, double &cv1, double &cv2 );
 
 private:
