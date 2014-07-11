@@ -62,7 +62,8 @@ QPolygonF QwtSpline::polygon( int numPoints, const QPolygonF &points ) const
 
     const double delta = ( x2 - x1 ) / ( numPoints - 1 );
 
-    double a, b, c, x0, y0;
+    double x0, y0;
+    QwtSplinePolynom polynom;
 
     for ( int i = 0, j = 0; i < numPoints; i++ )
     {
@@ -75,13 +76,18 @@ QPolygonF QwtSpline::polygon( int numPoints, const QPolygonF &points ) const
             while ( x > p[j + 1].x() )
                 j++;
 
-            toPolynom( p[j], s[j], p[j + 1], s[j + 1], a, b, c );
+            polynom = QwtSplinePolynom::fromSlopes( p[j], s[j], p[j + 1], s[j + 1] );
 
             x0 = p[j].x();
             y0 = p[j].y();
         }
 
-        const double y = qwtCubicPolynom( x - x0, a, b, c, y0 );
+#if 0
+        const double y = qwtCubicPolynom( x - x0, 
+            polynom.a, polynom.b, polynom.c, y0 );
+#else
+        const double y = y0 + polynom.value( x - x0 );
+#endif
         fittedPoints += QPointF( x, y );
     }
 

@@ -37,41 +37,9 @@ public:
     virtual QVector<double> slopes( const QPolygonF & ) const;
     virtual QVector<double> curvatures( const QPolygonF & ) const;
 
-    static void toPolynom2( const QPointF &p1, double cv1,
-        const QPointF &p2, double cv2, double &a, double &b, double &c );
-    static void toCurvatures( const QPointF &p1, const QPointF &p2,
-        double a, double b, double c, double &cv1, double &cv2 );
-
 private:
     class PrivateData;
     PrivateData *d_data;
 };
-
-inline void QwtSplineCubic::toPolynom2(
-    const QPointF &p1, double cv1,
-    const QPointF &p2, double cv2,
-    double &a, double &b, double &c )
-{   
-    const double dx = p2.x() - p1.x();
-    const double slope = ( p2.y() - p1.y() ) / dx;
-    
-    a = ( cv2 - cv1 ) / ( 6.0 * dx );
-    b = 0.5 * cv1;
-    c = slope - ( a * dx + b ) * dx;
-}   
-
-inline void QwtSplineCubic::toCurvatures( 
-    const QPointF &p1, const QPointF &p2,
-    double a, double b, double c, double &cv1, double &cv2 )
-{
-    const double dx = p2.x() - p1.x();
-    const double slope = ( p2.y() - p1.y() ) / dx;
-    
-    const double m1 = c;
-    const double m2 = ( ( 3.0 * a * dx ) + b ) * dx + c;
-    
-    cv1 = 2.0 * ( 3 * slope - 2 * m1 - m2 ) / dx;
-    cv2 = 2.0 * ( -3 * slope + m1 + 2 * m2 ) / dx;
-}   
 
 #endif

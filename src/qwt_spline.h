@@ -11,6 +11,7 @@
 #define QWT_SPLINE_H 1
 
 #include "qwt_global.h"
+#include "qwt_spline_polynom.h"
 #include <qpolygon.h>
 #include <qpainterpath.h>
 
@@ -25,44 +26,68 @@ public:
 
     virtual QVector<double> slopes( const QPolygonF & ) const = 0;
 
-    static void toPolynom( const QPointF &p1, double m1,
-        const QPointF &p2, double m2, double &a, double &b, double &c );
+    static QwtSplinePolynom toPolynom2( const QPointF &p1, double cv1,
+        const QPointF &p2, double cv2 );
 
     static void toSlopes( const QPointF &p1, const QPointF &p2,
-        double a, double b, double c, double &m1, double &m2 );
+        const QwtSplinePolynom &, double &m1, double &m2 );
 
     static void toSlopes( double dx,
-        double a, double b, double c, double &m1, double &m2 );
+        const QwtSplinePolynom &, double &m1, double &m2 );
+
+    static void toCurvatures( const QPointF &p1, const QPointF &p2,
+        double a, double b, double &cv1, double &cv2 );
+
+    static void toCurvatures( double dx,
+        double a, double b, double &cv1, double &cv2 );
+
+    static void toCurvatures2( const QPointF &p1, double m1,
+        const QPointF &p2, double m2, double &cv1, double &cv2 );
 
     static inline void cubicTo( const QPointF &p1, double m1,
         const QPointF &p2, double m2, QPainterPath &path );
 };
 
-inline void QwtSpline::toPolynom(
-    const QPointF &p1, double m1,
-    const QPointF &p2, double m2,
-    double &a, double &b, double &c )
-{
-    const double dx = p2.x() - p1.x();
-    const double slope = ( p2.y() - p1.y() ) / dx;
-
-    c = m1;
-    b = ( 3.0 * slope - 2 * m1 - m2 ) / dx;
-    a = ( ( m2 - m1 ) / dx - 2.0 * b ) / ( 3.0 * dx );
-}
-
 inline void QwtSpline::toSlopes( const QPointF &p1, const QPointF &p2,
-    double a, double b, double c, double &m1, double &m2 )
+    const QwtSplinePolynom &polynom, double &m1, double &m2 )
 {   
-    return toSlopes( p2.x() - p1.x(), a, b, c, m1, m2 ); 
+    return toSlopes( p2.x() - p1.x(), polynom, m1, m2 ); 
 }
 
 inline void QwtSpline::toSlopes( double dx, 
-    double a, double b, double c, double &m1, double &m2 )
+    const QwtSplinePolynom &polynom, double &m1, double &m2 )
 {   
-    m1 = c; 
-    m2 = ( ( 3.0 * a * dx ) + 2.0 * b ) * dx + c;
+    m1 = polynom.c; 
+    m2 = polynom.slope( dx );
 } 
+
+inline void QwtSpline::toCurvatures(
+    const QPointF &p1, const QPointF &p2,
+    double a, double b, double &cv1, double &cv2 )
+{   
+    toCurvatures( p2.x() - p1.x(), a, b, cv1, cv2 );
+}   
+
+inline void QwtSpline::toCurvatures( double dx,
+    double a, double b, double &cv1, double &cv2 )
+{
+    cv1 = 2.0 * b;
+    cv2 = 2.0 * ( 3.0 * a * dx + b );
+}
+
+inline void QwtSpline::toCurvatures2(
+    const QPointF &p1, double m1, const QPointF &p2, double m2,
+    double &cv1, double &cv2 )
+{   
+    const double dx = p2.x() - p1.x();
+    const double dy = p2.y() - p1.y();
+    
+    const double v = 3 * dy / dx - m1 - m2;
+    const double k = 2.0 / dx;
+    
+    cv1 = k * ( v - m1 );
+    cv2 = k * ( m2 - v );
+}   
 
 inline void QwtSpline::cubicTo( const QPointF &p1, double m1,
     const QPointF &p2, double m2, QPainterPath &path )
