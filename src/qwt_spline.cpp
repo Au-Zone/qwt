@@ -10,6 +10,14 @@
 #include "qwt_spline.h"
 #include "qwt_math.h"
 
+static inline double qwtChordal( const QPointF &p1, const QPointF &p2 )
+{
+   const double dx = p1.x() - p2.x();
+   const double dy = p1.y() - p2.y();
+
+   return qSqrt( dx * dx + dy * dy );
+}
+
 QwtSpline::QwtSpline()
 {
 }
@@ -93,3 +101,53 @@ QPolygonF QwtSpline::polygon( int numPoints, const QPolygonF &points ) const
 
     return fittedPoints;
 }   
+
+QVector<QwtSplinePolynom> QwtSpline::polynoms( const QPolygonF &points ) const
+{
+    QVector<QwtSplinePolynom> polynoms;
+
+    const QVector<double> m = slopes( points );
+    if ( m.size() < 2 )
+        return polynoms;
+
+    for ( int i = 1; i < m.size(); i++ )
+    {
+        polynoms += QwtSplinePolynom::fromSlopes( 
+            points[i-1], m[i-1], points[i], m[i] );
+    }
+
+    return polynoms;
+}
+
+QPainterPath QwtSpline::parametricPath( const QPolygonF &points ) const
+{
+    QPainterPath path;
+
+    if ( points.size() <= 2 )
+        return path;
+
+    QPolygonF px, py;
+
+    px += QPointF( 0.0, points[0].x() );
+    py += QPointF( 0.0, points[0].y() );
+
+    double t = 0.0;
+    for ( int i = 1; i < points.size(); i++ )
+    {
+        t += qwtChordal( points[i-1], points[i] );
+
+        px += QPointF( t, points[i].x() );
+        py += QPointF( t, points[i].y() );
+    }
+
+    const int numPoints = 500;
+
+    const QPolygonF interpolatedX = polygon( numPoints, px );
+    const QPolygonF interpolatedY = polygon( numPoints, py );
+
+    path.moveTo( points[0] );
+    for ( int i = 0; i < numPoints; i++ )
+        path.lineTo( interpolatedX[i].y(), interpolatedY[i].y() );
+
+    return path;
+}

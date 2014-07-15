@@ -40,6 +40,13 @@ static inline double qwtHarmonicMean(
     return 0.0;
 }
 
+#if 0
+static inline double qwtArithmeticMean( double s1, s2 )
+{
+    return ( s1 + s2 ) / 2.0;
+}
+#endif
+
 static inline double qwtHarmonicMean( double s1, double s2 )
 {
     if ( ( s1 > 0.0 ) == ( s2 > 0.0 ) )

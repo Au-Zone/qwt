@@ -35,11 +35,11 @@ public:
         double x, double y, double m1, double m2 );
 
     static QwtSplinePolynom fromCurvatures( 
-        const QPointF &p1, double m1,
-        const QPointF &p2, double m2 );
+        const QPointF &p1, double cv1,
+        const QPointF &p2, double cv2 );
     
     static QwtSplinePolynom fromCurvatures(
-        double dx, double dy, double m1, double m2 );
+        double dx, double dy, double cv1, double cv2 );
 
 public:
     double a;
@@ -88,7 +88,7 @@ inline QwtSplinePolynom QwtSplinePolynom::fromSlopes(
 inline QwtSplinePolynom QwtSplinePolynom::fromCurvatures( 
     const QPointF &p1, double cv1, const QPointF &p2, double cv2 )
 {
-    return fromSlopes( p2.x() - p1.x(), p2.y() - p1.y(), cv1, cv2 );
+    return fromCurvatures( p2.x() - p1.x(), p2.y() - p1.y(), cv1, cv2 );
 }
 
 inline QwtSplinePolynom QwtSplinePolynom::fromCurvatures( 

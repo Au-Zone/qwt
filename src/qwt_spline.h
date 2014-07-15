@@ -24,7 +24,10 @@ public:
     virtual QPainterPath path( const QPolygonF & ) const;
     virtual QPolygonF polygon( int numPoints, const QPolygonF & ) const;
 
+    virtual QPainterPath parametricPath( const QPolygonF & ) const;
+
     virtual QVector<double> slopes( const QPolygonF & ) const = 0;
+    virtual QVector<QwtSplinePolynom> polynoms( const QPolygonF & ) const;
 
     static QwtSplinePolynom toPolynom2( const QPointF &p1, double cv1,
         const QPointF &p2, double cv2 );

@@ -11,9 +11,63 @@
 #include <qdebug.h>
 
 #define SLOPES_INCREMENTAL 0
+#define KAHAN 0
 
 namespace QwtSplineCubicP
 {
+    class KahanSum 
+    {
+    public:
+        inline KahanSum( double value = 0.0 ):
+            d_sum( value ),
+            d_carry( 0.0 )
+        {
+        }
+
+        inline void reset()
+        {
+            d_sum = d_carry = 0.0;
+        }
+
+        inline double value() const 
+        {
+            return d_sum;
+        }
+
+        inline void add( double value )
+        {
+            const double y = value - d_carry;
+            const double t = d_sum + y;
+
+            d_carry = ( t - d_sum ) - y;
+            d_sum = t;
+        }
+
+        static inline double sum3( double d1, double d2, double d3 )
+        {
+            KahanSum sum( d1 );
+            sum.add( d2 );
+            sum.add( d3 );
+
+            return sum.value();
+        }
+
+        static inline double sum4( double d1, double d2, double d3, double d4 )
+        {
+            KahanSum sum( d1 );
+            sum.add( d2 );
+            sum.add( d3 );
+            sum.add( d4 );
+
+            return sum.value();
+        }   
+
+
+    private:
+        double d_sum; 
+        double d_carry; // The carry from the previous operation
+    };
+
     class CurvatureStore
     {
     public:
@@ -73,6 +127,9 @@ namespace QwtSplineCubicP
         {  
             const double s = ( p2.y() - p1.y() ) / h;
             d_m[0] = s - h * ( 2.0 * b1 + b2 ) / 3.0;
+#if KAHAN
+            d_sum.add( d_m[0] );
+#endif
         }
         
         inline void storeNext( int index, double h,
@@ -81,7 +138,12 @@ namespace QwtSplineCubicP
 #if SLOPES_INCREMENTAL
             Q_UNUSED( p1 )
             Q_UNUSED( p2 )
+#if KAHAN
+            d_sum.add( ( b1 + b2 ) * h );
+            d_m[index] = d_sum.value();
+#else
             d_m[index] = d_m[index-1] + ( b1 + b2 ) * h;
+#endif
 #else
             const double s = ( p2.y() - p1.y() ) / h;
             d_m[index] = s + h * ( b1 + 2.0 * b2 ) / 3.0;
@@ -93,6 +155,9 @@ namespace QwtSplineCubicP
         {   
             const double s = ( p2.y() - p1.y() ) / h;
             d_m[d_slopes.size() - 1] = s + h * ( b1 + 2.0 * b2 ) / 3.0;
+#if KAHAN
+            d_sum.add( d_m[d_slopes.size() - 1] );
+#endif
         }
 
         inline void storePrevious( int index, double h,
@@ -101,7 +166,13 @@ namespace QwtSplineCubicP
 #if SLOPES_INCREMENTAL
             Q_UNUSED( p1 )
             Q_UNUSED( p2 )
+#if KAHAN
+            d_sum.add( -( b1 + b2 ) * h );
+            d_m[index] = d_sum.value();
+#else
             d_m[index] = d_m[index+1] - ( b1 + b2 ) * h;
+#endif
+
 #else
             const double s = ( p2.y() - p1.y() ) / h;
             d_m[index] = s - h * ( 2.0 * b1 + b2 ) / 3.0;
@@ -118,6 +189,9 @@ namespace QwtSplineCubicP
     private:
         QVector<double> d_slopes;
         double *d_m;
+#if SLOPES_INCREMENTAL
+        KahanSum d_sum;
+#endif
     };
 };
 
