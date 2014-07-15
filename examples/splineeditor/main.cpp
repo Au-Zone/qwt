@@ -7,6 +7,17 @@
 #include "canvaspicker.h"
 #include "scalepicker.h"
 
+class ToolButton: public QToolButton
+{
+public:
+    ToolButton( const char *text, QToolBar *toolBar ):
+        QToolButton( toolBar )
+    {
+        setText( text );
+        setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
+    }
+};
+
 int main ( int argc, char **argv )
 {
     QApplication a( argc, argv );
@@ -18,21 +29,23 @@ int main ( int argc, char **argv )
     QToolBar *toolBar = new QToolBar( &mainWindow );
 
 #ifndef QT_NO_PRINTER
-    QToolButton *btnPrint = new QToolButton( toolBar );
-    btnPrint->setText( "Print" );
-    btnPrint->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
+    ToolButton *btnPrint = new ToolButton( "Print", toolBar );
     toolBar->addWidget( btnPrint );
     QObject::connect( btnPrint, SIGNAL( clicked() ),
         plot, SLOT( printPlot() ) );
 #endif
 
-    QToolButton *btnOverlay = new QToolButton( toolBar );
+    ToolButton *btnOverlay = new ToolButton( "Overlay", toolBar );
     btnOverlay->setCheckable( true );
-    btnOverlay->setText( "Overlay" );
-    btnOverlay->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
     toolBar->addWidget( btnOverlay );
     QObject::connect( btnOverlay, SIGNAL( toggled( bool ) ),
         plot, SLOT( setOverlaying( bool ) ) );
+
+    ToolButton *btnParametric = new ToolButton( "Parametric", toolBar );
+    btnParametric->setCheckable( true );
+    toolBar->addWidget( btnParametric );
+    QObject::connect( btnParametric, SIGNAL( toggled( bool ) ),
+        plot, SLOT( setParametric( bool ) ) );
 
     mainWindow.addToolBar( toolBar );
 

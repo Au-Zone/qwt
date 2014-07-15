@@ -40,7 +40,7 @@ public:
     {
         HarmonicSpline,
         AkimaSpline,
-        NaturalSpline
+        CubicSpline
     };
 
     SplineFitter( Mode mode ):
@@ -53,7 +53,7 @@ public:
                 d_spline = new QwtSplineLocal( QwtSplineLocal::Akima );
                 break;
             }
-            case NaturalSpline:
+            case CubicSpline:
             {   
                 QwtSplineCubic *cubicSpline = new QwtSplineCubic();
                 cubicSpline->setEndConditions( QwtSplineCubic::Natural );
@@ -73,6 +73,11 @@ public:
         delete d_spline;
     }
 
+    void setParametric( bool on )
+    {
+        d_isParametric = on;
+    }
+
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
     {
         const QPainterPath path = d_spline->path( points );
@@ -86,11 +91,19 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        return d_spline->path( points );
+        if ( d_isParametric )
+        {
+            return d_spline->parametricPath( points );
+        }
+        else
+        {
+            return d_spline->path( points );
+        }
     }
 
 private:
     QwtSpline *d_spline;
+    bool d_isParametric;
 };
 
 class Curve: public QwtPlotCurve
@@ -177,8 +190,8 @@ Plot::Plot( QWidget *parent ):
     curve1->setCurveFitter( new QwtSplineCurveFitter() );
     curve1->attach( this );
 
-    Curve *curve2 = new Curve( "Natural Spline", Qt::darkRed);
-    curve2->setCurveFitter( new SplineFitter( SplineFitter::NaturalSpline ) );
+    Curve *curve2 = new Curve( "Cubic Spline", Qt::darkRed);
+    curve2->setCurveFitter( new SplineFitter( SplineFitter::CubicSpline ) );
     curve2->attach( this );
 
     Curve *curve3 = new Curve( "Akima Spline", Qt::darkCyan);
@@ -298,6 +311,21 @@ void Plot::showCurve( QwtPlotItem *item, bool on )
 
         if ( legendLabel )
             legendLabel->setChecked( on );
+    }
+
+    replot();
+}
+
+void Plot::setParametric( bool on )
+{
+    QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
+    for ( int i = 0; i < curves.size(); i++ )
+    {
+        QwtPlotCurve *curve = ( QwtPlotCurve *)curves[i];
+
+        SplineFitter *fitter = dynamic_cast<SplineFitter*>( curve->curveFitter() );
+        if ( fitter )
+            fitter->setParametric( on );
     }
 
     replot();
