@@ -108,7 +108,7 @@ static QPainterPath qwtPathAkima( const QPolygonF &points,
         const double slope4 = qwtSlope( p[i+2],  p[i+3] );
 
         const double m2 = qwtAkima( slope1, slope2, slope3, slope4 );
-        QwtSpline::cubicTo( p[i], m1, p[i+1], m2, path );
+        QwtSplineHermite::cubicTo( p[i], m1, p[i+1], m2, path );
 
         slope1 = slope2;
         slope2 = slope3;
@@ -119,8 +119,8 @@ static QPainterPath qwtPathAkima( const QPolygonF &points,
 
     const double m2 = qwtAkima( slope1, slope2, slope3, slopeEnd );
 
-    QwtSpline::cubicTo( p[size - 3], m1, p[size - 2], m2, path );
-    QwtSpline::cubicTo( p[size - 2], m2, p[size - 1], slopeEnd, path );
+    QwtSplineHermite::cubicTo( p[size - 3], m1, p[size - 2], m2, path );
+    QwtSplineHermite::cubicTo( p[size - 2], m2, p[size - 1], slopeEnd, path );
 
     return path;
 }
@@ -255,7 +255,7 @@ QPainterPath QwtSplineLocal::path( const QPolygonF &points,
     if ( size == 2 )
     {
         path.moveTo( points[0] );
-        QwtSpline::cubicTo( points[0], slopeStart, points[1], slopeEnd, path );
+        QwtSplineHermite::cubicTo( points[0], slopeStart, points[1], slopeEnd, path );
 
         return path;
     }

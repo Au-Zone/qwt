@@ -11,9 +11,9 @@
 #define QWT_SPLINE_CUBIC_H 1
 
 #include "qwt_global.h"
-#include "qwt_spline.h"
+#include "qwt_spline_hermite.h"
 
-class QWT_EXPORT QwtSplineCubic: public QwtSpline
+class QWT_EXPORT QwtSplineCubic: public QwtSplineHermite
 {
 public:
     enum EndpointCondition 

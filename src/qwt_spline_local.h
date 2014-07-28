@@ -11,10 +11,9 @@
 #define QWT_SPLINE_LOCAL_H 1
 
 #include "qwt_global.h"
-#include "qwt_spline.h"
-#include <qpainterpath.h>
+#include "qwt_spline_hermite.h"
 
-class QWT_EXPORT QwtSplineLocal: public QwtSpline
+class QWT_EXPORT QwtSplineLocal: public QwtSplineHermite
 {
 public:
     enum Type

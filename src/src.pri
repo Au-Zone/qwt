@@ -41,9 +41,11 @@ HEADERS += \
     qwt_scale_engine.h \
     qwt_scale_map.h \
     qwt_spline.h \
-    qwt_spline_polynom.h \
+    qwt_spline_cardinal.h \
+    qwt_spline_hermite.h \
     qwt_spline_local.h \
     qwt_spline_cubic.h \
+    qwt_spline_polynom.h \
     qwt_symbol.h \
     qwt_system_clock.h \
     qwt_text_engine.h \
@@ -83,6 +85,8 @@ SOURCES += \
     qwt_scale_map.cpp \
     qwt_scale_engine.cpp \
     qwt_spline.cpp \
+    qwt_spline_cardinal.cpp \
+    qwt_spline_hermite.cpp \
     qwt_spline_local.cpp \
     qwt_spline_cubic.cpp \
     qwt_symbol.cpp \
