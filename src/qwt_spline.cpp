@@ -140,14 +140,22 @@ QPainterPath QwtSpline::parametricPath( const QPolygonF &points ) const
         py += QPointF( t, points[i].y() );
     }
 
-    const int numPoints = 500;
-
-    const QPolygonF interpolatedX = polygon( numPoints, px );
-    const QPolygonF interpolatedY = polygon( numPoints, py );
+    const QVector<double> mx = slopes( px );
+    const QVector<double> my = slopes( py );
 
     path.moveTo( points[0] );
-    for ( int i = 0; i < numPoints; i++ )
-        path.lineTo( interpolatedX[i].y(), interpolatedY[i].y() );
+    for ( int i = 1; i < points.size(); i++ )
+	{
+		const double t3 = qwtChordal( points[i-1], points[i] ) / 3.0;
+
+		const double cx1 = points[i-1].x() + mx[i-1] * t3;
+		const double cy1 = points[i-1].y() + my[i-1] * t3;
+
+		const double cx2 = points[i].x() - mx[i] * t3;
+		const double cy2 = points[i].y() - my[i] * t3;
+
+        path.cubicTo( cx1, cy1, cx2, cy2, points[i].x(), points[i].y() );
+	}
 
     return path;
 }
