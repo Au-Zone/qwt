@@ -59,7 +59,7 @@ inline void QwtSplineHermite::toSlopes( const QPointF &p1, const QPointF &p2,
 inline void QwtSplineHermite::toSlopes( double dx, 
     const QwtSplinePolynom &polynom, double &m1, double &m2 )
 {   
-    m1 = polynom.c; 
+    m1 = polynom.c1; 
     m2 = polynom.slope( dx );
 } 
 

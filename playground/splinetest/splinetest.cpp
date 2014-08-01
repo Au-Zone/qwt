@@ -34,10 +34,10 @@ public:
             return;
         }
 
-        const bool okStart = verifyStart( points, m );
+        const bool okStart = verifyStart( points, m, cv );
         const int numErrorsM = verifyNodesM( points, m );
         const int numErrorsCV = verifyNodesCV( points, cv );
-        const bool okEnd = verifyEnd( points, m );
+        const bool okEnd = verifyEnd( points, m, cv );
 
         if ( !okStart || numErrorsM > 0 || numErrorsCV > 0 || !okEnd )
         {
@@ -62,8 +62,35 @@ public:
     }
     
 protected:
-    virtual bool verifyStart( const QPolygonF &, const QVector<double> & ) const = 0;
-    virtual bool verifyEnd( const QPolygonF &, const QVector<double> & ) const = 0;
+
+	double sum3( double v1, double v2, double v3 ) const
+	{
+		// Kahan
+		QVector<double> v;
+		v += v1;
+		v += v2;
+		v += v3;
+
+		double sum = v[0];
+		double c = 0.0;
+
+		for (int i = 1; i < v.size(); i++ ) 
+		{
+			const double y = v[i] - c;
+			const double t = sum + y;
+			c = ( t - sum ) - y;
+			sum = t;
+		}
+
+		return sum;
+	}
+
+
+    virtual bool verifyStart( const QPolygonF &, 
+		const QVector<double> &, const QVector<double> & ) const = 0;
+
+    virtual bool verifyEnd( const QPolygonF &, 
+		const QVector<double> &, const QVector<double> & ) const = 0;
 
     int verifyNodesCV( const QPolygonF &p, const QVector<double> &cv ) const
     {
@@ -84,7 +111,8 @@ protected:
             {
 #if DEBUG_ERRORS > 1
                 qDebug() << "invalid node condition (cv)" << i 
-                    << v << 3 * ( s2 - s1 );
+                    << cv[i-1] << cv[i] << cv[i+1] 
+					<< v - 3 * ( s2 - s1 );
 #endif
 
                 numErrors++;
@@ -145,6 +173,14 @@ protected:
         return QwtSplinePolynom::fromSlopes( 
             points[index], m[index], points[index+1], m[index+1] );
     }
+
+    QwtSplinePolynom polynomCV( int index,
+        const QPolygonF &points, const QVector<double> &cv ) const
+    {
+        return QwtSplinePolynom::fromCurvatures(
+            points[index], cv[index], points[index+1], cv[index+1] );
+    }
+
 private:
     const QString d_name;
     const int d_minPoints;
@@ -161,16 +197,18 @@ public:
 
 protected:
 
-    virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyStart( const QPolygonF &points, 
+		const QVector<double> &, const QVector<double> &cv ) const
     {
-        const QwtSplinePolynom p = polynom( 0, points, m );
-        return fuzzyCompare( p.a, 0.0 );
+        const QwtSplinePolynom p = polynomCV( 0, points, cv );
+        return fuzzyCompare( p.c3, 0.0 );
     }
 
-    virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyEnd( const QPolygonF &points, 
+		const QVector<double> &, const QVector<double> &cv ) const
     {
-        const QwtSplinePolynom p = polynom( points.size() - 2, points, m );
-        return fuzzyCompare( p.a, 0.0 );
+        const QwtSplinePolynom p = polynomCV( points.size() - 2, points, cv );
+        return fuzzyCompare( p.c3, 0.0 );
     }
 };
 
@@ -184,17 +222,19 @@ public:
     }
 
 protected:
-    virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyStart( const QPolygonF &points, 
+		const QVector<double> &m, const QVector<double> & ) const
     {
         const QwtSplinePolynom p1 = polynom( 0, points, m );
         const QwtSplinePolynom p2 = polynom( 1, points, m );
 
         const double b3 = 0.5 * p2.curvature( points[2].x() - points[1].x() );
 
-        return fuzzyCompare( p1.b, 2 * p2.b - b3 );
+        return fuzzyCompare( p1.c2, 2 * p2.c2 - b3 );
     }
     
-    virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyEnd( const QPolygonF &points,
+		const QVector<double> &m, const QVector<double> & ) const
     {
         const int n = points.size();
 
@@ -203,7 +243,7 @@ protected:
 
         const double b3 = 0.5 * p1.curvature( points[n-1].x() - points[n-2].x() );
 
-        return fuzzyCompare( b3, 2 * p1.b - p2.b );
+        return fuzzyCompare( b3, 2 * p1.c2 - p2.c2 );
     }
 };
 
@@ -217,22 +257,24 @@ public:
     }
 
 protected:
-    virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyStart( const QPolygonF &points, 
+		const QVector<double> &m, const QVector<double> & ) const
     {
         const QwtSplinePolynom p1 = polynom( 0, points, m );
         const QwtSplinePolynom p2 = polynom( 1, points, m );
 
-        return fuzzyCompare( p1.a, p2.a );
+        return fuzzyCompare( p1.c3, p2.c3 );
     }
     
-    virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyEnd( const QPolygonF &points, 
+		const QVector<double> &m, const QVector<double> & ) const
     {
         const int n = points.size();
 
         const QwtSplinePolynom p1 = polynom( n - 2, points, m );
         const QwtSplinePolynom p2 = polynom( n - 3, points, m );
 
-        return fuzzyCompare( p1.a, p2.a );
+        return fuzzyCompare( p1.c3, p2.c3 );
     }
 };
 
@@ -246,7 +288,8 @@ public:
     }
 
 protected:
-    virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyStart( const QPolygonF &points, 
+		const QVector<double> &m, const QVector<double> & ) const
     {
         const int n = points.size();
 
@@ -258,9 +301,10 @@ protected:
             fuzzyCompare( p1.slope( dx ), p2.slope( 0.0 ) ) );
     }
     
-    virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyEnd( const QPolygonF &points, 
+		const QVector<double> &m, const QVector<double> &cv ) const
     {
-        return verifyStart( points, m );
+        return verifyStart( points, m, cv );
     }
 };
 
@@ -277,12 +321,14 @@ public:
 
 protected:
     
-    virtual bool verifyStart( const QPolygonF &, const QVector<double> &m ) const
+    virtual bool verifyStart( const QPolygonF &, 
+		const QVector<double> &m, const QVector<double> & ) const
     {
         return fuzzyCompare( m.first(), d_slopeBegin );
     }
     
-    virtual bool verifyEnd( const QPolygonF &, const QVector<double> &m ) const
+    virtual bool verifyEnd( const QPolygonF &, 
+		const QVector<double> &m, const QVector<double> & ) const
     {
         return fuzzyCompare( m.last(), d_slopeEnd );
     }
@@ -304,18 +350,16 @@ public:
     }
 
 protected:
-    virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyStart( const QPolygonF &, 
+		const QVector<double> &, const QVector<double> &cv ) const
     {
-        const QwtSplinePolynom p = polynom( 0, points, m );
-        return fuzzyCompare( d_cvBegin, p.curvature( 0.0 ) );
+        return fuzzyCompare( d_cvBegin, cv.first() );
     }
 
-    virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyEnd( const QPolygonF &,
+		const QVector<double> &, const QVector<double> &cv ) const
     {
-        const int n = points.size();
-
-        const QwtSplinePolynom p = polynom( n - 2, points, m );
-        return fuzzyCompare( d_cvEnd, p.curvature( points[n-1].x() - points[n-2].x() ) );
+        return fuzzyCompare( d_cvEnd, cv.last() );
     }
 
 private:
@@ -335,16 +379,18 @@ public:
     }   
 
 protected:
-    virtual bool verifyStart( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyStart( const QPolygonF &points, 
+		const QVector<double> &, const QVector<double> &cv ) const
     {
-        const QwtSplinePolynom p = polynom( 0, points, m );
-        return fuzzyCompare( d_valueBegin, 6.0 * p.a );
+        const QwtSplinePolynom p = polynomCV( 0, points, cv );
+        return fuzzyCompare( d_valueBegin, 6.0 * p.c3 );
     }
     
-    virtual bool verifyEnd( const QPolygonF &points, const QVector<double> &m ) const
+    virtual bool verifyEnd( const QPolygonF &points, 
+		const QVector<double> &m, const QVector<double> & ) const
     {
         const QwtSplinePolynom p = polynom( points.size() - 2, points, m );
-        return fuzzyCompare( d_valueEnd, 6.0 * p.a );
+        return fuzzyCompare( d_valueEnd, 6.0 * p.c3 );
     }
     
 private:

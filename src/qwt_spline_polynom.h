@@ -42,31 +42,31 @@ public:
         double dx, double dy, double cv1, double cv2 );
 
 public:
-    double a;
-    double b;
-    double c;
+    double c1;
+    double c2;
+    double c3;
 };
 
-inline QwtSplinePolynom::QwtSplinePolynom( double a0, double b0, double c0 ):
-    a(a0),
-    b(b0),
-    c(c0)
+inline QwtSplinePolynom::QwtSplinePolynom( double a, double b, double c ):
+    c1(c),
+    c2(b),
+    c3(a)
 {
 }
 
 inline double QwtSplinePolynom::value( double x ) const
 {
-    return ( ( ( a * x ) + b ) * x + c ) * x;
+    return ( ( ( c3 * x ) + c2 ) * x + c1 ) * x;
 }   
 
 inline double QwtSplinePolynom::slope( double x ) const
 {   
-    return ( 3.0 * a * x + 2.0 * b ) * x + c;
+    return ( 3.0 * c3 * x + 2.0 * c2 ) * x + c1;
 }
 
 inline double QwtSplinePolynom::curvature( double x ) const
 {   
-    return 6.0 * a * x + 2.0 * b;
+    return 6.0 * c3 * x + 2.0 * c2;
 }
 
 inline QwtSplinePolynom QwtSplinePolynom::fromSlopes( 
@@ -106,7 +106,7 @@ Q_DECLARE_METATYPE( QwtSplinePolynom )
 #ifndef QT_NO_DEBUG_STREAM
 inline QDebug operator<<( QDebug debug, const QwtSplinePolynom &p )
 {
-    debug.nospace() << "Polynom(" << p.a << ", " << p.b << ", " << p.c << ")";
+    debug.nospace() << "Polynom(" << p.c3 << ", " << p.c2 << ", " << p.c1 << ")";
     return debug.space();
 }
 #endif
