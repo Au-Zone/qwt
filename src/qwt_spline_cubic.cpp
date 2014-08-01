@@ -936,7 +936,7 @@ void QwtSplineCubic::setClamped3( double valueBegin, double valueEnd )
     d_data->setEndCondition( -3, valueBegin, valueEnd );
 }   
 
-QVector<double> QwtSplineCubic::slopes( const QPolygonF &points ) const
+QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
 {
     using namespace QwtSplineCubicP;
 
@@ -994,7 +994,7 @@ QVector<double> QwtSplineCubic::slopes( const QPolygonF &points ) const
     return eqs.store().slopes();
 }
 
-QVector<double> QwtSplineCubic::curvatures( const QPolygonF &points ) const
+QVector<double> QwtSplineCubic::curvaturesX( const QPolygonF &points ) const
 {
     using namespace QwtSplineCubicP;
 

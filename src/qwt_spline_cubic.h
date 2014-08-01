@@ -11,9 +11,9 @@
 #define QWT_SPLINE_CUBIC_H 1
 
 #include "qwt_global.h"
-#include "qwt_spline_hermite.h"
+#include "qwt_spline.h"
 
-class QWT_EXPORT QwtSplineCubic: public QwtSplineHermite
+class QWT_EXPORT QwtSplineCubic: public QwtSplineC2
 {
 public:
     enum EndpointCondition 
@@ -34,8 +34,8 @@ public:
     void setClamped2( double curvatureBegin, double curvatureEnd );
     void setClamped3( double valueBegin, double valueEnd );
 
-    virtual QVector<double> slopes( const QPolygonF & ) const;
-    virtual QVector<double> curvatures( const QPolygonF & ) const;
+    virtual QVector<double> slopesX( const QPolygonF & ) const;
+    virtual QVector<double> curvaturesX( const QPolygonF & ) const;
 
 private:
     class PrivateData;

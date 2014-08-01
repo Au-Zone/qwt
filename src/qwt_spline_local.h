@@ -11,9 +11,9 @@
 #define QWT_SPLINE_LOCAL_H 1
 
 #include "qwt_global.h"
-#include "qwt_spline_hermite.h"
+#include "qwt_spline.h"
 
-class QWT_EXPORT QwtSplineLocal: public QwtSplineHermite
+class QWT_EXPORT QwtSplineLocal: public QwtSplineC1
 {
 public:
     enum Type
@@ -29,11 +29,11 @@ public:
     QPainterPath path( const QPolygonF &,
         double slopeStart, double slopeEnd ) const;
 
-    QVector<double> slopes( const QPolygonF &,
+    QVector<double> slopesX( const QPolygonF &,
         double slopeStart, double slopeEnd ) const;
 
-    virtual QPainterPath path( const QPolygonF & ) const;
-    virtual QVector<double> slopes( const QPolygonF & ) const;
+    virtual QPainterPath pathX( const QPolygonF & ) const;
+    virtual QVector<double> slopesX( const QPolygonF & ) const;
 
 private:
     const Type d_type;

@@ -9,6 +9,7 @@
 #include <qwt_wheel.h>
 #include <qwt_spline_local.h>
 #include <qwt_spline_cubic.h>
+#include <qwt_spline_cardinal.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_spline_curve_fitter.h>
 #include <qwt_legend.h>
@@ -40,7 +41,8 @@ public:
     {
         HarmonicSpline,
         AkimaSpline,
-        CubicSpline
+        CubicSpline,
+        CardinalSpline
     };
 
     SplineFitter( Mode mode ):
@@ -48,6 +50,11 @@ public:
     {
         switch( mode )
         {   
+            case HarmonicSpline:
+            {   
+                d_spline = new QwtSplineLocal( QwtSplineLocal::HarmonicMean );
+                break;
+            }
             case AkimaSpline:
             {   
                 d_spline = new QwtSplineLocal( QwtSplineLocal::Akima );
@@ -61,9 +68,10 @@ public:
                 d_spline = cubicSpline;
                 break;
             }
+            case CardinalSpline:
             default:
             {   
-                d_spline = new QwtSplineLocal( QwtSplineLocal::HarmonicMean );
+                d_spline = new QwtSplineCardinal();
             }
         }
     }
@@ -75,12 +83,13 @@ public:
 
     void setParametric( bool on )
     {
-        d_isParametric = on;
+        d_spline->setParametrization(
+            on ? QwtSpline::ParametrizationChordal : QwtSpline::ParametrizationX );
     }
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
     {
-        const QPainterPath path = d_spline->path( points );
+        const QPainterPath path = d_spline->pathP( points );
 
         const QList<QPolygonF> subPaths = path.toSubpathPolygons();
         if ( subPaths.size() == 1 )
@@ -91,19 +100,11 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        if ( d_isParametric )
-        {
-            return d_spline->parametricPath( points );
-        }
-        else
-        {
-            return d_spline->path( points );
-        }
+        return d_spline->pathP( points );
     }
 
 private:
     QwtSpline *d_spline;
-    bool d_isParametric;
 };
 
 class Curve: public QwtPlotCurve
@@ -152,7 +153,7 @@ Plot::Plot( QWidget *parent ):
     // axes
 
     setAxisScale( QwtPlot::xBottom, 0.0, 100.0 );
-    setAxisScale( QwtPlot::yLeft, 0.0, 120.0 );
+    setAxisScale( QwtPlot::yLeft, -20.0, 120.0 );
 
     // Avoid jumping when label with 3 digits
     // appear/disappear when scrolling vertically
@@ -182,8 +183,8 @@ Plot::Plot( QWidget *parent ):
 
     // 
 
-    Curve *curve0 = new Curve( "Linear", Qt::black);
-    curve0->setCurveAttribute( QwtPlotCurve::Fitted, false );
+    Curve *curve0 = new Curve( "Cardinal", Qt::black);
+    curve0->setCurveFitter( new SplineFitter( SplineFitter::CardinalSpline ) );
     curve0->attach( this );
 
     Curve *curve1 = new Curve( "Pleasing", Qt::darkBlue);
@@ -203,10 +204,7 @@ Plot::Plot( QWidget *parent ):
     curve4->attach( this );
 
     QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
-#if 1
-    for ( int i = 0; i < curves.size(); i++ )
-        showCurve( curves[i], i != 0 );
-#else
+#if 0
     for ( int i = 0; i < curves.size(); i++ )
         showCurve( curves[i], false );
 

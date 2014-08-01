@@ -15,6 +15,16 @@ static inline double qwtSlope( const QPointF &p1, const QPointF &p2 )
     return dx ? ( p2.y() - p1.y() ) / dx : 0.0;
 }
 
+static inline void qwtCubicToP( const QPointF &p1, double m1,
+    const QPointF &p2, double m2, QPainterPath &path )
+{
+    const double dx = ( p2.x() - p1.x() ) / 3.0;
+
+    path.cubicTo( p1.x() + dx, p1.y() + m1 * dx,
+        p2.x() - dx, p2.y() - m2 * dx,
+        p2.x(), p2.y() );
+}
+
 static inline double qwtAkima( double s1, double s2, double s3, double s4 )
 {
     if ( ( s1 == s2 ) && ( s3 == s4 ) )
@@ -108,7 +118,7 @@ static QPainterPath qwtPathAkima( const QPolygonF &points,
         const double slope4 = qwtSlope( p[i+2],  p[i+3] );
 
         const double m2 = qwtAkima( slope1, slope2, slope3, slope4 );
-        QwtSplineHermite::cubicTo( p[i], m1, p[i+1], m2, path );
+        qwtCubicToP( p[i], m1, p[i+1], m2, path );
 
         slope1 = slope2;
         slope2 = slope3;
@@ -119,8 +129,8 @@ static QPainterPath qwtPathAkima( const QPolygonF &points,
 
     const double m2 = qwtAkima( slope1, slope2, slope3, slopeEnd );
 
-    QwtSplineHermite::cubicTo( p[size - 3], m1, p[size - 2], m2, path );
-    QwtSplineHermite::cubicTo( p[size - 2], m2, p[size - 1], slopeEnd, path );
+    qwtCubicToP( p[size - 3], m1, p[size - 2], m2, path );
+    qwtCubicToP( p[size - 2], m2, p[size - 1], slopeEnd, path );
 
     return path;
 }
@@ -229,7 +239,7 @@ QwtSplineLocal::~QwtSplineLocal()
 {
 }
 
-QPainterPath QwtSplineLocal::path( const QPolygonF &points ) const
+QPainterPath QwtSplineLocal::pathX( const QPolygonF &points ) const
 {
     double slopeStart, slopeEnd;
     qwtLocalEndpoints( points, d_type, slopeStart, slopeEnd );
@@ -255,7 +265,7 @@ QPainterPath QwtSplineLocal::path( const QPolygonF &points,
     if ( size == 2 )
     {
         path.moveTo( points[0] );
-        QwtSplineHermite::cubicTo( points[0], slopeStart, points[1], slopeEnd, path );
+        qwtCubicToP( points[0], slopeStart, points[1], slopeEnd, path );
 
         return path;
     }
@@ -280,15 +290,15 @@ QPainterPath QwtSplineLocal::path( const QPolygonF &points,
     return path;
 }
     
-QVector<double> QwtSplineLocal::slopes( const QPolygonF &points ) const
+QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
 {
     double slopeStart, slopeEnd;
     qwtLocalEndpoints( points, d_type, slopeStart, slopeEnd );
 
-    return slopes( points, slopeStart, slopeEnd );
+    return slopesX( points, slopeStart, slopeEnd );
 }
 
-QVector<double> QwtSplineLocal::slopes( const QPolygonF &points, 
+QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points, 
     double slopeStart, double slopeEnd ) const
 {
     const int size = points.size();

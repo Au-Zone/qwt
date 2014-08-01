@@ -18,14 +18,59 @@
 class QWT_EXPORT QwtSpline
 {
 public:
+    enum Parametrization
+    {
+        ParametrizationX,
+        ParametrizationChordal
+    };
+
     QwtSpline();
     virtual ~QwtSpline();
 
-    virtual QPainterPath path( const QPolygonF & ) const = 0;
-    virtual QPolygonF polygon( int numPoints, const QPolygonF & ) const = 0;
-    virtual QVector<QwtSplinePolynom> polynoms( const QPolygonF & ) const = 0;
+    void setParametrization( Parametrization );
+    Parametrization parametrization() const;
 
-    virtual QPainterPath parametricPath( const QPolygonF & ) const = 0;
+    virtual QPainterPath pathP( const QPolygonF & ) const;
+
+    virtual QPainterPath pathX( const QPolygonF & ) const = 0;
+    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const = 0;
+    virtual QVector<QwtSplinePolynom> polynomsX( const QPolygonF & ) const = 0;
+
+    virtual QPainterPath pathChordal( const QPolygonF & ) const = 0;
+
+private:
+    Parametrization d_parametrization;
+};
+
+class QWT_EXPORT QwtSplineG1: public QwtSpline
+{           
+public:     
+    QwtSplineG1();
+    virtual ~QwtSplineG1();
+};
+
+class QWT_EXPORT QwtSplineC1: public QwtSplineG1
+{
+public:
+    QwtSplineC1();
+    virtual ~QwtSplineC1();
+
+    virtual QPainterPath pathX( const QPolygonF & ) const;
+    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
+    virtual QVector<QwtSplinePolynom> polynomsX( const QPolygonF & ) const;
+    virtual QVector<double> slopesX( const QPolygonF & ) const = 0;
+
+    virtual QPainterPath pathChordal( const QPolygonF & ) const;
+
+};
+
+class QWT_EXPORT QwtSplineC2: public QwtSplineC1
+{
+public:
+    QwtSplineC2();
+    virtual ~QwtSplineC2();
+
+    virtual QVector<double> curvaturesX( const QPolygonF & ) const = 0;
 };
 
 #endif

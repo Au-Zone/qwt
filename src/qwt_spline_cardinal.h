@@ -13,17 +13,19 @@
 #include "qwt_global.h"
 #include "qwt_spline.h"
 
-class QWT_EXPORT QwtSplineCardinal: public QwtSpline
+class QWT_EXPORT QwtSplineCardinal: public QwtSplineC1
 {
 public:
-    QwtSplineCardinal();
+    QwtSplineCardinal( double tension = 0.0 );
     virtual ~QwtSplineCardinal();
 
-    virtual QPainterPath path( const QPolygonF & ) const;
-    virtual QPolygonF polygon( int numPoints, const QPolygonF & ) const;
-    virtual QVector<QwtSplinePolynom> polynoms( const QPolygonF & ) const;
+    void setTension( double tension );
+    double tension() const;
 
-    virtual QPainterPath parametricPath( const QPolygonF & ) const;
+    virtual QVector<double> slopesX( const QPolygonF & ) const;
+
+private:
+    double d_tension;
 };
 
 #endif

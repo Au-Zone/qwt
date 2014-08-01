@@ -24,8 +24,8 @@ public:
 
     void testSpline( const QPolygonF &points ) const
     {
-        const QVector<double> m = slopes( points );
-        const QVector<double> cv = curvatures( points );
+        const QVector<double> m = slopesX( points );
+        const QVector<double> cv = curvaturesX( points );
 
         if ( m.size() != points.size() )
         {
