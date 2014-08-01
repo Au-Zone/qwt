@@ -18,6 +18,20 @@ static inline double qwtChordal( const QPointF &p1, const QPointF &p2 )
    return qSqrt( dx * dx + dy * dy );
 }
 
+static inline QPointF qwtBezierPoint( const QPointF &p1,
+    const QPointF &cp1, const QPointF &cp2, const QPointF &p2, double t )
+{
+    const double d1 = 3.0 * t;
+    const double d2 = 3.0 * t * t;
+    const double d3 = t * t * t;
+    const double s  = 1.0 - t;
+
+    const double x = (( s * p1.x() + d1 * cp1.x() ) * s + d2 * cp2.x() ) * s + d3 * p2.x();
+    const double y = (( s * p1.y() + d1 * cp1.y() ) * s + d2 * cp2.y() ) * s + d3 * p2.y();
+
+    return QPointF( x, y );
+}
+
 #if 0
 
 static inline void qwtToCurvatures(
@@ -218,6 +232,65 @@ QPainterPath QwtSpline::pathP( const QPolygonF &points ) const
         path.moveTo( p[0] );
         for ( int i = 0; i < n - 1; i++ )
             path.cubicTo( l[i].p1(), l[i].p2(), p[i+1] );
+    }
+
+    return path;
+}
+
+QPolygonF QwtSpline::polygonP( const QPolygonF &points, 
+    double delta, bool withNodes ) const
+{
+    if ( delta <= 0.0 )
+        return QPolygonF();
+
+    const int n = points.size();
+    if ( n <= 1 )
+        return points;
+
+    if ( n == 2 )
+    {
+        // TODO
+        return points;
+    }
+
+    QPolygonF path;
+
+    const QVector<QLineF> controlPoints = bezierControlPointsP( points );
+    if ( controlPoints.size() != n - 1 )
+        return path;
+
+    path += points.first();
+    double t = delta;
+
+    for ( int i = 0; i < n - 1; i++ )
+    {
+        double l;
+        if ( d_parametrization == QwtSpline::ParametrizationChordal )
+            l = qwtChordal( points[i], points[i+1] );
+        else
+            l = points[i+1].x() - points[i].x();
+
+        while ( t < l )
+        {
+            path += qwtBezierPoint( points[i], controlPoints[i].p1(),
+                controlPoints[i].p2(), points[i+1], t / l );
+
+            t += delta;
+        }
+
+        if ( withNodes )
+        {
+            if ( qFuzzyCompare( path.last().x(), points[i+1].x() ) )
+                path.last() = points[i+1];
+            else
+                path += points[i+1];
+
+            t = delta;
+        }
+        else
+        {
+            t -= l;
+        }
     }
 
     return path;

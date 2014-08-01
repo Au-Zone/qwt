@@ -31,6 +31,9 @@ public:
     Parametrization parametrization() const;
 
     virtual QPainterPath pathP( const QPolygonF & ) const;
+    virtual QPolygonF polygonP( const QPolygonF &, 
+        double distance, bool withNodes ) const;
+
     virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const = 0;
 
 private:

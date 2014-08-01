@@ -17,7 +17,6 @@
 
 namespace QwtBezier
 {
-    QWT_EXPORT QPolygonF polygon( const QPolygonF &, double distance );
     QWT_EXPORT QPainterPath path( const QPolygonF &, bool isClosed = false );
 };
 

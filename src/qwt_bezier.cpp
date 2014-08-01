@@ -55,66 +55,6 @@ static inline void qwtBezierControlPoints(
     cp2 = p3 - 0.5 * ( p4 - p2 ) * s2;
 }
 
-static inline QPointF qwtBezierPoint( const QPointF &p1,
-    const QPointF &cp1, const QPointF &cp2, const QPointF &p2, double t )
-{
-    const double d1 = 3.0 * t;
-    const double d2 = 3.0 * t * t;
-    const double d3 = t * t * t;
-    const double s  = 1.0 - t;
-
-    const double x = (( s * p1.x() + d1 * cp1.x() ) * s + d2 * cp2.x() ) * s + d3 * p2.x();
-    const double y = (( s * p1.y() + d1 * cp1.y() ) * s + d2 * cp2.y() ) * s + d3 * p2.y();
-
-    return QPointF( x, y );
-}
-
-QPolygonF QwtBezier::polygon( const QPolygonF& points, double dist )
-{
-    const int size = points.size();
-    if ( size <= 2 || dist <= 0.0 )
-        return points;
-
-    const QPointF *p = points.constData();
-
-    QPointF cp1, cp2;
-
-    QPolygonF fittedPoints;
-    fittedPoints += p[0];
-
-    for ( int i = 0; i < size - 1; i++ )
-    {
-        const double length = qwtLineLength( p[i], p[i + 1] );
-        if ( dist < length )
-        {
-            if ( i == 0 )
-            {
-                qwtBezierControlPoints( p[0], p[0], p[1], p[2], cp1, cp2 );
-            }
-            else if ( i == points.size() - 2 )
-            {
-                qwtBezierControlPoints( p[size - 3], p[size - 2], 
-                    p[size - 1], p[size - 1], cp1, cp2 );
-            }
-            else
-            {
-                qwtBezierControlPoints( p[i-1], p[i], p[i+1], p[i+2], cp1, cp2);
-            }
-
-            const double off = dist / length;
-            for( double t = off; t < 1.0; t += off ) 
-            {
-                fittedPoints += qwtBezierPoint( p[i], cp1, cp2, p[i + 1], t );
-            }
-        }
-
-        fittedPoints += p[i + 1];
-    }
-
-    return fittedPoints;
-}
-
-
 static inline void qwtCubicTo( const QPointF &p1, const QPointF &p2, 
     const QPointF &p3, const QPointF &p4, QPainterPath &path )
 {
