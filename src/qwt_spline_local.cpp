@@ -239,15 +239,20 @@ QwtSplineLocal::~QwtSplineLocal()
 {
 }
 
-QPainterPath QwtSplineLocal::pathX( const QPolygonF &points ) const
+QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
 {
-    double slopeStart, slopeEnd;
-    qwtLocalEndpoints( points, d_type, slopeStart, slopeEnd );
+    if ( parametrization() == ParametrizationX )
+    {
+        double slopeStart, slopeEnd;
+        qwtLocalEndpoints( points, d_type, slopeStart, slopeEnd );
+    
+        return pathClampedX( points, slopeStart, slopeEnd );
+    }
 
-    return path( points, slopeStart, slopeEnd );
+    return QwtSplineC1::pathP( points );
 }
 
-QPainterPath QwtSplineLocal::path( const QPolygonF &points,
+QPainterPath QwtSplineLocal::pathClampedX( const QPolygonF &points,
     double slopeStart, double slopeEnd ) const
 {
     QPainterPath path;
@@ -295,10 +300,10 @@ QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
     double slopeStart, slopeEnd;
     qwtLocalEndpoints( points, d_type, slopeStart, slopeEnd );
 
-    return slopesX( points, slopeStart, slopeEnd );
+    return slopesClampedX( points, slopeStart, slopeEnd );
 }
 
-QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points, 
+QVector<double> QwtSplineLocal::slopesClampedX( const QPolygonF &points, 
     double slopeStart, double slopeEnd ) const
 {
     const int size = points.size();

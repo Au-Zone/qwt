@@ -26,14 +26,15 @@ public:
     QwtSplineLocal( Type type );
     virtual ~QwtSplineLocal();
 
-    QPainterPath path( const QPolygonF &,
-        double slopeStart, double slopeEnd ) const;
-
-    QVector<double> slopesX( const QPolygonF &,
-        double slopeStart, double slopeEnd ) const;
-
-    virtual QPainterPath pathX( const QPolygonF & ) const;
+    virtual QPainterPath pathP( const QPolygonF & ) const;
     virtual QVector<double> slopesX( const QPolygonF & ) const;
+
+    QPainterPath pathClampedX( const QPolygonF &,
+        double slopeStart, double slopeEnd ) const;
+
+    QVector<double> slopesClampedX( const QPolygonF &,
+        double slopeStart, double slopeEnd ) const;
+
 
 private:
     const Type d_type;

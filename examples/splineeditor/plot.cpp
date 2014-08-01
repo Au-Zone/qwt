@@ -191,20 +191,23 @@ Plot::Plot( QWidget *parent ):
     curve1->setCurveFitter( new QwtSplineCurveFitter() );
     curve1->attach( this );
 
-    Curve *curve2 = new Curve( "Cubic Spline", Qt::darkRed);
+    Curve *curve2 = new Curve( "Cubic", Qt::darkRed);
     curve2->setCurveFitter( new SplineFitter( SplineFitter::CubicSpline ) );
     curve2->attach( this );
 
-    Curve *curve3 = new Curve( "Akima Spline", Qt::darkCyan);
+    Curve *curve3 = new Curve( "Akima", Qt::darkCyan);
     curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
     curve3->attach( this );
 
-    Curve *curve4 = new Curve( "Harmonic Spline", Qt::darkYellow);
+    Curve *curve4 = new Curve( "Harmonic", Qt::darkYellow);
     curve4->setCurveFitter( new SplineFitter( SplineFitter::HarmonicSpline ) );
     curve4->attach( this );
 
     QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
-#if 0
+#if 1
+    for ( int i = 0; i < curves.size(); i++ )
+        showCurve( curves[i], true );
+#else
     for ( int i = 0; i < curves.size(); i++ )
         showCurve( curves[i], false );
 

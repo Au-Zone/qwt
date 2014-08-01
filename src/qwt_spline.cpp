@@ -18,16 +18,6 @@ static inline double qwtChordal( const QPointF &p1, const QPointF &p2 )
    return qSqrt( dx * dx + dy * dy );
 }
 
-static inline void qwtCubicTo( const QPointF &p1, double m1,
-    const QPointF &p2, double m2, QPainterPath &path )
-{   
-    const double dx = ( p2.x() - p1.x() ) / 3.0;
-    
-    path.cubicTo( p1.x() + dx, p1.y() + m1 * dx,
-        p2.x() - dx, p2.y() - m2 * dx,
-        p2.x(), p2.y() );
-}
-
 #if 0
 
 static inline void qwtToCurvatures(
@@ -45,6 +35,140 @@ static inline void qwtToCurvatures(
 }
 
 #endif
+
+namespace QwtSplineC1P
+{
+    class PathStore
+    {
+    public:
+        void init( int size )
+        {
+            Q_UNUSED(size);
+        }
+
+        inline void start( double x1, double y1 )
+        {
+            path.moveTo( x1, y1 );
+        }
+
+        inline void addCubic( double cx1, double cy1,
+            double cx2, double cy2, double x2, double y2 )
+        {
+            path.cubicTo( cx1, cy1, cx2, cy2, x2, y2 );
+        }
+
+        QPainterPath path;
+    };
+
+    class ControlPointsStore
+    {
+    public:
+        inline ControlPointsStore():
+            d_cp( NULL )
+        {
+        }
+
+        void init( int size )
+        {
+            controlPoints.resize( size );
+            d_cp = controlPoints.data();
+        }   
+
+        inline void start( double x1, double y1 )
+        {   
+            Q_UNUSED( x1 );
+            Q_UNUSED( y1 );
+        }
+        
+        inline void addCubic( double cx1, double cy1,
+            double cx2, double cy2, double x2, double y2 )
+        {
+            Q_UNUSED( x2 );
+            Q_UNUSED( y2 );
+
+            QLineF &l = *d_cp++;
+            l.setLine( cx1, cy1, cx2, cy2 );
+        }
+
+        QVector<QLineF> controlPoints;
+
+    private:
+        QLineF* d_cp;
+    };
+}
+
+template< typename SplineStore >
+static inline SplineStore qwtSplinePathX(
+    const QwtSplineC1 *spline, const QPolygonF &points )
+{
+    SplineStore store;
+
+    const int n = points.size();
+
+    const QVector<double> m = spline->slopesX( points );
+    if ( m.size() != n )
+        return store;
+
+    const QPointF *pd = points.constData();
+    const double *md = m.constData();
+
+    store.init( m.size() - 1 );
+    store.start( pd[0].x(), pd[0].y() );
+
+    for ( int i = 0; i < n - 1; i++ )
+    {
+        const double dx3 = ( pd[i+1].x() - pd[i].x() ) / 3.0;
+
+        store.addCubic( pd[i].x() + dx3, pd[i].y() + md[i] * dx3,
+            pd[i+1].x() - dx3, pd[i+1].y() - md[i+1] * dx3,
+            pd[i+1].x(), pd[i+1].y() );
+    }
+
+    return store;
+}
+
+template< typename SplineStore >
+static inline SplineStore qwtSplinePathChordal( 
+    const QwtSplineC1 *spline, const QPolygonF &points )
+{
+    const int n = points.size();
+
+    QPolygonF px, py;
+
+    px += QPointF( 0.0, points[0].x() );
+    py += QPointF( 0.0, points[0].y() );
+
+    double t = 0.0;
+    for ( int i = 1; i < n; i++ )
+    {
+        t += qwtChordal( points[i-1], points[i] );
+
+        px += QPointF( t, points[i].x() );
+        py += QPointF( t, points[i].y() );
+    }
+
+    const QVector<double> mx = spline->slopesX( px );
+    const QVector<double> my = spline->slopesX( py );
+
+    SplineStore store;
+    store.init( n - 1 );
+    store.start( points[0].x(), points[0].y() );
+
+    for ( int i = 1; i < n; i++ )
+    {
+        const double t3 = qwtChordal( points[i-1], points[i] ) / 3.0;
+
+        const double cx1 = points[i-1].x() + mx[i-1] * t3;
+        const double cy1 = points[i-1].y() + my[i-1] * t3;
+
+        const double cx2 = points[i].x() - mx[i] * t3;
+        const double cy2 = points[i].y() - my[i] * t3;
+
+        store.addCubic( cx1, cy1, cx2, cy2, points[i].x(), points[i].y() );
+    }
+
+    return store;
+}
 
 QwtSpline::QwtSpline():
     d_parametrization( QwtSpline::ParametrizationX )
@@ -67,16 +191,33 @@ QwtSpline::Parametrization QwtSpline::parametrization() const
 
 QPainterPath QwtSpline::pathP( const QPolygonF &points ) const
 {
-    QPainterPath path;
+    const int n = points.size();
 
-    switch( d_parametrization )
+    QPainterPath path;
+    if ( n == 0 )
+        return path;
+
+    if ( n == 1 )
     {
-        case ParametrizationX:
-            path = pathX( points );
-            break;
-        case ParametrizationChordal:
-            path = pathChordal( points );
-            break;
+        path.moveTo( points[0] );
+        return path;
+    }
+
+    if ( n == 2 )
+    {
+        path.addPolygon( points );
+        return path;
+    }
+
+    const QVector<QLineF> controlPoints = bezierControlPointsP( points );
+    if ( controlPoints.size() == n - 1 )
+    {
+        const QPointF *p = points.constData();
+        const QLineF *l = controlPoints.constData();
+
+        path.moveTo( p[0] );
+        for ( int i = 0; i < n - 1; i++ )
+            path.cubicTo( l[i].p1(), l[i].p2(), p[i+1] );
     }
 
     return path;
@@ -98,29 +239,57 @@ QwtSplineC1::~QwtSplineC1()
 {
 }
 
-QPainterPath QwtSplineC1::pathX( const QPolygonF &points ) const
+QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const
 {
-    QPainterPath path;
+    const int n = points.size();
+    if ( n <= 2 )
+        return QwtSpline::pathP( points );
+
+    using namespace QwtSplineC1P;
+
+    PathStore store;
+    switch( parametrization() )
+    {
+        case ParametrizationX:
+        {
+            store = qwtSplinePathX<PathStore>( this, points );
+            break;
+        }
+        case ParametrizationChordal:
+        {
+            store = qwtSplinePathChordal<PathStore>( this, points );
+            break;
+        }
+    }
+
+    return store.path;
+}
+
+QVector<QLineF> QwtSplineC1::bezierControlPointsP( const QPolygonF &points ) const
+{
+    using namespace QwtSplineC1P;
 
     const int n = points.size();
     if ( n <= 2 )
+        return QVector<QLineF>();
+
+
+    ControlPointsStore store;
+    switch( parametrization() )
     {
-        path.addPolygon( points );
-        return path;
+        case ParametrizationX:
+        {
+            store = qwtSplinePathX<ControlPointsStore>( this, points );
+            break;
+        }
+        case ParametrizationChordal:
+        {
+            store = qwtSplinePathChordal<ControlPointsStore>( this, points );
+            break;
+        }
     }
 
-    const QVector<double> m = slopesX( points );
-    if ( m.size() != n )
-        return path;
-
-    const QPointF *pd = points.constData();
-    const double *md = m.constData();
-
-    path.moveTo( pd[0] );
-    for ( int i = 0; i < n - 1; i++ )
-        qwtCubicTo( pd[i], md[i], pd[i+1], md[i+1], path );
-
-    return path;
+    return store.controlPoints;
 }
 
 QPolygonF QwtSplineC1::polygonX( int numPoints, const QPolygonF &points ) const
@@ -184,47 +353,6 @@ QVector<QwtSplinePolynom> QwtSplineC1::polynomsX( const QPolygonF &points ) cons
     }
 
     return polynoms;
-}
-
-QPainterPath QwtSplineC1::pathChordal( const QPolygonF &points ) const
-{
-    QPainterPath path;
-
-    if ( points.size() <= 2 )
-        return path;
-
-    QPolygonF px, py;
-
-    px += QPointF( 0.0, points[0].x() );
-    py += QPointF( 0.0, points[0].y() );
-
-    double t = 0.0;
-    for ( int i = 1; i < points.size(); i++ )
-    {
-        t += qwtChordal( points[i-1], points[i] );
-
-        px += QPointF( t, points[i].x() );
-        py += QPointF( t, points[i].y() );
-    }
-
-    const QVector<double> mx = slopesX( px );
-    const QVector<double> my = slopesX( py );
-
-    path.moveTo( points[0] );
-    for ( int i = 1; i < points.size(); i++ )
-    {
-        const double t3 = qwtChordal( points[i-1], points[i] ) / 3.0;
-
-        const double cx1 = points[i-1].x() + mx[i-1] * t3;
-        const double cy1 = points[i-1].y() + my[i-1] * t3;
-
-        const double cx2 = points[i].x() - mx[i] * t3;
-        const double cy2 = points[i].y() - my[i] * t3;
-
-        path.cubicTo( cx1, cy1, cx2, cy2, points[i].x(), points[i].y() );
-    }
-
-    return path;
 }
 
 QwtSplineC2::QwtSplineC2()

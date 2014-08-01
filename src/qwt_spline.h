@@ -31,12 +31,7 @@ public:
     Parametrization parametrization() const;
 
     virtual QPainterPath pathP( const QPolygonF & ) const;
-
-    virtual QPainterPath pathX( const QPolygonF & ) const = 0;
-    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const = 0;
-    virtual QVector<QwtSplinePolynom> polynomsX( const QPolygonF & ) const = 0;
-
-    virtual QPainterPath pathChordal( const QPolygonF & ) const = 0;
+    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const = 0;
 
 private:
     Parametrization d_parametrization;
@@ -55,13 +50,13 @@ public:
     QwtSplineC1();
     virtual ~QwtSplineC1();
 
-    virtual QPainterPath pathX( const QPolygonF & ) const;
-    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
-    virtual QVector<QwtSplinePolynom> polynomsX( const QPolygonF & ) const;
+    virtual QPainterPath pathP( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const;
+
     virtual QVector<double> slopesX( const QPolygonF & ) const = 0;
 
-    virtual QPainterPath pathChordal( const QPolygonF & ) const;
-
+    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
+    virtual QVector<QwtSplinePolynom> polynomsX( const QPolygonF & ) const;
 };
 
 class QWT_EXPORT QwtSplineC2: public QwtSplineC1
