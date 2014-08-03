@@ -103,7 +103,7 @@ namespace QwtSplineC1P
     };
 }
 
-template< typename SplineStore >
+template< class SplineStore >
 static inline SplineStore qwtSplinePathX(
     const QwtSplineC1 *spline, const QPolygonF &points )
 {
@@ -133,7 +133,7 @@ static inline SplineStore qwtSplinePathX(
     return store;
 }
 
-template< typename SplineStore >
+template< class SplineStore >
 static inline SplineStore qwtSplinePathChordal( 
     const QwtSplineC1 *spline, const QPolygonF &points )
 {

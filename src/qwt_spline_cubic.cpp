@@ -384,7 +384,7 @@ QDebug operator<<( QDebug debug, const QwtSplineCubicP::Equation3 &eq )
 
 namespace QwtSplineCubicP
 {
-    template <typename T>
+    template <class T>
     class EquationSystem
     {
     public:
@@ -566,7 +566,7 @@ namespace QwtSplineCubicP
         T d_store;
     };
 
-    template <typename T>
+    template <class T>
     class EquationSystem2
     {
     public:

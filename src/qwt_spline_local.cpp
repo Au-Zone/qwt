@@ -135,7 +135,7 @@ static inline double qwtHarmonicMean( double s1, double s2 )
     if ( ( s1 > 0.0 ) == ( s2 > 0.0 ) )
     {
         if ( ( s1 != 0.0 ) && ( s2 != 0.0 ) )
-            return 2 / ( 1 / s1 + 1 / s2 );
+            return 2.0 / ( 1.0 / s1 + 1.0 / s2 );
     }
 
     return 0.0;
@@ -173,7 +173,7 @@ static inline void qwtLocalEndpoints( const QPolygonF &points,
     slopeEnd *= ( 1.0 - tension );
 }
 
-template< typename SplineStore >
+template< class SplineStore >
 static inline SplineStore qwtSplinePathCardinal( const QPolygonF &points,
     double tension, double slopeStart, double slopeEnd )
 {
@@ -200,7 +200,7 @@ static inline SplineStore qwtSplinePathCardinal( const QPolygonF &points,
     return store;
 }
 
-template< typename SplineStore >
+template< class SplineStore >
 static inline SplineStore qwtSplinePathAkima( const QPolygonF &points,
     double tension, double slopeStart, double slopeEnd )
 {
@@ -241,7 +241,7 @@ static inline SplineStore qwtSplinePathAkima( const QPolygonF &points,
     return store;
 }
 
-template< typename SplineStore >
+template< class SplineStore >
 static inline SplineStore qwtSplinePathHarmonicMean( const QPolygonF &points,
     double tension, double slopeStart, double slopeEnd )
 {
@@ -277,7 +277,7 @@ static inline SplineStore qwtSplinePathHarmonicMean( const QPolygonF &points,
     return store; 
 }
 
-template< typename SplineStore >
+template< class SplineStore >
 static inline SplineStore qwtSplinePathLocal( int type, 
     const QPolygonF &points, double tension, double slopeStart, double slopeEnd )
 {   
