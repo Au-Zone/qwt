@@ -32,6 +32,8 @@ public:
     double tension() const;
 
     virtual QPainterPath pathP( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF & ) const;
+
     virtual QVector<double> slopesX( const QPolygonF & ) const;
 
     QPainterPath pathClampedX( const QPolygonF &,
@@ -40,6 +42,8 @@ public:
     QVector<double> slopesClampedX( const QPolygonF &,
         double slopeStart, double slopeEnd ) const;
 
+    QVector<QLineF> bezierControlPointsClampedX( const QPolygonF &,
+        double slopeStart, double slopeEnd ) const;
 
 private:
     const Type d_type;

@@ -10,14 +10,6 @@
 #include "qwt_spline.h"
 #include "qwt_math.h"
 
-static inline double qwtChordal( const QPointF &p1, const QPointF &p2 )
-{
-   const double dx = p1.x() - p2.x();
-   const double dy = p1.y() - p2.y();
-
-   return qSqrt( dx * dx + dy * dy );
-}
-
 static inline QPointF qwtBezierPoint( const QPointF &p1,
     const QPointF &cp1, const QPointF &cp2, const QPointF &p2, double t )
 {
@@ -82,7 +74,7 @@ namespace QwtSplineC1P
         {
         }
 
-        void init( int size )
+        inline void init( int size )
         {
             controlPoints.resize( size );
             d_cp = controlPoints.data();
@@ -155,7 +147,7 @@ static inline SplineStore qwtSplinePathChordal(
     double t = 0.0;
     for ( int i = 1; i < n; i++ )
     {
-        t += qwtChordal( points[i-1], points[i] );
+        t += QwtSpline::parameterChordal( points[i-1], points[i] );
 
         px += QPointF( t, points[i].x() );
         py += QPointF( t, points[i].y() );
@@ -170,7 +162,7 @@ static inline SplineStore qwtSplinePathChordal(
 
     for ( int i = 1; i < n; i++ )
     {
-        const double t3 = qwtChordal( points[i-1], points[i] ) / 3.0;
+        const double t3 = QwtSpline::parameterChordal( points[i-1], points[i] ) / 3.0;
 
         const double cx1 = points[i-1].x() + mx[i-1] * t3;
         const double cy1 = points[i-1].y() + my[i-1] * t3;
@@ -266,7 +258,7 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
     {
         double l;
         if ( d_parametrization == QwtSpline::ParametrizationChordal )
-            l = qwtChordal( points[i], points[i+1] );
+            l = QwtSpline::parameterChordal( points[i], points[i+1] );
         else
             l = points[i+1].x() - points[i].x();
 

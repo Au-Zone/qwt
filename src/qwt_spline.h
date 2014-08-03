@@ -14,6 +14,7 @@
 #include "qwt_spline_polynom.h"
 #include <qpolygon.h>
 #include <qpainterpath.h>
+#include <qmath.h>
 
 class QWT_EXPORT QwtSpline
 {
@@ -35,6 +36,9 @@ public:
         double distance, bool withNodes ) const;
 
     virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const = 0;
+
+    static double parameterChordal( const QPointF &p1, const QPointF &p2 );
+    static double parameterX( const QPointF &p1, const QPointF &p2 );
 
 private:
     Parametrization d_parametrization;
@@ -70,5 +74,18 @@ public:
 
     virtual QVector<double> curvaturesX( const QPolygonF & ) const = 0;
 };
+
+inline double QwtSpline::parameterChordal( const QPointF &p1, const QPointF &p2 )
+{
+   const double dx = p1.x() - p2.x();
+   const double dy = p1.y() - p2.y();
+
+   return qSqrt( dx * dx + dy * dy );
+}
+
+inline double QwtSpline::parameterX( const QPointF &p1, const QPointF &p2 )
+{
+   return p2.x() - p1.x();
+}
 
 #endif
