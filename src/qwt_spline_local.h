@@ -18,13 +18,18 @@ class QWT_EXPORT QwtSplineLocal: public QwtSplineC1
 public:
     enum Type
     {
+        Cardinal,
+        ParabolicBlending,
         Akima,
         HarmonicMean,
         PChip
     };
 
-    QwtSplineLocal( Type type );
+    QwtSplineLocal( Type type, double tension = 0.0 );
     virtual ~QwtSplineLocal();
+
+    void setTension( double tension );
+    double tension() const;
 
     virtual QPainterPath pathP( const QPolygonF & ) const;
     virtual QVector<double> slopesX( const QPolygonF & ) const;
@@ -38,6 +43,7 @@ public:
 
 private:
     const Type d_type;
+    double d_tension;
 };
 
 #endif

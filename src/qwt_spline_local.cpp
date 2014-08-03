@@ -8,11 +8,20 @@
  *****************************************************************************/
 
 #include "qwt_spline_local.h"
+#include <qmath.h>
 
 static inline double qwtSlope( const QPointF &p1, const QPointF &p2 )
 {
     const double dx = p2.x() - p1.x();
     return dx ? ( p2.y() - p1.y() ) / dx : 0.0;
+}
+
+static inline double qwtChordal( const QPointF &p1, const QPointF &p2 )
+{
+   const double dx = p1.x() - p2.x();
+   const double dy = p1.y() - p2.y();
+
+   return qSqrt( dx * dx + dy * dy );
 }
 
 static inline void qwtCubicToP( const QPointF &p1, double m1,
@@ -50,13 +59,6 @@ static inline double qwtHarmonicMean(
     return 0.0;
 }
 
-#if 0
-static inline double qwtArithmeticMean( double s1, s2 )
-{
-    return ( s1 + s2 ) / 2.0;
-}
-#endif
-
 static inline double qwtHarmonicMean( double s1, double s2 )
 {
     if ( ( s1 > 0.0 ) == ( s2 > 0.0 ) )
@@ -69,7 +71,7 @@ static inline double qwtHarmonicMean( double s1, double s2 )
 }
 
 static inline void qwtLocalEndpoints( const QPolygonF &points,
-    QwtSplineLocal::Type type, double &slopeStart, double &slopeEnd )
+    QwtSplineLocal::Type type, double tension, double &slopeStart, double &slopeEnd )
 {
     slopeStart = slopeEnd = 0.0;
 
@@ -95,29 +97,79 @@ static inline void qwtLocalEndpoints( const QPolygonF &points,
             slopeEnd = qwtSlope( points[n-2], points[n-1] );
         }
     }
+
+    slopeStart *= ( 1.0 - tension );
+    slopeEnd *= ( 1.0 - tension );
 }
 
-static QPainterPath qwtPathAkima( const QPolygonF &points, 
-    double slopeStart, double slopeEnd )
+static QPainterPath qwtPathCardinal( const QPolygonF &points, 
+    double tension, double slopeStart, double slopeEnd )
 {
-    QPainterPath path;
-
+    const double s = 1.0 - tension;
     const int size = points.size();
 
     const QPointF *p = points.constData();
+
+    QPainterPath path;
+    path.moveTo( p[0] );
+
+    double m1 = slopeStart;
+    for ( int i = 1; i < size - 1; i++ )
+    {
+        const double m2 = s * qwtSlope( p[i-1], p[i+1] );
+        qwtCubicToP( p[i-1], m1, p[i], m2, path );
+
+        m1 = m2;
+    }
+
+    qwtCubicToP( p[size-2], m1, p[size-1], slopeEnd, path );
+
+    return path;
+}
+
+static QVector<double> qwtSlopesCardinal( const QPolygonF &points, 
+    double tension, double slopeStart, double slopeEnd )
+{
+    const double s = 1.0 - tension;
+
+    const int size = points.size();
+    const QPointF *p = points.constData();
+
+    QVector<double> m(size);
+    double *md = m.data();
+
+    md[0] = slopeStart;
+
+    for ( int i = 1; i < size - 1; i++ )
+        md[i] = s * qwtSlope( p[i-1], p[i+1] );
+
+    md[size-1] = slopeEnd;
+
+    return m;
+}
+
+static QPainterPath qwtPathAkima( const QPolygonF &points, 
+    double tension, double slopeStart, double slopeEnd )
+{
+    const double s = 1.0 - tension;
+
+    const int size = points.size();
+    const QPointF *p = points.constData();
+
+    QPainterPath path;
     path.moveTo( p[0] );
 
     double slope1 = slopeStart;
     double slope2 = qwtSlope( p[0], p[1] );
     double slope3 = qwtSlope( p[1], p[2] );
 
-    double m1 = slope1;
+    double m1 = s * slope1;
 
     for ( int i = 0; i < size - 3; i++ )
     {
         const double slope4 = qwtSlope( p[i+2],  p[i+3] );
 
-        const double m2 = qwtAkima( slope1, slope2, slope3, slope4 );
+        const double m2 = s * qwtAkima( slope1, slope2, slope3, slope4 );
         qwtCubicToP( p[i], m1, p[i+1], m2, path );
 
         slope1 = slope2;
@@ -127,7 +179,7 @@ static QPainterPath qwtPathAkima( const QPolygonF &points,
         m1 = m2;
     }
 
-    const double m2 = qwtAkima( slope1, slope2, slope3, slopeEnd );
+    const double m2 = s * qwtAkima( slope1, slope2, slope3, slopeEnd );
 
     qwtCubicToP( p[size - 3], m1, p[size - 2], m2, path );
     qwtCubicToP( p[size - 2], m2, p[size - 1], slopeEnd, path );
@@ -136,57 +188,61 @@ static QPainterPath qwtPathAkima( const QPolygonF &points,
 }
 
 static QVector<double> qwtSlopesAkima( const QPolygonF &points, 
-    double slopeStart, double slopeEnd )
+    double tension, double slopeStart, double slopeEnd )
 {
+    const double s = 1.0 - tension;
+
     const int size = points.size();
-    const QPointF *pd = points.constData();
+    const QPointF *p = points.constData();
 
     QVector<double> m(size);
 
     double slope1 = slopeStart;
-    double slope2 = qwtSlope( pd[0], pd[1] );
-    double slope3 = qwtSlope( pd[1], pd[2] );
+    double slope2 = qwtSlope( p[0], p[1] );
+    double slope3 = qwtSlope( p[1], p[2] );
 
     double *md = m.data();
 
-    md[0] = slope1;
+    md[0] = s * slope1;
 
     for ( int i = 0; i < size - 3; i++ )
     {
-        const double slope4 = qwtSlope( pd[i+2], pd[i+3] );
+        const double slope4 = qwtSlope( p[i+2], p[i+3] );
 
-        md[i+1] = qwtAkima( slope1, slope2, slope3, slope4 );
+        md[i+1] = s * qwtAkima( slope1, slope2, slope3, slope4 );
 
         slope1 = slope2;
         slope2 = slope3;
         slope3 = slope4;
     }
 
-    md[size-2] = qwtAkima( slope1, slope2, slope3, slopeEnd );
+    md[size-2] = s * qwtAkima( slope1, slope2, slope3, slopeEnd );
     md[size-1] = slopeEnd;
 
     return m;
 }
 
 static QVector<double> qwtSlopesHarmonicMean( const QPolygonF &points, 
-    double slopeStart, double slopeEnd )
+    double tension, double slopeStart, double slopeEnd )
 {
+    const double s = 1.0 - tension;
+
     const int size = points.size();
-    const QPointF *pd = points.constData();
+    const QPointF *p = points.constData();
 
     QVector<double> m(size);
 
-    double dx1 = pd[1].x() - pd[0].x();
-    double dy1 = pd[1].y() - pd[0].y();
+    double dx1 = p[1].x() - p[0].x();
+    double dy1 = p[1].y() - p[0].y();
 
     m[0] = slopeStart;
 
     for ( int i = 1; i < size - 1; i++ )
     {
-        const double dx2 = pd[i+1].x() - pd[i].x();
-        const double dy2 = pd[i+1].y() - pd[i].y();
+        const double dx2 = p[i+1].x() - p[i].x();
+        const double dy2 = p[i+1].y() - p[i].y();
 
-        m[1] = qwtHarmonicMean( dx1, dy1, dx2, dy2 );
+        m[1] = s * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
 
         dx1 = dx2;
         dy1 = dy2;
@@ -198,8 +254,10 @@ static QVector<double> qwtSlopesHarmonicMean( const QPolygonF &points,
 }
 
 static QPainterPath qwtPathHarmonicMean( const QPolygonF &points, 
-    double slopeStart, double slopeEnd )
+    double tension, double slopeStart, double slopeEnd )
 {
+    const double s = 1.0 - tension;
+
     const int size = points.size();
     const QPointF *p = points.constData();
 
@@ -215,7 +273,7 @@ static QPainterPath qwtPathHarmonicMean( const QPolygonF &points,
         const double dx2 = p[i+1].x() - p[i].x();
         const double dy2 = p[i+1].y() - p[i].y();
 
-        const double m2 = qwtHarmonicMean( dx1, dy1, dx2, dy2 );
+        const double m2 = s * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
         path.cubicTo( p[i-1] + QPointF( dx1, dx1 * m1 ) / 3.0,
             p[i] - QPointF( dx1, dx1 * m2 ) / 3.0, p[i] );
 
@@ -230,13 +288,25 @@ static QPainterPath qwtPathHarmonicMean( const QPolygonF &points,
     return path; 
 }
 
-QwtSplineLocal::QwtSplineLocal( Type type ):
-    d_type( type )
+QwtSplineLocal::QwtSplineLocal( Type type, double tension ):
+    d_type( type ),
+    d_tension( 0.0 )
 {
+    setTension( tension );
 }
 
 QwtSplineLocal::~QwtSplineLocal()
 {
+}
+
+void QwtSplineLocal::setTension( double tension )
+{
+    d_tension = qBound( 0.0, tension, 1.0 );
+}
+
+double QwtSplineLocal::tension() const
+{
+    return d_tension;
 }
 
 QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
@@ -244,7 +314,7 @@ QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
     if ( parametrization() == ParametrizationX )
     {
         double slopeStart, slopeEnd;
-        qwtLocalEndpoints( points, d_type, slopeStart, slopeEnd );
+        qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
     
         return pathClampedX( points, slopeStart, slopeEnd );
     }
@@ -277,17 +347,30 @@ QPainterPath QwtSplineLocal::pathClampedX( const QPolygonF &points,
 
     switch( d_type )
     {
+        case QwtSplineLocal::Cardinal:
+        {
+            path = qwtPathCardinal( points, d_tension, slopeStart, slopeEnd );
+            break;
+        }
+        case QwtSplineLocal::ParabolicBlending:
+        {
+            // Bessel
+            break;
+        }
         case QwtSplineLocal::Akima:
         {
-            path = qwtPathAkima( points, slopeStart, slopeEnd );
+            path = qwtPathAkima( points, d_tension, slopeStart, slopeEnd );
             break;
         }
         case QwtSplineLocal::HarmonicMean:
         {
-            path = qwtPathHarmonicMean( points, slopeStart, slopeEnd );
+            path = qwtPathHarmonicMean( points, d_tension, slopeStart, slopeEnd );
             break;
         }
         case QwtSplineLocal::PChip:
+        {
+            break;
+        }
         default:
             break;
     }
@@ -298,7 +381,7 @@ QPainterPath QwtSplineLocal::pathClampedX( const QPolygonF &points,
 QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
 {
     double slopeStart, slopeEnd;
-    qwtLocalEndpoints( points, d_type, slopeStart, slopeEnd );
+    qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
 
     return slopesClampedX( points, slopeStart, slopeEnd );
 }
@@ -324,17 +407,30 @@ QVector<double> QwtSplineLocal::slopesClampedX( const QPolygonF &points,
 
     switch( d_type )
     {
+        case QwtSplineLocal::Cardinal:
+        {
+            m = qwtSlopesCardinal( points, d_tension, slopeStart, slopeEnd );
+            break;
+        }
+        case QwtSplineLocal::ParabolicBlending:
+        {
+            // Bessel
+            break;
+        };
         case QwtSplineLocal::Akima:
         {
-            m = qwtSlopesAkima( points, slopeStart, slopeEnd );
+            m = qwtSlopesAkima( points, d_tension, slopeStart, slopeEnd );
             break;
         }
         case QwtSplineLocal::HarmonicMean:
         {
-            m = qwtSlopesHarmonicMean( points, slopeStart, slopeEnd );
+            m = qwtSlopesHarmonicMean( points, d_tension, slopeStart, slopeEnd );
             break;
         }
         case QwtSplineLocal::PChip:
+        {
+            break;
+        }
         default:
             break;
     }

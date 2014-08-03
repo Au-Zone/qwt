@@ -9,7 +9,6 @@
 #include <qwt_wheel.h>
 #include <qwt_spline_local.h>
 #include <qwt_spline_cubic.h>
-#include <qwt_spline_cardinal.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_spline_curve_fitter.h>
 #include <qwt_legend.h>
@@ -71,7 +70,7 @@ public:
             case CardinalSpline:
             default:
             {   
-                d_spline = new QwtSplineCardinal();
+                d_spline = new QwtSplineLocal( QwtSplineLocal::Cardinal );
             }
         }
     }
