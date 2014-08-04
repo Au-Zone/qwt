@@ -47,7 +47,7 @@ namespace QwtSplineC1P
     class PathStore
     {
     public:
-        void init( int size )
+        inline void init( int size )
         {
             Q_UNUSED(size);
         }

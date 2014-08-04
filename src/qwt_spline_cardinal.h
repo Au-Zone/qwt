@@ -15,27 +15,29 @@
 class QWT_EXPORT QwtSplineCardinalG1: public QwtSplineG1
 {
 public:
-	class Tension
-	{
-	public:
-		Tension()
-		{
-		}
+    class Tension
+    {
+    public:
+        Tension()
+        {
+        }
 
-		Tension( double s1, double s2 ):
-			t1( s1 ),
-			t2( s2 )
-		{
-		}
+        Tension( double s1, double s2 ):
+            t1( s1 ),
+            t2( s2 )
+        {
+        }
 
-		double t1;
-		double t2;
-	};
+        double t1;
+        double t2;
+    };
 
     QwtSplineCardinalG1();
     virtual ~QwtSplineCardinalG1();
 
     virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const;
+    virtual QPainterPath pathP( const QPolygonF &points ) const;
+
     virtual QVector<Tension> tensions( const QPolygonF & ) const = 0;
 };
 
@@ -45,6 +47,9 @@ public:
     QwtSplinePleasing();
     virtual ~QwtSplinePleasing();
     
+    virtual QPainterPath pathP( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const;
+
     virtual QVector<Tension> tensions( const QPolygonF & ) const;
 };
 
