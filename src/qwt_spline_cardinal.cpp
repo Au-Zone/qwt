@@ -11,22 +11,6 @@
 
 namespace QwtSplineCardinalG1P
 {
-    struct paramX
-    {
-        inline double operator()( const QPointF &p1, const QPointF &p2 ) const
-        {
-            return QwtSpline::parameterX( p1, p2 );
-        }
-    };
-
-    struct paramChordal
-    {
-        inline double operator()( const QPointF &p1, const QPointF &p2 ) const
-        {
-            return QwtSpline::parameterChordal( p1, p2 );
-        }
-    };
-
     class PathStore
     {
     public:
@@ -262,10 +246,16 @@ QPainterPath QwtSplinePleasing::pathP( const QPolygonF &points ) const
     using namespace QwtSplineCardinalG1P;
 
     PathStore store;
-    if ( parametrization() == ParametrizationChordal )
-        store = qwtSplinePathPleasing<PathStore>( points, paramChordal() );
+    if ( parametrization()->type() == QwtSplineParameter::ParameterChordal )
+    {
+        store = qwtSplinePathPleasing<PathStore>( points, 
+            QwtSplineParameter::paramChordal() );
+    }
     else
-        store = qwtSplinePathPleasing<PathStore>( points, paramX() );
+    {
+        store = qwtSplinePathPleasing<PathStore>( points, 
+            QwtSplineParameter::paramX() );
+    }
 
     return store.path;
 }
@@ -284,10 +274,14 @@ QwtSplinePleasing::tensions( const QPolygonF &points ) const
     if ( points.size() <= 2 )
         return tensions2;
 
-    if ( parametrization() == ParametrizationChordal )
-        tensions2 = qwtTensions( points, QwtSplineCardinalG1P::paramChordal() );
+    if ( parametrization()->type() == QwtSplineParameter::ParameterChordal )
+    {
+        tensions2 = qwtTensions( points, QwtSplineParameter::paramChordal() );
+    }
     else
-        tensions2 = qwtTensions( points, QwtSplineCardinalG1P::paramX() );
+    {
+        tensions2 = qwtTensions( points, QwtSplineParameter::paramX() );
+    }
 
     return tensions2;
 }

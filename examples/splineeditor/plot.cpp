@@ -9,6 +9,7 @@
 #include <qwt_wheel.h>
 #include <qwt_spline_local.h>
 #include <qwt_spline_cubic.h>
+#include <qwt_spline_cardinal.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_spline_curve_fitter.h>
 #include <qwt_legend.h>
@@ -83,7 +84,7 @@ public:
     void setParametric( bool on )
     {
         d_spline->setParametrization(
-            on ? QwtSpline::ParametrizationChordal : QwtSpline::ParametrizationX );
+            on ? QwtSplineParameter::ParameterChordal : QwtSplineParameter::ParameterX );
     }
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const

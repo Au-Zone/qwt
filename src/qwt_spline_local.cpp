@@ -342,7 +342,7 @@ double QwtSplineLocal::tension() const
 
 QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
 {
-    if ( parametrization() == ParametrizationX )
+    if ( parametrization()->type() == QwtSplineParameter::ParameterX )
     {
         double slopeStart, slopeEnd;
         qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
@@ -355,7 +355,7 @@ QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
 
 QVector<QLineF> QwtSplineLocal::bezierControlPointsP( const QPolygonF &points ) const
 {
-    if ( parametrization() == ParametrizationX )
+    if ( parametrization()->type() == QwtSplineParameter::ParameterX )
     {   
         double slopeStart, slopeEnd;
         qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );

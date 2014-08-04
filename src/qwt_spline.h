@@ -16,20 +16,48 @@
 #include <qpainterpath.h>
 #include <qmath.h>
 
+class QWT_EXPORT QwtSplineParameter
+{
+public:
+    enum Type
+    {
+        ParameterX,
+        ParameterChordal
+    };
+
+    QwtSplineParameter( int type );
+    virtual ~QwtSplineParameter();
+
+    int type() const;
+
+    virtual double value( const QPointF &p1, const QPointF &p2 ) const;
+    
+    static double valueChordal( const QPointF &p1, const QPointF &p2 );
+    static double valueX( const QPointF &p1, const QPointF &p2 );
+
+    struct paramX
+    {
+        double operator()( const QPointF &p1, const QPointF &p2 ) const;
+    };
+
+    struct paramChordal
+    {
+        double operator()( const QPointF &p1, const QPointF &p2 ) const;
+    };
+
+private:
+    const int d_type;
+};
+
 class QWT_EXPORT QwtSpline
 {
 public:
-    enum Parametrization
-    {
-        ParametrizationX,
-        ParametrizationChordal
-    };
-
     QwtSpline();
     virtual ~QwtSpline();
 
-    void setParametrization( Parametrization );
-    Parametrization parametrization() const;
+    void setParametrization( int type );
+    void setParametrization( QwtSplineParameter * );
+    const QwtSplineParameter *parametrization() const;
 
     virtual QPainterPath pathP( const QPolygonF & ) const;
     virtual QPolygonF polygonP( const QPolygonF &, 
@@ -37,11 +65,8 @@ public:
 
     virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const = 0;
 
-    static double parameterChordal( const QPointF &p1, const QPointF &p2 );
-    static double parameterX( const QPointF &p1, const QPointF &p2 );
-
 private:
-    Parametrization d_parametrization;
+    QwtSplineParameter *d_parameter;
 };
 
 class QWT_EXPORT QwtSplineG1: public QwtSpline
@@ -75,7 +100,8 @@ public:
     virtual QVector<double> curvaturesX( const QPolygonF & ) const = 0;
 };
 
-inline double QwtSpline::parameterChordal( const QPointF &p1, const QPointF &p2 )
+inline double QwtSplineParameter::valueChordal( 
+    const QPointF &p1, const QPointF &p2 ) 
 {
    const double dx = p1.x() - p2.x();
    const double dy = p1.y() - p2.y();
@@ -83,9 +109,22 @@ inline double QwtSpline::parameterChordal( const QPointF &p1, const QPointF &p2 
    return qSqrt( dx * dx + dy * dy );
 }
 
-inline double QwtSpline::parameterX( const QPointF &p1, const QPointF &p2 )
+inline double QwtSplineParameter::valueX( 
+    const QPointF &p1, const QPointF &p2 ) 
 {
    return p2.x() - p1.x();
+}
+
+inline double QwtSplineParameter::paramX::operator()( 
+    const QPointF &p1, const QPointF &p2 ) const 
+{
+    return QwtSplineParameter::valueX( p1, p2 );
+}
+    
+inline double QwtSplineParameter::paramChordal::operator()( 
+    const QPointF &p1, const QPointF &p2 ) const 
+{
+    return QwtSplineParameter::valueChordal( p1, p2 );
 }
 
 #endif
