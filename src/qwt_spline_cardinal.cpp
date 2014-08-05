@@ -246,15 +246,31 @@ QPainterPath QwtSplinePleasing::pathP( const QPolygonF &points ) const
     using namespace QwtSplineCardinalG1P;
 
     PathStore store;
-    if ( parametrization()->type() == QwtSplineParameter::ParameterChordal )
+    switch( parametrization()->type() )
     {
-        store = qwtSplinePathPleasing<PathStore>( points, 
-            QwtSplineParameter::paramChordal() );
-    }
-    else
-    {
-        store = qwtSplinePathPleasing<PathStore>( points, 
-            QwtSplineParameter::paramX() );
+        case QwtSplineParameter::ParameterX:
+        {
+            store = qwtSplinePathPleasing<PathStore>( 
+                points, QwtSplineParameter::paramX() );
+            break;
+        }
+        case QwtSplineParameter::ParameterUniform:
+        {
+            store = qwtSplinePathPleasing<PathStore>( 
+                points, QwtSplineParameter::paramUniform() );
+            break;
+        }
+        case QwtSplineParameter::ParameterChordal:
+        {
+            store = qwtSplinePathPleasing<PathStore>( points, 
+                QwtSplineParameter::paramChordal() );
+            break;
+        }
+        default:
+        {
+            store = qwtSplinePathPleasing<PathStore>( points, 
+                QwtSplineParameter::param( parametrization() ) );
+        }
     }
 
     return store.path;
@@ -274,13 +290,27 @@ QwtSplinePleasing::tensions( const QPolygonF &points ) const
     if ( points.size() <= 2 )
         return tensions2;
 
-    if ( parametrization()->type() == QwtSplineParameter::ParameterChordal )
+    switch( parametrization()->type() )
     {
-        tensions2 = qwtTensions( points, QwtSplineParameter::paramChordal() );
-    }
-    else
-    {
-        tensions2 = qwtTensions( points, QwtSplineParameter::paramX() );
+        case QwtSplineParameter::ParameterX:
+        {
+            tensions2 = qwtTensions( points, QwtSplineParameter::paramX() );
+            break;
+        }
+        case QwtSplineParameter::ParameterUniform:
+        {
+            tensions2 = qwtTensions( points, QwtSplineParameter::paramUniform() );
+            break;
+        }
+        case QwtSplineParameter::ParameterChordal:
+        {
+            tensions2 = qwtTensions( points, QwtSplineParameter::paramChordal() );
+            break;
+        }
+        default:
+        {
+            tensions2 = qwtTensions( points, QwtSplineParameter::param( parametrization() ) );
+        }
     }
 
     return tensions2;
