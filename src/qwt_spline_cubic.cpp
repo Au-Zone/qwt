@@ -773,8 +773,9 @@ namespace QwtSplineCubicP
     };
 }
 
-static void qwtSetupEndEquations( int type, const QPolygonF &points, 
-    double values[2], QwtSplineCubicP::Equation3 eq[2] )
+static void qwtSetupEndEquations( QwtSplineC1::EndpointCondition type, 
+	const QPolygonF &points, double clampedBegin, double clampedEnd, 
+	QwtSplineCubicP::Equation3 eq[2] )
 {
     const int n = points.size();
 
@@ -786,7 +787,7 @@ static void qwtSetupEndEquations( int type, const QPolygonF &points,
 
     switch( type )
     {
-        case -1:
+        case QwtSplineC1::Clamped:
         {
             // first derivative at end points given
 
@@ -799,12 +800,12 @@ static void qwtSetupEndEquations( int type, const QPolygonF &points,
             // c2 = slopeEnd
             // => b1 * ( 1.0 / 3.0 ) + b2 * ( 2.0 / 3.0 ) = ( slopeEnd - s ) / h;
 
-            eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, s0 - values[0] );
-            eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, values[1] - sn );
+            eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, s0 - clampedBegin );
+            eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, clampedEnd - sn );
 
             break;
         }
-        case -2:
+        case QwtSplineC1::Clamped2:
         {
             // second derivative at end points given
 
@@ -814,11 +815,11 @@ static void qwtSetupEndEquations( int type, const QPolygonF &points,
             // b1 = 0.5 * cvEnd
             // => b0 * 0.0 + b1 * 1.0 = 0.5 * cvEnd
 
-            eq[0].setup( 1.0, 0.0, 0.0, 0.5 * values[0] ); 
-            eq[1].setup( 0.0, 0.0, 1.0, 0.5 * values[1] ); 
+            eq[0].setup( 1.0, 0.0, 0.0, 0.5 * clampedBegin ); 
+            eq[1].setup( 0.0, 0.0, 1.0, 0.5 * clampedEnd ); 
             break;
         }
-        case -3:
+        case QwtSplineC1::Clamped3:
         {
             // third derivative at end point given
 
@@ -830,8 +831,8 @@ static void qwtSetupEndEquations( int type, const QPolygonF &points,
             // a = marg_n / 6.0
             // => b[n-2] * 1.0 + b[n-1] * ( -1.0 ) = -0.5 * v1 * h5
 
-            eq[0].setup( 1.0, -1.0, 0.0, -0.5 * values[0] * h0 ); 
-            eq[1].setup( 0.0, 1.0, -1.0, -0.5 * values[1] * hn ); 
+            eq[0].setup( 1.0, -1.0, 0.0, -0.5 * clampedBegin * h0 ); 
+            eq[1].setup( 0.0, 1.0, -1.0, -0.5 * clampedEnd * hn ); 
 
             break;
         }
@@ -881,60 +882,19 @@ class QwtSplineCubic::PrivateData
 public:
     PrivateData()
     {
-        endCondition.type = QwtSplineCubic::Natural;
-        endCondition.value[0] = endCondition.value[1] = 0.0;
     }
-
-    void setEndCondition( int condition )
-    {
-        endCondition.type = condition;
-        endCondition.value[0] = endCondition.value[1] = 0.0;
-    }
-
-    void setEndCondition( int condition, double valueStart, double valueEnd )
-    {
-        endCondition.type = condition;
-        endCondition.value[0] = valueStart;
-        endCondition.value[1] = valueEnd;
-    }
-
-    struct 
-    {
-        int type;
-        double value[2];
-
-    } endCondition;
 };
 
 QwtSplineCubic::QwtSplineCubic()
 {
     d_data = new PrivateData;
+	setEndConditions( QwtSplineC1::Natural );
 }
 
 QwtSplineCubic::~QwtSplineCubic()
 {
     delete d_data;
 }
-
-void QwtSplineCubic::setEndConditions( EndpointCondition condition )
-{
-    d_data->setEndCondition( condition );
-}
-
-void QwtSplineCubic::setClamped( double slopeBegin, double slopeEnd )
-{
-    d_data->setEndCondition( -1, slopeBegin, slopeEnd );
-}
-
-void QwtSplineCubic::setClamped2( double curvatureBegin, double curvatureEnd ) 
-{
-    d_data->setEndCondition( -2, curvatureBegin, curvatureEnd );
-}
-
-void QwtSplineCubic::setClamped3( double valueBegin, double valueEnd )  
-{
-    d_data->setEndCondition( -3, valueBegin, valueEnd );
-}   
 
 QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
 {
@@ -943,7 +903,7 @@ QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
     if ( points.size() <= 2 )
         return QVector<double>();
 
-    if ( d_data->endCondition.type == QwtSplineCubic::NotAKnot )
+    if ( endCondition() == QwtSplineCubic::NotAKnot )
     {
         const int n = points.size();
         if ( n == 3 )
@@ -974,7 +934,7 @@ QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
         }
     }
 
-    if ( d_data->endCondition.type == QwtSplineCubic::Periodic )
+    if ( endCondition() == QwtSplineCubic::Periodic )
     {
         EquationSystem2<SlopeStore> eqs;
         eqs.resolve( points );
@@ -983,8 +943,8 @@ QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
     }
 
     Equation3 eq[2];
-    qwtSetupEndEquations( d_data->endCondition.type, points, 
-        d_data->endCondition.value, eq );
+    qwtSetupEndEquations( endCondition(), points, 
+        clampedBegin(), clampedEnd(), eq );
 
     EquationSystem<SlopeStore> eqs;
     eqs.setStartCondition( eq[0].p, eq[0].q, eq[0].u, eq[0].r );
@@ -1003,11 +963,11 @@ QVector<double> QwtSplineCubic::curvaturesX( const QPolygonF &points ) const
 
     if ( points.size() == 3 )
     {
-        if ( d_data->endCondition.type == QwtSplineCubic::NotAKnot )
+        if ( endCondition() == QwtSplineCubic::NotAKnot )
             return QVector<double>();
     }
 
-    if ( d_data->endCondition.type == QwtSplineCubic::Periodic )
+    if ( endCondition() == QwtSplineCubic::Periodic )
     {
         EquationSystem2<CurvatureStore> eqs;
         eqs.resolve( points );
@@ -1016,8 +976,8 @@ QVector<double> QwtSplineCubic::curvaturesX( const QPolygonF &points ) const
     }
 
     Equation3 eq[2];
-    qwtSetupEndEquations( d_data->endCondition.type, points, 
-        d_data->endCondition.value, eq );
+    qwtSetupEndEquations( endCondition(), points, 
+        clampedBegin(), clampedEnd(), eq );
 
     EquationSystem<CurvatureStore> eqs;
     eqs.setStartCondition( eq[0].p, eq[0].q, eq[0].u, eq[0].r );

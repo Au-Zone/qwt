@@ -350,12 +350,67 @@ QwtSplineG1::~QwtSplineG1()
 {
 }
 
+class QwtSplineC1::PrivateData
+{
+public:
+    PrivateData()
+    {
+        endCondition.type = QwtSplineC1::ParabolicRunout;
+        endCondition.value[0] = endCondition.value[1] = 0.0;
+    }
+
+    void setEndCondition( QwtSplineC1::EndpointCondition condition, 
+		double valueStart, double valueEnd )
+    {
+        endCondition.type = condition;
+        endCondition.value[0] = valueStart;
+        endCondition.value[1] = valueEnd;
+    }
+
+    struct
+    {
+        QwtSplineC1::EndpointCondition type;
+        double value[2];
+
+    } endCondition;
+};
+
 QwtSplineC1::QwtSplineC1()
 {
+	d_data = new PrivateData;
 }
 
 QwtSplineC1::~QwtSplineC1()
 {
+	delete d_data;
+}
+
+void QwtSplineC1::setEndConditions( EndpointCondition condition )
+{
+	if ( condition >= Natural )
+    	d_data->setEndCondition( condition, 0.0, 0.0 );
+	else
+    	d_data->setEndCondition( condition, clampedBegin(), clampedEnd()  );
+}
+
+QwtSplineC1::EndpointCondition QwtSplineC1::endCondition() const
+{
+	return d_data->endCondition.type;
+}
+
+void QwtSplineC1::setClamped( double valueBegin, double valueEnd )
+{
+    d_data->setEndCondition( endCondition(), valueBegin, valueEnd );
+}
+
+double QwtSplineC1::clampedBegin() const
+{
+	return d_data->endCondition.value[0];
+}
+
+double QwtSplineC1::clampedEnd() const
+{
+	return d_data->endCondition.value[1];
 }
 
 QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const

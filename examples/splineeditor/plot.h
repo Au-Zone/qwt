@@ -15,7 +15,7 @@ public Q_SLOTS:
     void updateMarker( int axis, double base );
     void legendChecked( const QVariant &, bool on );
     void setOverlaying( bool );
-    void setParametric( bool );
+    void setParametric( const QString & );
 
 #ifndef QT_NO_PRINTER 
     void printPlot();

@@ -3,6 +3,7 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
+#include <qcombobox.h>
 #include "plot.h"
 #include "canvaspicker.h"
 #include "scalepicker.h"
@@ -41,11 +42,15 @@ int main ( int argc, char **argv )
     QObject::connect( btnOverlay, SIGNAL( toggled( bool ) ),
         plot, SLOT( setOverlaying( bool ) ) );
 
-    ToolButton *btnParametric = new ToolButton( "Parametric", toolBar );
-    btnParametric->setCheckable( true );
-    toolBar->addWidget( btnParametric );
-    QObject::connect( btnParametric, SIGNAL( toggled( bool ) ),
-        plot, SLOT( setParametric( bool ) ) );
+    QComboBox *parameterBox = new QComboBox( toolBar );
+    parameterBox->addItem( "None" );
+    parameterBox->addItem( "Uniform" );
+    parameterBox->addItem( "Centripetral" );
+    parameterBox->addItem( "Chordal" );
+    parameterBox->addItem( "Manhattan" );
+    toolBar->addWidget( parameterBox );
+    QObject::connect( parameterBox, SIGNAL( activated( const QString & ) ),
+         plot, SLOT( setParametric( const QString & ) ) );
 
     mainWindow.addToolBar( toolBar );
 

@@ -316,6 +316,7 @@ public:
         d_slopeBegin( slopeBegin ),
         d_slopeEnd( slopeEnd )
     {
+		setEndConditions( QwtSplineCubic::Clamped );
         setClamped( slopeBegin, slopeEnd );
     }
 
@@ -346,7 +347,8 @@ public:
         d_cvBegin( cvBegin ),
         d_cvEnd( cvEnd )
     {
-        setClamped2( cvBegin, cvEnd );
+		setEndConditions( QwtSplineCubic::Clamped2 );
+        setClamped( cvBegin, cvEnd );
     }
 
 protected:
@@ -375,7 +377,8 @@ public:
         d_valueBegin( valueBegin ),
         d_valueEnd( valueEnd )
     {
-        setClamped3( valueBegin, valueEnd );
+		setEndConditions( QwtSplineCubic::Clamped3 );
+        setClamped( valueBegin, valueEnd );
     }   
 
 protected:

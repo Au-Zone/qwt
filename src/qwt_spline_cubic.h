@@ -16,23 +16,8 @@
 class QWT_EXPORT QwtSplineCubic: public QwtSplineC2
 {
 public:
-    enum EndpointCondition 
-    {
-        Natural,
-        ParabolicRunout,
-        CubicRunout,
-        NotAKnot,
-        Periodic
-    };
-
     QwtSplineCubic();
     virtual ~QwtSplineCubic();
-
-    void setEndConditions( EndpointCondition );
-
-    void setClamped( double slopeBegin, double slopeEnd );
-    void setClamped2( double curvatureBegin, double curvatureEnd );
-    void setClamped3( double valueBegin, double valueEnd );
 
     virtual QVector<double> slopesX( const QPolygonF & ) const;
     virtual QVector<double> curvaturesX( const QPolygonF & ) const;

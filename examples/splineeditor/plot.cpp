@@ -81,10 +81,20 @@ public:
         delete d_spline;
     }
 
-    void setParametric( bool on )
+    void setParametric( const QString &parameterType )
     {
-        d_spline->setParametrization(
-            on ? QwtSplineParameter::ParameterChordal : QwtSplineParameter::ParameterX );
+        QwtSplineParameter::Type type = QwtSplineParameter::ParameterX;
+
+        if ( parameterType == "Uniform" )
+            type = QwtSplineParameter::ParameterUniform;
+        else if ( parameterType == "Centripetral" )
+            type = QwtSplineParameter::ParameterCentripetral;
+        else if ( parameterType == "Chordal" )
+            type = QwtSplineParameter::ParameterChordal;
+        else if ( parameterType == "Manhattan" )
+            type = QwtSplineParameter::ParameterManhattan;
+
+        d_spline->setParametrization( type );
     }
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
@@ -317,7 +327,7 @@ void Plot::showCurve( QwtPlotItem *item, bool on )
     replot();
 }
 
-void Plot::setParametric( bool on )
+void Plot::setParametric( const QString &parameterType )
 {
     QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
     for ( int i = 0; i < curves.size(); i++ )
@@ -326,7 +336,7 @@ void Plot::setParametric( bool on )
 
         SplineFitter *fitter = dynamic_cast<SplineFitter*>( curve->curveFitter() );
         if ( fitter )
-            fitter->setParametric( on );
+            fitter->setParametric( parameterType );
     }
 
     replot();
