@@ -28,6 +28,8 @@ public:
     QwtSplineLocal( Type type, double tension = 0.0 );
     virtual ~QwtSplineLocal();
 
+    Type type() const;
+
     void setTension( double tension );
     double tension() const;
 

@@ -137,7 +137,7 @@ public:
     virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
     virtual QVector<QwtSplinePolynom> polynomsX( const QPolygonF & ) const;
 
-protected:
+//protected:
     virtual double slopeBegin( const QPolygonF &points, double m1, double m2 ) const;
     virtual double slopeEnd( const QPolygonF &points, double m1, double m2 ) const;
 

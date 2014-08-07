@@ -415,13 +415,14 @@ double QwtSplineC1::boundaryValueEnd() const
 
 double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) const
 {
+    const int size = points.size();
+    if ( size < 2 )
+        return 0.0;
+
     const double boundaryValue = d_data->boundaryCondition.value[0];
 
     if ( boundaryCondition() == QwtSplineC1::Clamped )
         return boundaryValue;
-
-    if ( points.size() < 2 )
-        return 0.0;
 
     const double dx = points[1].x() - points[0].x();
     const double dy = points[1].y() - points[0].y();
@@ -431,9 +432,6 @@ double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) 
         const double s = dy / dx;
         return s - boundaryValue * ( s - m1 );
     }
-
-    if ( points.size() < 3 )
-        return 0.0;
 
     const QwtSplinePolynom pnom = 
         QwtSplinePolynom::fromSlopes( points[1], m1, points[2], m2 ); 
@@ -482,14 +480,14 @@ double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) 
 
 double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) const
 {
+    const int size = points.size();
+    if ( size < 2 )
+        return 0.0;
+
     const double boundaryValue = d_data->boundaryCondition.value[1];
 
     if ( boundaryCondition() == QwtSplineC1::Clamped )
         return boundaryValue;
-
-    const int size = points.size();
-    if ( size < 2 )
-        return 0.0;
 
     const double dx = points[size-1].x() - points[size-2].x();
     const double dy = points[size-1].y() - points[size-2].y();
@@ -499,9 +497,6 @@ double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) co
         const double s = dy / dx;
         return s - boundaryValue * ( s - m1 );
     }
-
-    if ( size < 3 )
-        return 0.0;
 
     const QwtSplinePolynom pnom = 
         QwtSplinePolynom::fromSlopes( points[size-3], m1, points[size-2], m2 ); 

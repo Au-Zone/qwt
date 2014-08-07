@@ -32,7 +32,7 @@ namespace QwtSplineLocalP
     class PathStore
     {
     public:
-        inline void init( int )
+        inline void init( const QPolygonF & )
         {
         }
 
@@ -53,9 +53,10 @@ namespace QwtSplineLocalP
     class ControlPointsStore
     {
     public:
-        inline void init( int size )
+        inline void init( const QPolygonF &points )
         {
-            controlPoints.resize( size );
+            if ( points.size() > 0 )
+                controlPoints.resize( points.size() - 1 );
             d_cp = controlPoints.data();
         }
 
@@ -82,9 +83,9 @@ namespace QwtSplineLocalP
     class SlopeStore
     {
     public:
-        void init( int size )
+        void init( const QPolygonF &points )
         {
-            slopes.resize( size );
+            slopes.resize( points.size() );
             d_m = slopes.data();
         }
 
@@ -105,6 +106,7 @@ namespace QwtSplineLocalP
         double *d_m;
     };
 };
+
 static inline double qwtAkima( double s1, double s2, double s3, double s4 )
 {
     if ( ( s1 == s2 ) && ( s3 == s4 ) )
@@ -141,154 +143,262 @@ static inline double qwtHarmonicMean( double s1, double s2 )
     return 0.0;
 }
 
-static inline void qwtLocalEndpoints( const QPolygonF &points,
-    QwtSplineLocal::Type type, double tension, double &slopeStart, double &slopeEnd )
-{
-    slopeStart = slopeEnd = 0.0;
-
-    const int n = points.size();
-    if ( type == QwtSplineLocal::HarmonicMean )
-    {
-        if ( n >= 3 )
-        {
-            const double s1 = qwtSlopeP( points[0], points[1] );
-            const double s2 = qwtSlopeP( points[1], points[2] );
-            const double s3 = qwtSlopeP( points[n-3], points[n-2] );
-            const double s4 = qwtSlopeP( points[n-2], points[n-1] );
-
-            slopeStart = 1.5 * s1 - 0.5 * qwtHarmonicMean( s1, s2 );
-            slopeEnd = 1.5 * s4 - 0.5 * qwtHarmonicMean( s3, s4 );
-        }
-    }
-    else
-    {
-        if ( n >= 2 )
-        {
-            slopeStart = qwtSlopeP( points[0], points[1] );
-            slopeEnd = qwtSlopeP( points[n-2], points[n-1] );
-        }
-    }
-
-    slopeStart *= ( 1.0 - tension );
-    slopeEnd *= ( 1.0 - tension );
-}
-
 template< class SplineStore >
-static inline SplineStore qwtSplinePathCardinal( const QPolygonF &points,
-    double tension, double slopeStart, double slopeEnd )
+static inline SplineStore qwtSplinePathCardinal( 
+    const QwtSplineLocal *spline, const QPolygonF &points )
 {
-    const double s = 1.0 - tension;
-    const int size = points.size();
+    SplineStore store;
+    store.init( points );
+
+    const double s = 1.0 - spline->tension();
 
     const QPointF *p = points.constData();
+    const int size = points.size();
 
-    SplineStore store;
-    store.init( size );
-    store.start( p[0], slopeStart );
-
-    double m1 = slopeStart;
-    for ( int i = 1; i < size - 1; i++ )
+    if ( size == 3 )
     {
-        const double m2 = s * qwtSlopeP( p[i-1], p[i+1] );
-        store.addCubic( p[i-1], m1, p[i], m2 );
+        const double s0 = qwtSlopeP( p[0], p[1] );
+        
+        const double m2 = qwtSlopeP( p[0], p[2] );
+        const double m3 = spline->slopeEnd( points, s0, m2 );
+        const double m1 = spline->slopeBegin( points, m2, m3 );
 
-        m1 = m2;
+        store.start( p[0], s * m1 );
+        store.addCubic( p[0], s * m1, p[1], s * m2 );
+        store.addCubic( p[1], s * m2, p[2], s * m3 );
+
+        return store;
     }
 
-    store.addCubic( p[size-2], m1, p[size-1], slopeEnd );
+    const double m2 = qwtSlopeP( p[0], p[2] );
+    const double m3 = qwtSlopeP( p[1], p[3] );
+    const double m1 = spline->slopeBegin( points, m2, m3 );
+
+    store.start( p[0], s * m1 );
+    store.addCubic( p[0], s * m1, p[1], s * m2 );
+    store.addCubic( p[1], s * m2, p[2], s * m3 );
+
+    double ms1 = s * m3;
+
+    for ( int i = 3; i < size - 1; i++ )
+    {
+        const double ms2 = s * qwtSlopeP( p[i-1], p[i+1] );
+        store.addCubic( p[i-1], ms1, p[i], ms2 );
+
+        ms1 = ms2;
+    }
+
+    const double mn1 = qwtSlopeP( p[size-4], p[size-2] );
+    const double mn2 = qwtSlopeP( p[size-3], p[size-1] );
+    const double mn3 = spline->slopeEnd( points, mn1, mn2 );
+
+    store.addCubic( p[size-2], s * mn2, p[size-1], s * mn3 );
 
     return store;
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplinePathAkima( const QPolygonF &points,
-    double tension, double slopeStart, double slopeEnd )
+static inline SplineStore qwtSplinePathAkima( 
+    const QwtSplineLocal *spline, const QPolygonF &points )
 {
-    const double s = 1.0 - tension;
+    SplineStore store;
+    store.init( points );
+
+    const double s = 1.0 - spline->tension();
 
     const int size = points.size();
     const QPointF *p = points.constData();
 
-    SplineStore store;
-    store.init( size );
-    store.start( p[0], slopeStart );
-
-    double slope1 = slopeStart;
-    double slope2 = qwtSlopeP( p[0], p[1] );
-    double slope3 = qwtSlopeP( p[1], p[2] );
-
-    double m1 = s * slope1;
-
-    for ( int i = 0; i < size - 3; i++ )
+    if ( size == 3 )
     {
-        const double slope4 = qwtSlopeP( p[i+2],  p[i+3] );
+        const double s1 = qwtSlopeP( p[0], p[1] );
+        const double s2 = qwtSlopeP( p[1], p[2] );
 
-        const double m2 = s * qwtAkima( slope1, slope2, slope3, slope4 );
-        store.addCubic( p[i], m1, p[i+1], m2 );
+        const double m2 = qwtAkima( s1, s1, s2, s2 );
+        const double m1 = spline->slopeBegin( points, m2, s2 );
+        const double m3 = spline->slopeEnd( points, m1, m2 );
 
-        slope1 = slope2;
-        slope2 = slope3;
-        slope3 = slope4;
+        store.start( p[0], s * m1 );
 
-        m1 = m2;
+        store.addCubic( p[0], s * m1, p[1], s * m2 );
+        store.addCubic( p[1], s * m2, p[2], s * m3 );
+
+        return store;
     }
 
-    const double m2 = s * qwtAkima( slope1, slope2, slope3, slopeEnd );
+    if ( size == 4 )
+    {
+        double s1 = qwtSlopeP( p[0], p[1] );
+        double s2 = qwtSlopeP( p[1], p[2] );
+        double s3 = qwtSlopeP( p[2], p[3] );
 
-    store.addCubic( p[size - 3], m1, p[size - 2], m2 );
-    store.addCubic( p[size - 2], m2, p[size - 1], slopeEnd );
+        const double m2 = qwtAkima( s1, s1, s2, s3 );
+        const double m3 = qwtAkima( s1, s2, s3, s3 );
+        const double m1 = spline->slopeBegin( points, m2, m3 );
+        const double m4 = spline->slopeEnd( points, m2, m3 );
+
+        store.start( p[0], s * m1 );
+
+        store.addCubic( p[0], s * m1, p[1], s * m2 );
+        store.addCubic( p[1], s * m2, p[2], s * m3 );
+        store.addCubic( p[2], s * m3, p[3], s * m4 );
+
+        return store;
+    }
+
+    double s1 = qwtSlopeP( p[0], p[1] );
+    double s2 = qwtSlopeP( p[1], p[2] );
+    double s3 = qwtSlopeP( p[2], p[3] );
+    double s4 = qwtSlopeP( p[3], p[4] );
+
+    const double m2 = qwtAkima( s1, s1, s2, s2 );
+    const double m3 = qwtAkima( s1, s2, s3, s4 );
+    const double m1 = spline->slopeBegin( points, m2, m3 );
+
+    store.start( p[0], s * m1 );
+    store.addCubic( p[0], s * m1, p[1], s * m2 );
+    store.addCubic( p[1], s * m2, p[2], s * m3 );
+
+    double ms1 = s * m3;
+
+    for ( int i = 2; i < size - 3; i++ )
+    {
+        s1 = s2;
+        s2 = s3;
+        s3 = s4;
+        s4 = qwtSlopeP( p[i+2], p[i+3] );
+
+        const double ms2 = s * qwtAkima( s1, s2, s3, s4 );
+        store.addCubic( p[i], ms1, p[i+1], ms2 );
+
+        ms1 = ms2;
+    }
+
+    const double sn1 = qwtSlopeP( p[size-5], p[size-4] );
+    const double sn2 = qwtSlopeP( p[size-4], p[size-3] );
+    const double sn3 = qwtSlopeP( p[size-3], p[size-2] );
+    const double sn4 = qwtSlopeP( p[size-2], p[size-1] );
+
+    const double mn1 = qwtAkima( sn1, sn2, sn3, sn4 );
+    const double mn2 = qwtAkima( sn3, sn3, sn4, sn4 );
+    const double mn3 = spline->slopeEnd( points, mn1, mn2 );
+
+    store.addCubic( p[size-3], s * mn1, p[size-2], s * mn2 );
+    store.addCubic( p[size-2], s * mn2, p[size-1], s * mn3 );
 
     return store;
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplinePathHarmonicMean( const QPolygonF &points,
-    double tension, double slopeStart, double slopeEnd )
+static inline SplineStore qwtSplinePathHarmonicMean( 
+    const QwtSplineLocal *spline, const QPolygonF &points )
 {
-    const double s = 1.0 - tension;
+    SplineStore store;
+    store.init( points );
+
+    const double s = 1.0 - spline->tension();
 
     const int size = points.size();
     const QPointF *p = points.constData();
 
-    SplineStore store;
-    store.init( size );
-    store.start( p[0], slopeStart );
+    if ( size == 3 )
+    {
+        const double s1 = qwtSlopeP( p[0], p[1] );
+        const double s2 = qwtSlopeP( p[1], p[2] );
 
-    double dx1 = p[1].x() - p[0].x();
-    double dy1 = p[1].y() - p[0].y();
-    double m1 = slopeStart;
+        const double m2 = qwtHarmonicMean( s1, s2 );
+        const double m1 = spline->slopeBegin( points, m2, s2 );
+        const double m3 = spline->slopeEnd( points, m1, m2 );
 
-    for ( int i = 1; i < size - 1; i++ )
+        store.start( p[0], s * m1 );
+
+        store.addCubic( p[0], s * m1, p[1], s * m2 );
+        store.addCubic( p[1], s * m2, p[2], s * m3 );
+
+        return store;
+    }
+
+    const double s1 = qwtSlopeP( p[0], p[1] );
+    const double s2 = qwtSlopeP( p[1], p[2] );
+    const double s3 = qwtSlopeP( p[2], p[3] );
+
+    const double m2 = qwtHarmonicMean( s1, s2 );
+    const double m3 = qwtHarmonicMean( s2, s3 );
+    const double m1 = spline->slopeBegin( points, m2, m3 );
+
+    store.start( p[0], s * m1 );
+
+    store.addCubic( p[0], s * m1, p[1], s * m2 );
+    store.addCubic( p[1], s * m2, p[2], s * m3 );
+
+    if ( size == 4 )
+    {
+        const double m4 = spline->slopeEnd( points, m2, m3 );
+        store.addCubic( p[2], s * m3, p[3], s * m4 );
+
+        return store;
+    }
+
+    double dx1 = p[3].x() - p[2].x();
+    double dy1 = p[3].y() - p[2].y();
+    double ms1 = s * m3;
+
+    for ( int i = 3; i < size - 2; i++ )
     {
         const double dx2 = p[i+1].x() - p[i].x();
         const double dy2 = p[i+1].y() - p[i].y();
 
-        const double m2 = s * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
+        const double ms2 = s * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
 
-        store.addCubic( p[i-1], m1, p[i], m2 );
+        store.addCubic( p[i-1], ms1, p[i], ms2 );
 
         dx1 = dx2;
         dy1 = dy2;
-        m1 = m2;
+        ms1 = ms2;
     }
 
-    store.addCubic( p[size - 2], m1, p[size - 1], slopeEnd );
+    const double sn1 = qwtSlopeP( p[size-4], p[size-3] );
+    const double sn2 = qwtSlopeP( p[size-3], p[size-2] );
+    const double sn3 = qwtSlopeP( p[size-2], p[size-1] );
 
+    const double mn1 = qwtHarmonicMean( sn1, sn2 );
+    const double mn2 = qwtHarmonicMean( sn2, sn3 );
+    const double mn3 = spline->slopeEnd( points, mn1, mn2 );
+
+    store.addCubic( p[size-3], s * mn1, p[size-2], s * mn2 );
+    store.addCubic( p[size-2], s * mn2, p[size-1], s * mn3 );
+    
     return store; 
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplinePathLocal( int type, 
-    const QPolygonF &points, double tension, double slopeStart, double slopeEnd )
+static inline SplineStore qwtSplinePathLocal( 
+    const QwtSplineLocal *spline, const QPolygonF &points )
 {   
     SplineStore store;
-    
-    switch( type )
+
+    const int size = points.size();
+    if ( size <= 1 )
+        return store;
+
+    if ( size == 2 )
+    {
+        const double s0 = qwtSlopeP( points[0], points[1] );
+        const double m1 = spline->slopeBegin( points, s0, s0 ) * spline->tension();
+        const double m2 = spline->slopeEnd( points, s0, s0 ) * spline->tension();
+
+        store.init( points );
+        store.start( points[0], m1 );
+        store.addCubic( points[0], m1, points[1], m2 );
+
+        return store;
+    }
+
+    switch( spline->type() )
     {   
         case QwtSplineLocal::Cardinal:
         {   
-            store = qwtSplinePathCardinal<SplineStore>(
-                points, tension, slopeStart, slopeEnd );
+            store = qwtSplinePathCardinal<SplineStore>( spline, points );
             break;
         }
         case QwtSplineLocal::ParabolicBlending:
@@ -298,14 +408,12 @@ static inline SplineStore qwtSplinePathLocal( int type,
         }
         case QwtSplineLocal::Akima:
         {   
-            store = qwtSplinePathAkima<SplineStore>(
-                points, tension, slopeStart, slopeEnd );
+            store = qwtSplinePathAkima<SplineStore>( spline, points );
             break;
         }
         case QwtSplineLocal::HarmonicMean:
         {   
-            store = qwtSplinePathHarmonicMean<SplineStore>(
-                points, tension, slopeStart, slopeEnd );
+            store = qwtSplinePathHarmonicMean<SplineStore>( spline, points );
             break;
         }
         case QwtSplineLocal::PChip:
@@ -324,10 +432,17 @@ QwtSplineLocal::QwtSplineLocal( Type type, double tension ):
     d_tension( 0.0 )
 {
     setTension( tension );
+    setBoundaryConditions( QwtSplineLocal::LinearRunout );
+    setBoundaryValues( 0.0, 0.0 );
 }
 
 QwtSplineLocal::~QwtSplineLocal()
 {
+}
+
+QwtSplineLocal::Type QwtSplineLocal::type() const
+{
+    return d_type;
 }
 
 void QwtSplineLocal::setTension( double tension )
@@ -360,78 +475,18 @@ QVector<QLineF> QwtSplineLocal::bezierControlPointsP( const QPolygonF &points ) 
 
 QPainterPath QwtSplineLocal::pathX( const QPolygonF &points ) const
 {
-    QPainterPath path;
-
-    const int size = points.size();
-    if ( size == 0 )
-        return path;
-
-    if ( size == 1 )
-    {
-        path.moveTo( points[0] );
-        return path;
-    }
-
-    double slopeStart, slopeEnd;
-    qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
-    
-    if ( size == 2 )
-    {
-        path.moveTo( points[0] );
-        qwtCubicToP( points[0], slopeStart, points[1], slopeEnd, path );
-
-        return path;
-    }
-
     using namespace QwtSplineLocalP;
-
-    const PathStore store = qwtSplinePathLocal<PathStore>(
-        d_type, points, d_tension, slopeStart, slopeEnd );
-
-    return store.path;
+    return qwtSplinePathLocal<PathStore>( this, points).path;
 }
     
 QVector<QLineF> QwtSplineLocal::bezierControlPointsX( const QPolygonF &points ) const
 {
-    QVector<QLineF> controlPoints;
-
-    const int size = points.size();
-    if ( size <= 2 )
-        return controlPoints;
-
     using namespace QwtSplineLocalP;
-
-    double slopeStart, slopeEnd;
-    qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
-
-    const ControlPointsStore store = qwtSplinePathLocal<ControlPointsStore>(
-        d_type, points, d_tension, slopeStart, slopeEnd );
-
-    return store.controlPoints;
+    return qwtSplinePathLocal<ControlPointsStore>( this, points ).controlPoints;
 }
 
 QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
 {
-    const int size = points.size();
-    if ( size <= 1 )
-        return QVector<double>();
-
-    double slopeStart, slopeEnd;
-    qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
-
-    if ( size == 2 )
-    {
-        QVector<double> m(2);
-        m[0] = slopeStart;
-        m[1] = slopeEnd;
-
-        return m;
-    }
-
     using namespace QwtSplineLocalP;
-
-    const SlopeStore store = qwtSplinePathLocal<SlopeStore>(
-        d_type, points, d_tension, slopeStart, slopeEnd );
-
-    return store.slopes;
+    return qwtSplinePathLocal<SlopeStore>( this, points ).slopes;
 }
