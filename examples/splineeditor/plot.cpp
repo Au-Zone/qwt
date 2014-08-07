@@ -63,7 +63,7 @@ public:
             case CubicSpline:
             {   
                 QwtSplineCubic *cubicSpline = new QwtSplineCubic();
-                cubicSpline->setEndConditions( QwtSplineCubic::Natural );
+                cubicSpline->setBoundaryConditions( QwtSplineCubic::Natural );
 
                 d_spline = cubicSpline;
                 break;

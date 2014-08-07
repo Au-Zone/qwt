@@ -773,9 +773,9 @@ namespace QwtSplineCubicP
     };
 }
 
-static void qwtSetupEndEquations( QwtSplineC1::EndpointCondition type, 
-	const QPolygonF &points, double clampedBegin, double clampedEnd, 
-	QwtSplineCubicP::Equation3 eq[2] )
+static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type, 
+    const QPolygonF &points, double clampedBegin, double clampedEnd, 
+    QwtSplineCubicP::Equation3 eq[2] )
 {
     const int n = points.size();
 
@@ -848,6 +848,19 @@ static void qwtSetupEndEquations( QwtSplineC1::EndpointCondition type,
 
             break;
         }
+        case QwtSplineCubic::LinearRunout:
+        {
+            // c1 = s0
+            // c2 = sn
+
+#if 0
+            // clampedBegin/clampedEnd != 0: TODO ...
+#endif
+            eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, 0.0 );
+            eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, 0.0 );
+
+            break;
+        }
         case QwtSplineCubic::ParabolicRunout:
         {
             // parabolic runout
@@ -888,7 +901,7 @@ public:
 QwtSplineCubic::QwtSplineCubic()
 {
     d_data = new PrivateData;
-	setEndConditions( QwtSplineC1::Natural );
+    setBoundaryConditions( QwtSplineC1::Natural );
 }
 
 QwtSplineCubic::~QwtSplineCubic()
@@ -903,7 +916,7 @@ QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
     if ( points.size() <= 2 )
         return QVector<double>();
 
-    if ( endCondition() == QwtSplineCubic::NotAKnot )
+    if ( boundaryCondition() == QwtSplineCubic::NotAKnot )
     {
         const int n = points.size();
         if ( n == 3 )
@@ -934,7 +947,7 @@ QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
         }
     }
 
-    if ( endCondition() == QwtSplineCubic::Periodic )
+    if ( boundaryCondition() == QwtSplineCubic::Periodic )
     {
         EquationSystem2<SlopeStore> eqs;
         eqs.resolve( points );
@@ -943,8 +956,8 @@ QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
     }
 
     Equation3 eq[2];
-    qwtSetupEndEquations( endCondition(), points, 
-        clampedBegin(), clampedEnd(), eq );
+    qwtSetupEndEquations( boundaryCondition(), points, 
+        boundaryValueBegin(), boundaryValueEnd(), eq );
 
     EquationSystem<SlopeStore> eqs;
     eqs.setStartCondition( eq[0].p, eq[0].q, eq[0].u, eq[0].r );
@@ -963,11 +976,11 @@ QVector<double> QwtSplineCubic::curvaturesX( const QPolygonF &points ) const
 
     if ( points.size() == 3 )
     {
-        if ( endCondition() == QwtSplineCubic::NotAKnot )
+        if ( boundaryCondition() == QwtSplineCubic::NotAKnot )
             return QVector<double>();
     }
 
-    if ( endCondition() == QwtSplineCubic::Periodic )
+    if ( boundaryCondition() == QwtSplineCubic::Periodic )
     {
         EquationSystem2<CurvatureStore> eqs;
         eqs.resolve( points );
@@ -976,8 +989,8 @@ QVector<double> QwtSplineCubic::curvaturesX( const QPolygonF &points ) const
     }
 
     Equation3 eq[2];
-    qwtSetupEndEquations( endCondition(), points, 
-        clampedBegin(), clampedEnd(), eq );
+    qwtSetupEndEquations( boundaryCondition(), points, 
+        boundaryValueBegin(), boundaryValueEnd(), eq );
 
     EquationSystem<CurvatureStore> eqs;
     eqs.setStartCondition( eq[0].p, eq[0].q, eq[0].u, eq[0].r );

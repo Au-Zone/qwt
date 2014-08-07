@@ -102,15 +102,18 @@ public:
 class QWT_EXPORT QwtSplineC1: public QwtSplineG1
 {
 public:
-    enum EndpointCondition 
+    enum BoundaryCondition 
     {
-		Clamped,
-		Clamped2,
-		Clamped3,
+        Clamped,
+        Clamped2,
+        Clamped3,
 
         Natural,
+
+        LinearRunout,
         ParabolicRunout,
         CubicRunout,
+
         NotAKnot,
         Periodic
     };
@@ -118,13 +121,13 @@ public:
     QwtSplineC1();
     virtual ~QwtSplineC1();
 
-    void setEndConditions( EndpointCondition );
-	EndpointCondition endCondition() const;
+    void setBoundaryConditions( BoundaryCondition );
+    BoundaryCondition boundaryCondition() const;
 
-    void setClamped( double valueBegin, double valueEnd );
+    void setBoundaryValues( double valueBegin, double valueEnd );
 
-	double clampedBegin() const;
-	double clampedEnd() const;
+    double boundaryValueBegin() const;
+    double boundaryValueEnd() const;
 
     virtual QPainterPath pathP( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const;
@@ -133,6 +136,10 @@ public:
 
     virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
     virtual QVector<QwtSplinePolynom> polynomsX( const QPolygonF & ) const;
+
+protected:
+    virtual double slopeBegin( const QPolygonF &points, double m1, double m2 ) const;
+    virtual double slopeEnd( const QPolygonF &points, double m1, double m2 ) const;
 
 private:
     class PrivateData;

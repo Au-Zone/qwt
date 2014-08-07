@@ -192,7 +192,7 @@ public:
     SplineParabolicRunout():
         CubicSpline( "Parabolic Runout Spline" )
     {
-        setEndConditions( QwtSplineCubic::ParabolicRunout );
+        setBoundaryConditions( QwtSplineCubic::ParabolicRunout );
     }
 
 protected:
@@ -218,7 +218,7 @@ public:
     SplineCubicRunout():
         CubicSpline( "Cubic Runout Spline" )
     {
-        setEndConditions( QwtSplineCubic::CubicRunout );
+        setBoundaryConditions( QwtSplineCubic::CubicRunout );
     }
 
 protected:
@@ -253,7 +253,7 @@ public:
     SplineNotAKnot():
         CubicSpline( "Not A Knot Spline", 4 )
     {
-        setEndConditions( QwtSplineCubic::NotAKnot );
+        setBoundaryConditions( QwtSplineCubic::NotAKnot );
     }
 
 protected:
@@ -284,7 +284,7 @@ public:
     SplinePeriodic():
         CubicSpline( "Periodic Spline" )
     {
-        setEndConditions( QwtSplineCubic::Periodic );
+        setBoundaryConditions( QwtSplineCubic::Periodic );
     }
 
 protected:
@@ -316,8 +316,8 @@ public:
         d_slopeBegin( slopeBegin ),
         d_slopeEnd( slopeEnd )
     {
-		setEndConditions( QwtSplineCubic::Clamped );
-        setClamped( slopeBegin, slopeEnd );
+		setBoundaryConditions( QwtSplineCubic::Clamped );
+        setBoundaryValues( slopeBegin, slopeEnd );
     }
 
 protected:
@@ -347,8 +347,8 @@ public:
         d_cvBegin( cvBegin ),
         d_cvEnd( cvEnd )
     {
-		setEndConditions( QwtSplineCubic::Clamped2 );
-        setClamped( cvBegin, cvEnd );
+		setBoundaryConditions( QwtSplineCubic::Clamped2 );
+        setBoundaryValues( cvBegin, cvEnd );
     }
 
 protected:
@@ -377,8 +377,8 @@ public:
         d_valueBegin( valueBegin ),
         d_valueEnd( valueEnd )
     {
-		setEndConditions( QwtSplineCubic::Clamped3 );
-        setClamped( valueBegin, valueEnd );
+		setBoundaryConditions( QwtSplineCubic::Clamped3 );
+        setBoundaryValues( valueBegin, valueEnd );
     }   
 
 protected:

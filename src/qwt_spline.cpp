@@ -190,29 +190,29 @@ double QwtSplineParameter::value( const QPointF &p1, const QPointF &p2 ) const
     switch( d_type )
     {
         case ParameterX:
-		{
+        {
             return valueX( p1, p2 );
-		}
+        }
         case ParameterCentripetral:
-		{
-		    const double dx = p1.x() - p2.x();
-    		const double dy = p1.y() - p2.y();
+        {
+            const double dx = p1.x() - p2.x();
+            const double dy = p1.y() - p2.y();
 
             return ::pow( dx * dx + dy * dy, 0.25 );
-		}
+        }
         case ParameterChordal:
-		{
+        {
             return valueChordal( p1, p2 );
-		}
+        }
         case ParameterManhattan:
-		{
+        {
             return valueManhattan( p1, p2 );
-		}
+        }
         case ParameterUniform:
         default:
-		{
+        {
             return valueUniform( p1, p2 );
-		}
+        }
     }
 }
 
@@ -355,62 +355,196 @@ class QwtSplineC1::PrivateData
 public:
     PrivateData()
     {
-        endCondition.type = QwtSplineC1::ParabolicRunout;
-        endCondition.value[0] = endCondition.value[1] = 0.0;
+        boundaryCondition.type = QwtSplineC1::ParabolicRunout;
+        boundaryCondition.value[0] = boundaryCondition.value[1] = 0.0;
     }
 
-    void setEndCondition( QwtSplineC1::EndpointCondition condition, 
-		double valueStart, double valueEnd )
+    void setBoundaryCondition( QwtSplineC1::BoundaryCondition condition, 
+        double valueStart, double valueEnd )
     {
-        endCondition.type = condition;
-        endCondition.value[0] = valueStart;
-        endCondition.value[1] = valueEnd;
+        boundaryCondition.type = condition;
+        boundaryCondition.value[0] = valueStart;
+        boundaryCondition.value[1] = valueEnd;
     }
 
     struct
     {
-        QwtSplineC1::EndpointCondition type;
+        QwtSplineC1::BoundaryCondition type;
         double value[2];
 
-    } endCondition;
+    } boundaryCondition;
 };
 
 QwtSplineC1::QwtSplineC1()
 {
-	d_data = new PrivateData;
+    d_data = new PrivateData;
 }
 
 QwtSplineC1::~QwtSplineC1()
 {
-	delete d_data;
+    delete d_data;
 }
 
-void QwtSplineC1::setEndConditions( EndpointCondition condition )
+void QwtSplineC1::setBoundaryConditions( BoundaryCondition condition )
 {
-	if ( condition >= Natural )
-    	d_data->setEndCondition( condition, 0.0, 0.0 );
-	else
-    	d_data->setEndCondition( condition, clampedBegin(), clampedEnd()  );
+    if ( condition >= Natural )
+        d_data->setBoundaryCondition( condition, 0.0, 0.0 );
+    else
+        d_data->setBoundaryCondition( condition, boundaryValueBegin(), boundaryValueEnd()  );
 }
 
-QwtSplineC1::EndpointCondition QwtSplineC1::endCondition() const
+QwtSplineC1::BoundaryCondition QwtSplineC1::boundaryCondition() const
 {
-	return d_data->endCondition.type;
+    return d_data->boundaryCondition.type;
 }
 
-void QwtSplineC1::setClamped( double valueBegin, double valueEnd )
+void QwtSplineC1::setBoundaryValues( double valueBegin, double valueEnd )
 {
-    d_data->setEndCondition( endCondition(), valueBegin, valueEnd );
+    d_data->setBoundaryCondition( boundaryCondition(), valueBegin, valueEnd );
 }
 
-double QwtSplineC1::clampedBegin() const
+double QwtSplineC1::boundaryValueBegin() const
 {
-	return d_data->endCondition.value[0];
+    return d_data->boundaryCondition.value[0];
 }
 
-double QwtSplineC1::clampedEnd() const
+double QwtSplineC1::boundaryValueEnd() const
 {
-	return d_data->endCondition.value[1];
+    return d_data->boundaryCondition.value[1];
+}
+
+double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) const
+{
+    const double boundaryValue = d_data->boundaryCondition.value[0];
+
+    if ( boundaryCondition() == QwtSplineC1::Clamped )
+        return boundaryValue;
+
+    if ( points.size() < 2 )
+        return 0.0;
+
+    const double dx = points[1].x() - points[0].x();
+    const double dy = points[1].y() - points[0].y();
+
+    if ( boundaryCondition() == QwtSplineC1::LinearRunout )
+    {
+        const double s = dy / dx;
+        return s - boundaryValue * ( s - m1 );
+    }
+
+    if ( points.size() < 3 )
+        return 0.0;
+
+    const QwtSplinePolynom pnom = 
+        QwtSplinePolynom::fromSlopes( points[1], m1, points[2], m2 ); 
+
+    const double cv2 = pnom.curvature( 0.0 );
+
+    double cv1;
+    switch( boundaryCondition() )
+    {
+        case QwtSplineC1::Clamped2:
+        {
+            cv1 = boundaryValue;
+            break;
+        }
+        case QwtSplineC1::Clamped3:
+        {
+            cv1 = cv2 - 6 * boundaryValue;
+            break;
+        }
+        case QwtSplineC1::NotAKnot:
+        {
+            cv1 = cv2 - 6 * pnom.c3;
+            break;
+        }
+        case QwtSplineC1::ParabolicRunout:
+        {
+            cv1 = cv2;
+            break;
+        }
+        case QwtSplineC1::CubicRunout:
+        {
+            cv1 = 2 * cv2 - pnom.curvature( 1.0 );
+            break;
+        }
+        case QwtSplineC1::Natural:
+        default:
+            cv1 = 0.0;
+    }
+
+
+    const QwtSplinePolynom pnomBegin =
+        QwtSplinePolynom::fromCurvatures( dx, dy, cv1, cv2 );
+
+    return pnomBegin.slope( 0.0 );
+}
+
+double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) const
+{
+    const double boundaryValue = d_data->boundaryCondition.value[1];
+
+    if ( boundaryCondition() == QwtSplineC1::Clamped )
+        return boundaryValue;
+
+    const int size = points.size();
+    if ( size < 2 )
+        return 0.0;
+
+    const double dx = points[size-1].x() - points[size-2].x();
+    const double dy = points[size-1].y() - points[size-2].y();
+
+    if ( boundaryCondition() == QwtSplineC1::LinearRunout )
+    {
+        const double s = dy / dx;
+        return s - boundaryValue * ( s - m1 );
+    }
+
+    if ( size < 3 )
+        return 0.0;
+
+    const QwtSplinePolynom pnom = 
+        QwtSplinePolynom::fromSlopes( points[size-3], m1, points[size-2], m2 ); 
+
+    const double cv1 = pnom.curvature( points[size-2].x() - points[size-3].x() );
+
+    double cv2;
+    switch( boundaryCondition() )
+    {
+        case QwtSplineC1::Clamped2:
+        {
+            cv2 = boundaryValue;
+            break;
+        }
+        case QwtSplineC1::NotAKnot:
+        {
+            cv2 = cv1 - 6 * pnom.c3;
+            break;
+        }
+        case QwtSplineC1::Clamped3:
+        {
+            cv2 = cv1 - 6 * boundaryValue;
+            break;
+        }
+        case QwtSplineC1::ParabolicRunout:
+        {
+            cv2 = cv1;
+            break;
+        }
+        case QwtSplineC1::CubicRunout:
+        {
+            cv2 = 2 * cv1 - pnom.curvature( 0.0 );
+            break;
+        }
+        case QwtSplineC1::Natural:
+        default:
+            cv2 = 0.0;
+    }
+
+    const QwtSplinePolynom pnomEnd = 
+        QwtSplinePolynom::fromCurvatures( dx, dy, cv1, cv2 );
+
+    return pnomEnd.slope( dx );
 }
 
 QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const

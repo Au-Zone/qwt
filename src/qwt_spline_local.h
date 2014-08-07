@@ -36,14 +36,8 @@ public:
 
     virtual QVector<double> slopesX( const QPolygonF & ) const;
 
-    QPainterPath pathClampedX( const QPolygonF &,
-        double slopeStart, double slopeEnd ) const;
-
-    QVector<double> slopesClampedX( const QPolygonF &,
-        double slopeStart, double slopeEnd ) const;
-
-    QVector<QLineF> bezierControlPointsClampedX( const QPolygonF &,
-        double slopeStart, double slopeEnd ) const;
+    QPainterPath pathX( const QPolygonF & ) const;
+    QVector<QLineF> bezierControlPointsX( const QPolygonF & ) const;
 
 private:
     const Type d_type;

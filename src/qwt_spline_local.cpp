@@ -343,12 +343,7 @@ double QwtSplineLocal::tension() const
 QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
 {
     if ( parametrization()->type() == QwtSplineParameter::ParameterX )
-    {
-        double slopeStart, slopeEnd;
-        qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
-    
-        return pathClampedX( points, slopeStart, slopeEnd );
-    }
+        return pathX( points );
 
     return QwtSplineC1::pathP( points );
 }
@@ -357,17 +352,13 @@ QVector<QLineF> QwtSplineLocal::bezierControlPointsP( const QPolygonF &points ) 
 {
     if ( parametrization()->type() == QwtSplineParameter::ParameterX )
     {   
-        double slopeStart, slopeEnd;
-        qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
-        
-        return bezierControlPointsClampedX( points, slopeStart, slopeEnd );
+        return bezierControlPointsX( points );
     }
 
     return QwtSplineC1::bezierControlPointsP( points );
 }
 
-QPainterPath QwtSplineLocal::pathClampedX( const QPolygonF &points,
-    double slopeStart, double slopeEnd ) const
+QPainterPath QwtSplineLocal::pathX( const QPolygonF &points ) const
 {
     QPainterPath path;
 
@@ -381,6 +372,9 @@ QPainterPath QwtSplineLocal::pathClampedX( const QPolygonF &points,
         return path;
     }
 
+    double slopeStart, slopeEnd;
+    qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
+    
     if ( size == 2 )
     {
         path.moveTo( points[0] );
@@ -397,8 +391,7 @@ QPainterPath QwtSplineLocal::pathClampedX( const QPolygonF &points,
     return store.path;
 }
     
-QVector<QLineF> QwtSplineLocal::bezierControlPointsClampedX( const QPolygonF &points,
-    double slopeStart, double slopeEnd ) const
+QVector<QLineF> QwtSplineLocal::bezierControlPointsX( const QPolygonF &points ) const
 {
     QVector<QLineF> controlPoints;
 
@@ -408,6 +401,9 @@ QVector<QLineF> QwtSplineLocal::bezierControlPointsClampedX( const QPolygonF &po
 
     using namespace QwtSplineLocalP;
 
+    double slopeStart, slopeEnd;
+    qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
+
     const ControlPointsStore store = qwtSplinePathLocal<ControlPointsStore>(
         d_type, points, d_tension, slopeStart, slopeEnd );
 
@@ -416,18 +412,12 @@ QVector<QLineF> QwtSplineLocal::bezierControlPointsClampedX( const QPolygonF &po
 
 QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
 {
-    double slopeStart, slopeEnd;
-    qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
-
-    return slopesClampedX( points, slopeStart, slopeEnd );
-}
-
-QVector<double> QwtSplineLocal::slopesClampedX( const QPolygonF &points, 
-    double slopeStart, double slopeEnd ) const
-{
     const int size = points.size();
     if ( size <= 1 )
         return QVector<double>();
+
+    double slopeStart, slopeEnd;
+    qwtLocalEndpoints( points, d_type, d_tension, slopeStart, slopeEnd );
 
     if ( size == 2 )
     {
