@@ -143,231 +143,235 @@ static inline double qwtHarmonicMean( double s1, double s2 )
     return 0.0;
 }
 
+static inline void qwtSplineCardinalBoundaries( 
+    const QwtSplineLocal *spline, const QPolygonF &points,
+    double &slopeBegin, double &slopeEnd )
+{
+    const int n = points.size();
+    const QPointF *p = points.constData();
+
+    const double m2 = qwtSlopeP( p[0], p[2] );
+
+    if ( n == 3 )
+    {
+        const double s0 = qwtSlopeP( p[0], p[1] );
+        slopeEnd = spline->slopeEnd( points, s0, m2 );
+        slopeBegin = spline->slopeBegin( points, m2, slopeEnd );
+    }
+    else
+    {
+        const double m3 = qwtSlopeP( p[1], p[3] );
+        slopeBegin = spline->slopeBegin( points, m2, m3 );
+
+        const double mn1 = qwtSlopeP( p[n-4], p[n-2] );
+        const double mn2 = qwtSlopeP( p[n-3], p[n-1] );
+
+        slopeEnd = spline->slopeEnd( points, mn1, mn2 );
+    }
+}
+
 template< class SplineStore >
 static inline SplineStore qwtSplinePathCardinal( 
     const QwtSplineLocal *spline, const QPolygonF &points )
 {
-    SplineStore store;
-    store.init( points );
+    double slopeBegin, slopeEnd;
+    qwtSplineCardinalBoundaries( spline, points, slopeBegin, slopeEnd );
 
     const double s = 1.0 - spline->tension();
 
     const QPointF *p = points.constData();
     const int size = points.size();
 
-    if ( size == 3 )
+    SplineStore store;
+    store.init( points );
+    store.start( p[0], s * slopeBegin );
+
+    double m1 = s * slopeBegin;
+    for ( int i = 1; i < size - 1; i++ )
     {
-        const double s0 = qwtSlopeP( p[0], p[1] );
-        
-        const double m2 = qwtSlopeP( p[0], p[2] );
-        const double m3 = spline->slopeEnd( points, s0, m2 );
-        const double m1 = spline->slopeBegin( points, m2, m3 );
+        const double m2 = s * qwtSlopeP( p[i-1], p[i+1] );
+        store.addCubic( p[i-1], m1, p[i], m2 );
 
-        store.start( p[0], s * m1 );
-        store.addCubic( p[0], s * m1, p[1], s * m2 );
-        store.addCubic( p[1], s * m2, p[2], s * m3 );
-
-        return store;
+        m1 = m2;
     }
 
-    const double m2 = qwtSlopeP( p[0], p[2] );
-    const double m3 = qwtSlopeP( p[1], p[3] );
-    const double m1 = spline->slopeBegin( points, m2, m3 );
-
-    store.start( p[0], s * m1 );
-    store.addCubic( p[0], s * m1, p[1], s * m2 );
-    store.addCubic( p[1], s * m2, p[2], s * m3 );
-
-    double ms1 = s * m3;
-
-    for ( int i = 3; i < size - 1; i++ )
-    {
-        const double ms2 = s * qwtSlopeP( p[i-1], p[i+1] );
-        store.addCubic( p[i-1], ms1, p[i], ms2 );
-
-        ms1 = ms2;
-    }
-
-    const double mn1 = qwtSlopeP( p[size-4], p[size-2] );
-    const double mn2 = qwtSlopeP( p[size-3], p[size-1] );
-    const double mn3 = spline->slopeEnd( points, mn1, mn2 );
-
-    store.addCubic( p[size-2], s * mn2, p[size-1], s * mn3 );
+    store.addCubic( p[size-2], s * m1, p[size-1], s * slopeEnd );
 
     return store;
+}
+
+static inline void qwtSplineAkimaBoundaries(
+    const QwtSplineLocal *spline, const QPolygonF &points,
+    double &slopeBegin, double &slopeEnd )
+{
+    if ( spline->boundaryCondition() == QwtSplineC1::Clamped )
+    {
+        slopeBegin = spline->boundaryValueBegin();
+        slopeEnd = spline->boundaryValueEnd();
+
+        return;
+    }
+
+    const int n = points.size();
+    const QPointF *p = points.constData();
+
+    if ( n == 3 )
+    {
+        const double s1 = qwtSlopeP( p[0], p[1] );
+        const double s2 = qwtSlopeP( p[1], p[2] );
+        const double m = qwtAkima( s1, s1, s2, s2 );
+
+        slopeBegin = spline->slopeBegin( points, m, s2 );
+        slopeEnd = spline->slopeEnd( points, slopeBegin, m );
+    }
+    else if ( n == 4 )
+    {
+        const double s1 = qwtSlopeP( p[0], p[1] );
+        const double s2 = qwtSlopeP( p[1], p[2] );
+        const double s3 = qwtSlopeP( p[2], p[3] );
+
+        const double m2 = qwtAkima( s1, s1, s2, s2 );
+        const double m3 = qwtAkima( s2, s2, s3, s3 );
+
+        slopeBegin = spline->slopeBegin( points, m2, m3 );
+        slopeEnd = spline->slopeEnd( points, m2, m3 );
+    }
+    else
+    {
+        double s[4];
+
+        for ( int i = 0; i < 4; i++ )
+            s[i] = qwtSlopeP( p[i], p[i+1] );
+
+        const double m2 = qwtAkima( s[0], s[0], s[1], s[1] );
+        const double m3 = qwtAkima( s[0], s[1], s[2], s[3] );
+        slopeBegin = spline->slopeBegin( points, m2, m3 );
+
+        for ( int i = n - 5; i < n - 1; i++ )
+            s[i] = qwtSlopeP( p[i], p[i+1] );
+
+        const double mn1 = qwtAkima( s[0], s[1], s[2], s[3] );
+        const double mn2 = qwtAkima( s[2], s[2], s[3], s[3] );
+
+        slopeEnd = spline->slopeEnd( points, mn1, mn2 );
+    }
 }
 
 template< class SplineStore >
 static inline SplineStore qwtSplinePathAkima( 
     const QwtSplineLocal *spline, const QPolygonF &points )
 {
-    SplineStore store;
-    store.init( points );
+    double slopeBegin, slopeEnd;
+    qwtSplineAkimaBoundaries( spline, points, slopeBegin, slopeEnd );
 
     const double s = 1.0 - spline->tension();
 
     const int size = points.size();
     const QPointF *p = points.constData();
 
-    if ( size == 3 )
+    SplineStore store;
+    store.init( points );
+    store.start( p[0], s * slopeBegin );
+
+    double s1 = slopeBegin;
+    double s2 = qwtSlopeP( p[0], p[1] );
+    double s3 = qwtSlopeP( p[1], p[2] );
+
+    double m1 = s * slopeBegin;
+
+    for ( int i = 0; i < size - 3; i++ )
     {
-        const double s1 = qwtSlopeP( p[0], p[1] );
-        const double s2 = qwtSlopeP( p[1], p[2] );
+        const double s4 = qwtSlopeP( p[i+2],  p[i+3] );
 
-        const double m2 = qwtAkima( s1, s1, s2, s2 );
-        const double m1 = spline->slopeBegin( points, m2, s2 );
-        const double m3 = spline->slopeEnd( points, m1, m2 );
+        const double m2 = s * qwtAkima( s1, s2, s3, s4 );
+        store.addCubic( p[i], m1, p[i+1], m2 );
 
-        store.start( p[0], s * m1 );
-
-        store.addCubic( p[0], s * m1, p[1], s * m2 );
-        store.addCubic( p[1], s * m2, p[2], s * m3 );
-
-        return store;
-    }
-
-    if ( size == 4 )
-    {
-        double s1 = qwtSlopeP( p[0], p[1] );
-        double s2 = qwtSlopeP( p[1], p[2] );
-        double s3 = qwtSlopeP( p[2], p[3] );
-
-        const double m2 = qwtAkima( s1, s1, s2, s3 );
-        const double m3 = qwtAkima( s1, s2, s3, s3 );
-        const double m1 = spline->slopeBegin( points, m2, m3 );
-        const double m4 = spline->slopeEnd( points, m2, m3 );
-
-        store.start( p[0], s * m1 );
-
-        store.addCubic( p[0], s * m1, p[1], s * m2 );
-        store.addCubic( p[1], s * m2, p[2], s * m3 );
-        store.addCubic( p[2], s * m3, p[3], s * m4 );
-
-        return store;
-    }
-
-    double s1 = qwtSlopeP( p[0], p[1] );
-    double s2 = qwtSlopeP( p[1], p[2] );
-    double s3 = qwtSlopeP( p[2], p[3] );
-    double s4 = qwtSlopeP( p[3], p[4] );
-
-    const double m2 = qwtAkima( s1, s1, s2, s2 );
-    const double m3 = qwtAkima( s1, s2, s3, s4 );
-    const double m1 = spline->slopeBegin( points, m2, m3 );
-
-    store.start( p[0], s * m1 );
-    store.addCubic( p[0], s * m1, p[1], s * m2 );
-    store.addCubic( p[1], s * m2, p[2], s * m3 );
-
-    double ms1 = s * m3;
-
-    for ( int i = 2; i < size - 3; i++ )
-    {
         s1 = s2;
         s2 = s3;
         s3 = s4;
-        s4 = qwtSlopeP( p[i+2], p[i+3] );
 
-        const double ms2 = s * qwtAkima( s1, s2, s3, s4 );
-        store.addCubic( p[i], ms1, p[i+1], ms2 );
-
-        ms1 = ms2;
+        m1 = m2;
     }
 
-    const double sn1 = qwtSlopeP( p[size-5], p[size-4] );
-    const double sn2 = qwtSlopeP( p[size-4], p[size-3] );
-    const double sn3 = qwtSlopeP( p[size-3], p[size-2] );
-    const double sn4 = qwtSlopeP( p[size-2], p[size-1] );
+    const double m2 = s * qwtAkima( s1, s2, s3, slopeEnd );
 
-    const double mn1 = qwtAkima( sn1, sn2, sn3, sn4 );
-    const double mn2 = qwtAkima( sn3, sn3, sn4, sn4 );
-    const double mn3 = spline->slopeEnd( points, mn1, mn2 );
-
-    store.addCubic( p[size-3], s * mn1, p[size-2], s * mn2 );
-    store.addCubic( p[size-2], s * mn2, p[size-1], s * mn3 );
+    store.addCubic( p[size - 3], m1, p[size - 2], m2 );
+    store.addCubic( p[size - 2], m2, p[size - 1], slopeEnd );
 
     return store;
+}
+
+static inline void qwtSplineHarmonicMeanBoundaries(
+    const QwtSplineLocal *spline, const QPolygonF &points,
+    double &slopeBegin, double &slopeEnd )
+{
+    const int n = points.size();
+    const QPointF *p = points.constData();
+
+    const double s1 = qwtSlopeP( p[0], p[1] );
+    const double s2 = qwtSlopeP( p[1], p[2] );
+
+    if ( n == 3 )
+    {
+        const double m = qwtHarmonicMean( s1, s2 );
+        slopeBegin = spline->slopeBegin( points, m, s2 );
+        slopeEnd = spline->slopeEnd( points, slopeBegin, m );
+    }
+    else
+    {
+        const double s3 = qwtSlopeP( p[2], p[3] );
+
+        const double m2 = qwtHarmonicMean( s1, s2 );
+        const double m3 = qwtHarmonicMean( s2, s3 );
+
+        const double sn1 = qwtSlopeP( p[n-4], p[n-3] );
+        const double sn2 = qwtSlopeP( p[n-3], p[n-2] );
+        const double sn3 = qwtSlopeP( p[n-2], p[n-1] );
+
+        const double mn1 = qwtHarmonicMean( sn1, sn2 );
+        const double mn2 = qwtHarmonicMean( sn2, sn3 );
+
+        slopeBegin = spline->slopeBegin( points, m2, m3 );
+        slopeEnd = spline->slopeEnd( points, mn1, mn2 );
+    }
 }
 
 template< class SplineStore >
 static inline SplineStore qwtSplinePathHarmonicMean( 
     const QwtSplineLocal *spline, const QPolygonF &points )
 {
-    SplineStore store;
-    store.init( points );
+    double slopeBegin, slopeEnd;
+    qwtSplineHarmonicMeanBoundaries( spline, points, slopeBegin, slopeEnd );
 
     const double s = 1.0 - spline->tension();
 
     const int size = points.size();
     const QPointF *p = points.constData();
 
-    if ( size == 3 )
-    {
-        const double s1 = qwtSlopeP( p[0], p[1] );
-        const double s2 = qwtSlopeP( p[1], p[2] );
+    SplineStore store;
+    store.init( points );
+    store.start( p[0], s * slopeBegin );
 
-        const double m2 = qwtHarmonicMean( s1, s2 );
-        const double m1 = spline->slopeBegin( points, m2, s2 );
-        const double m3 = spline->slopeEnd( points, m1, m2 );
+    double dx1 = p[1].x() - p[0].x();
+    double dy1 = p[1].y() - p[0].y();
 
-        store.start( p[0], s * m1 );
-
-        store.addCubic( p[0], s * m1, p[1], s * m2 );
-        store.addCubic( p[1], s * m2, p[2], s * m3 );
-
-        return store;
-    }
-
-    const double s1 = qwtSlopeP( p[0], p[1] );
-    const double s2 = qwtSlopeP( p[1], p[2] );
-    const double s3 = qwtSlopeP( p[2], p[3] );
-
-    const double m2 = qwtHarmonicMean( s1, s2 );
-    const double m3 = qwtHarmonicMean( s2, s3 );
-    const double m1 = spline->slopeBegin( points, m2, m3 );
-
-    store.start( p[0], s * m1 );
-
-    store.addCubic( p[0], s * m1, p[1], s * m2 );
-    store.addCubic( p[1], s * m2, p[2], s * m3 );
-
-    if ( size == 4 )
-    {
-        const double m4 = spline->slopeEnd( points, m2, m3 );
-        store.addCubic( p[2], s * m3, p[3], s * m4 );
-
-        return store;
-    }
-
-    double dx1 = p[3].x() - p[2].x();
-    double dy1 = p[3].y() - p[2].y();
-    double ms1 = s * m3;
-
-    for ( int i = 3; i < size - 2; i++ )
+    double m1 = s * slopeBegin;
+    for ( int i = 1; i < size - 1; i++ )
     {
         const double dx2 = p[i+1].x() - p[i].x();
         const double dy2 = p[i+1].y() - p[i].y();
 
-        const double ms2 = s * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
+        const double m2 = s * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
 
-        store.addCubic( p[i-1], ms1, p[i], ms2 );
+        store.addCubic( p[i-1], m1, p[i], m2 );
 
         dx1 = dx2;
         dy1 = dy2;
-        ms1 = ms2;
+        m1 = m2;
     }
 
-    const double sn1 = qwtSlopeP( p[size-4], p[size-3] );
-    const double sn2 = qwtSlopeP( p[size-3], p[size-2] );
-    const double sn3 = qwtSlopeP( p[size-2], p[size-1] );
+    store.addCubic( p[size - 2], m1, p[size - 1], s * slopeEnd );
 
-    const double mn1 = qwtHarmonicMean( sn1, sn2 );
-    const double mn2 = qwtHarmonicMean( sn2, sn3 );
-    const double mn3 = spline->slopeEnd( points, mn1, mn2 );
-
-    store.addCubic( p[size-3], s * mn1, p[size-2], s * mn2 );
-    store.addCubic( p[size-2], s * mn2, p[size-1], s * mn3 );
-    
     return store; 
 }
 
