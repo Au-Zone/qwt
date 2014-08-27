@@ -575,6 +575,19 @@ void QwtSlider::mousePressEvent( QMouseEvent *event )
             if ( isInverted() )
                 d_data->stepsIncrement = -d_data->stepsIncrement;
 
+            const double v = value();
+            incrementValue( d_data->stepsIncrement );
+
+            if ( v != value() )
+            {
+                if ( isTracking() )
+                    Q_EMIT valueChanged( value() );
+                else
+                    d_data->pendingValueChange = true;
+
+                Q_EMIT sliderMoved( value() );
+            }
+
             d_data->timerTick = false;
             d_data->repeatTimerId = startTimer( qMax( 250, 2 * updateInterval() ) );
 
