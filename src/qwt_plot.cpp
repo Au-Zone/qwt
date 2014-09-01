@@ -127,6 +127,7 @@ QwtPlot::QwtPlot( const QwtText &title, QWidget *parent ):
 //! Destructor
 QwtPlot::~QwtPlot()
 {
+	setAutoReplot( false );
     detachItems( QwtPlotItem::Rtti_PlotItem, autoDelete() );
 
     delete d_data->layout;
@@ -1108,8 +1109,7 @@ void QwtPlot::attachItem( QwtPlotItem *plotItem, bool on )
         }
     }
 
-    if ( autoReplot() )
-        update();
+    autoRefresh();
 }
 
 /*!
