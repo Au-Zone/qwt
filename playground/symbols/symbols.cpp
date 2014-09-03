@@ -124,6 +124,8 @@ private:
         const double y0 = 0.6 * h;
 
         QPainterPath path; 
+        path.moveTo( -0.2 * w, h );
+        path.lineTo( 0.2 * w, h );
         path.moveTo( 0, h );
         path.lineTo( 0, y0 );
         path.lineTo( -0.5 * w, y0 );
@@ -150,7 +152,6 @@ int main( int argc, char **argv )
     plot.setAxisScale( QwtPlot::xBottom, -1.0, 6.0 );
 
     QwtLegend *legend = new QwtLegend();
-    legend->setDefaultItemMode( QwtLegendData::Checkable );
     plot.insertLegend( legend );
 
     for ( int i = 0; i < 4; i++ )
