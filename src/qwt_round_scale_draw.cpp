@@ -267,14 +267,14 @@ double QwtRoundScaleDraw::extent( const QFont &font ) const
             if ( !sd.contains( value ) )
                 continue;
 
-            const QwtText label = tickLabel( font, value );
-            if ( label.isEmpty() )
-                continue;
-
             const double tval = scaleMap().transform( value );
             if ( ( tval < d_data->startAngle + 360 )
                 && ( tval > d_data->startAngle - 360 ) )
             {
+                const QwtText label = tickLabel( font, value );
+                if ( label.isEmpty() )
+                    continue;
+
                 const double arc = qwtRadians( tval );
 
                 const QSizeF sz = label.textSize( font );
