@@ -56,6 +56,10 @@ public:
     {
         setLegendMode( QwtPlotBarChart::LegendBarTitles );
         setLegendIconSize( QSize( 10, 14 ) );
+        setLayoutPolicy( AutoAdjustSamples );
+        setLayoutHint( 4.0 ); // minimum width for a single bar
+		
+		setSpacing( 10 ); // spacing between bars
     }
 
     void addDistro( const QString &distro, const QColor &color )
