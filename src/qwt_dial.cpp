@@ -795,7 +795,7 @@ double QwtDial::scrolledTo( const QPoint &pos ) const
         angle = boundedAngle;
     }
 
-    return invTransform( angle );
+    return scaleMap().invTransform( angle );
 }
 
 /*!
