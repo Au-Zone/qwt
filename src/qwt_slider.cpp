@@ -536,7 +536,7 @@ double QwtSlider::scrolledTo( const QPoint &pos ) const
 
     p = qBound( min, p, max );
 
-    return invTransform( p );
+    return scaleMap().invTransform( p );
 }
 
 /*!
