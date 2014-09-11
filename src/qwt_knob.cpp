@@ -408,16 +408,24 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
     {
         angle = qwtToScaleAngle( angle );
 
-        const double boundedAngle = 
-            qBound( scaleMap().p1(), angle, scaleMap().p2() );
+        double boundedAngle = qBound( scaleMap().p1(), angle, scaleMap().p2() );
 
         if ( !wrapping() )
+        {
+            const double currentAngle = scaleMap().transform( value() );
+
+            if ( ( currentAngle > 90.0 ) && ( boundedAngle < -90.0 ) )
+                boundedAngle = scaleMap().p2();
+            else if ( ( currentAngle < -90.0 ) && ( boundedAngle > 90.0 ) )
+                boundedAngle = scaleMap().p1();
+
             d_data->mouseOffset += ( boundedAngle - angle );
+        }
 
         angle = boundedAngle;
     }
 
-	return scaleMap().invTransform( angle );
+    return scaleMap().invTransform( angle );
 }
 
 /*! 
