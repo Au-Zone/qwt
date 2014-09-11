@@ -356,7 +356,7 @@ bool QwtKnob::isScrollPosition( const QPoint &pos ) const
     if ( region.contains( pos ) && ( pos != kr.center() ) )
     {
         const double angle = QLineF( kr.center(), pos ).angle();
-        const double valueAngle = qwtToDegrees( transform( value() ) );
+        const double valueAngle = qwtToDegrees( scaleMap().transform( value() ) );
 
         d_data->mouseOffset = qwtNormalizeDegrees( angle - valueAngle );
 
@@ -383,7 +383,7 @@ double QwtKnob::scrolledTo( const QPoint &pos ) const
     {
         angle = qwtToDegrees( angle );
 
-        const double v = transform( value() );
+        const double v = scaleMap().transform( value() );
 
         int numTurns = qFloor( ( v - scaleMap().p1() ) / 360.0 );
 
@@ -468,7 +468,7 @@ void QwtKnob::paintEvent( QPaintEvent *event )
     drawKnob( &painter, knobRect );
 
     drawMarker( &painter, knobRect, 
-        qwtNormalizeDegrees( transform( value() ) ) );
+        qwtNormalizeDegrees( scaleMap().transform( value() ) ) );
 
     painter.setRenderHint( QPainter::Antialiasing, false );
 
