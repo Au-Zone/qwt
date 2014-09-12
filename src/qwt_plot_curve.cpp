@@ -500,8 +500,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     }
     else
     {
-        QPolygonF polyline = mapper.toPolygonF( xMap, yMap,
-            data(), from, to );
+        QPolygonF polyline = mapper.toPolygonF( xMap, yMap, data(), from, to );
 
         if ( doFill )
         {
@@ -514,19 +513,24 @@ void QwtPlotCurve::drawLines( QPainter *painter,
                 polyline = d_data->curveFitter->fitCurve( polyline );
             }
 
-            if ( d_data->paintAttributes & ClipPolygons )
+            if ( painter->pen().style() != Qt::NoPen )
             {
-                const QPolygonF clipped = QwtClipper::clipPolygonF( 
-                    clipRect, polyline, false );
+                // here we are wasting memory for the filled copy,
+                // do polygon clipping twice etc .. TODO
 
-                QwtPainter::drawPolyline( painter, clipped );
+                QPolygonF filled = polyline;
+                fillCurve( painter, xMap, yMap, canvasRect, filled );
+                filled.clear();
+
+                if ( d_data->paintAttributes & ClipPolygons )
+                    polyline = QwtClipper::clipPolygonF( clipRect, polyline, false );
+
+                QwtPainter::drawPolyline( painter, polyline );
             }
             else
             {
-                QwtPainter::drawPolyline( painter, polyline );
+                fillCurve( painter, xMap, yMap, canvasRect, polyline );
             }
-
-            fillCurve( painter, xMap, yMap, canvasRect, polyline );
         }
         else
         {
