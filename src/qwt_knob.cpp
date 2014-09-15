@@ -267,6 +267,9 @@ void QwtKnob::setScaleDraw( QwtRoundScaleDraw *scaleDraw )
 {
     setAbstractScaleDraw( scaleDraw );
     setTotalAngle( d_data->totalAngle );
+
+    updateGeometry();
+    update();
 }
 
 /*!
@@ -799,7 +802,6 @@ void QwtKnob::setBorderWidth( int borderWidth )
 
     updateGeometry();
     update();
-
 }
 
 //! Return the border width
