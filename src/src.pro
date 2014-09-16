@@ -78,5 +78,6 @@ contains(QWT_CONFIG, QwtPkgConfig) {
         QMAKE_PKGCONFIG_REQUIRES += QtOpenGL
     }
 
-    QMAKE_CLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
+    QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
+    QMAKE_DISTCLEAN += $${DESTDIR}/libqwt.prl
 }
