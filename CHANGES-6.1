@@ -1,0 +1,58 @@
+Qwt 6.1.1
+=========
+
+1) support for shadow builds
+2) QwtAbstractScaleDraw/QwtScaleDraw/QwtRoundScaleDraw
+   layout issues fixed
+   performance for specific use cases improved
+3) QwtAbstractSlider/QwtCounter
+   fixed for tiny step sizes 
+4) QwtDateScaleEngine
+   aligning/autoscaling improved
+5) QwtDial/QwtKnob
+   rounding instead of flooring, when translating values to angles 
+6) QwtGraphic
+   RenderPensUnscaled flag fixed to respect initial painter transformations
+   ( non cosmetic pens on legend icons will be scaled according to paint device
+     resolution - f.e high dpi printouts - now )
+7) QwtKnob/QwtThermo
+   missing updates, when changing the scale draw added
+8) QwtLegend
+   clipping code fixed in renderLegend
+9) QwtPainter
+   applying painter transformation for simple rich texts fixed
+   handling of alpha values fixed for drawing color bars
+10) QwtPicker
+   Work around a Qt bug when creating an event filter inside of an event filter
+   ( calling the event filter twice )
+11) QwtPickerMachine
+   Ignoring autorepeat key events
+12) QwtPlot
+   disabled autoreplot in the destructor
+   setPlotLayout fixed
+   calculation of canvasMap fixed for disabled axes
+   calling autoRefresh instead of update when attaching/detaching a plot item
+13) QwtPlotAbstractBarChart
+   using layoutHint() as minimum sample width in AutoAdjustSamples mode
+14) QwtPlotBarChart/QwtPlotMultiBarChart
+   boundingRect() fixed
+15) QwtPlotCurve
+   painter order of curve pen and brush inverted ( pen on top of brush )
+16) QwtPlotRenderer
+   order of setting printer properties changed to work around a Qt 4.8 bug
+17) QwtPlotScaleItem
+   internal cache removed to avoid out of sync situations
+18) QwtPlotSpectroCurve
+   losing alpha values from the color map fixed
+19) QwtPlotTextLabel
+   no internal caches for record/replay paint devices ( QPicture/QwtGraphic )
+20) QwtRasterData
+   handling of NaN values, when calculating contour lines
+21) QwtLinearScaleEngines
+   trying to avoid overruns for huge intervals ( > max dounble ) in divideScale()
+22) QwtSymbol
+   pin point translations fixed
+23) QwtWheel
+   aligning of values improved
+
+   
