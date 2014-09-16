@@ -72,4 +72,5 @@ contains(QWT_CONFIG, QwtPkgConfig) {
     QMAKE_PKGCONFIG_REQUIRES = QtGui
 
     QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
+    QMAKE_DISTCLEAN += $${DESTDIR}/libqwtmathml.prl
 }
