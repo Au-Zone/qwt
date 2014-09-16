@@ -17,7 +17,7 @@ QT       += xml
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 
-	QT       += widgets
+    QT       += widgets
 }
 
 HEADERS = \
@@ -31,11 +31,11 @@ SOURCES = \
 
 HEADERS += \
     qwt_mml_entity_table.cpp \
-	qwt_mml_document.h
+    qwt_mml_document.h
 
 SOURCES += \
     qwt_mml_entity_table.cpp \
-	qwt_mml_document.cpp
+    qwt_mml_document.cpp
 
 qwtmathmlspec.files  = qwtmathml.prf
 qwtmathmlspec.path  = $${QWT_INSTALL_FEATURES}
@@ -56,3 +56,20 @@ else {
     INSTALLS       += headers
 }
 
+contains(QWT_CONFIG, QwtPkgConfig) {
+
+    CONFIG     += create_pc create_prl no_install_prl
+
+    QMAKE_PKGCONFIG_NAME = qwtmathml
+    QMAKE_PKGCONFIG_DESCRIPTION = Qwt MathML renderer
+
+    QMAKE_PKGCONFIG_LIBDIR = $${QWT_INSTALL_LIBS}
+    QMAKE_PKGCONFIG_INCDIR = $${QWT_INSTALL_HEADERS}
+
+    # QMAKE_PKGCONFIG_DESTDIR is buggy, in combination
+    # with including pri files: better don't use it
+
+    QMAKE_PKGCONFIG_REQUIRES = QtGui
+
+    QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
+}

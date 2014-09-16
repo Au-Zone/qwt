@@ -55,3 +55,28 @@ else {
     headers.path   = $${QWT_INSTALL_HEADERS}
     INSTALLS += headers
 }
+
+contains(QWT_CONFIG, QwtPkgConfig) {
+
+    CONFIG     += create_pc create_prl no_install_prl
+
+    QMAKE_PKGCONFIG_NAME = qwt
+    QMAKE_PKGCONFIG_DESCRIPTION = Qt Widgets for Technical Applications
+    QMAKE_PKGCONFIG_LIBDIR = $${QWT_INSTALL_LIBS}
+    QMAKE_PKGCONFIG_INCDIR = $${QWT_INSTALL_HEADERS}
+
+    # QMAKE_PKGCONFIG_DESTDIR is buggy, in combination
+    # with including pri files: better don't use it
+
+    QMAKE_PKGCONFIG_REQUIRES = QtGui 
+
+    contains(QWT_CONFIG, QwtSvg) {
+        QMAKE_PKGCONFIG_REQUIRES += QtSvg
+    }
+
+    contains(QWT_CONFIG, QwtOpenGL) {
+        QMAKE_PKGCONFIG_REQUIRES += QtOpenGL
+    }
+
+    QMAKE_CLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
+}
