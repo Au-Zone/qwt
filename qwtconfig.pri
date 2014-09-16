@@ -161,3 +161,13 @@ macx:!static:CONFIG(qt_framework, qt_framework|qt_no_framework) {
 
     QWT_CONFIG += QwtFramework
 }  
+
+######################################################################
+# Create and install pc files for pkg-config
+# See http://www.freedesktop.org/wiki/Software/pkg-config/
+######################################################################
+
+unix {
+
+    QWT_CONFIG     += QwtPkgConfig
+}
