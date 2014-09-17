@@ -68,14 +68,29 @@ contains(QWT_CONFIG, QwtPkgConfig) {
     # QMAKE_PKGCONFIG_DESTDIR is buggy, in combination
     # with including pri files: better don't use it
 
-    QMAKE_PKGCONFIG_REQUIRES = QtGui 
+    greaterThan(QT_MAJOR_VERSION, 4) {
 
-    contains(QWT_CONFIG, QwtSvg) {
-        QMAKE_PKGCONFIG_REQUIRES += QtSvg
+        QMAKE_PKGCONFIG_REQUIRES = Qt5Gui
+
+        contains(QWT_CONFIG, QwtSvg) {
+            QMAKE_PKGCONFIG_REQUIRES += Qt5Svg
+        }
+
+        contains(QWT_CONFIG, QwtOpenGL) {
+            QMAKE_PKGCONFIG_REQUIRES += Qt5OpenGL
+        }
     }
+    else {
 
-    contains(QWT_CONFIG, QwtOpenGL) {
-        QMAKE_PKGCONFIG_REQUIRES += QtOpenGL
+        QMAKE_PKGCONFIG_REQUIRES = QtGui 
+
+        contains(QWT_CONFIG, QwtSvg) {
+            QMAKE_PKGCONFIG_REQUIRES += QtSvg
+        }
+
+        contains(QWT_CONFIG, QwtOpenGL) {
+            QMAKE_PKGCONFIG_REQUIRES += QtOpenGL
+        }
     }
 
     QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc

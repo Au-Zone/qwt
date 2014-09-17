@@ -69,7 +69,14 @@ contains(QWT_CONFIG, QwtPkgConfig) {
     # QMAKE_PKGCONFIG_DESTDIR is buggy, in combination
     # with including pri files: better don't use it
 
-    QMAKE_PKGCONFIG_REQUIRES = QtGui
+    greaterThan(QT_MAJOR_VERSION, 4) {
+
+        QMAKE_PKGCONFIG_REQUIRES = Qt5Gui Qt5Xml
+    }
+    else {
+
+        QMAKE_PKGCONFIG_REQUIRES = QtGui QtXml
+    }
 
     QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
     QMAKE_DISTCLEAN += $${DESTDIR}/libqwtmathml.prl
