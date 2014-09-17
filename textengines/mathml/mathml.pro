@@ -71,7 +71,7 @@ contains(QWT_CONFIG, QwtPkgConfig) {
 
     greaterThan(QT_MAJOR_VERSION, 4) {
 
-        QMAKE_PKGCONFIG_REQUIRES = Qt5Gui Qt5Xml
+        QMAKE_PKGCONFIG_REQUIRES = Qt5Gui Qt5Widgets Qt5Xml
     }
     else {
 
