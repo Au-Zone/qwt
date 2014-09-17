@@ -66,19 +66,19 @@ contains(QWT_CONFIG, QwtPkgConfig) {
     QMAKE_PKGCONFIG_LIBDIR = $${QWT_INSTALL_LIBS}
     QMAKE_PKGCONFIG_INCDIR = $${QWT_INSTALL_HEADERS}
 
-    # QMAKE_PKGCONFIG_DESTDIR is buggy, in combination
-    # with including pri files: better don't use it
+    QMAKE_PKGCONFIG_DESTDIR = pkgconfig
 
     greaterThan(QT_MAJOR_VERSION, 4) {
 
         QMAKE_PKGCONFIG_FILE = Qt$${QT_MAJOR_VERSION}Qwt$${QWT_VER_MAJ}MathML
         QMAKE_PKGCONFIG_REQUIRES = Qt5Gui Qt5Widgets Qt5Xml
-        QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_FILE}.pc
+        QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_DESTDIR}/$${QMAKE_PKGCONFIG_FILE}.pc
     }
     else {
 
+        # there is no QMAKE_PKGCONFIG_FILE fo Qt4
         QMAKE_PKGCONFIG_REQUIRES = QtGui QtXml
-        QMAKE_DISTCLEAN += $${DESTDIR}/$${TARAGET}.pc
+        QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_DESTDIR}/$${TARGET}.pc
     }
 
     QMAKE_DISTCLEAN += $${DESTDIR}/libqwtmathml.prl

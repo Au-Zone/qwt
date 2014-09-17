@@ -66,8 +66,7 @@ contains(QWT_CONFIG, QwtPkgConfig) {
     QMAKE_PKGCONFIG_LIBDIR = $${QWT_INSTALL_LIBS}
     QMAKE_PKGCONFIG_INCDIR = $${QWT_INSTALL_HEADERS}
 
-    # QMAKE_PKGCONFIG_DESTDIR is buggy, in combination
-    # with including pri files: better don't use it
+    QMAKE_PKGCONFIG_DESTDIR = pkgconfig
 
     greaterThan(QT_MAJOR_VERSION, 4) {
 
@@ -82,10 +81,11 @@ contains(QWT_CONFIG, QwtPkgConfig) {
             QMAKE_PKGCONFIG_REQUIRES += Qt5OpenGL
         }
 
-        QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_FILE}.pc
+        QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_DESTDIR}/$${QMAKE_PKGCONFIG_FILE}.pc
     }
     else {
 
+        # there is no QMAKE_PKGCONFIG_FILE fo Qt4
         QMAKE_PKGCONFIG_REQUIRES = QtGui 
 
         contains(QWT_CONFIG, QwtSvg) {
@@ -96,7 +96,7 @@ contains(QWT_CONFIG, QwtPkgConfig) {
             QMAKE_PKGCONFIG_REQUIRES += QtOpenGL
         }
 
-        QMAKE_DISTCLEAN += $${DESTDIR}/$${TARGET}.pc
+        QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_DESTDIR}/$${TARGET}.pc
     }
 
     QMAKE_DISTCLEAN += $${DESTDIR}/libqwt.prl
