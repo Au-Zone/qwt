@@ -60,7 +60,7 @@ contains(QWT_CONFIG, QwtPkgConfig) {
 
     CONFIG     += create_pc create_prl no_install_prl
 
-    QMAKE_PKGCONFIG_NAME = qwtmathml
+    QMAKE_PKGCONFIG_NAME = Qwt$${QWT_VER_MAJ}MathML
     QMAKE_PKGCONFIG_DESCRIPTION = Qwt MathML renderer
 
     QMAKE_PKGCONFIG_LIBDIR = $${QWT_INSTALL_LIBS}
@@ -71,13 +71,15 @@ contains(QWT_CONFIG, QwtPkgConfig) {
 
     greaterThan(QT_MAJOR_VERSION, 4) {
 
+        QMAKE_PKGCONFIG_FILE = Qt$${QT_MAJOR_VERSION}Qwt$${QWT_VER_MAJ}MathML
         QMAKE_PKGCONFIG_REQUIRES = Qt5Gui Qt5Widgets Qt5Xml
+        QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_FILE}.pc
     }
     else {
 
         QMAKE_PKGCONFIG_REQUIRES = QtGui QtXml
+        QMAKE_DISTCLEAN += $${DESTDIR}/$${TARAGET}.pc
     }
 
-    QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
     QMAKE_DISTCLEAN += $${DESTDIR}/libqwtmathml.prl
 }

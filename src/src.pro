@@ -60,8 +60,9 @@ contains(QWT_CONFIG, QwtPkgConfig) {
 
     CONFIG     += create_pc create_prl no_install_prl
 
-    QMAKE_PKGCONFIG_NAME = qwt
+    QMAKE_PKGCONFIG_NAME = Qwt$${QWT_VER_MAJ}
     QMAKE_PKGCONFIG_DESCRIPTION = Qt Widgets for Technical Applications
+
     QMAKE_PKGCONFIG_LIBDIR = $${QWT_INSTALL_LIBS}
     QMAKE_PKGCONFIG_INCDIR = $${QWT_INSTALL_HEADERS}
 
@@ -70,6 +71,7 @@ contains(QWT_CONFIG, QwtPkgConfig) {
 
     greaterThan(QT_MAJOR_VERSION, 4) {
 
+        QMAKE_PKGCONFIG_FILE = Qt$${QT_MAJOR_VERSION}$${QMAKE_PKGCONFIG_NAME}
         QMAKE_PKGCONFIG_REQUIRES = Qt5Widgets Qt5Concurrent Qt5PrintSupport
 
         contains(QWT_CONFIG, QwtSvg) {
@@ -79,6 +81,8 @@ contains(QWT_CONFIG, QwtPkgConfig) {
         contains(QWT_CONFIG, QwtOpenGL) {
             QMAKE_PKGCONFIG_REQUIRES += Qt5OpenGL
         }
+
+        QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_FILE}.pc
     }
     else {
 
@@ -91,8 +95,9 @@ contains(QWT_CONFIG, QwtPkgConfig) {
         contains(QWT_CONFIG, QwtOpenGL) {
             QMAKE_PKGCONFIG_REQUIRES += QtOpenGL
         }
+
+        QMAKE_DISTCLEAN += $${DESTDIR}/$${TARGET}.pc
     }
 
-    QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
     QMAKE_DISTCLEAN += $${DESTDIR}/libqwt.prl
 }
