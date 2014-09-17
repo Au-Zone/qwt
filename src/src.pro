@@ -70,7 +70,7 @@ contains(QWT_CONFIG, QwtPkgConfig) {
 
     greaterThan(QT_MAJOR_VERSION, 4) {
 
-        QMAKE_PKGCONFIG_REQUIRES = Qt5Gui
+        QMAKE_PKGCONFIG_REQUIRES = Qt5Widgets Qt5Concurrent Qt5PrintSupport
 
         contains(QWT_CONFIG, QwtSvg) {
             QMAKE_PKGCONFIG_REQUIRES += Qt5Svg
