@@ -241,14 +241,20 @@ static inline void qwtSplineAkimaBoundaries(
         double s[4];
 
         for ( int i = 0; i < 4; i++ )
+        {
             s[i] = qwtSlopeP( p[i], p[i+1] );
+        }
 
         const double m2 = qwtAkima( s[0], s[0], s[1], s[1] );
         const double m3 = qwtAkima( s[0], s[1], s[2], s[3] );
+
         slopeBegin = spline->slopeBegin( points, m2, m3 );
 
-        for ( int i = n - 5; i < n - 1; i++ )
-            s[i] = qwtSlopeP( p[i], p[i+1] );
+        for ( int i = 0; i < 4; i++ )
+        {
+            const int j = n - 5 + i;
+            s[i] = qwtSlopeP( p[j], p[j+1] );
+        }
 
         const double mn1 = qwtAkima( s[0], s[1], s[2], s[3] );
         const double mn2 = qwtAkima( s[2], s[2], s[3], s[3] );
