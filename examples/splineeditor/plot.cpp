@@ -1,4 +1,6 @@
 #include "plot.h"
+#include "scalepicker.h"
+#include "canvaspicker.h"
 #include <qwt_plot_layout.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_curve.h>
@@ -42,7 +44,8 @@ public:
         HarmonicSpline,
         AkimaSpline,
         CubicSpline,
-        CardinalSpline
+        CardinalSpline,
+        PleasingSpline
     };
 
     SplineFitter( Mode mode ):
@@ -50,9 +53,9 @@ public:
     {
         switch( mode )
         {   
-            case HarmonicSpline:
+            case PleasingSpline:
             {   
-                d_spline = new QwtSplineLocal( QwtSplineLocal::HarmonicMean );
+                d_spline = new QwtSplinePleasing0();
                 break;
             }
             case AkimaSpline:
@@ -79,6 +82,11 @@ public:
     ~SplineFitter()
     {
         delete d_spline;
+    }
+
+    void setClosing( bool on )
+    {
+        d_spline->setClosing( on );
     }
 
     void setParametric( const QString &parameterType )
@@ -131,10 +139,10 @@ public:
     }
 };
 
-Plot::Plot( QWidget *parent ):
+Plot::Plot( bool parametric, QWidget *parent ):
     QwtPlot( parent )
 {
-    setTitle( "Movable Spline" );
+    setTitle( "Points can be dragged using the mouse" );
 
     setCanvasBackground( Qt::white );
 #ifndef QT_NO_CURSOR
@@ -198,7 +206,7 @@ Plot::Plot( QWidget *parent ):
     curve0->attach( this );
 
     Curve *curve1 = new Curve( "Pleasing", Qt::darkBlue);
-    curve1->setCurveFitter( new QwtSplineCurveFitter() );
+    curve1->setCurveFitter( new SplineFitter( SplineFitter::PleasingSpline ) );
     curve1->attach( this );
 
     Curve *curve2 = new Curve( "Cubic", Qt::darkRed);
@@ -226,6 +234,22 @@ Plot::Plot( QWidget *parent ):
 #endif
 
     setOverlaying( false );
+
+    // ------------------------------------
+    // The scale picker translates mouse clicks
+    // on the bottom axis into clicked() signals
+    // ------------------------------------
+
+    ScalePicker *scalePicker = new ScalePicker( this );
+    connect( scalePicker, SIGNAL( clicked( int, double ) ),
+        this, SLOT( updateMarker( int, double ) ) );
+
+    // ------------------------------------
+    // The canvas picker handles all mouse and key
+    // events on the plot canvas
+    // ------------------------------------
+
+    ( void ) new CanvasPicker( !parametric, this );
 
     // ------------------------------------
     // We add a wheel to the canvas
@@ -322,6 +346,21 @@ void Plot::showCurve( QwtPlotItem *item, bool on )
 
         if ( legendLabel )
             legendLabel->setChecked( on );
+    }
+
+    replot();
+}
+
+void Plot::setClosed( bool on )
+{
+    QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
+    for ( int i = 0; i < curves.size(); i++ )
+    {
+        QwtPlotCurve *curve = dynamic_cast<QwtPlotCurve *>( curves[i] );
+
+        SplineFitter *fitter = dynamic_cast<SplineFitter*>( curve->curveFitter() );
+        if ( fitter )
+            fitter->setClosing( on );
     }
 
     replot();

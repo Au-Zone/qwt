@@ -8,7 +8,7 @@ class CanvasPicker: public QObject
 {
     Q_OBJECT
 public:
-    CanvasPicker( QwtPlot *plot );
+    CanvasPicker( bool sortedX, QwtPlot *plot );
     virtual bool eventFilter( QObject *, QEvent * );
 
 private:
@@ -22,4 +22,5 @@ private:
 
     QwtPlotCurve *d_selectedCurve;
     int d_selectedPoint;
+    const bool d_sortedX;
 };

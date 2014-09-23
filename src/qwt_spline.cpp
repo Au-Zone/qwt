@@ -222,13 +222,24 @@ int QwtSplineParameter::type() const
 }
 
 QwtSpline::QwtSpline():
-    d_parameter( new QwtSplineParameter( QwtSplineParameter::ParameterX ) )
+    d_parameter( new QwtSplineParameter( QwtSplineParameter::ParameterX ) ),
+    d_isClosing( false )
 {
 }
 
 QwtSpline::~QwtSpline()
 {
     delete d_parameter;
+}
+
+void QwtSpline::setClosing( bool on )
+{
+    d_isClosing = on;
+}
+
+bool QwtSpline::isClosing() const
+{
+    return d_isClosing;
 }
 
 void QwtSpline::setParametrization( int type )

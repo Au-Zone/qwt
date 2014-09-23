@@ -1337,7 +1337,7 @@ void QwtSymbol::drawSymbols( QPainter *painter,
                         // for the very simple shapes using vector graphics is 
                         // usually faster.
 
-            			useCache = false;
+                        useCache = false;
                         break;
                     }
 
@@ -1346,10 +1346,10 @@ void QwtSymbol::drawSymbols( QPainter *painter,
                         if ( d_data->size.isEmpty() ||
                             d_data->size == d_data->pixmap.pixmap.size() ) 
                         {
-							// no need to have a pixmap cache for a pixmap
-                    		// of the same size
+                            // no need to have a pixmap cache for a pixmap
+                            // of the same size
 
-							useCache = false;
+                            useCache = false;
                         }
                         break;
                     }                       
@@ -1617,7 +1617,7 @@ QRect QwtSymbol::boundingRect() const
 {
     QRectF rect;
 
-	bool pinPointTranslation = false;
+    bool pinPointTranslation = false;
 
     switch ( d_data->style )
     {
@@ -1662,7 +1662,7 @@ QRect QwtSymbol::boundingRect() const
 
             rect = qwtScaledBoundingRect( 
                 d_data->path.graphic, d_data->size );
-			pinPointTranslation = true;
+            pinPointTranslation = true;
 
             break;
         }
@@ -1673,7 +1673,7 @@ QRect QwtSymbol::boundingRect() const
             else
                 rect.setSize( d_data->size );
             
-			pinPointTranslation = true;
+            pinPointTranslation = true;
 
             break;
         }
@@ -1681,7 +1681,7 @@ QRect QwtSymbol::boundingRect() const
         {
             rect = qwtScaledBoundingRect( 
                 d_data->graphic.graphic, d_data->size );
-			pinPointTranslation = true;
+            pinPointTranslation = true;
 
             break;
         }
@@ -1703,7 +1703,7 @@ QRect QwtSymbol::boundingRect() const
 
                 rect = transform.mapRect( rect );
             }
-			pinPointTranslation = true;
+            pinPointTranslation = true;
             break;
         }
 #endif

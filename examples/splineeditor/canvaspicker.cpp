@@ -5,9 +5,10 @@
 #include <qwt_plot_curve.h>
 #include "canvaspicker.h"
 
-CanvasPicker::CanvasPicker( QwtPlot *plot ):
+CanvasPicker::CanvasPicker( bool sortedX, QwtPlot *plot ):
     QObject( plot ),
-    d_selectedPoint( -1 )
+    d_selectedPoint( -1 ),
+    d_sortedX( sortedX )
 {
     plot->canvas()->installEventFilter( this );
 }
@@ -107,13 +108,33 @@ void CanvasPicker::move( const QPoint &pos )
 
         if ( i == d_selectedPoint )
         {
-            xData[i] = plot()->invTransform(
+            double x = plot()->invTransform(
                 d_selectedCurve->xAxis(), pos.x() );
-            yData[i] = plot()->invTransform(
+            double y = plot()->invTransform(
                 d_selectedCurve->yAxis(), pos.y() );
 
-            dx = xData[i] - sample.x();
-            dy = yData[i] - sample.y();
+            if ( d_sortedX )
+            {
+                if ( i > 0 )
+                {
+                    const double xMin = d_selectedCurve->sample( i - 1 ).x();
+                    if ( x <= xMin )
+                        x = xMin + 1;
+                }
+
+                if ( i < numPoints - 1 )
+                {
+                    const double xMax = d_selectedCurve->sample( i + 1 ).x();
+                    if ( x >= xMax )
+                        x = xMax - 1;
+                }
+            }
+
+            xData[i] = x;
+            yData[i] = y;
+
+            dx = x - sample.x();
+            dy = y - sample.y();
         }
         else
         {

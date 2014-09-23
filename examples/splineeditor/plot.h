@@ -8,7 +8,7 @@ class Plot: public QwtPlot
 {
     Q_OBJECT
 public:
-    Plot( QWidget *parent = NULL );
+    Plot( bool parametric, QWidget *parent = NULL );
     virtual bool eventFilter( QObject *, QEvent * );
 
 public Q_SLOTS:
@@ -16,6 +16,7 @@ public Q_SLOTS:
     void legendChecked( const QVariant &, bool on );
     void setOverlaying( bool );
     void setParametric( const QString & );
+    void setClosed( bool );
 
 #ifndef QT_NO_PRINTER 
     void printPlot();

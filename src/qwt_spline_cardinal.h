@@ -53,4 +53,15 @@ public:
     virtual QVector<Tension> tensions( const QPolygonF & ) const;
 };
 
+class QWT_EXPORT QwtSplinePleasing0: public QwtSplineG1
+{
+    // for tests - will be removed later
+public:
+    QwtSplinePleasing0();
+    virtual ~QwtSplinePleasing0();
+
+    virtual QPainterPath pathP( const QPolygonF &points ) const;
+    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF & ) const;
+};
+
 #endif

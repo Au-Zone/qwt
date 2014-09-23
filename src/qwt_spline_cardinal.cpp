@@ -8,6 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_spline_cardinal.h"
+#include "qwt_bezier.h"
 
 namespace QwtSplineCardinalG1P
 {
@@ -315,3 +316,22 @@ QwtSplinePleasing::tensions( const QPolygonF &points ) const
 
     return tensions2;
 }
+
+QwtSplinePleasing0::QwtSplinePleasing0()
+{
+}
+
+QwtSplinePleasing0::~QwtSplinePleasing0()
+{
+}
+
+QPainterPath QwtSplinePleasing0::pathP( const QPolygonF &points ) const
+{
+    return QwtBezier::path( points, isClosing() );
+}
+
+QVector<QLineF> QwtSplinePleasing0::bezierControlPointsP( const QPolygonF & ) const
+{
+    return QVector<QLineF>();
+}
+

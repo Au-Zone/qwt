@@ -82,6 +82,9 @@ public:
     void setParametrization( QwtSplineParameter * );
     const QwtSplineParameter *parametrization() const;
 
+    void setClosing( bool );
+    bool isClosing() const;
+
     virtual QPainterPath pathP( const QPolygonF & ) const;
     virtual QPolygonF polygonP( const QPolygonF &, 
         double distance, bool withNodes ) const;
@@ -90,6 +93,7 @@ public:
 
 private:
     QwtSplineParameter *d_parameter;
+    bool d_isClosing;
 };
 
 class QWT_EXPORT QwtSplineG1: public QwtSpline

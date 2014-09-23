@@ -241,11 +241,11 @@ inline double QwtInterval::width() const
 */
 inline long double QwtInterval::widthL() const
 {
-	if ( !isValid() )
-		return 0.0;
+    if ( !isValid() )
+        return 0.0;
 
-	return static_cast<long double>( d_maxValue )
-		- static_cast<long double>( d_minValue );
+    return static_cast<long double>( d_maxValue )
+        - static_cast<long double>( d_minValue );
 }
 
 /*!
