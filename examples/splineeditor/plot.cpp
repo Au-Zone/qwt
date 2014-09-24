@@ -55,7 +55,12 @@ public:
         {   
             case PleasingSpline:
             {   
-                d_spline = new QwtSplinePleasing0();
+                d_spline = new QwtSplinePleasing();
+                break;
+            }
+            case HarmonicSpline:
+            {   
+                d_spline = new QwtSplineLocal( QwtSplineLocal::HarmonicMean );
                 break;
             }
             case AkimaSpline:
@@ -72,7 +77,6 @@ public:
                 break;
             }
             case CardinalSpline:
-            default:
             {   
                 d_spline = new QwtSplineLocal( QwtSplineLocal::Cardinal );
             }

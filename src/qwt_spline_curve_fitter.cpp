@@ -8,7 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_spline_curve_fitter.h"
-#include "qwt_bezier.h"
+#include "qwt_spline_cardinal.h"
 
 //! Constructor
 QwtSplineCurveFitter::QwtSplineCurveFitter():
@@ -50,5 +50,6 @@ QPolygonF QwtSplineCurveFitter::fitCurve( const QPolygonF &points ) const
 */
 QPainterPath QwtSplineCurveFitter::fitCurvePath( const QPolygonF &points ) const
 {
-    return QwtBezier::path( points );
+    QwtSplinePleasing spline;
+    return spline.pathP( points );
 }
