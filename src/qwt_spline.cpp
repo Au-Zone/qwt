@@ -24,24 +24,6 @@ static inline QPointF qwtBezierPoint( const QPointF &p1,
     return QPointF( x, y );
 }
 
-#if 0
-
-static inline void qwtToCurvatures(
-    const QPointF &p1, double m1, const QPointF &p2, double m2,
-    double &cv1, double &cv2 )
-{
-    const double dx = p2.x() - p1.x();
-    const double dy = p2.y() - p1.y();
-
-    const double v = 3 * dy / dx - m1 - m2;
-    const double k = 2.0 / dx;
-
-    cv1 = k * ( v - m1 );
-    cv2 = k * ( m2 - v );
-}
-
-#endif
-
 namespace QwtSplineC1P
 {
     class PathStore
@@ -61,6 +43,11 @@ namespace QwtSplineC1P
             double cx2, double cy2, double x2, double y2 )
         {
             path.cubicTo( cx1, cy1, cx2, cy2, x2, y2 );
+        }
+
+        inline void end()
+        {
+            path.closeSubpath();
         }
 
         QPainterPath path;
@@ -95,6 +82,10 @@ namespace QwtSplineC1P
             QLineF &l = *d_cp++;
             l.setLine( cx1, cy1, cx2, cy2 );
         }
+
+        inline void end()
+        {
+        } 
 
         QVector<QLineF> controlPoints;
 
@@ -171,6 +162,20 @@ static inline SplineStore qwtSplinePathParam(
         const double cy2 = points[i].y() - my[i] * t3;
 
         store.addCubic( cx1, cy1, cx2, cy2, points[i].x(), points[i].y() );
+    }
+
+    if ( spline->isClosing() )
+    {
+        const double t3 = param( points[n-1], points[0] ) / 3.0;
+
+        const double cx1 = points[n-1].x() + mx[n-1] * t3;
+        const double cy1 = points[n-1].y() + my[n-1] * t3;
+
+        const double cx2 = points[0].x() - mx[0] * t3;
+        const double cy2 = points[0].y() - my[0] * t3;
+
+        store.addCubic( cx1, cy1, cx2, cy2, points[0].x(), points[0].y() );
+        store.end();
     }
 
     return store;
@@ -283,14 +288,20 @@ QPainterPath QwtSpline::pathP( const QPolygonF &points ) const
     }
 
     const QVector<QLineF> controlPoints = bezierControlPointsP( points );
-    if ( controlPoints.size() == n - 1 )
-    {
-        const QPointF *p = points.constData();
-        const QLineF *l = controlPoints.constData();
+    if ( controlPoints.size() < n - 1 )
+        return path;
 
-        path.moveTo( p[0] );
-        for ( int i = 0; i < n - 1; i++ )
-            path.cubicTo( l[i].p1(), l[i].p2(), p[i+1] );
+    const QPointF *p = points.constData();
+    const QLineF *l = controlPoints.constData();
+
+    path.moveTo( p[0] );
+    for ( int i = 0; i < n - 1; i++ )
+        path.cubicTo( l[i].p1(), l[i].p2(), p[i+1] );
+
+    if ( controlPoints.size() >= n )
+    {
+        path.cubicTo( l[n-1].p1(), l[n-1].p2(), p[0] );
+        path.closeSubpath();
     }
 
     return path;
@@ -315,7 +326,8 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
     QPolygonF path;
 
     const QVector<QLineF> controlPoints = bezierControlPointsP( points );
-    if ( controlPoints.size() != n - 1 )
+
+    if ( controlPoints.size() < n - 1 )
         return path;
 
     path += points.first();
@@ -348,6 +360,24 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
         {
             t -= l;
         }
+    }
+
+    if ( controlPoints.size() >= n )
+    {
+        const double l = d_parameter->value( points[n-1], points[0] );
+
+        while ( t < l )
+        {
+            path += qwtBezierPoint( points[n-1], controlPoints[n-1].p1(),
+                controlPoints[n-1].p2(), points[0], t / l );
+
+            t += delta;
+        }
+
+        if ( qFuzzyCompare( path.last().x(), points[0].x() ) )
+            path.last() = points[0];
+        else 
+            path += points[0];
     }
 
     return path;

@@ -14,11 +14,49 @@
 QwtSplineCurveFitter::QwtSplineCurveFitter():
     QwtCurveFitter( QwtCurveFitter::Path )
 {
+    d_spline = new QwtSplinePleasing();
 }
 
 //! Destructor
 QwtSplineCurveFitter::~QwtSplineCurveFitter()
 {
+    delete d_spline;
+}
+
+/*!
+  Assign a spline
+
+  The spline needs to be allocated by new and will be deleted
+  in the destructor of the fitter.
+
+  \param spline Spline
+  \sa spline()
+*/
+void QwtSplineCurveFitter::setSpline( QwtSpline *spline )
+{
+    if ( d_spline == spline )
+        return;
+
+    delete d_spline;
+    d_spline = spline;
+}
+
+/*!
+  \return Spline
+  \sa setSpline()
+*/
+const QwtSpline *QwtSplineCurveFitter::spline() const
+{
+    return d_spline;
+}
+
+/*!
+  \return Spline
+  \sa setSpline()
+*/
+QwtSpline *QwtSplineCurveFitter::spline() 
+{
+    return d_spline;
 }
 
 /*!
@@ -50,6 +88,10 @@ QPolygonF QwtSplineCurveFitter::fitCurve( const QPolygonF &points ) const
 */
 QPainterPath QwtSplineCurveFitter::fitCurvePath( const QPolygonF &points ) const
 {
-    QwtSplinePleasing spline;
-    return spline.pathP( points );
+    QPainterPath path;
+
+    if ( d_spline )
+        path = d_spline->pathP( points );
+
+    return path;
 }
