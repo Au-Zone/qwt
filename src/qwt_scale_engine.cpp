@@ -1035,6 +1035,9 @@ void QwtLogScaleEngine::buildMinorTicks(
 
             if ( s >= 1.0 )
             {
+                if ( !qFuzzyCompare( s, 1.0 ) )
+                    minorTicks += v * s;
+
                 for ( int j = 2; j < numSteps; j++ )
                 {
                     minorTicks += v * j * s;
