@@ -428,18 +428,16 @@ void Plot::setOverlaying( bool on )
         if ( curve == d_curve )
             continue;
 
-        if ( on )
-        {
-            curve->setSymbol( NULL );
-            curve->setSamples( points );
-        }
-        else
-        {
-            curve->setSymbol( new Symbol() );
+        QwtSymbol *symbol = NULL;
 
-            curve->setSamples( points.translated( 0, off0 + i * 10 ) );
+        if ( !on )
+        {
+            points.translate( 0.0, off0 + i * 10 );
+            symbol = new Symbol();
         }
 
+        curve->setSymbol( symbol );
+        curve->setSamples( points );
     }
 
     d_curve->setVisible( on );

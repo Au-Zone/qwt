@@ -4,6 +4,20 @@
 
 #define DEBUG_ERRORS 1
 
+#if QT_VERSION < 0x040600
+
+static inline bool qFuzzyIsNull(double d)
+{
+    return qAbs(d) <= 0.000000000001;
+}
+
+static inline bool qFuzzyIsNull(float f)
+{
+    return qAbs(f) <= 0.00001f;
+}
+
+#endif
+
 class CubicSpline: public QwtSplineCubic
 {
 public:
@@ -63,34 +77,34 @@ public:
     
 protected:
 
-	double sum3( double v1, double v2, double v3 ) const
-	{
-		// Kahan
-		QVector<double> v;
-		v += v1;
-		v += v2;
-		v += v3;
+    double sum3( double v1, double v2, double v3 ) const
+    {
+        // Kahan
+        QVector<double> v;
+        v += v1;
+        v += v2;
+        v += v3;
 
-		double sum = v[0];
-		double c = 0.0;
+        double sum = v[0];
+        double c = 0.0;
 
-		for (int i = 1; i < v.size(); i++ ) 
-		{
-			const double y = v[i] - c;
-			const double t = sum + y;
-			c = ( t - sum ) - y;
-			sum = t;
-		}
+        for (int i = 1; i < v.size(); i++ ) 
+        {
+            const double y = v[i] - c;
+            const double t = sum + y;
+            c = ( t - sum ) - y;
+            sum = t;
+        }
 
-		return sum;
-	}
+        return sum;
+    }
 
 
     virtual bool verifyStart( const QPolygonF &, 
-		const QVector<double> &, const QVector<double> & ) const = 0;
+        const QVector<double> &, const QVector<double> & ) const = 0;
 
     virtual bool verifyEnd( const QPolygonF &, 
-		const QVector<double> &, const QVector<double> & ) const = 0;
+        const QVector<double> &, const QVector<double> & ) const = 0;
 
     int verifyNodesCV( const QPolygonF &p, const QVector<double> &cv ) const
     {
@@ -112,7 +126,7 @@ protected:
 #if DEBUG_ERRORS > 1
                 qDebug() << "invalid node condition (cv)" << i 
                     << cv[i-1] << cv[i] << cv[i+1] 
-					<< v - 3 * ( s2 - s1 );
+                    << v - 3 * ( s2 - s1 );
 #endif
 
                 numErrors++;
@@ -198,14 +212,14 @@ public:
 protected:
 
     virtual bool verifyStart( const QPolygonF &points, 
-		const QVector<double> &, const QVector<double> &cv ) const
+        const QVector<double> &, const QVector<double> &cv ) const
     {
         const QwtSplinePolynom p = polynomCV( 0, points, cv );
         return fuzzyCompare( p.c3, 0.0 );
     }
 
     virtual bool verifyEnd( const QPolygonF &points, 
-		const QVector<double> &, const QVector<double> &cv ) const
+        const QVector<double> &, const QVector<double> &cv ) const
     {
         const QwtSplinePolynom p = polynomCV( points.size() - 2, points, cv );
         return fuzzyCompare( p.c3, 0.0 );
@@ -223,7 +237,7 @@ public:
 
 protected:
     virtual bool verifyStart( const QPolygonF &points, 
-		const QVector<double> &m, const QVector<double> & ) const
+        const QVector<double> &m, const QVector<double> & ) const
     {
         const QwtSplinePolynom p1 = polynom( 0, points, m );
         const QwtSplinePolynom p2 = polynom( 1, points, m );
@@ -234,7 +248,7 @@ protected:
     }
     
     virtual bool verifyEnd( const QPolygonF &points,
-		const QVector<double> &m, const QVector<double> & ) const
+        const QVector<double> &m, const QVector<double> & ) const
     {
         const int n = points.size();
 
@@ -258,7 +272,7 @@ public:
 
 protected:
     virtual bool verifyStart( const QPolygonF &points, 
-		const QVector<double> &m, const QVector<double> & ) const
+        const QVector<double> &m, const QVector<double> & ) const
     {
         const QwtSplinePolynom p1 = polynom( 0, points, m );
         const QwtSplinePolynom p2 = polynom( 1, points, m );
@@ -267,7 +281,7 @@ protected:
     }
     
     virtual bool verifyEnd( const QPolygonF &points, 
-		const QVector<double> &m, const QVector<double> & ) const
+        const QVector<double> &m, const QVector<double> & ) const
     {
         const int n = points.size();
 
@@ -289,7 +303,7 @@ public:
 
 protected:
     virtual bool verifyStart( const QPolygonF &points, 
-		const QVector<double> &m, const QVector<double> & ) const
+        const QVector<double> &m, const QVector<double> & ) const
     {
         const int n = points.size();
 
@@ -302,7 +316,7 @@ protected:
     }
     
     virtual bool verifyEnd( const QPolygonF &points, 
-		const QVector<double> &m, const QVector<double> &cv ) const
+        const QVector<double> &m, const QVector<double> &cv ) const
     {
         return verifyStart( points, m, cv );
     }
@@ -316,20 +330,20 @@ public:
         d_slopeBegin( slopeBegin ),
         d_slopeEnd( slopeEnd )
     {
-		setBoundaryConditions( QwtSplineCubic::Clamped );
+        setBoundaryConditions( QwtSplineCubic::Clamped );
         setBoundaryValues( slopeBegin, slopeEnd );
     }
 
 protected:
     
     virtual bool verifyStart( const QPolygonF &, 
-		const QVector<double> &m, const QVector<double> & ) const
+        const QVector<double> &m, const QVector<double> & ) const
     {
         return fuzzyCompare( m.first(), d_slopeBegin );
     }
     
     virtual bool verifyEnd( const QPolygonF &, 
-		const QVector<double> &m, const QVector<double> & ) const
+        const QVector<double> &m, const QVector<double> & ) const
     {
         return fuzzyCompare( m.last(), d_slopeEnd );
     }
@@ -347,19 +361,19 @@ public:
         d_cvBegin( cvBegin ),
         d_cvEnd( cvEnd )
     {
-		setBoundaryConditions( QwtSplineCubic::Clamped2 );
+        setBoundaryConditions( QwtSplineCubic::Clamped2 );
         setBoundaryValues( cvBegin, cvEnd );
     }
 
 protected:
     virtual bool verifyStart( const QPolygonF &, 
-		const QVector<double> &, const QVector<double> &cv ) const
+        const QVector<double> &, const QVector<double> &cv ) const
     {
         return fuzzyCompare( d_cvBegin, cv.first() );
     }
 
     virtual bool verifyEnd( const QPolygonF &,
-		const QVector<double> &, const QVector<double> &cv ) const
+        const QVector<double> &, const QVector<double> &cv ) const
     {
         return fuzzyCompare( d_cvEnd, cv.last() );
     }
@@ -377,20 +391,20 @@ public:
         d_valueBegin( valueBegin ),
         d_valueEnd( valueEnd )
     {
-		setBoundaryConditions( QwtSplineCubic::Clamped3 );
+        setBoundaryConditions( QwtSplineCubic::Clamped3 );
         setBoundaryValues( valueBegin, valueEnd );
     }   
 
 protected:
     virtual bool verifyStart( const QPolygonF &points, 
-		const QVector<double> &, const QVector<double> &cv ) const
+        const QVector<double> &, const QVector<double> &cv ) const
     {
         const QwtSplinePolynom p = polynomCV( 0, points, cv );
         return fuzzyCompare( d_valueBegin, 6.0 * p.c3 );
     }
     
     virtual bool verifyEnd( const QPolygonF &points, 
-		const QVector<double> &m, const QVector<double> & ) const
+        const QVector<double> &m, const QVector<double> & ) const
     {
         const QwtSplinePolynom p = polynom( points.size() - 2, points, m );
         return fuzzyCompare( d_valueEnd, 6.0 * p.c3 );
