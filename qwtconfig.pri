@@ -20,10 +20,12 @@ QWT_INSTALL_PREFIX = $$[QT_INSTALL_PREFIX]
 
 unix {
     QWT_INSTALL_PREFIX    = /usr/local/qwt-$$QWT_VERSION-svn
+    # QWT_INSTALL_PREFIX = /usr/local/qwt-$$QWT_VERSION-svn-qt-$$QT_VERSION
 }
 
 win32 {
     QWT_INSTALL_PREFIX    = C:/Qwt-$$QWT_VERSION-svn
+    # QWT_INSTALL_PREFIX = C:/Qwt-$$QWT_VERSION-svn-qt-$$QT_VERSION
 }
 
 QWT_INSTALL_DOCS      = $${QWT_INSTALL_PREFIX}/doc
