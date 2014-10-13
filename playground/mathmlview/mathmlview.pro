@@ -12,7 +12,7 @@ include( $${PWD}/../playground.pri )
 INCLUDEPATH += $${QWT_ROOT}/textengines/mathml
 DEPENDPATH += $${QWT_ROOT}/textengines/mathml
 
-qwtAddLibrary(qwtmathml)
+qwtAddLibrary($${QWT_OUT_ROOT}/lib, qwtmathml)
 
 TARGET   = mathmlview
 
