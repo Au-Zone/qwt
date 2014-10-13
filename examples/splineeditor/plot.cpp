@@ -191,14 +191,41 @@ Plot::Plot( bool parametric, QWidget *parent ):
     d_curve->setZ( 1000 ); 
 
     QPolygonF points;
-#if 1
-    points << QPointF( 10, 30 ) << QPointF( 20, 90 ) << QPointF( 25, 60 )
-        << QPointF( 35, 38 ) << QPointF( 42, 40 ) << QPointF( 55, 60 )
-        << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
-        << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 70 );
-#else
-    points << QPointF( 10, 30 ) << QPointF( 60, 50 ) << QPointF( 95, 70 );
-#endif
+
+    if ( parametric )
+    {
+        const QSizeF size( 20, 30 );
+        const QPointF pos( 40, 50 );
+
+        const double cos30 = 0.866025;
+
+        const double dx = 0.5 * size.width() - cos30;
+        const double dy = 0.25 * size.height();
+
+        double x1 = pos.x() - dx;
+        double y1 = pos.y() - 2 * dy;
+
+        const double x2 = x1 + 1 * dx;
+        const double x3 = x1 + 2 * dx;
+
+        const double y2 = y1 + 1 * dy;
+        const double y3 = y1 + 3 * dy;
+        const double y4 = y1 + 4 * dy;
+
+        points += QPointF( x2, y1 );
+        points += QPointF( x3, y2 );
+        points += QPointF( x3, y3 );
+        points += QPointF( x2, y4 );
+        points += QPointF( x1, y3 );
+        points += QPointF( x1, y2 );
+    }
+    else
+    {
+        points << QPointF( 10, 30 ) << QPointF( 20, 90 ) << QPointF( 25, 60 )
+            << QPointF( 35, 38 ) << QPointF( 42, 40 ) << QPointF( 55, 60 )
+            << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
+            << QPointF( 82, 30 ) << QPointF( 87, 40 ) << QPointF( 95, 70 );
+    }
 
     d_curve->setSamples( points );
     d_curve->attach( this );
