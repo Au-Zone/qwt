@@ -30,7 +30,6 @@ CONFIG( debug_and_release ) {
 contains(QWT_CONFIG, QwtDesigner) {
 
     CONFIG    += qt plugin 
-    CONFIG    += warn_on
 
     greaterThan(QT_MAJOR_VERSION, 4) {
 
