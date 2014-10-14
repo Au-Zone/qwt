@@ -15,6 +15,7 @@ QwtSplineCurveFitter::QwtSplineCurveFitter():
     QwtCurveFitter( QwtCurveFitter::Path )
 {
     d_spline = new QwtSplinePleasing();
+    d_spline->setParametrization( QwtSplineParameter::ParameterChordal );
 }
 
 //! Destructor
