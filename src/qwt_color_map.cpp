@@ -15,7 +15,8 @@
 class QwtLinearColorMap::ColorStops
 {
 public:
-    ColorStops()
+    ColorStops():
+        d_doAlpha( false )
     {
         d_stops.reserve( 256 );
     }
@@ -38,21 +39,50 @@ private:
 
         ColorStop( double p, const QColor &c ):
             pos( p ),
-            rgb( c.rgb() )
+            rgb( c.rgba() )
         {
             r = qRed( rgb );
             g = qGreen( rgb );
             b = qBlue( rgb );
             a = qAlpha( rgb );
+
+            /* 
+                when mapping a value to rgb we will have to calcualate: 
+                   - const int v = int( ( s1.v0 + ratio * s1.vStep ) + 0.5 );
+
+                Thus adding 0.5 ( for rounding ) can be done in advance
+             */
+            r0 = r + 0.5;
+            g0 = g + 0.5;
+            b0 = b + 0.5;
+            a0 = a + 0.5;
+
+            rStep = gStep = bStep = aStep = 0.0;
+            posStep = 0.0;
+        }
+
+        void updateSteps( const ColorStop &nextStop )
+        {
+            rStep = nextStop.r - r;
+            gStep = nextStop.g - g;
+            bStep = nextStop.b - b;
+            aStep = nextStop.a - a;
+            posStep = nextStop.pos - pos;
         }
 
         double pos;
         QRgb rgb;
         int r, g, b, a;
+
+        // precalculated values
+        double rStep, gStep, bStep, aStep;
+        double r0, g0, b0, a0;
+        double posStep;
     };
 
     inline int findUpper( double pos ) const;
     QVector<ColorStop> d_stops;
+    bool d_doAlpha;
 };
 
 void QwtLinearColorMap::ColorStops::insert( double pos, const QColor &color )
@@ -82,6 +112,14 @@ void QwtLinearColorMap::ColorStops::insert( double pos, const QColor &color )
     }
 
     d_stops[index] = ColorStop( pos, color );
+    if ( color.alpha() != 255 )
+        d_doAlpha = true;
+
+    if ( index > 0 )
+        d_stops[index-1].updateSteps( d_stops[index] );
+
+    if ( index < d_stops.size() - 1 )
+        d_stops[index].updateSteps( d_stops[index+1] );
 }
 
 inline QVector<double> QwtLinearColorMap::ColorStops::stops() const
@@ -132,15 +170,29 @@ inline QRgb QwtLinearColorMap::ColorStops::rgb(
     else
     {
         const ColorStop &s1 = d_stops[index-1];
-        const ColorStop &s2 = d_stops[index];
 
-        const double ratio = ( pos - s1.pos ) / ( s2.pos - s1.pos );
+        const double ratio = ( pos - s1.pos ) / ( s1.posStep );
 
-        const int r = s1.r + qRound( ratio * ( s2.r - s1.r ) );
-        const int g = s1.g + qRound( ratio * ( s2.g - s1.g ) );
-        const int b = s1.b + qRound( ratio * ( s2.b - s1.b ) );
+        const int r = int( s1.r0 + ratio * s1.rStep );
+        const int g = int( s1.g0 + ratio * s1.gStep );
+        const int b = int( s1.b0 + ratio * s1.bStep );
 
-        return qRgb( r, g, b );
+        if ( d_doAlpha )
+        {
+            if ( s1.aStep )
+            {
+                const int a = int( s1.a0 + ratio * s1.aStep );
+                return qRgba( r, g, b, a );
+            }
+            else
+            {
+                return qRgba( r, g, b, s1.a );
+            }
+        }
+        else
+        {
+            return qRgb( r, g, b );
+        }
     }
 }
 
@@ -317,7 +369,7 @@ QRgb QwtLinearColorMap::rgb(
     const QwtInterval &interval, double value ) const
 {
     if ( qIsNaN(value) )
-        return qRgba(0, 0, 0, 0);
+        return 0u;
 
     const double width = interval.width();
 
@@ -353,7 +405,7 @@ unsigned char QwtLinearColorMap::colorIndex(
     if ( d_data->mode == FixedColors )
         index = static_cast<unsigned char>( ratio * 255 ); // always floor
     else
-        index = static_cast<unsigned char>( qRound( ratio * 255 ) );
+        index = static_cast<unsigned char>( ratio * 255 + 0.5 );
 
     return index;
 }
