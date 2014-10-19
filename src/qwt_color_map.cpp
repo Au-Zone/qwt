@@ -17,7 +17,7 @@ class QwtLinearColorMap::ColorStops
 public:
     ColorStops()
     {
-        _stops.reserve( 256 );
+        d_stops.reserve( 256 );
     }
 
     void insert( double pos, const QColor &color );
@@ -43,15 +43,16 @@ private:
             r = qRed( rgb );
             g = qGreen( rgb );
             b = qBlue( rgb );
+            a = qAlpha( rgb );
         }
 
         double pos;
         QRgb rgb;
-        int r, g, b;
+        int r, g, b, a;
     };
 
     inline int findUpper( double pos ) const;
-    QVector<ColorStop> _stops;
+    QVector<ColorStop> d_stops;
 };
 
 void QwtLinearColorMap::ColorStops::insert( double pos, const QColor &color )
@@ -63,40 +64,40 @@ void QwtLinearColorMap::ColorStops::insert( double pos, const QColor &color )
         return;
 
     int index;
-    if ( _stops.size() == 0 )
+    if ( d_stops.size() == 0 )
     {
         index = 0;
-        _stops.resize( 1 );
+        d_stops.resize( 1 );
     }
     else
     {
         index = findUpper( pos );
-        if ( index == _stops.size() ||
-                qAbs( _stops[index].pos - pos ) >= 0.001 )
+        if ( index == d_stops.size() ||
+                qAbs( d_stops[index].pos - pos ) >= 0.001 )
         {
-            _stops.resize( _stops.size() + 1 );
-            for ( int i = _stops.size() - 1; i > index; i-- )
-                _stops[i] = _stops[i-1];
+            d_stops.resize( d_stops.size() + 1 );
+            for ( int i = d_stops.size() - 1; i > index; i-- )
+                d_stops[i] = d_stops[i-1];
         }
     }
 
-    _stops[index] = ColorStop( pos, color );
+    d_stops[index] = ColorStop( pos, color );
 }
 
 inline QVector<double> QwtLinearColorMap::ColorStops::stops() const
 {
-    QVector<double> positions( _stops.size() );
-    for ( int i = 0; i < _stops.size(); i++ )
-        positions[i] = _stops[i].pos;
+    QVector<double> positions( d_stops.size() );
+    for ( int i = 0; i < d_stops.size(); i++ )
+        positions[i] = d_stops[i].pos;
     return positions;
 }
 
 inline int QwtLinearColorMap::ColorStops::findUpper( double pos ) const
 {
     int index = 0;
-    int n = _stops.size();
+    int n = d_stops.size();
 
-    const ColorStop *stops = _stops.data();
+    const ColorStop *stops = d_stops.data();
 
     while ( n > 0 )
     {
@@ -119,19 +120,19 @@ inline QRgb QwtLinearColorMap::ColorStops::rgb(
     QwtLinearColorMap::Mode mode, double pos ) const
 {
     if ( pos <= 0.0 )
-        return _stops[0].rgb;
+        return d_stops[0].rgb;
     if ( pos >= 1.0 )
-        return _stops[ _stops.size() - 1 ].rgb;
+        return d_stops[ d_stops.size() - 1 ].rgb;
 
     const int index = findUpper( pos );
     if ( mode == FixedColors )
     {
-        return _stops[index-1].rgb;
+        return d_stops[index-1].rgb;
     }
     else
     {
-        const ColorStop &s1 = _stops[index-1];
-        const ColorStop &s2 = _stops[index];
+        const ColorStop &s1 = d_stops[index-1];
+        const ColorStop &s2 = d_stops[index];
 
         const double ratio = ( pos - s1.pos ) / ( s2.pos - s1.pos );
 
