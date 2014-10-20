@@ -14,6 +14,7 @@ CONFIG   += ordered
 
 SUBDIRS = \
     src \
+    classincludes \
     textengines \
     doc
 
