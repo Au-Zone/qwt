@@ -161,6 +161,34 @@ private:
     PrivateData *d_data;
 };
 
+class QWT_EXPORT QwtHueColorMap: public QwtColorMap
+{
+public:
+    QwtHueColorMap();
+    virtual ~QwtHueColorMap();
+
+	void setHueInterval( int hue1, int hue2 ); // direction ?
+	void setSaturation( int saturation );
+	void setValue( int value );
+
+    int hue1() const;
+    int hue2() const;
+
+	int saturation() const;
+	int value() const;
+
+    virtual QRgb rgb( const QwtInterval &, double value ) const;
+
+private:
+    QwtHueColorMap( const QwtHueColorMap & );
+    QwtHueColorMap &operator=( const QwtHueColorMap & );
+
+    virtual unsigned char colorIndex(
+        const QwtInterval &, double value ) const;
+
+    class PrivateData;
+    PrivateData *d_data;
+};
 
 /*!
    Map a value into a color

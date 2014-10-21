@@ -1127,7 +1127,7 @@ void QwtPainter::drawColorBar( QPainter *painter,
             const double value = sMap.invTransform( y );
 
             if ( colorMap.format() == QwtColorMap::RGB )
-                c.setRgb( colorMap.rgb( interval, value ) );
+                c.setRgba( colorMap.rgb( interval, value ) );
             else
                 c = colorTable[colorMap.colorIndex( interval, value )];
 
