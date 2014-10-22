@@ -47,7 +47,6 @@ public:
         Path
     };
 
-    QwtCurveFitter( Mode mode );
     virtual ~QwtCurveFitter();
 
     Mode mode() const;
@@ -73,7 +72,7 @@ public:
     virtual QPainterPath fitCurvePath( const QPolygonF &polygon ) const = 0;
 
 protected:
-    QwtCurveFitter();
+    QwtCurveFitter( Mode mode );
 
 private:
     QwtCurveFitter( const QwtCurveFitter & );
