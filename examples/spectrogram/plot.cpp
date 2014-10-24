@@ -43,6 +43,7 @@ public:
     virtual double value( double x, double y ) const
     {
         const double c = 0.842;
+        //const double c = 0.33;
 
         const double v1 = x * x + ( y - c ) * ( y + c );
         const double v2 = x * ( y + c ) + x * ( y + c );
@@ -51,11 +52,11 @@ public:
     }
 };
 
-class ColorMap: public QwtLinearColorMap
+class LinearColorMapRGB: public QwtLinearColorMap
 {
 public:
-    ColorMap():
-        QwtLinearColorMap( Qt::darkCyan, Qt::red )
+    LinearColorMapRGB():
+        QwtLinearColorMap( Qt::darkCyan, Qt::red, QwtColorMap::RGB )
     {
         addColorStop( 0.1, Qt::cyan );
         addColorStop( 0.6, Qt::green );
@@ -63,35 +64,69 @@ public:
     }
 };
 
+class LinearColorMapIndexed: public QwtLinearColorMap
+{
+public:
+    LinearColorMapIndexed():
+        QwtLinearColorMap( Qt::darkCyan, Qt::red, QwtColorMap::Indexed )
+    {
+        addColorStop( 0.1, Qt::cyan );
+        addColorStop( 0.6, Qt::green );
+        addColorStop( 0.95, Qt::yellow );
+    }
+};
+
+class HueColorMap: public QwtHueColorMap
+{
+public:
+    HueColorMap()
+    {
+        //setHueInterval( 50, 300 );
+        setHueInterval( 0, 360 );
+        setSaturation( 150 );
+        setValue( 200 );
+    }
+};
+
+class AlphaColorMap: public QwtAlphaColorMap
+{
+public:
+    AlphaColorMap()
+    {
+        //setColor( QColor("DarkSalmon") );
+        setColor( QColor("SteelBlue") );
+    }
+};
+
 Plot::Plot( QWidget *parent ):
-    QwtPlot( parent )
+    QwtPlot( parent ),
+    d_alpha(255)
 {
     d_spectrogram = new QwtPlotSpectrogram();
     d_spectrogram->setRenderThreadCount( 0 ); // use system specific thread count
-
-    d_spectrogram->setColorMap( new ColorMap() );
     d_spectrogram->setCachePolicy( QwtPlotRasterItem::PaintCache );
-
-    d_spectrogram->setData( new SpectrogramData() );
-    d_spectrogram->attach( this );
 
     QList<double> contourLevels;
     for ( double level = 0.5; level < 10.0; level += 1.0 )
         contourLevels += level;
     d_spectrogram->setContourLevels( contourLevels );
 
+    d_spectrogram->setData( new SpectrogramData() );
+    d_spectrogram->attach( this );
+
     const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
+
     // A color bar on the right axis
     QwtScaleWidget *rightAxis = axisWidget( QwtPlot::yRight );
     rightAxis->setTitle( "Intensity" );
     rightAxis->setColorBarEnabled( true );
-    rightAxis->setColorMap( zInterval, new ColorMap() );
 
     setAxisScale( QwtPlot::yRight, zInterval.minValue(), zInterval.maxValue() );
     enableAxis( QwtPlot::yRight );
 
     plotLayout()->setAlignCanvasToScales( true );
-    replot();
+
+    setColorMap( Plot::RGBMap );
 
     // LeftButton for the zooming
     // MidButton for the panning
@@ -135,10 +170,58 @@ void Plot::showSpectrogram( bool on )
     replot();
 }
 
+void Plot::setColorMap( int type )
+{
+    QwtScaleWidget *axis = axisWidget( QwtPlot::yRight );
+    const QwtInterval zInterval = d_spectrogram->data()->interval( Qt::ZAxis );
+
+    d_mapType = type;
+
+    int alpha = d_alpha;
+    switch( type )
+    {
+        case Plot::HueMap:
+        {
+            d_spectrogram->setColorMap( new HueColorMap() );
+            axis->setColorMap( zInterval, new HueColorMap() );
+            break;
+        }
+        case Plot::AlphaMap:
+        {
+            alpha = 255;
+            d_spectrogram->setColorMap( new AlphaColorMap() );
+            axis->setColorMap( zInterval, new AlphaColorMap() );
+            break;
+        }
+        case Plot::IndexMap:
+        {
+            d_spectrogram->setColorMap( new LinearColorMapIndexed() );
+            axis->setColorMap( zInterval, new LinearColorMapIndexed() );
+            break;
+        }
+        case Plot::RGBMap:
+        default:
+        {
+            d_spectrogram->setColorMap( new LinearColorMapRGB() );
+            axis->setColorMap( zInterval, new LinearColorMapRGB() );
+        }
+    }
+    d_spectrogram->setAlpha( alpha );
+
+    replot();
+}
+
 void Plot::setAlpha( int alpha )
 {
-    d_spectrogram->setAlpha( alpha );
-    replot();
+    // setting an alpha value doesn't make sense in combination
+    // with a color map interpolating the alpha value
+
+    d_alpha = alpha;
+    if ( d_mapType != Plot::AlphaMap )
+    {
+        d_spectrogram->setAlpha( alpha );
+        replot();
+    }
 }
 
 #ifndef QT_NO_PRINTER
