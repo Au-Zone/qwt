@@ -500,59 +500,104 @@ unsigned char QwtAlphaColorMap::colorIndex(
 class QwtHueColorMap::PrivateData
 {
 public:
+    PrivateData();
+
     int round255( double value ) const;
-    QRgb toRgb( int h, int s, int v ) const;
+    QRgb toRgb( int hue ) const;
     
+    void updateValues();
+
     int hue1;
     int hue2;
     int saturation;
     int value;
+
+    QRgb rgbMin;
+    QRgb rgbMax;
+    int p;
 };
+
+QwtHueColorMap::PrivateData::PrivateData():
+    hue1(0),
+    hue2(0),
+    saturation(255),
+    value(255)
+{
+    updateValues();
+}
+
+void QwtHueColorMap::PrivateData::updateValues()
+{
+    p = round255( value * ( 255 - saturation ) );
+    rgbMin = toRgb( hue1 );
+    rgbMax = toRgb( hue2 );
+}
 
 inline int QwtHueColorMap::PrivateData::round255( double value ) const
 {
-#if 1
+#if 0
     // The HSV -> RGB implementation of QColor looks buggy
     // but, when we want to have exactly the same values:
 
-    return qRound( ( 257.0 / 255.0 ) * value ) / 256;
-#else
+    return qRound( ( 257.0 / 255.0 ) * value ) >> 8; // divided by 256
+#endif
+#if 0
     // this one  should be the correct implementation,
-    // but differs sometimes by 1
-
+    // but differs sometimes by 1 from what QColor does
+    
     return qRound( value / 255 );
+#endif
+#if 1
+    return int( value ) / 255;
 #endif
 }
 
-inline QRgb QwtHueColorMap::PrivateData::toRgb( int h, int s, int v ) const
+inline QRgb QwtHueColorMap::PrivateData::toRgb( int hue ) const
 {
-    if ( s == 0 )
-        return qRgb( v, v, v );
+    if ( saturation == 0 )
+        return qRgb( value, value, value );
 
-    // p doesn't depend on h: could be precalculated !
+#if 0
+    hue %= 360;
+#endif
 
-    const double hd = (h % 360) / 60.0;
-    const int hi = int(hd);
+#if 0
+    const double hd = hue / 60.0;
+    const int region = int(hd);
 
-    const double f = ( hi & 1 ) ? ( hd - hi ) : 1.0 - ( hd - hi );
+    double remainder = hd - region;
+    if ( !( region & 1 ) )
+        remainder = 1.0 - remainder;
 
-    const int p = round255( v * ( 255 - s ) );
-    const int q = round255( v * ( 255 - s * f ) );
+    const double k = saturation * remainder;
 
-    switch( hi )
+    const int q = round255( value * ( 255 - k ) );
+#else
+
+    const int region = hue / 60;
+    int remainder = ( hue - ( region * 60 ) );
+    if ( !( region & 1 ) )
+        remainder = 60 - remainder;
+
+    const int f = 255 * 60;
+    const int q = value * ( f - saturation * remainder ) / f;
+
+#endif
+
+    switch( region )
     {
         case 1:
-            return qRgb( q, v, p );
+            return qRgb( q, value, p );
         case 2:
-            return qRgb( p, v, q );
+            return qRgb( p, value, q );
         case 3:
-            return qRgb( p, q, v );
+            return qRgb( p, q, value );
         case 4:
-            return qRgb( q, p, v );
+            return qRgb( q, p, value );
         case 5:
-            return qRgb( v, p, q );
+            return qRgb( value, p, q );
         default:
-            return qRgb( v, q, p );
+            return qRgb( value, q, p );
     }
 }
 
@@ -560,10 +605,6 @@ QwtHueColorMap::QwtHueColorMap()
 {
     d_data = new PrivateData;
 
-    d_data->hue1 = 0;
-    d_data->hue2 = 0;
-    d_data->saturation = 255;
-    d_data->value = 255;
 }
 
 QwtHueColorMap::~QwtHueColorMap()
@@ -575,18 +616,20 @@ void QwtHueColorMap::setHueInterval( int hue1, int hue2 )
 {
     d_data->hue1 = qBound( 0, hue1, 359 );
     d_data->hue2 = qBound( 0, hue2, 359 );
+    d_data->updateValues();
 }
 
 void QwtHueColorMap::setSaturation( int saturation )
 {
     d_data->saturation = qBound( 0, saturation, 255 );
+    d_data->updateValues();
 }
 
 void QwtHueColorMap::setValue( int value )
 {
     d_data->value = qBound( 0, value, 255 );
+    d_data->updateValues();
 }
-
 
 int QwtHueColorMap::hue1() const
 {
@@ -616,24 +659,22 @@ QRgb QwtHueColorMap::rgb( const QwtInterval &interval, double value ) const
 
     if ( value <= interval.minValue() )
     {
-        return d_data->toRgb( d_data->hue1, d_data->saturation, d_data->value );
+        return d_data->rgbMin;
     }
     if ( value >= interval.maxValue() )
     {
-        return d_data->toRgb( d_data->hue2, d_data->saturation, d_data->value );
+        return d_data->rgbMax;
     }
 
     const double ratio = ( value - interval.minValue() ) / width;
+    const int hue = d_data->hue1 + qRound( ratio * ( d_data->hue2 - d_data->hue1 ) );
 
-    int hue2 = d_data->hue2;
-    if ( hue2 <= d_data->hue1 )
-        hue2 += 360;
-
-    int hue = d_data->hue1 + qRound( ratio * ( hue2 - d_data->hue1 ) );
-    if ( hue >= 360 )
-        hue -= 360;
-
-    return d_data->toRgb( hue, d_data->saturation, d_data->value );
+#if 1
+    return d_data->toRgb( hue );
+#else
+    const QColor c = QColor::fromHsv( hue, d_data->saturation, d_data->value );
+    return c.rgb();
+#endif
 }
 
 unsigned char QwtHueColorMap::colorIndex( const QwtInterval &, double ) const
