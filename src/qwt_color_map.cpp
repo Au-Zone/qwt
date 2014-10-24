@@ -372,11 +372,10 @@ QRgb QwtLinearColorMap::rgb(
         return 0u;
 
     const double width = interval.width();
+    if ( width <= 0.0 )
+        return 0u;
 
-    double ratio = 0.0;
-    if ( width > 0.0 )
-        ratio = ( value - interval.minValue() ) / width;
-
+    const double ratio = ( value - interval.minValue() ) / width;
     return d_data->colorStops.rgb( d_data->mode, ratio );
 }
 
@@ -468,20 +467,23 @@ QColor QwtAlphaColorMap::color() const
 QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval, double value ) const
 {
     if ( qIsNaN(value) )
-        return d_data->rgb;
+        return 0u;
 
     const double width = interval.width();
     if ( width <= 0.0 )
+        return 0u;
+
+    if ( value <= interval.minValue() )
+    {
         return d_data->rgb;
+    }
+    if ( value >= interval.maxValue() )
+    {
+        return d_data->rgb | ( 255 << 24 );
+    }
 
     const double ratio = ( value - interval.minValue() ) / width;
-    int alpha = qRound( 255 * ratio );
-    if ( alpha < 0 )
-        alpha = 0;
-    if ( alpha > 255 )
-        alpha = 255;
-
-    return d_data->rgb | ( alpha << 24 );
+    return d_data->rgb | ( qRound( 255 * ratio ) << 24 );
 }
 
 /*!
