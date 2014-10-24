@@ -372,11 +372,10 @@ QRgb QwtLinearColorMap::rgb(
         return 0u;
 
     const double width = interval.width();
+    if ( width <= 0.0 )
+        return 0u;
 
-    double ratio = 0.0;
-    if ( width > 0.0 )
-        ratio = ( value - interval.minValue() ) / width;
-
+    const double ratio = ( value - interval.minValue() ) / width;
     return d_data->colorStops.rgb( d_data->mode, ratio );
 }
 
@@ -415,6 +414,7 @@ class QwtAlphaColorMap::PrivateData
 public:
     QColor color;
     QRgb rgb;
+    QRgb rgbMax;
 };
 
 
@@ -426,7 +426,7 @@ QwtAlphaColorMap::QwtAlphaColorMap( const QColor &color ):
     QwtColorMap( QwtColorMap::RGB )
 {
     d_data = new PrivateData;
-	setColor( color );
+    setColor( color );
 }
 
 //! Destructor
@@ -445,6 +445,7 @@ void QwtAlphaColorMap::setColor( const QColor &color )
 {
     d_data->color = color;
     d_data->rgb = color.rgb() & qRgba( 255, 255, 255, 0 );
+    d_data->rgbMax = d_data->rgb | ( 255 << 24 );
 }
 
 /*!
@@ -468,20 +469,20 @@ QColor QwtAlphaColorMap::color() const
 QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval, double value ) const
 {
     if ( qIsNaN(value) )
-		return d_data->rgb;
+        return 0u;
 
     const double width = interval.width();
-	if ( width <= 0.0 )
-		return d_data->rgb;
+    if ( width <= 0.0 )
+        return 0u;
 
-	const double ratio = ( value - interval.minValue() ) / width;
-	int alpha = qRound( 255 * ratio );
-	if ( alpha < 0 )
-		alpha = 0;
-	if ( alpha > 255 )
-		alpha = 255;
+    if ( value <= interval.minValue() )
+        return d_data->rgb;
 
-	return d_data->rgb | ( alpha << 24 );
+    if ( value >= interval.maxValue() )
+        return d_data->rgbMax;
+
+    const double ratio = ( value - interval.minValue() ) / width;
+    return d_data->rgb | ( qRound( 255 * ratio ) << 24 );
 }
 
 /*!
