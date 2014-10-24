@@ -502,8 +502,8 @@ class QwtHueColorMap::PrivateData
 public:
     PrivateData();
 
-    int round255( double value ) const;
     QRgb toRgb( int hue ) const;
+    int toQ( int r ) const;
     
     void updateValues();
 
@@ -514,6 +514,9 @@ public:
 
     QRgb rgbMin;
     QRgb rgbMax;
+
+    QRgb rgbMask[6];
+
     int p;
 };
 
@@ -528,28 +531,24 @@ QwtHueColorMap::PrivateData::PrivateData():
 
 void QwtHueColorMap::PrivateData::updateValues()
 {
-    p = round255( value * ( 255 - saturation ) );
+    p = qRound( value * ( 255 - saturation ) / 255.0 );
+
     rgbMin = toRgb( hue1 );
     rgbMax = toRgb( hue2 );
+
+    rgbMask[0] = qRgb( value, 0, p );
+    rgbMask[1] = qRgb( 0, value, p );
+    rgbMask[2] = qRgb( p, value, 0 );
+    rgbMask[3] = qRgb( p, 0, value );
+    rgbMask[4] = qRgb( 0, p, value );
+    rgbMask[5] = qRgb( value, p, 0 );
+
 }
 
-inline int QwtHueColorMap::PrivateData::round255( double value ) const
+inline int QwtHueColorMap::PrivateData::toQ( int r ) const
 {
-#if 0
-    // The HSV -> RGB implementation of QColor looks buggy
-    // but, when we want to have exactly the same values:
-
-    return qRound( ( 257.0 / 255.0 ) * value ) >> 8; // divided by 256
-#endif
-#if 0
-    // this one  should be the correct implementation,
-    // but differs sometimes by 1 from what QColor does
-    
-    return qRound( value / 255 );
-#endif
-#if 1
-    return int( value ) / 255;
-#endif
+    const int c = 255 * 60;
+    return value * ( c - r * saturation ) / c;
 }
 
 inline QRgb QwtHueColorMap::PrivateData::toRgb( int hue ) const
@@ -562,42 +561,50 @@ inline QRgb QwtHueColorMap::PrivateData::toRgb( int hue ) const
 #endif
 
 #if 0
-    const double hd = hue / 60.0;
-    const int region = int(hd);
-
-    double remainder = hd - region;
-    if ( !( region & 1 ) )
-        remainder = 1.0 - remainder;
-
-    const double k = saturation * remainder;
-
-    const int q = round255( value * ( 255 - k ) );
+    const int region = hue / 60;
+    const int remainder = ( hue - ( region * 60 ) );
 #else
 
-    const int region = hue / 60;
-    int remainder = ( hue - ( region * 60 ) );
-    if ( !( region & 1 ) )
-        remainder = 60 - remainder;
+    static struct {
+        int region;
+        int remainder;
+    } table[360];
 
-    const int f = 255 * 60;
-    const int q = value * ( f - saturation * remainder ) / f;
+    if ( table[60].region == 0 )
+    {
+        for ( int i = 0; i < 6; i++ )
+        {
+            const int off = i * 60;
 
+            for ( int j = 0; j < 60; j++ )
+            {
+                const int idx = off + j;
+
+                table[idx].region = i;
+                table[idx].remainder = j;
+            }
+        }
+    }
+    
+    const int region = table[hue].region;
+    const int remainder = table[hue].remainder;
+    
 #endif
 
     switch( region )
     {
         case 1:
-            return qRgb( q, value, p );
+            return rgbMask[region] | ( toQ(remainder) << 16 );
         case 2:
-            return qRgb( p, value, q );
+            return rgbMask[region] | ( toQ(60-remainder) << 0 );
         case 3:
-            return qRgb( p, q, value );
+            return rgbMask[region] | ( toQ(remainder) << 8 );
         case 4:
-            return qRgb( q, p, value );
+            return rgbMask[region] | ( toQ(60-remainder) << 16 );
         case 5:
-            return qRgb( value, p, q );
+            return rgbMask[region] | ( toQ(remainder) << 0 );
         default:
-            return qRgb( value, q, p );
+            return rgbMask[region] | ( toQ(60-remainder) << 8 );
     }
 }
 
@@ -653,8 +660,11 @@ int QwtHueColorMap::value() const
 
 QRgb QwtHueColorMap::rgb( const QwtInterval &interval, double value ) const
 {
+    if ( qIsNaN(value) )
+        return 0u;
+
     const double width = interval.width();
-    if ( qIsNaN(value) || interval.width() <= 0.0 )
+    if ( width <= 0 )
         return 0u;
 
     if ( value <= interval.minValue() )
