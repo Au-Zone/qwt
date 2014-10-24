@@ -1096,6 +1096,8 @@ void QwtPainter::drawColorBar( QPainter *painter,
      */
 
     QPixmap pixmap( devRect.size() );
+    pixmap.fill( Qt::transparent );
+
     QPainter pmPainter( &pixmap );
     pmPainter.translate( -devRect.x(), -devRect.y() );
 
