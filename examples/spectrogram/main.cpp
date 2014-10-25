@@ -39,15 +39,24 @@ MainWindow::MainWindow( QWidget *parent ):
 #endif
 
     toolBar->addWidget( new QLabel("Color Map " ) );
+
     QComboBox *mapBox = new QComboBox( toolBar );
     mapBox->addItem( "RGB" );
-    mapBox->addItem( "Indexed Colors" );
     mapBox->addItem( "Hue" );
     mapBox->addItem( "Alpha" );
     mapBox->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
     toolBar->addWidget( mapBox );
+
     connect( mapBox, SIGNAL( currentIndexChanged( int ) ),
              d_plot, SLOT( setColorMap( int ) ) );
+
+    QComboBox *formatBox = new QComboBox( toolBar );
+    formatBox->addItem( "ARGB32" );
+    formatBox->addItem( "Indexed8" );
+    toolBar->addWidget( formatBox );
+
+    connect( formatBox, SIGNAL( currentIndexChanged( int ) ),
+             d_plot, SLOT( setColorFormat( int ) ) );
 
     toolBar->addWidget( new QLabel( " Opacity " ) );
     QSlider *slider = new QSlider( Qt::Horizontal );

@@ -9,7 +9,6 @@ public:
     enum ColorMap
     {
         RGBMap,
-        IndexMap,
         HueMap,
         AlphaMap
     };
@@ -19,7 +18,9 @@ public:
 public Q_SLOTS:
     void showContour( bool on );
     void showSpectrogram( bool on );
+
     void setColorMap( int );
+    void setColorFormat( int );
     void setAlpha( int );
 
 #ifndef QT_NO_PRINTER
@@ -30,5 +31,6 @@ private:
     QwtPlotSpectrogram *d_spectrogram;
 
     int d_mapType;
+    int d_formatType;
     int d_alpha;
 };

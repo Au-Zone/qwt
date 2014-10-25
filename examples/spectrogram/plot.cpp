@@ -52,24 +52,14 @@ public:
     }
 };
 
-class LinearColorMapRGB: public QwtLinearColorMap
+class LinearColorMap: public QwtLinearColorMap
 {
 public:
-    LinearColorMapRGB():
-        QwtLinearColorMap( Qt::darkCyan, Qt::red, QwtColorMap::RGB )
+    LinearColorMap( int formatType ):
+        QwtLinearColorMap( Qt::darkCyan, Qt::red )
     {
-        addColorStop( 0.1, Qt::cyan );
-        addColorStop( 0.6, Qt::green );
-        addColorStop( 0.95, Qt::yellow );
-    }
-};
+        setFormat( ( QwtColorMap::Format ) formatType );
 
-class LinearColorMapIndexed: public QwtLinearColorMap
-{
-public:
-    LinearColorMapIndexed():
-        QwtLinearColorMap( Qt::darkCyan, Qt::red, QwtColorMap::Indexed )
-    {
         addColorStop( 0.1, Qt::cyan );
         addColorStop( 0.6, Qt::green );
         addColorStop( 0.95, Qt::yellow );
@@ -79,10 +69,14 @@ public:
 class HueColorMap: public QwtHueColorMap
 {
 public:
-    HueColorMap()
+    HueColorMap( int formatType ):
+        QwtHueColorMap( QwtColorMap::Indexed )
     {
-        //setHueInterval( 50, 300 );
-        setHueInterval( 0, 360 );
+        setFormat( ( QwtColorMap::Format ) formatType );
+
+        //setHueInterval( 240, 60 );
+        //setHueInterval( 240, 420 );
+        setHueInterval( 0, 359 );
         setSaturation( 150 );
         setValue( 200 );
     }
@@ -91,8 +85,10 @@ public:
 class AlphaColorMap: public QwtAlphaColorMap
 {
 public:
-    AlphaColorMap()
+    AlphaColorMap( int formatType )
     {
+        setFormat( ( QwtColorMap::Format ) formatType );
+
         //setColor( QColor("DarkSalmon") );
         setColor( QColor("SteelBlue") );
     }
@@ -100,6 +96,7 @@ public:
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent ),
+    d_formatType( 0 ),
     d_alpha(255)
 {
     d_spectrogram = new QwtPlotSpectrogram();
@@ -170,6 +167,12 @@ void Plot::showSpectrogram( bool on )
     replot();
 }
 
+void Plot::setColorFormat( int format )
+{
+    d_formatType = format;
+    setColorMap( d_mapType );
+}
+
 void Plot::setColorMap( int type )
 {
     QwtScaleWidget *axis = axisWidget( QwtPlot::yRight );
@@ -182,28 +185,22 @@ void Plot::setColorMap( int type )
     {
         case Plot::HueMap:
         {
-            d_spectrogram->setColorMap( new HueColorMap() );
-            axis->setColorMap( zInterval, new HueColorMap() );
+            d_spectrogram->setColorMap( new HueColorMap( d_formatType ) );
+            axis->setColorMap( zInterval, new HueColorMap( d_formatType ) );
             break;
         }
         case Plot::AlphaMap:
         {
             alpha = 255;
-            d_spectrogram->setColorMap( new AlphaColorMap() );
-            axis->setColorMap( zInterval, new AlphaColorMap() );
-            break;
-        }
-        case Plot::IndexMap:
-        {
-            d_spectrogram->setColorMap( new LinearColorMapIndexed() );
-            axis->setColorMap( zInterval, new LinearColorMapIndexed() );
+            d_spectrogram->setColorMap( new AlphaColorMap( d_formatType ) );
+            axis->setColorMap( zInterval, new AlphaColorMap( d_formatType ) );
             break;
         }
         case Plot::RGBMap:
         default:
         {
-            d_spectrogram->setColorMap( new LinearColorMapRGB() );
-            axis->setColorMap( zInterval, new LinearColorMapRGB() );
+            d_spectrogram->setColorMap( new LinearColorMap( d_formatType ) );
+            axis->setColorMap( zInterval, new LinearColorMap( d_formatType ) );
         }
     }
     d_spectrogram->setAlpha( alpha );
