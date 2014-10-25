@@ -44,8 +44,14 @@ public:
         RGB,
 
         /*!
-          The map is intended to map into 8 bit values, that
-          are indices into the color table.
+          Map values into 8 bit values, that
+          are used as indexes into the color table.
+
+          Indexed color maps are used to generate QImage::Format_Indexed8
+          images. The calculation of the color index is usually faster
+          and the resulting image has a lower memory footprint.
+
+          \sa colorIndex(), colorTable()
          */
         Indexed
     };
@@ -53,6 +59,7 @@ public:
     QwtColorMap( Format = QwtColorMap::RGB );
     virtual ~QwtColorMap();
 
+    void setFormat( Format );
     Format format() const;
 
     /*!
@@ -65,15 +72,8 @@ public:
     virtual QRgb rgb( const QwtInterval &interval,
         double value ) const = 0;
 
-    /*!
-       Map a value of a given interval into a color index
-
-       \param interval Range for the values
-       \param value Value
-       \return color index, corresponding to value
-     */
     virtual unsigned char colorIndex(
-        const QwtInterval &interval, double value ) const = 0;
+        const QwtInterval &interval, double value ) const;
 
     QColor color( const QwtInterval &, double value ) const;
     virtual QVector<QRgb> colorTable( const QwtInterval & ) const;
@@ -154,9 +154,6 @@ private:
     QwtAlphaColorMap( const QwtAlphaColorMap & );
     QwtAlphaColorMap &operator=( const QwtAlphaColorMap & );
 
-    virtual unsigned char colorIndex(
-        const QwtInterval &, double value ) const;
-
     class PrivateData;
     PrivateData *d_data;
 };
@@ -164,27 +161,24 @@ private:
 class QWT_EXPORT QwtHueColorMap: public QwtColorMap
 {
 public:
-    QwtHueColorMap();
+    QwtHueColorMap( QwtColorMap::Format = QwtColorMap::RGB );
     virtual ~QwtHueColorMap();
 
-	void setHueInterval( int hue1, int hue2 ); // direction ?
-	void setSaturation( int saturation );
-	void setValue( int value );
+    void setHueInterval( int hue1, int hue2 ); // direction ?
+    void setSaturation( int saturation );
+    void setValue( int value );
 
     int hue1() const;
     int hue2() const;
 
-	int saturation() const;
-	int value() const;
+    int saturation() const;
+    int value() const;
 
     virtual QRgb rgb( const QwtInterval &, double value ) const;
 
 private:
     QwtHueColorMap( const QwtHueColorMap & );
     QwtHueColorMap &operator=( const QwtHueColorMap & );
-
-    virtual unsigned char colorIndex(
-        const QwtInterval &, double value ) const;
 
     class PrivateData;
     PrivateData *d_data;

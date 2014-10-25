@@ -196,7 +196,10 @@ inline QRgb QwtLinearColorMap::ColorStops::rgb(
     }
 }
 
-//! Constructor
+/*!
+   Constructor
+   \param format Format of the color map
+*/
 QwtColorMap::QwtColorMap( Format format ):
     d_format( format )
 {
@@ -205,6 +208,42 @@ QwtColorMap::QwtColorMap( Format format ):
 //! Destructor
 QwtColorMap::~QwtColorMap()
 {
+}
+
+/*!
+   Set the format of the color map
+
+   \param format Format of the color map
+*/
+void QwtColorMap::setFormat( Format format )
+{
+    d_format = format;
+}
+
+/*!
+  \brief Map a value of a given interval into a color index
+
+  \param interval Range for all values
+  \param value Value to map into a color index
+
+  \return Index, between 0 and 255
+  \note NaN values are mapped to 0
+*/
+unsigned char QwtColorMap::colorIndex(
+    const QwtInterval &interval, double value ) const
+{
+    if ( value <= interval.minValue() || qIsNaN(value) )
+        return 0;
+
+    const double width = interval.width();
+    if ( width <= 0.0 )
+        return 0;
+
+    if ( value >= interval.maxValue() )
+        return 255;
+
+    const double v = 255 * ( value - interval.minValue() ) / width;
+    return static_cast<unsigned char>( v + 0.5 );
 }
 
 /*!
@@ -386,27 +425,23 @@ QRgb QwtLinearColorMap::rgb(
   \param value Value to map into a color index
 
   \return Index, between 0 and 255
+  \note NaN values are mapped to 0
 */
 unsigned char QwtLinearColorMap::colorIndex(
     const QwtInterval &interval, double value ) const
 {
-    const double width = interval.width();
+    if ( value <= interval.minValue() || qIsNaN(value) )
+        return 0;
 
-    if ( qIsNaN(value) || width <= 0.0 || value <= interval.minValue() )
+    const double width = interval.width();
+    if ( width <= 0.0 )
         return 0;
 
     if ( value >= interval.maxValue() )
         return 255;
 
-    const double ratio = ( value - interval.minValue() ) / width;
-
-    unsigned char index;
-    if ( d_data->mode == FixedColors )
-        index = static_cast<unsigned char>( ratio * 255 ); // always floor
-    else
-        index = static_cast<unsigned char>( ratio * 255 + 0.5 );
-
-    return index;
+    const double v = 255 * ( value - interval.minValue() ) / width;
+    return static_cast<unsigned char>( ( d_data->mode == FixedColors ) ? v : v + 0.5 );
 }
 
 class QwtAlphaColorMap::PrivateData
@@ -414,6 +449,7 @@ class QwtAlphaColorMap::PrivateData
 public:
     QColor color;
     QRgb rgb;
+    QRgb rgbMax;
 };
 
 
@@ -444,6 +480,7 @@ void QwtAlphaColorMap::setColor( const QColor &color )
 {
     d_data->color = color;
     d_data->rgb = color.rgb() & qRgba( 255, 255, 255, 0 );
+    d_data->rgbMax = d_data->rgb | ( 255 << 24 );
 }
 
 /*!
@@ -474,30 +511,15 @@ QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval, double value ) const
         return 0u;
 
     if ( value <= interval.minValue() )
-    {
         return d_data->rgb;
-    }
+
     if ( value >= interval.maxValue() )
-    {
-        return d_data->rgb | ( 255 << 24 );
-    }
+        return d_data->rgbMax;
 
     const double ratio = ( value - interval.minValue() ) / width;
     return d_data->rgb | ( qRound( 255 * ratio ) << 24 );
 }
 
-/*!
-  Dummy function, needed to be implemented as it is pure virtual
-  in QwtColorMap. Color indices make no sense in combination with
-  an alpha channel.
-
-  \return Always 0
-*/
-unsigned char QwtAlphaColorMap::colorIndex(
-    const QwtInterval &, double ) const
-{
-    return 0;
-}
 
 class QwtHueColorMap::PrivateData
 {
@@ -518,13 +540,11 @@ public:
     QRgb rgbMax;
 
     QRgb rgbMask[6];
-
-    int p;
 };
 
 QwtHueColorMap::PrivateData::PrivateData():
     hue1(0),
-    hue2(0),
+    hue2(359),
     saturation(255),
     value(255)
 {
@@ -533,10 +553,7 @@ QwtHueColorMap::PrivateData::PrivateData():
 
 void QwtHueColorMap::PrivateData::updateValues()
 {
-    p = qRound( value * ( 255 - saturation ) / 255.0 );
-
-    rgbMin = toRgb( hue1 );
-    rgbMax = toRgb( hue2 );
+    const int p = qRound( value * ( 255 - saturation ) / 255.0 );
 
     rgbMask[0] = qRgb( value, 0, p );
     rgbMask[1] = qRgb( 0, value, p );
@@ -545,6 +562,8 @@ void QwtHueColorMap::PrivateData::updateValues()
     rgbMask[4] = qRgb( 0, p, value );
     rgbMask[5] = qRgb( value, p, 0 );
 
+    rgbMin = toRgb( hue1 % 360 );
+    rgbMax = toRgb( hue2 % 360 );
 }
 
 inline int QwtHueColorMap::PrivateData::toQ( int r ) const
@@ -610,10 +629,10 @@ inline QRgb QwtHueColorMap::PrivateData::toRgb( int hue ) const
     }
 }
 
-QwtHueColorMap::QwtHueColorMap()
+QwtHueColorMap::QwtHueColorMap( QwtColorMap::Format format ):
+    QwtColorMap( format )
 {
     d_data = new PrivateData;
-
 }
 
 QwtHueColorMap::~QwtHueColorMap()
@@ -623,8 +642,8 @@ QwtHueColorMap::~QwtHueColorMap()
 
 void QwtHueColorMap::setHueInterval( int hue1, int hue2 )
 {
-    d_data->hue1 = qBound( 0, hue1, 359 );
-    d_data->hue2 = qBound( 0, hue2, 359 );
+    d_data->hue1 = qMax( hue1, 0 );
+    d_data->hue2 = qMax( hue2, 0 );
     d_data->updateValues();
 }
 
@@ -670,27 +689,21 @@ QRgb QwtHueColorMap::rgb( const QwtInterval &interval, double value ) const
         return 0u;
 
     if ( value <= interval.minValue() )
-    {
         return d_data->rgbMin;
-    }
+
     if ( value >= interval.maxValue() )
-    {
         return d_data->rgbMax;
-    }
 
     const double ratio = ( value - interval.minValue() ) / width;
-    const int hue = d_data->hue1 + qRound( ratio * ( d_data->hue2 - d_data->hue1 ) );
+    int hue = d_data->hue1 + qRound( ratio * ( d_data->hue2 - d_data->hue1 ) );
 
-#if 1
+    if ( hue >= 360 )
+    {
+        hue -= 360;
+
+        if ( hue >= 360 )
+            hue = hue % 360;
+    }
+
     return d_data->toRgb( hue );
-#else
-    const QColor c = QColor::fromHsv( hue, d_data->saturation, d_data->value );
-    return c.rgb();
-#endif
 }
-
-unsigned char QwtHueColorMap::colorIndex( const QwtInterval &, double ) const
-{
-    return 0;
-}
-
