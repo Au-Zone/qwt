@@ -87,11 +87,15 @@ public:
         d_saturation(150),
         d_value(200)
     {
-        updateValues();
+        updateTable();
+
     }
 
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
     {
+        if ( qIsNaN(value) )
+            return 0u;
+
         const double width = interval.width();
         if ( width <= 0 )
             return 0u;
@@ -103,9 +107,17 @@ public:
             return d_rgbMax;
 
         const double ratio = ( value - interval.minValue() ) / width;
-        const int hue = d_hue1 + qRound( ratio * ( d_hue2 - d_hue1 ) );
+        int hue = d_hue1 + qRound( ratio * ( d_hue2 - d_hue1 ) );
 
-        return toRgb( hue );
+        if ( hue >= 360 )
+        {
+            hue -= 360;
+
+            if ( hue >= 360 )
+                hue = hue % 360;
+        }
+
+        return d_rgbTable[hue];
     }
 
     virtual unsigned char colorIndex( const QwtInterval &, double ) const
@@ -116,51 +128,17 @@ public:
 
 
 private:
-    inline int toQ( int r ) const
+    void updateTable()
     {
-        const int c = 255 * 60;
-        return d_value * ( c - r * d_saturation ) / c;
-    }
+        for ( int i = 0; i < 360; i++ )
+            d_rgbTable[i] = QColor::fromHsv( i, d_saturation, d_value ).rgb();
 
-    inline QRgb toRgb( int hue ) const
-    {
-        const int region = hue / 60;
-        const int remainder = ( hue - ( region * 60 ) );
-
-        switch( region )
-        {
-            case 1:
-                return d_rgbMask[region] | ( toQ(remainder) << 16 );
-            case 2:
-                return d_rgbMask[region] | ( toQ(60-remainder) << 0 );
-            case 3:
-                return d_rgbMask[region] | ( toQ(remainder) << 8 );
-            case 4:
-                return d_rgbMask[region] | ( toQ(60-remainder) << 16 );
-            case 5:
-                return d_rgbMask[region] | ( toQ(remainder) << 0 );
-            default:
-                return d_rgbMask[region] | ( toQ(60-remainder) << 8 );
-        }
-    }
-
-    void updateValues()
-    {
-        const int p = qRound( d_value * ( 255 - d_saturation ) / 255.0 );
-
-        d_rgbMask[0] = qRgb( d_value, 0, p );
-        d_rgbMask[1] = qRgb( 0, d_value, p );
-        d_rgbMask[2] = qRgb( p, d_value, 0 );
-        d_rgbMask[3] = qRgb( p, 0, d_value );
-        d_rgbMask[4] = qRgb( 0, p, d_value );
-        d_rgbMask[5] = qRgb( d_value, p, 0 );
-
-        d_rgbMin = toRgb( d_hue1 );
-        d_rgbMax = toRgb( d_hue2 );
+        d_rgbMin = d_rgbTable[ d_hue1 % 360 ];
+        d_rgbMax = d_rgbTable[ d_hue2 % 360 ];
     }
 
     int d_hue1, d_hue2, d_saturation, d_value; 
-    QRgb d_rgbMin, d_rgbMax, d_rgbMask[6];
+    QRgb d_rgbMin, d_rgbMax, d_rgbTable[360];
 };
 
 class AlphaColorMap: public QwtAlphaColorMap
