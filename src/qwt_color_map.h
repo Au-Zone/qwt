@@ -145,6 +145,11 @@ public:
     QwtAlphaColorMap( const QColor & = QColor( Qt::gray ) );
     virtual ~QwtAlphaColorMap();
 
+    void setAlphaInterval( int alpha1, int alpha2 ); 
+
+    int alpha1() const;
+    int alpha2() const;
+
     void setColor( const QColor & );
     QColor color() const;
 
@@ -179,6 +184,35 @@ public:
 private:
     QwtHueColorMap( const QwtHueColorMap & );
     QwtHueColorMap &operator=( const QwtHueColorMap & );
+
+    class PrivateData;
+    PrivateData *d_data;
+};
+
+class QWT_EXPORT QwtSaturationValueColorMap: public QwtColorMap
+{
+public:
+    QwtSaturationValueColorMap();
+    virtual ~QwtSaturationValueColorMap();
+
+    void setValueInterval( int value1, int value2 );
+    void setSaturationInterval( int sat1, int sat2 ); 
+    void setHue( int hue );
+
+    int value1() const;
+    int value2() const;
+
+    int saturation1() const;
+    int saturation2() const;
+
+    int hue() const;
+    int saturation() const;
+
+    virtual QRgb rgb( const QwtInterval &, double value ) const;
+
+private:
+    QwtSaturationValueColorMap( const QwtSaturationValueColorMap & );
+    QwtSaturationValueColorMap &operator=( const QwtSaturationValueColorMap & );
 
     class PrivateData;
     PrivateData *d_data;

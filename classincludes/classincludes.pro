@@ -55,6 +55,7 @@ CLASSHEADERS = \
 	QwtPowerTransform \
 	QwtRichTextEngine \
 	QwtRoundScaleDraw \
+	QwtSaturationValueColorMap \
 	QwtScaleArithmetic \
 	QwtScaleDiv \
 	QwtScaleDraw \
