@@ -43,6 +43,9 @@ MainWindow::MainWindow( QWidget *parent ):
     QComboBox *mapBox = new QComboBox( toolBar );
     mapBox->addItem( "RGB" );
     mapBox->addItem( "Hue" );
+    mapBox->addItem( "Saturation" );
+    mapBox->addItem( "Value" );
+    mapBox->addItem( "Sat.+Value" );
     mapBox->addItem( "Alpha" );
     mapBox->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
     toolBar->addWidget( mapBox );

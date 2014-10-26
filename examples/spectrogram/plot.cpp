@@ -82,6 +82,45 @@ public:
     }
 };
 
+class SaturationColorMap: public QwtSaturationValueColorMap
+{
+public:
+    SaturationColorMap( int formatType )
+    {
+        setFormat( ( QwtColorMap::Format ) formatType );
+
+        setHue( 220 );
+        setSaturationInterval( 0, 255 );
+        setValueInterval( 255, 255 );
+    }
+};
+
+class ValueColorMap: public QwtSaturationValueColorMap
+{
+public:
+    ValueColorMap( int formatType )
+    {
+        setFormat( ( QwtColorMap::Format ) formatType );
+
+        setHue( 220 );
+        setSaturationInterval( 255, 255 );
+        setValueInterval( 70, 255 );
+    }
+};
+
+class SVColorMap: public QwtSaturationValueColorMap
+{
+public:
+    SVColorMap( int formatType )
+    {
+        setFormat( ( QwtColorMap::Format ) formatType );
+
+        setHue( 220 );
+        setSaturationInterval( 100, 255 );
+        setValueInterval( 70, 255 );
+    }
+};
+
 class AlphaColorMap: public QwtAlphaColorMap
 {
 public:
@@ -187,6 +226,24 @@ void Plot::setColorMap( int type )
         {
             d_spectrogram->setColorMap( new HueColorMap( d_formatType ) );
             axis->setColorMap( zInterval, new HueColorMap( d_formatType ) );
+            break;
+        }
+        case Plot::SaturationMap:
+        {
+            d_spectrogram->setColorMap( new SaturationColorMap( d_formatType ) );
+            axis->setColorMap( zInterval, new SaturationColorMap( d_formatType ) );
+            break;
+        }
+        case Plot::ValueMap:
+        {
+            d_spectrogram->setColorMap( new ValueColorMap( d_formatType ) );
+            axis->setColorMap( zInterval, new ValueColorMap( d_formatType ) );
+            break;
+        }
+        case Plot::SVMap:
+        {
+            d_spectrogram->setColorMap( new SVColorMap( d_formatType ) );
+            axis->setColorMap( zInterval, new SVColorMap( d_formatType ) );
             break;
         }
         case Plot::AlphaMap:

@@ -10,6 +10,9 @@ public:
     {
         RGBMap,
         HueMap,
+        SaturationMap,
+        ValueMap,
+        SVMap,
         AlphaMap
     };
 
