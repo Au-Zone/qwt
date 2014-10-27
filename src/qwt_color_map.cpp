@@ -12,10 +12,10 @@
 #include "qwt_interval.h"
 #include <qnumeric.h>
 
-static inline QRgb qwtHsvToRgb( int h, int s, int v )
+static inline QRgb qwtHsvToRgb( int h, int s, int v, int a )
 {
-#if 1
-    return QColor::fromHsv( h, s, v ).rgb();
+#if 0
+    return QColor::fromHsv( h, s, v, a ).rgb();
 #else
 
     const double vs = v * s / 255.0;
@@ -26,33 +26,33 @@ static inline QRgb qwtHsvToRgb( int h, int s, int v )
         case 0:
         {
             const double r = ( 60 - h ) / 60.0;
-            return qRgb( v, v - qRound( r * vs ), p );
+            return qRgba( v, v - qRound( r * vs ), p, a );
         }
         case 1:
         {
             const double r = ( h - 60 ) / 60.0;
-            return qRgb( v - qRound( r * vs ), v, p );
+            return qRgba( v - qRound( r * vs ), v, p, a );
         }
         case 2:
         {
             const double r = ( 180 - h ) / 60.0;
-            return qRgb( p, v, v - qRound( r * vs ) );
+            return qRgba( p, v, v - qRound( r * vs ), a );
         }
         case 3:
         {
             const double r = ( h - 180 ) / 60.0;
-            return qRgb( p, v - qRound( r * vs ), v );
+            return qRgba( p, v - qRound( r * vs ), v, a );
         }
         case 4:
         {
             const double r = ( 300 - h ) / 60.0;
-            return qRgb( v - qRound( r * vs ), p, v );
+            return qRgba( v - qRound( r * vs ), p, v, a );
         }
         case 5:
         default:
         {
             const double r = ( h - 300 ) / 60.0;
-            return qRgb( v, p, v - qRound( r * vs ) );
+            return qRgba( v, p, v - qRound( r * vs ), a );
         }
     }
 #endif
@@ -269,27 +269,31 @@ void QwtColorMap::setFormat( Format format )
 /*!
   \brief Map a value of a given interval into a color index
 
+  \param numColors Number of colors
   \param interval Range for all values
   \param value Value to map into a color index
 
-  \return Index, between 0 and 255
+  \return Index, between 0 and numColors - 1, or -1 for an invalid value
   \note NaN values are mapped to 0
 */
-unsigned char QwtColorMap::colorIndex(
+int QwtColorMap::colorIndex( int numColors,
     const QwtInterval &interval, double value ) const
 {
-    if ( value <= interval.minValue() || qIsNaN(value) )
-        return 0;
+    if ( qIsNaN( value ) )
+        return -1;
 
     const double width = interval.width();
     if ( width <= 0.0 )
+        return -1;
+
+    if ( value <= interval.minValue() )
         return 0;
 
     if ( value >= interval.maxValue() )
-        return 255;
+        return numColors - 1;
 
-    const double v = 255 * ( value - interval.minValue() ) / width;
-    return static_cast<unsigned char>( v + 0.5 );
+    const double v = ( numColors - 1 ) * ( value - interval.minValue() ) / width;
+    return static_cast<unsigned int>( v + 0.5 );
 }
 
 /*!
@@ -301,16 +305,27 @@ unsigned char QwtColorMap::colorIndex(
    \param interval Range for the values
    \return A color table, that can be used for a QImage
 */
-QVector<QRgb> QwtColorMap::colorTable( const QwtInterval &interval ) const
+QVector<QRgb> QwtColorMap::colorTable256() const
 {
     QVector<QRgb> table( 256 );
 
-    if ( interval.isValid() )
-    {
-        const double step = interval.width() / ( table.size() - 1 );
-        for ( int i = 0; i < table.size(); i++ )
-            table[i] = rgb( interval, interval.minValue() + step * i );
-    }
+    const QwtInterval interval( 0, 256 );
+
+    for ( int i = 0; i < 256; i++ )
+        table[i] = rgb( interval, i );
+
+    return table;
+}
+
+QVector<QRgb> QwtColorMap::colorTable( int numColors ) const
+{
+    QVector<QRgb> table( numColors );
+
+    const QwtInterval interval( 0.0, 1.0 );
+
+    const double step = 1.0 / ( numColors - 1 );
+    for ( int i = 0; i < numColors; i++ )
+        table[i] = rgb( interval, step * i );
 
     return table;
 }
@@ -467,27 +482,31 @@ QRgb QwtLinearColorMap::rgb(
 /*!
   \brief Map a value of a given interval into a color index
 
+  \param numColors Size of the color table
   \param interval Range for all values
   \param value Value to map into a color index
 
   \return Index, between 0 and 255
   \note NaN values are mapped to 0
 */
-unsigned char QwtLinearColorMap::colorIndex(
+int QwtLinearColorMap::colorIndex( int numColors,
     const QwtInterval &interval, double value ) const
 {
-    if ( value <= interval.minValue() || qIsNaN(value) )
-        return 0;
+    if ( qIsNaN( value ) )
+        return -1;
 
     const double width = interval.width();
     if ( width <= 0.0 )
+        return -1;
+
+    if ( value <= interval.minValue() )
         return 0;
 
     if ( value >= interval.maxValue() )
-        return 255;
+        return numColors - 1;
 
-    const double v = 255 * ( value - interval.minValue() ) / width;
-    return static_cast<unsigned char>( ( d_data->mode == FixedColors ) ? v : v + 0.5 );
+    const double v = ( numColors - 1 ) * ( value - interval.minValue() ) / width;
+    return static_cast<unsigned int>( ( d_data->mode == FixedColors ) ? v : v + 0.5 );
 }
 
 class QwtAlphaColorMap::PrivateData
@@ -609,6 +628,7 @@ public:
     int hue1, hue2;
     int saturation;
     int value;
+    int alpha;
 
     QRgb rgbMin;
     QRgb rgbMax;
@@ -620,7 +640,8 @@ QwtHueColorMap::PrivateData::PrivateData():
     hue1(0),
     hue2(359),
     saturation(255),
-    value(255)
+    value(255),
+    alpha(255)
 {
     updateTable();
 }
@@ -633,37 +654,37 @@ void QwtHueColorMap::PrivateData::updateTable()
     for ( int i = 0; i < 60; i++ )
     {
         const double r = ( 60 - i ) / 60.0;
-        rgbTable[i] = qRgb( value, qRound( value - r * vs ), p );
+        rgbTable[i] = qRgba( value, qRound( value - r * vs ), p, alpha );
     }
 
     for ( int i = 60; i < 120; i++ )
     {
         const double r = ( i - 60 ) / 60.0;
-        rgbTable[i] = qRgb( qRound( value - r * vs ), value, p );
+        rgbTable[i] = qRgba( qRound( value - r * vs ), value, p, alpha );
     }
 
     for ( int i = 120; i < 180; i++ )
     {
         const double r = ( 180 - i ) / 60.0;
-        rgbTable[i] = qRgb( p, value, qRound( value - r * vs ) );
+        rgbTable[i] = qRgba( p, value, qRound( value - r * vs ), alpha );
     }
 
     for ( int i = 180; i < 240; i++ )
     {
         const double r = ( i - 180 ) / 60.0;
-        rgbTable[i] = qRgb( p, qRound( value - r * vs ), value );
+        rgbTable[i] = qRgba( p, qRound( value - r * vs ), value, alpha );
     }
 
     for ( int i = 240; i < 300; i++ )
     {
         const double r = ( 300 - i ) / 60.0;
-        rgbTable[i] = qRgb( qRound( value - r * vs ), p, value );
+        rgbTable[i] = qRgba( qRound( value - r * vs ), p, value, alpha );
     }
 
     for ( int i = 300; i < 360; i++ )
     {
         const double r = ( i - 300 ) / 60.0;
-        rgbTable[i] = qRgb( value, p, qRound( value - r * vs ) );
+        rgbTable[i] = qRgba( value, p, qRound( value - r * vs ), alpha );
     }
 
     rgbMin = rgbTable[ hue1 % 360 ];
@@ -765,11 +786,12 @@ class QwtSaturationValueColorMap::PrivateData
 {
 public:
     PrivateData():
-        value1(0),
-        value2(255),
+        hue(0),
         sat1(255),
         sat2(255),
-        hue(0),
+        value1(0),
+        value2(255),
+        alpha(255),
         tableType(Invalid)
     {
         updateTable();
@@ -784,7 +806,7 @@ public:
             rgbTable.resize( 256 );
 
             for ( int i = 0; i < 256; i++ )
-                rgbTable[i] = qwtHsvToRgb( hue, i, value1 );
+                rgbTable[i] = qwtHsvToRgb( hue, i, value1, alpha );
 
             tableType = Saturation;
         }
@@ -793,7 +815,7 @@ public:
             rgbTable.resize( 256 );
 
             for ( int i = 0; i < 256; i++ )
-                rgbTable[i] = qwtHsvToRgb( hue, sat1, i );
+                rgbTable[i] = qwtHsvToRgb( hue, sat1, i, alpha );
 
             tableType = Value;
         }
@@ -806,14 +828,15 @@ public:
                 const int v0 = s * 256;
 
                 for ( int v = 0; v < 256; v++ )
-                    rgbTable[v0 + v] = qwtHsvToRgb( hue, s, v );
+                    rgbTable[v0 + v] = qwtHsvToRgb( hue, s, v, alpha );
             }
         }
     }
 
-    int value1, value2;
-    int sat1, sat2;
     int hue;
+    int sat1, sat2;
+    int value1, value2;
+    int alpha;
 
     enum
     {

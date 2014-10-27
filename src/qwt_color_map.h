@@ -72,11 +72,12 @@ public:
     virtual QRgb rgb( const QwtInterval &interval,
         double value ) const = 0;
 
-    virtual unsigned char colorIndex(
+    virtual int colorIndex( int numColors,
         const QwtInterval &interval, double value ) const;
 
     QColor color( const QwtInterval &, double value ) const;
-    virtual QVector<QRgb> colorTable( const QwtInterval & ) const;
+    virtual QVector<QRgb> colorTable( int numColors ) const;
+    virtual QVector<QRgb> colorTable256() const;
 
 private:
     Format d_format;
@@ -122,7 +123,7 @@ public:
     QColor color2() const;
 
     virtual QRgb rgb( const QwtInterval &, double value ) const;
-    virtual unsigned char colorIndex(
+    virtual int colorIndex( int numColors,
         const QwtInterval &, double value ) const;
 
     class ColorStops;
@@ -239,8 +240,11 @@ inline QColor QwtColorMap::color(
     }
     else
     {
-        const unsigned int index = colorIndex( interval, value );
-        return colorTable( interval )[index]; // slow
+        int index = colorIndex( 256, interval, value );
+        if ( index < 0 )
+            return QColor( 0u );
+
+        return colorTable256()[index]; // slow
     }
 }
 

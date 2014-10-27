@@ -1084,7 +1084,7 @@ void QwtPainter::drawColorBar( QPainter *painter,
 {
     QVector<QRgb> colorTable;
     if ( colorMap.format() == QwtColorMap::Indexed )
-        colorTable = colorMap.colorTable( interval );
+        colorTable = colorMap.colorTable256();
 
     QColor c;
 
@@ -1113,7 +1113,7 @@ void QwtPainter::drawColorBar( QPainter *painter,
             if ( colorMap.format() == QwtColorMap::RGB )
                 c.setRgba( colorMap.rgb( interval, value ) );
             else
-                c = colorTable[colorMap.colorIndex( interval, value )];
+                c = colorTable[colorMap.colorIndex( 256, interval, value )];
 
             pmPainter.setPen( c );
             pmPainter.drawLine( x, devRect.top(), x, devRect.bottom() );
@@ -1131,7 +1131,7 @@ void QwtPainter::drawColorBar( QPainter *painter,
             if ( colorMap.format() == QwtColorMap::RGB )
                 c.setRgba( colorMap.rgb( interval, value ) );
             else
-                c = colorTable[colorMap.colorIndex( interval, value )];
+                c = colorTable[colorMap.colorIndex( 256, interval, value )];
 
             pmPainter.setPen( c );
             pmPainter.drawLine( devRect.left(), y, devRect.right(), y );
