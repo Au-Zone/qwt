@@ -34,7 +34,7 @@ contains(QWT_CONFIG, QwtFramework) {
     CONFIG += lib_bundle
 }
 
-qwtAddLibrary($${QWT_OUT_ROOT}, qwt)
+qwtAddLibrary($${QWT_OUT_ROOT}/lib, qwt)
 
 # Install directives
 
