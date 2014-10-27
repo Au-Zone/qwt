@@ -1,5 +1,6 @@
 #include <qprinter.h>
 #include <qprintdialog.h>
+#include <qnumeric.h>
 #include <qwt_color_map.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_scale_widget.h>
@@ -158,6 +159,9 @@ Plot::Plot( QWidget *parent ):
     d_spectrogram = new QwtPlotSpectrogram();
     d_spectrogram->setRenderThreadCount( 0 ); // use system specific thread count
     d_spectrogram->setCachePolicy( QwtPlotRasterItem::PaintCache );
+#if 1
+    d_spectrogram->setRenderThreadCount( 1 ); // for testing
+#endif
 
     QList<double> contourLevels;
     for ( double level = 0.5; level < 10.0; level += 1.0 )
