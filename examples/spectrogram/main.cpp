@@ -53,6 +53,18 @@ MainWindow::MainWindow( QWidget *parent ):
     connect( mapBox, SIGNAL( currentIndexChanged( int ) ),
              d_plot, SLOT( setColorMap( int ) ) );
 
+    toolBar->addWidget( new QLabel("Table " ) );
+
+    QComboBox *colorTableBox = new QComboBox( toolBar );
+    colorTableBox->addItem( "None" );
+    colorTableBox->addItem( "256" );
+    colorTableBox->addItem( "1024" );
+    colorTableBox->addItem( "16384" );
+    toolBar->addWidget( colorTableBox );
+
+    connect( colorTableBox, SIGNAL( currentIndexChanged( int ) ),
+             d_plot, SLOT( setColorTableSize( int ) ) );
+
     QComboBox *formatBox = new QComboBox( toolBar );
     formatBox->addItem( "ARGB32" );
     formatBox->addItem( "Indexed8" );

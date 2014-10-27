@@ -23,6 +23,7 @@ public Q_SLOTS:
     void showSpectrogram( bool on );
 
     void setColorMap( int );
+    void setColorTableSize( int );
     void setColorFormat( int );
     void setAlpha( int );
 

@@ -141,6 +141,9 @@ Plot::Plot( QWidget *parent ):
     d_spectrogram = new QwtPlotSpectrogram();
     d_spectrogram->setRenderThreadCount( 0 ); // use system specific thread count
     d_spectrogram->setCachePolicy( QwtPlotRasterItem::PaintCache );
+#if 0
+    d_spectrogram->setRenderThreadCount( 1 ); // for testing
+#endif
 
     QList<double> contourLevels;
     for ( double level = 0.5; level < 10.0; level += 1.0 )
@@ -203,6 +206,26 @@ void Plot::showSpectrogram( bool on )
     d_spectrogram->setDefaultContourPen( 
         on ? QPen( Qt::black, 0 ) : QPen( Qt::NoPen ) );
 
+    replot();
+}
+
+void Plot::setColorTableSize( int type )
+{
+    int numColors = 0;
+    switch( type )
+    {
+        case 1:
+            numColors = 256;
+            break;
+        case 2:
+            numColors = 1024;
+            break;
+        case 3:
+            numColors = 16384;
+            break;
+    }
+
+    d_spectrogram->setMaxRGBTableSize( numColors );
     replot();
 }
 
