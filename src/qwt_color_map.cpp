@@ -12,6 +12,37 @@
 #include "qwt_interval.h"
 #include <qnumeric.h>
 
+#if (__GNUC__ * 100 + __GNUC_MINOR__) >= 408
+
+/* 
+  "-ftree-partial-pre" ( introduced with gcc 4.8 ) does miracles in
+  QwtColorMap::colorIndex(). When being used very often - like in 
+  QwtPlotSpectrogram::renderTile() - time goes down by ~50%.
+
+  clang 3.3 is out of the box ( -O2 ) fast for QwtColorMap::colorIndex(), 
+  but also ~33% faster when rendering the image through QwtLinearColorMap::rgb() 
+*/
+
+#define QWT_GCC_OPTIMIZE 1
+
+#endif
+
+static inline bool qwtIsNaN( double d )
+{
+    // qt_is_nan is private header and qIsNaN is not inlined
+    // so we need these lines here
+
+    const uchar *ch = (const uchar *)&d;
+    if ( QSysInfo::ByteOrder == QSysInfo::BigEndian ) 
+    {
+        return (ch[0] & 0x7f) == 0x7f && ch[1] > 0xf0;
+    } 
+    else 
+    {
+        return (ch[7] & 0x7f) == 0x7f && ch[6] > 0xf0;
+    }
+}
+
 static inline QRgb qwtHsvToRgb( int h, int s, int v, int a )
 {
 #if 0
@@ -266,6 +297,11 @@ void QwtColorMap::setFormat( Format format )
     d_format = format;
 }
 
+#ifdef QWT_GCC_OPTIMIZE
+#pragma GCC push_options
+#pragma GCC optimize("tree-partial-pre")
+#endif
+
 /*!
   \brief Map a value of a given interval into a color index
 
@@ -279,7 +315,7 @@ void QwtColorMap::setFormat( Format format )
 int QwtColorMap::colorIndex( int numColors,
     const QwtInterval &interval, double value ) const
 {
-    if ( qIsNaN( value ) )
+    if ( qwtIsNaN( value ) )
         return -1;
 
     const double width = interval.width();
@@ -289,12 +325,17 @@ int QwtColorMap::colorIndex( int numColors,
     if ( value <= interval.minValue() )
         return 0;
 
+    const int maxIndex = numColors - 1;
     if ( value >= interval.maxValue() )
-        return numColors - 1;
+        return maxIndex;
 
-    const double v = ( numColors - 1 ) * ( value - interval.minValue() ) / width;
+    const double v = maxIndex * ( ( value - interval.minValue() ) / width );
     return static_cast<unsigned int>( v + 0.5 );
 }
+
+#ifdef QWT_GCC_OPTIMIZE
+#pragma GCC pop_options
+#endif
 
 /*!
    Build and return a color map of 256 colors
@@ -479,6 +520,11 @@ QRgb QwtLinearColorMap::rgb(
     return d_data->colorStops.rgb( d_data->mode, ratio );
 }
 
+#ifdef QWT_GCC_OPTIMIZE
+#pragma GCC push_options
+#pragma GCC optimize("tree-partial-pre")
+#endif
+
 /*!
   \brief Map a value of a given interval into a color index
 
@@ -508,6 +554,10 @@ int QwtLinearColorMap::colorIndex( int numColors,
     const double v = ( numColors - 1 ) * ( value - interval.minValue() ) / width;
     return static_cast<unsigned int>( ( d_data->mode == FixedColors ) ? v : v + 0.5 );
 }
+
+#ifdef QWT_GCC_OPTIMIZE
+#pragma GCC pop_options
+#endif
 
 class QwtAlphaColorMap::PrivateData
 {

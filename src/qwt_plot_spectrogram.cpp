@@ -533,48 +533,30 @@ void QwtPlotSpectrogram::renderTile(
     if ( d_data->colorMap->format() == QwtColorMap::RGB )
     {
         const int numColors = d_data->colorTable.size();
+        const QRgb *rgbTable = d_data->colorTable.constData();
+        const QwtColorMap *colorMap = d_data->colorMap;
 
-        if ( numColors == 0 )
+        for ( int y = tile.top(); y <= tile.bottom(); y++ )
         {
-            for ( int y = tile.top(); y <= tile.bottom(); y++ )
+            const double ty = yMap.invTransform( y );
+
+            QRgb *line = reinterpret_cast<QRgb *>( image->scanLine( y ) );
+            line += tile.left();
+
+            for ( int x = tile.left(); x <= tile.right(); x++ )
             {
-                const double ty = yMap.invTransform( y );
+                const double tx = xMap.invTransform( x );
 
-                QRgb *line = reinterpret_cast<QRgb *>( image->scanLine( y ) );
-                line += tile.left();
+                const double value = d_data->data->value( tx, ty );
 
-                for ( int x = tile.left(); x <= tile.right(); x++ )
+                if ( numColors == 0 )
                 {
-                    const double tx = xMap.invTransform( x );
-
-                    *line++ = d_data->colorMap->rgb( range,
-                        d_data->data->value( tx, ty ) );
+                    *line++ = colorMap->rgb( range, value );
                 }
-            }
-        }
-        else
-        {
-            const QRgb *rgbTable = d_data->colorTable.constData();
-
-            for ( int y = tile.top(); y <= tile.bottom(); y++ )
-            {
-                const double ty = yMap.invTransform( y );
-
-                QRgb *line = reinterpret_cast<QRgb *>( image->scanLine( y ) );
-                line += tile.left();
-
-                for ( int x = tile.left(); x <= tile.right(); x++ )
+                else
                 {
-                    const double tx = xMap.invTransform( x );
-
-                    const double value = d_data->data->value( tx, ty );
-
-                    const int index = d_data->colorMap->colorIndex( numColors, range, value );
-
-                    if ( index < 0 )
-                        *line++ = 0u;
-                    else
-                        *line++ = rgbTable[index];
+                    const int index = colorMap->colorIndex( numColors, range, value );
+                    *line++ = ( index >= 0 ) ? rgbTable[index] : 0u;
                 }
             }
         }
@@ -595,7 +577,7 @@ void QwtPlotSpectrogram::renderTile(
                 const double value = d_data->data->value( tx, ty );
                 const int index = d_data->colorMap->colorIndex( 256, range, value );
 
-                *line++ = static_cast<unsigned char>( index );
+                *line++ = ( index >= 0 ) ? static_cast<unsigned char>( index ) : 0;
             }
         }
     }
