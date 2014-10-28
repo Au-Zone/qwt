@@ -783,6 +783,17 @@ void QwtHueColorMap::setValue( int value )
     }
 }
 
+void QwtHueColorMap::setAlpha( int alpha )
+{
+    alpha = qBound( 0, alpha, 255 );
+
+    if ( alpha != d_data->alpha )
+    {
+        d_data->alpha = alpha;
+        d_data->updateTable();
+    }
+}
+
 int QwtHueColorMap::hue1() const
 {
     return d_data->hue1;
@@ -801,6 +812,11 @@ int QwtHueColorMap::saturation() const
 int QwtHueColorMap::value() const
 {
     return d_data->value;
+}
+
+int QwtHueColorMap::alpha() const
+{
+    return d_data->alpha;
 }
 
 QRgb QwtHueColorMap::rgb( const QwtInterval &interval, double value ) const
@@ -949,14 +965,15 @@ void QwtSaturationValueColorMap::setValueInterval( int value1, int value2 )
     }
 }
 
-int QwtSaturationValueColorMap::value1() const
+void QwtSaturationValueColorMap::setAlpha( int alpha )
 {
-    return d_data->value1;
-}
+    alpha = qBound( 0, alpha, 255 );
 
-int QwtSaturationValueColorMap::value2() const
-{
-    return d_data->value2;
+    if ( alpha != d_data->alpha )
+    {
+        d_data->alpha = alpha;
+        d_data->updateTable();
+    }
 }
 
 int QwtSaturationValueColorMap::hue() const
@@ -972,6 +989,21 @@ int QwtSaturationValueColorMap::saturation1() const
 int QwtSaturationValueColorMap::saturation2() const
 {
     return d_data->sat2;
+}
+
+int QwtSaturationValueColorMap::value1() const
+{
+    return d_data->value1;
+}
+
+int QwtSaturationValueColorMap::value2() const
+{
+    return d_data->value2;
+}
+
+int QwtSaturationValueColorMap::alpha() const
+{
+    return d_data->alpha;
 }
 
 QRgb QwtSaturationValueColorMap::rgb( const QwtInterval &interval, double value ) const

@@ -173,12 +173,13 @@ public:
     void setHueInterval( int hue1, int hue2 ); // direction ?
     void setSaturation( int saturation );
     void setValue( int value );
+    void setAlpha( int alpha ); 
 
     int hue1() const;
     int hue2() const;
-
     int saturation() const;
     int value() const;
+    int alpha() const;
 
     virtual QRgb rgb( const QwtInterval &, double value ) const;
 
@@ -196,18 +197,18 @@ public:
     QwtSaturationValueColorMap();
     virtual ~QwtSaturationValueColorMap();
 
-    void setValueInterval( int value1, int value2 );
-    void setSaturationInterval( int sat1, int sat2 ); 
     void setHue( int hue );
+    void setSaturationInterval( int sat1, int sat2 ); 
+    void setValueInterval( int value1, int value2 );
+    void setAlpha( int alpha ); 
 
-    int value1() const;
-    int value2() const;
-
-    int saturation1() const;
-    int saturation2() const;
 
     int hue() const;
-    int saturation() const;
+    int saturation1() const;
+    int saturation2() const;
+    int value1() const;
+    int value2() const;
+    int alpha() const;
 
     virtual QRgb rgb( const QwtInterval &, double value ) const;
 
