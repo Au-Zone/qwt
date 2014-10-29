@@ -35,6 +35,11 @@ class SpectrogramData: public QwtRasterData
 public:
     SpectrogramData()
     {
+        // some minor performance improvements wgen the spectrogram item
+        // does not need to check for NaN values
+
+        setAttribute( QwtRasterData::WithoutGaps, true );
+
         setInterval( Qt::XAxis, QwtInterval( -1.5, 1.5 ) );
         setInterval( Qt::YAxis, QwtInterval( -1.5, 1.5 ) );
         setInterval( Qt::ZAxis, QwtInterval( 0.0, 10.0 ) );
@@ -141,9 +146,6 @@ Plot::Plot( QWidget *parent ):
     d_spectrogram = new QwtPlotSpectrogram();
     d_spectrogram->setRenderThreadCount( 0 ); // use system specific thread count
     d_spectrogram->setCachePolicy( QwtPlotRasterItem::PaintCache );
-#if 0
-    d_spectrogram->setRenderThreadCount( 1 ); // for testing
-#endif
 
     QList<double> contourLevels;
     for ( double level = 0.5; level < 10.0; level += 1.0 )
