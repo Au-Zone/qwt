@@ -23,7 +23,7 @@
 #include <qtconcurrentrun.h>
 #endif
 
-#define DEBUG_RENDER 1
+#define DEBUG_RENDER 0
 
 #if DEBUG_RENDER
 #include <QElapsedTimer>
