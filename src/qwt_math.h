@@ -123,7 +123,7 @@ inline double qwtFastAtan2( double y, double x )
     return 0.0;
 }
 
-/* 
+/* !
    \brief Calculate a value of a cubic polynom 
 
    \param x Value
@@ -140,13 +140,13 @@ inline double qwtCubicPolynom( double x,
     return ( ( ( a * x ) + b ) * x + c ) * x + d;
 }
 
-// Translate degrees into radians
+//! Translate degrees into radians
 inline double qwtRadians( double degrees )
 {
     return degrees * M_PI / 180.0;
 }
 
-// Translate radians into degrees
+//! Translate radians into degrees
 inline double qwtDegrees( double degrees )
 {
     return degrees * 180.0 / M_PI;
