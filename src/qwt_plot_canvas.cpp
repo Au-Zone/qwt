@@ -65,6 +65,12 @@ public:
             border.rectList += rects[i];
     }
 
+    virtual void drawRects(const QRect *rects, int count )
+    {
+        for ( int i = 0; i < count; i++ )
+            border.rectList += rects[i];
+    }
+
     virtual void drawPath( const QPainterPath &path )
     {
         const QRectF rect( QPointF( 0.0, 0.0 ), d_size );
