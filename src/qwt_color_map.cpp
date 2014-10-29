@@ -10,7 +10,6 @@
 #include "qwt_color_map.h"
 #include "qwt_math.h"
 #include "qwt_interval.h"
-#include <qnumeric.h>
 
 #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 408
 
@@ -26,22 +25,6 @@
 #define QWT_GCC_OPTIMIZE 1
 
 #endif
-
-static inline bool qwtIsNaN( double d )
-{
-    // qt_is_nan is private header and qIsNaN is not inlined
-    // so we need these lines here
-
-    const uchar *ch = (const uchar *)&d;
-    if ( QSysInfo::ByteOrder == QSysInfo::BigEndian ) 
-    {
-        return (ch[0] & 0x7f) == 0x7f && ch[1] > 0xf0;
-    } 
-    else 
-    {
-        return (ch[7] & 0x7f) == 0x7f && ch[6] > 0xf0;
-    }
-}
 
 static inline QRgb qwtHsvToRgb( int h, int s, int v, int a )
 {
@@ -310,17 +293,20 @@ void QwtColorMap::setFormat( Format format )
   \param value Value to map into a color index
 
   \return Index, between 0 and numColors - 1, or -1 for an invalid value
-  \note NaN values are mapped to 0
 */
-int QwtColorMap::colorIndex( int numColors,
+uint QwtColorMap::colorIndex( int numColors,
     const QwtInterval &interval, double value ) const
 {
-    if ( qwtIsNaN( value ) )
-        return -1;
+#ifdef QWT_GCC_OPTIMIZE
+    // accessing value here somehow makes gcc 4.8.1 to create
+    // significantly faster assembler code
+    if ( ((uchar *)&value)[0] ) asm("");
+	    asm("");
+#endif
 
     const double width = interval.width();
     if ( width <= 0.0 )
-        return -1;
+        return 0;
 
     if ( value <= interval.minValue() )
         return 0;
@@ -509,9 +495,6 @@ QColor QwtLinearColorMap::color2() const
 QRgb QwtLinearColorMap::rgb(
     const QwtInterval &interval, double value ) const
 {
-    if ( qIsNaN(value) )
-        return 0u;
-
     const double width = interval.width();
     if ( width <= 0.0 )
         return 0u;
@@ -535,15 +518,18 @@ QRgb QwtLinearColorMap::rgb(
   \return Index, between 0 and 255
   \note NaN values are mapped to 0
 */
-int QwtLinearColorMap::colorIndex( int numColors,
+uint QwtLinearColorMap::colorIndex( int numColors,
     const QwtInterval &interval, double value ) const
 {
-    if ( qIsNaN( value ) )
-        return -1;
+#ifdef QWT_GCC_OPTIMIZE
+    // accessing value here somehow makes gcc 4.8.1 to create
+    // significantly faster assembler code
+    if ( ((uchar *)&value)[0] ) asm("");
+#endif
 
     const double width = interval.width();
     if ( width <= 0.0 )
-        return -1;
+        return 0;
 
     if ( value <= interval.minValue() )
         return 0;
@@ -649,9 +635,6 @@ int QwtAlphaColorMap::alpha2() const
 */
 QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval, double value ) const
 {
-    if ( qIsNaN(value) )
-        return 0u;
-
     const double width = interval.width();
     if ( width <= 0.0 )
         return 0u;
@@ -821,9 +804,6 @@ int QwtHueColorMap::alpha() const
 
 QRgb QwtHueColorMap::rgb( const QwtInterval &interval, double value ) const
 {
-    if ( qIsNaN(value) )
-        return 0u;
-
     const double width = interval.width();
     if ( width <= 0 )
         return 0u;
@@ -1008,9 +988,6 @@ int QwtSaturationValueColorMap::alpha() const
 
 QRgb QwtSaturationValueColorMap::rgb( const QwtInterval &interval, double value ) const
 {
-    if ( qIsNaN(value) )
-        return 0u;
-
     const double width = interval.width();
     if ( width <= 0 )
         return 0u;

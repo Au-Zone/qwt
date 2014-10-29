@@ -72,7 +72,7 @@ public:
     virtual QRgb rgb( const QwtInterval &interval,
         double value ) const = 0;
 
-    virtual int colorIndex( int numColors,
+    virtual uint colorIndex( int numColors,
         const QwtInterval &interval, double value ) const;
 
     QColor color( const QwtInterval &, double value ) const;
@@ -123,7 +123,7 @@ public:
     QColor color2() const;
 
     virtual QRgb rgb( const QwtInterval &, double value ) const;
-    virtual int colorIndex( int numColors,
+    virtual uint colorIndex( int numColors,
         const QwtInterval &, double value ) const;
 
     class ColorStops;
@@ -227,26 +227,12 @@ private:
    \param value Value
 
    \return Color corresponding to value
-
-   \warning This method is slow for Indexed color maps. If it is
-            necessary to map many values, its better to get the
-            color table once and find the color using colorIndex().
 */
 inline QColor QwtColorMap::color(
     const QwtInterval &interval, double value ) const
 {
-    if ( d_format == RGB )
-    {
-        return QColor( rgb( interval, value ) );
-    }
-    else
-    {
-        int index = colorIndex( 256, interval, value );
-        if ( index < 0 )
-            return QColor( 0u );
 
-        return colorTable256()[index]; // slow
-    }
+    return QColor( rgb( interval, value ) );
 }
 
 /*!

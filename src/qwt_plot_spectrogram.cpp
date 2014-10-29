@@ -23,11 +23,27 @@
 #include <qtconcurrentrun.h>
 #endif
 
-#define DEBUG_RENDER 0
+#define DEBUG_RENDER 1
 
 #if DEBUG_RENDER
 #include <QElapsedTimer>
 #endif
+
+static inline bool qwtIsNaN( double d )
+{   
+    // qt_is_nan is private header and qIsNaN is not inlined
+    // so we need these code here too
+    
+    const uchar *ch = (const uchar *)&d;
+    if ( QSysInfo::ByteOrder == QSysInfo::BigEndian )
+    {   
+        return (ch[0] & 0x7f) == 0x7f && ch[1] > 0xf0;
+    } 
+    else
+    {   
+        return (ch[7] & 0x7f) == 0x7f && ch[6] > 0xf0;
+    }
+}
 
 class QwtPlotSpectrogram::PrivateData
 {
@@ -531,6 +547,8 @@ void QwtPlotSpectrogram::renderTile(
     if ( range.width() <= 0.0 )
         return;
 
+    const bool hasGaps = !d_data->data->testAttribute( QwtRasterData::WithoutGaps );
+
     if ( d_data->colorMap->format() == QwtColorMap::RGB )
     {
         const int numColors = d_data->colorTable.size();
@@ -550,15 +568,19 @@ void QwtPlotSpectrogram::renderTile(
 
                 const double value = d_data->data->value( tx, ty );
 
-                if ( numColors == 0 )
-                {
-                    *line++ = colorMap->rgb( range, value );
-                }
+				if ( hasGaps && qwtIsNaN( value ) )
+				{
+					*line++ = 0u;
+				}
+				else if ( numColors == 0 )
+				{
+					*line++ = colorMap->rgb( range, value );
+				}
                 else
-                {
-                    const int index = colorMap->colorIndex( numColors, range, value );
-                    *line++ = ( index >= 0 ) ? rgbTable[index] : 0u;
-                }
+				{
+					const uint index = colorMap->colorIndex( numColors, range, value );
+					*line++ = rgbTable[index];
+				}
             }
         }
     }
@@ -576,9 +598,16 @@ void QwtPlotSpectrogram::renderTile(
                 const double tx = xMap.invTransform( x );
 
                 const double value = d_data->data->value( tx, ty );
-                const int index = d_data->colorMap->colorIndex( 256, range, value );
 
-                *line++ = ( index >= 0 ) ? static_cast<unsigned char>( index ) : 0;
+				if ( hasGaps && qwtIsNaN( value ) )
+				{
+					*line++ = 0;
+				}
+				else
+				{
+                	const uint index = d_data->colorMap->colorIndex( 256, range, value );
+                	*line++ = static_cast<unsigned char>( index );
+				}
             }
         }
     }
