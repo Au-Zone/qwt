@@ -192,6 +192,7 @@ void QwtPlotSpectrogram::setMaxRGBTableSize( int numColors )
     {
         d_data->maxRGBColorTableSize = numColors;
         d_data->updateColorTable();
+        invalidateCache();
     }
 }
 
