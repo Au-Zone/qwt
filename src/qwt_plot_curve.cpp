@@ -22,6 +22,22 @@
 #include <qalgorithms.h>
 #include <qmath.h>
 
+static inline QRectF qwtIntersectedClipRect( const QRectF &rect, QPainter *painter )
+{
+    QRectF clipRect = rect;
+    if ( painter->hasClipping() )
+    {
+#if QT_VERSION >= 0x040800
+        const QRectF r = painter->clipBoundingRect();
+#else
+        const QRectF r = painter->clipRegion().boundingRect();
+#endif
+        clipRect &= r;
+    }
+
+    return clipRect;
+}
+
 static void qwtUpdateLegendIconSize( QwtPlotCurve *curve )
 {
     if ( curve->symbol() && 
@@ -455,8 +471,10 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     QRectF clipRect;
     if ( d_data->paintAttributes & ClipPolygons )
     {
-        qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
-        clipRect = canvasRect.adjusted(-pw, -pw, pw, pw);
+        clipRect = qwtIntersectedClipRect( canvasRect, painter );
+
+        const qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
+        clipRect = clipRect.adjusted(-pw, -pw, pw, pw);
     }
 
     bool doIntegers = false;
@@ -779,8 +797,10 @@ void QwtPlotCurve::drawSteps( QPainter *painter,
 
     if ( d_data->paintAttributes & ClipPolygons )
     {
+        const QRectF clipRect = qwtIntersectedClipRect( canvasRect, painter );
+
         const QPolygonF clipped = QwtClipper::clipPolygonF( 
-            canvasRect, polygon, false );
+            clipRect, polygon, false );
 
         QwtPainter::drawPolyline( painter, clipped );
     }
@@ -888,7 +908,10 @@ void QwtPlotCurve::fillCurve( QPainter *painter,
         brush.setColor( d_data->pen.color() );
 
     if ( d_data->paintAttributes & ClipPolygons )
-        polygon = QwtClipper::clipPolygonF( canvasRect, polygon, true );
+    {
+        const QRectF clipRect = qwtIntersectedClipRect( canvasRect, painter );
+        polygon = QwtClipper::clipPolygonF( clipRect, polygon, true );
+    }
 
     painter->save();
 
@@ -968,7 +991,9 @@ void QwtPlotCurve::drawSymbols( QPainter *painter, const QwtSymbol &symbol,
         QwtPainter::roundingAlignment( painter ) );
     mapper.setFlag( QwtPointMapper::WeedOutPoints, 
         testPaintAttribute( QwtPlotCurve::FilterPoints ) );
-    mapper.setBoundingRect( canvasRect );
+
+    const QRectF clipRect = qwtIntersectedClipRect( canvasRect, painter );
+    mapper.setBoundingRect( clipRect );
 
     const int chunkSize = 500;
 
