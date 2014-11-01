@@ -164,6 +164,17 @@ private:
     PrivateData *d_data;
 };
 
+/*!
+  \brief QwtHueColorMap varies the hue value of the HSV color model.
+
+  QwtHueColorMap can be used to set up a color map easily, that runs cyclic over
+  all colors. Each cycle has 360 different steps.
+
+  The values for value and saturation are in the range of 0 to 255 and doesn't
+  depend on the data value to be mapped.
+  
+  \sa QwtSaturationValueColorMap
+*/
 class QWT_EXPORT QwtHueColorMap: public QwtColorMap
 {
 public:
@@ -191,6 +202,15 @@ private:
     PrivateData *d_data;
 };
 
+/*!
+  \brief QwtSaturationValueColorMap varies the saturation and/or value for a given
+         hue in the HSV color model.
+
+  Value and saturation are in the range of 0 to 255 while hue is inthe range
+  of 0 to 259.
+  
+  \sa QwtHueColorMap
+*/
 class QWT_EXPORT QwtSaturationValueColorMap: public QwtColorMap
 {
 public:

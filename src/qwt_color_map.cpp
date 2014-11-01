@@ -301,7 +301,7 @@ uint QwtColorMap::colorIndex( int numColors,
     // accessing value here somehow makes gcc 4.8.1 to create
     // significantly faster assembler code
     if ( ((uchar *)&value)[0] ) asm("");
-	    asm("");
+        asm("");
 #endif
 
     const double width = interval.width();
@@ -565,8 +565,13 @@ public:
 
 
 /*!
-   Constructor
+   \brief Constructor
+
+   The alpha interval is initialized by 0 to 255.
+
    \param color Color of the map
+
+   \sa setColor(), setAlphaInterval()
 */
 QwtAlphaColorMap::QwtAlphaColorMap( const QColor &color ):
     QwtColorMap( QwtColorMap::RGB )
@@ -605,6 +610,17 @@ QColor QwtAlphaColorMap::color() const
     return d_data->color;
 }
 
+/*!
+   Set the interval for the alpha coordinate
+
+   alpha1/alpha2 need to be in the range 0 to 255,
+   where 255 means opaque and 0 means transparent.
+
+   \param alpha1 First alpha coordinate
+   \param alpha2 Second alpha coordinate
+
+   \sa alpha1(), alpha2()
+*/
 void QwtAlphaColorMap::setAlphaInterval( int alpha1, int alpha2 )
 {
     d_data->alpha1 = qBound( 0, alpha1, 255 );
@@ -614,11 +630,19 @@ void QwtAlphaColorMap::setAlphaInterval( int alpha1, int alpha2 )
     d_data->rgbMax = d_data->rgb | ( alpha2 << 24 );
 }
 
+/*! 
+  \return First alpha coordinate
+  \sa setAlphaInterval()
+ */
 int QwtAlphaColorMap::alpha1() const
 {
     return d_data->alpha1;
 }
 
+/*! 
+  \return Second alpha coordinate
+  \sa setAlphaInterval()
+ */
 int QwtAlphaColorMap::alpha2() const
 {
     return d_data->alpha2;
@@ -627,10 +651,9 @@ int QwtAlphaColorMap::alpha2() const
 /*!
   \brief Map a value of a given interval into a alpha value
 
-  alpha := (value - interval.minValue()) / interval.width();
-
   \param interval Range for all values
   \param value Value to map into a RGB value
+
   \return RGB value, with an alpha value
 */
 QRgb QwtAlphaColorMap::rgb( const QwtInterval &interval, double value ) const
@@ -724,17 +747,39 @@ void QwtHueColorMap::PrivateData::updateTable()
     rgbMax = rgbTable[ hue2 % 360 ];
 }
 
+/*!
+   \brief Constructor
+
+   The hue interval is initialized by 0 to 359. All other coordinates
+   are set to 255.
+
+   \param format Format of the color map
+
+   \sa setHueInterval(), setSaturation(), setValue(), setValue()
+*/
 QwtHueColorMap::QwtHueColorMap( QwtColorMap::Format format ):
     QwtColorMap( format )
 {
     d_data = new PrivateData;
 }
 
+//! Destructor
 QwtHueColorMap::~QwtHueColorMap()
 {
     delete d_data;
 }
 
+/*!
+   Set the interval for the hue coordinate
+
+   hue1/hue2 need to be positive number and can be > 360 to define cycles.
+   F.e. 420 to 240 defines a map yellow/red/magenta/blue.
+
+   \param hue1 First hue coordinate
+   \param hue2 Second hue coordinate
+
+   \sa hue1(), hue2()
+*/
 void QwtHueColorMap::setHueInterval( int hue1, int hue2 )
 {
     d_data->hue1 = qMax( hue1, 0 );
@@ -744,6 +789,15 @@ void QwtHueColorMap::setHueInterval( int hue1, int hue2 )
     d_data->rgbMax = d_data->rgbTable[ hue2 % 360 ];
 }
 
+/*!
+   \brief Set the the saturation coordinate
+
+   saturation needs to be in the range 0 to 255,
+
+   \param saturation Saturation coordinate
+
+   \sa saturation()
+*/
 void QwtHueColorMap::setSaturation( int saturation )
 {
     saturation = qBound( 0, saturation, 255 );
@@ -755,6 +809,15 @@ void QwtHueColorMap::setSaturation( int saturation )
     }
 }
 
+/*!
+   \brief Set the the value coordinate
+
+   value needs to be in the range 0 to 255,
+
+   \param value Value coordinate
+
+   \sa value()
+*/
 void QwtHueColorMap::setValue( int value )
 {
     value = qBound( 0, value, 255 );
@@ -766,6 +829,16 @@ void QwtHueColorMap::setValue( int value )
     }
 }
 
+/*!
+   \brief Set the the alpha coordinate
+
+   alpha needs to be in the range 0 to 255,
+   where 255 means opaque and 0 means transparent.
+
+   \param alpha Alpha coordinate
+
+   \sa alpha()
+*/
 void QwtHueColorMap::setAlpha( int alpha )
 {
     alpha = qBound( 0, alpha, 255 );
@@ -777,31 +850,59 @@ void QwtHueColorMap::setAlpha( int alpha )
     }
 }
 
+/*! 
+  \return First hue coordinate
+  \sa setHueInterval()
+ */
 int QwtHueColorMap::hue1() const
 {
     return d_data->hue1;
 }
 
+/*! 
+  \return Second hue coordinate
+  \sa setHueInterval()
+ */
 int QwtHueColorMap::hue2() const
 {
     return d_data->hue2;
 }
 
+/*! 
+  \return Saturation coordinate
+  \sa setSaturation()
+ */ 
 int QwtHueColorMap::saturation() const
 {
     return d_data->saturation;
 }
 
+/*! 
+  \return Value coordinate
+  \sa setValue()
+ */
 int QwtHueColorMap::value() const
 {
     return d_data->value;
 }
 
+/*! 
+  \return Alpha coordinate
+  \sa setAlpha()
+ */ 
 int QwtHueColorMap::alpha() const
 {
     return d_data->alpha;
 }
 
+/*!
+  Map a value of a given interval into a RGB value
+
+  \param interval Range for all values
+  \param value Value to map into a RGB value
+
+  \return RGB value for value
+*/
 QRgb QwtHueColorMap::rgb( const QwtInterval &interval, double value ) const
 {
     const double width = interval.width();
@@ -895,16 +996,38 @@ public:
     QVector<QRgb> rgbTable;
 };
 
+/*!
+   \brief Constructor
+
+   The value interval is initialized by 0 to 255,
+   saturation by 255 to 255. Hue to 0 and alpha to 255. 
+
+   So the default setting interpolates the value coordinate only.
+
+   \param format Format of the color map
+
+   \sa setHueInterval(), setSaturation(), setValue(), setValue()
+*/
 QwtSaturationValueColorMap::QwtSaturationValueColorMap()
 {
     d_data = new PrivateData;
 }
 
+//! Destructor
 QwtSaturationValueColorMap::~QwtSaturationValueColorMap()
 {
     delete d_data;
 }
 
+/*!
+   \brief Set the the hue coordinate
+
+   Hue coordinates ouside 0 to 359 will be interpreted as hue % 360..
+
+   \param hue Hue coordinate
+        
+   \sa hue()
+*/
 void QwtSaturationValueColorMap::setHue( int hue )
 {
     hue = hue % 360;
@@ -916,21 +1039,46 @@ void QwtSaturationValueColorMap::setHue( int hue )
     }
 }
 
-void QwtSaturationValueColorMap::setSaturationInterval( int sat1, int sat2 )
-{
-    sat1 = qBound( 0, sat1, 255 );
-    sat2 = qBound( 0, sat2, 255 );
+/*!
+   \brief Set the interval for the saturation coordinate
 
-    if ( ( sat1 != d_data->sat1 ) || ( sat2 != d_data->sat2 ) )
+   When saturation1 == saturation2 the map interpolates between 
+   the value coordinates only
+
+   saturation1/saturation2 need to be in the range 0 to 255.
+
+   \param saturation1 First saturation
+   \param saturation2 Second saturation
+
+   \sa saturation1(), saturation2(), setValueInterval()
+*/
+void QwtSaturationValueColorMap::setSaturationInterval( 
+    int saturation1, int saturation2 )
+{
+    saturation1 = qBound( 0, saturation1, 255 );
+    saturation2 = qBound( 0, saturation2, 255 );
+
+    if ( ( saturation1 != d_data->sat1 ) || ( saturation2 != d_data->sat2 ) )
     {
-        d_data->sat1 = sat1;
-        d_data->sat1 = sat1;
-        d_data->sat1 = sat1;
+        d_data->sat1 = saturation1;
+        d_data->sat2 = saturation2;
 
         d_data->updateTable();
     }
 }
 
+/*!
+   \brief Set the interval for the value coordinate
+
+   When value1 == value2 the map interpolates between the saturation coordinates only.
+
+   value1/value2 need to be in the range 0 to 255.
+
+   \param value1 First value
+   \param value2 Second value
+
+   \sa value1(), value2(), setSaturationInterval()
+*/
 void QwtSaturationValueColorMap::setValueInterval( int value1, int value2 )
 {
     value1 = qBound( 0, value1, 255 );
@@ -945,6 +1093,16 @@ void QwtSaturationValueColorMap::setValueInterval( int value1, int value2 )
     }
 }
 
+/*!
+   \brief Set the the alpha coordinate
+
+   alpha needs to be in the range 0 to 255,
+   where 255 means opaque and 0 means transparent.
+
+   \param alpha Alpha coordinate
+        
+   \sa alpha()
+*/  
 void QwtSaturationValueColorMap::setAlpha( int alpha )
 {
     alpha = qBound( 0, alpha, 255 );
@@ -956,37 +1114,70 @@ void QwtSaturationValueColorMap::setAlpha( int alpha )
     }
 }
 
+/*! 
+  \return Hue coordinate
+  \sa setHue()
+ */
 int QwtSaturationValueColorMap::hue() const
 {
     return d_data->hue;
 }
 
+/*! 
+  \return First saturation coordinate
+  \sa setSaturationInterval()
+ */
 int QwtSaturationValueColorMap::saturation1() const
 {
     return d_data->sat1;
 }
 
+/*! 
+  \return Second saturation coordinate
+  \sa setSaturationInterval()
+ */
 int QwtSaturationValueColorMap::saturation2() const
 {
     return d_data->sat2;
 }
 
+/*! 
+  \return First value coordinate
+  \sa setValueInterval()
+ */
 int QwtSaturationValueColorMap::value1() const
 {
     return d_data->value1;
 }
 
+/*! 
+  \return Second value coordinate
+  \sa setValueInterval()
+ */ 
 int QwtSaturationValueColorMap::value2() const
 {
     return d_data->value2;
 }
 
+/*! 
+  \return Alpha coordinate
+  \sa setAlpha()
+ */ 
 int QwtSaturationValueColorMap::alpha() const
 {
     return d_data->alpha;
 }
 
-QRgb QwtSaturationValueColorMap::rgb( const QwtInterval &interval, double value ) const
+/*!
+  Map a value of a given interval into a RGB value
+
+  \param interval Range for all values
+  \param value Value to map into a RGB value
+
+  \return RGB value for value
+*/
+QRgb QwtSaturationValueColorMap::rgb( 
+    const QwtInterval &interval, double value ) const
 {
     const double width = interval.width();
     if ( width <= 0 )
