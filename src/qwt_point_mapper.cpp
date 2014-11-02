@@ -29,6 +29,110 @@
 
 static QRectF qwtInvalidRect( 0.0, 0.0, -1.0, -1.0 );
 
+static inline int qwtRoundValue( double value )
+{
+#if 1
+    return qRound( value );
+#else
+    // A little bit faster, but differs from qRound()
+    // for negative values. Should be no problem as we are
+    // rounding widgets coordinates, where negative values 
+    // are clipped off anyway ( at least when there is no 
+    // painter transformation )
+
+    return static_cast<int>( value + 0.5 );
+#endif
+}
+
+class QwtPolygonQuadrupel
+{
+public:
+    inline void start( int x, int y )
+    {
+        x0 = x;
+        y1 = yMin = yMax = y2 = y;
+    }
+
+    inline bool append( int x, int y )
+    {
+        if ( x0 != x )
+            return false;
+
+        if ( y < yMin )
+            yMin = y;
+        else if ( y > yMax )
+            yMax = y;
+
+        y2 = y;
+
+        return true;
+    }
+
+    inline void flush( QPolygon &polyline )
+    {
+        polyline += QPoint( x0, y1 );
+
+        if ( y2 > y1 )
+        {
+            if ( yMin != y1 )
+                polyline += QPoint( x0, yMin );
+
+            if ( yMax != yMin )
+            {
+                polyline += QPoint( x0, yMax );
+            }
+
+            if ( y2 != yMax )
+                polyline += QPoint( x0, y2 );
+        }
+        else
+        {
+            if ( yMax != y1 )
+                polyline += QPoint( x0, yMax );
+
+            if ( yMax != yMin )
+                polyline += QPoint( x0, yMin );
+
+            if ( y2 != yMax )
+                polyline += QPoint( x0, y2 );
+        }
+    }
+
+private:
+    int x0, y1, yMin, yMax, y2;
+};
+
+static QPolygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QwtSeriesData<QPointF> *series, int from, int to ) 
+{
+    QPolygon polyline;
+    if ( from > to )
+        return polyline;
+
+    const QPointF sample0 = series->sample( from );
+
+    QwtPolygonQuadrupel q;
+    q.start( qwtRoundValue( xMap.transform( sample0.x() ) ),
+        qwtRoundValue( yMap.transform( sample0.y() ) ) );
+
+    for ( int i = from; i <= to; i++ )
+    {
+        const QPointF sample = series->sample( i );
+
+        const int x = qwtRoundValue( xMap.transform( sample.x() ) );
+        const int y = qwtRoundValue( yMap.transform( sample.y() ) );
+
+        if ( !q.append( x, y ) )
+        {
+            q.flush( polyline );
+            q.start( x, y );
+        }
+    }
+    q.flush( polyline );
+
+    return polyline;
+}
+
 // Helper class to work around the 5 parameters
 // limitation of QtConcurrent::run()
 class QwtDotsCommand
@@ -63,21 +167,6 @@ static void qwtRenderDots(
         if ( x >= 0 && x < w && y >= 0 && y < h )
             bits[ y * w + x ] = rgb;
     }
-}
-
-static inline int qwtRoundValue( double value )
-{
-#if 1
-    return qRound( value );
-#else
-    // A little bit faster, but differs from qRound()
-    // for negative values. Should be no problem as we are
-    // rounding widgets coordinates, where negative values 
-    // are clipped off anyway ( at least when there is no 
-    // painter transformation )
-
-    return static_cast<int>( value + 0.5 );
-#endif
 }
 
 // some functors, so that the compile can inline
@@ -463,7 +552,12 @@ QPolygon QwtPointMapper::toPolygon(
 {
     QPolygon polyline;
 
-    if ( d_data->flags & WeedOutPoints )
+    if ( d_data->flags & WeedOutIntermediatePointsX )
+    {
+        // TODO WeedOutIntermediatePointsY ...
+        polyline = qwtMapPointsQuad( xMap, yMap, series, from, to );
+    }
+    else if ( d_data->flags & WeedOutPoints )
     {
         polyline = qwtToPolylineFilteredI( 
             xMap, yMap, series, from, to );
@@ -719,3 +813,4 @@ QImage QwtPointMapper::toImage(
 
     return image;
 }
+

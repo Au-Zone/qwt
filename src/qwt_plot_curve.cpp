@@ -496,11 +496,13 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     }
 #endif
 
-    const bool noDuplicates = d_data->paintAttributes & FilterPoints;
-
     QwtPointMapper mapper;
     mapper.setFlag( QwtPointMapper::RoundPoints, doAlign );
-    mapper.setFlag( QwtPointMapper::WeedOutPoints, noDuplicates );
+    mapper.setFlag( QwtPointMapper::WeedOutPoints, 
+        testPaintAttribute( FilterPoints ) || 
+        testPaintAttribute( FilterPointsAggressive ) );
+    mapper.setFlag( QwtPointMapper::WeedOutIntermediatePointsX, 
+        testPaintAttribute( FilterPointsAggressive ) );
     mapper.setBoundingRect( canvasRect );
 
     if ( doIntegers )
@@ -508,7 +510,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
         QPolygon polyline = mapper.toPolygon( 
             xMap, yMap, data(), from, to );
 
-        if ( d_data->paintAttributes & ClipPolygons )
+        if ( testPaintAttribute( ClipPolygons ) )
         {
             polyline = QwtClipper::clipPolygon( 
                 clipRect.toAlignedRect(), polyline, false );
@@ -552,7 +554,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
         }
         else
         {
-            if ( d_data->paintAttributes & ClipPolygons )
+            if ( testPaintAttribute( ClipPolygons ) )
             {
                 polyline = QwtClipper::clipPolygonF( 
                     clipRect, polyline, false );

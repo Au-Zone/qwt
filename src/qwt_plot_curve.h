@@ -204,7 +204,27 @@ public:
           With a reasonable number of points QPainter::drawPoints()
           will be faster.
          */
-        ImageBuffer = 0x08
+        ImageBuffer = 0x08,
+
+        /*!
+          More aggressive point filtering trying to filter out
+          intermediate points, accepting minor visual differences.
+
+          Has only an effect, when drawing the curve to a paint device
+          in integer coordinates ( f.e. all widgets on screen ) using the fact, 
+          that conseqcutive points are often mapped to the same x or y coordinate.
+          Each chunk of samples mapped to the same coordinate can be reduced to
+          4 points ( first, min, max last ).
+
+          In the worst case the polygon to be rendered will be 4 times the width
+          of the plot canvas.
+
+          The algorithm is very fast and effective for huge datasets, that are
+          ordered according to x or y.
+
+          \note Currently implemented for x coordinates and QwtPlotCurve::Lines
+         */
+        FilterPointsAggressive = 0x10,
     };
 
     //! Paint attributes
