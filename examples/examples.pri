@@ -19,6 +19,9 @@ TEMPLATE     = app
 INCLUDEPATH += $${QWT_ROOT}/src
 DEPENDPATH  += $${QWT_ROOT}/src
 
+INCLUDEPATH += $${QWT_ROOT}/classincludes
+DEPENDPATH  += $${QWT_ROOT}/classincludes
+
 !debug_and_release {
 
     DESTDIR      = $${QWT_OUT_ROOT}/examples/bin
