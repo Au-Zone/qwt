@@ -98,6 +98,37 @@ public:
         }
     }
 
+    inline void flushF( QPolygonF &polyline )
+    {
+        polyline += QPointF( x0, y1 );
+
+        if ( y2 > y1 )
+        {
+            if ( yMin != y1 )
+                polyline += QPointF( x0, yMin );
+
+            if ( yMax != yMin )
+            {
+                polyline += QPointF( x0, yMax );
+            }
+
+            if ( y2 != yMax )
+                polyline += QPointF( x0, y2 );
+        }
+        else
+        {
+            if ( yMax != y1 )
+                polyline += QPointF( x0, yMax );
+
+            if ( yMax != yMin )
+                polyline += QPointF( x0, yMin );
+
+            if ( y2 != yMax )
+                polyline += QPointF( x0, y2 );
+        }
+    }
+
+
 private:
     int x0, y1, yMin, yMax, y2;
 };
@@ -129,6 +160,37 @@ static QPolygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yM
         }
     }
     q.flush( polyline );
+
+    return polyline;
+}
+
+static QPolygonF qwtMapPointsQuadF( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QwtSeriesData<QPointF> *series, int from, int to )
+{
+    QPolygonF polyline;
+    if ( from > to )
+        return polyline;
+
+    const QPointF sample0 = series->sample( from );
+
+    QwtPolygonQuadrupel q;
+    q.start( qwtRoundValue( xMap.transform( sample0.x() ) ),
+        qwtRoundValue( yMap.transform( sample0.y() ) ) );
+
+    for ( int i = from; i <= to; i++ )
+    {
+        const QPointF sample = series->sample( i );
+
+        const int x = qwtRoundValue( xMap.transform( sample.x() ) );
+        const int y = qwtRoundValue( yMap.transform( sample.y() ) );
+
+        if ( !q.append( x, y ) )
+        {
+            q.flushF( polyline );
+            q.start( x, y );
+        }
+    }
+    q.flushF( polyline );
 
     return polyline;
 }
@@ -502,25 +564,30 @@ QPolygonF QwtPointMapper::toPolygonF(
 {
     QPolygonF polyline;
 
-    if ( d_data->flags & WeedOutPoints )
+    if ( d_data->flags & RoundPoints )
     {
-        if ( d_data->flags & RoundPoints )
+        if ( d_data->flags & WeedOutIntermediatePointsX )
+        {
+            // TODO WeedOutIntermediatePointsY ...
+            polyline = qwtMapPointsQuadF( xMap, yMap, series, from, to );
+        }
+        else if ( d_data->flags & WeedOutPoints )
         {
             polyline = qwtToPolylineFilteredF( 
                 xMap, yMap, series, from, to, QwtRoundF() );
         }
         else
         {
-            polyline = qwtToPolylineFilteredF( 
-                xMap, yMap, series, from, to, QwtNoRoundF() );
+            polyline = qwtToPointsF( qwtInvalidRect, 
+                xMap, yMap, series, from, to, QwtRoundF() );
         }
     }
     else
     {
-        if ( d_data->flags & RoundPoints )
+        if ( d_data->flags & WeedOutPoints )
         {
-            polyline = qwtToPointsF( qwtInvalidRect, 
-                xMap, yMap, series, from, to, QwtRoundF() );
+            polyline = qwtToPolylineFilteredF( 
+                xMap, yMap, series, from, to, QwtNoRoundF() );
         }
         else
         {

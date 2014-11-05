@@ -497,12 +497,18 @@ void QwtPlotCurve::drawLines( QPainter *painter,
 #endif
 
     QwtPointMapper mapper;
-    mapper.setFlag( QwtPointMapper::RoundPoints, doAlign );
+
+    if ( doAlign )
+    {
+        mapper.setFlag( QwtPointMapper::RoundPoints, true );
+        mapper.setFlag( QwtPointMapper::WeedOutIntermediatePointsX, 
+            testPaintAttribute( FilterPointsAggressive ) );
+    }
+
     mapper.setFlag( QwtPointMapper::WeedOutPoints, 
         testPaintAttribute( FilterPoints ) || 
         testPaintAttribute( FilterPointsAggressive ) );
-    mapper.setFlag( QwtPointMapper::WeedOutIntermediatePointsX, 
-        testPaintAttribute( FilterPointsAggressive ) );
+
     mapper.setBoundingRect( canvasRect );
 
     if ( doIntegers )
