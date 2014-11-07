@@ -78,9 +78,7 @@ public:
                 polyline += QPoint( x0, yMin );
 
             if ( yMax != yMin )
-            {
                 polyline += QPoint( x0, yMax );
-            }
 
             if ( y2 != yMax )
                 polyline += QPoint( x0, y2 );
@@ -90,10 +88,10 @@ public:
             if ( yMax != y1 )
                 polyline += QPoint( x0, yMax );
 
-            if ( yMax != yMin )
+            if ( yMin != yMax )
                 polyline += QPoint( x0, yMin );
 
-            if ( y2 != yMax )
+            if ( y2 != yMin )
                 polyline += QPoint( x0, y2 );
         }
     }
@@ -108,9 +106,7 @@ public:
                 polyline += QPointF( x0, yMin );
 
             if ( yMax != yMin )
-            {
                 polyline += QPointF( x0, yMax );
-            }
 
             if ( y2 != yMax )
                 polyline += QPointF( x0, y2 );
@@ -120,10 +116,10 @@ public:
             if ( yMax != y1 )
                 polyline += QPointF( x0, yMax );
 
-            if ( yMax != yMin )
+            if ( yMin != yMax )
                 polyline += QPointF( x0, yMin );
 
-            if ( y2 != yMax )
+            if ( y2 != yMin )
                 polyline += QPointF( x0, y2 );
         }
     }
