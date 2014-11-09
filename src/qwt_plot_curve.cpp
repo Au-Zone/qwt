@@ -479,22 +479,33 @@ void QwtPlotCurve::drawLines( QPainter *painter,
 
     bool doIntegers = false;
 
-#if QT_VERSION < 0x040800
-
-    // For Qt <= 4.7 the raster paint engine is significantly faster
-    // for rendering QPolygon than for QPolygonF. So let's
-    // see if we can use it.
-
     if ( painter->paintEngine()->type() == QPaintEngine::Raster )
     {
+#if QT_VERSION < 0x040800
+
+        // For Qt <= 4.7 the raster paint engine is significantly faster
+        // for rendering QPolygon than for QPolygonF. So let's
+        // see if we can use it.
+
         // In case of filling or fitting performance doesn't count
         // because both operations are much more expensive
         // then drawing the polyline itself
 
         if ( !doFit && !doFill )
             doIntegers = true; 
-    }
 #endif
+#if QT_VERSION >= 0x050000
+        if ( testPaintAttribute( FilterPointsAggressive ) )
+        {
+            // Sequences of short lines are translated into longer lines
+            // in this mode, where bugs/features (?) of the raster paint engine
+            // ( since Qt 4.8.x ) become significant. In Qt4CompatiblePainting we
+            // still have issues, but not that many.
+
+            painter->setRenderHint( QPainter::Qt4CompatiblePainting, true );
+        }
+#endif
+    }
 
     QwtPointMapper mapper;
 

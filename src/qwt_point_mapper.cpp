@@ -98,7 +98,16 @@ public:
 
     inline void flushF( QPolygonF &polyline )
     {
+#if QT_VERSION >= 0x040800
+        // adding some small offset works around a bug in 
+        // the raster paint engine. The offset will be rounded
+        // away later anyway.
+
+        polyline += QPointF( x0 + 0.1, y1 );
+#else
         polyline += QPointF( x0, y1 );
+#endif
+
 
         if ( y2 > y1 )
         {
@@ -123,7 +132,6 @@ public:
                 polyline += QPointF( x0, y2 );
         }
     }
-
 
 private:
     int x0, y1, yMin, yMax, y2;
