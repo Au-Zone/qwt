@@ -47,8 +47,20 @@ static inline int qwtRoundValue( double value )
 class QwtPolygonQuadrupel
 {
 public:
+    inline void start0( int x, int y )
+    {
+        x0 = x;
+        y1 = yMin = yMax = y2 = y;
+        yMinPrevious = yMaxPrevious = y;
+    }
+
     inline void start( int x, int y )
     {
+        yMinPrevious = yMin;
+        yMaxPrevious = yMax;
+        dx = x - x0;
+        dy = y - y2;
+
         x0 = x;
         y1 = yMin = yMax = y2 = y;
     }
@@ -68,8 +80,61 @@ public:
         return true;
     }
 
+    inline int adjustedY1() const
+    {
+        // a line needs to have at least 2 pixels to avoid 
+        // a Qt bug in the raster paint engine.
+        // Fixed in: https://codereview.qt-project.org/#/c/99456
+
+        switch(dy)
+        {
+            case -1:
+            {
+                if ( y1 > yMin )
+                {
+                    if ( y1 >= yMinPrevious )
+                        return y1 - 1;
+                }
+
+                break;
+            }
+            case 0:
+            {
+                if ( y1 > yMin )
+                {
+                    return y1 - 2;
+                }
+
+                if ( y1 < yMax )
+                {
+                    return y1 + 2;
+                }
+
+                break;
+            }
+            case 1:
+            {
+                if ( y1 < yMax )
+                {
+                    if ( y1 <= yMaxPrevious )
+                        return y1 + 1;
+                    
+                }
+
+                break;
+            }
+        }
+
+        return y1;
+    }
+
     inline void flush( QPolygon &polyline )
     {
+#if QT_VERSION >= 0x040800
+        if ( qAbs(dx) == 1 )
+            y1 = adjustedY1();
+#endif
+
         polyline += QPoint( x0, y1 );
 
         if ( y2 > y1 )
@@ -99,15 +164,26 @@ public:
     inline void flushF( QPolygonF &polyline )
     {
 #if QT_VERSION >= 0x040800
-        // adding some small offset works around a bug in 
-        // the raster paint engine. The offset will be rounded
-        // away later anyway.
+        if ( qAbs(dx) == 1 )
+        {
+#if 0
+            if ( qAbs(dy) <= 1 )
+            {
 
-        polyline += QPointF( x0 + 0.1, y1 );
-#else
-        polyline += QPointF( x0, y1 );
+                const int yA = adjustedY1();
+
+                qDebug() << "XX: " << x0 << ":" 
+                    << "[" << yMinPrevious << yMaxPrevious << "]" << y1 - dy 
+                    << "->" 
+                    << "[" << yMin << yMax << "]" << y1
+                    << "->" << yA;
+            }
+#endif
+            y1 = adjustedY1();
+        }
 #endif
 
+        polyline += QPointF( x0, y1 );
 
         if ( y2 > y1 )
         {
@@ -134,7 +210,8 @@ public:
     }
 
 private:
-    int x0, y1, yMin, yMax, y2;
+    int x0, y1, yMin, yMax, y2, dx, dy;
+    int yMinPrevious, yMaxPrevious;
 };
 
 static QPolygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -178,7 +255,7 @@ static QPolygonF qwtMapPointsQuadF( const QwtScaleMap &xMap, const QwtScaleMap &
     const QPointF sample0 = series->sample( from );
 
     QwtPolygonQuadrupel q;
-    q.start( qwtRoundValue( xMap.transform( sample0.x() ) ),
+    q.start0( qwtRoundValue( xMap.transform( sample0.x() ) ),
         qwtRoundValue( yMap.transform( sample0.y() ) ) );
 
     for ( int i = from; i <= to; i++ )

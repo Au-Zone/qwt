@@ -568,19 +568,19 @@ void QwtPlotSpectrogram::renderTile(
 
                 const double value = d_data->data->value( tx, ty );
 
-				if ( hasGaps && qwtIsNaN( value ) )
-				{
-					*line++ = 0u;
-				}
-				else if ( numColors == 0 )
-				{
-					*line++ = colorMap->rgb( range, value );
-				}
+                if ( hasGaps && qwtIsNaN( value ) )
+                {
+                    *line++ = 0u;
+                }
+                else if ( numColors == 0 )
+                {
+                    *line++ = colorMap->rgb( range, value );
+                }
                 else
-				{
-					const uint index = colorMap->colorIndex( numColors, range, value );
-					*line++ = rgbTable[index];
-				}
+                {
+                    const uint index = colorMap->colorIndex( numColors, range, value );
+                    *line++ = rgbTable[index];
+                }
             }
         }
     }
@@ -599,15 +599,15 @@ void QwtPlotSpectrogram::renderTile(
 
                 const double value = d_data->data->value( tx, ty );
 
-				if ( hasGaps && qwtIsNaN( value ) )
-				{
-					*line++ = 0;
-				}
-				else
-				{
-                	const uint index = d_data->colorMap->colorIndex( 256, range, value );
-                	*line++ = static_cast<unsigned char>( index );
-				}
+                if ( hasGaps && qwtIsNaN( value ) )
+                {
+                    *line++ = 0;
+                }
+                else
+                {
+                    const uint index = d_data->colorMap->colorIndex( 256, range, value );
+                    *line++ = static_cast<unsigned char>( index );
+                }
             }
         }
     }
