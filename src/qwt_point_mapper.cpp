@@ -27,6 +27,10 @@
 
 #endif
 
+#if QT_VERSION >= 0x040800
+#define QWT_WORKAROUND_RASTER_PAINTENGINE 1
+#endif
+
 static QRectF qwtInvalidRect( 0.0, 0.0, -1.0, -1.0 );
 
 static inline int qwtRoundValue( double value )
@@ -43,6 +47,32 @@ static inline int qwtRoundValue( double value )
     return static_cast<int>( value + 0.5 );
 #endif
 }
+
+#if QWT_WORKAROUND_RASTER_PAINTENGINE
+
+#include <QImage>
+#include <QPainter>
+
+static bool qwtIsRasterPaintEngineBuggy()
+{
+    // auto detect bug of the raster paint engine
+    QImage image( 2, 3, QImage::Format_ARGB32 );
+    image.fill( 0u );
+
+    QPolygonF p;
+    p += QPointF(0, 1);
+    p += QPointF(0, 0);
+    p += QPointF(1, 0 );
+    p += QPointF(1, 2 );
+
+    QPainter painter( &image );
+    painter.drawPolyline( p );
+    painter.end();
+
+    return image.pixel( 1, 1 ) == 0;
+}
+
+#endif
 
 class QwtPolygonQuadrupel
 {
@@ -79,6 +109,8 @@ public:
 
         return true;
     }
+
+#if QWT_WORKAROUND_RASTER_PAINTENGINE
 
     inline int adjustedY1() const
     {
@@ -128,11 +160,18 @@ public:
         return y1;
     }
 
-    inline void flush( QPolygon &polyline )
+#endif
+
+    template <class T>
+    inline void flush( T &polyline )
     {
-#if QT_VERSION >= 0x040800
+#if QWT_WORKAROUND_RASTER_PAINTENGINE
         if ( qAbs(dx) == 1 )
-            y1 = adjustedY1();
+        {
+            static bool doWorkaround = qwtIsRasterPaintEngineBuggy();
+            if ( doWorkaround )
+                y1 = adjustedY1();
+        }
 #endif
 
         polyline += QPoint( x0, y1 );
@@ -158,54 +197,6 @@ public:
 
             if ( y2 != yMin )
                 polyline += QPoint( x0, y2 );
-        }
-    }
-
-    inline void flushF( QPolygonF &polyline )
-    {
-#if QT_VERSION >= 0x040800
-        if ( qAbs(dx) == 1 )
-        {
-#if 0
-            if ( qAbs(dy) <= 1 )
-            {
-
-                const int yA = adjustedY1();
-
-                qDebug() << "XX: " << x0 << ":" 
-                    << "[" << yMinPrevious << yMaxPrevious << "]" << y1 - dy 
-                    << "->" 
-                    << "[" << yMin << yMax << "]" << y1
-                    << "->" << yA;
-            }
-#endif
-            y1 = adjustedY1();
-        }
-#endif
-
-        polyline += QPointF( x0, y1 );
-
-        if ( y2 > y1 )
-        {
-            if ( yMin != y1 )
-                polyline += QPointF( x0, yMin );
-
-            if ( yMax != yMin )
-                polyline += QPointF( x0, yMax );
-
-            if ( y2 != yMax )
-                polyline += QPointF( x0, y2 );
-        }
-        else
-        {
-            if ( yMax != y1 )
-                polyline += QPointF( x0, yMax );
-
-            if ( yMin != yMax )
-                polyline += QPointF( x0, yMin );
-
-            if ( y2 != yMin )
-                polyline += QPointF( x0, y2 );
         }
     }
 
@@ -267,11 +258,11 @@ static QPolygonF qwtMapPointsQuadF( const QwtScaleMap &xMap, const QwtScaleMap &
 
         if ( !q.append( x, y ) )
         {
-            q.flushF( polyline );
+            q.flush<QPolygonF>( polyline );
             q.start( x, y );
         }
     }
-    q.flushF( polyline );
+    q.flush<QPolygonF>( polyline );
 
     return polyline;
 }
