@@ -52,9 +52,13 @@ static inline int qwtRoundValue( double value )
 
 #include <QImage>
 #include <QPainter>
+#include <qwt_painter.h>
 
-static bool qwtIsRasterPaintEngineBuggy()
+static bool qwtIsPaintEngineBuggy()
 {
+    if ( QwtPainter::isX11GraphicsSystem() )
+        return false;
+
     // auto detect bug of the raster paint engine
     QImage image( 2, 3, QImage::Format_ARGB32 );
     image.fill( 0u );
@@ -168,7 +172,7 @@ public:
 #if QWT_WORKAROUND_RASTER_PAINTENGINE
         if ( qAbs(dx) == 1 )
         {
-            static bool doWorkaround = qwtIsRasterPaintEngineBuggy();
+            static bool doWorkaround = qwtIsPaintEngineBuggy();
             if ( doWorkaround )
                 y1 = adjustedY1();
         }
