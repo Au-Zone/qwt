@@ -84,7 +84,8 @@ static inline void qwtDrawPolyline( QPainter *painter,
 
     if ( doSplit )
     {
-        const int splitSize = 20;
+        const int splitSize = 6;
+
         for ( int i = 0; i < pointCount; i += splitSize )
         {
             const int n = qMin( splitSize + 1, pointCount - i );
@@ -92,7 +93,9 @@ static inline void qwtDrawPolyline( QPainter *painter,
         }
     }
     else
+    {
         painter->drawPolyline( points, pointCount );
+    }
 }
 
 static inline QSize qwtScreenResolution()
