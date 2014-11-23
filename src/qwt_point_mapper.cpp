@@ -27,10 +27,6 @@
 
 #endif
 
-#if QT_VERSION >= 0x040800
-#define QWT_WORKAROUND_RASTER_PAINTENGINE 1
-#endif
-
 static QRectF qwtInvalidRect( 0.0, 0.0, -1.0, -1.0 );
 
 static inline int qwtRoundValue( double value )
@@ -48,36 +44,6 @@ static inline int qwtRoundValue( double value )
 #endif
 }
 
-#if QWT_WORKAROUND_RASTER_PAINTENGINE
-
-#include <QImage>
-#include <QPainter>
-#include <qwt_painter.h>
-
-static bool qwtIsPaintEngineBuggy()
-{
-    if ( QwtPainter::isX11GraphicsSystem() )
-        return false;
-
-    // auto detect bug of the raster paint engine
-    QImage image( 2, 3, QImage::Format_ARGB32 );
-    image.fill( 0u );
-
-    QPolygonF p;
-    p += QPointF(0, 1);
-    p += QPointF(0, 0);
-    p += QPointF(1, 0 );
-    p += QPointF(1, 2 );
-
-    QPainter painter( &image );
-    painter.drawPolyline( p );
-    painter.end();
-
-    return image.pixel( 1, 1 ) == 0;
-}
-
-#endif
-
 class QwtPolygonQuadrupel
 {
 public:
@@ -85,16 +51,10 @@ public:
     {
         x0 = x;
         y1 = yMin = yMax = y2 = y;
-        yMinPrevious = yMaxPrevious = y;
     }
 
     inline void start( int x, int y )
     {
-        yMinPrevious = yMin;
-        yMaxPrevious = yMax;
-        dx = x - x0;
-        dy = y - y2;
-
         x0 = x;
         y1 = yMin = yMax = y2 = y;
     }
@@ -114,70 +74,9 @@ public:
         return true;
     }
 
-#if QWT_WORKAROUND_RASTER_PAINTENGINE
-
-    inline int adjustedY1() const
-    {
-        // a line needs to have at least 2 pixels to avoid 
-        // a Qt bug in the raster paint engine.
-        // Fixed in: https://codereview.qt-project.org/#/c/99456
-
-        switch(dy)
-        {
-            case -1:
-            {
-                if ( y1 > yMin )
-                {
-                    if ( y1 >= yMinPrevious )
-                        return y1 - 1;
-                }
-
-                break;
-            }
-            case 0:
-            {
-                if ( y1 > yMin )
-                {
-                    return y1 - 2;
-                }
-
-                if ( y1 < yMax )
-                {
-                    return y1 + 2;
-                }
-
-                break;
-            }
-            case 1:
-            {
-                if ( y1 < yMax )
-                {
-                    if ( y1 <= yMaxPrevious )
-                        return y1 + 1;
-                    
-                }
-
-                break;
-            }
-        }
-
-        return y1;
-    }
-
-#endif
-
     template <class T>
     inline void flush( T &polyline )
     {
-#if QWT_WORKAROUND_RASTER_PAINTENGINE
-        if ( qAbs(dx) == 1 )
-        {
-            static bool doWorkaround = qwtIsPaintEngineBuggy();
-            if ( doWorkaround )
-                y1 = adjustedY1();
-        }
-#endif
-
         polyline += QPoint( x0, y1 );
 
         if ( y2 > y1 )
@@ -205,8 +104,7 @@ public:
     }
 
 private:
-    int x0, y1, yMin, yMax, y2, dx, dy;
-    int yMinPrevious, yMaxPrevious;
+    int x0, y1, yMin, yMax, y2;
 };
 
 static QPolygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -956,4 +854,3 @@ QImage QwtPointMapper::toImage(
 
     return image;
 }
-
