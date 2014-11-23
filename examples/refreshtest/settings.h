@@ -24,7 +24,7 @@ public:
     Settings()
     {
         grid.pen = Qt::NoPen;
-		grid.pen.setCosmetic( true );
+        grid.pen.setCosmetic( true );
 
         curve.brush = Qt::NoBrush;
         curve.numPoints = 1000;

@@ -156,6 +156,8 @@ void Plot::setSettings( const Settings &s )
         s.curve.paintAttributes & QwtPlotCurve::ClipPolygons );
     d_curve->setPaintAttribute( QwtPlotCurve::FilterPoints,
         s.curve.paintAttributes & QwtPlotCurve::FilterPoints );
+    d_curve->setPaintAttribute( QwtPlotCurve::FilterPointsAggressive,
+        s.curve.paintAttributes & QwtPlotCurve::FilterPointsAggressive );
 
     d_curve->setRenderHint( QwtPlotItem::RenderAntialiased,
         s.curve.renderHint & QwtPlotItem::RenderAntialiased );
