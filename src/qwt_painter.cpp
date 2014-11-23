@@ -72,19 +72,40 @@ static inline void qwtDrawPolyline( QPainter *painter,
         const QPaintEngine *pe = painter->paintEngine();
         if ( pe && pe->type() == QPaintEngine::Raster )
         {
-            /*
-                The raster paint engine seems to use some algo with O(n*n).
-                ( Qt 4.3 is better than Qt 4.2, but remains unacceptable)
-                To work around this problem, we have to split the polygon into
-                smaller pieces.
-             */
-            doSplit = true;
+            if ( painter->pen().width() <= 1 )
+            {
+                /*
+                   for a pen width <= 1.0 the raster paint engine
+                   is o.k. - beside below
+                 */
+#if QT_VERSION < 0x040800
+                if ( painter->renderHints() & QPainter::Antialiasing )
+                {
+                    /*
+                        all versions <= 4.7 have issues with 
+                        antialiased lines
+                     */
+
+                    doSplit = true;
+                }
+#endif
+            }
+            else
+            {
+                /*
+                   Raster paint engine is much faster when splitting
+                   the polygon, but of course we might see some issues where
+                   the pieces are joining
+                 */
+                doSplit = true;
+            }
         }
     }
 
     if ( doSplit )
     {
-        const int splitSize = 20;
+        const int splitSize = 6;
+
         for ( int i = 0; i < pointCount; i += splitSize )
         {
             const int n = qMin( splitSize + 1, pointCount - i );
@@ -92,7 +113,9 @@ static inline void qwtDrawPolyline( QPainter *painter,
         }
     }
     else
+    {
         painter->drawPolyline( points, pointCount );
+    }
 }
 
 static inline QSize qwtScreenResolution()
