@@ -137,7 +137,8 @@ static inline void qwtDrawPolyline( QPainter *painter,
 
         const int splitSize = 6;
 
-        if ( qwtIsRasterPaintEngineBuggy() )
+        if ( pen.width() <= 1 && pen.isSolid() && qwtIsRasterPaintEngineBuggy()
+            && !( painter->renderHints() & QPainter::Antialiasing ) )
         {
             int k = 0;
 
@@ -288,6 +289,10 @@ void QwtPainter::setRoundingAlignment( bool enable )
   In some Qt versions the raster paint engine paints polylines of many points
   much faster when they are split in smaller chunks: f.e all supported Qt versions
   >= Qt 5.0 when drawing an antialiased polyline with a pen width >=2.
+
+  Also the raster paint engine has a nasty bug in many versions ( Qt 4.8 - ... )
+  for short lines ( https://codereview.qt-project.org/#/c/99456 ), that is worked
+  around in this mode.
 
   The default setting is true.
 

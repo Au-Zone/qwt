@@ -44,15 +44,10 @@ static inline int qwtRoundValue( double value )
 #endif
 }
 
-class QwtPolygonQuadrupel
+template <class Polygon, class Point>
+class QwtPolygonQuadrupelX
 {
 public:
-    inline void start0( int x, int y )
-    {
-        x0 = x;
-        y1 = yMin = yMax = y2 = y;
-    }
-
     inline void start( int x, int y )
     {
         x0 = x;
@@ -74,50 +69,100 @@ public:
         return true;
     }
 
-    template <class T>
-    inline void flush( T &polyline )
+    inline void flush( Polygon &polyline )
     {
-        polyline += QPoint( x0, y1 );
+        appendTo( y1, polyline );
 
         if ( y2 > y1 )
-        {
-            if ( yMin != y1 )
-                polyline += QPoint( x0, yMin );
+            qSwap( yMin, yMax );
 
-            if ( yMax != yMin )
-                polyline += QPoint( x0, yMax );
+        if ( yMax != y1 )
+            appendTo( yMax, polyline );
 
-            if ( y2 != yMax )
-                polyline += QPoint( x0, y2 );
-        }
-        else
-        {
-            if ( yMax != y1 )
-                polyline += QPoint( x0, yMax );
+        if ( yMin != yMax )
+            appendTo( yMin, polyline );
 
-            if ( yMin != yMax )
-                polyline += QPoint( x0, yMin );
+        if ( y2 != yMin )
+            appendTo( y2, polyline );
+    }
 
-            if ( y2 != yMin )
-                polyline += QPoint( x0, y2 );
-        }
+private:
+    inline void appendTo( int y, Polygon &polyline )
+    {
+        polyline += Point( x0, y );
     }
 
 private:
     int x0, y1, yMin, yMax, y2;
 };
 
-static QPolygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+template <class Polygon, class Point>
+class QwtPolygonQuadrupelY
+{
+public:
+    inline void start( int x, int y )
+    {
+        y0 = y;
+        x1 = xMin = xMax = x2 = x;
+    }
+
+    inline bool append( int x, int y )
+    {
+        if ( y0 != y )
+            return false;
+
+        if ( x < xMin )
+            xMin = x;
+        else if ( x > xMax )
+            xMax = x;
+
+        x2 = x;
+
+        return true;
+    }
+
+    inline void flush( Polygon &polyline )
+    {
+        appendTo( x1, polyline );
+
+        if ( x2 > x1 )
+            qSwap( xMin, xMax );
+
+        if ( xMax != x1 )
+            appendTo( xMax, polyline );
+
+        if ( xMin != xMax )
+            appendTo( xMin, polyline );
+
+        if ( x2 != xMin )
+            appendTo( x2, polyline );
+    }
+
+private:
+    inline void appendTo( int x, Polygon &polyline )
+    {
+        polyline += Point( x, y0 );
+    }
+
+    int y0, x1, xMin, xMax, x2;
+};
+
+
+template <class Polygon, class Point>
+static Polygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QwtSeriesData<QPointF> *series, int from, int to ) 
 {
-    QPolygon polyline;
+    Polygon polylineX;
     if ( from > to )
-        return polyline;
+        return polylineX;
+
+    // We always reduce x before y, what means some overhead in case
+    // data is ordered in y. Better do a small heuristic check, TODO ...
 
     const QPointF sample0 = series->sample( from );
 
-    QwtPolygonQuadrupel q;
-    q.start( qwtRoundValue( xMap.transform( sample0.x() ) ),
+    QwtPolygonQuadrupelX<Polygon, Point> qX;
+    qX.start( qwtRoundValue( xMap.transform( sample0.x() ) ),
         qwtRoundValue( yMap.transform( sample0.y() ) ) );
 
     for ( int i = from; i <= to; i++ )
@@ -127,46 +172,40 @@ static QPolygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yM
         const int x = qwtRoundValue( xMap.transform( sample.x() ) );
         const int y = qwtRoundValue( yMap.transform( sample.y() ) );
 
-        if ( !q.append( x, y ) )
+        if ( !qX.append( x, y ) )
         {
-            q.flush( polyline );
-            q.start( x, y );
+            qX.flush( polylineX );
+            qX.start( x, y );
         }
     }
-    q.flush( polyline );
+    qX.flush( polylineX );
 
-    return polyline;
-}
+    const int numPoints = polylineX.size();
 
-static QPolygonF qwtMapPointsQuadF( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QwtSeriesData<QPointF> *series, int from, int to )
-{
-    QPolygonF polyline;
-    if ( from > to )
-        return polyline;
+    if ( numPoints < 3 )
+        return polylineX;
 
-    const QPointF sample0 = series->sample( from );
+    const Point *points = polylineX.constData();
 
-    QwtPolygonQuadrupel q;
-    q.start0( qwtRoundValue( xMap.transform( sample0.x() ) ),
-        qwtRoundValue( yMap.transform( sample0.y() ) ) );
+    Polygon polylineXY;
 
-    for ( int i = from; i <= to; i++ )
+    QwtPolygonQuadrupelY<Polygon, Point> qY;
+    qY.start( points[0].x(), points[0].y() );
+
+    for ( int i = 0; i < numPoints; i++ )
     {
-        const QPointF sample = series->sample( i );
+        const int x = points[i].x();
+        const int y = points[i].y();
 
-        const int x = qwtRoundValue( xMap.transform( sample.x() ) );
-        const int y = qwtRoundValue( yMap.transform( sample.y() ) );
-
-        if ( !q.append( x, y ) )
+        if ( !qY.append( x, y ) )
         {
-            q.flush<QPolygonF>( polyline );
-            q.start( x, y );
+            qY.flush( polylineXY );
+            qY.start( x, y );
         }
     }
-    q.flush<QPolygonF>( polyline );
+    qY.flush( polylineXY );
 
-    return polyline;
+    return polylineXY;
 }
 
 // Helper class to work around the 5 parameters
@@ -543,7 +582,8 @@ QPolygonF QwtPointMapper::toPolygonF(
         if ( d_data->flags & WeedOutIntermediatePointsX )
         {
             // TODO WeedOutIntermediatePointsY ...
-            polyline = qwtMapPointsQuadF( xMap, yMap, series, from, to );
+            polyline = qwtMapPointsQuad<QPolygonF, QPointF>( 
+                xMap, yMap, series, from, to );
         }
         else if ( d_data->flags & WeedOutPoints )
         {
@@ -596,7 +636,8 @@ QPolygon QwtPointMapper::toPolygon(
     if ( d_data->flags & WeedOutIntermediatePointsX )
     {
         // TODO WeedOutIntermediatePointsY ...
-        polyline = qwtMapPointsQuad( xMap, yMap, series, from, to );
+        polyline = qwtMapPointsQuad<QPolygon, QPoint>( 
+            xMap, yMap, series, from, to );
     }
     else if ( d_data->flags & WeedOutPoints )
     {

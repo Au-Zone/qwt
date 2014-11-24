@@ -212,17 +212,20 @@ public:
 
           Has only an effect, when drawing the curve to a paint device
           in integer coordinates ( f.e. all widgets on screen ) using the fact, 
-          that conseqcutive points are often mapped to the same x or y coordinate.
+          that consecutive points are often mapped to the same x or y coordinate.
           Each chunk of samples mapped to the same coordinate can be reduced to
           4 points ( first, min, max last ).
 
           In the worst case the polygon to be rendered will be 4 times the width
           of the plot canvas.
 
-          The algorithm is very fast and effective for huge datasets, that are
-          ordered according to x or y.
+          The algorithm is very fast and effective for huge datasets, and can be used
+          inside a replot cycle.
 
-          \note Currently implemented for x coordinates and QwtPlotCurve::Lines
+          \note Implemented for QwtPlotCurve::Lines only
+          \note As this algo replaces many small lines by a long one
+                a nasty bug of the raster paint engine becomes more dominant, 
+                that is worked around in QwtPainter::polylineSplitting() mode.
          */
         FilterPointsAggressive = 0x10,
     };
