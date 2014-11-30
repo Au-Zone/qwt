@@ -591,11 +591,11 @@ QwtScaleDiv QwtLinearScaleEngine::divideScale( double x1, double x2,
 {
     QwtInterval interval = QwtInterval( x1, x2 ).normalized();
 
-	if ( qwtIntervalWidthL( interval ) > std::numeric_limits<double>::max() )
-	{
+    if ( qwtIntervalWidthL( interval ) > std::numeric_limits<double>::max() )
+    {
         qWarning() << "QwtLinearScaleEngine::divideScale: overflow";
         return QwtScaleDiv();
-	}
+    }
 
     if ( interval.width() <= 0 )
         return QwtScaleDiv();
