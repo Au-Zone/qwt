@@ -62,7 +62,7 @@ public:
           As the algorithm is fast it can be used inside of 
           a polyline render cycle.
          */
-        WeedOutIntermediatePointsX = 0x04
+        WeedOutIntermediatePoints = 0x04
     };
 
     /*!  

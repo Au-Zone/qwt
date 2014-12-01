@@ -501,7 +501,7 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     if ( doAlign )
     {
         mapper.setFlag( QwtPointMapper::RoundPoints, true );
-        mapper.setFlag( QwtPointMapper::WeedOutIntermediatePointsX, 
+        mapper.setFlag( QwtPointMapper::WeedOutIntermediatePoints, 
             testPaintAttribute( FilterPointsAggressive ) );
     }
 

@@ -563,6 +563,9 @@ QRectF QwtPointMapper::boundingRect() const
   but returned as PolygonF - what only makes sense
   when the further processing of the values need a QPolygonF.
 
+  When RoundPoints & WeedOutIntermediatePoints is enabled an even more
+  aggressive weeding algorithm is enabled.
+
   \param xMap x map
   \param yMap y map
   \param series Series of points to be mapped
@@ -579,9 +582,8 @@ QPolygonF QwtPointMapper::toPolygonF(
 
     if ( d_data->flags & RoundPoints )
     {
-        if ( d_data->flags & WeedOutIntermediatePointsX )
+        if ( d_data->flags & WeedOutIntermediatePoints )
         {
-            // TODO WeedOutIntermediatePointsY ...
             polyline = qwtMapPointsQuad<QPolygonF, QPointF>( 
                 xMap, yMap, series, from, to );
         }
@@ -633,7 +635,7 @@ QPolygon QwtPointMapper::toPolygon(
 {
     QPolygon polyline;
 
-    if ( d_data->flags & WeedOutIntermediatePointsX )
+    if ( d_data->flags & WeedOutIntermediatePoints )
     {
         // TODO WeedOutIntermediatePointsY ...
         polyline = qwtMapPointsQuad<QPolygon, QPoint>( 
