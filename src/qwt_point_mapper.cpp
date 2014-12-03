@@ -147,24 +147,17 @@ private:
     int y0, x1, xMin, xMax, x2;
 };
 
-
-template <class Polygon, class Point>
+template <class Polygon, class Point, class PolygonQuadrupel>
 static Polygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QwtSeriesData<QPointF> *series, int from, int to ) 
+    const QwtSeriesData<QPointF> *series, int from, int to )
 {
-    Polygon polylineX;
-    if ( from > to )
-        return polylineX;
-
-    // We always reduce x before y, what means some overhead in case
-    // data is ordered in y. Better do a small heuristic check, TODO ...
-
     const QPointF sample0 = series->sample( from );
 
-    QwtPolygonQuadrupelX<Polygon, Point> qX;
-    qX.start( qwtRoundValue( xMap.transform( sample0.x() ) ),
+    PolygonQuadrupel q;
+    q.start( qwtRoundValue( xMap.transform( sample0.x() ) ),
         qwtRoundValue( yMap.transform( sample0.y() ) ) );
 
+    Polygon polyline;
     for ( int i = from; i <= to; i++ )
     {
         const QPointF sample = series->sample( i );
@@ -172,40 +165,78 @@ static Polygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMa
         const int x = qwtRoundValue( xMap.transform( sample.x() ) );
         const int y = qwtRoundValue( yMap.transform( sample.y() ) );
 
-        if ( !qX.append( x, y ) )
+        if ( !q.append( x, y ) )
         {
-            qX.flush( polylineX );
-            qX.start( x, y );
+            q.flush( polyline );
+            q.start( x, y );
         }
     }
-    qX.flush( polylineX );
+    q.flush( polyline );
 
-    const int numPoints = polylineX.size();
+    return polyline;
+}
+
+template <class Polygon, class Point, class PolygonQuadrupel>
+static Polygon qwtMapPointsQuad( const Polygon &polyline )
+{
+    const int numPoints = polyline.size();
 
     if ( numPoints < 3 )
-        return polylineX;
+        return polyline;
 
-    const Point *points = polylineX.constData();
+    const Point *points = polyline.constData();
 
     Polygon polylineXY;
 
-    QwtPolygonQuadrupelY<Polygon, Point> qY;
-    qY.start( points[0].x(), points[0].y() );
+    PolygonQuadrupel q;
+    q.start( points[0].x(), points[0].y() );
 
     for ( int i = 0; i < numPoints; i++ )
     {
         const int x = points[i].x();
         const int y = points[i].y();
 
-        if ( !qY.append( x, y ) )
+        if ( !q.append( x, y ) )
         {
-            qY.flush( polylineXY );
-            qY.start( x, y );
+            q.flush( polylineXY );
+            q.start( x, y );
         }
     }
-    qY.flush( polylineXY );
+    q.flush( polylineXY );
 
     return polylineXY;
+}
+
+
+template <class Polygon, class Point>
+static Polygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QwtSeriesData<QPointF> *series, int from, int to ) 
+{
+    Polygon polyline;
+    if ( from > to )
+        return polyline;
+
+    // TODO: some heuristic to decide whether to start weeding with X or Y 
+    const bool isHorizontal = true;
+
+    if ( isHorizontal )
+    {
+        polyline = qwtMapPointsQuad< Polygon, Point,
+            QwtPolygonQuadrupelY<Polygon, Point> >( xMap, yMap, series, from, to );
+
+        polyline = qwtMapPointsQuad< Polygon, Point,
+            QwtPolygonQuadrupelX<Polygon, Point> >( polyline );
+    }
+    else
+    {
+        polyline = qwtMapPointsQuad< Polygon, Point, 
+            QwtPolygonQuadrupelX<Polygon, Point> >( xMap, yMap, series, from, to );
+
+        polyline = qwtMapPointsQuad< Polygon, Point, 
+            QwtPolygonQuadrupelY<Polygon, Point> >( polyline );
+    }
+
+    return polyline;
 }
 
 // Helper class to work around the 5 parameters
