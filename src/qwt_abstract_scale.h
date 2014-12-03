@@ -95,11 +95,10 @@ protected:
     const QwtAbstractScaleDraw *abstractScaleDraw() const;
     QwtAbstractScaleDraw *abstractScaleDraw();
 
+    void updateScaleDraw();
     virtual void scaleChange();
 
 private:
-    void updateScaleDraw();
-
     class PrivateData;
     PrivateData *d_data;
 };

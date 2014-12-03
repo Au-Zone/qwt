@@ -459,6 +459,9 @@ void QwtAbstractScale::changeEvent( QEvent *event )
     QWidget::changeEvent( event );
 }
 
+/*!
+  Recalculate ticks and scale boundaries.
+*/
 void QwtAbstractScale::updateScaleDraw()
 {
     rescale( d_data->scaleDraw->scaleDiv().lowerBound(),
