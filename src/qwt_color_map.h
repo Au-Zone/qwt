@@ -222,7 +222,6 @@ public:
     void setValueInterval( int value1, int value2 );
     void setAlpha( int alpha ); 
 
-
     int hue() const;
     int saturation1() const;
     int saturation2() const;
@@ -251,8 +250,7 @@ private:
 inline QColor QwtColorMap::color(
     const QwtInterval &interval, double value ) const
 {
-
-    return QColor( rgb( interval, value ) );
+    return QColor::fromRgba( rgb( interval, value ) );
 }
 
 /*!
