@@ -44,6 +44,40 @@ static inline int qwtRoundValue( double value )
 #endif
 }
 
+static Qt::Orientation qwtProbeOrientation(
+    const QwtSeriesData<QPointF> *series, int from, int to )
+{
+    if ( to - from < 20 )
+    {
+        // not enough points to "have an orientation"
+        return Qt::Horizontal;
+    }
+
+    const double x0 = series->sample( from ).x();
+    const double xn = series->sample( to ).x();
+
+    if ( x0 == xn )
+        return Qt::Vertical;
+
+    const int step = ( to - from ) / 10;
+    const bool isIncreasing = xn > x0;
+
+    double x1 = x0;
+    for ( int i = from + step; i < to; i += step )
+    {
+        const double x2 = series->sample( i ).x();
+        if ( x2 != x1 )
+        {
+            if ( ( x2 > x1 ) != isIncreasing )
+                return Qt::Vertical;
+        }
+
+        x1 = x2;
+    }
+
+    return Qt::Horizontal;
+}
+
 template <class Polygon, class Point>
 class QwtPolygonQuadrupelX
 {
@@ -216,10 +250,13 @@ static Polygon qwtMapPointsQuad( const QwtScaleMap &xMap, const QwtScaleMap &yMa
     if ( from > to )
         return polyline;
 
-    // TODO: some heuristic to decide whether to start weeding with X or Y 
-    const bool isHorizontal = true;
+    /* 
+        probing some values, to decide if it is better 
+        to start with x or y coordinates
+     */
+    const Qt::Orientation orientation = qwtProbeOrientation( series, from, to );
 
-    if ( isHorizontal )
+    if ( orientation == Qt::Horizontal )
     {
         polyline = qwtMapPointsQuad< Polygon, Point,
             QwtPolygonQuadrupelY<Polygon, Point> >( xMap, yMap, series, from, to );
