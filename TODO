@@ -10,12 +10,9 @@ Ideas
 - Common zoom stack for all navigation objects
 - Watermark Item
 - Contour algorithm for vectors: http://apptree.net/conrec.htm
-- QwtPlotCanvas rendered via FBO, PBO
-- Time/Date scale engine
 - TeX texts
 - Grid of QwtPlots
 - Interval scale labels ( between 2 ticks )
-- More than 4 axes
 - QwtIntervalSymbol + QPainterPath/...
 - QwtPlotScene + breaking composite architecture
 - Using QStaticText for markers ( and scales ? )
@@ -33,6 +30,6 @@ Ideas
 
 Bugs/Change requests
 --------------------
-- Remove QwtScaleTransformation::copy()
+- Remove QwtTransform::copy()
 - Reference value for QwtThermo
 - Transparent canvas background + backingstore
