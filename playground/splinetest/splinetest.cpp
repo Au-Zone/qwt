@@ -486,7 +486,7 @@ int main()
     const int mod = y2 - y1;
     for ( int i = 1; i < n - 1; i++ )
     {
-        const double r = random() % mod;
+        const double r = qrand() % mod;
         points += QPointF( x1 + i * dx, y1 + r );
     }
     points += QPointF( x2, y1 );
