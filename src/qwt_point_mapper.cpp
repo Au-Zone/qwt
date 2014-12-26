@@ -15,16 +15,12 @@
 #include <qpen.h>
 #include <qpainter.h>
 
-#if QT_VERSION >= 0x040400
-
 #include <qthread.h>
 #include <qfuture.h>
 #include <qtconcurrentrun.h>
 
 #if !defined(QT_NO_QFUTURE)
 #define QWT_USE_THREADS 0
-#endif
-
 #endif
 
 static QRectF qwtInvalidRect( 0.0, 0.0, -1.0, -1.0 );
