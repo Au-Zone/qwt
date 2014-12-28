@@ -761,6 +761,12 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 
                 QPainter p;
                 p.begin( &pixelBuffer );
+                if ( p.paintEngine()->type() == QPaintEngine::OpenGL2 )
+                {
+                    // work around a translation bug of QPaintEngine::OpenGL2
+                    p.translate( 1, 1 );
+                }
+
 
                 qwtFillBackground( &p, this );
                 drawCanvas( &p, true );

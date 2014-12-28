@@ -222,6 +222,12 @@ void QwtPlotGLCanvas::paintEvent( QPaintEvent *event )
 
     QPainter painter( this );
 
+    if ( painter.paintEngine()->type() == QPaintEngine::OpenGL2 )
+    {
+        // work around a translation bug of QPaintEngine::OpenGL2
+        painter.translate( 1, 1 );
+    }
+
     drawBackground( &painter );
     drawItems( &painter );
 
@@ -297,8 +303,11 @@ void QwtPlotGLCanvas::drawBackground( QPainter *painter )
     }
     else 
     {
-        painter->fillRect( fillRect,
-            w->palette().brush( w->backgroundRole() ) );
+        if ( !autoFillBackground() )
+        {
+            painter->fillRect( fillRect,
+                w->palette().brush( w->backgroundRole() ) );
+        }
     }
 
     painter->restore();
