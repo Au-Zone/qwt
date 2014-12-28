@@ -15,6 +15,7 @@ CONFIG           += qt
 CONFIG           += warn_on
 CONFIG           += no_keywords
 CONFIG           += silent
+CONFIG           -= depend_includepath
 
 ######################################################################
 # release/debug mode
@@ -50,11 +51,24 @@ linux-g++ | linux-g++-64 {
     #QMAKE_CXXFLAGS   *= -Wsign-conversion 
     #QMAKE_CXXFLAGS   *= -Wlogical-op
     #QMAKE_CXXFLAGS   *= -Werror=format-security
+    #QMAKE_CXXFLAGS   *= -Woverloaded-virtual
     #QMAKE_CXXFLAGS   *= -std=c++11
+
+   	#QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer 
+   	#QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer
+   	#QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address
+
+   	#QMAKE_CXXFLAGS_RELEASE  *= -O3
+   	#QMAKE_CXXFLAGS_RELEASE  *= -Ofast
 
     # when using the gold linker ( Qt < 4.8 ) - might be 
     # necessary on non linux systems too
     #QMAKE_LFLAGS += -lrt
+}
+
+linux-clang {
+
+	#QMAKE_CXXFLAGS_RELEASE  *= -O3
 }
 
 ######################################################################
