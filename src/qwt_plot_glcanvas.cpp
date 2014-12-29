@@ -53,6 +53,16 @@ public:
     int midLineWidth;
 };
 
+class QwtPlotGLCanvasFormat: public QGLFormat
+{
+public:
+    QwtPlotGLCanvasFormat():
+        QGLFormat( QGLFormat::defaultFormat() )
+    {
+        setSampleBuffers( true );
+    }
+};
+
 /*! 
   \brief Constructor
 
@@ -60,10 +70,21 @@ public:
   \sa QwtPlot::setCanvas()
 */
 QwtPlotGLCanvas::QwtPlotGLCanvas( QwtPlot *plot ):
-    QGLWidget( plot )
+    QGLWidget( QwtPlotGLCanvasFormat(), plot )
 {
     d_data = new PrivateData;
+    init();
+}
 
+QwtPlotGLCanvas::QwtPlotGLCanvas( const QGLFormat &format, QwtPlot *plot ):
+    QGLWidget( format, plot )
+{
+    d_data = new PrivateData;
+    init();
+}
+
+void QwtPlotGLCanvas::init()
+{
 #ifndef QT_NO_CURSOR
     setCursor( Qt::CrossCursor );
 #endif

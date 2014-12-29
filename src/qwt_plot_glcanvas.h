@@ -89,6 +89,7 @@ public:
     };
 
     explicit QwtPlotGLCanvas( QwtPlot * = NULL );
+    explicit QwtPlotGLCanvas( const QGLFormat &, QwtPlot * = NULL );
     virtual ~QwtPlotGLCanvas();
 
     void setFrameStyle( int style );
@@ -124,6 +125,8 @@ protected:
     virtual void drawItems( QPainter * );
 
 private:
+    void init();
+
     class PrivateData;
     PrivateData *d_data;
 };
