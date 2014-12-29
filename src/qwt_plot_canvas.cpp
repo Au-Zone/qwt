@@ -19,20 +19,7 @@
 #include <qevent.h>
 
 #ifndef QWT_NO_OPENGL
-
-#if QT_VERSION >= 0x050000
-#define USE_FBO
-#endif
-
-#ifdef USE_FBO
-#include <QOpenGLPaintDevice>
 #include <QGLPixelBuffer>
-#include <QOpenGLFramebufferObjectFormat>
-#include <QWindow>
-#else
-#include <QGLPixelBuffer>
-#endif
-
 #endif
 
 class QwtStyleSheetRecorder: public QwtNullPaintDevice
@@ -757,7 +744,10 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 #ifndef QWT_NO_OPENGL
             if ( testPaintAttribute( OpenGLBuffer ) )
             {
-                QGLPixelBuffer pixelBuffer( size() );
+                QGLFormat format = QGLFormat::defaultFormat();
+                format.setSampleBuffers( true );
+
+                QGLPixelBuffer pixelBuffer( size(), format );
 
                 QPainter p;
                 p.begin( &pixelBuffer );
@@ -816,46 +806,10 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 #ifndef QWT_NO_OPENGL
         if ( testPaintAttribute( OpenGLBuffer ) )
         {
-#ifdef USE_FBO
-            QSurfaceFormat format;
-#if 1
-            format.setMajorVersion(3);
-            format.setMinorVersion(3);
-#endif
-            format.setSamples(4);
- 
-            QWindow window;
-            window.setSurfaceType(QWindow::OpenGLSurface);
-            window.setFormat(format);
-            window.create();
- 
-            QOpenGLContext context;
-            context.setFormat(format);
-            context.makeCurrent(&window);
- 
-            QOpenGLFramebufferObjectFormat fboFormat;
-            fboFormat.setSamples(16);
-            fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
- 
-            QOpenGLFramebufferObject fbo( size() );
-            fbo.bind();
- 
-            QOpenGLPaintDevice device( size() );
+            QGLFormat format = QGLFormat::defaultFormat();
+            format.setSampleBuffers( true );
 
-            QPainter p( &device );
-
-            qwtFillBackground( &p, this );
-            drawCanvas( &p, true );
-            
-            if ( frameWidth() > 0 )
-                drawBorder( &p );
-                    
-            p.end();
-
-            fbo.release();
-            painter.drawImage( 0, 0, fbo.toImage() );
-#else
-            QGLPixelBuffer pixelBuffer( size() );
+            QGLPixelBuffer pixelBuffer( size(), format );
 
             QPainter p( &pixelBuffer );
 
@@ -867,7 +821,6 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 
             p.end();
             painter.drawImage( 0, 0, pixelBuffer.toImage() );
-#endif
         }
         else
 #endif

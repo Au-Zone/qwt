@@ -99,16 +99,15 @@ public:
         /*!
           \brief Render the canvas via an OpenGL buffer
 
-          In OpenGL mode the plot scene will be rendered to a temporary 
-          OpenGL buffer ( pixel buffer with Qt4, frame buffer object for Qt >= 5 ), 
-          that will be translated to a QImage afterwards. 
+          In OpenGLBuffer mode the plot scene will be rendered to a temporary
+          QGLPixelBuffer, that will be translated to a QImage afterwards.
           Then this image will be painted to the canvas.
 
           This mode might be useful for "heavy" plots on platforms to achieve 
           hardware acceleration on platforms, where the raster paint engine 
-          ( = software renderer ) ould be used otherwise.
-          But the penalty of copying out the image makes this mode less optimal for
-          "normal" plots.
+          ( = software renderer ) would be used otherwise.
+          But the penalty for copying out the buffer to the image makes this mode
+          less optimal when looking for high rfresh rates of a "lightweight" plot.
 
           On a hardware accelerated graphics system ( f.e. Qt4/X11 "native" ) 
           using this mode does not make much sense. Unfortunately those systems have 
