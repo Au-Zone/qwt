@@ -1323,38 +1323,59 @@ void QwtSymbol::drawSymbols( QPainter *painter,
         }
         else if ( d_data->cache.policy == QwtSymbol::AutoCache )
         {
-            useCache = true;
-
-            if ( painter->paintEngine()->type() != QPaintEngine::Raster )
+            switch( painter->paintEngine()->type() )
             {
-                switch( d_data->style )
+                case QPaintEngine::OpenGL:
+                case QPaintEngine::OpenGL2:
                 {
-                    case QwtSymbol::XCross:
-                    case QwtSymbol::HLine:
-                    case QwtSymbol::VLine:
-                    case QwtSymbol::Cross:
+                    // using a FBO as cache ?
+                    useCache = false;
+                    break;
+                }
+                case QPaintEngine::OpenVG:
+                case QPaintEngine::SVG:
+                case QPaintEngine::Pdf:
+                case QPaintEngine::Picture:
+                {
+                    // vector graphics
+                    useCache = false;
+                    break;
+                }
+                case QPaintEngine::QPaintEngine::X11:
+                {
+                    switch( d_data->style )
                     {
-                        // for the very simple shapes using vector graphics is 
-                        // usually faster.
-
-                        useCache = false;
-                        break;
-                    }
-
-                    case QwtSymbol::Pixmap:
-                    {
-                        if ( d_data->size.isEmpty() ||
-                            d_data->size == d_data->pixmap.pixmap.size() ) 
+                        case QwtSymbol::XCross:
+                        case QwtSymbol::HLine:
+                        case QwtSymbol::VLine:
+                        case QwtSymbol::Cross:
                         {
-                            // no need to have a pixmap cache for a pixmap
-                            // of the same size
+                            // for the very simple shapes using vector graphics is 
+                            // usually faster.
 
                             useCache = false;
+                            break;
                         }
-                        break;
-                    }                       
-                    default:
-                        break;
+
+                        case QwtSymbol::Pixmap:
+                        {
+                            if ( d_data->size.isEmpty() ||
+                                d_data->size == d_data->pixmap.pixmap.size() ) 
+                            {
+                                // no need to have a pixmap cache for a pixmap
+                                // of the same size
+
+                                useCache = false;
+                            }
+                            break;
+                        }                       
+                        default:
+                            break;
+                    }
+                }
+                default:
+                {
+                    useCache = true;
                 }
             }
         }
@@ -1365,7 +1386,7 @@ void QwtSymbol::drawSymbols( QPainter *painter,
         const QRect br = boundingRect();
 
         const QRect rect( 0, 0, br.width(), br.height() );
-        
+
         if ( d_data->cache.pixmap.isNull() )
         {
             d_data->cache.pixmap = QwtPainter::backingStore( NULL, br.size() );
