@@ -12,151 +12,17 @@
 #include "qwt_null_paintdevice.h"
 #include "qwt_math.h"
 #include "qwt_plot.h"
+
+#ifndef QWT_NO_OPENGL
+#include "qwt_opengl_paintdevice.h"
+#endif
+
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qpaintengine.h>
 #include <qevent.h>
 
-#ifndef QWT_NO_OPENGL
-
-#if QT_VERSION >= 0x050000
-#define USE_FBO 1
-#endif
-
-#if USE_FBO
-
-#include <qopenglcontext.h>
-#include <qopenglframebufferobject.h>
-#include <qopenglpaintdevice.h>
-
-#if QT_VERSION >= 0x050100
-#include <qoffscreensurface.h>
-#else
-#include <qwindow.h>
-#endif
-
-#else
-
-#include <qglpixelbuffer.h>
-
-#endif
-
-#endif
-
-#if USE_FBO
-
-class QwtPlotCanvasGLBuffer
-{
-public:
-    QwtPlotCanvasGLBuffer( const QSize &size ):
-        m_size( size ),
-        m_surface( NULL ),
-        m_context( NULL ),
-        m_fbo( NULL ),
-        m_device( NULL )
-    {
-    }
-
-    ~QwtPlotCanvasGLBuffer()
-    {
-        delete m_device;
-
-        if ( m_fbo )
-        {
-            m_fbo->release();
-            delete m_fbo;
-        }
-        delete m_context;
-        delete m_surface;
-    }
-
-    QPaintDevice *paintDevice()
-    {
-        if ( m_device == NULL )
-        {
-#if QT_VERSION >= 0x050100
-            QOffscreenSurface* surface = new QOffscreenSurface();
-#else
-            QWindow *surface = new QWindow();
-            surface->setSurfaceType(QWindow::OpenGLSurface);
-#endif
-            surface->create();
-            m_surface = surface;
-
-            m_context = new QOpenGLContext();
-            m_context->create();
-            m_context->makeCurrent(m_surface);
-
-            QOpenGLFramebufferObjectFormat fboFormat;
-            fboFormat.setSamples(16);
-            fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-
-            m_fbo = new QOpenGLFramebufferObject(m_size, fboFormat);
-            m_fbo->bind();
-
-            m_device = new QOpenGLPaintDevice(m_size);
-        }
-
-        return m_device;
-    }
-
-    QImage toImage()
-    {
-        return m_fbo->toImage();
-    }
-
-private:
-    const QSize m_size;
-    QSurface* m_surface;
-    QOpenGLContext* m_context;
-    QOpenGLFramebufferObject *m_fbo;
-    QOpenGLPaintDevice *m_device;
-};
-
-#else
-
-class QwtPlotCanvasGLBuffer
-{
-public:
-    QwtPlotCanvasGLBuffer( const QSize &size ):
-        m_size( size ),
-        m_buf( NULL )
-    {
-    }
-
-    ~QwtPlotCanvasGLBuffer()
-    {
-        delete m_buf;
-    }
-
-    QPaintDevice *paintDevice()
-    {
-        if ( m_buf == NULL )
-        {
-            QGLFormat format = QGLFormat::defaultFormat();
-#if QT_VERSION < 0x050000
-            format.setSampleBuffers( true );
-            format.setSamples(4);
-#endif
-
-            m_buf = new QGLPixelBuffer( m_size, format );
-        }
-
-        return m_buf;
-    }
-
-    QImage toImage()
-    {
-        return m_buf->toImage();
-    }
-
-private:
-    const QSize m_size;
-    QGLPixelBuffer *m_buf;
-};
-
-#endif
 
 class QwtStyleSheetRecorder: public QwtNullPaintDevice
 {
@@ -880,10 +746,10 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 #ifndef QWT_NO_OPENGL
             if ( testPaintAttribute( OpenGLBuffer ) )
             {
-                QwtPlotCanvasGLBuffer buf( size() );
+                QwtOpenGLPaintDevice buf( size() );
 
                 QPainter p;
-                p.begin( buf.paintDevice() );
+                p.begin( &buf );
                 if ( p.paintEngine()->type() == QPaintEngine::OpenGL2 )
                 {
                     // work around a translation bug of QPaintEngine::OpenGL2
@@ -938,9 +804,9 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 #ifndef QWT_NO_OPENGL
         if ( testPaintAttribute( OpenGLBuffer ) )
         {
-            QwtPlotCanvasGLBuffer buf( size() );
+            QwtOpenGLPaintDevice buf( size() );
 
-            QPainter p( buf.paintDevice() );
+            QPainter p( &buf );
             if ( p.paintEngine()->type() == QPaintEngine::OpenGL2 )
             {
                 // work around a translation bug of QPaintEngine::OpenGL2
