@@ -13,9 +13,8 @@
 class QwtProxyPaintEngine: public QPaintEngine
 {
 public:
-    QwtProxyPaintEngine( QPaintEngine::PaintEngineFeatures features, 
-            QwtProxyPaintDevice *paintDevice ):
-        QPaintEngine( features ),
+    QwtProxyPaintEngine( QwtProxyPaintDevice *paintDevice ):
+        QPaintEngine( QPaintEngine::AllFeatures ),
         d_device( paintDevice )
     {
     }
@@ -260,18 +259,8 @@ QPaintEngine *QwtProxyPaintDevice::paintEngine() const
 
     if ( d_data->engine == NULL )
     {
-        const QPaintEngine *baseEngine = d_data->baseDevice->paintEngine();
-
-        QPaintEngine::PaintEngineFeatures features;
-        for ( uint i = 1; i <= 31; i++ )
-        {
-            QPaintEngine::PaintEngineFeature f = ( QPaintEngine::PaintEngineFeature ) i;
-            if ( baseEngine->hasFeature( f ) )
-                features |= f;
-        }
-
         QwtProxyPaintDevice *that = const_cast<QwtProxyPaintDevice*>( this );
-        d_data->engine = new QwtProxyPaintEngine( features, that );
+        d_data->engine = new QwtProxyPaintEngine( that );
     }
 
     return d_data->engine;

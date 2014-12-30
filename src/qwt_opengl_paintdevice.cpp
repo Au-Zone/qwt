@@ -22,6 +22,12 @@
 #include <qwindow.h>
 #endif
 
+#else // QT_VERSION < 0x050000
+
+#include <qglframebufferobject.h>
+
+#endif
+
 class QwtOpenGLPaintDeviceFBOData
 {
 public:
@@ -29,30 +35,49 @@ public:
     {
         surface = initSurface();
 
+#if QT_VERSION >= 0x050000
         context = new QOpenGLContext();
         context->create();
         context->makeCurrent(surface);
+#else
+        surface->makeCurrent();
+#endif
 
+#if QT_VERSION >= 0x050000
         QOpenGLFramebufferObjectFormat fboFormat;
         fboFormat.setSamples(16);
         fboFormat.setAttachment( QOpenGLFramebufferObject::CombinedDepthStencil );
 
         fbo = new QOpenGLFramebufferObject(size, fboFormat);
+#else
+        fbo = new QGLFramebufferObject( size, QGLFramebufferObject::CombinedDepthStencil );
+#endif
         fbo->bind();
 
+#if QT_VERSION >= 0x050000
         device = new QOpenGLPaintDevice(size);
+#else
+        device = fbo;
+#endif
     }
 
     ~QwtOpenGLPaintDeviceFBOData()
     {
+#if QT_VERSION >= 0x050000
         delete device;
-
+#endif
         fbo->release();
         delete fbo;
+
+#if QT_VERSION >= 0x050000
         delete context;
+#endif
         delete surface;
     }
+
 private:
+
+#if QT_VERSION >= 0x050000
     QSurface* initSurface() const
     {
 #if QT_VERSION >= 0x050100
@@ -62,17 +87,32 @@ private:
         surface->setSurfaceType(QWindow::OpenGLSurface);
 #endif
         surface->create();
+
         return surface;
     }
+#else
+    QGLWidget* initSurface() const
+    {
+        QGLFormat format = QGLFormat::defaultFormat();
+        format.setSampleBuffers( true );
+        format.setSamples(4);
+
+        return new QGLWidget( format );
+    }
+#endif
 
 public:
-    QSurface* surface;
-    QOpenGLContext* context;
+#if QT_VERSION >= 0x050000
+    QSurface *surface;
+    QOpenGLContext *context;
     QOpenGLFramebufferObject *fbo;
     QOpenGLPaintDevice *device;
-};
-
+#else
+    QGLWidget *surface;
+    QPaintDevice *device;
+    QGLFramebufferObject *fbo;
 #endif
+};
 
 class QwtOpenGLPaintDevicePBOData
 {
@@ -104,7 +144,6 @@ public:
         FBO
     };
 
-#if QT_VERSION >= 0x050000
     PrivateData( Mode m, const QSize &size ):
         fboData( NULL ),
         pboData( NULL )
@@ -125,35 +164,17 @@ public:
     QwtOpenGLPaintDevicePBOData *pboData;
 };
 
-#else
-    PrivateData( const QSize &size )
-    {
-        pboData = new QwtOpenGLPaintDevicePBOData( size );
-    }
-
-    ~PrivateData()
-    {
-        delete pboData;
-    }
-
-    QwtOpenGLPaintDevicePBOData *pboData;
-};
-
-#endif
-
 QwtOpenGLPaintDevice::QwtOpenGLPaintDevice(const QSize &size)
 {
 #if QT_VERSION >= 0x050000
     d_data = new PrivateData( PrivateData::FBO, size );
+#else
+    d_data = new PrivateData( PrivateData::PBO, size );
+#endif
     if ( d_data->fboData )
         setBaseDevice( d_data->fboData->device );
     else
         setBaseDevice( d_data->pboData->device );
-#else
-    d_data = new PrivateData( size );
-    setBaseDevice( d_data->pboData->device );
-#endif
-
 }
 
 QwtOpenGLPaintDevice::~QwtOpenGLPaintDevice()
@@ -164,12 +185,8 @@ QwtOpenGLPaintDevice::~QwtOpenGLPaintDevice()
 
 QImage QwtOpenGLPaintDevice::toImage() const
 {
-#if QT_VERSION >= 0x050000
     if ( d_data->fboData )
         return d_data->fboData->fbo->toImage();
     else
         return d_data->pboData->device->toImage();
-#else
-    return d_data->pboData->device->toImage();
-#endif
 }
