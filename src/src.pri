@@ -26,6 +26,7 @@ HEADERS += \
     qwt_math.h \
     qwt_magnifier.h \
     qwt_null_paintdevice.h \
+    qwt_proxy_paintdevice.h \
     qwt_painter.h \
     qwt_painter_command.h \
     qwt_panner.h \
@@ -68,6 +69,7 @@ SOURCES += \
     qwt_math.cpp \
     qwt_magnifier.cpp \
     qwt_null_paintdevice.cpp \
+    qwt_proxy_paintdevice.cpp \
     qwt_painter.cpp \
     qwt_painter_command.cpp \
     qwt_panner.cpp \
@@ -192,6 +194,33 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_series_data.cpp \
         qwt_point_data.cpp \
         qwt_scale_widget.cpp 
+
+    contains(QWT_CONFIG, QwtOpenGL) {
+
+        HEADERS += \
+            qwt_plot_glcanvas.h
+
+        SOURCES += \
+            qwt_plot_glcanvas.cpp
+
+        greaterThan(QT_MAJOR_VERSION, 4) {
+
+            greaterThan(QT_MINOR_VERSION, 3) {
+
+                HEADERS += qwt_plot_opengl_canvas.h
+                SOURCES += qwt_plot_opengl_canvas.cpp
+            }
+        }
+
+    }
+
+    contains(QWT_CONFIG, QwtSvg) {
+
+        HEADERS += \
+            qwt_plot_svgitem.h
+        SOURCES += \
+            qwt_plot_svgitem.cpp 
+    }
 }
 
 greaterThan(QT_MAJOR_VERSION, 4) {
@@ -203,9 +232,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 contains(QWT_CONFIG, QwtSvg) {
 
     QT += svg
-
-    HEADERS += qwt_plot_svgitem.h
-    SOURCES += qwt_plot_svgitem.cpp 
 }
 else {
 
@@ -216,17 +242,11 @@ contains(QWT_CONFIG, QwtOpenGL) {
 
     QT += opengl
 
-    HEADERS += qwt_plot_glcanvas.h
-    SOURCES += qwt_plot_glcanvas.cpp
+    HEADERS += \
+        qwt_opengl_paintdevice.h
 
-    greaterThan(QT_MAJOR_VERSION, 4) {
-        
-        greaterThan(QT_MINOR_VERSION, 3) {
-
-            HEADERS += qwt_plot_opengl_canvas.h
-            SOURCES += qwt_plot_opengl_canvas.cpp
-        }
-    }
+    SOURCES += \
+        qwt_opengl_paintdevice.cpp
 }
 else {
 
