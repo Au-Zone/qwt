@@ -104,6 +104,7 @@ public:
         FBO
     };
 
+#if QT_VERSION >= 0x050000
     PrivateData( Mode m, const QSize &size ):
         fboData( NULL ),
         pboData( NULL )
@@ -120,11 +121,25 @@ public:
         delete pboData;
     }
 
-#if QT_VERSION >= 0x050000
     QwtOpenGLPaintDeviceFBOData *fboData;
-#endif
     QwtOpenGLPaintDevicePBOData *pboData;
 };
+
+#else
+    PrivateData( const QSize &size )
+    {
+        pboData = new QwtOpenGLPaintDevicePBOData( size );
+    }
+
+    ~PrivateData()
+    {
+        delete pboData;
+    }
+
+    QwtOpenGLPaintDevicePBOData *pboData;
+};
+
+#endif
 
 QwtOpenGLPaintDevice::QwtOpenGLPaintDevice(const QSize &size)
 {
@@ -135,7 +150,7 @@ QwtOpenGLPaintDevice::QwtOpenGLPaintDevice(const QSize &size)
     else
         setBaseDevice( d_data->pboData->device );
 #else
-    d_data = new PrivateData( PrivateData::PBO, size );
+    d_data = new PrivateData( size );
     setBaseDevice( d_data->pboData->device );
 #endif
 
