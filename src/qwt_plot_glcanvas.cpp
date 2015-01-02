@@ -495,23 +495,9 @@ void QwtPlotGLCanvas::paintGL()
             draw( &painter);
             painter.end();
 #endif
-            glBindTexture(GL_TEXTURE_2D, d_data->fbo->texture());
         }
 
-        glEnable(GL_TEXTURE_2D);
-
-        glBegin(GL_QUADS);
-
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(-1.0f, -1.0f);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex2f( 1.0f, -1.0f);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f( 1.0f,  1.0f);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex2f(-1.0f,  1.0f);
-
-        glEnd();
+        drawTexture( QRectF( -1.0, 1.0, 2.0, -2.0 ), d_data->fbo->texture() );
     }
     else
     {

@@ -171,7 +171,7 @@ public:
     bool testPaintAttribute( PaintAttribute ) const;
 
     const QPixmap *backingStore() const;
-    void invalidateBackingStore();
+    Q_INVOKABLE void invalidateBackingStore();
 
     virtual bool event( QEvent * );
 

@@ -149,7 +149,7 @@ public:
 
     Q_INVOKABLE QPainterPath borderPath( const QRect & ) const;
 
-    void invalidateBackingStore();
+    Q_INVOKABLE void invalidateBackingStore();
 
     virtual bool event( QEvent * );
 
