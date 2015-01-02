@@ -14,6 +14,10 @@
 #include <qdrawutil.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
+#if 1
+#include <qlabel.h>
+#include <qdebug.h>
+#endif
 
 #define FIX_GL_TRANSLATION 0
 
@@ -76,7 +80,6 @@ public:
     int lineWidth;
     int midLineWidth;
 
-    bool doBackingStore;
 #if FBOGL
     QGLFramebufferObject* fbo;
 #else
@@ -417,7 +420,6 @@ void QwtPlotGLCanvas::drawBorder( QPainter *painter )
     }
 }
 
-//! Calls repaint()
 void QwtPlotGLCanvas::replot()
 {
     invalidateBackingStore();
@@ -484,19 +486,27 @@ void QwtPlotGLCanvas::paintGL()
             format.setSamples( numSamples );
             format.setAttachment( QOpenGLFramebufferObject::CombinedDepthStencil );
 
-            d_data->fbo = new QOpenGLFramebufferObject( size(), format );
-#if 1
-            d_data->fbo->bind();
-#endif
+            QOpenGLFramebufferObject fbo( size(), format );
 
             QOpenGLPaintDevice pd( size() );
 
             QPainter painter( &pd );
             draw( &painter);
             painter.end();
+
+            d_data->fbo = new QOpenGLFramebufferObject( size() );
+            QOpenGLFramebufferObject::blitFramebuffer(d_data->fbo, &fbo );
 #endif
         }
+#if 0
+static QLabel* label = NULL;
+if ( label == NULL )
+    label = new QLabel();
 
+label->setPixmap( QPixmap::fromImage( d_data->fbo->toImage() ) );
+label->resize( label->sizeHint() );
+label->show();
+#endif
         drawTexture( QRectF( -1.0, 1.0, 2.0, -2.0 ), d_data->fbo->texture() );
     }
     else
