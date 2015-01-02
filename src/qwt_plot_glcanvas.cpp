@@ -14,6 +14,22 @@
 #include <qdrawutil.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
+
+#define FIX_GL_TRANSLATION 0
+
+#if QT_VERSION < 0x050000
+#define FBOGL 1
+#else
+#define FBOGL 1
+#endif
+
+#if FBOGL
+#include <qglframebufferobject.h>
+#else
+#include <qopenglframebufferobject.h>
+#include <qopenglpaintdevice.h>
+#endif
+
 #include "qwt_painter.h"
 
 static QWidget *qwtBGWidget( QWidget *widget )
@@ -44,13 +60,28 @@ public:
     PrivateData():
         frameStyle( QFrame::Panel | QFrame::Sunken),
         lineWidth( 2 ),
-        midLineWidth( 0 )
+        midLineWidth( 0 ),
+        fbo( NULL )
     {
     }
+
+    ~PrivateData()
+    {
+        delete fbo;
+    }
+
+    QwtPlotGLCanvas::PaintAttributes paintAttributes;
 
     int frameStyle;
     int lineWidth;
     int midLineWidth;
+
+    bool doBackingStore;
+#if FBOGL
+    QGLFramebufferObject* fbo;
+#else
+    QOpenGLFramebufferObject* fbo;
+#endif
 };
 
 class QwtPlotGLCanvasFormat: public QGLFormat
@@ -91,12 +122,48 @@ void QwtPlotGLCanvas::init()
 
     setAutoFillBackground( true );
     qwtUpdateContentsRect( this );
+
+    setPaintAttribute( QwtPlotGLCanvas::BackingStore, true );
 }
 
 //! Destructor
 QwtPlotGLCanvas::~QwtPlotGLCanvas()
 {
     delete d_data;
+}
+
+/*!
+  \brief Changing the paint attributes
+
+  \param attribute Paint attribute
+  \param on On/Off
+
+  \sa testPaintAttribute()
+*/
+void QwtPlotGLCanvas::setPaintAttribute( PaintAttribute attribute, bool on )
+{   
+    if ( bool( d_data->paintAttributes & attribute ) == on )
+        return;
+    
+    if ( on )
+        d_data->paintAttributes |= attribute;
+    else
+        d_data->paintAttributes &= ~attribute;
+
+    if ( attribute == BackingStore )
+        invalidateBackingStore();
+}
+
+/*!
+  Test whether a paint attribute is enabled
+
+  \param attribute Paint attribute
+  \return true, when attribute is enabled
+  \sa setPaintAttribute()
+*/  
+bool QwtPlotGLCanvas::testPaintAttribute( PaintAttribute attribute ) const
+{   
+    return d_data->paintAttributes & attribute;
 }
 
 /*!
@@ -239,25 +306,9 @@ int QwtPlotGLCanvas::frameWidth() const
 */
 void QwtPlotGLCanvas::paintEvent( QPaintEvent *event )
 {
-    Q_UNUSED( event );
-
-    QPainter painter( this );
-
-    if ( painter.paintEngine()->type() == QPaintEngine::OpenGL2 )
-    {
-        // work around a translation bug of QPaintEngine::OpenGL2
-        painter.translate( 1, 1 );
-    }
-
-    drawBackground( &painter );
-    drawItems( &painter );
-
-    if ( !testAttribute( Qt::WA_StyledBackground ) )
-    {
-        if ( frameWidth() > 0 )
-            drawBorder( &painter );
-    }
+    QGLWidget::paintEvent( event );
 }
+
 /*!
   Qt event handler for QEvent::PolishRequest and QEvent::StyleChange
   \param event Qt Event
@@ -324,7 +375,9 @@ void QwtPlotGLCanvas::drawBackground( QPainter *painter )
     }
     else 
     {
+#if 0
         if ( !autoFillBackground() )
+#endif
         {
             painter->fillRect( fillRect,
                 w->palette().brush( w->backgroundRole() ) );
@@ -367,7 +420,12 @@ void QwtPlotGLCanvas::drawBorder( QPainter *painter )
 //! Calls repaint()
 void QwtPlotGLCanvas::replot()
 {
-    repaint();
+    invalidateBackingStore();
+
+    if ( testPaintAttribute( QwtPlotGLCanvas::ImmediatePaint ) )
+        repaint( contentsRect() );
+    else
+        update( contentsRect() );
 }
 
 /*!
@@ -384,4 +442,105 @@ QRect QwtPlotGLCanvas::frameRect() const
 {
     const int fw = frameWidth();
     return contentsRect().adjusted( -fw, -fw, fw, fw );
+}
+
+void QwtPlotGLCanvas::invalidateBackingStore()
+{
+    delete d_data->fbo;
+    d_data->fbo = NULL;
+}
+
+void QwtPlotGLCanvas::initializeGL()
+{
+}
+
+void QwtPlotGLCanvas::paintGL()
+{
+    if ( testPaintAttribute( QwtPlotGLCanvas::BackingStore ) )
+    {
+        if ( d_data->fbo == NULL || d_data->fbo->size() != size() )
+        {
+            invalidateBackingStore();
+
+            const int numSamples = 16;
+
+#if FBOGL
+            QGLFramebufferObjectFormat format;
+            format.setSamples( numSamples );
+            format.setAttachment(QGLFramebufferObject::CombinedDepthStencil);
+
+            QGLFramebufferObject fbo( size(), format );
+
+            QPainter painter( &fbo );
+            draw( &painter);
+            painter.end();
+
+            d_data->fbo = new QGLFramebufferObject( size() );
+
+            QRect rect(0, 0, width(), height());
+            QGLFramebufferObject::blitFramebuffer(d_data->fbo, rect, &fbo, rect);
+#else
+            QOpenGLFramebufferObjectFormat format;
+            format.setSamples( numSamples );
+            format.setAttachment( QOpenGLFramebufferObject::CombinedDepthStencil );
+
+            d_data->fbo = new QOpenGLFramebufferObject( size(), format );
+#if 1
+            d_data->fbo->bind();
+#endif
+
+            QOpenGLPaintDevice pd( size() );
+
+            QPainter painter( &pd );
+            draw( &painter);
+            painter.end();
+#endif
+            glBindTexture(GL_TEXTURE_2D, d_data->fbo->texture());
+        }
+
+        glEnable(GL_TEXTURE_2D);
+
+        glBegin(GL_QUADS);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2f(-1.0f, -1.0f);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2f( 1.0f, -1.0f);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2f( 1.0f,  1.0f);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2f(-1.0f,  1.0f);
+
+        glEnd();
+    }
+    else
+    {
+        QPainter painter( this );
+        draw( &painter );
+    }
+}
+
+void QwtPlotGLCanvas::resizeGL( int, int )
+{
+    invalidateBackingStore();
+}
+
+void QwtPlotGLCanvas::draw( QPainter *painter )
+{
+#if FIX_GL_TRANSLATION
+    if ( painter->paintEngine()->type() == QPaintEngine::OpenGL2 )
+    {
+        // work around a translation bug of QPaintEngine::OpenGL2
+        painter->translate( 1, 1 );
+    }
+#endif
+
+    drawBackground( painter );
+    drawItems( painter );
+
+    if ( !testAttribute( Qt::WA_StyledBackground ) )
+    { 
+        if ( frameWidth() > 0 )
+            drawBorder( painter );
+    }
 }

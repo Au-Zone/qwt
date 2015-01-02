@@ -50,6 +50,40 @@ class QWT_EXPORT QwtPlotGLCanvas: public QGLWidget
 
 public:
     /*!
+      \brief Paint attributes
+
+      The default setting enables BackingStore and Opaque.
+
+      \sa setPaintAttribute(), testPaintAttribute()
+     */
+    enum PaintAttribute
+    {
+        /*!
+          \brief Paint double buffered reusing the content 
+                 of the pixmap buffer when possible. 
+
+          Using a backing store might improve the performance
+          significantly, when working with widget overlays ( like rubber bands ).
+          Disabling the cache might improve the performance for
+          incremental paints (using QwtPlotDirectPainter ).
+
+          \sa backingStore(), invalidateBackingStore()
+         */
+        BackingStore = 1,
+
+        /*!
+          When ImmediatePaint is set replot() calls repaint()
+          instead of update().
+
+          \sa replot(), QWidget::repaint(), QWidget::update()
+         */
+        ImmediatePaint = 8,
+    };
+
+    //! Paint attributes
+    typedef QFlags<PaintAttribute> PaintAttributes;
+
+    /*!
         \brief Frame shadow
 
          Unfortunately it is not possible to use QFrame::Shadow
@@ -92,6 +126,9 @@ public:
     explicit QwtPlotGLCanvas( const QGLFormat &, QwtPlot * = NULL );
     virtual ~QwtPlotGLCanvas();
 
+    void setPaintAttribute( PaintAttribute, bool on = true );
+    bool testPaintAttribute( PaintAttribute ) const;
+
     void setFrameStyle( int style );
     int frameStyle() const;
 
@@ -112,6 +149,8 @@ public:
 
     Q_INVOKABLE QPainterPath borderPath( const QRect & ) const;
 
+    void invalidateBackingStore();
+
     virtual bool event( QEvent * );
 
 public Q_SLOTS:
@@ -120,6 +159,11 @@ public Q_SLOTS:
 protected:
     virtual void paintEvent( QPaintEvent * );
 
+    virtual void initializeGL();
+    virtual void paintGL();
+    virtual void resizeGL( int width, int height );
+
+    void draw( QPainter * );
     virtual void drawBackground( QPainter * );
     virtual void drawBorder( QPainter * );
     virtual void drawItems( QPainter * );
@@ -130,5 +174,7 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotGLCanvas::PaintAttributes )
 
 #endif
