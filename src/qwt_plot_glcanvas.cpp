@@ -9,32 +9,15 @@
 
 #include "qwt_plot_glcanvas.h"
 #include "qwt_plot.h"
+#include "qwt_painter.h"
 #include <qevent.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
-#if 1
-#include <qlabel.h>
-#include <qdebug.h>
-#endif
+#include <qglframebufferobject.h>
 
 #define FIX_GL_TRANSLATION 0
-
-#if QT_VERSION < 0x050000
-#define FBOGL 1
-#else
-#define FBOGL 1
-#endif
-
-#if FBOGL
-#include <qglframebufferobject.h>
-#else
-#include <qopenglframebufferobject.h>
-#include <qopenglpaintdevice.h>
-#endif
-
-#include "qwt_painter.h"
 
 static QWidget *qwtBGWidget( QWidget *widget )
 {
@@ -80,11 +63,7 @@ public:
     int lineWidth;
     int midLineWidth;
 
-#if FBOGL
     QGLFramebufferObject* fbo;
-#else
-    QOpenGLFramebufferObject* fbo;
-#endif
 };
 
 class QwtPlotGLCanvasFormat: public QGLFormat
@@ -466,7 +445,6 @@ void QwtPlotGLCanvas::paintGL()
 
             const int numSamples = 16;
 
-#if FBOGL
             QGLFramebufferObjectFormat format;
             format.setSamples( numSamples );
             format.setAttachment(QGLFramebufferObject::CombinedDepthStencil);
@@ -481,32 +459,8 @@ void QwtPlotGLCanvas::paintGL()
 
             QRect rect(0, 0, width(), height());
             QGLFramebufferObject::blitFramebuffer(d_data->fbo, rect, &fbo, rect);
-#else
-            QOpenGLFramebufferObjectFormat format;
-            format.setSamples( numSamples );
-            format.setAttachment( QOpenGLFramebufferObject::CombinedDepthStencil );
-
-            QOpenGLFramebufferObject fbo( size(), format );
-
-            QOpenGLPaintDevice pd( size() );
-
-            QPainter painter( &pd );
-            draw( &painter);
-            painter.end();
-
-            d_data->fbo = new QOpenGLFramebufferObject( size() );
-            QOpenGLFramebufferObject::blitFramebuffer(d_data->fbo, &fbo );
-#endif
         }
-#if 0
-static QLabel* label = NULL;
-if ( label == NULL )
-    label = new QLabel();
 
-label->setPixmap( QPixmap::fromImage( d_data->fbo->toImage() ) );
-label->resize( label->sizeHint() );
-label->show();
-#endif
         drawTexture( QRectF( -1.0, 1.0, 2.0, -2.0 ), d_data->fbo->texture() );
     }
     else
