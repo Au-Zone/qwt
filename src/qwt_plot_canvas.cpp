@@ -15,6 +15,7 @@
 
 #ifndef QWT_NO_OPENGL
 #include "qwt_opengl_paintdevice.h"
+#define FIX_GL_TRANSLATION 0
 #endif
 
 #include <qpainter.h>
@@ -750,11 +751,13 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 
                 QPainter p;
                 p.begin( &buf );
+#if FIX_GL_TRANSLATION
                 if ( p.paintEngine()->type() == QPaintEngine::OpenGL2 )
                 {
                     // work around a translation bug of QPaintEngine::OpenGL2
                     p.translate( 1, 1 );
                 }
+#endif
 
                 qwtFillBackground( &p, this );
                 drawCanvas( &p, true );
@@ -807,11 +810,13 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
             QwtOpenGLPaintDevice buf( size() );
 
             QPainter p( &buf );
+#if FIX_GL_TRANSLATION
             if ( p.paintEngine()->type() == QPaintEngine::OpenGL2 )
             {
                 // work around a translation bug of QPaintEngine::OpenGL2
                 p.translate( 1, 1 );
             }
+#endif
 
             qwtFillBackground( &p, this );
             drawCanvas( &p, true );
