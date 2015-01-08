@@ -27,12 +27,17 @@ class QwtPlot;
   its API. When using style sheets it supports the box model - beside
   backgrounds with rounded borders.
 
-  \sa QwtPlot::setCanvas(), QwtPlotCanvas, QwtPlotCanvas::PixelBuffer
+  \sa QwtPlot::setCanvas(), QwtPlotCanvas, QwtPlotCanvas::OpenGLBuffer
 
   \note With Qt4 you might want to use the QPaintEngine::OpenGL paint engine
         ( see QGL::setPreferredPaintEngine() ). On a Linux test system 
         QPaintEngine::OpenGL2 shows very basic problems like translated
         geometries.
+
+  \note Another way for getting hardware accelerated graphics is using
+        an OpenGL offscreen buffer ( QwtPlotCanvas::OpenGLBuffer ) with QwtPlotCanvas.
+        Performance is worse, than rendering straight to a QGLWidget, but is usually
+        better integrated into a desktop application. 
 */
 class QWT_EXPORT QwtPlotGLCanvas: public QGLWidget
 {
