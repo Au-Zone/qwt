@@ -26,7 +26,6 @@ HEADERS += \
     qwt_math.h \
     qwt_magnifier.h \
     qwt_null_paintdevice.h \
-    qwt_proxy_paintdevice.h \
     qwt_painter.h \
     qwt_painter_command.h \
     qwt_panner.h \
@@ -69,7 +68,6 @@ SOURCES += \
     qwt_math.cpp \
     qwt_magnifier.cpp \
     qwt_null_paintdevice.cpp \
-    qwt_proxy_paintdevice.cpp \
     qwt_painter.cpp \
     qwt_painter_command.cpp \
     qwt_panner.cpp \
@@ -241,12 +239,6 @@ else {
 contains(QWT_CONFIG, QwtOpenGL) {
 
     QT += opengl
-
-    HEADERS += \
-        qwt_opengl_paintdevice.h
-
-    SOURCES += \
-        qwt_opengl_paintdevice.cpp
 }
 else {
 

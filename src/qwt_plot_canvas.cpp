@@ -14,9 +14,29 @@
 #include "qwt_plot.h"
 
 #ifndef QWT_NO_OPENGL
-#include "qwt_opengl_paintdevice.h"
-#define FIX_GL_TRANSLATION 0
+
+#if QT_VERSION < 0x050000
+#define FBO_OPENGL 0
+#else
+#define FBO_OPENGL 1
 #endif
+
+#if FBO_OPENGL
+#include <qopenglcontext.h>
+#include <qopenglframebufferobject.h>
+#include <qopenglpaintdevice.h>
+
+#if QT_VERSION >= 0x050100
+#include <qoffscreensurface.h>
+#else
+#include <qwindow.h>
+#endif
+
+#else
+#include <qglframebufferobject.h>
+#endif
+
+#endif // !QWT_NO_OPENGL
 
 #include <qpainter.h>
 #include <qstyle.h>
@@ -1124,34 +1144,69 @@ QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
     return QPainterPath();
 }
 
+#ifndef QWT_NO_OPENGL
+
+#define FIX_GL_TRANSLATION 0
+
 QImage QwtPlotCanvas::toImageFBO( const QSize &size ) 
 {
-    QImage image;
+	const int numSamples = 16;
 
-#ifndef QWT_NO_OPENGL
-    QwtOpenGLPaintDevice buf( size );
+#if FBO_OPENGL
 
-    QPainter painter;
-    painter.begin( &buf );
+	#if QT_VERSION >= 0x050100
+		QOffscreenSurface surface;
+	#else
+    	QWindow surface;
+    	surface.setSurfaceType(QWindow::OpenGLSurface);
+	#endif
+		surface.create();
 
-#if FIX_GL_TRANSLATION
-    if ( painter.paintEngine()->type() == QPaintEngine::OpenGL2 )
-    {
-        // work around a translation bug of QPaintEngine::OpenGL2
-        painter.translate( 1, 1 );
-    }
+		QOpenGLContext context;
+		context.create();
+		context.makeCurrent( &surface );
+
+		QOpenGLFramebufferObjectFormat fboFormat;
+    	fboFormat.setSamples(numSamples);
+
+		QOpenGLFramebufferObject fbo( size, fboFormat );
+		QOpenGLPaintDevice pd( size );
+
+#else
+    	QGLFormat format = QGLFormat::defaultFormat();
+    	format.setSampleBuffers( true );
+    	format.setSamples(16);
+
+    	QGLWidget w( format );
+		w.makeCurrent();
+
+    	QGLFramebufferObjectFormat fboFormat;
+    	fboFormat.setSamples(numSamples);
+
+		QGLFramebufferObject fbo( size, fboFormat );
+		QGLFramebufferObject &pd = fbo;
+
 #endif
+
+   	QPainter painter( &pd );
 
     qwtFillBackground( &painter, this );
     drawCanvas( &painter, true );
-
+    
     if ( frameWidth() > 0 )
         drawBorder( &painter );
-
+    
     painter.end();
-
-    image = buf.toImage();
-#endif
-
-    return image;
+        
+    return fbo.toImage();
 }
+
+#else
+
+QImage QwtPlotCanvas::toImageFBO( const QSize &)
+{
+	// will never be called
+	return QImage();
+}
+
+#endif
