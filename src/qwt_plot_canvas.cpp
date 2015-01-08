@@ -28,12 +28,20 @@
 
 #if QT_VERSION >= 0x050100
 #include <qoffscreensurface.h>
+typedef QOffscreenSurface QwtPlotCanvasSurfaceGL;
+
 #else
 #include <qwindow.h>
+class QwtPlotCanvasSurfaceGL: public QWindow
+{
+public:
+    QwtPlotCanvasSurfaceGL() { setSurfaceType( QWindow::OpenGLSurface ); }
+};
 #endif
 
 #else
 #include <qglframebufferobject.h>
+typedef QGLWidget QwtPlotCanvasSurfaceGL;
 #endif
 
 #endif // !QWT_NO_OPENGL
@@ -522,6 +530,9 @@ public:
         focusIndicator( NoFocusIndicator ),
         borderRadius( 0 ),
         paintAttributes( 0 ),
+#ifndef QWT_NO_OPENGL
+        surfaceGL( NULL ),
+#endif
         backingStore( NULL )
     {
         styleSheet.hasBorder = false;
@@ -530,11 +541,19 @@ public:
     ~PrivateData()
     {
         delete backingStore;
+#ifndef QWT_NO_OPENGL
+        delete surfaceGL;;
+#endif
     }
 
     FocusIndicator focusIndicator;
     double borderRadius;
     QwtPlotCanvas::PaintAttributes paintAttributes;
+
+#ifndef QWT_NO_OPENGL
+    QwtPlotCanvasSurfaceGL *surfaceGL;
+#endif
+
     QPixmap *backingStore;
 
     struct StyleSheet
@@ -1150,45 +1169,50 @@ QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
 
 QImage QwtPlotCanvas::toImageFBO( const QSize &size ) 
 {
-	const int numSamples = 16;
+    const int numSamples = 16;
 
 #if FBO_OPENGL
 
-	#if QT_VERSION >= 0x050100
-		QOffscreenSurface surface;
-	#else
-    	QWindow surface;
-    	surface.setSurfaceType(QWindow::OpenGLSurface);
-	#endif
-		surface.create();
+    if ( d_data->surfaceGL == NULL )
+    {
+        d_data->surfaceGL = new QwtPlotCanvasSurfaceGL();
+        d_data->surfaceGL->create();
+    }
 
-		QOpenGLContext context;
-		context.create();
-		context.makeCurrent( &surface );
+    QOpenGLContext context;
+    context.create();
 
-		QOpenGLFramebufferObjectFormat fboFormat;
-    	fboFormat.setSamples(numSamples);
+    context.makeCurrent( d_data->surfaceGL );
 
-		QOpenGLFramebufferObject fbo( size, fboFormat );
-		QOpenGLPaintDevice pd( size );
+
+    QOpenGLFramebufferObjectFormat fboFormat;
+    fboFormat.setSamples(numSamples);
+    QOpenGLFramebufferObject fbo( size, fboFormat );
+
+    QOpenGLPaintDevice pd( size );
 
 #else
-    	QGLFormat format = QGLFormat::defaultFormat();
-    	format.setSampleBuffers( true );
-    	format.setSamples(16);
 
-    	QGLWidget w( format );
-		w.makeCurrent();
+    if ( d_data->surfaceGL == NULL )
+    {
+        QGLFormat format = QGLFormat::defaultFormat();
+        format.setSampleBuffers( true );
+        format.setSamples( numSamples );
 
-    	QGLFramebufferObjectFormat fboFormat;
-    	fboFormat.setSamples(numSamples);
+        d_data->surfaceGL = new QwtPlotCanvasSurfaceGL( format );
+    }
 
-		QGLFramebufferObject fbo( size, fboFormat );
-		QGLFramebufferObject &pd = fbo;
+    d_data->surfaceGL->makeCurrent();
+
+    QGLFramebufferObjectFormat fboFormat;
+    fboFormat.setSamples(numSamples);
+
+    QGLFramebufferObject fbo( size, fboFormat );
+    QGLFramebufferObject &pd = fbo;
 
 #endif
 
-   	QPainter painter( &pd );
+    QPainter painter( &pd );
 
     qwtFillBackground( &painter, this );
     drawCanvas( &painter, true );
@@ -1197,7 +1221,7 @@ QImage QwtPlotCanvas::toImageFBO( const QSize &size )
         drawBorder( &painter );
     
     painter.end();
-        
+
     return fbo.toImage();
 }
 
@@ -1205,8 +1229,8 @@ QImage QwtPlotCanvas::toImageFBO( const QSize &size )
 
 QImage QwtPlotCanvas::toImageFBO( const QSize &)
 {
-	// will never be called
-	return QImage();
+    // will never be called
+    return QImage();
 }
 
 #endif
