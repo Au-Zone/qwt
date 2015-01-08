@@ -747,28 +747,8 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 #ifndef QWT_NO_OPENGL
             if ( testPaintAttribute( OpenGLBuffer ) )
             {
-                QwtOpenGLPaintDevice buf( size() );
-
-                QPainter p;
-                p.begin( &buf );
-#if FIX_GL_TRANSLATION
-                if ( p.paintEngine()->type() == QPaintEngine::OpenGL2 )
-                {
-                    // work around a translation bug of QPaintEngine::OpenGL2
-                    p.translate( 1, 1 );
-                }
-#endif
-
-                qwtFillBackground( &p, this );
-                drawCanvas( &p, true );
-
-                if ( frameWidth() > 0 )
-                    drawBorder( &p );
-
-                p.end();
-
-                p.begin( &bs );
-                p.drawImage( 0, 0, buf.toImage() );
+                QPainter p( &bs );
+                p.drawImage( 0, 0, toImageFBO( size() ) );
                 p.end();
             }
             else
@@ -807,25 +787,7 @@ void QwtPlotCanvas::paintEvent( QPaintEvent *event )
 #ifndef QWT_NO_OPENGL
         if ( testPaintAttribute( OpenGLBuffer ) )
         {
-            QwtOpenGLPaintDevice buf( size() );
-
-            QPainter p( &buf );
-#if FIX_GL_TRANSLATION
-            if ( p.paintEngine()->type() == QPaintEngine::OpenGL2 )
-            {
-                // work around a translation bug of QPaintEngine::OpenGL2
-                p.translate( 1, 1 );
-            }
-#endif
-
-            qwtFillBackground( &p, this );
-            drawCanvas( &p, true );
-
-            if ( frameWidth() > 0 )
-                drawBorder( &p );
-
-            p.end();
-            painter.drawImage( 0, 0, buf.toImage() );
+            painter.drawImage( 0, 0, toImageFBO( size() ) );
         }
         else
 #endif
@@ -1160,4 +1122,36 @@ QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
     }
     
     return QPainterPath();
+}
+
+QImage QwtPlotCanvas::toImageFBO( const QSize &size ) 
+{
+    QImage image;
+
+#ifndef QWT_NO_OPENGL
+    QwtOpenGLPaintDevice buf( size );
+
+    QPainter painter;
+    painter.begin( &buf );
+
+#if FIX_GL_TRANSLATION
+    if ( painter.paintEngine()->type() == QPaintEngine::OpenGL2 )
+    {
+        // work around a translation bug of QPaintEngine::OpenGL2
+        painter.translate( 1, 1 );
+    }
+#endif
+
+    qwtFillBackground( &painter, this );
+    drawCanvas( &painter, true );
+
+    if ( frameWidth() > 0 )
+        drawBorder( &painter );
+
+    painter.end();
+
+    image = buf.toImage();
+#endif
+
+    return image;
 }

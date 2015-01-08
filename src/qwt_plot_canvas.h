@@ -190,6 +190,7 @@ protected:
     void updateStyleSheetInfo();
 
 private:
+    QImage toImageFBO( const QSize &size );
     void drawCanvas( QPainter *, bool withBackground );
 
     class PrivateData;
