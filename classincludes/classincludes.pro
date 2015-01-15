@@ -143,6 +143,7 @@ contains(QWT_CONFIG, QwtPlot) {
 contains(QWT_CONFIG, QwtOpenGL) {
 
     CLASSHEADERS += \
+        QwtPlotAbstractCanvas \
         QwtPlotGLCanvas
 
     greaterThan(QT_MAJOR_VERSION, 4) {
