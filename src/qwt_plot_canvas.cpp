@@ -202,11 +202,16 @@ private:
     QPointF d_origin;
 };
 
-static void qwtDrawBackground( QPainter *painter, QwtPlotCanvas *canvas )
+static void qwtDrawBackground( QPainter *painter, QWidget *canvas )
 {
     painter->save();
 
-    const QPainterPath borderClip = canvas->borderPath( canvas->rect() );
+    QPainterPath borderClip;
+    
+    ( void )QMetaObject::invokeMethod(
+        canvas, "borderPath", Qt::DirectConnection,
+        Q_RETURN_ARG( QPainterPath, borderClip ), Q_ARG( QRect, canvas->rect() ) );
+
     if ( !borderClip.isEmpty() )
         painter->setClipPath( borderClip, Qt::IntersectClip );
 
@@ -487,7 +492,7 @@ static void qwtFillBackground( QPainter *painter,
     }
 }
 
-static void qwtFillBackground( QPainter *painter, QwtPlotCanvas *canvas )
+static void qwtFillBackground( QPainter *painter, QWidget *canvas )
 {
     QVector<QRectF> rects;
 
@@ -506,23 +511,116 @@ static void qwtFillBackground( QPainter *painter, QwtPlotCanvas *canvas )
     }
     else
     {
-        const QRectF r = canvas->rect();
-        const double radius = canvas->borderRadius();
-        if ( radius > 0.0 )
+        const double borderRadius = canvas->property( "borderRadius" ).toDouble();
+        if ( borderRadius > 0.0 )
         {
-            QSizeF sz( radius, radius );
+            QSizeF sz( borderRadius, borderRadius );
 
+            const QRectF r = canvas->rect();
             rects += QRectF( r.topLeft(), sz );
-            rects += QRectF( r.topRight() - QPointF( radius, 0 ), sz );
-            rects += QRectF( r.bottomRight() - QPointF( radius, radius ), sz );
-            rects += QRectF( r.bottomLeft() - QPointF( 0, radius ), sz );
+            rects += QRectF( r.topRight() - QPointF( borderRadius, 0 ), sz );
+            rects += QRectF( r.bottomRight() - QPointF( borderRadius, borderRadius ), sz );
+            rects += QRectF( r.bottomLeft() - QPointF( 0, borderRadius ), sz );
         }
     }
 
     qwtFillBackground( painter, canvas, rects);
 }
 
+static QPainterPath qwtBorderPath( const QWidget *canvas, const QRect &rect ) 
+{
+    if ( canvas->testAttribute(Qt::WA_StyledBackground ) )
+    {
+        QwtStyleSheetRecorder recorder( rect.size() );
 
+        QPainter painter( &recorder );
+
+        QStyleOption opt;
+        opt.initFrom( canvas );
+        opt.rect = rect;
+        canvas->style()->drawPrimitive( QStyle::PE_Widget, &opt, &painter, canvas );
+
+        painter.end();
+
+        if ( !recorder.background.path.isEmpty() )
+            return recorder.background.path;
+
+        if ( !recorder.border.rectList.isEmpty() )
+            return qwtCombinePathList( rect, recorder.border.pathList );
+    }
+    else 
+    {
+        const double borderRadius = canvas->property( "borderRadius" ).toDouble();
+
+        if ( borderRadius > 0.0 )
+        {
+            double fw2 = canvas->property( "frameWidth" ).toInt() * 0.5;
+            QRectF r = QRectF(rect).adjusted( fw2, fw2, -fw2, -fw2 );
+
+            QPainterPath path;
+            path.addRoundedRect( r, borderRadius, borderRadius );
+            return path;
+        }
+    }
+
+    return QPainterPath();
+}
+
+static void qwtDrawBorder( QPainter *painter, QWidget *canvas )
+{
+    const double borderRadius = canvas->property( "borderRadius" ).toDouble();
+    if ( borderRadius > 0 )
+    {
+        const int frameWidth = canvas->property( "frameWidth" ).toInt();
+        if ( frameWidth > 0 )
+        {
+            const int frameShape = canvas->property( "frameShape" ).toInt();
+            const int frameShadow = canvas->property( "frameShadow" ).toInt();
+
+            const QRectF frameRect = canvas->property( "frameRect" ).toRect();
+
+            QwtPainter::drawRoundedFrame( painter, frameRect, 
+                borderRadius, borderRadius,
+                canvas->palette(), frameWidth, frameShape | frameShadow );
+        }
+    }
+    else
+    {
+        const int frameShape = canvas->property( "frameShape" ).toInt();
+        const int frameShadow = canvas->property( "frameShadow" ).toInt();
+
+        QStyleOptionFrameV3 opt;
+        opt.init(canvas);
+
+        opt.frameShape = QFrame::Shape( int( opt.frameShape ) | frameShape );
+
+        switch (frameShape) 
+        {
+            case QFrame::Box:
+            case QFrame::HLine:
+            case QFrame::VLine:
+            case QFrame::StyledPanel:
+            case QFrame::Panel:
+            {
+                opt.lineWidth = canvas->property( "lineWidth" ).toInt();
+                opt.midLineWidth = canvas->property( "midLineWidth" ).toInt();
+                break; 
+            }
+            default: 
+            {
+                opt.lineWidth = canvas->property( "frameWidth" ).toInt();
+                break;
+            }
+        }
+    
+        if ( frameShadow == QFrame::Sunken )
+            opt.state |= QStyle::State_Sunken;
+        else if ( frameShadow == QFrame::Raised )
+            opt.state |= QStyle::State_Raised;
+
+        canvas->style()->drawControl(QStyle::CE_ShapedFrame, &opt, painter, canvas);
+    }
+}
 class QwtPlotCanvas::PrivateData
 {
 public:
@@ -992,58 +1090,15 @@ void QwtPlotCanvas::drawCanvas( QPainter *painter, bool withBackground )
 */
 void QwtPlotCanvas::drawBorder( QPainter *painter )
 {
-    if ( d_data->borderRadius > 0 )
-    {
-        if ( frameWidth() > 0 )
-        {
-            QwtPainter::drawRoundedFrame( painter, QRectF( frameRect() ), 
-                d_data->borderRadius, d_data->borderRadius,
-                palette(), frameWidth(), frameStyle() );
-        }
-    }
-    else
-    {
 #if QT_VERSION >= 0x040500
-        QStyleOptionFrameV3 opt;
-        opt.init(this);
-
-        int frameShape  = frameStyle() & QFrame::Shape_Mask;
-        int frameShadow = frameStyle() & QFrame::Shadow_Mask;
-
-        opt.frameShape = QFrame::Shape( int( opt.frameShape ) | frameShape );
-#if 0
-        opt.rect = frameRect();
-#endif
-
-        switch (frameShape) 
-        {
-            case QFrame::Box:
-            case QFrame::HLine:
-            case QFrame::VLine:
-            case QFrame::StyledPanel:
-            case QFrame::Panel:
-            {
-                opt.lineWidth = lineWidth();
-                opt.midLineWidth = midLineWidth();
-                break; 
-            }
-            default: 
-            {
-                opt.lineWidth = frameWidth();
-                break;
-            }
-        }
-    
-        if ( frameShadow == Sunken )
-            opt.state |= QStyle::State_Sunken;
-        else if ( frameShadow == Raised )
-            opt.state |= QStyle::State_Raised;
-
-        style()->drawControl(QStyle::CE_ShapedFrame, &opt, painter, this);
-#else
+    if ( d_data->borderRadius <= 0 )
+    {
         drawFrame( painter );
-#endif
+        return;
     }
+#endif
+
+    qwtDrawBorder( painter, this );
 }
 
 /*!
@@ -1131,36 +1186,7 @@ void QwtPlotCanvas::updateStyleSheetInfo()
 */
 QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
 {
-    if ( testAttribute(Qt::WA_StyledBackground ) )
-    {
-        QwtStyleSheetRecorder recorder( rect.size() );
-
-        QPainter painter( &recorder );
-
-        QStyleOption opt;
-        opt.initFrom(this);
-        opt.rect = rect;
-        style()->drawPrimitive( QStyle::PE_Widget, &opt, &painter, this);
-
-        painter.end();
-
-        if ( !recorder.background.path.isEmpty() )
-            return recorder.background.path;
-
-        if ( !recorder.border.rectList.isEmpty() )
-            return qwtCombinePathList( rect, recorder.border.pathList );
-    }
-    else if ( d_data->borderRadius > 0.0 )
-    {
-        double fw2 = frameWidth() * 0.5;
-        QRectF r = QRectF(rect).adjusted( fw2, fw2, -fw2, -fw2 );
-
-        QPainterPath path;
-        path.addRoundedRect( r, d_data->borderRadius, d_data->borderRadius );
-        return path;
-    }
-    
-    return QPainterPath();
+    return qwtBorderPath( this, rect );
 }
 
 #ifndef QWT_NO_OPENGL
