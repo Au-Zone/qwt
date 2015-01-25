@@ -119,6 +119,10 @@ void QwtPlotGLCanvas::initializeGL()
 
 void QwtPlotGLCanvas::paintGL()
 {
+#if QT_VERSION < 0x040600
+    QPainter painter( this );
+    draw( &painter );
+#else
     if ( testPaintAttribute( QwtPlotGLCanvas::BackingStore ) )
     {
         if ( d_data->fbo == NULL || d_data->fbo->size() != size() )
@@ -150,6 +154,7 @@ void QwtPlotGLCanvas::paintGL()
         QPainter painter( this );
         draw( &painter );
     }
+#endif
 }
 
 void QwtPlotGLCanvas::resizeGL( int, int )

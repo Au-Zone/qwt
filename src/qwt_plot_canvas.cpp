@@ -586,6 +586,7 @@ static void qwtDrawBorder( QPainter *painter, QWidget *canvas )
     }
     else
     {
+#if QT_VERSION >= 0x040500
         const int frameShape = canvas->property( "frameShape" ).toInt();
         const int frameShadow = canvas->property( "frameShadow" ).toInt();
 
@@ -619,6 +620,9 @@ static void qwtDrawBorder( QPainter *painter, QWidget *canvas )
             opt.state |= QStyle::State_Raised;
 
         canvas->style()->drawControl(QStyle::CE_ShapedFrame, &opt, painter, canvas);
+#else
+        // TODO: do we really need Qt 4.4 ?
+#endif
     }
 }
 class QwtPlotCanvas::PrivateData
@@ -1230,10 +1234,14 @@ QImage QwtPlotCanvas::toImageFBO( const QSize &size )
 
     d_data->surfaceGL->makeCurrent();
 
+#if QT_VERSION >= 0x040600
     QGLFramebufferObjectFormat fboFormat;
     fboFormat.setSamples(numSamples);
 
     QGLFramebufferObject fbo( size, fboFormat );
+#else
+    QGLFramebufferObject fbo( size );
+#endif
     QGLFramebufferObject &pd = fbo;
 
 #endif
