@@ -38,30 +38,21 @@ public:
 */
 QwtPlotOpenGLCanvas::QwtPlotOpenGLCanvas( QwtPlot *plot ):
     QOpenGLWidget( plot ),
-    QwtPlotAbstractCanvas( this )
+    QwtPlotAbstractGLCanvas( this )
 {
     QSurfaceFormat fmt = format();
     fmt.setSamples(16);
     setFormat( fmt );
 
     d_data = new PrivateData;
-#if 1
-    // update issue: TODO
-    setPaintAttribute( BackingStore, false );
-#endif
 }
 
 QwtPlotOpenGLCanvas::QwtPlotOpenGLCanvas( const QSurfaceFormat &format, QwtPlot *plot ):
     QOpenGLWidget( plot ),
-    QwtPlotAbstractCanvas( this )
+    QwtPlotAbstractGLCanvas( this )
 {
     setFormat( format );
-
     d_data = new PrivateData;
-#if 1
-    // update issue: TODO
-    setPaintAttribute( BackingStore, false );
-#endif
 }
 
 //! Destructor
@@ -105,7 +96,7 @@ bool QwtPlotOpenGLCanvas::event( QEvent *event )
 
 void QwtPlotOpenGLCanvas::replot()
 {
-    QwtPlotAbstractCanvas::replot();
+    QwtPlotAbstractGLCanvas::replot();
 }
 
 void QwtPlotOpenGLCanvas::invalidateBackingStore()
@@ -116,7 +107,7 @@ void QwtPlotOpenGLCanvas::invalidateBackingStore()
 
 QPainterPath QwtPlotOpenGLCanvas::borderPath( const QRect &rect ) const
 {
-    return QwtPlotAbstractCanvas::borderPath( rect );
+    return QwtPlotAbstractGLCanvas::borderPath( rect );
 }
 
 void QwtPlotOpenGLCanvas::initializeGL()
@@ -125,6 +116,8 @@ void QwtPlotOpenGLCanvas::initializeGL()
 
 void QwtPlotOpenGLCanvas::paintGL()
 {
+    QPainter painter;
+
     if ( testPaintAttribute( QwtPlotOpenGLCanvas::BackingStore ) )
     {
         if ( d_data->fbo == NULL || d_data->fbo->size() != size() )
@@ -141,7 +134,7 @@ void QwtPlotOpenGLCanvas::paintGL()
 
             QOpenGLPaintDevice pd( size() );
 
-            QPainter painter( &pd );
+            painter.begin( &pd );
             draw( &painter);
             painter.end();
 
@@ -168,8 +161,16 @@ void QwtPlotOpenGLCanvas::paintGL()
     }
     else
     {
-        QPainter painter( this );
+        painter.begin( this );
         draw( &painter );
+    }
+
+    if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
+    {   
+        if ( !painter.isActive() )
+            painter.begin( this );
+        
+        drawFocusIndicator( &painter );
     }
 }
 

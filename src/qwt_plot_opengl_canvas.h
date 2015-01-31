@@ -16,7 +16,7 @@
 
 class QwtPlot;
 
-class QWT_EXPORT QwtPlotOpenGLCanvas: public QOpenGLWidget, public QwtPlotAbstractCanvas
+class QWT_EXPORT QwtPlotOpenGLCanvas: public QOpenGLWidget, public QwtPlotAbstractGLCanvas
 {
     Q_OBJECT
 

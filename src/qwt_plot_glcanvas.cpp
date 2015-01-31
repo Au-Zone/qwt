@@ -46,14 +46,14 @@ public:
 */
 QwtPlotGLCanvas::QwtPlotGLCanvas( QwtPlot *plot ):
     QGLWidget( QwtPlotGLCanvasFormat(), plot ),
-    QwtPlotAbstractCanvas( this )
+    QwtPlotAbstractGLCanvas( this )
 {
     d_data = new PrivateData;
 }
 
 QwtPlotGLCanvas::QwtPlotGLCanvas( const QGLFormat &format, QwtPlot *plot ):
     QGLWidget( format, plot ),
-    QwtPlotAbstractCanvas( this )
+    QwtPlotAbstractGLCanvas( this )
 {
     d_data = new PrivateData;
 }
@@ -99,7 +99,7 @@ bool QwtPlotGLCanvas::event( QEvent *event )
 
 void QwtPlotGLCanvas::replot()
 {
-    QwtPlotAbstractCanvas::replot();
+    QwtPlotAbstractGLCanvas::replot();
 }
 
 void QwtPlotGLCanvas::invalidateBackingStore()
@@ -110,7 +110,7 @@ void QwtPlotGLCanvas::invalidateBackingStore()
 
 QPainterPath QwtPlotGLCanvas::borderPath( const QRect &rect ) const
 {
-    return QwtPlotAbstractCanvas::borderPath( rect );
+    return QwtPlotAbstractGLCanvas::borderPath( rect );
 }
 
 void QwtPlotGLCanvas::initializeGL()
@@ -119,8 +119,9 @@ void QwtPlotGLCanvas::initializeGL()
 
 void QwtPlotGLCanvas::paintGL()
 {
+    QPainter painter;
 #if QT_VERSION < 0x040600
-    QPainter painter( this );
+    painter.begin( this );
     draw( &painter );
 #else
     if ( testPaintAttribute( QwtPlotGLCanvas::BackingStore ) )
@@ -137,9 +138,9 @@ void QwtPlotGLCanvas::paintGL()
 
             QGLFramebufferObject fbo( size(), format );
 
-            QPainter painter( &fbo );
-            draw( &painter);
-            painter.end();
+            QPainter fboPainter( &fbo );
+            draw( &fboPainter);
+            fboPainter.end();
 
             d_data->fbo = new QGLFramebufferObject( size() );
 
@@ -151,10 +152,18 @@ void QwtPlotGLCanvas::paintGL()
     }
     else
     {
-        QPainter painter( this );
+        painter.begin( this );
         draw( &painter );
     }
 #endif
+
+    if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
+    {
+        if ( !painter.isActive() )
+            painter.begin( this );
+
+        drawFocusIndicator( &painter );
+    }
 }
 
 void QwtPlotGLCanvas::resizeGL( int, int )

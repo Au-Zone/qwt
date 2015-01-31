@@ -17,6 +17,56 @@ class QWT_EXPORT QwtPlotAbstractCanvas
 {
     Q_GADGET
 
+public:
+    /*!
+      \brief Focus indicator
+      The default setting is NoFocusIndicator
+      \sa setFocusIndicator(), focusIndicator(), paintFocus()
+    */
+
+    enum FocusIndicator
+    {
+        //! Don't paint a focus indicator
+        NoFocusIndicator,
+
+        /*!
+          The focus is related to the complete canvas.
+          Paint the focus indicator using paintFocus()
+         */
+        CanvasFocusIndicator,
+
+        /*!
+          The focus is related to an item (curve, point, ...) on
+          the canvas. It is up to the application to display a
+          focus indication using f.e. highlighting.
+         */
+        ItemFocusIndicator
+    };
+
+    explicit QwtPlotAbstractCanvas( QWidget *canvasWidget );
+    virtual ~QwtPlotAbstractCanvas();
+
+    void setFocusIndicator( FocusIndicator );
+    FocusIndicator focusIndicator() const;
+
+    void setBorderRadius( double );
+    double borderRadius() const;
+
+protected:
+    QWidget* canvasWidget();
+    const QWidget* canvasWidget() const;
+
+    virtual void drawFocusIndicator( QPainter * );
+
+private:
+    class PrivateData;
+    PrivateData *d_data;
+};
+
+class QWT_EXPORT QwtPlotAbstractGLCanvas: public QwtPlotAbstractCanvas
+{
+    Q_GADGET
+
     Q_ENUMS( Shape Shadow )
 
     Q_PROPERTY( Shadow frameShadow READ frameShadow WRITE setFrameShadow )
@@ -100,8 +150,8 @@ public:
         Panel = QFrame::Panel
     };
 
-    explicit QwtPlotAbstractCanvas( QWidget *canvasWidget );
-    virtual ~QwtPlotAbstractCanvas();
+    explicit QwtPlotAbstractGLCanvas( QWidget *canvasWidget );
+    virtual ~QwtPlotAbstractGLCanvas();
 
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
@@ -136,12 +186,10 @@ protected:
     virtual void drawItems( QPainter * );
 
 private:
-    void init();
-
     class PrivateData;
     PrivateData *d_data;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotAbstractCanvas::PaintAttributes )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotAbstractGLCanvas::PaintAttributes )
 
 #endif

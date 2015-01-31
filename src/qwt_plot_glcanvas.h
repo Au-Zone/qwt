@@ -39,7 +39,7 @@ class QwtPlot;
         Performance is worse, than rendering straight to a QGLWidget, but is usually
         better integrated into a desktop application. 
 */
-class QWT_EXPORT QwtPlotGLCanvas: public QGLWidget, public QwtPlotAbstractCanvas
+class QWT_EXPORT QwtPlotGLCanvas: public QGLWidget, public QwtPlotAbstractGLCanvas
 {
     Q_OBJECT
 
