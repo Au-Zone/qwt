@@ -120,6 +120,7 @@ void QwtPlotGLCanvas::initializeGL()
 void QwtPlotGLCanvas::paintGL()
 {
     QPainter painter;
+
 #if QT_VERSION < 0x040600
     painter.begin( this );
     draw( &painter );
