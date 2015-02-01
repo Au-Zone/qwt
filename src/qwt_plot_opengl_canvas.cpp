@@ -45,6 +45,9 @@ QwtPlotOpenGLCanvas::QwtPlotOpenGLCanvas( QwtPlot *plot ):
     setFormat( fmt );
 
     d_data = new PrivateData;
+#if 1
+    setAttribute( Qt::WA_OpaquePaintEvent, true );
+#endif
 }
 
 QwtPlotOpenGLCanvas::QwtPlotOpenGLCanvas( const QSurfaceFormat &format, QwtPlot *plot ):
@@ -53,6 +56,9 @@ QwtPlotOpenGLCanvas::QwtPlotOpenGLCanvas( const QSurfaceFormat &format, QwtPlot 
 {
     setFormat( format );
     d_data = new PrivateData;
+#if 1
+    setAttribute( Qt::WA_OpaquePaintEvent, true );
+#endif
 }
 
 //! Destructor
@@ -116,8 +122,8 @@ void QwtPlotOpenGLCanvas::initializeGL()
 
 void QwtPlotOpenGLCanvas::paintGL()
 {
-	const bool hasFocusIndicator = 
-		hasFocus() && focusIndicator() == CanvasFocusIndicator;
+    const bool hasFocusIndicator = 
+        hasFocus() && focusIndicator() == CanvasFocusIndicator;
 
     QPainter painter;
 
@@ -145,8 +151,8 @@ void QwtPlotOpenGLCanvas::paintGL()
             QOpenGLFramebufferObject::blitFramebuffer(d_data->fbo, &fbo );
         }
 
-		if ( hasFocusIndicator )
-			painter.begin( this );
+        if ( hasFocusIndicator )
+            painter.begin( this );
 
         glBindTexture(GL_TEXTURE_2D, d_data->fbo->texture());
 

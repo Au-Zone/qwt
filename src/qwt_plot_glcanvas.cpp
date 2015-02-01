@@ -49,6 +49,9 @@ QwtPlotGLCanvas::QwtPlotGLCanvas( QwtPlot *plot ):
     QwtPlotAbstractGLCanvas( this )
 {
     d_data = new PrivateData;
+#if 1
+    setAttribute( Qt::WA_OpaquePaintEvent, true );
+#endif
 }
 
 QwtPlotGLCanvas::QwtPlotGLCanvas( const QGLFormat &format, QwtPlot *plot ):
@@ -56,6 +59,9 @@ QwtPlotGLCanvas::QwtPlotGLCanvas( const QGLFormat &format, QwtPlot *plot ):
     QwtPlotAbstractGLCanvas( this )
 {
     d_data = new PrivateData;
+#if 1
+    setAttribute( Qt::WA_OpaquePaintEvent, true );
+#endif
 }
 
 //! Destructor
@@ -119,6 +125,9 @@ void QwtPlotGLCanvas::initializeGL()
 
 void QwtPlotGLCanvas::paintGL()
 {
+    const bool hasFocusIndicator =
+        hasFocus() && focusIndicator() == CanvasFocusIndicator;
+
     QPainter painter;
 
 #if QT_VERSION < 0x040600
@@ -149,7 +158,27 @@ void QwtPlotGLCanvas::paintGL()
             QGLFramebufferObject::blitFramebuffer(d_data->fbo, rect, &fbo, rect);
         }
 
-        drawTexture( QRectF( -1.0, 1.0, 2.0, -2.0 ), d_data->fbo->texture() );
+        // drawTexture( QRectF( -1.0, 1.0, 2.0, -2.0 ), d_data->fbo->texture() );
+
+        if ( hasFocusIndicator )
+            painter.begin( this );
+        
+        glBindTexture(GL_TEXTURE_2D, d_data->fbo->texture());
+        
+        glEnable(GL_TEXTURE_2D);
+        
+        glBegin(GL_QUADS);
+        
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2f(-1.0f, -1.0f);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2f( 1.0f, -1.0f);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2f( 1.0f,  1.0f);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2f(-1.0f,  1.0f);
+        
+        glEnd();
     }
     else
     {
@@ -159,12 +188,7 @@ void QwtPlotGLCanvas::paintGL()
 #endif
 
     if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
-    {
-        if ( !painter.isActive() )
-            painter.begin( this );
-
         drawFocusIndicator( &painter );
-    }
 }
 
 void QwtPlotGLCanvas::resizeGL( int, int )
