@@ -1345,7 +1345,7 @@ void QwtSymbol::drawSymbols( QPainter *painter,
                     useCache = false;
                     break;
                 }
-                case QPaintEngine::QPaintEngine::X11:
+                case QPaintEngine::X11:
                 {
                     switch( d_data->style )
                     {
