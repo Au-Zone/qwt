@@ -258,7 +258,7 @@ void QwtSpline::setParametrization( QwtSplineParameter *parameter )
     if ( d_parameter != parameter )
     {
         delete d_parameter;
-        parameter = d_parameter;
+        d_parameter = parameter;
     }
 }   
 
