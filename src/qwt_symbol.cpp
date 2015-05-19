@@ -1376,6 +1376,7 @@ void QwtSymbol::drawSymbols( QPainter *painter,
                         default:
                             break;
                     }
+                    break;
                 }
                 default:
                 {
