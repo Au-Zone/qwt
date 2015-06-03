@@ -72,7 +72,7 @@ void TransformPlot::insertTransformation(
 
 void TransformPlot::legendChecked( const QVariant &itemInfo, bool on )
 {
-	QwtPlotItem *plotItem = infoToItem( itemInfo );
+    QwtPlotItem *plotItem = infoToItem( itemInfo );
 
     setLegendChecked( plotItem );
 
@@ -96,7 +96,7 @@ void TransformPlot::setLegendChecked( QwtPlotItem *plotItem )
             QwtLegend *lgd = qobject_cast<QwtLegend *>( legend() );
 
             QwtLegendLabel *label = qobject_cast< QwtLegendLabel *>( 
-				lgd->legendWidget( itemToInfo( item ) ) );
+                lgd->legendWidget( itemToInfo( item ) ) );
             if ( label )
             {
                 lgd->blockSignals( true );
