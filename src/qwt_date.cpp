@@ -656,7 +656,22 @@ int QwtDate::weekNumber( const QDate &date, Week0Type type )
 
     if ( type == QwtDate::FirstDay )
     {
-        const QDate day0 = dateOfWeek0( date.year(), type );
+        QDate day0;
+
+        if ( date.month() == 12 && date.day() >= 24 )
+        {
+            // week 1 usually starts in the previous years.
+            // and we have to check if we are already there
+
+            day0 = dateOfWeek0( date.year() + 1, type );
+            if ( day0.daysTo( date ) < 0 )
+                day0 = dateOfWeek0( date.year(), type );
+        }
+        else
+        {
+            day0 = dateOfWeek0( date.year(), type );
+        }
+
         weekNo = day0.daysTo( date ) / 7 + 1;
     }
     else
