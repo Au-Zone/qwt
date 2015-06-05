@@ -116,7 +116,7 @@ void QwtPlotGLCanvas::invalidateBackingStore()
 
 QPainterPath QwtPlotGLCanvas::borderPath( const QRect &rect ) const
 {
-    return QwtPlotAbstractGLCanvas::borderPath( rect );
+    return borderPath2( rect );
 }
 
 void QwtPlotGLCanvas::initializeGL()

@@ -11,6 +11,7 @@
 #define QWT_PLOT_CANVAS_H
 
 #include "qwt_global.h"
+#include "qwt_plot_abstract_canvas.h"
 #include <qframe.h>
 #include <qpainterpath.h>
 
@@ -24,7 +25,7 @@ class QPixmap;
 
   \sa QwtPlot::setCanvas(), QwtPlotGLCanvas
 */
-class QWT_EXPORT QwtPlotCanvas : public QFrame
+class QWT_EXPORT QwtPlotCanvas : public QFrame, public QwtPlotAbstractCanvas
 {
     Q_OBJECT
 
@@ -130,42 +131,11 @@ public:
     //! Paint attributes
     typedef QFlags<PaintAttribute> PaintAttributes;
 
-    /*!
-      \brief Focus indicator
-      The default setting is NoFocusIndicator
-      \sa setFocusIndicator(), focusIndicator(), drawFocusIndicator()
-    */
-
-    enum FocusIndicator
-    {
-        //! Don't paint a focus indicator
-        NoFocusIndicator,
-
-        /*!
-          The focus is related to the complete canvas.
-          Paint the focus indicator using drawFocusIndicator()
-         */
-        CanvasFocusIndicator,
-
-        /*!
-          The focus is related to an item (curve, point, ...) on
-          the canvas. It is up to the application to display a
-          focus indication using f.e. highlighting.
-         */
-        ItemFocusIndicator
-    };
-
     explicit QwtPlotCanvas( QwtPlot * = NULL );
     virtual ~QwtPlotCanvas();
 
     QwtPlot *plot();
     const QwtPlot *plot() const;
-
-    void setFocusIndicator( FocusIndicator );
-    FocusIndicator focusIndicator() const;
-
-    void setBorderRadius( double );
-    double borderRadius() const;
 
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
@@ -184,14 +154,10 @@ protected:
     virtual void paintEvent( QPaintEvent * );
     virtual void resizeEvent( QResizeEvent * );
 
-    virtual void drawFocusIndicator( QPainter * );
     virtual void drawBorder( QPainter * );
-
-    void updateStyleSheetInfo();
 
 private:
     QImage toImageFBO( const QSize &size );
-    void drawCanvas( QPainter *, bool withBackground );
 
     class PrivateData;
     PrivateData *d_data;

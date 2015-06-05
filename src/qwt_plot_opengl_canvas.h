@@ -20,6 +20,15 @@ class QWT_EXPORT QwtPlotOpenGLCanvas: public QOpenGLWidget, public QwtPlotAbstra
 {
     Q_OBJECT
 
+    Q_PROPERTY( QFrame::Shadow frameShadow READ frameShadow WRITE setFrameShadow )
+    Q_PROPERTY( QFrame::Shape frameShape READ frameShape WRITE setFrameShape )
+    Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
+    Q_PROPERTY( int midLineWidth READ midLineWidth WRITE setMidLineWidth )
+    Q_PROPERTY( int frameWidth READ frameWidth )
+    Q_PROPERTY( QRect frameRect READ frameRect DESIGNABLE false )
+
+    Q_PROPERTY( double borderRadius READ borderRadius WRITE setBorderRadius )
+
 public:
     explicit QwtPlotOpenGLCanvas( QwtPlot * = NULL );
     explicit QwtPlotOpenGLCanvas( const QSurfaceFormat &, QwtPlot * = NULL);
