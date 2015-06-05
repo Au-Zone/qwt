@@ -29,12 +29,11 @@ int main ( int argc, char **argv )
 
 #if USE_OPENGL
     QwtPlotGLCanvas *canvas = new QwtPlotGLCanvas();
-    canvas->setFrameStyle( QwtPlotGLCanvas::NoFrame );
 #else
     QwtPlotCanvas *canvas = new QwtPlotCanvas();
-    canvas->setFrameStyle( QFrame::NoFrame );
     canvas->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
 #endif
+    canvas->setFrameStyle( QFrame::NoFrame );
 
     plot.setCanvas( canvas );
     plot.setCanvasBackground( QColor( 30, 30, 50 ) );
