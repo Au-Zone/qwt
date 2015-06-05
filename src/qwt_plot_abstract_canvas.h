@@ -13,6 +13,8 @@
 #include "qwt_global.h"
 #include <qframe.h>
 
+class QwtPlot;
+
 class QWT_EXPORT QwtPlotAbstractCanvas
 {
 public:
@@ -44,6 +46,9 @@ public:
     explicit QwtPlotAbstractCanvas( QWidget *canvasWidget );
     virtual ~QwtPlotAbstractCanvas();
 
+    QwtPlot *plot();
+    const QwtPlot *plot() const;
+
     void setFocusIndicator( FocusIndicator );
     FocusIndicator focusIndicator() const;
 
@@ -56,14 +61,14 @@ protected:
 
     virtual void drawFocusIndicator( QPainter * );
     virtual void drawBorder( QPainter * );
-	virtual void drawBackground( QPainter * );
+    virtual void drawBackground( QPainter * );
 
-	void fillBackground( QPainter * );
-	void drawCanvas( QPainter * );
+    void fillBackground( QPainter * );
+    void drawCanvas( QPainter * );
     void drawStyled( QPainter *, bool );
     void drawUnstyled( QPainter * );
 
-	QPainterPath borderPath2( const QRect &rect ) const;
+    QPainterPath borderPath2( const QRect &rect ) const;
     void updateStyleSheetInfo();
 
 private:

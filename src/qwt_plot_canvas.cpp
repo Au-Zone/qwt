@@ -91,16 +91,8 @@ QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
     QFrame( plot ),
     QwtPlotAbstractCanvas( this )
 {
-    setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    setLineWidth( 2 );
-
     d_data = new PrivateData;
 
-#ifndef QT_NO_CURSOR
-    setCursor( Qt::CrossCursor );
-#endif
-
-    setAutoFillBackground( true );
     setPaintAttribute( QwtPlotCanvas::BackingStore, true );
     setPaintAttribute( QwtPlotCanvas::Opaque, true );
     setPaintAttribute( QwtPlotCanvas::HackStyledBackground, true );
@@ -110,18 +102,6 @@ QwtPlotCanvas::QwtPlotCanvas( QwtPlot *plot ):
 QwtPlotCanvas::~QwtPlotCanvas()
 {
     delete d_data;
-}
-
-//! Return parent plot widget
-QwtPlot *QwtPlotCanvas::plot()
-{
-    return qobject_cast<QwtPlot *>( parent() );
-}
-
-//! Return parent plot widget
-const QwtPlot *QwtPlotCanvas::plot() const
-{
-    return qobject_cast<const QwtPlot *>( parent() );
 }
 
 /*!

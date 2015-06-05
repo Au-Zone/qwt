@@ -134,9 +134,6 @@ public:
     explicit QwtPlotCanvas( QwtPlot * = NULL );
     virtual ~QwtPlotCanvas();
 
-    QwtPlot *plot();
-    const QwtPlot *plot() const;
-
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
 
