@@ -82,12 +82,12 @@ public:
         style( QwtPlotCurve::Lines ),
         baseline( 0.0 ),
         symbol( NULL ),
+        pen( Qt::black ),
         attributes( 0 ),
         paintAttributes( 
             QwtPlotCurve::ClipPolygons | QwtPlotCurve::FilterPoints ),
         legendAttributes( 0 )
     {
-        pen = QPen( Qt::black );
         curveFitter = new QwtSplineCurveFitter;
     }
 

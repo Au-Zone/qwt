@@ -18,7 +18,9 @@ public:
     class Tension
     {
     public:
-        Tension()
+        Tension():
+          t1( 0.0 ),
+          t2( 0.0 )
         {
         }
 

@@ -96,7 +96,7 @@ public:
     }
 
 private:
-    int findAscent( const QFont &font ) const
+    static int findAscent( const QFont &font )
     {
         static const QString dummy( "E" );
         static const QColor white( Qt::white );

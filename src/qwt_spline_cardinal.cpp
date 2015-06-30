@@ -73,7 +73,7 @@ static inline QwtSplineCardinalG1::Tension qwtTension(
     const bool b2 = ( d24 / 3.0 ) < d23;
 
     QwtSplineCardinalG1::Tension tension;
-    if ( b1 & b2 )
+    if ( b1 && b2 )
     {
         tension.t1 = ( p1 != p2 ) ? ( 1.0 / 3.0 ) : ( 2.0 / 3.0 );
         tension.t2 = ( p3 != p4 ) ? ( 1.0 / 3.0 ) : ( 2.0 / 3.0 );

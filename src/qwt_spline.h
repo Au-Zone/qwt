@@ -92,6 +92,10 @@ public:
     virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const = 0;
 
 private:
+    // Disabled copy constructor and operator=
+    explicit QwtSpline( const QwtSpline & );
+    QwtSpline &operator=( const QwtSpline & );
+
     QwtSplineParameter *d_parameter;
     bool d_isClosing;
 };

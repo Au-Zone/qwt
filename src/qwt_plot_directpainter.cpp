@@ -45,7 +45,9 @@ public:
     PrivateData():
         attributes( 0 ),
         hasClipping(false),
-        seriesItem( NULL )
+        seriesItem( NULL ),
+        from( 0 ),
+        to( 0 )
     {
     }
 

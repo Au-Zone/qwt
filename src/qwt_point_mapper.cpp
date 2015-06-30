@@ -311,7 +311,7 @@ static void qwtRenderDots(
 // some functors, so that the compile can inline
 struct QwtRoundI
 {
-    inline int operator()( double value )
+    inline int operator()( double value ) const
     {
         return qwtRoundValue( value );
     }
@@ -319,7 +319,7 @@ struct QwtRoundI
 
 struct QwtRoundF
 {
-    inline double operator()( double value )
+    inline double operator()( double value ) const
     {
         return static_cast<double>( qwtRoundValue( value ) );
     }
@@ -327,7 +327,7 @@ struct QwtRoundF
 
 struct QwtNoRoundF
 {   
-    inline double operator()( double value )
+    inline double operator()( double value ) const
     {
         return value;
     }

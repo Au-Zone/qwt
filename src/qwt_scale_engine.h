@@ -136,6 +136,10 @@ protected:
     QwtInterval buildInterval( double v ) const;
 
 private:
+    // Disabled copy constructor and operator=
+    explicit QwtScaleEngine( const QwtScaleEngine & );
+    QwtScaleEngine &operator=( const QwtScaleEngine & );
+
     class PrivateData;
     PrivateData *d_data;
 };
