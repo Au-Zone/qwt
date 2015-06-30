@@ -141,7 +141,7 @@ public:
 class QwtLegend::PrivateData::LegendView: public QScrollArea
 {
 public:
-    LegendView( QWidget *parent ):
+    explicit LegendView( QWidget *parent ):
         QScrollArea( parent )
     {
         contentsWidget = new QWidget( this );

@@ -28,7 +28,7 @@ public:
         ParameterManhattan
     };
 
-    QwtSplineParameter( int type );
+    explicit QwtSplineParameter( int type );
     virtual ~QwtSplineParameter();
 
     int type() const;

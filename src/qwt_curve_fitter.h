@@ -72,10 +72,10 @@ public:
     virtual QPainterPath fitCurvePath( const QPolygonF &polygon ) const = 0;
 
 protected:
-    QwtCurveFitter( Mode mode );
+    explicit QwtCurveFitter( Mode mode );
 
 private:
-    QwtCurveFitter( const QwtCurveFitter & );
+    explicit QwtCurveFitter( const QwtCurveFitter & );
     QwtCurveFitter &operator=( const QwtCurveFitter & );
 
     const Mode d_mode;

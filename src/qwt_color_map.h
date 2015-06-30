@@ -56,7 +56,7 @@ public:
         Indexed
     };
 
-    QwtColorMap( Format = QwtColorMap::RGB );
+    explicit QwtColorMap( Format = QwtColorMap::RGB );
     virtual ~QwtColorMap();
 
     void setFormat( Format );
@@ -106,7 +106,7 @@ public:
         ScaledColors
     };
 
-    QwtLinearColorMap( QwtColorMap::Format = QwtColorMap::RGB );
+    explicit QwtLinearColorMap( QwtColorMap::Format = QwtColorMap::RGB );
     QwtLinearColorMap( const QColor &from, const QColor &to,
         QwtColorMap::Format = QwtColorMap::RGB );
 
@@ -143,7 +143,7 @@ private:
 class QWT_EXPORT QwtAlphaColorMap: public QwtColorMap
 {
 public:
-    QwtAlphaColorMap( const QColor & = QColor( Qt::gray ) );
+    explicit QwtAlphaColorMap( const QColor & = QColor( Qt::gray ) );
     virtual ~QwtAlphaColorMap();
 
     void setAlphaInterval( int alpha1, int alpha2 ); 
@@ -178,7 +178,7 @@ private:
 class QWT_EXPORT QwtHueColorMap: public QwtColorMap
 {
 public:
-    QwtHueColorMap( QwtColorMap::Format = QwtColorMap::RGB );
+    explicit QwtHueColorMap( QwtColorMap::Format = QwtColorMap::RGB );
     virtual ~QwtHueColorMap();
 
     void setHueInterval( int hue1, int hue2 ); // direction ?

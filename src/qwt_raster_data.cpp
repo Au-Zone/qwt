@@ -14,7 +14,7 @@
 class QwtRasterData::ContourPlane
 {
 public:
-    inline ContourPlane( double z ):
+    explicit inline ContourPlane( double z ):
         d_z( z )
     {
     }

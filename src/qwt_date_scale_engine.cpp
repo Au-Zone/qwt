@@ -717,7 +717,7 @@ static QwtScaleDiv qwtDivideToYears(
 class QwtDateScaleEngine::PrivateData
 {
 public:
-    PrivateData( Qt::TimeSpec spec ):
+    explicit PrivateData( Qt::TimeSpec spec ):
         timeSpec( spec ),
         utcOffset( 0 ),
         week0Type( QwtDate::FirstThursday ),

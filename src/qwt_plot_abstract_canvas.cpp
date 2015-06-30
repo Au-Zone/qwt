@@ -18,7 +18,7 @@
 class QwtStyleSheetRecorder: public QwtNullPaintDevice
 {
 public:
-    QwtStyleSheetRecorder( const QSize &size ):
+    explicit QwtStyleSheetRecorder( const QSize &size ):
         d_size( size )
     {
     }

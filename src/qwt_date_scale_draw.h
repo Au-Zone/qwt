@@ -52,7 +52,7 @@
 class QWT_EXPORT QwtDateScaleDraw: public QwtScaleDraw
 {
 public:
-    QwtDateScaleDraw( Qt::TimeSpec = Qt::LocalTime );
+    explicit QwtDateScaleDraw( Qt::TimeSpec = Qt::LocalTime );
     virtual ~QwtDateScaleDraw();
 
     void setDateFormat( QwtDate::IntervalType, const QString & );

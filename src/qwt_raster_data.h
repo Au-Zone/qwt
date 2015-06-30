@@ -114,7 +114,7 @@ public:
 
 private:
     // Disabled copy constructor and operator=
-    QwtRasterData( const QwtRasterData & );
+    explicit QwtRasterData( const QwtRasterData & );
     QwtRasterData &operator=( const QwtRasterData & );
 
     class PrivateData;

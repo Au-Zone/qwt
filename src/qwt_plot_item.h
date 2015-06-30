@@ -291,7 +291,7 @@ protected:
 
 private:
     // Disabled copy constructor and operator=
-    QwtPlotItem( const QwtPlotItem & );
+    explicit QwtPlotItem( const QwtPlotItem & );
     QwtPlotItem &operator=( const QwtPlotItem & );
 
     class PrivateData;

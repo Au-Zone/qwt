@@ -111,7 +111,7 @@ public:
         DrawOverlay
     };
 
-    QwtWidgetOverlay( QWidget* );
+    explicit QwtWidgetOverlay( QWidget* );
     virtual ~QwtWidgetOverlay();
 
     void setMaskMode( MaskMode );

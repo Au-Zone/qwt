@@ -46,7 +46,7 @@ class QWT_EXPORT QwtAbstractScale: public QWidget
     Q_PROPERTY( double scaleStepSize READ scaleStepSize WRITE setScaleStepSize )
 
 public:
-    QwtAbstractScale( QWidget *parent = NULL );
+    explicit QwtAbstractScale( QWidget *parent = NULL );
     virtual ~QwtAbstractScale();
 
     void setScale( double lowerBound, double upperBound );

@@ -130,7 +130,7 @@ protected:
     const QwtText &tickLabel( const QFont &, double value ) const;
 
 private:
-    QwtAbstractScaleDraw( const QwtAbstractScaleDraw & );
+    explicit QwtAbstractScaleDraw( const QwtAbstractScaleDraw & );
     QwtAbstractScaleDraw &operator=( const QwtAbstractScaleDraw & );
 
     class PrivateData;

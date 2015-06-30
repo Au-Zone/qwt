@@ -150,7 +150,7 @@ private:
 class QWT_EXPORT QwtLinearScaleEngine: public QwtScaleEngine
 {
 public:
-    QwtLinearScaleEngine( uint base = 10 );
+    explicit QwtLinearScaleEngine( uint base = 10 );
     virtual ~QwtLinearScaleEngine();
 
     virtual void autoScale( int maxSteps,
@@ -190,7 +190,7 @@ protected:
 class QWT_EXPORT QwtLogScaleEngine: public QwtScaleEngine
 {
 public:
-    QwtLogScaleEngine( uint base = 10 );
+    explicit QwtLogScaleEngine( uint base = 10 );
     virtual ~QwtLogScaleEngine();
 
     virtual void autoScale( int maxSteps,
