@@ -190,6 +190,8 @@ void QwtPlotDirectPainter::drawSeries(
 
         qwtRenderItem( &painter, canvasRect, seriesItem, from, to );
 
+        painter.end();
+
         if ( testAttribute( QwtPlotDirectPainter::FullRepaint ) )
         {
             plotCanvas->repaint();
