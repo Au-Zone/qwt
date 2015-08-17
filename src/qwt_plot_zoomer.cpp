@@ -49,7 +49,7 @@ static QwtInterval qwtExpandedZoomInterval( double v1, double v2,
     return QwtInterval( min, max );
 }
 
-QRectF qwtExpandedZoomRect( const QRectF &zoomRect, const QSizeF &minSize,
+static QRectF qwtExpandedZoomRect( const QRectF &zoomRect, const QSizeF &minSize,
     const QwtTransform* transformX, const QwtTransform* transformY )
 {
     QRectF r = zoomRect;
