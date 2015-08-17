@@ -129,6 +129,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_legenditem.h \
         qwt_plot_seriesitem.h \
         qwt_plot_shapeitem.h \
+        qwt_plot_abstract_canvas.h \
         qwt_plot_canvas.h \
         qwt_plot_panner.h \
         qwt_plot_picker.h \
@@ -178,6 +179,7 @@ contains(QWT_CONFIG, QwtPlot) {
         qwt_plot_marker.cpp \
         qwt_plot_textlabel.cpp \
         qwt_plot_layout.cpp \
+        qwt_plot_abstract_canvas.cpp \
         qwt_plot_canvas.cpp \
         qwt_plot_panner.cpp \
         qwt_plot_rasteritem.cpp \
@@ -196,11 +198,9 @@ contains(QWT_CONFIG, QwtPlot) {
     contains(QWT_CONFIG, QwtOpenGL) {
 
         HEADERS += \
-            qwt_plot_abstract_canvas.h \
             qwt_plot_glcanvas.h
 
         SOURCES += \
-            qwt_plot_abstract_canvas.cpp \
             qwt_plot_glcanvas.cpp
 
         greaterThan(QT_MAJOR_VERSION, 4) {
