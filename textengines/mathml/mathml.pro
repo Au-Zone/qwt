@@ -56,6 +56,19 @@ else {
     INSTALLS       += headers
 }
 
+contains(QWT_CONFIG, QwtDll) {
+
+    !isEmpty( QMAKE_LFLAGS_SONAME ) {
+
+        # we increase the SONAME for every minor number
+
+        QWT_SONAME=libqwtmathml.so.$${VER_MAJ}.$${VER_MIN}
+        QMAKE_LFLAGS *= $${QMAKE_LFLAGS_SONAME}$${QWT_SONAME}
+        QMAKE_LFLAGS_SONAME=
+    }   
+
+}
+
 contains(QWT_CONFIG, QwtPkgConfig) {
 
     CONFIG     += create_pc create_prl no_install_prl

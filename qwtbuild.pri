@@ -54,12 +54,12 @@ linux-g++ | linux-g++-64 {
     #QMAKE_CXXFLAGS   *= -Woverloaded-virtual
     #QMAKE_CXXFLAGS   *= -std=c++11
 
-   	#QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer 
-   	#QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer
-   	#QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address
+    #QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer 
+    #QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer
+    #QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address
 
-   	#QMAKE_CXXFLAGS_RELEASE  *= -O3
-   	#QMAKE_CXXFLAGS_RELEASE  *= -Ofast
+    #QMAKE_CXXFLAGS_RELEASE  *= -O3
+    #QMAKE_CXXFLAGS_RELEASE  *= -Ofast
 
     # when using the gold linker ( Qt < 4.8 ) - might be 
     # necessary on non linux systems too
@@ -68,7 +68,7 @@ linux-g++ | linux-g++-64 {
 
 linux-clang {
 
-	#QMAKE_CXXFLAGS_RELEASE  *= -O3
+    #QMAKE_CXXFLAGS_RELEASE  *= -O3
 }
 
 ######################################################################
