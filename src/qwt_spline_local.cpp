@@ -8,6 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_spline_local.h"
+#include "qwt_spline_parameter.h"
 #include <qmath.h>
 
 static inline double qwtSlopeP( const QPointF &p1, const QPointF &p2 )

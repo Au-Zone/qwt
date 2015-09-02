@@ -8,6 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_spline_cardinal.h"
+#include "qwt_spline_parameter.h"
 
 namespace QwtSplineCardinalG1P
 {
