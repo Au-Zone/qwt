@@ -19,10 +19,10 @@ public:
     enum Type
     {
         Cardinal,
-        ParabolicBlending,
+        ParabolicBlending, // not implemented
         Akima,
         HarmonicMean,
-        PChip
+        PChip // not implemented
     };
 
     QwtSplineLocal( Type type, double tension = 0.0 );
@@ -40,6 +40,8 @@ public:
 
     QPainterPath pathX( const QPolygonF & ) const;
     QVector<QLineF> bezierControlPointsX( const QPolygonF & ) const;
+
+    virtual uint locality() const;
 
 private:
     const Type d_type;

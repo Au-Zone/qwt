@@ -177,8 +177,8 @@ QSize QwtTextLabel::minimumSizeHint() const
 {
     QSizeF sz = d_data->text.textSize( font() );
 
-	int left, right, top, bottom;
-	getContentsMargins( &left, &top, &right, &bottom );
+    int left, right, top, bottom;
+    getContentsMargins( &left, &top, &right, &bottom );
 
     int mw = left + right + 2 * d_data->margin;
     int mh = top + bottom + 2 * d_data->margin;
@@ -213,8 +213,8 @@ int QwtTextLabel::heightForWidth( int width ) const
     if ( indent <= 0 )
         indent = defaultIndent();
 
-	int left, right, top, bottom;
-	getContentsMargins( &left, &top, &right, &bottom );
+    int left, right, top, bottom;
+    getContentsMargins( &left, &top, &right, &bottom );
 
     width -= left + right - 2 * d_data->margin;
     if ( renderFlags & Qt::AlignLeft || renderFlags & Qt::AlignRight )
@@ -291,8 +291,8 @@ QRect QwtTextLabel::textRect() const
 
     if ( !r.isEmpty() && d_data->margin > 0 )
     {
-		const int m = d_data->margin;
-		r.adjust( m, m, -m, -m );
+        const int m = d_data->margin;
+        r.adjust( m, m, -m, -m );
     }
 
     if ( !r.isEmpty() )
@@ -306,21 +306,21 @@ QRect QwtTextLabel::textRect() const
             const int renderFlags = d_data->text.renderFlags();
 
             if ( renderFlags & Qt::AlignLeft )
-			{
+            {
                 r.setX( r.x() + indent );
-			}
+            }
             else if ( renderFlags & Qt::AlignRight )
-			{
+            {
                 r.setWidth( r.width() - indent );
-			}
+            }
             else if ( renderFlags & Qt::AlignTop )
-			{
+            {
                 r.setY( r.y() + indent );
-			}
+            }
             else if ( renderFlags & Qt::AlignBottom )
-			{
+            {
                 r.setHeight( r.height() - indent );
-			}
+            }
         }
     }
 

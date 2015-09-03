@@ -909,6 +909,11 @@ QwtSplineCubic::~QwtSplineCubic()
     delete d_data;
 }
 
+uint QwtSplineCubic::locality() const
+{
+    return 0;
+}
+
 QVector<double> QwtSplineCubic::slopesX( const QPolygonF &points ) const
 {
     using namespace QwtSplineCubicP;

@@ -41,6 +41,8 @@ public:
     virtual QPainterPath pathP( const QPolygonF &points ) const;
 
     virtual QVector<Tension> tensions( const QPolygonF & ) const = 0;
+
+    virtual uint locality() const;
 };
 
 class QWT_EXPORT QwtSplinePleasing: public QwtSplineCardinalG1

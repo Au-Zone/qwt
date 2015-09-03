@@ -18,6 +18,29 @@
 
 class QwtSplineParameter;
 
+/*!
+  \brief Base class for a spline interpolation
+
+  Geometric Continuity
+
+    G0: curves are joined
+    G1: first derivatives are proportional at the join point
+        The curve tangents thus have the same direction, but not necessarily the 
+        same magnitude. i.e., C1'(1) = (a,b,c) and C2'(0) = (k*a, k*b, k*c).
+    G2: first and second derivatives are proportional at join point 
+
+  Parametric Continuity
+
+    C0: curves are joined
+    C1: first derivatives equal
+    C2: first and second derivatives are equal
+
+  Geometric continuity requires the geometry to be continuous, while parametric 
+  continuity requires that the underlying parameterization be continuous as well.
+
+  Parametric continuity of order n implies geometric continuity of order n, but not vice-versa. 
+*/
+
 class QWT_EXPORT QwtSpline
 {
 public:
@@ -37,6 +60,8 @@ public:
 
     virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const = 0;
 
+    virtual uint locality() const;
+
 private:
     // Disabled copy constructor and operator=
     explicit QwtSpline( const QwtSpline & );
@@ -46,6 +71,10 @@ private:
     bool d_isClosing;
 };
 
+/*!
+  \brief Base class for spline interpolations providing a 
+         first order geometric continuity ( G1 ) between adjoing curves
+ */
 class QWT_EXPORT QwtSplineG1: public QwtSpline
 {           
 public:     
@@ -53,6 +82,10 @@ public:
     virtual ~QwtSplineG1();
 };
 
+/*!
+  \brief Base class for spline interpolations providing a 
+         first order parametric continuity ( C1 ) between adjoing curves
+ */
 class QWT_EXPORT QwtSplineC1: public QwtSplineG1
 {
 public:
@@ -100,6 +133,10 @@ private:
     PrivateData *d_data;
 };
 
+/*!
+  \brief Base class for spline interpolations providing a 
+         second order parametric continuity ( C2 ) between adjoing curves
+ */
 class QWT_EXPORT QwtSplineC2: public QwtSplineC1
 {
 public:

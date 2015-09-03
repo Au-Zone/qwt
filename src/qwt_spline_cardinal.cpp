@@ -267,6 +267,11 @@ QPainterPath QwtSplineCardinalG1::pathP( const QPolygonF &points ) const
     return store.path;
 }
 
+uint QwtSplineCardinalG1::locality() const
+{
+    return 2;
+}
+
 QwtSplinePleasing::QwtSplinePleasing()
 {
 }

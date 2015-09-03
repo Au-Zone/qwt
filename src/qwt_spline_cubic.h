@@ -22,6 +22,8 @@ public:
     virtual QVector<double> slopesX( const QPolygonF & ) const;
     virtual QVector<double> curvaturesX( const QPolygonF & ) const;
 
+    virtual uint locality() const;
+
 private:
     class PrivateData;
     PrivateData *d_data;

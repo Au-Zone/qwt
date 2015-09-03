@@ -414,7 +414,7 @@ static inline SplineStore qwtSplinePathLocal(
         }
         case QwtSplineLocal::ParabolicBlending:
         {   
-            // Bessel
+            // Bessel: not implemented
             break;
         }
         case QwtSplineLocal::Akima:
@@ -429,6 +429,7 @@ static inline SplineStore qwtSplinePathLocal(
         }
         case QwtSplineLocal::PChip:
         {   
+            // not implemented
             break;
         }
         default:
@@ -500,4 +501,34 @@ QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
 {
     using namespace QwtSplineLocalP;
     return qwtSplinePathLocal<SlopeStore>( this, points ).slopes;
+}
+
+uint QwtSplineLocal::locality() const
+{
+    switch ( d_type )
+    {
+        case Cardinal:
+        {
+            // polynoms: 2 left, 2 right
+            return 2;
+        }
+        case Akima:
+        {
+            // polynoms: 3 left, 3 right
+            return 3;
+        }
+        case HarmonicMean:
+        {
+            // polynoms: 1 left, 1 right
+            return 1;
+        }
+        case ParabolicBlending:
+        case PChip:
+        {
+            // not implemented
+            return 0;
+        }
+    }
+
+    return QwtSplineC1::locality(); 
 }

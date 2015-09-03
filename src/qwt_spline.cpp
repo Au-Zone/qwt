@@ -193,6 +193,24 @@ QwtSpline::~QwtSpline()
     delete d_parameter;
 }
 
+/*!
+  The locality of an spline interpolation identifies how many adjacent
+  polynoms are affected, when changing the position of one point.
+
+  A locality of 'n' means, that changing the coordinates of a point
+  has an effect on 'n' leading and 'n' following polynoms.
+  Those polynoms can be calculated from a local subpolygon.
+
+  A value of 0 means, that the interpolation is not local and any modification
+  of the polygon requires to recalculate all polynoms ( f.e cubic splines ). 
+
+  \return Order of locality
+ */
+uint QwtSpline::locality() const
+{
+    return 0;
+}
+
 void QwtSpline::setClosing( bool on )
 {
     d_isClosing = on;
