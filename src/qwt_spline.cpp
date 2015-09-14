@@ -223,11 +223,11 @@ bool QwtSpline::isClosing() const
 
 void QwtSpline::setParametrization( int type )
 {
-	if ( d_parametrization->type() != type )
-	{
-    	delete d_parametrization;
-    	d_parametrization = new QwtSplineParametrization( type );
-	}
+    if ( d_parametrization->type() != type )
+    {
+        delete d_parametrization;
+        d_parametrization = new QwtSplineParametrization( type );
+    }
 }
 
 void QwtSpline::setParametrization( QwtSplineParametrization *parametrization )
@@ -313,7 +313,7 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
     for ( int i = 0; i < n - 1; i++ )
     {
 #if 1
-        const double l = d_parametrization->value( points[i], points[i+1] );
+        const double l = d_parametrization->valueIncrement( points[i], points[i+1] );
 #endif
 
         while ( t < l )
@@ -341,7 +341,7 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
 
     if ( controlPoints.size() >= n )
     {
-        const double l = d_parametrization->value( points[n-1], points[0] );
+        const double l = d_parametrization->valueIncrement( points[n-1], points[0] );
 
         while ( t < l )
         {

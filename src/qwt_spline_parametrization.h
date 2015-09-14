@@ -18,21 +18,20 @@
   \brief Parametrization used by a spline interpolation
 
   When the x coordinates of the control points are not ordered monotonically 
-  a "trick" called parametrization has to be used, that provides a value t for
-  each control point that is increasing monotonically:
+  a parametrization has to be found, that provides a value t for each control 
+  point that is increasing monotonically.
+
+  QwtSpline calculates the parameter values at the curve points, by summing up
+  increments, that are calculated for each point. Each increment is calculated
+  from the coordinates of the point and its precessor. 
 
   - t[0] = 0;
-  - t[i] = t[i-1] + value( point[i-1], p[i] );
-  
-  QwtSplineParametrization provides some common used strategies 
-  of parametrization and offers an interface to inject custom parametrizations
-  for the interpolations offered by QwtSpline:
+  - t[i] = t[i-1] + spline->parametrization()->valueIncrement( point[i-1], p[i] );
+
+  QwtSplineParametrization provides the most common used type of parametrizations 
+  and offers an interface to inject custom implementations.
 
   A parametrization ParameterX means no parametrization.
-
-  \warning Calculating a parametrized spline is usually less performant 
-           as the the interpolation has to be done twice for 
-           ( t[i], x[i] ) and ( t[i], y[i] ).
 
   \sa QwtSpline::setParametrization()
  */
@@ -61,7 +60,7 @@ public:
         ParameterCentripetral,
 
         /*!
-          Parametrization using the distance between two control points
+          Parametrization using the length between two control points
           \sa valueChordal()
          */
         ParameterChordal,
@@ -78,13 +77,13 @@ public:
 
     int type() const;
 
-    virtual double value( const QPointF &p1, const QPointF &p2 ) const;
+    virtual double valueIncrement( const QPointF &p1, const QPointF &p2 ) const;
     
-    static double valueX( const QPointF &p1, const QPointF &p2 );
-    static double valueCentripetal( const QPointF &p1, const QPointF &p2 );
-    static double valueChordal( const QPointF &p1, const QPointF &p2 );
-    static double valueUniform( const QPointF &p1, const QPointF &p2 );
-    static double valueManhattan( const QPointF &p1, const QPointF &p2 );
+    static double valueIncrementX( const QPointF &p1, const QPointF &p2 );
+    static double valueIncrementCentripetal( const QPointF &p1, const QPointF &p2 );
+    static double valueIncrementChordal( const QPointF &p1, const QPointF &p2 );
+    static double valueIncrementUniform( const QPointF &p1, const QPointF &p2 );
+    static double valueIncrementManhattan( const QPointF &p1, const QPointF &p2 );
 
     /*!
       Helper structure to provide functors to inline parameter calculations
@@ -122,13 +121,13 @@ private:
     const int d_type;
 };
 
-inline double QwtSplineParametrization::valueX( 
+inline double QwtSplineParametrization::valueIncrementX( 
     const QPointF &p1, const QPointF &p2 ) 
 {
     return p2.x() - p1.x();
 }
 
-inline double QwtSplineParametrization::valueUniform(
+inline double QwtSplineParametrization::valueIncrementUniform(
     const QPointF &p1, const QPointF &p2 )
 {
     Q_UNUSED( p1 )
@@ -137,7 +136,16 @@ inline double QwtSplineParametrization::valueUniform(
     return 1.0;
 }
 
-inline double QwtSplineParametrization::valueChordal( 
+inline double QwtSplineParametrization::valueIncrementCentripetal(
+    const QPointF &p1, const QPointF &p2 )
+{
+    const double dx = p1.x() - p2.x();
+    const double dy = p1.y() - p2.y();
+
+    return qPow( dx * dx + dy * dy, 0.25 );
+}
+
+inline double QwtSplineParametrization::valueIncrementChordal( 
     const QPointF &p1, const QPointF &p2 ) 
 {
     const double dx = p1.x() - p2.x();
@@ -146,7 +154,7 @@ inline double QwtSplineParametrization::valueChordal(
     return qSqrt( dx * dx + dy * dy );
 }
 
-inline double QwtSplineParametrization::valueManhattan(
+inline double QwtSplineParametrization::valueIncrementManhattan(
     const QPointF &p1, const QPointF &p2 )
 {
     return qAbs( p2.x() - p1.x() ) + qAbs( p2.y() - p1.y() );
@@ -160,31 +168,31 @@ inline QwtSplineParametrization::param::param( const QwtSplineParametrization *p
 inline double QwtSplineParametrization::param::operator()( 
     const QPointF &p1, const QPointF &p2 ) const
 {
-    return parameter->value( p1, p2 );
+    return parameter->valueIncrement( p1, p2 );
 }
 
 inline double QwtSplineParametrization::paramX::operator()( 
     const QPointF &p1, const QPointF &p2 ) const 
 {
-    return QwtSplineParametrization::valueX( p1, p2 );
+    return QwtSplineParametrization::valueIncrementX( p1, p2 );
 }
 
 inline double QwtSplineParametrization::paramUniform::operator()(
     const QPointF &p1, const QPointF &p2 ) const
 {
-    return QwtSplineParametrization::valueUniform( p1, p2 );
+    return QwtSplineParametrization::valueIncrementUniform( p1, p2 );
 }
     
 inline double QwtSplineParametrization::paramChordal::operator()( 
     const QPointF &p1, const QPointF &p2 ) const 
 {
-    return QwtSplineParametrization::valueChordal( p1, p2 );
+    return QwtSplineParametrization::valueIncrementChordal( p1, p2 );
 }
 
 inline double QwtSplineParametrization::paramManhattan::operator()( 
     const QPointF &p1, const QPointF &p2 ) const 
 {
-    return QwtSplineParametrization::valueManhattan( p1, p2 );
+    return QwtSplineParametrization::valueIncrementManhattan( p1, p2 );
 }
 
 #endif
