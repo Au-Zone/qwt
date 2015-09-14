@@ -12,7 +12,7 @@
 #include <qwt_spline_local.h>
 #include <qwt_spline_cubic.h>
 #include <qwt_spline_cardinal.h>
-#include <qwt_spline_parameter.h>
+#include <qwt_spline_parametrization.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_spline_curve_fitter.h>
 #include <qwt_legend.h>
@@ -96,16 +96,16 @@ public:
 
     void setParametric( const QString &parameterType )
     {
-        QwtSplineParameter::Type type = QwtSplineParameter::ParameterX;
+        QwtSplineParametrization::Type type = QwtSplineParametrization::ParameterX;
 
         if ( parameterType == "Uniform" )
-            type = QwtSplineParameter::ParameterUniform;
+            type = QwtSplineParametrization::ParameterUniform;
         else if ( parameterType == "Centripetral" )
-            type = QwtSplineParameter::ParameterCentripetral;
+            type = QwtSplineParametrization::ParameterCentripetral;
         else if ( parameterType == "Chordal" )
-            type = QwtSplineParameter::ParameterChordal;
+            type = QwtSplineParametrization::ParameterChordal;
         else if ( parameterType == "Manhattan" )
-            type = QwtSplineParameter::ParameterManhattan;
+            type = QwtSplineParametrization::ParameterManhattan;
 
         d_spline->setParametrization( type );
     }

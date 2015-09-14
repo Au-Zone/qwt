@@ -8,7 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_spline_local.h"
-#include "qwt_spline_parameter.h"
+#include "qwt_spline_parametrization.h"
 #include <qmath.h>
 
 static inline double qwtSlopeP( const QPointF &p1, const QPointF &p2 )
@@ -469,7 +469,7 @@ double QwtSplineLocal::tension() const
 
 QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
 {
-    if ( parametrization()->type() == QwtSplineParameter::ParameterX )
+    if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
         return pathX( points );
 
     return QwtSplineC1::pathP( points );
@@ -477,7 +477,7 @@ QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
 
 QVector<QLineF> QwtSplineLocal::bezierControlPointsP( const QPolygonF &points ) const
 {
-    if ( parametrization()->type() == QwtSplineParameter::ParameterX )
+    if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
     {   
         return bezierControlPointsX( points );
     }

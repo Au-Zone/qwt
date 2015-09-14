@@ -8,7 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_spline_cardinal.h"
-#include "qwt_spline_parameter.h"
+#include "qwt_spline_parametrization.h"
 
 namespace QwtSplineCardinalG1P
 {
@@ -291,28 +291,28 @@ QPainterPath QwtSplinePleasing::pathP( const QPolygonF &points ) const
     PathStore store;
     switch( parametrization()->type() )
     {
-        case QwtSplineParameter::ParameterX:
+        case QwtSplineParametrization::ParameterX:
         {
             store = qwtSplinePathPleasing<PathStore>( points, 
-                isClosing(), QwtSplineParameter::paramX() );
+                isClosing(), QwtSplineParametrization::paramX() );
             break;
         }
-        case QwtSplineParameter::ParameterUniform:
+        case QwtSplineParametrization::ParameterUniform:
         {
             store = qwtSplinePathPleasing<PathStore>( points, 
-                isClosing(), QwtSplineParameter::paramUniform() );
+                isClosing(), QwtSplineParametrization::paramUniform() );
             break;
         }
-        case QwtSplineParameter::ParameterChordal:
+        case QwtSplineParametrization::ParameterChordal:
         {
             store = qwtSplinePathPleasing<PathStore>( points, 
-                isClosing(), QwtSplineParameter::paramChordal() );
+                isClosing(), QwtSplineParametrization::paramChordal() );
             break;
         }
         default:
         {
             store = qwtSplinePathPleasing<PathStore>( points, 
-                isClosing(), QwtSplineParameter::param( parametrization() ) );
+                isClosing(), QwtSplineParametrization::param( parametrization() ) );
         }
     }
 
@@ -338,28 +338,28 @@ QwtSplinePleasing::tensions( const QPolygonF &points ) const
 
     switch( parametrization()->type() )
     {
-        case QwtSplineParameter::ParameterX:
+        case QwtSplineParametrization::ParameterX:
         {
             tensions2 = qwtTensions( points, 
-                isClosing(), QwtSplineParameter::paramX() );
+                isClosing(), QwtSplineParametrization::paramX() );
             break;
         }
-        case QwtSplineParameter::ParameterUniform:
+        case QwtSplineParametrization::ParameterUniform:
         {
             tensions2 = qwtTensions( points, 
-                isClosing(), QwtSplineParameter::paramUniform() );
+                isClosing(), QwtSplineParametrization::paramUniform() );
             break;
         }
-        case QwtSplineParameter::ParameterChordal:
+        case QwtSplineParametrization::ParameterChordal:
         {
             tensions2 = qwtTensions( points, 
-                isClosing(), QwtSplineParameter::paramChordal() );
+                isClosing(), QwtSplineParametrization::paramChordal() );
             break;
         }
         default:
         {
             tensions2 = qwtTensions( points, 
-                isClosing(), QwtSplineParameter::param( parametrization() ) );
+                isClosing(), QwtSplineParametrization::param( parametrization() ) );
         }
     }
 

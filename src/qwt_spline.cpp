@@ -8,7 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_spline.h"
-#include "qwt_spline_parameter.h"
+#include "qwt_spline_parametrization.h"
 #include "qwt_math.h"
 
 static inline QPointF qwtBezierPoint( const QPointF &p1,
@@ -183,14 +183,14 @@ static inline SplineStore qwtSplinePathParam(
 }
 
 QwtSpline::QwtSpline():
-    d_parameter( new QwtSplineParameter( QwtSplineParameter::ParameterX ) ),
+    d_parametrization( new QwtSplineParametrization( QwtSplineParametrization::ParameterX ) ),
     d_isClosing( false )
 {
 }
 
 QwtSpline::~QwtSpline()
 {
-    delete d_parameter;
+    delete d_parametrization;
 }
 
 /*!
@@ -223,22 +223,25 @@ bool QwtSpline::isClosing() const
 
 void QwtSpline::setParametrization( int type )
 {
-    delete d_parameter;
-    d_parameter = new QwtSplineParameter( type );
+	if ( d_parametrization->type() != type )
+	{
+    	delete d_parametrization;
+    	d_parametrization = new QwtSplineParametrization( type );
+	}
 }
 
-void QwtSpline::setParametrization( QwtSplineParameter *parameter )
+void QwtSpline::setParametrization( QwtSplineParametrization *parametrization )
 {
-    if ( d_parameter != parameter )
+    if ( ( parametrization != NULL ) && ( d_parametrization != parametrization ) )
     {
-        delete d_parameter;
-        d_parameter = parameter;
+        delete d_parametrization;
+        d_parametrization = parametrization;
     }
 }   
 
-const QwtSplineParameter *QwtSpline::parametrization() const
+const QwtSplineParametrization *QwtSpline::parametrization() const
 {
-    return d_parameter;
+    return d_parametrization;
 }
 
 QPainterPath QwtSpline::pathP( const QPolygonF &points ) const
@@ -310,7 +313,7 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
     for ( int i = 0; i < n - 1; i++ )
     {
 #if 1
-        const double l = d_parameter->value( points[i], points[i+1] );
+        const double l = d_parametrization->value( points[i], points[i+1] );
 #endif
 
         while ( t < l )
@@ -338,7 +341,7 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
 
     if ( controlPoints.size() >= n )
     {
-        const double l = d_parameter->value( points[n-1], points[0] );
+        const double l = d_parametrization->value( points[n-1], points[0] );
 
         while ( t < l )
         {
@@ -568,27 +571,27 @@ QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const
     PathStore store;
     switch( parametrization()->type() )
     {
-        case QwtSplineParameter::ParameterX:
+        case QwtSplineParametrization::ParameterX:
         {
             store = qwtSplinePathX<PathStore>( this, points );
             break;
         }
-        case QwtSplineParameter::ParameterUniform:
+        case QwtSplineParametrization::ParameterUniform:
         {
             store = qwtSplinePathParam<PathStore>( this, points, 
-                QwtSplineParameter::paramUniform() );
+                QwtSplineParametrization::paramUniform() );
             break;
         }
-        case QwtSplineParameter::ParameterChordal:
+        case QwtSplineParametrization::ParameterChordal:
         {
             store = qwtSplinePathParam<PathStore>( this, points, 
-                QwtSplineParameter::paramChordal() );
+                QwtSplineParametrization::paramChordal() );
             break;
         }
         default:
         {
             store = qwtSplinePathParam<PathStore>( this, points, 
-                QwtSplineParameter::param( parametrization() ) );
+                QwtSplineParametrization::param( parametrization() ) );
         }
     }
 
@@ -606,27 +609,27 @@ QVector<QLineF> QwtSplineC1::bezierControlPointsP( const QPolygonF &points ) con
     ControlPointsStore store;
     switch( parametrization()->type() )
     {
-        case QwtSplineParameter::ParameterX:
+        case QwtSplineParametrization::ParameterX:
         {
             store = qwtSplinePathX<ControlPointsStore>( this, points );
             break;
         }
-        case QwtSplineParameter::ParameterUniform:
+        case QwtSplineParametrization::ParameterUniform:
         {
             store = qwtSplinePathParam<ControlPointsStore>( this, points,
-                QwtSplineParameter::paramUniform() );
+                QwtSplineParametrization::paramUniform() );
             break;
         }
-        case QwtSplineParameter::ParameterChordal:
+        case QwtSplineParametrization::ParameterChordal:
         {
             store = qwtSplinePathParam<ControlPointsStore>( this, points,
-                QwtSplineParameter::paramChordal() );
+                QwtSplineParametrization::paramChordal() );
             break;
         }
         default:
         {
             store = qwtSplinePathParam<ControlPointsStore>( this, points,
-                QwtSplineParameter::param( parametrization() ) );
+                QwtSplineParametrization::param( parametrization() ) );
         }
     }
 

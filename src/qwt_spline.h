@@ -16,7 +16,7 @@
 #include <qpainterpath.h>
 #include <qmath.h>
 
-class QwtSplineParameter;
+class QwtSplineParametrization;
 
 /*!
   \brief Base class for a spline interpolation
@@ -48,8 +48,8 @@ public:
     virtual ~QwtSpline();
 
     void setParametrization( int type );
-    void setParametrization( QwtSplineParameter * );
-    const QwtSplineParameter *parametrization() const;
+    void setParametrization( QwtSplineParametrization * );
+    const QwtSplineParametrization *parametrization() const;
 
     void setClosing( bool );
     bool isClosing() const;
@@ -67,7 +67,7 @@ private:
     explicit QwtSpline( const QwtSpline & );
     QwtSpline &operator=( const QwtSpline & );
 
-    QwtSplineParameter *d_parameter;
+    QwtSplineParametrization *d_parametrization;
     bool d_isClosing;
 };
 

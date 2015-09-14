@@ -9,14 +9,14 @@
 
 #include "qwt_spline_curve_fitter.h"
 #include "qwt_spline_cardinal.h"
-#include "qwt_spline_parameter.h"
+#include "qwt_spline_parametrization.h"
 
 //! Constructor
 QwtSplineCurveFitter::QwtSplineCurveFitter():
     QwtCurveFitter( QwtCurveFitter::Path )
 {
     d_spline = new QwtSplinePleasing();
-    d_spline->setParametrization( QwtSplineParameter::ParameterChordal );
+    d_spline->setParametrization( QwtSplineParametrization::ParameterChordal );
 }
 
 //! Destructor
