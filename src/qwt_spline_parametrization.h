@@ -56,9 +56,9 @@ public:
 
         /*!
           Centripetal parametrization
-          \sa valueIncrementCentripetral()
+          \sa valueIncrementCentripetal()
          */
-        ParameterCentripetral,
+        ParameterCentripetal,
 
         /*!
           Parametrization using the length between two control points
@@ -104,6 +104,11 @@ public:
     };
 
     struct paramUniform
+    {
+        double operator()( const QPointF &p1, const QPointF &p2 ) const;
+    };
+
+    struct paramCentripetal
     {
         double operator()( const QPointF &p1, const QPointF &p2 ) const;
     };
@@ -188,6 +193,12 @@ inline double QwtSplineParametrization::paramChordal::operator()(
     const QPointF &p1, const QPointF &p2 ) const 
 {
     return QwtSplineParametrization::valueIncrementChordal( p1, p2 );
+}
+
+inline double QwtSplineParametrization::paramCentripetal::operator()(
+    const QPointF &p1, const QPointF &p2 ) const
+{
+    return QwtSplineParametrization::valueIncrementCentripetal( p1, p2 );
 }
 
 inline double QwtSplineParametrization::paramManhattan::operator()( 

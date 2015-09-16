@@ -582,6 +582,12 @@ QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const
                 QwtSplineParametrization::paramUniform() );
             break;
         }
+        case QwtSplineParametrization::ParameterCentripetal:
+        {
+            store = qwtSplinePathParam<PathStore>( this, points, 
+                QwtSplineParametrization::paramCentripetal() );
+            break;
+        }
         case QwtSplineParametrization::ParameterChordal:
         {
             store = qwtSplinePathParam<PathStore>( this, points, 
@@ -618,6 +624,12 @@ QVector<QLineF> QwtSplineC1::bezierControlPointsP( const QPolygonF &points ) con
         {
             store = qwtSplinePathParam<ControlPointsStore>( this, points,
                 QwtSplineParametrization::paramUniform() );
+            break;
+        }
+        case QwtSplineParametrization::ParameterCentripetal:
+        {
+            store = qwtSplinePathParam<ControlPointsStore>( this, points,
+                QwtSplineParametrization::paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:

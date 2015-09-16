@@ -26,7 +26,7 @@ double QwtSplineParametrization::valueIncrement( const QPointF &p1, const QPoint
         {
             return valueIncrementX( p1, p2 );
         }
-        case QwtSplineParametrization::ParameterCentripetral:
+        case QwtSplineParametrization::ParameterCentripetal:
         {
             return valueIncrementCentripetal( p1, p2 );
         }

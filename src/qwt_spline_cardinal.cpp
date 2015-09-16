@@ -303,6 +303,12 @@ QPainterPath QwtSplinePleasing::pathP( const QPolygonF &points ) const
                 isClosing(), QwtSplineParametrization::paramUniform() );
             break;
         }
+        case QwtSplineParametrization::ParameterCentripetal:
+        {
+            store = qwtSplinePathPleasing<PathStore>( points, 
+                isClosing(), QwtSplineParametrization::paramCentripetal() );
+            break;
+        }
         case QwtSplineParametrization::ParameterChordal:
         {
             store = qwtSplinePathPleasing<PathStore>( points, 
@@ -348,6 +354,12 @@ QwtSplinePleasing::tensions( const QPolygonF &points ) const
         {
             tensions2 = qwtTensions( points, 
                 isClosing(), QwtSplineParametrization::paramUniform() );
+            break;
+        }
+        case QwtSplineParametrization::ParameterCentripetal:
+        {
+            tensions2 = qwtTensions( points, 
+                isClosing(), QwtSplineParametrization::paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
