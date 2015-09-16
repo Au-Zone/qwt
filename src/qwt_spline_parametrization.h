@@ -15,23 +15,24 @@
 #include <qpoint.h>
 
 /*!
-  \brief Parametrization used by a spline interpolation
+  \brief Curve parametrization used for a spline interpolation
 
-  When the x coordinates of the control points are not ordered monotonically 
-  a parametrization has to be found, that provides a value t for each control 
-  point that is increasing monotonically.
+  Parametrization is the process of finding a parameter value for
+  each curve point - usually related to some physical quantity 
+  ( distance, time ... ).
 
-  QwtSpline calculates the parameter values at the curve points, by summing up
-  increments, that are calculated for each point. Each increment is calculated
-  from the coordinates of the point and its precessor. 
-
+  The values are calculated by cummulating increments, that are provided
+  by QwtSplineParametrization. As the curve parameters need to be
+  montonically increasing, each increment need to be positive.
+  
   - t[0] = 0;
-  - t[i] = t[i-1] + spline->parametrization()->valueIncrement( point[i-1], p[i] );
+  - t[i] = t[i-1] + valueIncrement( point[i-1], p[i] );
 
-  QwtSplineParametrization provides the most common used type of parametrizations 
-  and offers an interface to inject custom implementations.
+  QwtSplineParametrization provides the most common used type of
+  parametrizations and offers an interface to inject custom implementations.
 
-  A parametrization ParameterX means no parametrization.
+  \note The most relevant types of parametrization are trying to provide an
+        approximation of the curve length. 
 
   \sa QwtSpline::setParametrization()
  */
@@ -43,31 +44,31 @@ public:
     {
         /*!
           No parametrization: t[i] = x[i]
-          \sa valueX()
+          \sa valueIncrementX()
          */
         ParameterX,
 
         /*!
           Uniform parametrization: t[i] = i;
-          \sa valueUniform()
+          \sa valueIncrementUniform()
          */
         ParameterUniform,
 
         /*!
           Centripetal parametrization
-          \sa valueCentripetral()
+          \sa valueIncrementCentripetral()
          */
         ParameterCentripetral,
 
         /*!
           Parametrization using the length between two control points
-          \sa valueChordal()
+          \sa valueIncrementChordal()
          */
         ParameterChordal,
 
         /*!
           Parametrization using the manhattan length between two control points
-          \sa valueManhattan()
+          \sa valueIncrementManhattan()
          */
         ParameterManhattan
     };
