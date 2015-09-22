@@ -101,7 +101,7 @@ public:
         if ( parameterType == "Uniform" )
             type = QwtSplineParametrization::ParameterUniform;
         else if ( parameterType == "Centripetral" )
-            type = QwtSplineParametrization::ParameterCentripetral;
+            type = QwtSplineParametrization::ParameterCentripetal;
         else if ( parameterType == "Chordal" )
             type = QwtSplineParametrization::ParameterChordal;
         else if ( parameterType == "Manhattan" )

@@ -86,43 +86,6 @@ public:
     static double valueIncrementUniform( const QPointF &p1, const QPointF &p2 );
     static double valueIncrementManhattan( const QPointF &p1, const QPointF &p2 );
 
-    /*!
-      Helper structure to provide functors to inline parameter calculations
-      used in various spline implementation
-     */
-    struct param
-    {
-        param( const QwtSplineParametrization * );
-        double operator()( const QPointF &p1, const QPointF &p2 ) const;
-
-        const QwtSplineParametrization *parameter;
-    };
-
-    struct paramX
-    {
-        double operator()( const QPointF &p1, const QPointF &p2 ) const;
-    };
-
-    struct paramUniform
-    {
-        double operator()( const QPointF &p1, const QPointF &p2 ) const;
-    };
-
-    struct paramCentripetal
-    {
-        double operator()( const QPointF &p1, const QPointF &p2 ) const;
-    };
-
-    struct paramChordal
-    {
-        double operator()( const QPointF &p1, const QPointF &p2 ) const;
-    };
-
-    struct paramManhattan
-    {
-        double operator()( const QPointF &p1, const QPointF &p2 ) const;
-    };
-
 private:
     const int d_type;
 };
@@ -164,47 +127,6 @@ inline double QwtSplineParametrization::valueIncrementManhattan(
     const QPointF &p1, const QPointF &p2 )
 {
     return qAbs( p2.x() - p1.x() ) + qAbs( p2.y() - p1.y() );
-}
-
-inline QwtSplineParametrization::param::param( const QwtSplineParametrization *p ):
-    parameter( p ) 
-{
-}
-    
-inline double QwtSplineParametrization::param::operator()( 
-    const QPointF &p1, const QPointF &p2 ) const
-{
-    return parameter->valueIncrement( p1, p2 );
-}
-
-inline double QwtSplineParametrization::paramX::operator()( 
-    const QPointF &p1, const QPointF &p2 ) const 
-{
-    return QwtSplineParametrization::valueIncrementX( p1, p2 );
-}
-
-inline double QwtSplineParametrization::paramUniform::operator()(
-    const QPointF &p1, const QPointF &p2 ) const
-{
-    return QwtSplineParametrization::valueIncrementUniform( p1, p2 );
-}
-    
-inline double QwtSplineParametrization::paramChordal::operator()( 
-    const QPointF &p1, const QPointF &p2 ) const 
-{
-    return QwtSplineParametrization::valueIncrementChordal( p1, p2 );
-}
-
-inline double QwtSplineParametrization::paramCentripetal::operator()(
-    const QPointF &p1, const QPointF &p2 ) const
-{
-    return QwtSplineParametrization::valueIncrementCentripetal( p1, p2 );
-}
-
-inline double QwtSplineParametrization::paramManhattan::operator()( 
-    const QPointF &p1, const QPointF &p2 ) const 
-{
-    return QwtSplineParametrization::valueIncrementManhattan( p1, p2 );
 }
 
 #endif
