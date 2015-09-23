@@ -21,6 +21,10 @@
   each curve point - usually related to some physical quantity 
   ( distance, time ... ).
 
+  Often accumulating the curve length is the intended way of parametrization,
+  but as the interpolated curve is not known in advance an approximation
+  needs to be used.
+
   The values are calculated by cummulating increments, that are provided
   by QwtSplineParametrization. As the curve parameters need to be
   montonically increasing, each increment need to be positive.
@@ -50,24 +54,45 @@ public:
 
         /*!
           Uniform parametrization: t[i] = i;
+
+          A very fast parametrization, with good results, when the geometry
+          of the control points is somehow "equidistant". F.e. when 
+          recording the position of a body, that is moving with constant
+          speed every n seconds.
+          
           \sa valueIncrementUniform()
          */
         ParameterUniform,
 
         /*!
-          Centripetal parametrization
-          \sa valueIncrementCentripetal()
-         */
-        ParameterCentripetal,
+          Parametrization using the chordal length between two control points
 
-        /*!
-          Parametrization using the length between two control points
+          The chordal length is the most commonly used approximation for
+          the curve length.
+
           \sa valueIncrementChordal()
          */
         ParameterChordal,
 
         /*!
+          Centripetal parametrization
+
+          Based on the square root of the chordal length.
+
+          Its name stems from the physical observations regarding
+          the centripetal force, of a body moving along the curve.
+
+          \sa valueIncrementCentripetal()
+         */
+        ParameterCentripetal,
+
+
+        /*!
           Parametrization using the manhattan length between two control points
+
+          Approximating the curve length by the manhattan length is faster
+          than the chordal length, but usually gives worse results.
+
           \sa valueIncrementManhattan()
          */
         ParameterManhattan
@@ -78,55 +103,99 @@ public:
 
     int type() const;
 
-    virtual double valueIncrement( const QPointF &p1, const QPointF &p2 ) const;
+    virtual double valueIncrement( const QPointF &, const QPointF & ) const;
     
-    static double valueIncrementX( const QPointF &p1, const QPointF &p2 );
-    static double valueIncrementCentripetal( const QPointF &p1, const QPointF &p2 );
-    static double valueIncrementChordal( const QPointF &p1, const QPointF &p2 );
-    static double valueIncrementUniform( const QPointF &p1, const QPointF &p2 );
-    static double valueIncrementManhattan( const QPointF &p1, const QPointF &p2 );
+    static double valueIncrementX( const QPointF &, const QPointF & );
+    static double valueIncrementUniform( const QPointF &, const QPointF & );
+    static double valueIncrementChordal( const QPointF &, const QPointF & );
+    static double valueIncrementCentripetal( const QPointF &, const QPointF & );
+    static double valueIncrementManhattan( const QPointF &, const QPointF & );
 
 private:
+    // Disabled copy constructor and operator=
+    explicit QwtSplineParametrization( const QwtSplineParametrization & );
+    QwtSplineParametrization &operator=( const QwtSplineParametrization & );
+
     const int d_type;
 };
 
+/*!
+  \brief Calculate the ParameterX value increment for 2 points
+
+  \param point1 First point
+  \param point2 Second point
+
+  \return point2.x() - point1.x();
+ */
 inline double QwtSplineParametrization::valueIncrementX( 
-    const QPointF &p1, const QPointF &p2 ) 
+    const QPointF &point1, const QPointF &point2 ) 
 {
-    return p2.x() - p1.x();
+    return point2.x() - point1.x();
 }
 
+/*!
+  \brief Calculate the ParameterUniform value increment
+
+  \param point1 First point
+  \param point2 Second point
+
+  \return 1.0
+ */
 inline double QwtSplineParametrization::valueIncrementUniform(
-    const QPointF &p1, const QPointF &p2 )
+    const QPointF &point1, const QPointF &point2 )
 {
-    Q_UNUSED( p1 )
-    Q_UNUSED( p2 )
+    Q_UNUSED( point1 )
+    Q_UNUSED( point2 )
 
     return 1.0;
 }
 
-inline double QwtSplineParametrization::valueIncrementCentripetal(
-    const QPointF &p1, const QPointF &p2 )
-{
-    const double dx = p1.x() - p2.x();
-    const double dy = p1.y() - p2.y();
+/*!
+  \brief Calculate the ParameterChordal value increment for 2 points
 
-    return qPow( dx * dx + dy * dy, 0.25 );
-}
+  \param point1 First point
+  \param point2 Second point
 
+  \return qSqrt( dx * dx + dy * dy );
+ */
 inline double QwtSplineParametrization::valueIncrementChordal( 
-    const QPointF &p1, const QPointF &p2 ) 
+    const QPointF &point1, const QPointF &point2 ) 
 {
-    const double dx = p1.x() - p2.x();
-    const double dy = p1.y() - p2.y();
+    const double dx = point1.x() - point2.x();
+    const double dy = point1.y() - point2.y();
 
     return qSqrt( dx * dx + dy * dy );
 }
 
-inline double QwtSplineParametrization::valueIncrementManhattan(
-    const QPointF &p1, const QPointF &p2 )
+/*!
+  \brief Calculate the ParameterCentripetal value increment for 2 points
+
+  \param point1 First point
+  \param point2 Second point
+
+  \return The square root of a chordal increment
+ */
+inline double QwtSplineParametrization::valueIncrementCentripetal(
+    const QPointF &point1, const QPointF &point2 )
 {
-    return qAbs( p2.x() - p1.x() ) + qAbs( p2.y() - p1.y() );
+    const double dx = point1.x() - point2.x();
+    const double dy = point1.y() - point2.y();
+
+    return qPow( dx * dx + dy * dy, 0.25 );
+}
+
+/*!
+  \brief Calculate the ParameterManhattan value increment for 2 points
+
+  \param point1 First point
+  \param point2 Second point
+
+  \return | point2.x() - point1.x() | + | point2.y() - point1.y() |
+ */
+inline double QwtSplineParametrization::valueIncrementManhattan(
+    const QPointF &point1, const QPointF &point2 )
+{
+    return qAbs( point2.x() - point1.x() ) + qAbs( point2.y() - point1.y() );
 }
 
 #endif

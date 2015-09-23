@@ -9,15 +9,29 @@
 
 #include "qwt_spline_parametrization.h"
 
+/*!
+  Constructor
+  \param type Parametrization type
+  \sa type()
+*/
 QwtSplineParametrization::QwtSplineParametrization( int type ):
     d_type( type )
 {
 }
 
+//! Destructor
 QwtSplineParametrization::~QwtSplineParametrization()
 {
 }
  
+/*!     
+  \brief Calculate the parameter value increment for 2 points
+            
+  \param point1 First point
+  \param point2 Second point
+        
+  \return Value increment
+ */
 double QwtSplineParametrization::valueIncrement( const QPointF &p1, const QPointF &p2 ) const
 {
     switch( d_type )
@@ -46,6 +60,7 @@ double QwtSplineParametrization::valueIncrement( const QPointF &p1, const QPoint
     }
 }
 
+//! \return Parametrization type
 int QwtSplineParametrization::type() const
 {
     return d_type;
