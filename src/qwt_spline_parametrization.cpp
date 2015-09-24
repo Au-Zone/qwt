@@ -32,30 +32,31 @@ QwtSplineParametrization::~QwtSplineParametrization()
         
   \return Value increment
  */
-double QwtSplineParametrization::valueIncrement( const QPointF &p1, const QPointF &p2 ) const
+double QwtSplineParametrization::valueIncrement(
+    const QPointF &point1, const QPointF &point2 ) const
 {
     switch( d_type )
     {
         case QwtSplineParametrization::ParameterX:
         {
-            return valueIncrementX( p1, p2 );
+            return valueIncrementX( point1, point2 );
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            return valueIncrementCentripetal( p1, p2 );
+            return valueIncrementCentripetal( point1, point2 );
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            return valueIncrementChordal( p1, p2 );
+            return valueIncrementChordal( point1, point2 );
         }
         case QwtSplineParametrization::ParameterManhattan:
         {
-            return valueIncrementManhattan( p1, p2 );
+            return valueIncrementManhattan( point1, point2 );
         }
         case QwtSplineParametrization::ParameterUniform:
         default:
         {
-            return valueIncrementUniform( p1, p2 );
+            return valueIncrementUniform( point1, point2 );
         }
     }
 }

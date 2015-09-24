@@ -765,3 +765,41 @@ QwtSplineC2::QwtSplineC2()
 QwtSplineC2::~QwtSplineC2()
 {
 }
+
+QPainterPath QwtSplineC2::pathP( const QPolygonF &points ) const
+{
+	// TODO ...
+	return QwtSplineC1::pathP( points );
+}
+
+QVector<QLineF> QwtSplineC2::bezierControlPointsP( const QPolygonF &points ) const
+{
+	// TODO ...
+	return QwtSplineC1::bezierControlPointsP( points );
+}
+
+QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
+{
+	const QVector<double> cv = curvaturesX( points );
+	if ( cv.size() < 2 )
+		return QVector<double>();
+    
+	QVector<double> m( cv.size() );
+
+	const int numPoints = points.size();
+	for ( int i = 0; i < numPoints - 1; i++ )
+	{
+		const QwtSplinePolynom polynom = QwtSplinePolynom::fromCurvatures( 
+			points[i], cv[i], points[i+1], cv[i+1] );
+
+		m[i] = polynom.slope( 0.0 );
+	}
+
+	const QwtSplinePolynom polynom = QwtSplinePolynom::fromCurvatures( 
+		points[ numPoints - 2 ], cv[ numPoints - 2 ],
+		points[ numPoints - 1 ], cv[ numPoints - 1 ]  );
+
+	m[numPoints - 1] = polynom.slope( points[ numPoints - 1 ].x() - points[ numPoints - 2 ].x() );
+
+	return m;
+}
