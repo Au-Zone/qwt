@@ -143,7 +143,7 @@ namespace QwtSplineC1P
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplinePathX(
+static inline SplineStore qwtSplineC1PathX(
     const QwtSplineC1 *spline, const QPolygonF &points )
 {
     SplineStore store;
@@ -173,7 +173,7 @@ static inline SplineStore qwtSplinePathX(
 }
 
 template< class SplineStore, class Param >
-static inline SplineStore qwtSplinePathParam( 
+static inline SplineStore qwtSplineC1PathParam( 
     const QwtSplineC1 *spline, const QPolygonF &points, Param param )
 {
     const int n = points.size();
@@ -620,30 +620,30 @@ QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplinePathX<PathStore>( this, points );
+            store = qwtSplineC1PathX<PathStore>( this, points );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            store = qwtSplinePathParam<PathStore>( this, points, 
+            store = qwtSplineC1PathParam<PathStore>( this, points, 
                 QwtSplineC1P::paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            store = qwtSplinePathParam<PathStore>( this, points, 
+            store = qwtSplineC1PathParam<PathStore>( this, points, 
                 QwtSplineC1P::paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            store = qwtSplinePathParam<PathStore>( this, points, 
+            store = qwtSplineC1PathParam<PathStore>( this, points, 
                 QwtSplineC1P::paramChordal() );
             break;
         }
         default:
         {
-            store = qwtSplinePathParam<PathStore>( this, points, 
+            store = qwtSplineC1PathParam<PathStore>( this, points, 
                 QwtSplineC1P::param( parametrization() ) );
         }
     }
@@ -664,30 +664,30 @@ QVector<QLineF> QwtSplineC1::bezierControlPointsP( const QPolygonF &points ) con
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplinePathX<ControlPointsStore>( this, points );
+            store = qwtSplineC1PathX<ControlPointsStore>( this, points );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            store = qwtSplinePathParam<ControlPointsStore>( this, points,
+            store = qwtSplineC1PathParam<ControlPointsStore>( this, points,
                 QwtSplineC1P::paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            store = qwtSplinePathParam<ControlPointsStore>( this, points,
+            store = qwtSplineC1PathParam<ControlPointsStore>( this, points,
                 QwtSplineC1P::paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            store = qwtSplinePathParam<ControlPointsStore>( this, points,
+            store = qwtSplineC1PathParam<ControlPointsStore>( this, points,
                 QwtSplineC1P::paramChordal() );
             break;
         }
         default:
         {
-            store = qwtSplinePathParam<ControlPointsStore>( this, points,
+            store = qwtSplineC1PathParam<ControlPointsStore>( this, points,
                 QwtSplineC1P::param( parametrization() ) );
         }
     }
@@ -768,13 +768,17 @@ QwtSplineC2::~QwtSplineC2()
 
 QPainterPath QwtSplineC2::pathP( const QPolygonF &points ) const
 {
-    // TODO ...
+    // could be implemented from curvaturesX without the extra
+    // loop for calculating the slopes vector. TODO ...
+
     return QwtSplineC1::pathP( points );
 }
 
 QVector<QLineF> QwtSplineC2::bezierControlPointsP( const QPolygonF &points ) const
 {
-    // TODO ...
+    // could be implemented from curvaturesX without the extra
+    // loop for calculating the slopes vector. TODO ...
+
     return QwtSplineC1::bezierControlPointsP( points );
 }
 
@@ -788,7 +792,6 @@ QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
 
     const double *cv = curvatures.constData();
     double *m = slopes.data();
-
 
     const int n = points.size();
     const QPointF *p = points.constData();

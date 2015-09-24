@@ -1005,3 +1005,15 @@ QVector<double> QwtSplineCubic::curvaturesX( const QPolygonF &points ) const
     return eqs.store().curvatures();
 }
 
+QPainterPath QwtSplineCubic::pathP( const QPolygonF &points ) const
+{   
+    // TODO ...
+    return QwtSplineC2::pathP( points );
+}
+    
+QVector<QLineF> QwtSplineCubic::bezierControlPointsP( const QPolygonF &points ) const
+{   
+    // TODO ...
+    return QwtSplineC2::bezierControlPointsP( points ); 
+}   
+

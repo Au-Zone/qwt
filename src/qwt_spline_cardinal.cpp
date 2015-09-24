@@ -387,49 +387,50 @@ QPainterPath QwtSplinePleasing::pathP( const QPolygonF &points ) const
 QVector<QLineF> QwtSplinePleasing::bezierControlPointsP( 
     const QPolygonF &points ) const
 {
+    // TODO ...
     return QwtSplineCardinalG1::bezierControlPointsP( points );
 }
 
 QVector<QwtSplineCardinalG1::Tension> 
 QwtSplinePleasing::tensions( const QPolygonF &points ) const
 {
-    QVector<Tension> tensions2;
+    QVector<Tension> ts;
 
     if ( points.size() <= 2 )
-        return tensions2;
+        return ts;
 
     switch( parametrization()->type() )
     {
         case QwtSplineParametrization::ParameterX:
         {
-            tensions2 = qwtTensions( points, 
+            ts = qwtTensions( points, 
                 isClosing(), QwtSplineCardinalG1P::paramX() );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            tensions2 = qwtTensions( points, 
+            ts = qwtTensions( points, 
                 isClosing(), QwtSplineCardinalG1P::paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            tensions2 = qwtTensions( points, 
+            ts = qwtTensions( points, 
                 isClosing(), QwtSplineCardinalG1P::paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            tensions2 = qwtTensions( points, 
+            ts = qwtTensions( points, 
                 isClosing(), QwtSplineCardinalG1P::paramChordal() );
             break;
         }
         default:
         {
-            tensions2 = qwtTensions( points, 
+            ts = qwtTensions( points, 
                 isClosing(), QwtSplineCardinalG1P::param( parametrization() ) );
         }
     }
 
-    return tensions2;
+    return ts;
 }

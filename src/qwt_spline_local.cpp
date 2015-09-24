@@ -172,7 +172,7 @@ static inline void qwtSplineCardinalBoundaries(
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplinePathCardinal( 
+static inline SplineStore qwtSplineCardinalPath( 
     const QwtSplineLocal *spline, const QPolygonF &points )
 {
     double slopeBegin, slopeEnd;
@@ -265,7 +265,7 @@ static inline void qwtSplineAkimaBoundaries(
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplinePathAkima( 
+static inline SplineStore qwtSplineAkimaPath( 
     const QwtSplineLocal *spline, const QPolygonF &points )
 {
     double slopeBegin, slopeEnd;
@@ -344,7 +344,7 @@ static inline void qwtSplineHarmonicMeanBoundaries(
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplinePathHarmonicMean( 
+static inline SplineStore qwtSplineHarmonicMeanPath( 
     const QwtSplineLocal *spline, const QPolygonF &points )
 {
     double slopeBegin, slopeEnd;
@@ -383,7 +383,7 @@ static inline SplineStore qwtSplinePathHarmonicMean(
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplinePathLocal( 
+static inline SplineStore qwtSplineLocalPath( 
     const QwtSplineLocal *spline, const QPolygonF &points )
 {   
     SplineStore store;
@@ -409,7 +409,7 @@ static inline SplineStore qwtSplinePathLocal(
     {   
         case QwtSplineLocal::Cardinal:
         {   
-            store = qwtSplinePathCardinal<SplineStore>( spline, points );
+            store = qwtSplineCardinalPath<SplineStore>( spline, points );
             break;
         }
         case QwtSplineLocal::ParabolicBlending:
@@ -419,12 +419,12 @@ static inline SplineStore qwtSplinePathLocal(
         }
         case QwtSplineLocal::Akima:
         {   
-            store = qwtSplinePathAkima<SplineStore>( spline, points );
+            store = qwtSplineAkimaPath<SplineStore>( spline, points );
             break;
         }
         case QwtSplineLocal::HarmonicMean:
         {   
-            store = qwtSplinePathHarmonicMean<SplineStore>( spline, points );
+            store = qwtSplineHarmonicMeanPath<SplineStore>( spline, points );
             break;
         }
         case QwtSplineLocal::PChip:
@@ -488,19 +488,19 @@ QVector<QLineF> QwtSplineLocal::bezierControlPointsP( const QPolygonF &points ) 
 QPainterPath QwtSplineLocal::pathX( const QPolygonF &points ) const
 {
     using namespace QwtSplineLocalP;
-    return qwtSplinePathLocal<PathStore>( this, points).path;
+    return qwtSplineLocalPath<PathStore>( this, points).path;
 }
     
 QVector<QLineF> QwtSplineLocal::bezierControlPointsX( const QPolygonF &points ) const
 {
     using namespace QwtSplineLocalP;
-    return qwtSplinePathLocal<ControlPointsStore>( this, points ).controlPoints;
+    return qwtSplineLocalPath<ControlPointsStore>( this, points ).controlPoints;
 }
 
 QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
 {
     using namespace QwtSplineLocalP;
-    return qwtSplinePathLocal<SlopeStore>( this, points ).slopes;
+    return qwtSplineLocalPath<SlopeStore>( this, points ).slopes;
 }
 
 uint QwtSplineLocal::locality() const
