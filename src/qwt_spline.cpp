@@ -768,38 +768,40 @@ QwtSplineC2::~QwtSplineC2()
 
 QPainterPath QwtSplineC2::pathP( const QPolygonF &points ) const
 {
-	// TODO ...
-	return QwtSplineC1::pathP( points );
+    // TODO ...
+    return QwtSplineC1::pathP( points );
 }
 
 QVector<QLineF> QwtSplineC2::bezierControlPointsP( const QPolygonF &points ) const
 {
-	// TODO ...
-	return QwtSplineC1::bezierControlPointsP( points );
+    // TODO ...
+    return QwtSplineC1::bezierControlPointsP( points );
 }
 
 QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
 {
-	const QVector<double> cv = curvaturesX( points );
-	if ( cv.size() < 2 )
-		return QVector<double>();
+    const QVector<double> curvatures = curvaturesX( points );
+    if ( curvatures.size() < 2 )
+        return QVector<double>();
     
-	QVector<double> m( cv.size() );
+    QVector<double> slopes( curvatures.size() );
 
-	const int numPoints = points.size();
-	for ( int i = 0; i < numPoints - 1; i++ )
-	{
-		const QwtSplinePolynom polynom = QwtSplinePolynom::fromCurvatures( 
-			points[i], cv[i], points[i+1], cv[i+1] );
+    const double *cv = curvatures.constData();
+    double *m = slopes.data();
 
-		m[i] = polynom.slope( 0.0 );
-	}
 
-	const QwtSplinePolynom polynom = QwtSplinePolynom::fromCurvatures( 
-		points[ numPoints - 2 ], cv[ numPoints - 2 ],
-		points[ numPoints - 1 ], cv[ numPoints - 1 ]  );
+    const int n = points.size();
+    const QPointF *p = points.constData();
 
-	m[numPoints - 1] = polynom.slope( points[ numPoints - 1 ].x() - points[ numPoints - 2 ].x() );
+    QwtSplinePolynom polynom;
 
-	return m;
+    for ( int i = 0; i < n - 1; i++ )
+    {
+        polynom = QwtSplinePolynom::fromCurvatures( p[i], cv[i], p[i+1], cv[i+1] );
+        m[i] = polynom.c1;
+    }
+
+    m[n-1] = polynom.slope( p[n-1].x() - p[n-2].x() );
+
+    return slopes;
 }
