@@ -817,6 +817,17 @@ QPolygonF QwtSplineC2::polygonX( int numPoints, const QPolygonF &points ) const
 
 QVector<QwtSplinePolynomial> QwtSplineC2::polynomialsX( const QPolygonF &points ) const
 {
-    // TODO
-    return QwtSplineC1::polynomialsX( points );
+    QVector<QwtSplinePolynomial> polynomials;
+    
+    const QVector<double> cv = curvaturesX( points );
+    if ( cv.size() < 2 )
+        return polynomials;
+    
+    for ( int i = 1; i < cv.size(); i++ )
+    {   
+        polynomials += QwtSplinePolynomial::fromCurvatures(
+            points[i-1], cv[i-1], points[i], cv[i] );
+    }
+    
+    return polynomials;
 }

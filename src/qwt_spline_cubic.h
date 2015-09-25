@@ -24,8 +24,6 @@ public:
 
     virtual QVector<double> slopesX( const QPolygonF & ) const;
     virtual QVector<double> curvaturesX( const QPolygonF & ) const;
-
-    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
     virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
 
     virtual uint locality() const;

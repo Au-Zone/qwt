@@ -1017,12 +1017,6 @@ QVector<QLineF> QwtSplineCubic::bezierControlPointsP( const QPolygonF &points ) 
     return QwtSplineC2::bezierControlPointsP( points ); 
 }   
 
-QPolygonF QwtSplineCubic::polygonX( int numPoints, const QPolygonF &points ) const
-{
-    // TODO ...
-    return QwtSplineC2::polygonX( numPoints, points );
-}
-
 QVector<QwtSplinePolynomial> QwtSplineCubic::polynomialsX( const QPolygonF &points ) const
 {
     // TODO ...
