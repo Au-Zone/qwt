@@ -88,11 +88,10 @@ inline QwtSplinePolynomial QwtSplinePolynomial::fromSlopes(
 inline QwtSplinePolynomial QwtSplinePolynomial::fromSlopes( 
     double x, double y, double m1, double m2 )
 {
-    const double c = m1;
-    const double b = ( 3.0 * y / x - 2 * m1 - m2 ) / x;
-    const double a = ( ( m2 - m1 ) / x - 2.0 * b ) / ( 3.0 * x );
+    const double c2 = ( 3.0 * y / x - 2 * m1 - m2 ) / x;
+    const double c3 = ( ( m2 - m1 ) / x - 2.0 * c2 ) / ( 3.0 * x );
 
-    return QwtSplinePolynomial( a, b, c );
+    return QwtSplinePolynomial( c3, c2, m1 );
 }
 
 inline QwtSplinePolynomial QwtSplinePolynomial::fromCurvatures( 
@@ -104,11 +103,11 @@ inline QwtSplinePolynomial QwtSplinePolynomial::fromCurvatures(
 inline QwtSplinePolynomial QwtSplinePolynomial::fromCurvatures( 
     double x, double y, double cv1, double cv2 )
 {
-    const double a = ( cv2 - cv1 ) / ( 6.0 * x );
-    const double b = 0.5 * cv1;
-    const double c = y / x - ( a * x + b ) * x;
+    const double c3 = ( cv2 - cv1 ) / ( 6.0 * x );
+    const double c2 = 0.5 * cv1;
+    const double c1 = y / x - ( c3 * x + c2 ) * x;
 
-    return QwtSplinePolynomial( a, b, c );
+    return QwtSplinePolynomial( c3, c2, c1 );
 }
 
 Q_DECLARE_METATYPE( QwtSplinePolynomial )
