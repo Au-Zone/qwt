@@ -71,7 +71,7 @@ CLASSHEADERS = \
     QwtSplineLocal \
     QwtSplineParameter \
     QwtSplinePleasing \
-    QwtSplinePolynom \
+    QwtSplinePolynomial \
     QwtSymbol \
     QwtSystemClock \
     QwtText \

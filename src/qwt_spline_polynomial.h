@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_SPLINE_POLYNOM_H
-#define QWT_SPLINE_POLYNOM_H 1
+#ifndef QWT_SPLINE_POLYNOMIAL_H
+#define QWT_SPLINE_POLYNOMIAL_H 1
 
 #include "qwt_global.h"
 #include <qpoint.h>
@@ -18,95 +18,106 @@
 #include <qdebug.h>
 #endif
 
-class QWT_EXPORT QwtSplinePolynom
+/*!
+  \brief A cubic polynomial without constant term
+
+  QwtSplinePolynomial is a 3rd degree polynomial 
+  of the form: y = c3 * x³ + c2 * x² + c1 * x;
+
+  QwtSplinePolynomial is used as result of a polygon interpolation,
+  and the constant term to translate the polynomial is available
+  from the polygon points.
+ */
+class QWT_EXPORT QwtSplinePolynomial
 {
 public:
-    QwtSplinePolynom( double a = 0.0, double b = 0.0, double c = 0.0 );
+    QwtSplinePolynomial( double c3 = 0.0, double c2 = 0.0, double c1 = 0.0 );
 
     double value( double x ) const;
     double slope( double x ) const;
     double curvature( double x ) const;
 
-    static QwtSplinePolynom fromSlopes( 
+    static QwtSplinePolynomial fromSlopes( 
         const QPointF &p1, double m1, 
         const QPointF &p2, double m2 );
 
-    static QwtSplinePolynom fromSlopes( 
+    static QwtSplinePolynomial fromSlopes( 
         double x, double y, double m1, double m2 );
 
-    static QwtSplinePolynom fromCurvatures( 
+    static QwtSplinePolynomial fromCurvatures( 
         const QPointF &p1, double cv1,
         const QPointF &p2, double cv2 );
     
-    static QwtSplinePolynom fromCurvatures(
+    static QwtSplinePolynomial fromCurvatures(
         double dx, double dy, double cv1, double cv2 );
 
 public:
-    double c1;
-    double c2;
     double c3;
+    double c2;
+    double c1;
 };
 
-inline QwtSplinePolynom::QwtSplinePolynom( double a, double b, double c ):
-    c1(c),
+inline QwtSplinePolynomial::QwtSplinePolynomial( double a, double b, double c ):
+    c3(a),
     c2(b),
-    c3(a)
+    c1(c)
 {
 }
 
-inline double QwtSplinePolynom::value( double x ) const
+inline double QwtSplinePolynomial::value( double x ) const
 {
     return ( ( ( c3 * x ) + c2 ) * x + c1 ) * x;
 }   
 
-inline double QwtSplinePolynom::slope( double x ) const
+inline double QwtSplinePolynomial::slope( double x ) const
 {   
     return ( 3.0 * c3 * x + 2.0 * c2 ) * x + c1;
 }
 
-inline double QwtSplinePolynom::curvature( double x ) const
+inline double QwtSplinePolynomial::curvature( double x ) const
 {   
     return 6.0 * c3 * x + 2.0 * c2;
 }
 
-inline QwtSplinePolynom QwtSplinePolynom::fromSlopes( 
+inline QwtSplinePolynomial QwtSplinePolynomial::fromSlopes( 
     const QPointF &p1, double m1, const QPointF &p2, double m2 )
 {
     return fromSlopes( p2.x() - p1.x(), p2.y() - p1.y(), m1, m2 );
 }
 
-inline QwtSplinePolynom QwtSplinePolynom::fromSlopes( 
+inline QwtSplinePolynomial QwtSplinePolynomial::fromSlopes( 
     double x, double y, double m1, double m2 )
 {
     const double c = m1;
     const double b = ( 3.0 * y / x - 2 * m1 - m2 ) / x;
     const double a = ( ( m2 - m1 ) / x - 2.0 * b ) / ( 3.0 * x );
 
-    return QwtSplinePolynom( a, b, c );
+    return QwtSplinePolynomial( a, b, c );
 }
 
-inline QwtSplinePolynom QwtSplinePolynom::fromCurvatures( 
+inline QwtSplinePolynomial QwtSplinePolynomial::fromCurvatures( 
     const QPointF &p1, double cv1, const QPointF &p2, double cv2 )
 {
     return fromCurvatures( p2.x() - p1.x(), p2.y() - p1.y(), cv1, cv2 );
 }
 
-inline QwtSplinePolynom QwtSplinePolynom::fromCurvatures( 
+inline QwtSplinePolynomial QwtSplinePolynomial::fromCurvatures( 
     double x, double y, double cv1, double cv2 )
 {
     const double a = ( cv2 - cv1 ) / ( 6.0 * x );
     const double b = 0.5 * cv1;
     const double c = y / x - ( a * x + b ) * x;
 
-    return QwtSplinePolynom( a, b, c );
+    return QwtSplinePolynomial( a, b, c );
 }
 
-Q_DECLARE_METATYPE( QwtSplinePolynom )
+Q_DECLARE_METATYPE( QwtSplinePolynomial )
 
 #ifndef QT_NO_DEBUG_STREAM
-inline QDebug operator<<( QDebug debug, const QwtSplinePolynom &p )
+inline QDebug operator<<( QDebug debug, const QwtSplinePolynomial &polynomial )
 {
-    debug.nospace() << "Polynom(" << p.c3 << ", " << p.c2 << ", " << p.c1 << ")";
+    debug.nospace() << "Polynom(" << polynomial.c3 << ", "
+        << polynomial.c2 << ", " << polynomial.c1 << ")";
     return debug.space();
 }
 #endif

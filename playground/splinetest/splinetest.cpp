@@ -146,7 +146,7 @@ protected:
         int numErrors = 0;
 
         double dx1 = p[1].x() - p[0].x();
-        QwtSplinePolynom polynom1 = QwtSplinePolynom::fromSlopes( 
+        QwtSplinePolynomial polynomial1 = QwtSplinePolynomial::fromSlopes( 
             dx1, p[1].y() - p[0].y(), m[0], m[1] );
 
         for ( int i = 1; i < size - 1; i++ )
@@ -154,11 +154,11 @@ protected:
             const double dx2 = p[i+1].x() - p[i].x();
             const double dy2 = p[i+1].y() - p[i].y();
 
-            const QwtSplinePolynom polynom2 = 
-                QwtSplinePolynom::fromSlopes( dx2, dy2, m[i], m[i+1] );
+            const QwtSplinePolynomial polynomial2 = 
+                QwtSplinePolynomial::fromSlopes( dx2, dy2, m[i], m[i+1] );
 
-            const double cv1 = polynom1.curvature( dx1 );
-            const double cv2 = polynom2.curvature( 0.0 );
+            const double cv1 = polynomial1.curvature( dx1 );
+            const double cv2 = polynomial2.curvature( 0.0 );
             if ( !fuzzyCompare( cv1, cv2 ) )
             {
 #if DEBUG_ERRORS > 1
@@ -170,7 +170,7 @@ protected:
             }
 
             dx1 = dx2;
-            polynom1 = polynom2;
+            polynomial1 = polynomial2;
         }
 
         return numErrors;
@@ -181,17 +181,17 @@ protected:
         return ( qFuzzyIsNull(a) && qFuzzyIsNull(b) ) || qFuzzyCompare(a, b);
     }
 
-    QwtSplinePolynom polynom( int index, 
+    QwtSplinePolynomial polynomial( int index, 
         const QPolygonF &points, const QVector<double> &m ) const
     {
-        return QwtSplinePolynom::fromSlopes( 
+        return QwtSplinePolynomial::fromSlopes( 
             points[index], m[index], points[index+1], m[index+1] );
     }
 
-    QwtSplinePolynom polynomCV( int index,
+    QwtSplinePolynomial polynomialCV( int index,
         const QPolygonF &points, const QVector<double> &cv ) const
     {
-        return QwtSplinePolynom::fromCurvatures(
+        return QwtSplinePolynomial::fromCurvatures(
             points[index], cv[index], points[index+1], cv[index+1] );
     }
 
@@ -214,14 +214,14 @@ protected:
     virtual bool verifyStart( const QPolygonF &points, 
         const QVector<double> &, const QVector<double> &cv ) const
     {
-        const QwtSplinePolynom p = polynomCV( 0, points, cv );
+        const QwtSplinePolynomial p = polynomialCV( 0, points, cv );
         return fuzzyCompare( p.c3, 0.0 );
     }
 
     virtual bool verifyEnd( const QPolygonF &points, 
         const QVector<double> &, const QVector<double> &cv ) const
     {
-        const QwtSplinePolynom p = polynomCV( points.size() - 2, points, cv );
+        const QwtSplinePolynomial p = polynomialCV( points.size() - 2, points, cv );
         return fuzzyCompare( p.c3, 0.0 );
     }
 };
@@ -239,8 +239,8 @@ protected:
     virtual bool verifyStart( const QPolygonF &points, 
         const QVector<double> &m, const QVector<double> & ) const
     {
-        const QwtSplinePolynom p1 = polynom( 0, points, m );
-        const QwtSplinePolynom p2 = polynom( 1, points, m );
+        const QwtSplinePolynomial p1 = polynomial( 0, points, m );
+        const QwtSplinePolynomial p2 = polynomial( 1, points, m );
 
         const double b3 = 0.5 * p2.curvature( points[2].x() - points[1].x() );
 
@@ -252,8 +252,8 @@ protected:
     {
         const int n = points.size();
 
-        const QwtSplinePolynom p1 = polynom( n - 2, points, m );
-        const QwtSplinePolynom p2 = polynom( n - 3, points, m );
+        const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
+        const QwtSplinePolynomial p2 = polynomial( n - 3, points, m );
 
         const double b3 = 0.5 * p1.curvature( points[n-1].x() - points[n-2].x() );
 
@@ -274,8 +274,8 @@ protected:
     virtual bool verifyStart( const QPolygonF &points, 
         const QVector<double> &m, const QVector<double> & ) const
     {
-        const QwtSplinePolynom p1 = polynom( 0, points, m );
-        const QwtSplinePolynom p2 = polynom( 1, points, m );
+        const QwtSplinePolynomial p1 = polynomial( 0, points, m );
+        const QwtSplinePolynomial p2 = polynomial( 1, points, m );
 
         return fuzzyCompare( p1.c3, p2.c3 );
     }
@@ -285,8 +285,8 @@ protected:
     {
         const int n = points.size();
 
-        const QwtSplinePolynom p1 = polynom( n - 2, points, m );
-        const QwtSplinePolynom p2 = polynom( n - 3, points, m );
+        const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
+        const QwtSplinePolynomial p2 = polynomial( n - 3, points, m );
 
         return fuzzyCompare( p1.c3, p2.c3 );
     }
@@ -307,8 +307,8 @@ protected:
     {
         const int n = points.size();
 
-        const QwtSplinePolynom p1 = polynom( n - 2, points, m );
-        const QwtSplinePolynom p2 = polynom( 0, points, m );
+        const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
+        const QwtSplinePolynomial p2 = polynomial( 0, points, m );
 
         const double dx = points[n-1].x() - points[n-2].x();
         return( fuzzyCompare( p1.curvature( dx ), p2.curvature( 0.0 ) ) &&
@@ -399,14 +399,14 @@ protected:
     virtual bool verifyStart( const QPolygonF &points, 
         const QVector<double> &, const QVector<double> &cv ) const
     {
-        const QwtSplinePolynom p = polynomCV( 0, points, cv );
+        const QwtSplinePolynomial p = polynomialCV( 0, points, cv );
         return fuzzyCompare( d_valueBegin, 6.0 * p.c3 );
     }
     
     virtual bool verifyEnd( const QPolygonF &points, 
         const QVector<double> &m, const QVector<double> & ) const
     {
-        const QwtSplinePolynom p = polynom( points.size() - 2, points, m );
+        const QwtSplinePolynomial p = polynomial( points.size() - 2, points, m );
         return fuzzyCompare( d_valueEnd, 6.0 * p.c3 );
     }
     

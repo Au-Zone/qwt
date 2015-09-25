@@ -11,7 +11,7 @@
 #define QWT_SPLINE_H 1
 
 #include "qwt_global.h"
-#include "qwt_spline_polynom.h"
+#include "qwt_spline_polynomial.h"
 #include <qpolygon.h>
 #include <qpainterpath.h>
 #include <qmath.h>
@@ -122,7 +122,7 @@ public:
     virtual QVector<double> slopesX( const QPolygonF & ) const = 0;
 
     virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
-    virtual QVector<QwtSplinePolynom> polynomsX( const QPolygonF & ) const;
+    virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
 
 //protected:
     virtual double slopeBegin( const QPolygonF &points, double m1, double m2 ) const;

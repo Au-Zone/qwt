@@ -44,7 +44,7 @@ HEADERS += \
     qwt_spline_local.h \
     qwt_spline_cubic.h \
     qwt_spline_cardinal.h \
-    qwt_spline_polynom.h \
+    qwt_spline_polynomial.h \
     qwt_symbol.h \
     qwt_system_clock.h \
     qwt_text_engine.h \
