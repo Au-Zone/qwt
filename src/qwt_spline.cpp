@@ -501,7 +501,7 @@ double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) 
     const QwtSplinePolynomial pnom = 
         QwtSplinePolynomial::fromSlopes( points[1], m1, points[2], m2 ); 
 
-    const double cv2 = pnom.curvature( 0.0 );
+    const double cv2 = pnom.curvatureAt( 0.0 );
 
     double cv1;
     switch( boundaryCondition() )
@@ -528,7 +528,7 @@ double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) 
         }
         case QwtSplineC1::CubicRunout:
         {
-            cv1 = 2 * cv2 - pnom.curvature( 1.0 );
+            cv1 = 2 * cv2 - pnom.curvatureAt( 1.0 );
             break;
         }
         case QwtSplineC1::Natural:
@@ -540,7 +540,7 @@ double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) 
     const QwtSplinePolynomial pnomBegin =
         QwtSplinePolynomial::fromCurvatures( dx, dy, cv1, cv2 );
 
-    return pnomBegin.slope( 0.0 );
+    return pnomBegin.slopeAt( 0.0 );
 }
 
 double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) const
@@ -566,7 +566,7 @@ double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) co
     const QwtSplinePolynomial pnom = 
         QwtSplinePolynomial::fromSlopes( points[size-3], m1, points[size-2], m2 ); 
 
-    const double cv1 = pnom.curvature( points[size-2].x() - points[size-3].x() );
+    const double cv1 = pnom.curvatureAt( points[size-2].x() - points[size-3].x() );
 
     double cv2;
     switch( boundaryCondition() )
@@ -593,7 +593,7 @@ double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) co
         }
         case QwtSplineC1::CubicRunout:
         {
-            cv2 = 2 * cv1 - pnom.curvature( 0.0 );
+            cv2 = 2 * cv1 - pnom.curvatureAt( 0.0 );
             break;
         }
         case QwtSplineC1::Natural:
@@ -604,7 +604,7 @@ double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) co
     const QwtSplinePolynomial pnomEnd = 
         QwtSplinePolynomial::fromCurvatures( dx, dy, cv1, cv2 );
 
-    return pnomEnd.slope( dx );
+    return pnomEnd.slopeAt( dx );
 }
 
 QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const
@@ -734,7 +734,7 @@ QPolygonF QwtSplineC1::polygonX( int numPoints, const QPolygonF &points ) const
             y0 = p[j].y();
         }
 
-        const double y = y0 + polynomial.value( x - x0 );
+        const double y = y0 + polynomial.valueAt( x - x0 );
         fittedPoints += QPointF( x, y );
     }
 
@@ -804,7 +804,7 @@ QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
         m[i] = polynomial.c1;
     }
 
-    m[n-1] = polynomial.slope( p[n-1].x() - p[n-2].x() );
+    m[n-1] = polynomial.slopeAt( p[n-1].x() - p[n-2].x() );
 
     return slopes;
 }

@@ -24,18 +24,18 @@
   QwtSplinePolynomial is a 3rd degree polynomial 
   of the form: y = c3 * x³ + c2 * x² + c1 * x;
 
-  QwtSplinePolynomial is used as result of a polygon interpolation,
-  and the constant term to translate the polynomial is available
-  from the polygon points.
+  QwtSplinePolynomial is usually used in combination with polygon
+  interpolation, where it is not necessary to store a constant term ( c0 ),
+  as the translation is known from the corresponding polygon points.
  */
 class QWT_EXPORT QwtSplinePolynomial
 {
 public:
     QwtSplinePolynomial( double c3 = 0.0, double c2 = 0.0, double c1 = 0.0 );
 
-    double value( double x ) const;
-    double slope( double x ) const;
-    double curvature( double x ) const;
+    double valueAt( double x ) const;
+    double slopeAt( double x ) const;
+    double curvatureAt( double x ) const;
 
     static QwtSplinePolynomial fromSlopes( 
         const QPointF &p1, double m1, 
@@ -64,17 +64,17 @@ inline QwtSplinePolynomial::QwtSplinePolynomial( double a, double b, double c ):
 {
 }
 
-inline double QwtSplinePolynomial::value( double x ) const
+inline double QwtSplinePolynomial::valueAt( double x ) const
 {
     return ( ( ( c3 * x ) + c2 ) * x + c1 ) * x;
 }   
 
-inline double QwtSplinePolynomial::slope( double x ) const
+inline double QwtSplinePolynomial::slopeAt( double x ) const
 {   
     return ( 3.0 * c3 * x + 2.0 * c2 ) * x + c1;
 }
 
-inline double QwtSplinePolynomial::curvature( double x ) const
+inline double QwtSplinePolynomial::curvatureAt( double x ) const
 {   
     return 6.0 * c3 * x + 2.0 * c2;
 }
