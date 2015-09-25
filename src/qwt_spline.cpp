@@ -808,3 +808,15 @@ QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
 
     return slopes;
 }
+
+QPolygonF QwtSplineC2::polygonX( int numPoints, const QPolygonF &points ) const
+{
+    // TODO
+    return QwtSplineC1::polygonX( numPoints, points );
+}
+
+QVector<QwtSplinePolynomial> QwtSplineC2::polynomialsX( const QPolygonF &points ) const
+{
+    // TODO
+    return QwtSplineC1::polynomialsX( points );
+}

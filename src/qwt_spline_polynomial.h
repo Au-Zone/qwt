@@ -27,6 +27,8 @@
   QwtSplinePolynomial is usually used in combination with polygon
   interpolation, where it is not necessary to store a constant term ( c0 ),
   as the translation is known from the corresponding polygon points.
+
+  \sa QwtSplineC1
  */
 class QWT_EXPORT QwtSplinePolynomial
 {

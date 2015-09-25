@@ -38,8 +38,11 @@ public:
 
     virtual QVector<double> slopesX( const QPolygonF & ) const;
 
-    QPainterPath pathX( const QPolygonF & ) const;
-    QVector<QLineF> bezierControlPointsX( const QPolygonF & ) const;
+    virtual QPainterPath pathX( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlPointsX( const QPolygonF & ) const;
+
+    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
+    virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
 
     virtual uint locality() const;
 

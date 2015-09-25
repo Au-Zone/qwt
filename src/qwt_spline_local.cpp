@@ -503,6 +503,16 @@ QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
     return qwtSplineLocalPath<SlopeStore>( this, points ).slopes;
 }
 
+QPolygonF QwtSplineLocal::polygonX( int numPoints, const QPolygonF &points ) const
+{
+    return QwtSplineC1::polygonX( numPoints, points );
+}
+
+QVector<QwtSplinePolynomial> QwtSplineLocal::polynomialsX( const QPolygonF &points ) const
+{
+    return QwtSplineC1::polynomialsX( points );
+}
+
 uint QwtSplineLocal::locality() const
 {
     switch ( d_type )

@@ -117,7 +117,7 @@ public:
     double boundaryValueEnd() const;
 
     virtual QPainterPath pathP( const QPolygonF & ) const;
-    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const;
+    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF & ) const;
 
     virtual QVector<double> slopesX( const QPolygonF & ) const = 0;
 
@@ -125,8 +125,8 @@ public:
     virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
 
 //protected:
-    virtual double slopeBegin( const QPolygonF &points, double m1, double m2 ) const;
-    virtual double slopeEnd( const QPolygonF &points, double m1, double m2 ) const;
+    virtual double slopeBegin( const QPolygonF &, double slope1, double slope22 ) const;
+    virtual double slopeEnd( const QPolygonF &, double slope11, double slope22 ) const;
 
 private:
     class PrivateData;
@@ -144,7 +144,10 @@ public:
     virtual ~QwtSplineC2();
 
     virtual QPainterPath pathP( const QPolygonF & ) const;
-    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const;
+    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF & ) const;
+
+    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
+    virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
 
     virtual QVector<double> slopesX( const QPolygonF & ) const;
     virtual QVector<double> curvaturesX( const QPolygonF & ) const = 0;
