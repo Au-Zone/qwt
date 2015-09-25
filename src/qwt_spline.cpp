@@ -229,6 +229,48 @@ static inline SplineStore qwtSplineC1PathParam(
     return store;
 }
 
+template< QwtSplinePolynomial toPolynomial( const QPointF &, double, const QPointF &, double ) >
+static QPolygonF qwtPolygonX( int numPoints, 
+    const QPolygonF &points, const QVector<double> values ) 
+{
+    QPolygonF fittedPoints;
+
+    const QPointF *p = points.constData();
+    const double *v = values.constData();
+
+    const double x1 = points.first().x();
+    const double x2 = points.last().x();
+
+    const double delta = ( x2 - x1 ) / ( numPoints - 1 );
+
+    double x0, y0;
+    QwtSplinePolynomial polynomial;
+
+    for ( int i = 0, j = 0; i < numPoints; i++ )
+    {
+        double x = x1 + i * delta;
+        if ( x > x2 )
+            x = x2;
+
+        if ( i == 0 || x > p[j + 1].x() )
+        {
+            while ( x > p[j + 1].x() )
+                j++;
+
+            polynomial = toPolynomial( p[j], v[j], p[j + 1], v[j + 1] );
+
+            x0 = p[j].x();
+            y0 = p[j].y();
+        }
+
+        const double y = y0 + polynomial.valueAt( x - x0 );
+        fittedPoints += QPointF( x, y );
+    }
+
+    return fittedPoints;
+}
+
+
 QwtSpline::QwtSpline():
     d_parametrization( new QwtSplineParametrization( QwtSplineParametrization::ParameterX ) ),
     d_isClosing( false )
@@ -700,45 +742,11 @@ QPolygonF QwtSplineC1::polygonX( int numPoints, const QPolygonF &points ) const
     if ( points.size() <= 2 )
         return points;
 
-    QPolygonF fittedPoints;
-
     const QVector<double> m = slopesX( points );
     if ( m.size() != points.size() )
-        return fittedPoints;
+        return QPolygonF();
 
-    const QPointF *p = points.constData();
-    const double *s = m.constData();
-
-    const double x1 = points.first().x();
-    const double x2 = points.last().x();
-
-    const double delta = ( x2 - x1 ) / ( numPoints - 1 );
-
-    double x0, y0;
-    QwtSplinePolynomial polynomial;
-
-    for ( int i = 0, j = 0; i < numPoints; i++ )
-    {
-        double x = x1 + i * delta;
-        if ( x > x2 )
-            x = x2;
-
-        if ( i == 0 || x > p[j + 1].x() )
-        {
-            while ( x > p[j + 1].x() )
-                j++;
-
-            polynomial = QwtSplinePolynomial::fromSlopes( p[j], s[j], p[j + 1], s[j + 1] );
-
-            x0 = p[j].x();
-            y0 = p[j].y();
-        }
-
-        const double y = y0 + polynomial.valueAt( x - x0 );
-        fittedPoints += QPointF( x, y );
-    }
-
-    return fittedPoints;
+    return qwtPolygonX<QwtSplinePolynomial::fromSlopes>( numPoints, points, m );
 }   
 
 QVector<QwtSplinePolynomial> QwtSplineC1::polynomialsX( const QPolygonF &points ) const
@@ -811,8 +819,14 @@ QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
 
 QPolygonF QwtSplineC2::polygonX( int numPoints, const QPolygonF &points ) const
 {
-    // TODO
-    return QwtSplineC1::polygonX( numPoints, points );
+    if ( points.size() <= 2 )
+        return points;
+
+    const QVector<double> cv = curvaturesX( points );
+    if ( cv.size() != points.size() )
+        return QPolygonF();
+
+    return qwtPolygonX<QwtSplinePolynomial::fromCurvatures>( numPoints, points, cv );
 }
 
 QVector<QwtSplinePolynomial> QwtSplineC2::polynomialsX( const QPolygonF &points ) const
