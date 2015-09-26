@@ -277,6 +277,7 @@ QwtSpline::QwtSpline():
 {
 }
 
+//! Destructor
 QwtSpline::~QwtSpline()
 {
     delete d_parametrization;
@@ -333,6 +334,34 @@ const QwtSplineParametrization *QwtSpline::parametrization() const
     return d_parametrization;
 }
 
+/*! \fn QVector<QLineF> bezierControlLines( const QPolygonF &points ) const
+
+  \brief Interpolate a curve with Bezier curves
+
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns the 2 control points of each curve as QLineF.
+
+  \param points Control points
+  \return Control points of the interpolating Bezier curves
+ */
+
+/*!
+  \brief Interpolate a curve with Bezier curves
+
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns them as QPainterPath.
+
+  The implementation calculates the Bezier control lines first
+  and converts them into painter path elements in an additional loop.
+  
+  \param points Control points
+  \return Painter path, that can be rendered by QPainter
+
+  \note Derived spline classes might overload painterPath() to avoid
+        the extra loops for converting results into a QPainterPath
+
+  \sa bezierControlLines()
+ */
 QPainterPath QwtSpline::painterPath( const QPolygonF &points ) const
 {
     const int n = points.size();
@@ -465,10 +494,12 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
     return path;
 }
 
+//! Constructor
 QwtSplineG1::QwtSplineG1()
 {
 }
 
+//! Destructor
 QwtSplineG1::~QwtSplineG1()
 {
 }
@@ -503,6 +534,7 @@ QwtSplineC1::QwtSplineC1()
     d_data = new PrivateData;
 }
 
+//! Destructor
 QwtSplineC1::~QwtSplineC1()
 {
     delete d_data;
@@ -665,6 +697,23 @@ double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) co
     return pnomEnd.slopeAt( dx );
 }
 
+/*!
+  \brief Calculate an interpolated painter path
+
+  Interpolates a polygon piecewise into cubic Bezier curves
+  and returns them as QPainterPath.
+
+  The implementation calculates the slopes at the control points
+  and converts them into painter path elements in an additional loop.
+  
+  \param points Control points
+  \return QPainterPath Painter path, that can be rendered by QPainter
+
+  \note Derived spline classes might overload painterPath() to avoid
+        the extra loops for converting results into a QPainterPath
+
+  \sa slopesX()
+ */
 QPainterPath QwtSplineC1::painterPath( const QPolygonF &points ) const
 {
     const int n = points.size();
@@ -709,6 +758,15 @@ QPainterPath QwtSplineC1::painterPath( const QPolygonF &points ) const
     return store.path;
 }
 
+/*! 
+  \brief Interpolate a curve with Bezier curves
+    
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns the 2 control points of each curve as QLineF.
+
+  \param points Control points
+  \return Control points of the interpolating Bezier curves
+ */
 QVector<QLineF> QwtSplineC1::bezierControlLines( const QPolygonF &points ) const
 {
     using namespace QwtSplineC1P;
@@ -786,10 +844,20 @@ QwtSplineC2::QwtSplineC2()
 {
 }
 
+//! Destructor
 QwtSplineC2::~QwtSplineC2()
 {
 }
 
+/*!
+  \brief Interpolate a curve with Bezier curves
+
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns them as QPainterPath.
+
+  \param points Control points
+  \return Painter path, that can be rendered by QPainter
+ */
 QPainterPath QwtSplineC2::painterPath( const QPolygonF &points ) const
 {
     // could be implemented from curvaturesX without the extra
@@ -798,6 +866,15 @@ QPainterPath QwtSplineC2::painterPath( const QPolygonF &points ) const
     return QwtSplineC1::painterPath( points );
 }
 
+/*! 
+  \brief Interpolate a curve with Bezier curves
+    
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns the 2 control points of each curve as QLineF.
+
+  \param points Control points
+  \return Control points of the interpolating Bezier curves
+ */
 QVector<QLineF> QwtSplineC2::bezierControlLines( const QPolygonF &points ) const
 {
     // could be implemented from curvaturesX without the extra

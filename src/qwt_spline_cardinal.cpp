@@ -313,6 +313,23 @@ QVector<QLineF> QwtSplineCardinalG1::bezierControlLines(
     return store.controlPoints;
 }
 
+/*!
+  \brief Interpolate a curve with Bezier curves
+
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns them as QPainterPath.
+
+  The implementation calculates the tensions at the control points
+  and converts them into painter path elements in an additional loop.
+  
+  \param points Control points
+  \return QPainterPath Painter path, that can be rendered by QPainter
+
+  \note Derived spline classes might overload painterPath() to avoid
+        the extra loops for converting results into a QPainterPath
+
+  \sa tensions()
+ */
 QPainterPath QwtSplineCardinalG1::painterPath( const QPolygonF &points ) const
 {
     using namespace QwtSplineCardinalG1P;
@@ -336,6 +353,15 @@ QwtSplinePleasing::~QwtSplinePleasing()
 {
 }
 
+/*! 
+  \brief Interpolate a curve with Bezier curves
+
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns them as QPainterPath.
+    
+  \param points Control points
+  \return QPainterPath Painter path, that can be rendered by QPainter
+ */     
 QPainterPath QwtSplinePleasing::painterPath( const QPolygonF &points ) const
 {
     const int size = points.size();

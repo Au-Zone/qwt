@@ -1005,12 +1005,30 @@ QVector<double> QwtSplineCubic::curvaturesX( const QPolygonF &points ) const
     return eqs.store().curvatures();
 }
 
+/*!
+  \brief Interpolate a curve with Bezier curves
+
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns them as QPainterPath.
+
+  \param points Control points
+  \return Painter path, that can be rendered by QPainter
+ */
 QPainterPath QwtSplineCubic::painterPath( const QPolygonF &points ) const
 {   
     // TODO ...
     return QwtSplineC2::painterPath( points );
 }
     
+/*! 
+  \brief Interpolate a curve with Bezier curves
+    
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns the 2 control points of each curve as QLineF.
+
+  \param points Control points
+  \return Control points of the interpolating Bezier curves
+ */
 QVector<QLineF> QwtSplineCubic::bezierControlLines( const QPolygonF &points ) const
 {   
     // TODO ...

@@ -467,6 +467,15 @@ double QwtSplineLocal::tension() const
     return d_tension;
 }
 
+/*!
+  \brief Interpolate a curve with Bezier curves
+
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns them as QPainterPath.
+
+  \param points Control points
+  \return Painter path, that can be rendered by QPainter
+ */
 QPainterPath QwtSplineLocal::painterPath( const QPolygonF &points ) const
 {
     if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
@@ -475,6 +484,15 @@ QPainterPath QwtSplineLocal::painterPath( const QPolygonF &points ) const
     return QwtSplineC1::painterPath( points );
 }
 
+/*! 
+  \brief Interpolate a curve with Bezier curves
+    
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns the 2 control points of each curve as QLineF.
+
+  \param points Control points
+  \return Control points of the interpolating Bezier curves
+ */
 QVector<QLineF> QwtSplineLocal::bezierControlLines( const QPolygonF &points ) const
 {
     if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
@@ -491,6 +509,15 @@ QPainterPath QwtSplineLocal::pathX( const QPolygonF &points ) const
     return qwtSplineLocalPath<PathStore>( this, points).path;
 }
     
+/*! 
+  \brief Interpolate a curve with Bezier curves
+    
+  Interpolates a polygon piecewise with cubic Bezier curves
+  and returns the 2 control points of each curve as QLineF.
+
+  \param points Control points
+  \return Control points of the interpolating Bezier curves
+ */
 QVector<QLineF> QwtSplineLocal::bezierControlPointsX( const QPolygonF &points ) const
 {
     using namespace QwtSplineLocalP;

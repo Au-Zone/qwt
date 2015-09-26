@@ -40,7 +40,6 @@ class QwtSplineParametrization;
 
   Parametric continuity of order n implies geometric continuity of order n, but not vice-versa. 
 */
-
 class QWT_EXPORT QwtSpline
 {
 public:
