@@ -33,8 +33,8 @@ public:
     void setTension( double tension );
     double tension() const;
 
-    virtual QPainterPath pathP( const QPolygonF & ) const;
-    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF & ) const;
+    virtual QPainterPath painterPath( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
 
     virtual QVector<double> slopesX( const QPolygonF & ) const;
 

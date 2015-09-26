@@ -99,20 +99,28 @@ public:
         QwtSplineParametrization::Type type = QwtSplineParametrization::ParameterX;
 
         if ( parameterType == "Uniform" )
+        {
             type = QwtSplineParametrization::ParameterUniform;
+        }
         else if ( parameterType == "Centripetral" )
+        {
             type = QwtSplineParametrization::ParameterCentripetal;
+        }
         else if ( parameterType == "Chordal" )
+        {
             type = QwtSplineParametrization::ParameterChordal;
+        }
         else if ( parameterType == "Manhattan" )
+        {
             type = QwtSplineParametrization::ParameterManhattan;
+        }
 
         d_spline->setParametrization( type );
     }
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
     {
-        const QPainterPath path = d_spline->pathP( points );
+        const QPainterPath path = d_spline->painterPath( points );
 
         const QList<QPolygonF> subPaths = path.toSubpathPolygons();
         if ( subPaths.size() == 1 )
@@ -123,7 +131,7 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        return d_spline->pathP( points );
+        return d_spline->painterPath( points );
     }
 
 private:

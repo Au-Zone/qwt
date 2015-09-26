@@ -1005,16 +1005,16 @@ QVector<double> QwtSplineCubic::curvaturesX( const QPolygonF &points ) const
     return eqs.store().curvatures();
 }
 
-QPainterPath QwtSplineCubic::pathP( const QPolygonF &points ) const
+QPainterPath QwtSplineCubic::painterPath( const QPolygonF &points ) const
 {   
     // TODO ...
-    return QwtSplineC2::pathP( points );
+    return QwtSplineC2::painterPath( points );
 }
     
-QVector<QLineF> QwtSplineCubic::bezierControlPointsP( const QPolygonF &points ) const
+QVector<QLineF> QwtSplineCubic::bezierControlLines( const QPolygonF &points ) const
 {   
     // TODO ...
-    return QwtSplineC2::bezierControlPointsP( points ); 
+    return QwtSplineC2::bezierControlLines( points ); 
 }   
 
 QVector<QwtSplinePolynomial> QwtSplineCubic::polynomialsX( const QPolygonF &points ) const

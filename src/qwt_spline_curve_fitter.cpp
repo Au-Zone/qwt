@@ -93,7 +93,7 @@ QPainterPath QwtSplineCurveFitter::fitCurvePath( const QPolygonF &points ) const
     QPainterPath path;
 
     if ( d_spline )
-        path = d_spline->pathP( points );
+        path = d_spline->painterPath( points );
 
     return path;
 }

@@ -333,7 +333,7 @@ const QwtSplineParametrization *QwtSpline::parametrization() const
     return d_parametrization;
 }
 
-QPainterPath QwtSpline::pathP( const QPolygonF &points ) const
+QPainterPath QwtSpline::painterPath( const QPolygonF &points ) const
 {
     const int n = points.size();
 
@@ -353,7 +353,7 @@ QPainterPath QwtSpline::pathP( const QPolygonF &points ) const
         return path;
     }
 
-    const QVector<QLineF> controlPoints = bezierControlPointsP( points );
+    const QVector<QLineF> controlPoints = bezierControlLines( points );
     if ( controlPoints.size() < n - 1 )
         return path;
 
@@ -373,10 +373,28 @@ QPainterPath QwtSpline::pathP( const QPolygonF &points ) const
     return path;
 }
 
-QPolygonF QwtSpline::polygonP( const QPolygonF &points, 
-    double delta, bool withNodes ) const
+/*!
+  \brief Find an interpolated polygon with "equidistant" points
+
+  When withNodes is disabled all points of the resulting polygon
+  will be equidistant according to the parametrization. Otherwise it
+  also includes all control nodes.
+
+  The implementation calculates the bezier curves first and calculates
+  the equidistant points in a second run.
+
+  \param points Control nodes of the spline
+  \param distance Distance between 2 points according 
+                  to the parametrization
+  \param withNodes When true, also add the control 
+                   nodes ( even if not being equidistant )
+
+  \sa bezierControlLines()
+ */
+QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points, 
+    double distance, bool withNodes ) const
 {
-    if ( delta <= 0.0 )
+    if ( distance <= 0.0 )
         return QPolygonF();
 
     const int n = points.size();
@@ -391,26 +409,24 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
 
     QPolygonF path;
 
-    const QVector<QLineF> controlPoints = bezierControlPointsP( points );
+    const QVector<QLineF> lines = bezierControlLines( points );
 
-    if ( controlPoints.size() < n - 1 )
+    if ( lines.size() < n - 1 )
         return path;
 
     path += points.first();
-    double t = delta;
+    double t = distance;
 
     for ( int i = 0; i < n - 1; i++ )
     {
-#if 1
         const double l = d_parametrization->valueIncrement( points[i], points[i+1] );
-#endif
 
         while ( t < l )
         {
-            path += qwtBezierPoint( points[i], controlPoints[i].p1(),
-                controlPoints[i].p2(), points[i+1], t / l );
+            path += qwtBezierPoint( points[i], lines[i].p1(),
+                lines[i].p2(), points[i+1], t / l );
 
-            t += delta;
+            t += distance;
         }
 
         if ( withNodes )
@@ -420,7 +436,7 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
             else
                 path += points[i+1];
 
-            t = delta;
+            t = distance;
         }
         else
         {
@@ -428,16 +444,16 @@ QPolygonF QwtSpline::polygonP( const QPolygonF &points,
         }
     }
 
-    if ( controlPoints.size() >= n )
+    if ( lines.size() >= n )
     {
         const double l = d_parametrization->valueIncrement( points[n-1], points[0] );
 
         while ( t < l )
         {
-            path += qwtBezierPoint( points[n-1], controlPoints[n-1].p1(),
-                controlPoints[n-1].p2(), points[0], t / l );
+            path += qwtBezierPoint( points[n-1], lines[n-1].p1(),
+                lines[n-1].p2(), points[0], t / l );
 
-            t += delta;
+            t += distance;
         }
 
         if ( qFuzzyCompare( path.last().x(), points[0].x() ) )
@@ -649,11 +665,11 @@ double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) co
     return pnomEnd.slopeAt( dx );
 }
 
-QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const
+QPainterPath QwtSplineC1::painterPath( const QPolygonF &points ) const
 {
     const int n = points.size();
     if ( n <= 2 )
-        return QwtSpline::pathP( points );
+        return QwtSpline::painterPath( points );
 
     using namespace QwtSplineC1P;
 
@@ -693,7 +709,7 @@ QPainterPath QwtSplineC1::pathP( const QPolygonF &points ) const
     return store.path;
 }
 
-QVector<QLineF> QwtSplineC1::bezierControlPointsP( const QPolygonF &points ) const
+QVector<QLineF> QwtSplineC1::bezierControlLines( const QPolygonF &points ) const
 {
     using namespace QwtSplineC1P;
 
@@ -774,20 +790,20 @@ QwtSplineC2::~QwtSplineC2()
 {
 }
 
-QPainterPath QwtSplineC2::pathP( const QPolygonF &points ) const
+QPainterPath QwtSplineC2::painterPath( const QPolygonF &points ) const
 {
     // could be implemented from curvaturesX without the extra
     // loop for calculating the slopes vector. TODO ...
 
-    return QwtSplineC1::pathP( points );
+    return QwtSplineC1::painterPath( points );
 }
 
-QVector<QLineF> QwtSplineC2::bezierControlPointsP( const QPolygonF &points ) const
+QVector<QLineF> QwtSplineC2::bezierControlLines( const QPolygonF &points ) const
 {
     // could be implemented from curvaturesX without the extra
     // loop for calculating the slopes vector. TODO ...
 
-    return QwtSplineC1::bezierControlPointsP( points );
+    return QwtSplineC1::bezierControlLines( points );
 }
 
 QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const

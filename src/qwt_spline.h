@@ -54,11 +54,11 @@ public:
     void setClosing( bool );
     bool isClosing() const;
 
-    virtual QPainterPath pathP( const QPolygonF & ) const;
-    virtual QPolygonF polygonP( const QPolygonF &, 
+    QPolygonF equidistantPolygon( const QPolygonF &, 
         double distance, bool withNodes ) const;
 
-    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const = 0;
+    virtual QPainterPath painterPath( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const = 0;
 
     virtual uint locality() const;
 
@@ -116,8 +116,8 @@ public:
     double boundaryValueBegin() const;
     double boundaryValueEnd() const;
 
-    virtual QPainterPath pathP( const QPolygonF & ) const;
-    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF & ) const;
+    virtual QPainterPath painterPath( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
 
     virtual QVector<double> slopesX( const QPolygonF & ) const = 0;
 
@@ -143,8 +143,8 @@ public:
     QwtSplineC2();
     virtual ~QwtSplineC2();
 
-    virtual QPainterPath pathP( const QPolygonF & ) const;
-    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF & ) const;
+    virtual QPainterPath painterPath( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
 
     virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
     virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;

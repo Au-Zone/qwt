@@ -37,8 +37,8 @@ public:
     QwtSplineCardinalG1();
     virtual ~QwtSplineCardinalG1();
 
-    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const;
-    virtual QPainterPath pathP( const QPolygonF &points ) const;
+    virtual QPainterPath painterPath( const QPolygonF &points ) const;
+    virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const;
 
     virtual QVector<Tension> tensions( const QPolygonF & ) const = 0;
 
@@ -51,8 +51,8 @@ public:
     QwtSplinePleasing();
     virtual ~QwtSplinePleasing();
     
-    virtual QPainterPath pathP( const QPolygonF & ) const;
-    virtual QVector<QLineF> bezierControlPointsP( const QPolygonF &points ) const;
+    virtual QPainterPath painterPath( const QPolygonF & ) const;
+    virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const;
 
     virtual QVector<Tension> tensions( const QPolygonF & ) const;
 };

@@ -467,22 +467,22 @@ double QwtSplineLocal::tension() const
     return d_tension;
 }
 
-QPainterPath QwtSplineLocal::pathP( const QPolygonF &points ) const
+QPainterPath QwtSplineLocal::painterPath( const QPolygonF &points ) const
 {
     if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
         return pathX( points );
 
-    return QwtSplineC1::pathP( points );
+    return QwtSplineC1::painterPath( points );
 }
 
-QVector<QLineF> QwtSplineLocal::bezierControlPointsP( const QPolygonF &points ) const
+QVector<QLineF> QwtSplineLocal::bezierControlLines( const QPolygonF &points ) const
 {
     if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
     {   
         return bezierControlPointsX( points );
     }
 
-    return QwtSplineC1::bezierControlPointsP( points );
+    return QwtSplineC1::bezierControlLines( points );
 }
 
 QPainterPath QwtSplineLocal::pathX( const QPolygonF &points ) const

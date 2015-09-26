@@ -303,7 +303,7 @@ QwtSplineCardinalG1::~QwtSplineCardinalG1()
 {
 }
 
-QVector<QLineF> QwtSplineCardinalG1::bezierControlPointsP( 
+QVector<QLineF> QwtSplineCardinalG1::bezierControlLines( 
     const QPolygonF &points ) const
 {
     using namespace QwtSplineCardinalG1P;
@@ -313,7 +313,7 @@ QVector<QLineF> QwtSplineCardinalG1::bezierControlPointsP(
     return store.controlPoints;
 }
 
-QPainterPath QwtSplineCardinalG1::pathP( const QPolygonF &points ) const
+QPainterPath QwtSplineCardinalG1::painterPath( const QPolygonF &points ) const
 {
     using namespace QwtSplineCardinalG1P;
     PathStore store = qwtSplinePathG1<PathStore>( this, points );
@@ -336,11 +336,11 @@ QwtSplinePleasing::~QwtSplinePleasing()
 {
 }
 
-QPainterPath QwtSplinePleasing::pathP( const QPolygonF &points ) const
+QPainterPath QwtSplinePleasing::painterPath( const QPolygonF &points ) const
 {
     const int size = points.size();
     if ( size <= 2 )
-        return QwtSplineCardinalG1::pathP( points );
+        return QwtSplineCardinalG1::painterPath( points );
 
     using namespace QwtSplineCardinalG1P;
 
@@ -384,11 +384,11 @@ QPainterPath QwtSplinePleasing::pathP( const QPolygonF &points ) const
     return store.path;
 }
 
-QVector<QLineF> QwtSplinePleasing::bezierControlPointsP( 
+QVector<QLineF> QwtSplinePleasing::bezierControlLines( 
     const QPolygonF &points ) const
 {
     // TODO ...
-    return QwtSplineCardinalG1::bezierControlPointsP( points );
+    return QwtSplineCardinalG1::bezierControlLines( points );
 }
 
 QVector<QwtSplineCardinalG1::Tension> 
