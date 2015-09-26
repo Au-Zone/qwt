@@ -230,49 +230,59 @@ static inline SplineStore qwtSplineC1PathParam(
 }
 
 template< QwtSplinePolynomial toPolynomial( const QPointF &, double, const QPointF &, double ) >
-static QPolygonF qwtPolygonX( int numPoints, 
-    const QPolygonF &points, const QVector<double> values ) 
+static QPolygonF qwtPolygonX( double distance,
+    const QPolygonF &points, const QVector<double> values, bool withNodes ) 
 {
     QPolygonF fittedPoints;
 
     const QPointF *p = points.constData();
     const double *v = values.constData();
+    
+    fittedPoints += p[0];
+    double t = distance;
+    
+    const int n = points.size();
 
-    const double x1 = points.first().x();
-    const double x2 = points.last().x();
-
-    const double delta = ( x2 - x1 ) / ( numPoints - 1 );
-
-    double x0, y0;
-    QwtSplinePolynomial polynomial;
-
-    for ( int i = 0, j = 0; i < numPoints; i++ )
+    for ( int i = 0; i < n - 1; i++ )
     {
-        double x = x1 + i * delta;
-        if ( x > x2 )
-            x = x2;
+        const QPointF &p1 = p[i];
+        const QPointF &p2 = p[i+1];
 
-        if ( i == 0 || x > p[j + 1].x() )
+        const QwtSplinePolynomial polynomial = toPolynomial( p1, v[i], p2, v[i+1] );
+            
+        const double l = p2.x() - p1.x();
+        
+        while ( t < l )
         {
-            while ( x > p[j + 1].x() )
-                j++;
-
-            polynomial = toPolynomial( p[j], v[j], p[j + 1], v[j + 1] );
-
-            x0 = p[j].x();
-            y0 = p[j].y();
-        }
-
-        const double y = y0 + polynomial.valueAt( x - x0 );
-        fittedPoints += QPointF( x, y );
-    }
-
+            fittedPoints += QPointF( p1.x() + t, p1.y() + polynomial.valueAt( t ) );
+            t += distance;
+        }   
+        
+        if ( withNodes )
+        {
+            if ( qFuzzyCompare( fittedPoints.last().x(), p2.x() ) )
+                fittedPoints.last() = p2;
+            else
+                fittedPoints += p2;
+        }       
+        else
+        {
+            t -= l;
+        }   
+    }   
+    
     return fittedPoints;
 }
 
+/*!
+  \brief Constructor
 
+  The default setting is a non closing spline with chordal parametrization
+
+  \sa setParametrization(), setClosing()
+ */
 QwtSpline::QwtSpline():
-    d_parametrization( new QwtSplineParametrization( QwtSplineParametrization::ParameterX ) ),
+    d_parametrization( new QwtSplineParametrization( QwtSplineParametrization::ParameterChordal ) ),
     d_isClosing( false )
 {
 }
@@ -301,11 +311,28 @@ uint QwtSpline::locality() const
     return 0;
 }
 
+/*!
+  \brief Set or clear if the interpolation is closing
+
+  When a spline is closing the interpolation includes
+  the line between the last and the first control point.
+
+  The default setting is not closing.
+
+  \sa isClosing(), QwtSplineC1::Periodic
+ */
 void QwtSpline::setClosing( bool on )
 {
     d_isClosing = on;
 }
 
+/*!
+  When a spline is closing the interpolation includes
+  the line between the last and the first control point.
+
+  \return True, when the spline is closing
+  \sa setClosing()
+ */
 bool QwtSpline::isClosing() const
 {
     return d_isClosing;
@@ -406,11 +433,14 @@ QPainterPath QwtSpline::painterPath( const QPolygonF &points ) const
   \brief Find an interpolated polygon with "equidistant" points
 
   When withNodes is disabled all points of the resulting polygon
-  will be equidistant according to the parametrization. Otherwise it
-  also includes all control nodes.
+  will be equidistant according to the parametrization. 
 
-  The implementation calculates the bezier curves first and calculates
-  the equidistant points in a second run.
+  When withNodes is enabled the resulting polygon will also include
+  the control points and the interpolated points are always aligned to
+  the control point before ( points[i] + i * distance ).
+
+  The implementation calculates bezier curves first and calculates
+  the interpolated points in a second run.
 
   \param points Control nodes of the spline
   \param distance Distance between 2 points according 
@@ -438,32 +468,35 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
 
     QPolygonF path;
 
-    const QVector<QLineF> lines = bezierControlLines( points );
+    const QVector<QLineF> controlLines = bezierControlLines( points );
 
-    if ( lines.size() < n - 1 )
+    if ( controlLines.size() < n - 1 )
         return path;
 
     path += points.first();
     double t = distance;
 
+    const QPointF *p = points.constData();
+    const QLineF *cl = controlLines.constData();
+
     for ( int i = 0; i < n - 1; i++ )
     {
-        const double l = d_parametrization->valueIncrement( points[i], points[i+1] );
+        const double l = d_parametrization->valueIncrement( p[i], p[i+1] );
 
         while ( t < l )
         {
-            path += qwtBezierPoint( points[i], lines[i].p1(),
-                lines[i].p2(), points[i+1], t / l );
+            path += qwtBezierPoint( p[i], cl[i].p1(),
+                cl[i].p2(), p[i+1], t / l );
 
             t += distance;
         }
 
         if ( withNodes )
         {
-            if ( qFuzzyCompare( path.last().x(), points[i+1].x() ) )
-                path.last() = points[i+1];
+            if ( qFuzzyCompare( path.last().x(), p[i+1].x() ) )
+                path.last() = p[i+1];
             else
-                path += points[i+1];
+                path += p[i+1];
 
             t = distance;
         }
@@ -473,22 +506,22 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
         }
     }
 
-    if ( lines.size() >= n )
+    if ( isClosing() && ( controlLines.size() >= n ) )
     {
-        const double l = d_parametrization->valueIncrement( points[n-1], points[0] );
+        const double l = d_parametrization->valueIncrement( p[n-1], p[0] );
 
         while ( t < l )
         {
-            path += qwtBezierPoint( points[n-1], lines[n-1].p1(),
-                lines[n-1].p2(), points[0], t / l );
+            path += qwtBezierPoint( p[n-1], cl[n-1].p1(),
+                cl[n-1].p2(), p[0], t / l );
 
             t += distance;
         }
 
-        if ( qFuzzyCompare( path.last().x(), points[0].x() ) )
-            path.last() = points[0];
+        if ( qFuzzyCompare( path.last().x(), p[0].x() ) )
+            path.last() = p[0];
         else 
-            path += points[0];
+            path += p[0];
     }
 
     return path;
@@ -531,6 +564,7 @@ public:
 
 QwtSplineC1::QwtSplineC1()
 {
+    setParametrization( QwtSplineParametrization::ParameterX );
     d_data = new PrivateData;
 }
 
@@ -811,7 +845,8 @@ QVector<QLineF> QwtSplineC1::bezierControlLines( const QPolygonF &points ) const
     return store.controlPoints;
 }
 
-QPolygonF QwtSplineC1::polygonX( int numPoints, const QPolygonF &points ) const
+QPolygonF QwtSplineC1::polygonX( double distance,
+    const QPolygonF &points, bool withNodes ) const
 {
     if ( points.size() <= 2 )
         return points;
@@ -820,7 +855,7 @@ QPolygonF QwtSplineC1::polygonX( int numPoints, const QPolygonF &points ) const
     if ( m.size() != points.size() )
         return QPolygonF();
 
-    return qwtPolygonX<QwtSplinePolynomial::fromSlopes>( numPoints, points, m );
+    return qwtPolygonX<QwtSplinePolynomial::fromSlopes>( distance, points, m, withNodes );
 }   
 
 QVector<QwtSplinePolynomial> QwtSplineC1::polynomialsX( const QPolygonF &points ) const
@@ -910,7 +945,8 @@ QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
     return slopes;
 }
 
-QPolygonF QwtSplineC2::polygonX( int numPoints, const QPolygonF &points ) const
+QPolygonF QwtSplineC2::polygonX( double distance, 
+    const QPolygonF &points, bool withNodes ) const
 {
     if ( points.size() <= 2 )
         return points;
@@ -919,7 +955,7 @@ QPolygonF QwtSplineC2::polygonX( int numPoints, const QPolygonF &points ) const
     if ( cv.size() != points.size() )
         return QPolygonF();
 
-    return qwtPolygonX<QwtSplinePolynomial::fromCurvatures>( numPoints, points, cv );
+    return qwtPolygonX<QwtSplinePolynomial::fromCurvatures>( distance, points, cv, withNodes );
 }
 
 QVector<QwtSplinePolynomial> QwtSplineC2::polynomialsX( const QPolygonF &points ) const

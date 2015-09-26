@@ -39,6 +39,8 @@ class QwtSplineParametrization;
   continuity requires that the underlying parameterization be continuous as well.
 
   Parametric continuity of order n implies geometric continuity of order n, but not vice-versa. 
+
+  QwtSpline is a base class for spline interpolations of any continuity.
 */
 class QWT_EXPORT QwtSpline
 {
@@ -120,7 +122,7 @@ public:
 
     virtual QVector<double> slopesX( const QPolygonF & ) const = 0;
 
-    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
+    virtual QPolygonF polygonX( double distance, const QPolygonF &, bool withNodes ) const;
     virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
 
 //protected:
@@ -145,7 +147,7 @@ public:
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
 
-    virtual QPolygonF polygonX( int numPoints, const QPolygonF & ) const;
+    virtual QPolygonF polygonX( double distance, const QPolygonF &, bool withNodes ) const;
     virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
 
     virtual QVector<double> slopesX( const QPolygonF & ) const;
