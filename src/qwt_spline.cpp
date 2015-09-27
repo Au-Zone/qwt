@@ -151,7 +151,7 @@ namespace QwtSplineC1P
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplineC1PathParametric(
+static inline SplineStore qwtSplineC1Path(
     const QwtSplineC1 *spline, const QPolygonF &points )
 {
     SplineStore store;
@@ -181,7 +181,7 @@ static inline SplineStore qwtSplineC1PathParametric(
 }
 
 template< class SplineStore, class Param >
-static inline SplineStore qwtSplineC1Path( 
+static inline SplineStore qwtSplineC1PathParametric( 
     const QwtSplineC1 *spline, const QPolygonF &points, Param param )
 {
     const int n = points.size();
@@ -769,31 +769,35 @@ QPainterPath QwtSplineC1::painterPath( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplineC1PathParametric<PathStore>( this, points );
+            store = qwtSplineC1Path<PathStore>( this, points );
             break;
         }
         case QwtSplineParametrization::ParameterY:
         {
-           store = qwtSplineC1Path<PathStore>( this, points, paramY() );
+           store = qwtSplineC1PathParametric<PathStore>(
+               this, points, paramY() );
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            store = qwtSplineC1Path<PathStore>( this, points, paramUniform() );
+            store = qwtSplineC1PathParametric<PathStore>(
+                this, points, paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            store = qwtSplineC1Path<PathStore>( this, points, paramCentripetal() );
+            store = qwtSplineC1PathParametric<PathStore>(
+                this, points, paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            store = qwtSplineC1Path<PathStore>( this, points, paramChordal() );
+            store = qwtSplineC1PathParametric<PathStore>(
+                this, points, paramChordal() );
             break;
         }
         default:
         {
-            store = qwtSplineC1Path<PathStore>(
+            store = qwtSplineC1PathParametric<PathStore>(
                 this, points, param( parametrization() ) );
         }
     }
@@ -823,37 +827,37 @@ QVector<QLineF> QwtSplineC1::bezierControlLines( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplineC1PathParametric<ControlPointsStore>(
+            store = qwtSplineC1Path<ControlPointsStore>(
                 this, points );
             break;
         }
         case QwtSplineParametrization::ParameterY:
         {
-            store = qwtSplineC1Path<ControlPointsStore>(
+            store = qwtSplineC1PathParametric<ControlPointsStore>(
                 this, points, paramY() );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            store = qwtSplineC1Path<ControlPointsStore>(
+            store = qwtSplineC1PathParametric<ControlPointsStore>(
                 this, points, paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            store = qwtSplineC1Path<ControlPointsStore>(
+            store = qwtSplineC1PathParametric<ControlPointsStore>(
                 this, points, paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            store = qwtSplineC1Path<ControlPointsStore>(
+            store = qwtSplineC1PathParametric<ControlPointsStore>(
                 this, points, paramChordal() );
             break;
         }
         default:
         {
-            store = qwtSplineC1Path<ControlPointsStore>(
+            store = qwtSplineC1PathParametric<ControlPointsStore>(
                 this, points, param( parametrization() ) );
         }
     }
