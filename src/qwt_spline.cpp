@@ -151,20 +151,19 @@ namespace QwtSplineC1P
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplineC1Path(
+static inline SplineStore qwtSplineC1PathParamX(
     const QwtSplineC1 *spline, const QPolygonF &points )
 {
-    SplineStore store;
-
     const int n = points.size();
 
     const QVector<double> m = spline->slopes( points );
     if ( m.size() != n )
-        return store;
+        return SplineStore();
 
     const QPointF *pd = points.constData();
     const double *md = m.constData();
 
+    SplineStore store;
     store.init( m.size() - 1 );
     store.start( pd[0].x(), pd[0].y() );
 
@@ -175,6 +174,43 @@ static inline SplineStore qwtSplineC1Path(
         store.addCubic( pd[i].x() + dx3, pd[i].y() + md[i] * dx3,
             pd[i+1].x() - dx3, pd[i+1].y() - md[i+1] * dx3,
             pd[i+1].x(), pd[i+1].y() );
+    }
+
+    return store;
+}
+
+template< class SplineStore >
+static inline SplineStore qwtSplineC1PathParamY(
+    const QwtSplineC1 *spline, const QPolygonF &points )
+{
+    const int n = points.size();
+
+	QPolygonF pointsFlipped( n );
+	for ( int i = 0; i < n; i++ )
+	{
+		pointsFlipped[i].setX( points[i].y() );
+		pointsFlipped[i].setY( points[i].x() );
+	}
+
+    const QVector<double> m = spline->slopes( pointsFlipped );
+    if ( m.size() != n )
+        return SplineStore();
+
+    const QPointF *pd = pointsFlipped.constData();
+    const double *md = m.constData();
+
+    SplineStore store;
+    store.init( m.size() - 1 );
+    store.start( pd[0].y(), pd[0].x() );
+
+	QVector<QLineF> lines( n );
+    for ( int i = 0; i < n - 1; i++ )
+    {
+        const double dx3 = ( pd[i+1].x() - pd[i].x() ) / 3.0;
+
+		store.addCubic( pd[i].y() + md[i] * dx3, pd[i].x() + dx3, 
+			pd[i+1].y() - md[i+1] * dx3, pd[i+1].x() - dx3, 
+			pd[i+1].y(), pd[i+1].x() );
     }
 
     return store;
@@ -769,13 +805,13 @@ QPainterPath QwtSplineC1::painterPath( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplineC1Path<PathStore>( this, points );
+            store = qwtSplineC1PathParamX<PathStore>( this, points );
             break;
         }
         case QwtSplineParametrization::ParameterY:
         {
-           store = qwtSplineC1PathParametric<PathStore>(
-               this, points, paramY() );
+            store = qwtSplineC1PathParamY<PathStore>( this, points );
+            break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
@@ -827,14 +863,12 @@ QVector<QLineF> QwtSplineC1::bezierControlLines( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplineC1Path<ControlPointsStore>(
-                this, points );
+            store = qwtSplineC1PathParamX<ControlPointsStore>( this, points );
             break;
         }
         case QwtSplineParametrization::ParameterY:
         {
-            store = qwtSplineC1PathParametric<ControlPointsStore>(
-                this, points, paramY() );
+            store = qwtSplineC1PathParamY<ControlPointsStore>( this, points );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
