@@ -41,6 +41,10 @@ double QwtSplineParametrization::valueIncrement(
         {
             return valueIncrementX( point1, point2 );
         }
+        case QwtSplineParametrization::ParameterY:
+        {
+            return valueIncrementY( point1, point2 );
+        }
         case QwtSplineParametrization::ParameterCentripetal:
         {
             return valueIncrementCentripetal( point1, point2 );
@@ -54,9 +58,12 @@ double QwtSplineParametrization::valueIncrement(
             return valueIncrementManhattan( point1, point2 );
         }
         case QwtSplineParametrization::ParameterUniform:
-        default:
         {
             return valueIncrementUniform( point1, point2 );
+        }
+        default:
+        {
+            return 1;
         }
     }
 }

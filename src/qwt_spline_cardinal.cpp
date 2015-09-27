@@ -35,6 +35,14 @@ namespace QwtSplineCardinalG1P
         }
     };
 
+    struct paramY
+    {
+        inline double operator()( const QPointF &p1, const QPointF &p2 ) const
+        {
+            return QwtSplineParametrization::valueIncrementY( p1, p2 );
+        }
+    };
+
     struct paramUniform
     {
         inline double operator()( const QPointF &p1, const QPointF &p2 ) const
@@ -379,6 +387,12 @@ QPainterPath QwtSplinePleasing::painterPath( const QPolygonF &points ) const
                 isClosing(), QwtSplineCardinalG1P::paramX() );
             break;
         }
+        case QwtSplineParametrization::ParameterY:
+        {
+            store = qwtSplinePathPleasing<PathStore>( points, 
+                isClosing(), QwtSplineCardinalG1P::paramY() );
+            break;
+        }
         case QwtSplineParametrization::ParameterUniform:
         {
             store = qwtSplinePathPleasing<PathStore>( points, 
@@ -431,6 +445,12 @@ QwtSplinePleasing::tensions( const QPolygonF &points ) const
         {
             ts = qwtTensionVectorPleasing( points, 
                 isClosing(), QwtSplineCardinalG1P::paramX() );
+            break;
+        }
+        case QwtSplineParametrization::ParameterY:
+        {
+            ts = qwtTensionVectorPleasing( points, 
+                isClosing(), QwtSplineCardinalG1P::paramY() );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:

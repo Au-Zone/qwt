@@ -53,6 +53,12 @@ public:
         ParameterX,
 
         /*!
+          No parametrization: t[i] = y[i]
+          \sa valueIncrementY()
+         */
+        ParameterY,
+
+        /*!
           Uniform parametrization: t[i] = i;
 
           A very fast parametrization, with good results, when the geometry
@@ -106,6 +112,7 @@ public:
     virtual double valueIncrement( const QPointF &, const QPointF & ) const;
     
     static double valueIncrementX( const QPointF &, const QPointF & );
+    static double valueIncrementY( const QPointF &, const QPointF & );
     static double valueIncrementUniform( const QPointF &, const QPointF & );
     static double valueIncrementChordal( const QPointF &, const QPointF & );
     static double valueIncrementCentripetal( const QPointF &, const QPointF & );
@@ -131,6 +138,20 @@ inline double QwtSplineParametrization::valueIncrementX(
     const QPointF &point1, const QPointF &point2 ) 
 {
     return point2.x() - point1.x();
+}
+
+/*!
+  \brief Calculate the ParameterY value increment for 2 points
+
+  \param point1 First point
+  \param point2 Second point
+
+  \return point2.y() - point1.y();
+ */
+inline double QwtSplineParametrization::valueIncrementY(
+    const QPointF &point1, const QPointF &point2 )
+{
+    return point2.y() - point1.y();
 }
 
 /*!

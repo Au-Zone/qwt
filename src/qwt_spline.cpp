@@ -42,6 +42,14 @@ namespace QwtSplineC1P
         const QwtSplineParametrization *parameter;
     };
 
+    struct paramY
+    {
+        inline double operator()( const QPointF &p1, const QPointF &p2 ) const
+        {
+            return QwtSplineParametrization::valueIncrementY( p1, p2 );
+        }
+    };
+
     struct paramUniform
     {
         inline double operator()( const QPointF &p1, const QPointF &p2 ) const
@@ -764,28 +772,29 @@ QPainterPath QwtSplineC1::painterPath( const QPolygonF &points ) const
             store = qwtSplineC1PathParametric<PathStore>( this, points );
             break;
         }
+        case QwtSplineParametrization::ParameterY:
+        {
+           store = qwtSplineC1Path<PathStore>( this, points, paramY() );
+        }
         case QwtSplineParametrization::ParameterUniform:
         {
-            store = qwtSplineC1Path<PathStore>( this, points, 
-                QwtSplineC1P::paramUniform() );
+            store = qwtSplineC1Path<PathStore>( this, points, paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            store = qwtSplineC1Path<PathStore>( this, points, 
-                QwtSplineC1P::paramCentripetal() );
+            store = qwtSplineC1Path<PathStore>( this, points, paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            store = qwtSplineC1Path<PathStore>( this, points, 
-                QwtSplineC1P::paramChordal() );
+            store = qwtSplineC1Path<PathStore>( this, points, paramChordal() );
             break;
         }
         default:
         {
-            store = qwtSplineC1Path<PathStore>( this, points, 
-                QwtSplineC1P::param( parametrization() ) );
+            store = qwtSplineC1Path<PathStore>(
+                this, points, param( parametrization() ) );
         }
     }
 
@@ -814,31 +823,38 @@ QVector<QLineF> QwtSplineC1::bezierControlLines( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplineC1PathParametric<ControlPointsStore>( this, points );
+            store = qwtSplineC1PathParametric<ControlPointsStore>(
+                this, points );
+            break;
+        }
+        case QwtSplineParametrization::ParameterY:
+        {
+            store = qwtSplineC1Path<ControlPointsStore>(
+                this, points, paramY() );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            store = qwtSplineC1Path<ControlPointsStore>( this, points,
-                QwtSplineC1P::paramUniform() );
+            store = qwtSplineC1Path<ControlPointsStore>(
+                this, points, paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            store = qwtSplineC1Path<ControlPointsStore>( this, points,
-                QwtSplineC1P::paramCentripetal() );
+            store = qwtSplineC1Path<ControlPointsStore>(
+                this, points, paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            store = qwtSplineC1Path<ControlPointsStore>( this, points,
-                QwtSplineC1P::paramChordal() );
+            store = qwtSplineC1Path<ControlPointsStore>(
+                this, points, paramChordal() );
             break;
         }
         default:
         {
-            store = qwtSplineC1Path<ControlPointsStore>( this, points,
-                QwtSplineC1P::param( parametrization() ) );
+            store = qwtSplineC1Path<ControlPointsStore>(
+                this, points, param( parametrization() ) );
         }
     }
 
@@ -852,12 +868,12 @@ QPolygonF QwtSplineC1::equidistantPolygon( const QPolygonF &points,
     {
         if ( points.size() > 2 )
         {
-    		const QVector<double> m = slopes( points );
-    		if ( m.size() != points.size() )
-        		return QPolygonF();
+            const QVector<double> m = slopes( points );
+            if ( m.size() != points.size() )
+                return QPolygonF();
 
-    		return qwtPolygonParametric<QwtSplinePolynomial::fromSlopes>(
-				distance, points, m, withNodes );
+            return qwtPolygonParametric<QwtSplinePolynomial::fromSlopes>(
+                distance, points, m, withNodes );
         }
     }
 
@@ -928,20 +944,20 @@ QVector<QLineF> QwtSplineC2::bezierControlLines( const QPolygonF &points ) const
 QPolygonF QwtSplineC2::equidistantPolygon( const QPolygonF &points,
     double distance, bool withNodes ) const
 {
-	if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
-	{
-		if ( points.size() > 2 )
-		{
-    		const QVector<double> cv = curvatures( points );
-    		if ( cv.size() != points.size() )
-        		return QPolygonF();
+    if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
+    {
+        if ( points.size() > 2 )
+        {
+            const QVector<double> cv = curvatures( points );
+            if ( cv.size() != points.size() )
+                return QPolygonF();
 
-    		return qwtPolygonParametric<QwtSplinePolynomial::fromCurvatures>( 
-				distance, points, cv, withNodes );
-		}
-	}
+            return qwtPolygonParametric<QwtSplinePolynomial::fromCurvatures>( 
+                distance, points, cv, withNodes );
+        }
+    }
 
-	return QwtSplineC1::equidistantPolygon( points, distance, withNodes );
+    return QwtSplineC1::equidistantPolygon( points, distance, withNodes );
 }
 
 QVector<double> QwtSplineC2::slopes( const QPolygonF &points ) const
@@ -979,9 +995,9 @@ QVector<QwtSplinePolynomial> QwtSplineC2::polynomials( const QPolygonF &points )
     if ( curvatures.size() < 2 )
         return polynomials;
 
-	const QPointF *p = points.constData();
-	const double *cv = curvatures.constData();
-	const int n = curvatures.size();
+    const QPointF *p = points.constData();
+    const double *cv = curvatures.constData();
+    const int n = curvatures.size();
     
     for ( int i = 1; i < n; i++ )
     {   
