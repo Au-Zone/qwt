@@ -914,7 +914,7 @@ uint QwtSplineCubic::locality() const
     return 0;
 }
 
-QVector<double> QwtSplineCubic::slopesParametric( const QPolygonF &points ) const
+QVector<double> QwtSplineCubic::slopes( const QPolygonF &points ) const
 {
     using namespace QwtSplineCubicP;
 
@@ -972,7 +972,7 @@ QVector<double> QwtSplineCubic::slopesParametric( const QPolygonF &points ) cons
     return eqs.store().slopes();
 }
 
-QVector<double> QwtSplineCubic::curvaturesParametric( const QPolygonF &points ) const
+QVector<double> QwtSplineCubic::curvatures( const QPolygonF &points ) const
 {
     using namespace QwtSplineCubicP;
 
@@ -1035,9 +1035,9 @@ QVector<QLineF> QwtSplineCubic::bezierControlLines( const QPolygonF &points ) co
     return QwtSplineC2::bezierControlLines( points ); 
 }   
 
-QVector<QwtSplinePolynomial> QwtSplineCubic::polynomialsParametric( const QPolygonF &points ) const
+QVector<QwtSplinePolynomial> QwtSplineCubic::polynomials( const QPolygonF &points ) const
 {
     // TODO ...
-    return QwtSplineC2::polynomialsParametric( points );
+    return QwtSplineC2::polynomials( points );
 }
 

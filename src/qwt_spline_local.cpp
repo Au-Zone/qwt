@@ -507,15 +507,15 @@ QVector<QLineF> QwtSplineLocal::bezierControlLines( const QPolygonF &points ) co
     return QwtSplineC1::bezierControlLines( points );
 }
 
-QVector<double> QwtSplineLocal::slopesParametric( const QPolygonF &points ) const
+QVector<double> QwtSplineLocal::slopes( const QPolygonF &points ) const
 {
     using namespace QwtSplineLocalP;
     return qwtSplineLocalPath<SlopeStore>( this, points ).slopes;
 }
 
-QVector<QwtSplinePolynomial> QwtSplineLocal::polynomialsParametric( const QPolygonF &points ) const
+QVector<QwtSplinePolynomial> QwtSplineLocal::polynomials( const QPolygonF &points ) const
 {
-    return QwtSplineC1::polynomialsParametric( points );
+    return QwtSplineC1::polynomials( points );
 }
 
 uint QwtSplineLocal::locality() const

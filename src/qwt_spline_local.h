@@ -30,16 +30,17 @@ public:
 
     Type type() const;
 
+    virtual uint locality() const;
+
     void setTension( double tension );
     double tension() const;
 
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
 
-    virtual QVector<double> slopesParametric( const QPolygonF & ) const;
-    virtual QVector<QwtSplinePolynomial> polynomialsParametric( const QPolygonF & ) const;
-
-    virtual uint locality() const;
+    // calculating the parametric equations
+    virtual QVector<QwtSplinePolynomial> polynomials( const QPolygonF & ) const;
+    virtual QVector<double> slopes( const QPolygonF & ) const;
 
 private:
     const Type d_type;

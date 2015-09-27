@@ -19,15 +19,15 @@ public:
     QwtSplineCubic();
     virtual ~QwtSplineCubic();
 
+    virtual uint locality() const;
+
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const;
 
-    virtual QVector<QwtSplinePolynomial> polynomialsParametric( const QPolygonF & ) const;
-
-    virtual QVector<double> slopesParametric( const QPolygonF & ) const;
-    virtual QVector<double> curvaturesParametric( const QPolygonF & ) const;
-
-    virtual uint locality() const;
+    // calculating the parametric equations
+    virtual QVector<QwtSplinePolynomial> polynomials( const QPolygonF & ) const;
+    virtual QVector<double> slopes( const QPolygonF & ) const;
+    virtual QVector<double> curvatures( const QPolygonF & ) const;
 
 private:
     class PrivateData;

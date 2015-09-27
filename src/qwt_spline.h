@@ -123,8 +123,9 @@ public:
     virtual QPolygonF equidistantPolygon( const QPolygonF &,
         double distance, bool withNodes ) const;
 
-    virtual QVector<double> slopesParametric( const QPolygonF & ) const = 0;
-    virtual QVector<QwtSplinePolynomial> polynomialsParametric( const QPolygonF & ) const;
+    // calculating the parametric equations
+    virtual QVector<QwtSplinePolynomial> polynomials( const QPolygonF & ) const;
+    virtual QVector<double> slopes( const QPolygonF & ) const = 0;
 
 //protected:
     virtual double slopeBegin( const QPolygonF &, double slope1, double slope22 ) const;
@@ -151,9 +152,10 @@ public:
     virtual QPolygonF equidistantPolygon( const QPolygonF &,
         double distance, bool withNodes ) const;
 
-    virtual QVector<QwtSplinePolynomial> polynomialsParametric( const QPolygonF & ) const;
-    virtual QVector<double> slopesParametric( const QPolygonF & ) const;
-    virtual QVector<double> curvaturesParametric( const QPolygonF & ) const = 0;
+    // calculating the parametric equations
+    virtual QVector<QwtSplinePolynomial> polynomials( const QPolygonF & ) const;
+    virtual QVector<double> slopes( const QPolygonF & ) const;
+    virtual QVector<double> curvatures( const QPolygonF & ) const = 0;
 };
 
 #endif

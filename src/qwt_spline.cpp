@@ -150,7 +150,7 @@ static inline SplineStore qwtSplineC1PathParametric(
 
     const int n = points.size();
 
-    const QVector<double> m = spline->slopesParametric( points );
+    const QVector<double> m = spline->slopes( points );
     if ( m.size() != n )
         return store;
 
@@ -192,8 +192,8 @@ static inline SplineStore qwtSplineC1Path(
         py += QPointF( t, points[i].y() );
     }
 
-    const QVector<double> mx = spline->slopesParametric( px );
-    const QVector<double> my = spline->slopesParametric( py );
+    const QVector<double> mx = spline->slopes( px );
+    const QVector<double> my = spline->slopes( py );
 
     SplineStore store;
     store.init( n - 1 );
@@ -852,24 +852,24 @@ QPolygonF QwtSplineC1::equidistantPolygon( const QPolygonF &points,
     {
         if ( points.size() > 2 )
         {
-    		const QVector<double> slopes = slopesParametric( points );
-    		if ( slopes.size() != points.size() )
+    		const QVector<double> m = slopes( points );
+    		if ( m.size() != points.size() )
         		return QPolygonF();
 
     		return qwtPolygonParametric<QwtSplinePolynomial::fromSlopes>(
-				distance, points, slopes, withNodes );
+				distance, points, m, withNodes );
         }
     }
 
     return QwtSplineG1::equidistantPolygon( points, distance, withNodes );
 }
 
-QVector<QwtSplinePolynomial> QwtSplineC1::polynomialsParametric(
+QVector<QwtSplinePolynomial> QwtSplineC1::polynomials(
     const QPolygonF &points ) const
 {
     QVector<QwtSplinePolynomial> polynomials;
 
-    const QVector<double> m = slopesParametric( points );
+    const QVector<double> m = slopes( points );
     if ( m.size() < 2 )
         return polynomials;
 
@@ -932,7 +932,7 @@ QPolygonF QwtSplineC2::equidistantPolygon( const QPolygonF &points,
 	{
 		if ( points.size() > 2 )
 		{
-    		const QVector<double> cv = curvaturesParametric( points );
+    		const QVector<double> cv = curvatures( points );
     		if ( cv.size() != points.size() )
         		return QPolygonF();
 
@@ -944,9 +944,9 @@ QPolygonF QwtSplineC2::equidistantPolygon( const QPolygonF &points,
 	return QwtSplineC1::equidistantPolygon( points, distance, withNodes );
 }
 
-QVector<double> QwtSplineC2::slopesParametric( const QPolygonF &points ) const
+QVector<double> QwtSplineC2::slopes( const QPolygonF &points ) const
 {
-    const QVector<double> curvatures = curvaturesParametric( points );
+    const QVector<double> curvatures = this->curvatures( points );
     if ( curvatures.size() < 2 )
         return QVector<double>();
     
@@ -971,18 +971,22 @@ QVector<double> QwtSplineC2::slopesParametric( const QPolygonF &points ) const
     return slopes;
 }
 
-QVector<QwtSplinePolynomial> QwtSplineC2::polynomialsParametric( const QPolygonF &points ) const
+QVector<QwtSplinePolynomial> QwtSplineC2::polynomials( const QPolygonF &points ) const
 {
     QVector<QwtSplinePolynomial> polynomials;
     
-    const QVector<double> cv = curvaturesParametric( points );
-    if ( cv.size() < 2 )
+    const QVector<double> curvatures = this->curvatures( points );
+    if ( curvatures.size() < 2 )
         return polynomials;
+
+	const QPointF *p = points.constData();
+	const double *cv = curvatures.constData();
+	const int n = curvatures.size();
     
-    for ( int i = 1; i < cv.size(); i++ )
+    for ( int i = 1; i < n; i++ )
     {   
         polynomials += QwtSplinePolynomial::fromCurvatures(
-            points[i-1], cv[i-1], points[i], cv[i] );
+            p[i-1], cv[i-1], p[i], cv[i] );
     }
     
     return polynomials;
