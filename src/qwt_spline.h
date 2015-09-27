@@ -55,7 +55,7 @@ public:
     void setClosing( bool );
     bool isClosing() const;
 
-    QPolygonF equidistantPolygon( const QPolygonF &, 
+    virtual QPolygonF equidistantPolygon( const QPolygonF &, 
         double distance, bool withNodes ) const;
 
     virtual QPainterPath painterPath( const QPolygonF & ) const;
@@ -120,10 +120,11 @@ public:
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
 
-    virtual QVector<double> slopesX( const QPolygonF & ) const = 0;
+    virtual QPolygonF equidistantPolygon( const QPolygonF &,
+        double distance, bool withNodes ) const;
 
-    virtual QPolygonF polygonX( double distance, const QPolygonF &, bool withNodes ) const;
-    virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
+    virtual QVector<double> slopesParametric( const QPolygonF & ) const = 0;
+    virtual QVector<QwtSplinePolynomial> polynomialsParametric( const QPolygonF & ) const;
 
 //protected:
     virtual double slopeBegin( const QPolygonF &, double slope1, double slope22 ) const;
@@ -147,11 +148,12 @@ public:
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
 
-    virtual QPolygonF polygonX( double distance, const QPolygonF &, bool withNodes ) const;
-    virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
+    virtual QPolygonF equidistantPolygon( const QPolygonF &,
+        double distance, bool withNodes ) const;
 
-    virtual QVector<double> slopesX( const QPolygonF & ) const;
-    virtual QVector<double> curvaturesX( const QPolygonF & ) const = 0;
+    virtual QVector<QwtSplinePolynomial> polynomialsParametric( const QPolygonF & ) const;
+    virtual QVector<double> slopesParametric( const QPolygonF & ) const;
+    virtual QVector<double> curvaturesParametric( const QPolygonF & ) const = 0;
 };
 
 #endif

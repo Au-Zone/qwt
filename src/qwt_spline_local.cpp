@@ -479,7 +479,10 @@ double QwtSplineLocal::tension() const
 QPainterPath QwtSplineLocal::painterPath( const QPolygonF &points ) const
 {
     if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
-        return pathX( points );
+    {
+        using namespace QwtSplineLocalP;
+        return qwtSplineLocalPath<PathStore>( this, points).path;
+    }
 
     return QwtSplineC1::painterPath( points );
 }
@@ -497,42 +500,22 @@ QVector<QLineF> QwtSplineLocal::bezierControlLines( const QPolygonF &points ) co
 {
     if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
     {   
-        return bezierControlPointsX( points );
+        using namespace QwtSplineLocalP;
+        return qwtSplineLocalPath<ControlPointsStore>( this, points ).controlPoints;
     }
 
     return QwtSplineC1::bezierControlLines( points );
 }
 
-QPainterPath QwtSplineLocal::pathX( const QPolygonF &points ) const
-{
-    using namespace QwtSplineLocalP;
-    return qwtSplineLocalPath<PathStore>( this, points).path;
-}
-    
-/*! 
-  \brief Interpolate a curve with Bezier curves
-    
-  Interpolates a polygon piecewise with cubic Bezier curves
-  and returns the 2 control points of each curve as QLineF.
-
-  \param points Control points
-  \return Control points of the interpolating Bezier curves
- */
-QVector<QLineF> QwtSplineLocal::bezierControlPointsX( const QPolygonF &points ) const
-{
-    using namespace QwtSplineLocalP;
-    return qwtSplineLocalPath<ControlPointsStore>( this, points ).controlPoints;
-}
-
-QVector<double> QwtSplineLocal::slopesX( const QPolygonF &points ) const
+QVector<double> QwtSplineLocal::slopesParametric( const QPolygonF &points ) const
 {
     using namespace QwtSplineLocalP;
     return qwtSplineLocalPath<SlopeStore>( this, points ).slopes;
 }
 
-QVector<QwtSplinePolynomial> QwtSplineLocal::polynomialsX( const QPolygonF &points ) const
+QVector<QwtSplinePolynomial> QwtSplineLocal::polynomialsParametric( const QPolygonF &points ) const
 {
-    return QwtSplineC1::polynomialsX( points );
+    return QwtSplineC1::polynomialsParametric( points );
 }
 
 uint QwtSplineLocal::locality() const

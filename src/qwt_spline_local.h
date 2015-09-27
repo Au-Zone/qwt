@@ -36,11 +36,8 @@ public:
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
 
-    virtual QVector<double> slopesX( const QPolygonF & ) const;
-
-    virtual QPainterPath pathX( const QPolygonF & ) const;
-    virtual QVector<QLineF> bezierControlPointsX( const QPolygonF & ) const;
-    virtual QVector<QwtSplinePolynomial> polynomialsX( const QPolygonF & ) const;
+    virtual QVector<double> slopesParametric( const QPolygonF & ) const;
+    virtual QVector<QwtSplinePolynomial> polynomialsParametric( const QPolygonF & ) const;
 
     virtual uint locality() const;
 

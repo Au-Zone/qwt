@@ -143,14 +143,14 @@ namespace QwtSplineC1P
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplineC1PathX(
+static inline SplineStore qwtSplineC1PathParametric(
     const QwtSplineC1 *spline, const QPolygonF &points )
 {
     SplineStore store;
 
     const int n = points.size();
 
-    const QVector<double> m = spline->slopesX( points );
+    const QVector<double> m = spline->slopesParametric( points );
     if ( m.size() != n )
         return store;
 
@@ -173,7 +173,7 @@ static inline SplineStore qwtSplineC1PathX(
 }
 
 template< class SplineStore, class Param >
-static inline SplineStore qwtSplineC1PathParam( 
+static inline SplineStore qwtSplineC1Path( 
     const QwtSplineC1 *spline, const QPolygonF &points, Param param )
 {
     const int n = points.size();
@@ -192,8 +192,8 @@ static inline SplineStore qwtSplineC1PathParam(
         py += QPointF( t, points[i].y() );
     }
 
-    const QVector<double> mx = spline->slopesX( px );
-    const QVector<double> my = spline->slopesX( py );
+    const QVector<double> mx = spline->slopesParametric( px );
+    const QVector<double> my = spline->slopesParametric( py );
 
     SplineStore store;
     store.init( n - 1 );
@@ -230,7 +230,7 @@ static inline SplineStore qwtSplineC1PathParam(
 }
 
 template< QwtSplinePolynomial toPolynomial( const QPointF &, double, const QPointF &, double ) >
-static QPolygonF qwtPolygonX( double distance,
+static QPolygonF qwtPolygonParametric( double distance,
     const QPolygonF &points, const QVector<double> values, bool withNodes ) 
 {
     QPolygonF fittedPoints;
@@ -746,7 +746,7 @@ double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) co
   \note Derived spline classes might overload painterPath() to avoid
         the extra loops for converting results into a QPainterPath
 
-  \sa slopesX()
+  \sa slopesParametric()
  */
 QPainterPath QwtSplineC1::painterPath( const QPolygonF &points ) const
 {
@@ -761,30 +761,30 @@ QPainterPath QwtSplineC1::painterPath( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplineC1PathX<PathStore>( this, points );
+            store = qwtSplineC1PathParametric<PathStore>( this, points );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            store = qwtSplineC1PathParam<PathStore>( this, points, 
+            store = qwtSplineC1Path<PathStore>( this, points, 
                 QwtSplineC1P::paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            store = qwtSplineC1PathParam<PathStore>( this, points, 
+            store = qwtSplineC1Path<PathStore>( this, points, 
                 QwtSplineC1P::paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            store = qwtSplineC1PathParam<PathStore>( this, points, 
+            store = qwtSplineC1Path<PathStore>( this, points, 
                 QwtSplineC1P::paramChordal() );
             break;
         }
         default:
         {
-            store = qwtSplineC1PathParam<PathStore>( this, points, 
+            store = qwtSplineC1Path<PathStore>( this, points, 
                 QwtSplineC1P::param( parametrization() ) );
         }
     }
@@ -814,30 +814,30 @@ QVector<QLineF> QwtSplineC1::bezierControlLines( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            store = qwtSplineC1PathX<ControlPointsStore>( this, points );
+            store = qwtSplineC1PathParametric<ControlPointsStore>( this, points );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            store = qwtSplineC1PathParam<ControlPointsStore>( this, points,
+            store = qwtSplineC1Path<ControlPointsStore>( this, points,
                 QwtSplineC1P::paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            store = qwtSplineC1PathParam<ControlPointsStore>( this, points,
+            store = qwtSplineC1Path<ControlPointsStore>( this, points,
                 QwtSplineC1P::paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            store = qwtSplineC1PathParam<ControlPointsStore>( this, points,
+            store = qwtSplineC1Path<ControlPointsStore>( this, points,
                 QwtSplineC1P::paramChordal() );
             break;
         }
         default:
         {
-            store = qwtSplineC1PathParam<ControlPointsStore>( this, points,
+            store = qwtSplineC1Path<ControlPointsStore>( this, points,
                 QwtSplineC1P::param( parametrization() ) );
         }
     }
@@ -845,24 +845,31 @@ QVector<QLineF> QwtSplineC1::bezierControlLines( const QPolygonF &points ) const
     return store.controlPoints;
 }
 
-QPolygonF QwtSplineC1::polygonX( double distance,
-    const QPolygonF &points, bool withNodes ) const
+QPolygonF QwtSplineC1::equidistantPolygon( const QPolygonF &points,
+    double distance, bool withNodes ) const
 {
-    if ( points.size() <= 2 )
-        return points;
+    if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
+    {
+        if ( points.size() > 2 )
+        {
+    		const QVector<double> slopes = slopesParametric( points );
+    		if ( slopes.size() != points.size() )
+        		return QPolygonF();
 
-    const QVector<double> m = slopesX( points );
-    if ( m.size() != points.size() )
-        return QPolygonF();
+    		return qwtPolygonParametric<QwtSplinePolynomial::fromSlopes>(
+				distance, points, slopes, withNodes );
+        }
+    }
 
-    return qwtPolygonX<QwtSplinePolynomial::fromSlopes>( distance, points, m, withNodes );
-}   
+    return QwtSplineG1::equidistantPolygon( points, distance, withNodes );
+}
 
-QVector<QwtSplinePolynomial> QwtSplineC1::polynomialsX( const QPolygonF &points ) const
+QVector<QwtSplinePolynomial> QwtSplineC1::polynomialsParametric(
+    const QPolygonF &points ) const
 {
     QVector<QwtSplinePolynomial> polynomials;
 
-    const QVector<double> m = slopesX( points );
+    const QVector<double> m = slopesParametric( points );
     if ( m.size() < 2 )
         return polynomials;
 
@@ -918,9 +925,28 @@ QVector<QLineF> QwtSplineC2::bezierControlLines( const QPolygonF &points ) const
     return QwtSplineC1::bezierControlLines( points );
 }
 
-QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
+QPolygonF QwtSplineC2::equidistantPolygon( const QPolygonF &points,
+    double distance, bool withNodes ) const
 {
-    const QVector<double> curvatures = curvaturesX( points );
+	if ( parametrization()->type() == QwtSplineParametrization::ParameterX )
+	{
+		if ( points.size() > 2 )
+		{
+    		const QVector<double> cv = curvaturesParametric( points );
+    		if ( cv.size() != points.size() )
+        		return QPolygonF();
+
+    		return qwtPolygonParametric<QwtSplinePolynomial::fromCurvatures>( 
+				distance, points, cv, withNodes );
+		}
+	}
+
+	return QwtSplineC1::equidistantPolygon( points, distance, withNodes );
+}
+
+QVector<double> QwtSplineC2::slopesParametric( const QPolygonF &points ) const
+{
+    const QVector<double> curvatures = curvaturesParametric( points );
     if ( curvatures.size() < 2 )
         return QVector<double>();
     
@@ -945,24 +971,11 @@ QVector<double> QwtSplineC2::slopesX( const QPolygonF &points ) const
     return slopes;
 }
 
-QPolygonF QwtSplineC2::polygonX( double distance, 
-    const QPolygonF &points, bool withNodes ) const
-{
-    if ( points.size() <= 2 )
-        return points;
-
-    const QVector<double> cv = curvaturesX( points );
-    if ( cv.size() != points.size() )
-        return QPolygonF();
-
-    return qwtPolygonX<QwtSplinePolynomial::fromCurvatures>( distance, points, cv, withNodes );
-}
-
-QVector<QwtSplinePolynomial> QwtSplineC2::polynomialsX( const QPolygonF &points ) const
+QVector<QwtSplinePolynomial> QwtSplineC2::polynomialsParametric( const QPolygonF &points ) const
 {
     QVector<QwtSplinePolynomial> polynomials;
     
-    const QVector<double> cv = curvaturesX( points );
+    const QVector<double> cv = curvaturesParametric( points );
     if ( cv.size() < 2 )
         return polynomials;
     
