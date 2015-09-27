@@ -121,7 +121,7 @@ namespace QwtSplineCardinalG1P
     };
 }
 
-static inline QwtSplineCardinalG1::Tension qwtTension(
+static inline QwtSplineCardinalG1::Tension qwtTensionPleasing(
     double d13, double d23, double d24,
     const QPointF &p1, const QPointF &p2,
     const QPointF &p3, const QPointF &p4 )
@@ -145,7 +145,7 @@ static inline QwtSplineCardinalG1::Tension qwtTension(
 }
 
 template< class Param >
-static inline QVector<QwtSplineCardinalG1::Tension> qwtTensions( 
+static inline QVector<QwtSplineCardinalG1::Tension> qwtTensionVectorPleasing( 
     const QPolygonF &points, bool isClosed, Param param ) 
 {
     const int size = points.size();
@@ -157,7 +157,7 @@ static inline QVector<QwtSplineCardinalG1::Tension> qwtTensions(
     const QPointF &p0 = isClosed ? p[size-1] : p[0];
     double d13 = param(p[0], p[2]);
 
-    t[0] = qwtTension( param(p0, p[1]), param(p[0], p[1]), 
+    t[0] = qwtTensionPleasing( param(p0, p[1]), param(p[0], p[1]), 
         d13, p0, p[0], p[1], p[2] );
 
     for ( int i = 1; i < size - 2; i++ )
@@ -165,7 +165,7 @@ static inline QVector<QwtSplineCardinalG1::Tension> qwtTensions(
         const double d23 = param( p[i], p[i+1] );
         const double d24 = param( p[i], p[i+2] );
 
-        t[i] = qwtTension( d13, d23, d24, p[i-1], p[i], p[i+1], p[i+2] );
+        t[i] = qwtTensionPleasing( d13, d23, d24, p[i-1], p[i], p[i+1], p[i+2] );
 
         d13 = d24;
     }
@@ -173,7 +173,7 @@ static inline QVector<QwtSplineCardinalG1::Tension> qwtTensions(
     const QPointF &pn = isClosed ? p[0] : p[size-1];
     const double d24 = param( p[size-2], pn );
 
-    t[size-2] = qwtTension( d13, param( p[size-2], p[size-1] ), d24,
+    t[size-2] = qwtTensionPleasing( d13, param( p[size-2], p[size-1] ), d24,
         p[size - 3], p[size - 2], p[size - 1], pn );
 
     if ( isClosed )
@@ -181,7 +181,7 @@ static inline QVector<QwtSplineCardinalG1::Tension> qwtTensions(
         const double d34 = param( p[size-1], p[0] );
         const double d35 = param( p[size-1], p[1] );
 
-        t[size-1] = qwtTension( d24, d34, d35, p[size-2], p[size-1], p[0], p[1] );
+        t[size-1] = qwtTensionPleasing( d24, d34, d35, p[size-2], p[size-1], p[0], p[1] );
     }
 
     return tensions2;
@@ -248,7 +248,7 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
     const QPointF &p0 = isClosed ? p[size-1] : p[0];
     double d13 = param(p[0], p[2]);
 
-    const QwtSplineCardinalG1::Tension t0 = qwtTension( 
+    const QwtSplineCardinalG1::Tension t0 = qwtTensionPleasing( 
         param(p0, p[1]), param(p[0], p[1]), d13, p0, p[0], p[1], p[2] );
 
     const QPointF vec0 = ( p[1] - p0 ) * 0.5;
@@ -258,12 +258,12 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
 
     for ( int i = 1; i < size - 2; i++ )
     {
-        const double d23 = param(p[i], p[i+1]);
-        const double d24 = param(p[i], p[i+2]);
+        const double d23 = param( p[i], p[i+1] );
+        const double d24 = param( p[i], p[i+2] );
         const QPointF vec2 = ( p[i+2] - p[i] ) * 0.5;
 
         const QwtSplineCardinalG1::Tension t =
-            qwtTension( d13, d23, d24, p[i-1], p[i], p[i+1], p[i+2] );
+            qwtTensionPleasing( d13, d23, d24, p[i-1], p[i], p[i+1], p[i+2] );
 
         store.addCubic( p[i] + vec1 * t.t1, p[i+1] - vec2 * t.t2, p[i+1] );
 
@@ -274,7 +274,7 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
     const QPointF &pn = isClosed ? p[0] : p[size-1];
     const double d24 = param( p[size-2], pn );
 
-    const QwtSplineCardinalG1::Tension tn = qwtTension( 
+    const QwtSplineCardinalG1::Tension tn = qwtTensionPleasing( 
         d13, param( p[size-2], p[size-1] ), d24, p[size-3], p[size-2], p[size-1], pn );
 
     const QPointF vec2 = 0.5 * ( pn - p[size-2] );
@@ -288,7 +288,7 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
         const QPointF vec3 = 0.5 * ( p[1] - p[size-1] );
 
         const QwtSplineCardinalG1::Tension tn = 
-            qwtTension( d24, d34, d35, p[size-2], p[size-1], p[0], p[1] );
+            qwtTensionPleasing( d24, d34, d35, p[size-2], p[size-1], p[0], p[1] );
         store.addCubic( p[size-1] + vec2 * tn.t1, p[0] - vec3 * tn.t2, p[0] );
     }
 
@@ -429,31 +429,31 @@ QwtSplinePleasing::tensions( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterX:
         {
-            ts = qwtTensions( points, 
+            ts = qwtTensionVectorPleasing( points, 
                 isClosing(), QwtSplineCardinalG1P::paramX() );
             break;
         }
         case QwtSplineParametrization::ParameterUniform:
         {
-            ts = qwtTensions( points, 
+            ts = qwtTensionVectorPleasing( points, 
                 isClosing(), QwtSplineCardinalG1P::paramUniform() );
             break;
         }
         case QwtSplineParametrization::ParameterCentripetal:
         {
-            ts = qwtTensions( points, 
+            ts = qwtTensionVectorPleasing( points, 
                 isClosing(), QwtSplineCardinalG1P::paramCentripetal() );
             break;
         }
         case QwtSplineParametrization::ParameterChordal:
         {
-            ts = qwtTensions( points, 
+            ts = qwtTensionVectorPleasing( points, 
                 isClosing(), QwtSplineCardinalG1P::paramChordal() );
             break;
         }
         default:
         {
-            ts = qwtTensions( points, 
+            ts = qwtTensionVectorPleasing( points, 
                 isClosing(), QwtSplineCardinalG1P::param( parametrization() ) );
         }
     }
