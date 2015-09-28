@@ -181,11 +181,6 @@ Plot::Plot( bool parametric, QWidget *parent ):
     d_marker->setLabelOrientation( Qt::Vertical );
     d_marker->setXValue( 5 );
     d_marker->attach( this );
-    // axes
-
-    setAxisScale( QwtPlot::xBottom, 0.0, 100.0 );
-    setAxisScale( QwtPlot::yLeft, -20.0, 120.0 );
-
     // Avoid jumping when label with 3 digits
     // appear/disappear when scrolling vertically
 
@@ -203,6 +198,9 @@ Plot::Plot( bool parametric, QWidget *parent ):
 
     if ( parametric )
     {
+        setAxisScale( QwtPlot::xBottom, 20.0, 80.0 );
+        setAxisScale( QwtPlot::yLeft, -50.0, 100.0 );
+
         const QSizeF size( 20, 30 );
         const QPointF pos( 40, 50 );
 
@@ -230,6 +228,9 @@ Plot::Plot( bool parametric, QWidget *parent ):
     }
     else
     {
+        setAxisScale( QwtPlot::xBottom, 0.0, 100.0 );
+        setAxisScale( QwtPlot::yLeft, -50.0, 100.0 );
+
         points << QPointF( 10, 30 ) << QPointF( 20, 90 ) << QPointF( 25, 60 )
             << QPointF( 35, 38 ) << QPointF( 42, 40 ) << QPointF( 55, 60 )
             << QPointF( 60, 50 ) << QPointF( 65, 80 ) << QPointF( 73, 30 )
@@ -429,8 +430,6 @@ void Plot::setOverlaying( bool on )
 
     QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
 
-    const int off0 = 0 - 10 * curves.count() / 2;
-
     for ( int i = 0; i < curves.size(); i++ )
     {
         QwtPlotCurve *curve = static_cast<QwtPlotCurve *>( curves[i] );
@@ -441,7 +440,7 @@ void Plot::setOverlaying( bool on )
 
         if ( !on )
         {
-            points.translate( 0.0, off0 + i * 10 );
+            points.translate( 0.0, -10 );
             symbol = new Symbol();
         }
 
