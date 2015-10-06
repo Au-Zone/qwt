@@ -31,38 +31,6 @@ namespace QwtSplinePleasingP
         double t2;
     };
 
-    struct param
-    {
-        param( const QwtSplineParametrization *p ):
-            parameter( p )
-        {
-        }
-
-        inline double operator()( const QPointF &p1, const QPointF &p2 ) const
-        {
-            return parameter->valueIncrement( p1, p2 );
-        }
-
-        const QwtSplineParametrization *parameter;
-    };
-
-    struct paramChordal
-    {
-        inline double operator()( const QPointF &p1, const QPointF &p2 ) const
-        {
-            return QwtSplineParametrization::valueIncrementChordal( p1, p2 );
-        }
-    };
-
-    struct paramManhattan
-    {
-        inline double operator()( const QPointF &p1, const QPointF &p2 ) const
-        {
-            return QwtSplineParametrization::valueIncrementManhattan( p1, p2 );
-        }
-    };
-
-
     class PathStore
     {
     public:
@@ -114,6 +82,22 @@ namespace QwtSplinePleasingP
     private:
         QLineF* d_cp;
     };
+
+    inline double lengthChordal(
+        const QPointF &point1, const QPointF &point2 )
+    {
+        const double dx = point1.x() - point2.x();
+        const double dy = point1.y() - point2.y();
+
+        return qSqrt( dx * dx + dy * dy );
+    }
+
+    inline double lengthManhattan(
+        const QPointF &point1, const QPointF &point2 )
+    {
+        return qAbs( point2.x() - point1.x() ) + qAbs( point2.y() - point1.y() );
+    }
+
 }
 
 static inline QwtSplinePleasingP::Tension qwtTensionPleasing(
@@ -166,9 +150,8 @@ static inline QwtSplinePleasingP::Tension qwtTensionPleasing(
     return tension;
 }
 
-template< class SplineStore, class Param >
-static SplineStore qwtSplinePathPleasing( const QPolygonF &points, 
-    bool isClosed, Param param )
+template< class SplineStore, double length(const QPointF &, const QPointF &) >
+static SplineStore qwtSplinePathPleasing( const QPolygonF &points, bool isClosed )
 {
     using namespace QwtSplinePleasingP;
 
@@ -181,10 +164,10 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
     store.start( p[0] );
 
     const QPointF &p0 = isClosed ? p[size-1] : p[0];
-    double d13 = param(p[0], p[2]);
+    double d13 = length(p[0], p[2]);
 
     const Tension t0 = qwtTensionPleasing( 
-        param(p0, p[1]), param(p[0], p[1]), d13, p0, p[0], p[1], p[2] );
+        length(p0, p[1]), length(p[0], p[1]), d13, p0, p[0], p[1], p[2] );
 
     const QPointF vec0 = ( p[1] - p0 ) * 0.5;
     QPointF vec1 = ( p[2] - p[0] ) * 0.5;
@@ -193,8 +176,8 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
 
     for ( int i = 1; i < size - 2; i++ )
     {
-        const double d23 = param( p[i], p[i+1] );
-        const double d24 = param( p[i], p[i+2] );
+        const double d23 = length( p[i], p[i+1] );
+        const double d24 = length( p[i], p[i+2] );
         const QPointF vec2 = ( p[i+2] - p[i] ) * 0.5;
 
         const Tension t =
@@ -207,18 +190,18 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
     }
 
     const QPointF &pn = isClosed ? p[0] : p[size-1];
-    const double d24 = param( p[size-2], pn );
+    const double d24 = length( p[size-2], pn );
 
     const Tension tn = qwtTensionPleasing( 
-        d13, param( p[size-2], p[size-1] ), d24, p[size-3], p[size-2], p[size-1], pn );
+        d13, length( p[size-2], p[size-1] ), d24, p[size-3], p[size-2], p[size-1], pn );
 
     const QPointF vec2 = 0.5 * ( pn - p[size-2] );
     store.addCubic( p[size-2] + vec1 * tn.t1, p[size-1] - vec2 * tn.t2, p[size-1] );
 
     if ( isClosed )
     {
-        const double d34 = param( p[size-1], p[0] );
-        const double d35 = param( p[size-1], p[1] );
+        const double d34 = length( p[size-1], p[0] );
+        const double d35 = length( p[size-1], p[1] );
 
         const QPointF vec3 = 0.5 * ( p[1] - p[size-1] );
 
@@ -242,6 +225,16 @@ uint QwtSplinePleasing::locality() const
     return 2;
 }
 
+void QwtSplinePleasing::setLengthType( LengthType lengthType )
+{
+    d_lengthType = lengthType;
+}
+
+QwtSplinePleasing::LengthType QwtSplinePleasing::lengthType() const
+{
+    return d_lengthType;
+}
+
 /*! 
   \brief Interpolate a curve with Bezier curves
 
@@ -260,25 +253,15 @@ QPainterPath QwtSplinePleasing::painterPath( const QPolygonF &points ) const
     using namespace QwtSplinePleasingP;
 
     PathStore store;
-    switch( parametrization()->type() )
+    if ( lengthType() == ManhattanLength )
     {
-        case QwtSplineParametrization::ParameterManhattan:
-        {
-            store = qwtSplinePathPleasing<PathStore>( points, 
-                isClosing(), paramManhattan() );
-            break;
-        }
-        case QwtSplineParametrization::ParameterChordal:
-        {
-            store = qwtSplinePathPleasing<PathStore>( points, 
-                isClosing(), paramChordal() );
-            break;
-        }
-        default:
-        {
-            store = qwtSplinePathPleasing<PathStore>( points, 
-                isClosing(), param( parametrization() ) );
-        }
+        store = qwtSplinePathPleasing<PathStore, lengthManhattan>( 
+            points, isClosing() );
+    }
+    else
+    {
+        store = qwtSplinePathPleasing<PathStore, lengthChordal>(
+            points, isClosing() );
     }
 
     if ( isClosing() )
@@ -297,25 +280,15 @@ QVector<QLineF> QwtSplinePleasing::bezierControlLines(
     using namespace QwtSplinePleasingP;
 
     ControlPointsStore store;
-    switch( parametrization()->type() )
+    if ( lengthType() == ManhattanLength )
     {
-        case QwtSplineParametrization::ParameterManhattan:
-        {
-            store = qwtSplinePathPleasing<ControlPointsStore>( points, 
-                isClosing(), paramManhattan() );
-            break;
-        }
-        case QwtSplineParametrization::ParameterChordal:
-        {
-            store = qwtSplinePathPleasing<ControlPointsStore>( points, 
-                isClosing(), paramChordal() );
-            break;
-        }
-        default:
-        {
-            store = qwtSplinePathPleasing<ControlPointsStore>( points, 
-                isClosing(), param( parametrization() ) );
-        }
+        store = qwtSplinePathPleasing<ControlPointsStore, lengthManhattan>(
+            points, isClosing() );
+    }
+    else
+    {
+        store = qwtSplinePathPleasing<ControlPointsStore, lengthChordal>(
+            points, isClosing() );
     }
 
     return store.controlPoints;
