@@ -15,24 +15,13 @@
 class QWT_EXPORT QwtSplinePleasing: public QwtSplineG1
 {
 public:
-    enum LengthType
-    {
-        ChordalLength,
-        ManhattanLength
-    };
-
     QwtSplinePleasing();
     virtual ~QwtSplinePleasing();
-    
-    void setLengthType( LengthType );
-    LengthType lengthType() const;
 
     virtual uint locality() const;
 
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const;
-private:
-    LengthType d_lengthType;
 };
 
 #endif
