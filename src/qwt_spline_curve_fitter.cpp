@@ -8,7 +8,7 @@
  *****************************************************************************/
 
 #include "qwt_spline_curve_fitter.h"
-#include "qwt_spline_cardinal.h"
+#include "qwt_spline_pleasing.h"
 #include "qwt_spline_parametrization.h"
 
 //! Constructor

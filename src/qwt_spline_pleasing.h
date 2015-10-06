@@ -7,8 +7,8 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_SPLINE_CARDINAL_H
-#define QWT_SPLINE_CARDINAL_H 1
+#ifndef QWT_SPLINE_PLEASING_H
+#define QWT_SPLINE_PLEASING_H 1
 
 #include "qwt_spline.h"
 

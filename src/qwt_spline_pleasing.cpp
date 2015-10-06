@@ -7,7 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_spline_cardinal.h"
+#include "qwt_spline_pleasing.h"
 #include "qwt_spline_parametrization.h"
 
 namespace QwtSplineCardinalG1P

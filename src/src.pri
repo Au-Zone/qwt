@@ -43,7 +43,7 @@ HEADERS += \
     qwt_spline_parametrization.h \
     qwt_spline_local.h \
     qwt_spline_cubic.h \
-    qwt_spline_cardinal.h \
+    qwt_spline_pleasing.h \
     qwt_spline_polynomial.h \
     qwt_symbol.h \
     qwt_system_clock.h \
@@ -86,7 +86,7 @@ SOURCES += \
     qwt_spline_parametrization.cpp \
     qwt_spline_local.cpp \
     qwt_spline_cubic.cpp \
-    qwt_spline_cardinal.cpp \
+    qwt_spline_pleasing.cpp \
     qwt_symbol.cpp \
     qwt_system_clock.cpp \
     qwt_text_engine.cpp \

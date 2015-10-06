@@ -33,7 +33,7 @@ win32 {
 }
 else {
 
-    CONFIG           += release
+    CONFIG           += debug
 
     VER_MAJ           = $${QWT_VER_MAJ}
     VER_MIN           = $${QWT_VER_MIN}

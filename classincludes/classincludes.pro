@@ -65,7 +65,6 @@ CLASSHEADERS = \
     QwtSpline \
     QwtSplineC1 \
     QwtSplineC2 \
-    QwtSplineCardinalG1 \
     QwtSplineCubic \
     QwtSplineG1 \
     QwtSplineLocal \
