@@ -138,6 +138,7 @@ static inline QwtSplineCardinalG1::Tension qwtTensionPleasing(
     const bool b2 = ( d24 / 3.0 ) < d23;
 
     QwtSplineCardinalG1::Tension tension;
+#if 0
     if ( b1 && b2 )
     {
         tension.t1 = ( p1 != p2 ) ? ( 1.0 / 3.0 ) : ( 2.0 / 3.0 );
@@ -148,6 +149,32 @@ static inline QwtSplineCardinalG1::Tension qwtTensionPleasing(
         tension.t1 = d23 / ( b1 ? d24 : d13 );
         tension.t2 = d23 / ( b2 ? d13 : d24 );
     }
+#else
+    if ( b1 )
+    {
+        if ( b2 )
+        {
+            tension.t1 = ( p1 != p2 ) ? ( 1.0 / 3.0 ) : ( 2.0 / 3.0 );
+            tension.t2 = ( p3 != p4 ) ? ( 1.0 / 3.0 ) : ( 2.0 / 3.0 );
+        }
+        else
+        {
+            tension.t1 = tension.t2 = d23 / d24;
+        }
+    }
+    else
+    {
+        if ( b2 )
+        {
+            tension.t1 = tension.t2 = d23 / d13;
+        }
+        else
+        {
+            tension.t1 = d23 / d13;
+            tension.t2 = d23 / d24;
+        }
+    }
+#endif
 
     return tension;
 }
