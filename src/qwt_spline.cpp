@@ -185,12 +185,12 @@ static inline SplineStore qwtSplineC1PathParamY(
 {
     const int n = points.size();
 
-	QPolygonF pointsFlipped( n );
-	for ( int i = 0; i < n; i++ )
-	{
-		pointsFlipped[i].setX( points[i].y() );
-		pointsFlipped[i].setY( points[i].x() );
-	}
+    QPolygonF pointsFlipped( n );
+    for ( int i = 0; i < n; i++ )
+    {
+        pointsFlipped[i].setX( points[i].y() );
+        pointsFlipped[i].setY( points[i].x() );
+    }
 
     const QVector<double> m = spline->slopes( pointsFlipped );
     if ( m.size() != n )
@@ -203,14 +203,14 @@ static inline SplineStore qwtSplineC1PathParamY(
     store.init( m.size() - 1 );
     store.start( pd[0].y(), pd[0].x() );
 
-	QVector<QLineF> lines( n );
+    QVector<QLineF> lines( n );
     for ( int i = 0; i < n - 1; i++ )
     {
         const double dx3 = ( pd[i+1].x() - pd[i].x() ) / 3.0;
 
-		store.addCubic( pd[i].y() + md[i] * dx3, pd[i].x() + dx3, 
-			pd[i+1].y() - md[i+1] * dx3, pd[i+1].x() - dx3, 
-			pd[i+1].y(), pd[i+1].x() );
+        store.addCubic( pd[i].y() + md[i] * dx3, pd[i].x() + dx3, 
+            pd[i+1].y() - md[i+1] * dx3, pd[i+1].x() - dx3, 
+            pd[i+1].y(), pd[i+1].x() );
     }
 
     return store;

@@ -12,49 +12,16 @@
 
 #include "qwt_spline.h"
 
-class QWT_EXPORT QwtSplineCardinalG1: public QwtSplineG1
-{
-public:
-    class Tension
-    {
-    public:
-        Tension():
-          t1( 0.0 ),
-          t2( 0.0 )
-        {
-        }
-
-        Tension( double s1, double s2 ):
-            t1( s1 ),
-            t2( s2 )
-        {
-        }
-
-        double t1;
-        double t2;
-    };
-
-    QwtSplineCardinalG1();
-    virtual ~QwtSplineCardinalG1();
-
-    virtual QPainterPath painterPath( const QPolygonF &points ) const;
-    virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const;
-
-    virtual QVector<Tension> tensions( const QPolygonF & ) const = 0;
-
-    virtual uint locality() const;
-};
-
-class QWT_EXPORT QwtSplinePleasing: public QwtSplineCardinalG1
+class QWT_EXPORT QwtSplinePleasing: public QwtSplineG1
 {
 public:
     QwtSplinePleasing();
     virtual ~QwtSplinePleasing();
     
+	virtual uint locality() const;
+
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const;
-
-    virtual QVector<Tension> tensions( const QPolygonF & ) const;
 };
 
 #endif
