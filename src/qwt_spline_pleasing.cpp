@@ -18,6 +18,23 @@ static inline double qwtChordalLength( const QPointF &point1, const QPointF &poi
     return qSqrt( dx * dx + dy * dy );
 }
 
+template< class Param >
+static QPointF qwtVector( Param param,
+    const QPointF &p1, const QPointF &p2 )
+{
+    return ( p2 - p1 ) / param( p1, p2 );
+}
+
+template< class Param >
+static QPointF qwtVectorCardinal( Param param,
+    const QPointF &p1, const QPointF &p2, const QPointF &p3 )
+{
+    const double t1 = param( p1, p2 );
+    const double t2 = param( p2, p3 );
+
+    return t2 * ( p3 - p1 ) / ( t1 + t2 );
+}
+
 namespace QwtSplinePleasingP
 {
     class Tension
@@ -157,8 +174,6 @@ template< class SplineStore, class Param >
 static SplineStore qwtSplinePathPleasing( const QPolygonF &points, 
     bool isClosed, Param param )
 {
-    Q_UNUSED( param )
-
     using namespace QwtSplinePleasingP;
 
     const int size = points.size();
@@ -169,24 +184,42 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
     store.init( isClosed ? size : size - 1 );
     store.start( p[0] );
 
-    const QPointF &p0 = isClosed ? p[size-1] : p[0];
-    double d13 = qwtChordalLength(p[0], p[2]);
+    double d13;
+    QPointF vec1;
 
-    const Tension t0 = qwtTensionPleasing( 
-        qwtChordalLength(p0, p[1]), qwtChordalLength(p[0], p[1]),
-        d13, p0, p[0], p[1], p[2] );
+    if ( isClosed )
+    {
+        d13 = qwtChordalLength(p[0], p[2]);
 
-    const QPointF vec0 = ( p[1] - p0 ) * 0.5;
-    QPointF vec1 = ( p[2] - p[0] ) * 0.5;
+        const Tension t0 = qwtTensionPleasing( 
+            qwtChordalLength( p[size-1], p[1]), qwtChordalLength(p[0], p[1]),
+            d13, p[size-1], p[0], p[1], p[2] );
 
-    store.addCubic( p[0] + vec0 * t0.t1, p[1] - vec1 * t0.t2, p[1] );
+        const QPointF vec0 = qwtVectorCardinal<Param>( param, p[size-1], p[0], p[1] );
+        vec1 = qwtVectorCardinal<Param>( param, p[0], p[1], p[2] );
+
+        store.addCubic( p[0] + vec0 * t0.t1, p[1] - vec1 * t0.t2, p[1] );
+    }
+    else
+    {
+        d13 = qwtChordalLength(p[0], p[2]);
+
+        const Tension t0 = qwtTensionPleasing( 
+            qwtChordalLength( p[0], p[1]), qwtChordalLength(p[0], p[1]),
+            d13,  p[0], p[0], p[1], p[2] );
+
+        const QPointF vec0 = 0.5 * qwtVector<Param>( param, p[0], p[1] );
+        vec1 = qwtVectorCardinal<Param>( param, p[0], p[1], p[2] );
+
+        store.addCubic( p[0] + vec0 * t0.t1, p[1] - vec1 * t0.t2, p[1] );
+    }
 
     for ( int i = 1; i < size - 2; i++ )
     {
         const double d23 = qwtChordalLength( p[i], p[i+1] );
         const double d24 = qwtChordalLength( p[i], p[i+2] );
 
-        const QPointF vec2 = ( p[i+2] - p[i] ) * 0.5;
+        const QPointF vec2 = qwtVectorCardinal<Param>( param, p[i], p[i+1], p[i+2] );
 
         const Tension t = qwtTensionPleasing( 
             d13, d23, d24, p[i-1], p[i], p[i+1], p[i+2] );
@@ -197,25 +230,36 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
         vec1 = vec2;
     }
 
-    const QPointF &pn = isClosed ? p[0] : p[size-1];
-    const double d24 = qwtChordalLength( p[size-2], pn );
-
-    const Tension tn = qwtTensionPleasing( 
-        d13, qwtChordalLength( p[size-2], p[size-1] ), d24, 
-        p[size-3], p[size-2], p[size-1], pn );
-
-    const QPointF vec2 = 0.5 * ( pn - p[size-2] );
-    store.addCubic( p[size-2] + vec1 * tn.t1, p[size-1] - vec2 * tn.t2, p[size-1] );
-
     if ( isClosed )
     {
+        const double d24 = qwtChordalLength( p[size-2], p[0] );
+
+        const Tension tn = qwtTensionPleasing( 
+            d13, qwtChordalLength( p[size-2], p[size-1] ), d24, 
+            p[size-3], p[size-2], p[size-1], p[0] );
+
+        const QPointF vec2 = qwtVectorCardinal<Param>( param, p[size-2], p[size-1], p[0] );
+        store.addCubic( p[size-2] + vec1 * tn.t1, p[size-1] - vec2 * tn.t2, p[size-1] );
+
         const double d34 = qwtChordalLength( p[size-1], p[0] );
         const double d35 = qwtChordalLength( p[size-1], p[1] );
 
-        const QPointF vec3 = 0.5 * ( p[1] - p[size-1] );
+        const Tension tc = qwtTensionPleasing( d24, d34, d35, p[size-2], p[size-1], p[0], p[1] );
 
-        const Tension tn = qwtTensionPleasing( d24, d34, d35, p[size-2], p[size-1], p[0], p[1] );
-        store.addCubic( p[size-1] + vec2 * tn.t1, p[0] - vec3 * tn.t2, p[0] );
+        const QPointF vec3 = qwtVectorCardinal<Param>( param, p[size-1], p[0], p[1] );
+
+        store.addCubic( p[size-1] + vec2 * tc.t1, p[0] - vec3 * tc.t2, p[0] );
+    }
+    else
+    {
+        const double d24 = qwtChordalLength( p[size-2], p[size-1] );
+
+        const Tension tn = qwtTensionPleasing( 
+            d13, qwtChordalLength( p[size-2], p[size-1] ), d24, 
+            p[size-3], p[size-2], p[size-1], p[size-1] );
+
+        const QPointF vec2 = 0.5 * qwtVector<Param>( param, p[size-2], p[size-1] );
+        store.addCubic( p[size-2] + vec1 * tn.t1, p[size-1] - vec2 * tn.t2, p[size-1] );
     }
 
     return store;
