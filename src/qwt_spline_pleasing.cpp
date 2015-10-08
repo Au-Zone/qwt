@@ -223,7 +223,7 @@ static SplineStore qwtSplinePathPleasing( const QPolygonF &points,
 
 QwtSplinePleasing::QwtSplinePleasing()
 {
-    setParametrization( QwtSplineParametrization::Uniform );
+    setParametrization( QwtSplineParametrization::ParameterUniform );
 }
 
 QwtSplinePleasing::~QwtSplinePleasing()
