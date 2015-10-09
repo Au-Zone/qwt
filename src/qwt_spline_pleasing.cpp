@@ -37,21 +37,8 @@ static QPointF qwtVectorCardinal( Param param,
 
 namespace QwtSplinePleasingP
 {
-    class Tension
+    struct Tension
     {
-    public:
-        Tension():
-          t1( 0.0 ),
-          t2( 0.0 )
-        {
-        }
-
-        Tension( double s1, double s2 ):
-            t1( s1 ),
-            t2( s2 )
-        {
-        }
-
         double t1;
         double t2;
     };
