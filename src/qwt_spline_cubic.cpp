@@ -952,7 +952,7 @@ QVector<double> QwtSplineCubic::slopes( const QPolygonF &points ) const
         }
     }
 
-    if ( boundaryCondition() == QwtSplineCubic::Periodic )
+    if ( boundaryCondition() == QwtSplineC1::Periodic )
     {
         EquationSystem2<SlopeStore> eqs;
         eqs.resolve( points );
@@ -985,7 +985,7 @@ QVector<double> QwtSplineCubic::curvatures( const QPolygonF &points ) const
             return QVector<double>();
     }
 
-    if ( boundaryCondition() == QwtSplineCubic::Periodic )
+    if ( boundaryCondition() == QwtSplineC1::Periodic )
     {
         EquationSystem2<CurvatureStore> eqs;
         eqs.resolve( points );

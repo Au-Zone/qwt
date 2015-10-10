@@ -236,8 +236,18 @@ static inline SplineStore qwtSplineC1PathParametric(
         py += QPointF( t, points[i].y() );
     }
 
+    if ( spline->isClosing() )
+    {
+        t += param( points[n-1], points[0] );
+
+        px += QPointF( t, points[0].x() );
+        py += QPointF( t, points[0].y() );
+    }
+
     const QVector<double> mx = spline->slopes( px );
     const QVector<double> my = spline->slopes( py );
+
+    py.clear(); // we don't need it anymore
 
     SplineStore store;
     store.init( n - 1 );
@@ -245,7 +255,11 @@ static inline SplineStore qwtSplineC1PathParametric(
 
     for ( int i = 1; i < n; i++ )
     {
+#if 1
         const double t3 = param( points[i-1], points[i] ) / 3.0;
+#else
+        const double t3 = ( px[i].x() - px[i-1].x() ) / 3.0;
+#endif
 
         const double cx1 = points[i-1].x() + mx[i-1] * t3;
         const double cy1 = points[i-1].y() + my[i-1] * t3;
@@ -260,8 +274,8 @@ static inline SplineStore qwtSplineC1PathParametric(
     {
         const double t3 = param( points[n-1], points[0] ) / 3.0;
 
-        const double cx1 = points[n-1].x() + mx[n-1] * t3;
-        const double cy1 = points[n-1].y() + my[n-1] * t3;
+        const double cx1 = points[n-1].x() + mx[n] * t3;
+        const double cy1 = points[n-1].y() + my[n] * t3;
 
         const double cx2 = points[0].x() - mx[0] * t3;
         const double cy2 = points[0].y() - my[0] * t3;
