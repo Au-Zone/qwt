@@ -199,10 +199,7 @@ inline double QwtSplineParametrization::valueIncrementChordal(
 inline double QwtSplineParametrization::valueIncrementCentripetal(
     const QPointF &point1, const QPointF &point2 )
 {
-    const double dx = point2.x() - point1.x();
-    const double dy = point2.y() - point1.y();
-
-    return qPow( dx * dx + dy * dy, 0.25 );
+    return qSqrt( valueIncrementChordal( point1, point2 ) );
 }
 
 /*!

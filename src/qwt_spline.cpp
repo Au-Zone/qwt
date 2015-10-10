@@ -222,32 +222,42 @@ static inline SplineStore qwtSplineC1PathParametric(
 {
     const int n = points.size();
 
-    QPolygonF px, py;
+    QPolygonF pointsX, pointsY;
+    pointsX.resize( spline->isClosing() ? n + 1 : n );
+    pointsY.resize( spline->isClosing() ? n + 1 : n );
 
-    px += QPointF( 0.0, points[0].x() );
-    py += QPointF( 0.0, points[0].y() );
+    QPointF *px = pointsX.data();
+    QPointF *py = pointsY.data();
+    const QPointF *p = points.constData();
 
     double t = 0.0;
+
+    px[0].rx() = py[0].rx() = t;
+    px[0].ry() = p[0].x();
+    py[0].ry() = p[0].y();
+
     for ( int i = 1; i < n; i++ )
     {
         t += param( points[i-1], points[i] );
 
-        px += QPointF( t, points[i].x() );
-        py += QPointF( t, points[i].y() );
+        px[i].rx() = py[i].rx() = t;
+        px[i].ry() = p[i].x();
+        py[i].ry() = p[i].y();
     }
 
     if ( spline->isClosing() )
     {
         t += param( points[n-1], points[0] );
 
-        px += QPointF( t, points[0].x() );
-        py += QPointF( t, points[0].y() );
+        px[n].rx() = py[n].rx() = t;
+        px[n].ry() = p[0].x();
+        py[n].ry() = p[0].y();
     }
 
-    const QVector<double> mx = spline->slopes( px );
-    const QVector<double> my = spline->slopes( py );
+    const QVector<double> mx = spline->slopes( pointsX );
+    const QVector<double> my = spline->slopes( pointsY );
 
-    py.clear(); // we don't need it anymore
+    pointsY.clear(); // we don't need it anymore
 
     SplineStore store;
     store.init( spline->isClosing() ? n : n - 1 );
@@ -255,7 +265,7 @@ static inline SplineStore qwtSplineC1PathParametric(
 
     for ( int i = 0; i < n - 1; i++ )
     {
-#if 1
+#if 0
         const double t3 = param( points[i], points[i+1] ) / 3.0;
 #else
         const double t3 = ( px[i+1].x() - px[i].x() ) / 3.0;

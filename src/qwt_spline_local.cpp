@@ -172,15 +172,11 @@ static inline void qwtSplineCardinalBoundaries(
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplineCardinalPath( 
-    const QwtSplineLocal *spline, const QPolygonF &points )
+static inline SplineStore qwtSplineCardinal( const QwtSplineLocal *spline,
+    const QPolygonF &points, int boundaryCondition )
 {
     const int size = points.size();
     const QPointF *p = points.constData();
-
-    QwtSplineC1::BoundaryCondition boundaryCondition = spline->boundaryCondition();
-    if ( spline->isClosing() )
-        boundaryCondition = QwtSplineC1::Periodic;
 
     double slopeBegin, slopeEnd;
 
@@ -193,7 +189,9 @@ static inline SplineStore qwtSplineCardinalPath(
             break;
         }
         default:
+        {
             qwtSplineCardinalBoundaries( spline, points, slopeBegin, slopeEnd );
+        }
     }
 
     const double s = 1.0 - spline->tension();
@@ -280,16 +278,44 @@ static inline void qwtSplineAkimaBoundaries(
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplineAkimaPath( 
-    const QwtSplineLocal *spline, const QPolygonF &points )
+static inline SplineStore qwtSplineAkima( const QwtSplineLocal *spline,
+    const QPolygonF &points, int boundaryCondition )
 {
-    double slopeBegin, slopeEnd;
-    qwtSplineAkimaBoundaries( spline, points, slopeBegin, slopeEnd );
-
-    const double s = 1.0 - spline->tension();
-
     const int size = points.size();
     const QPointF *p = points.constData();
+
+    double slopeBegin, slopeEnd;
+
+    switch( boundaryCondition )
+    {
+        case QwtSplineC1::Periodic:
+        {
+            if ( size < 3 )
+            {
+                qwtSplineAkimaBoundaries( spline, points, slopeBegin, slopeEnd );
+            }
+            else
+            {
+                const QPointF p2 = p[0] - ( p[size-1] - p[size-2] );
+                const QPointF p1 = p2 - ( p[size-2] - p[size-3] );
+
+                const double s1 = qwtSlopeP( p1, p2 );
+                const double s2 = qwtSlopeP( p2, p[0] );
+                const double s3 = qwtSlopeP( p[0], p[1] );
+                const double s4 = qwtSlopeP( p[1], p[2] );
+
+                slopeBegin = slopeEnd = qwtAkima( s1, s2, s3, s4 );
+            }
+
+            break;
+        }
+        default:
+        {
+            qwtSplineAkimaBoundaries( spline, points, slopeBegin, slopeEnd );
+        }
+    }
+
+    const double s = 1.0 - spline->tension();
 
     SplineStore store;
     store.init( points );
@@ -359,16 +385,34 @@ static inline void qwtSplineHarmonicMeanBoundaries(
 }
 
 template< class SplineStore >
-static inline SplineStore qwtSplineHarmonicMeanPath( 
-    const QwtSplineLocal *spline, const QPolygonF &points )
+static inline SplineStore qwtSplineHarmonicMean( const QwtSplineLocal *spline,
+    const QPolygonF &points, int boundaryCondition )
 {
-    double slopeBegin, slopeEnd;
-    qwtSplineHarmonicMeanBoundaries( spline, points, slopeBegin, slopeEnd );
-
-    const double s = 1.0 - spline->tension();
-
     const int size = points.size();
     const QPointF *p = points.constData();
+
+    double slopeBegin, slopeEnd;
+    
+    switch( boundaryCondition )
+    {   
+        case QwtSplineC1::Periodic:
+        {
+            const QPointF pn = p[0] - ( p[size-1] - p[size-2] );
+            const QPointF dp1 = p[0] - pn;
+            const QPointF dp2 = p[1] - p[0];
+
+            slopeBegin = slopeEnd =
+                qwtHarmonicMean( dp1.x(), dp1.y(), dp2.x(), dp2.y() );
+
+            break;
+        }
+        default:
+        {
+            qwtSplineHarmonicMeanBoundaries( spline, points, slopeBegin, slopeEnd );
+        }
+    }
+
+    const double s = 1.0 - spline->tension();
 
     SplineStore store;
     store.init( points );
@@ -420,11 +464,16 @@ static inline SplineStore qwtSplineLocalPath(
         return store;
     }
 
+    int boundaryCondition = spline->boundaryCondition();
+    if ( spline->isClosing() )
+        boundaryCondition = QwtSplineC1::Periodic;
+
     switch( spline->type() )
     {   
         case QwtSplineLocal::Cardinal:
         {   
-            store = qwtSplineCardinalPath<SplineStore>( spline, points );
+            store = qwtSplineCardinal<SplineStore>(
+                spline, points, boundaryCondition );
             break;
         }
         case QwtSplineLocal::ParabolicBlending:
@@ -434,12 +483,14 @@ static inline SplineStore qwtSplineLocalPath(
         }
         case QwtSplineLocal::Akima:
         {   
-            store = qwtSplineAkimaPath<SplineStore>( spline, points );
+            store = qwtSplineAkima<SplineStore>(
+                spline, points, boundaryCondition );
             break;
         }
         case QwtSplineLocal::HarmonicMean:
         {   
-            store = qwtSplineHarmonicMeanPath<SplineStore>( spline, points );
+            store = qwtSplineHarmonicMean<SplineStore>(
+                spline, points, boundaryCondition );
             break;
         }
         case QwtSplineLocal::PChip:
