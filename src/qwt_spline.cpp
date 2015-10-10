@@ -250,32 +250,32 @@ static inline SplineStore qwtSplineC1PathParametric(
     py.clear(); // we don't need it anymore
 
     SplineStore store;
-    store.init( n - 1 );
+    store.init( spline->isClosing() ? n : n - 1 );
     store.start( points[0].x(), points[0].y() );
 
-    for ( int i = 1; i < n; i++ )
+    for ( int i = 0; i < n - 1; i++ )
     {
 #if 1
-        const double t3 = param( points[i-1], points[i] ) / 3.0;
+        const double t3 = param( points[i], points[i+1] ) / 3.0;
 #else
-        const double t3 = ( px[i].x() - px[i-1].x() ) / 3.0;
+        const double t3 = ( px[i+1].x() - px[i].x() ) / 3.0;
 #endif
 
-        const double cx1 = points[i-1].x() + mx[i-1] * t3;
-        const double cy1 = points[i-1].y() + my[i-1] * t3;
+        const double cx1 = points[i].x() + mx[i] * t3;
+        const double cy1 = points[i].y() + my[i] * t3;
 
-        const double cx2 = points[i].x() - mx[i] * t3;
-        const double cy2 = points[i].y() - my[i] * t3;
+        const double cx2 = points[i+1].x() - mx[i+1] * t3;
+        const double cy2 = points[i+1].y() - my[i+1] * t3;
 
-        store.addCubic( cx1, cy1, cx2, cy2, points[i].x(), points[i].y() );
+        store.addCubic( cx1, cy1, cx2, cy2, points[i+1].x(), points[i+1].y() );
     }
 
     if ( spline->isClosing() )
     {
         const double t3 = param( points[n-1], points[0] ) / 3.0;
 
-        const double cx1 = points[n-1].x() + mx[n] * t3;
-        const double cy1 = points[n-1].y() + my[n] * t3;
+        const double cx1 = points[n-1].x() + mx[n-1] * t3;
+        const double cy1 = points[n-1].y() + my[n-1] * t3;
 
         const double cx2 = points[0].x() - mx[0] * t3;
         const double cy2 = points[0].y() - my[0] * t3;
@@ -467,18 +467,18 @@ QPainterPath QwtSpline::painterPath( const QPolygonF &points ) const
         return path;
     }
 
-    const QVector<QLineF> controlPoints = bezierControlLines( points );
-    if ( controlPoints.size() < n - 1 )
+    const QVector<QLineF> controlLines = bezierControlLines( points );
+    if ( controlLines.size() < n - 1 )
         return path;
 
     const QPointF *p = points.constData();
-    const QLineF *l = controlPoints.constData();
+    const QLineF *l = controlLines.constData();
 
     path.moveTo( p[0] );
     for ( int i = 0; i < n - 1; i++ )
         path.cubicTo( l[i].p1(), l[i].p2(), p[i+1] );
 
-    if ( controlPoints.size() >= n )
+    if ( isClosing() && controlLines.size() >= n )
     {
         path.cubicTo( l[n-1].p1(), l[n-1].p2(), p[0] );
         path.closeSubpath();

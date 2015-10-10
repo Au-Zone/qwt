@@ -175,13 +175,28 @@ template< class SplineStore >
 static inline SplineStore qwtSplineCardinalPath( 
     const QwtSplineLocal *spline, const QPolygonF &points )
 {
+    const int size = points.size();
+    const QPointF *p = points.constData();
+
+    QwtSplineC1::BoundaryCondition boundaryCondition = spline->boundaryCondition();
+    if ( spline->isClosing() )
+        boundaryCondition = QwtSplineC1::Periodic;
+
     double slopeBegin, slopeEnd;
-    qwtSplineCardinalBoundaries( spline, points, slopeBegin, slopeEnd );
+
+    switch( boundaryCondition )
+    {
+        case QwtSplineC1::Periodic:
+        {
+            const QPointF pn = p[0] - ( p[size-1] - p[size-2] );
+            slopeBegin = slopeEnd = qwtSlopeP( pn, p[1] );
+            break;
+        }
+        default:
+            qwtSplineCardinalBoundaries( spline, points, slopeBegin, slopeEnd );
+    }
 
     const double s = 1.0 - spline->tension();
-
-    const QPointF *p = points.constData();
-    const int size = points.size();
 
     SplineStore store;
     store.init( points );
