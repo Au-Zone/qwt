@@ -670,7 +670,8 @@ double QwtSplineC1::boundaryValueEnd() const
     return d_data->boundaryCondition.value[1];
 }
 
-double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) const
+double QwtSplineC1::slopeBegin( const QPolygonF &points,
+    double slope1, double slope2 ) const
 {
     const int size = points.size();
     if ( size < 2 )
@@ -687,11 +688,11 @@ double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) 
     if ( boundaryCondition() == QwtSplineC1::LinearRunout )
     {
         const double s = dy / dx;
-        return s - boundaryValue * ( s - m1 );
+        return s - boundaryValue * ( s - slope1 );
     }
 
     const QwtSplinePolynomial pnom = 
-        QwtSplinePolynomial::fromSlopes( points[1], m1, points[2], m2 ); 
+        QwtSplinePolynomial::fromSlopes( points[1], slope1, points[2], slope2 ); 
 
     const double cv2 = pnom.curvatureAt( 0.0 );
 
@@ -735,7 +736,8 @@ double QwtSplineC1::slopeBegin( const QPolygonF &points, double m1, double m2 ) 
     return pnomBegin.slopeAt( 0.0 );
 }
 
-double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) const
+double QwtSplineC1::slopeEnd( const QPolygonF &points,
+    double slope1, double slope2 ) const
 {
     const int size = points.size();
     if ( size < 2 )
@@ -752,11 +754,11 @@ double QwtSplineC1::slopeEnd( const QPolygonF &points, double m1, double m2 ) co
     if ( boundaryCondition() == QwtSplineC1::LinearRunout )
     {
         const double s = dy / dx;
-        return s - boundaryValue * ( s - m1 );
+        return s - boundaryValue * ( s - slope1 );
     }
 
-    const QwtSplinePolynomial pnom = 
-        QwtSplinePolynomial::fromSlopes( points[size-3], m1, points[size-2], m2 ); 
+    const QwtSplinePolynomial pnom = QwtSplinePolynomial::fromSlopes(
+         points[size-3], slope1, points[size-2], slope2 ); 
 
     const double cv1 = pnom.curvatureAt( points[size-2].x() - points[size-3].x() );
 
