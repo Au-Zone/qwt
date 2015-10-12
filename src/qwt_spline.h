@@ -127,10 +127,6 @@ public:
     virtual QVector<QwtSplinePolynomial> polynomials( const QPolygonF & ) const;
     virtual QVector<double> slopes( const QPolygonF & ) const = 0;
 
-//protected:
-    virtual double slopeBegin( const QPolygonF &, double slope1, double slope2 ) const;
-    virtual double slopeEnd( const QPolygonF &, double slope1, double slope2 ) const;
-
 private:
     class PrivateData;
     PrivateData *d_data;

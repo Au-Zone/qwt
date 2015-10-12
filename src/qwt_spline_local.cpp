@@ -144,6 +144,140 @@ static inline double qwtHarmonicMean( double s1, double s2 )
     return 0.0;
 }
 
+static double qwtSlopeBegin( const QwtSplineC1 *spline,
+    const QPolygonF &points, double slope1, double slope2 ) 
+{
+    const int size = points.size();
+    if ( size < 2 )
+        return 0.0;
+
+    const double boundaryValue = spline->boundaryValueBegin();
+
+    if ( spline->boundaryCondition() == QwtSplineC1::Clamped )
+        return boundaryValue;
+
+    const double dx = points[1].x() - points[0].x();
+    const double dy = points[1].y() - points[0].y();
+
+    if ( spline->boundaryCondition() == QwtSplineC1::LinearRunout )
+    {
+        const double s = dy / dx;
+        return s - boundaryValue * ( s - slope1 );
+    }
+
+    const QwtSplinePolynomial pnom = 
+        QwtSplinePolynomial::fromSlopes( points[1], slope1, points[2], slope2 ); 
+
+    const double cv2 = pnom.curvatureAt( 0.0 );
+
+    double cv1;
+    switch( spline->boundaryCondition() )
+    {
+        case QwtSplineC1::Clamped2:
+        {
+            cv1 = boundaryValue;
+            break;
+        }
+        case QwtSplineC1::Clamped3:
+        {
+            cv1 = cv2 - 6 * boundaryValue;
+            break;
+        }
+        case QwtSplineC1::NotAKnot:
+        {
+            cv1 = cv2 - 6 * pnom.c3;
+            break;
+        }
+        case QwtSplineC1::ParabolicRunout:
+        {
+            cv1 = cv2;
+            break;
+        }
+        case QwtSplineC1::CubicRunout:
+        {
+            cv1 = 2 * cv2 - pnom.curvatureAt( 1.0 );
+            break;
+        }
+        case QwtSplineC1::Natural:
+        default:
+            cv1 = 0.0;
+    }
+
+
+    const QwtSplinePolynomial pnomBegin =
+        QwtSplinePolynomial::fromCurvatures( dx, dy, cv1, cv2 );
+
+    return pnomBegin.slopeAt( 0.0 );
+}
+
+static double qwtSlopeEnd( const QwtSplineC1 *spline,
+    const QPolygonF &points, double slope1, double slope2 ) 
+{
+    const int size = points.size();
+    if ( size < 2 )
+        return 0.0;
+
+    const double boundaryValue = spline->boundaryValueEnd();
+
+    if ( spline->boundaryCondition() == QwtSplineC1::Clamped )
+        return boundaryValue;
+
+    const double dx = points[size-1].x() - points[size-2].x();
+    const double dy = points[size-1].y() - points[size-2].y();
+
+    if ( spline->boundaryCondition() == QwtSplineC1::LinearRunout )
+    {
+        const double s = dy / dx;
+        return s - boundaryValue * ( s - slope1 );
+    }
+
+    const QwtSplinePolynomial pnom = QwtSplinePolynomial::fromSlopes(
+         points[size-3], slope1, points[size-2], slope2 ); 
+
+    const double cv1 = pnom.curvatureAt( points[size-2].x() - points[size-3].x() );
+
+    double cv2;
+    switch( spline->boundaryCondition() )
+    {
+        case QwtSplineC1::Clamped2:
+        {
+            cv2 = boundaryValue;
+            break;
+        }
+        case QwtSplineC1::NotAKnot:
+        {
+            cv2 = cv1 - 6 * pnom.c3;
+            break;
+        }
+        case QwtSplineC1::Clamped3:
+        {
+            cv2 = cv1 - 6 * boundaryValue;
+            break;
+        }
+        case QwtSplineC1::ParabolicRunout:
+        {
+            cv2 = cv1;
+            break;
+        }
+        case QwtSplineC1::CubicRunout:
+        {
+            cv2 = 2 * cv1 - pnom.curvatureAt( 0.0 );
+            break;
+        }
+        case QwtSplineC1::Natural:
+        default:
+            cv2 = 0.0;
+    }
+
+    const QwtSplinePolynomial pnomEnd = 
+        QwtSplinePolynomial::fromCurvatures( dx, dy, cv1, cv2 );
+
+    return pnomEnd.slopeAt( dx );
+}
+
+
+
+
 static inline void qwtSplineCardinalBoundaries( 
     const QwtSplineLocal *spline, const QPolygonF &points,
     double &slopeBegin, double &slopeEnd )
@@ -164,18 +298,18 @@ static inline void qwtSplineCardinalBoundaries(
     if ( n == 3 )
     {
         const double s0 = qwtSlopeP( p[0], p[1] );
-        slopeEnd = spline->slopeEnd( points, s0, m2 );
-        slopeBegin = spline->slopeBegin( points, m2, slopeEnd );
+        slopeEnd = qwtSlopeEnd( spline, points, s0, m2 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2, slopeEnd );
     }
     else
     {
         const double m3 = qwtSlopeP( p[1], p[3] );
-        slopeBegin = spline->slopeBegin( points, m2, m3 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
 
         const double mn1 = qwtSlopeP( p[n-4], p[n-2] );
         const double mn2 = qwtSlopeP( p[n-3], p[n-1] );
 
-        slopeEnd = spline->slopeEnd( points, mn1, mn2 );
+        slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
     }
 }
 
@@ -246,8 +380,8 @@ static inline void qwtSplineAkimaBoundaries(
         const double s2 = qwtSlopeP( p[1], p[2] );
         const double m = qwtAkima( s1, s1, s2, s2 );
 
-        slopeBegin = spline->slopeBegin( points, m, s2 );
-        slopeEnd = spline->slopeEnd( points, slopeBegin, m );
+        slopeBegin = qwtSlopeBegin( spline, points, m, s2 );
+        slopeEnd = qwtSlopeEnd( spline, points, slopeBegin, m );
     }
     else if ( n == 4 )
     {
@@ -258,8 +392,8 @@ static inline void qwtSplineAkimaBoundaries(
         const double m2 = qwtAkima( s1, s1, s2, s2 );
         const double m3 = qwtAkima( s2, s2, s3, s3 );
 
-        slopeBegin = spline->slopeBegin( points, m2, m3 );
-        slopeEnd = spline->slopeEnd( points, m2, m3 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
+        slopeEnd = qwtSlopeEnd( spline, points, m2, m3 );
     }
     else
     {
@@ -273,7 +407,7 @@ static inline void qwtSplineAkimaBoundaries(
         const double m2 = qwtAkima( s[0], s[0], s[1], s[1] );
         const double m3 = qwtAkima( s[0], s[1], s[2], s[3] );
 
-        slopeBegin = spline->slopeBegin( points, m2, m3 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
 
         for ( int i = 0; i < 4; i++ )
         {
@@ -284,7 +418,7 @@ static inline void qwtSplineAkimaBoundaries(
         const double mn1 = qwtAkima( s[0], s[1], s[2], s[3] );
         const double mn2 = qwtAkima( s[2], s[2], s[3], s[3] );
 
-        slopeEnd = spline->slopeEnd( points, mn1, mn2 );
+        slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
     }
 }
 
@@ -358,8 +492,8 @@ static inline void qwtSplineHarmonicMeanBoundaries(
     if ( n == 3 )
     {
         const double m = qwtHarmonicMean( s1, s2 );
-        slopeBegin = spline->slopeBegin( points, m, s2 );
-        slopeEnd = spline->slopeEnd( points, slopeBegin, m );
+        slopeBegin = qwtSlopeBegin( spline, points, m, s2 );
+        slopeEnd = qwtSlopeEnd( spline, points, slopeBegin, m );
     }
     else
     {
@@ -375,8 +509,8 @@ static inline void qwtSplineHarmonicMeanBoundaries(
         const double mn1 = qwtHarmonicMean( sn1, sn2 );
         const double mn2 = qwtHarmonicMean( sn2, sn3 );
 
-        slopeBegin = spline->slopeBegin( points, m2, m3 );
-        slopeEnd = spline->slopeEnd( points, mn1, mn2 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
+        slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
     }
 }
 
@@ -432,8 +566,8 @@ static inline SplineStore qwtSplineLocal(
     if ( size == 2 )
     {
         const double s0 = qwtSlopeP( points[0], points[1] );
-        const double m1 = spline->slopeBegin( points, s0, s0 ) * spline->tension();
-        const double m2 = spline->slopeEnd( points, s0, s0 ) * spline->tension();
+        const double m1 = qwtSlopeBegin( spline, points, s0, s0 ) * spline->tension();
+        const double m2 = qwtSlopeEnd( spline, points, s0, s0 ) * spline->tension();
 
         store.init( points );
         store.start( points[0], m1 );
