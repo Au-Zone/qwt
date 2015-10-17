@@ -108,6 +108,24 @@ namespace QwtSplineLocalP
     };
 };
 
+static inline double qwtParabolicBlending(
+    double dx01, double s1, double dx12, double s2 )
+{
+    return ( dx12 * s1 + dx01 * s2 ) / ( dx01 + dx12 );
+}
+
+static inline double qwtParabolicBlending( 
+    const QPointF &p0, const QPointF &p1, const QPointF &p2 )
+{
+    const double dx01 = p1.x() - p0.x();
+    const double s1 = ( p1.y() - p0.y() ) / dx01;
+
+    const double dx12 = p2.x() - p1.x();
+    const double s2 = ( p2.y() - p1.y() ) / dx12;
+
+    return qwtParabolicBlending( dx01, s1, dx12, s2 );
+}
+
 static inline double qwtAkima( double s1, double s2, double s3, double s4 )
 {
     if ( ( s1 == s2 ) && ( s3 == s4 ) )
@@ -275,8 +293,81 @@ static double qwtSlopeEnd( const QwtSplineC1 *spline,
     return pnomEnd.slopeAt( dx );
 }
 
+static inline void qwtSplineParabolicBlendingBoundaries(
+    const QwtSplineLocal *spline, const QPolygonF &points,
+    double &slopeBegin, double &slopeEnd )
+{
+    const int n = points.size();
+    const QPointF *p = points.constData();
 
+    if ( spline->isClosing()
+        || ( spline->boundaryCondition() == QwtSplineC1::Periodic ) )
+    {
+        const QPointF pn = p[0] - ( p[n-1] - p[n-2] );
+        slopeBegin = slopeEnd = qwtParabolicBlending( pn, p[0], p[1] );
+        return;
+    }
 
+    if ( n == 3 )
+    {
+        const double s0 = qwtSlopeP( p[0], p[1] );
+        const double m2 = qwtParabolicBlending( p[0], p[1], p[2] );
+
+        slopeEnd = qwtSlopeEnd( spline, points, s0, m2 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2, slopeEnd );
+    }
+    else
+    {
+        const double m2 = qwtParabolicBlending( p[0], p[1], p[2] );
+        const double m3 = qwtParabolicBlending( p[1], p[2], p[3] );
+        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
+
+        const double mn1 = qwtParabolicBlending( p[n-4], p[n-3], p[n-2] );
+        const double mn2 = qwtParabolicBlending( p[n-3], p[n-2], p[n-1] );
+        slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
+    }
+}
+
+template< class SplineStore >
+static inline SplineStore qwtSplineParabolicBlending(
+    const QwtSplineLocal *spline, const QPolygonF &points )
+{
+    Q_UNUSED( spline )
+
+    const int size = points.size();
+    const QPointF *p = points.constData();
+
+    double slopeBegin, slopeEnd; 
+    qwtSplineParabolicBlendingBoundaries( spline, points, slopeBegin, slopeEnd );
+
+    const double s = 1.0 - spline->tension();
+
+    SplineStore store;
+    store.init( points );
+    store.start( p[0], s * slopeBegin );
+
+    double dx01 = p[1].x() - p[0].x();
+    double s1 = ( p[1].y() - p[0].y() ) / dx01;
+    double m1 = slopeBegin;
+
+    for ( int i = 1; i < size - 1; i++ )
+    {
+        const double dx12 = p[i+1].x() - p[i].x();
+        const double s2 = ( p[i+1].y() - p[i].y() ) / dx12;
+
+        const double m2 = qwtParabolicBlending( dx01, s1, dx12, s2 );
+
+        store.addCubic( p[i-1], m1, p[i], m2 );
+
+        dx01 = dx12;
+        s1 = s2;
+        m1 = m2;
+    }
+
+    store.addCubic( p[size-2], s * m1, p[size-1], s * slopeEnd );
+
+    return store;
+}
 
 static inline void qwtSplineCardinalBoundaries( 
     const QwtSplineLocal *spline, const QPolygonF &points,
@@ -585,7 +676,7 @@ static inline SplineStore qwtSplineLocal(
         }
         case QwtSplineLocal::ParabolicBlending:
         {   
-            // Bessel: not implemented
+            store = qwtSplineParabolicBlending<SplineStore>( spline, points );
             break;
         }
         case QwtSplineLocal::Akima:
@@ -703,12 +794,12 @@ uint QwtSplineLocal::locality() const
             // polynoms: 3 left, 3 right
             return 3;
         }
+        case ParabolicBlending:
         case HarmonicMean:
         {
             // polynoms: 1 left, 1 right
             return 1;
         }
-        case ParabolicBlending:
         case PChip:
         {
             // not implemented

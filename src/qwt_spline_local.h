@@ -19,7 +19,7 @@ public:
     enum Type
     {
         Cardinal,
-        ParabolicBlending, // not implemented
+        ParabolicBlending,
         Akima,
         HarmonicMean,
         PChip // not implemented
