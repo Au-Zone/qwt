@@ -644,12 +644,12 @@ static inline SplineStore qwtSplineHarmonicMean( const QwtSplineLocal *spline,
     return store; 
 }
 
-static inline bool qwtPChipSignTest( double a, double b )
+static inline bool qwtIsStrictlyMonotonic( double s1, double s2 )
 {
-    if ( a == 0.0 || b == 0.0 )
+    if ( s1 == 0.0 || s2 == 0.0 )
         return false;
 
-    return ( a > 0.0 ) == ( b > 0.0 );
+    return ( s1 > 0.0 ) == ( s2 > 0.0 );
 }
 
 template< class SplineStore >
@@ -678,34 +678,34 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
     for ( int i = 1 ; i < size - 1; i++ )
     {
         const double dx2   = p[i+1].x() - p[i].x() ;
-        const double s2 = ( p[i+1].y() - p[i].y() ) / dx2 ;
+        const double s2 = ( p[i+1].y() - p[i].y() ) / dx2;
 
         double m2;
-        if ( qwtPChipSignTest( s1, s2 ) )
+
+        if ( qwtIsStrictlyMonotonic( s1, s2 ) ) 
         {
+            // brodlie/butland formula
+
             const double dx12 = dx1 + dx2;
 
-            const double smax = qMax( qAbs( s1 ), qAbs( s2 ) ) ;
-            const double smin = qMin( qAbs( s1 ), qAbs( s2 ) ) ;
-            
             const double w1 = ( 1.0 + dx1 / dx12 );
-            const double w2 = ( 1.0 + dx2 / dx12 );
+            const double w2 = ( 1.0 + dx2 / dx12 ) ;
 
-            m2 = smin / smax * ( w1 * s1 + w2 * s2 ) / 3.0;
+            m2 = 3.0 * s1 * s2 / ( w1 * s1 + w2 * s2 );
         }
         else
         {
             m2 = 0.0;
         }
 
-        store.addCubic( p[i-1], m1, p[i], m2 );
+        store.addCubic( p[i-1], s * m1, p[i], s * m2 );
 
         dx1 = dx2 ;
         s1 = s2 ;
-        m1 = m2 ;
+        m1 = m2;
     }
 
-    store.addCubic( p[size-2], m1, p[size-1], s * slopeEnd );
+    store.addCubic( p[size-2], s * m1, p[size-1], s * slopeEnd );
 
     return store;
 }
