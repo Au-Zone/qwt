@@ -19,10 +19,10 @@ public:
     enum Type
     {
         Cardinal,
-        ParabolicBlending,
+        ParabolicBlending, // a.k.a cubic Bessel interpolation
         Akima,
         HarmonicMean,
-        PChip // not implemented
+        PChip 
     };
 
     QwtSplineLocal( Type type, double tension = 0.0 );

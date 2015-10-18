@@ -108,7 +108,7 @@ namespace QwtSplineLocalP
     };
 };
 
-static inline double qwtParabolicBlending(
+static inline double qwtBlending(
     double dx01, double s1, double dx12, double s2 )
 {
     return ( dx12 * s1 + dx01 * s2 ) / ( dx01 + dx12 );
@@ -123,7 +123,7 @@ static inline double qwtParabolicBlending(
     const double dx12 = p2.x() - p1.x();
     const double s2 = ( p2.y() - p1.y() ) / dx12;
 
-    return qwtParabolicBlending( dx01, s1, dx12, s2 );
+    return qwtBlending( dx01, s1, dx12, s2 );
 }
 
 static inline double qwtAkima( double s1, double s2, double s3, double s4 )
@@ -355,7 +355,7 @@ static inline SplineStore qwtSplineParabolicBlending(
         const double dx12 = p[i+1].x() - p[i].x();
         const double s2 = ( p[i+1].y() - p[i].y() ) / dx12;
 
-        const double m2 = qwtParabolicBlending( dx01, s1, dx12, s2 );
+        const double m2 = qwtBlending( dx01, s1, dx12, s2 );
 
         store.addCubic( p[i-1], m1, p[i], m2 );
 
@@ -644,6 +644,72 @@ static inline SplineStore qwtSplineHarmonicMean( const QwtSplineLocal *spline,
     return store; 
 }
 
+static inline bool qwtPChipSignTest( double a, double b )
+{
+    if ( a == 0.0 || b == 0.0 )
+        return false;
+
+    return ( a > 0.0 ) == ( b > 0.0 );
+}
+
+template< class SplineStore >
+static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
+    const QPolygonF &points )
+{
+    const int size = points.size();
+    const QPointF *p = points.constData();
+
+    double slopeBegin, slopeEnd;
+#if 1
+    // TODO ...
+    qwtSplineHarmonicMeanBoundaries( spline, points, slopeBegin, slopeEnd );
+#endif
+
+    const double s = 1.0 - spline->tension();
+
+    SplineStore store;
+    store.init( points );
+    store.start( p[0], s * slopeBegin );
+
+    double dx1 = p[1].x() - p[0].x();
+    double s1 = ( p[1].y() - p[0].y() ) / dx1;
+
+    double m1 = slopeBegin;
+    for ( int i = 1 ; i < size - 1; i++ )
+    {
+        const double dx2   = p[i+1].x() - p[i].x() ;
+        const double s2 = ( p[i+1].y() - p[i].y() ) / dx2 ;
+
+        double m2;
+        if ( qwtPChipSignTest( s1, s2 ) )
+        {
+            const double dx12 = dx1 + dx2;
+
+            const double smax = qMax( qAbs( s1 ), qAbs( s2 ) ) ;
+            const double smin = qMin( qAbs( s1 ), qAbs( s2 ) ) ;
+            
+            const double w1 = ( 1.0 + dx1 / dx12 );
+            const double w2 = ( 1.0 + dx2 / dx12 );
+
+            m2 = smin / smax * ( w1 * s1 + w2 * s2 ) / 3.0;
+        }
+        else
+        {
+            m2 = 0.0;
+        }
+
+        store.addCubic( p[i-1], m1, p[i], m2 );
+
+        dx1 = dx2 ;
+        s1 = s2 ;
+        m1 = m2 ;
+    }
+
+    store.addCubic( p[size-2], m1, p[size-1], s * slopeEnd );
+
+    return store;
+}
+
 template< class SplineStore >
 static inline SplineStore qwtSplineLocal( 
     const QwtSplineLocal *spline, const QPolygonF &points )
@@ -691,7 +757,7 @@ static inline SplineStore qwtSplineLocal(
         }
         case QwtSplineLocal::PChip:
         {   
-            // not implemented
+            store = qwtSplinePchip<SplineStore>( spline, points );
             break;
         }
         default:
@@ -782,6 +848,7 @@ QVector<QwtSplinePolynomial> QwtSplineLocal::polynomials( const QPolygonF &point
 
 uint QwtSplineLocal::locality() const
 {
+    // should be a QPair<uint, uint>
     switch ( d_type )
     {
         case Cardinal:
@@ -795,15 +862,15 @@ uint QwtSplineLocal::locality() const
             return 3;
         }
         case ParabolicBlending:
-        case HarmonicMean:
         {
             // polynoms: 1 left, 1 right
             return 1;
         }
+        case HarmonicMean:
         case PChip:
         {
-            // not implemented
-            return 0;
+            // polynoms: 0 left, 1 right
+            return 1;
         }
     }
 
