@@ -340,22 +340,22 @@ static inline SplineStore qwtSplineParabolicBlending(
     double slopeBegin, slopeEnd; 
     qwtSplineParabolicBlendingBoundaries( spline, points, slopeBegin, slopeEnd );
 
-    const double s = 1.0 - spline->tension();
+    const double ts = 1.0 - spline->tension();
+    double m1 = ts * slopeBegin;
 
     SplineStore store;
     store.init( points );
-    store.start( p[0], s * slopeBegin );
+    store.start( p[0], m1 );
 
     double dx01 = p[1].x() - p[0].x();
     double s1 = ( p[1].y() - p[0].y() ) / dx01;
-    double m1 = slopeBegin;
 
     for ( int i = 1; i < size - 1; i++ )
     {
         const double dx12 = p[i+1].x() - p[i].x();
         const double s2 = ( p[i+1].y() - p[i].y() ) / dx12;
 
-        const double m2 = qwtBlending( dx01, s1, dx12, s2 );
+        const double m2 = ts * qwtBlending( dx01, s1, dx12, s2 );
 
         store.addCubic( p[i-1], m1, p[i], m2 );
 
@@ -364,7 +364,7 @@ static inline SplineStore qwtSplineParabolicBlending(
         m1 = m2;
     }
 
-    store.addCubic( p[size-2], s * m1, p[size-1], s * slopeEnd );
+    store.addCubic( p[size-2], m1, p[size-1], ts * slopeEnd );
 
     return store;
 }
@@ -414,22 +414,22 @@ static inline SplineStore qwtSplineCardinal(
     double slopeBegin, slopeEnd;
     qwtSplineCardinalBoundaries( spline, points, slopeBegin, slopeEnd );
 
-    const double s = 1.0 - spline->tension();
+    const double ts = 1.0 - spline->tension();
+    double m1 = s * slopeBegin;
 
     SplineStore store;
     store.init( points );
-    store.start( p[0], s * slopeBegin );
+    store.start( p[0], m1 );
 
-    double m1 = s * slopeBegin;
     for ( int i = 1; i < size - 1; i++ )
     {
-        const double m2 = s * qwtSlopeP( p[i-1], p[i+1] );
+        const double m2 = ts * qwtSlopeP( p[i-1], p[i+1] );
         store.addCubic( p[i-1], m1, p[i], m2 );
 
         m1 = m2;
     }
 
-    store.addCubic( p[size-2], s * m1, p[size-1], s * slopeEnd );
+    store.addCubic( p[size-2], m1, p[size-1], ts * slopeEnd );
 
     return store;
 }
@@ -523,23 +523,22 @@ static inline SplineStore qwtSplineAkima(
     double slopeBegin, slopeEnd;
     qwtSplineAkimaBoundaries( spline, points, slopeBegin, slopeEnd );
 
-    const double s = 1.0 - spline->tension();
+    const double ts = 1.0 - spline->tension();
+    double m1 = ts * slopeBegin;
 
     SplineStore store;
     store.init( points );
-    store.start( p[0], s * slopeBegin );
+    store.start( p[0], m1 );
 
     double s1 = slopeBegin;
     double s2 = qwtSlopeP( p[0], p[1] );
     double s3 = qwtSlopeP( p[1], p[2] );
 
-    double m1 = s * slopeBegin;
-
     for ( int i = 0; i < size - 3; i++ )
     {
         const double s4 = qwtSlopeP( p[i+2],  p[i+3] );
 
-        const double m2 = s * qwtAkima( s1, s2, s3, s4 );
+        const double m2 = ts * qwtAkima( s1, s2, s3, s4 );
         store.addCubic( p[i], m1, p[i+1], m2 );
 
         s1 = s2;
@@ -549,10 +548,10 @@ static inline SplineStore qwtSplineAkima(
         m1 = m2;
     }
 
-    const double m2 = s * qwtAkima( s1, s2, s3, slopeEnd );
+    const double m2 = ts * qwtAkima( s1, s2, s3, slopeEnd );
 
     store.addCubic( p[size - 3], m1, p[size - 2], m2 );
-    store.addCubic( p[size - 2], m2, p[size - 1], slopeEnd );
+    store.addCubic( p[size - 2], m2, p[size - 1], ts * slopeEnd );
 
     return store;
 }
@@ -615,22 +614,22 @@ static inline SplineStore qwtSplineHarmonicMean( const QwtSplineLocal *spline,
     double slopeBegin, slopeEnd;
     qwtSplineHarmonicMeanBoundaries( spline, points, slopeBegin, slopeEnd );
 
-    const double s = 1.0 - spline->tension();
+    const double ts = 1.0 - spline->tension();
+    double m1 = ts * slopeBegin;
 
     SplineStore store;
     store.init( points );
-    store.start( p[0], s * slopeBegin );
+    store.start( p[0], m1 );
 
     double dx1 = p[1].x() - p[0].x();
     double dy1 = p[1].y() - p[0].y();
 
-    double m1 = s * slopeBegin;
     for ( int i = 1; i < size - 1; i++ )
     {
         const double dx2 = p[i+1].x() - p[i].x();
         const double dy2 = p[i+1].y() - p[i].y();
 
-        const double m2 = s * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
+        const double m2 = ts * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
 
         store.addCubic( p[i-1], m1, p[i], m2 );
 
@@ -639,7 +638,7 @@ static inline SplineStore qwtSplineHarmonicMean( const QwtSplineLocal *spline,
         m1 = m2;
     }
 
-    store.addCubic( p[size - 2], m1, p[size - 1], s * slopeEnd );
+    store.addCubic( p[size - 2], m1, p[size - 1], ts * slopeEnd );
 
     return store; 
 }
@@ -665,7 +664,10 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
     qwtSplineHarmonicMeanBoundaries( spline, points, slopeBegin, slopeEnd );
 #endif
 
-    const double s = 1.0 - spline->tension();
+    const double ts = 1.0 - spline->tension();
+    const double ts3 = 3.0 * ts;
+
+    double m1 = ts * slopeBegin;
 
     SplineStore store;
     store.init( points );
@@ -674,7 +676,6 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
     double dx1 = p[1].x() - p[0].x();
     double s1 = ( p[1].y() - p[0].y() ) / dx1;
 
-    double m1 = slopeBegin;
     for ( int i = 1 ; i < size - 1; i++ )
     {
         const double dx2   = p[i+1].x() - p[i].x() ;
@@ -691,21 +692,21 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
             const double w1 = ( 1.0 + dx1 / dx12 );
             const double w2 = ( 1.0 + dx2 / dx12 ) ;
 
-            m2 = 3.0 * s1 * s2 / ( w1 * s1 + w2 * s2 );
+            m2 = ts3 * s1 * s2 / ( w1 * s1 + w2 * s2 );
         }
         else
         {
             m2 = 0.0;
         }
 
-        store.addCubic( p[i-1], s * m1, p[i], s * m2 );
+        store.addCubic( p[i-1], m1, p[i], m2 );
 
         dx1 = dx2 ;
         s1 = s2 ;
         m1 = m2;
     }
 
-    store.addCubic( p[size-2], s * m1, p[size-1], s * slopeEnd );
+    store.addCubic( p[size-2], m1, p[size-1], ts * slopeEnd );
 
     return store;
 }
@@ -722,9 +723,11 @@ static inline SplineStore qwtSplineLocal(
 
     if ( size == 2 )
     {
+        const double ts = 1.0 - spline->tension();
+
         const double s0 = qwtSlopeP( points[0], points[1] );
-        const double m1 = qwtSlopeBegin( spline, points, s0, s0 ) * spline->tension();
-        const double m2 = qwtSlopeEnd( spline, points, s0, s0 ) * spline->tension();
+        const double m1 = qwtSlopeBegin( spline, points, s0, s0 ) * ts;
+        const double m2 = qwtSlopeEnd( spline, points, s0, s0 ) * ts;
 
         store.init( points );
         store.start( points[0], m1 );
@@ -787,6 +790,7 @@ QwtSplineLocal::Type QwtSplineLocal::type() const
 
 void QwtSplineLocal::setTension( double tension )
 {
+    // breaking endpoint conditions ???
     d_tension = qBound( 0.0, tension, 1.0 );
 }
 
