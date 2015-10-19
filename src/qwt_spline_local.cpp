@@ -415,7 +415,7 @@ static inline SplineStore qwtSplineCardinal(
     qwtSplineCardinalBoundaries( spline, points, slopeBegin, slopeEnd );
 
     const double ts = 1.0 - spline->tension();
-    double m1 = s * slopeBegin;
+    double m1 = ts * slopeBegin;
 
     SplineStore store;
     store.init( points );
@@ -671,7 +671,7 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
 
     SplineStore store;
     store.init( points );
-    store.start( p[0], s * slopeBegin );
+    store.start( p[0], ts * slopeBegin );
 
     double dx1 = p[1].x() - p[0].x();
     double s1 = ( p[1].y() - p[0].y() ) / dx1;
