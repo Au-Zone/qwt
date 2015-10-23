@@ -42,10 +42,11 @@ class SplineFitter: public QwtCurveFitter
 public:
     enum Mode
     {
-        HarmonicSpline,
+        PChipSpline,
         AkimaSpline,
         CubicSpline,
         CardinalSpline,
+        ParabolicBlendingSpline,
         PleasingSpline
     };
 
@@ -59,9 +60,9 @@ public:
                 d_spline = new QwtSplinePleasing();
                 break;
             }
-            case HarmonicSpline:
+            case PChipSpline:
             {   
-                d_spline = new QwtSplineLocal( QwtSplineLocal::HarmonicMean );
+                d_spline = new QwtSplineLocal( QwtSplineLocal::PChip );
                 break;
             }
             case AkimaSpline:
@@ -80,6 +81,12 @@ public:
             case CardinalSpline:
             {   
                 d_spline = new QwtSplineLocal( QwtSplineLocal::Cardinal );
+                break;
+            }
+            case ParabolicBlendingSpline:
+            {   
+                d_spline = new QwtSplineLocal( QwtSplineLocal::ParabolicBlending );
+                break;
             }
         }
     }
@@ -242,36 +249,45 @@ Plot::Plot( bool parametric, QWidget *parent ):
 
     // 
 
-    Curve *curve0 = new Curve( "Cardinal", Qt::black);
-    curve0->setCurveFitter( new SplineFitter( SplineFitter::CardinalSpline ) );
-    curve0->attach( this );
+    Curve *curve;
 
-    Curve *curve1 = new Curve( "Pleasing", Qt::darkBlue);
-    curve1->setCurveFitter( new SplineFitter( SplineFitter::PleasingSpline ) );
-    curve1->attach( this );
+    QVector<Curve *> curves;
 
-    Curve *curve2 = new Curve( "Cubic", Qt::darkRed);
-    curve2->setCurveFitter( new SplineFitter( SplineFitter::CubicSpline ) );
-    curve2->attach( this );
+    curve = new Curve( "Pleasing", Qt::black);
+    curve->setCurveFitter( new SplineFitter( SplineFitter::PleasingSpline ) );
+    curves += curve;
 
-    Curve *curve3 = new Curve( "Akima", Qt::darkCyan);
-    curve3->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
-    curve3->attach( this );
+    curve = new Curve( "Cardinal", Qt::darkGreen);
+    curve->setCurveFitter( new SplineFitter( SplineFitter::CardinalSpline ) );
+    curves += curve;
 
-    Curve *curve4 = new Curve( "Harmonic", Qt::darkYellow);
-    curve4->setCurveFitter( new SplineFitter( SplineFitter::HarmonicSpline ) );
-    curve4->attach( this );
+    curve = new Curve( "PChip", Qt::darkYellow);
+    curve->setCurveFitter( new SplineFitter( SplineFitter::PChipSpline ) );
+    curves += curve;
 
-    QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
-#if 1
+    curve = new Curve( "Parabolic Blending", Qt::darkBlue);
+    curve->setCurveFitter( new SplineFitter( SplineFitter::ParabolicBlendingSpline ) );
+    curves += curve;
+
+    curve = new Curve( "Akima", Qt::darkCyan);
+    curve->setCurveFitter( new SplineFitter( SplineFitter::AkimaSpline ) );
+    curves += curve;
+
+    curve = new Curve( "Cubic", Qt::darkRed);
+    curve->setCurveFitter( new SplineFitter( SplineFitter::CubicSpline ) );
+    curves += curve;
+
     for ( int i = 0; i < curves.size(); i++ )
+    {
+        curves[i]->attach( this );
         showCurve( curves[i], true );
-#else
+    }
+#if 0
     for ( int i = 0; i < curves.size(); i++ )
         showCurve( curves[i], false );
 
-    showCurve( curve2, true );
-    showCurve( curve3, true );
+    showCurve( curve1, true );
+    showCurve( curve4, true );
 #endif
 
     setOverlaying( false );

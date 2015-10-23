@@ -21,7 +21,6 @@ public:
         Cardinal,
         ParabolicBlending, // a.k.a cubic Bessel interpolation
         Akima,
-        HarmonicMean,
         PChip 
     };
 

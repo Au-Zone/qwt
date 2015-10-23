@@ -147,26 +147,7 @@ static inline bool qwtIsStrictlyMonotonic( double dy1, double dy2 )
     return ( dy1 > 0.0 ) == ( dy2 > 0.0 );
 }
 
-static inline double qwtHarmonicMean( double s1, double s2 )
-{
-    if ( qwtIsStrictlyMonotonic( s1, s2 ) )
-        return 2.0 / ( 1.0 / s1 + 1.0 / s2 );
-
-    return 0.0;
-}
-
-static inline double qwtHarmonicMean( 
-    double dx1, double dy1, double dx2, double dy2 )
-{
-    if ( qwtIsStrictlyMonotonic( dy1, dy2 ) )
-    {
-        return 2.0 / ( dx1 / dy1 + dx2 / dy2 );
-    }
-
-    return 0.0;
-}
-
-static inline double qwtPChip(
+static inline double qwtSlopePChip(
     double dx1, double dy1, double s1, double dx2, double dy2, double s2 )
 {
     if ( qwtIsStrictlyMonotonic( dy1, dy2 ) )
@@ -181,15 +162,25 @@ static inline double qwtPChip(
 
         // harmonic mean ( see https://en.wikipedia.org/wiki/Pythagorean_means )
         return 2.0 / ( 1.0 / s1 + 1.0 / s2 );
-#else
+#endif
         // the same as above - but faster
 
         const double s12 = ( dy1 + dy2 ) / ( dx1 + dx2 );
         return 3.0 * ( s1 * s2 ) / ( s1 + s2 + s12 );
-#endif
     }
 
     return 0.0;
+}
+
+static inline double qwtSlopePChip(
+    const QPointF &p1, const QPointF &p2, const QPointF &p3 )
+{
+    const double dx1 = p2.x() - p1.x();
+    const double dy1 = p2.y() - p1.y();
+    const double dx2 = p3.x() - p2.x();
+    const double dy2 = p3.y() - p2.y();
+
+    return qwtSlopePChip( dx1, dy1, dy1 / dx1, dx2, dy2, dy2 / dx2 );
 }
 
 static double qwtSlopeBegin( const QwtSplineC1 *spline,
@@ -586,7 +577,7 @@ static inline SplineStore qwtSplineAkima(
     return store;
 }
 
-static inline void qwtSplineHarmonicMeanBoundaries(
+static inline void qwtSplinePchipBoundaries(
     const QwtSplineLocal *spline, const QPolygonF &points,
     double &slopeBegin, double &slopeEnd )
 {
@@ -597,80 +588,27 @@ static inline void qwtSplineHarmonicMeanBoundaries(
         || ( spline->boundaryCondition() == QwtSplineC1::Periodic ) )
     {
         const QPointF pn = p[0] - ( p[n-1] - p[n-2] );
-        const QPointF dp1 = p[0] - pn;
-        const QPointF dp2 = p[1] - p[0];
-
-        slopeBegin = slopeEnd =
-            qwtHarmonicMean( dp1.x(), dp1.y(), dp2.x(), dp2.y() );
-
-        return;
+        slopeBegin = slopeEnd = qwtSlopePChip( pn, p[0], p[1] );
     }
-
-    const double s1 = qwtSlopeP( p[0], p[1] );
-    const double s2 = qwtSlopeP( p[1], p[2] );
-
-    if ( n == 3 )
+    else if ( n == 3 )
     {
-        const double m = qwtHarmonicMean( s1, s2 );
-        slopeBegin = qwtSlopeBegin( spline, points, m, s2 );
-        slopeEnd = qwtSlopeEnd( spline, points, slopeBegin, m );
+        const double s0 = qwtSlopeP( p[0], p[1] );
+        const double m2 = qwtSlopePChip( p[0], p[1], p[2] );
+
+        slopeEnd = qwtSlopeEnd( spline, points, s0, m2 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2, slopeEnd );
     }
     else
     {
-        const double s3 = qwtSlopeP( p[2], p[3] );
+        const double m2 = qwtSlopePChip( p[0], p[1], p[2] );
+        const double m3 = qwtSlopePChip( p[1], p[2], p[3] );
 
-        const double m2 = qwtHarmonicMean( s1, s2 );
-        const double m3 = qwtHarmonicMean( s2, s3 );
-
-        const double sn1 = qwtSlopeP( p[n-4], p[n-3] );
-        const double sn2 = qwtSlopeP( p[n-3], p[n-2] );
-        const double sn3 = qwtSlopeP( p[n-2], p[n-1] );
-
-        const double mn1 = qwtHarmonicMean( sn1, sn2 );
-        const double mn2 = qwtHarmonicMean( sn2, sn3 );
+        const double mn1 = qwtSlopePChip( p[n-4], p[n-3], p[n-2] );
+        const double mn2 = qwtSlopePChip( p[n-3], p[n-2], p[n-1] );
 
         slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
         slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
     }
-}
-
-template< class SplineStore >
-static inline SplineStore qwtSplineHarmonicMean( const QwtSplineLocal *spline,
-    const QPolygonF &points )
-{
-    const int size = points.size();
-    const QPointF *p = points.constData();
-
-    double slopeBegin, slopeEnd;
-    qwtSplineHarmonicMeanBoundaries( spline, points, slopeBegin, slopeEnd );
-
-    const double ts = 1.0 - spline->tension();
-    double m1 = ts * slopeBegin;
-
-    SplineStore store;
-    store.init( points );
-    store.start( p[0], m1 );
-
-    double dx1 = p[1].x() - p[0].x();
-    double dy1 = p[1].y() - p[0].y();
-
-    for ( int i = 1; i < size - 1; i++ )
-    {
-        const double dx2 = p[i+1].x() - p[i].x();
-        const double dy2 = p[i+1].y() - p[i].y();
-
-        const double m2 = ts * qwtHarmonicMean( dx1, dy1, dx2, dy2 );
-
-        store.addCubic( p[i-1], m1, p[i], m2 );
-
-        dx1 = dx2;
-        dy1 = dy2;
-        m1 = m2;
-    }
-
-    store.addCubic( p[size - 2], m1, p[size - 1], ts * slopeEnd );
-
-    return store; 
 }
 
 template< class SplineStore >
@@ -681,10 +619,7 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
     const QPointF *p = points.constData();
 
     double slopeBegin, slopeEnd;
-#if 1
-    // TODO ...
-    qwtSplineHarmonicMeanBoundaries( spline, points, slopeBegin, slopeEnd );
-#endif
+    qwtSplinePchipBoundaries( spline, points, slopeBegin, slopeEnd );
 
     const double ts = 1.0 - spline->tension();
     double m1 = ts * slopeBegin;
@@ -703,8 +638,7 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
         const double dy2 = p[i+1].y() - p[i].y() ;
         const double s2 = dy2 / dx2;
 
-        // we could keep "s2 = dy2 / dx2;" for the next iteration !
-        double m2 = ts * qwtPChip( dx1, dy1, s1, dx2, dy2, s2 );
+        double m2 = ts * qwtSlopePChip( dx1, dy1, s1, dx2, dy2, s2 );
 
         store.addCubic( p[i-1], m1, p[i], m2 );
 
@@ -759,11 +693,6 @@ static inline SplineStore qwtSplineLocal(
         case QwtSplineLocal::Akima:
         {   
             store = qwtSplineAkima<SplineStore>( spline, points );
-            break;
-        }
-        case QwtSplineLocal::HarmonicMean:
-        {   
-            store = qwtSplineHarmonicMean<SplineStore>( spline, points );
             break;
         }
         case QwtSplineLocal::PChip:
@@ -874,14 +803,9 @@ uint QwtSplineLocal::locality() const
             return 3;
         }
         case ParabolicBlending:
-        {
-            // polynoms: 1 left, 1 right
-            return 1;
-        }
-        case HarmonicMean:
         case PChip:
         {
-            // polynoms: 0 left, 1 right
+            // polynoms: 1 left, 1 right
             return 1;
         }
     }
