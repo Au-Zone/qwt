@@ -139,29 +139,6 @@ static inline double qwtAkima( double s1, double s2, double s3, double s4 )
     return ( s2 * ds34 + s3 * ds12 ) / ( ds12 + ds34 );
 }
 
-static inline double qwtHarmonicMean( 
-    double dx1, double dy1, double dx2, double dy2 )
-{
-    if ( ( dy1 > 0.0 ) == ( dy2 > 0.0 ) )
-    {
-        if ( ( dy1 != 0.0 ) && ( dy2 != 0.0 ) )
-            return 2.0 / ( dx1 / dy1 + dx2 / dy2 );
-    }
-
-    return 0.0;
-}
-
-static inline double qwtHarmonicMean( double s1, double s2 )
-{
-    if ( ( s1 > 0.0 ) == ( s2 > 0.0 ) )
-    {
-        if ( ( s1 != 0.0 ) && ( s2 != 0.0 ) )
-            return 2.0 / ( 1.0 / s1 + 1.0 / s2 );
-    }
-
-    return 0.0;
-}
-
 static inline bool qwtIsStrictlyMonotonic( double dy1, double dy2 )
 {
     if ( dy1 == 0.0 || dy2 == 0.0 )
@@ -170,17 +147,33 @@ static inline bool qwtIsStrictlyMonotonic( double dy1, double dy2 )
     return ( dy1 > 0.0 ) == ( dy2 > 0.0 );
 }
 
-static inline double qwtPChip(
+static inline double qwtHarmonicMean( double s1, double s2 )
+{
+    if ( qwtIsStrictlyMonotonic( s1, s2 ) )
+        return 2.0 / ( 1.0 / s1 + 1.0 / s2 );
+
+    return 0.0;
+}
+
+static inline double qwtHarmonicMean( 
     double dx1, double dy1, double dx2, double dy2 )
 {
     if ( qwtIsStrictlyMonotonic( dy1, dy2 ) )
     {
-        // brodlie/butland formula
+        return 2.0 / ( dx1 / dy1 + dx2 / dy2 );
+    }
 
-        const double s1 = dy1 / dx1;
-        const double s2 = dy2 / dx2;
+    return 0.0;
+}
+
+static inline double qwtPChip(
+    double dx1, double dy1, double s1, double dx2, double dy2, double s2 )
+{
+    if ( qwtIsStrictlyMonotonic( dy1, dy2 ) )
+    {
+        // basically a weighted harmonic mean
+
         const double s12 = ( dy1 + dy2 ) / ( dx1 + dx2 );
-
         return 3.0 * ( s1 * s2 ) / ( s1 + s2 + s12 );
     }
 
@@ -690,19 +683,22 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
 
     double dx1 = p[1].x() - p[0].x();
     double dy1 = p[1].y() - p[0].y();
+    double s1 = dy1 / dx1;
 
     for ( int i = 1 ; i < size - 1; i++ )
     {
         const double dx2 = p[i+1].x() - p[i].x() ;
         const double dy2 = p[i+1].y() - p[i].y() ;
+        const double s2 = dy2 / dx2;
 
         // we could keep "s2 = dy2 / dx2;" for the next iteration !
-        double m2 = ts * qwtPChip( dx1, dy1, dx2, dy2 );
+        double m2 = ts * qwtPChip( dx1, dy1, s1, dx2, dy2, s2 );
 
         store.addCubic( p[i-1], m1, p[i], m2 );
 
         dx1 = dx2;
         dy1 = dy2;
+        s1 = s2;
         m1 = m2;
     }
 
