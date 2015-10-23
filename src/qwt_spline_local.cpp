@@ -332,8 +332,9 @@ static double qwtSlopeEnd( const QwtSplineC1 *spline,
     return pnomEnd.slopeAt( dx );
 }
 
-static inline void qwtSplineParabolicBlendingBoundaries(
-    const QwtSplineLocal *spline, const QPolygonF &points,
+static void qwtSplineBoundaries3( 
+    const QwtSplineLocal *spline, const QPolygonF &points, 
+    double (*slope3)(const QPointF &, const QPointF &, const QPointF & ),
     double &slopeBegin, double &slopeEnd )
 {
     const int n = points.size();
@@ -343,26 +344,24 @@ static inline void qwtSplineParabolicBlendingBoundaries(
         || ( spline->boundaryCondition() == QwtSplineC1::Periodic ) )
     {
         const QPointF pn = p[0] - ( p[n-1] - p[n-2] );
-        slopeBegin = slopeEnd = qwtSlopeParabolicBlending( pn, p[0], p[1] );
-        return;
+        slopeBegin = slopeEnd = slope3( pn, p[0], p[1] );
     }
-
-    if ( n == 3 )
+    else if ( n == 3 )
     {
         const double s0 = qwtSlopeP( p[0], p[1] );
-        const double m2 = qwtSlopeParabolicBlending( p[0], p[1], p[2] );
-
-        slopeEnd = qwtSlopeEnd( spline, points, s0, m2 );
-        slopeBegin = qwtSlopeBegin( spline, points, m2, slopeEnd );
+        const double m = slope3( p[0], p[1], p[2] );
+    
+        slopeEnd = qwtSlopeEnd( spline, points, s0, m );
+        slopeBegin = qwtSlopeBegin( spline, points, m, slopeEnd );
     }
     else
     {
-        const double m2 = qwtSlopeParabolicBlending( p[0], p[1], p[2] );
-        const double m3 = qwtSlopeParabolicBlending( p[1], p[2], p[3] );
+        const double m2 = slope3( p[0], p[1], p[2] );
+        const double m3 = slope3( p[1], p[2], p[3] );
         slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
 
-        const double mn1 = qwtSlopeParabolicBlending( p[n-4], p[n-3], p[n-2] );
-        const double mn2 = qwtSlopeParabolicBlending( p[n-3], p[n-2], p[n-1] );
+        const double mn1 = slope3( p[n-4], p[n-3], p[n-2] );
+        const double mn2 = slope3( p[n-3], p[n-2], p[n-1] );
         slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
     }
 }
@@ -377,7 +376,7 @@ static inline SplineStore qwtSplineParabolicBlending(
     const QPointF *p = points.constData();
 
     double slopeBegin, slopeEnd; 
-    qwtSplineParabolicBlendingBoundaries( spline, points, slopeBegin, slopeEnd );
+    qwtSplineBoundaries3( spline, points, qwtSlopeParabolicBlending, slopeBegin, slopeEnd );
 
     const double ts = 1.0 - spline->tension();
     double m1 = ts * slopeBegin;
@@ -408,41 +407,6 @@ static inline SplineStore qwtSplineParabolicBlending(
     return store;
 }
 
-static inline void qwtSplineCardinalBoundaries( 
-    const QwtSplineLocal *spline, const QPolygonF &points,
-    double &slopeBegin, double &slopeEnd )
-{
-    const int n = points.size();
-    const QPointF *p = points.constData();
-
-    if ( spline->isClosing()
-        || ( spline->boundaryCondition() == QwtSplineC1::Periodic ) )
-    {
-        const QPointF pn = p[0] - ( p[n-1] - p[n-2] );
-        slopeBegin = slopeEnd = qwtSlopeP( pn, p[1] );
-        return;
-    }
-
-    const double m2 = qwtSlopeP( p[0], p[2] );
-
-    if ( n == 3 )
-    {
-        const double s0 = qwtSlopeP( p[0], p[1] );
-        slopeEnd = qwtSlopeEnd( spline, points, s0, m2 );
-        slopeBegin = qwtSlopeBegin( spline, points, m2, slopeEnd );
-    }
-    else
-    {
-        const double m3 = qwtSlopeP( p[1], p[3] );
-        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
-
-        const double mn1 = qwtSlopeP( p[n-4], p[n-2] );
-        const double mn2 = qwtSlopeP( p[n-3], p[n-1] );
-
-        slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
-    }
-}
-
 template< class SplineStore >
 static inline SplineStore qwtSplineCardinal(
     const QwtSplineLocal *spline, const QPolygonF &points )
@@ -451,7 +415,7 @@ static inline SplineStore qwtSplineCardinal(
     const QPointF *p = points.constData();
 
     double slopeBegin, slopeEnd;
-    qwtSplineCardinalBoundaries( spline, points, slopeBegin, slopeEnd );
+    qwtSplineBoundaries3( spline, points, qwtSlopeCardinal, slopeBegin, slopeEnd );
 
     const double ts = 1.0 - spline->tension();
     double m1 = ts * slopeBegin;
@@ -590,40 +554,6 @@ static inline SplineStore qwtSplineAkima(
     return store;
 }
 
-static inline void qwtSplinePchipBoundaries(
-    const QwtSplineLocal *spline, const QPolygonF &points,
-    double &slopeBegin, double &slopeEnd )
-{
-    const int n = points.size();
-    const QPointF *p = points.constData();
-
-    if ( spline->isClosing()
-        || ( spline->boundaryCondition() == QwtSplineC1::Periodic ) )
-    {
-        const QPointF pn = p[0] - ( p[n-1] - p[n-2] );
-        slopeBegin = slopeEnd = qwtSlopePChip( pn, p[0], p[1] );
-    }
-    else if ( n == 3 )
-    {
-        const double s0 = qwtSlopeP( p[0], p[1] );
-        const double m2 = qwtSlopePChip( p[0], p[1], p[2] );
-
-        slopeEnd = qwtSlopeEnd( spline, points, s0, m2 );
-        slopeBegin = qwtSlopeBegin( spline, points, m2, slopeEnd );
-    }
-    else
-    {
-        const double m2 = qwtSlopePChip( p[0], p[1], p[2] );
-        const double m3 = qwtSlopePChip( p[1], p[2], p[3] );
-
-        const double mn1 = qwtSlopePChip( p[n-4], p[n-3], p[n-2] );
-        const double mn2 = qwtSlopePChip( p[n-3], p[n-2], p[n-1] );
-
-        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
-        slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
-    }
-}
-
 template< class SplineStore >
 static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
     const QPolygonF &points )
@@ -632,7 +562,7 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
     const QPointF *p = points.constData();
 
     double slopeBegin, slopeEnd;
-    qwtSplinePchipBoundaries( spline, points, slopeBegin, slopeEnd );
+    qwtSplineBoundaries3( spline, points, qwtSlopePChip, slopeBegin, slopeEnd );
 
     const double ts = 1.0 - spline->tension();
     double m1 = ts * slopeBegin;
