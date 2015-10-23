@@ -171,10 +171,22 @@ static inline double qwtPChip(
 {
     if ( qwtIsStrictlyMonotonic( dy1, dy2 ) )
     {
-        // basically a weighted harmonic mean
+#if 0
+        // weighting the slopes by the dx1/dx2
+        const double w1 = ( 3 * dx1 + 3 * dx2 ) / ( 2 * dx1 + 4 * dx2 );
+        const double w2 = ( 3 * dx1 + 3 * dx2 ) / ( 4 * dx1 + 2 * dx2 );
+
+        s1 *= w1;
+        s2 *= w2;
+
+        // harmonic mean ( see https://en.wikipedia.org/wiki/Pythagorean_means )
+        return 2.0 / ( 1.0 / s1 + 1.0 / s2 );
+#else
+        // the same as above - but faster
 
         const double s12 = ( dy1 + dy2 ) / ( dx1 + dx2 );
         return 3.0 * ( s1 * s2 ) / ( s1 + s2 + s12 );
+#endif
     }
 
     return 0.0;
