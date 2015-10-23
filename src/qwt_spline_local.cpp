@@ -109,9 +109,9 @@ namespace QwtSplineLocalP
 };
 
 static inline double qwtSlopeParabolicBlending(
-    double dx01, double s1, double dx12, double s2 )
+    double dx1, double s1, double dx2, double s2 )
 {
-    return ( dx12 * s1 + dx01 * s2 ) / ( dx01 + dx12 );
+    return ( dx2 * s1 + dx1 * s2 ) / ( dx1 + dx2 );
 }
 
 static inline bool qwtIsStrictlyMonotonic( double dy1, double dy2 )
@@ -444,8 +444,6 @@ template< class SplineStore >
 static inline SplineStore qwtSplineParabolicBlending(
     const QwtSplineLocal *spline, const QPolygonF &points )
 {
-    Q_UNUSED( spline )
-
     const int size = points.size();
     const QPointF *p = points.constData();
 
@@ -459,19 +457,19 @@ static inline SplineStore qwtSplineParabolicBlending(
     store.init( points );
     store.start( p[0], m1 );
 
-    double dx01 = p[1].x() - p[0].x();
-    double s1 = ( p[1].y() - p[0].y() ) / dx01;
+    double dx1 = p[1].x() - p[0].x();
+    double s1 = ( p[1].y() - p[0].y() ) / dx1;
 
     for ( int i = 1; i < size - 1; i++ )
     {
-        const double dx12 = p[i+1].x() - p[i].x();
-        const double s2 = ( p[i+1].y() - p[i].y() ) / dx12;
+        const double dx2 = p[i+1].x() - p[i].x();
+        const double s2 = ( p[i+1].y() - p[i].y() ) / dx2;
 
-        const double m2 = ts * qwtSlopeParabolicBlending( dx01, s1, dx12, s2 );
+        const double m2 = ts * qwtSlopeParabolicBlending( dx1, s1, dx2, s2 );
 
         store.addCubic( p[i-1], m1, p[i], m2 );
 
-        dx01 = dx12;
+        dx1 = dx2;
         s1 = s2;
         m1 = m2;
     }
@@ -526,7 +524,7 @@ static inline SplineStore qwtSplinePchip( const QwtSplineLocal *spline,
 
     SplineStore store;
     store.init( points );
-    store.start( p[0], ts * slopeBegin );
+    store.start( p[0], m1 );
 
     double dx1 = p[1].x() - p[0].x();
     double dy1 = p[1].y() - p[0].y();
