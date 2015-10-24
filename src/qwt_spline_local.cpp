@@ -296,9 +296,9 @@ static double qwtSlopeEnd( const QwtSplineC1 *spline,
     if ( size < 2 )
         return 0.0;
 
-    const QPointF &p1 = p[size-3];
-    const QPointF &p2 = p[size-2];
-    const QPointF &p3 = p[size-1];
+    const QPointF &p1 = points[size-3];
+    const QPointF &p2 = points[size-2];
+    const QPointF &p3 = points[size-1];
 
     const double boundaryValue = spline->boundaryValueEnd();
 
