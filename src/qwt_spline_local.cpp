@@ -85,7 +85,7 @@ namespace QwtSplineLocalP
     class PathStore
     {
     public:
-        inline void init( const QPolygonF & )
+        inline void init( const QVector<QPointF> & )
         {
         }
 
@@ -106,7 +106,7 @@ namespace QwtSplineLocalP
     class ControlPointsStore
     {
     public:
-        inline void init( const QPolygonF &points )
+        inline void init( const QVector<QPointF> &points )
         {
             if ( points.size() > 0 )
                 controlPoints.resize( points.size() - 1 );
@@ -136,7 +136,7 @@ namespace QwtSplineLocalP
     class SlopeStore
     {
     public:
-        void init( const QPolygonF &points )
+        void init( const QVector<QPointF> &points )
         {
             slopes.resize( points.size() );
             d_m = slopes.data();
@@ -224,28 +224,29 @@ static inline double qwtSlopeAkima( const QPointF &p1, const QPointF &p2,
 }
 
 static double qwtSlopeBegin( const QwtSplineC1 *spline,
-    const QPolygonF &points, double slope1, double slope2 ) 
+    const QVector<QPointF> &points, double slope1, double slope2 ) 
 {
     const int size = points.size();
     if ( size < 2 )
         return 0.0;
+
+    const QPointF &p1 = points[0];
+    const QPointF &p2 = points[1];
+    const QPointF &p3 = points[2];
 
     const double boundaryValue = spline->boundaryValueBegin();
 
     if ( spline->boundaryCondition() == QwtSplineC1::Clamped )
         return boundaryValue;
 
-    const double dx = points[1].x() - points[0].x();
-    const double dy = points[1].y() - points[0].y();
-
     if ( spline->boundaryCondition() == QwtSplineC1::LinearRunout )
     {
-        const double s = dy / dx;
+        const double s = qwtSlopeLine( p1, p2 );
         return s - boundaryValue * ( s - slope1 );
     }
 
     const QwtSplinePolynomial pnom = 
-        QwtSplinePolynomial::fromSlopes( points[1], slope1, points[2], slope2 ); 
+        QwtSplinePolynomial::fromSlopes( p2, slope1, p3, slope2 ); 
 
     const double cv2 = pnom.curvatureAt( 0.0 );
 
@@ -274,7 +275,7 @@ static double qwtSlopeBegin( const QwtSplineC1 *spline,
         }
         case QwtSplineC1::CubicRunout:
         {
-            cv1 = 2 * cv2 - pnom.curvatureAt( 1.0 );
+            cv1 = 2 * cv2 - pnom.curvatureAt( p3.x() - p2.x() );
             break;
         }
         case QwtSplineC1::Natural:
@@ -282,38 +283,38 @@ static double qwtSlopeBegin( const QwtSplineC1 *spline,
             cv1 = 0.0;
     }
 
-
     const QwtSplinePolynomial pnomBegin =
-        QwtSplinePolynomial::fromCurvatures( dx, dy, cv1, cv2 );
+        QwtSplinePolynomial::fromCurvatures( p1, cv1, p2, cv2 );
 
     return pnomBegin.slopeAt( 0.0 );
 }
 
 static double qwtSlopeEnd( const QwtSplineC1 *spline,
-    const QPolygonF &points, double slope1, double slope2 ) 
+    const QVector<QPointF> &points, double slope1, double slope2 ) 
 {
     const int size = points.size();
     if ( size < 2 )
         return 0.0;
+
+    const QPointF &p1 = p[size-3];
+    const QPointF &p2 = p[size-2];
+    const QPointF &p3 = p[size-1];
 
     const double boundaryValue = spline->boundaryValueEnd();
 
     if ( spline->boundaryCondition() == QwtSplineC1::Clamped )
         return boundaryValue;
 
-    const double dx = points[size-1].x() - points[size-2].x();
-    const double dy = points[size-1].y() - points[size-2].y();
-
     if ( spline->boundaryCondition() == QwtSplineC1::LinearRunout )
     {
-        const double s = dy / dx;
+        const double s = qwtSlopeLine( p2, p3 );
         return s - boundaryValue * ( s - slope1 );
     }
 
-    const QwtSplinePolynomial pnom = QwtSplinePolynomial::fromSlopes(
-         points[size-3], slope1, points[size-2], slope2 ); 
+    const QwtSplinePolynomial pnom = 
+        QwtSplinePolynomial::fromSlopes( p1, slope1, p2, slope2 ); 
 
-    const double cv1 = pnom.curvatureAt( points[size-2].x() - points[size-3].x() );
+    const double cv1 = pnom.curvatureAt( p2.x() - p1.x() );
 
     double cv2;
     switch( spline->boundaryCondition() )
@@ -323,14 +324,14 @@ static double qwtSlopeEnd( const QwtSplineC1 *spline,
             cv2 = boundaryValue;
             break;
         }
-        case QwtSplineC1::NotAKnot:
-        {
-            cv2 = cv1 - 6 * pnom.c3;
-            break;
-        }
         case QwtSplineC1::Clamped3:
         {
             cv2 = cv1 - 6 * boundaryValue;
+            break;
+        }
+        case QwtSplineC1::NotAKnot:
+        {
+            cv2 = cv1 - 6 * pnom.c3;
             break;
         }
         case QwtSplineC1::ParabolicRunout:
@@ -349,14 +350,14 @@ static double qwtSlopeEnd( const QwtSplineC1 *spline,
     }
 
     const QwtSplinePolynomial pnomEnd = 
-        QwtSplinePolynomial::fromCurvatures( dx, dy, cv1, cv2 );
+        QwtSplinePolynomial::fromCurvatures( p2, cv1, p3, cv2 );
 
-    return pnomEnd.slopeAt( dx );
+    return pnomEnd.slopeAt( p3.x() - p2.x() );
 }
 
 template< class Slope >
 static void qwtSplineBoundariesL1( 
-    const QwtSplineLocal *spline, const QPolygonF &points, 
+    const QwtSplineLocal *spline, const QVector<QPointF> &points, 
     double &slopeBegin, double &slopeEnd )
 {
     const int n = points.size();
@@ -390,7 +391,7 @@ static void qwtSplineBoundariesL1(
 
 template< class SplineStore, class Slope >
 static inline SplineStore qwtSplineL1(
-    const QwtSplineLocal *spline, const QPolygonF &points )
+    const QwtSplineLocal *spline, const QVector<QPointF> &points )
 {
     const int size = points.size();
     const QPointF *p = points.constData();
@@ -431,7 +432,7 @@ static inline SplineStore qwtSplineL1(
 }
 
 static inline void qwtSplineAkimaBoundaries(
-    const QwtSplineLocal *spline, const QPolygonF &points,
+    const QwtSplineLocal *spline, const QVector<QPointF> &points,
     double &slopeBegin, double &slopeEnd )
 {
     const int n = points.size();
@@ -506,7 +507,7 @@ static inline void qwtSplineAkimaBoundaries(
 
 template< class SplineStore >
 static inline SplineStore qwtSplineAkima(
-    const QwtSplineLocal *spline, const QPolygonF &points )
+    const QwtSplineLocal *spline, const QVector<QPointF> &points )
 {
     const int size = points.size();
     const QPointF *p = points.constData();
@@ -549,7 +550,7 @@ static inline SplineStore qwtSplineAkima(
 
 template< class SplineStore >
 static inline SplineStore qwtSplineLocal( 
-    const QwtSplineLocal *spline, const QPolygonF &points )
+    const QwtSplineLocal *spline, const QVector<QPointF> &points )
 {   
     SplineStore store;
 
