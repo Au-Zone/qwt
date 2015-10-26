@@ -853,11 +853,31 @@ static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type,
             // c1 = s0
             // c2 = sn
 
-#if 0
-            // clampedBegin/clampedEnd != 0: TODO ...
-#endif
-            eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, 0.0 );
-            eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, 0.0 );
+            const double r0 = qBound( 0.0, clampedBegin, 1.0 );
+            const double rn = qBound( 0.0, clampedEnd, 1.0 );
+
+            if ( r0 == 0.0 )
+            {
+                // clamping s0
+                eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, 0.0 );
+            }
+            else
+            {
+                const double s1 = 0.0; // TODO
+                eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, r0 * ( s0 - s1 ) );
+            }
+
+
+            if ( rn == 0.0 )
+            {
+                // clamping sn
+                eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, 0.0 );
+            }
+            else
+            {
+                const double sn2 = 0.0; // TODO
+                eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, rn * ( sn2 - sn ) );
+            }
 
             break;
         }
