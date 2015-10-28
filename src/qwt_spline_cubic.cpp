@@ -899,9 +899,9 @@ static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type,
             eq[1].setup( 1.0, -2.0, 1.0, 0.0 ); 
             break;
         }
-        case QwtSplineCubic::Natural:
         default:
         {
+            // a natural spline, where the
             // second derivative at end points set to 0.0
             eq[0].setup( 1.0, 0.0, 0.0, 0.0 ); 
             eq[1].setup( 0.0, 0.0, 1.0, 0.0 ); 
@@ -921,7 +921,10 @@ public:
 QwtSplineCubic::QwtSplineCubic()
 {
     d_data = new PrivateData;
-    setBoundaryConditions( QwtSplineC1::Natural );
+
+    // a natural spline
+    setBoundaryConditions( QwtSplineC1::Clamped2 );
+    setBoundaryValues( 0.0, 0.0 );
 }
 
 QwtSplineCubic::~QwtSplineCubic()

@@ -96,8 +96,6 @@ public:
         Clamped2,
         Clamped3,
 
-        Natural,
-
         LinearRunout,
         ParabolicRunout,
         CubicRunout,

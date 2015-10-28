@@ -255,12 +255,6 @@ static double qwtSlopeBoundary(
             m = s - r * ( s - slope1 );
             break;
         }
-        case QwtSplineC1::Natural:
-        {
-            boundaryValue = 0.0;
-
-            // fallthrough
-        }
         case QwtSplineC1::Clamped2:
         {
             const double c2 = 0.5 * boundaryValue;

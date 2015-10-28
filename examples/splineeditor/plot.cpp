@@ -72,10 +72,7 @@ public:
             }
             case CubicSpline:
             {   
-                QwtSplineCubic *cubicSpline = new QwtSplineCubic();
-                cubicSpline->setBoundaryConditions( QwtSplineCubic::Natural );
-
-                d_spline = cubicSpline;
+                d_spline = new QwtSplineCubic();
                 break;
             }
             case CardinalSpline:

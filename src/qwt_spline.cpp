@@ -644,7 +644,7 @@ QwtSplineC1::~QwtSplineC1()
 
 void QwtSplineC1::setBoundaryConditions( BoundaryCondition condition )
 {
-    if ( condition >= Natural )
+    if ( condition >= LinearRunout )
         d_data->setBoundaryCondition( condition, 0.0, 0.0 );
     else
         d_data->setBoundaryCondition( condition, boundaryValueBegin(), boundaryValueEnd()  );
