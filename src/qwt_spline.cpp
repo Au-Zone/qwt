@@ -342,6 +342,36 @@ static QPolygonF qwtPolygonParametric( double distance,
     return fittedPoints;
 }
 
+class QwtSpline::PrivateData
+{
+public:
+    PrivateData():
+        isClosing( false )
+    {
+        parametrization = new QwtSplineParametrization( 
+            QwtSplineParametrization::ParameterChordal );
+
+        // parabolic runout
+        boundaryCondition.type = QwtSplineC1::Clamped3;
+        boundaryCondition.value[0] = boundaryCondition.value[1] = 0.0;
+    }
+
+    ~PrivateData()
+    {
+        delete parametrization;
+    }
+
+    QwtSplineParametrization *parametrization;
+    bool isClosing;
+
+    struct
+    {
+        QwtSpline::BoundaryCondition type;
+        double value[2];
+
+    } boundaryCondition;
+};
+
 /*!
   \brief Constructor
 
@@ -349,16 +379,15 @@ static QPolygonF qwtPolygonParametric( double distance,
 
   \sa setParametrization(), setClosing()
  */
-QwtSpline::QwtSpline():
-    d_parametrization( new QwtSplineParametrization( QwtSplineParametrization::ParameterChordal ) ),
-    d_isClosing( false )
+QwtSpline::QwtSpline()
 {
+    d_data = new PrivateData;
 }
 
 //! Destructor
 QwtSpline::~QwtSpline()
 {
-    delete d_parametrization;
+    delete d_data;
 }
 
 /*!
@@ -387,11 +416,11 @@ uint QwtSpline::locality() const
 
   The default setting is not closing.
 
-  \sa isClosing(), QwtSplineC1::Periodic
+  \sa isClosing(), QwtSpline::Periodic
  */
 void QwtSpline::setClosing( bool on )
 {
-    d_isClosing = on;
+    d_data->isClosing = on;
 }
 
 /*!
@@ -403,31 +432,58 @@ void QwtSpline::setClosing( bool on )
  */
 bool QwtSpline::isClosing() const
 {
-    return d_isClosing;
+    return d_data->isClosing;
 }
 
 void QwtSpline::setParametrization( int type )
 {
-    if ( d_parametrization->type() != type )
+    if ( d_data->parametrization->type() != type )
     {
-        delete d_parametrization;
-        d_parametrization = new QwtSplineParametrization( type );
+        delete d_data->parametrization;
+        d_data->parametrization = new QwtSplineParametrization( type );
     }
 }
 
 void QwtSpline::setParametrization( QwtSplineParametrization *parametrization )
 {
-    if ( ( parametrization != NULL ) && ( d_parametrization != parametrization ) )
+    if ( ( parametrization != NULL ) && ( d_data->parametrization != parametrization ) )
     {
-        delete d_parametrization;
-        d_parametrization = parametrization;
+        delete d_data->parametrization;
+        d_data->parametrization = parametrization;
     }
 }   
 
 const QwtSplineParametrization *QwtSpline::parametrization() const
 {
-    return d_parametrization;
+    return d_data->parametrization;
 }
+
+void QwtSpline::setBoundaryConditions( BoundaryCondition condition )
+{
+    d_data->boundaryCondition.type = condition;
+}
+
+QwtSpline::BoundaryCondition QwtSpline::boundaryCondition() const
+{
+    return d_data->boundaryCondition.type;
+}
+
+void QwtSpline::setBoundaryValues( double valueBegin, double valueEnd )
+{
+    d_data->boundaryCondition.value[0] = valueBegin;
+    d_data->boundaryCondition.value[1] = valueEnd;
+}
+
+double QwtSpline::boundaryValueBegin() const
+{
+    return d_data->boundaryCondition.value[0];
+}
+
+double QwtSpline::boundaryValueEnd() const
+{
+    return d_data->boundaryCondition.value[1];
+}
+
 
 /*! \fn QVector<QLineF> bezierControlLines( const QPolygonF &points ) const
 
@@ -549,7 +605,7 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
 
     for ( int i = 0; i < n - 1; i++ )
     {
-        const double l = d_parametrization->valueIncrement( p[i], p[i+1] );
+        const double l = d_data->parametrization->valueIncrement( p[i], p[i+1] );
 
         while ( t < l )
         {
@@ -576,7 +632,7 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
 
     if ( isClosing() && ( controlLines.size() >= n ) )
     {
-        const double l = d_parametrization->valueIncrement( p[n-1], p[0] );
+        const double l = d_data->parametrization->valueIncrement( p[n-1], p[0] );
 
         while ( t < l )
         {
@@ -605,70 +661,14 @@ QwtSplineG1::~QwtSplineG1()
 {
 }
 
-class QwtSplineC1::PrivateData
-{
-public:
-    PrivateData()
-    {
-        // parabolic runout
-        boundaryCondition.type = QwtSplineC1::Clamped3;
-        boundaryCondition.value[0] = boundaryCondition.value[1] = 0.0;
-    }
-
-    void setBoundaryCondition( QwtSplineC1::BoundaryCondition condition, 
-        double valueStart, double valueEnd )
-    {
-        boundaryCondition.type = condition;
-        boundaryCondition.value[0] = valueStart;
-        boundaryCondition.value[1] = valueEnd;
-    }
-
-    struct
-    {
-        QwtSplineC1::BoundaryCondition type;
-        double value[2];
-
-    } boundaryCondition;
-};
-
 QwtSplineC1::QwtSplineC1()
 {
     setParametrization( QwtSplineParametrization::ParameterX );
-    d_data = new PrivateData;
 }
 
 //! Destructor
 QwtSplineC1::~QwtSplineC1()
 {
-    delete d_data;
-}
-
-void QwtSplineC1::setBoundaryConditions( BoundaryCondition condition )
-{
-    if ( condition >= LinearRunout )
-        d_data->setBoundaryCondition( condition, 0.0, 0.0 );
-    else
-        d_data->setBoundaryCondition( condition, boundaryValueBegin(), boundaryValueEnd()  );
-}
-
-QwtSplineC1::BoundaryCondition QwtSplineC1::boundaryCondition() const
-{
-    return d_data->boundaryCondition.type;
-}
-
-void QwtSplineC1::setBoundaryValues( double valueBegin, double valueEnd )
-{
-    d_data->setBoundaryCondition( boundaryCondition(), valueBegin, valueEnd );
-}
-
-double QwtSplineC1::boundaryValueBegin() const
-{
-    return d_data->boundaryCondition.value[0];
-}
-
-double QwtSplineC1::boundaryValueEnd() const
-{
-    return d_data->boundaryCondition.value[1];
 }
 
 /*!

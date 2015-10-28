@@ -45,6 +45,27 @@ class QwtSplineParametrization;
 class QWT_EXPORT QwtSpline
 {
 public:
+    enum BoundaryCondition
+    {
+        // clamping is possible for all splines
+
+        Clamped1,
+
+        // Natural := Clamped2 with boundary values: 0.0
+        Clamped2,
+
+        // Parabolic runout := Clamped3 with boundary values: 0.0
+        Clamped3,
+
+        // conditions, that require C1 continuity
+        LinearRunout, 
+        Periodic,
+
+        // conditions, that require C2 continuity
+        CubicRunout, 
+        NotAKnot
+    };
+
     QwtSpline();
     virtual ~QwtSpline();
 
@@ -54,6 +75,14 @@ public:
 
     void setClosing( bool );
     bool isClosing() const;
+
+    void setBoundaryConditions( BoundaryCondition );
+    BoundaryCondition boundaryCondition() const;
+
+    void setBoundaryValues( double valueBegin, double valueEnd );
+
+    double boundaryValueBegin() const;
+    double boundaryValueEnd() const;
 
     virtual QPolygonF equidistantPolygon( const QPolygonF &, 
         double distance, bool withNodes ) const;
@@ -68,8 +97,8 @@ private:
     explicit QwtSpline( const QwtSpline & );
     QwtSpline &operator=( const QwtSpline & );
 
-    QwtSplineParametrization *d_parametrization;
-    bool d_isClosing;
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 /*!
@@ -90,35 +119,9 @@ public:
 class QWT_EXPORT QwtSplineC1: public QwtSplineG1
 {
 public:
-    enum BoundaryCondition 
-    {
-        Clamped,
-
-        // Natural := Clamped2 with boundary values: 0.0
-        Clamped2,
-
-        // Parabolic runout := Clamped3 with boundary values: 0.0
-        Clamped3,
-
-        LinearRunout,
-
-        // only valid for C2 splines
-        CubicRunout,
-        NotAKnot,
-
-        Periodic
-    };
 
     QwtSplineC1();
     virtual ~QwtSplineC1();
-
-    void setBoundaryConditions( BoundaryCondition );
-    BoundaryCondition boundaryCondition() const;
-
-    void setBoundaryValues( double valueBegin, double valueEnd );
-
-    double boundaryValueBegin() const;
-    double boundaryValueEnd() const;
 
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
@@ -129,10 +132,6 @@ public:
     // calculating the parametric equations
     virtual QVector<QwtSplinePolynomial> polynomials( const QPolygonF & ) const;
     virtual QVector<double> slopes( const QPolygonF & ) const = 0;
-
-private:
-    class PrivateData;
-    PrivateData *d_data;
 };
 
 /*!

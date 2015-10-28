@@ -223,7 +223,7 @@ static inline double qwtSlopeAkima( const QPointF &p1, const QPointF &p2,
 }
 
 static double qwtSlopeBoundary( 
-    QwtSplineC1::BoundaryCondition boundaryCondition, double boundaryValue,
+    int boundaryCondition, double boundaryValue,
     const QPointF &p1, const QPointF &p2, double slope1 )
 {
     const double dx = p2.x() - p1.x();
@@ -233,17 +233,9 @@ static double qwtSlopeBoundary(
 
     switch( boundaryCondition )
     {
-        case QwtSplineC1::Clamped:
+        case QwtSplineC1::Clamped1:
         {
             m = boundaryValue;
-            break;
-        }
-        case QwtSplineC1::LinearRunout:
-        {
-            const double s = qwtSlopeLine( p1, p2 );
-            const double r = qBound( 0.0, boundaryValue, 1.0 );
-
-            m = s - r * ( s - slope1 );
             break;
         }
         case QwtSplineC1::Clamped2:
@@ -260,13 +252,12 @@ static double qwtSlopeBoundary(
             m = c3 * dx * dx + 2 * dy / dx - slope1;
             break;
         }
-        case QwtSplineC1::CubicRunout:
-        case QwtSplineC1::NotAKnot:
+        case QwtSplineC1::LinearRunout:
         {
-            // building one cubic curve from 3 points
-            // only possible with C2 continuity !!
+            const double s = qwtSlopeLine( p1, p2 );
+            const double r = qBound( 0.0, boundaryValue, 1.0 );
 
-            m = dy / dx; // something
+            m = s - r * ( s - slope1 );
             break;
         }
         default:
@@ -399,7 +390,7 @@ static inline void qwtSplineAkimaBoundaries(
         return;
     }
 
-    if ( spline->boundaryCondition() == QwtSplineC1::Clamped )
+    if ( spline->boundaryCondition() == QwtSplineC1::Clamped1 )
     {
         slopeBegin = spline->boundaryValueBegin();
         slopeEnd = spline->boundaryValueEnd();

@@ -296,15 +296,15 @@ protected:
     }
 };
 
-class SplineClamped: public CubicSpline
+class SplineClamped1: public CubicSpline
 {   
 public:
-    SplineClamped( double slopeBegin, double slopeEnd ):
+    SplineClamped1( double slopeBegin, double slopeEnd ):
         CubicSpline( "Clamped Spline" ),
         d_slopeBegin( slopeBegin ),
         d_slopeEnd( slopeEnd )
     {
-        setBoundaryConditions( QwtSplineCubic::Clamped );
+        setBoundaryConditions( QwtSpline::Clamped1 );
         setBoundaryValues( slopeBegin, slopeEnd );
     }
 
@@ -404,7 +404,7 @@ int main()
     splines += new SplineCubicRunout();
     splines += new SplineNotAKnot();
     splines += new SplinePeriodic();
-    splines += new SplineClamped( 0.5, 2.0 );
+    splines += new SplineClamped1( 0.5, 2.0 );
     splines += new SplineClamped2( 0.4, -0.8 );
     splines += new SplineClamped3( 0.03, 0.01 );
     
@@ -412,8 +412,7 @@ int main()
 
     // 3 points
 
-    points << QPointF( 10, 50 ) << QPointF( 60, 30 ) 
-        << QPointF( 82, 50 );
+    points << QPointF( 10, 50 ) << QPointF( 60, 30 ) << QPointF( 82, 50 );
 
     testSplines( splines, points );
 

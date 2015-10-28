@@ -773,7 +773,7 @@ namespace QwtSplineCubicP
     };
 }
 
-static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type, 
+static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition, 
     const QPolygonF &points, double clampedBegin, double clampedEnd, 
     QwtSplineCubicP::Equation3 eq[2] )
 {
@@ -785,9 +785,9 @@ static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type,
     const double hn = ( points[n-1].x() - points[n-2].x() );
     const double sn = ( points[n-1].y() - points[n-2].y() ) / hn;
 
-    switch( type )
+    switch( boundaryCondition )
     {
-        case QwtSplineC1::Clamped:
+        case QwtSplineC1::Clamped1:
         {
             // first derivative at end points given
 
@@ -876,7 +876,7 @@ static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type,
 
             double v0, vn;
 
-            if ( type == QwtSplineCubic::CubicRunout )
+            if ( boundaryCondition == QwtSplineCubic::CubicRunout )
             {
                 // first/last point are the endpoints of the curve
 
