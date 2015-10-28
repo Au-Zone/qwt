@@ -100,33 +100,43 @@ public:
 
     void setBoundaryCondition( const QString &condition )
     {
-        QwtSplineC1 *splineC1 = dynamic_cast<QwtSplineC1 *>( d_spline );
-        if ( splineC1 == NULL )
-            return;
+        QwtSplineC2 *splineC2 = dynamic_cast<QwtSplineC2 *>( d_spline );
+        if ( splineC2 )
+        {
+            if ( condition == "Cubic Runout" )
+            {
+                splineC2->setBoundaryConditions( QwtSplineC2::CubicRunout );
+                return;
+            }
 
-        if ( condition == "Linear Runout" )
-        {
-            splineC1->setBoundaryConditions( QwtSplineC1::LinearRunout );
+            if ( condition == "Not a Knot" )
+            {
+                splineC2->setBoundaryConditions( QwtSplineC2::NotAKnot );
+                return;
+            }
         }
-        else if ( condition == "Parabolic Runout" )
+
+        QwtSplineC1 *splineC1 = dynamic_cast<QwtSplineC1 *>( d_spline );
+        if ( splineC1 )
         {
-            splineC1->setBoundaryConditions( QwtSplineC1::Clamped3 );
-            splineC1->setBoundaryValues( 0.0, 0.0 );
+            if ( condition == "Linear Runout" )
+            {
+                splineC1->setBoundaryConditions( QwtSplineC1::LinearRunout );
+                splineC1->setBoundaryValues( 0.0, 0.0 );
+                return;
+            }
+
+            if ( condition == "Parabolic Runout" )
+            {
+                splineC1->setBoundaryConditions( QwtSplineC1::Clamped3 );
+                splineC1->setBoundaryValues( 0.0, 0.0 );
+                return;
+            }
         }
-        else if ( condition == "Cubic Runout" )
-        {
-            splineC1->setBoundaryConditions( QwtSplineC1::CubicRunout );
-        }
-        else if ( condition == "Not a Knot" )
-        {
-            splineC1->setBoundaryConditions( QwtSplineC1::NotAKnot );
-        }
-        else
-        {
-            // Natural
-            splineC1->setBoundaryConditions( QwtSplineC1::Clamped2 );
-            splineC1->setBoundaryValues( 0.0, 0.0 );
-        }
+
+        // Natural
+        d_spline->setBoundaryConditions( QwtSplineC1::Clamped2 );
+        d_spline->setBoundaryValues( 0.0, 0.0 );
     }
 
     void setParametric( const QString &parameterType )
