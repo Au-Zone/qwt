@@ -836,18 +836,6 @@ static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type,
 
             break;
         }
-        case QwtSplineCubic::NotAKnot:
-        {
-            // not-a-node condition
-
-            const double h1 = points[2].x() - points[1].x();
-            const double hn1 = ( points[n-2].x() - points[n-3].x() );
-
-            eq[0].setup( 1.0, -( 1.0 + h0 / h1 ), h0 / h1, 0.0 );
-            eq[1].setup( hn / hn1, -( 1.0 + hn / hn1 ), 1.0, 0.0 );
-
-            break;
-        }
         case QwtSplineCubic::LinearRunout:
         {
             // c1 = s0
@@ -881,13 +869,34 @@ static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type,
 
             break;
         }
+        case QwtSplineCubic::NotAKnot:
         case QwtSplineCubic::CubicRunout:
         {
-            // b0 = 2 * b1 - b2
-            // => 1.0 * b0 - 2 * b1 + 1.0 * b2 = 0.0
+            // building one cubic curve from 3 points
 
-            eq[0].setup( 1.0, -2.0, 1.0, 0.0 ); 
-            eq[1].setup( 1.0, -2.0, 1.0, 0.0 ); 
+            double v0, vn;
+
+            if ( type == QwtSplineCubic::CubicRunout )
+            {
+                // first/last point are the endpoints of the curve
+
+                // b0 = 2 * b1 - b2
+                // => 1.0 * b0 - 2 * b1 + 1.0 * b2 = 0.0
+
+                v0 = vn = 1.0;
+            }
+            else
+            {
+                // first/last points are on the curve, 
+                // the imaginary endpoints have the same distance as h0/hn
+
+                v0 = h0 / ( points[2].x() - points[1].x() );
+                vn = hn / ( points[n-2].x() - points[n-3].x() );
+            }
+
+            eq[0].setup( 1.0, -( 1.0 + v0 ), v0, 0.0 ); 
+            eq[1].setup( vn, -( 1.0 + vn ), 1.0, 0.0 ); 
+
             break;
         }
         default:

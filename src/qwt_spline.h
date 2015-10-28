@@ -101,9 +101,11 @@ public:
         Clamped3,
 
         LinearRunout,
-        CubicRunout,
 
+        // only valid for C2 splines
+        CubicRunout,
         NotAKnot,
+
         Periodic
     };
 

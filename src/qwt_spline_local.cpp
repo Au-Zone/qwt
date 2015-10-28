@@ -69,7 +69,6 @@ static inline double qwtSlopePChip(
     return 0.0;
 }
 
-
 static inline void qwtCubicToP( const QPointF &p1, double m1,
     const QPointF &p2, double m2, QPainterPath &path )
 {
@@ -225,22 +224,15 @@ static inline double qwtSlopeAkima( const QPointF &p1, const QPointF &p2,
 
 static double qwtSlopeBoundary( 
     QwtSplineC1::BoundaryCondition boundaryCondition, double boundaryValue,
-    const QPointF &p1, const QPointF &p2, const QPointF &p3,
-    double slope1, double slope2 )
+    const QPointF &p1, const QPointF &p2, double slope1 )
 {
+    const double dx = p2.x() - p1.x();
+    const double dy = p2.y() - p1.y();
+
     double m = 0.0;
 
     switch( boundaryCondition )
     {
-        case QwtSplineC1::CubicRunout:
-        {
-            // doesn't make much sense without C2 continuity
-            const double dx = p2.x() - p1.x();
-            const double dy = p2.y() - p1.y();
-
-            m = 2 * dy / dx - slope1;
-            break;
-        }
         case QwtSplineC1::Clamped:
         {
             m = boundaryValue;
@@ -259,36 +251,27 @@ static double qwtSlopeBoundary(
             const double c2 = 0.5 * boundaryValue;
             const double c1 = slope1;
 
-            const double dx = p2.x() - p1.x();
-            const double dy = p2.y() - p1.y();
-
             m = 0.5 * ( 3.0 * dy / dx - c1 - c2 * dx );
             break;
         }
-        case QwtSplineC1::NotAKnot:
-        {
-            // doesn't make much sense without C2 continuity
-
-            const QwtSplinePolynomial pnom = 
-                QwtSplinePolynomial::fromSlopes( p2, slope1, p3, slope2 ); 
-
-            boundaryValue = 6.0 * pnom.c3;
-
-            // fallthrough
-        }
         case QwtSplineC1::Clamped3:
         {
-            const double dx = p2.x() - p1.x();
-            const double dy = p2.y() - p1.y();
-
             const double c3 = boundaryValue / 6.0;
             m = c3 * dx * dx + 2 * dy / dx - slope1;
+            break;
+        }
+        case QwtSplineC1::CubicRunout:
+        case QwtSplineC1::NotAKnot:
+        {
+            // building one cubic curve from 3 points
+            // only possible with C2 continuity !!
 
+            m = dy / dx; // something
             break;
         }
         default:
         {
-            m = qwtSlopeLine( p1, p2 );
+            m = dy / dx;
         }
     }
 
@@ -296,18 +279,18 @@ static double qwtSlopeBoundary(
 }
 
 static double qwtSlopeBegin( const QwtSplineC1 *spline,
-    const QVector<QPointF> &points, double slope1, double slope2 )
+    const QVector<QPointF> &points, double slope1 )
 {
     if ( points.size() < 2 )
         return 0.0;
 
     return qwtSlopeBoundary( 
         spline->boundaryCondition(), spline->boundaryValueBegin(),
-        points[0], points[1], points[2], slope1, slope2 );
+        points[0], points[1], slope1 );
 }
 
 static double qwtSlopeEnd( const QwtSplineC1 *spline,
-    const QVector<QPointF> &points, double slope1, double slope2 ) 
+    const QVector<QPointF> &points, double slope2 ) 
 {
     const int n = points.size();
 
@@ -324,8 +307,7 @@ static double qwtSlopeEnd( const QwtSplineC1 *spline,
     }
 
     const double m = qwtSlopeBoundary(
-        spline->boundaryCondition(), boundaryValue,
-        p1, p2, p3, -slope2, -slope1 );
+        spline->boundaryCondition(), boundaryValue, p1, p2, -slope2 );
 
     return -m;
 }
@@ -344,23 +326,13 @@ static void qwtSplineBoundariesL1(
         const QPointF pn = p[0] - ( p[n-1] - p[n-2] );
         slopeBegin = slopeEnd = qwtSlopeP3<Slope>( pn, p[0], p[1] );
     }
-    else if ( n == 3 )
-    {
-        const double s0 = qwtSlopeLine( p[0], p[1] );
-        const double m = qwtSlopeP3<Slope>( p[0], p[1], p[2] );
-    
-        slopeEnd = qwtSlopeEnd( spline, points, s0, m );
-        slopeBegin = qwtSlopeBegin( spline, points, m, slopeEnd );
-    }
     else
     {
         const double m2 = qwtSlopeP3<Slope>( p[0], p[1], p[2] );
-        const double m3 = qwtSlopeP3<Slope>( p[1], p[2], p[3] );
-        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2 );
 
-        const double mn1 = qwtSlopeP3<Slope>( p[n-4], p[n-3], p[n-2] );
         const double mn2 = qwtSlopeP3<Slope>( p[n-3], p[n-2], p[n-1] );
-        slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
+        slopeEnd = qwtSlopeEnd( spline, points, mn2 );
     }
 }
 
@@ -441,8 +413,8 @@ static inline void qwtSplineAkimaBoundaries(
         const double s2 = qwtSlopeLine( p[1], p[2] );
         const double m = qwtSlopeAkima( s1, s1, s2, s2 );
 
-        slopeBegin = qwtSlopeBegin( spline, points, m, s2 );
-        slopeEnd = qwtSlopeEnd( spline, points, slopeBegin, m );
+        slopeBegin = qwtSlopeBegin( spline, points, m );
+        slopeEnd = qwtSlopeEnd( spline, points, m );
     }
     else if ( n == 4 )
     {
@@ -453,8 +425,8 @@ static inline void qwtSplineAkimaBoundaries(
         const double m2 = qwtSlopeAkima( s1, s1, s2, s2 );
         const double m3 = qwtSlopeAkima( s2, s2, s3, s3 );
 
-        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
-        slopeEnd = qwtSlopeEnd( spline, points, m2, m3 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2 );
+        slopeEnd = qwtSlopeEnd( spline, points, m3 );
     }
     else
     {
@@ -466,9 +438,8 @@ static inline void qwtSplineAkimaBoundaries(
         }
 
         const double m2 = qwtSlopeAkima( s[0], s[0], s[1], s[1] );
-        const double m3 = qwtSlopeAkima( s[0], s[1], s[2], s[3] );
 
-        slopeBegin = qwtSlopeBegin( spline, points, m2, m3 );
+        slopeBegin = qwtSlopeBegin( spline, points, m2 );
 
         for ( int i = 0; i < 4; i++ )
         {
@@ -476,10 +447,9 @@ static inline void qwtSplineAkimaBoundaries(
             s[i] = qwtSlopeLine( p[j], p[j+1] );
         }
 
-        const double mn1 = qwtSlopeAkima( s[0], s[1], s[2], s[3] );
         const double mn2 = qwtSlopeAkima( s[2], s[2], s[3], s[3] );
 
-        slopeEnd = qwtSlopeEnd( spline, points, mn1, mn2 );
+        slopeEnd = qwtSlopeEnd( spline, points, mn2 );
     }
 }
 
@@ -541,8 +511,8 @@ static inline SplineStore qwtSplineLocal(
         const double ts = 1.0 - spline->tension();
 
         const double s0 = qwtSlopeLine( points[0], points[1] );
-        const double m1 = qwtSlopeBegin( spline, points, s0, s0 ) * ts;
-        const double m2 = qwtSlopeEnd( spline, points, s0, s0 ) * ts;
+        const double m1 = qwtSlopeBegin( spline, points, s0 ) * ts;
+        const double m2 = qwtSlopeEnd( spline, points, s0 ) * ts;
 
         store.init( points );
         store.start( points[0], m1 );
