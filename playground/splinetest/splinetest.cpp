@@ -200,32 +200,6 @@ private:
     const int d_minPoints;
 };
 
-class SplineParabolicRunout: public CubicSpline
-{
-public:
-    SplineParabolicRunout():
-        CubicSpline( "Parabolic Runout Spline" )
-    {
-        setBoundaryConditions( QwtSplineCubic::ParabolicRunout );
-    }
-
-protected:
-
-    virtual bool verifyStart( const QPolygonF &points, 
-        const QVector<double> &, const QVector<double> &cv ) const
-    {
-        const QwtSplinePolynomial p = polynomialCV( 0, points, cv );
-        return fuzzyCompare( p.c3, 0.0 );
-    }
-
-    virtual bool verifyEnd( const QPolygonF &points, 
-        const QVector<double> &, const QVector<double> &cv ) const
-    {
-        const QwtSplinePolynomial p = polynomialCV( points.size() - 2, points, cv );
-        return fuzzyCompare( p.c3, 0.0 );
-    }
-};
-
 class SplineCubicRunout: public CubicSpline
 {
 public:
@@ -427,7 +401,6 @@ void testSplines( QVector<CubicSpline *> splines, const QPolygonF &points )
 int main()
 {
     QVector<CubicSpline *> splines;
-    splines += new SplineParabolicRunout();
     splines += new SplineCubicRunout();
     splines += new SplineNotAKnot();
     splines += new SplinePeriodic();

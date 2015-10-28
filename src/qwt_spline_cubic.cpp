@@ -881,15 +881,6 @@ static void qwtSetupEndEquations( QwtSplineC1::BoundaryCondition type,
 
             break;
         }
-        case QwtSplineCubic::ParabolicRunout:
-        {
-            // parabolic runout
-            // b0 = b1 => ( 1.0 ) * b0 + ( -1.0 ) * b1 = 0.0;
-
-            eq[0].setup( 1.0, -1.0, 0.0, 0.0 ); 
-            eq[1].setup( 0.0, 1.0, -1.0, 0.0 ); 
-            break;
-        }
         case QwtSplineCubic::CubicRunout:
         {
             // b0 = 2 * b1 - b2

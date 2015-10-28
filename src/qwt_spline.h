@@ -93,11 +93,14 @@ public:
     enum BoundaryCondition 
     {
         Clamped,
+
+        // Natural := Clamped2 with boundary values: 0.0
         Clamped2,
+
+        // Parabolic runout := Clamped3 with boundary values: 0.0
         Clamped3,
 
         LinearRunout,
-        ParabolicRunout,
         CubicRunout,
 
         NotAKnot,

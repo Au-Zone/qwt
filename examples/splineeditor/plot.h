@@ -16,6 +16,7 @@ public Q_SLOTS:
     void legendChecked( const QVariant &, bool on );
     void setOverlaying( bool );
     void setParametric( const QString & );
+    void setBoundaryCondition( const QString & );
     void setClosed( bool );
 
 #ifndef QT_NO_PRINTER 
@@ -31,4 +32,6 @@ private:
     QwtPlotMarker *d_marker;
     QwtPlotCurve *d_curve;
     QwtWheel *d_wheel;
+
+    int d_boundaryCondition;
 };

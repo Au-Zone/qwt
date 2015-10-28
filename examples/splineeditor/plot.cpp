@@ -98,6 +98,37 @@ public:
         d_spline->setClosing( on );
     }
 
+    void setBoundaryCondition( const QString &condition )
+    {
+        QwtSplineC1 *splineC1 = dynamic_cast<QwtSplineC1 *>( d_spline );
+        if ( splineC1 == NULL )
+            return;
+
+        if ( condition == "Linear Runout" )
+        {
+            splineC1->setBoundaryConditions( QwtSplineC1::LinearRunout );
+        }
+        else if ( condition == "Parabolic Runout" )
+        {
+            splineC1->setBoundaryConditions( QwtSplineC1::Clamped3 );
+            splineC1->setBoundaryValues( 0.0, 0.0 );
+        }
+        else if ( condition == "Cubic Runout" )
+        {
+            splineC1->setBoundaryConditions( QwtSplineC1::CubicRunout );
+        }
+        else if ( condition == "Not a Knot" )
+        {
+            splineC1->setBoundaryConditions( QwtSplineC1::NotAKnot );
+        }
+        else
+        {
+            // Natural
+            splineC1->setBoundaryConditions( QwtSplineC1::Clamped2 );
+            splineC1->setBoundaryValues( 0.0, 0.0 );
+        }
+    }
+
     void setParametric( const QString &parameterType )
     {
         QwtSplineParametrization::Type type = QwtSplineParametrization::ParameterX;
@@ -157,7 +188,8 @@ public:
 };
 
 Plot::Plot( bool parametric, QWidget *parent ):
-    QwtPlot( parent )
+    QwtPlot( parent ),
+    d_boundaryCondition( QwtSplineC1::Clamped2 )
 {
     setTitle( "Points can be dragged using the mouse" );
 
@@ -417,6 +449,21 @@ void Plot::setClosed( bool on )
             fitter->setClosing( on );
     }
 
+    replot();
+}
+
+void Plot::setBoundaryCondition( const QString &condition )
+{
+    QwtPlotItemList curves = itemList( QwtPlotItem::Rtti_PlotCurve );
+    for ( int i = 0; i < curves.size(); i++ )
+    {
+        QwtPlotCurve *curve = dynamic_cast<QwtPlotCurve *>( curves[i] );
+
+        SplineFitter *fitter = dynamic_cast<SplineFitter*>( curve->curveFitter() );
+        if ( fitter )
+            fitter->setBoundaryCondition( condition );
+    }       
+    
     replot();
 }
 

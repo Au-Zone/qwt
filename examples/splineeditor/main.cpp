@@ -45,6 +45,7 @@ public:
         if ( parametric )
         {
             QComboBox *parameterBox = new QComboBox( toolBar );
+
             parameterBox->addItem( "Uniform" );
             parameterBox->addItem( "Centripetral" );
             parameterBox->addItem( "Chordal" );
@@ -62,6 +63,18 @@ public:
             QObject::connect( btnClosed, SIGNAL( toggled( bool ) ),
                 plot, SLOT( setClosed( bool ) ) );
         }
+
+        QComboBox *boundaryBox = new QComboBox( toolBar );
+
+        boundaryBox->addItem( "Natural" );
+        boundaryBox->addItem( "Linear Runout" );
+        boundaryBox->addItem( "Parabolic Runout" );
+        boundaryBox->addItem( "Cubic Runout" );
+        boundaryBox->addItem( "Not a Knot" );
+
+        toolBar->addWidget( boundaryBox );
+        connect( boundaryBox, SIGNAL( activated( const QString & ) ),
+            plot, SLOT( setBoundaryCondition( const QString & ) ) );
     
         addToolBar( toolBar );
     }
@@ -70,6 +83,7 @@ public:
 int main ( int argc, char **argv )
 {
     QApplication a( argc, argv );
+    a.setStyle( "Windows" );
 
     QTabWidget w;
     w.addTab( new PlotTab( false, &w ), "Non Parametric" );

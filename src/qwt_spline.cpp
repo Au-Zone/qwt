@@ -610,7 +610,8 @@ class QwtSplineC1::PrivateData
 public:
     PrivateData()
     {
-        boundaryCondition.type = QwtSplineC1::ParabolicRunout;
+        // parabolic runout
+        boundaryCondition.type = QwtSplineC1::Clamped3;
         boundaryCondition.value[0] = boundaryCondition.value[1] = 0.0;
     }
 

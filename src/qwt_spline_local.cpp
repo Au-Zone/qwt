@@ -233,7 +233,6 @@ static double qwtSlopeBoundary(
     switch( boundaryCondition )
     {
         case QwtSplineC1::CubicRunout:
-        case QwtSplineC1::ParabolicRunout:
         {
             // doesn't make much sense without C2 continuity
             const double dx = p2.x() - p1.x();
