@@ -223,136 +223,118 @@ static inline double qwtSlopeAkima( const QPointF &p1, const QPointF &p2,
     return qwtSlopeAkima( s1, s2, s3, s4 );
 }
 
-static double qwtSlopeBegin( const QwtSplineC1 *spline,
-    const QVector<QPointF> &points, double slope1, double slope2 ) 
+static double qwtSlopeBoundary( 
+    QwtSplineC1::BoundaryCondition boundaryCondition, double boundaryValue,
+    const QPointF &p1, const QPointF &p2, const QPointF &p3,
+    double slope1, double slope2 )
 {
-    const int size = points.size();
-    if ( size < 2 )
-        return 0.0;
+    double m = 0.0;
 
-    const QPointF &p1 = points[0];
-    const QPointF &p2 = points[1];
-    const QPointF &p3 = points[2];
-
-    const double boundaryValue = spline->boundaryValueBegin();
-
-    if ( spline->boundaryCondition() == QwtSplineC1::Clamped )
-        return boundaryValue;
-
-    if ( spline->boundaryCondition() == QwtSplineC1::LinearRunout )
+    switch( boundaryCondition )
     {
-        const double s = qwtSlopeLine( p1, p2 );
-        return s - boundaryValue * ( s - slope1 );
-    }
-
-    const QwtSplinePolynomial pnom = 
-        QwtSplinePolynomial::fromSlopes( p2, slope1, p3, slope2 ); 
-
-    const double cv2 = pnom.curvatureAt( 0.0 );
-
-    double cv1;
-    switch( spline->boundaryCondition() )
-    {
-        case QwtSplineC1::Clamped2:
+        case QwtSplineC1::CubicRunout:
+        case QwtSplineC1::ParabolicRunout:
         {
-            cv1 = boundaryValue;
+            // doesn't make much sense without C2 continuity
+            const double dx = p2.x() - p1.x();
+            const double dy = p2.y() - p1.y();
+
+            m = 2 * dy / dx - slope1;
             break;
         }
-        case QwtSplineC1::Clamped3:
+        case QwtSplineC1::Clamped:
         {
-            cv1 = cv2 - 6 * boundaryValue;
+            m = boundaryValue;
+            break;
+        }
+        case QwtSplineC1::LinearRunout:
+        {
+            const double s = qwtSlopeLine( p1, p2 );
+            const double r = qBound( 0.0, boundaryValue, 1.0 );
+
+            m = s - r * ( s - slope1 );
+            break;
+        }
+        case QwtSplineC1::Natural:
+        {
+            boundaryValue = 0.0;
+
+            // fallthrough
+        }
+        case QwtSplineC1::Clamped2:
+        {
+            const double c2 = 0.5 * boundaryValue;
+            const double c1 = slope1;
+
+            const double dx = p2.x() - p1.x();
+            const double dy = p2.y() - p1.y();
+
+            m = 0.5 * ( 3.0 * dy / dx - c1 - c2 * dx );
             break;
         }
         case QwtSplineC1::NotAKnot:
         {
-            cv1 = cv2 - 6 * pnom.c3;
-            break;
+            // doesn't make much sense without C2 continuity
+
+            const QwtSplinePolynomial pnom = 
+                QwtSplinePolynomial::fromSlopes( p2, slope1, p3, slope2 ); 
+
+            boundaryValue = 6.0 * pnom.c3;
+
+            // fallthrough
         }
-        case QwtSplineC1::ParabolicRunout:
+        case QwtSplineC1::Clamped3:
         {
-            cv1 = cv2;
+            const double dx = p2.x() - p1.x();
+            const double dy = p2.y() - p1.y();
+
+            const double c3 = boundaryValue / 6.0;
+            m = c3 * dx * dx + 2 * dy / dx - slope1;
+
             break;
         }
-        case QwtSplineC1::CubicRunout:
-        {
-            cv1 = 2 * cv2 - pnom.curvatureAt( p3.x() - p2.x() );
-            break;
-        }
-        case QwtSplineC1::Natural:
         default:
-            cv1 = 0.0;
+        {
+            m = qwtSlopeLine( p1, p2 );
+        }
     }
 
-    const QwtSplinePolynomial pnomBegin =
-        QwtSplinePolynomial::fromCurvatures( p1, cv1, p2, cv2 );
+    return m;
+}
 
-    return pnomBegin.slopeAt( 0.0 );
+static double qwtSlopeBegin( const QwtSplineC1 *spline,
+    const QVector<QPointF> &points, double slope1, double slope2 )
+{
+    if ( points.size() < 2 )
+        return 0.0;
+
+    return qwtSlopeBoundary( 
+        spline->boundaryCondition(), spline->boundaryValueBegin(),
+        points[0], points[1], points[2], slope1, slope2 );
 }
 
 static double qwtSlopeEnd( const QwtSplineC1 *spline,
     const QVector<QPointF> &points, double slope1, double slope2 ) 
 {
-    const int size = points.size();
-    if ( size < 2 )
-        return 0.0;
+    const int n = points.size();
 
-    const QPointF &p1 = points[size-3];
-    const QPointF &p2 = points[size-2];
-    const QPointF &p3 = points[size-1];
+    const QPointF p1( points[n-1].x(), -points[n-1].y() );
+    const QPointF p2( points[n-2].x(), -points[n-2].y() );
+    const QPointF p3( points[n-3].x(), -points[n-3].y() );
 
-    const double boundaryValue = spline->boundaryValueEnd();
-
-    if ( spline->boundaryCondition() == QwtSplineC1::Clamped )
-        return boundaryValue;
-
-    if ( spline->boundaryCondition() == QwtSplineC1::LinearRunout )
+    double boundaryValue = spline->boundaryValueEnd();
+    if ( spline->boundaryCondition() != QwtSplineC1::LinearRunout )
     {
-        const double s = qwtSlopeLine( p2, p3 );
-        return s - boundaryValue * ( s - slope1 );
+        // beside LinearRunout the boundaryValue is a slope or curvature
+        // and needs to be inverted too
+        boundaryValue = -boundaryValue;
     }
 
-    const QwtSplinePolynomial pnom = 
-        QwtSplinePolynomial::fromSlopes( p1, slope1, p2, slope2 ); 
+    const double m = qwtSlopeBoundary(
+        spline->boundaryCondition(), boundaryValue,
+        p1, p2, p3, -slope2, -slope1 );
 
-    const double cv1 = pnom.curvatureAt( p2.x() - p1.x() );
-
-    double cv2;
-    switch( spline->boundaryCondition() )
-    {
-        case QwtSplineC1::Clamped2:
-        {
-            cv2 = boundaryValue;
-            break;
-        }
-        case QwtSplineC1::Clamped3:
-        {
-            cv2 = cv1 - 6 * boundaryValue;
-            break;
-        }
-        case QwtSplineC1::NotAKnot:
-        {
-            cv2 = cv1 - 6 * pnom.c3;
-            break;
-        }
-        case QwtSplineC1::ParabolicRunout:
-        {
-            cv2 = cv1;
-            break;
-        }
-        case QwtSplineC1::CubicRunout:
-        {
-            cv2 = 2 * cv1 - pnom.curvatureAt( 0.0 );
-            break;
-        }
-        case QwtSplineC1::Natural:
-        default:
-            cv2 = 0.0;
-    }
-
-    const QwtSplinePolynomial pnomEnd = 
-        QwtSplinePolynomial::fromCurvatures( p2, cv1, p3, cv2 );
-
-    return pnomEnd.slopeAt( p3.x() - p2.x() );
+    return -m;
 }
 
 template< class Slope >
@@ -414,6 +396,9 @@ static inline SplineStore qwtSplineL1(
     {
         const double dx2 = p[i+1].x() - p[i].x();
         const double dy2 = p[i+1].y() - p[i].y() ;
+
+        // cardinal spline doesn't need the line slopes, but 
+        // the compiler will eliminate pointless calculations
         const double s2 = dy2 / dx2;
 
         const double m2 = ts * Slope::value( dx1, dy1, s1, dx2, dy2, s2 );
