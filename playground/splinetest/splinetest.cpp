@@ -200,6 +200,44 @@ private:
     const int d_minPoints;
 };
 
+class SplineLinearRunout: public CubicSpline
+{
+public:
+    SplineLinearRunout( double ratioBegin, double ratioEnd ):
+        CubicSpline( "Linear Runout Spline" )
+    {
+        ratioBegin = qBound( 0.0, ratioBegin, 1.0 );
+        ratioEnd = qBound( 0.0, ratioEnd, 1.0 );
+
+        setBoundaryConditions( QwtSplineCubic::LinearRunout );
+        setBoundaryValues( ratioBegin, ratioEnd );
+    }
+
+protected:
+    virtual bool verifyStart( const QPolygonF &points, 
+        const QVector<double> &m, const QVector<double> & ) const
+    {
+        const double s = ( points[1].y() - points[0].y() ) / 
+            ( points[1].x() - points[0].x() );
+
+        const double r = boundaryValueBegin();
+
+        return fuzzyCompare( m[0], s - r * ( s - m[1] ) );
+    }
+    
+    virtual bool verifyEnd( const QPolygonF &points,
+        const QVector<double> &m, const QVector<double> & ) const
+    {
+        const int n = points.size();
+        const double s = ( points[n-1].y() - points[n-2].y() ) / 
+            ( points[n-1].x() - points[n-2].x() );
+
+        const double r = boundaryValueEnd();
+
+        return fuzzyCompare( m[n-1], s - r * ( s - m[n-2] ) );
+    }
+};
+
 class SplineCubicRunout: public CubicSpline
 {
 public:
@@ -300,9 +338,7 @@ class SplineClamped1: public CubicSpline
 {   
 public:
     SplineClamped1( double slopeBegin, double slopeEnd ):
-        CubicSpline( "Clamped Spline" ),
-        d_slopeBegin( slopeBegin ),
-        d_slopeEnd( slopeEnd )
+        CubicSpline( "Clamped Spline" )
     {
         setBoundaryConditions( QwtSpline::Clamped1 );
         setBoundaryValues( slopeBegin, slopeEnd );
@@ -313,27 +349,21 @@ protected:
     virtual bool verifyStart( const QPolygonF &, 
         const QVector<double> &m, const QVector<double> & ) const
     {
-        return fuzzyCompare( m.first(), d_slopeBegin );
+        return fuzzyCompare( m.first(), boundaryValueBegin() );
     }
     
     virtual bool verifyEnd( const QPolygonF &, 
         const QVector<double> &m, const QVector<double> & ) const
     {
-        return fuzzyCompare( m.last(), d_slopeEnd );
+        return fuzzyCompare( m.last(), boundaryValueEnd() );
     }
-
-private:
-    const double d_slopeBegin;
-    const double d_slopeEnd;
 };
 
 class SplineClamped2: public CubicSpline
 {   
 public:
     SplineClamped2( double cvBegin, double cvEnd ):
-        CubicSpline( "Clamped2 Spline" ),
-        d_cvBegin( cvBegin ),
-        d_cvEnd( cvEnd )
+        CubicSpline( "Clamped2 Spline" )
     {
         setBoundaryConditions( QwtSplineCubic::Clamped2 );
         setBoundaryValues( cvBegin, cvEnd );
@@ -343,27 +373,21 @@ protected:
     virtual bool verifyStart( const QPolygonF &, 
         const QVector<double> &, const QVector<double> &cv ) const
     {
-        return fuzzyCompare( d_cvBegin, cv.first() );
+        return fuzzyCompare( boundaryValueBegin(), cv.first() );
     }
 
     virtual bool verifyEnd( const QPolygonF &,
         const QVector<double> &, const QVector<double> &cv ) const
     {
-        return fuzzyCompare( d_cvEnd, cv.last() );
+        return fuzzyCompare( boundaryValueEnd(), cv.last() );
     }
-
-private:
-    const double d_cvBegin;
-    const double d_cvEnd;
 };
 
 class SplineClamped3: public CubicSpline
 {   
 public:
     SplineClamped3( double valueBegin, double valueEnd ):
-        CubicSpline( "Clamped3 Spline" ),
-        d_valueBegin( valueBegin ),
-        d_valueEnd( valueEnd )
+        CubicSpline( "Clamped3 Spline" )
     {
         setBoundaryConditions( QwtSplineCubic::Clamped3 );
         setBoundaryValues( valueBegin, valueEnd );
@@ -374,19 +398,15 @@ protected:
         const QVector<double> &, const QVector<double> &cv ) const
     {
         const QwtSplinePolynomial p = polynomialCV( 0, points, cv );
-        return fuzzyCompare( d_valueBegin, 6.0 * p.c3 );
+        return fuzzyCompare( boundaryValueBegin(), 6.0 * p.c3 );
     }
     
     virtual bool verifyEnd( const QPolygonF &points, 
         const QVector<double> &m, const QVector<double> & ) const
     {
         const QwtSplinePolynomial p = polynomial( points.size() - 2, points, m );
-        return fuzzyCompare( d_valueEnd, 6.0 * p.c3 );
+        return fuzzyCompare( boundaryValueEnd(), 6.0 * p.c3 );
     }
-    
-private:
-    const double d_valueBegin;
-    const double d_valueEnd;
 };
 
 void testSplines( QVector<CubicSpline *> splines, const QPolygonF &points )
@@ -401,6 +421,7 @@ void testSplines( QVector<CubicSpline *> splines, const QPolygonF &points )
 int main()
 {
     QVector<CubicSpline *> splines;
+    splines += new SplineLinearRunout( 0.0, 0.0 );
     splines += new SplineCubicRunout();
     splines += new SplineNotAKnot();
     splines += new SplinePeriodic();
