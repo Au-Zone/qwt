@@ -838,12 +838,7 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
         }
         case QwtSplineCubic::LinearRunout:
         {
-            // c1 = s0
-            // c2 = sn
-
             const double r0 = qBound( 0.0, clampedBegin, 1.0 );
-            const double rn = qBound( 0.0, clampedEnd, 1.0 );
-
             if ( r0 == 0.0 )
             {
                 // clamping s0
@@ -851,11 +846,10 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
             }
             else
             {
-                const double s1 = 0.0; // TODO
-                eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, r0 * ( s0 - s1 ) );
+                eq[0].setup( 1.0 + 2.0 / r0, 2.0 + 1.0 / r0, 0.0, 0.0 );
             }
 
-
+            const double rn = qBound( 0.0, clampedEnd, 1.0 );
             if ( rn == 0.0 )
             {
                 // clamping sn
@@ -863,8 +857,7 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
             }
             else
             {
-                const double sn2 = 0.0; // TODO
-                eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, rn * ( sn2 - sn ) );
+                eq[1].setup( 0.0, 2.0 + 1.0 / rn, 1.0 + 2.0 / rn, 0.0 );
             }
 
             break;
