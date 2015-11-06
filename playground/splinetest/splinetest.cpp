@@ -220,9 +220,7 @@ protected:
         const double s = ( points[1].y() - points[0].y() ) / 
             ( points[1].x() - points[0].x() );
 
-        const double r = boundaryValueBegin();
-
-        return fuzzyCompare( m[0], s - r * ( s - m[1] ) );
+        return fuzzyCompare( m[0], s - boundaryValueBegin() * ( s - m[1] ) );
     }
     
     virtual bool verifyEnd( const QPolygonF &points,
@@ -421,7 +419,7 @@ void testSplines( QVector<CubicSpline *> splines, const QPolygonF &points )
 int main()
 {
     QVector<CubicSpline *> splines;
-    splines += new SplineLinearRunout( 0.0, 0.0 );
+    splines += new SplineLinearRunout( 0.3, 0.7 );
     splines += new SplineCubicRunout();
     splines += new SplineNotAKnot();
     splines += new SplinePeriodic();
