@@ -209,8 +209,11 @@ public:
         ratioBegin = qBound( 0.0, ratioBegin, 1.0 );
         ratioEnd = qBound( 0.0, ratioEnd, 1.0 );
 
-        setBoundaryConditions( QwtSplineCubic::LinearRunout );
-        setBoundaryValues( ratioBegin, ratioEnd );
+        setBoundaryCondition( QwtSpline::AtBeginning, QwtSplineCubic::LinearRunout );
+        setBoundaryValue( QwtSpline::AtBeginning, ratioBegin );
+
+        setBoundaryCondition( QwtSpline::AtEnd, QwtSplineCubic::LinearRunout );
+        setBoundaryValue( QwtSpline::AtEnd, ratioEnd );
     }
 
 protected:
@@ -220,7 +223,9 @@ protected:
         const double s = ( points[1].y() - points[0].y() ) / 
             ( points[1].x() - points[0].x() );
 
-        return fuzzyCompare( m[0], s - boundaryValueBegin() * ( s - m[1] ) );
+		const double ratio = boundaryValue( QwtSpline::AtBeginning );
+
+        return fuzzyCompare( m[0], s - ratio * ( s - m[1] ) );
     }
     
     virtual bool verifyEnd( const QPolygonF &points,
@@ -230,9 +235,9 @@ protected:
         const double s = ( points[n-1].y() - points[n-2].y() ) / 
             ( points[n-1].x() - points[n-2].x() );
 
-        const double r = boundaryValueEnd();
+        const double ratio = boundaryValue( QwtSpline::AtEnd );
 
-        return fuzzyCompare( m[n-1], s - r * ( s - m[n-2] ) );
+        return fuzzyCompare( m[n-1], s - ratio * ( s - m[n-2] ) );
     }
 };
 
@@ -242,7 +247,8 @@ public:
     SplineCubicRunout():
         CubicSpline( "Cubic Runout Spline" )
     {
-        setBoundaryConditions( QwtSplineCubic::CubicRunout );
+        setBoundaryCondition( QwtSpline::AtBeginning, QwtSplineCubic::CubicRunout );
+        setBoundaryCondition( QwtSpline::AtEnd, QwtSplineCubic::CubicRunout );
     }
 
 protected:
@@ -277,7 +283,8 @@ public:
     SplineNotAKnot():
         CubicSpline( "Not A Knot Spline", 4 )
     {
-        setBoundaryConditions( QwtSplineCubic::NotAKnot );
+        setBoundaryCondition( QwtSpline::AtBeginning, QwtSplineCubic::NotAKnot );
+        setBoundaryCondition( QwtSpline::AtEnd, QwtSplineCubic::NotAKnot );
     }
 
 protected:
@@ -338,8 +345,11 @@ public:
     SplineClamped1( double slopeBegin, double slopeEnd ):
         CubicSpline( "Clamped Spline" )
     {
-        setBoundaryConditions( QwtSpline::Clamped1 );
-        setBoundaryValues( slopeBegin, slopeEnd );
+        setBoundaryCondition( QwtSpline::AtBeginning, QwtSpline::Clamped1 );
+        setBoundaryValue( QwtSpline::AtBeginning, slopeBegin );
+
+        setBoundaryCondition( QwtSpline::AtEnd, QwtSpline::Clamped1 );
+        setBoundaryValue( QwtSpline::AtEnd, slopeEnd );
     }
 
 protected:
@@ -347,13 +357,13 @@ protected:
     virtual bool verifyStart( const QPolygonF &, 
         const QVector<double> &m, const QVector<double> & ) const
     {
-        return fuzzyCompare( m.first(), boundaryValueBegin() );
+        return fuzzyCompare( m.first(), boundaryValue( QwtSpline::AtBeginning ) );
     }
     
     virtual bool verifyEnd( const QPolygonF &, 
         const QVector<double> &m, const QVector<double> & ) const
     {
-        return fuzzyCompare( m.last(), boundaryValueEnd() );
+        return fuzzyCompare( m.last(), boundaryValue( QwtSpline::AtEnd ) );
     }
 };
 
@@ -363,21 +373,24 @@ public:
     SplineClamped2( double cvBegin, double cvEnd ):
         CubicSpline( "Clamped2 Spline" )
     {
-        setBoundaryConditions( QwtSplineCubic::Clamped2 );
-        setBoundaryValues( cvBegin, cvEnd );
+        setBoundaryCondition( QwtSpline::AtBeginning, QwtSpline::Clamped2 );
+        setBoundaryValue( QwtSpline::AtBeginning, cvBegin );
+
+        setBoundaryCondition( QwtSpline::AtEnd, QwtSpline::Clamped2 );
+        setBoundaryValue( QwtSpline::AtEnd, cvEnd );
     }
 
 protected:
     virtual bool verifyStart( const QPolygonF &, 
         const QVector<double> &, const QVector<double> &cv ) const
     {
-        return fuzzyCompare( boundaryValueBegin(), cv.first() );
+        return fuzzyCompare( cv.first(), boundaryValue( QwtSpline::AtBeginning ) );
     }
 
     virtual bool verifyEnd( const QPolygonF &,
         const QVector<double> &, const QVector<double> &cv ) const
     {
-        return fuzzyCompare( boundaryValueEnd(), cv.last() );
+        return fuzzyCompare( cv.last(), boundaryValue( QwtSpline::AtEnd ) );
     }
 };
 
@@ -387,8 +400,11 @@ public:
     SplineClamped3( double valueBegin, double valueEnd ):
         CubicSpline( "Clamped3 Spline" )
     {
-        setBoundaryConditions( QwtSplineCubic::Clamped3 );
-        setBoundaryValues( valueBegin, valueEnd );
+        setBoundaryCondition( QwtSpline::AtBeginning, QwtSpline::Clamped3 );
+        setBoundaryValue( QwtSpline::AtBeginning, valueBegin );
+
+        setBoundaryCondition( QwtSpline::AtEnd, QwtSpline::Clamped3 );
+        setBoundaryValue( QwtSpline::AtEnd, valueEnd );
     }   
 
 protected:
@@ -396,14 +412,14 @@ protected:
         const QVector<double> &, const QVector<double> &cv ) const
     {
         const QwtSplinePolynomial p = polynomialCV( 0, points, cv );
-        return fuzzyCompare( boundaryValueBegin(), 6.0 * p.c3 );
+        return fuzzyCompare( 6.0 * p.c3, boundaryValue( QwtSpline::AtBeginning ) );
     }
     
     virtual bool verifyEnd( const QPolygonF &points, 
         const QVector<double> &m, const QVector<double> & ) const
     {
         const QwtSplinePolynomial p = polynomial( points.size() - 2, points, m );
-        return fuzzyCompare( boundaryValueEnd(), 6.0 * p.c3 );
+        return fuzzyCompare( 6.0 * p.c3, boundaryValue( QwtSpline::AtEnd ) );
     }
 };
 

@@ -352,9 +352,13 @@ public:
         parametrization = new QwtSplineParametrization( 
             QwtSplineParametrization::ParameterChordal );
 
-        // parabolic runout
-        boundaryCondition.type = QwtSplineC1::Clamped3;
-        boundaryCondition.value[0] = boundaryCondition.value[1] = 0.0;
+        // parabolic runout at both ends
+
+        boundaryConditions[0].type = QwtSpline::Clamped3;
+        boundaryConditions[0].value = 0.0;
+
+        boundaryConditions[1].type = QwtSpline::Clamped3;
+        boundaryConditions[1].value = 0.0;
     }
 
     ~PrivateData()
@@ -368,9 +372,9 @@ public:
     struct
     {
         QwtSpline::BoundaryCondition type;
-        double value[2];
+        double value;
 
-    } boundaryCondition;
+    } boundaryConditions[2];
 };
 
 /*!
@@ -442,32 +446,35 @@ QwtSpline::BoundaryType QwtSpline::boundaryType() const
     return d_data->boundaryType;
 }
 
-void QwtSpline::setBoundaryConditions( BoundaryCondition condition )
+void QwtSpline::setBoundaryCondition( BoundaryPosition position,
+    BoundaryCondition condition )
 {
-    d_data->boundaryCondition.type = condition;
+    if ( ( position == QwtSpline::AtBeginning ) || ( position == QwtSpline::AtEnd ) )
+        d_data->boundaryConditions[position].type = condition;
 }
 
-QwtSpline::BoundaryCondition QwtSpline::boundaryCondition() const
+QwtSpline::BoundaryCondition QwtSpline::boundaryCondition(
+    BoundaryPosition position) const
 {
-    return d_data->boundaryCondition.type;
+    if ( ( position == QwtSpline::AtBeginning ) || ( position == QwtSpline::AtEnd ) )
+        return d_data->boundaryConditions[position].type;
+
+    return d_data->boundaryConditions[0].type; // should never happen
 }
 
-void QwtSpline::setBoundaryValues( double valueBegin, double valueEnd )
+void QwtSpline::setBoundaryValue( BoundaryPosition position, double value )
 {
-    d_data->boundaryCondition.value[0] = valueBegin;
-    d_data->boundaryCondition.value[1] = valueEnd;
+    if ( ( position == QwtSpline::AtBeginning ) || ( position == QwtSpline::AtEnd ) )
+        d_data->boundaryConditions[position].value = value;
 }
 
-double QwtSpline::boundaryValueBegin() const
+double QwtSpline::boundaryValue( BoundaryPosition position ) const
 {
-    return d_data->boundaryCondition.value[0];
-}
+    if ( ( position == QwtSpline::AtBeginning ) || ( position == QwtSpline::AtEnd ) )
+        return d_data->boundaryConditions[position].value;
 
-double QwtSpline::boundaryValueEnd() const
-{
-    return d_data->boundaryCondition.value[1];
+    return d_data->boundaryConditions[0].value; // should never happen
 }
-
 
 /*! \fn QVector<QLineF> bezierControlLines( const QPolygonF &points ) const
 

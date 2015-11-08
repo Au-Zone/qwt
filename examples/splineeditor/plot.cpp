@@ -96,7 +96,7 @@ public:
     void setClosing( bool on )
     {
         d_spline->setBoundaryType( 
-			on ? QwtSpline::ClosedPolygon : QwtSpline::ConditionalBoundaries );
+            on ? QwtSpline::ClosedPolygon : QwtSpline::ConditionalBoundaries );
     }
 
     void setBoundaryCondition( const QString &condition )
@@ -106,13 +106,13 @@ public:
         {
             if ( condition == "Cubic Runout" )
             {
-                splineC2->setBoundaryConditions( QwtSplineC2::CubicRunout );
+                setBoundaryConditions( QwtSpline::CubicRunout );
                 return;
             }
 
             if ( condition == "Not a Knot" )
             {
-                splineC2->setBoundaryConditions( QwtSplineC2::NotAKnot );
+                setBoundaryConditions( QwtSpline::NotAKnot );
                 return;
             }
         }
@@ -122,22 +122,20 @@ public:
         {
             if ( condition == "Linear Runout" )
             {
-                splineC1->setBoundaryConditions( QwtSplineC1::LinearRunout );
-                splineC1->setBoundaryValues( 0.0, 0.0 );
+                setBoundaryConditions( QwtSpline::LinearRunout, 0.0 );
                 return;
             }
 
             if ( condition == "Parabolic Runout" )
             {
-                splineC1->setBoundaryConditions( QwtSplineC1::Clamped3 );
-                splineC1->setBoundaryValues( 0.0, 0.0 );
+                // Parabolic Runout means clamping the 3rd derivative to 0.0
+                setBoundaryConditions( QwtSpline::Clamped3, 0.0 );
                 return;
             }
         }
 
         // Natural
-        d_spline->setBoundaryConditions( QwtSplineC1::Clamped2 );
-        d_spline->setBoundaryValues( 0.0, 0.0 );
+        setBoundaryConditions( QwtSplineC1::Clamped2, 0.0 );
     }
 
     void setParametric( const QString &parameterType )
@@ -181,6 +179,18 @@ public:
     }
 
 private:
+    void setBoundaryConditions( QwtSpline::BoundaryCondition condition,
+        double value = 0.0 )
+    {
+        // always the same at both ends
+
+        d_spline->setBoundaryCondition( QwtSpline::AtBeginning, condition );
+        d_spline->setBoundaryValue( QwtSpline::AtBeginning, value );
+
+        d_spline->setBoundaryCondition( QwtSpline::AtEnd, condition );
+        d_spline->setBoundaryValue( QwtSpline::AtEnd, value );
+    }
+
     QwtSpline *d_spline;
 };
 

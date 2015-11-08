@@ -45,12 +45,6 @@ class QwtSplineParametrization;
 class QWT_EXPORT QwtSpline
 {
 public:
-    enum Position
-    {
-        Beginning,
-        End
-    };
-
     enum BoundaryType
     {
         ConditionalBoundaries,
@@ -68,6 +62,12 @@ public:
          */
 
         ClosedPolygon
+    };
+
+    enum BoundaryPosition
+    {
+        AtBeginning,
+        AtEnd
     };
 
     enum BoundaryCondition
@@ -100,13 +100,11 @@ public:
     void setBoundaryType( BoundaryType );
     BoundaryType boundaryType() const;
 
-    void setBoundaryConditions( BoundaryCondition );
-    BoundaryCondition boundaryCondition() const;
+    void setBoundaryCondition( BoundaryPosition, BoundaryCondition );
+    BoundaryCondition boundaryCondition( BoundaryPosition ) const;
 
-    void setBoundaryValues( double valueBegin, double valueEnd );
-
-    double boundaryValueBegin() const;
-    double boundaryValueEnd() const;
+    void setBoundaryValue( BoundaryPosition, double value );
+    double boundaryValue( BoundaryPosition ) const;
 
     virtual QPolygonF equidistantPolygon( const QPolygonF &, 
         double distance, bool withNodes ) const;

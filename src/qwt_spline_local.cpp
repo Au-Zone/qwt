@@ -276,7 +276,8 @@ static double qwtSlopeBegin( const QwtSplineC1 *spline,
         return 0.0;
 
     return qwtSlopeBoundary( 
-        spline->boundaryCondition(), spline->boundaryValueBegin(),
+        spline->boundaryCondition( QwtSpline::AtBeginning ), 
+        spline->boundaryValue( QwtSpline::AtBeginning ),
         points[0], points[1], slope1 );
 }
 
@@ -289,8 +290,11 @@ static double qwtSlopeEnd( const QwtSplineC1 *spline,
     const QPointF p2( points[n-2].x(), -points[n-2].y() );
     const QPointF p3( points[n-3].x(), -points[n-3].y() );
 
-    double boundaryValue = spline->boundaryValueEnd();
-    if ( spline->boundaryCondition() != QwtSplineC1::LinearRunout )
+    const QwtSpline::BoundaryCondition boundaryCondition = 
+        spline->boundaryCondition( QwtSpline::AtEnd );
+
+    double boundaryValue = spline->boundaryValue( QwtSpline::AtEnd );
+    if ( boundaryCondition != QwtSplineC1::LinearRunout )
     {
         // beside LinearRunout the boundaryValue is a slope or curvature
         // and needs to be inverted too
@@ -298,7 +302,7 @@ static double qwtSlopeEnd( const QwtSplineC1 *spline,
     }
 
     const double m = qwtSlopeBoundary(
-        spline->boundaryCondition(), boundaryValue, p1, p2, -slope2 );
+        boundaryCondition, boundaryValue, p1, p2, -slope2 );
 
     return -m;
 }
@@ -390,13 +394,16 @@ static inline void qwtSplineAkimaBoundaries(
         return;
     }
 
-    if ( spline->boundaryCondition() == QwtSpline::Clamped1 )
+#if 1
+    if ( spline->boundaryCondition( QwtSpline::AtBeginning ) == QwtSpline::Clamped1
+        && spline->boundaryCondition( QwtSpline::AtEnd ) == QwtSpline::Clamped1 )
     {
-        slopeBegin = spline->boundaryValueBegin();
-        slopeEnd = spline->boundaryValueEnd();
+        slopeBegin = spline->boundaryValue( QwtSpline::AtBeginning);
+        slopeEnd = spline->boundaryValue( QwtSpline::AtEnd );
 
         return;
     }
+#endif
 
     if ( n == 3 )
     {
@@ -549,8 +556,12 @@ QwtSplineLocal::QwtSplineLocal( Type type, double tension ):
     d_tension( 0.0 )
 {
     setTension( tension );
-    setBoundaryConditions( QwtSplineLocal::LinearRunout );
-    setBoundaryValues( 0.0, 0.0 );
+
+    setBoundaryCondition( QwtSpline::AtBeginning, QwtSplineLocal::LinearRunout );
+    setBoundaryValue( QwtSpline::AtBeginning, 0.0 );
+
+    setBoundaryCondition( QwtSpline::AtEnd, QwtSplineLocal::LinearRunout );
+    setBoundaryValue( QwtSpline::AtEnd, 0.0 );
 }
 
 QwtSplineLocal::~QwtSplineLocal()

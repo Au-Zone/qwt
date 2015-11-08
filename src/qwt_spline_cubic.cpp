@@ -773,9 +773,10 @@ namespace QwtSplineCubicP
     };
 }
 
-static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition, 
-    const QPolygonF &points, double clampedBegin, double clampedEnd, 
-    QwtSplineCubicP::Equation3 eq[2] )
+static void qwtSetupEndEquations( 
+    QwtSpline::BoundaryCondition conditionBegin, double valueBegin, 
+    QwtSpline::BoundaryCondition conditionEnd, double valueEnd, 
+    const QPolygonF &points, QwtSplineCubicP::Equation3 eq[2] )
 {
     const int n = points.size();
 
@@ -785,7 +786,7 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
     const double hn = ( points[n-1].x() - points[n-2].x() );
     const double sn = ( points[n-1].y() - points[n-2].y() ) / hn;
 
-    switch( boundaryCondition )
+    switch( conditionBegin )
     {
         case QwtSplineC1::Clamped1:
         {
@@ -800,9 +801,7 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
             // c2 = slopeEnd
             // => b1 * ( 1.0 / 3.0 ) + b2 * ( 2.0 / 3.0 ) = ( slopeEnd - s ) / h;
 
-            eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, s0 - clampedBegin );
-            eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, clampedEnd - sn );
-
+            eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, s0 - valueBegin );
             break;
         }
         case QwtSplineC1::Clamped2:
@@ -815,8 +814,7 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
             // b1 = 0.5 * cvEnd
             // => b0 * 0.0 + b1 * 1.0 = 0.5 * cvEnd
 
-            eq[0].setup( 1.0, 0.0, 0.0, 0.5 * clampedBegin ); 
-            eq[1].setup( 0.0, 0.0, 1.0, 0.5 * clampedEnd ); 
+            eq[0].setup( 1.0, 0.0, 0.0, 0.5 * valueBegin ); 
             break;
         }
         case QwtSplineC1::Clamped3:
@@ -831,14 +829,13 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
             // a = marg_n / 6.0
             // => b[n-2] * 1.0 + b[n-1] * ( -1.0 ) = -0.5 * v1 * h5
 
-            eq[0].setup( 1.0, -1.0, 0.0, -0.5 * clampedBegin * h0 ); 
-            eq[1].setup( 0.0, 1.0, -1.0, -0.5 * clampedEnd * hn ); 
+            eq[0].setup( 1.0, -1.0, 0.0, -0.5 * valueBegin * h0 ); 
 
             break;
         }
         case QwtSplineCubic::LinearRunout:
         {
-            const double r0 = qBound( 0.0, clampedBegin, 1.0 );
+            const double r0 = qBound( 0.0, valueBegin, 1.0 );
             if ( r0 == 0.0 )
             {
                 // clamping s0
@@ -848,8 +845,67 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
             {
                 eq[0].setup( 1.0 + 2.0 / r0, 2.0 + 1.0 / r0, 0.0, 0.0 );
             }
+            break;
+        }
+        case QwtSplineCubic::NotAKnot:
+        case QwtSplineCubic::CubicRunout:
+        {
+            // building one cubic curve from 3 points
 
-            const double rn = qBound( 0.0, clampedEnd, 1.0 );
+            double v0;
+
+            if ( conditionBegin == QwtSplineCubic::CubicRunout )
+            {
+                // first/last point are the endpoints of the curve
+
+                // b0 = 2 * b1 - b2
+                // => 1.0 * b0 - 2 * b1 + 1.0 * b2 = 0.0
+
+                v0 = 1.0;
+            }
+            else
+            {
+                // first/last points are on the curve, 
+                // the imaginary endpoints have the same distance as h0/hn
+
+                v0 = h0 / ( points[2].x() - points[1].x() );
+            }
+
+            eq[0].setup( 1.0, -( 1.0 + v0 ), v0, 0.0 ); 
+            break;
+        }
+        default:
+        {
+            // a natural spline, where the
+            // second derivative at end points set to 0.0
+            eq[0].setup( 1.0, 0.0, 0.0, 0.0 ); 
+            break;
+        }
+    }
+
+    switch( conditionEnd )
+    {
+        case QwtSplineC1::Clamped1:
+        {
+            // first derivative at end points given
+            eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, valueEnd - sn );
+            break;
+        }
+        case QwtSplineC1::Clamped2:
+        {
+            // second derivative at end points given
+            eq[1].setup( 0.0, 0.0, 1.0, 0.5 * valueEnd ); 
+            break;
+        }
+        case QwtSplineC1::Clamped3:
+        {
+            // third derivative at end point given
+            eq[1].setup( 0.0, 1.0, -1.0, -0.5 * valueEnd * hn ); 
+            break;
+        }
+        case QwtSplineCubic::LinearRunout:
+        {
+            const double rn = qBound( 0.0, valueEnd, 1.0 );
             if ( rn == 0.0 )
             {
                 // clamping sn
@@ -867,36 +923,28 @@ static void qwtSetupEndEquations( QwtSpline::BoundaryCondition boundaryCondition
         {
             // building one cubic curve from 3 points
 
-            double v0, vn;
+            double vn;
 
-            if ( boundaryCondition == QwtSplineCubic::CubicRunout )
+            if ( conditionEnd == QwtSplineCubic::CubicRunout )
             {
-                // first/last point are the endpoints of the curve
-
-                // b0 = 2 * b1 - b2
-                // => 1.0 * b0 - 2 * b1 + 1.0 * b2 = 0.0
-
-                v0 = vn = 1.0;
+                // last point is the endpoints of the curve
+                vn = 1.0;
             }
             else
             {
-                // first/last points are on the curve, 
-                // the imaginary endpoints have the same distance as h0/hn
+                // last points on the curve, 
+                // the imaginary endpoints have the same distance as hn
 
-                v0 = h0 / ( points[2].x() - points[1].x() );
                 vn = hn / ( points[n-2].x() - points[n-3].x() );
             }
 
-            eq[0].setup( 1.0, -( 1.0 + v0 ), v0, 0.0 ); 
             eq[1].setup( vn, -( 1.0 + vn ), 1.0, 0.0 ); 
-
             break;
         }
         default:
         {
             // a natural spline, where the
             // second derivative at end points set to 0.0
-            eq[0].setup( 1.0, 0.0, 0.0, 0.0 ); 
             eq[1].setup( 0.0, 0.0, 1.0, 0.0 ); 
             break;
         }
@@ -916,8 +964,12 @@ QwtSplineCubic::QwtSplineCubic()
     d_data = new PrivateData;
 
     // a natural spline
-    setBoundaryConditions( QwtSplineC1::Clamped2 );
-    setBoundaryValues( 0.0, 0.0 );
+
+    setBoundaryCondition( QwtSpline::AtBeginning, QwtSplineC1::Clamped2 );
+    setBoundaryValue( QwtSpline::AtBeginning, 0.0 );
+
+    setBoundaryCondition( QwtSpline::AtEnd, QwtSplineC1::Clamped2 );
+    setBoundaryValue( QwtSpline::AtEnd, 0.0 );
 }
 
 QwtSplineCubic::~QwtSplineCubic()
@@ -946,10 +998,10 @@ QVector<double> QwtSplineCubic::slopes( const QPolygonF &points ) const
         return eqs.store().slopes();
     }
 
-    if ( boundaryCondition() == QwtSplineCubic::NotAKnot )
+    if ( points.size() == 3 )
     {
-        const int n = points.size();
-        if ( n == 3 )
+        if ( boundaryCondition( QwtSpline::AtBeginning ) == QwtSplineCubic::NotAKnot
+            || boundaryCondition( QwtSpline::AtEnd ) == QwtSplineCubic::NotAKnot )
         {
 #if 0
             const double h0 = points[1].x() - points[0].x();
@@ -978,8 +1030,12 @@ QVector<double> QwtSplineCubic::slopes( const QPolygonF &points ) const
     }
 
     Equation3 eq[2];
-    qwtSetupEndEquations( boundaryCondition(), points, 
-        boundaryValueBegin(), boundaryValueEnd(), eq );
+    qwtSetupEndEquations( 
+        boundaryCondition( QwtSpline::AtBeginning ), 
+        boundaryValue( QwtSpline::AtBeginning ), 
+        boundaryCondition( QwtSpline::AtEnd ), 
+        boundaryValue( QwtSpline::AtEnd ), 
+        points, eq );
 
     EquationSystem<SlopeStore> eqs;
     eqs.setStartCondition( eq[0].p, eq[0].q, eq[0].u, eq[0].r );
@@ -1007,13 +1063,20 @@ QVector<double> QwtSplineCubic::curvatures( const QPolygonF &points ) const
 
     if ( points.size() == 3 )
     {
-        if ( boundaryCondition() == QwtSplineCubic::NotAKnot )
+        if ( boundaryCondition( QwtSpline::AtBeginning ) == QwtSplineCubic::NotAKnot 
+            || boundaryCondition( QwtSpline::AtEnd ) == QwtSplineCubic::NotAKnot )
+        {
             return QVector<double>();
+        }
     }
 
     Equation3 eq[2];
-    qwtSetupEndEquations( boundaryCondition(), points, 
-        boundaryValueBegin(), boundaryValueEnd(), eq );
+    qwtSetupEndEquations(
+        boundaryCondition( QwtSpline::AtBeginning ),
+        boundaryValue( QwtSpline::AtBeginning ),
+        boundaryCondition( QwtSpline::AtEnd ),
+        boundaryValue( QwtSpline::AtEnd ),
+        points, eq );
 
     EquationSystem<CurvatureStore> eqs;
     eqs.setStartCondition( eq[0].p, eq[0].q, eq[0].u, eq[0].r );
