@@ -45,6 +45,31 @@ class QwtSplineParametrization;
 class QWT_EXPORT QwtSpline
 {
 public:
+    enum Position
+    {
+        Beginning,
+        End
+    };
+
+    enum BoundaryType
+    {
+        ConditionalBoundaries,
+        PeriodicPolygon,
+
+        /*!
+          ClosedPolygon is similar to PeriodicPolygon beside, that
+          the interpolation includes the connection between the last 
+          and the first control point.
+
+          \note Only works for parametrizations, where the parameter increment 
+                for the the final closing line is positive. 
+                This excludes QwtSplineParametrization::ParameterX and 
+                QwtSplineParametrization::ParameterY
+         */
+
+        ClosedPolygon
+    };
+
     enum BoundaryCondition
     {
         // clamping is possible for all splines
@@ -59,7 +84,6 @@ public:
 
         // conditions, that require C1 continuity
         LinearRunout, 
-        Periodic,
 
         // conditions, that require C2 continuity
         CubicRunout, 
@@ -73,8 +97,8 @@ public:
     void setParametrization( QwtSplineParametrization * );
     const QwtSplineParametrization *parametrization() const;
 
-    void setClosing( bool );
-    bool isClosing() const;
+    void setBoundaryType( BoundaryType );
+    BoundaryType boundaryType() const;
 
     void setBoundaryConditions( BoundaryCondition );
     BoundaryCondition boundaryCondition() const;

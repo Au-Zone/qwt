@@ -311,8 +311,8 @@ static void qwtSplineBoundariesL1(
     const int n = points.size();
     const QPointF *p = points.constData();
 
-    if ( spline->isClosing()
-        || ( spline->boundaryCondition() == QwtSplineC1::Periodic ) )
+    if ( ( spline->boundaryType() == QwtSpline::PeriodicPolygon )
+        || ( spline->boundaryType() == QwtSpline::ClosedPolygon ) )
     {
         const QPointF pn = p[0] - ( p[n-1] - p[n-2] );
         slopeBegin = slopeEnd = qwtSlopeP3<Slope>( pn, p[0], p[1] );
@@ -379,8 +379,8 @@ static inline void qwtSplineAkimaBoundaries(
     const int n = points.size();
     const QPointF *p = points.constData();
 
-    if ( spline->isClosing()
-        || ( spline->boundaryCondition() == QwtSplineC1::Periodic ) )
+    if ( ( spline->boundaryType() == QwtSpline::PeriodicPolygon )
+        || ( spline->boundaryType() == QwtSpline::ClosedPolygon ) )
     {
         const QPointF p2 = p[0] - ( p[n-1] - p[n-2] );
         const QPointF p1 = p2 - ( p[n-2] - p[n-3] );
@@ -390,7 +390,7 @@ static inline void qwtSplineAkimaBoundaries(
         return;
     }
 
-    if ( spline->boundaryCondition() == QwtSplineC1::Clamped1 )
+    if ( spline->boundaryCondition() == QwtSpline::Clamped1 )
     {
         slopeBegin = spline->boundaryValueBegin();
         slopeEnd = spline->boundaryValueEnd();

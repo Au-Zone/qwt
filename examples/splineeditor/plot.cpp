@@ -95,7 +95,8 @@ public:
 
     void setClosing( bool on )
     {
-        d_spline->setClosing( on );
+        d_spline->setBoundaryType( 
+			on ? QwtSpline::ClosedPolygon : QwtSpline::ConditionalBoundaries );
     }
 
     void setBoundaryCondition( const QString &condition )

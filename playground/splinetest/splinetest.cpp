@@ -308,7 +308,7 @@ public:
     SplinePeriodic():
         CubicSpline( "Periodic Spline" )
     {
-        setBoundaryConditions( QwtSplineCubic::Periodic );
+        setBoundaryType( QwtSplineCubic::PeriodicPolygon );
     }
 
 protected:

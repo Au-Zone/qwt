@@ -281,21 +281,23 @@ QPainterPath QwtSplinePleasing::painterPath( const QPolygonF &points ) const
     if ( size <= 2 )
         return QwtSplineG1::painterPath( points );
 
+    const bool isClosing = ( boundaryType() == QwtSpline::ClosedPolygon );
+
     using namespace QwtSplinePleasingP;
 
     PathStore store;
     if ( parametrization()->type() == QwtSplineParametrization::ParameterUniform )
     {
         store = qwtSplinePathPleasing<PathStore>( points, 
-            isClosing(), paramUniform() );
+            isClosing, paramUniform() );
     }
     else
     {
         store = qwtSplinePathPleasing<PathStore>( points, 
-            isClosing(), param( parametrization() ) );
+            isClosing, param( parametrization() ) );
     }
 
-    if ( isClosing() )
+    if ( isClosing )
         store.path.closeSubpath();
 
     return store.path;
@@ -308,18 +310,20 @@ QVector<QLineF> QwtSplinePleasing::bezierControlLines(
     if ( size <= 2 )
         return QVector<QLineF>();
 
+    const bool isClosing = ( boundaryType() == QwtSpline::ClosedPolygon );
+
     using namespace QwtSplinePleasingP;
 
     ControlPointsStore store;
     if ( parametrization()->type() == QwtSplineParametrization::ParameterUniform )
     {
         store = qwtSplinePathPleasing<ControlPointsStore>( points, 
-            isClosing(), paramUniform() );
+            isClosing, paramUniform() );
     }
     else
     {
         store = qwtSplinePathPleasing<ControlPointsStore>( points, 
-            isClosing(), param( parametrization() ) );
+            isClosing, param( parametrization() ) );
     }
 
     return store.controlPoints;

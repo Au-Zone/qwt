@@ -220,11 +220,12 @@ template< class SplineStore, class Param >
 static inline SplineStore qwtSplineC1PathParametric( 
     const QwtSplineC1 *spline, const QPolygonF &points, Param param )
 {
+    const bool isClosing = ( spline->boundaryType() == QwtSpline::ClosedPolygon );
     const int n = points.size();
 
     QPolygonF pointsX, pointsY;
-    pointsX.resize( spline->isClosing() ? n + 1 : n );
-    pointsY.resize( spline->isClosing() ? n + 1 : n );
+    pointsX.resize( isClosing ? n + 1 : n );
+    pointsY.resize( isClosing ? n + 1 : n );
 
     QPointF *px = pointsX.data();
     QPointF *py = pointsY.data();
@@ -245,7 +246,7 @@ static inline SplineStore qwtSplineC1PathParametric(
         py[i].ry() = p[i].y();
     }
 
-    if ( spline->isClosing() )
+    if ( isClosing )
     {
         t += param( points[n-1], points[0] );
 
@@ -260,7 +261,7 @@ static inline SplineStore qwtSplineC1PathParametric(
     pointsY.clear(); // we don't need it anymore
 
     SplineStore store;
-    store.init( spline->isClosing() ? n : n - 1 );
+    store.init( isClosing ? n : n - 1 );
     store.start( points[0].x(), points[0].y() );
 
     for ( int i = 0; i < n - 1; i++ )
@@ -280,7 +281,7 @@ static inline SplineStore qwtSplineC1PathParametric(
         store.addCubic( cx1, cy1, cx2, cy2, points[i+1].x(), points[i+1].y() );
     }
 
-    if ( spline->isClosing() )
+    if ( isClosing )
     {
         const double t3 = param( points[n-1], points[0] ) / 3.0;
 
@@ -346,7 +347,7 @@ class QwtSpline::PrivateData
 {
 public:
     PrivateData():
-        isClosing( false )
+        boundaryType( QwtSpline::ConditionalBoundaries )
     {
         parametrization = new QwtSplineParametrization( 
             QwtSplineParametrization::ParameterChordal );
@@ -362,7 +363,7 @@ public:
     }
 
     QwtSplineParametrization *parametrization;
-    bool isClosing;
+    QwtSpline::BoundaryType boundaryType;
 
     struct
     {
@@ -408,33 +409,6 @@ uint QwtSpline::locality() const
     return 0;
 }
 
-/*!
-  \brief Set or clear if the interpolation is closing
-
-  When a spline is closing the interpolation includes
-  the line between the last and the first control point.
-
-  The default setting is not closing.
-
-  \sa isClosing(), QwtSpline::Periodic
- */
-void QwtSpline::setClosing( bool on )
-{
-    d_data->isClosing = on;
-}
-
-/*!
-  When a spline is closing the interpolation includes
-  the line between the last and the first control point.
-
-  \return True, when the spline is closing
-  \sa setClosing()
- */
-bool QwtSpline::isClosing() const
-{
-    return d_data->isClosing;
-}
-
 void QwtSpline::setParametrization( int type )
 {
     if ( d_data->parametrization->type() != type )
@@ -456,6 +430,16 @@ void QwtSpline::setParametrization( QwtSplineParametrization *parametrization )
 const QwtSplineParametrization *QwtSpline::parametrization() const
 {
     return d_data->parametrization;
+}
+
+void QwtSpline::setBoundaryType( BoundaryType boundaryType )
+{
+    d_data->boundaryType = boundaryType;;
+}
+
+QwtSpline::BoundaryType QwtSpline::boundaryType() const
+{
+    return d_data->boundaryType;
 }
 
 void QwtSpline::setBoundaryConditions( BoundaryCondition condition )
@@ -544,7 +528,8 @@ QPainterPath QwtSpline::painterPath( const QPolygonF &points ) const
     for ( int i = 0; i < n - 1; i++ )
         path.cubicTo( l[i].p1(), l[i].p2(), p[i+1] );
 
-    if ( isClosing() && controlLines.size() >= n )
+    if ( ( boundaryType() == QwtSpline::ClosedPolygon )
+        && ( controlLines.size() >= n ) )
     {
         path.cubicTo( l[n-1].p1(), l[n-1].p2(), p[0] );
         path.closeSubpath();
@@ -630,7 +615,8 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
         }
     }
 
-    if ( isClosing() && ( controlLines.size() >= n ) )
+    if ( ( boundaryType() == QwtSpline::ClosedPolygon )
+        && ( controlLines.size() >= n ) )
     {
         const double l = d_data->parametrization->valueIncrement( p[n-1], p[0] );
 
