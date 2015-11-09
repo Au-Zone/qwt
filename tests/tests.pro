@@ -11,27 +11,6 @@ include( $${PWD}/../qwtconfig.pri )
 
 TEMPLATE = subdirs
 
-contains(QWT_CONFIG, QwtPlot) {
-    
-    SUBDIRS += \
-        plotmatrix \
-        timescale \
-        scaleengine \
-        graphicscale \
-        rescaler \
-        shapes \
-        curvetracker \
-        symbols
-
-    contains(QWT_CONFIG, QwtSvg) {
-
-        SUBDIRS += \
-            svgmap
-    }
-
-    contains(QWT_CONFIG, QwtMathML) {
-
-        SUBDIRS += \
-            mathmlview
-    }
-}
+SUBDIRS += \
+    splinetest \
+    splineprof

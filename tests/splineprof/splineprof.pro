@@ -7,12 +7,12 @@
 # modify it under the terms of the Qwt License, Version 1.0
 ################################################################
 
-include( $${PWD}/../playground.pri )
+include( $${PWD}/../tests.pri )
 
 CONFIG -= gui
 
-TARGET       = splinetest
+TARGET = splineprof
 
 SOURCES = \
-    splinetest.cpp
+    splineprof.cpp
 
