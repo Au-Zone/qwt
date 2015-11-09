@@ -155,6 +155,13 @@ QWT_CONFIG     += QwtExamples
 QWT_CONFIG     += QwtPlayground
 
 ######################################################################
+# If you want to auto build the tests, enable the line below
+# Otherwise you have to build them from the tests directory.
+######################################################################
+
+QWT_CONFIG     += QwtTests
+
+######################################################################
 # When Qt has been built as framework qmake wants 
 # to link frameworks instead of regular libs
 ######################################################################
