@@ -48,10 +48,10 @@ public:
             return;
         }
 
-        const bool okStart = verifyStart( points, m, cv );
+        const bool okStart = verifyBoundary( QwtSpline::AtBeginning, points, m, cv );
         const int numErrorsM = verifyNodesM( points, m );
         const int numErrorsCV = verifyNodesCV( points, cv );
-        const bool okEnd = verifyEnd( points, m, cv );
+        const bool okEnd = verifyBoundary( QwtSpline::AtEnd, points, m, cv );
 
         if ( !okStart || numErrorsM > 0 || numErrorsCV > 0 || !okEnd )
         {
@@ -72,39 +72,124 @@ public:
                 qDebug() << "  invalid end condition";
 #endif
         }
-
     }
     
 protected:
 
-    double sum3( double v1, double v2, double v3 ) const
+    bool verifyBoundary( QwtSpline::BoundaryPosition pos, const QPolygonF &points,
+        const QVector<double> &m, const QVector<double> &cv ) const
     {
-        // Kahan
-        QVector<double> v;
-        v += v1;
-        v += v2;
-        v += v3;
-
-        double sum = v[0];
-        double c = 0.0;
-
-        for (int i = 1; i < v.size(); i++ ) 
+        if ( boundaryType() != QwtSpline::ConditionalBoundaries )
         {
-            const double y = v[i] - c;
-            const double t = sum + y;
-            c = ( t - sum ) - y;
-            sum = t;
+            // periodic or closed 
+
+            const int n = points.size();
+
+            const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
+            const QwtSplinePolynomial p2 = polynomial( 0, points, m );
+
+            const double dx = points[n-1].x() - points[n-2].x();
+            return fuzzyCompare( p1.curvatureAt( dx ), p2.curvatureAt( 0.0 ) ) &&
+                fuzzyCompare( p1.slopeAt( dx ), p2.slopeAt( 0.0 ) );
         }
 
-        return sum;
+        bool ok = false;
+
+        switch( boundaryCondition( pos ) )
+        {
+            case QwtSpline::Clamped1:
+            {
+                const double mt = ( pos == QwtSpline::AtBeginning ) ? m.first() : m.last();
+                ok = fuzzyCompare( mt, boundaryValue( pos ) );
+
+                break;
+            }
+            case QwtSpline::Clamped2:
+            {
+                const double cvt = ( pos == QwtSpline::AtBeginning ) ? cv.first() : cv.last();
+                ok = fuzzyCompare( cvt, boundaryValue( pos ) );
+
+                break;
+            }
+            case QwtSpline::Clamped3:
+            {
+                double c3;
+                if ( pos == QwtSpline::AtBeginning )
+                    c3 = polynomialCV( 0, points, cv ).c3;
+                else
+                    c3 = polynomial( points.size() - 2, points, m ).c3;
+
+                ok = fuzzyCompare( 6.0 * c3, boundaryValue( pos ) );
+                break;
+            }
+            case QwtSpline::LinearRunout:
+            {
+                const double ratio = boundaryValue( pos );
+                if ( pos == QwtSpline::AtBeginning )
+                {
+                    const double s = ( points[1].y() - points[0].y() ) /
+                        ( points[1].x() - points[0].x() );
+
+                    ok = fuzzyCompare( m[0], s - ratio * ( s - m[1] ) );
+                }
+                else
+                {
+                    const int n = points.size();
+                    const double s = ( points[n-1].y() - points[n-2].y() ) /
+                        ( points[n-1].x() - points[n-2].x() );
+
+                    ok = fuzzyCompare( m[n-1], s - ratio * ( s - m[n-2] ) );
+                }
+                break;
+            }
+            case QwtSpline::CubicRunout:
+            {
+                if ( pos == QwtSpline::AtBeginning )
+                {
+                    const QwtSplinePolynomial p1 = polynomial( 0, points, m );
+                    const QwtSplinePolynomial p2 = polynomial( 1, points, m );
+    
+                    const double b3 = 0.5 * p2.curvatureAt( points[2].x() - points[1].x() );
+        
+                    ok = fuzzyCompare( p1.c2, 2 * p2.c2 - b3 );
+                }
+                else
+                {
+                    const int n = points.size();
+
+                    const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
+                    const QwtSplinePolynomial p2 = polynomial( n - 3, points, m );
+        
+                    const double b3 = 0.5 * p1.curvatureAt( points[n-1].x() - points[n-2].x() );
+        
+                    ok = fuzzyCompare( b3, 2 * p1.c2 - p2.c2 );
+                }
+                break;
+            }
+            case QwtSpline::NotAKnot:
+            {
+                if ( pos == QwtSpline::AtBeginning )
+                {
+                    const QwtSplinePolynomial p1 = polynomial( 0, points, m );
+                    const QwtSplinePolynomial p2 = polynomial( 1, points, m );
+        
+                    ok = fuzzyCompare( p1.c3, p2.c3 );
+                }
+                else
+                {
+                    const int n = points.size();
+
+                    const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
+                    const QwtSplinePolynomial p2 = polynomial( n - 3, points, m );
+
+                    ok = fuzzyCompare( p1.c3, p2.c3 );
+                }
+                break;
+            }
+        }
+
+        return ok;
     }
-
-
-    virtual bool verifyStart( const QPolygonF &, 
-        const QVector<double> &, const QVector<double> & ) const = 0;
-
-    virtual bool verifyEnd( const QPolygonF &, 
-        const QVector<double> &, const QVector<double> & ) const = 0;
 
     int verifyNodesCV( const QPolygonF &p, const QVector<double> &cv ) const
     {
@@ -215,30 +300,6 @@ public:
         setBoundaryCondition( QwtSpline::AtEnd, QwtSplineCubic::LinearRunout );
         setBoundaryValue( QwtSpline::AtEnd, ratioEnd );
     }
-
-protected:
-    virtual bool verifyStart( const QPolygonF &points, 
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        const double s = ( points[1].y() - points[0].y() ) / 
-            ( points[1].x() - points[0].x() );
-
-		const double ratio = boundaryValue( QwtSpline::AtBeginning );
-
-        return fuzzyCompare( m[0], s - ratio * ( s - m[1] ) );
-    }
-    
-    virtual bool verifyEnd( const QPolygonF &points,
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        const int n = points.size();
-        const double s = ( points[n-1].y() - points[n-2].y() ) / 
-            ( points[n-1].x() - points[n-2].x() );
-
-        const double ratio = boundaryValue( QwtSpline::AtEnd );
-
-        return fuzzyCompare( m[n-1], s - ratio * ( s - m[n-2] ) );
-    }
 };
 
 class SplineCubicRunout: public CubicSpline
@@ -249,31 +310,6 @@ public:
     {
         setBoundaryCondition( QwtSpline::AtBeginning, QwtSplineCubic::CubicRunout );
         setBoundaryCondition( QwtSpline::AtEnd, QwtSplineCubic::CubicRunout );
-    }
-
-protected:
-    virtual bool verifyStart( const QPolygonF &points, 
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        const QwtSplinePolynomial p1 = polynomial( 0, points, m );
-        const QwtSplinePolynomial p2 = polynomial( 1, points, m );
-
-        const double b3 = 0.5 * p2.curvatureAt( points[2].x() - points[1].x() );
-
-        return fuzzyCompare( p1.c2, 2 * p2.c2 - b3 );
-    }
-    
-    virtual bool verifyEnd( const QPolygonF &points,
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        const int n = points.size();
-
-        const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
-        const QwtSplinePolynomial p2 = polynomial( n - 3, points, m );
-
-        const double b3 = 0.5 * p1.curvatureAt( points[n-1].x() - points[n-2].x() );
-
-        return fuzzyCompare( b3, 2 * p1.c2 - p2.c2 );
     }
 };
 
@@ -286,27 +322,6 @@ public:
         setBoundaryCondition( QwtSpline::AtBeginning, QwtSplineCubic::NotAKnot );
         setBoundaryCondition( QwtSpline::AtEnd, QwtSplineCubic::NotAKnot );
     }
-
-protected:
-    virtual bool verifyStart( const QPolygonF &points, 
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        const QwtSplinePolynomial p1 = polynomial( 0, points, m );
-        const QwtSplinePolynomial p2 = polynomial( 1, points, m );
-
-        return fuzzyCompare( p1.c3, p2.c3 );
-    }
-    
-    virtual bool verifyEnd( const QPolygonF &points, 
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        const int n = points.size();
-
-        const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
-        const QwtSplinePolynomial p2 = polynomial( n - 3, points, m );
-
-        return fuzzyCompare( p1.c3, p2.c3 );
-    }
 };
 
 class SplinePeriodic: public CubicSpline
@@ -316,26 +331,6 @@ public:
         CubicSpline( "Periodic Spline" )
     {
         setBoundaryType( QwtSplineCubic::PeriodicPolygon );
-    }
-
-protected:
-    virtual bool verifyStart( const QPolygonF &points, 
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        const int n = points.size();
-
-        const QwtSplinePolynomial p1 = polynomial( n - 2, points, m );
-        const QwtSplinePolynomial p2 = polynomial( 0, points, m );
-
-        const double dx = points[n-1].x() - points[n-2].x();
-        return( fuzzyCompare( p1.curvatureAt( dx ), p2.curvatureAt( 0.0 ) ) &&
-            fuzzyCompare( p1.slopeAt( dx ), p2.slopeAt( 0.0 ) ) );
-    }
-    
-    virtual bool verifyEnd( const QPolygonF &points, 
-        const QVector<double> &m, const QVector<double> &cv ) const
-    {
-        return verifyStart( points, m, cv );
     }
 };
 
@@ -351,20 +346,6 @@ public:
         setBoundaryCondition( QwtSpline::AtEnd, QwtSpline::Clamped1 );
         setBoundaryValue( QwtSpline::AtEnd, slopeEnd );
     }
-
-protected:
-    
-    virtual bool verifyStart( const QPolygonF &, 
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        return fuzzyCompare( m.first(), boundaryValue( QwtSpline::AtBeginning ) );
-    }
-    
-    virtual bool verifyEnd( const QPolygonF &, 
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        return fuzzyCompare( m.last(), boundaryValue( QwtSpline::AtEnd ) );
-    }
 };
 
 class SplineClamped2: public CubicSpline
@@ -378,19 +359,6 @@ public:
 
         setBoundaryCondition( QwtSpline::AtEnd, QwtSpline::Clamped2 );
         setBoundaryValue( QwtSpline::AtEnd, cvEnd );
-    }
-
-protected:
-    virtual bool verifyStart( const QPolygonF &, 
-        const QVector<double> &, const QVector<double> &cv ) const
-    {
-        return fuzzyCompare( cv.first(), boundaryValue( QwtSpline::AtBeginning ) );
-    }
-
-    virtual bool verifyEnd( const QPolygonF &,
-        const QVector<double> &, const QVector<double> &cv ) const
-    {
-        return fuzzyCompare( cv.last(), boundaryValue( QwtSpline::AtEnd ) );
     }
 };
 
@@ -406,21 +374,6 @@ public:
         setBoundaryCondition( QwtSpline::AtEnd, QwtSpline::Clamped3 );
         setBoundaryValue( QwtSpline::AtEnd, valueEnd );
     }   
-
-protected:
-    virtual bool verifyStart( const QPolygonF &points, 
-        const QVector<double> &, const QVector<double> &cv ) const
-    {
-        const QwtSplinePolynomial p = polynomialCV( 0, points, cv );
-        return fuzzyCompare( 6.0 * p.c3, boundaryValue( QwtSpline::AtBeginning ) );
-    }
-    
-    virtual bool verifyEnd( const QPolygonF &points, 
-        const QVector<double> &m, const QVector<double> & ) const
-    {
-        const QwtSplinePolynomial p = polynomial( points.size() - 2, points, m );
-        return fuzzyCompare( 6.0 * p.c3, boundaryValue( QwtSpline::AtEnd ) );
-    }
 };
 
 void testSplines( QVector<CubicSpline *> splines, const QPolygonF &points )
