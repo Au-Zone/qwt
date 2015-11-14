@@ -476,6 +476,16 @@ double QwtSpline::boundaryValue( BoundaryPosition position ) const
     return d_data->boundaryConditions[0].value; // should never happen
 }
 
+void QwtSpline::setBoundaryConditions( BoundaryCondition condition,
+    double valueBegin, double valueEnd )
+{
+    setBoundaryCondition( QwtSpline::AtBeginning, condition );
+    setBoundaryValue( QwtSpline::AtBeginning, valueBegin );
+
+    setBoundaryCondition( QwtSpline::AtEnd, condition );
+    setBoundaryValue( QwtSpline::AtEnd, valueEnd );
+}
+
 /*! \fn QVector<QLineF> bezierControlLines( const QPolygonF &points ) const
 
   \brief Interpolate a curve with Bezier curves

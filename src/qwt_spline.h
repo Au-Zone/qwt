@@ -106,6 +106,9 @@ public:
     void setBoundaryValue( BoundaryPosition, double value );
     double boundaryValue( BoundaryPosition ) const;
 
+    void setBoundaryConditions( BoundaryCondition,
+        double valueBegin = 0.0, double valueEnd = 0.0 );
+
     virtual QPolygonF equidistantPolygon( const QPolygonF &, 
         double distance, bool withNodes ) const;
 
