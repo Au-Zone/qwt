@@ -172,21 +172,32 @@ void SplineTester::testSplineC2( const CubicSpline *spline, const QPolygonF &poi
 bool SplineTester::verifyBoundary( const QwtSpline *spline, QwtSpline::BoundaryPosition pos,
     const QPolygonF &points, const QVector<double> &m ) const
 {
+    const bool isC2 = dynamic_cast<const QwtSplineC2 *>( spline );
+
     const int n = points.size();
 
     const QwtSplinePolynomial polynomBegin = polynomialAt( 0, points, m );
     const QwtSplinePolynomial polynomEnd = polynomialAt( n - 2, points, m );
+
+    bool ok = false;
 
     if ( spline->boundaryType() != QwtSpline::ConditionalBoundaries )
     {
         // periodic or closed 
 
         const double dx = points[n-1].x() - points[n-2].x();
-        return fuzzyCompare( polynomEnd.curvatureAt( dx ), polynomBegin.curvatureAt( 0.0 ) ) &&
-            fuzzyCompare( polynomEnd.slopeAt( dx ), polynomBegin.slopeAt( 0.0 ) );
-    }
 
-    bool ok = false;
+        ok = fuzzyCompare( polynomEnd.slopeAt( dx ), 
+            polynomBegin.slopeAt( 0.0 ) );
+
+        if ( ok && isC2 )
+        {
+            ok = fuzzyCompare( polynomEnd.curvatureAt( dx ), 
+                polynomBegin.curvatureAt( 0.0 ) );
+        }
+
+        return ok;
+    }
 
     switch( spline->boundaryCondition( pos ) )
     {
@@ -376,8 +387,6 @@ void testSplines( SplineTester::Type splineType, const QPolygonF &points )
         { "Not A Knot", QwtSpline::NotAKnot, 0.0, 0.0 }
     };
     
-    // testing Cardinal splines
-
     for ( uint i = 0; i < sizeof( conditions ) / sizeof( conditions[0] ); i++ )
     {
         const Condition &c = conditions[i];
@@ -391,7 +400,7 @@ void testSplines( SplineTester::Type splineType, const QPolygonF &points )
             if ( splineType == SplineTester::Cardinal )
             {
                 const QString name = QString( c.name ) + " Spline Cardinal";
-                spline = new LocalSpline( QwtSplineLocal::Akima, name );
+                spline = new LocalSpline( QwtSplineLocal::Cardinal, name );
             }
             else
             {
@@ -446,7 +455,7 @@ void testSplines( SplineTester::Type splineType, const QPolygonF &points )
 
 void testSplines( const QPolygonF &points )
 {
-    //testSplines( SplineTester::Cardinal, points );
+    testSplines( SplineTester::Cardinal, points );
     //testSplines( SplineTester::Akima, points );
     testSplines( SplineTester::Cubic, points );
 }
