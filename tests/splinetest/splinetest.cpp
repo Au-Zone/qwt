@@ -456,7 +456,7 @@ void testSplines( SplineTester::Type splineType, const QPolygonF &points )
 void testSplines( const QPolygonF &points )
 {
     testSplines( SplineTester::Cardinal, points );
-    //testSplines( SplineTester::Akima, points );
+    testSplines( SplineTester::Akima, points );
     testSplines( SplineTester::Cubic, points );
 }
 
