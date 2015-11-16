@@ -409,7 +409,7 @@ static inline void qwtSplineAkimaBoundaries(
     {
         const double s1 = qwtSlopeLine( p[0], p[1] );
         const double s2 = qwtSlopeLine( p[1], p[2] );
-        const double m = qwtSlopeAkima( s1, s1, s2, s2 );
+        const double m = qwtSlopeAkima( 0.5 * s1, s1, s2, 0.5 * s2 );
 
         slopeBegin = qwtSlopeBegin( spline, points, m );
         slopeEnd = qwtSlopeEnd( spline, points, m );
@@ -422,7 +422,7 @@ static inline void qwtSplineAkimaBoundaries(
         s[1] = qwtSlopeLine( p[1], p[2] );
         s[2] = qwtSlopeLine( p[2], p[3] );
 
-        const double m2 = qwtSlopeAkima( s[0], s[0], s[1], s[2] );
+        const double m2 = qwtSlopeAkima( 0.5 * s[0], s[0], s[1], s[2] );
 
         slopeBegin = qwtSlopeBegin( spline, points, m2 );
 
@@ -430,7 +430,7 @@ static inline void qwtSplineAkimaBoundaries(
         s[1] = qwtSlopeLine( p[n-3], p[n-2] );
         s[2] = qwtSlopeLine( p[n-2], p[n-1] );
 
-        const double mn2 = qwtSlopeAkima( s[0], s[1], s[2], s[2] );
+        const double mn2 = qwtSlopeAkima( s[0], s[1], s[2], 0.5 * s[2] );
 
         slopeEnd = qwtSlopeEnd( spline, points, mn2 );
     }
@@ -453,9 +453,9 @@ static inline SplineStore qwtSplineAkima(
     store.init( points );
     store.start( p[0], m1 );
 
-    double s1 = qwtSlopeLine( p[0], p[1] );
-    double s2 = s1;
+    double s2 = qwtSlopeLine( p[0], p[1] );
     double s3 = qwtSlopeLine( p[1], p[2] );
+    double s1 = 0.5 * s2;
 
     for ( int i = 0; i < size - 3; i++ )
     {
@@ -471,7 +471,7 @@ static inline SplineStore qwtSplineAkima(
         m1 = m2;
     }
 
-    const double m2 = ts * qwtSlopeAkima( s1, s2, s3, s3 );
+    const double m2 = ts * qwtSlopeAkima( s1, s2, s3, 0.5 * s3 );
 
     store.addCubic( p[size - 3], m1, p[size - 2], m2 );
     store.addCubic( p[size - 2], m2, p[size - 1], ts * slopeEnd );
