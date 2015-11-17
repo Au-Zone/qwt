@@ -788,7 +788,7 @@ static void qwtSetupEndEquations(
 
     switch( conditionBegin )
     {
-        case QwtSplineC1::Clamped1:
+        case QwtSpline::Clamped1:
         {
             // first derivative at end points given
 
@@ -804,7 +804,7 @@ static void qwtSetupEndEquations(
             eq[0].setup( 2 * h0 / 3.0, h0 / 3.0, 0.0, s0 - valueBegin );
             break;
         }
-        case QwtSplineC1::Clamped2:
+        case QwtSpline::Clamped2:
         {
             // second derivative at end points given
 
@@ -817,7 +817,7 @@ static void qwtSetupEndEquations(
             eq[0].setup( 1.0, 0.0, 0.0, 0.5 * valueBegin ); 
             break;
         }
-        case QwtSplineC1::Clamped3:
+        case QwtSpline::Clamped3:
         {
             // third derivative at end point given
 
@@ -833,7 +833,7 @@ static void qwtSetupEndEquations(
 
             break;
         }
-        case QwtSplineCubic::LinearRunout:
+        case QwtSpline::LinearRunout:
         {
             const double r0 = qBound( 0.0, valueBegin, 1.0 );
             if ( r0 == 0.0 )
@@ -847,14 +847,14 @@ static void qwtSetupEndEquations(
             }
             break;
         }
-        case QwtSplineCubic::NotAKnot:
-        case QwtSplineCubic::CubicRunout:
+        case QwtSpline::NotAKnot:
+        case QwtSpline::CubicRunout:
         {
             // building one cubic curve from 3 points
 
             double v0;
 
-            if ( conditionBegin == QwtSplineCubic::CubicRunout )
+            if ( conditionBegin == QwtSpline::CubicRunout )
             {
                 // first/last point are the endpoints of the curve
 
@@ -885,25 +885,25 @@ static void qwtSetupEndEquations(
 
     switch( conditionEnd )
     {
-        case QwtSplineC1::Clamped1:
+        case QwtSpline::Clamped1:
         {
             // first derivative at end points given
             eq[1].setup( 0.0, 1.0 / 3.0 * hn, 2.0 / 3.0 * hn, valueEnd - sn );
             break;
         }
-        case QwtSplineC1::Clamped2:
+        case QwtSpline::Clamped2:
         {
             // second derivative at end points given
             eq[1].setup( 0.0, 0.0, 1.0, 0.5 * valueEnd ); 
             break;
         }
-        case QwtSplineC1::Clamped3:
+        case QwtSpline::Clamped3:
         {
             // third derivative at end point given
             eq[1].setup( 0.0, 1.0, -1.0, -0.5 * valueEnd * hn ); 
             break;
         }
-        case QwtSplineCubic::LinearRunout:
+        case QwtSpline::LinearRunout:
         {
             const double rn = qBound( 0.0, valueEnd, 1.0 );
             if ( rn == 0.0 )
@@ -918,8 +918,8 @@ static void qwtSetupEndEquations(
 
             break;
         }
-        case QwtSplineCubic::NotAKnot:
-        case QwtSplineCubic::CubicRunout:
+        case QwtSpline::NotAKnot:
+        case QwtSpline::CubicRunout:
         {
             // building one cubic curve from 3 points
 
