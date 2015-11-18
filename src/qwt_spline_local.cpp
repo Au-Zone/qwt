@@ -69,16 +69,6 @@ static inline double qwtSlopePChip(
     return 0.0;
 }
 
-static inline void qwtCubicToP( const QPointF &p1, double m1,
-    const QPointF &p2, double m2, QPainterPath &path )
-{
-    const double dx3 = ( p2.x() - p1.x() ) / 3.0;
-
-    path.cubicTo( p1.x() + dx3, p1.y() + m1 * dx3,
-        p2.x() - dx3, p2.y() - m2 * dx3,
-        p2.x(), p2.y() );
-}
-
 namespace QwtSplineLocalP
 {
     class PathStore
@@ -96,7 +86,11 @@ namespace QwtSplineLocalP
         inline void addCubic( const QPointF &p1, double m1,
             const QPointF &p2, double m2 )
         {
-            qwtCubicToP( p1, m1, p2, m2, path );
+    		const double dx3 = ( p2.x() - p1.x() ) / 3.0;
+    
+    		path.cubicTo( p1.x() + dx3, p1.y() + m1 * dx3,
+        		p2.x() - dx3, p2.y() - m2 * dx3,
+        		p2.x(), p2.y() );
         }
 
         QPainterPath path;
@@ -233,12 +227,12 @@ static double qwtSlopeBoundary(
 
     switch( boundaryCondition )
     {
-        case QwtSplineC1::Clamped1:
+        case QwtSpline::Clamped1:
         {
             m = boundaryValue;
             break;
         }
-        case QwtSplineC1::Clamped2:
+        case QwtSpline::Clamped2:
         {
             const double c2 = 0.5 * boundaryValue;
             const double c1 = slope1;
@@ -246,22 +240,29 @@ static double qwtSlopeBoundary(
             m = 0.5 * ( 3.0 * dy / dx - c1 - c2 * dx );
             break;
         }
-        case QwtSplineC1::Clamped3:
+        case QwtSpline::Clamped3:
         {
             const double c3 = boundaryValue / 6.0;
             m = c3 * dx * dx + 2 * dy / dx - slope1;
             break;
         }
-        case QwtSplineC1::LinearRunout:
+        case QwtSpline::LinearRunout:
         {
-            const double s = qwtSlopeLine( p1, p2 );
+            const double s = dy / dx;
             const double r = qBound( 0.0, boundaryValue, 1.0 );
 
             m = s - r * ( s - slope1 );
             break;
         }
+        case QwtSpline::CubicRunout:
+        case QwtSpline::NotAKnot:
         default:
         {
+			/* 
+              In case of CubicRunout/NotAKnot the last 3 points build
+              one polynomial, what sets up a conflicting requirement
+              for the slope at p2. So we don't support those conditions.
+             */
             m = dy / dx;
         }
     }
@@ -394,7 +395,6 @@ static inline void qwtSplineAkimaBoundaries(
         return;
     }
 
-#if 1
     if ( spline->boundaryCondition( QwtSpline::AtBeginning ) == QwtSpline::Clamped1
         && spline->boundaryCondition( QwtSpline::AtEnd ) == QwtSpline::Clamped1 )
     {
@@ -403,7 +403,6 @@ static inline void qwtSplineAkimaBoundaries(
 
         return;
     }
-#endif
 
     if ( n == 3 )
     {
