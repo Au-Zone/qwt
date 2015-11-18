@@ -342,8 +342,7 @@ static inline SplineStore qwtSplineL1(
     double slopeBegin, slopeEnd; 
     qwtSplineBoundariesL1<Slope>( spline, points, slopeBegin, slopeEnd );
 
-    const double ts = spline->tension();
-    double m1 = ts * slopeBegin;
+    double m1 = slopeBegin;
 
     SplineStore store;
     store.init( points );
@@ -362,7 +361,7 @@ static inline SplineStore qwtSplineL1(
         // the compiler will eliminate pointless calculations
         const double s2 = dy2 / dx2;
 
-        const double m2 = ts * Slope::value( dx1, dy1, s1, dx2, dy2, s2 );
+        const double m2 = Slope::value( dx1, dy1, s1, dx2, dy2, s2 );
 
         store.addCubic( p[i-1], m1, p[i], m2 );
 
@@ -372,7 +371,7 @@ static inline SplineStore qwtSplineL1(
         m1 = m2;
     }
 
-    store.addCubic( p[size-2], m1, p[size-1], ts * slopeEnd );
+    store.addCubic( p[size-2], m1, p[size-1], slopeEnd );
 
     return store;
 }
@@ -445,8 +444,7 @@ static inline SplineStore qwtSplineAkima(
     double slopeBegin, slopeEnd;
     qwtSplineAkimaBoundaries( spline, points, slopeBegin, slopeEnd );
 
-    const double ts = spline->tension();
-    double m1 = ts * slopeBegin;
+    double m1 = slopeBegin;
 
     SplineStore store;
     store.init( points );
@@ -460,7 +458,7 @@ static inline SplineStore qwtSplineAkima(
     {
         const double s4 = qwtSlopeLine( p[i+2],  p[i+3] );
 
-        const double m2 = ts * qwtSlopeAkima( s1, s2, s3, s4 );
+        const double m2 = qwtSlopeAkima( s1, s2, s3, s4 );
         store.addCubic( p[i], m1, p[i+1], m2 );
 
         s1 = s2;
@@ -470,10 +468,10 @@ static inline SplineStore qwtSplineAkima(
         m1 = m2;
     }
 
-    const double m2 = ts * qwtSlopeAkima( s1, s2, s3, 0.5 * s3 );
+    const double m2 = qwtSlopeAkima( s1, s2, s3, 0.5 * s3 );
 
     store.addCubic( p[size - 3], m1, p[size - 2], m2 );
-    store.addCubic( p[size - 2], m2, p[size - 1], ts * slopeEnd );
+    store.addCubic( p[size - 2], m2, p[size - 1], slopeEnd );
 
     return store;
 }
@@ -490,11 +488,9 @@ static inline SplineStore qwtSplineLocal(
 
     if ( size == 2 )
     {
-        const double ts = spline->tension();
-
         const double s0 = qwtSlopeLine( points[0], points[1] );
-        const double m1 = qwtSlopeBegin( spline, points, s0 ) * ts;
-        const double m2 = qwtSlopeEnd( spline, points, s0 ) * ts;
+        const double m1 = qwtSlopeBegin( spline, points, s0 );
+        const double m2 = qwtSlopeEnd( spline, points, s0 );
 
         store.init( points );
         store.start( points[0], m1 );
@@ -535,12 +531,9 @@ static inline SplineStore qwtSplineLocal(
     return store;
 }
 
-QwtSplineLocal::QwtSplineLocal( Type type, double tension ):
-    d_type( type ),
-    d_tension( 1.0 )
+QwtSplineLocal::QwtSplineLocal( Type type ):
+    d_type( type )
 {
-    setTension( tension );
-
     setBoundaryCondition( QwtSpline::AtBeginning, QwtSplineLocal::LinearRunout );
     setBoundaryValue( QwtSpline::AtBeginning, 0.0 );
 
@@ -555,17 +548,6 @@ QwtSplineLocal::~QwtSplineLocal()
 QwtSplineLocal::Type QwtSplineLocal::type() const
 {
     return d_type;
-}
-
-void QwtSplineLocal::setTension( double tension )
-{
-    // breaking endpoint conditions ???
-    d_tension = qBound( 0.0, tension, 1.0 );
-}
-
-double QwtSplineLocal::tension() const
-{
-    return d_tension;
 }
 
 /*!

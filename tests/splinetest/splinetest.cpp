@@ -417,7 +417,7 @@ void testSplines( SplineTester::Type splineType, const QPolygonF &points )
                 if ( c.condition == QwtSpline::NotAKnot 
                     || c.condition == QwtSpline::CubicRunout )
                 {
-                    // not implemented yet
+                    // requires C2 continuity
                     continue;
                 }
 

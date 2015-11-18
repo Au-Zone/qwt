@@ -24,15 +24,12 @@ public:
         PChip 
     };
 
-    QwtSplineLocal( Type type, double tension = 1.0 );
+    QwtSplineLocal( Type type );
     virtual ~QwtSplineLocal();
 
     Type type() const;
 
     virtual uint locality() const;
-
-    void setTension( double tension );
-    double tension() const;
 
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF & ) const;
@@ -43,7 +40,6 @@ public:
 
 private:
     const Type d_type;
-    double d_tension;
 };
 
 #endif
