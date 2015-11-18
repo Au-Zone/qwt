@@ -24,7 +24,7 @@ public:
         PChip 
     };
 
-    QwtSplineLocal( Type type, double tension = 0.0 );
+    QwtSplineLocal( Type type, double tension = 1.0 );
     virtual ~QwtSplineLocal();
 
     Type type() const;

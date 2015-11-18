@@ -342,7 +342,7 @@ static inline SplineStore qwtSplineL1(
     double slopeBegin, slopeEnd; 
     qwtSplineBoundariesL1<Slope>( spline, points, slopeBegin, slopeEnd );
 
-    const double ts = 1.0 - spline->tension();
+    const double ts = spline->tension();
     double m1 = ts * slopeBegin;
 
     SplineStore store;
@@ -445,7 +445,7 @@ static inline SplineStore qwtSplineAkima(
     double slopeBegin, slopeEnd;
     qwtSplineAkimaBoundaries( spline, points, slopeBegin, slopeEnd );
 
-    const double ts = 1.0 - spline->tension();
+    const double ts = spline->tension();
     double m1 = ts * slopeBegin;
 
     SplineStore store;
@@ -490,7 +490,7 @@ static inline SplineStore qwtSplineLocal(
 
     if ( size == 2 )
     {
-        const double ts = 1.0 - spline->tension();
+        const double ts = spline->tension();
 
         const double s0 = qwtSlopeLine( points[0], points[1] );
         const double m1 = qwtSlopeBegin( spline, points, s0 ) * ts;
@@ -537,7 +537,7 @@ static inline SplineStore qwtSplineLocal(
 
 QwtSplineLocal::QwtSplineLocal( Type type, double tension ):
     d_type( type ),
-    d_tension( 0.0 )
+    d_tension( 1.0 )
 {
     setTension( tension );
 
