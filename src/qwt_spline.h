@@ -144,7 +144,6 @@ public:
 class QWT_EXPORT QwtSplineC1: public QwtSplineG1
 {
 public:
-
     QwtSplineC1();
     virtual ~QwtSplineC1();
 
@@ -157,6 +156,10 @@ public:
     // calculating the parametric equations
     virtual QVector<QwtSplinePolynomial> polynomials( const QPolygonF & ) const;
     virtual QVector<double> slopes( const QPolygonF & ) const = 0;
+
+    // resolving the boundary conditions
+    virtual double slopeAtBeginning( const QPolygonF &, double slopeNext ) const;
+    virtual double slopeAtEnd( const QPolygonF &, double slopeBefore ) const;
 };
 
 /*!
