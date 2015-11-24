@@ -72,8 +72,6 @@ public:
 
     enum BoundaryCondition
     {
-        // clamping is possible for all splines
-
         Clamped1,
 
         // Natural := Clamped2 with boundary values: 0.0
@@ -82,12 +80,7 @@ public:
         // Parabolic runout := Clamped3 with boundary values: 0.0
         Clamped3,
 
-        // conditions, that require C1 continuity
-        LinearRunout, 
-
-        // conditions, that require C2 continuity
-        CubicRunout, 
-        NotAKnot
+        LinearRunout 
     };
 
     QwtSpline();
@@ -100,13 +93,13 @@ public:
     void setBoundaryType( BoundaryType );
     BoundaryType boundaryType() const;
 
-    void setBoundaryCondition( BoundaryPosition, BoundaryCondition );
-    BoundaryCondition boundaryCondition( BoundaryPosition ) const;
+    void setBoundaryCondition( BoundaryPosition, int condition );
+    int boundaryCondition( BoundaryPosition ) const;
 
     void setBoundaryValue( BoundaryPosition, double value );
     double boundaryValue( BoundaryPosition ) const;
 
-    void setBoundaryConditions( BoundaryCondition,
+    void setBoundaryConditions( int condition,
         double valueBegin = 0.0, double valueEnd = 0.0 );
 
     virtual QPolygonF equidistantPolygon( const QPolygonF &, 
@@ -169,6 +162,13 @@ public:
 class QWT_EXPORT QwtSplineC2: public QwtSplineC1
 {
 public:
+    enum BoundaryConditionc2
+    {
+        // conditions, that require C2 continuity
+        CubicRunout = LinearRunout + 1, 
+        NotAKnot
+	};
+
     QwtSplineC2();
     virtual ~QwtSplineC2();
 

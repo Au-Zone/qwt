@@ -774,8 +774,7 @@ namespace QwtSplineCubicP
 }
 
 static void qwtSetupEndEquations( 
-    QwtSpline::BoundaryCondition conditionBegin, double valueBegin, 
-    QwtSpline::BoundaryCondition conditionEnd, double valueEnd, 
+    int conditionBegin, double valueBegin, int conditionEnd, double valueEnd, 
     const QPolygonF &points, QwtSplineCubicP::Equation3 eq[2] )
 {
     const int n = points.size();
@@ -847,14 +846,14 @@ static void qwtSetupEndEquations(
             }
             break;
         }
-        case QwtSpline::NotAKnot:
-        case QwtSpline::CubicRunout:
+        case QwtSplineC2::NotAKnot:
+        case QwtSplineC2::CubicRunout:
         {
             // building one cubic curve from 3 points
 
             double v0;
 
-            if ( conditionBegin == QwtSpline::CubicRunout )
+            if ( conditionBegin == QwtSplineC2::CubicRunout )
             {
                 // first/last point are the endpoints of the curve
 
@@ -918,14 +917,14 @@ static void qwtSetupEndEquations(
 
             break;
         }
-        case QwtSpline::NotAKnot:
-        case QwtSpline::CubicRunout:
+        case QwtSplineC2::NotAKnot:
+        case QwtSplineC2::CubicRunout:
         {
             // building one cubic curve from 3 points
 
             double vn;
 
-            if ( conditionEnd == QwtSplineCubic::CubicRunout )
+            if ( conditionEnd == QwtSplineC2::CubicRunout )
             {
                 // last point is the endpoints of the curve
                 vn = 1.0;

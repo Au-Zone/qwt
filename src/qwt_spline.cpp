@@ -186,16 +186,9 @@ namespace QwtSplineC1P
                 m = s - r * ( s - slope1 );
                 break;
             }
-            case QwtSpline::CubicRunout:
-            case QwtSpline::NotAKnot:
             default:
             {
-                /* 
-                  In case of CubicRunout/NotAKnot the last 3 points build
-                  one polynomial, what sets up a conflicting requirement
-                  for the slope at p2. So we don't support those conditions.
-                 */
-                m = dy / dx;
+                m = dy / dx; // something
             }
         }
 
@@ -477,7 +470,7 @@ public:
 
     struct
     {
-        QwtSpline::BoundaryCondition type;
+        int type;
         double value;
 
     } boundaryConditions[2];
@@ -552,15 +545,13 @@ QwtSpline::BoundaryType QwtSpline::boundaryType() const
     return d_data->boundaryType;
 }
 
-void QwtSpline::setBoundaryCondition( BoundaryPosition position,
-    BoundaryCondition condition )
+void QwtSpline::setBoundaryCondition( BoundaryPosition position, int condition )
 {
     if ( ( position == QwtSpline::AtBeginning ) || ( position == QwtSpline::AtEnd ) )
         d_data->boundaryConditions[position].type = condition;
 }
 
-QwtSpline::BoundaryCondition QwtSpline::boundaryCondition(
-    BoundaryPosition position) const
+int QwtSpline::boundaryCondition( BoundaryPosition position ) const
 {
     if ( ( position == QwtSpline::AtBeginning ) || ( position == QwtSpline::AtEnd ) )
         return d_data->boundaryConditions[position].type;
@@ -582,8 +573,8 @@ double QwtSpline::boundaryValue( BoundaryPosition position ) const
     return d_data->boundaryConditions[0].value; // should never happen
 }
 
-void QwtSpline::setBoundaryConditions( BoundaryCondition condition,
-    double valueBegin, double valueEnd )
+void QwtSpline::setBoundaryConditions(
+    int condition, double valueBegin, double valueEnd )
 {
     setBoundaryCondition( QwtSpline::AtBeginning, condition );
     setBoundaryValue( QwtSpline::AtBeginning, valueBegin );
@@ -798,8 +789,7 @@ double QwtSplineC1::slopeAtEnd( const QPolygonF &points, double slopeBefore ) co
     const QPointF p1( points[n-1].x(), -points[n-1].y() );
     const QPointF p2( points[n-2].x(), -points[n-2].y() );
     
-    const QwtSpline::BoundaryCondition condition =
-        boundaryCondition( QwtSpline::AtEnd );
+    const int condition = boundaryCondition( QwtSpline::AtEnd );
         
     double value = boundaryValue( QwtSpline::AtEnd );
     if ( condition != QwtSpline::LinearRunout )

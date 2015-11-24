@@ -256,7 +256,7 @@ bool SplineTester::verifyBoundary( const QwtSpline *spline, QwtSpline::BoundaryP
             }
             break;
         }
-        case QwtSpline::CubicRunout:
+        case QwtSplineC2::CubicRunout:
         {
             if ( pos == QwtSpline::AtBeginning )
             {
@@ -280,7 +280,7 @@ bool SplineTester::verifyBoundary( const QwtSpline *spline, QwtSpline::BoundaryP
             }
             break;
         }
-        case QwtSpline::NotAKnot:
+        case QwtSplineC2::NotAKnot:
         {
             if ( pos == QwtSpline::AtBeginning )
             {
@@ -384,15 +384,15 @@ void testSplines( SplineTester::Type splineType, const QPolygonF &points )
         { "Clamped2", QwtSpline::Clamped2, 0.4, -0.8 },
         { "Clamped3", QwtSpline::Clamped3, 0.03, 0.01 },
         { "Linear Runout", QwtSpline::LinearRunout, 0.3, 0.7 },
-        { "Cubic Runout", QwtSpline::CubicRunout, 0.0, 0.0 },
-        { "Not A Knot", QwtSpline::NotAKnot, 0.0, 0.0 }
+        { "Cubic Runout", QwtSplineC2::CubicRunout, 0.0, 0.0 },
+        { "Not A Knot", QwtSplineC2::NotAKnot, 0.0, 0.0 }
     };
     
     for ( uint i = 0; i < sizeof( conditions ) / sizeof( conditions[0] ); i++ )
     {
         const Condition &c = conditions[i];
 
-        if ( conditions[i].condition == QwtSpline::NotAKnot && points.size() < 4 )
+        if ( conditions[i].condition == QwtSplineC2::NotAKnot && points.size() < 4 )
             continue;
 
         if ( splineType != SplineTester::Cubic )
@@ -415,8 +415,8 @@ void testSplines( SplineTester::Type splineType, const QPolygonF &points )
             }
             else
             {
-                if ( c.condition == QwtSpline::NotAKnot 
-                    || c.condition == QwtSpline::CubicRunout )
+                if ( c.condition == QwtSplineC2::NotAKnot 
+                    || c.condition == QwtSplineC2::CubicRunout )
                 {
                     // requires C2 continuity
                     continue;
