@@ -385,19 +385,20 @@ static inline SplineStore qwtSplineC1PathParametric(
         {
             const double t3 = td / 3.0;
 
-            const double cx1 = p1.x() + mx[numParamPoints-1] * t3;
-            const double cy1 = p1.y() + my[numParamPoints-1] * t3;
+            const double cx1 = p1.x() + mx[j] * t3;
+            const double cy1 = p1.y() + my[j] * t3;
 
             const double cx2 = p2.x() - mx[0] * t3;
             const double cy2 = p2.y() - my[0] * t3;
 
             store.addCubic( cx1, cy1, cx2, cy2, p2.x(), p2.y() );
-            store.end();
         }
         else
         {
             store.addCubic( p1.x(), p1.y(), p2.x(), p2.y(), p2.x(), p2.y() );
         }
+
+        store.end();
     }
 
     return store;

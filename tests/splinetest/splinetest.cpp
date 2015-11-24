@@ -562,9 +562,10 @@ void testDuplicates()
     testPaths( "Duplicates", spline, points, points1 );
 
     spline.setBoundaryType( QwtSpline::ClosedPolygon );
+
     testPaths( "Duplicates", spline, points, points1 );
 
-    QPolygonF points2;
+    QPolygonF points2 = points;
     points2.append( points[0] );
     testPaths( "First point also at End", spline, points, points2 );
 
