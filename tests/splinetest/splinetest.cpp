@@ -1,5 +1,6 @@
 #include <qwt_spline_cubic.h>
 #include <qwt_spline_local.h>
+#include <qwt_spline_parametrization.h>
 #include <qpolygon.h>
 #include <qdebug.h>
 
@@ -460,7 +461,7 @@ void testSplines( const QPolygonF &points )
     testSplines( SplineTester::Cubic, points );
 }
 
-int main()
+void testSplines()
 {
     QPolygonF points;
 
@@ -516,4 +517,68 @@ int main()
     points += QPointF( x2, y1 );
 
     testSplines( points );
+}
+
+void testPaths( const char *prompt, const QwtSpline &spline,
+    const QPolygonF& points1, const QPolygonF& points2 )
+{
+    const QPainterPath path1 = spline.painterPath( points1 );
+    const QPainterPath path2 = spline.painterPath( points2 );
+
+    if ( path1 != path2 )
+    {
+        QString txt( "Parametric Spline" );
+        if ( spline.boundaryType() != QwtSpline::ConditionalBoundaries )
+            txt += "(closed)";
+        txt += ": ";
+        txt += prompt;
+        txt += " => failed.";
+
+        qDebug() << qPrintable( txt );
+    }
+}
+
+void testDuplicates()
+{
+    QwtSplineLocal spline( QwtSplineLocal::Cardinal );
+    spline.setParametrization( QwtSplineParametrization::ParameterChordal );
+
+    QPolygonF points;
+    points += QPointF( 1, 6 );
+    points += QPointF( 2, 7 );
+    points += QPointF( 3, 5);
+    points += QPointF( 2, 4 );
+    points += QPointF( 0, 3 );
+
+    // inserting duplicates
+
+    QPolygonF points1;
+    for ( int i = 0; i < points.size(); i++ )
+    {
+        points1 += points[i];
+        points1 += points[i];
+    }
+
+    testPaths( "Duplicates", spline, points, points1 );
+
+    spline.setBoundaryType( QwtSpline::ClosedPolygon );
+    testPaths( "Duplicates", spline, points, points1 );
+
+    QPolygonF points2;
+    points2.append( points[0] );
+    testPaths( "First point also at End", spline, points, points2 );
+
+    QPolygonF points3 = points;
+    points3.prepend( points.first() ); 
+    testPaths( "First point twice", spline, points, points3 );
+
+    QPolygonF points4 = points;
+    points4.append( points.last() );
+    testPaths( "Last point twice", spline, points, points4 );
+}
+
+int main()
+{
+    testSplines();
+    testDuplicates();
 }
