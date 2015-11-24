@@ -35,6 +35,9 @@ class QWT_EXPORT QwtSplinePolynomial
 public:
     QwtSplinePolynomial( double c3 = 0.0, double c2 = 0.0, double c1 = 0.0 );
 
+    bool operator==( const QwtSplinePolynomial & ) const;
+    bool operator!=( const QwtSplinePolynomial & ) const;
+
     double valueAt( double x ) const;
     double slopeAt( double x ) const;
     double curvatureAt( double x ) const;
@@ -64,6 +67,16 @@ inline QwtSplinePolynomial::QwtSplinePolynomial( double a, double b, double c ):
     c2(b),
     c1(c)
 {
+}
+
+inline bool QwtSplinePolynomial::operator==( const QwtSplinePolynomial &other ) const
+{
+    return ( c3 == other.c3 ) && ( c2 == other.c2 ) && ( c1 == other.c1 );
+}
+
+inline bool QwtSplinePolynomial::operator!=( const QwtSplinePolynomial &other ) const
+{
+    return ( !( *this == other ) );
 }
 
 inline double QwtSplinePolynomial::valueAt( double x ) const
