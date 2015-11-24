@@ -290,62 +290,114 @@ static inline SplineStore qwtSplineC1PathParametric(
     px[0].ry() = p[0].x();
     py[0].ry() = p[0].y();
 
+    int numParamPoints = 1;
     for ( int i = 1; i < n; i++ )
     {
-        t += param( points[i-1], points[i] );
+        const double td = param( points[i-1], points[i] );
+        if ( td > 0.0 )
+        {
+            t += param( points[i-1], points[i] );
 
-        px[i].rx() = py[i].rx() = t;
-        px[i].ry() = p[i].x();
-        py[i].ry() = p[i].y();
+            px[numParamPoints].rx() = py[numParamPoints].rx() = t;
+
+            px[numParamPoints].ry() = p[i].x();
+            py[numParamPoints].ry() = p[i].y();
+
+            numParamPoints++;
+        }
     }
 
     if ( isClosing )
     {
-        t += param( points[n-1], points[0] );
+        const double td = param( points[n-1], points[0] );
 
-        px[n].rx() = py[n].rx() = t;
-        px[n].ry() = p[0].x();
-        py[n].ry() = p[0].y();
+        if ( td > 0.0 )
+        {
+            t += param( points[n-1], points[0] );
+
+            px[numParamPoints].rx() = py[numParamPoints].rx() = t;
+
+            px[numParamPoints].ry() = p[0].x();
+            py[numParamPoints].ry() = p[0].y();
+
+            numParamPoints++;
+        }
     }
 
-    const QVector<double> mx = spline->slopes( pointsX );
-    const QVector<double> my = spline->slopes( pointsY );
+    if ( pointsX.size() != numParamPoints )
+    {
+        pointsX.resize( numParamPoints );
+        pointsY.resize( numParamPoints );
+    }
 
-    pointsY.clear(); // we don't need it anymore
+    const QVector<double> slopesX = spline->slopes( pointsX );
+    const QVector<double> slopesY = spline->slopes( pointsY );
+
+    const double *mx = slopesX.constData();
+    const double *my = slopesY.constData();
+
+    // we don't need it anymore
+    pointsX.clear(); 
+    pointsY.clear(); 
 
     SplineStore store;
     store.init( isClosing ? n : n - 1 );
     store.start( points[0].x(), points[0].y() );
 
+    int j = 0;
+
     for ( int i = 0; i < n - 1; i++ )
     {
-#if 0
-        const double t3 = param( points[i], points[i+1] ) / 3.0;
-#else
-        const double t3 = ( px[i+1].x() - px[i].x() ) / 3.0;
-#endif
+        const QPointF &p1 = p[i];
+        const QPointF &p2 = p[i+1];
 
-        const double cx1 = points[i].x() + mx[i] * t3;
-        const double cy1 = points[i].y() + my[i] * t3;
+        const double td = param( p1, p2 );
 
-        const double cx2 = points[i+1].x() - mx[i+1] * t3;
-        const double cy2 = points[i+1].y() - my[i+1] * t3;
+        if ( td != 0.0 )
+        {
+            const double t3 = td / 3.0;
 
-        store.addCubic( cx1, cy1, cx2, cy2, points[i+1].x(), points[i+1].y() );
+            const double cx1 = p1.x() + mx[j] * t3;
+            const double cy1 = p1.y() + my[j] * t3;
+
+            const double cx2 = p2.x() - mx[j+1] * t3;
+            const double cy2 = p2.y() - my[j+1] * t3;
+
+            store.addCubic( cx1, cy1, cx2, cy2, p2.x(), p2.y() );
+
+            j++;
+        }
+        else
+        {
+            // setting control points to the ends
+            store.addCubic( p1.x(), p1.y(), p2.x(), p2.y(), p2.x(), p2.y() );
+        }
     }
 
     if ( isClosing )
     {
-        const double t3 = param( points[n-1], points[0] ) / 3.0;
+        const QPointF &p1 = p[n-1];
+        const QPointF &p2 = p[0];
 
-        const double cx1 = points[n-1].x() + mx[n-1] * t3;
-        const double cy1 = points[n-1].y() + my[n-1] * t3;
+        const double td = param( p1, p2 );
 
-        const double cx2 = points[0].x() - mx[0] * t3;
-        const double cy2 = points[0].y() - my[0] * t3;
+        if ( td != 0.0 )
+        {
+            const double t3 = td / 3.0;
 
-        store.addCubic( cx1, cy1, cx2, cy2, points[0].x(), points[0].y() );
-        store.end();
+            const double cx1 = p1.x() + mx[numParamPoints-1] * t3;
+            const double cy1 = p1.y() + my[numParamPoints-1] * t3;
+
+            const double cx2 = p2.x() - mx[0] * t3;
+            const double cy2 = p2.y() - my[0] * t3;
+
+            store.addCubic( cx1, cy1, cx2, cy2, p2.x(), p2.y() );
+            store.end();
+        }
+        else
+        {
+            store.addCubic( p1.x(), p1.y(), p2.x(), p2.y(), p2.x(), p2.y() );
+        }
     }
 
     return store;
