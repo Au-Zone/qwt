@@ -11,6 +11,7 @@
 HEADERS += \
     qwt.h \
     qwt_abstract_scale_draw.h \
+    qwt_bezier.h \
     qwt_clipper.h \
     qwt_color_map.h \
     qwt_compat.h \
@@ -55,6 +56,7 @@ HEADERS += \
 
 SOURCES += \
     qwt_abstract_scale_draw.cpp \
+    qwt_bezier.cpp \
     qwt_clipper.cpp \
     qwt_color_map.cpp \
     qwt_column_symbol.cpp \
