@@ -7,30 +7,17 @@ static inline double qwtMidValue( double v1, double v2 )
     return 0.5 * ( v1 + v2 );
 }
 
-class QwtBezierData
+static inline double qwtManhattanLength(
+    double x1, double y1, double x2, double y2 )
 {
-public:
-    inline void setPoints( double p_x1, double p_y1, double p_cx1, double p_cy1,
-        double p_cx2, double p_cy2, double p_x2, double p_y2 )
-    {
-        x1 = p_x1;
-        y1 = p_y1;
+    return qAbs( x2 - x1 ) + qAbs( y2 - y1 );
+}
 
-        cx1 = p_cx1;
-        cy1 = p_cy1;
-
-        cx2 = p_cx2;
-        cy2 = p_cy2;
-
-        x2 = p_x2;
-        y2 = p_y2;
-    }
-
+struct QwtBezierData
+{
     inline double flatness() const
     {
-        // Based on the maximal distance between the curve and the straight line
-        // between the endpoints. Algo attributed to Roger Willcocks 
-        // ( http://www.rops.org ), but maths behind are quite obvious.
+        // algo by Roger Willcocks ( http://www.rops.org )
 
         const double ux = 3.0 * cx1 - 2.0 * x1 - x2; 
         const double uy = 3.0 * cy1 - 2.0 * y1 - y2; 
@@ -46,20 +33,72 @@ public:
         return qMax( ux2, vx2 ) + qMax( uy2, vy2 );
     }
 
+    inline double flatnessML() const 
+    {
+        const double l = qwtManhattanLength( x1, y1, x2, y2 );
+        if ( l > 1.0 )
+        {   
+            const double dx = x2 - x1;
+            const double dy = y2 - y1;
+
+            const double x3 = dx * (y1 - cy1);
+            const double y3 = dx * (y1 - cy2);
+
+            const double x4 = dy * (x1 - cx1);
+            const double y4 = dy * (x1 - cx2);
+
+            return qwtManhattanLength( x3, y3, x4, y4 ) / l;
+        }
+        else
+        {   
+            return qwtManhattanLength( x1, y1, cx1, cy1 ) 
+                + qwtManhattanLength( x1, y1, cx2, cy2 );
+        }
+    }
+
+    inline double flatness2() const
+    {
+        double dd2x = x1 + cx2 - 2 * cx1;
+        double dd2y = y1 + cy2 - 2 * cy1;
+
+        double dd3x = cx1 + x2 - 2 * cx2;
+        double dd3y = cy1 + y2 - 2 * cy2;
+
+        const double l1 = qAbs(dd2x) + qAbs(dd2y);
+        const double l2 = qAbs(dd3x) + qAbs(dd3y);
+
+        return l1 + l2;
+    }
+
+    inline double flatness3() const
+    {
+        double td2x = 2 * x1 + x2 - 3 * cx1;
+        double td2y = 2 * y1 + y2 - 3 * cy1;
+        double td3x = x1 + 2 * x2 - 3 * cx2;
+        double td3y = y1 + 2 * y2 - 3 * cy2;
+
+        const double l1 = qAbs(td2x) + qAbs(td2y);
+        const double l2 = qAbs(td3x) + qAbs(td3y);
+
+        return l1 + l2;
+    }
+
     double x1, y1;
     double cx1, cy1;
     double cx2, cy2;
     double x2, y2;
 };
 
-QPolygonF QwtBezier::toPolygon( double x1, double y1,
-                                double cx1, double cy1, double cx2, double cy2,
-                                double x2, double y2, double tolerance )
+QPolygonF QwtBezier::toPolygon( double maxDeviation,
+    double x1, double y1, double cx1, double cy1,
+    double cx2, double cy2, double x2, double y2,
+    bool withLastPoint )
 {
-    if ( tolerance <= 0.0 )
+    if ( maxDeviation <= 0.0 )
         return QPolygonF();
 
-    const double minFlatness = 16 * ( tolerance * tolerance );
+    // according to the algo used in QwtBezierData::flatness()
+    const double minFlatness = 16 * ( maxDeviation * maxDeviation );
 
     QPolygonF polygon;
     polygon += QPointF( x1, y1 );
@@ -72,25 +111,35 @@ QPolygonF QwtBezier::toPolygon( double x1, double y1,
     bezierStack.push( QwtBezierData() );
 
     QwtBezierData &bz0 = bezierStack.top();
-    bz0.setPoints( x1, y1, cx1, cy1, cx2, cy2, x2, y2 );
+    bz0.x1 = x1;
+    bz0.y1 = y1;
+    bz0.cx1 = cx1;
+    bz0.cy1 = cy1;
+    bz0.cx2 = cx2;
+    bz0.cy2 = cy2;
+    bz0.x2 = x2;
+    bz0.y2 = y2;
     
     while( true )
     {
         QwtBezierData &bezier = bezierStack.top();
 
-        if ( bezier.flatness() <= minFlatness )
+        if ( bezier.flatness() < minFlatness )
         {
-            polygon += QPointF( bezier.x2, bezier.y2 );
+            if ( bezierStack.size() == 1 )
+            {
+                if ( withLastPoint )
+                    polygon += QPointF( bezier.x2, bezier.y2 );
 
+                return polygon;
+            }
+
+            polygon += QPointF( bezier.x2, bezier.y2 );
             bezierStack.pop();
-            if ( bezierStack.isEmpty() )
-                break;
         }
         else
         {
-            bezierStack.push( QwtBezierData() );
-
-            QwtBezierData &bz = bezierStack.top();
+            QwtBezierData bz;
             
             const double c1 = qwtMidValue( bezier.cx1, bezier.cx2 );
 
@@ -109,8 +158,8 @@ QPolygonF QwtBezier::toPolygon( double x1, double y1,
             bz.cy2 = qwtMidValue( bz.cy1, c2 );
             bezier.cy1 = qwtMidValue( bezier.cy2, c2 );
             bz.y2 = bezier.y1 = qwtMidValue( bz.cy2, bezier.cy1 );
+
+            bezierStack.push( bz );
         }
     }
-
-    return polygon;
 }

@@ -667,17 +667,16 @@ QPolygonF QwtSpline::polygon( const QPolygonF &points, double tolerance )
 
     QPolygonF path;
 
+    const int n = controlLines.size();
     for ( int i = 0; i < controlLines.size(); i++ )
     {
         const QPointF &p1 = p[i];
         const QPointF &p2 = p[i+1];
         const QLineF &l = cl[i];
 
-        if ( i > 0 )
-            path.pop_back();
-
-        path += QwtBezier::toPolygon( p1.x(), p1.y(), l.x1(), l.y1(), 
-            l.x2(), l.y2(), p2.x(), p2.y(), tolerance );
+        path += QwtBezier::toPolygon( tolerance,
+            p1.x(), p1.y(), l.x1(), l.y1(), 
+            l.x2(), l.y2(), p2.x(), p2.y(), i == n - 1 );
     }
 
     return path;
