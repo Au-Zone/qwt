@@ -1,5 +1,6 @@
 #include "qwt_bezier.h"
 #include <qstack.h>
+#include <QDebug>
 
 static inline double qwtMidValue( double v1, double v2 )
 {
@@ -28,8 +29,8 @@ public:
     inline double flatness() const
     {
         // Based on the maximal distance between the curve and the straight line
-        // between the endpoints. Algo originally attributed to Roger Willcocks 
-        // ( http://www.rops.org ), but maths are quite obvious.
+        // between the endpoints. Algo attributed to Roger Willcocks 
+        // ( http://www.rops.org ), but maths behind are quite obvious.
 
         const double ux = 3.0 * cx1 - 2.0 * x1 - x2; 
         const double uy = 3.0 * cy1 - 2.0 * y1 - y2; 
@@ -77,7 +78,7 @@ QPolygonF QwtBezier::toPolygon( double x1, double y1,
     {
         QwtBezierData &bezier = bezierStack.top();
 
-        if ( bezier.flatness() < minFlatness )
+        if ( bezier.flatness() <= minFlatness )
         {
             polygon += QPointF( bezier.x2, bezier.y2 );
 

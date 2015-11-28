@@ -9,6 +9,7 @@
 
 #include "qwt_spline.h"
 #include "qwt_spline_parametrization.h"
+#include "qwt_bezier.h"
 #include "qwt_math.h"
 
 static inline QPointF qwtBezierPoint( const QPointF &p1,
@@ -647,6 +648,36 @@ QPainterPath QwtSpline::painterPath( const QPolygonF &points ) const
     {
         path.cubicTo( l[n-1].p1(), l[n-1].p2(), p[0] );
         path.closeSubpath();
+    }
+
+    return path;
+}
+
+QPolygonF QwtSpline::polygon( const QPolygonF &points, double tolerance )
+{
+    if ( tolerance <= 0.0 )
+        return QPolygonF();
+
+    const QVector<QLineF> controlLines = bezierControlLines( points );
+    if ( controlLines.isEmpty() )
+        return QPolygonF();
+
+    const QPointF *p = points.constData();
+    const QLineF *cl = controlLines.constData();
+
+    QPolygonF path;
+
+    for ( int i = 0; i < controlLines.size(); i++ )
+    {
+        const QPointF &p1 = p[i];
+        const QPointF &p2 = p[i+1];
+        const QLineF &l = cl[i];
+
+        if ( i > 0 )
+            path.pop_back();
+
+        path += QwtBezier::toPolygon( p1.x(), p1.y(), l.x1(), l.y1(), 
+            l.x2(), l.y2(), p2.x(), p2.y(), tolerance );
     }
 
     return path;

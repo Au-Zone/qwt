@@ -105,6 +105,8 @@ public:
     virtual QPolygonF equidistantPolygon( const QPolygonF &, 
         double distance, bool withNodes ) const;
 
+    virtual QPolygonF polygon( const QPolygonF &, double tolerance );
+
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const = 0;
 
@@ -167,7 +169,7 @@ public:
         // conditions, that require C2 continuity
         CubicRunout = LinearRunout + 1, 
         NotAKnot
-	};
+    };
 
     QwtSplineC2();
     virtual ~QwtSplineC2();
