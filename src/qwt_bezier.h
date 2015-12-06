@@ -18,7 +18,7 @@ class QWT_EXPORT QwtBezier
 public:
 
     // recursive subdivision
-    static QPolygonF toPolygon( double maxDeviation,
+    static QPolygonF toPolygon( double tolerance,
         double x1, double y1, double cx1, double cy1,
         double cx2, double cy2, double x2, double y2, 
         bool withLastPoint = true );

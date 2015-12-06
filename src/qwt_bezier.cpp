@@ -1,16 +1,9 @@
 #include "qwt_bezier.h"
 #include <qstack.h>
-#include <QDebug>
 
 static inline double qwtMidValue( double v1, double v2 )
 {
     return 0.5 * ( v1 + v2 );
-}
-
-static inline double qwtManhattanLength(
-    double x1, double y1, double x2, double y2 )
-{
-    return qAbs( x2 - x1 ) + qAbs( y2 - y1 );
 }
 
 struct QwtBezierData
@@ -33,72 +26,22 @@ struct QwtBezierData
         return qMax( ux2, vx2 ) + qMax( uy2, vy2 );
     }
 
-    inline double flatnessML() const 
-    {
-        const double l = qwtManhattanLength( x1, y1, x2, y2 );
-        if ( l > 1.0 )
-        {   
-            const double dx = x2 - x1;
-            const double dy = y2 - y1;
-
-            const double x3 = dx * (y1 - cy1);
-            const double y3 = dx * (y1 - cy2);
-
-            const double x4 = dy * (x1 - cx1);
-            const double y4 = dy * (x1 - cx2);
-
-            return qwtManhattanLength( x3, y3, x4, y4 ) / l;
-        }
-        else
-        {   
-            return qwtManhattanLength( x1, y1, cx1, cy1 ) 
-                + qwtManhattanLength( x1, y1, cx2, cy2 );
-        }
-    }
-
-    inline double flatness2() const
-    {
-        double dd2x = x1 + cx2 - 2 * cx1;
-        double dd2y = y1 + cy2 - 2 * cy1;
-
-        double dd3x = cx1 + x2 - 2 * cx2;
-        double dd3y = cy1 + y2 - 2 * cy2;
-
-        const double l1 = qAbs(dd2x) + qAbs(dd2y);
-        const double l2 = qAbs(dd3x) + qAbs(dd3y);
-
-        return l1 + l2;
-    }
-
-    inline double flatness3() const
-    {
-        double td2x = 2 * x1 + x2 - 3 * cx1;
-        double td2y = 2 * y1 + y2 - 3 * cy1;
-        double td3x = x1 + 2 * x2 - 3 * cx2;
-        double td3y = y1 + 2 * y2 - 3 * cy2;
-
-        const double l1 = qAbs(td2x) + qAbs(td2y);
-        const double l2 = qAbs(td3x) + qAbs(td3y);
-
-        return l1 + l2;
-    }
-
     double x1, y1;
     double cx1, cy1;
     double cx2, cy2;
     double x2, y2;
 };
 
-QPolygonF QwtBezier::toPolygon( double maxDeviation,
+QPolygonF QwtBezier::toPolygon( double tolerance,
     double x1, double y1, double cx1, double cy1,
     double cx2, double cy2, double x2, double y2,
     bool withLastPoint )
 {
-    if ( maxDeviation <= 0.0 )
+    if ( tolerance <= 0.0 )
         return QPolygonF();
 
     // according to the algo used in QwtBezierData::flatness()
-    const double minFlatness = 16 * ( maxDeviation * maxDeviation );
+    const double minFlatness = 16 * ( tolerance * tolerance );
 
     QPolygonF polygon;
     polygon += QPointF( x1, y1 );
