@@ -26,6 +26,31 @@ struct QwtBezierData
         return qMax( ux2, vx2 ) + qMax( uy2, vy2 );
     }
 
+    inline QwtBezierData subdivided()
+    {
+        QwtBezierData bz;
+        
+        const double c1 = qwtMidValue( cx1, cx2 );
+
+        bz.cx1 = qwtMidValue( x1, cx1 );
+        cx2 = qwtMidValue( cx2, x2 );
+        bz.x1 = x1;
+        bz.cx2 = qwtMidValue( bz.cx1, c1 );
+        cx1 = qwtMidValue( c1, cx2 );
+        bz.x2 = x1 = qwtMidValue( bz.cx2, cx1 );
+
+        const double c2 = qwtMidValue( cy1, cy2 );
+
+        bz.cy1 = qwtMidValue( y1, cy1 );
+        cy2 = qwtMidValue( cy2, y2 );
+        bz.y1 = y1;
+        bz.cy2 = qwtMidValue( bz.cy1, c2 );
+        cy1 = qwtMidValue( cy2, c2 );
+        bz.y2 = y1 = qwtMidValue( bz.cy2, cy1 );
+
+        return bz;
+    }
+
     double x1, y1;
     double cx1, cy1;
     double cx2, cy2;
@@ -82,27 +107,7 @@ QPolygonF QwtBezier::toPolygon( double tolerance,
         }
         else
         {
-            QwtBezierData bz;
-            
-            const double c1 = qwtMidValue( bezier.cx1, bezier.cx2 );
-
-            bz.cx1 = qwtMidValue( bezier.x1, bezier.cx1 );
-            bezier.cx2 = qwtMidValue( bezier.cx2, bezier.x2 );
-            bz.x1 = bezier.x1;
-            bz.cx2 = qwtMidValue( bz.cx1, c1 );
-            bezier.cx1 = qwtMidValue( c1, bezier.cx2 );
-            bz.x2 = bezier.x1 = qwtMidValue( bz.cx2, bezier.cx1 );
-
-            const double c2 = qwtMidValue( bezier.cy1, bezier.cy2 );
-
-            bz.cy1 = qwtMidValue( bezier.y1, bezier.cy1 );
-            bezier.cy2 = qwtMidValue( bezier.cy2, bezier.y2 );
-            bz.y1 = bezier.y1;
-            bz.cy2 = qwtMidValue( bz.cy1, c2 );
-            bezier.cy1 = qwtMidValue( bezier.cy2, c2 );
-            bz.y2 = bezier.y1 = qwtMidValue( bz.cy2, bezier.cy1 );
-
-            bezierStack.push( bz );
+            bezierStack.push( bezier.subdivided() );
         }
     }
 }
