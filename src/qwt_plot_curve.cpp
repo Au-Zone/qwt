@@ -463,8 +463,8 @@ void QwtPlotCurve::drawLines( QPainter *painter,
     if ( from > to )
         return;
 
-    const bool doAlign = QwtPainter::roundingAlignment( painter );
     const bool doFit = ( d_data->attributes & Fitted ) && d_data->curveFitter;
+    const bool doAlign = !doFit && QwtPainter::roundingAlignment( painter );
     const bool doFill = ( d_data->brush.style() != Qt::NoBrush )
             && ( d_data->brush.color().alpha() > 0 );
 
