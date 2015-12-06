@@ -106,13 +106,13 @@ public:
         {
             if ( condition == "Cubic Runout" )
             {
-                setBoundaryConditions( QwtSpline::CubicRunout );
+                setBoundaryConditions( QwtSplineC2::CubicRunout );
                 return;
             }
 
             if ( condition == "Not a Knot" )
             {
-                setBoundaryConditions( QwtSpline::NotAKnot );
+                setBoundaryConditions( QwtSplineC2::NotAKnot );
                 return;
             }
         }
@@ -179,8 +179,7 @@ public:
     }
 
 private:
-    void setBoundaryConditions( QwtSpline::BoundaryCondition condition,
-        double value = 0.0 )
+    void setBoundaryConditions( int condition, double value = 0.0 )
     {
         // always the same at both ends
 
