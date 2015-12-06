@@ -1,21 +1,35 @@
 #include "qwt_bezier.h"
 #include <qstack.h>
 
-static inline double qwtMidValue( double v1, double v2 )
+class QwtBezierData
 {
-    return 0.5 * ( v1 + v2 );
-}
+public:
+    inline QwtBezierData()
+    {
+        // default constructor with unitialized points
+    }
 
-struct QwtBezierData
-{
+    inline QwtBezierData( const QPointF &p1, const QPointF &cp1,
+            const QPointF &cp2, const QPointF &p2 ):
+        d_x1( p1.x() ),
+        d_y1( p1.y() ),
+        d_cx1( cp1.x() ),
+        d_cy1( cp1.y() ),
+        d_cx2( cp2.x() ),
+        d_cy2( cp2.y() ),
+        d_x2( p2.x() ),
+        d_y2( p2.y() )
+    {
+    }
+
     inline double flatness() const
     {
         // algo by Roger Willcocks ( http://www.rops.org )
 
-        const double ux = 3.0 * cx1 - 2.0 * x1 - x2; 
-        const double uy = 3.0 * cy1 - 2.0 * y1 - y2; 
-        const double vx = 3.0 * cx2 - 2.0 * x2 - x1;
-        const double vy = 3.0 * cy2 - 2.0 * y2 - y1;
+        const double ux = 3.0 * d_cx1 - 2.0 * d_x1 - d_x2; 
+        const double uy = 3.0 * d_cy1 - 2.0 * d_y1 - d_y2; 
+        const double vx = 3.0 * d_cx2 - 2.0 * d_x2 - d_x1;
+        const double vy = 3.0 * d_cy2 - 2.0 * d_y2 - d_y1;
 
         const double ux2 = ux * ux;
         const double uy2 = uy * uy;
@@ -26,88 +40,84 @@ struct QwtBezierData
         return qMax( ux2, vx2 ) + qMax( uy2, vy2 );
     }
 
+    static inline double minFlatness( double tolerance )
+    {
+        return 16 * ( tolerance * tolerance );
+    }
+
     inline QwtBezierData subdivided()
     {
         QwtBezierData bz;
         
-        const double c1 = qwtMidValue( cx1, cx2 );
+        const double c1 = midValue( d_cx1, d_cx2 );
 
-        bz.cx1 = qwtMidValue( x1, cx1 );
-        cx2 = qwtMidValue( cx2, x2 );
-        bz.x1 = x1;
-        bz.cx2 = qwtMidValue( bz.cx1, c1 );
-        cx1 = qwtMidValue( c1, cx2 );
-        bz.x2 = x1 = qwtMidValue( bz.cx2, cx1 );
+        bz.d_cx1 = midValue( d_x1, d_cx1 );
+        d_cx2 = midValue( d_cx2, d_x2 );
+        bz.d_x1 = d_x1;
+        bz.d_cx2 = midValue( bz.d_cx1, c1 );
+        d_cx1 = midValue( c1, d_cx2 );
+        bz.d_x2 = d_x1 = midValue( bz.d_cx2, d_cx1 );
 
-        const double c2 = qwtMidValue( cy1, cy2 );
+        const double c2 = midValue( d_cy1, d_cy2 );
 
-        bz.cy1 = qwtMidValue( y1, cy1 );
-        cy2 = qwtMidValue( cy2, y2 );
-        bz.y1 = y1;
-        bz.cy2 = qwtMidValue( bz.cy1, c2 );
-        cy1 = qwtMidValue( cy2, c2 );
-        bz.y2 = y1 = qwtMidValue( bz.cy2, cy1 );
+        bz.d_cy1 = midValue( d_y1, d_cy1 );
+        d_cy2 = midValue( d_cy2, d_y2 );
+        bz.d_y1 = d_y1;
+        bz.d_cy2 = midValue( bz.d_cy1, c2 );
+        d_cy1 = midValue( d_cy2, c2 );
+        bz.d_y2 = d_y1 = midValue( bz.d_cy2, d_cy1 );
 
         return bz;
     }
 
-    double x1, y1;
-    double cx1, cy1;
-    double cx2, cy2;
-    double x2, y2;
+    inline QPointF p2() const
+    {
+        return QPointF( d_x2, d_y2 );
+    }
+
+private:
+    inline double midValue( double v1, double v2 )
+    {
+        return 0.5 * ( v1 + v2 );
+    }
+
+    double d_x1, d_y1;
+    double d_cx1, d_cy1;
+    double d_cx2, d_cy2;
+    double d_x2, d_y2;
 };
 
-QPolygonF QwtBezier::toPolygon( double tolerance,
-    double x1, double y1, double cx1, double cy1,
-    double cx2, double cy2, double x2, double y2,
-    bool withLastPoint )
+void QwtBezier::toPolygon( double tolerance,
+    const QPointF &p1, const QPointF &cp1,
+    const QPointF &cp2, const QPointF &p2,
+    QPolygonF &polygon )
 {
-    if ( tolerance <= 0.0 )
-        return QPolygonF();
+    const double minFlatness = QwtBezierData::minFlatness( tolerance );
 
-    // according to the algo used in QwtBezierData::flatness()
-    const double minFlatness = 16 * ( tolerance * tolerance );
-
-    QPolygonF polygon;
-    polygon += QPointF( x1, y1 );
+    polygon += p1;
 
     // to avoid deep stacks we convert the recursive algo
     // to something iterative, where the parameters of the
     // recursive calss are pushed to bezierStack instead
 
     QStack<QwtBezierData> bezierStack;
-    bezierStack.push( QwtBezierData() );
+    bezierStack.push( QwtBezierData( p1, cp1, cp2, p2 ) );
 
-    QwtBezierData &bz0 = bezierStack.top();
-    bz0.x1 = x1;
-    bz0.y1 = y1;
-    bz0.cx1 = cx1;
-    bz0.cy1 = cy1;
-    bz0.cx2 = cx2;
-    bz0.cy2 = cy2;
-    bz0.x2 = x2;
-    bz0.y2 = y2;
-    
     while( true )
     {
-        QwtBezierData &bezier = bezierStack.top();
+        QwtBezierData &bz = bezierStack.top();
 
-        if ( bezier.flatness() < minFlatness )
+        if ( bz.flatness() < minFlatness )
         {
             if ( bezierStack.size() == 1 )
-            {
-                if ( withLastPoint )
-                    polygon += QPointF( bezier.x2, bezier.y2 );
+                return; 
 
-                return polygon;
-            }
-
-            polygon += QPointF( bezier.x2, bezier.y2 );
+            polygon += bz.p2();
             bezierStack.pop();
         }
         else
         {
-            bezierStack.push( bezier.subdivided() );
+            bezierStack.push( bz.subdivided() );
         }
     }
 }

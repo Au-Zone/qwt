@@ -665,18 +665,35 @@ QPolygonF QwtSpline::polygon( const QPolygonF &points, double tolerance )
     const QPointF *p = points.constData();
     const QLineF *cl = controlLines.constData();
 
+    const int n = controlLines.size();
+
     QPolygonF path;
 
-    const int n = controlLines.size();
-    for ( int i = 0; i < controlLines.size(); i++ )
+    if ( d_data->boundaryType == QwtSpline::ClosedPolygon )
     {
-        const QPointF &p1 = p[i];
-        const QPointF &p2 = p[i+1];
-        const QLineF &l = cl[i];
+        for ( int i = 0; i < n - 1; i++ )
+        {
+            const QLineF &l = cl[i];
+            QwtBezier::toPolygon( tolerance, 
+                p[i], l.p1(), l.p2(), p[i+1], path );
+        }
 
-        path += QwtBezier::toPolygon( tolerance,
-            p1.x(), p1.y(), l.x1(), l.y1(), 
-            l.x2(), l.y2(), p2.x(), p2.y(), i == n - 1 );
+        const QLineF &l = cl[n-1];
+        QwtBezier::toPolygon( tolerance, 
+            p[n-1], l.p1(), l.p2(), p[0], path );
+
+        path += p[0];
+    }
+    else
+    {
+        for ( int i = 0; i < n; i++ )
+        {
+            const QLineF &l = cl[i];
+            QwtBezier::toPolygon( tolerance, 
+                p[i], l.p1(), l.p2(), p[i+1], path );
+        }
+
+        path += points.last();
     }
 
     return path;
