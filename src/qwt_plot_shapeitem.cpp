@@ -394,7 +394,7 @@ void QwtPlotShapeItem::draw( QPainter *painter,
 
     const QRectF &br = d_data->boundingRect;
 
-    if ( ( br.left() > cr.right() ) || ( br.right() < cr.left() ) 
+    if ( ( br.left() > cr.right() ) || ( br.right() < cr.left() )
         || ( br.top() > cr.bottom() ) || ( br.bottom() < cr.top() ) )
     {
         // outside the visisble area
