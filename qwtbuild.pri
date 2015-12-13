@@ -42,24 +42,46 @@ else {
 }
 
 linux-g++ | linux-g++-64 {
-    #CONFIG           += separate_debug_info
-    #QMAKE_CXXFLAGS   *= -Wfloat-equal 
-    #QMAKE_CXXFLAGS   *= -Wshadow 
-    #QMAKE_CXXFLAGS   *= -Wpointer-arith 
-    #QMAKE_CXXFLAGS   *= -Wconversion 
-    #QMAKE_CXXFLAGS   *= -Wsign-compare 
-    #QMAKE_CXXFLAGS   *= -Wsign-conversion 
-    #QMAKE_CXXFLAGS   *= -Wlogical-op
-    #QMAKE_CXXFLAGS   *= -Werror=format-security
-    #QMAKE_CXXFLAGS   *= -Woverloaded-virtual
-    #QMAKE_CXXFLAGS   *= -std=c++11
 
-    #QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer 
-    #QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer
-    #QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address
+    # CONFIG           += separate_debug_info
 
-    #QMAKE_CXXFLAGS_RELEASE  *= -O3
-    #QMAKE_CXXFLAGS_RELEASE  *= -Ofast
+    # --- optional warnings 
+
+    # QMAKE_CXXFLAGS   *= -Wfloat-equal 
+    # QMAKE_CXXFLAGS   *= -Wshadow 
+    # QMAKE_CXXFLAGS   *= -Wpointer-arith 
+    # QMAKE_CXXFLAGS   *= -Wconversion 
+    # QMAKE_CXXFLAGS   *= -Wsign-compare 
+    # QMAKE_CXXFLAGS   *= -Wsign-conversion 
+    # QMAKE_CXXFLAGS   *= -Wlogical-op
+    # QMAKE_CXXFLAGS   *= -Werror=format-security
+    # QMAKE_CXXFLAGS   *= -Woverloaded-virtual
+    # QMAKE_CXXFLAGS   *= -std=c++11
+
+    # --- optional debug options
+
+    # QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer 
+    # QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address -fno-omit-frame-pointer
+    # QMAKE_CXXFLAGS_DEBUG   *= -fsanitize=address
+
+    # --- optional optimzations
+ 
+    # qwt code doesn't check errno after calling math functions
+    # so it is perfectly safe to disable it in favor of better performance
+    QMAKE_CXXFLAGS   *= -fno-math-errno 
+
+    # qwt code doesn't rely ( at least intends not to do )
+    # on an exact implementation of IEEE or ISO rules/specifications
+	# QMAKE_CXXFLAGS   *= -funsafe-math-optimizations 
+
+    # also enables -fno-math-errno and -funsafe-math-optimizations
+    # QMAKE_CXXFLAGS   *= -ffast-math
+
+    # QMAKE_CXXFLAGS_DEBUG  *= -Og # since gcc 4.8
+
+    # QMAKE_CXXFLAGS_RELEASE  *= -O3
+    # QMAKE_CXXFLAGS_RELEASE  *= -Ofast
+    # QMAKE_CXXFLAGS_RELEASE  *= -Os
 
     # when using the gold linker ( Qt < 4.8 ) - might be 
     # necessary on non linux systems too
