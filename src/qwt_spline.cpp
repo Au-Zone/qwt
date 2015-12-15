@@ -194,7 +194,14 @@ namespace QwtSplineC1P
     {
         inline double operator()( const QPointF &p1, const QPointF &p2 ) const
         {
+#if 0
             return QwtSplineParametrization::valueIncrementChordal( p1, p2 );
+#else
+            const double dx = p2.x() - p1.x();
+            const double dy = p2.y() - p1.y();
+
+			return __builtin_sqrt( dx * dx + dy * dy );
+#endif
         }
     };
 
