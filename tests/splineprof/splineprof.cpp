@@ -55,32 +55,32 @@ int main()
 	for ( int i = 0; i < 10e6; i++ )
 		points += QPointF( i, ::sin( i ) );
 
-#if 0
-	qDebug() << "=== Uniform";
-	testSplines( QwtSplineParametrization::ParameterUniform, points );
-#endif
-
 #if 1
 	qDebug() << "=== X";
 	testSplines( QwtSplineParametrization::ParameterX, points );
 #endif
 
-#if 0
+#if 1
 	qDebug() << "=== Y";
 	testSplines( QwtSplineParametrization::ParameterY, points );
 #endif
 
-#if 0
+#if 1
+	qDebug() << "=== Uniform";
+	testSplines( QwtSplineParametrization::ParameterUniform, points );
+#endif
+
+#if 1
 	qDebug() << "=== Manhattan";
 	testSplines( QwtSplineParametrization::ParameterManhattan, points );
 #endif
 
-#if 0
+#if 1
 	qDebug() << "=== Chordal";
 	testSplines( QwtSplineParametrization::ParameterChordal, points );
 #endif
 
-#if 0
+#if 1
 	qDebug() << "=== Centripetral";
 	testSplines( QwtSplineParametrization::ParameterCentripetal, points );
 #endif
