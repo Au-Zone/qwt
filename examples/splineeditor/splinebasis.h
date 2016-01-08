@@ -18,7 +18,6 @@ public:
     QPainterPath painterPath( const QPolygonF & ) const;
 
 private:
-    QPainterPath toBezierNURBS( const QPolygonF & ) const;
     QwtSplineParametrization* d_parametrization;
 };
 

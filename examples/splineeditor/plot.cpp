@@ -50,16 +50,16 @@ public:
         CardinalSpline,
         ParabolicBlendingSpline,
         PleasingSpline,
-		Nurbs,
-		BasisSplineUniform,
+        Nurbs,
+        BasisSplineUniform,
     };
 
     SplineFitter( Mode mode ):
         QwtCurveFitter( QwtCurveFitter::Path ),
-		d_mode(mode),
-		d_spline(NULL),
-		d_splineBasis(NULL),
-		d_splineBasisUniform(NULL)
+        d_mode(mode),
+        d_spline(NULL),
+        d_splineBasis(NULL),
+        d_splineBasisUniform(NULL)
     {
         switch( mode )
         {   
@@ -94,16 +94,21 @@ public:
                 break;
             }
             case Nurbs:
-			{
-				d_splineBasis = new SplineBasis();
+            {
+                d_splineBasis = new SplineBasis();
                 break;
-			}
+            }
             case BasisSplineUniform:
-			{
-				d_splineBasisUniform = new SplineBasisUniform();
+            {
+                d_splineBasisUniform = new SplineBasisUniform();
                 break;
-			}
+            }
         }
+        if ( d_spline )
+            d_spline->setParametrization( QwtSplineParametrization::ParameterX );
+
+        if ( d_splineBasis )
+            d_splineBasis->setParametrization( QwtSplineParametrization::ParameterX );
     }
 
     ~SplineFitter()
@@ -113,8 +118,8 @@ public:
 
     void setClosing( bool on )
     {
-		if ( d_spline == NULL )
-			return;
+        if ( d_spline == NULL )
+            return;
 
         d_spline->setBoundaryType( 
             on ? QwtSpline::ClosedPolygon : QwtSpline::ConditionalBoundaries );
@@ -180,10 +185,10 @@ public:
             type = QwtSplineParametrization::ParameterManhattan;
         }
 
-		if ( d_spline )
-        	d_spline->setParametrization( type );
-		else if ( d_splineBasis )
-			d_splineBasis->setParametrization( type );
+        if ( d_spline )
+            d_spline->setParametrization( type );
+        else if ( d_splineBasis )
+            d_splineBasis->setParametrization( type );
     }
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
@@ -199,20 +204,20 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-		if ( d_splineBasis )
-        	return d_splineBasis->painterPath( points );
+        if ( d_splineBasis )
+            return d_splineBasis->painterPath( points );
 
-		if ( d_splineBasisUniform )
-			return d_splineBasisUniform->painterPath( points );
+        if ( d_splineBasisUniform )
+            return d_splineBasisUniform->painterPath( points );
 
-       	return d_spline->painterPath( points );
+        return d_spline->painterPath( points );
     }
 
 private:
     void setBoundaryConditions( int condition, double value = 0.0 )
     {
-		if ( d_spline == NULL )
-			return;
+        if ( d_spline == NULL )
+            return;
 
         // always the same at both ends
 
@@ -223,7 +228,7 @@ private:
         d_spline->setBoundaryValue( QwtSpline::AtEnd, value );
     }
 
-	Mode d_mode;
+    Mode d_mode;
     QwtSpline *d_spline;
     SplineBasis *d_splineBasis;
     SplineBasisUniform *d_splineBasisUniform;
@@ -379,7 +384,7 @@ Plot::Plot( bool parametric, QWidget *parent ):
         curves[i]->attach( this );
         showCurve( curves[i], true );
     }
-#if 0
+#if 1
     for ( int i = 0; i < curves.size(); i++ )
         showCurve( curves[i], false );
 
