@@ -1,6 +1,8 @@
 #include "plot.h"
 #include "scalepicker.h"
 #include "canvaspicker.h"
+#include "splinebasis.h"
+#include "splinebasisuniform.h"
 #include <qwt_plot_layout.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_curve.h>
@@ -47,11 +49,17 @@ public:
         CubicSpline,
         CardinalSpline,
         ParabolicBlendingSpline,
-        PleasingSpline
+        PleasingSpline,
+		Nurbs,
+		BasisSplineUniform,
     };
 
     SplineFitter( Mode mode ):
-        QwtCurveFitter( QwtCurveFitter::Path )
+        QwtCurveFitter( QwtCurveFitter::Path ),
+		d_mode(mode),
+		d_spline(NULL),
+		d_splineBasis(NULL),
+		d_splineBasisUniform(NULL)
     {
         switch( mode )
         {   
@@ -85,6 +93,16 @@ public:
                 d_spline = new QwtSplineLocal( QwtSplineLocal::ParabolicBlending );
                 break;
             }
+            case Nurbs:
+			{
+				d_splineBasis = new SplineBasis();
+                break;
+			}
+            case BasisSplineUniform:
+			{
+				d_splineBasisUniform = new SplineBasisUniform();
+                break;
+			}
         }
     }
 
@@ -95,6 +113,9 @@ public:
 
     void setClosing( bool on )
     {
+		if ( d_spline == NULL )
+			return;
+
         d_spline->setBoundaryType( 
             on ? QwtSpline::ClosedPolygon : QwtSpline::ConditionalBoundaries );
     }
@@ -159,12 +180,15 @@ public:
             type = QwtSplineParametrization::ParameterManhattan;
         }
 
-        d_spline->setParametrization( type );
+		if ( d_spline )
+        	d_spline->setParametrization( type );
+		else if ( d_splineBasis )
+			d_splineBasis->setParametrization( type );
     }
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
     {
-        const QPainterPath path = d_spline->painterPath( points );
+        QPainterPath path = fitCurvePath( points );
 
         const QList<QPolygonF> subPaths = path.toSubpathPolygons();
         if ( subPaths.size() == 1 )
@@ -175,12 +199,21 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        return d_spline->painterPath( points );
+		if ( d_splineBasis )
+        	return d_splineBasis->painterPath( points );
+
+		if ( d_splineBasisUniform )
+			return d_splineBasisUniform->painterPath( points );
+
+       	return d_spline->painterPath( points );
     }
 
 private:
     void setBoundaryConditions( int condition, double value = 0.0 )
     {
+		if ( d_spline == NULL )
+			return;
+
         // always the same at both ends
 
         d_spline->setBoundaryCondition( QwtSpline::AtBeginning, condition );
@@ -190,7 +223,10 @@ private:
         d_spline->setBoundaryValue( QwtSpline::AtEnd, value );
     }
 
+	Mode d_mode;
     QwtSpline *d_spline;
+    SplineBasis *d_splineBasis;
+    SplineBasisUniform *d_splineBasisUniform;
 };
 
 class Curve: public QwtPlotCurve
@@ -257,8 +293,8 @@ Plot::Plot( bool parametric, QWidget *parent ):
         setAxisScale( QwtPlot::xBottom, 20.0, 80.0 );
         setAxisScale( QwtPlot::yLeft, -50.0, 100.0 );
 
-        const QSizeF size( 20, 30 );
-        const QPointF pos( 40, 50 );
+        const QSizeF size( 40, 50 );
+        const QPointF pos( 50, 70 );
 
         const double cos30 = 0.866025;
 
@@ -276,9 +312,13 @@ Plot::Plot( bool parametric, QWidget *parent ):
         const double y4 = y1 + 4 * dy;
 
         points += QPointF( x2, y1 );
+        points += QPointF( 0.5 * ( x2 + x3 ), y1 - 0.5 * ( y2 - y1 ) );
         points += QPointF( x3, y2 );
+        points += QPointF( 0.5 * ( x2 + x3 ), 0.5 * ( y3 + y1 ) );
         points += QPointF( x3, y3 );
+        points += QPointF( 0.5 * ( x2 + x3 ), y3 + 0.5 * ( y3 - y2 ) );
         points += QPointF( x2, y4 );
+        points += QPointF( 0.5 * ( x1 + x2 ), y3 + 0.5 * ( y4 - y3 ) );
         points += QPointF( x1, y3 );
         points += QPointF( x1, y2 );
     }
@@ -301,6 +341,14 @@ Plot::Plot( bool parametric, QWidget *parent ):
     Curve *curve;
 
     QVector<Curve *> curves;
+
+    curve = new Curve( "Basis Uniform", Qt::black);
+    curve->setCurveFitter( new SplineFitter( SplineFitter::BasisSplineUniform ) );
+    curves += curve;
+
+    curve = new Curve( "NURBS", Qt::darkBlue );
+    curve->setCurveFitter( new SplineFitter( SplineFitter::Nurbs ) );
+    curves += curve;
 
     curve = new Curve( "Pleasing", Qt::black);
     curve->setCurveFitter( new SplineFitter( SplineFitter::PleasingSpline ) );
@@ -335,8 +383,8 @@ Plot::Plot( bool parametric, QWidget *parent ):
     for ( int i = 0; i < curves.size(); i++ )
         showCurve( curves[i], false );
 
-    showCurve( curve1, true );
-    showCurve( curve4, true );
+    showCurve( curves[0], true );
+    showCurve( curves[1], true );
 #endif
 
     setOverlaying( false );
