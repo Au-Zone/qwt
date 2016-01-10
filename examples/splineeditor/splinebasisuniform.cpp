@@ -1,5 +1,5 @@
 #include "splinebasisuniform.h"
-    
+
 SplineBasisUniform::SplineBasisUniform()
 {
 }
@@ -10,7 +10,7 @@ SplineBasisUniform::~SplineBasisUniform()
 
 QPainterPath SplineBasisUniform::painterPath( const QPolygonF &points ) const
 {
-    return toBezierUniform( points );
+    return toBezierUniform2( points );
 }
 
 QPolygonF SplineBasisUniform::interpolatingKnots( const QPolygonF& points ) const
@@ -59,13 +59,11 @@ QPainterPath SplineBasisUniform::toBezierUniform( const QPolygonF& knots ) const
 
     for ( int i = 1; i < n - 1; i++ )
     {
-        const QPointF pos = 0.5 * ( knots[i-1] + knots[i+1] ) + 2.0 * knots[i];
+        const QPointF cp1 = ( 2.0 * knots[i-1] + knots[i] ) / 3.0;
+        const QPointF cp2 = ( knots[i-1] + 2.0 * knots[i] ) / 3.0;
+        const QPointF p2 = ( 0.5 * ( knots[i-1] + knots[i+1] ) + 2.0 * knots[i] ) / 3.0;
 
-        path.cubicTo( 
-            ( 2.0 * knots[i-1] + knots[i] ) / 3.0,
-            ( knots[i-1] + 2.0 * knots[i] ) / 3.0,
-            pos / 3.0
-        );
+        path.cubicTo( cp1, cp2, p2 );
     }
 
     path.cubicTo( 
@@ -76,6 +74,35 @@ QPainterPath SplineBasisUniform::toBezierUniform( const QPolygonF& knots ) const
 
     return path;
 }
+
+QPainterPath SplineBasisUniform::toBezierUniform2( const QPolygonF& knots ) const
+{
+    const int n = knots.size();
+
+    QPainterPath path;
+    path.moveTo( knots[0] );
+
+    QPointF cp1 = ( 2.0 * knots[0] + knots[1] ) / 3.0;
+
+    for ( int i = 1; i < n - 1; i++ )
+    {
+        const QPointF cp2 = ( knots[i-1] + 2.0 * knots[i] ) / 3.0;
+        const QPointF cp3 = ( 2.0 * knots[i] + knots[i+1] ) / 3.0;
+
+        // the same as ( 0.5 * ( knots[i-1] + knots[i+1] ) + 2.0 * knots[i] ) / 3.0;
+        const QPointF p2 = 0.5 * ( cp2 + cp3 );
+
+        path.cubicTo( cp1, cp2, p2 );
+
+        cp1 = cp3;
+    }
+
+    const QPointF cp2 = ( knots[n-2] + 2.0 * knots[n-1] ) / 3.0;
+    path.cubicTo( cp1, cp2, knots[n-1] );
+
+    return path;
+}
+
 
 QPainterPath SplineBasisUniform::toBezierSlopes( const QPolygonF& knots ) const
 {
