@@ -10,7 +10,7 @@ SplineBasisUniform::~SplineBasisUniform()
 
 QPainterPath SplineBasisUniform::painterPath( const QPolygonF &points ) const
 {
-    return toBezierUniform2( points );
+    return toBezierUniform( points );
 }
 
 QPolygonF SplineBasisUniform::interpolatingKnots( const QPolygonF& points ) const
@@ -51,31 +51,6 @@ QPolygonF SplineBasisUniform::interpolatingKnots( const QPolygonF& points ) cons
 }
 
 QPainterPath SplineBasisUniform::toBezierUniform( const QPolygonF& knots ) const
-{
-    const int n = knots.size();
-
-    QPainterPath path;
-    path.moveTo( knots[0] );
-
-    for ( int i = 1; i < n - 1; i++ )
-    {
-        const QPointF cp1 = ( 2.0 * knots[i-1] + knots[i] ) / 3.0;
-        const QPointF cp2 = ( knots[i-1] + 2.0 * knots[i] ) / 3.0;
-        const QPointF p2 = ( 0.5 * ( knots[i-1] + knots[i+1] ) + 2.0 * knots[i] ) / 3.0;
-
-        path.cubicTo( cp1, cp2, p2 );
-    }
-
-    path.cubicTo( 
-        ( 2.0 * knots[n-2] + knots[n-1] ) / 3.0,
-        ( knots[n-2] + 2.0 * knots[n-1] ) / 3.0,
-        knots[n-1]
-    );
-
-    return path;
-}
-
-QPainterPath SplineBasisUniform::toBezierUniform2( const QPolygonF& knots ) const
 {
     const int n = knots.size();
 

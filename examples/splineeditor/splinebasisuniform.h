@@ -15,7 +15,6 @@ public:
 private:
     QPolygonF interpolatingKnots( const QPolygonF & ) const;
     QPainterPath toBezierUniform( const QPolygonF & ) const;
-    QPainterPath toBezierUniform2( const QPolygonF & ) const;
     QPainterPath toBezierSlopes( const QPolygonF & ) const;
 };
 

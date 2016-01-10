@@ -240,6 +240,7 @@ public:
     Curve( const QString &title, const QColor &color ):
         QwtPlotCurve( title )
     {
+        setPaintAttribute( QwtPlotCurve::ClipPolygons, false ); 
         setCurveAttribute( QwtPlotCurve::Fitted, true );
         setRenderHint( QwtPlotItem::RenderAntialiased );
 

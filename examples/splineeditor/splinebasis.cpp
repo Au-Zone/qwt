@@ -44,33 +44,34 @@ QPainterPath SplineBasis::painterPath( const QPolygonF &points ) const
     QPainterPath path;
     path.moveTo( points[0] );
 
-    double t1 = d_parametrization->valueIncrement( points[0], points[1] );
-    double t2 = d_parametrization->valueIncrement( points[1], points[2] );
-	double t12 = t1 + t2;
+    double t0 = d_parametrization->valueIncrement( points[0], points[1] );
+    double t1 = t0;
+    double t2 = t0;
+    double t012 = t0 + t1 + t2;
 
-	QPointF cp1 = points[0];
+    QPointF cp1 = ( ( t1 + t2 ) * points[0] + t0 * points[1] ) / t012;
 
     for ( int i = 1; i < n - 1; i++ )
     {
         const double t3 = d_parametrization->valueIncrement( points[i], points[i+1] );
-        const double t23 = t2 + t3;
-        const double t123 = t1 + t23;
+        const double t123 = t1 + t2 + t3;
 
-        const QPointF cp2 = ( t2 * cp1 + t1 * points[i] ) / t12;
+        const QPointF cp2 = ( t2 * points[i-1] + ( t0 + t1 ) * points[i] ) / t012;
+        const QPointF cp3 = ( ( t2 + t3 ) * points[i] + t1 * points[i+1] ) / t123;
 
-        const QPointF cp3 = ( t23 * points[i] + t1 * points[i+1] ) / t123;
-        const QPointF p2 = ( t2 * cp2 + t1 * cp3 ) / t12;
+        const QPointF p2 = ( t2 * cp2 + t1 * cp3 ) / ( t1 + t2 );
 
         path.cubicTo( cp1, cp2, p2 );
 
-		cp1 = cp3;
+        cp1 = cp3;
 
+        t0 = t1;
         t1 = t2;
         t2 = t3;
-		t12 = t23;
+        t012 = t123;
     }
 
-	const QPointF cp2 = ( t2 * cp1 + t1 * points[n-1] ) / t12;
+    const QPointF cp2 = ( t2 * points[n-2] + ( t0 + t1 ) * points[n-1] ) / t012;
     path.cubicTo( cp1, cp2, points[n-1] );
 
     return path;
