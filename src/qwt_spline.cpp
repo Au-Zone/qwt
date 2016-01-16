@@ -413,7 +413,7 @@ static inline SplineStore qwtSplineC1PathParametric(
         const double td = param( points[i-1], points[i] );
         if ( td > 0.0 )
         {
-            t += param( points[i-1], points[i] );
+            t += td;
 
             px[numParamPoints].rx() = py[numParamPoints].rx() = t;
 
@@ -430,7 +430,7 @@ static inline SplineStore qwtSplineC1PathParametric(
 
         if ( td > 0.0 )
         {
-            t += param( points[n-1], points[0] );
+            t += td;
 
             px[numParamPoints].rx() = py[numParamPoints].rx() = t;
 
