@@ -34,7 +34,7 @@ QwtSplineCurveFitter::~QwtSplineCurveFitter()
   \param spline Spline
   \sa spline()
 */
-void QwtSplineCurveFitter::setSpline( QwtSpline *spline )
+void QwtSplineCurveFitter::setSpline( QwtSplineApproximation *spline )
 {
     if ( d_spline == spline )
         return;
@@ -47,7 +47,7 @@ void QwtSplineCurveFitter::setSpline( QwtSpline *spline )
   \return Spline
   \sa setSpline()
 */
-const QwtSpline *QwtSplineCurveFitter::spline() const
+const QwtSplineApproximation *QwtSplineCurveFitter::spline() const
 {
     return d_spline;
 }
@@ -56,7 +56,7 @@ const QwtSpline *QwtSplineCurveFitter::spline() const
   \return Spline
   \sa setSpline()
 */
-QwtSpline *QwtSplineCurveFitter::spline() 
+QwtSplineApproximation *QwtSplineCurveFitter::spline() 
 {
     return d_spline;
 }

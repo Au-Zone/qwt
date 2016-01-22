@@ -12,7 +12,7 @@
 
 #include "qwt_curve_fitter.h"
 
-class QwtSpline;
+class QwtSplineApproximation;
 
 /*!
   \brief A curve fitter using a spline interpolation
@@ -29,16 +29,16 @@ public:
     QwtSplineCurveFitter();
     virtual ~QwtSplineCurveFitter();
 
-    void setSpline( QwtSpline * );
+    void setSpline( QwtSplineApproximation * );
 
-    const QwtSpline *spline() const;
-    QwtSpline *spline();
+    const QwtSplineApproximation *spline() const;
+    QwtSplineApproximation *spline();
 
     virtual QPolygonF fitCurve( const QPolygonF & ) const;
     virtual QPainterPath fitCurvePath( const QPolygonF & ) const;
 
 private:
-    class QwtSpline *d_spline;
+    class QwtSplineApproximation *d_spline;
 };
 
 #endif

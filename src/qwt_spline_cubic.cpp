@@ -988,8 +988,8 @@ QVector<double> QwtSplineCubic::slopes( const QPolygonF &points ) const
     if ( points.size() <= 2 )
         return QVector<double>();
 
-    if ( ( boundaryType() == QwtSpline::PeriodicPolygon )
-        || ( boundaryType() == QwtSpline::ClosedPolygon ) )
+    if ( ( boundaryType() == QwtSplineApproximation::PeriodicPolygon )
+        || ( boundaryType() == QwtSplineApproximation::ClosedPolygon ) )
     {
         EquationSystem2<SlopeStore> eqs;
         eqs.resolve( points );
@@ -1051,8 +1051,8 @@ QVector<double> QwtSplineCubic::curvatures( const QPolygonF &points ) const
     if ( points.size() <= 2 )
         return QVector<double>();
 
-    if ( ( boundaryType() == QwtSpline::PeriodicPolygon )
-        || ( boundaryType() == QwtSpline::ClosedPolygon ) )
+    if ( ( boundaryType() == QwtSplineApproximation::PeriodicPolygon )
+        || ( boundaryType() == QwtSplineApproximation::ClosedPolygon ) )
     {
         EquationSystem2<CurvatureStore> eqs;
         eqs.resolve( points );

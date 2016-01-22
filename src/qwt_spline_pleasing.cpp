@@ -281,7 +281,7 @@ QPainterPath QwtSplinePleasing::painterPath( const QPolygonF &points ) const
     if ( size <= 2 )
         return QwtSplineG1::painterPath( points );
 
-    const bool isClosing = ( boundaryType() == QwtSpline::ClosedPolygon );
+    const bool isClosing = ( boundaryType() == QwtSplineApproximation::ClosedPolygon );
 
     using namespace QwtSplinePleasingP;
 
@@ -310,7 +310,7 @@ QVector<QLineF> QwtSplinePleasing::bezierControlLines(
     if ( size <= 2 )
         return QVector<QLineF>();
 
-    const bool isClosing = ( boundaryType() == QwtSpline::ClosedPolygon );
+    const bool isClosing = ( boundaryType() == QwtSplineApproximation::ClosedPolygon );
 
     using namespace QwtSplinePleasingP;
 

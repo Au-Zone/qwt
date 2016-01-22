@@ -390,7 +390,7 @@ template< class SplineStore, class Param >
 static inline SplineStore qwtSplineC1PathParametric( 
     const QwtSplineC1 *spline, const QPolygonF &points, Param param )
 {
-    const bool isClosing = ( spline->boundaryType() == QwtSpline::ClosedPolygon );
+    const bool isClosing = ( spline->boundaryType() == QwtSplineApproximation::ClosedPolygon );
     const int n = points.size();
 
     QPolygonF pointsX, pointsY;
@@ -703,7 +703,7 @@ QPainterPath QwtSpline::painterPath( const QPolygonF &points ) const
     for ( int i = 0; i < n - 1; i++ )
         path.cubicTo( l[i].p1(), l[i].p2(), p[i+1] );
 
-    if ( ( boundaryType() == QwtSpline::ClosedPolygon )
+    if ( ( boundaryType() == QwtSplineApproximation::ClosedPolygon )
         && ( controlLines.size() >= n ) )
     {
         path.cubicTo( l[n-1].p1(), l[n-1].p2(), p[0] );
@@ -722,7 +722,7 @@ QPolygonF QwtSpline::polygon( const QPolygonF &points, double tolerance )
     if ( controlLines.isEmpty() )
         return QPolygonF();
 
-    const bool isClosed = boundaryType() == QwtSpline::ClosedPolygon;
+    const bool isClosed = boundaryType() == QwtSplineApproximation::ClosedPolygon;
 
     // we can make checking the tolerance criterion check in the subdivison loop
     // cheaper, by translating it into some flatness value.
@@ -832,7 +832,7 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
         }
     }
 
-    if ( ( boundaryType() == QwtSpline::ClosedPolygon )
+    if ( ( boundaryType() == QwtSplineApproximation::ClosedPolygon )
         && ( controlLines.size() >= n ) )
     {
         const double l = param->valueIncrement( p[n-1], p[0] );
