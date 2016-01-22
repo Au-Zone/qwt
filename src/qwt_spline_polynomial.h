@@ -101,10 +101,10 @@ inline QwtSplinePolynomial QwtSplinePolynomial::fromSlopes(
 }
 
 inline QwtSplinePolynomial QwtSplinePolynomial::fromSlopes( 
-    double x, double y, double m1, double m2 )
+    double dx, double dy, double m1, double m2 )
 {
-    const double c2 = ( 3.0 * y / x - 2 * m1 - m2 ) / x;
-    const double c3 = ( ( m2 - m1 ) / x - 2.0 * c2 ) / ( 3.0 * x );
+    const double c2 = ( 3.0 * dy / dx - 2 * m1 - m2 ) / dx;
+    const double c3 = ( ( m2 - m1 ) / dx - 2.0 * c2 ) / ( 3.0 * dx );
 
     return QwtSplinePolynomial( c3, c2, m1 );
 }

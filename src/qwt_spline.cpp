@@ -569,12 +569,8 @@ static QPolygonF qwtPolygonParametric( double distance,
 class QwtSpline::PrivateData
 {
 public:
-    PrivateData():
-        boundaryType( QwtSpline::ConditionalBoundaries )
+    PrivateData()
     {
-        parametrization = new QwtSplineParametrization( 
-            QwtSplineParametrization::ParameterChordal );
-
         // parabolic runout at both ends
 
         boundaryConditions[0].type = QwtSpline::Clamped3;
@@ -583,14 +579,6 @@ public:
         boundaryConditions[1].type = QwtSpline::Clamped3;
         boundaryConditions[1].value = 0.0;
     }
-
-    ~PrivateData()
-    {
-        delete parametrization;
-    }
-
-    QwtSplineParametrization *parametrization;
-    QwtSpline::BoundaryType boundaryType;
 
     struct
     {
@@ -616,57 +604,6 @@ QwtSpline::QwtSpline()
 QwtSpline::~QwtSpline()
 {
     delete d_data;
-}
-
-/*!
-  The locality of an spline interpolation identifies how many adjacent
-  polynoms are affected, when changing the position of one point.
-
-  A locality of 'n' means, that changing the coordinates of a point
-  has an effect on 'n' leading and 'n' following polynoms.
-  Those polynoms can be calculated from a local subpolygon.
-
-  A value of 0 means, that the interpolation is not local and any modification
-  of the polygon requires to recalculate all polynoms ( f.e cubic splines ). 
-
-  \return Order of locality
- */
-uint QwtSpline::locality() const
-{
-    return 0;
-}
-
-void QwtSpline::setParametrization( int type )
-{
-    if ( d_data->parametrization->type() != type )
-    {
-        delete d_data->parametrization;
-        d_data->parametrization = new QwtSplineParametrization( type );
-    }
-}
-
-void QwtSpline::setParametrization( QwtSplineParametrization *parametrization )
-{
-    if ( ( parametrization != NULL ) && ( d_data->parametrization != parametrization ) )
-    {
-        delete d_data->parametrization;
-        d_data->parametrization = parametrization;
-    }
-}   
-
-const QwtSplineParametrization *QwtSpline::parametrization() const
-{
-    return d_data->parametrization;
-}
-
-void QwtSpline::setBoundaryType( BoundaryType boundaryType )
-{
-    d_data->boundaryType = boundaryType;;
-}
-
-QwtSpline::BoundaryType QwtSpline::boundaryType() const
-{
-    return d_data->boundaryType;
 }
 
 void QwtSpline::setBoundaryCondition( BoundaryPosition position, int condition )
@@ -785,7 +722,7 @@ QPolygonF QwtSpline::polygon( const QPolygonF &points, double tolerance )
     if ( controlLines.isEmpty() )
         return QPolygonF();
 
-    const bool isClosed = d_data->boundaryType == QwtSpline::ClosedPolygon;
+    const bool isClosed = boundaryType() == QwtSpline::ClosedPolygon;
 
     // we can make checking the tolerance criterion check in the subdivison loop
     // cheaper, by translating it into some flatness value.
@@ -866,9 +803,11 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
     const QPointF *p = points.constData();
     const QLineF *cl = controlLines.constData();
 
+	const QwtSplineParametrization *param = parametrization();
+
     for ( int i = 0; i < n - 1; i++ )
     {
-        const double l = d_data->parametrization->valueIncrement( p[i], p[i+1] );
+        const double l = param->valueIncrement( p[i], p[i+1] );
 
         while ( t < l )
         {
@@ -896,7 +835,7 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
     if ( ( boundaryType() == QwtSpline::ClosedPolygon )
         && ( controlLines.size() >= n ) )
     {
-        const double l = d_data->parametrization->valueIncrement( p[n-1], p[0] );
+        const double l = param->valueIncrement( p[n-1], p[0] );
 
         while ( t < l )
         {

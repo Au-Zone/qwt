@@ -11,6 +11,7 @@
 #define QWT_SPLINE_H 1
 
 #include "qwt_global.h"
+#include "qwt_spline_approximation.h"
 #include "qwt_spline_polynomial.h"
 #include <qpolygon.h>
 #include <qpainterpath.h>
@@ -42,28 +43,9 @@ class QwtSplineParametrization;
 
   QwtSpline is a base class for spline interpolations of any continuity.
 */
-class QWT_EXPORT QwtSpline
+class QWT_EXPORT QwtSpline: public QwtSplineApproximation
 {
 public:
-    enum BoundaryType
-    {
-        ConditionalBoundaries,
-        PeriodicPolygon,
-
-        /*!
-          ClosedPolygon is similar to PeriodicPolygon beside, that
-          the interpolation includes the connection between the last 
-          and the first control point.
-
-          \note Only works for parametrizations, where the parameter increment 
-                for the the final closing line is positive. 
-                This excludes QwtSplineParametrization::ParameterX and 
-                QwtSplineParametrization::ParameterY
-         */
-
-        ClosedPolygon
-    };
-
     enum BoundaryPosition
     {
         AtBeginning,
@@ -86,13 +68,6 @@ public:
     QwtSpline();
     virtual ~QwtSpline();
 
-    void setParametrization( int type );
-    void setParametrization( QwtSplineParametrization * );
-    const QwtSplineParametrization *parametrization() const;
-
-    void setBoundaryType( BoundaryType );
-    BoundaryType boundaryType() const;
-
     void setBoundaryCondition( BoundaryPosition, int condition );
     int boundaryCondition( BoundaryPosition ) const;
 
@@ -110,12 +85,8 @@ public:
     virtual QPainterPath painterPath( const QPolygonF & ) const;
     virtual QVector<QLineF> bezierControlLines( const QPolygonF &points ) const = 0;
 
-    virtual uint locality() const;
-
 private:
-    // Disabled copy constructor and operator=
-    explicit QwtSpline( const QwtSpline & );
-    QwtSpline &operator=( const QwtSpline & );
+    Q_DISABLE_COPY(QwtSpline)
 
     class PrivateData;
     PrivateData *d_data;

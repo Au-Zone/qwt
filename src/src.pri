@@ -39,6 +39,7 @@ HEADERS += \
     qwt_scale_draw.h \
     qwt_scale_engine.h \
     qwt_scale_map.h \
+    qwt_spline_approximation.h \
     qwt_spline.h \
     qwt_spline_parametrization.h \
     qwt_spline_local.h \
@@ -82,6 +83,7 @@ SOURCES += \
     qwt_scale_draw.cpp \
     qwt_scale_map.cpp \
     qwt_scale_engine.cpp \
+    qwt_spline_approximation.cpp \
     qwt_spline.cpp \
     qwt_spline_parametrization.cpp \
     qwt_spline_local.cpp \
