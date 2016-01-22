@@ -1,7 +1,6 @@
 #include "plot.h"
 #include "scalepicker.h"
 #include "canvaspicker.h"
-#include "splinebasis.h"
 #include <qwt_plot_layout.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_curve.h>
@@ -13,6 +12,7 @@
 #include <qwt_spline_local.h>
 #include <qwt_spline_cubic.h>
 #include <qwt_spline_pleasing.h>
+#include <qwt_spline_basis.h>
 #include <qwt_spline_parametrization.h>
 #include <qwt_curve_fitter.h>
 #include <qwt_spline_curve_fitter.h>
@@ -91,7 +91,7 @@ public:
             }
             case BasisSpline:
             {
-                d_spline = new SplineBasis();
+                d_spline = new QwtSplineBasis();
                 break;
             }
         }

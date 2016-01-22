@@ -63,6 +63,7 @@ CLASSHEADERS = \
     QwtScaleMap \
     QwtSimpleCompassRose \
     QwtSplineApproximation \
+    QwtSplineBasis \
     QwtSpline \
     QwtSplineC1 \
     QwtSplineC2 \

@@ -1,8 +1,8 @@
-#include "splinebasis.h"
+#include <qwt_spline_basis.h>
 #include <qwt_spline_parametrization.h>
 
 #if 0
-static QPolygonF uniformKnots( const QPolygonF& points ) 
+static QPolygonF qwtBasisUniformKnots( const QPolygonF& points ) 
 {
     const int n = points.size();
 
@@ -40,7 +40,7 @@ static QPolygonF uniformKnots( const QPolygonF& points )
 }
 #endif
 
-static QPainterPath qwtBasisPathUniform( const QPolygonF& points ) 
+static QPainterPath qwtSplineBasisPathUniform( const QPolygonF& points ) 
 {
     QPainterPath path;
     path.moveTo( points[0] );
@@ -64,7 +64,7 @@ static QPainterPath qwtBasisPathUniform( const QPolygonF& points )
     return path;
 }
 
-static QPainterPath qwtBasisPath( 
+static QPainterPath qwtSplineBasisPath( 
     const QPolygonF &points, const QwtSplineParametrization *param )
 {
     QPainterPath path;
@@ -104,22 +104,23 @@ static QPainterPath qwtBasisPath(
     return path;
 }
 
-SplineBasis::SplineBasis()
+QwtSplineBasis::QwtSplineBasis()
 {
 }
 
-SplineBasis::~SplineBasis()
+QwtSplineBasis::~QwtSplineBasis()
 {
 }
 
-uint SplineBasis::locality() const
+uint QwtSplineBasis::locality() const
 {
     return 2;
 }
 
-
-QPainterPath SplineBasis::painterPath( const QPolygonF &points ) const
+QPainterPath QwtSplineBasis::painterPath( const QPolygonF &points ) const
 {
+	// PeriodicPolygon/ClosedPolygon not implemented yet
+
     if ( points.size()  < 4 )
         return QPainterPath();
 
@@ -129,12 +130,12 @@ QPainterPath SplineBasis::painterPath( const QPolygonF &points ) const
     {
         case QwtSplineParametrization::ParameterUniform:
         {
-            path = qwtBasisPathUniform( points );
+            path = qwtSplineBasisPathUniform( points );
             break;
         }
         default:
         {
-            path = qwtBasisPath( points, parametrization() );
+            path = qwtSplineBasisPath( points, parametrization() );
         }
     }
 

@@ -12,13 +12,11 @@ include( $${PWD}/../examples.pri )
 TARGET       = splineeditor
 
 HEADERS = \
-    splinebasis.h \
     scalepicker.h \
     canvaspicker.h \
     plot.h 
 
 SOURCES = \
-    splinebasis.cpp \
     scalepicker.cpp \
     canvaspicker.cpp \
     plot.cpp \
