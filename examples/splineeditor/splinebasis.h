@@ -1,24 +1,16 @@
 #ifndef _SPLINE_BASIS_H
 #define _SPLINE_BASIS_H
 
-#include <QPainterPath>
+#include <qwt_spline_approximation.h>
 
-class QwtSplineParametrization;
-
-class SplineBasis
+class SplineBasis: public QwtSplineApproximation
 {
 public:
     SplineBasis();
     virtual ~SplineBasis();
 
-    void setParametrization( int type );
-    void setParametrization( QwtSplineParametrization * );
-    const QwtSplineParametrization *parametrization() const;
-
-    QPainterPath painterPath( const QPolygonF & ) const;
-
-private:
-    QwtSplineParametrization* d_parametrization;
+    virtual QPainterPath painterPath( const QPolygonF & ) const;
+    virtual uint locality() const;
 };
 
 #endif  

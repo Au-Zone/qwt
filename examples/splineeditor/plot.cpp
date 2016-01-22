@@ -55,8 +55,7 @@ public:
     SplineFitter( Mode mode ):
         QwtCurveFitter( QwtCurveFitter::Path ),
         d_mode(mode),
-        d_spline(NULL),
-        d_splineBasis(NULL)
+        d_spline(NULL)
     {
         switch( mode )
         {   
@@ -90,17 +89,14 @@ public:
                 d_spline = new QwtSplineLocal( QwtSplineLocal::ParabolicBlending );
                 break;
             }
-			case BasisSpline:
+            case BasisSpline:
             {
-                d_splineBasis = new SplineBasis();
+                d_spline = new SplineBasis();
                 break;
             }
         }
         if ( d_spline )
             d_spline->setParametrization( QwtSplineParametrization::ParameterX );
-
-        if ( d_splineBasis )
-            d_splineBasis->setParametrization( QwtSplineParametrization::ParameterX );
     }
 
     ~SplineFitter()
@@ -177,10 +173,7 @@ public:
             type = QwtSplineParametrization::ParameterManhattan;
         }
 
-        if ( d_spline )
-            d_spline->setParametrization( type );
-        else if ( d_splineBasis )
-            d_splineBasis->setParametrization( type );
+        d_spline->setParametrization( type );
     }
 
     virtual QPolygonF fitCurve( const QPolygonF &points ) const
@@ -196,9 +189,6 @@ public:
 
     virtual QPainterPath fitCurvePath( const QPolygonF &points ) const
     {
-        if ( d_splineBasis )
-            return d_splineBasis->painterPath( points );
-
         return d_spline->painterPath( points );
     }
 
@@ -210,9 +200,9 @@ private:
 
         // always the same at both ends
 
-		QwtSpline *spline = dynamic_cast<QwtSpline *>( d_spline );
-		if ( spline )
-		{
+        QwtSpline *spline = dynamic_cast<QwtSpline *>( d_spline );
+        if ( spline )
+        {
             spline->setBoundaryCondition( QwtSpline::AtBeginning, condition );
             spline->setBoundaryValue( QwtSpline::AtBeginning, value );
 
@@ -223,7 +213,6 @@ private:
 
     Mode d_mode;
     QwtSplineApproximation *d_spline;
-    SplineBasis *d_splineBasis;
 };
 
 class Curve: public QwtPlotCurve

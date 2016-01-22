@@ -1,6 +1,5 @@
 #include "splinebasis.h"
 #include <qwt_spline_parametrization.h>
-#include <qwt_spline_polynomial.h>
 
 #if 0
 static QPolygonF uniformKnots( const QPolygonF& points ) 
@@ -41,7 +40,7 @@ static QPolygonF uniformKnots( const QPolygonF& points )
 }
 #endif
 
-static QPainterPath painterPathUniform( const QPolygonF& points ) 
+static QPainterPath qwtBasisPathUniform( const QPolygonF& points ) 
 {
     QPainterPath path;
     path.moveTo( points[0] );
@@ -65,7 +64,7 @@ static QPainterPath painterPathUniform( const QPolygonF& points )
     return path;
 }
 
-static QPainterPath painterPathP( 
+static QPainterPath qwtBasisPath( 
     const QPolygonF &points, const QwtSplineParametrization *param )
 {
     QPainterPath path;
@@ -107,37 +106,17 @@ static QPainterPath painterPathP(
 
 SplineBasis::SplineBasis()
 {
-    d_parametrization = 
-        new QwtSplineParametrization( QwtSplineParametrization::ParameterChordal );
 }
 
 SplineBasis::~SplineBasis()
 {
-    delete d_parametrization;
 }
 
-void SplineBasis::setParametrization( int type )
+uint SplineBasis::locality() const
 {
-    if ( d_parametrization->type() != type )
-    {
-        delete d_parametrization;
-        d_parametrization = new QwtSplineParametrization( type );
-    }
+    return 2;
 }
 
-void SplineBasis::setParametrization( QwtSplineParametrization *parametrization )
-{
-    if ( parametrization != NULL && parametrization != d_parametrization )
-    {
-        delete d_parametrization;
-        d_parametrization = parametrization;
-    }
-}
-
-const QwtSplineParametrization *SplineBasis::parametrization() const
-{
-    return d_parametrization;
-}
 
 QPainterPath SplineBasis::painterPath( const QPolygonF &points ) const
 {
@@ -146,16 +125,16 @@ QPainterPath SplineBasis::painterPath( const QPolygonF &points ) const
 
     QPainterPath path;
 
-    switch( d_parametrization->type() )
+    switch( parametrization()->type() )
     {
         case QwtSplineParametrization::ParameterUniform:
         {
-            path = painterPathUniform( points );
+            path = qwtBasisPathUniform( points );
             break;
         }
         default:
         {
-            path = painterPathP( points, d_parametrization );
+            path = qwtBasisPath( points, parametrization() );
         }
     }
 
