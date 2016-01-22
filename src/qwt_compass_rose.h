@@ -21,20 +21,11 @@ class QPainter;
 class QWT_EXPORT QwtCompassRose
 {
 public:
-    //! Destructor
-    virtual ~QwtCompassRose() {};
+    QwtCompassRose();
+    virtual ~QwtCompassRose();
 
-    //! Assign a palette
-    virtual void setPalette( const QPalette &p )
-    {
-        d_palette = p;
-    }
-
-    //! \return Current palette
-    const QPalette &palette() const
-    {
-        return d_palette;
-    }
+    virtual void setPalette( const QPalette & );
+    const QPalette &palette() const;
 
     /*!
         Draw the rose
@@ -50,6 +41,8 @@ public:
         QPalette::ColorGroup colorGroup = QPalette::Active ) const = 0;
 
 private:
+    Q_DISABLE_COPY(QwtCompassRose)
+
     QPalette d_palette;
 };
 

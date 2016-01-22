@@ -113,9 +113,7 @@ public:
     class ContourPlane;
 
 private:
-    // Disabled copy constructor and operator=
-    explicit QwtRasterData( const QwtRasterData & );
-    QwtRasterData &operator=( const QwtRasterData & );
+    Q_DISABLE_COPY(QwtRasterData)
 
     class PrivateData;
     PrivateData *d_data;

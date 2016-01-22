@@ -50,9 +50,6 @@ protected:
     virtual void drawLabel( QPainter *, double val ) const;
 
 private:
-    QwtRoundScaleDraw( const QwtRoundScaleDraw & );
-    QwtRoundScaleDraw &operator=( const QwtRoundScaleDraw &other );
-
     class PrivateData;
     PrivateData *d_data;
 };

@@ -80,6 +80,8 @@ public:
     virtual QVector<QRgb> colorTable256() const;
 
 private:
+    Q_DISABLE_COPY(QwtColorMap)
+
     Format d_format;
 };
 
@@ -129,10 +131,6 @@ public:
     class ColorStops;
 
 private:
-    // Disabled copy constructor and operator=
-    QwtLinearColorMap( const QwtLinearColorMap & );
-    QwtLinearColorMap &operator=( const QwtLinearColorMap & );
-
     class PrivateData;
     PrivateData *d_data;
 };
@@ -157,9 +155,6 @@ public:
     virtual QRgb rgb( const QwtInterval &, double value ) const;
 
 private:
-    QwtAlphaColorMap( const QwtAlphaColorMap & );
-    QwtAlphaColorMap &operator=( const QwtAlphaColorMap & );
-
     class PrivateData;
     PrivateData *d_data;
 };
@@ -195,9 +190,6 @@ public:
     virtual QRgb rgb( const QwtInterval &, double value ) const;
 
 private:
-    QwtHueColorMap( const QwtHueColorMap & );
-    QwtHueColorMap &operator=( const QwtHueColorMap & );
-
     class PrivateData;
     PrivateData *d_data;
 };
@@ -232,9 +224,6 @@ public:
     virtual QRgb rgb( const QwtInterval &, double value ) const;
 
 private:
-    QwtSaturationValueColorMap( const QwtSaturationValueColorMap & );
-    QwtSaturationValueColorMap &operator=( const QwtSaturationValueColorMap & );
-
     class PrivateData;
     PrivateData *d_data;
 };

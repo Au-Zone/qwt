@@ -154,6 +154,8 @@ protected:
     void drawBox( QPainter *, const QwtColumnRect & ) const;
 
 private:
+    Q_DISABLE_COPY(QwtColumnSymbol)
+
     class PrivateData;
     PrivateData* d_data;
 };

@@ -222,9 +222,7 @@ protected:
         const QPointF *, int numPoints ) const;
 
 private:
-    // Disabled copy constructor and operator=
-    QwtSymbol( const QwtSymbol & );
-    QwtSymbol &operator=( const QwtSymbol & );
+    Q_DISABLE_COPY(QwtSymbol)
 
     class PrivateData;
     PrivateData *d_data;

@@ -100,6 +100,8 @@ public:
         const QPen &, bool antialiased, uint numThreads ) const;
 
 private:
+    Q_DISABLE_COPY(QwtPointMapper)
+
     class PrivateData;
     PrivateData *d_data;
 };

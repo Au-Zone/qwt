@@ -25,6 +25,28 @@ static QPointF qwtIntersection(
     return pos;
 }
 
+//! Constructor
+QwtCompassRose::QwtCompassRose()
+{
+}
+
+//! Destructor
+QwtCompassRose::~QwtCompassRose()
+{
+}
+    
+//! Assign a palette
+void QwtCompassRose::setPalette( const QPalette &p )
+{
+    d_palette = p;
+}   
+    
+//! \return Current palette
+const QPalette &QwtCompassRose::palette() const
+{
+    return d_palette;
+}   
+
 class QwtSimpleCompassRose::PrivateData
 {
 public:

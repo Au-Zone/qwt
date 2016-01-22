@@ -75,8 +75,7 @@ protected:
     explicit QwtCurveFitter( Mode mode );
 
 private:
-    explicit QwtCurveFitter( const QwtCurveFitter & );
-    QwtCurveFitter &operator=( const QwtCurveFitter & );
+    Q_DISABLE_COPY(QwtCurveFitter)
 
     const Mode d_mode;
 };

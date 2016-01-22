@@ -119,10 +119,6 @@ public:
     static double valueIncrementManhattan( const QPointF &, const QPointF & );
 
 private:
-    // Disabled copy constructor and operator=
-    explicit QwtSplineParametrization( const QwtSplineParametrization & );
-    QwtSplineParametrization &operator=( const QwtSplineParametrization & );
-
     const int d_type;
 };
 

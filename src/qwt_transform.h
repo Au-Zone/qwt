@@ -66,6 +66,9 @@ public:
 
     //! Virtualized copy operation
     virtual QwtTransform *copy() const = 0;
+
+private:
+    Q_DISABLE_COPY(QwtTransform)
 };
 
 /*!

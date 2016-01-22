@@ -61,6 +61,8 @@ protected:
         const QBrush &, bool sunken ) const;
 
 private:
+    Q_DISABLE_COPY(QwtDialNeedle)
+
     QPalette d_palette;
 };
 

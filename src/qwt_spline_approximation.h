@@ -51,7 +51,7 @@ public:
     virtual uint locality() const;
 
 private:
-	Q_DISABLE_COPY(QwtSplineApproximation)
+    Q_DISABLE_COPY(QwtSplineApproximation)
 
     class PrivateData;
     PrivateData *d_data;

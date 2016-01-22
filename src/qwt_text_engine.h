@@ -101,6 +101,9 @@ public:
 
 protected:
     QwtTextEngine();
+
+private:
+    Q_DISABLE_COPY(QwtTextEngine)
 };
 
 

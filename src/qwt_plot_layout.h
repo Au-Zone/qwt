@@ -112,9 +112,7 @@ protected:
         QRectF scaleRect[QwtPlot::axisCnt] ) const;
 
 private:
-    // Disabled copy constructor and operator=
-    explicit QwtPlotLayout( const QwtPlotLayout & );
-    QwtPlotLayout &operator=( const QwtPlotLayout & );
+    Q_DISABLE_COPY(QwtPlotLayout)
 
     class PrivateData;
     PrivateData *d_data;

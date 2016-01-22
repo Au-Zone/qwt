@@ -72,6 +72,8 @@ protected:
     void updateStyleSheetInfo();
 
 private:
+    Q_DISABLE_COPY(QwtPlotAbstractCanvas)
+
     class PrivateData;
     PrivateData *d_data;
 };

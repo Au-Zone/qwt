@@ -290,9 +290,7 @@ protected:
     QwtGraphic defaultIcon( const QBrush &, const QSizeF & ) const;
 
 private:
-    // Disabled copy constructor and operator=
-    explicit QwtPlotItem( const QwtPlotItem & );
-    QwtPlotItem &operator=( const QwtPlotItem & );
+    Q_DISABLE_COPY(QwtPlotItem)
 
     class PrivateData;
     PrivateData *d_data;

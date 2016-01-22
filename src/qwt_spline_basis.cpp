@@ -119,7 +119,7 @@ uint QwtSplineBasis::locality() const
 
 QPainterPath QwtSplineBasis::painterPath( const QPolygonF &points ) const
 {
-	// PeriodicPolygon/ClosedPolygon not implemented yet
+    // PeriodicPolygon/ClosedPolygon not implemented yet
 
     if ( points.size()  < 4 )
         return QPainterPath();

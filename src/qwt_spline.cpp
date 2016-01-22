@@ -803,7 +803,7 @@ QPolygonF QwtSpline::equidistantPolygon( const QPolygonF &points,
     const QPointF *p = points.constData();
     const QLineF *cl = controlLines.constData();
 
-	const QwtSplineParametrization *param = parametrization();
+    const QwtSplineParametrization *param = parametrization();
 
     for ( int i = 0; i < n - 1; i++ )
     {

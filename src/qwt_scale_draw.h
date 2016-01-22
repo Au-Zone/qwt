@@ -95,9 +95,6 @@ protected:
     virtual void drawLabel( QPainter *, double val ) const;
 
 private:
-    QwtScaleDraw( const QwtScaleDraw & );
-    QwtScaleDraw &operator=( const QwtScaleDraw &other );
-
     void updateMap();
 
     class PrivateData;

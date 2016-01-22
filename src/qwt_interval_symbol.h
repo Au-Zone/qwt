@@ -79,7 +79,6 @@ public:
         const QPointF& from, const QPointF& to ) const;
 
 private:
-
     class PrivateData;
     PrivateData* d_data;
 };
