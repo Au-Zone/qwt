@@ -41,6 +41,20 @@ static QPolygonF qwtBasisUniformKnots( const QPolygonF& points )
 }
 #endif
 
+static inline void qwtSplineBezierControlPoints( const QwtSplineParametrization *param,
+    const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4, 
+    QPointF &cp1, QPointF &cp2 )
+{
+    const double t1 = param->valueIncrement( p1, p2 );
+    const double t2 = param->valueIncrement( p2, p3 );
+    const double t3 = param->valueIncrement( p3, p4 );
+
+    const double t123 = t1 + t2 + t3;
+
+    cp1 = ( t2 + t3 ) / t123 * p2 + t1 / t123 * p3;
+    cp2 = ( t3 * p2 + ( t1 + t2 ) * p3 ) / t123;
+}
+
 static QPainterPath qwtSplineBasisPathUniform( const QPolygonF& points, 
     QwtSplineApproximation::BoundaryType boundaryType ) 
 {
@@ -102,42 +116,38 @@ static QPainterPath qwtSplineBasisPath( const QPolygonF &points,
     const int n = points.size();
     const QPointF *pd = points.constData();
 
-    QPainterPath path;
+    QPointF p0;
 
-    double t0, t1, t2, t012;
+    double t1 = param->valueIncrement( pd[0], pd[1] );
+    double t2 = param->valueIncrement( pd[1], pd[2] );
+    
+    double t0;
+    if ( boundaryType == QwtSplineApproximation::ConditionalBoundaries )
+        t0 = t1;
+    else
+        t0 = param->valueIncrement( pd[n-1], pd[0] );
+
+    double t012 = t0 + t1 + t2;
+    QPointF cp1 = ( ( t1 + t2 ) * pd[0] + t0 * pd[1] ) / t012;
 
     if ( boundaryType == QwtSplineApproximation::ConditionalBoundaries )
     {
-        t0 = param->valueIncrement( pd[0], pd[1] );
-        t1 = t0;
-        t2 = t0;
-        t012 = t0 + t1 + t2;
-
-        path.moveTo( pd[0] );
+        p0 = pd[0];
     }
     else
     {
-        t0 = param->valueIncrement( pd[n-2], pd[n-1] );
-        t1 = param->valueIncrement( pd[n-1], pd[0] );
-        t2 = param->valueIncrement( pd[0], pd[1] );
-        t012 = t0 + t1 + t2;
+        const double tN = param->valueIncrement( pd[n-2], pd[n-1] );
+        const QPointF cpN = ( t1 * pd[n-1] + ( tN + t0 ) * pd[0] ) / ( tN + t0 + t1 );
 
-        const double tN = param->valueIncrement( pd[n-3], pd[n-2] );
-        const double tN01 = tN + t0 + t1;
-            
-        const QPointF cp2 = ( t1 * pd[n-1] + ( tN + t0 ) * pd[0] ) / tN01;
-        const QPointF cp3 = ( ( t1 + t2 ) * pd[0] + t0 * pd[1] ) / t012;
-
-        const QPointF p2 = ( t1 * cp2 + t0 * cp3 ) / ( t0 + t1 );
-
-        path.moveTo( p2 );
+        p0 = ( t1 * cpN + t0 * cp1 ) / ( t0 + t1 );
     }
 
-    QPointF cp1 = ( ( t1 + t2 ) * pd[0] + t0 * pd[1] ) / t012;
+    QPainterPath path;
+    path.moveTo( p0 );
 
-    for ( int i = 1; i < n - 1; i++ )
+    for ( int i = 1; i < n - 2; i++ )
     {
-        const double t3 = param->valueIncrement( pd[i], pd[i+1] );
+        const double t3 = param->valueIncrement( pd[i+1], pd[i+2] );
         const double t123 = t1 + t2 + t3;
 
         const QPointF cp2 = ( t2 * pd[i-1] + ( t0 + t1 ) * pd[i] ) / t012;
@@ -155,35 +165,48 @@ static QPainterPath qwtSplineBasisPath( const QPolygonF &points,
         t012 = t123;
     }
 
-    if ( boundaryType == QwtSplineApproximation::ConditionalBoundaries )
-    {
-        const QPointF cp2 = ( t2 * pd[n-2] + ( t0 + t1 ) * pd[n-1] ) / t012;
-        path.cubicTo( cp1, cp2, pd[n-1] );
-    }
-    else
-    {
-        const double t3 = param->valueIncrement( pd[n-1], pd[0] );
+    {   
+        double t3;
+        if ( boundaryType == QwtSplineApproximation::ConditionalBoundaries )
+            t3 = t2;
+        else
+            t3 = param->valueIncrement( pd[n-1], pd[0] );
+
         const double t123 = t1 + t2 + t3;
         
-        const QPointF cp2 = ( t2 * pd[n-2] + ( t0 + t1 ) * pd[n-1] ) / t012;
-        const QPointF cp3 = ( ( t2 + t3 ) * pd[n-1] + t1 * pd[0] ) / t123;
+        const QPointF cp2 = ( t2 * pd[n-3] + ( t0 + t1 ) * pd[n-2] ) / t012;
+        const QPointF cp3 = ( ( t2 + t3 ) * pd[n-2] + t1 * pd[n-1] ) / t123;
         
         const QPointF p2 = ( t2 * cp2 + t1 * cp3 ) / ( t1 + t2 );
         
         path.cubicTo( cp1, cp2, p2 );
         
-        if ( boundaryType == QwtSplineApproximation::ClosedPolygon )
-        {
-            const double t4 = param->valueIncrement( pd[0], pd[1] );
-            const double t234 = t2 + t3 + t4;
+        cp1 = cp3;
         
-            const QPointF cp4 = ( t3 * pd[n-1] + ( t1 + t2 ) * points[0] ) / t123;
-            const QPointF cp5 = ( ( t3 + t4 ) * pd[0] + t2 * pd[1] ) / t234;
+        t0 = t1;
+        t1 = t2;
+        t2 = t3;
+        t012 = t123;
+    }
 
-            const QPointF p2 = ( t3 * cp4 + t2 * cp5 ) / ( t2 + t3 );
- 
-            path.cubicTo( cp3, cp4, p2 );
-        }
+    const QPointF cp2 = ( t2 * pd[n-2] + ( t0 + t1 ) * pd[n-1] ) / t012;
+
+    if ( boundaryType == QwtSplineApproximation::ConditionalBoundaries )
+    {
+        path.cubicTo( cp1, cp2, pd[n-1] );
+    }
+    else
+    {   
+        const double t3 = param->valueIncrement( pd[0], pd[1] );
+        const double t123 = t1 + t2 + t3;
+
+        const QPointF cp3 = ( t2 + t3 ) / t123 * pd[n-1] + t1 / t123 * pd[0];
+        const QPointF cp4 = ( t3 * pd[n-1] + ( t1 + t2 ) * pd[0] ) / t123;
+
+        const QPointF pN = ( t2 * cp2 + t1 * cp3 ) / ( t1 + t2 );
+
+        path.cubicTo( cp1, cp2, pN );
+        path.cubicTo( cp3, cp4, p0 );
     }
 
     return path;
