@@ -425,11 +425,11 @@ void QwtSlider::drawSlider(
         qDrawShadePanel( painter, sliderRect, palette(), true, bw, NULL );
     }
 
-    const QSize handleSize = qwtHandleSize( d_data->handleSize,
-        d_data->orientation, d_data->hasTrough );
-
     if ( d_data->hasGroove )
     {
+        const QSize handleSize = qwtHandleSize( d_data->handleSize,
+            d_data->orientation, d_data->hasTrough );
+
         const int slotExtent = 4;
         const int slotMargin = 4;
 
