@@ -32,7 +32,12 @@ static inline int qwtRoundValue( double value )
 
 static inline double qwtRoundValueF( double value )
 {
-    return ::round( value );
+#if 1
+    // MS Windows and at least IRIX does not have C99's nearbyint() function
+    return ( value >= 0.0 ) ? ::floor( value + 0.5 ) : ::ceil( value - 0.5 );
+#else
+    return nearbyint( value );
+#endif
 }
 
 static Qt::Orientation qwtProbeOrientation(
