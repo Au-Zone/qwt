@@ -748,17 +748,21 @@ QwtInterval QwtLinearScaleEngine::align(
     double x1 = interval.minValue();
     double x2 = interval.maxValue();
 
+    // when there is no rounding beside some effect, when 
+    // calculating with doubles, we keep the original value
+
+    const double eps = 0.000000000001; // since Qt 4.8: qFuzzyIsNull
     if ( -DBL_MAX + stepSize <= x1 )
     {
         const double x = QwtScaleArithmetic::floorEps( x1, stepSize );
-        if ( qwtFuzzyCompare( x1, x, stepSize ) != 0 )
+        if ( qAbs(x) <= eps || !qFuzzyCompare( x1, x ) )
             x1 = x;
     }
 
     if ( DBL_MAX - stepSize >= x2 )
     {
         const double x = QwtScaleArithmetic::ceilEps( x2, stepSize );
-        if ( qwtFuzzyCompare( x2, x, stepSize ) != 0 )
+        if ( qAbs(x) <= eps || !qFuzzyCompare( x2, x ) )
             x2 = x;
     }
 
