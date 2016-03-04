@@ -6,10 +6,22 @@
 #include <qwt_plot_layout.h>
 #include <qwt_scale_widget.h>
 #include <qwt_scale_draw.h>
+
 #ifndef QWT_NO_OPENGL
 #include <qevent.h>
+
+#if QT_VERSION >= 0x050400
+// QwtPlotOpenGLWidget has some issues here: to be fixed ...
+#define USE_OPENGL_WIDGET 0
+#endif
+
+#if USE_OPENGL_WIDGET
+#include <qwt_plot_opengl_canvas.h>
+#else
 #include <qwt_plot_glcanvas.h>
 #endif
+#endif
+
 #include "plot.h"
 #include "circularbuffer.h"
 #include "settings.h"
@@ -31,32 +43,6 @@ static double noise( double )
 {
     return 2.0 * ( qrand() / ( static_cast<double>( RAND_MAX ) + 1 ) ) - 1.0;
 }
-
-#ifndef QWT_NO_OPENGL
-class GLCanvas: public QwtPlotGLCanvas
-{
-public:
-    GLCanvas( QwtPlot *parent = NULL ):
-        QwtPlotGLCanvas( parent )
-    {
-        setContentsMargins( 1, 1, 1, 1 );
-    }
-
-protected:
-    virtual void paintEvent( QPaintEvent *event )
-    {
-        QPainter painter( this );
-        painter.setClipRegion( event->region() );
-
-        QwtPlot *plot = qobject_cast< QwtPlot *>( parent() );
-        if ( plot )
-            plot->drawCanvas( &painter );
-
-        painter.setPen( palette().foreground().color() );
-        painter.drawRect( rect().adjusted( 0, 0, -1, -1 ) );
-    }
-};
-#endif
 
 Plot::Plot( QWidget *parent ):
     QwtPlot( parent ),
@@ -165,14 +151,30 @@ void Plot::setSettings( const Settings &s )
 #ifndef QWT_NO_OPENGL
     if ( s.canvas.openGL )
     {
-        QwtPlotGLCanvas *plotCanvas = qobject_cast<QwtPlotGLCanvas *>( canvas() );
+#if USE_OPENGL_WIDGET
+        QwtPlotOpenGLCanvas *plotCanvas = qobject_cast<QwtPlotOpenGLCanvas *>( canvas() );
         if ( plotCanvas == NULL )
         {
-            plotCanvas = new GLCanvas();
+            plotCanvas = new QwtPlotOpenGLCanvas();
+            plotCanvas->setPalette( QColor( "NavajoWhite" ) );
             plotCanvas->setPalette( QColor( "khaki" ) );
+            plotCanvas->setFrameStyle( QFrame::Box | QFrame::Plain );
+            plotCanvas->setLineWidth( 1 );
 
             setCanvas( plotCanvas );
         }
+#else
+        QwtPlotGLCanvas *plotCanvas = qobject_cast<QwtPlotGLCanvas *>( canvas() );
+        if ( plotCanvas == NULL )
+        {
+            plotCanvas = new QwtPlotGLCanvas();
+            plotCanvas->setPalette( QColor( "khaki" ) );
+            plotCanvas->setFrameStyle( QFrame::Box | QFrame::Plain );
+            plotCanvas->setLineWidth( 1 );
+
+            setCanvas( plotCanvas );
+        }
+#endif
     }
     else
 #endif
