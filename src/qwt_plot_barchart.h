@@ -105,6 +105,11 @@ protected:
         int sampleIndex, const QPointF& point, 
         const QwtColumnRect & ) const;
 
+    QwtColumnRect columnRect(
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        const QRectF &canvasRect, const QwtInterval &boundingInterval,
+        const QPointF& sample ) const;
+
     QList<QwtLegendData> legendData() const;
     QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
