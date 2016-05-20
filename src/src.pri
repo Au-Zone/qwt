@@ -225,7 +225,7 @@ contains(QWT_CONFIG, QwtPlot) {
         HEADERS += \
             qwt_plot_svgitem.h
         SOURCES += \
-            qwt_plot_svgitem.cpp 
+            qwt_plot_svgitem.cpp
     }
 }
 
@@ -237,7 +237,18 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 
 contains(QWT_CONFIG, QwtSvg) {
 
-    QT += svg
+    greaterThan(QT_MAJOR_VERSION, 4) {
+
+        qtHaveModule(svg) {
+            QT += svg
+        }
+        else {
+            warning(QwtSvg is enabled in qwtconfig.pri, but Qt has not been built with svg support)
+        }
+    }
+    else {
+        QT += svg
+    }
 }
 else {
 
