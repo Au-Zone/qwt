@@ -6,6 +6,7 @@
 #include <qwt_plot_layout.h>
 #include <qwt_legend.h>
 #include <qwt_scale_draw.h>
+#include <QApplication>
 
 class DistroScaleDraw: public QwtScaleDraw
 {
@@ -58,8 +59,8 @@ public:
         setLegendIconSize( QSize( 10, 14 ) );
         setLayoutPolicy( AutoAdjustSamples );
         setLayoutHint( 4.0 ); // minimum width for a single bar
-		
-		setSpacing( 10 ); // spacing between bars
+        
+        setSpacing( 10 ); // spacing between bars
     }
 
     void addDistro( const QString &distro, const QColor &color )
@@ -194,3 +195,53 @@ void BarChart::exportChart()
     QwtPlotRenderer renderer;
     renderer.exportTo( this, "distrowatch.pdf" );
 }
+
+void BarChart::doScreenShot()
+{       
+    exportPNG( 800, 600 );
+}   
+
+void BarChart::exportPNG( int width, int height )
+{
+    const QString fileBase = QString("distrowatch-%2x%3" ).arg( width ).arg( height);
+
+    const int resolution = qRound( 85.0 * width / 800.0 );
+
+    const double mmToInch = 1.0 / 25.4;
+    const int dotsPerMeter = qRound( resolution * mmToInch * 1000.0 );
+    
+    QImage image( width, height, QImage::Format_ARGB32 );
+    image.setDotsPerMeterX( dotsPerMeter );
+    image.setDotsPerMeterY( dotsPerMeter );
+        
+    image.fill( Qt::transparent );
+        
+    QPainter painter( &image );
+    render( &painter, QRectF( 0, 0, width, height ) );
+    painter.end();
+    
+    image.save( fileBase + ".png" );
+}   
+
+void BarChart::render( QPainter* painter, const QRectF & targetRect )
+{
+    const int r = 20;
+    const QRectF plotRect = targetRect.adjusted( 0.5 * r, 0.5 * r, -0.5 * r, -0.5 * r );
+
+    QwtPlotRenderer renderer;
+
+    if ( qApp->styleSheet().isEmpty() )
+    {
+        renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, true );
+
+        painter->save();
+        painter->setRenderHint( QPainter::Antialiasing, true );
+        painter->setPen( QPen( Qt::darkGray, 1 ) );
+        painter->setBrush( QColor( "WhiteSmoke" ) );
+        painter->drawRoundedRect( targetRect, r, r );
+        painter->restore();
+    }
+
+    renderer.render( this, painter, plotRect );
+}
+

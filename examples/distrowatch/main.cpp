@@ -32,8 +32,14 @@ MainWindow::MainWindow( QWidget *parent ):
     btnExport->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
     connect( btnExport, SIGNAL( clicked() ), d_chart, SLOT( exportChart() ) );
 
+    QToolButton *btnScreenshot = new QToolButton( toolBar );
+    btnScreenshot->setText( "Screenshot" );
+    btnScreenshot->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
+    connect( btnScreenshot, SIGNAL( clicked() ), d_chart, SLOT( doScreenShot() ) );
+
     toolBar->addWidget( orientationBox );
     toolBar->addWidget( btnExport );
+    toolBar->addWidget( btnScreenshot );
     addToolBar( toolBar );
 
     d_chart->setOrientation( orientationBox->currentIndex() );
