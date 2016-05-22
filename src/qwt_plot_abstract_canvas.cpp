@@ -685,7 +685,11 @@ void QwtPlotAbstractCanvas::drawBorder( QPainter *painter )
         const int frameShape = w->property( "frameShape" ).toInt();
         const int frameShadow = w->property( "frameShadow" ).toInt();
 
+#if QT_VERSION < 0x050000
         QStyleOptionFrameV3 opt;
+#else
+        QStyleOptionFrame opt;
+#endif
         opt.init( w );
 
         opt.frameShape = QFrame::Shape( int( opt.frameShape ) | frameShape );
