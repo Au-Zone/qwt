@@ -25,7 +25,7 @@ to control or display values, arrays, or ranges of type double.
   \if homepage
   \section homepage Project page
   The official project page is hosted at 
-	<a href="http://qwt.sourceforge.net">sourceforge</a>
+    <a href="http://qwt.sourceforge.net">sourceforge</a>
   \endif
 
   \section license License
@@ -43,9 +43,9 @@ to control or display values, arrays, or ranges of type double.
 
   \section screenshotsonmainpage Screenshots
   - \ref curvescreenshots\n
-  - \ref scatterscreenshots\n
   - \ref spectrogramscreenshots\n
-  - \ref histogramscreenshots\n
+  - \ref barchartscreenshots\n
+  - \ref otherscreenshots\n
   - \ref controlscreenshots\n
 
   \latexonly Screenshots are only available in the HTML docs.\endlatexonly
@@ -110,33 +110,70 @@ to control or display values, arrays, or ranges of type double.
 
 /*!
   \page curvescreenshots Curve Plots
-  \image html plot.png 
 
-  \image html sinus.png 
-
-  \image html cpuplot.png 
-
-  \image html graph.png 
-
-  \image html curves.png 
-*/
-
-/*!
-  \page scatterscreenshots Scatter Plot
-  \image html scatterplot.png 
+  <table border="0" cellspacing="20">
+    <tr>
+       <td> \image html bode-blue-600x400.png
+       <td> \image html bode-rosy-600x400.png
+    </tr>
+    <tr>
+       <td> \image html cpuplot-600x400.png
+       <td> \image html scatterplot-600x400.png
+    </tr>
+    <tr>
+       <td> \image html cpuplot-oily-600x400.png
+       <td> \image html curves.png
+    </tr>
+    <tr>
+       <td> \image html friedberg-tube-600x400.png
+       <td> \image html friedberg-bars-600x400.png
+    </tr>
+  </table>
 */
 
 /*!
   \page spectrogramscreenshots Spectrogram, Contour Plot
-  \image html spectrogram1.png 
 
-  \image html spectrogram2.png 
-
-  \image html spectrogram3.png 
+  <table border="0" cellspacing="20">
+    <tr>
+       <td> \image html spectrogram-rgb-600x400.png
+       <td> \image html spectrogram-hue-600x400.png
+    </tr>
+    <tr>
+       <td> \image html spectrogram-value-600x400.png
+       <td> \image html spectrogram-saturation-600x400.png
+    </tr>
+    <tr>
+       <td> \image html spectrogram-contour1-600x400.png
+       <td> \image html spectrogram-contour2-600x400.png
+    </tr>
+  </table>
 
 /*!
-  \page histogramscreenshots Histogram
-  \image html histogram.png 
+  \page barchartscreenshots Bar Charts, Histograms
+  <table border="0" cellspacing="20">
+    <tr>
+       <td> \image html distrowatch-600x400.png
+       <td> \image html tvplot-600x400.png
+    </tr>
+    <tr>
+       <td> \image html barchart-grouped-600x400.png
+       <td> \image html barchart-stacked-600x400.png
+    </tr>
+  </table>
+*/
+
+/*!
+  \page otherscreenshots Other Plots
+  <table border="0" cellspacing="20">
+    <tr>
+       <td> \image html scatterplot-600x400.png
+       <td> \image html itemeditor-600x400.png
+    </tr>
+    <tr>
+       <td> \image html stockchart-600x400.png
+    </tr>
+  </table>
 */
 
 /*!
