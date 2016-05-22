@@ -178,13 +178,23 @@ to control or display values, arrays, or ranges of type double.
 
 /*!
   \page controlscreenshots Dials, Compasses, Knobs, Wheels, Sliders, Thermos
-  \image html radio.png
 
-  \image html sliders.png
+  <table border="0" cellspacing="20">
+    <tr>
+       <td> \image html radio.png
+    </tr>
+    <tr>
+       <td> \image html sliders.png
+    </tr>
+    <tr>
+       <td> \image html sysinfo.png
+    </tr>
+    <tr>
+       <td> \image html dials1.png
+    </tr>
+    <tr>
+       <td> \image html dials2.png
+    </tr>
+  </table>
 
-  \image html dials1.png
-
-  \image html dials2.png
-
-  \image html sysinfo.png
 */
