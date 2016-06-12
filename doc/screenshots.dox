@@ -1,14 +1,4 @@
 /*!
-\page qwtscreenshots Screenshots
-
-  - \ref curvescreenshots\n
-  - \ref spectrogramscreenshots\n
-  - \ref barchartscreenshots\n
-  - \ref otherscreenshots\n
-  - \ref controlscreenshots\n
-
-  \latexonly Screenshots are only available in the HTML docs.\endlatexonly
-
   \page curvescreenshots Curve Plots
 
   <table border="0" cellspacing="20">

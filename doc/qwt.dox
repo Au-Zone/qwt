@@ -42,7 +42,13 @@ to control or display values, arrays, or ranges of type double.
   Read the \ref qwtchangelog "summary" of the most important changes.
 
   \section screenshotsonmainpage Screenshots
-  \ref qwtscreenshots
+  - \ref curvescreenshots\n
+  - \ref spectrogramscreenshots\n
+  - \ref barchartscreenshots\n
+  - \ref otherscreenshots\n
+  - \ref controlscreenshots\n
+
+  \latexonly Screenshots are only available in the HTML docs.\endlatexonly
 
   \section downloads Downloads
   Stable releases or prereleases are available at the Qwt <a href="http://sourceforge.net/projects/qwt/files">project page</a>.
