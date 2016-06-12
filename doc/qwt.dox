@@ -42,25 +42,19 @@ to control or display values, arrays, or ranges of type double.
   Read the \ref qwtchangelog "summary" of the most important changes.
 
   \section screenshotsonmainpage Screenshots
-  - \ref curvescreenshots\n
-  - \ref spectrogramscreenshots\n
-  - \ref barchartscreenshots\n
-  - \ref otherscreenshots\n
-  - \ref controlscreenshots\n
-
-  \latexonly Screenshots are only available in the HTML docs.\endlatexonly
+  \ref qwtscreenshots
 
   \section downloads Downloads
   Stable releases or prereleases are available at the Qwt <a href="http://sourceforge.net/projects/qwt/files">project page</a>.
 
   For getting a snapshot with all bugfixes for the latest 5.2 release:
-  \code svn checkout svn://svn.code.sf.net/p/qwt/code/branches/qwt-5.2 \endcode
+  \code svn export svn://svn.code.sf.net/p/qwt/code/branches/qwt-5.2 \endcode
 
   For getting a snapshot with all bugfixes for the latest 6.1 release:
-  \code svn checkout svn://svn.code.sf.net/p/qwt/code/branches/qwt-6.1 \endcode
+  \code svn export svn://svn.code.sf.net/p/qwt/code/branches/qwt-6.1 \endcode
 
   For getting a development snapshot from the SVN repository:
-  \code svn checkout svn://svn.code.sf.net/p/qwt/code/trunk/qwt \endcode
+  \code svn export svn://svn.code.sf.net/p/qwt/code/trunk/qwt \endcode
 
   \section installonmainpage Installation
 
@@ -108,93 +102,3 @@ to control or display values, arrays, or ranges of type double.
   \include "COPYING"
 */
 
-/*!
-  \page curvescreenshots Curve Plots
-
-  <table border="0" cellspacing="20">
-    <tr>
-       <td> \image html bode-blue-600x400.png
-       <td> \image html bode-rosy-600x400.png
-    </tr>
-    <tr>
-       <td> \image html cpuplot-600x400.png
-       <td> \image html scatterplot-600x400.png
-    </tr>
-    <tr>
-       <td> \image html cpuplot-oily-600x400.png
-       <td> \image html curves.png
-    </tr>
-    <tr>
-       <td> \image html friedberg-tube-600x400.png
-       <td> \image html friedberg-bars-600x400.png
-    </tr>
-  </table>
-*/
-
-/*!
-  \page spectrogramscreenshots Spectrogram, Contour Plot
-
-  <table border="0" cellspacing="20">
-    <tr>
-       <td> \image html spectrogram-rgb-600x400.png
-       <td> \image html spectrogram-hue-600x400.png
-    </tr>
-    <tr>
-       <td> \image html spectrogram-value-600x400.png
-       <td> \image html spectrogram-saturation-600x400.png
-    </tr>
-    <tr>
-       <td> \image html spectrogram-contour1-600x400.png
-       <td> \image html spectrogram-contour2-600x400.png
-    </tr>
-  </table>
-
-/*!
-  \page barchartscreenshots Bar Charts, Histograms
-  <table border="0" cellspacing="20">
-    <tr>
-       <td> \image html distrowatch-600x400.png
-       <td> \image html tvplot-600x400.png
-    </tr>
-    <tr>
-       <td> \image html barchart-grouped-600x400.png
-       <td> \image html barchart-stacked-600x400.png
-    </tr>
-  </table>
-*/
-
-/*!
-  \page otherscreenshots Other Plots
-  <table border="0" cellspacing="20">
-    <tr>
-       <td> \image html scatterplot-600x400.png
-       <td> \image html itemeditor-600x400.png
-    </tr>
-    <tr>
-       <td> \image html stockchart-600x400.png
-    </tr>
-  </table>
-*/
-
-/*!
-  \page controlscreenshots Dials, Compasses, Knobs, Wheels, Sliders, Thermos
-
-  <table border="0" cellspacing="20">
-    <tr>
-       <td> \image html radio.png
-    </tr>
-    <tr>
-       <td> \image html sliders.png
-    </tr>
-    <tr>
-       <td> \image html sysinfo.png
-    </tr>
-    <tr>
-       <td> \image html dials1.png
-    </tr>
-    <tr>
-       <td> \image html dials2.png
-    </tr>
-  </table>
-
-*/
