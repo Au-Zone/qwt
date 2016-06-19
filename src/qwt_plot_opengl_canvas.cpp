@@ -125,7 +125,6 @@ void QwtPlotOpenGLCanvas::paintGL()
     const bool hasFocusIndicator = 
         hasFocus() && focusIndicator() == CanvasFocusIndicator;
 
-    QPainter painter;
 
     if ( testPaintAttribute( QwtPlotOpenGLCanvas::BackingStore ) )
     {
@@ -151,8 +150,7 @@ void QwtPlotOpenGLCanvas::paintGL()
             QOpenGLFramebufferObject::blitFramebuffer(d_data->fbo, &fbo );
         }
 
-        if ( hasFocusIndicator )
-            painter.begin( this );
+        makeCurrent();
 
         glBindTexture(GL_TEXTURE_2D, d_data->fbo->texture());
 
@@ -170,15 +168,21 @@ void QwtPlotOpenGLCanvas::paintGL()
         glVertex2f(-1.0f,  1.0f);
 
         glEnd();
+
+        if ( hasFocusIndicator )
+        {
+            QPainter painter( this );
+            drawFocusIndicator( &painter );
+        }
     }
     else
     {
-        painter.begin( this );
+        QPainter painter( this );
         draw( &painter );
-    }
 
-    if ( hasFocusIndicator )
-        drawFocusIndicator( &painter );
+        if ( hasFocusIndicator )
+            drawFocusIndicator( &painter );
+    }
 }
 
 void QwtPlotOpenGLCanvas::resizeGL( int, int )
