@@ -1330,7 +1330,7 @@ void QwtPainter::drawBackgound( QPainter *painter,
 /*!
   \return A pixmap that can be used as backing store
 
-  \param widget Widget, for which the backinstore is intended
+  \param widget Widget, for which the backingstore is intended
   \param size Size of the pixmap
  */
 QPixmap QwtPainter::backingStore( QWidget *widget, const QSize &size )
