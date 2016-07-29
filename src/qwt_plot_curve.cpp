@@ -805,7 +805,10 @@ void QwtPlotCurve::drawSteps( QPainter *painter,
 
     if ( d_data->paintAttributes & ClipPolygons )
     {
-        const QRectF clipRect = qwtIntersectedClipRect( canvasRect, painter );
+        QRectF clipRect = qwtIntersectedClipRect( canvasRect, painter );
+
+        const qreal pw = qMax( qreal( 1.0 ), painter->pen().widthF());
+        clipRect = clipRect.adjusted(-pw, -pw, pw, pw);
 
         const QPolygonF clipped = QwtClipper::clipPolygonF( 
             clipRect, polygon, false );
