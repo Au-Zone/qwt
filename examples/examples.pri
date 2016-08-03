@@ -16,7 +16,7 @@ QWT_OUT_ROOT = $${OUT_PWD}/../..
 
 TEMPLATE     = app
 
-INCLUDEPATH += $${QWT_ROOT}/src
+INCLUDEPATH += $${QWT_ROOT}/src \
 DEPENDPATH  += $${QWT_ROOT}/src
 
 !debug_and_release {

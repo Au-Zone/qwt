@@ -21,10 +21,12 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 HEADERS = \
-    qwt_mathml_text_engine.h
+    qwt_mathml_text_engine.h \
+    qwt_mml_entity_table.h
 
 SOURCES = \
-    qwt_mathml_text_engine.cpp
+    qwt_mathml_text_engine.cpp \
+    qwt_mml_entity_table.cpp
 
 # qwt_mml_document.h/qwt_mml_document.cpp has been stripped down from
 # the mathml widgets offered in the Qt solutions package. 

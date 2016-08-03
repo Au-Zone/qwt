@@ -131,7 +131,7 @@ win32 {
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-#QWT_CONFIG     += QwtExamples
+QWT_CONFIG     += QwtExamples
 
 ######################################################################
 # The playground is primarily intended for the Qwt development 

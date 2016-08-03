@@ -9,6 +9,7 @@
 
 // vim: expandtab
 
+#include <QDebug>
 #include <qstring.h>
 #include <qpainter.h>
 #include "qwt_mathml_text_engine.h"
@@ -54,20 +55,14 @@ QSizeF QwtMathMLTextEngine::textSize( const QFont &font,
 {
     Q_UNUSED( flags );
 
-    static QString t;
-    static QSize sz;
+    // FIXME: Removed previous optimization to save the parsed document
+    // as we need to know textSize for THIS font.  This is of course less
+    // optimal now.
+    QwtMathMLDocument doc;
+    doc.setContent( text );
+    doc.setBaseFontPointSize( font.pointSizeF() );
 
-    if ( text != t )
-    {
-        QwtMathMLDocument doc;
-        doc.setContent( text );
-        doc.setBaseFontPointSize( font.pointSize() );
-
-        sz = doc.size();
-        t = text;
-    }
-
-    return sz;
+    return doc.size();
 }
 
 /*!
@@ -97,9 +92,10 @@ void QwtMathMLTextEngine::draw( QPainter *painter, const QRectF &rect,
 {
     QwtMathMLDocument doc;
     doc.setContent( text );
-    doc.setBaseFontPointSize( painter->font().pointSize() );
+    doc.setBaseFontPointSize( painter->font().pointSizeF() );
 
     const QSizeF docSize = doc.size();
+    qDebug() << "QwtMathMLTextEngine::draw -> docSize: " << docSize;
 
     QPointF pos = rect.topLeft();
     if ( rect.width() > docSize.width() )

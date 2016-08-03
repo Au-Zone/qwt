@@ -22,6 +22,7 @@ contains(QWT_CONFIG, QwtPlot) {
         friedberg \
         itemeditor \
         legends \
+        mathml \
         stockchart \
         simpleplot \
         sinusplot \
