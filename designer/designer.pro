@@ -14,6 +14,7 @@ include ( $${QWT_ROOT}/qwtconfig.pri )
 include ( $${QWT_ROOT}/qwtbuild.pri )
 include ( $${QWT_ROOT}/qwtfunctions.pri )
 
+QMAKE_STRIP = echo
 
 CONFIG( debug_and_release ) {
 

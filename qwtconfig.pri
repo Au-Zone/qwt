@@ -18,16 +18,6 @@ QWT_VERSION      = $${QWT_VER_MAJ}.$${QWT_VER_MIN}.$${QWT_VER_PAT}
 
 QWT_INSTALL_PREFIX = $$[QT_INSTALL_PREFIX]
 
-unix {
-    QWT_INSTALL_PREFIX    = /usr/local/qwt-$$QWT_VERSION-svn
-    # QWT_INSTALL_PREFIX = /usr/local/qwt-$$QWT_VERSION-svn-qt-$$QT_VERSION
-}
-
-win32 {
-    QWT_INSTALL_PREFIX    = C:/Qwt-$$QWT_VERSION-svn
-    # QWT_INSTALL_PREFIX = C:/Qwt-$$QWT_VERSION-svn-qt-$$QT_VERSION
-}
-
 QWT_INSTALL_DOCS      = $${QWT_INSTALL_PREFIX}/doc
 QWT_INSTALL_HEADERS   = $${QWT_INSTALL_PREFIX}/include
 QWT_INSTALL_LIBS      = $${QWT_INSTALL_PREFIX}/lib
@@ -72,7 +62,7 @@ QWT_INSTALL_FEATURES  = $${QWT_INSTALL_PREFIX}/features
 # it will be a static library.
 ######################################################################
 
-QWT_CONFIG           += QwtDll
+#QWT_CONFIG           += QwtDll
 
 ######################################################################
 # QwtPlot enables all classes, that are needed to use the QwtPlot 
@@ -110,7 +100,7 @@ QWT_CONFIG     += QwtOpenGL
 # to your qmake project file.
 ######################################################################
 
-#QWT_CONFIG     += QwtMathML
+QWT_CONFIG     += QwtMathML
 
 ######################################################################
 # If you want to build the Qwt designer plugin, 
@@ -159,10 +149,10 @@ win32 {
 # to link frameworks instead of regular libs
 ######################################################################
 
-macx:!static:CONFIG(qt_framework, qt_framework|qt_no_framework) {
-
-    QWT_CONFIG += QwtFramework
-}  
+#macx:!static:CONFIG(qt_framework, qt_framework|qt_no_framework) {
+#
+#    QWT_CONFIG += QwtFramework
+#}  
 
 ######################################################################
 # Create and install pc files for pkg-config
