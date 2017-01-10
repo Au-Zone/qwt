@@ -391,7 +391,7 @@ QPainterPath QwtPlotCanvas::borderPath( const QRect &rect ) const
 
 QImage QwtPlotCanvas::toImageFBO( const QSize &size ) 
 {
-    const int numSamples = 16;
+    const int numSamples = 4;
 
 #if FBO_OPENGL
 
@@ -450,9 +450,10 @@ QImage QwtPlotCanvas::toImageFBO( const QSize &size )
     
     painter.end();
 
-	QImage image = fbo.toImage();
+    QImage image = fbo.toImage();
+
 #if QT_VERSION >= 0x050000
-	image.setDevicePixelRatio( devicePixelRatioF() );
+    image.setDevicePixelRatio( QwtPainter::devicePixelRatio( this ) );
 #endif
     return image;
 }

@@ -35,7 +35,7 @@ class SpectrogramData: public QwtRasterData
 public:
     SpectrogramData()
     {
-        // some minor performance improvements wgen the spectrogram item
+        // some minor performance improvements when the spectrogram item
         // does not need to check for NaN values
 
         setAttribute( QwtRasterData::WithoutGaps, true );

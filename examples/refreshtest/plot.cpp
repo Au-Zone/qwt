@@ -11,8 +11,7 @@
 #include <qevent.h>
 
 #if QT_VERSION >= 0x050400
-// QwtPlotOpenGLWidget has some issues here: to be fixed ...
-#define USE_OPENGL_WIDGET 0
+#define USE_OPENGL_WIDGET 1
 #endif
 
 #if USE_OPENGL_WIDGET

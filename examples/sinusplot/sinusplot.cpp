@@ -14,8 +14,6 @@
 #include <math.h>
 
 //-----------------------------------------------------------------
-//              simple.cpp
-//
 //      A simple example which shows how to use QwtPlot connected
 //      to a data class without any storage, calculating each values
 //      on the fly.

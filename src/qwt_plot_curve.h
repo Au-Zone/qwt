@@ -224,8 +224,9 @@ public:
 
           \note Implemented for QwtPlotCurve::Lines only
           \note As this algo replaces many small lines by a long one
-                a nasty bug of the raster paint engine becomes more dominant, 
-                that is worked around in QwtPainter::polylineSplitting() mode.
+                a nasty bug of the raster paint engine ( Qt 4.8, Qt 5.1 - 5.3 )
+                becomes more dominant. For these versions the bug can be
+                worked around by enabling the QwtPainter::polylineSplitting() mode.
          */
         FilterPointsAggressive = 0x10,
     };

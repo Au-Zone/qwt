@@ -961,12 +961,16 @@ void QwtPlotAbstractGLCanvas::setPaintAttribute( PaintAttribute attribute, bool 
         return;
     
     if ( on )
+	{
         d_data->paintAttributes |= attribute;
+	}
     else
+	{
         d_data->paintAttributes &= ~attribute;
 
-    if ( attribute == BackingStore )
-        invalidateBackingStore();
+    	if ( attribute == BackingStore )
+        	clearBackingStore();
+	}
 }
 
 /*!
@@ -1113,6 +1117,10 @@ int QwtPlotAbstractGLCanvas::frameWidth() const
     return ( frameStyle() != QFrame::NoFrame ) ? d_data->lineWidth : 0;
 }
 
+/*!
+   Invalidate the paint cache and repaint the canvas
+   \sa invalidatePaintCache()
+*/
 void QwtPlotAbstractGLCanvas::replot()
 {
     invalidateBackingStore();

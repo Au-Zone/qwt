@@ -73,6 +73,8 @@ protected:
     virtual void resizeGL( int width, int height );
 
 private:
+	virtual void clearBackingStore();
+
     class PrivateData;
     PrivateData *d_data;
 };

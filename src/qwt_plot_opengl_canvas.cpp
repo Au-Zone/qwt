@@ -17,6 +17,8 @@ class QwtPlotOpenGLCanvas::PrivateData
 {
 public:
     PrivateData():
+        isPolished( false ),
+        fboDirty( true ),
         fbo( NULL )
     {
     }
@@ -26,6 +28,10 @@ public:
         delete fbo;
     }
 
+    int numSamples;
+
+    bool isPolished;
+    bool fboDirty;
     QOpenGLFramebufferObject* fbo;
 };
 
@@ -41,21 +47,25 @@ QwtPlotOpenGLCanvas::QwtPlotOpenGLCanvas( QwtPlot *plot ):
     QwtPlotAbstractGLCanvas( this )
 {
     QSurfaceFormat fmt = format();
-    fmt.setSamples(16);
-    setFormat( fmt );
+    fmt.setSamples( 4 );
 
-    d_data = new PrivateData;
-#if 1
-    setAttribute( Qt::WA_OpaquePaintEvent, true );
-#endif
+    init( fmt );
 }
 
 QwtPlotOpenGLCanvas::QwtPlotOpenGLCanvas( const QSurfaceFormat &format, QwtPlot *plot ):
     QOpenGLWidget( plot ),
     QwtPlotAbstractGLCanvas( this )
 {
-    setFormat( format );
+    init( format );
+}
+
+void QwtPlotOpenGLCanvas::init( const QSurfaceFormat &format )
+{
     d_data = new PrivateData;
+    d_data->numSamples = format.samples();
+
+    setFormat( format );
+
 #if 1
     setAttribute( Qt::WA_OpaquePaintEvent, true );
 #endif
@@ -75,7 +85,8 @@ QwtPlotOpenGLCanvas::~QwtPlotOpenGLCanvas()
 */
 void QwtPlotOpenGLCanvas::paintEvent( QPaintEvent *event )
 {
-    QOpenGLWidget::paintEvent( event );
+    if ( d_data->isPolished )
+        QOpenGLWidget::paintEvent( event );
 }
 
 /*!
@@ -86,6 +97,15 @@ void QwtPlotOpenGLCanvas::paintEvent( QPaintEvent *event )
 bool QwtPlotOpenGLCanvas::event( QEvent *event )
 {
     const bool ok = QOpenGLWidget::event( event );
+
+    if ( event->type() == QEvent::PolishRequest )
+    {
+        // In opposite to non OpenGL widgets receive pointless
+        // early repaints. As we always have a QEvent::PolishRequest
+        // followed by QEvent::Paint, we can ignore all thos repaints.
+
+        d_data->isPolished = true;
+    }
 
     if ( event->type() == QEvent::PolishRequest ||
         event->type() == QEvent::StyleChange )
@@ -107,6 +127,11 @@ void QwtPlotOpenGLCanvas::replot()
 
 void QwtPlotOpenGLCanvas::invalidateBackingStore()
 {
+    d_data->fboDirty = true;
+}
+
+void QwtPlotOpenGLCanvas::clearBackingStore()
+{
     delete d_data->fbo;
     d_data->fbo = NULL;
 }
@@ -125,67 +150,66 @@ void QwtPlotOpenGLCanvas::paintGL()
     const bool hasFocusIndicator = 
         hasFocus() && focusIndicator() == CanvasFocusIndicator;
 
+    QPainter painter;
 
-    if ( testPaintAttribute( QwtPlotOpenGLCanvas::BackingStore ) )
+    if ( testPaintAttribute( QwtPlotOpenGLCanvas::BackingStore ) &&
+        QOpenGLFramebufferObject::hasOpenGLFramebufferBlit() )
     {
-        if ( d_data->fbo == NULL || d_data->fbo->size() != size() )
+        if ( hasFocusIndicator )
+            painter.begin( this );
+
+        /*
+           QOpenGLWidget has its own internal FBO, that is used to restore
+           its content without having to repaint. This works fine when f.e
+           a rubberband is moving on top, but there are still situations,
+           where we can repaint without an potentially expensive replot: 
+
+               - when having the focus the top level window gets activated/deactivated
+               - ???
+         */
+
+        if ( d_data->fbo && d_data->fbo->size() != size() )
         {
-            invalidateBackingStore();
+            delete d_data->fbo;
+            d_data->fbo = NULL;
+        }
 
-            const int numSamples = 16;
+        if ( d_data->fbo == NULL )
+        {
+            QOpenGLFramebufferObjectFormat fboFormat;
+            fboFormat.setSamples( d_data->numSamples );
+            fboFormat.setAttachment( QOpenGLFramebufferObject::CombinedDepthStencil );
 
-            QOpenGLFramebufferObjectFormat format;
-            format.setSamples( numSamples );
-            format.setAttachment( QOpenGLFramebufferObject::CombinedDepthStencil );
+            d_data->fbo = new QOpenGLFramebufferObject( size(), fboFormat );
+            d_data->fboDirty = true;
+        }
 
-            QOpenGLFramebufferObject fbo( size(), format );
+        if ( d_data->fboDirty )
+        {
+            d_data->fbo->bind();
 
             QOpenGLPaintDevice pd( size() );
 
             QPainter fboPainter( &pd );
             draw( &fboPainter);
             fboPainter.end();
-
-            d_data->fbo = new QOpenGLFramebufferObject( size() );
-            QOpenGLFramebufferObject::blitFramebuffer(d_data->fbo, &fbo );
+        
+            d_data->fboDirty = false;
         }
 
-        makeCurrent();
-
-        glBindTexture(GL_TEXTURE_2D, d_data->fbo->texture());
-
-        glEnable(GL_TEXTURE_2D);
-
-        glBegin(GL_QUADS);
-
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(-1.0f, -1.0f);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex2f( 1.0f, -1.0f);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f( 1.0f,  1.0f);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex2f(-1.0f,  1.0f);
-
-        glEnd();
-
-        if ( hasFocusIndicator )
-        {
-            QPainter painter( this );
-            drawFocusIndicator( &painter );
-        }
+        QOpenGLFramebufferObject::blitFramebuffer( NULL, d_data->fbo );
     }
     else
     {
-        QPainter painter( this );
+        painter.begin( this );
         draw( &painter );
-
-        if ( hasFocusIndicator )
-            drawFocusIndicator( &painter );
     }
+
+    if ( hasFocusIndicator )
+        drawFocusIndicator( &painter );
 }
 
 void QwtPlotOpenGLCanvas::resizeGL( int, int )
 {
-    invalidateBackingStore();
+    // nothing to do
 }

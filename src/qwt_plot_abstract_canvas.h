@@ -146,6 +146,8 @@ protected:
     void draw( QPainter * );
 
 private:
+    virtual void clearBackingStore() = 0;
+
     class PrivateData;
     PrivateData *d_data;
 };

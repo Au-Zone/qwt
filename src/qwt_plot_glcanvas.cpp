@@ -16,6 +16,7 @@ class QwtPlotGLCanvas::PrivateData
 {
 public:
     PrivateData():
+        fboDirty( true ),
         fbo( NULL )
     {
     }
@@ -25,6 +26,7 @@ public:
         delete fbo;
     }
 
+    bool fboDirty;
     QGLFramebufferObject* fbo;
 };
 
@@ -110,6 +112,11 @@ void QwtPlotGLCanvas::replot()
 
 void QwtPlotGLCanvas::invalidateBackingStore()
 {
+    d_data->fboDirty = true;
+}
+
+void QwtPlotGLCanvas::clearBackingStore()
+{
     delete d_data->fbo;
     d_data->fbo = NULL;
 }
@@ -136,49 +143,37 @@ void QwtPlotGLCanvas::paintGL()
 #else
     if ( testPaintAttribute( QwtPlotGLCanvas::BackingStore ) )
     {
+        if ( hasFocusIndicator )
+            painter.begin( this );
+
+        const QRect rect(0, 0, width(), height());
+
+        if ( d_data->fbo && d_data->fbo->size() != size() )
+        {
+            delete d_data->fbo;
+            d_data->fbo = NULL;
+        }
+
         if ( d_data->fbo == NULL || d_data->fbo->size() != size() )
         {
-            invalidateBackingStore();
-
-            const int numSamples = 16;
-
             QGLFramebufferObjectFormat format;
-            format.setSamples( numSamples );
+            format.setSamples( 4 );
             format.setAttachment(QGLFramebufferObject::CombinedDepthStencil);
 
-            QGLFramebufferObject fbo( size(), format );
+            d_data->fbo = new QGLFramebufferObject( size(), format );
+            d_data->fboDirty = true;
+        }
 
-            QPainter fboPainter( &fbo );
+        if ( d_data->fboDirty )
+        {
+            QPainter fboPainter( d_data->fbo );
             draw( &fboPainter);
             fboPainter.end();
 
-            d_data->fbo = new QGLFramebufferObject( size() );
-
-            QRect rect(0, 0, width(), height());
-            QGLFramebufferObject::blitFramebuffer(d_data->fbo, rect, &fbo, rect);
+            d_data->fboDirty = false;
         }
 
-        // drawTexture( QRectF( -1.0, 1.0, 2.0, -2.0 ), d_data->fbo->texture() );
-
-        if ( hasFocusIndicator )
-            painter.begin( this );
-        
-        glBindTexture(GL_TEXTURE_2D, d_data->fbo->texture());
-        
-        glEnable(GL_TEXTURE_2D);
-        
-        glBegin(GL_QUADS);
-        
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex2f(-1.0f, -1.0f);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex2f( 1.0f, -1.0f);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex2f( 1.0f,  1.0f);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex2f(-1.0f,  1.0f);
-        
-        glEnd();
+        QGLFramebufferObject::blitFramebuffer( NULL, rect, d_data->fbo, rect );
     }
     else
     {
@@ -187,11 +182,11 @@ void QwtPlotGLCanvas::paintGL()
     }
 #endif
 
-    if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
+    if ( hasFocusIndicator )
         drawFocusIndicator( &painter );
 }
 
 void QwtPlotGLCanvas::resizeGL( int, int )
 {
-    invalidateBackingStore();
+    // nothing to do
 }
