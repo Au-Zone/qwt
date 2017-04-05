@@ -16,7 +16,7 @@ QWT_VERSION      = $${QWT_VER_MAJ}.$${QWT_VER_MIN}.$${QWT_VER_PAT}
 # Install paths
 ######################################################################
 
-QWT_INSTALL_PREFIX = $$[QT_INSTALL_PREFIX]
+QWT_INSTALL_PREFIX = /Applications/Qt/Qwt
 
 QWT_INSTALL_DOCS      = $${QWT_INSTALL_PREFIX}/doc
 QWT_INSTALL_HEADERS   = $${QWT_INSTALL_PREFIX}/include
@@ -54,7 +54,6 @@ QWT_INSTALL_PLUGINS   = $${QWT_INSTALL_PREFIX}/plugins/designer
 ######################################################################
 
 QWT_INSTALL_FEATURES  = $${QWT_INSTALL_PREFIX}/features
-# QWT_INSTALL_FEATURES  = $$[QT_INSTALL_PREFIX]/features
 
 ######################################################################
 # Build the static/shared libraries.
@@ -62,7 +61,7 @@ QWT_INSTALL_FEATURES  = $${QWT_INSTALL_PREFIX}/features
 # it will be a static library.
 ######################################################################
 
-#QWT_CONFIG           += QwtDll
+QWT_CONFIG           += QwtDll
 
 ######################################################################
 # QwtPlot enables all classes, that are needed to use the QwtPlot 
@@ -131,7 +130,7 @@ win32 {
 # Otherwise you have to build them from the examples directory.
 ######################################################################
 
-QWT_CONFIG     += QwtExamples
+#QWT_CONFIG     += QwtExamples
 
 ######################################################################
 # The playground is primarily intended for the Qwt development 
