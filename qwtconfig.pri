@@ -16,7 +16,17 @@ QWT_VERSION      = $${QWT_VER_MAJ}.$${QWT_VER_MIN}.$${QWT_VER_PAT}
 # Install paths
 ######################################################################
 
-QWT_INSTALL_PREFIX = /Applications/Qt/Qwt
+win32 {
+    QWT_INSTALL_PREFIX = c:/Qt/Qwt
+}
+
+macx {
+    QWT_INSTALL_PREFIX = /Applications/Qt/Qwt
+}
+
+unix:!macx {
+    QWT_INSTALL_PREFIX = /opt/qwt
+}
 
 QWT_INSTALL_DOCS      = $${QWT_INSTALL_PREFIX}/doc
 QWT_INSTALL_HEADERS   = $${QWT_INSTALL_PREFIX}/include
